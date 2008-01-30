@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.255 2008-01-16 19:43:28 ncq Exp $
-__version__ = "$Revision: 1.255 $"
+# $Id: gmClinicalRecord.py,v 1.256 2008-01-30 13:34:49 ncq Exp $
+__version__ = "$Revision: 1.256 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -32,16 +32,17 @@ import sys, string, time, copy, locale
 
 
 # 3rd party
-import mx.DateTime as mxDT, psycopg2
+import mx.DateTime as mxDT, psycopg2, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools
+from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+
+_log = logging.getLogger('gm.emr')
+_log.debug(__version__)
 
 _me = None
 _here = None
@@ -102,13 +103,13 @@ select fk_encounter from
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
-		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.pk_patient)
+		_log.debug('Instantiated clinical record for patient [%s].' % self.pk_patient)
 	#--------------------------------------------------------
 	def __del__(self):
 		pass
 	#--------------------------------------------------------
 	def cleanup(self):
-		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.pk_patient)
+		_log.debug('cleaning up after clinical record for patient [%s]' % self.pk_patient)
 
 		return True
 	#--------------------------------------------------------
@@ -147,13 +148,13 @@ select fk_encounter from
 		return 1
 	#--------------------------------------------------------
 	def _clin_item_modified(self):
-		_log.Log(gmLog.lData, 'DB: clin_root_item modification')
+		_log.debug('DB: clin_root_item modification')
 	#--------------------------------------------------------
 	# Narrative API
 	#--------------------------------------------------------
 	def add_clin_narrative(self, note='', soap_cat='s', episode=None):
 		if note.strip() == '':
-			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
+			_log.info('will not create empty clinical note')
 			return None
 		status, data = gmClinNarrative.create_clin_narrative (
 			narrative = note,
@@ -162,7 +163,7 @@ select fk_encounter from
 			encounter_id = self.__encounter['pk_encounter']
 		)
 		if not status:
-			_log.Log(gmLog.lErr, str(data))
+			_log.error(str(data))
 			return None
 		return data
 	#--------------------------------------------------------
@@ -252,7 +253,7 @@ where
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
 		if not gmPG2.run_query(curs, None, cmd, self.pk_patient):
-			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.pk_patient)
+			_log.error('cannot load item links for patient [%s]' % self.pk_patient)
 			curs.close()
 			return None
 		rows = curs.fetchall()
@@ -283,18 +284,18 @@ where
 			# we don't know anything about the columns of
 			# the source tables but, hey, this is a dump
 			if len(item_ids) == 0:
-				_log.Log(gmLog.lInfo, 'no items in table [%s] ?!?' % src_table)
+				_log.info('no items in table [%s] ?!?' % src_table)
 				continue
 			elif len(item_ids) == 1:
 				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
 				if not gmPG2.run_query(curs, None, cmd, item_ids[0]):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
+					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
 				cmd = "select * from %s where pk_item in %%s order by modified_when" % src_table
 				if not gmPG.run_query(curs, None, cmd, (tuple(item_ids),)):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
+					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			rows = curs.fetchall()
@@ -420,7 +421,7 @@ where
 
 		rows, view_col_idx = gmPG.run_ro_query('historica', cmd, 1, params)
 		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.pk_patient)
+			_log.error('cannot load item links for patient [%s]' % self.pk_patient)
 			return None
 
 		# -- sort the data --
@@ -452,18 +453,18 @@ where
 			# we don't know anything about the columns of
 			# the source tables but, hey, this is a dump
 			if len(item_ids) == 0:
-				_log.Log(gmLog.lInfo, 'no items in table [%s] ?!?' % src_table)
+				_log.info('no items in table [%s] ?!?' % src_table)
 				continue
 			elif len(item_ids) == 1:
 				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
 				if not gmPG.run_query(curs, None, cmd, item_ids[0]):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
+					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
 				cmd = "select * from %s where pk_item in %%s order by modified_when" % src_table
 				if not gmPG.run_query(curs, None, cmd, (tuple(item_ids),)):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
+					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			rows = curs.fetchall()
@@ -569,7 +570,7 @@ where
 		if ID_list is not None:
 			filtered_allergies = filter(lambda allg: allg['pk_allergy'] in ID_list, filtered_allergies)
 			if len(filtered_allergies) == 0:
-				_log.Log(gmLog.lErr, 'no allergies of list [%s] found for patient [%s]' % (str(ID_list), self.pk_patient))
+				_log.error('no allergies of list [%s] found for patient [%s]' % (str(ID_list), self.pk_patient))
 				# better fail here contrary to what we do elsewhere
 				return None
 			else:
@@ -819,7 +820,7 @@ where
 		"""Transform given problem into either episode or health issue instance.
 		"""
 		if not isinstance(problem, gmEMRStructItems.cProblem):
-			_log.Log(gmLog.lData, str(problem))
+			_log.debug(str(problem))
 			raise TypeError, 'cannot reclass [%s] instance to problem' % type(problem)
 		if problem['type'] == 'episode':
 			return self.get_episodes(id_list=[problem['pk_episode']])[0]
@@ -854,7 +855,7 @@ where
 		"""Adds patient health issue."""
 		success, issue = gmEMRStructItems.create_health_issue(patient_id=self.pk_patient, description=issue_name)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
+			_log.error('cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
 			return None
 		return issue
 	#--------------------------------------------------------
@@ -882,7 +883,7 @@ where
 					 where pk_patient=%s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination courses')
+				_log.error('cannot retrieve scheduled vaccination courses')
 				del self.__db_cache['vaccinations']['scheduled regimes']
 				return None
 			# Instantiate vaccination items and keep cache
@@ -895,7 +896,7 @@ where
 		if ID is not None:
 			filtered_regimes = filter(lambda regime: regime['pk_course'] == ID, filtered_regimes)
 			if len(filtered_regimes) == 0:
-				_log.Log(gmLog.lErr, 'no vaccination course [%s] found for patient [%s]' % (ID, self.pk_patient))
+				_log.error('no vaccination course [%s] found for patient [%s]' % (ID, self.pk_patient))
 				return []
 			else:
 				return filtered_regimes[0]
@@ -917,7 +918,7 @@ where
 		# filled (or fill it for nearby use)
 		vaccinations = self.get_vaccinations()
 		if vaccinations is None:
-			_log.Log(gmLog.lErr, 'cannot load vaccinated indications for patient [%s]' % self.pk_patient)
+			_log.error('cannot load vaccinated indications for patient [%s]' % self.pk_patient)
 			return (False, [[_('ERROR: cannot retrieve vaccinated indications'), _('ERROR: cannot retrieve vaccinated indications')]])
 		if len(vaccinations) == 0:
 			return (True, [[_('no vaccinations recorded'), _('no vaccinations recorded')]])
@@ -953,7 +954,7 @@ where
  					order by indication, date"""
 			rows, idx  = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load given vaccinations for patient [%s]' % self.pk_patient)
+				_log.error('cannot load given vaccinations for patient [%s]' % self.pk_patient)
 				del self.__db_cache['vaccinations']['vaccinated']
 				return None
 			# Instantiate vaccination items
@@ -994,7 +995,7 @@ where
 		if ID is not None:
 			filtered_shots = filter(lambda shot: shot['pk_vaccination'] == ID, filtered_shots)
 			if len(filtered_shots) == 0:
-				_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.pk_patient))
+				_log.error('no vaccination [%s] found for patient [%s]' % (ID, self.pk_patient))
 				return None
 			else:
 				return filtered_shots[0]
@@ -1027,7 +1028,7 @@ where
 			cmd = """select * from clin.v_vaccs_scheduled4pat where pk_patient=%s"""
 			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load scheduled vaccinations for patient [%s]' % self.pk_patient)
+				_log.error('cannot load scheduled vaccinations for patient [%s]' % self.pk_patient)
 				del self.__db_cache['vaccinations']['scheduled']
 				return None
 			# Instantiate vaccination items
@@ -1058,7 +1059,7 @@ where
 			cmd = "select indication, seq_no from clin.v_pat_missing_vaccs where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'error loading (indication, seq_no) for due/overdue vaccinations for patient [%s]' % self.pk_patient)
+				_log.error('error loading (indication, seq_no) for due/overdue vaccinations for patient [%s]' % self.pk_patient)
 				return None
 			pk_args = {'pat_id': self.pk_patient}
 			if rows is not None:
@@ -1073,7 +1074,7 @@ where
 			cmd = "select indication, seq_no from clin.v_pat_missing_boosters where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'error loading indications for missing boosters for patient [%s]' % self.pk_patient)
+				_log.error('error loading indications for missing boosters for patient [%s]' % self.pk_patient)
 				return None
 			pk_args = {'pat_id': self.pk_patient}
 			if rows is not None:
@@ -1145,12 +1146,12 @@ where
 		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
-			_log.Log(gmLog.lData, 'no <very recent> encounter (younger than [%s]) found' % min_ttl)
+			_log.debug('no <very recent> encounter (younger than [%s]) found' % min_ttl)
 			return False
 		# attach to existing
 		self.__encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		self.__encounter.set_active(staff_id = _me['pk_staff'])
-		_log.Log(gmLog.lData, '"very recent" encounter [%s] found and re-activated' % enc_rows[0][0])
+		_log.debug('"very recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
 	def __activate_fairly_recent_encounter(self):
@@ -1183,7 +1184,7 @@ where
 		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
-			_log.Log(gmLog.lData, 'no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
+			_log.debug('no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
 			return False
 		encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		# ask user whether to attach or not
@@ -1238,7 +1239,7 @@ where
 		# attach to existing
 		self.__encounter = encounter
 		self.__encounter.set_active(staff_id = _me['pk_staff'])
-		_log.Log(gmLog.lData, '"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
+		_log.debug('"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
@@ -1252,7 +1253,7 @@ where
 		# FIXME: look for MRU/MCU encounter type config here
 		self.__encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
 		self.__encounter.set_active(staff_id = _me['pk_staff'])
-		_log.Log(gmLog.lData, 'new encounter [%s] initiated' % self.__encounter['pk_encounter'])
+		_log.debug('new encounter [%s] initiated' % self.__encounter['pk_encounter'])
 	#------------------------------------------------------------------
 	def get_active_encounter(self):
 		return self.__encounter
@@ -1303,7 +1304,7 @@ where
 
 #			rows = gmPG.run_ro_query('historica', cClinicalRecord._clin_root_item_children_union_query, None, (tuple(issues),))
 #			if rows is None:
-#				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
+#				_log.error('cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
 #			else:
 #				enc_ids = map(lambda x:x[0], rows)
 #				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
@@ -1479,7 +1480,7 @@ delete from clin.encounter where
 			episode_id=episode_id
 		)
 		if not status:
-			_log.Log(gmLog.lErr, str(data))
+			_log.error(str(data))
 			return None
 		return data
 #============================================================
@@ -1508,7 +1509,6 @@ if __name__ == "__main__":
 	sys.exit(1)
 
 	import traceback
-	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	try:
 		emr = cClinicalRecord(aPKey = 12)
 
@@ -1597,7 +1597,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.255  2008-01-16 19:43:28  ncq
+# Revision 1.256  2008-01-30 13:34:49  ncq
+# - switch to std lib logging
+#
+# Revision 1.255  2008/01/16 19:43:28  ncq
 # - use backend configured default encounter type in create_encounter()
 # - configurable empty encounter removal age
 #

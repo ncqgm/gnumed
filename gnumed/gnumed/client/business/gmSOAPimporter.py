@@ -25,23 +25,26 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.20 2007-12-23 11:55:21 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmSOAPimporter.py,v 1.21 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # stdlib
-import sys, re
+import sys, re, logging
+
 
 # 3rd party
 import mx.DateTime as mxDT
 
+
 # GnuMed
-from Gnumed.pycommon import gmLog, gmCfg, gmExceptions, gmI18N, gmDispatcher
+from Gnumed.pycommon import gmExceptions, gmI18N, gmDispatcher
 from Gnumed.business import gmClinNarrative, gmPerson
 
-_log = gmLog.gmDefLog
-_cfg = gmCfg.gmDefCfgFile
+
+_log = logging.getLogger('gm.soap')
+
 
 # module level constants
 soap_bundle_SOAP_CAT_KEY = "soap"
@@ -76,7 +79,7 @@ class cSOAPImporter:
 		# process each entry in soap bundle independently
 		for soap_entry in bundle:
 			if not self.__import_narrative(soap_entry):
-				_log.Log(gmLog.lErr, 'skipping soap entry')
+				_log.error('skipping soap entry')
 				continue
 		gmDispatcher.send(signal = 'clin_item_updated')
 		return True
@@ -94,7 +97,7 @@ class cSOAPImporter:
 		FIXME: used for import. This would allow to import data "on behalf of" someone.
 		"""
 		if not self.__verify_soap_entry(soap_entry=soap_entry):
-			_log.Log(gmLog.lErr, 'cannot verify soap entry')
+			_log.error('cannot verify soap entry')
 			return False
 		# obtain clinical context information
 		emr = gmPerson.gmCurrentPatient().get_emr()
@@ -136,19 +139,19 @@ class cSOAPImporter:
 			try:
 				soap_entry[a_key]
 			except KeyError:
-				_log.Log(gmLog.lErr, 'key [%s] is missing from soap entry' % a_key)
-				_log.Log(gmLog.lErr, '%s' % soap_entry)
+				_log.error('key [%s] is missing from soap entry' % a_key)
+				_log.error('%s' % soap_entry)
 				return False
 		# verify key *values*
 		if not soap_entry[soap_bundle_SOAP_CAT_KEY] in soap_bundle_SOAP_CATS:
-			_log.Log(gmLog.lErr, 'invalid soap category [%s]' % soap_entry[soap_bundle_SOAP_CAT_KEY])
-			_log.Log(gmLog.lErr, '%s' % soap_entry)
+			_log.error('invalid soap category [%s]' % soap_entry[soap_bundle_SOAP_CAT_KEY])
+			_log.error('%s' % soap_entry)
 			return False
 		try:
 			soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		except KeyError:
-			_log.Log(gmLog.lErr, 'SOAP entry does not provide mandatory episode ID')
-			_log.Log(gmLog.lErr, '%s' % soap_entry)
+			_log.error('SOAP entry does not provide mandatory episode ID')
+			_log.error('%s' % soap_entry)
 			return False
 		return True
 	#-----------------------------------------------------------
@@ -165,7 +168,7 @@ class cSOAPImporter:
 #		allowed_types = ['Hx']
 #		for input_type in soap_entry[soap_bundle_TYPES_KEY]:
 #			if not input_type in allowed_types:
-#				_log.Log(gmLog.lErr, 'bad clin_item_type.type in supplied soap entry [%s]' % 
+#				_log.error('bad clin_item_type.type in supplied soap entry [%s]' % 
 #				soap_entry)
 #				return False
 #		return True
@@ -174,15 +177,7 @@ class cSOAPImporter:
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmCfg
-
-	_log.SetAllLogLevels(gmLog.lData)
-	_log.Log (gmLog.lInfo, "starting SOAP importer...")
-
-	_cfg = gmCfg.gmDefCfgFile	  
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
+	_log.info("starting SOAP importer...")
 
 	try:
 		# obtain patient
@@ -233,10 +228,13 @@ if __name__ == '__main__':
 		# but re-raise them
 		raise
 
-	_log.Log (gmLog.lInfo, "closing SOAP importer...")
+	_log.info("closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.20  2007-12-23 11:55:21  ncq
+# Revision 1.21  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.20  2007/12/23 11:55:21  ncq
 # - cleanup
 #
 # Revision 1.19  2007/12/11 12:59:11  ncq

@@ -5,9 +5,9 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 
-from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
+from Gnumed.pycommon import gmExceptions, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 import inspect
@@ -15,8 +15,8 @@ import inspect
 if __name__ == '__main__':
 	_ = lambda x:x
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.demos')
+_log.info(__version__)
 
 
 attrNames = [ 'name', 'office', 'subtype', 'memo','category', 'phone', 'fax', 'email', 'mobile' ]
@@ -60,7 +60,7 @@ class cCatFinder(gmBorg.cBorg):
 		name = self.categories[categoryType]['name']
 		result = gmPG.run_ro_query("personalia","select %s, %s from %s" % (pk, name, categoryType)) 
 		if result is None:
-			gmLog.gmDefLog(gmLog.lErr, "failed to load %s" % categoryType)
+			_log.error("failed to load %s" % categoryType)
 		
 		for (id, description) in result:
 			self.categories[categoryType]['toId'][description] = id
@@ -243,7 +243,7 @@ class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
 	def findAllOrganizations(self):
 		result = gmPG.run_ro_query("personalia", """select id from dem.org""",[])
 		if result == None:
-			gmLog.gmDefLog.LogException("Unable to select id from org", sys.exc_info())
+			_log.exception("Unable to select id from org")
 			return False
 		
 		ids = [ x for [x] in result]
@@ -302,7 +302,7 @@ class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
 			
 		result = gmPG.run_ro_query("personalia", query )
 		if result is None:
-			gmLog.gmDefLog.Log(gmLog.lErr, "Unable to find org by name %s" % name) 
+			_log.error("Unable to find org by name %s" % name) 
 			return [None] 
 
 		return self.findOrgsForIds([ x[0] for x in result])	
@@ -466,7 +466,7 @@ class cOrgImpl1(cOrg):
 	
 	def _save_comm_channels(self):
 		if self.getId() is None:
-			gmLog.gmDefLog.log(gmLog.lInfo, "Unable to save comm channel %s : %s due to no org id" % (k,v) )
+			_log.error("Unable to save comm channel %s : %s due to no org id" % (k,v) )
 			return False
 	
 		comm_changes = {}
@@ -486,14 +486,14 @@ class cOrgImpl1(cOrg):
 		("""select id, url, id_type from dem.comm_channel where url in( %s )""" % format, urls) ]
 		result = gmPG.run_commit('personalia', cmd)
 		if result is None:
-			gmLog.gmDefLog.Log(gmLog.lInfo, "find existing org comms failed" )
+			_log.error("find existing org comms failed" )
 			return False
 		
 		
 		existing_urls = dict( [ (url,(id, id_type) ) for (id, url, id_type) in result] )
 		for id_type , url in comm_changes.items():
 			if url in existing_urls.keys() and existing_urls[url][1] <> id_type:
-				gmLog.gmDefLog.Log(gmLog.lWarn, "Existing comm url mismatches type for org url %s, inserting same url different type!" % url)
+				_log.warning("Existing comm url mismatches type for org url %s, inserting same url different type!" % url)
 				del existing_urls[url]
 		cmds = []
 
@@ -577,7 +577,7 @@ class cOrgImpl1(cOrg):
 		data = gmPG.run_ro_query ('personalia', cmd, None, number, street, urb, postcode, state, country)
 		if data is None:
 			s = " ".join( (  number, street, urb, postcode, state, country ) )
-			_log.Log(gmLog.lErr, 'cannot check for address existence (%s)' % s)
+			_log.error('cannot check for address existence (%s)' % s)
 			return None
 
 		# delete any pre-existing link for this org 
@@ -684,7 +684,7 @@ class cOrgImpl1(cOrg):
 			return False
 
 		if not m.has_key(self.getId() ):	
-			gmLog.gmDefLog.Log(gmLog.lInfo, "No address for org" )
+			_log.error("No address for org" )
 			return True
 		
 		return self._load_address_from_tuple( m[self.getId()] )
@@ -710,7 +710,7 @@ class cOrgImpl1(cOrg):
 		]
 
 		if (gmPG.run_commit('personalia',cmds) == None):
-				gmLog.gmDefLog.Log(gmLog.lErr, "failed to remove org")
+				_log.error("failed to remove org")
 				return False
 
 		self.setId(None)
@@ -767,7 +767,7 @@ class cOrgImpl1(cOrg):
 		if self.getId() is None:
 			if not self._create():
 				import sys
-				gmLog.gmDefLog.Log(gmLog.lErr, "Cannot create org")
+				_log.error("Cannot create org")
 				return False
 		if self.getId() is None:
 				return False
@@ -787,7 +787,7 @@ class cOrgImpl1(cOrg):
 					str(self.getId())  ) 
 			result = gmPG.run_commit( "personalia", [ (cmd,[]  ) ] )
 			if result is None:
-				gmLog.gmDefLog.Log(gmLog.lErr, "Cannot save org")
+				_log.error("Cannot save org")
 				return False
 			
 		self._save_address()
@@ -817,7 +817,7 @@ class cOrgImpl1(cOrg):
 		result = gmPG.run_commit("personalia", [ (cmd,[]) ] )
 
 		if result is None:
-			gmLog.gmDefLog.Log(gmLog.lErr, "Cannot link person")
+			_log.error("Cannot link person")
 			return False, _("SQL failed for link persons")
 	
 		return True, _("Ok")
@@ -832,7 +832,7 @@ class cOrgImpl1(cOrg):
 		result = gmPG.run_commit("personalia", [ (cmd,[]) ] )
 
 		if result is None:
-			gmLog.gmDefLog.Log(gmLog.lErr, "Cannot unlink person")
+			_log.error("Cannot unlink person")
 			return False
 
 		del self._personMap[demographicRecord.getID()]  # unlink in cache as well
@@ -857,7 +857,7 @@ class cOrgImpl1(cOrg):
 		result = gmPG.run_ro_query("personalia", query)
 		print "for ", query, " got ", result
 		if result is None:
-			gmLog.gmDefLog.Log(gmLog.lErr, "Cannot search for org persons")
+			_log.error("Cannot search for org persons")
 			return None
 
 		ids = filter( lambda(t): t <> None, [ id	for [id] in result ])
@@ -908,7 +908,7 @@ class cCompositeOrgImpl1( cOrgImpl1):
 		result = gmPG.run_commit("personalia", [ ("""update dem.org set description='%s' where id=%d
 			""" % (new_description, self.getId() ), [] ) ])
 		if result == None:
-			gmLog.gmDefLog.LogException("unable to update sub-org name", sys.exc_info() )
+			_log.exception("unable to update sub-org name")
 			return False
 		return True
 
@@ -1100,7 +1100,7 @@ class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 		print "Called save on orgPersonAdapter"
 		if self.getParent() is None:
 			print "no parent"
-			gmLog.gmDefLog.Log(gmLog.lErr, "This orgPersonAdapter needs a parent org")
+			_log.error("This orgPersonAdapter needs a parent org")
 			return False
 
 		if self.getId() is None:
@@ -1200,7 +1200,7 @@ def get_comm_channels_data_for_org_ids( idList):
 		""" % ids 
 	result = gmPG.run_ro_query("personalia", cmd)
 	if result == None:
-		gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to load comm channels for org" )
+		_log.error("Unable to load comm channels for org" )
 		return None 
 	m = {}
 	for (id_org, id_type, url) in result:
@@ -1223,7 +1223,7 @@ def get_address_data_for_org_ids( idList):
 	result = gmPG.run_ro_query( "personalia", cmd)
 	
 	if result == None:
-		gmLog.gmDefLog.Log(gmLog.lInfo, "failure in org address load" )
+		_log.error("failure in org address load" )
 		return None
 	m = {}
 	for (id_org, n,s,ci,p,st,co) in result:
@@ -1242,7 +1242,7 @@ def get_org_data_for_org_ids(idList):
 	#</DEBUG>
 	result = gmPG.run_ro_query("personalia", cmd, )
 	if result is None:
-		gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to load orgs with ids (%s)" %ids)
+		_log.error("Unable to load orgs with ids (%s)" %ids)
 		return None
 	m = {}
 	for (id_org, d, id_cat) in result:
@@ -1407,7 +1407,7 @@ if __name__ == '__main__':
 
 			result = deletePerson(r.getID())
 			if result == None:
-				gmLog.gmDefLog.Log(gmLog.lErr, "FAILED TO CLEANUP PERSON %d" %r.getID() )
+				_log.error("FAILED TO CLEANUP PERSON %d" %r.getID() )
 
 
 
@@ -1584,7 +1584,7 @@ if __name__ == '__main__':
 		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
 		except:
-			gmLog.gmDefLog.LogException("Test of Update Permission failed", sys.exc_info() )
+			_log.exception("Test of Update Permission failed")
 			return False
 		return True
 
@@ -1604,7 +1604,7 @@ if __name__ == '__main__':
 		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
 		except:
-			gmLog.gmDefLog.LogException("Test of Update Permission failed", sys.exc_info() )
+			_log.exception("Test of Update Permission failed")
 			return False
 		return True
 
@@ -1853,7 +1853,6 @@ if __name__ == '__main__':
 
 #============================================================
 
-	_log.SetAllLogLevels(gmLog.lData)
 	import sys
 	testgui = False
 	if len(sys.argv) > 1:
@@ -1950,7 +1949,7 @@ if __name__ == '__main__':
 	except:
 		import  sys
 		print sys.exc_info()[0], sys.exc_info()[1]
-		gmLog.gmDefLog.LogException( "Fatal exception", sys.exc_info(),1)
+		_log.exception( "Fatal exception")
 
 		# clean-up any temporary categories.
 	if tmp_category:
@@ -2021,7 +2020,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.38  2008-01-11 16:08:07  ncq
+# Revision 1.39  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.38  2008/01/11 16:08:07  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.37  2007/12/02 20:56:37  ncq

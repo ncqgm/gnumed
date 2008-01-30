@@ -2,20 +2,20 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
-import sys
+import sys, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmBusinessDBObject
+from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.emr')
+_log.info(__version__)
 
 _ = lambda x:x
 
@@ -186,10 +186,10 @@ select pk_patient from clin.v_pat_encounters where pk_encounter = %(enc)s
 """
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
-		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
+		_log.error('error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
 		return (False, _('internal error, check log'))
 	if len(rows) > 1:
-		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to different patients !?!' % (episode_id, encounter_id))
+		_log.error('episode [%s] and encounter [%s] belong to different patients !?!' % (episode_id, encounter_id))
 		return (False, _('consistency error, check log'))
 
 	# insert new narrative
@@ -213,8 +213,6 @@ def delete_clin_narrative(narrative=None):
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
-	_log = gmLog.gmDefLog
-	_log.SetAllLogLevels(gmLog.lData)
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
@@ -255,7 +253,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.30  2008-01-22 22:02:29  ncq
+# Revision 1.31  2008-01-30 13:34:49  ncq
+# - switch to std lib logging
+#
+# Revision 1.30  2008/01/22 22:02:29  ncq
 # - add_coded_term -> add_coded_phrase
 #
 # Revision 1.29  2008/01/07 11:40:21  ncq

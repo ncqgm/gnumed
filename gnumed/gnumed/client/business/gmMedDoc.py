@@ -4,21 +4,21 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.100 2007-11-05 11:36:29 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmMedDoc.py,v 1.101 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, os, shutil, os.path, types, time
+import sys, os, shutil, os.path, types, time, logging
 from cStringIO import StringIO
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject, gmPG2, gmTools, gmMimeLib
+from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2, gmTools, gmMimeLib
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.docs')
+_log.info(__version__)
 
 MUGSHOT=26
 #============================================================
@@ -40,7 +40,7 @@ class cDocumentFolder:
 #		if not self._register_interests():
 #			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
-		_log.Log(gmLog.lData, 'instantiated document folder for patient [%s]' % self.pk_patient)
+		_log.debug('instantiated document folder for patient [%s]' % self.pk_patient)
 	#--------------------------------------------------------
 	def cleanup(self):
 		pass
@@ -57,7 +57,7 @@ class cDocumentFolder:
 			{'cmd': u"select exists(select pk from dem.identity where pk = %s)", 'args': [self.pk_patient]}
 		])
 		if not rows[0][0]:
-			_log.Log(gmLog.lErr, "patient [%s] not in demographic database" % self.pk_patient)
+			_log.error("patient [%s] not in demographic database" % self.pk_patient)
 			return None
 		return True
 	#--------------------------------------------------------
@@ -67,7 +67,7 @@ class cDocumentFolder:
 		cmd = u"select pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		if len(rows) == 0:
-			_log.Log(gmLog.lInfo, 'no mugshots available for patient [%s]' % self.pk_patient)
+			_log.info('no mugshots available for patient [%s]' % self.pk_patient)
 			return None
 		mugshot = cMedDocPart(aPK_obj=rows[0][0])
 		return mugshot
@@ -226,7 +226,7 @@ order by
 	def update_data_from_file(self, fname=None):
 		# sanity check
 		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
-			_log.Log(gmLog.lErr, '[%s] is not a readable file' % fname)
+			_log.error('[%s] is not a readable file' % fname)
 			return False
 
 		gmPG2.file2bytea (
@@ -401,7 +401,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		pk_part = rows[0][0]
 		new_part = cMedDocPart(aPK_obj = pk_part)
 		if not new_part.update_data_from_file(fname=file):
-			_log.Log(gmLog.lErr, 'cannot import binary data from [%s] into document part' % file)
+			_log.error('cannot import binary data from [%s] into document part' % file)
 			gmPG2.run_rw_queries (
 				queries = [
 					{'cmd': u"delete from blobs.doc_obj where pk = %s", 'args': [pk_part]}
@@ -418,7 +418,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			new_part = self.add_part(file=filename)
 			if new_part is None:
 				msg = 'cannot instantiate document part object'
-				_log.Log(gmLog.lErr, msg)
+				_log.error(msg)
 				return (False, msg, filename)
 			new_parts.append(new_part)
 
@@ -428,8 +428,8 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			success, data = new_part.save_payload()
 			if not success:
 				msg = 'cannot set reviewer to [%s]' % reviewer
-				_log.Log(gmLog.lErr, msg)
-				_log.Log(gmLog.lErr, str(data))
+				_log.error(msg)
+				_log.error(str(data))
 				return (False, msg, filename)
 
 		return (True, '', new_parts)
@@ -464,8 +464,8 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			part['pk_intended_reviewer'] = reviewer
 			success, data = part.save_payload()
 			if not success:
-				_log.Log(gmLog.lErr, 'cannot set reviewer to [%s]' % reviewer)
-				_log.Log(gmLog.lErr, str(data))
+				_log.error('cannot set reviewer to [%s]' % reviewer)
+				_log.error(str(data))
 				return False
 		return True
 #============================================================
@@ -503,7 +503,7 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 			return_data = True
 		)
 		if not rows[0][0]:
-			_log.Log(gmLog.lErr, 'cannot set translation to [%s]' % translation)
+			_log.error('cannot set translation to [%s]' % translation)
 			return False
 
 		return self.refetch_payload()
@@ -662,8 +662,6 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	_log.SetAllLogLevels(gmLog.lData)
-
 	test_doc_types()
 	test_adding_doc_part()
 
@@ -680,7 +678,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.100  2007-11-05 11:36:29  ncq
+# Revision 1.101  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.100  2007/11/05 11:36:29  ncq
 # - use blobs.delete_document()
 #
 # Revision 1.99  2007/10/31 22:06:44  ncq

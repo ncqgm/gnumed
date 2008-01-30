@@ -2,17 +2,19 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.36 2007-07-17 11:13:42 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmVaccination.py,v 1.37 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import types, copy
+import types, copy, logging
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmBusinessDBObject
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+from Gnumed.pycommon import gmExceptions, gmI18N, gmBusinessDBObject
+
+
+_log = logging.getLogger('gm.vaccination')
+_log.info(__version__)
 #============================================================
 class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccination event.
@@ -200,10 +202,10 @@ from clin.v_pat_encounters
 where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
 	if (rows is None) or (len(rows) == 0):
-		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
+		_log.error('error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
 		return (False, _('internal error, check log'))
 	if len(rows) > 1:
-		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
+		_log.error('episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
 		return (False, _('consistency error, check log'))
 	# insert new vaccination
 	queries = []
@@ -348,7 +350,7 @@ def get_indications_from_vaccinations(vaccinations=None):
 	# [lambda [vacc['indication'], ['l10n_indication']] for vacc in vaccination_list]
 	# I think we could, but we would be lacking error handling
 	if vaccinations is None:
-		_log.Log(gmLog.lErr, 'list of vaccinations must be supplied')
+		_log.error('list of vaccinations must be supplied')
 		return (False, [['ERROR: list of vaccinations not supplied', _('ERROR: list of vaccinations not supplied')]])
 	if len(vaccinations) == 0:
 		return (True, [['empty list of vaccinations', _('empty list of vaccinations')]])
@@ -463,7 +465,7 @@ group by trade_name"""
 #------------------------------------------------------------
 if __name__ == '__main__':
 	import sys
-	_log.SetAllLogLevels(gmLog.lData)
+
 	from Gnumed.pycommon import gmPG
 	#--------------------------------------------------------
 	def test_vacc():
@@ -543,7 +545,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.36  2007-07-17 11:13:42  ncq
+# Revision 1.37  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.36  2007/07/17 11:13:42  ncq
 # - no more gmClinItem
 #
 # Revision 1.35  2007/03/08 11:31:08  ncq

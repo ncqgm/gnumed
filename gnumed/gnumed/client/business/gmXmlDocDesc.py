@@ -6,20 +6,15 @@ This is mainly used by GnuMed/Archive.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXmlDocDesc.py,v $
-# $Id: gmXmlDocDesc.py,v 1.4 2004-03-19 17:07:20 shilbert Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmXmlDocDesc.py,v 1.5 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, os.path, fileinput, types, string
+import sys, os.path, fileinput, types, string, logging
 
-if __name__ == '__main__':
-    sys.path.append(os.path.join('..', 'pycommon'))
 
-from Gnumed.pycommon import gmLog
-_log = gmLog.gmDefLog
-if __name__ == '__main__':
-    _log.SetAllLogLevels(gmLog.lData)
-
+_log = logging.getLogger('gm.docs')
+_log.info(__version__)
 #============================================================
 class xmlDocDesc:
     # handlers for __getitem__()
@@ -32,10 +27,10 @@ class xmlDocDesc:
         if not os.path.exists(os.path.abspath(aBaseDir)):
             raise ConstructorError, "document path [%s] does not exist" % aBaseDir
         self.__base_dir = aBaseDir
-        _log.Log(gmLog.lData, "working from directory [%s]" % self.__base_dir)
+        _log.debug("working from directory [%s]" % self.__base_dir)
 
         if aCfg is None:
-            _log.Log(gmLog.lWarn, 'no config file specified')
+            _log.warning('no config file specified')
             import gmCfg
             self.__cfg = gmCfg.gmDefCfgFile
         else:
@@ -61,47 +56,47 @@ class xmlDocDesc:
         # document type
         tmp = self.__get_from_xml(aTag = self.cfg.get(self.__group, "type_tag"), anXMLfile = self.__xml_file)
         if tmp is None:
-            _log.Log(gmLog.lErr, "cannot load document type.")
+            _log.error("cannot load document type.")
             return None
         else:
             self.__data['type'] = string.join(tmp)
         # document comment
         tmp = self.__get_from_xml(aTag = self.cfg.get(self.__group, "comment_tag"), anXMLfile = self.__xml_file)
         if tmp is None:
-            _log.Log(gmLog.lErr, "cannot load document comment")
+            _log.error("cannot load document comment")
             return None
         else:
             self.__data['comment'] = string.join(tmp)
         # document reference date
         tmp = self.__get_from_xml(aTag = self.cfg.get(self.__group, "date_tag"), anXMLfile = self.__xml_file)
         if tmp is None:
-            _log.Log(gmLog.lErr, "cannot load document reference date.")
+            _log.error("cannot load document reference date.")
             return None
         else:
             self.__data['date'] = string.join(tmp)
         # external reference string
         tmp = self.__get_from_xml(aTag = self.cfg.get(self.__group, "ref_tag"), anXMLfile = self.__xml_file)
         if tmp is None:
-            _log.Log(gmLog.lErr, "cannot load document reference string.")
+            _log.error("cannot load document reference string.")
             return None
         else:
             self.__data['reference'] = string.join(tmp)
         # document description
         tmp = self.__get_from_xml(aTag = self.cfg.get(self.__group, "aux_comment_tag"), anXMLfile = self.__xml_file)
         if tmp is None:
-            _log.Log(gmLog.lErr, "cannot load long document description.")
+            _log.error("cannot load long document description.")
         else:
             self.__data['description'] = string.join(tmp)
         # list of data files
 #       if not self.__read_img_list(self.__xml_file, aBaseDir, self.__group):
-#           _log.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
+#           _log.error("Cannot retrieve list of document data files.")
 #           return None
 
-        _log.Log(gmLog.lData, "long document description: " + str(self.__data['description']))
-        _log.Log(gmLog.lData, "document reference string: " + str(self.__data['reference']))
-        _log.Log(gmLog.lData, "document reference date: " + str(self.__data['date']))
-        _log.Log(gmLog.lData, "Document comment: " + str(self.__data['comment']))
-        _log.Log(gmLog.lData, "Document type: " + str(self.__data['type']))
+        _log.debug("long document description: " + str(self.__data['description']))
+        _log.debug("document reference string: " + str(self.__data['reference']))
+        _log.debug("document reference date: " + str(self.__data['date']))
+        _log.debug("Document comment: " + str(self.__data['comment']))
+        _log.debug("Document type: " + str(self.__data['type']))
 
         return 1
     #--------------------------------------------------------
@@ -156,10 +151,10 @@ class xmlDocDesc:
         fileinput.close()
 
         if idx == 0:
-            _log.Log(gmLog.lWarn, "no files found for import")
+            _log.warning("no files found for import")
             return None
 
-        _log.Log(gmLog.lData, "document data files to be processed: %s" % self.__data['objects'])
+        _log.debug("document data files to be processed: %s" % self.__data['objects'])
 
         return 1        
     #--------------------------------------------------------
@@ -173,13 +168,13 @@ class xmlDocDesc:
     def __get_from_xml(self, aTag = None):
         # sanity
         if not type(aTag) is types.StringType:
-            _log.Log(gmLog.lErr, "Argument aTag (" + str(aTag) + ") is not a string.")
+            _log.error("Argument aTag (" + str(aTag) + ") is not a string.")
             return None
 
         TagStart = "<" + aTag + ">"
         TagEnd = "</" + aTag + ">"
 
-        _log.Log(gmLog.lInfo, "Retrieving " + TagStart + "content" + TagEnd + ".")
+        _log.info("Retrieving " + TagStart + "content" + TagEnd + ".")
 
         inTag = 0
         content = []
@@ -192,7 +187,7 @@ class xmlDocDesc:
                 inTag = 1
                 # strip junk left of <tag>
                 (junk, good_stuff) = string.split (tmp, TagStart, 1)
-                _log.Log(gmLog.lData, "Found tag start in line: junk='%s' content='%s'" % (junk, good_stuff))
+                _log.debug("Found tag start in line: junk='%s' content='%s'" % (junk, good_stuff))
                 tmp = good_stuff
 
             # this line ends a description
@@ -201,7 +196,7 @@ class xmlDocDesc:
                 if inTag == 1:
                     # strip junk right of </tag>
                     (good_stuff, junk) = string.split (tmp, TagEnd, 1)
-                    _log.Log(gmLog.lData, "Found tag end in line: junk='%s' content='%s'" % (junk, good_stuff))
+                    _log.debug("Found tag end in line: junk='%s' content='%s'" % (junk, good_stuff))
                     content.append(good_stuff)
                     # shortcut out of for loop
                     break
@@ -215,7 +210,7 @@ class xmlDocDesc:
 
         # looped over all lines
         if len(content) > 0:
-            _log.Log (gmLog.lData, "%s tag content successfully read: %s" % (TagStart, str(content)))
+            _log.debug("%s tag content successfully read: %s" % (TagStart, str(content)))
             return content
         else:
             return None
@@ -230,7 +225,7 @@ class xmlDocDesc:
         end_tag_pos = string.find(aLine, '</%s>' % aTag)
         if end_tag_pos == -1:
             # but we don't do multiline tags
-            _log.Log (gmLog.lErr, "Line [%s] is incomplete for tag [%s]. We don't do multiline tags here."  % (aLine, aTag))
+            _log.error("Line [%s] is incomplete for tag [%s]. We don't do multiline tags here."  % (aLine, aTag))
             return None
         # actually extract content
         content_start = string.find(aLine,'>', start_tag_pos, end_tag_pos) + 1
@@ -241,7 +236,10 @@ class xmlDocDesc:
 
 #============================================================
 # $Log: gmXmlDocDesc.py,v $
-# Revision 1.4  2004-03-19 17:07:20  shilbert
+# Revision 1.5  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.4  2004/03/19 17:07:20  shilbert
 # - import statement fixed
 #
 # Revision 1.3  2004/02/25 09:46:20  ncq

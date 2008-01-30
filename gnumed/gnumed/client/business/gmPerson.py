@@ -6,24 +6,24 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.156 2008-01-27 21:08:32 ncq Exp $
-__version__ = "$Revision: 1.156 $"
+# $Id: gmPerson.py,v 1.157 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.157 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs, threading
+import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs, threading, logging
 
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmLog, gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+
+_log = logging.getLogger('gm.person')
+_log.info(__version__)
 
 __gender_list = None
 __gender_idx = None
@@ -88,7 +88,7 @@ where pk_identity in (
 		try:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
 		except:
-			_log.Log(gmLog.lErr, u'cannot get candidate identities for dto "%s"' % self)
+			_log.error(u'cannot get candidate identities for dto "%s"' % self)
 			_log.LogException('query %s' % cmd)
 			rows = []
 
@@ -242,7 +242,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 			if name['active_name'] is True:
 				return name
 
-		_log.Log(gmLog.lErr, 'cannot retrieve active name for patient [%s]' % self._payload[self._idx['pk_identity']])
+		_log.error('cannot retrieve active name for patient [%s]' % self._payload[self._idx['pk_identity']])
 		return None
 	#--------------------------------------------------------
 	def get_names(self):
@@ -774,7 +774,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def __setitem__(self, attribute, value):
 		if attribute == 'db_user':
 			if self.__is_current_user:
-				_log.Log(gmLog.lData, 'will not modify database account association of CURRENT_USER staff member')
+				_log.debug('will not modify database account association of CURRENT_USER staff member')
 				return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
@@ -915,12 +915,12 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		# do nothing if patient is locked
 		if self.locked:
-			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['pk_identity'], patient))
+			_log.error('patient [%s] is locked, cannot change to [%s]' % (self.patient['pk_identity'], patient))
 			return None
 
 		# user wants to explicitely unset current patient
 		if patient == -1:
-			_log.Log(gmLog.lData, 'explicitely unsetting current patient')
+			_log.debug('explicitely unsetting current patient')
 			self.__send_pre_selection_notification()
 			self.patient.cleanup()
 			self.patient = gmNull.cNull()
@@ -929,7 +929,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		# must be cPatient instance, then
 		if not isinstance(patient, cPatient):
-			_log.Log(gmLog.lErr, 'cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
+			_log.error('cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
 			raise TypeError, 'gmPerson.gmCurrentPatient.__init__(): <patient> must be None, -1 or cPatient instance but is: %s' % str(patient)
 
 		# same ID, no change needed
@@ -937,7 +937,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			return None
 
 		# user wants different patient
-		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self.patient['pk_identity'], patient['pk_identity']))
+		_log.debug('patient change [%s] -> [%s] requested' % (self.patient['pk_identity'], patient['pk_identity']))
 
 		# everything seems swell
 		self.__send_pre_selection_notification()
@@ -978,7 +978,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			gmDispatcher.send(signal='patient_locked')
 		else:
 			if self.__lock_depth == 0:
-				_log.Log(gmLog.lErr, 'lock/unlock imbalance, trying to refcount lock depth below 0')
+				_log.error('lock/unlock imbalance, trying to refcount lock depth below 0')
 				return
 			else:
 				self.__lock_depth = self.__lock_depth - 1
@@ -987,7 +987,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	locked = property(_get_locked, _set_locked)
 	#--------------------------------------------------------
 	def force_unlock(self):
-		_log.Log(gmLog.lInfo, 'forced patient unlock at lock depth [%s]' % self.__lock_depth)
+		_log.info('forced patient unlock at lock depth [%s]' % self.__lock_depth)
 		self.__lock_depth = 0
 		gmDispatcher.send(signal='patient_unlocked')
 	#--------------------------------------------------------
@@ -1086,7 +1086,7 @@ class cPatientSearcher_SQL:
 			# temporary change of locale for selecting query generator
 			if a_locale is not None:
 				print "temporary change of locale on patient search not implemented"
-				_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
+				_log.warning("temporary change of locale on patient search not implemented")
 			# generate queries
 			if search_term is None:
 				raise ValueError('need search term (dto AND search_term are None)')
@@ -1095,15 +1095,15 @@ class cPatientSearcher_SQL:
 
 		# anything to do ?
 		if len(queries) == 0:
-			_log.Log(gmLog.lErr, 'query tree empty')
-			_log.Log(gmLog.lErr, '[%s] [%s] [%s]' % (search_term, a_locale, str(dto)))
+			_log.error('query tree empty')
+			_log.error('[%s] [%s] [%s]' % (search_term, a_locale, str(dto)))
 			return None
 
 		# collect IDs here
 		identities = []
 		# cycle through query list
 		for query in queries:
-			_log.Log(gmLog.lData, "running %s" % query)
+			_log.debug("running %s" % query)
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx=True)
 			except:
@@ -1173,7 +1173,7 @@ class cPatientSearcher_SQL:
 			pass
 			# some more here
 
-		_log.Log(gmLog.lData, '[%s] -> [%s]' % (aString, normalized))
+		_log.debug('[%s] -> [%s]' % (aString, normalized))
 
 		return normalized
 	#--------------------------------------------------------
@@ -1189,7 +1189,7 @@ class cPatientSearcher_SQL:
 
 		# "<digits>" - GNUmed patient PK or DOB
 		if regex.match(u"^(\s|\t)*\d+(\s|\t)*$", raw, flags = regex.LOCALE | regex.UNICODE):
-			_log.Log(gmLog.lData, "[%s]: a PK or DOB" % raw)
+			_log.debug("[%s]: a PK or DOB" % raw)
 			tmp = raw.strip()
 			queries.append ({
 				'cmd': u"select *, %s::text as match_type FROM dem.v_basic_person WHERE pk_identity = %s order by lastnames, firstnames, dob",
@@ -1210,7 +1210,7 @@ class cPatientSearcher_SQL:
 
 		# "<d igi ts>" - DOB or patient PK
 		if regex.match(u"^(\d|\s|\t)+$", raw, flags = regex.LOCALE | regex.UNICODE):
-			_log.Log(gmLog.lData, "[%s]: a DOB or PK" % raw)
+			_log.debug("[%s]: a DOB or PK" % raw)
 			queries.append ({
 				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) order by lastnames, firstnames, dob",
 				'args': [_('date of birth'), raw.replace(',', '.')]
@@ -1225,7 +1225,7 @@ class cPatientSearcher_SQL:
 
 		# "#<di git  s>" - GNUmed patient PK
 		if regex.match(u"^(\s|\t)*#(\d|\s|\t)+$", raw, flags = regex.LOCALE | regex.UNICODE):
-			_log.Log(gmLog.lData, "[%s]: a PK or external ID" % raw)
+			_log.debug("[%s]: a PK or external ID" % raw)
 			tmp = raw.replace(u'#', u'')
 			tmp = tmp.strip()
 			tmp = tmp.replace(u' ', u'')
@@ -1252,7 +1252,7 @@ class cPatientSearcher_SQL:
 
 		# "#<di/git s or c-hars>" - external ID (or PUPIC)
 		if regex.match(u"^(\s|\t)*#.+$", raw, flags = regex.LOCALE | regex.UNICODE):
-			_log.Log(gmLog.lData, "[%s]: an external ID" % raw)
+			_log.debug("[%s]: an external ID" % raw)
 			tmp = raw.replace(u'#', u'')
 			tmp = tmp.strip()
 			tmp = tmp.replace(u' ',  u'***DUMMY***')
@@ -1271,7 +1271,7 @@ class cPatientSearcher_SQL:
 
 		# digits interspersed with "./-" or blank space - DOB
 		if regex.match(u"^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw, flags = regex.LOCALE | regex.UNICODE):
-			_log.Log(gmLog.lData, "[%s]: a DOB" % raw)
+			_log.debug("[%s]: a DOB" % raw)
 			tmp = raw.strip()
 			while u'\t\t' in tmp: tmp = tmp.replace(u'\t\t', u' ')
 			while u'  ' in tmp: tmp = tmp.replace(u'  ', u' ')
@@ -1286,7 +1286,7 @@ class cPatientSearcher_SQL:
 
 		# " , <alpha>" - first name
 		if regex.match(u"^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw, flags = regex.LOCALE | regex.UNICODE):
-			_log.Log(gmLog.lData, "[%s]: a firstname" % raw)
+			_log.debug("[%s]: a firstname" % raw)
 			tmp = self._normalize_soundalikes(raw[1:].strip())
 			cmd = u"""
 SELECT DISTINCT ON (pk_identity) * from (
@@ -1308,7 +1308,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 
 		# "*|$<...>" - DOB
 		if regex.match(u"^(\s|\t)*(\*|\$).+$", raw, flags = regex.LOCALE | regex.UNICODE):
-			_log.Log(gmLog.lData, "[%s]: a DOB" % raw)
+			_log.debug("[%s]: a DOB" % raw)
 			tmp = raw.replace(u'*', u'')
 			tmp = tmp.replace(u'$', u'')
 			queries.append ({
@@ -1327,7 +1327,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 		"""
-		_log.Log(gmLog.lData, u'_generate_queries_from_dto("%s")' % dto)
+		_log.debug(u'_generate_queries_from_dto("%s")' % dto)
 
 		if not isinstance(dto, cDTO_person):
 			return None
@@ -1351,8 +1351,8 @@ SELECT DISTINCT ON (pk_identity) * from (
 
 		# sufficient data ?
 		if len(where_snippets) == 0:
-			_log.Log(gmLog.lErr, 'invalid search dict structure')
-			_log.Log(gmLog.lData, data)
+			_log.error('invalid search dict structure')
+			_log.debug(data)
 			return None
 
 		cmd = u"""
@@ -1381,7 +1381,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 		if len(queries) > 0:
 			return queries
 
-		_log.Log(gmLog.lData, '[%s]: not a search term with a "suggestive" structure' % search_term)
+		_log.debug('[%s]: not a search term with a "suggestive" structure' % search_term)
 
 		# no we don't
 		queries = []
@@ -1469,7 +1469,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 					})
 					return queries
 				# FIXME: either "name date" or "date date"
-				_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % search_term)
+				_log.error("don't know how to generate queries for [%s]" % search_term)
 				return queries
 
 			# exactly 3 words ?
@@ -1641,7 +1641,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 	#--------------------------------------------------------
 	def _generate_dumb_brute_query(self, search_term=''):
 
-		_log.Log(gmLog.lData, '_generate_dumb_brute_query("%s")' % search_term)
+		_log.debug('_generate_dumb_brute_query("%s")' % search_term)
 
 		where_clause = ''
 		args = []
@@ -1922,7 +1922,6 @@ if __name__ == '__main__':
 
 	import datetime
 
-	_log.SetAllLogLevels(gmLog.lData)
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
@@ -2171,7 +2170,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.156  2008-01-27 21:08:32  ncq
+# Revision 1.157  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.156  2008/01/27 21:08:32  ncq
 # - format_medical_age() improved
 # - map gender to unicode symbol
 #

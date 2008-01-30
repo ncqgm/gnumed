@@ -4,16 +4,18 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.56 2007-07-17 11:13:25 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmPathLab.py,v 1.57 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import types, sys
+import types, sys, logging
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+from Gnumed.pycommon import gmExceptions, gmBusinessDBObject
+
+
+_log = logging.getLogger('gm.lab')
+_log.info(__version__)
 
 # FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 
@@ -217,10 +219,10 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 				vbp.pk_identity=vpi.pk_patient"""
 		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
 		if pat is None:
-			_log.Log(gmLog.lErr, 'cannot get patient for lab request [%s]' % self._payload[self._idx['pk_item']])
+			_log.error('cannot get patient for lab request [%s]' % self._payload[self._idx['pk_item']])
 			return None
 		if len(pat) == 0:
-			_log.Log(gmLog.lErr, 'no patient associated with lab request [%s]' % self._payload[self._idx['pk_item']])
+			_log.error('no patient associated with lab request [%s]' % self._payload[self._idx['pk_item']])
 			return None
 		return pat[0]
 #============================================================
@@ -333,7 +335,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	try:
 		ttype = cTestType(lab=lab, code=code)
 	except gmExceptions.NoSuchClinItemError:
-		_log.Log(gmLog.lInfo, 'will try to create test type')
+		_log.info('will try to create test type')
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -344,8 +346,8 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		db_lname = ttype['name']
 		# yes but ambigous
 		if name != db_lname:
-			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.56 $'
+			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.57 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -357,7 +359,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		return (True, ttype)
 	# not found, so create it
 	if unit is None:
-		_log.Log(gmLog.lErr, 'need <unit> to create test type: %s:%s:%s:%s' % (lab, code, name, unit))
+		_log.error('need <unit> to create test type: %s:%s:%s:%s' % (lab, code, name, unit))
 		return (False, 'argument error: %s:%s:%s%s' % (lab, code, name, unit))
 	# make query
 	cols = []
@@ -419,7 +421,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	try:
 		req = cLabRequest (aPK_obj)
 	except gmExceptions.NoSuchClinItemError, msg:
-		_log.Log(gmLog.lInfo, '%s: will try to create lab request' % str(msg))
+		_log.info('%s: will try to create lab request' % str(msg))
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -427,12 +429,12 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	if req is not None:
 		db_pat = req.get_patient()
 		if db_pat is None:
-			_log.Log(gmLog.lErr, 'cannot cross-check patient on lab request')
+			_log.error('cannot cross-check patient on lab request')
 			return (None, '')
 		# yes but ambigous
 		if pat_id != db_pat[0]:
-			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.56 $'
+			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.57 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -475,11 +477,11 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	try:
 		tres = cLabResult(aPK_obj=data)
 		# exists already, so fail
-		_log.Log(gmLog.lErr, 'will not overwrite existing test result')
-		_log.Log(gmLog.lData, str(tres))
+		_log.error('will not overwrite existing test result')
+		_log.debug(str(tres))
 		return (None, tres)
 	except gmExceptions.NoSuchClinItemError:
-		_log.Log(gmLog.lData, 'test result not found - as expected, will create it')
+		_log.debug('test result not found - as expected, will create it')
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -520,7 +522,7 @@ def get_unreviewed_results(limit=50):
 		limit %s""" % lim
 	rows = gmPG.run_ro_query('historica', cmd)
 	if rows is None:
-		_log.Log(gmLog.lErr, 'error retrieving unreviewed lab results')
+		_log.error('error retrieving unreviewed lab results')
 		return (None, _('error retrieving unreviewed lab results'))
 	if len(rows) == 0:
 		return (False, [])
@@ -544,7 +546,7 @@ def get_pending_requests(limit=250):
 	cmd = "select pk from lab_request where is_pending is true limit %s" % lim
 	rows = gmPG.run_ro_query('historica', cmd)
 	if rows is None:
-		_log.Log(gmLog.lErr, 'error retrieving pending lab requests')
+		_log.error('error retrieving pending lab requests')
 		return (None, None)
 	if len(rows) == 0:
 		return (False, [])
@@ -587,7 +589,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 		)""" % lab_snippet
 	rows = gmPG.run_ro_query('historica', cmd, None, lab)
 	if rows is None:
-		_log.Log(gmLog.lWarn, 'error getting most recently used request ID for lab [%s]' % lab)
+		_log.warning('error getting most recently used request ID for lab [%s]' % lab)
 		return ''
 	if len(rows) == 0:
 		return ''
@@ -597,7 +599,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 		try:
 			next = incrementor_func(most_recent)
 		except TypeError:
-			_log.Log(gmLog.lErr, 'cannot call incrementor function [%s]' % str(incrementor_func))
+			_log.error('cannot call incrementor function [%s]' % str(incrementor_func))
 			return most_recent
 		return next
 	# try to be smart ourselves
@@ -675,19 +677,17 @@ if __name__ == '__main__':
 		for result in data:
 			print result
 	#--------------------------------------------------------
-	_log.SetAllLogLevels(gmLog.lData)
-	from Gnumed.pycommon import gmPG
-
 	test_result()
 	test_request()
 #	test_create_result()
 	test_unreviewed()
 	test_pending()
-
-	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.56  2007-07-17 11:13:25  ncq
+# Revision 1.57  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.56  2007/07/17 11:13:25  ncq
 # - no more gmClinItem
 #
 # Revision 1.55  2007/03/08 11:31:08  ncq

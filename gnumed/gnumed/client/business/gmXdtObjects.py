@@ -5,23 +5,25 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.29 2007-07-11 21:05:10 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmXdtObjects.py,v 1.30 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
-import os.path, sys, md5, linecache, codecs, re as regex, time, datetime as pyDT
+import os.path, sys, md5, linecache, codecs, re as regex, time, datetime as pyDT, logging
+
 
 import mx.DateTime as mxDT
 
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmLog, gmDateTime, gmTools
+from Gnumed.pycommon import gmDateTime, gmTools
 from Gnumed.business import gmXdtMappings, gmPerson
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+
+_log = logging.getLogger('gm.xdt')
+_log.info(__version__)
 
 #==============================================================
 class cDTO_xdt_person(gmPerson.cDTO_person):
@@ -176,13 +178,13 @@ def xdt_get_pats(aFile):
 			continue
 	fileinput.close()
 
-	_log.Log(gmLog.lData, "patients found: %s" % len(pat_ids))
+	_log.debug("patients found: %s" % len(pat_ids))
 	return pats
 #==============================================================
 def get_pat_files(aFile, ID, name, patdir = None, patlst = None):
-	_log.Log(gmLog.lData, "getting files for patient [%s:%s]" % (ID, name))
+	_log.debug("getting files for patient [%s:%s]" % (ID, name))
 	files = patlst.get(aGroup = "%s:%s" % (ID, name), anOption = "files")
-	_log.Log(gmLog.lData, "%s => %s" % (patdir, files))
+	_log.debug("%s => %s" % (patdir, files))
 	return [patdir, files]
 #==============================================================
 def split_xdt_file(aFile,patlst,cfg):
@@ -224,10 +226,10 @@ def split_xdt_file(aFile,patlst,cfg):
 				name = strippedline [7:]
 			startline=aline
 			endline=record_start_lines[record_start_lines.index(aline)+1]
-			_log.Log(gmLog.lData, "reading from%s" %str(startline)+' '+str(endline) )
+			_log.debug("reading from%s" %str(startline)+' '+str(endline) )
 			for tmp in range(startline,endline):							
 				content.append(linecache.getline(aFile,tmp))
-				_log.Log(gmLog.lData, "reading %s"%tmp )
+				_log.debug("reading %s"%tmp )
 			hashes = check_for_previous_records(ID,name,patlst)
 			# is this new content ?
 			data_hash = md5.new()
@@ -262,7 +264,7 @@ def check_for_previous_records(ID, name, patlst):
 	hashes = []
 	# patient not listed yet
 	if anIdentity not in patlst.getGroups():
-		_log.Log(gmLog.lData, "identity not yet in list" )
+		_log.debug("identity not yet in list" )
 		patlst.set(aGroup = anIdentity, anOption = 'files', aValue = [], aComment = '')
 	# file already listed ?
 	file_defs = patlst.get(aGroup = anIdentity, anOption = "files")
@@ -277,7 +279,7 @@ def add_file_to_patlst(ID, name, patlst, new_file, ahash):
 	files = patlst.get(aGroup = anIdentity, anOption = "files")
 	for file in new_files:
 		files.append("%s:%s" % (file, ahash))
-	_log.Log(gmLog.lData, "files now there : %s" % files)
+	_log.debug("files now there : %s" % files)
 	patlst.set(aGroup=anIdentity, anOption="files", aValue = files, aComment="")
 #==============================================================
 # main
@@ -290,8 +292,6 @@ if __name__ == "__main__":
 	gmDateTime.init()
 
 	# test framework if run by itself
-	_log.SetAllLogLevels(gmLog.lData)
-
 	patfile = sys.argv[1]
 	dobformat = sys.argv[2]
 	encoding = sys.argv[3]
@@ -310,7 +310,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.29  2007-07-11 21:05:10  ncq
+# Revision 1.30  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.29  2007/07/11 21:05:10  ncq
 # - use gmTools.get_unique_filename()
 #
 # Revision 1.28  2007/06/28 12:34:35  ncq

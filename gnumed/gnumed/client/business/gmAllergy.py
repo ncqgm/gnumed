@@ -2,20 +2,21 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.28 2007-10-25 12:17:28 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmAllergy.py,v 1.29 2008-01-30 13:34:49 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
-import types, sys
+import types, sys, logging
+
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmPG2, gmI18N, gmBusinessDBObject
 
-from Gnumed.pycommon import gmLog, gmPG2, gmI18N, gmBusinessDBObject
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.domain')
+_log.info(__version__)
 
 
 allergic_states = [None, -1, 0, 1]
@@ -131,13 +132,13 @@ def allergic_state2str(state=None):
 		return _('no known allergies')
 	if state == 1:
 		return _('does have allergies')
+	_log.error('unknown allergic state [%s]', state)
 	return _('ERROR: unknown allergic state [%s]') % state
 
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
 
 	allg = cAllergy(aPK_obj=1)
 	print allg
@@ -161,7 +162,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.28  2007-10-25 12:17:28  ncq
+# Revision 1.29  2008-01-30 13:34:49  ncq
+# - switch to std lib logging
+#
+# Revision 1.28  2007/10/25 12:17:28  ncq
 # - robustify stringification of allergic state
 #
 # Revision 1.27  2007/08/20 14:17:59  ncq

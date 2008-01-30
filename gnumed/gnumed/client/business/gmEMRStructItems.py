@@ -3,20 +3,20 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.106 $"
+__version__ = "$Revision: 1.107 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-import types, sys, string, datetime
+import types, sys, string, datetime, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime
+from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime
 from Gnumed.business import gmClinNarrative
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.emr')
+_log.info(__version__)
 
 #============================================================
 # Foundational Health Issues API
@@ -75,7 +75,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		# sanity check
 		if not type(description) in [str, unicode] or description.strip() == '':
-			_log.Log(gmLog.lErr, '<description> must be a non-empty string')
+			_log.error('<description> must be a non-empty string')
 			return False
 		# update the issue description
 		old_description = self._payload[self._idx['description']]
@@ -83,7 +83,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		self._is_modified = True
 		successful, data = self.save_payload()
 		if not successful:
-			_log.Log(gmLog.lErr, 'cannot rename health issue [%s] with [%s]' % (self, description))
+			_log.error('cannot rename health issue [%s] with [%s]' % (self, description))
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
@@ -296,7 +296,7 @@ from (
 		"""
 		# sanity check
 		if description.strip() == '':
-			_log.Log(gmLog.lErr, '<description> must be a non-empty string instance')
+			_log.error('<description> must be a non-empty string instance')
 			return False
 		# update the episode description
 		old_description = self._payload[self._idx['description']]
@@ -304,7 +304,7 @@ from (
 		self._is_modified = True
 		successful, data = self.save_payload()
 		if not successful:
-			_log.Log(gmLog.lErr, 'cannot rename episode [%s] to [%s]' % (self, description))
+			_log.error('cannot rename episode [%s] to [%s]' % (self, description))
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
@@ -388,8 +388,8 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		self._payload[self._idx['last_affirmed']] = datetime.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
 		success, data = self.save_payload()
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
-			_log.Log(gmLog.lErr, str(data))
+			_log.error('cannot reaffirm encounter [%s]' % self.pk_obj)
+			_log.error(str(data))
 			return False
 		return True
 	#--------------------------------------------------------
@@ -523,7 +523,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		The problem's type attribute must be 'episode'
 		"""
 		if self._payload[self._idx['type']] != 'episode':
-			_log.Log(gmLog.lErr, 'cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
+			_log.error('cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
 		return cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
 #============================================================
@@ -574,7 +574,7 @@ def get_encounter_types():
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+
 	#--------------------------------------------------------
 	# define tests
 	#--------------------------------------------------------
@@ -658,7 +658,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.106  2008-01-22 11:49:14  ncq
+# Revision 1.107  2008-01-30 13:34:49  ncq
+# - switch to std lib logging
+#
+# Revision 1.106  2008/01/22 11:49:14  ncq
 # - cleanup
 # - free-standing -> Unattributed as per list
 #

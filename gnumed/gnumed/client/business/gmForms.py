@@ -7,22 +7,22 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.55 2007-11-10 20:49:22 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmForms.py,v 1.56 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path
+import os, sys, time, os.path, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher, gmBusinessDBObject, gmCfg
+from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher, gmBusinessDBObject, gmCfg
 from Gnumed.business import gmPerson, gmSurgery
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.forms')
+_log.info(__version__)
 
 engine_ooo = 'O'
 engine_names = {
@@ -249,7 +249,7 @@ def init_ooo():
 	global cOOoDocumentCloseListener
 	cOOoDocumentCloseListener = _cOOoDocumentCloseListener
 
-	_log.Log(gmLog.lData, 'python UNO bridge successfully initialized')
+	_log.debug('python UNO bridge successfully initialized')
 
 #------------------------------------------------------------
 class cOOoConnector(gmBorg.cBorg):
@@ -292,7 +292,7 @@ class cOOoConnector(gmBorg.cBorg):
 				self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
 			except oooNoConnectException:
 				_log.LogException('Cannot connect to OOo server.')
-				_log.Log(gmLog.lErr, 'Trying to start OOo server with: [%s]' % self.ooo_start_cmd)
+				_log.error('Trying to start OOo server with: [%s]' % self.ooo_start_cmd)
 				os.system(self.ooo_start_cmd)
 				dbcfg = gmCfg.cCfgSQL()
 				ooo_wait_time = dbcfg.get2 (
@@ -301,6 +301,7 @@ class cOOoConnector(gmBorg.cBorg):
 					bias = 'workplace',
 					default = 2.0
 				)
+				_log.debug('waiting %s seconds for OOo to start up' % ooo_wait_time)
 				time.sleep(ooo_wait_time)	# OOo sometimes needs a bit
 				try:
 					self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
@@ -460,9 +461,9 @@ class gmFormEngine:
 		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
 		form_name = None
 		if rows is None:
-			_log.Log(gmLog.lErr, 'error retrieving form def for [%s]' % self.pk_def)
+			_log.error('error retrieving form def for [%s]' % self.pk_def)
 		elif len(rows) == 0:
-			_log.Log(gmLog.lErr, 'no form def for [%s]' % self.pk_def)
+			_log.error('no form def for [%s]' % self.pk_def)
 		else:
 			form_name = rows[0][0]
 		# we didn't get a name but want to store the form anyhow
@@ -484,7 +485,7 @@ class gmFormEngine:
 		queries.append(("select currval ('form_instances_pk_seq')", []))
 		status, err = gmPG.run_commit('historica', queries, True)
 		if status is None:
-			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
+			_log.error('failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
 			return None
 		return status
 
@@ -527,7 +528,7 @@ class LaTeXFilter:
 			item = str (item)
 		else:
 			item = str (item)
-			_log.Log (gmLog.lEWarn, "unknown type %s, string %s" % (type (item), item))
+			_log.warning("unknown type %s, string %s" % (type (item), item))
 		return item 
 
 
@@ -555,7 +556,7 @@ class LaTeXForm (gmFormEngine):
 			if not gmShellAPI.run_command_in_shell("dvips texput.dvi -o texput.ps", blocking=True):
 				raise FormError ('DVIPS returned error')
 		except EnvironmentError, e:
-			_log.Log (gmLog.lErr, e.strerror)
+			_log.error(e.strerror)
 			raise FormError (e.strerror)
 		return file ("texput.ps")
 
@@ -573,10 +574,10 @@ class LaTeXForm (gmFormEngine):
 			command	 = "%s < texput.ps" % command
 		try:
 			if not gmShellAPI.run_command_in_shell(command, blocking=True):
-				_log.Log (gmLog.lErr, "external command %s returned non-zero" % command)
+				_log.error("external command %s returned non-zero" % command)
 				raise FormError ('external command %s returned error' % command)
 		except EnvironmentError, e:
-			_log.Log (gmLog.lErr, e.strerror)
+			_log.error(e.strerror)
 			raise FormError (e.strerror)		     
 		return True
 
@@ -614,17 +615,17 @@ def get_form(id):
 		cmd = 'select template, engine, flags, pk from paperwork_templates where name_short = %s'
 	result = gmPG.run_ro_query ('reference', cmd, None, id)
 	if result is None:
-		_log.Log (gmLog.lErr, 'error getting form [%s]' % id)
+		_log.error('error getting form [%s]' % id)
 		raise gmExceptions.FormError ('error getting form [%s]' % id)
 	if len(result) == 0:
-		_log.Log (gmLog.lErr, 'no form [%s] found' % id)
+		_log.error('no form [%s] found' % id)
 		raise gmExceptions.FormError ('no such form found [%s]' % id)
 	if result[0][1] == 'L':
 		return LaTeXForm (result[0][2], result[0][0])
 	elif result[0][1] == 'T':
 		return TextForm (result[0][2], result[0][0])
 	else:
-		_log.Log (gmLog.lErr, 'no form engine [%s] for form [%s]' % (result[0][1], id))
+		_log.error('no form engine [%s] for form [%s]' % (result[0][1], id))
 		raise FormError ('no engine [%s] for form [%s]' % (result[0][1], id))
 		
 #-------------------------------------------------------------
@@ -743,7 +744,6 @@ def test_de():
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
 
 	from Gnumed.pycommon import gmI18N, gmDateTime
 	gmI18N.activate_locale()
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.55  2007-11-10 20:49:22  ncq
+# Revision 1.56  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.55  2007/11/10 20:49:22  ncq
 # - handle failing to connect to OOo much more gracefully
 #
 # Revision 1.54  2007/10/21 20:12:42  ncq

@@ -7,23 +7,23 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.17 2007-12-26 12:35:30 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmKVK.py,v 1.18 2008-01-30 13:34:50 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os, os.path, fileinput, codecs, time, datetime as pyDT, glob, re as regex
+import sys, os, os.path, fileinput, codecs, time, datetime as pyDT, glob, re as regex, logging
 
 
 # our modules
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmLog, gmExceptions, gmDateTime, gmTools, gmPG2
+from Gnumed.pycommon import gmExceptions, gmDateTime, gmTools, gmPG2
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.kvk')
+_log.info(__version__)
 
 
 true_kvk_fields = [
@@ -246,7 +246,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.17  2007-12-26 12:35:30  ncq
+# Revision 1.18  2008-01-30 13:34:50  ncq
+# - switch to std lib logging
+#
+# Revision 1.17  2007/12/26 12:35:30  ncq
 # - import_extra_data(..., *args, **kwargs)
 #
 # Revision 1.16  2007/11/12 22:54:26  ncq
