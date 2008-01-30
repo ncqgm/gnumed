@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.12 2008-01-27 21:13:17 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmAuthWidgets.py,v 1.13 2008-01-30 14:07:02 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -498,12 +498,11 @@ class cLoginPanel(wx.Panel):
 			)
 		)
 
-		self._CBOX_profile.SetValue (
-			gmTools.coalesce (
-				_cfg.get(u'preferences', u'profile', src_order),
-				self.__backend_profiles[self.__backend_profiles.keys()[0]].name
-			)
-		)
+		prefs_profile = _cfg.get(u'preferences', u'profile', src_order)
+		try:
+			self._CBOX_profile.SetValue(self.__backend_profiles[prefs_profile].name)
+		except KeyError:
+			self._CBOX_profile.SetValue(self.__backend_profiles[self.__backend_profiles.keys()[0]].name)
 
 		self._CHBOX_debug.SetValue(_cfg.get(option = 'debug'))
 		self._CHBOX_slave.SetValue(_cfg.get(option = 'slave'))
@@ -636,7 +635,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.12  2008-01-27 21:13:17  ncq
+# Revision 1.13  2008-01-30 14:07:02  ncq
+# - protect against faulty backend profile in preferences
+#
+# Revision 1.12  2008/01/27 21:13:17  ncq
 # - no more gmCfg
 #
 # Revision 1.11  2008/01/14 20:33:06  ncq
