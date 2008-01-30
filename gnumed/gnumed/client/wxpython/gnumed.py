@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.133 2008-01-14 20:45:45 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gnumed.py,v 1.134 2008-01-30 14:10:40 ncq Exp $
+__version__ = "$Revision: 1.134 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -253,7 +253,6 @@ def setup_cfg():
 	enc = gmI18N.get_encoding()
 	paths = gmTools.gmPaths()
 
-	# general config sources
 	# the current working dir
 	_cfg.add_file_source (
 		source = u'workbase',
@@ -396,7 +395,10 @@ _log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.133  2008-01-14 20:45:45  ncq
+# Revision 1.134  2008-01-30 14:10:40  ncq
+# - cleanup
+#
+# Revision 1.133  2008/01/14 20:45:45  ncq
 # - use set_string_encoding()
 #
 # Revision 1.132  2008/01/05 22:32:33  ncq
