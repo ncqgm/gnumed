@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.386 2008-01-27 21:15:20 ncq Exp $
-__version__ = "$Revision: 1.386 $"
+# $Id: gmGuiMain.py,v 1.387 2008-01-30 14:07:49 ncq Exp $
+__version__ = "$Revision: 1.387 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1244,12 +1244,13 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_configure_partless_docs(self, evt):
 		gmCfgWidgets.configure_boolean_option (
 			question = _(
-				'Do you want GNUmed to enforce that new documents\n'
-				'have at least one part before they can be saved ?\n'
+				'Do you want to allow saving of new documents without\n'
+				'any parts or do you want GNUmed to enforce that they\n'
+				'contain at least one part before they can be saved ?\n'
 				'\n'
-				'This can be useful if you want to build up an index\n'
-				'of, say, archived documents but do not presently want\n'
-				'to scan in all the pages contained therein.'
+				'Part-less documents can be useful if you want to build\n'
+				'up an index of, say, archived documents but do not\n'
+				'want to scan in all the pages contained therein.'
 			),
 			option = u'horstspace.scan_index.allow_partless_documents',
 			button_tooltips = [
@@ -2230,7 +2231,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.386  2008-01-27 21:15:20  ncq
+# Revision 1.387  2008-01-30 14:07:49  ncq
+# - improved wording of partless document option
+#
+# Revision 1.386  2008/01/27 21:15:20  ncq
 # - configure partless docs
 # - label changes
 # - use gmCfg2 for setting options
