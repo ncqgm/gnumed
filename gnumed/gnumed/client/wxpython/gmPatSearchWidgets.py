@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.102 2008-01-27 21:17:49 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmPatSearchWidgets.py,v 1.103 2008-01-30 14:09:39 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -21,7 +21,7 @@ import sys, os.path, time, glob, datetime as pyDT, re as regex
 import wx
 
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
 from Gnumed.business import gmPerson, gmKVK, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
@@ -30,7 +30,7 @@ from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTO
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-_cfg = gmCfg.gmDefCfgFile
+_cfg = gmCfg2.gmCfgData()
 
 ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()
@@ -185,20 +185,56 @@ def load_persons_from_xdt():
 		bdt_files.append({'file': candidate, 'source': 'MCS/Isynet %s' % filename[-6:-4]})
 
 	# some need to be configured
-	xdt_profiles = _cfg.get('workplace', 'XDT profiles')
+	# aggregate sources
+	src_order = [
+		('explicit', 'return'),
+		('workbase', 'append'),
+		('local', 'append'),
+		('user', 'append'),
+		('system', 'append')
+	]
+	xdt_profiles = _cfg.get (
+		group = 'workplace',
+		option = 'XDT profiles',
+		source_order = src_order
+	)
 	if xdt_profiles is None:
 		return []
 
+	# first come first serve
+	src_order = [
+		('explicit', 'return'),
+		('workbase', 'return'),
+		('local', 'return'),
+		('user', 'return'),
+		('system', 'return')
+	]
 	for profile in xdt_profiles:
-		name = _cfg.get('XDT profile %s' % profile, 'filename')
+		name = _cfg.get (
+			group = 'XDT profile %s' % profile,
+			option = 'filename',
+			source_order = src_order
+		)
 		if name is None:
 			_log.Log(gmLog.lErr, 'XDT profile [%s] does not define a <filename>' % profile)
 			continue
-		encoding = _cfg.get('XDT profile %s' % profile, 'encoding')
+		encoding = _cfg.get (
+			group = 'XDT profile %s' % profile,
+			option = 'encoding',
+			source_order = src_order
+		)
 		if encoding is None:
 			_log.Log(gmLog.lWarn, 'xDT source profile [%s] does not specify an <encoding> for BDT file [%s]' % (profile, name))
-		source = _cfg.get('XDT profile %s' % profile, 'source')
-		dob_format = _cfg.get('XDT profile %s' % profile, 'DOB format')
+		source = _cfg.get (
+			group = 'XDT profile %s' % profile,
+			option = 'source',
+			source_order = src_order
+		)
+		dob_format = _cfg.get (
+			group = 'XDT profile %s' % profile,
+			option = 'DOB format',
+			source_order = src_order
+		)
 		if dob_format is None:
 			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a date of birth format in <DOB format>' % profile)
 		bdt_files.append({'file': name, 'source': source, 'encoding': encoding, 'dob_format': dob_format})
@@ -242,6 +278,14 @@ def load_persons_from_xdt():
 #============================================================
 def load_persons_from_pracsoft_au():
 
+	src_order = [
+		('explicit', 'return'),
+		('workbase', 'append'),
+		('local', 'append'),
+		('user', 'append'),
+		('system', 'append')
+	]
+
 	pracsoft_files = []
 
 	# try detecting PATIENTS.IN files
@@ -255,8 +299,16 @@ def load_persons_from_pracsoft_au():
 		pracsoft_files.append({'file': candidate, 'source': 'PracSoft (AU): drive %s' % drive})
 
 	# add configured one
-	fname = _cfg.get('AU PracSoft PATIENTS.IN', 'filename')
-	source = _cfg.get('AU PracSoft PATIENTS.IN', 'source')
+	fname = _cfg.get (
+		group = 'AU PracSoft PATIENTS.IN',
+		option = 'filename',
+		source_order = src_order
+	)
+	source = _cfg.get (
+		group = 'AU PracSoft PATIENTS.IN',
+		option = 'source',
+		source_order = src_order
+	)
 	if fname is not None and source is not None:
 		fname = os.path.abspath(os.path.expanduser(fname))
 		if os.access(fname, os.R_OK):
@@ -279,8 +331,8 @@ def load_persons_from_pracsoft_au():
 #============================================================
 def load_persons_from_kvks():
 
-	db_cfg = gmCfg.cCfgSQL()
-	kvk_dir = os.path.abspath(os.path.expanduser(db_cfg.get2 (
+	dbcfg = gmCfg.cCfgSQL()
+	kvk_dir = os.path.abspath(os.path.expanduser(dbcfg.get2 (
 		option = 'DE.KVK.spool_dir',
 		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
@@ -349,10 +401,7 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 		dlg.Destroy()
 
 	# search
-#	searcher = gmPerson.cPatientSearcher_SQL()
-#	idents = searcher.get_identities(dto = dto)
 	idents = dto.get_candidate_identities(can_create=True)
-
 	if idents is None:
 		gmGuiHelpers.gm_show_info (_(
 			'Cannot create new patient:\n\n'
@@ -361,24 +410,6 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 			_('Activating external patient')
 		)
 		return False
-
-#	ident = None
-#	if len(idents) == 0:
-#		ident = gmPerson.create_identity (
-#			firstnames = dto.firstnames,
-#			lastnames = dto.lastnames,
-#			gender = dto.gender,
-#			dob = dto.dob
-#		)
-#		if ident is None:
-#			gmGuiHelpers.gm_show_info (
-#				_(
-#				'Cannot create new patient:\n\n'
-#				' [%s %s (%s), %s]'
-#				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
-#				_('Activating xDT patient')
-#			)
-#			return False
 
 	if len(idents) == 1:
 		ident = idents[0]
@@ -868,7 +899,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.102  2008-01-27 21:17:49  ncq
+# Revision 1.103  2008-01-30 14:09:39  ncq
+# - switch to new style cfg file support
+# - cleanup
+#
+# Revision 1.102  2008/01/27 21:17:49  ncq
 # - improve message on patient not found
 #
 # Revision 1.101  2008/01/22 12:24:55  ncq
