@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.2 2007-12-04 16:14:52 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmAuthWidgets.py,v 1.2.2.1 2008-01-30 11:19:54 ncq Exp $
+__version__ = "$Revision: 1.2.2.1 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -548,12 +548,11 @@ class cLoginPanel(wx.Panel):
 			)
 		)
 
-		self._CBOX_profile.SetValue (
-			gmTools.coalesce (
-				prefs.get('preferences', 'profile'),
-				self.__backend_profiles[self.__backend_profiles.keys()[0]].name
-			)
-		)
+		prefs_profile = prefs.get('preferences', 'profile')
+		try:
+			self._CBOX_profile.SetValue(self.__backend_profiles[prefs_profile].name)
+		except KeyError:
+			self._CBOX_profile.SetValue(self.__backend_profiles[self.__backend_profiles.keys()[0]].name)
 
 		self._CHBOX_debug.SetValue(gmCLI.has_arg('--debug'))
 		self._CHBOX_slave.SetValue(gmCLI.has_arg('--slave'))
@@ -678,7 +677,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.2  2007-12-04 16:14:52  ncq
+# Revision 1.2.2.1  2008-01-30 11:19:54  ncq
+# - don't fail on faulty profile name in [preferences]
+#
+# Revision 1.2  2007/12/04 16:14:52  ncq
 # - get_dbowner_connection()
 #
 # Revision 1.1  2007/12/04 16:03:43  ncq
