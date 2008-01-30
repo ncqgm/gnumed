@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.114 2008-01-22 11:52:24 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmPatientExporter.py,v 1.115 2008-01-30 13:46:17 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -1145,43 +1145,6 @@ def usage():
     print 'usage: python gmPatientExporter [--fileout=<outputfilename>] [--conf-file=<file>] [--text-domain=<textdomain>]'
     sys.exit(0)
 #------------------------------------------------------------
-def parse_constraints():
-    """
-        Obtains, parses and normalizes config file options
-    """
-    from Gnumed.pycommon import gmCfg
-    _cfg = gmCfg.gmDefCfgFile
-    if isinstance(_cfg, gmNull.cNull):
-        usage()
-
-    # Retrieve options
-    cfg_group = 'constraints'
-    constraints = {
-        'since': _cfg.get(cfg_group, 'since'),
-        'until': _cfg.get(cfg_group, 'until'),
-        'encounters': _cfg.get(cfg_group, 'encounters'),
-        'episodes': _cfg.get(cfg_group, 'episodes'),
-        'issues': _cfg.get(cfg_group, 'issues')
-    }
-
-    # Normalize null constraints (None is interpreted as non existing constraint along all methods)
-    for a_constraint in constraints.keys():
-        if len(constraints[a_constraint]) == 0:
-            constraints[a_constraint] = None
-
-    # Cast existing constraints to correct type
-    if not constraints['since'] is None:
-        constraints['since'] = mxParser.DateFromString(constraints['since'], formats= ['iso'])
-    if not constraints['until'] is None:
-        constraints['until'] = mxParser.DateFromString(constraints['until'], formats= ['iso'])
-    if not constraints['encounters'] is None:
-        constraints['encounters'] = map(lambda encounter: int(encounter), constraints['encounters'])
-    if not constraints['episodes'] is None:
-        constraints['episodes'] = map(lambda episode: int(episode), constraints['episodes'])
-    if not constraints['issues'] is None:
-        constraints['issues'] = map(lambda issue: int(issue), constraints['issues'])
-    return constraints
-#------------------------------------------------------------                 
 def run():
     """
         Main module application execution loop.
@@ -1253,7 +1216,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.114  2008-01-22 11:52:24  ncq
+# Revision 1.115  2008-01-30 13:46:17  ncq
+# - cleanup
+#
+# Revision 1.114  2008/01/22 11:52:24  ncq
 # - Unattributed
 # - improved Journal formatting as per list
 #
