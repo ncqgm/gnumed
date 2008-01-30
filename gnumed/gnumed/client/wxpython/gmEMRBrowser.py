@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.83 2008-01-22 12:20:53 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmEMRBrowser.py,v 1.84 2008-01-30 14:07:24 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -519,15 +519,8 @@ class cEMRJournalPanel(wx.Panel):
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmCfg
-
 	_log.SetAllLogLevels(gmLog.lData)
 	_log.Log (gmLog.lInfo, "starting emr browser...")
-
-	_cfg = gmCfg.gmDefCfgFile	 
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
 
 	try:
 		# obtain patient
@@ -560,7 +553,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.83  2008-01-22 12:20:53  ncq
+# Revision 1.84  2008-01-30 14:07:24  ncq
+# - do not use old cfg file support anymore
+#
+# Revision 1.83  2008/01/22 12:20:53  ncq
 # - dummy health issue always on top
 # - auto-scroll to bottom of journal
 #

@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -29,7 +29,6 @@ _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lInfo, __version__)
-_cfg = gmCfg.gmDefCfgFile
 
 [	wx.ID_LAB_GRID,
 	wx.ID_NB_LabJournal,
@@ -846,10 +845,6 @@ class cLabDataGrid(wx.Grid):
 if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "starting lab journal")
 
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
-
 	# catch all remaining exceptions
 	try:
 		application = wxPyWidgetTester(size=(640,480))
@@ -863,7 +858,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.29  2008-01-11 16:15:32  ncq
+# Revision 1.30  2008-01-30 14:08:06  ncq
+# - do not use old cfg file support anymore
+#
+# Revision 1.29  2008/01/11 16:15:32  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.28  2007/08/28 14:18:13  ncq
