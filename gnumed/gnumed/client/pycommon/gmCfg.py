@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -389,7 +389,7 @@ delete from cfg.cfg_item where
 	def __make_alias(self, workplace, user, cookie, option):
 		return '%s-%s-%s-%s' % (workplace, user, cookie, option)
 #===================================================================
-class cCfgFile:
+class cCfgFile_old_delete_soon:
 	"""Handle common INI-style config files.
 
 	The INI file structure follows the common rules. Option values
@@ -884,7 +884,7 @@ class cCfgFile:
 
 		return 1
 #=============================================================
-def create_default_cfg_file():
+def create_default_cfg_file_old_delete_soon():
 	# get base dir from name of script
 	base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
@@ -1043,53 +1043,53 @@ if __name__ == "__main__":
 
 	#---------------------------------------------------------
 
-	# if there's an argument assume it to be a config
-	# file and test that
-	if len(sys.argv) > 1:
-		print "testing config file handling"
-		print "============================"
-		try:
-			myCfg = cCfgFile(aFile = sys.argv[1])
+#	# if there's an argument assume it to be a config
+#	# file and test that
+#	if len(sys.argv) > 1:
+#		print "testing config file handling"
+#		print "============================"
+#		try:
+#			myCfg = cCfgFile(aFile = sys.argv[1])
 #			myCfg = cCfgFile(aFile = sys.argv[1],flags=cfg_SEARCH_STD_DIRS)
-		except:
-			exc = sys.exc_info()
-			_log.exception('unhandled exception')
-			raise
+#		except:
+#			exc = sys.exc_info()
+#			_log.exception('unhandled exception')
+#			raise
 
-		print myCfg
+#		print myCfg
 
-		# display file level data
-		print "file: %s" % myCfg.cfgName
-		tmp = myCfg.getComment()
-		if not tmp is None:
-			print "comment:", tmp
+#		# display file level data
+#		print "file: %s" % myCfg.cfgName
+#		tmp = myCfg.getComment()
+#		if not tmp is None:
+#			print "comment:", tmp
 
-		# display group level data
-		groups = myCfg.getGroups()
-		print "groups:", str(groups)
+#		# display group level data
+#		groups = myCfg.getGroups()
+#		print "groups:", str(groups)
 
-		# recurse groups
-		for group in groups:
-			print "GROUP [%s]" % group
+#		# recurse groups
+#		for group in groups:
+#			print "GROUP [%s]" % group
 
-			tmp = myCfg.getComment(aGroup = group)
-			if not tmp is None:
-				print " ", tmp
+#			tmp = myCfg.getComment(aGroup = group)
+#			if not tmp is None:
+#				print " ", tmp
 
-			# recurse options
-			options = myCfg.getOptions(group)
-			for option in options:
-				tmp = myCfg.get(group, option)
-				if not tmp is None:
-					print "OPTION <%s> = >>>%s<<<" % (option, tmp)
-				tmp = myCfg.getComment(group, option)
-				if not tmp is None:
-					print "  %s" % tmp
+#			# recurse options
+#			options = myCfg.getOptions(group)
+#			for option in options:
+#				tmp = myCfg.get(group, option)
+#				if not tmp is None:
+#					print "OPTION <%s> = >>>%s<<<" % (option, tmp)
+#				tmp = myCfg.getComment(group, option)
+#				if not tmp is None:
+#					print "  %s" % tmp
 
-		myCfg.set("date", "modified", "right now", ["should always be rather current"])
-		myCfg.store()
+#		myCfg.set("date", "modified", "right now", ["should always be rather current"])
+#		myCfg.store()
 
-		sys.exit(0)
+#		sys.exit(0)
 
 	try:
 		test_db_cfg()
@@ -1097,19 +1097,22 @@ if __name__ == "__main__":
 		_log.exception('test suite failed')
 		raise
 
-else:
-	# - we are being imported
+#else:
+#	# - we are being imported
 
-	# - IF the caller really knows what she does she can handle
-	#   that exception in her own code
-	try:
-		gmDefCfgFile = cCfgFile()
-	except IOError:
-		_log.exception('unhandled exception')
+#	# - IF the caller really knows what she does she can handle
+#	#   that exception in her own code
+#	try:
+#		gmDefCfgFile = cCfgFile()
+#	except IOError:
+#		_log.exception('unhandled exception')
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.57  2007-12-26 18:34:02  ncq
+# Revision 1.58  2008-01-30 14:04:32  ncq
+# - disable support from gmCfgFile()
+#
+# Revision 1.57  2007/12/26 18:34:02  ncq
 # - no more old CLI lib
 #
 # Revision 1.56  2007/12/23 11:57:14  ncq
