@@ -25,7 +25,6 @@ Source:		http://www.gnumed.de/downloads/client/0.2/%{oname}-client.%{version}.tg
 Source1:		gnumed-client.conf
 Source2:		readme.openSUSE
 Patch0:		gnumed-python-path.diff
-Patch1:		gnumed.patch
 BuildRoot:	%_tmppath/%name-%version-buildroot
 URL:		http://wiki.gnumed.de/
 Packager:	Sebastian Hilbert
@@ -87,7 +86,6 @@ Documentation for %name
 %prep
 %setup -n %{oname}-%{version}
 %patch0 -p1
-%patch1 -p1
 
 %build
 
