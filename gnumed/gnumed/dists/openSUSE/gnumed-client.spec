@@ -68,7 +68,7 @@ Requires:	python-psycopg2
 Requires:	python-egenix-mx-base
 Requires:	python-wxGTK >= 2.6.3
 Requires:	kdebase3
-Requires:	kdepim3-korganizer
+Requires:	kdepim3
 Requires:	OpenOffice_org-pyuno
 Requires:	java
 
