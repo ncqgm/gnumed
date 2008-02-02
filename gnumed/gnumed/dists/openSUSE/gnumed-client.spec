@@ -15,6 +15,10 @@
 %define version 0.2.8.3
 %define release 2
 
+%define _iconsdir	/usr/share/icons
+%define _miconsdir	/usr/share/icons/mini
+%define _liconsdir	/usr/share/icons/large
+
 Summary: 	%{oname} client
 Name:		%name
 Version:		%version
@@ -30,7 +34,9 @@ URL:		http://wiki.gnumed.de/
 Packager:	Sebastian Hilbert
 Distribution:	openSUSE
 
-BuildRequires:	desktop-file-utils
+BuildRequires:	desktop-file-utils,python,python-devel
+
+%py_requires
 
 %description
 This is the GNUmed Electronic Medical Record. Its purpose is to enable doctors to keep a medically sound record on their patients' health. Currently it is not fully featured. The features provided are, however, tested, in use, and considered stable. This package does NOT yet provide functionality for billing and stock keeping.
@@ -166,7 +172,6 @@ cp client/bitmaps/%{name}logo.png $RPM_BUILD_ROOT%{_iconsdir}/%{name}.png
 desktop-file-install \
     --vendor='' \
     --dir %{buildroot}%{_datadir}/applications \
-    --add-category X-MandrivaLinux-Office-Other \
     %{buildroot}%{_datadir}/applications/%{name}-client.desktop
 
 # Files for common package
