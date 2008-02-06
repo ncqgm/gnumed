@@ -1,0 +1,11 @@
+--- GNUmed-v8/server/bootstrap/bootstrap_gm_db_system.py.orig	2008-01-25 13:05:37.000000000 -0500
++++ GNUmed-v8/server/bootstrap/bootstrap_gm_db_system.py	2008-01-25 13:08:17.000000000 -0500
+@@ -1190,6 +1190,8 @@
+ 		_interactive = True
+ 	elif tmp == "no":
+ 		_interactive = False
++	# we do not want to run interactively
++	_interactive = False
+ 
+ 	tmp = _cfg.get('installation', 'keep temp files')
+ 	if tmp == "yes":
