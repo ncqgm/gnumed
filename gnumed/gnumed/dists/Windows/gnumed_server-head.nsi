@@ -3,10 +3,10 @@ VAR PYTHON_PATH
 VAR POSTGRES_PATH
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "GNUmed-server"
-!define PRODUCT_VERSION "v6"
+!define PRODUCT_VERSION "v8"
 !define PRODUCT_SUBREV "0"
 !define PRODUCT_PUBLISHER "Sebastian Hilbert"
-!define PRODUCT_WEB_SITE "http://www.gnumed.org"
+!define PRODUCT_WEB_SITE "http://wiki.gnumed.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
@@ -249,18 +249,25 @@ FunctionEnd
 
 LangString BootstrapLnkName ${LANG_ENGLISH} "bootstrap GNUmed database"
 LangString BootstrapLnkName ${LANG_GERMAN} "GNUmed Datenbank erzeugen"
+LangString UpdateLnkName ${LANG_ENGLISH} "update GNUmed database"
+LangString UpdateLnkName ${LANG_GERMAN} "GNUmed Datenbank updaten"
 LangString LogfileLnkName ${LANG_ENGLISH} "view bootstrap logfile"
 LangString LogfileLnkName ${LANG_GERMAN} "Protokoll der Datenbankerstellung"
+LangString UpdateLogfileLnkName ${LANG_ENGLISH} "view database update logfile"
+LangString UpdateLogfileLnkName ${LANG_GERMAN} "Protokoll des Datenbankupdates"
+
 
 
 Section -!$(Sec2Name) SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
-  File /r gnumed-head\gnumed\server\*
+  File /r gnumed-0-2-8-3\gnumed\server\*
   CreateDirectory "$SMPROGRAMS\GNUmed\server"
   SetOutPath "$INSTDIR\bootstrap"
   CreateShortCut "$SMPROGRAMS\GNUmed\server\$(BootstrapLnkName).lnk" "$INSTDIR\bootstrap\bootstrap-latest.bat"
   CreateShortCut "$SMPROGRAMS\GNUmed\server\$(LogfileLnkName).lnk" "$INSTDIR\bootstrap\bootstrap-latest.log"
+  CreateShortCut "$SMPROGRAMS\GNUmed\server\$(UpdateLnkName).lnk" "$INSTDIR\bootstrap\upgrade-db.bat" "7 8"
+  CreateShortCut "$SMPROGRAMS\GNUmed\server\$(UpdateLogfileLnkName).lnk" "$INSTDIR\bootstrap\update_db-v7_v8.log"
   ;MessageBox MB_OK "$TEMP"
 SectionEnd
 
@@ -268,12 +275,12 @@ SectionEnd
 Section -!$(Sec2Name) SEC02
   SetOutPath "$PYTHON_PATH\Lib\site-packages\Gnumed\pycommon"
   SetOverwrite ifnewer
-  File "gnumed-head\gnumed\client\pycommon\*.py"
-  File "gnumed-head\gnumed\client\pycommon\__init__.py"
+  File "gnumed-0-2-8-3\gnumed\client\pycommon\*.py"
+  File "gnumed-0-2-8-3\gnumed\client\pycommon\__init__.py"
   SetOutPath "$PYTHON_PATH\Lib\site-packages\Gnumed\pycommon\tools"
-  File "gnumed-head\gnumed\client\pycommon\tools\*.py"
+  File "gnumed-0-2-8-3\gnumed\client\pycommon\tools\*.py"
   SetOutPath "$PYTHON_PATH\Lib\site-packages\Gnumed\pycommon"
-  File "gnumed-head\gnumed\client\pycommon\__init__.py"
+  File "gnumed-0-2-8-3\gnumed\client\pycommon\__init__.py"
 SectionEnd
 
 Section -AdditionalIcons
