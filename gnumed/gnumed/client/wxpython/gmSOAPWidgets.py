@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.95.2.1 2008-01-16 14:12:09 ncq Exp $
-__version__ = "$Revision: 1.95.2.1 $"
+# $Id: gmSOAPWidgets.py,v 1.95.2.2 2008-02-21 15:46:23 ncq Exp $
+__version__ = "$Revision: 1.95.2.2 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -128,50 +128,81 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	def add_editor(self, problem=None, allow_same_problem=False):
 		"""Add a progress note editor page."""
 
-		label = _('new episode')
+		problem_to_add = problem
 
-		if problem is not None:
+		# determine label
+		if problem_to_add is None:
+			label = _('new episode')
+		else:
+			# normalize problem type
 			emr = self.__pat.get_emr()
-			if isinstance(problem, gmEMRStructItems.cEpisode):
-				problem = emr.episode2problem(episode = problem)
-			elif isinstance(problem, gmEMRStructItems.cHealthIssue):
-				problem = emr.health_issue2problem(issue = problem)
-			if not isinstance(problem, gmEMRStructItems.cProblem):
-				raise TypeError('cannot open progress note editor for [%s]' % str(problem))
-
-			label = problem['problem']
-			# FIXME: configure length
+			if isinstance(problem_to_add, gmEMRStructItems.cEpisode):
+				problem_to_add = emr.episode2problem(episode = problem_to_add)
+			elif isinstance(problem_to_add, gmEMRStructItems.cHealthIssue):
+				problem_to_add = emr.health_issue2problem(issue = problem_to_add)
+			if not isinstance(problem_to_add, gmEMRStructItems.cProblem):
+				raise TypeError('cannot open progress note editor for [%s]' % problem_to_add)
+			label = problem_to_add['problem']
+			# FIXME: configure maximum length
 			if len(label) > 23:
 				label = label[:20] + '...'
 
-		if not allow_same_problem:
+		if allow_same_problem:
+			new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
+			result = self.AddPage (
+				page = new_page,
+				text = label,
+				select = True
+			)
+			return result
+
+		# new unassociated problem
+		if problem_to_add is None:
 			# check for dupes
 			for page_idx in range(self.GetPageCount()):
 				page = self.GetPage(page_idx)
-				existing_problem = page.get_problem()
-				# unassociated
-				if problem is None:
-					if existing_problem is None:
-						self.SetSelection(page_idx)
-						return True
-					continue
-				# episodes
-				if problem['type'] == 'episode':
-					if problem['pk_episode'] == existing_problem['pk_episode']:
-						self.SetSelection(page_idx)
-						return True
-					continue
-				if problem['type'] == 'issue':
-					if problem['pk_health_issue'] == existing_problem['pk_health_issue']:
-						self.SetSelection(page_idx)
-						return True
+				# found
+				if page.get_problem() is None:
+					self.SetSelection(page_idx)
+					return True
+				continue
+			# not found
+			new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
+			result = self.AddPage (
+				page = new_page,
+				text = label,
+				select = True
+			)
+			return result
 
-		new_page = cResizingSoapPanel(parent = self, problem = problem)
-		return self.AddPage (
+		# real problem
+		# - raise existing editor ?
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx)
+			problem_of_page = page.get_problem()
+			# editor is for unassociated new problem
+			if problem_of_page is None:
+				continue
+			# editor is for episode
+			if problem_of_page['type'] == 'episode':
+				if problem_of_page['pk_episode'] == problem_to_add['pk_episode']:
+					self.SetSelection(page_idx)
+					return True
+				continue
+			# editor is for health issue
+			if problem_of_page['type'] == 'issue':
+				if problem_of_page['pk_health_issue'] == problem_to_add['pk_health_issue']:
+					self.SetSelection(page_idx)
+					return True
+				continue
+		# - add new editor
+		new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
+		result = self.AddPage (
 			page = new_page,
 			text = label,
 			select = True
 		)
+		return result
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1077,7 +1108,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.95.2.1  2008-01-16 14:12:09  ncq
+# Revision 1.95.2.2  2008-02-21 15:46:23  ncq
+# - fix sometime crash on opening soap editor
+#
+# Revision 1.95.2.1  2008/01/16 14:12:09  ncq
 # - do not crash on saving when there's only one editor open for a new episode
 #
 # Revision 1.95  2007/09/24 22:05:57  ncq
