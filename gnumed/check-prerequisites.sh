@@ -1,13 +1,22 @@
 #!/bin/sh
-
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 echo "-------------------------------------------------------------"
-echo "Please make sure to also read the INSTALL and README files."
+echo "This script will check your environment for applications"
+echo "and services the GNUmed client depends on."
 echo ""
-echo "Run this script from the directory it is in or it might fail."
+echo "Please make sure to also read the INSTALL and README files."
 echo "-------------------------------------------------------------"
+
+ME=`basename $0`
+if test ! -e ./${ME} ; then
+	echo ""
+	echo "NOTE: Run this script from the directory it is in or it might fail !"
+	echo ""
+	read -p "Press [ENTER] to continue anyway."
+fi
+
 echo ""
 echo "You need to be able to connect to a PostgreSQL"
 echo "server. It is, however, non-trivial to reliably"
@@ -16,7 +25,8 @@ echo "If you want to work with a *local* database (on this"
 echo "machine) you should see at least one process saying"
 echo "'postmaster' in the following list."
 echo "If you don't you can still use our public database"
-echo "at salaam.homeunix.com for testing."
+echo "at salaam.homeunix.com for testing or connect to a"
+echo "GNUmed database installed on another machine."
 echo ""
 echo "-------------------------------------------------------------------------"
 ps axww | grep post | grep -v "grep"
@@ -33,8 +43,9 @@ else
 fi
 
 # make sure we can locally find the Python modules
+# when running from a copy of the CVS tree
 cd gnumed
-ln -s client Gnumed
+ln -s client Gnumed &> /dev/null
 cd -
 
 echo ""
@@ -64,6 +75,15 @@ echo "=> checking for 'extract' command ..."
 BIN=`which extract`
 if [ "x${BIN}x" == "xx" ]; then
 	echo "INFO : You don't seem to have the 'extract' command installed."
+	echo "INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "=> found"
+fi
+
+echo "=> checking for Aeskulap DICOM viewer ..."
+BIN=`which aeskulap`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'aeskulap' command installed."
 	echo "INFO : It is available with your OS. On Windows it is not needed."
 else
 	echo "=> found"
@@ -126,7 +146,13 @@ fi
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.11  2007-09-24 18:24:51  ncq
+# Revision 1.12  2008-02-21 15:25:06  ncq
+# - only warn on risky cwd if it IS risky
+# - better wording on PG detection
+# - better comments
+# - check for Aeskulap
+#
+# Revision 1.11  2007/09/24 18:24:51  ncq
 # - check for Gnuplot.py
 #
 # Revision 1.10  2007/09/16 01:01:16  ncq
