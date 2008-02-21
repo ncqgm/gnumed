@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.137.2.1 2008-01-14 13:20:04 ncq Exp $
-__version__ = "$Revision: 1.137.2.1 $"
+# $Id: gmDemographicsWidgets.py,v 1.137.2.2 2008-02-21 18:10:26 ncq Exp $
+__version__ = "$Revision: 1.137.2.2 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2328,7 +2328,7 @@ def link_contacts_from_dtd(identity, dtd=None):
 		dtd['state'].strip() +
 		dtd['country'].strip()
 	)
-	if lng > 0:
+	if lng > 5:
 		# FIXME: support address type
 		success = identity.link_address (
 			number = dtd['address_number'].strip(),
@@ -2340,6 +2340,8 @@ def link_contacts_from_dtd(identity, dtd=None):
 		)
 		if not success:
 			gmDispatcher.send(signal='statustext', msg = _('Cannot update patient address.'))
+	else:
+		gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address. Missing fields.'))
 
 	if len(dtd['phone']) > 0:
 		identity.link_comm_channel (
@@ -2536,7 +2538,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.137.2.1  2008-01-14 13:20:04  ncq
+# Revision 1.137.2.2  2008-02-21 18:10:26  ncq
+# - somewhat tighten check on patient address
+#
+# Revision 1.137.2.1  2008/01/14 13:20:04  ncq
 # - don't crash if korganizer2gnumed.csv isn't there
 #
 # Revision 1.137  2007/12/06 10:46:05  ncq
