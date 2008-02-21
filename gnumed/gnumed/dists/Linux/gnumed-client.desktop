@@ -2,13 +2,12 @@
 # GNUmed client desktop entry specification
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed-client.desktop,v $
-# $Id: gnumed-client.desktop,v 1.1 2007-10-25 10:29:48 ncq Exp $
+# $Id: gnumed-client.desktop,v 1.2 2008-02-21 15:28:47 ncq Exp $
 # license: GPL
 #====================================================
 
 [Desktop Entry]
 Type=Application
-Encoding=UTF-8
 Name=GNUmed
 GenericName=Electronic Medical Record
 Comment=Paperless Medical Record and Practice Management
@@ -19,7 +18,10 @@ Categories=Office;MedicalSoftware;
 
 #====================================================
 # $Log: gnumed-client.desktop,v $
-# Revision 1.1  2007-10-25 10:29:48  ncq
+# Revision 1.2  2008-02-21 15:28:47  ncq
+# - "Encoding" deprecated as per http://standards.freedesktop.org/desktop-entry-spec/1.0/apc.html
+#
+# Revision 1.1  2007/10/25 10:29:48  ncq
 # - pulled in from Debian
 #
 #
