@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.150.2.1 2008-01-08 22:39:31 ncq Exp $
-__version__ = "$Revision: 1.150.2.1 $"
+# $Id: gmMedDocWidgets.py,v 1.150.2.2 2008-02-25 15:05:35 ncq Exp $
+__version__ = "$Revision: 1.150.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -469,6 +469,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self.SetDropTarget(dt)
 		dt = gmGuiHelpers.cFileDropTarget(self._LBOX_doc_pages)
 		self._LBOX_doc_pages.SetDropTarget(dt)
+		self._LBOX_doc_pages.add_filenames = self.add_filenames_to_listbox
 
 		# do not import globally since we might want to use
 		# this module without requiring any scanner to be available
@@ -476,6 +477,9 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self.scan_module = gmScanBackend
 	#--------------------------------------------------------
 	# file drop target API
+	#--------------------------------------------------------
+	def add_filenames_to_listbox(self, filenames):
+		self.add_filenames(filenames=filenames)
 	#--------------------------------------------------------
 	def add_filenames(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
@@ -1503,7 +1507,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.150.2.1  2008-01-08 22:39:31  ncq
+# Revision 1.150.2.2  2008-02-25 15:05:35  ncq
+# - do not crash on dropping files on listbox
+#
+# Revision 1.150.2.1  2008/01/08 22:39:31  ncq
 # - 'first' / 'last' -> 'firstnames' / 'lastnames'
 #
 # Revision 1.150  2007/11/05 11:41:46  ncq
