@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -360,10 +360,6 @@ class db_server:
 	def __create_dbowner(self):
 		global _dbowner
 
-		print "We are about to check whether we need to create the"
-		print "database user who owns all GNUmed database objects."
-		print ""
-
 		dbowner_alias = cfg_get("GnuMed defaults", "database owner alias")
 		if dbowner_alias is None:
 			_log.error("Cannot load GNUmed database owner name from config file.")
@@ -383,6 +379,7 @@ class db_server:
 				return False
 			self.conn.commit()
 			cursor.close()
+			print ""
 			print "The database owner already exists."
 			print "Please provide the password previously used for it."
 			print ""
@@ -394,7 +391,7 @@ class db_server:
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
 
-Make sure to remember the password.
+Make sure to remember the password for later use.
 """)
 		_dbowner = user(anAlias = dbowner_alias)
 
@@ -1305,7 +1302,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.73  2008-01-07 14:15:43  ncq
+# Revision 1.74  2008-02-25 19:39:48  ncq
+# - better output
+#
+# Revision 1.73  2008/01/07 14:15:43  ncq
 # - port to gmCfg2/gmLog2
 # - create database with default transaction mode set to readonly
 #
