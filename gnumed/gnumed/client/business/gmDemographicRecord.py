@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.94 2008-01-07 19:32:15 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmDemographicRecord.py,v 1.95 2008-02-25 17:29:40 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -233,7 +233,7 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 			%(secret)s
 		)"""
 
-	rows, idx = gmPG2.run_rw_queries(
+	rows, idx = gmPG2.run_rw_queries (
 		queries = [
 			{'cmd': cmd, 'args': args},
 			{'cmd': u'select * from dem.v_person_comms where pk_lnk_identity2comm = currval(pg_get_serial_sequence(''dem.lnk_identity2comm'', ''pk''))'}
@@ -568,7 +568,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.94  2008-01-07 19:32:15  ncq
+# Revision 1.95  2008-02-25 17:29:40  ncq
+# - cleanup
+#
+# Revision 1.94  2008/01/07 19:32:15  ncq
 # - cleanup, rearrange
 # - create comm channel API
 #

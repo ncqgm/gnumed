@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.7 2007-12-26 20:17:39 ncq Exp $
-__version__ = '$Revision: 1.7 $'
+# $Id: gm_ctl_client.py,v 1.8 2008-02-25 17:32:01 ncq Exp $
+__version__ = '$Revision: 1.8 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -23,7 +23,7 @@ import sys, time, xmlrpclib, socket, time, os, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmCfg2, gmI18N, gmLog2
+from Gnumed.pycommon import gmCfg2, gmI18N
 from Gnumed.wxpython import gmGuiHelpers
 
 
@@ -195,7 +195,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.7  2007-12-26 20:17:39  ncq
+# Revision 1.8  2008-02-25 17:32:01  ncq
+# - cleanup
+#
+# Revision 1.7  2007/12/26 20:17:39  ncq
 # - add = to options
 #
 # Revision 1.6  2007/12/26 14:33:11  ncq
