@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.22 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmProviderInboxWidgets.py,v 1.23 2008-02-25 17:40:45 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -42,6 +42,8 @@ def configure_workplace_plugins(parent=None):
 
 		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
 
+		dbcfg = gmCfg.cCfgSQL()
+
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
 				parent = parent,
@@ -58,7 +60,6 @@ def configure_workplace_plugins(parent=None):
 			curr_plugins = []
 			choices = available_plugins
 		else:
-			dbcfg = gmCfg.cCfgSQL()
 			curr_plugins = gmTools.coalesce(dbcfg.get2 (
 				option = u'horstspace.notebook.plugin_load_order',
 				workplace = workplace,
@@ -270,7 +271,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.22  2008-01-30 14:03:42  ncq
+# Revision 1.23  2008-02-25 17:40:45  ncq
+# - establish db cfg instance early enough
+#
+# Revision 1.22  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #
