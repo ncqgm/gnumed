@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.134 2008-01-30 14:10:40 ncq Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gnumed.py,v 1.135 2008-02-25 17:43:40 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -393,9 +393,15 @@ log_object_refcounts()
 
 _log.info('Normally shutting down as main module.')
 
+# do not choke on Windows
+logging.raiseExceptions = False
+
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.134  2008-01-30 14:10:40  ncq
+# Revision 1.135  2008-02-25 17:43:40  ncq
+# - try suppressing the Python-on-Windows logging bug
+#
+# Revision 1.134  2008/01/30 14:10:40  ncq
 # - cleanup
 #
 # Revision 1.133  2008/01/14 20:45:45  ncq
