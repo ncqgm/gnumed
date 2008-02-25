@@ -2,21 +2,23 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.98 2008-01-14 20:42:26 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmSOAPWidgets.py,v 1.99 2008-02-25 17:43:03 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std library
 import types
 
+
 # 3rd party
 import wx
 
+
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmTools
+from Gnumed.pycommon import gmDispatcher, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmTools, gmCfg
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea
-from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
+from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -68,11 +70,11 @@ def create_vacc_popup(parent, pos, size, style, data_sink):
 progress_note_keywords = {
 	's': {
 		'$missing_action': {},
-		'phx': {
+		'phx$': {
 			'widget_factory': create_issue_popup,
 			'widget_data_sink': None
 		},
-		'ea:': {
+		'ea$:': {
 			'widget_factory': create_issue_popup,
 			'widget_data_sink': None
 		},
@@ -128,51 +130,81 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	def add_editor(self, problem=None, allow_same_problem=False):
 		"""Add a progress note editor page."""
 
-		label = _('new episode')
+		problem_to_add = problem
 
-		if problem is not None:
+		# determine label
+		if problem_to_add is None:
+			label = _('new episode')
+		else:
+			# normalize problem type
 			emr = self.__pat.get_emr()
-			if isinstance(problem, gmEMRStructItems.cEpisode):
-				problem = emr.episode2problem(episode = problem)
-			elif isinstance(problem, gmEMRStructItems.cHealthIssue):
-				problem = emr.health_issue2problem(issue = problem)
-			if not isinstance(problem, gmEMRStructItems.cProblem):
-				raise TypeError('cannot open progress note editor for [%s]' % str(problem))
-
-			label = problem['problem']
-			# FIXME: configure length
+			if isinstance(problem_to_add, gmEMRStructItems.cEpisode):
+				problem_to_add = emr.episode2problem(episode = problem_to_add)
+			elif isinstance(problem_to_add, gmEMRStructItems.cHealthIssue):
+				problem_to_add = emr.health_issue2problem(issue = problem_to_add)
+			if not isinstance(problem_to_add, gmEMRStructItems.cProblem):
+				raise TypeError('cannot open progress note editor for [%s]' % problem_to_add)
+			label = problem_to_add['problem']
+			# FIXME: configure maximum length
 			if len(label) > 23:
 				label = label[:20] + '...'
 
-		if not allow_same_problem:
+		if allow_same_problem:
+			new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
+			result = self.AddPage (
+				page = new_page,
+				text = label,
+				select = True
+			)
+			return result
+
+		# new unassociated problem
+		if problem_to_add is None:
 			# check for dupes
 			for page_idx in range(self.GetPageCount()):
 				page = self.GetPage(page_idx)
-				existing_problem = page.get_problem()
-				# unassociated
-				if problem is None:
-					if existing_problem is None:
-						self.SetSelection(page_idx)
-						return True
-					continue
-				# episodes
-				if problem['type'] == 'episode':
-					if problem['pk_episode'] == existing_problem['pk_episode']:
-						self.SetSelection(page_idx)
-						return True
-					continue
-				# issues
-				if problem['type'] == 'issue':
-					if problem['pk_health_issue'] == existing_problem['pk_health_issue']:
-						self.SetSelection(page_idx)
-						return True
+				# found
+				if page.get_problem() is None:
+					self.SetSelection(page_idx)
+					return True
+				continue
+			# not found
+			new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
+			result = self.AddPage (
+				page = new_page,
+				text = label,
+				select = True
+			)
+			return result
 
-		new_page = cResizingSoapPanel(parent = self, problem = problem)
-		return self.AddPage (
+		# real problem
+		# - raise existing editor ?
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx)
+			problem_of_page = page.get_problem()
+			# editor is for unassociated new problem
+			if problem_of_page is None:
+				continue
+			# editor is for episode
+			if problem_of_page['type'] == 'episode':
+				if problem_of_page['pk_episode'] == problem_to_add['pk_episode']:
+					self.SetSelection(page_idx)
+					return True
+				continue
+			# editor is for health issue
+			if problem_of_page['type'] == 'issue':
+				if problem_of_page['pk_health_issue'] == problem_to_add['pk_health_issue']:
+					self.SetSelection(page_idx)
+					return True
+				continue
+		# - add new editor
+		new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
+		result = self.AddPage (
 			page = new_page,
 			text = label,
 			select = True
 		)
+		return result
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -239,6 +271,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 	- progress note editors notebook
 
 	Expects to live in a notebook.
+
+	Listens to patient change signals, thus acts on the current patient.
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, id):
@@ -290,7 +324,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		list_header = wx.StaticText (
 			parent = PNL_list,
 			id = -1,
-			label = _('Active Problems'),
+			label = _('Active problems'),
 			style = wx.NO_BORDER | wx.ALIGN_CENTRE
 		)
 		# - problem list
@@ -421,8 +455,30 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 	#--------------------------------------------------------
 	def __on_add_unassociated(self, evt):
 		"""Add new editor for as-yet unassociated progress note.
+
+		Clinical logic as per discussion with Jim Busser:
+
+		- if patient has no episodes:
+			- new patient
+			- always allow several NEWs
+		- of patient has episodes:
+			- allow several NEWs per configuration
 		"""
-		self.__soap_notebook.add_editor()
+		emr = self.__pat.get_emr()
+		epis = emr.get_episodes()
+
+		if len(epis) == 0:
+			value = True
+		else:
+			dbcfg = gmCfg.cCfgSQL()
+			value = bool(dbcfg.get2 (
+				option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = u'user',
+				default = False
+			))
+
+		self.__soap_notebook.add_editor(allow_same_problem = value)
 	#--------------------------------------------------------
 	def __on_problem_activated(self, event):
 		"""
@@ -1077,7 +1133,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.98  2008-01-14 20:42:26  ncq
+# Revision 1.99  2008-02-25 17:43:03  ncq
+# - keywords: ea -> ea$, phx -> phx$
+# - fix add_editor()
+# - clinical logic change for adding new editors
+#
+# Revision 1.98  2008/01/14 20:42:26  ncq
 # - don't crash on adding an empty editor
 #
 # Revision 1.97  2008/01/05 16:41:27  ncq
