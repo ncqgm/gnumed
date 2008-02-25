@@ -2,7 +2,7 @@
 
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.1 2008-02-21 16:22:06 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.2 2008-02-25 17:47:12 ncq Exp $
 # ===========================================================
 
 VER_LATEST="CVS-HEAD"
@@ -43,6 +43,15 @@ if [ -f /etc/mandriva-release ]; then
 	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file"
 	PKG_INSTALLER="urpmi"
 	SYS_TYPE="Mandriva"
+fi
+# PCLinuxOS
+if [ -f /etc/version ] ; then
+	grep -q PCLinuxOS /etc/version
+	if [ $? -eq 0 ] ; then
+		DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file"
+		PKG_INSTALLER="rpm -i"
+		SYS_TYPE="PCLinuxOS"
+	fi
 fi
 
 echo ""
@@ -183,7 +192,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.1  2008-02-21 16:22:06  ncq
+# Revision 1.2  2008-02-25 17:47:12  ncq
+# - detect PCLinuxOS for setting installer/dependancies
+#
+# Revision 1.1  2008/02/21 16:22:06  ncq
 # - newly added
 #
 #
