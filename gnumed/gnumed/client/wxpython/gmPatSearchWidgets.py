@@ -10,25 +10,25 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.103 2008-01-30 14:09:39 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmPatSearchWidgets.py,v 1.104 2008-02-25 17:40:18 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, glob, datetime as pyDT, re as regex
+import sys, os.path, time, glob, datetime as pyDT, re as regex, logging
 
 
 import wx
 
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
+from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
 from Gnumed.business import gmPerson, gmKVK, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.person')
+_log.info(__version__)
 
 _cfg = gmCfg2.gmCfgData()
 
@@ -79,7 +79,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
 			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
 			except:
-				_log.LogException('cannot set match_type field')
+				_log.exception('cannot set match_type field')
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = u'??')
 
 		for col in range(len(self.__cols)):
@@ -216,7 +216,7 @@ def load_persons_from_xdt():
 			source_order = src_order
 		)
 		if name is None:
-			_log.Log(gmLog.lErr, 'XDT profile [%s] does not define a <filename>' % profile)
+			_log.error('XDT profile [%s] does not define a <filename>' % profile)
 			continue
 		encoding = _cfg.get (
 			group = 'XDT profile %s' % profile,
@@ -224,7 +224,7 @@ def load_persons_from_xdt():
 			source_order = src_order
 		)
 		if encoding is None:
-			_log.Log(gmLog.lWarn, 'xDT source profile [%s] does not specify an <encoding> for BDT file [%s]' % (profile, name))
+			_log.warning('xDT source profile [%s] does not specify an <encoding> for BDT file [%s]' % (profile, name))
 		source = _cfg.get (
 			group = 'XDT profile %s' % profile,
 			option = 'source',
@@ -236,7 +236,7 @@ def load_persons_from_xdt():
 			source_order = src_order
 		)
 		if dob_format is None:
-			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a date of birth format in <DOB format>' % profile)
+			_log.warning('XDT profile [%s] does not define a date of birth format in <DOB format>' % profile)
 		bdt_files.append({'file': name, 'source': source, 'encoding': encoding, 'dob_format': dob_format})
 
 	dtos = []
@@ -259,7 +259,7 @@ def load_persons_from_xdt():
 				) % bdt_file,
 				_('Activating xDT patient')
 			)
-			_log.LogException('cannot access xDT file [%s]' % bdt_file['file'])
+			_log.exception('cannot access xDT file [%s]' % bdt_file['file'])
 			continue
 		except:
 			gmGuiHelpers.gm_show_error (
@@ -269,7 +269,7 @@ def load_persons_from_xdt():
 				) % bdt_file,
 				_('Activating xDT patient')
 			)
-			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
+			_log.exception('cannot read patient from xDT file [%s]' % bdt_file['file'])
 			continue
 
 		dtos.append({'dto': dto, 'source': gmTools.coalesce(bdt_file['source'], dto.source)})
@@ -314,7 +314,7 @@ def load_persons_from_pracsoft_au():
 		if os.access(fname, os.R_OK):
 			pracsoft_files.append({'file': os.path.expanduser(fname), 'source': source})
 		else:
-			_log.Log(gmLog.lErr, 'cannot read [%s] in AU PracSoft profile' % fname)
+			_log.error('cannot read [%s] in AU PracSoft profile' % fname)
 
 	# and parse them
 	dtos = []
@@ -322,7 +322,7 @@ def load_persons_from_pracsoft_au():
 		try:
 			tmp = gmPerson.get_persons_from_pracsoft_file(filename = pracsoft_file['file'])
 		except:
-			_log.LogException('cannot parse PracSoft file [%s]' % pracsoft_file['file'])
+			_log.exception('cannot parse PracSoft file [%s]' % pracsoft_file['file'])
 			continue
 		for dto in tmp:
 			dtos.append({'dto': dto, 'source': pracsoft_file['source']})
@@ -378,8 +378,8 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 			key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
 			names = curr_pat.get_active_name()
 			key_pat = names['firstnames'] + names['lastnames'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
-			_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
-			_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
+			_log.debug('current patient: %s' % key_pat)
+			_log.debug('dto patient    : %s' % key_dto)
 			if key_dto == key_pat:
 				gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
 				return True
@@ -510,7 +510,7 @@ class cPatientSelector(wx.TextCtrl):
 	#--------------------------------------------------------
 	def SetActivePatient(self, pat):
 		if not gmPerson.set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
-			_log.Log (gmLog.lErr, 'cannot change active patient')
+			_log.error('cannot change active patient')
 			return None
 
 		self.__remember_ident(pat)
@@ -727,7 +727,7 @@ class cPatientSelector(wx.TextCtrl):
 			)
 			return None
 
-		_log.Log (gmLog.lInfo, "%s person objects(s) fetched in %3.3f seconds" % (len(idents), duration))
+		_log.info("%s person objects(s) fetched in %3.3f seconds" % (len(idents), duration))
 
 		if len(idents) == 0:
 			wx.EndBusyCursor()
@@ -784,8 +784,6 @@ class cPatientSelector(wx.TextCtrl):
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
@@ -899,7 +897,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.103  2008-01-30 14:09:39  ncq
+# Revision 1.104  2008-02-25 17:40:18  ncq
+# - new style logging
+#
+# Revision 1.103  2008/01/30 14:09:39  ncq
 # - switch to new style cfg file support
 # - cleanup
 #
