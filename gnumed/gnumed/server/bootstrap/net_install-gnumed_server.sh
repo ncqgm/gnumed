@@ -2,25 +2,25 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.3 2008-01-05 19:33:59 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.4 2008-02-25 19:41:07 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
 # SUSE
 if [ -f /etc/SuSE-release ]; then
-	DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python-psycopg2"
+	DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python-psycopg2 gzip"
 	PKG_INSTALLER="zypper install"
 	SYS_TYPE="SuSE"
 fi
 # Debian
 if [ -f /etc/debian_version ]; then
-	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2 sudo wget"
+	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gzip gnupg mc rsync python-psycopg2 sudo wget"
 	PKG_INSTALLER="apt-get install"
 	SYS_TYPE="Debian"
 fi
 # Mandriva
 if [ -f /etc/mandriva-release ]; then
-	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2"
+	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2 gzip"
 	PKG_INSTALLER="urpmi"
 	SYS_TYPE="Mandriva"
 fi
@@ -66,7 +66,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.3  2008-01-05 19:33:59  ncq
+# Revision 1.4  2008-02-25 19:41:07  ncq
+# - add gzip as dependancy
+#
+# Revision 1.3  2008/01/05 19:33:59  ncq
 # - re-reorder
 #
 # Revision 1.2  2008/01/05 19:33:15  ncq
