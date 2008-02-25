@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.19.2.1 2008-01-22 17:22:07 ncq Exp $
-__version__ = "$Revision: 1.19.2.1 $"
+# $Id: gmProviderInboxWidgets.py,v 1.19.2.2 2008-02-25 16:43:41 ncq Exp $
+__version__ = "$Revision: 1.19.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -42,6 +42,8 @@ def configure_workplace_plugins(parent=None):
 
 		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
 
+		dbcfg = gmCfg.cCfgSQL()
+
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
 				parent = parent,
@@ -58,7 +60,6 @@ def configure_workplace_plugins(parent=None):
 			curr_plugins = []
 			choices = available_plugins
 		else:
-			dbcfg = gmCfg.cCfgSQL()
 			curr_plugins = gmTools.coalesce(dbcfg.get2 (
 				option = u'horstspace.notebook.plugin_load_order',
 				workplace = workplace,
@@ -271,7 +272,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.19.2.1  2008-01-22 17:22:07  ncq
+# Revision 1.19.2.2  2008-02-25 16:43:41  ncq
+# - dbcfg = ... was in the wrong place
+#
+# Revision 1.19.2.1  2008/01/22 17:22:07  ncq
 # - don't crash on empty workplace
 #
 # Revision 1.19  2007/11/28 11:56:30  ncq
