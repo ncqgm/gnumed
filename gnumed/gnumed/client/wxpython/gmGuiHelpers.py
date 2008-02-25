@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.86 2008-01-22 12:22:18 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmGuiHelpers.py,v 1.87 2008-02-25 17:34:39 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,11 +23,10 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmLog, gmPG2, gmLoginInfo, gmDispatcher, gmTools, gmCfg, gmI18N, gmLog2, gmCfg2
+from Gnumed.pycommon import gmPG2, gmLoginInfo, gmDispatcher, gmTools, gmCfg, gmI18N, gmLog2, gmCfg2
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg, wxgGreetingEditorDlg
 
 
-_log = gmLog.gmDefLog
 _log2 = logging.getLogger('gm.gui')
 _log2.info(__version__)
 
@@ -39,16 +38,7 @@ def set_staff_name(staff_name):
 #-------------------------------------------------------------------------
 def handle_uncaught_exception_wx(t, v, tb):
 
-	_log2.error('unhandled exception caught, debug mode enabled')
-	_cfg = gmCfg2.gmCfgData()
-	_cfg.set_option(option = 'debug', value = True)
-	root_logger = logging.getLogger()
-	root_logger.setLevel(logging.DEBUG)
-
-#	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
-#	_log2.exception('unhandled exception caught', exc_info = (t,v,tb))
-	_log2.exception('unhandled exception caught')
-	gmLog2.log_stack_trace()
+	_log2.exception('unhandled exception caught:')
 
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
@@ -69,8 +59,15 @@ def handle_uncaught_exception_wx(t, v, tb):
 				'functionality will not be accessible.'
 			) % v
 		)
-		_log.LogException('module [%s] not installed' % v)
+		_log2.error('module [%s] not installed', v)
 	else:
+		_log2.error('enabling debug mode')
+		_cfg = gmCfg2.gmCfgData()
+		_cfg.set_option(option = 'debug', value = True)
+		root_logger = logging.getLogger()
+		root_logger.setLevel(logging.DEBUG)
+		gmLog2.log_stack_trace()
+
 		name = os.path.basename(_logfile_name)
 		name, ext = os.path.splitext(name)
 		new_name = os.path.expanduser(os.path.join (
@@ -385,7 +382,7 @@ class cStartupProgressBar(wx.ProgressDialog):
 		try:
 			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
 		except:
-			_log.Log(gmLog.lWarn, 'wx.Icon.LoadFile() not supported')
+			_log2.warning('wx.Icon.LoadFile() not supported')
 		self.SetIcon(icon)
 		self.idx = 0
 #		self.nr_plugins = nr_plugins
@@ -734,7 +731,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.86  2008-01-22 12:22:18  ncq
+# Revision 1.87  2008-02-25 17:34:39  ncq
+# - use new logging
+# - auto-enable debug mode on first unhandled exception
+#
+# Revision 1.86  2008/01/22 12:22:18  ncq
 # - better layout of bug report email
 #
 # Revision 1.85  2008/01/16 19:38:43  ncq
