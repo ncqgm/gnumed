@@ -1,13 +1,13 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.143 2008-01-27 21:13:50 ncq Exp $
-__version__ = "$Revision: 1.143 $"
+# $Id: gmDemographicsWidgets.py,v 1.144 2008-02-25 17:39:48 ncq Exp $
+__version__ = "$Revision: 1.144 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex
+import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex, psycopg2
 
 
 import wx
@@ -892,11 +892,15 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		if self.channel is None:
 			if not self.__valid_for_save():
 				return False
-			self.channel = self.identity.link_comm_channel (
-				pk_channel_type = self._PRW_type.GetData(),
-				url = self._TCTRL_url.GetValue().strip(),
-				is_confidential = self._CHBOX_confidential.GetValue(),
-			)
+			try:
+				self.channel = self.identity.link_comm_channel (
+					pk_channel_type = self._PRW_type.GetData(),
+					url = self._TCTRL_url.GetValue().strip(),
+					is_confidential = self._CHBOX_confidential.GetValue(),
+				)
+			except psycopg2.IntegrityError:
+				_log.LogException('error saving comm channel')
+				gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
 		else:
 			comm_type = self._PRW_type.GetValue().strip()
 			if comm_type != u'':
@@ -2338,7 +2342,8 @@ def link_contacts_from_dtd(identity, dtd=None):
 		dtd['state'].strip() +
 		dtd['country'].strip()
 	)
-	if lng > 0:
+	# FIXME: improve error checking
+	if lng > 5:
 		# FIXME: support address type
 		success = identity.link_address (
 			number = dtd['address_number'].strip(),
@@ -2349,7 +2354,9 @@ def link_contacts_from_dtd(identity, dtd=None):
 			country = dtd['country'].strip()
 		)
 		if not success:
-			gmDispatcher.send(signal='statustext', msg = _('Cannot update patient address.'))
+			gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address.'))
+	else:
+		gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address. Missing fields.'))
 
 	if len(dtd['phone']) > 0:
 		identity.link_comm_channel (
@@ -2546,7 +2553,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.143  2008-01-27 21:13:50  ncq
+# Revision 1.144  2008-02-25 17:39:48  ncq
+# - improve error checking for comm channel saving
+#
+# Revision 1.143  2008/01/27 21:13:50  ncq
 # - change a few labels per Jim
 #
 # Revision 1.142  2008/01/14 20:40:09  ncq
