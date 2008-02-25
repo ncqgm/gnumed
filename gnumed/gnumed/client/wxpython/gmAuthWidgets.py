@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.13 2008-01-30 14:07:02 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmAuthWidgets.py,v 1.14 2008-02-25 17:33:16 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -55,7 +55,8 @@ msg_insanity = _("""
 There is a serious problem with the database settings:
 
 %s
-""")
+
+You may have to contact your administrator for help.""")
 
 msg_fail = _("""
 You must connect to a different database in order
@@ -146,10 +147,11 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				continue
 			gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'))
 
-		sanity = gmPG2.sanity_check_database_settings()
-		if sanity is not True:
-			gmGuiHelpers.gm_show_error((msg_insanity % sanity) + msg_fail, _('Verifying database settings'))
-			continue
+		sanity_level, message = gmPG2.sanity_check_database_settings()
+		if sanity_level != 0:
+			gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
+			if sanity_level == 2:
+				continue
 
 		listener = gmBackendListener.gmBackendListener(conn=conn)
 		break
@@ -635,7 +637,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.13  2008-01-30 14:07:02  ncq
+# Revision 1.14  2008-02-25 17:33:16  ncq
+# - use improved db sanity checks
+#
+# Revision 1.13  2008/01/30 14:07:02  ncq
 # - protect against faulty backend profile in preferences
 #
 # Revision 1.12  2008/01/27 21:13:17  ncq
