@@ -15,15 +15,15 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.387 2008-01-30 14:07:49 ncq Exp $
-__version__ = "$Revision: 1.387 $"
+# $Id: gmGuiMain.py,v 1.388 2008-02-25 17:37:16 ncq Exp $
+__version__ = "$Revision: 1.388 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging
 
 
 # 3rd party libs
@@ -51,7 +51,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2
+from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2, gmLog2
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.exporters import gmPatientExporter
@@ -63,16 +63,16 @@ except NameError:
 
 _cfg = gmCfg2.gmCfgData()
 _provider = None
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
-_log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
+_log = logging.getLogger('gm.main')
+_log.info(__version__)
+_log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 _scripting_listener = None
 
 expected_db_ver = u'devel'
 current_client_ver = u'CVS HEAD'
 
-_log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
-_log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
+_log.info('GNUmed client version [%s]' % current_client_ver)
+_log.info('expected database version [%s]' % expected_db_ver)
 
 #==============================================================================
 
@@ -178,7 +178,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
-		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % gmSurgery.gmCurrentPractice().active_workplace)
+		_log.debug('workplace is >>>%s<<<' % gmSurgery.gmCurrentPractice().active_workplace)
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -244,7 +244,7 @@ class gmTopLevelFrame(wx.Frame):
 			default = 600
 		))
 
-		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (width, height))
+		_log.debug('setting GUI size to [%s:%s]' % (width, height))
  		self.SetClientSize(wx.Size(width, height))
 	#----------------------------------------------
 	def __setup_accelerators(self):
@@ -292,7 +292,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID, self.__on_set_startup_plugin)
 
 		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('Workplace plugins'), _('Choose the plugins to load per workplace.'))
+		menu_cfg_ui.Append(ID, _('Workplaces'), _('Choose the plugins to load per workplace.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
 
 		ID = wx.NewId()
@@ -572,7 +572,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.Log(gmLog.lInfo, 'neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
+			_log.info('neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -1416,39 +1416,29 @@ class gmTopLevelFrame(wx.Frame):
 			curr_pat.locked = True
 	#----------------------------------------------
 	def __on_backup_log_file(self, evt):
-		for target in _log.get_targets():
-			if isinstance(target, gmLog.cLogTargetFile):
-				name = os.path.basename(target.ID)
-				name, ext = os.path.splitext(name)
-				new_name = '%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-				new_path = os.path.expanduser(os.path.join('~', 'gnumed', 'logs'))
-				dlg = wx.FileDialog (
-					parent = self,
-					message = _("Save current log as..."),
-					defaultDir = new_path,
-					defaultFile = new_name,
-					wildcard = "%s (*.log)|*.log" % _("log files"),
-					style = wx.SAVE
-				)
-				choice = dlg.ShowModal()
-				new_name = dlg.GetPath()
-				dlg.Destroy()
-				if choice != wx.ID_OK:
-					return True
-				_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-				gmLog2.flush()
-				shutil.copy2(target.ID, new_name)
-				gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
-	#----------------------------------------------
-#	def __on_show_sys_info(self, event):
-#
-#		msg = _(
-#			'System information for GNUmed client\n'
-#			'====================================\n'
-#			'\n'
-#			'Collected: %s\n'
-#		)
-#
+		name = os.path.basename(gmLog2._logfile_name)
+		name, ext = os.path.splitext(name)
+		new_name = '%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+		new_path = os.path.expanduser(os.path.join('~', 'gnumed', 'logs'))
+
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _("Save current log as..."),
+			defaultDir = new_path,
+			defaultFile = new_name,
+			wildcard = "%s (*.log)|*.log" % _("log files"),
+			style = wx.SAVE
+		)
+		choice = dlg.ShowModal()
+		new_name = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return True
+
+		_log2.warning('syncing log file for backup to [%s]', new_name)
+		gmLog2.flush()
+		shutil.copy2(gmLog2._logfile_name, new_name)
+		gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
 	#----------------------------------------------
 	# GNUmed /
 	#----------------------------------------------
@@ -1606,7 +1596,7 @@ Search results:
 		if choice != wx.ID_OK:
 			return True
 
-		_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
+		_log.debug('exporting EMR journal to [%s]' % fname)
 		# instantiate exporter
 		exporter = gmPatientExporter.cEMRJournalExporter()
 
@@ -1658,7 +1648,7 @@ Search results:
 		if choice != wx.ID_OK:
 			return False
 
-		_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
+		_log.debug('exporting EMR journal to [%s]' % fname)
 		# instantiate exporter
 		exporter = gmPatientExporter.cMedistarSOAPExporter()
 		wx.BeginBusyCursor()
@@ -1758,7 +1748,7 @@ Search results:
 
 		# remember GUI size
 		curr_width, curr_height = self.GetClientSizeTuple()
-		_log.Log(gmLog.lInfo, 'GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
+		_log.info('GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
 		dbcfg = gmCfg.cCfgSQL()
 		dbcfg.set (
 			option = 'main.window.width',
@@ -1784,12 +1774,12 @@ Search results:
 	#----------------------------------------------
 	def OnIconize(self, event):
 		# FIXME: we should maximize the amount of title bar information here
-		#_log.Log(gmLog.lInfo, 'OnIconify')
+		#_log.info('OnIconify')
 		event.Skip()
 	#----------------------------------------------
 	def OnMaximize(self, event):
 		# FIXME: we should change the amount of title bar information here
-		#_log.Log(gmLog.lInfo,'OnMaximize')
+		#_log.info('OnMaximize')
 		event.Skip()
 	#----------------------------------------------
 	# internal API
@@ -1909,7 +1899,7 @@ class gmApp(wx.App):
 		from Gnumed.wxpython import gmAuthWidgets
 		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
 		if not gmAuthWidgets.connect_to_database(expected_version = expected_db_ver, require_version = not override):
-			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
+			_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
 		# check account <-> staff member association
@@ -1989,12 +1979,12 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
 		print "unhandled event detected: QUERY_END_SESSION"
-		_log.Log(gmLog.lWarn, 'unhandled event detected: QUERY_END_SESSION')
-		_log.Log(gmLog.lInfo, 'we should be saving ourselves from here')
+		_log.warning('unhandled event detected: QUERY_END_SESSION')
+		_log.info('we should be saving ourselves from here')
 	#----------------------------------------------
 	def _on_end_session(self, *args, **kwargs):
 		print "unhandled event detected: END_SESSION"
-		_log.Log(gmLog.lWarn, 'unhandled event detected: END_SESSION')
+		_log.warning('unhandled event detected: END_SESSION')
 	#----------------------------------------------
 	def _on_app_activated(self, evt):
 		if evt.GetActive():
@@ -2083,26 +2073,26 @@ class gmApp(wx.App):
 			)
 			return False
 
-		_log.Log(gmLog.lInfo, 'slave mode personality is [%s]' % slave_personality)
+		_log.info('slave mode personality is [%s]' % slave_personality)
 		return True
 	#----------------------------------------------
 	def __setup_platform(self):
 		#do the platform dependent stuff
 		if wx.Platform == '__WXMSW__':
 			#windoze specific stuff here
-			_log.Log(gmLog.lInfo,'running on MS Windows')
+			_log.info('running on MS Windows')
 		elif wx.Platform == '__WXGTK__':
 			#GTK (Linux etc.) specific stuff here
-			_log.Log(gmLog.lInfo,'running on GTK (probably Linux)')
+			_log.info('running on GTK (probably Linux)')
 		elif wx.Platform == '__WXMAC__':
 			#Mac OS specific stuff here
-			_log.Log(gmLog.lInfo,'running on Mac OS')
+			_log.info('running on Mac OS')
 		else:
-			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wx.Platform)
+			_log.info('running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------
 	def __set_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
-			_log.Log(gmLog.lWarn, "system locale is undefined (probably meaning 'C')")
+			_log.warning("system locale is undefined (probably meaning 'C')")
 			return True
 
 		db_lang = None
@@ -2118,7 +2108,7 @@ class gmApp(wx.App):
 				"this inquiry by removing the appropriate ignore option\n"
 				"from the configuration file."
 			)  % (_provider['db_user'], gmI18N.system_locale, gmI18N.system_locale)
-			_log.Log(gmLog.lData, "database locale currently not set")
+			_log.debug("database locale currently not set")
 		else:
 			db_lang = rows[0]['lang']
 			msg = _(
@@ -2130,19 +2120,19 @@ class gmApp(wx.App):
 				"this inquiry by removing the appropriate ignore option\n"
 				"from the configuration file."
 			) % (db_lang, gmI18N.system_locale, gmI18N.system_locale)
-			_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
+			_log.debug("current database locale: [%s]" % db_lang)
 			# check if we can match up system and db language somehow
 			if db_lang == gmI18N.system_locale_level['full']:
-				_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
+				_log.debug('Database locale (%s) up to date.' % db_lang)
 				return True
 			if db_lang == gmI18N.system_locale_level['country']:
-				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at country level.' % (db_lang, gmI18N.system_locale))
+				_log.debug('Database locale (%s) matches system locale (%s) at country level.' % (db_lang, gmI18N.system_locale))
 				return True
 			if db_lang == gmI18N.system_locale_level['language']:
-				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, gmI18N.system_locale))
+				_log.debug('Database locale (%s) matches system locale (%s) at language level.' % (db_lang, gmI18N.system_locale))
 				return True
 			# no match
-			_log.Log(gmLog.lWarn, 'database locale [%s] does not match system locale [%s]' % (db_lang, gmI18N.system_locale))
+			_log.warning('database locale [%s] does not match system locale [%s]' % (db_lang, gmI18N.system_locale))
 
 		# returns either None or a locale string
 		ignored_sys_lang = _cfg.get (
@@ -2152,14 +2142,14 @@ class gmApp(wx.App):
 		)
 		# are we to ignore *this* mismatch ?
 		if gmI18N.system_locale == ignored_sys_lang:
-			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
+			_log.info('configured to ignore system-to-database locale mismatch')
 			return True
 		# no, so ask user
 		if not gmGuiHelpers.gm_show_question (
 			aMessage = msg,
 			aTitle = _('checking database language settings'),
 		):
-			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Ignoring mismatch next time.')
+			_log.info('User did not want to set database locale. Ignoring mismatch next time.')
 #			comment = [
 #				"If the system locale matches this value a mismatch",
 #				"with the database locale will be ignored.",
@@ -2184,9 +2174,9 @@ class gmApp(wx.App):
 					return_data = True
 				)
 				if rows[0][0]:
-					_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
+					_log.debug("Successfully set database language to [%s]." % lang)
 				else:
-					_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
+					_log.error('Cannot set database language to [%s].' % lang)
 					continue
 				return True
 
@@ -2211,7 +2201,7 @@ def main():
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered
 	app = gmApp(redirect = False, clearSigInt = False)
-	_log.Log(gmLog.lInfo, 'display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
+	_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
 	# and enter the main event loop
 	app.MainLoop()
 #==============================================================================
@@ -2224,14 +2214,15 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 
 	# console is Good(tm)
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
-	_log.AddTarget(aLogTarget)
-	_log.Log(gmLog.lInfo, 'Starting up as main module.')
+	_log.info('Starting up as main module.')
 	main()
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.387  2008-01-30 14:07:49  ncq
+# Revision 1.388  2008-02-25 17:37:16  ncq
+# - use new-style logging
+#
+# Revision 1.387  2008/01/30 14:07:49  ncq
 # - improved wording of partless document option
 #
 # Revision 1.386  2008/01/27 21:15:20  ncq
