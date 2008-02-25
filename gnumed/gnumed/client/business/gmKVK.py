@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.18 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmKVK.py,v 1.19 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -153,7 +153,7 @@ select pk_identity from dem.v_external_ids4identity where
 			os.remove(self.filename)
 			self.filename = None
 		except:
-			_log.LogException('cannot delete kvkd file [%s]' % self.filename, verbose = False)
+			_log.exception('cannot delete kvkd file [%s]' % self.filename, verbose = False)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -173,7 +173,7 @@ select pk_identity from dem.v_external_ids4identity where
 			try:
 				setattr(self, map_kvkd_tags2dto[tag], content)
 			except KeyError:
-				_log.LogException('unknown KVKd file key [%s]' % tag)
+				_log.exception('unknown KVKd file key [%s]' % tag)
 
 		# last_read_date and last_read_time -> last_read_timestamp
 		ts = time.strptime (
@@ -193,7 +193,7 @@ def get_available_kvks_as_dtos(spool_dir = None):
 		try:
 			dto = cDTO_KVK(filename = kvk_file)
 		except:
-			_log.LogException('probably not a KVKd file: [%s]' % kvk_file)
+			_log.exception('probably not a KVKd file: [%s]' % kvk_file)
 			continue
 		dtos.append(dto)
 
@@ -246,7 +246,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.18  2008-01-30 13:34:50  ncq
+# Revision 1.19  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.18  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.17  2007/12/26 12:35:30  ncq

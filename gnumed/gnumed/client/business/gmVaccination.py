@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.37 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmVaccination.py,v 1.38 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -226,7 +226,7 @@ where pk_encounter=%s"""
 	try:
 		vacc = cVaccination(aPK_obj = result[0][0])
 	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate vaccination' % (result[0][0]), sys.exc_info, verbose=0)
+		_log.exception('cannot instantiate vaccination' % (result[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
 
 	return (True, vacc)
@@ -545,7 +545,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.37  2008-01-30 13:34:50  ncq
+# Revision 1.38  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.37  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.36  2007/07/17 11:13:42  ncq

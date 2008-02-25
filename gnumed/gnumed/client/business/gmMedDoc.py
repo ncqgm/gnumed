@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.101 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmMedDoc.py,v 1.102 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -128,7 +128,7 @@ class cDocumentFolder:
 			try:
 				docs.append(cMedDoc(aPK_obj=doc_id))
 			except gmExceptions.ConstructorError:
-				_log.LogException('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
+				_log.exception('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
 				continue
 		return docs
 	#--------------------------------------------------------
@@ -374,7 +374,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			try:
 				parts.append(cMedDocPart(aPK_obj=row[0]))
 			except ConstructorError, msg:
-				_log.LogException(msg)
+				_log.exception(msg)
 				continue
 		return parts
 	#--------------------------------------------------------
@@ -678,7 +678,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.101  2008-01-30 13:34:50  ncq
+# Revision 1.102  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.101  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.100  2007/11/05 11:36:29  ncq

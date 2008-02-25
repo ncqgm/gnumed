@@ -6,8 +6,8 @@ This is mainly used by GnuMed/Archive.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXmlDocDesc.py,v $
-# $Id: gmXmlDocDesc.py,v 1.5 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmXmlDocDesc.py,v 1.6 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os.path, fileinput, types, string, logging
@@ -109,7 +109,7 @@ class xmlDocDesc:
             try:
                 return xmlDocDesc._get_handler[item](self)
             except KeyError:
-                _log.LogException('[%s] neither cached in self.__data nor get handler available' % item, sys.exc_info())
+                _log.exception('[%s] neither cached in self.__data nor get handler available' % item, sys.exc_info())
                 return None
     #--------------------------------------------------------
     def _get_obj_list(self):
@@ -236,7 +236,10 @@ class xmlDocDesc:
 
 #============================================================
 # $Log: gmXmlDocDesc.py,v $
-# Revision 1.5  2008-01-30 13:34:50  ncq
+# Revision 1.6  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.5  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.4  2004/03/19 17:07:20  shilbert

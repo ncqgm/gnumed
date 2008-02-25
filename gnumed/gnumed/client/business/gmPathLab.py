@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.57 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmPathLab.py,v 1.58 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys, logging
@@ -187,7 +187,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 				aPK_obj['req_id']
 				aPK_obj['lab']
 			except:
-				_log.LogException('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
+				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
 				raise gmExceptions.ConstructorError, '[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj)
 			# generate query
 			where_snippets = []
@@ -270,7 +270,7 @@ class cTestType(gmBusinessDBObject.cBusinessDBObject):
 			try:
 				aPK_obj['lab']
 			except KeyError:
-				_log.LogException('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
+				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
 				raise gmExceptions.ConstructorError, '[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj)
 			try:
 				aPK_obj['code']
@@ -280,7 +280,7 @@ class cTestType(gmBusinessDBObject.cBusinessDBObject):
 				aPK_obj['name']
 			except KeyError:
 				if aPK_obj['code'] is None:
-					_log.LogException('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
+					_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
 					raise gmExceptions.ConstructorError, '[%s:??]: must have <code> and/or <name>' % self.__class__.__name__
 				aPK_obj['name'] = None
 
@@ -337,7 +337,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	except gmExceptions.NoSuchClinItemError:
 		_log.info('will try to create test type')
 	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	# found ?
 	if ttype is not None:
@@ -347,7 +347,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.57 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.58 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -401,7 +401,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	try:
 		ttype = cTestType(aPK_obj=result[0][0])
 	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, ttype)
 #------------------------------------------------------------
@@ -423,7 +423,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	except gmExceptions.NoSuchClinItemError, msg:
 		_log.info('%s: will try to create lab request' % str(msg))
 	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	# found
 	if req is not None:
@@ -434,7 +434,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.57 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.58 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -459,7 +459,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	try:
 		req = cLabRequest(aPK_obj=result[0][0])
 	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
 #------------------------------------------------------------
@@ -483,7 +483,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	except gmExceptions.NoSuchClinItemError:
 		_log.debug('test result not found - as expected, will create it')
 	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	if request is None:
 		return (False, _('need lab request when inserting lab result'))
@@ -504,7 +504,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	try:
 		tres = cLabResult(aPK_obj=result[0][0])
 	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, tres)
 #------------------------------------------------------------
@@ -538,7 +538,7 @@ def get_unreviewed_results(limit=50):
 		try:
 			results.append(cLabResult(aPK_obj=row[0]))
 		except gmExceptions.ConstructorError:
-			_log.LogException('skipping unreviewed lab result [%s]' % row[0], sys.exc_info(), verbose=0)
+			_log.exception('skipping unreviewed lab result [%s]' % row[0], sys.exc_info(), verbose=0)
 	return (more_avail, results)
 #------------------------------------------------------------
 def get_pending_requests(limit=250):
@@ -563,7 +563,7 @@ def get_pending_requests(limit=250):
 		try:
 			requests.append(cLabRequest(aPK_obj=row[0]))
 		except gmExceptions.ConstructorError:
-			_log.LogException('skipping pending lab request [%s]' % row[0], sys.exc_info(), verbose=0)
+			_log.exception('skipping pending lab request [%s]' % row[0], sys.exc_info(), verbose=0)
 	return (too_many, requests)
 #------------------------------------------------------------
 def get_next_request_ID(lab=None, incrementor_func=None):
@@ -684,7 +684,10 @@ if __name__ == '__main__':
 	test_pending()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.57  2008-01-30 13:34:50  ncq
+# Revision 1.58  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.57  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.56  2007/07/17 11:13:25  ncq

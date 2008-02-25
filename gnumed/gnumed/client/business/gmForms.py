@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.56 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmForms.py,v 1.57 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -291,7 +291,7 @@ class cOOoConnector(gmBorg.cBorg):
 			try:
 				self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
 			except oooNoConnectException:
-				_log.LogException('Cannot connect to OOo server.')
+				_log.exception('Cannot connect to OOo server.')
 				_log.error('Trying to start OOo server with: [%s]' % self.ooo_start_cmd)
 				os.system(self.ooo_start_cmd)
 				dbcfg = gmCfg.cCfgSQL()
@@ -306,7 +306,7 @@ class cOOoConnector(gmBorg.cBorg):
 				try:
 					self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
 				except oooNoConnectException:
-					_log.LogException('Cannot start (or connect to started) OOo server. You may need to increase <%s>.' % opt_name)
+					_log.exception('Cannot start (or connect to started) OOo server. You may need to increase <%s>.' % opt_name)
 					return None
 
 			self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
@@ -755,7 +755,7 @@ if __name__ == '__main__':
 		try:
 			doc = open_uri_in_ooo(filename=sys.argv[1])
 		except:
-			_log.LogException('cannot open [%s] in OOo' % sys.argv[1])
+			_log.exception('cannot open [%s] in OOo' % sys.argv[1])
 			raise
 
 		class myCloseListener(unohelper.Base, oooXCloseListener):
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.56  2008-01-30 13:34:50  ncq
+# Revision 1.57  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.56  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.55  2007/11/10 20:49:22  ncq

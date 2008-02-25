@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.21 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmSOAPimporter.py,v 1.22 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -224,14 +224,17 @@ if __name__ == '__main__':
 			except:
 				print "error cleaning up patient"
 	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		_log.exception("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
 		raise
 
 	_log.info("closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.21  2008-01-30 13:34:50  ncq
+# Revision 1.22  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.21  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.20  2007/12/23 11:55:21  ncq

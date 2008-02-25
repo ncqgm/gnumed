@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.157 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.157 $"
+# $Id: gmPerson.py,v 1.158 2008-02-25 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.158 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -89,7 +89,7 @@ where pk_identity in (
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
 		except:
 			_log.error(u'cannot get candidate identities for dto "%s"' % self)
-			_log.LogException('query %s' % cmd)
+			_log.exception('query %s' % cmd)
 			rows = []
 
 		if len(rows) == 0:
@@ -965,7 +965,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 #			if  not self.__dict__.has_key('alock') :
 #				self.alock = threading.RLock()
 #		except:
-#			_log.LogException("Cannot test/create lock", sys.exc_info()) 
+#			_log.exception("Cannot test/create lock", sys.exc_info()) 
 	#--------------------------------------------------------
 	# patient change handling
 	#--------------------------------------------------------
@@ -1107,7 +1107,7 @@ class cPatientSearcher_SQL:
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx=True)
 			except:
-				_log.LogException('error running query')
+				_log.exception('error running query')
 				continue
 			if len(rows) == 0:
 				continue
@@ -1787,7 +1787,7 @@ def set_active_patient(patient=None, forced_reload=False):
 	try:
 		pat = gmCurrentPatient(patient=pat, forced_reload=forced_reload)
 	except:
-		_log.LogException('error changing active patient to [%s]' % patient)
+		_log.exception('error changing active patient to [%s]' % patient)
 		return False
 	return True
 #------------------------------------------------------------
@@ -2170,7 +2170,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.157  2008-01-30 13:34:50  ncq
+# Revision 1.158  2008-02-25 17:31:41  ncq
+# - logging cleanup
+#
+# Revision 1.157  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.156  2008/01/27 21:08:32  ncq

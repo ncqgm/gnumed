@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.107 $"
+__version__ = "$Revision: 1.108 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging
@@ -181,7 +181,7 @@ def delete_health_issue(health_issue=None):
 		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.health_issue where pk=%(pk)s', 'args': {'pk': pk}}])
 	except gmPG2.dbapi.IntegrityError:
 		# should be parsing pgcode/and or error message
-		_log.LogException('cannot delete health issue')
+		_log.exception('cannot delete health issue')
 		raise gmExceptions.DatabaseObjectInUseError('cannot delete health issue, it is in use')
 #------------------------------------------------------------
 # use as dummy for unassociated episodes
@@ -345,7 +345,7 @@ def delete_episode(episode=None):
 		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.episode where pk=%(pk)s', 'args': {'pk': pk}}])
 	except gmPG2.dbapi.IntegrityError:
 		# should be parsing pgcode/and or error message
-		_log.LogException('cannot delete episode')
+		_log.exception('cannot delete episode')
 		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
 
 #============================================================
@@ -658,7 +658,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.107  2008-01-30 13:34:49  ncq
+# Revision 1.108  2008-02-25 17:29:59  ncq
+# - logging cleanup
+#
+# Revision 1.107  2008/01/30 13:34:49  ncq
 # - switch to std lib logging
 #
 # Revision 1.106  2008/01/22 11:49:14  ncq
