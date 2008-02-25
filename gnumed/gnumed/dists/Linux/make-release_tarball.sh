@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.45 2008-01-16 19:40:55 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.46 2008-02-25 17:45:50 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -158,16 +158,19 @@ mkdir -p ./GNUmed-$CLIENTREV/client/locale/
 cp -R ../../client/locale/de.po ./GNUmed-$CLIENTREV/client/locale
 cp -R ../../client/locale/es.po ./GNUmed-$CLIENTREV/client/locale
 cp -R ../../client/locale/fr.po ./GNUmed-$CLIENTREV/client/locale
+cp -R ../../client/locale/it.po ./GNUmed-$CLIENTREV/client/locale
 
 cd ../../client/locale/
 ./create-gnumed_mo.sh de
 ./create-gnumed_mo.sh es
 ./create-gnumed_mo.sh fr
+./create-gnumed_mo.sh it
 cd -
 
 cp -R ../../client/locale/de-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
 cp -R ../../client/locale/es-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
 cp -R ../../client/locale/fr-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
+cp -R ../../client/locale/it-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
 
 
 # pycommon
@@ -352,7 +355,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.45  2008-01-16 19:40:55  ncq
+# Revision 1.46  2008-02-25 17:45:50  ncq
+# - include Italian
+#
+# Revision 1.45  2008/01/16 19:40:55  ncq
 # - deprecate gmConfigRegistry
 # - include v8-v9 sql dirs
 #
