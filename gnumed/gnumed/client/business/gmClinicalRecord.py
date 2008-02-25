@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.256 2008-01-30 13:34:49 ncq Exp $
-__version__ = "$Revision: 1.256 $"
+# $Id: gmClinicalRecord.py,v 1.257 2008-02-25 16:58:03 ncq Exp $
+__version__ = "$Revision: 1.257 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1232,7 +1232,7 @@ where
 		try:
 			attach = _func_ask_user(msg = msg, caption = _('starting patient encounter'))
 		except:
-			_log.LogException('cannot ask user for guidance')
+			_log.exception('cannot ask user for guidance')
 			return False
 		if not attach:
 			return False
@@ -1406,7 +1406,7 @@ delete from clin.encounter where
 				'args': {'pat': self.pk_patient, 'ttl': ttl}
 			}])
 		except:
-			_log.LogException('error deleting empty encounters')
+			_log.exception('error deleting empty encounters')
 
 		return True
 	#------------------------------------------------------------------
@@ -1594,10 +1594,13 @@ if __name__ == "__main__":
 	#	f.close()
 	except:
 		traceback.print_exc(file=sys.stdout)
-		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
+		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.256  2008-01-30 13:34:49  ncq
+# Revision 1.257  2008-02-25 16:58:03  ncq
+# - use new logging
+#
+# Revision 1.256  2008/01/30 13:34:49  ncq
 # - switch to std lib logging
 #
 # Revision 1.255  2008/01/16 19:43:28  ncq
