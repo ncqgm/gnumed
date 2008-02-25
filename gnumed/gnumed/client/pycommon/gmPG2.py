@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -916,34 +916,50 @@ def __noop():
 	pass
 #-----------------------------------------------------------------------
 def sanity_check_database_settings():
+	"""Checks database settings.
+
+	returns (status, message)
+	status:
+		0: no problem
+		1: non-fatal problem
+		2: fatal problem
+	"""
 	_log.info('checking database settings')
 	settings = {
-		u'allow_system_table_mods': [u'off', u'system breakage'],
-		u'default_transaction_read_only': [u'on', u'accidental database writes'],
-		u'fsync': [u'on', u'data loss/corruption'],
-		u'full_page_writes': [u'on', u'data loss/corruption'],
-		u'lc_messages': [u'C', u'suboptimal error detection'],
-		u'password_encryption': [u'on', u'breach of confidentiality'],
-		u'regex_flavor': [u'advanced', u'query breakage'],
-		u'synchronous_commit': [u'on', u'data loss/corruption'],
-		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption']
+		# setting: [expected value, risk, fatal?]
+		u'allow_system_table_mods': [u'off', u'system breakage', False],
+		u'default_transaction_read_only': [u'on', u'accidental database writes', False],
+		u'fsync': [u'on', u'data loss/corruption', True],
+		u'full_page_writes': [u'on', u'data loss/corruption', False],
+		u'lc_messages': [u'C', u'suboptimal error detection', False],
+		u'password_encryption': [u'on', u'breach of confidentiality', False],
+		u'regex_flavor': [u'advanced', u'query breakage', False],
+		u'synchronous_commit': [u'on', u'data loss/corruption', False],
+		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}
 
 	cmd = u"select name, setting from pg_settings where name in %(settings)s"
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
 
-	all_good = True
+	found_error = False
+	found_problem = False
 	msg = []
 	for row in rows:
 		if row[1] != settings[row[0]][0]:
-			all_good = False
+			if settings[row[0]][2]:
+				found_error = True
+			else:
+				found_problem = True
 			msg.append(' option [%s] = [%s] risks "%s"' % (row[0], row[1], settings[row[0]][1]))
 			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
 
-	if not all_good:
-		return u'\n'.join(msg)
+	if found_error:
+		return 2, u'\n'.join(msg)
 
-	return True
+	if found_problem:
+		return 1, u'\n'.join(msg)
+
+	return 0, u''
 #------------------------------------------------------------------------
 def __log_PG_settings(curs=None):
 	# don't use any of the run_*()s since that might
@@ -1291,7 +1307,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.69  2008-01-14 20:29:16  ncq
+# Revision 1.70  2008-02-25 17:32:50  ncq
+# - improve database settings sanity checks
+#
+# Revision 1.69  2008/01/14 20:29:16  ncq
 # - improve exception type detection in get_raw_connection()
 #
 # Revision 1.68  2008/01/13 01:15:58  ncq
