@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.21 2007-11-28 22:37:00 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmListWidgets.py,v 1.22 2008-02-26 16:28:04 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -270,8 +270,12 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
 		if widths is None:
+			if self.GetItemCount() == 0:
+				width_type = wx.LIST_AUTOSIZE_USEHEADER
+			else:
+				width_type = wx.LIST_AUTOSIZE
 			for idx in range(self.GetColumnCount()):
-				self.SetColumnWidth(col = idx, width = wx.LIST_AUTOSIZE)
+				self.SetColumnWidth(col = idx, width = width_type)
 			return
 
 		for idx in range(len(widths)):
@@ -405,7 +409,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.21  2007-11-28 22:37:00  ncq
+# Revision 1.22  2008-02-26 16:28:04  ncq
+# - when auto-setting col widths in lists w/o items use header as width ;-)
+#
+# Revision 1.21  2007/11/28 22:37:00  ncq
 # - robustify in the absence of selected values
 #
 # Revision 1.20  2007/11/23 23:34:39  ncq
