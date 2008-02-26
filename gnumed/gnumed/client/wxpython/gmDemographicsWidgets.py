@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.144 2008-02-25 17:39:48 ncq Exp $
-__version__ = "$Revision: 1.144 $"
+# $Id: gmDemographicsWidgets.py,v 1.145 2008-02-26 16:26:05 ncq Exp $
+__version__ = "$Revision: 1.145 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -223,6 +223,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
+		self._LCTRL_items.SetToolTipString(_('List of known addresses.'))
 		self._LCTRL_items.set_columns(columns = [
 			_('Type'),
 			_('Street'),
@@ -901,6 +902,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 			except psycopg2.IntegrityError:
 				_log.LogException('error saving comm channel')
 				gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
+				return False
 		else:
 			comm_type = self._PRW_type.GetValue().strip()
 			if comm_type != u'':
@@ -981,6 +983,7 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
+		self._LCTRL_items.SetToolTipString(_('List of known communication channels.'))
 		self._LCTRL_items.set_columns(columns = [
 			_('confidential'),
 			_('Type'),
@@ -2553,7 +2556,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.144  2008-02-25 17:39:48  ncq
+# Revision 1.145  2008-02-26 16:26:05  ncq
+# - actually fail on detecting error on saving comm channel
+# - add some tooltips
+#
+# Revision 1.144  2008/02/25 17:39:48  ncq
 # - improve error checking for comm channel saving
 #
 # Revision 1.143  2008/01/27 21:13:50  ncq
