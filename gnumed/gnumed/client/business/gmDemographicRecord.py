@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.95 2008-02-25 17:29:40 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmDemographicRecord.py,v 1.96 2008-02-26 16:24:49 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -204,7 +204,7 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 	"""Create a communications channel for a patient."""
 
 	# FIXME: create comm type if necessary
-	args = {'pat': pk_identity, 'url': url, 'secret': is_confidential, 'adr': pk_address}
+	args = {'pat': pk_identity, 'url': url, 'secret': is_confidential}
 
 	if pk_channel_type is None:
 		args['type'] = comm_medium
@@ -236,7 +236,7 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
 			{'cmd': cmd, 'args': args},
-			{'cmd': u'select * from dem.v_person_comms where pk_lnk_identity2comm = currval(pg_get_serial_sequence(''dem.lnk_identity2comm'', ''pk''))'}
+			{'cmd': u"select * from dem.v_person_comms where pk_lnk_identity2comm = currval(pg_get_serial_sequence('dem.lnk_identity2comm', 'pk'))"}
 		],
 		return_data = True,
 		get_col_idx = True
@@ -568,7 +568,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.95  2008-02-25 17:29:40  ncq
+# Revision 1.96  2008-02-26 16:24:49  ncq
+# - remove pk_address from create_comm_channel
+#
+# Revision 1.95  2008/02/25 17:29:40  ncq
 # - cleanup
 #
 # Revision 1.94  2008/01/07 19:32:15  ncq
