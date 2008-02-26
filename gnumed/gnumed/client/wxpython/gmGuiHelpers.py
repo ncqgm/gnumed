@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.87 2008-02-25 17:34:39 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmGuiHelpers.py,v 1.88 2008-02-26 16:27:20 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -38,12 +38,13 @@ def set_staff_name(staff_name):
 #-------------------------------------------------------------------------
 def handle_uncaught_exception_wx(t, v, tb):
 
-	_log2.exception('unhandled exception caught:')
+	_log2.exception('unhandled exception caught:', exc_info = (t, v, tb))
 
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
 	except: pass
 
+	# failed import ?
 	if t == exceptions.ImportError:
 		gm_show_error (
 			aTitle = _('Missing GNUmed module'),
@@ -60,33 +61,35 @@ def handle_uncaught_exception_wx(t, v, tb):
 			) % v
 		)
 		_log2.error('module [%s] not installed', v)
-	else:
-		_log2.error('enabling debug mode')
-		_cfg = gmCfg2.gmCfgData()
-		_cfg.set_option(option = 'debug', value = True)
-		root_logger = logging.getLogger()
-		root_logger.setLevel(logging.DEBUG)
-		gmLog2.log_stack_trace()
+		return
 
-		name = os.path.basename(_logfile_name)
-		name, ext = os.path.splitext(name)
-		new_name = os.path.expanduser(os.path.join (
-			'~',
-			'gnumed',
-			'logs',
-			'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-		))
+	# other exceptions
+	_log2.error('enabling debug mode')
+	_cfg = gmCfg2.gmCfgData()
+	_cfg.set_option(option = 'debug', value = True)
+	root_logger = logging.getLogger()
+	root_logger.setLevel(logging.DEBUG)
+	gmLog2.log_stack_trace()
 
-		dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
-		dlg.ShowModal()
-		comment = dlg._TCTRL_comment.GetValue()
-		dlg.Destroy()
-		if (comment is not None) and (comment.strip() != u''):
-			_log2.error(u'user comment: %s', comment.strip())
+	name = os.path.basename(_logfile_name)
+	name, ext = os.path.splitext(name)
+	new_name = os.path.expanduser(os.path.join (
+		'~',
+		'gnumed',
+		'logs',
+		'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+	))
 
-		_log2.warning('syncing log file for backup to [%s]', new_name)
-		gmLog2.flush()
-		shutil.copy2(_logfile_name, new_name)
+	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
+	dlg.ShowModal()
+	comment = dlg._TCTRL_comment.GetValue()
+	dlg.Destroy()
+	if (comment is not None) and (comment.strip() != u''):
+		_log2.error(u'user comment: %s', comment.strip())
+
+	_log2.warning('syncing log file for backup to [%s]', new_name)
+	gmLog2.flush()
+	shutil.copy2(_logfile_name, new_name)
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
 	office = gmSurgery.gmCurrentPractice()
@@ -731,7 +734,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.87  2008-02-25 17:34:39  ncq
+# Revision 1.88  2008-02-26 16:27:20  ncq
+# - cleanup exception handler
+# - actually log exception :-(
+#
+# Revision 1.87  2008/02/25 17:34:39  ncq
 # - use new logging
 # - auto-enable debug mode on first unhandled exception
 #
