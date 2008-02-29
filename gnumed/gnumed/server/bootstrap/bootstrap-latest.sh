@@ -8,7 +8,9 @@ cd -
 export PYTHONPATH="../../:${PYTHONPATH}"
 
 VER="9"
-LOG_BASE="."
+if test ! -n "${GM_LOG_BASE}" ; then
+	GM_LOG_BASE="."
+fi ;
 
 # if you need to adjust the port you want to use to
 # connect to PostgreSQL you can use the environment
@@ -45,7 +47,7 @@ echo "2) bootstrapping databases"
 
 
 # baseline v2
-LOG="${LOG_BASE}/bootstrap-latest-v2.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v2.log"
 rm -rf ${LOG}
 CONF="redo-v2.conf"
 export GM_CORE_DB="gnumed_v2"
@@ -58,7 +60,7 @@ unset GM_CORE_DB
 
 
 # v2 -> v3
-LOG="${LOG_BASE}/bootstrap-latest-v3.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v3.log"
 rm -rf ${LOG}
 CONF="update_db-v2_v3.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
@@ -72,7 +74,7 @@ sudo -u postgres dropdb ${PORT_DEF} gnumed_v2
 
 
 # v3 -> v4
-LOG="${LOG_BASE}/bootstrap-latest-v4.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v4.log"
 rm -rf ${LOG}
 CONF="update_db-v3_v4.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
@@ -86,7 +88,7 @@ sudo -u postgres dropdb ${PORT_DEF} gnumed_v3
 
 
 # v4 -> v5
-LOG="${LOG_BASE}/bootstrap-latest-v5.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v5.log"
 rm -rf ${LOG}
 CONF="update_db-v4_v5.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
@@ -100,7 +102,7 @@ sudo -u postgres dropdb ${PORT_DEF} gnumed_v4
 
 
 # v5 -> v6
-LOG="${LOG_BASE}/bootstrap-latest-v6.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v6.log"
 rm -rf ${LOG}
 CONF="update_db-v5_v6.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
@@ -114,7 +116,7 @@ sudo -u postgres dropdb ${PORT_DEF} gnumed_v5
 
 
 # v6 -> v7
-LOG="${LOG_BASE}/bootstrap-latest-v7.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v7.log"
 rm -rf ${LOG}
 CONF="update_db-v6_v7.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
@@ -128,7 +130,7 @@ sudo -u postgres dropdb ${PORT_DEF} gnumed_v6
 
 
 # v7 -> v8
-LOG="${LOG_BASE}/bootstrap-latest-v8.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v8.log"
 rm -rf ${LOG}
 CONF="update_db-v7_v8.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
@@ -142,7 +144,7 @@ sudo -u postgres dropdb ${PORT_DEF} gnumed_v7
 
 
 # v8 -> v9
-LOG="${LOG_BASE}/bootstrap-latest-v9.log"
+LOG="${GM_LOG_BASE}/bootstrap-latest-v9.log"
 rm -rf ${LOG}
 CONF="update_db-v8_v9.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
