@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.4 2008-02-25 19:41:07 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.5 2008-02-29 23:50:41 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
@@ -42,18 +42,33 @@ rm -f GNUmed-server.latest.tgz
 
 # install dependancies
 echo ""
-echo "Package dependancies are about to be installed."
-echo "You may need to enter your password now:"
-sudo ${PKG_INSTALLER} ${DEPS}
+echo "Installing dependancies ..."
+echo ""
+echo "Do you want to install the following dependancies"
+echo "needed to smoothly operate the GNUmed server ?"
+echo ""
+echo "${DEPS}"
+echo ""
+read -e -p "Install dependancies ? [y/N]: "
+if test "${REPLY}" == "y" ; then
+	echo ""
+	echo "You may need to enter the password for \"${USER}\" now:"
+	sudo ${PKG_INSTALLER} ${DEPS}
+fi
 
 # get and unpack package
-wget -q http://www.gnumed.de/downloads/server/GNUmed-server.latest.tgz
+echo ""
+echo "Downloading package ..."
+echo ""
+wget -c http://www.gnumed.de/downloads/server/GNUmed-server.latest.tgz
 tar -xzf GNUmed-server.latest.tgz
 BASEDIR=`ls -1 -d GNUmed-v?`
 mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
 
 # run bootstrapper
 cd ${BASEDIR}/server/bootstrap/
+echo ""
+echo "Installing database ..."
 echo ""
 echo "The GNUmed server version \"${BASEDIR}\" has been"
 echo "prepared for installation in the directory"
@@ -66,7 +81,11 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.4  2008-02-25 19:41:07  ncq
+# Revision 1.5  2008-02-29 23:50:41  ncq
+# - optionalize installing DEPs
+# - improve output
+#
+# Revision 1.4  2008/02/25 19:41:07  ncq
 # - add gzip as dependancy
 #
 # Revision 1.3  2008/01/05 19:33:59  ncq
