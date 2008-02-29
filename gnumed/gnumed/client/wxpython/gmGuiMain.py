@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.388 2008-02-25 17:37:16 ncq Exp $
-__version__ = "$Revision: 1.388 $"
+# $Id: gmGuiMain.py,v 1.389 2008-02-29 23:46:59 ncq Exp $
+__version__ = "$Revision: 1.389 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -371,7 +371,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_episode.Append(ID, _('Dormancy'), _('Maximum length of dormancy after which an episode will be considered closed.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_epi_ttl)
 
-		# -- 
+		# --
 		menu_gnumed.AppendSeparator()
 
 		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
@@ -640,6 +640,14 @@ class gmTopLevelFrame(wx.Frame):
 			ID_TEST_EXCEPTION = wx.NewId()
 			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
 			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
+
+			ID = wx.NewId()
+			menu_debugging.Append(ID, _('Invoke inspector'), _('Invoke the widget hierarchy inspector (needs wxPython 2.8).'))
+			wx.EVT_MENU(self, ID, self.__on_invoke_inspector)
+			try:
+				import wx.lib.inspection
+			except ImportError:
+				menu_debugging.Enable(id = ID, enable = False)
 
 		help_menu.AppendSeparator()
 
@@ -1383,6 +1391,10 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_test_exception(self, evt):
 		#import nonexistant_module
 		raise ValueError('raised ValueError to test exception handling')
+	#----------------------------------------------
+	def __on_invoke_inspector(self, evt):
+		import wx.lib.inspection
+		wx.lib.inspection.InspectionTool().Show()
 	#----------------------------------------------
 	def __on_display_bugtracker(self, evt):
 		webbrowser.open (
@@ -2219,7 +2231,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.388  2008-02-25 17:37:16  ncq
+# Revision 1.389  2008-02-29 23:46:59  ncq
+# - new debugging option: widget inspector (needs 2.8)
+#
+# Revision 1.388  2008/02/25 17:37:16  ncq
 # - use new-style logging
 #
 # Revision 1.387  2008/01/30 14:07:49  ncq
