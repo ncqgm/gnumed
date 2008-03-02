@@ -12,6 +12,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         self.__szr_middle_staticbox = wx.StaticBox(self, -1, _("Details"))
         self.__pnl_top_message = wx.Panel(self, -1, style=wx.NO_BORDER)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "")
+        self._TCTRL_sender = wx.TextCtrl(self, -1, "")
         self._TCTRL_helpdesk = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_logfile = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_exc_type = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
@@ -34,7 +35,9 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         # begin wxGlade: wxgUnhandledExceptionDlg.__set_properties
         self.SetTitle(_("GNUmed exception handler"))
         self.__pnl_top_message.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self._TCTRL_comment.SetToolTipString(_("Enter any additional data or commentary you wish to provide such as what you were about to do."))
         self._TCTRL_comment.SetFocus()
+        self._TCTRL_sender.SetToolTipString(_("Please enter your email address so we can provide direct feedback."))
         self._TCTRL_helpdesk.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_helpdesk.Enable(False)
         self._TCTRL_logfile.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
@@ -47,7 +50,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         self._BTN_ok.SetDefault()
         self._BTN_close.SetToolTipString(_("Close this dialog AND the GNUmed client."))
         self._BTN_view_log.SetToolTipString(_("View the log file."))
-        self._BTN_mail.SetToolTipString(_("Email a bug report to the GNUmed developers."))
+        self._BTN_mail.SetToolTipString(_("Email a bug report to the GNUmed developers.\n\nMost questions will be answered on the mailing list so you are well advised to either subscribe or check its archive (lists.gnu.org/mailman/listinfo/gnumed-devel)."))
         # end wxGlade
 
     def __do_layout(self):
@@ -55,7 +58,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_middle = wx.StaticBoxSizer(self.__szr_middle_staticbox, wx.VERTICAL)
-        _gszr_details = wx.FlexGridSizer(5, 2, 3, 5)
+        _gszr_details = wx.FlexGridSizer(6, 2, 3, 5)
         __szr_top_inner = wx.BoxSizer(wx.VERTICAL)
         __lbl_top_message = wx.StaticText(self.__pnl_top_message, -1, _("An unhandled exception has occurred."), style=wx.ALIGN_CENTRE)
         __lbl_top_message.SetBackgroundColour(wx.Colour(255, 0, 0))
@@ -70,6 +73,9 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         __lbl_comment.SetToolTipString(_("Enter a short comment on what you were trying to do with GNUmed. This information will be added to the logfile for easier identification later on."))
         _gszr_details.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_details.Add(self._TCTRL_comment, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_sender = wx.StaticText(self, -1, _("Sender"))
+        _gszr_details.Add(__lbl_sender, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_details.Add(self._TCTRL_sender, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_helpdesk = wx.StaticText(self, -1, _("Help desk"))
         _gszr_details.Add(__lbl_helpdesk, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_details.Add(self._TCTRL_helpdesk, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
