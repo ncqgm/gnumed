@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.47 2008-01-16 19:42:24 ncq Exp $
+# $Id: gmTools.py,v 1.48 2008-03-02 15:10:32 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -210,7 +210,7 @@ To: %s
 Subject: %s
 
 %s
-""" % (sender, u', '.join(receiver), subject, message)
+""" % (sender, u', '.join(receiver), subject[:50].replace('\r', '/').replace('\n', '/'), message)
 
 	import smtplib
 	session = smtplib.SMTP(server)
@@ -673,7 +673,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.47  2008-01-16 19:42:24  ncq
+# Revision 1.48  2008-03-02 15:10:32  ncq
+# - truncate exception comment to 50 chars when used as subject
+#
+# Revision 1.47  2008/01/16 19:42:24  ncq
 # - whitespace sync
 #
 # Revision 1.46  2007/12/23 11:59:40  ncq
