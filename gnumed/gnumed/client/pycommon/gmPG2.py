@@ -12,12 +12,12 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import time, locale, sys, re as regex, os, codecs, types, datetime, logging
+import time, locale, sys, re as regex, os, codecs, types, datetime, logging, locale
 
 
 # GNUmed
@@ -777,6 +777,9 @@ def get_raw_connection(dsn=None, verbose=False):
 	if dsn is None:
 		dsn = get_default_dsn()
 
+#	# temporarily force language to en_EN
+#	try: old_locale_settings = locale.getlocale(locale.LC_MESSAGES)
+#	except locale.Error: _log.warning('cannot temporarily force LC_MESSAGES to C')
 	try:
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 	except dbapi.OperationalError, e:
@@ -784,22 +787,32 @@ def get_raw_connection(dsn=None, verbose=False):
 		try:
 			msg = e.args[0]
 		except (AttributeError, IndexError, TypeError):
+#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
+#			except: pass
 			raise
 		msg = unicode(msg, gmI18N.get_encoding(), 'replace')
 		if msg.find('fe_sendauth') != -1:
+#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
+#			except: pass
 			raise cAuthenticationError, (dsn, msg), tb
 #		if msg.find('authentication failed for user') != -1:
+#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
+#			except: pass
 #			raise cAuthenticationError, (dsn, v), tb
 		if regex.search('user ".*" does not exist', msg) is not None:
+#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
+#			except: pass
 			raise cAuthenticationError, (dsn, msg), tb
 		if msg.find('uthenti') != -1:
+#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
+#			except: pass
 			raise cAuthenticationError, (dsn, msg), tb
 		raise
 
 	global postgresql_version
 	if postgresql_version is None:
 		curs = conn.cursor()
-		curs.execute("""
+		curs.execute ("""
 			select
 				(split_part(setting, '.', 1) || '.' || split_part(setting, '.', 2))::numeric as version
 			from pg_settings
@@ -1307,7 +1320,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.70  2008-02-25 17:32:50  ncq
+# Revision 1.71  2008-03-02 11:26:25  ncq
+# - cleanup
+#
+# Revision 1.70  2008/02/25 17:32:50  ncq
 # - improve database settings sanity checks
 #
 # Revision 1.69  2008/01/14 20:29:16  ncq
