@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.5 2008-01-14 20:30:11 ncq Exp $
+# $Id: gmShellAPI.py,v 1.6 2008-03-02 15:09:35 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -19,11 +19,29 @@ _log.info(__version__)
 def detect_external_binary(binary=None):
 	_log.debug('detecting [%s]', binary)
 
+	# is it a sufficiently qualified path ?
+	if os.access(binary, os.X_OK):
+		return (True, binary)
+
+	# do we seem to *have* wine installed ?
+	cmd = 'winepath -u "%s"' % binary
+	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
+	result = pipe.readline()
+	ret_code = pipe.close()
+	if ret_code is None:
+		result = result.strip('\r\n')
+		if os.access(result, os.X_OK):
+			return (True, result)
+		else:
+			_log.warning('"winepath %s" returned [%s] but the path is not verifiable', binary, result)
+	else:
+		_log.debug('winepath failed')
+
+	# maybe we are on UNIX and should use "which" to find the full path ?
 	cmd = 'which %s' % binary
 	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
 	result = pipe.readline()
 	ret_code = pipe.close()
-
 	if ret_code is not None:
 		_log.warning('[%s] returned: %s', cmd, ret_code)
 		return (False, None)
@@ -128,7 +146,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.5  2008-01-14 20:30:11  ncq
+# Revision 1.6  2008-03-02 15:09:35  ncq
+# - smarten up detect_external_binary about winepath
+#
+# Revision 1.5  2008/01/14 20:30:11  ncq
 # - detect_external_binary()
 # - better tests
 #
