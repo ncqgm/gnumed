@@ -1,0 +1,122 @@
+-- ==============================================================
+-- GNUmed database schema change script
+--
+-- License: GPL
+-- Author: Karsten Hilbert
+-- 
+-- ==============================================================
+-- $Id: v9-clin-health_issue-dynamic.sql,v 1.1 2008-03-02 11:25:55 ncq Exp $
+-- $Revision: 1.1 $
+
+-- --------------------------------------------------------------
+\set ON_ERROR_STOP 1
+
+-- --------------------------------------------------------------
+comment on column clin.health_issue.fk_encounter is
+	'The encounter during which this health issue was added.';
+
+-- ensure consistency
+\unset ON_ERROR_STOP
+drop function clin.trf_ensure_issue_encounter_patient_consistency() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_ensure_issue_encounter_patient_consistency()
+	returns trigger
+	language 'plpgsql'
+	as '
+declare
+	encounter_patient integer;
+	msg text;
+begin
+	select into encounter_patient fk_patient from clin.encounter where pk = NEW.fk_encounter;
+	if encounter_patient != NEW.fk_patient then
+		msg := ''clin.trf_ensure_issue_encounter_patient_consistence(): Integrity error. Encounter ('' || NEW.fk_encounter
+		|| '') belongs to patient '' || encounter_patient
+		|| ''. Cannot set patient on health issue ('' || NEW.pk
+		|| '') to '' || NEW.fk_patient;
+		raise exception ''%'', msg;
+	end if;
+	return NEW;
+end;';
+
+create trigger tr_ensure_issue_encounter_patient_consistency
+	before insert or update on clin.health_issue
+	for each row execute procedure clin.trf_ensure_issue_encounter_patient_consistency()
+;
+
+-- update data
+create or replace function tmp_add_encounters_to_issues()
+	returns boolean
+	language plpgsql
+	as '
+DECLARE
+	_row record;
+	msg text;
+
+	pk_target_encounter integer;
+BEGIN
+	for _row in select * from clin.health_issue where fk_encounter is null loop
+
+		msg := ''issue: '' || _row.pk;
+		raise notice ''%'', msg;
+
+		-- find earliest modification time of any episode within this issue
+		select fk_encounter into pk_target_encounter from clin.episode where modified_when = (
+			select min(modified_when) from clin.episode where pk = _row.pk
+		) limit 1;
+
+		if found then
+			msg := ''encounter with earliest modification time: '' || pk_target_encounter;
+			raise notice ''%'', msg;
+		else
+
+			-- no episode for issue, so create new encounter
+			raise notice ''creating new encounter'';
+			perform 1 from clin.encounter_type where description = ''administrative encounter'';
+			if not found then
+				raise notice ''creating encounter type "administrative encounter"'';
+				insert into clin.encounter_type (description) values (i18n.i18n(''administrative encounter''));
+			end if;
+
+			insert into clin.encounter (
+				fk_patient,
+				fk_type,
+				started,
+				last_affirmed
+			) values (
+				(select fk_patient from clin.health_issue where pk = _row.pk),
+				(select pk from clin.encounter_type where description = ''administrative encounter''),
+				(select modified_when from clin.health_issue where pk = _row.pk),
+				(select modified_when from clin.health_issue where pk = _row.pk)
+			);
+			select currval(pg_get_serial_sequence(''clin.encounter'', ''pk'')) into pk_target_encounter;
+
+		end if;
+
+		msg := ''linking issue ('' || _row.pk || '') <-> encounter ('' || pk_target_encounter || '')'';
+		raise notice ''%'', msg;
+
+		update clin.health_issue set fk_encounter = pk_target_encounter where pk = _row.pk;
+
+	end loop;
+	return true;
+END;';
+
+select tmp_add_encounters_to_issues();
+
+drop function tmp_add_encounters_to_issues();
+
+-- set not null
+alter table clin.health_issue alter column fk_encounter set not null;
+
+-- alter views
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.1 $');
+
+-- ==============================================================
+-- $Log: v9-clin-health_issue-dynamic.sql,v $
+-- Revision 1.1  2008-03-02 11:25:55  ncq
+-- - new files
+--
+--
