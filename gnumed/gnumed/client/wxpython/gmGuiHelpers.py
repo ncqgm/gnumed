@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.88 2008-02-26 16:27:20 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmGuiHelpers.py,v 1.89 2008-03-02 15:11:55 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -223,6 +223,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			evt.Skip()
 			return
 
+		sender_email = gmTools.coalesce(self._TCTRL_sender.GetValue(), _('<not supplied>'))
 		msg = u"""\
 Report sent via GNUmed's handler for unexpected exceptions.
 
@@ -230,8 +231,9 @@ user comment  : %s
 
 system account: %s
 staff member  : %s
+sender email  : %s
 
-""" % (comment, _local_account, _staff_name)
+""" % (comment, _local_account, _staff_name, sender_email)
 		if dlg._CHBOX_dont_ask_again.GetValue():
 			_log2.error(comment)
 			_log2.warning('syncing log file for emailing')
@@ -734,7 +736,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.88  2008-02-26 16:27:20  ncq
+# Revision 1.89  2008-03-02 15:11:55  ncq
+# - support sender email in bug reporting
+#
+# Revision 1.88  2008/02/26 16:27:20  ncq
 # - cleanup exception handler
 # - actually log exception :-(
 #
