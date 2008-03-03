@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-episode-dynamic.sql,v 1.2 2008-03-03 13:45:19 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v9-clin-episode-dynamic.sql,v 1.3 2008-03-03 14:26:07 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -70,18 +70,26 @@ BEGIN
 		-- find earliest modification time of any clinical item within this episode
 		pk_encounter_min_modified_when := null;
 		min_modified_when := null;
-		select fk_encounter, modified_when into pk_encounter_min_modified_when, min_modified_when from clin.clin_root_item where modified_when = (
-			select min(modified_when) from clin.clin_root_item where fk_episode = _row.pk
-		) limit 1;
+		select fk_encounter, modified_when into pk_encounter_min_modified_when, min_modified_when
+		from clin.clin_root_item where
+			modified_when = (
+				select min(modified_when) from clin.clin_root_item where fk_episode = _row.pk
+			)
+			and fk_episode = _row.pk
+		limit 1;
 		msg := ''earliest modification time: '' || min_modified_when || '' encounter: '' || pk_encounter_min_modified_when;
 		raise notice ''%'', msg;
 
 		-- find earliest clinical time for any clinical item within this episode
 		pk_encounter_min_clin_when := null;
 		min_clin_when := null;
-		select fk_encounter, clin_when into pk_encounter_min_clin_when, min_clin_when from clin.clin_root_item where clin_when = (
-			select min(clin_when) from clin.clin_root_item where fk_episode = _row.pk
-		) limit 1;
+		select fk_encounter, clin_when into pk_encounter_min_clin_when, min_clin_when
+		from clin.clin_root_item where
+			clin_when = (
+				select min(clin_when) from clin.clin_root_item where fk_episode = _row.pk
+			)
+			and fk_episode = _row.pk
+		limit 1;
 		msg := ''earliest clinical time: '' || min_clin_when || '' encounter: '' || pk_encounter_min_clin_when;
 		raise notice ''%'', msg;
 
@@ -140,11 +148,14 @@ alter table clin.episode alter column fk_encounter set not null;
 -- alter views
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-episode-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-episode-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v9-clin-episode-dynamic.sql,v $
--- Revision 1.2  2008-03-03 13:45:19  ncq
+-- Revision 1.3  2008-03-03 14:26:07  ncq
+-- - need to check against fk_health_issue/fk_episode, too
+--
+-- Revision 1.2  2008/03/03 13:45:19  ncq
 -- - need to explicitely null relevant variables inside loop
 --
 -- Revision 1.1  2008/03/02 11:25:55  ncq

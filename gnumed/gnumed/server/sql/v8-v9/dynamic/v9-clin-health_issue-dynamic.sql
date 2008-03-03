@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-health_issue-dynamic.sql,v 1.3 2008-03-03 14:05:51 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v9-clin-health_issue-dynamic.sql,v 1.4 2008-03-03 14:26:07 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -63,9 +63,12 @@ BEGIN
 
 		-- find earliest modification time of any episode within this issue
 		pk_target_encounter := null;
-		select fk_encounter into pk_target_encounter from clin.episode where modified_when = (
-			select min(modified_when) from clin.episode where fk_health_issue = _row.pk
-		) limit 1;
+		select fk_encounter into pk_target_encounter from clin.episode where
+			modified_when = (
+				select min(modified_when) from clin.episode where fk_health_issue = _row.pk
+			)
+			and fk_health_issue = _row.pk
+			limit 1;
 
 		if found then
 			msg := ''encounter with earliest modification time: '' || pk_target_encounter;
@@ -116,11 +119,14 @@ alter table clin.health_issue alter column fk_encounter set not null;
 -- alter views
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v9-clin-health_issue-dynamic.sql,v $
--- Revision 1.3  2008-03-03 14:05:51  ncq
+-- Revision 1.4  2008-03-03 14:26:07  ncq
+-- - need to check against fk_health_issue/fk_episode, too
+--
+-- Revision 1.3  2008/03/03 14:05:51  ncq
 -- - need to test _row.pk against fk_health_issue when dealing with clin.episode...
 --
 -- Revision 1.2  2008/03/03 13:45:19  ncq
