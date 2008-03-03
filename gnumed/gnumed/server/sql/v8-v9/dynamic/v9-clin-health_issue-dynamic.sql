@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-health_issue-dynamic.sql,v 1.2 2008-03-03 13:45:19 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v9-clin-health_issue-dynamic.sql,v 1.3 2008-03-03 14:05:51 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -30,10 +30,11 @@ declare
 begin
 	select into encounter_patient fk_patient from clin.encounter where pk = NEW.fk_encounter;
 	if encounter_patient != NEW.fk_patient then
-		msg := ''clin.trf_ensure_issue_encounter_patient_consistence(): Integrity error. Encounter ('' || NEW.fk_encounter
-		|| '') belongs to patient '' || encounter_patient
-		|| ''. Cannot set patient on health issue ('' || NEW.pk
-		|| '') to '' || NEW.fk_patient;
+		msg := ''clin.trf_ensure_issue_encounter_patient_consistence(): Integrity error. Encounter '' || NEW.fk_encounter
+		|| '' belongs to patient '' || encounter_patient
+		|| ''. Health issue '' || NEW.pk
+		|| '' belongs to patient '' || NEW.fk_patient
+		|| ''. Cannot link the two.'';
 		raise exception ''%'', msg;
 	end if;
 	return NEW;
@@ -63,7 +64,7 @@ BEGIN
 		-- find earliest modification time of any episode within this issue
 		pk_target_encounter := null;
 		select fk_encounter into pk_target_encounter from clin.episode where modified_when = (
-			select min(modified_when) from clin.episode where pk = _row.pk
+			select min(modified_when) from clin.episode where fk_health_issue = _row.pk
 		) limit 1;
 
 		if found then
@@ -115,11 +116,14 @@ alter table clin.health_issue alter column fk_encounter set not null;
 -- alter views
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v9-clin-health_issue-dynamic.sql,v $
--- Revision 1.2  2008-03-03 13:45:19  ncq
+-- Revision 1.3  2008-03-03 14:05:51  ncq
+-- - need to test _row.pk against fk_health_issue when dealing with clin.episode...
+--
+-- Revision 1.2  2008/03/03 13:45:19  ncq
 -- - need to explicitely null relevant variables inside loop
 --
 -- Revision 1.1  2008/03/02 11:25:55  ncq
