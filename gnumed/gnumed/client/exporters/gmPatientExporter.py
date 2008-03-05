@@ -10,12 +10,12 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.115 2008-01-30 13:46:17 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmPatientExporter.py,v 1.116 2008-03-05 22:25:09 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
-import os.path, sys, traceback, string, types, time, codecs, datetime as pyDT, locale
+import os.path, sys, traceback, string, types, time, codecs, datetime as pyDT, locale, logging
 
 import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
@@ -23,11 +23,11 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmI18N, gmExceptions, gmNull, gmPG2, gmTools
+from Gnumed.pycommon import gmI18N, gmExceptions, gmNull, gmPG2, gmTools
 from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.export')
+_log.info(__version__)
 #============================================================
 class cEmrExport:
 
@@ -86,7 +86,7 @@ class cEmrExport:
             patient - Patient whose data are to be dumped
         """
         if patient is None:
-            _log.Log(gmLog.lErr, "can't set None patient for exporter")
+            _log.error("can't set None patient for exporter")
             return
         self.__patient = patient
     #--------------------------------------------------------
@@ -401,7 +401,7 @@ class cEmrExport:
      #               episodes=self.__constraints['episodes'],
       #              issues=self.__constraints['issues']))
        # except:
-        #        _log.Error("vaccination error? outside regime")
+        #        _log.error("vaccination error? outside regime")
 
 #        filtered_items.extend(emr.get_lab_results(
  #           since=self.__constraints['since'],
@@ -544,18 +544,18 @@ class cEmrExport:
 	    found = False
 	    while id.IsOk():
 	        #try:
-	    	#  _log.Log(gmLog.lErr, "emr_tree.GetItemText(id)  a_health_issue['description']\n\t\t: %s %s\n" % ( emr_tree.GetItemText(id)  , a_health_issue['description'] ) )
+	    	#  _log.error("emr_tree.GetItemText(id)  a_health_issue['description']\n\t\t: %s %s\n" % ( emr_tree.GetItemText(id)  , a_health_issue['description'] ) )
 		#except:
 		#  print sys.exc_info()[0], sys.exc_info()[1]
 		#  traceback.print_tb( sys.exc_info()[2])
 
-	    	if emr_tree.GetItemText(id)  ==  a_health_issue['description'] :
-			found = True
-			break
+			if emr_tree.GetItemText(id)  ==  a_health_issue['description'] :
+				found = True
+				break
 		id,cookie = emr_tree.GetNextChild( root_node, cookie)
-	    
+
 	    if not found:
-	    	_log.Log(gmLog.lErr, "health issue %s should exist in tree already" %  a_health_issue['description'] )
+	    	_log.error("health issue %s should exist in tree already", a_health_issue['description'] )
 		return
 	    issue_node= id
 	    episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
@@ -832,7 +832,7 @@ class cEmrExport:
         """
         emr = self.__patient.get_emr()
         if emr is None:
-            _log.Log(gmLog.lErr, 'cannot get EMR text dump')
+            _log.error('cannot get EMR text dump')
             print(_(
                 'An error occurred while retrieving a text\n'
                 'dump of the EMR for the active patient.\n\n'
@@ -885,7 +885,7 @@ class cEmrExport:
             Dumps in ASCII format some basic patient's demographic data
         """
         if self.__patient is None:
-            _log.Log(gmLog.lErr, 'cannot get Demographic export')
+            _log.error('cannot get Demographic export')
             print(_(
                 'An error occurred while Demographic record export\n'
                 'Please check the log file for details.'
@@ -1186,8 +1186,6 @@ if __name__ == "__main__":
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-
 	#--------------------------------------------------------
 	def export_journal():
 
@@ -1216,7 +1214,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.115  2008-01-30 13:46:17  ncq
+# Revision 1.116  2008-03-05 22:25:09  ncq
+# - no more gmLog
+#
+# Revision 1.115  2008/01/30 13:46:17  ncq
 # - cleanup
 #
 # Revision 1.114  2008/01/22 11:52:24  ncq
