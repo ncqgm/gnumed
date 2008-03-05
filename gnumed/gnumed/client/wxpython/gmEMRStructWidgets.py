@@ -8,13 +8,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.73 2008-01-30 14:03:41 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmEMRStructWidgets.py,v 1.74 2008-03-05 22:37:45 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
 # stdlib
-import sys, re, datetime as pydt
+import sys, re, datetime as pydt, logging
 
 
 # 3rd party
@@ -24,7 +24,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg
+from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
@@ -33,9 +33,9 @@ from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaD
 from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
-	
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
+
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
@@ -955,10 +955,8 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 				gmDispatcher.send(signal='statustext', msg=_('Creating new health issue not allowed.'))
 				return False
 			pat = gmPerson.gmCurrentPatient()
-			success, self.__issue = gmEMRStructItems.create_health_issue (
-				patient_id = pat.ID,
-				description = desc
-			)
+			emr = pat.get_emr()
+			self.__issue = emr.add_health_issue(issue_name = desc)
 		else:
 			self.__issue['description'] = desc
 
@@ -1027,8 +1025,6 @@ class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDl
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-
-	_log.SetAllLogLevels(gmLog.lData)
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -1146,7 +1142,7 @@ if __name__ == '__main__':
 #		app = testapp(0)
 #		app.MainLoop()
 #	except StandardError:
-#		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+#		_log.exception("unhandled exception caught !")
 		# but re-raise them
 #		raise
 
@@ -1159,7 +1155,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.73  2008-01-30 14:03:41  ncq
+# Revision 1.74  2008-03-05 22:37:45  ncq
+# - new style logging
+# - new health issue adding
+#
+# Revision 1.73  2008/01/30 14:03:41  ncq
 # - use signal names directly
 # - switch to std lib logging
 #
