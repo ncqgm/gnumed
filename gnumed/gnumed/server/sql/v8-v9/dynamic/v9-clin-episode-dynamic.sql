@@ -5,14 +5,14 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-episode-dynamic.sql,v 1.3 2008-03-03 14:26:07 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v9-clin-episode-dynamic.sql,v 1.4 2008-03-05 22:31:07 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-comment on column clin.health_issue.fk_encounter is
+comment on column clin.episode.fk_encounter is
 	'The encounter during which this episode was added (begun).';
 
 -- ensure consistency
@@ -148,11 +148,14 @@ alter table clin.episode alter column fk_encounter set not null;
 -- alter views
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-episode-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-episode-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v9-clin-episode-dynamic.sql,v $
--- Revision 1.3  2008-03-03 14:26:07  ncq
+-- Revision 1.4  2008-03-05 22:31:07  ncq
+-- - add comments
+--
+-- Revision 1.3  2008/03/03 14:26:07  ncq
 -- - need to check against fk_health_issue/fk_episode, too
 --
 -- Revision 1.2  2008/03/03 13:45:19  ncq
