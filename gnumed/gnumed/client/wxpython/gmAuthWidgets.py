@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.14 2008-02-25 17:33:16 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmAuthWidgets.py,v 1.15 2008-03-05 22:26:52 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -554,7 +554,7 @@ class cLoginPanel(wx.Panel):
 """GNUmed main login screen
 
 USER:
- name of the GnuMed user
+ name of the GNUmed user
 PASSWORD
  password for this user
 
@@ -567,7 +567,7 @@ button CANCEL:
 button HELP:
  this help screen
 
-For assistance on using GnuMed please contact:
+For assistance on using GNUmed please contact:
  %s""") % praxis.helpdesk)
 
 	#----------------------------
@@ -637,7 +637,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.14  2008-02-25 17:33:16  ncq
+# Revision 1.15  2008-03-05 22:26:52  ncq
+# - spelling
+#
+# Revision 1.14  2008/02/25 17:33:16  ncq
 # - use improved db sanity checks
 #
 # Revision 1.13  2008/01/30 14:07:02  ncq
