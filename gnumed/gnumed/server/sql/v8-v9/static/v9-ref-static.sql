@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-ref-static.sql,v 1.1 2008-01-27 21:07:05 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-ref-static.sql,v 1.2 2008-03-05 22:32:35 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -16,17 +16,18 @@ create table ref.data_source (
 	pk serial
 		primary key,
 	name_long text
-		unique
 		not null,
 	name_short text
-		unique
 		not null,
 	version text
 		not null,
 	description text,
 	source text
-		not null
+		not null,
+	unique(version, name_long),
+	unique(version, name_short)
 ) inherits (audit.audit_fields);
+
 
 insert into ref.data_source
 	select pk_audit, row_version, modified_when, modified_by, pk, name_long, name_short, version, description, source from public.ref_source;
@@ -94,11 +95,14 @@ select setval('ref.atc_substance_pk_seq'::text, (select max(pk) from ref.atc_sub
 drop table public.atc_substance;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-ref-static.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v9-ref-static.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-ref-static.sql,v $
--- Revision 1.1  2008-01-27 21:07:05  ncq
+-- Revision 1.2  2008-03-05 22:32:35  ncq
+-- - adjust uniqueness
+--
+-- Revision 1.1  2008/01/27 21:07:05  ncq
 -- - new
 --
 --
