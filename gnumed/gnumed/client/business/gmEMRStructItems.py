@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.108 $"
+__version__ = "$Revision: 1.109 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging
@@ -147,7 +147,7 @@ age (
 		return rows[0][0]
 
 #============================================================
-def create_health_issue(patient_id=None, description=None):
+def create_health_issue(patient_id=None, description=None, encounter=None):
 	"""Creates a new health issue for a given patient.
 
 	patient_id - given patient PK
@@ -160,8 +160,8 @@ def create_health_issue(patient_id=None, description=None):
 		pass
 
 	queries = []
-	cmd = u"insert into clin.health_issue (fk_patient, description) values (%s, %s)"
-	queries.append({'cmd': cmd, 'args': [patient_id, description]})
+	cmd = u"insert into clin.health_issue (fk_patient, description, fk_encounter) values (%s, %s, %s)"
+	queries.append({'cmd': cmd, 'args': [patient_id, description, encounter]})
 
 	cmd = u"select currval('clin.health_issue_pk_seq')"
 	queries.append({'cmd': cmd})
@@ -310,7 +310,7 @@ from (
 		return True
 
 #============================================================
-def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False, allow_dupes=False):
+def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False, allow_dupes=False, encounter=None):
 	"""Creates a new episode for a given patient's health issue.
 
 	pk_health_issue - given health issue PK
@@ -327,8 +327,8 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 			pass
 
 	queries = []
-	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
-	queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
+	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open, fk_encounter) values (%s, %s, %s, %s::boolean, %s)"
+	queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open, encounter]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
 
@@ -476,6 +476,51 @@ select exists (
 			}]
 		)
 		return rows[0][0]
+#-----------------------------------------------------------
+def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
+	"""Creates a new encounter for a patient.
+
+	fk_patient - patient PK
+	fk_location - encounter location
+	enc_type - type of encounter
+
+	FIXME: we don't deal with location yet
+	"""
+	if enc_type is None:
+		enc_type = u'in surgery'
+	# insert new encounter
+	queries = []
+	try:
+		enc_type = int(enc_type)
+		cmd = u"""
+			insert into clin.encounter (
+				fk_patient, fk_location, fk_type
+			) values (
+				%s, -1, %s
+			)"""
+	except ValueError:
+		enc_type = enc_type
+		cmd = u"""
+			insert into clin.encounter (
+				fk_patient, fk_location, fk_type
+			) values (
+				%s, -1,	coalesce((select pk from clin.encounter_type where description=%s), 0)
+			)"""
+	queries.append({'cmd': cmd, 'args': [fk_patient, enc_type]})
+	queries.append({'cmd': cEncounter._cmd_fetch_payload % u"currval('clin.encounter_pk_seq')"})
+	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True, get_col_idx=True)
+	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+	return encounter
+#-----------------------------------------------------------
+def get_encounter_types():
+	cmd = u"SELECT _(description), description from clin.encounter_type"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return rows
+#-----------------------------------------------------------
+def get_encounter_type(description=None):
+	cmd = u"SELECT * from clin.encounter_type where description = %s"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [description]}])
+	return rows
 #============================================================		
 class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
@@ -526,50 +571,6 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
 		return cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
-#============================================================
-# convenience functions
-#------------------------------------------------------------
-
-#-----------------------------------------------------------
-def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
-	"""Creates a new encounter for a patient.
-
-	fk_patient - patient PK
-	fk_location - encounter location
-	enc_type - type of encounter
-
-	FIXME: we don't deal with location yet
-	"""
-	if enc_type is None:
-		enc_type = u'in surgery'
-	# insert new encounter
-	queries = []
-	try:
-		enc_type = int(enc_type)
-		cmd = u"""
-			insert into clin.encounter (
-				fk_patient, fk_location, fk_type
-			) values (
-				%s, -1, %s
-			)"""
-	except ValueError:
-		enc_type = enc_type
-		cmd = u"""
-			insert into clin.encounter (
-				fk_patient, fk_location, fk_type
-			) values (
-				%s, -1,	coalesce((select pk from clin.encounter_type where description=%s), 0)
-			)"""
-	queries.append({'cmd': cmd, 'args': [fk_patient, enc_type]})
-	queries.append({'cmd': cEncounter._cmd_fetch_payload % u"currval('clin.encounter_pk_seq')"})
-	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True, get_col_idx=True)
-	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
-	return encounter
-#-----------------------------------------------------------
-def get_encounter_types():
-	cmd = u"SELECT _(description), description from clin.encounter_type"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	return rows
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -658,7 +659,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.108  2008-02-25 17:29:59  ncq
+# Revision 1.109  2008-03-05 22:24:31  ncq
+# - support fk_encounter in issue and episode creation
+#
+# Revision 1.108  2008/02/25 17:29:59  ncq
 # - logging cleanup
 #
 # Revision 1.107  2008/01/30 13:34:49  ncq

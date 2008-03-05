@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.257 2008-02-25 16:58:03 ncq Exp $
-__version__ = "$Revision: 1.257 $"
+# $Id: gmClinicalRecord.py,v 1.258 2008-03-05 22:24:31 ncq Exp $
+__version__ = "$Revision: 1.258 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -697,7 +697,8 @@ where
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
 			patient_id = self.pk_patient,
-			is_open = is_open
+			is_open = is_open,
+			encounter = self.__encounter['pk_encounter']
 		)
 		return episode
 	#--------------------------------------------------------
@@ -853,7 +854,11 @@ where
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue."""
-		success, issue = gmEMRStructItems.create_health_issue(patient_id=self.pk_patient, description=issue_name)
+		success, issue = gmEMRStructItems.create_health_issue (
+			patient_id = self.pk_patient,
+			description = issue_name,
+			encounter = self.__encounter['pk_encounter']
+		)
 		if not success:
 			_log.error('cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
 			return None
@@ -1597,7 +1602,10 @@ if __name__ == "__main__":
 		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.257  2008-02-25 16:58:03  ncq
+# Revision 1.258  2008-03-05 22:24:31  ncq
+# - support fk_encounter in issue and episode creation
+#
+# Revision 1.257  2008/02/25 16:58:03  ncq
 # - use new logging
 #
 # Revision 1.256  2008/01/30 13:34:49  ncq
