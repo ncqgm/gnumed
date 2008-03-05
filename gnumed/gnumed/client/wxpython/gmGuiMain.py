@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.389 2008-02-29 23:46:59 ncq Exp $
-__version__ = "$Revision: 1.389 $"
+# $Id: gmGuiMain.py,v 1.390 2008-03-05 22:38:26 ncq Exp $
+__version__ = "$Revision: 1.390 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -796,9 +796,9 @@ class gmTopLevelFrame(wx.Frame):
 		if not has_narr:
 			if empty_aoe:
 				enc['assessment_of_encounter'] = _('only documents added')
-			if zero_duration:
-				# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
-				enc.save_payload()
+			enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]
+			# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
+			enc.save_payload()
 			return True
 
 		# does have narrative
@@ -2231,7 +2231,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.389  2008-02-29 23:46:59  ncq
+# Revision 1.390  2008-03-05 22:38:26  ncq
+# - set encounter type to chart review on docs-only encounters
+#
+# Revision 1.389  2008/02/29 23:46:59  ncq
 # - new debugging option: widget inspector (needs 2.8)
 #
 # Revision 1.388  2008/02/25 17:37:16  ncq
