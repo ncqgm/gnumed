@@ -10,22 +10,24 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.57 2007-07-10 20:28:36 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmDateTimeInput.py,v 1.58 2008-03-05 22:30:13 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
-import re, string, sys, time, datetime as pyDT
+import re, string, sys, time, datetime as pyDT, logging
+
 
 import mx.DateTime as mxDT, wx
+
 
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmMatchProvider, gmDateTime
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 
-_log = gmLog.gmDefLog
+_log = logging.getLogger('gm.ui')
 
 #============================================================
 class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
@@ -229,7 +231,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.57  2007-07-10 20:28:36  ncq
+# Revision 1.58  2008-03-05 22:30:13  ncq
+# - new style logging
+#
+# Revision 1.57  2007/07/10 20:28:36  ncq
 # - consolidate install_domain() args
 #
 # Revision 1.56  2007/06/15 10:24:53  ncq

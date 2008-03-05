@@ -7,20 +7,22 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.19 2008-01-11 16:15:33 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmStaffWidgets.py,v 1.20 2008-03-05 22:30:15 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
+import logging
+
 import wx
 
-from Gnumed.pycommon import gmLog, gmPG2, gmTools
+from Gnumed.pycommon import gmPG2, gmTools
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers, gmAuthWidgets
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 #==========================================================================
 class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 
@@ -236,7 +238,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.19  2008-01-11 16:15:33  ncq
+# Revision 1.20  2008-03-05 22:30:15  ncq
+# - new style logging
+#
+# Revision 1.19  2008/01/11 16:15:33  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.18  2008/01/05 16:41:27  ncq

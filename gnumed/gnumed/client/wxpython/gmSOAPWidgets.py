@@ -2,13 +2,13 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.99 2008-02-25 17:43:03 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmSOAPWidgets.py,v 1.100 2008-03-05 22:30:15 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std library
-import types
+import types, logging
 
 
 # 3rd party
@@ -16,12 +16,12 @@ import wx
 
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmTools, gmCfg
+from Gnumed.pycommon import gmDispatcher, gmI18N, gmExceptions, gmMatchProvider, gmTools, gmCfg
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 #============================================================
 def create_issue_popup(parent, pos, size, style, data_sink):
@@ -569,7 +569,7 @@ class cPopupDataHolder:
 			try:
 				saver_func = self.__data_savers[popup_type]
 			except KeyError:
-				_log.LogException('no saver for popup data type [%s] configured' % popup_type)
+				_log.exception('no saver for popup data type [%s] configured', popup_type)
 				return False
 			for desc in self.__data[popup_type].keys():
 				data = self.__data[popup_type][desc]['data']
@@ -963,10 +963,10 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		# now save note
 		emr = self.__pat.get_emr()
 		if emr is None:
-			_log.Log(gmLog.lErr, 'cannot access clinical record of patient')
+			_log.error('cannot access clinical record of patient')
 			return False
 		if not emr.add_clin_narrative(note, soap_cat='s'):
-			_log.Log(gmLog.lErr, 'error saving clinical note')
+			_log.error('error saving clinical note')
 			return False
 		self.__soap_box.SetValue('')
 		return True
@@ -976,8 +976,7 @@ class cSingleBoxSOAPPanel(wx.Panel):
 if __name__ == "__main__":
 
 	import sys
-	_log = gmLog.gmDefLog
-	_log.SetAllLogLevels(gmLog.lData)
+
 	from Gnumed.pycommon import gmPG2
 	#--------------------------------------------------------
 	def get_narrative(pk_encounter=None, pk_health_issue = None, default_labels=None):
@@ -1067,7 +1066,6 @@ if __name__ == "__main__":
 		application.frame.Show(True)
 		application.MainLoop()
 	#--------------------------------------------------------
-	_log.SetAllLogLevels(gmLog.lData)
 
 	try:
 		# obtain patient
@@ -1127,13 +1125,16 @@ if __name__ == "__main__":
 #		app.MainLoop()
 		
 	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		_log.exception("unhandled exception caught !")
 		# but re-raise them
 		raise
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.99  2008-02-25 17:43:03  ncq
+# Revision 1.100  2008-03-05 22:30:15  ncq
+# - new style logging
+#
+# Revision 1.99  2008/02/25 17:43:03  ncq
 # - keywords: ea -> ea$, phx -> phx$
 # - fix add_editor()
 # - clinical logic change for adding new editors

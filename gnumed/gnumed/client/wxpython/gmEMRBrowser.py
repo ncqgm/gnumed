@@ -2,26 +2,26 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.84 2008-01-30 14:07:24 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmEMRBrowser.py,v 1.85 2008-03-05 22:30:14 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # std lib
-import sys, types, os.path, StringIO, codecs
+import sys, types, os.path, StringIO, codecs, logging
 
 # 3rd party
 import wx
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmExceptions, gmTools
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets, gmNarrativeWidgets
 from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl, wxgSplittedEMRTreeBrowserPnl
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 #============================================================
 def export_emr_to_ascii(parent=None):
@@ -58,7 +58,7 @@ def export_emr_to_ascii(parent=None):
 	if choice != wx.ID_OK:
 		return None
 
-	_log.Log(gmLog.lData, 'exporting EMR to [%s]' % fname)
+	_log.debug('exporting EMR to [%s]', fname)
 
 #	output_file = open(fname, 'wb')
 	output_file = codecs.open(fname, 'wb', encoding='utf8', errors='replace')
@@ -505,7 +505,7 @@ class cEMRJournalPanel(wx.Panel):
 			exporter.export(txt)
 			self.__journal.SetValue(txt.getvalue())
 		except ValueError:
-			_log.LogException('cannot get EMR journal')
+			_log.exception('cannot get EMR journal')
 			self.__journal.SetValue (_(
 				'An error occurred while retrieving the EMR\n'
 				'in journal form for the active patient.\n\n'
@@ -519,8 +519,7 @@ class cEMRJournalPanel(wx.Panel):
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	_log.SetAllLogLevels(gmLog.lData)
-	_log.Log (gmLog.lInfo, "starting emr browser...")
+	_log.info("starting emr browser...")
 
 	try:
 		# obtain patient
@@ -545,15 +544,18 @@ if __name__ == '__main__':
 			except:
 				print "error cleaning up patient"
 	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		_log.exception("unhandled exception caught !")
 		# but re-raise them
 		raise
 
-	_log.Log (gmLog.lInfo, "closing emr browser...")
+	_log.info("closing emr browser...")
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.84  2008-01-30 14:07:24  ncq
+# Revision 1.85  2008-03-05 22:30:14  ncq
+# - new style logging
+#
+# Revision 1.84  2008/01/30 14:07:24  ncq
 # - do not use old cfg file support anymore
 #
 # Revision 1.83  2008/01/22 12:20:53  ncq

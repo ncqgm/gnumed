@@ -2,11 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.6 2007-12-03 20:45:28 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmNarrativeWidgets.py,v 1.7 2008-03-05 22:30:14 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys
+import sys, logging
 
 
 import wx
@@ -14,14 +14,14 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmTools
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
@@ -201,7 +201,7 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
@@ -227,7 +227,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.6  2007-12-03 20:45:28  ncq
+# Revision 1.7  2008-03-05 22:30:14  ncq
+# - new style logging
+#
+# Revision 1.6  2007/12/03 20:45:28  ncq
 # - improved docs
 #
 # Revision 1.5  2007/09/10 12:36:02  ncq

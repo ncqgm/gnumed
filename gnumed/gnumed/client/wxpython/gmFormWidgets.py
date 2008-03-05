@@ -2,11 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.8 2008-01-27 21:14:16 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmFormWidgets.py,v 1.9 2008-03-05 22:30:14 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import os.path, sys
+import os.path, sys, logging
 
 
 import wx
@@ -14,14 +14,14 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmTools, gmDispatcher
+from Gnumed.pycommon import gmI18N, gmTools, gmDispatcher
 from Gnumed.business import gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmMacro
 from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl, wxgFormTemplateEditAreaDlg
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 #============================================================
 # convenience functions
@@ -288,7 +288,7 @@ class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAre
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
@@ -305,7 +305,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.8  2008-01-27 21:14:16  ncq
+# Revision 1.9  2008-03-05 22:30:14  ncq
+# - new style logging
+#
+# Revision 1.8  2008/01/27 21:14:16  ncq
 # - gracefully handle UNO import errors
 #
 # Revision 1.7  2007/11/10 20:57:04  ncq

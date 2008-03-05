@@ -2,17 +2,16 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.14 2007-03-22 11:03:39 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmClinicalRecordTest.py,v 1.15 2008-03-05 22:26:25 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
 import unittest, time
 
-from Gnumed.pycommon import gmExceptions, gmLog
+from Gnumed.pycommon import gmExceptions
 from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab
 
-gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 #============================================================
 class EMR_StructureTests(unittest.TestCase):
 	#--------------------------------------------------------
@@ -124,7 +123,6 @@ class AllergyTests(unittest.TestCase):
 
 	def testZZzAddAllergy(self):
 		"""Check that a new allergy can be created"""
-		gmLog.gmDefLog.flush()
 		# create new allergy
 		pk_encounter = self.emr.get_active_encounter()['pk_encounter']
 		# FIXME: get_active_episode() is no more
@@ -293,7 +291,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.14  2007-03-22 11:03:39  ncq
+# Revision 1.15  2008-03-05 22:26:25  ncq
+# - new style logging
+#
+# Revision 1.14  2007/03/22 11:03:39  ncq
 # - clin.allergy rows renamed
 #
 # Revision 1.13  2007/03/08 11:37:52  ncq

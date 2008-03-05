@@ -2,11 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.23 2008-02-25 17:40:45 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmProviderInboxWidgets.py,v 1.24 2008-03-05 22:30:14 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys
+import sys, logging
 
 
 import wx
@@ -14,14 +14,14 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmTools, gmCfg
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg
 from Gnumed.business import gmPerson, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 _indicator = {
 	-1: '',
@@ -202,9 +202,9 @@ Leaving message in inbox.""") % handler_key,
 			)
 			return False
 		if not handle_item(pk_context = msg[6]):
-			_log.Log(gmLog.lErr, 'item handler returned "false"')
-			_log.Log(gmLog.lErr, 'handler key: [%s]' % handler_key)
-			_log.Log(gmLog.lErr, 'message: %s' % str(msg))
+			_log.error('item handler returned "false"')
+			_log.error('handler key: [%s]', handler_key)
+			_log.error('message: %s', str(msg))
 			return False
 		return True
 	#--------------------------------------------------------
@@ -257,8 +257,6 @@ Leaving message in inbox.""") % handler_key,
 #============================================================
 if __name__ == '__main__':
 
-	_log.SetAllLogLevels(gmLog.lData)
-
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
@@ -271,7 +269,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.23  2008-02-25 17:40:45  ncq
+# Revision 1.24  2008-03-05 22:30:14  ncq
+# - new style logging
+#
+# Revision 1.23  2008/02/25 17:40:45  ncq
 # - establish db cfg instance early enough
 #
 # Revision 1.22  2008/01/30 14:03:42  ncq

@@ -4,12 +4,12 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.2 2008-01-05 22:31:20 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmSnellen.py,v 1.3 2008-03-05 22:30:15 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import math, random, sys
+import math, random, sys, logging
 
 
 import wx
@@ -18,7 +18,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmLog, gmI18N
+from Gnumed.pycommon import gmI18N
 #from Gnumed.wxpython import gmPlugin
 
 ID_SNELLENMENU = wx.NewId()
@@ -263,7 +263,7 @@ class cSnellenChart(wx.Frame):
 		if self.screen_width_pixel == 0:
 			self.screen_width_pixel, self.screen_height_pixel = self.GetClientSizeTuple()
 			self.set_distance(2)
-#			gmLog.gmDefLog.Log (gmLog.lInfo, 'I think the screen size is %d x %d' % (self.screen_width_pixel, self.screen_height_pixel))
+#			_log.info('I think the screen size is %d x %d' % (self.screen_width_pixel, self.screen_height_pixel))
 
 #		self.setup_DC()
 		self.dc.SetFont(wx.Font (36, wx.ROMAN, wx.NORMAL, wx.NORMAL))
@@ -580,7 +580,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.2  2008-01-05 22:31:20  ncq
+# Revision 1.3  2008-03-05 22:30:15  ncq
+# - new style logging
+#
+# Revision 1.2  2008/01/05 22:31:20  ncq
 # - MacOSX don't seem to have default True on Validate() and TransferDataFromWindow()
 #
 # Revision 1.1  2007/10/19 09:37:56  ncq

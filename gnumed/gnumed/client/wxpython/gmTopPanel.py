@@ -2,24 +2,24 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.93 2008-01-27 21:20:58 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmTopPanel.py,v 1.94 2008-03-05 22:30:15 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, os.path, datetime as pyDT
+import sys, os.path, datetime as pyDT, logging
 
 
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmTools, gmCfg2, gmDateTime
+from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmTools, gmCfg2, gmDateTime
 from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets, gmAllergyWidgets
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 [	ID_BTN_pat_demographics,
 #	ID_CBOX_consult_type,
@@ -432,7 +432,7 @@ class cMainTopPanel(wx.Panel):
 			self.subbars[key].Show(1)
 			self.__current = key
 		except KeyError:
-			gmLog.gmDefLog.LogException("cannot show undefined toolbar [%s]" % key, sys.exc_info(), verbose=1)
+			_log.exception("cannot show undefined toolbar [%s]" % key)
 	#-------------------------------------------------------
 	def DeleteBar (self, key):
 		"""Removes a toolbar.
@@ -445,7 +445,7 @@ class cMainTopPanel(wx.Panel):
 				self.__current = self.subbars.keys()[0]
 				self.subbars[self.__current].Show(1)
 		except KeyError:
-			gmLog.gmDefLog.LogException("cannot delete undefined toolbar [%s]" % key, sys.exc_info(), verbose=1)
+			_log.exception("cannot delete undefined toolbar [%s]" % key)
 
 #===========================================================	
 if __name__ == "__main__":
@@ -455,7 +455,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.93  2008-01-27 21:20:58  ncq
+# Revision 1.94  2008-03-05 22:30:15  ncq
+# - new style logging
+#
+# Revision 1.93  2008/01/27 21:20:58  ncq
 # - no more label "Patient"
 # - make age field a dynamically adjusting static text, include gender and DOB
 # - remind of birthday

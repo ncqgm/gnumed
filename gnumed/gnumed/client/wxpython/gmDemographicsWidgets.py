@@ -1,13 +1,13 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.145 2008-02-26 16:26:05 ncq Exp $
-__version__ = "$Revision: 1.145 $"
+# $Id: gmDemographicsWidgets.py,v 1.146 2008-03-05 22:30:13 ncq Exp $
+__version__ = "$Revision: 1.146 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex, psycopg2
+import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex, psycopg2, logging
 
 
 import wx
@@ -18,13 +18,13 @@ import wx.wizard
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea, gmAuthWidgets
-from Gnumed.pycommon import gmLog, gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
+from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
 
 
 # constant defs
-_log = gmLog.gmDefLog
+_log = logging.getLogger('gm.ui')
 
 
 try:
@@ -900,7 +900,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 					is_confidential = self._CHBOX_confidential.GetValue(),
 				)
 			except psycopg2.IntegrityError:
-				_log.LogException('error saving comm channel')
+				_log.exception('error saving comm channel')
 				gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
 				return False
 		else:
@@ -2291,9 +2291,9 @@ def create_identity_from_dtd(dtd=None):
 		firstnames = dtd['firstnames']
 	)
 	if new_identity is None:
-		_log.Log(gmLog.lErr, 'cannot create identity from %s' % str(dtd))
+		_log.error('cannot create identity from %s' % str(dtd))
 		return None
-	_log.Log(gmLog.lData, 'identity created: %s' % new_identity)
+	_log.debug('identity created: %s' % new_identity)
 	
 	return new_identity
 #============================================================
@@ -2401,8 +2401,6 @@ class TestWizardPanel(wx.Panel):
 		print wizard.RunWizard()
 #============================================================
 if __name__ == "__main__":
-
-	_log.SetAllLogLevels(gmLog.lData)
 
 	#--------------------------------------------------------
 	def test_zipcode_prw():
@@ -2556,7 +2554,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.145  2008-02-26 16:26:05  ncq
+# Revision 1.146  2008-03-05 22:30:13  ncq
+# - new style logging
+#
+# Revision 1.145  2008/02/26 16:26:05  ncq
 # - actually fail on detecting error on saving comm channel
 # - add some tooltips
 #

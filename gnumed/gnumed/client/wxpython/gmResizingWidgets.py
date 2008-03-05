@@ -4,23 +4,23 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.49 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmResizingWidgets.py,v 1.50 2008-03-05 22:30:15 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
-import sys
+import sys, logging
 
 
 import wx
 import wx.stc
 
 
-from Gnumed.pycommon import gmI18N, gmLog, gmDispatcher
+from Gnumed.pycommon import gmI18N, gmDispatcher
 from Gnumed.wxpython import gmGuiHelpers, gmTimer
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 STYLE_ERROR=1
 STYLE_TEXT=2
@@ -196,7 +196,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		Overridden by descendants, this function uses AddWidget and Newline to form
 		the outline of the widget
 		"""
-		_log.Log(gmLog.lPanic, '[%s] forgot to override DoLayout()' % self.__class__.__name__)
+		_log.error('[%s] forgot to override DoLayout()' % self.__class__.__name__)
 	#------------------------------------------------
 	def ReSize (self, widget, new_height):
 		"""Called when a child widget has a new height, redoes the layout.
@@ -460,14 +460,14 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			return
 		# goto last line ?
 		if line == -1:
-			_log.Log(gmLog.lData, 'going to last line in STC')
+			_log.debug('going to last line in STC')
 			last_char_pos = self.GetLength()
 			if x is None:
 				self.GotoPos(last_char_pos)
-				_log.Log(gmLog.lData, 'no X given, use X=%s' % last_char_pos.x)
+				_log.debug('no X given, use X=%s' % last_char_pos.x)
 				return
 			y = self.PointFromPosition(last_char_pos).y
-			_log.Log(gmLog.lData, 'going to given X=%s' % x)
+			_log.debug('going to given X=%s' % x)
 			self.GotoPos(self.PositionFromPoint(wx.Point(x,y)))
 			return
 		# goto last current position
@@ -575,21 +575,21 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - if in first line: goto last line, same character, in prev_in_tab_order
 		# - else standard behaviour
 		if event.GetKeyCode() == wx.WXK_UP:
-			_log.Log(gmLog.lData, '<UP-ARROW> key press detected')
+			_log.debug('<UP-ARROW> key press detected')
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Up()
 #				return
-			_log.Log(gmLog.lData, 'pos %s = line %s' % (curs_pos, self.LineFromPosition(curs_pos)))
+			_log.debug('pos %s = line %s' % (curs_pos, self.LineFromPosition(curs_pos)))
 			if self.LineFromPosition(curs_pos) == 0:
-				_log.Log(gmLog.lData, 'first line of STC - special handling')
+				_log.debug('first line of STC - special handling')
 				if self.prev_in_tab_order is not None:
-					_log.Log(gmLog.lData, 'prev_in_tab_order = %s' % str(self.prev_in_tab_order))
+					_log.debug('prev_in_tab_order = %s' % str(self.prev_in_tab_order))
 					curs_coords = self.PointFromPosition(curs_pos)
-					_log.Log(gmLog.lData, 'cursor coordinates in current STC: %s:%s' % (curs_coords.x, curs_coords.y))
+					_log.debug('cursor coordinates in current STC: %s:%s' % (curs_coords.x, curs_coords.y))
 					self.prev_in_tab_order.SetFocus(x=curs_coords.x, line=-1)
 					return
 			else:
-				_log.Log(gmLog.lData, 'not first line of STC - standard handling')
+				_log.debug('not first line of STC - standard handling')
 
 		# <TAB> key
 		# - move to next/prev_in_tab_order
@@ -799,7 +799,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				data_sink = self.__popup_keywords[kwd]['widget_data_sink']
 			)
 		except StandardError:
-			_log.LogException('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd), sys.exc_info(), verbose=1)
+			_log.exception('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd))
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot invoke [%s] for keyword [%s].') % (create_widget, kwd),
 				aTitle = _('showing keyword popup')
@@ -808,8 +808,8 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 		if not isinstance(popup, wx.Dialog):
 			gmDispatcher.send(signal='statustext', msg=_('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd))
-			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
-			_log.Log(gmLog.lErr, 'the result (%s) is not a wx.Dialog subclass instance, however' % str(popup))
+			_log.error('keyword [%s] triggered action [%s]' % (kwd, create_widget))
+			_log.error('the result (%s) is not a wx.Dialog subclass instance, however' % str(popup))
 			return False
 
 		# display widget
@@ -858,8 +858,6 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 #====================================================================
 #====================================================================
 if __name__ == '__main__':
-
-	_log.SetAllLogLevels(gmLog.lData)
 
 #	from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 #	from Gnumed.pycommon import gmI18N
@@ -1050,7 +1048,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.49  2008-01-30 14:03:42  ncq
+# Revision 1.50  2008-03-05 22:30:15  ncq
+# - new style logging
+#
+# Revision 1.49  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

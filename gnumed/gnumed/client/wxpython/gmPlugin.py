@@ -4,12 +4,12 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.76 2007-12-11 12:49:26 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmPlugin.py,v 1.77 2008-03-05 22:30:14 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import os, sys, re, glob
+import os, sys, re, glob, logging
 
 
 import wx
@@ -17,11 +17,11 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmTools
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmCfg, gmDispatcher, gmTools
 from Gnumed.business import gmPerson, gmSurgery
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 #==============================================================================
 class cLoadProgressBar (wx.ProgressDialog):
@@ -41,7 +41,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 		try:
 			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
 		except:
-			_log.Log(gmLog.lWarn, 'wx.Icon.LoadFile() not supported')
+			_log.warning('wx.Icon.LoadFile() not supported')
 		self.SetIcon(icon)
 		self.idx = 0
 		self.nr_plugins = nr_plugins
@@ -83,7 +83,7 @@ class cNotebookPlugin:
 	def register(self):
 		"""Register ourselves with the main notebook widget."""
 
-		_log.Log(gmLog.lInfo, "set: [%s] class: [%s] name: [%s]" % (self._set, self.__class__.__name__, self.name()))
+		_log.info("set: [%s] class: [%s] name: [%s]" % (self._set, self.__class__.__name__, self.name()))
 
 		# create widget
 		nb = self.gb['horstspace.notebook']
@@ -121,7 +121,7 @@ class cNotebookPlugin:
 	def unregister(self):
 		"""Remove ourselves."""
 		del self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__]
-		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self._set))
+		_log.info("plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self._set))
 
 		# delete menu item
 		menu_info = self.MenuInfo()
@@ -251,7 +251,7 @@ class cNotebookPluginOld(cNotebookPlugin):
 			self.gb['main.notebook.raised_plugin'] = 'none'
 	#-----------------------------------------------------
 	def populate_with_data(self):
-		_log.Log(gmLog.lInfo, '%s: outdated populate_with_data() missing' % self.__class__.__name__)
+		_log.info('%s: outdated populate_with_data() missing' % self.__class__.__name__)
 	#-----------------------------------------------------
 	def receive_focus(self):
 		"""We *are* receiving focus now."""
@@ -276,7 +276,7 @@ def raise_notebook_plugin(plugin_name = None):
 	try:
 		plugin = gb['horstspace.notebook.gui'][plugin_name]
 	except KeyError:
-		_log.LogException("cannot raise [%s], plugin not available" % plugin_name, verbose=0)
+		_log.exception("cannot raise [%s], plugin not available" % plugin_name)
 		return None
 	if plugin.can_receive_focus():
 		plugin.Raise()
@@ -292,7 +292,7 @@ def __gm_import(module_name):
 	try:
 		mod = __import__(module_name)
 	except ImportError:
-		_log.LogException ('Cannot __import__() module [%s].' % module_name, verbose=0)
+		_log.exception ('Cannot __import__() module [%s].' % module_name)
 		return None
 	components = module_name.split('.')
 	for component in components[1:]:
@@ -329,14 +329,14 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	plugin_class = module_from_package.__dict__[plugin_name]
 
 	if not issubclass(plugin_class, cNotebookPlugin):
-		_log.Log(gmLog.lErr, "[%s] not a subclass of cNotebookPlugin" % plugin_name)
+		_log.error("[%s] not a subclass of cNotebookPlugin" % plugin_name)
 		return None
 
-	_log.Log(gmLog.lInfo, plugin_name)
+	_log.info(plugin_name)
 	try:
 		plugin = plugin_class()
 	except:
-		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), verbose=0)
+		_log.exception('Cannot open module "%s.%s".' % (aPackage, plugin_name))
 		return None
 
 	return plugin
@@ -355,11 +355,11 @@ def get_installed_plugins(plugin_dir=''):
 			search_path = tmp
 			break
 	if search_path is None:
-		_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/Gnumed/wxpython/%s/]' % plugin_dir)
-		_log.Log(gmLog.lErr, 'candidates: %s' % str(sys.path))
+		_log.error('unable to find any candidate directory matching [$candidate/Gnumed/wxpython/%s/]' % plugin_dir)
+		_log.error('candidates: %s' % str(sys.path))
 		return []
 
-	_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
+	_log.info("scanning plugin directory [%s]" % search_path)
 
 	files = glob.glob(os.path.join(search_path, 'gm*.py'))
 	plugins = []
@@ -368,7 +368,7 @@ def get_installed_plugins(plugin_dir=''):
 		mod_name, ext = os.path.splitext(fname)
 		plugins.append(mod_name)
 
-	_log.Log(gmLog.lData, "plugins found: %s" % str(plugins))
+	_log.debug("plugins found: %s" % str(plugins))
 
 	return plugins
 #------------------------------------------------------------------
@@ -379,7 +379,6 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	2) from list of defaults
 	3) if 2 is None, from source directory (then stored in database)
 
-	FIXME: look at gmRichardSpace to see how to load plugins
 	FIXME: NOT from files in directories (important for py2exe)
 	"""
 	if workplace is None:
@@ -402,7 +401,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	if defaults is None:
 		p_list = get_installed_plugins(plugin_dir = plugin_dir)
 		if (len(p_list) == 0):
-			_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
+			_log.error('cannot find plugins by scanning plugin directory ?!?')
 			return defaults
 	else:
 		p_list = defaults
@@ -414,7 +413,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 		workplace = workplace
 	)
 
-	_log.Log(gmLog.lData, "plugin load list stored: %s" % str(p_list))
+	_log.debug("plugin load list stored: %s" % str(p_list))
 	return p_list
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
@@ -434,7 +433,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.76  2007-12-11 12:49:26  ncq
+# Revision 1.77  2008-03-05 22:30:14  ncq
+# - new style logging
+#
+# Revision 1.76  2007/12/11 12:49:26  ncq
 # - explicit signal handling
 #
 # Revision 1.75  2007/11/23 23:35:47  ncq
