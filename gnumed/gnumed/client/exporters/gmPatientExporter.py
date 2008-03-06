@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.116 2008-03-05 22:25:09 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmPatientExporter.py,v 1.117 2008-03-06 18:24:45 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -470,7 +470,6 @@ class cEmrExport:
         """
         #TODO , caching eliminates tree update time, so don't really need this
         self._traverse_health_issues( emr_tree, self._update_health_issue_branch)
-	
     #--------------------------------------------------------             
     def get_historical_tree( self, emr_tree):
         self._traverse_health_issues( emr_tree, self._add_health_issue_branch)
@@ -538,64 +537,57 @@ class cEmrExport:
                return encounters
     #--------------------------------------------------------             
     def  _update_health_issue_branch(self, emr_tree, a_health_issue):
-            emr = self.__patient.get_emr()
-            root_node = emr_tree.GetRootItem()
-	    id, cookie = emr_tree.GetFirstChild( root_node)
-	    found = False
-	    while id.IsOk():
-	        #try:
-	    	#  _log.error("emr_tree.GetItemText(id)  a_health_issue['description']\n\t\t: %s %s\n" % ( emr_tree.GetItemText(id)  , a_health_issue['description'] ) )
-		#except:
-		#  print sys.exc_info()[0], sys.exc_info()[1]
-		#  traceback.print_tb( sys.exc_info()[2])
-
-			if emr_tree.GetItemText(id)  ==  a_health_issue['description'] :
+		emr = self.__patient.get_emr()
+		root_node = emr_tree.GetRootItem()
+		id, cookie = emr_tree.GetFirstChild(root_node)
+		found = False
+		while id.IsOk():
+			if emr_tree.GetItemText(id)  ==  a_health_issue['description']:
 				found = True
 				break
-		id,cookie = emr_tree.GetNextChild( root_node, cookie)
+			id,cookie = emr_tree.GetNextChild( root_node, cookie)
 
-	    if not found:
-	    	_log.error("health issue %s should exist in tree already", a_health_issue['description'] )
-		return
-	    issue_node= id
-	    episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
-	    
-	    #check for removed episode and update tree
-	    tree_episodes = {} 
-	    id_episode, cookie = emr_tree.GetFirstChild(issue_node)
-	    while id_episode.IsOk():
-		    	tree_episodes[ emr_tree.GetPyData(id_episode)['pk_episode'] ]= id_episode
+		if not found:
+			_log.error("health issue %s should exist in tree already", a_health_issue['description'] )
+			return
+		issue_node = id
+		episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
+
+		#check for removed episode and update tree
+		tree_episodes = {} 
+		id_episode, cookie = emr_tree.GetFirstChild(issue_node)
+		while id_episode.IsOk():
+			tree_episodes[ emr_tree.GetPyData(id_episode)['pk_episode'] ]= id_episode
 			id_episode,cookie = emr_tree.GetNextChild( issue_node, cookie)
-	
-	    existing_episode_pk = [ e['pk_episode'] for e in episodes]
-	    missing_tree_pk = [ pk for pk in tree_episodes.keys() if pk not in existing_episode_pk]
-	    for pk in missing_tree_pk:
-		emr_tree.Remove( tree_episodes[pk] )
-	
-	    added_episode_pk = [pk for pk in existing_episode_pk if pk not in tree_episodes.keys()]
-	    add_episodes = [ e for e in episodes if e['pk_episode'] in added_episode_pk]
-	   
-	    #check for added episodes and update tree
-	    for an_episode in add_episodes:
+
+		existing_episode_pk = [ e['pk_episode'] for e in episodes]
+		missing_tree_pk = [ pk for pk in tree_episodes.keys() if pk not in existing_episode_pk]
+		for pk in missing_tree_pk:
+			emr_tree.Remove( tree_episodes[pk] )
+
+		added_episode_pk = [pk for pk in existing_episode_pk if pk not in tree_episodes.keys()]
+		add_episodes = [ e for e in episodes if e['pk_episode'] in added_episode_pk]
+
+		#check for added episodes and update tree
+		for an_episode in add_episodes:
 			node = self._add_episode_to_tree( emr, emr_tree, issue_node, a_health_issue, an_episode)
 			tree_episodes[an_episode['pk_episode']] = node
-			
-			
-            for an_episode in episodes:
+
+		for an_episode in episodes:
 			# found episode, check for encounter change
 			try:
-			  #print "getting id_episode of ", an_episode['pk_episode']
-			  id_episode = tree_episodes[an_episode['pk_episode']]	
+				#print "getting id_episode of ", an_episode['pk_episode']
+				id_episode = tree_episodes[an_episode['pk_episode']]	
 			except:
-			  import pdb
-			  pdb.set_trace()
+				import pdb
+				pdb.set_trace()
 			# get a map of encounters in the tree by pk_encounter as key
 			tree_enc = {}
 			id_encounter, cookie = emr_tree.GetFirstChild(id_episode)
 			while id_encounter.IsOk():
 				tree_enc[ emr_tree.GetPyData(id_encounter)['pk_encounter'] ] = id_encounter
 				id_encounter,cookie = emr_tree.GetNextChild(id_episode, cookie)
-				
+
 			# remove encounters in tree not in existing encounters in episode
 #			encounters = self._get_encounters( a_health_issue, an_episode, emr )
 			encounters = self._get_encounters( an_episode, emr )
@@ -603,17 +595,13 @@ class cEmrExport:
 			missing_enc_pk = [ pk  for pk in tree_enc.keys() if pk not in existing_enc_pk]
 			for pk in missing_enc_pk:
 				emr_tree.Remove( tree_enc[pk] )
-					
+
 			# check for added encounter
 			added_enc_pk = [ pk for pk in existing_enc_pk if pk not in tree_enc.keys() ]
 			add_encounters = [ enc for enc in encounters if enc['pk_encounter'] in added_enc_pk]
 			if add_encounters != []:
 				#print "DEBUG found encounters to add"
 				self._add_encounters_to_tree( add_encounters, emr_tree, id_episode)
-				
-
-				
-    	
     #--------------------------------------------------------  
     def get_summary_info(self, left_margin = 0):
         """
@@ -1214,7 +1202,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.116  2008-03-05 22:25:09  ncq
+# Revision 1.117  2008-03-06 18:24:45  ncq
+# - indentation fix
+#
+# Revision 1.116  2008/03/05 22:25:09  ncq
 # - no more gmLog
 #
 # Revision 1.115  2008/01/30 13:46:17  ncq
