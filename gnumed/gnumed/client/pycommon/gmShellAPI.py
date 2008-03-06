@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.7 2008-03-06 18:48:21 ncq Exp $
+# $Id: gmShellAPI.py,v 1.8 2008-03-06 21:25:41 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,39 +23,38 @@ def detect_external_binary(binary=None):
 	if os.access(binary, os.X_OK):
 		return (True, binary)
 
-	# do we seem to *have* wine installed ?
-	tmp = binary.lstrip('wine').strip().strip('"')
-	cmd = 'winepath -u "%s"' % tmp
-	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
-	result = pipe.readline()
-	ret_code = pipe.close()
-	if ret_code is None:
-		result = result.strip('\r\n')
-		if os.access(result, os.X_OK):
-			return (True, binary)
-		else:
-			_log.warning('"winepath %s" returned [%s] but the path is not verifiable', binary, result)
-	else:
-		_log.debug('winepath failed')
-
 	# maybe we are on UNIX and should use "which" to find the full path ?
 	cmd = 'which %s' % binary
 	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
 	result = pipe.readline()
 	ret_code = pipe.close()
 	if ret_code is not None:
-		_log.warning('[%s] returned: %s', cmd, ret_code)
-		return (False, None)
+		_log.debug('[%s] failed, exit code: %s', cmd, ret_code)
+	else:
+		result = result.strip('\r\n')
+		_log.debug('[%s] returned: %s', cmd, result)
+		# redundant on Linux but apparently necessary on MacOSX
+		if os.access(result, os.X_OK):
+			return (True, result)
+		else:
+			_log.debug('[%s] not detected with "which"', binary)
 
-	result = result.strip('\r\n')
-	_log.debug('[%s] returned: %s', cmd, result)
+	# maybe we have wine installed ?
+	tmp = binary.lstrip('wine').strip().strip('"')
+	cmd = 'winepath -u "%s"' % tmp
+	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
+	result = pipe.readline()
+	ret_code = pipe.close()
+	if ret_code is not None:
+		_log.debug('winepath failed')
+	else:
+		result = result.strip('\r\n')
+		if os.access(result, os.X_OK):
+			return (True, binary)
+		else:
+			_log.warning('"winepath %s" returned [%s] but the path is not verifiable', binary, result)
 
-	# redundant on Linux but apparently necessary on MacOSX
-	if not os.access(result, os.X_OK):
-		_log.warning('[%s] not detected', binary)
-		return (False, None)
-
-	return (True, result)
+	return (False, None)
 #===========================================================================
 def run_command_in_shell(command=None, blocking=False):
 	"""Runs a command in a subshell via standard-C system().
@@ -147,7 +146,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.7  2008-03-06 18:48:21  ncq
+# Revision 1.8  2008-03-06 21:25:41  ncq
+# - optimize detect_external_binary() for the common case
+#
+# Revision 1.7  2008/03/06 18:48:21  ncq
 # - much improved wine-based executable detection
 #
 # Revision 1.6  2008/03/02 15:09:35  ncq
