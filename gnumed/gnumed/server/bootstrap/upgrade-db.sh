@@ -28,6 +28,7 @@ PREV_VER="$1"
 NEXT_VER="$2"
 SKIP_BACKUP="$3"
 BZIP_BACKUP="$3"
+QUIET="$4"
 LOG_BASE="."
 LOG="${LOG_BASE}/update_db-v${PREV_VER}_v${NEXT_VER}.log"
 CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
@@ -114,7 +115,7 @@ rm -rf ${LOG}
 # - only needed for converting anything below v6 with a v6 bootstrapper
 #echo "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
 #psql -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
-./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} ${QUIET}
 if test "$?" != "0" ; then
 	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
 	exit 1
