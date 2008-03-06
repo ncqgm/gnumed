@@ -2,16 +2,20 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-# $Id: gmDemographicsEditor.py,v 1.18 2007-10-12 07:28:24 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmDemographicsEditor.py,v 1.19 2008-03-06 15:11:36 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL'
 
-from Gnumed.pycommon import gmLog, gmI18N
+import logging
+
+
+from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
 
-gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
 
+
+logging.getLogger('gm.ui').info(__version__)
 #================================================================
 class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 	tab_name = _("Patient Details")
@@ -54,7 +58,10 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.18  2007-10-12 07:28:24  ncq
+# Revision 1.19  2008-03-06 15:11:36  ncq
+# - R.I.P.
+#
+# Revision 1.18  2007/10/12 07:28:24  ncq
 # - lots of import related cleanup
 #
 # Revision 1.17  2005/09/28 21:27:30  ncq
