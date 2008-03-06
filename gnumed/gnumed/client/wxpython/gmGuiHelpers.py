@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.89 2008-03-02 15:11:55 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmGuiHelpers.py,v 1.90 2008-03-06 18:33:12 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -38,7 +38,7 @@ def set_staff_name(staff_name):
 #-------------------------------------------------------------------------
 def handle_uncaught_exception_wx(t, v, tb):
 
-	_log2.exception('unhandled exception caught:', exc_info = (t, v, tb))
+	_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
 
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
@@ -736,7 +736,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.89  2008-03-02 15:11:55  ncq
+# Revision 1.90  2008-03-06 18:33:12  ncq
+# - properly log exception information for unhandled exceptions
+#
+# Revision 1.89  2008/03/02 15:11:55  ncq
 # - support sender email in bug reporting
 #
 # Revision 1.88  2008/02/26 16:27:20  ncq
