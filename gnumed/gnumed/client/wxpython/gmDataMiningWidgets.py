@@ -2,14 +2,14 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.7 2007-12-11 12:49:25 ncq Exp $
-__version__ = '$Revision: 1.7 $'
+# $Id: gmDataMiningWidgets.py,v 1.8 2008-03-06 18:29:29 ncq Exp $
+__version__ = '$Revision: 1.8 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 
 # stdlib
-import sys, os, fileinput, webbrowser
+import sys, os, fileinput, webbrowser, logging
 
 
 # 3rd party
@@ -19,15 +19,14 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N
+from Gnumed.pycommon import gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N
 from Gnumed.business import gmPerson, gmDataMining
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
-
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 #================================================================
 class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 
@@ -351,7 +350,7 @@ The GNUmed client.
 			self._LCTRL_result.set_string_items(rows)
 			self._LCTRL_result.set_column_widths()
 			gmDispatcher.send('statustext', msg = _('The query failed.'), beep = True)
-			_log.LogException('report query failed', verbose=True)
+			_log.exception('report query failed')
 			return False
 
 		if len(rows) == 0:
@@ -412,7 +411,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.7  2007-12-11 12:49:25  ncq
+# Revision 1.8  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.7  2007/12/11 12:49:25  ncq
 # - explicit signal handling
 #
 # Revision 1.6  2007/11/21 14:33:40  ncq

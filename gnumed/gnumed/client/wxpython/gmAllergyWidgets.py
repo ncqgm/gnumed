@@ -3,11 +3,11 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import sys, time, datetime as pyDT
+import sys, time, datetime as pyDT, logging
 
 
 import wx
@@ -15,13 +15,13 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmDispatcher, gmI18N, gmDateTime, gmTools, gmMatchProvider
+from Gnumed.pycommon import gmDispatcher, gmI18N, gmDateTime, gmTools, gmMatchProvider
 from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
 from Gnumed.business import gmPerson, gmAllergy
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 #======================================================================
 class cAllergyEditAreaPnl(wxgAllergyEditAreaPnl.wxgAllergyEditAreaPnl):
@@ -470,7 +470,10 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.30  2008-01-30 14:03:41  ncq
+# Revision 1.31  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.30  2008/01/30 14:03:41  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

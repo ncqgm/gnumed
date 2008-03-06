@@ -7,16 +7,18 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
+import logging
+
+
 from Gnumed.wxpython import gmPlugin, gmSOAPWidgets
-from Gnumed.pycommon import gmLog
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
 
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 #======================================================================
 class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate multisash based progress note input window."""
@@ -50,7 +52,7 @@ if __name__ == "__main__":
 
     from Gnumed.business import gmPerson
 
-    _log.Log (gmLog.lInfo, "starting multisashed progress notes input plugin...")
+    _log.info("starting multisashed progress notes input plugin...")
 
     try:
         # make sure we have a db connection
@@ -77,20 +79,23 @@ if __name__ == "__main__":
             except:
                 print "error cleaning up patient"
     except StandardError:
-        _log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+        _log.exception("unhandled exception caught !")
         # but re-raise them
         raise
     try:
         pool.StopListeners()
     except:
-        _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+        _log.exception('unhandled exception caught')
         raise
 
-    _log.Log (gmLog.lInfo, "closing multisashed progress notes input plugin...")
+    _log.info("closing multisashed progress notes input plugin...")
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.12  2008-01-27 21:21:59  ncq
+# Revision 1.13  2008-03-06 18:32:31  ncq
+# - standard lib logging only
+#
+# Revision 1.12  2008/01/27 21:21:59  ncq
 # - no more gmCfg
 #
 # Revision 1.11  2007/10/12 07:28:25  ncq

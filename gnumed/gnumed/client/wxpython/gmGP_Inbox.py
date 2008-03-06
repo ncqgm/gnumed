@@ -5,11 +5,6 @@ except ImportError:
 	from wxPython import wx
 
 from gmListCtrlMapper import *
-try:
-	from Gnumed.pycommon import gmLog
-except:
-	sys.path.append('../pycommon')
-	import gmLog
 
 Inboxdata = {
 1 : ("Pathology", "5 unread results (Douglas Pathology)"),
@@ -57,7 +52,10 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGP_Inbox.py,v $
-# Revision 1.10  2005-09-28 21:27:30  ncq
+# Revision 1.11  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.10  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.9  2005/09/28 15:57:48  ncq

@@ -12,20 +12,20 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.44 2008-01-22 12:25:47 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmManual.py,v 1.45 2008-03-06 18:32:31 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
-import os, sys, os.path
+import os, sys, os.path, logging
 
 import wx
 import wx.html
 
-from Gnumed.pycommon import gmLog, gmTools
+from Gnumed.pycommon import gmTools
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 ID_MANUALCONTENTS = wx.NewId()
 ID_MANUALBACK = wx.NewId()
@@ -62,7 +62,7 @@ class ManualHtmlPanel(wx.Panel):
 		]
 		for self.docdir in candidates:
 			if os.access(self.docdir, os.R_OK):
-				_log.Log(gmLog.lInfo, 'found Manual path [%s]' % self.docdir)
+				_log.info('found Manual path [%s]', self.docdir)
 				break
 
 		self.box = wx.BoxSizer(wx.VERTICAL)
@@ -98,7 +98,7 @@ class ManualHtmlPanel(wx.Panel):
 		if os.access (name, os.F_OK):
 			self.html.LoadPage(name)
 		else:
-			_log.Log(gmLog.lErr, "cannot load local document %s" % name)
+			_log.error("cannot load local document %s", name)
 			self.html.LoadPage('http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual?template=viewprint')
 	#--------------------------------------------------------
 	def OnLoadFile(self, event):
@@ -243,7 +243,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.44  2008-01-22 12:25:47  ncq
+# Revision 1.45  2008-03-06 18:32:31  ncq
+# - standard lib logging only
+#
+# Revision 1.44  2008/01/22 12:25:47  ncq
 # - better menu item
 #
 # Revision 1.43  2007/08/07 21:42:40  ncq

@@ -12,27 +12,26 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.41 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmHorstSpace.py,v 1.42 2008-03-06 18:29:29 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import os.path, os, sys
+import os.path, os, sys, logging
 
 
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmDispatcher, gmCfg
+from Gnumed.pycommon import gmGuiBroker, gmI18N, gmDispatcher, gmCfg
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
 from Gnumed.business import gmPerson, gmSurgery
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
-
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 #==============================================================================
 # finding the visible page from a notebook page: self.GetParent.GetCurrentPage == self
 class cHorstSpaceLayoutMgr(wx.Panel):
@@ -124,10 +123,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 					plugin.register()
 					result = 1
 				else:
-					_log.Log (gmLog.lErr, "plugin [%s] not loaded, see errors above" % curr_plugin)
+					_log.error("plugin [%s] not loaded, see errors above", curr_plugin)
 					result = 1
 			except:
-				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info(), verbose = 0)
+				_log.exception('failed to load plugin %s', curr_plugin)
 				result = 0
 
 			if first_plugin is None:
@@ -158,7 +157,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed."""
 
-		_log.Log(gmLog.lData, 'just before switching notebook tabs')
+		_log.debug('just before switching notebook tabs')
 
 		self.__new_page_already_checked = False
 
@@ -166,25 +165,25 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		self.__id_evt_page_before_switch = event.GetOldSelection()
 		__id_evt_page_after_switch = event.GetSelection()
 
-		_log.Log(gmLog.lData, 'event: [%s]* -> [%s]' % (self.__id_evt_page_before_switch, __id_evt_page_after_switch))
+		_log.debug('event.GetOldSelection()=%s (current) -> event.GetSelection()=%s', self.__id_evt_page_before_switch, __id_evt_page_after_switch)
 
 		if self.__id_evt_page_before_switch != self.__id_nb_page_before_switch:
-			_log.Log(gmLog.lData, 'those two really *should* match:')
-			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_evt_page_before_switch)
-			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_nb_page_before_switch)
+			_log.debug('the following two should match but do not:')
+			_log.debug('event.GetOldSelection(): %s', self.__id_evt_page_before_switch)
+			_log.debug('notebook.GetSelection(): %s', self.__id_nb_page_before_switch)
 
 		# can we check the target page ?
 		if __id_evt_page_after_switch == self.__id_evt_page_before_switch:
 			# no, so complain
 			# (the docs say that on Windows GetSelection() returns the
 			#  old page ID, eg. the same value GetOldSelection() returns)
-			_log.Log(gmLog.lData, 'Windows is documented to return the old page from both evt.GetOldSelection() and evt.GetSelection()')
-			_log.Log(gmLog.lData, 'this system is: sys: [%s] wx: [%s]' % (sys.platform, wx.Platform))
-			_log.Log(gmLog.lData, 'it seems to be one of those platforms that have no clue which notebook page they are switching to')
-			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_nb_page_before_switch)
-			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_evt_page_before_switch)
-			_log.Log(gmLog.lData, 'new page from event  : %s' % __id_evt_page_after_switch)
-			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
+			_log.debug('this system is: sys: [%s] wx: [%s]', sys.platform, wx.Platform)
+			_log.debug('it seems to be one of those platforms that have no clue which notebook page they are switching to')
+			_log.debug('(Windows is documented to return the old page from both evt.GetOldSelection() and evt.GetSelection())')
+			_log.debug('current notebook page : %s', self.__id_nb_page_before_switch)
+			_log.debug('source page from event: %s', self.__id_evt_page_before_switch)
+			_log.debug('target page from event: %s', __id_evt_page_after_switch)
+			_log.info('cannot check whether notebook page change needs to be vetoed')
 			# but let's do a basic check anyways
 			pat = gmPerson.gmCurrentPatient()
 			if not pat.is_connected():
@@ -199,7 +198,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		# check target page
 		new_page = self.__gb['horstspace.notebook.pages'][__id_evt_page_after_switch]
 		if not new_page.can_receive_focus():
-			_log.Log(gmLog.lData, 'veto()ing page change')
+			_log.debug('veto()ing page change')
 			event.Veto()
 			return
 
@@ -212,18 +211,18 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	def _on_notebook_page_changed(self, event):
 		"""Called when notebook page changes."""
 
-		_log.Log(gmLog.lData, 'just after switching notebook tabs')
+		_log.debug('just after switching notebook tabs')
 
 		id_evt_page_before_switch = event.GetOldSelection()
 		id_evt_page_after_switch = event.GetSelection()
 		id_nb_page_after_switch = self.nb.GetSelection()
 
-		_log.Log(gmLog.lData, 'event: [%s] -> [%s]*' % (id_evt_page_before_switch, id_evt_page_after_switch))
+		_log.debug('event: [%s] -> [%s]*' % (id_evt_page_before_switch, id_evt_page_after_switch))
 
 		if self.__id_nb_page_before_switch != id_evt_page_before_switch:
-			_log.Log(gmLog.lData, 'those two really *should* match:')
-			_log.Log(gmLog.lData, 'notebook page before switch          : %s' % self.__id_nb_page_before_switch)
-			_log.Log(gmLog.lData, 'previous page from PAGE_CHANGED event: %s' % id_evt_page_before_switch)
+			_log.debug('those two really *should* match:')
+			_log.debug('notebook page before switch          : %s' % self.__id_nb_page_before_switch)
+			_log.debug('previous page from PAGE_CHANGED event: %s' % id_evt_page_before_switch)
 
 		new_page = self.__gb['horstspace.notebook.pages'][id_evt_page_after_switch]
 
@@ -237,21 +236,21 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			return
 
 		# no, complain
-		_log.Log(gmLog.lData, 'target page not checked for focussability yet')
-		_log.Log(gmLog.lData, 'old page from event  : %s' % id_evt_page_before_switch)
-		_log.Log(gmLog.lData, 'new page from event  : %s' % id_evt_page_after_switch)
-		_log.Log(gmLog.lData, 'current notebook page: %s' % id_nb_page_after_switch)
+		_log.debug('target page not checked for focussability yet')
+		_log.debug('old page from event  : %s' % id_evt_page_before_switch)
+		_log.debug('new page from event  : %s' % id_evt_page_after_switch)
+		_log.debug('current notebook page: %s' % id_nb_page_after_switch)
 
 		# check the new page just for good measure
 		if new_page.can_receive_focus():
-			_log.Log(gmLog.lData, 'we are lucky: new page *can* receive focus')
+			_log.debug('we are lucky: new page *can* receive focus')
 			new_page.receive_focus()
 			# activate toolbar of new page
 			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
 			event.Skip()
 			return
 
-		_log.Log(gmLog.lWarn, 'new page cannot receive focus but too late for veto')
+		_log.warning('new page cannot receive focus but too late for veto')
 		event.Skip()
 		return
 	#----------------------------------------------
@@ -316,7 +315,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.41  2008-01-30 14:03:42  ncq
+# Revision 1.42  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.41  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

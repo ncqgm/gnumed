@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.15 2008-03-05 22:26:52 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmAuthWidgets.py,v 1.16 2008-03-06 18:29:29 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,7 +22,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N, gmLog2
+from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers
 
@@ -124,7 +124,6 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				)
 			continue
 		except gmPG2.dbapi.OperationalError, e:
-#			_log.debug('DSN: %s', dsn)
 			_log.error(u"login attempt %s/%s failed", attempt+1, max_attempts)
 			_log.debug('useless to retry')
 #			gmLog2.log_stack_trace()
@@ -637,7 +636,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.15  2008-03-05 22:26:52  ncq
+# Revision 1.16  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.15  2008/03/05 22:26:52  ncq
 # - spelling
 #
 # Revision 1.14  2008/02/25 17:33:16  ncq

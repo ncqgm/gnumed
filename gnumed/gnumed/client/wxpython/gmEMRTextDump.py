@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.20 2008-01-30 14:03:41 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmEMRTextDump.py,v 1.21 2008-03-06 18:29:29 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -12,7 +12,7 @@ import sys, string
 import wx
 
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmExceptions
+from Gnumed.pycommon import gmDispatcher, gmExceptions
 from Gnumed.business import gmPerson
 
 
@@ -117,7 +117,10 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.20  2008-01-30 14:03:41  ncq
+# Revision 1.21  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.20  2008/01/30 14:03:41  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

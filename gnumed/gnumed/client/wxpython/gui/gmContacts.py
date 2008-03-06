@@ -8,12 +8,12 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-from Gnumed.pycommon import gmLog, gmI18N
+from Gnumed.pycommon import gmI18N
 
 import wx
 
@@ -1039,7 +1039,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.49  2007-10-12 07:28:24  ncq
+# Revision 1.50  2008-03-06 18:32:30  ncq
+# - standard lib logging only
+#
+# Revision 1.49  2007/10/12 07:28:24  ncq
 # - lots of import related cleanup
 #
 # Revision 1.48  2007/02/05 12:15:23  ncq

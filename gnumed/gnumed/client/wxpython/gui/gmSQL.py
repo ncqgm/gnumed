@@ -54,7 +54,7 @@ to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSQL.py,v $
 
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -64,7 +64,7 @@ import wx
 
 import sys
 
-from Gnumed.pycommon import gmGuiBroker, gmLog, gmI18N
+from Gnumed.pycommon import gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmPlugin, gmSQLListControl, images_gnuMedGP_Toolbar
 
 ID_COMBO_QUERY = wx.NewId()

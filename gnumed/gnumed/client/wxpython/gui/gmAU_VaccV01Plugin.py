@@ -4,12 +4,11 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "S Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin, gmAU_VaccV01
-from Gnumed.pycommon import gmLog
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)

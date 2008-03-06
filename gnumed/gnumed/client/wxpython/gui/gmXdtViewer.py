@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.36 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmXdtViewer.py,v 1.37 2008-03-06 18:32:31 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs, logging
@@ -22,7 +22,7 @@ import wx
 
 
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
-from Gnumed.pycommon import gmLog2, gmI18N, gmDispatcher
+from Gnumed.pycommon import gmI18N, gmDispatcher
 from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 
@@ -423,7 +423,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.36  2008-01-30 14:03:42  ncq
+# Revision 1.37  2008-03-06 18:32:31  ncq
+# - standard lib logging only
+#
+# Revision 1.36  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

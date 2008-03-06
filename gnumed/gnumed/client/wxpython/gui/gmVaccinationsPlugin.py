@@ -7,8 +7,8 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmVaccinationsPlugin.py,v $
-# $Id: gmVaccinationsPlugin.py,v 1.7 2007-10-12 07:28:25 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmVaccinationsPlugin.py,v 1.8 2008-03-06 18:32:31 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -16,7 +16,6 @@ import wx
 
 # panel class holding editing prompts and text boxes
 from Gnumed.wxpython import gmPlugin, gmVaccWidgets
-from Gnumed.pycommon import gmLog
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -60,7 +59,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccinationsPlugin.py,v $
-# Revision 1.7  2007-10-12 07:28:25  ncq
+# Revision 1.8  2008-03-06 18:32:31  ncq
+# - standard lib logging only
+#
+# Revision 1.7  2007/10/12 07:28:25  ncq
 # - lots of import related cleanup
 #
 # Revision 1.6  2005/09/28 21:27:30  ncq

@@ -5,18 +5,21 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.7 2007-10-12 07:28:24 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmAllergiesPlugin.py,v 1.8 2008-03-06 18:32:30 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
+import logging
+
+
 import wx
 
-from Gnumed.wxpython import gmPlugin, gmAllergyWidgets
-from Gnumed.pycommon import gmLog
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+from Gnumed.wxpython import gmPlugin, gmAllergyWidgets
+
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 #======================================================================
 class gmAllergiesPlugin(gmPlugin.cNotebookPlugin):
@@ -52,13 +55,15 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
 	app = wxPyWidgetTester(size = (600, 600))
 	#app.SetWidget(gmAllergyWidgets.cAllergyPanel, -1)
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergiesPlugin.py,v $
-# Revision 1.7  2007-10-12 07:28:24  ncq
+# Revision 1.8  2008-03-06 18:32:30  ncq
+# - standard lib logging only
+#
+# Revision 1.7  2007/10/12 07:28:24  ncq
 # - lots of import related cleanup
 #
 # Revision 1.6  2007/05/21 14:50:05  ncq

@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 import string
@@ -33,8 +33,7 @@ import string
 import wx
 
 
-from Gnumed.pycommon import gmLog
-_log = gmLog.gmDefLog
+_log = logging.getLogger('gm.ui')
 if __name__ == "__main__":
 	# FIXME: standalone means diagnostics for now,
 	# later on, when AmisBrowser is one foot in the door
@@ -640,7 +639,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.33  2007-10-07 12:33:27  ncq
+# Revision 1.34  2008-03-06 18:32:30  ncq
+# - standard lib logging only
+#
+# Revision 1.33  2007/10/07 12:33:27  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.32  2007/02/17 14:13:11  ncq

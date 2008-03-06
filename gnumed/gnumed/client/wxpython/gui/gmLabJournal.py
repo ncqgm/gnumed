@@ -6,13 +6,13 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-# $Id: gmLabJournal.py,v 1.39 2007-10-12 07:28:25 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmLabJournal.py,v 1.40 2008-03-06 18:32:31 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmI18N
+from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmLabWidgets, gmPlugin
 
 _log = gmLog.gmDefLog
@@ -72,7 +72,10 @@ if __name__ == '__main__':
 	print "do not run standalone like this"
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.39  2007-10-12 07:28:25  ncq
+# Revision 1.40  2008-03-06 18:32:31  ncq
+# - standard lib logging only
+#
+# Revision 1.39  2007/10/12 07:28:25  ncq
 # - lots of import related cleanup
 #
 # Revision 1.38  2005/09/28 21:27:30  ncq

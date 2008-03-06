@@ -24,8 +24,6 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog
-
 _log = gmLog.gmDefLog
 
 
@@ -202,4 +200,3 @@ class SQLListControl(wx.ListCtrl):
 
 if __name__ == "__main__":
 	print "test function needs to be written! Please do it."
-	print "make sure you can import gmLog !!"

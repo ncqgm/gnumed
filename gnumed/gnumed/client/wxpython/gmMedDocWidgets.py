@@ -2,11 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.155 2008-02-25 17:38:05 ncq Exp $
-__version__ = "$Revision: 1.155 $"
+# $Id: gmMedDocWidgets.py,v 1.156 2008-03-06 18:29:29 ncq Exp $
+__version__ = "$Revision: 1.156 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import os.path, sys, re as regex
+import os.path, sys, re as regex, logging
 
 
 import wx
@@ -14,15 +14,14 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools
+from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
-
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 #============================================================
 def _save_file_as_new_document(**kwargs):
 	wx.CallAfter(save_file_as_new_document, **kwargs)
@@ -629,7 +628,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		try:
 			devices = self.scan_module.get_devices()
 		except:
-			_log.LogException('cannot retrieve list of image sources')
+			_log.exception('cannot retrieve list of image sources')
 			gmDispatcher.send(signal = 'statustext', msg = _('There is no scanner support installed on this machine.'))
 			return None
 
@@ -778,7 +777,7 @@ from your computer.""") % page_fname,
 			try:
 				os.remove(page_fname)
 			except:
-				_log.LogException('Error deleting file.')
+				_log.exception('Error deleting file.')
 				gmGuiHelpers.gm_show_error (
 					aMessage = _('Cannot delete part in file [%s].\n\nYou may not have write access to it.') % page_fname,
 					aTitle = _('deleting part')
@@ -1212,7 +1211,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				return 1
 
 			else:
-				_log.Log(gmLog.lErr, 'unknown document sort mode [%s], reverse-sorting by age' % self.__sort_mode)
+				_log.error('unknown document sort mode [%s], reverse-sorting by age', self.__sort_mode)
 				# reverse sort by date
 				if item1[date_field] > item2[date_field]:
 					return -1
@@ -1382,7 +1381,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# sanity check
 		if part['size'] == 0:
-			_log.Log(gmLog.lErr, 'cannot display part [%s] - 0 bytes' % part['pk_obj'])
+			_log.debug('cannot display part [%s] - 0 bytes', part['pk_obj'])
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Document part does not seem to exist in database !'),
 				aTitle = _('showing document')
@@ -1400,7 +1399,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			),
 			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
 		)
-		_log.Log(gmLog.lData, "working into directory [%s]" % tmp_dir)
+		_log.debug("temporary directory [%s]", tmp_dir)
 
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
@@ -1510,7 +1509,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
@@ -1522,7 +1521,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.155  2008-02-25 17:38:05  ncq
+# Revision 1.156  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.155  2008/02/25 17:38:05  ncq
 # - make parts listbox file drop target, too
 #
 # Revision 1.154  2008/01/27 21:16:45  ncq

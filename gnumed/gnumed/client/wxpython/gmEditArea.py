@@ -3,21 +3,25 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.115 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmEditArea.py,v 1.116 2008-03-06 18:29:29 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
-import sys, traceback, time
+import sys, time, logging
+
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmExceptions, gmI18N
+
+from Gnumed.pycommon import gmGuiBroker, gmMatchProvider, gmDispatcher, gmExceptions, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
 
-_log = gmLog.gmDefLog
+
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 _gb = gmGuiBroker.GuiBroker()
 
 ID_PROGRESSNOTES = wx.NewId()
@@ -235,7 +239,7 @@ class cEditAreaPopup(wx.Dialog):
 		if short_err is not None:
 			gmDispatcher.send(signal = 'statustext', msg = short_err)
 		if long_err is not None:
-			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'), gmLog.lErr)
+			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'))
 	#--------------------------------------------------------
 	def _on_CANCEL_btn_pressed(self, evt):
 		self.__editarea.Close()
@@ -341,12 +345,9 @@ class cEditArea2(wx.Panel):
 		except gmExceptions.InvalidInputError, err:
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
-			try:
-				gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
-			except:
-				_log.LogException ('', sys.exc_info (), verbose = 0)
+			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
 		except:
-			gmLog.gmDefLog.LogException( "save data problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
+			_log.exception( "save data problem in [%s]" % self.__class__.__name__)
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
 		"""Only active if _make_standard_buttons was called in child class."""
@@ -364,7 +365,7 @@ class cEditArea2(wx.Panel):
 #			if self.save_data():
 #				return True
 		return True
-		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		_log.error('[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self, **kwds):
@@ -377,7 +378,7 @@ class cEditArea2(wx.Panel):
 #			if self.save_data():
 #				return True
 		return True
-		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		_log.error('[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
 	def on_post_patient_selection( self, **kwds):
@@ -393,7 +394,7 @@ class cEditArea2(wx.Panel):
 		self._define_prompts()
 		self._define_fields(parent = self)
 		if len(self.fields) != len(self.prompts):
-			_log.Log(gmLog.lErr, '[%s]: #fields != #prompts' % self.__class__.__name__)
+			_log.error('[%s]: #fields != #prompts' % self.__class__.__name__)
 			return None
 
 		# and generate edit area from it
@@ -443,7 +444,7 @@ class cEditArea2(wx.Panel):
 	#----------------------------------------------------------------
 	def _define_prompts(self):
 		"""Child classes override this to define their prompts using _add_prompt()"""
-		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+		_log.error('missing override in [%s]' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _add_prompt(self, line, label='missing label', color=richards_blue, weight=0):
 		"""Add a new prompt line.
@@ -463,11 +464,11 @@ class cEditArea2(wx.Panel):
 		- override in child classes
 		- mostly uses _add_field()
 		"""
-		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+		_log.error('missing override in [%s]' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _add_field(self, line=None, pos=None, widget=None, weight=0):
 		if None in (line, pos, widget):
-			_log.Log(gmLog.lErr, 'argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
+			_log.error('argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
 		if not self.fields.has_key(line):
 			self.fields[line] = {}
 		self.fields[line][pos] = (widget, weight)
@@ -554,7 +555,7 @@ class cEditArea(wx.Panel):
 	#----------------------------------------------------------------
 	def __generate_prompts(self):
 		if len(self.fields) != len(self.prompts):
-			_log.Log(gmLog.lErr, '[%s]: #fields != #prompts' % self.__class__.__name__)
+			_log.error('[%s]: #fields != #prompts' % self.__class__.__name__)
 			return None
 		# prompts live on a panel
 		prompt_pnl = wx.Panel(self, -1, wx.DefaultPosition, wx.DefaultSize, wx.SIMPLE_BORDER)
@@ -610,7 +611,7 @@ class cEditArea(wx.Panel):
 			try:
 				vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wx.EXPAND) # use same lineweight as prompts
 			except KeyError:
-				_log.Log(gmLog.lErr, "Error with line=%s, self.field_line_szr has key:%s; self.prompts has key: %s" % (line, self.field_line_szr.has_key(line), self.prompts.has_key(line) ) )
+				_log.error("Error with line=%s, self.field_line_szr has key:%s; self.prompts has key: %s" % (line, self.field_line_szr.has_key(line), self.prompts.has_key(line) ) )
 		# put them on the panel
 		self.fields_pnl.SetSizer(vszr)
 		vszr.Fit(self.fields_pnl)
@@ -669,7 +670,7 @@ class cEditArea(wx.Panel):
 	#----------------------------------------------------------------
 	def _add_field(self, line=None, pos=None, widget=None, weight=0):
 		if None in (line, pos, widget):
-			_log.Log(gmLog.lErr, 'argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
+			_log.error('argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
 		if not self.fields.has_key(line):
 			self.fields[line] = {}
 		self.fields[line][pos] = (widget, weight)
@@ -680,10 +681,10 @@ class cEditArea(wx.Panel):
 		- override in child classes
 		- mostly uses _add_field()
 		"""
-		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+		_log.error('missing override in [%s]' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _define_prompts(self):
-		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+		_log.error('missing override in [%s]' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
@@ -703,8 +704,8 @@ class cEditArea(wx.Panel):
 		pass
 	#--------------------------------------------------------
 	def _save_data(self):
-		_log.Log(gmLog.lErr, '[%s] programmer forgot to define _save_data()' % self.__class__.__name__)
-		_log.Log(gmLog.lInfo, 'child classes of cEditArea *must* override this function')
+		_log.error('[%s] programmer forgot to define _save_data()' % self.__class__.__name__)
+		_log.info('child classes of cEditArea *must* override this function')
 		return False
 	#--------------------------------------------------------
 	# event handling
@@ -738,12 +739,9 @@ class cEditArea(wx.Panel):
 		except gmExceptions.InvalidInputError, err:
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
-			try:
-				gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
-			except:
-				_log.LogException ('', sys.exc_info (), verbose = 0)
+			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
 		except:
-			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
+			_log.exception( "save data  problem in [%s]" % self.__class__.__name__)
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
 		# FIXME: check for unsaved data
@@ -760,7 +758,7 @@ class cEditArea(wx.Panel):
 			return True
 		if self._save_data():
 			return True
-		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		_log.error('[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self, **kwds):
@@ -769,7 +767,7 @@ class cEditArea(wx.Panel):
 			return True
 		if self._save_data():
 			return True
-		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		_log.error('[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
 	def _on_resize_fields (self, event):
@@ -788,7 +786,7 @@ class gmEditArea(cEditArea):
 
 		# sanity checks
 		if aType not in _known_edit_area_types:
-			_log.Log(gmLog.lErr, 'unknown edit area type: [%s]' % aType)
+			_log.error('unknown edit area type: [%s]' % aType)
 			raise gmExceptions.ConstructorError, 'unknown edit area type: [%s]' % aType
 		self._type = aType
 
@@ -852,8 +850,8 @@ class gmEditArea(cEditArea):
 		return hszr_prompts
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lErr, 'programmer forgot to define edit area lines for [%s]' % self._type)
-		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
+		_log.error('programmer forgot to define edit area lines for [%s]' % self._type)
+		_log.info('child classes of gmEditArea *must* override this function')
 		return []
 	#----------------------------------------------------------------
 	def __make_editing_area(self):
@@ -868,7 +866,7 @@ class gmEditArea(cEditArea):
 
 		self.lines = lines
 		if len(lines) != len(_prompt_defs[self._type]):
-			_log.Log(gmLog.lErr, '#(edit lines) not equal #(prompts) for [%s], something is fishy' % self._type)
+			_log.error('#(edit lines) not equal #(prompts) for [%s], something is fishy' % self._type)
 		for line in lines:
 			gszr.Add(line, 0, wx.EXPAND | wx.ALIGN_LEFT)
 		# put them on the panel
@@ -925,7 +923,7 @@ class gmEditArea(cEditArea):
 	#	raise AttributeError
 #-------------------------------------------------------------------------------------------------------------
 	def _updateUI(self):
-		_log.Log(gmLog.lWarn, "you may want to override _updateUI for [%s]" % self.__class__.__name__)
+		_log.warning("you may want to override _updateUI for [%s]" % self.__class__.__name__)
 
 
 	def _postInit(self):
@@ -1046,11 +1044,11 @@ class gmFamilyHxEditArea(gmEditArea):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'family history')
 		except gmExceptions.ConstructorError:
-			_log.LogExceptions('cannot instantiate family Hx edit area', sys.exc_info(),4)
+			_log.exceptions('cannot instantiate family Hx edit area')
 			raise
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making family Hx lines")
+		_log.debug("making family Hx lines")
 		lines = []
 		self.input_fields = {}
 		# line 1
@@ -1321,7 +1319,7 @@ class gmReferralEditArea(gmEditArea):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'referral')
 		except gmExceptions.ConstructorError:
-			_log.LogException('cannot instantiate referral edit area', sys.exc_info(), verbose=0)
+			_log.exception('cannot instantiate referral edit area')
 		self.data = None # we don't use this in this widget
 		self.recipient = None
 
@@ -1466,13 +1464,13 @@ class gmMeasurementEditArea(gmEditArea):
 		except gmExceptions.ConstructorError:
 			stacktrace()
 
-			_log.LogExceptions('cannot instantiate measurement edit area', sys.exc_info(),4)
+			_log.exceptions('cannot instantiate measurement edit area')
 			raise
 
 
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making measurement lines")
+		_log.debug("making measurement lines")
 		lines = []
 		self.txt_type = cEditAreaField(parent)
 		self.txt_date = cEditAreaField(parent)
@@ -1517,15 +1515,13 @@ class gmPrescriptionEditArea(gmEditArea):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'prescription')
 		except gmExceptions.ConstructorError:
-			stacktrace()
-
-			_log.LogExceptions('cannot instantiate prescription edit area', sys.exc_info(),4)
+			_log.exceptions('cannot instantiate prescription edit area')
 			raise
 
 
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making prescription lines")
+		_log.debug("making prescription lines")
 		lines = []
 		self.txt_problem = cEditAreaField(parent)
 		self.txt_class = cEditAreaField(parent)
@@ -1715,7 +1711,7 @@ class EditTextBoxes(wx.Panel):
 #====================================================================
 class EditArea(wx.Panel):
 	def __init__(self, parent, id, line_labels, section):
-		_log.Log(gmLog.lWarn, '***** old style EditArea instantiated, please convert *****')
+		_log.warning('***** old style EditArea instantiated, please convert *****')
 
 		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, style = wx.NO_BORDER)
 		self.SetBackgroundColour(wx.Color(222,222,222))
@@ -2091,7 +2087,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.115  2008-01-30 14:03:42  ncq
+# Revision 1.116  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.115  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

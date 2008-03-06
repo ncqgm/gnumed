@@ -5,15 +5,15 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.10 2006-10-08 11:07:20 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPlugin_Patient.py,v 1.11 2008-03-06 18:29:29 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
 import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmCfg
 from Gnumed.wxpython import gmShadow
 
 gmPerson = None
@@ -176,7 +176,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.10  2006-10-08 11:07:20  ncq
+# Revision 1.11  2008-03-06 18:29:29  ncq
+# - standard lib logging only
+#
+# Revision 1.10  2006/10/08 11:07:20  ncq
 # - wean off gmPG
 #
 # Revision 1.9  2006/08/04 05:44:12  ncq

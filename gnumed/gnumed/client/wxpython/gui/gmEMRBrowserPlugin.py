@@ -6,15 +6,18 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-from Gnumed.wxpython import gmPlugin, gmEMRBrowser
-from Gnumed.pycommon import gmLog, gmI18N
+import logging
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+
+from Gnumed.wxpython import gmPlugin, gmEMRBrowser
+from Gnumed.pycommon import gmI18N
+
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 #======================================================================
 class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
@@ -53,7 +56,7 @@ if __name__ == "__main__":
     from Gnumed.exporters import gmPatientExporter
     from Gnumed.business import gmPerson
 
-    _log.Log (gmLog.lInfo, "starting emr browser plugin...")
+    _log.info("starting emr browser plugin...")
 
     try:
         # obtain patient
@@ -78,15 +81,18 @@ if __name__ == "__main__":
             except:
                 print "error cleaning up patient"
     except StandardError:
-        _log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+        _log.exception("unhandled exception caught !")
         # but re-raise them
         raise
 
-    _log.Log (gmLog.lInfo, "closing emr browser plugin...")
+    _log.info("closing emr browser plugin...")
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.15  2008-01-27 21:21:59  ncq
+# Revision 1.16  2008-03-06 18:32:30  ncq
+# - standard lib logging only
+#
+# Revision 1.15  2008/01/27 21:21:59  ncq
 # - no more gmCfg
 #
 # Revision 1.14  2007/10/12 07:28:24  ncq

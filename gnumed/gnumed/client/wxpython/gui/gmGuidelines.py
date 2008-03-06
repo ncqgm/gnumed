@@ -23,7 +23,7 @@ from   wxPython.html       import *
 import wxPython.lib.wxpTag
 
 from Gnumed.wxpython import gmPlugin
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmI18N
+from Gnumed.pycommon import gmGuiBroker, gmI18N
 
 #----------------------------------------------------------------------
 class GuidelinesHtmlWindow(wx.HtmlWindow):

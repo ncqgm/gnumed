@@ -24,7 +24,6 @@ __author__ = "Ian Haywood <ihaywood@gnu.org>"
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers
 from Gnumed.business import gmForms
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
-from Gnumed.pycommon import gmLog
 
 if __name__ == '__main__':
 	_ = lambda x:x

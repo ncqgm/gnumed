@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.34 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmVaccWidgets.py,v 1.35 2008-03-06 18:29:30 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -20,7 +20,7 @@ import mx.DateTime as mxDT
 
 from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
 from Gnumed.business import gmPerson, gmVaccination
-from Gnumed.pycommon import gmLog, gmDispatcher, gmExceptions, gmMatchProvider
+from Gnumed.pycommon import gmDispatcher, gmExceptions, gmMatchProvider
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -548,7 +548,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.34  2008-01-30 14:03:42  ncq
+# Revision 1.35  2008-03-06 18:29:30  ncq
+# - standard lib logging only
+#
+# Revision 1.34  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

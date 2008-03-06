@@ -2,10 +2,10 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-from Gnumed.pycommon import gmLog, gmI18N
+from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmEMRTextDump, gmPlugin
 
 import wx
@@ -54,7 +54,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.14  2007-10-12 07:28:25  ncq
+# Revision 1.15  2008-03-06 18:32:30  ncq
+# - standard lib logging only
+#
+# Revision 1.14  2007/10/12 07:28:25  ncq
 # - lots of import related cleanup
 #
 # Revision 1.13  2005/09/28 21:27:30  ncq

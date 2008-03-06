@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.135 2008-02-25 17:43:40 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gnumed.py,v 1.136 2008-03-06 18:29:30 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -357,9 +357,9 @@ setup_console_exception_handler()
 setup_cli()
 setup_signal_handlers()
 
-from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmLog, gmHooks
+from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks		#, gmLog
 
-setup_legacy_logging()
+#setup_legacy_logging()
 setup_locale()
 check_help_request()
 setup_paths_and_files()
@@ -398,7 +398,10 @@ logging.raiseExceptions = False
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.135  2008-02-25 17:43:40  ncq
+# Revision 1.136  2008-03-06 18:29:30  ncq
+# - standard lib logging only
+#
+# Revision 1.135  2008/02/25 17:43:40  ncq
 # - try suppressing the Python-on-Windows logging bug
 #
 # Revision 1.134  2008/01/30 14:10:40  ncq

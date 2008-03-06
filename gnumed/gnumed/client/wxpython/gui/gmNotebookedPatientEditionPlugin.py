@@ -7,9 +7,11 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
+
+import logging
 
 
 if __name__ == '__main__':
@@ -24,11 +26,10 @@ if __name__ == '__main__':
 
 # GNUmed
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
-from Gnumed.pycommon import gmLog
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
 
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 #======================================================================
 class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebooked patient edition window."""
@@ -62,7 +63,7 @@ if __name__ == "__main__":
 	# GNUmed
 	from Gnumed.business import gmPerson
 
-	_log.Log (gmLog.lInfo, "starting Notebooked patient edition plugin...")
+	_log.info("starting Notebooked patient edition plugin...")
 
 	try:
 		# obtain patient
@@ -86,15 +87,18 @@ if __name__ == "__main__":
 			except:
 				print "error cleaning up patient"
 	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		_log.exception("unhandled exception caught !")
 		# but re-raise them
 		raise
 
-	_log.Log (gmLog.lInfo, "closing Notebooked progress notes input plugin...")
+	_log.info("closing Notebooked progress notes input plugin...")
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.10  2008-01-27 21:21:59  ncq
+# Revision 1.11  2008-03-06 18:32:31  ncq
+# - standard lib logging only
+#
+# Revision 1.10  2008/01/27 21:21:59  ncq
 # - no more gmCfg
 #
 # Revision 1.9  2008/01/22 12:26:24  ncq
