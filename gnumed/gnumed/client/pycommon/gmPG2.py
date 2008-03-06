@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -764,6 +764,11 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 			self._pool.append(conn)
 
 		return conn
+	#--------------------------------------------------
+	def shutdown(self):
+		for conn_key in self._used.keys():
+			_log.debug('closing database connection [%s]', conn_key)
+			self._used[conn_key].close()
 # -----------------------------------------------------------------------
 def get_raw_connection(dsn=None, verbose=False):
 	"""Get a raw, unadorned connection.
@@ -922,6 +927,11 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	conn.is_decorated = True
 
 	return conn
+#-----------------------------------------------------------------------
+def shutdown():
+	if __ro_conn_pool is None:
+		return
+	__ro_conn_pool.shutdown()
 # ======================================================================
 # internal helpers
 #-----------------------------------------------------------------------
@@ -1320,7 +1330,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.71  2008-03-02 11:26:25  ncq
+# Revision 1.72  2008-03-06 21:24:02  ncq
+# - add shutdown() code
+#
+# Revision 1.71  2008/03/02 11:26:25  ncq
 # - cleanup
 #
 # Revision 1.70  2008/02/25 17:32:50  ncq
