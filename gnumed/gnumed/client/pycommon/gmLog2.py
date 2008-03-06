@@ -40,8 +40,8 @@ will merrily and automagically start logging away.
 # - ascii_ctrl2mnemonic()
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.8 2008-03-06 18:46:55 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmLog2.py,v 1.9 2008-03-06 21:23:22 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,6 +52,49 @@ import logging, sys, os, codecs, locale
 
 _logfile_name = None
 _logfile = None
+
+# table used for cooking non-printables
+AsciiName = ['<#0-0x00-nul>',
+			 '<#1-0x01-soh>',
+			 '<#2-0x02-stx>',
+			 '<#3-0x03-etx>',
+			 '<#4-0x04-eot>',
+			 '<#5-0x05-enq>',
+			 '<#6-0x06-ack>',
+			 '<#7-0x07-bel>',
+			 '<#8-0x08-bs>',
+			 '<#9-0x09-ht>',
+			 '<#10-0x0A-lf>',
+			 '<#11-0x0B-vt>',
+			 '<#12-0x0C-ff>',
+			 '<#13-0x0D-cr>',
+			 '<#14-0x0E-so>',
+			 '<#15-0x0F-si>',
+			 '<#16-0x10-dle>',
+			 '<#17-0x11-dc1/xon>',
+			 '<#18-0x12-dc2>',
+			 '<#19-0x13-dc3/xoff>',
+			 '<#20-0x14-dc4>',
+			 '<#21-0x15-nak>',
+			 '<#22-0x16-syn>',
+			 '<#23-0x17-etb>',
+			 '<#24-0x18-can>',
+			 '<#25-0x19-em>',
+			 '<#26-0x1A-sub>',
+			 '<#27-0x1B-esc>',
+			 '<#28-0x1C-fs>',
+			 '<#29-0x1D-gs>',
+			 '<#30-0x1E-rs>',
+			 '<#31-0x1F-us>'
+			]
+
+#msg = reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(tmp))), '')
+#	def __char2AsciiName(self, aChar):
+#		try:
+#			return AsciiName[ord(aChar)]
+#		except IndexError:
+#			return aChar
+
 #===============================================================
 # external API
 #===============================================================
@@ -225,7 +268,10 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.8  2008-03-06 18:46:55  ncq
+# Revision 1.9  2008-03-06 21:23:22  ncq
+# - keep some interesting stuff from the old logging infrastructure
+#
+# Revision 1.8  2008/03/06 18:46:55  ncq
 # - fix docs
 #
 # Revision 1.7  2008/03/06 18:25:22  ncq
