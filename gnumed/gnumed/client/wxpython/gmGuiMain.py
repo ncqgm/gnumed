@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.390 2008-03-05 22:38:26 ncq Exp $
-__version__ = "$Revision: 1.390 $"
+# $Id: gmGuiMain.py,v 1.391 2008-03-06 18:34:08 ncq Exp $
+__version__ = "$Revision: 1.391 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -91,6 +91,18 @@ def jump_to_ifap(import_drugs=False):
 
 	dbcfg = gmCfg.cCfgSQL()
 
+	ifap_cmd = dbcfg.get2 (
+		option = 'external.ifap-win.shell_command',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
+	)
+	found, binary = gmShellAPI.detect_external_binary(ifap_cmd)
+	if not found:
+		gmDispatcher.send('statustext', msg = _('Cannot call IFAP via [%s].') % ifap_cmd)
+		return False
+	ifap_cmd = binary
+
 	if import_drugs:
 		transfer_file = os.path.expanduser(dbcfg.get2 (
 			option = 'external.ifap-win.transfer_file',
@@ -102,17 +114,9 @@ def jump_to_ifap(import_drugs=False):
 		try:
 			f = open(transfer_file, 'w+b').close()
 		except IOError:
-			_log.LogException('cannot create IFAP <-> GNUmed transfer file')
+			_log.exception('Cannot create IFAP <-> GNUmed transfer file [%s]', transfer_file)
+			gmDispatcher.send('statustext', msg = _('Cannot create IFAP <-> GNUmed transfer file [%s].') % transfer_file)
 			return False
-
-	# FIXME: make this more generic so several commands are tried
-	# FIXME: (windows, linux, mac) until one succeeds or all fail
-	ifap_cmd = dbcfg.get2 (
-		option = 'external.ifap-win.shell_command',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
-		bias = 'workplace',
-		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
-	)
 
 	wx.BeginBusyCursor()
 	gmShellAPI.run_command_in_shell(command = ifap_cmd, blocking = import_drugs)
@@ -124,7 +128,7 @@ def jump_to_ifap(import_drugs=False):
 		try:
 			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
 		except:
-			_log.LogException('cannot access [%s]' % fname)
+			_log.exception('cannot access [%s]', fname)
 			csv_file = None
 
 		if csv_file is not None:
@@ -165,7 +169,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __init__(self, parent, id, title, size=wx.DefaultSize):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
-		wx.Frame.__init__(
+		wx.Frame.__init__ (
 			self,
 			parent,
 			id,
@@ -178,7 +182,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
-		_log.debug('workplace is >>>%s<<<' % gmSurgery.gmCurrentPractice().active_workplace)
+		_log.debug('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -223,6 +227,11 @@ class gmTopLevelFrame(wx.Frame):
 		self.Centre(wx.BOTH)
 		self.Show(True)
 	#----------------------------------------------
+	def __setup_accelerators(self):
+		self.acctbl.append((wx.ACCEL_ALT | wx.ACCEL_CTRL, ord('X'), wx.ID_EXIT))
+		self.acctbl.append((wx.ACCEL_CTRL, ord('H'), wx.ID_HELP))
+		self.SetAcceleratorTable(wx.AcceleratorTable(self.acctbl))
+	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
 
@@ -247,17 +256,12 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug('setting GUI size to [%s:%s]' % (width, height))
  		self.SetClientSize(wx.Size(width, height))
 	#----------------------------------------------
-	def __setup_accelerators(self):
-		self.acctbl.append ((wx.ACCEL_ALT | wx.ACCEL_CTRL, ord('X'), wx.ID_EXIT))
-		self.acctbl.append ((wx.ACCEL_CTRL, ord('H'), wx.ID_HELP))
-		self.SetAcceleratorTable(wx.AcceleratorTable(self.acctbl))
-	#----------------------------------------------
 	def __setup_main_menu(self):
 		"""Create the main menu entries.
 
 		Individual entries are farmed out to the modules.
 		"""
-		# create main menu
+		global wx
 		self.mainmenu = wx.MenuBar()
 		self.__gb['main.mainmenu'] = self.mainmenu
 
@@ -591,7 +595,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_knowledge, _("&Knowledge"))
 
 		# - IFAP drug DB
-		ID_IFAP = wx.NewId()			# FIXME: add only if installed
+		ID_IFAP = wx.NewId()
 		menu_knowledge.Append(ID_IFAP, _('ifap index (Win)'), _('Start "ifap index PRAXIS (Windows)" drug browser'))
 		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
 
@@ -696,7 +700,7 @@ class gmTopLevelFrame(wx.Frame):
 			msg = _('programmer forgot to specify status message')
 
 		if loglevel is not None:
-			_log.Log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
+			_log.log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
 
 		wx.CallAfter(self.SetStatusText, msg)
 
@@ -955,14 +959,15 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_set_ifap_cmd(self, event):
 
 		def is_valid(value):
-			if not os.access(value, os.X_OK):
+			found, binary = gmShellAPI.detect_external_binary(value)
+			if not found:
 				gmDispatcher.send (
 					signal = 'statustext',
-					msg = _('The command [%s] is not executable. This may or may not be a problem.') % value,
+					msg = _('The command [%s] is not found. This may or may not be a problem.') % value,
 					beep = True
 				)
-			# return True anyways or else we cannot configure Wine properly
-			return True, value
+				return False, value
+			return True, binary
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -977,7 +982,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.ifap-win.shell_command',
 			bias = 'workplace',
-			default_value = 'C:\Ifapwin\WIAMDB.EXE', # MS/Windows, not Wine
+			default_value = 'C:\Ifapwin\WIAMDB.EXE',
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -1751,7 +1756,7 @@ Search results:
 			try:
 				_scripting_listener.shutdown()
 			except:
-				_log.LogException('cannot stop scripting listener thread', verbose=0)
+				_log.exception('cannot stop scripting listener thread')
 
 		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
 
@@ -1920,7 +1925,7 @@ class gmApp(wx.App):
 			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
 		except gmExceptions.ConstructorError, ValueError:
 			account = gmPG2.get_current_user()
-			_log.LogException('DB account [%s] cannot be used as a GNUmed staff login' % account, verbose=0)
+			_log.exception('DB account [%s] cannot be used as a GNUmed staff login', account)
 			msg = _(
 				'The database account [%s] cannot be used as a\n'
 				'staff member login for GNUmed. There was an\n'
@@ -2074,7 +2079,7 @@ class gmApp(wx.App):
 		try:
 			_scripting_listener = gmScriptingListener.cScriptingListener(port = port, macro_executor = macro_executor)
 		except SocketError, e:
-			_log.LogException('cannot start GNUmed XML-RPC server')
+			_log.exception('cannot start GNUmed XML-RPC server')
 			gmGuiHelpers.gm_show_error (
 				aMessage = (
 					'Cannot start the GNUmed server:\n'
@@ -2231,7 +2236,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.390  2008-03-05 22:38:26  ncq
+# Revision 1.391  2008-03-06 18:34:08  ncq
+# - better error handling around IFAP access
+#
+# Revision 1.390  2008/03/05 22:38:26  ncq
 # - set encounter type to chart review on docs-only encounters
 #
 # Revision 1.389  2008/02/29 23:46:59  ncq
