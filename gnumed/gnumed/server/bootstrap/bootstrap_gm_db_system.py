@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -176,7 +176,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
 			# this pretty much means we're screwed
 			if _interactive:
-				print pg_hba_sermon
+				print_msg(pg_hba_sermon)
 		elif re.search ("no password supplied", m):
 			# didn't like blank password trick
 			_log.warning("attempt w/ blank password failed, retrying with password")
@@ -195,7 +195,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 			else:
 				_log.warning("connection to host %s:%s failed" % (host, port))
 				if _interactive:
-					print no_server_sermon
+					print_msg(no_server_sermon)
 					host = raw_input("New host to connect to:")
 					if len(host) > 0:
 						host.split(':')
@@ -208,12 +208,12 @@ def connect (host, port, db, user, passwd, superuser=0):
 		elif re.search ("^FATAL:.*IDENT authentication failed.*", m):
 			if _interactive:
 				if superuser:
-					print superuser_sermon % user
+					print_msg(superuser_sermon % user)
 				else:
-					print pg_hba_sermon
+					print_msg(pg_hba_sermon)
 		else:
 			if _interactive:
-				print no_clues % (message, sys.platform)
+				print_msg(no_clues % (message, sys.platform))
 	return conn
 #==================================================================
 class user:
@@ -379,20 +379,20 @@ class db_server:
 				return False
 			self.conn.commit()
 			cursor.close()
-			print ""
-			print "The database owner already exists."
-			print "Please provide the password previously used for it."
-			print ""
+			print_msg("")
+			print_msg("The database owner already exists.")
+			print_msg("Please provide the password previously used for it.")
+			print_msg("")
 			_dbowner = user(anAlias = dbowner_alias)
 			return True
 
-		print (
+		print_msg((
 """The database owner will be created.
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
 
 Make sure to remember the password for later use.
-""")
+"""))
 		_dbowner = user(anAlias = dbowner_alias)
 
 		cmd = 'create user "%s" with password \'%s\' createdb in group "%s", "gm-logins"' % (_dbowner.name, _dbowner.password, self.auth_group)
@@ -644,7 +644,7 @@ class database:
 			# FIXME: verify that database is owned by "gm-dbo"
 			drop_existing = bool(cfg_get(self.section, 'drop target database'))
 			if drop_existing:
-				print "==> dropping pre-existing *target* database [%s] ..." % self.name
+				print_msg("==> dropping pre-existing *target* database [%s] ..." % self.name)
 				_log.info('trying to drop target database')
 				cmd = 'drop database "%s"' % self.name
 				self.conn.set_isolation_level(0)
@@ -689,8 +689,8 @@ class database:
 		# create database
 		self.conn.set_isolation_level(0)
 		cursor = self.conn.cursor()
-		print "==> creating new target database [%s] ..." % self.name
-		print "    (this can take a while if [%s] is large)" % self.template_db
+		print_msg("==> creating new target database [%s] ..." % self.name)
+		print_msg("    (this can take a while if [%s] is large)" % self.template_db)
 		try:
 			cursor.execute(cmd)
 		except:
@@ -707,18 +707,18 @@ class database:
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
 
-		print "==> checking migrated data for plausibility ..."
+		print_msg("==> checking migrated data for plausibility ...")
 
 		plausibility_queries = cfg_get(self.section, 'upgrade plausibility checks')
 		if plausibility_queries is None:
 			_log.warning('no plausibility checks defined')
-			print "    ... skipped (no checks defined)"
+			print_msg("    ... skipped (no checks defined)")
 			return True
 
 		no_of_queries, remainder = divmod(len(plausibility_queries), 2)
 		if remainder != 0:
 			_log.error('odd number of plausibility queries defined, aborting')
-			print "    ... failed (configuration error)"
+			print_msg("    ... failed (configuration error)")
 			return False
 
 		template_conn = connect (
@@ -747,7 +747,7 @@ class database:
 				old_val = rows[0][0]
 			except:
 				_log.exception('error in plausibility check [%s] (old), aborting' % tag)
-				print "    ... failed (SQL error)"
+				print_msg("    ... failed (SQL error)")
 				return False
 			try:
 				rows, idx = gmPG2.run_ro_queries (
@@ -757,12 +757,12 @@ class database:
 				new_val = rows[0][0]
 			except:
 				_log.exception('error in plausibility check [%s] (new), aborting' % tag)
-				print "    ... failed (SQL error)"
+				print_msg("    ... failed (SQL error)")
 				return False
 
 			if new_val != old_val:
 				_log.error('plausibility check [%s] failed, expected [%s], found [%s]' % (tag, old_val, new_val))
-				print "    ... failed (check [%s])" % tag
+				print_msg("    ... failed (check [%s])" % tag)
 				return False
 
 			_log.info('plausibility check [%s] succeeded' % tag)
@@ -770,12 +770,12 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def import_data(self):
-		print "==> upgrading reference data sets ..."
+		print_msg("==> upgrading reference data sets ...")
 
 		import_scripts = cfg_get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
 			_log.info('skipped data import: no scripts to run')
-			print "    ... skipped (no scripts to run)"
+			print_msg("    ... skipped (no scripts to run)")
 			return True
 
 		script_base_dir = cfg_get(self.section, "script base directory")
@@ -785,14 +785,14 @@ class database:
 			try:
 				script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
 			except ImportError:
-				print "    ... failed (cannot load script [%s])" % import_script
+				print_msg("    ... failed (cannot load script [%s])" % import_script)
 				_log.error('cannot load data set import script [%s/%s]' % (script_base_dir, import_script))
 				return False
 
 			try:
 				script.run(conn=self.conn)
 			except:
-				print "    ... failed (cannot run script [%s])" % import_script
+				print_msg("    ... failed (cannot run script [%s])" % import_script)
 				_log.exception('cannot run import script [%s]' % import_script)
 				return False
 
@@ -800,30 +800,30 @@ class database:
 	#--------------------------------------------------------------
 	def verify_result_hash(self):
 		# verify template database hash
-		print "==> verifying target database schema ..."
+		print_msg("==> verifying target database schema ...")
 		target_version = cfg_get(self.section, 'target version')
 		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
 			_log.info('database identity hash properly verified')
 			return True
 		_log.error('target database identity hash invalid')
 		if target_version == 'devel':
-			print "    ... skipped (devel version)"
+			print_msg("    ... skipped (devel version)")
 			_log.warning('testing/development only, not failing due to invalid target database identity hash')
 			return True
-		print "    ... failed (hash mismatch)"
+		print_msg("    ... failed (hash mismatch)")
 		return False
 	#--------------------------------------------------------------
 	def tranfer_users(self):
-		print "==> transferring users ..."
+		print_msg("==> transferring users ...")
 		transfer_users = cfg_get(self.section, 'transfer users')
 		if transfer_users is None:
 			_log.info('user transfer not defined')
-			print "    ... skipped (unconfigured)"
+			print_msg("    ... skipped (unconfigured)")
 			return True
 		transfer_users = int(transfer_users)
 		if not transfer_users:
 			_log.info('configured to not transfer users')
-			print "    ... skipped (disabled)"
+			print_msg("    ... skipped (disabled)")
 			return True
 		cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
 		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
@@ -831,18 +831,18 @@ class database:
 			_log.info('users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
 			return True
 		_log.error('error transferring user from [%s] to [%s]' % (self.template_db, self.name))
-		print "    ... failed"
+		print_msg("    ... failed")
 		return False
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
-		print "==> setting up auditing ..."
+		print_msg("==> setting up auditing ...")
 		# get audit trail configuration
 		tmp = cfg_get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
 		if tmp is not None:
 			# if we don't want auditing on these tables, return without error
 			if int(tmp) == 1:
-				print '    ... skipped (disabled)'
+				print_msg('    ... skipped (disabled)')
 				return True
 
 		tmp = cfg_get(self.section, 'audit trail parent table')
@@ -890,14 +890,14 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
-		print "==> setting up notifications ..."
+		print_msg("==> setting up notifications ...")
 		# get configuration
 		tmp = cfg_get(self.section, 'notification disable')
 		# if this option is not given, assume we want notification
 		if tmp is not None:
 			# if we don't want notification on these tables, return without error
 			if int(tmp) == 1:
-				print '    ... skipped (disabled)'
+				print_msg('    ... skipped (disabled)')
 				return True
 
 		# create notification schema
@@ -989,7 +989,7 @@ def bootstrap_bundles():
 		exit_with_msg("Bundle list empty. Nothing to do here.")
 	# run through bundles
 	for bundle_alias in bundles:
-		print '==> bootstrapping "%s" ...' % bundle_alias
+		print_msg('==> bootstrapping "%s" ...' % bundle_alias)
 		bundle = gmBundle(bundle_alias)
 		if not bundle.bootstrap():
 			return None
@@ -1032,20 +1032,35 @@ def ask_for_confirmation():
 	bundles = cfg_get("installation", "bundles")
 	if bundles is None:
 		return True
-	print "You are about to install the following parts of GNUmed:"
-	print "-------------------------------------------------------"
-	for bundle in bundles:
-		db_alias = cfg_get("bundle %s" % bundle, "database alias")
-		db_name = cfg_get("database %s" % db_alias, "name")
-		srv_alias = cfg_get("database %s" % db_alias, "server alias")
-		srv_name = cfg_get("server %s" % srv_alias, "name")
-		print 'bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name)
-	print "-------------------------------------------------------"
-	desc = cfg_get("installation", "description")
-	if desc is not None:
-		for line in desc:
-			print line
-	if _interactive:
+	if not _interactive:
+		print_msg("You are about to install the following parts of GNUmed:")
+		print_msg("-------------------------------------------------------")
+		for bundle in bundles:
+			db_alias = cfg_get("bundle %s" % bundle, "database alias")
+			db_name = cfg_get("database %s" % db_alias, "name")
+			srv_alias = cfg_get("database %s" % db_alias, "server alias")
+			srv_name = cfg_get("server %s" % srv_alias, "name")
+			print_msg('bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name))
+		print_msg("-------------------------------------------------------")
+		desc = cfg_get("installation", "description")
+		if desc is not None:
+			for line in desc:
+				print_msg(line)
+	else:
+		print "You are about to install the following parts of GNUmed:"
+		print "-------------------------------------------------------"
+		for bundle in bundles:
+			db_alias = cfg_get("bundle %s" % bundle, "database alias")
+			db_name = cfg_get("database %s" % db_alias, "name")
+			srv_alias = cfg_get("database %s" % db_alias, "server alias")
+			srv_name = cfg_get("server %s" % srv_alias, "name")
+			print 'bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name)
+		print "-------------------------------------------------------"
+		desc = cfg_get("installation", "description")
+		if desc is not None:
+			for line in desc:
+				print line
+
 		print "Do you really want to install this database setup ?"
 		answer = raw_input("Type yes or no: ")
 		if answer == "yes":
@@ -1094,10 +1109,10 @@ def exit_with_msg(aMsg = None):
  	_log.info("shutdown")
 	sys.exit(1)
 #------------------------------------------------------------------
-def show_msg(aMsg = None):
-	if aMsg is not None:
-		print aMsg
-	print "Please see log file for details."
+def print_msg(msg=None):
+	if quiet:
+		return
+	print msg
 #-----------------------------------------------------------------
 def become_pg_demon_user():
 	"""Become "postgres" user.
@@ -1147,26 +1162,8 @@ def become_pg_demon_user():
 		_log.warning('not running as root or postgres, cannot become postmaster demon user')
 		_log.warning('may have trouble connecting as gm-dbo if IDENT auth is forced upon us')
 		if _interactive:
-			print "WARNING: This script may not work if not running as the system administrator."
+			print_msg("WARNING: This script may not work if not running as the system administrator.")
 #==============================================================================
-#def get_cfg_in_nice_mode():
-#	print welcome_sermon
-#	cfgs = []
-#	n = 0
-#	for cfg_file in glob.glob('*.conf'):
-#		cfg = gmCfg.cCfgFile(None, cfg_file)
-		# only offer those conf files that aren't reserved for gurus
-#		if cfg_get('installation', 'guru_only') == '1':
-#			continue
-#		cfgs.append(cfg)
-#		desc = '\n    '.join(cfg_get('installation', 'description'))	# some indentation
-#		print  '%2s) %s' % (n, desc)
-#		n += 1
-#	choice = int(raw_input ('\n\nYour choice: '))
-#	if choice == -1:
-#		return None
-#	return cfgs[choice]
-#==================================================================
 def cfg_get(group=None, option=None):
 	return _cfg.get (
 		group = group,
@@ -1209,12 +1206,16 @@ def handle_cfg():
 #==================================================================
 def main():
 
-	print "======================================="
-	print "Bootstrapping GNUmed database system..."
-	print "======================================="
+	_cfg.add_cli(long_options = ['conf-file=', 'log-file=', 'quiet'])
+
+	global quiet
+	quiet = bool(_cfg.get(option = '--quiet', source_order = [('cli', 'return')]))
+
+	print_msg("=======================================")
+	print_msg("Bootstrapping GNUmed database system...")
+	print_msg("=======================================")
 
 	# get initial conf file from CLI
-	_cfg.add_cli(long_options = ['conf-file=', 'log-file='])
 	cfg_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
 	if cfg_file is None:
 		_log.error("no config file specified on command line")
@@ -1259,7 +1260,7 @@ def main():
 		exit_with_msg("Bootstrapping failed: unable to import data")
 
 	_log.info("shutdown")
-	print "Done bootstrapping: We very likely succeeded."
+	print("Done bootstrapping GNUmed database: We very likely succeeded.")
 
 #==================================================================
 if __name__ == "__main__":
@@ -1268,12 +1269,14 @@ if __name__ == "__main__":
 
 	try:
 		main()
-		sys.exit(0)
 	except StandardError:
 		_log.exception('unhandled exception caught')
 		exit_with_msg("Bootstrapping failed: unhandled exception occurred")
+
+	sys.exit(0)
 else:
 	print "This currently is not intended to be used as a module."
+	sys.exit(1)
 
 #==================================================================
 #	pipe = popen2.Popen3(cmd, 1==1)
@@ -1302,7 +1305,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.74  2008-02-25 19:39:48  ncq
+# Revision 1.75  2008-03-06 23:19:38  ncq
+# - support --quiet
+#
+# Revision 1.74  2008/02/25 19:39:48  ncq
 # - better output
 #
 # Revision 1.73  2008/01/07 14:15:43  ncq
