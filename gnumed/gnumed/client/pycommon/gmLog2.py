@@ -2,45 +2,46 @@
 
 All error logging, user notification and otherwise unhandled 
 exception handling should go through classes or functions of 
-this module
+this module.
 
 Theory of operation:
 
-By importing gmLog into your code you'll immediately have
-access to a default logger: gmDefLog. Initially, the logger has
-a log file as it's default target. The name of the file is
-automatically derived from the name of the main application.
+This module tailors the standard logging framework to
+the needs of GNUmed.
+
+By importing gmLog2 into your code you'll get the root
+logger send to a unicode file with messages in a format useful
+for debugging. The filename is either taken from the
+command line (--log-file=...) or derived from the name
+of the main application.
+
 The log file will be found in one of the following standard
 locations:
 
 1) given on the command line as "--log-file=LOGFILE"
 2) ~/.<base_name>/<base_name>.log
-3) /dir/of/binary/<base_name>.log	- mainly for DOS/Windows
+3) /dir/of/binary/<base_name>.log		(mainly for DOS/Windows)
 
 where <base_name> is derived from the name
 of the main application.
 
 If you want to specify just a directory for the log file you
-must end the LOGFILE definition with slash.
+must end the --log-file definition with a slash.
 
-By importing gmLog and logging to the default log your modules
+By importing "logging" and getting a logger your modules
 never need to worry about the real message destination or whether
-at any given time there's a valid logger available. Your MAIN
-module simply adds real log targets to the default logger and
-all other modules will merrily and automagically start logging
-there.
+at any given time there's a valid logger available.
 
-You can of course instantiate any number of additional loggers
-that log to different targets alltogether if you want to keep
-some messages separate from others.
+Your MAIN module simply import gmLog2 and all other modules will
+merrily and automagically start logging there.
 """
 # TODO:
 # - exception()
 # - ascii_ctrl2mnemonic()
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.6 2008-01-30 14:05:09 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmLog2.py,v 1.7 2008-03-06 18:25:22 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -224,7 +225,10 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.6  2008-01-30 14:05:09  ncq
+# Revision 1.7  2008-03-06 18:25:22  ncq
+# - fix docs
+#
+# Revision 1.6  2008/01/30 14:05:09  ncq
 # - a bit of cleanup
 # - TODO added
 #
