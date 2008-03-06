@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.136 2008-03-06 18:29:30 ncq Exp $
-__version__ = "$Revision: 1.136 $"
+# $Id: gnumed.py,v 1.137 2008-03-06 21:30:49 ncq Exp $
+__version__ = "$Revision: 1.137 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -201,8 +201,8 @@ def setup_signal_handlers():
 	global _old_sig_term
 	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
 #==========================================================
-def setup_legacy_logging():
-	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+#def setup_legacy_logging():
+#	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 #==========================================================
 def setup_locale():
 	gmI18N.activate_locale()
@@ -319,31 +319,36 @@ def setup_backend():
 	if timezone is not None:
 		gmPG2.set_default_client_timezone(timezone)
 #==========================================================
-def log_object_refcounts():
-	if not _cfg.get(option = u'debug'):
-		return
+def shutdown_backend():
+	gmPG2.shutdown()
+#==========================================================
+def shutdown_logging():
 
-	import types
+	if _cfg.get(option = u'debug'):
+		import types
 
-	def get_refcounts():
-		refcount = {}
-		# collect all classes
-		for module in sys.modules.values():
-			for sym in dir(module):
-				obj = getattr(module, sym)
-				if type(obj) is types.ClassType:
-					refcount[obj] = sys.getrefcount(obj)
-		# sort by refcount
-		pairs = map(lambda x: (x[1],x[0]), refcount.items())
-		pairs.sort()
-		pairs.reverse()
-		return pairs
+#		def get_refcounts():
+#			refcount = {}
+#			# collect all classes
+#			for module in sys.modules.values():
+#				for sym in dir(module):
+#					obj = getattr(module, sym)
+#					if type(obj) is types.ClassType:
+#						refcount[obj] = sys.getrefcount(obj)
+#			# sort by refcount
+#			pairs = map(lambda x: (x[1],x[0]), refcount.items())
+#			pairs.sort()
+#			pairs.reverse()
+#			return pairs
 
-#	rcfile = open('./gm-refcount.lst', 'wb')
-#	for refcount, class_ in get_refcounts():
-#		if not class_.__name__.startswith('wx'):
-#			rcfile.write('%10d %s\n' % (refcount, class_.__name__))
-#	rcfile.close()
+#		rcfile = open('./gm-refcount.lst', 'wb')
+#		for refcount, class_ in get_refcounts():
+#			if not class_.__name__.startswith('wx'):
+#				rcfile.write('%10d %s\n' % (refcount, class_.__name__))
+#		rcfile.close()
+
+	# do not choke on Windows
+	logging.raiseExceptions = False
 
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
@@ -370,15 +375,10 @@ from Gnumed.pycommon import gmPG2
 
 setup_backend()
 
-#from Gnumed.business import gmSurgery
-#praxis = gmSurgery.gmCurrentPractice()
-#print praxis.helpdesk
-#print praxis.active_workplace
 
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
 from Gnumed.wxpython import gmGuiMain
-
 profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
 if profile_file is not None:
 	_log.info('writing profiling data into %s', profile_file)
@@ -389,16 +389,19 @@ else:
 
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
-log_object_refcounts()
 
+shutdown_backend()
 _log.info('Normally shutting down as main module.')
-
-# do not choke on Windows
-logging.raiseExceptions = False
+shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.136  2008-03-06 18:29:30  ncq
+# Revision 1.137  2008-03-06 21:30:49  ncq
+# - comment out legacy logging
+# - shutdown_backend()
+# - shutdown_logging()
+#
+# Revision 1.136  2008/03/06 18:29:30  ncq
 # - standard lib logging only
 #
 # Revision 1.135  2008/02/25 17:43:40  ncq
