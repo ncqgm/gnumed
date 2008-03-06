@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.6 2008-03-02 15:09:35 ncq Exp $
+# $Id: gmShellAPI.py,v 1.7 2008-03-06 18:48:21 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,14 +24,15 @@ def detect_external_binary(binary=None):
 		return (True, binary)
 
 	# do we seem to *have* wine installed ?
-	cmd = 'winepath -u "%s"' % binary
+	tmp = binary.lstrip('wine').strip().strip('"')
+	cmd = 'winepath -u "%s"' % tmp
 	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
 	result = pipe.readline()
 	ret_code = pipe.close()
 	if ret_code is None:
 		result = result.strip('\r\n')
 		if os.access(result, os.X_OK):
-			return (True, result)
+			return (True, binary)
 		else:
 			_log.warning('"winepath %s" returned [%s] but the path is not verifiable', binary, result)
 	else:
@@ -146,7 +147,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.6  2008-03-02 15:09:35  ncq
+# Revision 1.7  2008-03-06 18:48:21  ncq
+# - much improved wine-based executable detection
+#
+# Revision 1.6  2008/03/02 15:09:35  ncq
 # - smarten up detect_external_binary about winepath
 #
 # Revision 1.5  2008/01/14 20:30:11  ncq
