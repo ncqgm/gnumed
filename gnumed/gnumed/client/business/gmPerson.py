@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.158 2008-02-25 17:31:41 ncq Exp $
-__version__ = "$Revision: 1.158 $"
+# $Id: gmPerson.py,v 1.159 2008-03-09 20:13:47 ncq Exp $
+__version__ = "$Revision: 1.159 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1754,7 +1754,7 @@ insert into dem.names (
 	)
 	return cIdentity(aPK_obj=rows[0][0])
 #============================================================
-def create_dummy_identity():	
+def create_dummy_identity():
 	cmd1 = u"insert into dem.identity(gender, dob) values('xxxDEFAULTxxx', CURRENT_TIMESTAMP)"
 	cmd2 = u"select currval('dem.identity_id_seq')"
 
@@ -2170,7 +2170,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.158  2008-02-25 17:31:41  ncq
+# Revision 1.159  2008-03-09 20:13:47  ncq
+# - cleanup
+#
+# Revision 1.158  2008/02/25 17:31:41  ncq
 # - logging cleanup
 #
 # Revision 1.157  2008/01/30 13:34:50  ncq
