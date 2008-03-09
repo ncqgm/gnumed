@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.94 2008-03-05 22:30:15 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmTopPanel.py,v 1.95 2008-03-09 20:18:56 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -103,7 +103,7 @@ class cMainTopPanel(wx.Panel):
 #		self.szr_top_row.Add(self.btn_lock, 0, wxALL, 3)
 
 		#  - patient selector
-		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
+		self.patient_selector = gmPatSearchWidgets.cActivePatientSelector(self, -1)
 		cfg = gmCfg2.gmCfgData()
 		if cfg.get(option = 'slave'):
 			self.patient_selector.SetEditable(0)
@@ -455,7 +455,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.94  2008-03-05 22:30:15  ncq
+# Revision 1.95  2008-03-09 20:18:56  ncq
+# - use cActivePatientSelector()
+#
+# Revision 1.94  2008/03/05 22:30:15  ncq
 # - new style logging
 #
 # Revision 1.93  2008/01/27 21:20:58  ncq
