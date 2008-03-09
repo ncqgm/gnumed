@@ -1,8 +1,8 @@
 #  coding: latin-1
-"""GNUmed quick patient search widget.
+"""GNUmed quick person search widgets.
 
-This widget allows to search for patients based on the
-critera name, date of birth and patient ID. It goes to
+This widget allows to search for persons based on the
+critera name, date of birth and person ID. It goes to
 considerable lengths to understand the user's intent from
 her input. For that to work well we need per-culture
 query generators. However, there's always the fallback
@@ -10,17 +10,20 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.104 2008-02-25 17:40:18 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmPatSearchWidgets.py,v 1.105 2008-03-09 20:18:22 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, glob, datetime as pyDT, re as regex, logging
+import sys, os.path, glob, datetime as pyDT, re as regex, logging
 
 
 import wx
 
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
 from Gnumed.business import gmPerson, gmKVK, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
@@ -242,7 +245,7 @@ def load_persons_from_xdt():
 	dtos = []
 	for bdt_file in bdt_files:
 		try:
-			# FIXME: potentially return several patients per file
+			# FIXME: potentially return several persons per file
 			dto = gmPerson.get_person_from_xdt (
 				filename = bdt_file['file'],
 				encoding = bdt_file['encoding'],
@@ -344,7 +347,7 @@ def load_persons_from_kvks():
 
 	return dtos
 #============================================================
-def load_patient_from_external_sources(parent=None, search_immediately=False):
+def get_person_from_external_sources(parent=None, search_immediately=False, activate_immediately=False):
 	"""Load patient from external source.
 
 	- scan external sources for candidates
@@ -364,10 +367,10 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 	dtos.extend(load_persons_from_pracsoft_au())
 	dtos.extend(load_persons_from_kvks())
 
-	# no external patients
+	# no external persons
 	if len(dtos) == 0:
 		gmDispatcher.send(signal='statustext', msg=_('No patients found in external sources.'))
-		return True
+		return None
 
 	# one external patient with DOB - already active ?
 	if (len(dtos) == 1) and (dtos[0]['dto'].dob is not None):
@@ -382,13 +385,13 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 			_log.debug('dto patient    : %s' % key_dto)
 			if key_dto == key_pat:
 				gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
-				return True
+				return None
 
-	# one external patient - activate immediately ?
+	# one external person - look for internal match immediately ?
 	if (len(dtos) == 1) and search_immediately:
 		dto = dtos[0]['dto']
 
-	# several external patients
+	# several external persons
 	else:
 		if parent is None:
 			parent = wx.GetApp().GetTopWindow()
@@ -396,7 +399,7 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 		dlg.set_dtos(dtos=dtos)
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
-			return True
+			return None
 		dto = dlg.get_selected_dto()['dto']
 		dlg.Destroy()
 
@@ -409,7 +412,7 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
 			_('Activating external patient')
 		)
-		return False
+		return None
 
 	if len(idents) == 1:
 		ident = idents[0]
@@ -421,138 +424,84 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 		dlg.set_persons(persons=idents)
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
-			return True
+			return None
 		ident = dlg.get_selected_person()
 		dlg.Destroy()
 
-	if not gmPerson.set_active_patient(patient = ident):
-		gmGuiHelpers.gm_show_info (
-			_(
-			'Cannot activate patient:\n\n'
-			'%s %s (%s)\n'
-			'%s'
-			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
-			_('Activating external patient')
-		)
-		return False
+	if activate_immediately:
+		if not gmPerson.set_active_patient(patient = ident):
+			gmGuiHelpers.gm_show_info (
+				_(
+				'Cannot activate patient:\n\n'
+				'%s %s (%s)\n'
+				'%s'
+				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
+				_('Activating external patient')
+			)
+			return None
 
 	dto.import_extra_data(identity = ident)
 	dto.delete_from_source()
 
-	return True
+	return ident
 #============================================================
-class cPatientSelector(wx.TextCtrl):
-	"""Widget for smart search for patients."""
-	def __init__ (self, parent, id = -1, pos = wx.DefaultPosition, size = wx.DefaultSize):
-		self.curr_pat = gmPerson.gmCurrentPatient()
+class cPersonSearchCtrl(wx.TextCtrl):
+	"""Widget for smart search for persons."""
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			kwargs['style'] = kwargs['style'] | wx.TE_PROCESS_ENTER
+		except KeyError:
+			kwargs['style'] = wx.TE_PROCESS_ENTER
 
 		# need to explicitely process ENTER events to avoid
 		# them being handed over to the next control
-		wx.TextCtrl.__init__(
-			self,
-			parent,
-			id,
-			'',
-			pos,
-			size,
-			style = wx.TE_PROCESS_ENTER
-		)
+		wx.TextCtrl.__init__(self, *args, **kwargs)
 
-		selector_tooltip = _(
-		'Patient search field.                             \n'
-		'\n'
-		'To search, type any of:\n'
-		' - fragment of last or first name\n'
-		" - date of birth (can start with '$' or '*')\n"
-		" - patient ID (can start with '#')\n"
-		'and hit <ENTER>.\n'
-		'\n'
-		'<CURSOR-UP>\n'
-		' - recall most recently used search term\n'
-		'<CURSOR-DOWN>\n'
-		' - list 10 most recently activated patients\n'
-		'<F2>\n'
-		' - scan external sources for patients to import and activate\n'
-		)
-		self.SetToolTip(wx.ToolTip(selector_tooltip))
+		self.person = None
 
-		self._display_name()
+		self.SetToolTipString (_(
+			'To search for a person type any of:                   \n'
+			'\n'
+			' - fragment of last or first name\n'
+			" - date of birth (can start with '$' or '*')\n"
+			" - GNUmed ID of person (can start with '#')\n"
+			' - exterenal ID of person\n'
+			'\n'
+			'and hit <ENTER>.\n'
+			'\n'
+			'Shortcuts:'
+			' <F2>\n'
+			'  - scan external sources for persons\n'
+			' <CURSOR-UP>\n'
+			'  - recall most recently used search term\n'
+			' <CURSOR-DOWN>\n'
+			'  - list 10 most recently found persons\n'
+		))
 
 		# FIXME: set query generator
-		self.__pat_searcher = gmPerson.cPatientSearcher_SQL()
+		self.__person_searcher = gmPerson.cPatientSearcher_SQL()
 
-		self.__prev_search_term = None
+		self._prev_search_term = None
 		self.__prev_idents = []
 		self._lclick_count = 0
 
-		# get configuration
-		cfg = gmCfg.cCfgSQL()
-
-		self.__always_dismiss_after_search = bool ( 
-			cfg.get2 (
-				option = 'patient_search.always_dismiss_previous_patient',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'user',
-				default = 0
-			)
-		)
-
-		self.__always_reload_after_search = bool (
-			cfg.get2 (
-				option = 'patient_search.always_reload_new_patient',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'user',
-				default = 0
-			)
-		)
+		self._display_name()
 
 		self.__register_events()
-	#--------------------------------------------------------
-	def SetActivePatient(self, pat):
-		if not gmPerson.set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
-			_log.error('cannot change active patient')
-			return None
-
-		self.__remember_ident(pat)
-
-		dbcfg = gmCfg.cCfgSQL()
-		dob_distance = dbcfg.get2 (
-			option = u'patient_search.dob_warn_interval',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = u'user',
-			default = u'1 week'
-		)
-
-		if pat.dob_in_range(dob_distance, dob_distance):
-			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-			enc = gmI18N.get_encoding()
-			gmDispatcher.send(signal = 'statustext', msg = _(
-				'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
-					'pat': pat.get_description(),
-					'age': pat.get_medical_age().strip('y'),
-					'month': pat['dob'].strftime('%B').decode(enc),
-					'day': pat['dob'].strftime('%d'),
-					'month_now': now.strftime('%B').decode(enc),
-					'day_now': now.strftime('%d')
-				}
-			)
-
-		return True
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
 		name = u''
 
-		if self.curr_pat.is_connected():
-			name = self.curr_pat['description']
-			if self.curr_pat.locked:
-				name = _('%(name)s (locked)') % {'name': name}
-			name = '%s%s' % (name, gmTools.coalesce(self.__prev_search_term, u'', u' [%s]'))
+		if self.person is not None:
+			name = self.person['description']
 
 		self.SetValue(name)
 	#--------------------------------------------------------
-	def __remember_ident(self, ident=None):
+	def _remember_ident(self, ident=None):
 
 		if not isinstance(ident, gmPerson.cIdentity):
 			return False
@@ -573,24 +522,11 @@ class cPatientSelector(wx.TextCtrl):
 	# event handling
 	#--------------------------------------------------------
 	def __register_events(self):
-		# - process some special chars
-		wx.EVT_CHAR(self, self._on_char)
-		# - select data in input field upon tabbing in
+		wx.EVT_CHAR(self, self.__on_char)
 		wx.EVT_SET_FOCUS(self, self._on_get_focus)
-		# - redraw the currently active name upon losing focus
-		#   (but see the caveat in the handler)
 		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
-
-		wx.EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
+		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
 		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
-
-		# client internal signals
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)
-	#----------------------------------------------
-	def _on_post_patient_selection(self, **kwargs):
-		wx.CallAfter(self._display_name)
 	#--------------------------------------------------------
 	def _on_left_mousebutton_up(self, evt):
 		"""upon left click release
@@ -625,6 +561,8 @@ class cPatientSelector(wx.TextCtrl):
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
+		# - redraw the currently active name upon losing focus
+
 		# if we use wx.EVT_KILL_FOCUS we will also receive this event
 		# when closing our application or loosing focus to another
 		# application which is NOT what we intend to achieve,
@@ -634,45 +572,52 @@ class cPatientSelector(wx.TextCtrl):
 		# remember fragment
 #		curr_search_term = self.GetValue()
 #		if self.IsModified() and (curr_search_term.strip() != ''):
-#			self.__prev_search_term = curr_search_term
+#			self._prev_search_term = curr_search_term
 
-		# and display currently active patient
 		self._display_name()
-		# unset highlighting
 		self.SetSelection(0,0)
-		# reset highlight counter
 		self._lclick_count = 0
+		self._remember_ident(self.person)
 
 		evt.Skip()
 	#--------------------------------------------------------
+	def __on_char(self, evt):
+		self._on_char(evt)
+
 	def _on_char(self, evt):
+		"""True: patient was selected.
+		   False: no patient was selected.
+		"""
+
 		keycode = evt.GetKeyCode()
 
 		# list of previously active patients
 		if keycode == wx.WXK_DOWN:
 			evt.Skip()
 			if len(self.__prev_idents) == 0:
-				return True
+				return False
 
-			dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
-			dlg.set_persons(persons=self.__prev_idents)
+			dlg = cSelectPersonFromListDlg(parent = wx.GetTopLevelParent(self), id = -1)
+			dlg.set_persons(persons = self.__prev_idents)
 			result = dlg.ShowModal()
 			if result == wx.ID_OK:
 				wx.BeginBusyCursor()
-				person = dlg.get_selected_person()
-				self.SetActivePatient(person)
+				self.person = dlg.get_selected_person()
+				self._display_name()
+				dlg.Destroy()
+				wx.EndBusyCursor()
+				return True
+
 			dlg.Destroy()
+			return False
 
-			wx.EndBusyCursor()
-			return True
-
-		# previous search fragment
+		# recall previous search fragment
 		if keycode == wx.WXK_UP:
 			evt.Skip()
 			# FIXME: cycling through previous fragments
-			if self.__prev_search_term is not None:
-				self.SetValue(self.__prev_search_term)
-			return True
+			if self._prev_search_term is not None:
+				self.SetValue(self._prev_search_term)
+			return False
 
 		# invoke external patient sources
 		if keycode == wx.WXK_F2:
@@ -684,50 +629,57 @@ class cPatientSelector(wx.TextCtrl):
 				bias = 'user',
 				default = 0
 			))
-			load_patient_from_external_sources(parent=wx.GetTopLevelParent(self), search_immediately=search_immediately)
-			return True
+			p = get_person_from_external_sources (
+				parent = wx.GetTopLevelParent(self),
+				search_immediately = search_immediately
+			)
+			if p is not None:
+				self.person = p
+				self._display_name()
+				return True
+			return False
 
-		# FIXME: invoke add new patient
+		# FIXME: invoke add new person
 		# FIXME: add popup menu apart from system one
 
 		evt.Skip()
 	#--------------------------------------------------------
-	def _on_enter(self, evt):
+	def __on_enter(self, evt):
 
+		# ENTER but no search term ?
 		curr_search_term = self.GetValue().strip()
 		if curr_search_term == '':
 			return None
 
-		if self.curr_pat.is_connected():
-			if curr_search_term == self.curr_pat['description']:
+		# same person anywys ?
+		if self.person is not None:
+			if curr_search_term == self.person['description']:
 				return None
+
+		# remember search fragment
+		if self.IsModified():
+			self._prev_search_term = curr_search_term
+
+		self._on_enter(search_term = curr_search_term)
+	#--------------------------------------------------------
+	def _on_enter(self, search_term=None):
 
 		wx.BeginBusyCursor()
 
-		if self.__always_dismiss_after_search:
-			print "dismissing patient"
-			self.SetActivePatient(-1)
-
-		# remember fragment
-		if self.IsModified():
-			self.__prev_search_term = curr_search_term
-
 		# get list of matching ids
-		start = time.time()
-		idents = self.__pat_searcher.get_identities(curr_search_term)
-		duration = time.time() - start
+		idents = self.__person_searcher.get_identities(search_term)
 
 		if idents is None:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_info (
-				_('Error searching for matching patients.\n\n'
+				_('Error searching for matching persons.\n\n'
 				  'Search term: "%s"'
-				) % curr_search_term,
-				_('selecting patient')
+				) % search_term,
+				_('selecting person')
 			)
 			return None
 
-		_log.info("%s person objects(s) fetched in %3.3f seconds" % (len(idents), duration))
+		_log.info("%s matching person(s) found", len(idents))
 
 		if len(idents) == 0:
 			wx.EndBusyCursor()
@@ -740,7 +692,7 @@ class cPatientSelector(wx.TextCtrl):
 					'Cannot find any matching patients for the search term\n\n'
 					' "%s"\n\n'
 					'You may want to try a shorter search term.\n'
-				) % curr_search_term,
+				) % search_term,
 				button_defs = [
 					{'label': _('Go back'), 'tooltip': _('Go back and search again.'), 'default': True},
 					{'label': _('Create new'), 'tooltip': _('Create new patient.')}
@@ -749,16 +701,14 @@ class cPatientSelector(wx.TextCtrl):
 			if dlg.ShowModal() == wx.ID_YES:
 				return
 
-			wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self.GetParent())
-			wiz.RunWizard(activate=True)
-			# FIXME: hook
-			# FIXME: configurable
-			gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+			wiz = gmDemographicsWidgets.cNewPatientWizard(parent = self.GetParent())
+			self.person = wiz.RunWizard(activate = False)
+			self._display_name()
 			return None
 
 		# only one matching identity
 		if len(idents) == 1:
-			self.SetActivePatient(idents[0])
+			self.person = idents[0]
 			self._display_name()		# needed when the found patient is the same as the active one
 			wx.EndBusyCursor()
 			return None
@@ -773,22 +723,150 @@ class cPatientSelector(wx.TextCtrl):
 			return None
 
 		wx.BeginBusyCursor()
-		ident = dlg.get_selected_person()
+		self.person = dlg.get_selected_person()
 		dlg.Destroy()
-		self.SetActivePatient(ident)
 		self._display_name()		# needed when the found patient is the same as the active one
 		wx.EndBusyCursor()
 
 		return None
 #============================================================
+class cActivePatientSelector(cPersonSearchCtrl):
+
+	def __init__ (self, *args, **kwargs):
+
+		cPersonSearchCtrl.__init__(self, *args, **kwargs)
+
+		selector_tooltip = _(
+		'Patient search field.                             \n'
+		'\n'
+		'To search, type any of:\n'
+		' - fragment of last or first name\n'
+		" - date of birth (can start with '$' or '*')\n"
+		" - patient ID (can start with '#')\n"
+		'and hit <ENTER>.\n'
+		'\n'
+		'<CURSOR-UP>\n'
+		' - recall most recently used search term\n'
+		'<CURSOR-DOWN>\n'
+		' - list 10 most recently activated patients\n'
+		'<F2>\n'
+		' - scan external sources for patients to import and activate\n'
+		)
+		self.SetToolTip(wx.ToolTip(selector_tooltip))
+
+		# get configuration
+		cfg = gmCfg.cCfgSQL()
+
+		self.__always_dismiss_after_search = bool ( 
+			cfg.get2 (
+				option = 'patient_search.always_dismiss_previous_patient',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'user',
+				default = 0
+			)
+		)
+
+		self.__always_reload_after_search = bool (
+			cfg.get2 (
+				option = 'patient_search.always_reload_new_patient',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'user',
+				default = 0
+			)
+		)
+
+		self.__register_events()
+	#--------------------------------------------------------
+	# utility methods
+	#--------------------------------------------------------
+	def _display_name(self):
+		name = u''
+
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.is_connected():
+			name = curr_pat['description']
+			if curr_pat.locked:
+				name = _('%(name)s (locked)') % {'name': name}
+			name = '%s%s' % (name, gmTools.coalesce(self._prev_search_term, u'', u' [%s]'))
+
+		self.SetValue(name)
+	#--------------------------------------------------------
+	def _set_person_as_active_patient(self, pat):
+		if not gmPerson.set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
+			_log.error('cannot change active patient')
+			return None
+
+		self._remember_ident(pat)
+
+		dbcfg = gmCfg.cCfgSQL()
+		dob_distance = dbcfg.get2 (
+			option = u'patient_search.dob_warn_interval',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user',
+			default = u'1 week'
+		)
+
+		if pat.dob_in_range(dob_distance, dob_distance):
+			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+			enc = gmI18N.get_encoding()
+			gmDispatcher.send(signal = 'statustext', msg = _(
+				'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
+					'pat': pat.get_description(),
+					'age': pat.get_medical_age().strip('y'),
+					'month': pat['dob'].strftime('%B').decode(enc),
+					'day': pat['dob'].strftime('%d'),
+					'month_now': now.strftime('%B').decode(enc),
+					'day_now': now.strftime('%d')
+				}
+			)
+
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_events(self):
+		# client internal signals
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)
+	#----------------------------------------------
+	def _on_post_patient_selection(self, **kwargs):
+		if gmPerson.gmCurrentPatient().is_connected():
+			self.person = gmPerson.gmCurrentPatient().patient
+		else:
+			self.person = None
+		wx.CallAfter(self._display_name)
+	#----------------------------------------------
+	def _on_enter(self, search_term = None):
+
+		if self.__always_dismiss_after_search:
+			_log.warning("dismissing patient before patient search")
+			self._set_person_as_active_patient(-1)
+
+		super(self.__class__, self)._on_enter(search_term=search_term)
+
+		self._set_person_as_active_patient(self.person)
+		self._display_name()
+
+		gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+	#----------------------------------------------
+	def _on_char(self, evt):
+
+		success = super(self.__class__, self)._on_char(evt)
+		if success:
+			self._set_person_as_active_patient(self.person)
+#============================================================
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
 	app = wx.PyWidgetTester(size = (200, 40))
-	app.SetWidget(cSelectPersonFromListDlg, -1)
+#	app.SetWidget(cSelectPersonFromListDlg, -1)
+#	app.SetWidget(cPersonSearchCtrl, -1)
+	app.SetWidget(cActivePatientSelector, -1)
 	app.MainLoop()
 
 #============================================================
@@ -897,7 +975,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.104  2008-02-25 17:40:18  ncq
+# Revision 1.105  2008-03-09 20:18:22  ncq
+# - cleanup
+# - load_patient_* -> get_person_*
+# - make cPatientSelector() generic -> cPersonSearchCtrl()
+#
+# Revision 1.104  2008/02/25 17:40:18  ncq
 # - new style logging
 #
 # Revision 1.103  2008/01/30 14:09:39  ncq
