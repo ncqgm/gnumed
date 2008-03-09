@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.391 2008-03-06 18:34:08 ncq Exp $
-__version__ = "$Revision: 1.391 $"
+# $Id: gmGuiMain.py,v 1.392 2008-03-09 20:16:14 ncq Exp $
+__version__ = "$Revision: 1.392 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1690,7 +1690,7 @@ Search results:
 			bias = 'user',
 			default = 0
 		))
-		gmPatSearchWidgets.load_patient_from_external_sources(parent=self, search_immediately=search_immediately)
+		gmPatSearchWidgets.get_person_from_external_sources(parent=self, search_immediately=search_immediately, activate_immediately=True)
 	#----------------------------------------------
 	def __on_export_as_gdt(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -2236,7 +2236,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.391  2008-03-06 18:34:08  ncq
+# Revision 1.392  2008-03-09 20:16:14  ncq
+# - load_patient_* -> get_person_*
+#
+# Revision 1.391  2008/03/06 18:34:08  ncq
 # - better error handling around IFAP access
 #
 # Revision 1.390  2008/03/05 22:38:26  ncq
