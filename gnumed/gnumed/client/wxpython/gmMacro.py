@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -214,7 +214,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.39 $" % self.__class__.__name__
+		return "%s $Revision: 1.40 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -380,7 +380,8 @@ class cMacroPrimitives:
 			top_win.Close()
 	#-----------------------------------------------------------------
 	def _load_patient_from_external_source(self):
-		if gmPatSearchWidgets.load_patient_from_external_sources(search_immediately = True):
+		patient = gmPatSearchWidgets.get_person_from_external_sources(search_immediately = True, activate_immediately = True)
+		if patient is not None:
 			self.__user_answer = 1
 		else:
 			self.__user_answer = 0
@@ -456,7 +457,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.39  2008-03-05 22:30:14  ncq
+# Revision 1.40  2008-03-09 20:16:32  ncq
+# *** empty log message ***
+#
+# Revision 1.39  2008/03/05 22:30:14  ncq
 # - new style logging
 #
 # Revision 1.38  2007/12/03 20:45:16  ncq
