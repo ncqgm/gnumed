@@ -8,9 +8,9 @@
 # Copy this file to ~/.gnumed/scripts/hook_script.py and modify as needed.
 #
 #===========================================================================
-# $Id: hook_script_example.py,v 1.3 2007-11-03 17:52:40 ncq Exp $
+# $Id: hook_script_example.py,v 1.4 2008-03-09 20:14:47 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/hook_script_example.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -19,7 +19,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 
 #def on_startup_after_GUI_init():
 	# examine external patient sources
-	#gmPatSearchWidgets.load_patient_from_external_sources(search_immediately=False)
+	#gmPatSearchWidgets.get_person_from_external_sources(search_immediately=False, activate_immediately=True)
 
 #def request_user_attention():
 	# signal user to look at GNUmed
@@ -30,7 +30,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 
 #def on_app_activated():
 	# might want to look at external sources again
-	#gmPatSearchWidgets.load_patient_from_external_sources(search_immediately=False)
+	#gmPatSearchWidgets.get_person_from_external_sources(search_immediately=False, activate_immediately=True)
 
 #def on_post_patient_activation():
 #def on_app_deactivated():
@@ -73,7 +73,10 @@ def run_script(hook=None):
 
 #===========================================================================
 # $Log: hook_script_example.py,v $
-# Revision 1.3  2007-11-03 17:52:40  ncq
+# Revision 1.4  2008-03-09 20:14:47  ncq
+# - load_patient_*_sources() -> get_person_*
+#
+# Revision 1.3  2007/11/03 17:52:40  ncq
 # - much enhanced with examples
 #
 # Revision 1.2  2007/03/26 15:04:24  ncq
