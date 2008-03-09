@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -292,7 +292,8 @@ class gmCfgData(gmBorg.cBorg):
 			except KeyError:
 				_log.error('invalid config source [%s]', source)
 				_log.debug('currently known sources: %s' % self.__cfg_data.keys())
-				raise
+				#raise
+				continue
 
 			try: value = source_data[option_path]
 			except KeyError:
@@ -341,6 +342,10 @@ class gmCfgData(gmBorg.cBorg):
 		self.source_files[source] = file
 	#--------------------------------------------------
 	def set_option(self, option=None, value=None, group=None, source=None):
+		"""Set a particular option to a particular value.
+
+		Note that this does NOT PERSIST the option anywhere !
+		"""
 		if None in [option, value]:
 			raise ValueError('neither <option> nor <value> can be None')
 		if source is None:
@@ -358,6 +363,7 @@ class gmCfgData(gmBorg.cBorg):
 		"""Add command line parameters to config data.
 
 		short:
+			string containing one-letter options such as u'h?' for -h -?
 		long:
 			list of strings
 			'conf-file=' -> --conf-file=<...>
@@ -372,7 +378,7 @@ class gmCfgData(gmBorg.cBorg):
 		if long_options is None:
 			long_options = []
 
-		opts, remainder = getopt.gnu_getopt	(
+		opts, remainder = getopt.gnu_getopt (
 			sys.argv[1:],
 			short_options,
 			long_options
@@ -459,13 +465,18 @@ if __name__ == "__main__":
 		)
 	#-----------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		#test_gmCfgData()
+		test_gmCfgData()
 		#test_set_list_opt()
-		test_set_opt()
+		#test_set_opt()
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.9  2008-01-27 21:09:38  ncq
+# Revision 1.10  2008-03-09 20:15:29  ncq
+# - don't fail on non-existing sources
+# - cleanup
+# - better docs
+#
+# Revision 1.9  2008/01/27 21:09:38  ncq
 # - set_option_in_INI_file() and tests
 #
 # Revision 1.8  2008/01/11 16:10:35  ncq
