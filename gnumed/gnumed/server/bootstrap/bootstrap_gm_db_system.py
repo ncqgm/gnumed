@@ -20,6 +20,10 @@ All definitions are loaded from a config file.
 
 Please consult the User Manual in the GNUmed CVS for
 further details.
+
+--quiet
+--log-file=
+--conf-file=
 """
 #==================================================================
 # TODO
@@ -29,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.76 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1305,7 +1309,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.75  2008-03-06 23:19:38  ncq
+# Revision 1.76  2008-03-11 17:01:14  ncq
+# - mention command line options in doc string
+#
+# Revision 1.75  2008/03/06 23:19:38  ncq
 # - support --quiet
 #
 # Revision 1.74  2008/02/25 19:39:48  ncq
