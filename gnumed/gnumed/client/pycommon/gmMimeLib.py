@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.20 2008-01-14 20:28:21 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmMimeLib.py,v 1.21 2008-03-11 16:58:11 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -150,33 +150,66 @@ def guess_ext_for_file(aFile=None):
 
 	return f_ext
 #-----------------------------------------------------------------------------------
-gnome_open = None
+#gnome_open = None
 
-def __detect_gnome_open():
-	global gnome_open
+#def __detect_gnome_open():
+#	global gnome_open
 
-	if gnome_open is not None:
-		return
+#	if gnome_open is not None:
+#		return
 
-	found, gnome_open = gmShellAPI.detect_external_binary(binary = 'gnome-open')
-	if not found:
-		gnome_open = u''
+#	found, gnome_open = gmShellAPI.detect_external_binary(binary = 'gnome-open')
+#	if not found:
+#		gnome_open = u''
 
-	return
+#	return
 #-----------------------------------------------------------------------------------
-kfmclient = None
+#kfmclient = None
 
-def __detect_kfmclient():
-	global kfmclient
+#def __detect_kfmclient():
+#	global kfmclient
 
-	if kfmclient is not None:
-		return
+#	if kfmclient is not None:
+#		return
 
-	found, kfmclient = gmShellAPI.detect_external_binary(binary = 'kfmclient')
-	if not found:
-		kfmclient = u''
+#	found, kfmclient = gmShellAPI.detect_external_binary(binary = 'kfmclient')
+#	if not found:
+#		kfmclient = u''
 
-	return
+#	return
+#-----------------------------------------------------------------------------------
+_system_startfile_cmd = None
+
+def _get_system_startfile_cmd(filename):
+
+	global _system_startfile_cmd
+
+	if _system_startfile_cmd == u'':
+		return False, None
+
+	if _system_startfile_cmd is not None:
+		return True, _system_startfile_cmd % filename
+
+	open_cmds = {
+		'kfmclient': 'kfmclient exec %s',
+		'gnome-open': 'gnome-open %s',
+		'xdg-open': 'xdg-open %s',
+		'exo-open': 'exo-open %s',
+		'op': 'op %s',
+		'open': 'open %s'
+		#'run-mailcap'
+	}
+
+	for candidate in open_cmds.keys():
+		found, binary = gmShellAPI.detect_external_binary(binary = candidate)
+		if not found:
+			continue
+		_system_startfile_cmd = open_cmds[candidate]
+		_log.info('detected local startfile cmd: [%s]', _system_startfile_cmd)
+		return True, _system_startfile_cmd % filename
+
+	_system_startfile_cmd = u''
+	return False, None
 #-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None, block=None):
 	"""Try to find an appropriate viewer with all tricks and call it.
@@ -189,19 +222,25 @@ def call_viewer_on_file(aFile = None, block=None):
 		_log.error(msg, aFile)
 		raise IOError(msg % aFile)
 
-	# well, maybe we are on KDE, so try to detect kfmclient
-	__detect_kfmclient()
-	if kfmclient != u'':
-		cmd = 'kfmclient exec %s' % aFile
-		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
+	# try to detect any of the UNIX openers
+	found, startfile_cmd = _get_system_startfile_cmd(aFile)
+	if found:
+		if gmShellAPI.run_command_in_shell(command = startfile_cmd, blocking = block):
 			return True, ''
 
-	# or else, are we on GNOME ? try to detect gnome-open
-	__detect_gnome_open()
-	if gnome_open != u'':
-		cmd = 'gnome-open %s' % aFile
-		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
-			return True, ''
+#	# well, maybe we are on KDE, so try to detect kfmclient
+#	__detect_kfmclient()
+#	if kfmclient != u'':
+#		cmd = 'kfmclient exec %s' % aFile
+#		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
+#			return True, ''
+
+#	# or else, are we on GNOME ? try to detect gnome-open
+#	__detect_gnome_open()
+#	if gnome_open != u'':
+#		cmd = 'gnome-open %s' % aFile
+#		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
+#			return True, ''
 
 	mime_type = guess_mimetype(aFile)
 	viewer_cmd = get_viewer_cmd(mime_type, aFile)
@@ -264,7 +303,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.20  2008-01-14 20:28:21  ncq
+# Revision 1.21  2008-03-11 16:58:11  ncq
+# - much improved detection of startfile cmd under UNIX
+#
+# Revision 1.20  2008/01/14 20:28:21  ncq
 # - use detect_external_binary()
 #
 # Revision 1.19  2008/01/11 16:11:40  ncq
