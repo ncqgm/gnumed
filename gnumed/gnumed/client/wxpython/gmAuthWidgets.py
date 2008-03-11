@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.16 2008-03-06 18:29:29 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmAuthWidgets.py,v 1.17 2008-03-11 17:00:49 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -108,7 +108,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			password = login.password
 		)
 		try:
-			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True)
+			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True, readonly = True)
 			connected = True
 		except gmPG2.cAuthenticationError, e:
 			attempt += 1
@@ -636,7 +636,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.16  2008-03-06 18:29:29  ncq
+# Revision 1.17  2008-03-11 17:00:49  ncq
+# - explicitely request readonly raw connection
+#
+# Revision 1.16  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.15  2008/03/05 22:26:52  ncq
