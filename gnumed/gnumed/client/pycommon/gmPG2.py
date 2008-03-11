@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -460,7 +460,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	# reported to be fixed > v7.4.
 	# further tests reveal that at least on PG 8.0 this bug still
 	# manifests itself
-	conn = get_raw_connection()
+	conn = get_raw_connection(readonly=True)
 
 	if data_size is None:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
@@ -525,7 +525,8 @@ def file2bytea(query=None, filename=None, args=None, conn=None):
 
 	The query must:
 	- be in unicode
-	- contain a format spec identifying the row (eg a primary key) matching <args>
+	- contain a format spec identifying the row (eg a primary key)
+	  matching <args> if it is an UPDATE
 	- contain a format spec %(data)s::bytea
 	"""
 	# read data from file
@@ -539,7 +540,7 @@ def file2bytea(query=None, filename=None, args=None, conn=None):
 
 	# insert the data
 	if conn is None:
-		conn = get_raw_connection()
+		conn = get_raw_connection(readonly=False)
 	run_rw_queries(link_obj=conn, queries = [{'cmd': query, 'args': args}], end_tx=True)
 	conn.close()
 
@@ -709,7 +710,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 	for query in queries:
 		if type(query['cmd']) is not types.UnicodeType:
-			print "run_ro_queries(): non-unicode query"
+			print "run_rw_queries(): non-unicode query"
 			print query['cmd']
 		try:
 			args = query['args']
@@ -755,7 +756,7 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 	#--------------------------------------------------
 	def _connect(self, key=None):
 
-		conn = get_raw_connection(dsn = self._kwargs['dsn'], verbose = self._kwargs['verbose'])
+		conn = get_raw_connection(dsn = self._kwargs['dsn'], verbose = self._kwargs['verbose'], readonly=True)
 
 		if key is not None:
 			self._used[key] = conn
@@ -770,10 +771,10 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 			_log.debug('closing database connection [%s]', conn_key)
 			self._used[conn_key].close()
 # -----------------------------------------------------------------------
-def get_raw_connection(dsn=None, verbose=False):
+def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	"""Get a raw, unadorned connection.
 
-	- this will not set any parameters such as encoding, timezone, rw/ro, datestyle
+	- this will not set any parameters such as encoding, timezone, datestyle
 	- the only requirement is a valid DSN
 	- hence it can be used for "service" connections
 	  for verifying encodings etc
@@ -782,36 +783,30 @@ def get_raw_connection(dsn=None, verbose=False):
 	if dsn is None:
 		dsn = get_default_dsn()
 
-#	# temporarily force language to en_EN
-#	try: old_locale_settings = locale.getlocale(locale.LC_MESSAGES)
-#	except locale.Error: _log.warning('cannot temporarily force LC_MESSAGES to C')
 	try:
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 	except dbapi.OperationalError, e:
+
 		t, v, tb = sys.exc_info()
 		try:
 			msg = e.args[0]
 		except (AttributeError, IndexError, TypeError):
-#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
-#			except: pass
 			raise
+
 		msg = unicode(msg, gmI18N.get_encoding(), 'replace')
+
 		if msg.find('fe_sendauth') != -1:
-#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
-#			except: pass
 			raise cAuthenticationError, (dsn, msg), tb
+
 #		if msg.find('authentication failed for user') != -1:
-#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
-#			except: pass
 #			raise cAuthenticationError, (dsn, v), tb
+
 		if regex.search('user ".*" does not exist', msg) is not None:
-#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
-#			except: pass
 			raise cAuthenticationError, (dsn, msg), tb
+
 		if msg.find('uthenti') != -1:
-#			try: locale.setlocale(locale.LC_MESSAGES, old_locale_settings)
-#			except: pass
 			raise cAuthenticationError, (dsn, msg), tb
+
 		raise
 
 	global postgresql_version
@@ -829,7 +824,19 @@ def get_raw_connection(dsn=None, verbose=False):
 			__log_PG_settings(curs=curs)
 		curs.close()
 		conn.commit()
-		
+
+	# set access mode
+	if readonly:
+		access_mode = 'READ ONLY'
+	else:
+		access_mode = 'READ WRITE'
+	_log.debug('access mode [%s]' % access_mode)
+	cmd = 'set session characteristics as transaction %s' % access_mode
+	curs = conn.cursor()
+	curs.execute(cmd)
+	curs.close()
+	conn.commit()
+
 	conn.is_decorated = False
 
 	return conn
@@ -854,7 +861,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		conn = __ro_conn_pool.getconn()
 		conn.close = __noop					# do not close pooled ro connections
 	else:
-		conn = get_raw_connection(dsn=dsn, verbose=verbose)
+		conn = get_raw_connection(dsn=dsn, verbose=verbose, readonly=False)
 
 	if conn.is_decorated:
 		return conn
@@ -900,14 +907,14 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	cmd = "set datestyle to 'ISO'"
 	curs.execute(cmd)
 
-	# 5) access mode
-	if readonly:
-		access_mode = 'READ ONLY'
-	else:
-		access_mode = 'READ WRITE'
-	_log.debug('access mode [%s]' % access_mode)
-	cmd = 'set session characteristics as transaction %s' % access_mode
-	curs.execute(cmd)
+#	# 5) access mode
+#	if readonly:
+#		access_mode = 'READ ONLY'
+#	else:
+#		access_mode = 'READ WRITE'
+#	_log.debug('access mode [%s]' % access_mode)
+#	cmd = 'set session characteristics as transaction %s' % access_mode
+#	curs.execute(cmd)
 
 	# 6) SQL inheritance mode
 	_log.debug('sql_inheritance [on]')
@@ -1077,10 +1084,25 @@ try:
 except ImportError:
 	_log.warning('cannot import mx.DateTime')
 
+#=======================================================================
 if __name__ == "__main__":
 
 	logging.basicConfig(level=logging.DEBUG)
+	#--------------------------------------------------------------------
+	def test_file2bytea():
+		run_rw_queries(queries = [
+			{'cmd': u'create table test_bytea (data bytea)'}
+		])
 
+		cmd = u'insert into test_bytea values (%(data)s::bytea)'
+		try:
+			file2bytea(query = cmd, filename = sys.argv[2])
+		except:
+			_log.exception('error')
+
+		run_rw_queries(queries = [
+			{'cmd': u'drop table test_bytea'}
+		])
 	#--------------------------------------------------------------------
 	def test_get_connection():
 		print "testing get_connection()"
@@ -1318,7 +1340,8 @@ if __name__ == "__main__":
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# run tests
-		test_get_connection()
+		test_file2bytea()
+		#test_get_connection()
 		#test_exceptions()
 		#test_ro_queries()
 		#test_request_dsn()
@@ -1330,7 +1353,13 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.72  2008-03-06 21:24:02  ncq
+# Revision 1.73  2008-03-11 16:59:54  ncq
+# - push readonly setting down into get_raw_connection() so callers
+#   can now decide what to request since default transactions are
+#   readonly now
+# - add file2bytea() test
+#
+# Revision 1.72  2008/03/06 21:24:02  ncq
 # - add shutdown() code
 #
 # Revision 1.71  2008/03/02 11:26:25  ncq
