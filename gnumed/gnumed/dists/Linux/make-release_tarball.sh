@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.46 2008-02-25 17:45:50 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.47 2008-03-17 14:56:33 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -22,6 +22,17 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/pycommon/gmdbf.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmCLI.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmPG.py "\
+"./GNUmed-$CLIENTREV/server/business/README "\
+"./GNUmed-$CLIENTREV/server/business/gmOrganization.py "\
+"./GNUmed-$CLIENTREV/server/business/gmXmlDocDesc.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmDrugObject.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmDrugView.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmSchemaRevisionCheck.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmSerialTools.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmTrace.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmdbf.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmCLI.py "\
+"./GNUmed-$CLIENTREV/server/pycommon/gmPG.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/README "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_AdminLoginV01.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_DBUserSetupV01.py "\
@@ -322,7 +333,7 @@ cp -R ../../server/sql/v8-v9/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/s
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
-	rm -vf $fname
+	rm -f $fname
 done ;
 
 
@@ -334,18 +345,18 @@ find ./GNUmed-$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
 
 # now make tarballs
+# - client
 cd GNUmed-$CLIENTREV
 ln -s client Gnumed
 cd ..
-tar -cvzf $CLIENTARCH ./GNUmed-$CLIENTREV/client/ ./GNUmed-$CLIENTREV/Gnumed
-
+tar -czf $CLIENTARCH ./GNUmed-$CLIENTREV/client/ ./GNUmed-$CLIENTREV/Gnumed
+# - server
 mv GNUmed-$CLIENTREV GNUmed-v$SRVREV
 cd GNUmed-v$SRVREV
 rm Gnumed
 ln -s server Gnumed
 cd ..
-
-tar -cvzf $SRVARCH ./GNUmed-v$SRVREV/server/ ./GNUmed-v$SRVREV/Gnumed
+tar -czf $SRVARCH ./GNUmed-v$SRVREV/server/ ./GNUmed-v$SRVREV/Gnumed
 
 
 # cleanup
@@ -355,7 +366,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.46  2008-02-25 17:45:50  ncq
+# Revision 1.47  2008-03-17 14:56:33  ncq
+# - properly cleanup pycommon/ in server/, too
+#
+# Revision 1.46  2008/02/25 17:45:50  ncq
 # - include Italian
 #
 # Revision 1.45  2008/01/16 19:40:55  ncq
