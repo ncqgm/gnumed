@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.258 2008-03-05 22:24:31 ncq Exp $
-__version__ = "$Revision: 1.258 $"
+# $Id: gmClinicalRecord.py,v 1.259 2008-03-17 14:53:57 ncq Exp $
+__version__ = "$Revision: 1.259 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1398,12 +1398,14 @@ where
 
 		# FIXME: this should be done async
 		cmd = u"""
-delete from clin.encounter where
-	fk_patient = %(pat)s and
-	age(last_affirmed) > %(ttl)s::interval and
-	pk not in (select fk_encounter from clin.clin_root_item) and
-	pk not in (select fk_encounter from blobs.doc_med) and
-	pk not in (select fk_encounter from clin.operation)
+delete from clin.encounter cle where
+	cle.fk_patient = %(pat)s and
+	age(cle.last_affirmed) > %(ttl)s::interval and
+	not exists (select 1 from clin.clin_root_item where fk_encounter = cle.pk) and
+	not exists (select 1 from blobs.doc_med where fk_encounter = cle.pk) and
+	not exists (select 1 from clin.episode where fk_encounter = cle.pk) and
+	not exists (select 1 from clin.health_issue where fk_encounter = cle.pk) and
+	not exists (select 1 from clin.operation where fk_encounter = cle.pk)
 """
 		try:
 			rows, idx = gmPG2.run_rw_queries(queries = [{
@@ -1415,7 +1417,45 @@ delete from clin.encounter where
 
 		return True
 	#------------------------------------------------------------------
-	# lab data API
+	# measurements API
+	#------------------------------------------------------------------
+	def get_test_types_for_results(self):
+		"""Retrieve data about test types for which this patient has results."""
+		cmd = u"""
+select foo.unified_name, foo.unified_code from (
+	select distinct on (unified_name, unified_code)
+		unified_name,
+		unified_code,
+		clin_when,
+		pk_episode
+	from clin.v_test_results
+	where pk_patient = %(pat)s
+) as foo
+order by foo.clin_when desc, foo.pk_episode, foo.unified_name"""
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+	#------------------------------------------------------------------
+	def get_dates_for_results(self):
+		"""Get the dates for which we have results."""
+		cmd = u"""
+select distinct clin_when
+from clin.v_test_results
+where pk_patient = %(pat)s
+order by clin_when desc"""
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+	#------------------------------------------------------------------
+	def get_measurements_by_date(self):
+		"""Get the results ordered by date."""
+		cmd = u"""
+select * from clin.v_test_results
+where pk_patient = %(pat)s
+order by clin_when desc, pk_episode, unified_name"""
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return rows, idx
 	#------------------------------------------------------------------
 	def get_lab_results(self, limit=None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves lab result clinical items.
@@ -1500,17 +1540,46 @@ def set_func_ask_user(a_func = None):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
+	from Gnumed.pycommon import gmLog2, gmDateTime
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+	gmDateTime.init()
 
+	#-----------------------------------------
 	def test_allergic_state():
 		emr = cClinicalRecord(aPKey=1)
 		state = emr.allergic_state
 		print "allergic state is:", state
 		print "setting state to -1"
 		emr.allergic_state = 'abc'
+	#-----------------------------------------
+	def test_get_test_names():
+		emr = cClinicalRecord(aPKey=12)
+		rows = emr.get_test_types_for_results()
+		print "test result names:"
+		for row in rows:
+			print row
+	#-----------------------------------------
+	def test_get_dates_for_results():
+		emr = cClinicalRecord(aPKey=12)
+		rows = emr.get_dates_for_results()
+		print "test result dates:"
+		for row in rows:
+			print row
+	#-----------------------------------------
+	def test_get_measurements():
+		emr = cClinicalRecord(aPKey=12)
+		rows, idx = emr.get_measurements_by_date()
+		print "test results:"
+		for row in rows:
+			print row
+	#-----------------------------------------
+	#test_allergic_state()
+	test_get_test_names()
+	test_get_dates_for_results()
+	test_get_measurements()
 
-	test_allergic_state()
 	sys.exit(1)
 
 	import traceback
@@ -1602,7 +1671,14 @@ if __name__ == "__main__":
 		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.258  2008-03-05 22:24:31  ncq
+# Revision 1.259  2008-03-17 14:53:57  ncq
+# - improve deletion of empty encounters
+# - get_test_types_for_results()
+# - get_dates_for_results()
+# - get_measurements_by_date()
+# - improve tests
+#
+# Revision 1.258  2008/03/05 22:24:31  ncq
 # - support fk_encounter in issue and episode creation
 #
 # Revision 1.257  2008/02/25 16:58:03  ncq
