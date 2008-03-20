@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.105 2008-03-09 20:18:22 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmPatSearchWidgets.py,v 1.106 2008-03-20 15:31:59 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -471,7 +471,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			'\n'
 			'and hit <ENTER>.\n'
 			'\n'
-			'Shortcuts:'
+			'Shortcuts:\n'
 			' <F2>\n'
 			'  - scan external sources for persons\n'
 			' <CURSOR-UP>\n'
@@ -975,7 +975,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.105  2008-03-09 20:18:22  ncq
+# Revision 1.106  2008-03-20 15:31:59  ncq
+# - missing \n added
+#
+# Revision 1.105  2008/03/09 20:18:22  ncq
 # - cleanup
 # - load_patient_* -> get_person_*
 # - make cPatientSelector() generic -> cPersonSearchCtrl()
