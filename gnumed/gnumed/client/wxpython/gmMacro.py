@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -82,7 +82,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return handler(data = data)
 
 		if self.debug:
-			return _('unknown placeholder: <%s>' % placeholder)
+			return _('unknown placeholder: <%s>') % placeholder
 
 		return None
 	#--------------------------------------------------------
@@ -214,7 +214,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.40 $" % self.__class__.__name__
+		return "%s $Revision: 1.41 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -457,7 +457,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.40  2008-03-09 20:16:32  ncq
+# Revision 1.41  2008-03-20 15:30:37  ncq
+# - fix misplaced %
+#
+# Revision 1.40  2008/03/09 20:16:32  ncq
 # *** empty log message ***
 #
 # Revision 1.39  2008/03/05 22:30:14  ncq
