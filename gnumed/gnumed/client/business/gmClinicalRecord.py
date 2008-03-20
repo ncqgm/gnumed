@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.259 2008-03-17 14:53:57 ncq Exp $
-__version__ = "$Revision: 1.259 $"
+# $Id: gmClinicalRecord.py,v 1.260 2008-03-20 15:28:17 ncq Exp $
+__version__ = "$Revision: 1.260 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1436,6 +1436,19 @@ order by foo.clin_when desc, foo.pk_episode, foo.unified_name"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 	#------------------------------------------------------------------
+	def get_test_types_details(self):
+		"""Retrieve details on tests grouped under unified names for this patient's results."""
+		cmd = u"""
+select * from clin.v_unified_test_types where pk_test_type in (
+	select distinct on (unified_name, unified_code) pk_test_type
+	from clin.v_test_results
+	where pk_patient = %(pat)s
+)
+order by unified_name"""
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return rows, idx
+	#------------------------------------------------------------------
 	def get_dates_for_results(self):
 		"""Get the dates for which we have results."""
 		cmd = u"""
@@ -1575,10 +1588,18 @@ if __name__ == "__main__":
 		for row in rows:
 			print row
 	#-----------------------------------------
+	def test_get_test_types_details():
+		emr = cClinicalRecord(aPKey=12)
+		rows, idx = emr.get_test_types_details()
+		print "test type details:"
+		for row in rows:
+			print row
+	#-----------------------------------------
 	#test_allergic_state()
-	test_get_test_names()
-	test_get_dates_for_results()
-	test_get_measurements()
+	#test_get_test_names()
+	#test_get_dates_for_results()
+	#test_get_measurements()
+	test_get_test_types_details()
 
 	sys.exit(1)
 
@@ -1671,7 +1692,10 @@ if __name__ == "__main__":
 		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.259  2008-03-17 14:53:57  ncq
+# Revision 1.260  2008-03-20 15:28:17  ncq
+# - get_test_types_details() w/ test
+#
+# Revision 1.259  2008/03/17 14:53:57  ncq
 # - improve deletion of empty encounters
 # - get_test_types_for_results()
 # - get_dates_for_results()
