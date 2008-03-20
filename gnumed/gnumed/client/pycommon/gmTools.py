@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.48 2008-03-02 15:10:32 ncq Exp $
+# $Id: gmTools.py,v 1.49 2008-03-20 15:29:51 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -375,10 +375,21 @@ def size2str(size=0, template='%s'):
 		return template % u'%.1f TB' % (float(size) / _TB)
 	return template % u'%.1f PB' % (float(size) / _PB)
 #---------------------------------------------------------------------------
-def bool2str(bool=None, true_str='True', false_str='False'):
-	if bool is True:
-		return true_str
-	return false_str
+def bool2subst(boolean=None, true_return=True, false_return=False, none_return=None):
+	if boolean is None:
+		return none_return
+	if boolean is True:
+		return true_return
+	if boolean is False:
+		return false_return
+	raise ValueError('bool2subst(): <boolean> arg must be either of True, False, None')
+#---------------------------------------------------------------------------
+def bool2str(boolean=None, true_str='True', false_str='False'):
+	return bool2subst (
+		boolean = bool(boolean),
+		true_return = true_str,
+		false_return = false_str
+	)
 #---------------------------------------------------------------------------
 def none_if(value=None, none_equivalent=None):
 	"""Modelled after the SQL NULLIF function."""
@@ -673,7 +684,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.48  2008-03-02 15:10:32  ncq
+# Revision 1.49  2008-03-20 15:29:51  ncq
+# - bool2subst() supporting None, make bool2str() use it
+#
+# Revision 1.48  2008/03/02 15:10:32  ncq
 # - truncate exception comment to 50 chars when used as subject
 #
 # Revision 1.47  2008/01/16 19:42:24  ncq
