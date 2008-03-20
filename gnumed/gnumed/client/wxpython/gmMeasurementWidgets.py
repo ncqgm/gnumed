@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.2 2008-03-17 14:55:41 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMeasurementWidgets.py,v 1.3 2008-03-20 15:31:40 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -43,9 +43,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 		wx.grid.Grid.__init__(self, *args, **kwargs)
 
 		self.__patient = None
-		self.__tooltips = {}
+		self.__cell_tooltips = {}
+		self.__row_tooltips = {}
 		self.__prev_row = None
 		self.__prev_col = None
+		self.__prev_label_row = None
 		self.__date_format = (_('lab_grid_date_format::%Y\n%b %d')).lstrip('lab_grid_date_format::')
 
 		self.__init_ui()
@@ -63,6 +65,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		tests = [ u'%s (%s)' % (test[1], test[0]) for test in emr.get_test_types_for_results() ]
 		if len(tests) == 0:
 			return
+		test_details, td_idx = emr.get_test_types_details()
 		dates = [ date[0].strftime(self.__date_format) for date in emr.get_dates_for_results() ]
 		results, idx = emr.get_measurements_by_date()
 
@@ -70,7 +73,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.AppendRows(numRows = len(tests))
 		for row_idx in range(len(tests)):
-			#self.SetCellValue(row_idx, 0, u'%s (%s)' % (tests[row_idx][0], tests[row_idx][1]))
 			self.SetCellValue(row_idx, 0, tests[row_idx])
 			#self.SetRowLabelValue(row_idx, tests[row_idx])
 
@@ -86,28 +88,34 @@ class cMeasurementsGrid(wx.grid.Grid):
 			self.SetCellValue(row, col, result[idx['unified_val']])
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 			try:
-				self.__tooltips[col]
+				self.__cell_tooltips[col]
 			except KeyError:
-				self.__tooltips[col] = {}
-			self.__tooltips[col][row] = _(
-				'Measurement details from %(clin_when)s:                \n'
+				self.__cell_tooltips[col] = {}
+			self.__cell_tooltips[col][row] = _(
+				'Measurement details:                                     \n'
+				' Date: %(clin_when)s\n'
 				' Type: "%(name)s" (%(code)s)\n'
 				' Result: %(val)s%(unit)s%(ind)s\n'
-				' Material: %(material)s\n'
-				' Details: %(mat_detail)s\n'
-				' Doc: %(comment_doc)s\n'
-				' Lab: %(comment_lab)s\n'	# note provider
-				'\n'
 				' Standard normal range: %(norm_min)s - %(norm_max)s%(norm_range)s  \n'
 				' Reference group: %(ref_group)s\n'
 				' Clinical target range: %(clin_min)s - %(clin_max)s%(clin_range)s  \n'
+				' Doc: %(comment_doc)s\n'
+				' Lab: %(comment_lab)s\n'	# note_test_org
+				' Episode: %(epi)s\n'
+				' Issue: %(issue)s\n'
+				' Material: %(material)s\n'
+				' Details: %(mat_detail)s\n'
 				'\n'
-				'Last modified %(mod_when)s by %(mod_by)s  \n'
+				'Reviewed at all: %(reviewed)s\n'
+				' Yourself: %(abn_you)s, %(rel_you)s\n'
+				' Guarantor: %(abn_rev)s, %(rel_rev)s\n'
 				'\n'
 				'Test type details:\n'
 				' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
 				' Type comment: %(comment_type)s\n'
 				' Group comment: %(comment_type_unified)s\n'
+				'\n'
+				'Last modified %(mod_when)s by %(mod_by)s.'
 			) % ({
 				'clin_when': result[idx['clin_when']].strftime('%c'),
 				'code': result[idx['code_tt']],
@@ -115,10 +123,17 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'val': result[idx['unified_val']],
 				'unit': gmTools.coalesce(result[idx['val_unit']], u'', u' %s'),
 				'ind': gmTools.coalesce(result[idx['abnormality_indicator']], u'', u' (%s)'),
+				'epi': result[idx['episode']],
+				'issue': gmTools.coalesce(result[idx['health_issue']], u''),
 				'material': gmTools.coalesce(result[idx['material']], u''),
 				'mat_detail': gmTools.coalesce(result[idx['material_detail']], u''),
 				'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result[idx['comment']], u'').split('\n')),
 				'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result[idx['comment']], u'').split('\n')),
+				'reviewed': gmTools.bool2str(result[idx['reviewed']], _('yes'), _('no')),
+				'abn_you': gmTools.bool2subst(result[idx['is_technically_abnormal_by_you']], _('abnormal'), u'', u''),
+				'rel_you': gmTools.bool2subst(result[idx['clinically_relevant_by_you']], _('relevant'), u'', u''),
+				'abn_rev': gmTools.bool2subst(result[idx['is_technically_abnormal_by_reviewer']], _('abnormal'), u'', u''),
+				'rel_rev': gmTools.bool2subst(result[idx['clinically_relevant_by_reviewer']], _('relevant'), u'', u''),
 				'norm_min': gmTools.coalesce(result[idx['val_normal_min']], u'?'),
 				'norm_max': gmTools.coalesce(result[idx['val_normal_max']], u'?'),
 				'norm_range': gmTools.coalesce(result[idx['val_normal_range']], u'', u' / %s'),
@@ -152,11 +167,25 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.SetColLabelValue(0, _("Test"))
 		self.SetRowLabelSize(20)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
+		# set background/font/... an test type pseudo-column
 	#------------------------------------------------------------
 	def __register_events(self):
-		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over)
+		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
+		self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
 	#------------------------------------------------------------
-	def __on_mouse_over(self, evt):
+	def __on_mouse_over_row_labels(self, evt):
+		x, y = self.CalcUnscrolledPosition(evt.GetX(), evt.GetY())
+		label_row = self.YToRow(y)
+		if self.__prev_label_row == label_row:
+			return
+		self.__prev_label_row == label_row
+		try:
+			tt = self.__row_tooltips[col][row]
+		except KeyError:
+			tt = u''
+		evt.GetEventObject().SetToolTipString(tt)
+	#------------------------------------------------------------
+	def __on_mouse_over_cells(self, evt):
 		"""Calculate where the mouse is and set the tooltip dynamically."""
 		# Use CalcUnscrolledPosition() to get the mouse position within the
 		# entire grid including what's offscreen
@@ -167,7 +196,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__prev_row = row
 		self.__prev_col = col
 		try:
-			tt = self.__tooltips[col][row]
+			tt = self.__cell_tooltips[col][row]
 		except KeyError:
 			tt = u''
 		evt.GetEventObject().SetToolTipString(tt)
@@ -221,7 +250,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.2  2008-03-17 14:55:41  ncq
+# Revision 1.3  2008-03-20 15:31:40  ncq
+# - improve cell tooltips with review status and issue/episode information
+# - start row labels tooltips
+#
+# Revision 1.2  2008/03/17 14:55:41  ncq
 # - add lots of TODOs
 # - better layout
 # - set grid cell tooltips
