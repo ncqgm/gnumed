@@ -12,12 +12,12 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import time, locale, sys, re as regex, os, codecs, types, datetime, logging, locale
+import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging, locale
 
 
 # GNUmed
@@ -945,6 +945,49 @@ def shutdown():
 def __noop():
 	pass
 #-----------------------------------------------------------------------
+def sanity_check_time_skew(tolerance=60):
+	"""Check server time and local time to be within
+	the given tolerance of each other.
+
+	tolerance: seconds
+	"""
+	_log.debug('maximum skew tolerance (seconds): %s', tolerance)
+
+	cmd = u"select now() at time zone 'UTC'"
+	conn = get_raw_connection(readonly=True)
+	curs = conn.cursor()
+
+	start = time.time()
+	rows, idx = run_ro_queries(link_obj = curs, queries = [{'cmd': cmd}])
+	end = time.time()
+	client_now_as_utc = pydt.datetime.utcnow()
+
+	curs.close()
+	conn.commit()
+
+	server_now_as_utc = rows[0][0]
+	query_duration = end - start
+	_log.info('server "now" (UTC): %s', server_now_as_utc)
+	_log.info('client "now" (UTC): %s', client_now_as_utc)
+	_log.debug('wire roundtrip (seconds): %s', query_duration)
+
+	if query_duration > tolerance:
+		_log.error('useless to check client/server time skew, wire roundtrip > tolerance')
+		return False
+
+	if server_now_as_utc > client_now_as_utc:
+		real_skew = server_now_as_utc - client_now_as_utc
+	else:
+		real_skew = client_now_as_utc - server_now_as_utc
+
+	_log.debug('client/server time skew: %s', real_skew)
+
+	if real_skew > pydt.timedelta(seconds = tolerance):
+		_log.error('client/server time skew > tolerance')
+		return False
+
+	return True
+#-----------------------------------------------------------------------
 def sanity_check_database_settings():
 	"""Checks database settings.
 
@@ -954,7 +997,7 @@ def sanity_check_database_settings():
 		1: non-fatal problem
 		2: fatal problem
 	"""
-	_log.info('checking database settings')
+	_log.debug('checking database settings')
 	settings = {
 		# setting: [expected value, risk, fatal?]
 		u'allow_system_table_mods': [u'off', u'system breakage', False],
@@ -1077,7 +1120,7 @@ except AttributeError:
 #psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
 
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
-psycopg2.extensions.register_adapter(datetime.datetime, cAdapterPyDateTime)
+psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 try:
 	import mx.DateTime as mxDT
 	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
@@ -1337,10 +1380,13 @@ if __name__ == "__main__":
 
 		return status
 	#--------------------------------------------------------------------
+	def test_sanity_check_time_skew():
+		sanity_check_time_skew()
+	#--------------------------------------------------------------------
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# run tests
-		test_file2bytea()
+		#test_file2bytea()
 		#test_get_connection()
 		#test_exceptions()
 		#test_ro_queries()
@@ -1350,10 +1396,14 @@ if __name__ == "__main__":
 		#test_list_args()
 		#test_sanitize_pg_regex()
 		#test_is_pg_interval()
+		test_sanity_check_time_skew()
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.73  2008-03-11 16:59:54  ncq
+# Revision 1.74  2008-03-20 15:29:13  ncq
+# - sanity_check_time_skew() and test
+#
+# Revision 1.73  2008/03/11 16:59:54  ncq
 # - push readonly setting down into get_raw_connection() so callers
 #   can now decide what to request since default transactions are
 #   readonly now
