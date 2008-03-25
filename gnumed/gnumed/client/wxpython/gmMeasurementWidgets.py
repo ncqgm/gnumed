@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.3 2008-03-20 15:31:40 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMeasurementWidgets.py,v 1.4 2008-03-25 19:36:30 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,9 +16,10 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmTools
-#from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgMeasurementsGridPnl
+from Gnumed.business import gmPerson
+from Gnumed.pycommon import gmTools, gmDispatcher
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxGladeWidgets import wxgMeasurementsPnl
 
 
 _log = logging.getLogger('gm.ui')
@@ -48,7 +49,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__prev_row = None
 		self.__prev_col = None
 		self.__prev_label_row = None
-		self.__date_format = (_('lab_grid_date_format::%Y\n%b %d')).lstrip('lab_grid_date_format::')
+		self.__date_format = str((_('lab_grid_date_format::%Y\n%b %d')).lstrip('lab_grid_date_format::'))
 
 		self.__init_ui()
 		self.__register_events()
@@ -170,6 +171,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		# set background/font/... an test type pseudo-column
 	#------------------------------------------------------------
 	def __register_events(self):
+		# GridWindow, GridRowLabelWindow, GridColLabelWindow, GridCornerLabelWindow
 		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
 		self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
 	#------------------------------------------------------------
@@ -209,28 +211,42 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 	patient = property(lambda x:x, _set_patient)
 #================================================================
-class cMeasurementsGridPnl(wxgMeasurementsGridPnl.wxgMeasurementsGridPnl):
+class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, *args, **kwargs):
 
-		wxgMeasurementsGridPnl.wxgMeasurementsGridPnl.__init__(self, *args, **kwargs)
-
-		self.patient = None
-
-		# hide line numbers
-		self.grid_data.SetColSize(0, 0)
-	#------------------------------------------
-	def populate_grid(self, patient=None):
-		pass
-	#------------------------------------------
-
+		wxgMeasurementsPnl.wxgMeasurementsPnl.__init__(self, *args, **kwargs)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__register_interests()
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+	#--------------------------------------------------------
+	def _on_pre_patient_selection(self):
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		"""Populate fields in pages with data from model."""
+		pat = gmPerson.gmCurrentPatient()
+		if pat.is_connected():
+			self.data_grid.patient = pat
+		else:
+			self.data_grid.patient = None
+		return True
 #================================================================
 # main
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
 	from Gnumed.pycommon import gmLog2, gmI18N, gmDateTime
-	from Gnumed.business import gmPerson
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -250,7 +266,13 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.3  2008-03-20 15:31:40  ncq
+# Revision 1.4  2008-03-25 19:36:30  ncq
+# - fix imports
+# - better docs
+# - str() wants non-u''
+# - cMeasurementsPnl()
+#
+# Revision 1.3  2008/03/20 15:31:40  ncq
 # - improve cell tooltips with review status and issue/episode information
 # - start row labels tooltips
 #
