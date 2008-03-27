@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.8 2008-02-25 15:20:15 ncq Exp $
-__version__ = "$Revision: 1.375.2.8 $"
+# $Id: gmGuiMain.py,v 1.375.2.9 2008-03-27 12:12:01 ncq Exp $
+__version__ = "$Revision: 1.375.2.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,7 +75,7 @@ if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
-current_client_ver = u'v0.2.8.4'
+current_client_ver = u'v0.2.8.5'
 
 _log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
 _log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
@@ -1746,11 +1746,8 @@ class gmApp(wx.App):
 
 		if gmCLI.has_arg('--conf-file'):
 			candidates = [gmCLI.arg['--conf-file']]
-		else:
-			candidates = [
-				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.local_base_dir, 'gnumed.conf')
-			]
+		candidates.append(os.path.join(paths.user_config_dir, 'gnumed.conf'))
+		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
 		for candidate in candidates:
 			try:
 				open(candidate).close()
@@ -2057,7 +2054,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.8  2008-02-25 15:20:15  ncq
+# Revision 1.375.2.9  2008-03-27 12:12:01  ncq
+# - bump version to 0.2.8.5
+# - do not crash on --conf-file not writable
+#
+# Revision 1.375.2.8  2008/02/25 15:20:15  ncq
 # - bump client version
 #
 # Revision 1.375.2.7  2008/01/30 11:24:55  ncq
