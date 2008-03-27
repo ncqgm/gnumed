@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.9 2008-03-27 12:12:01 ncq Exp $
-__version__ = "$Revision: 1.375.2.9 $"
+# $Id: gmGuiMain.py,v 1.375.2.10 2008-03-27 12:31:18 ncq Exp $
+__version__ = "$Revision: 1.375.2.10 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1750,7 +1750,7 @@ class gmApp(wx.App):
 		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
 		for candidate in candidates:
 			try:
-				open(candidate).close()
+				open(candidate, 'a+').close()
 				self.user_prefs_cfg_file = gmCfg.cCfgFile(aFile = candidate, flags = gmCfg.cfg_IGNORE_CMD_LINE)
 				break
 			except IOError:
@@ -2054,7 +2054,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.9  2008-03-27 12:12:01  ncq
+# Revision 1.375.2.10  2008-03-27 12:31:18  ncq
+# - really check for user prefs file writability
+#
+# Revision 1.375.2.9  2008/03/27 12:12:01  ncq
 # - bump version to 0.2.8.5
 # - do not crash on --conf-file not writable
 #
