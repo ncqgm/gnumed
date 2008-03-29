@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.392 2008-03-09 20:16:14 ncq Exp $
-__version__ = "$Revision: 1.392 $"
+# $Id: gmGuiMain.py,v 1.393 2008-03-29 16:09:53 ncq Exp $
+__version__ = "$Revision: 1.393 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -27,7 +27,8 @@ import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrows
 
 
 # 3rd party libs
-if not hasattr(sys, 'frozen'):		# do not check inside py2exe and friends
+# wxpython version cannot be enforced inside py2exe and friends
+if not hasattr(sys, 'frozen'):
 	import wxversion
 	wxversion.ensureMinimal('2.6-unicode', optionsRequired=True)
 
@@ -41,9 +42,8 @@ except ImportError:
 
 # do this check just in case, so we can make sure
 # py2exe and friends include the proper version, too
-#version = '%s.%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION)
-#if (version =< '2.6') or ('unicode' not in wx.PlatformInfo):
-if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.PlatformInfo):
+version = int(u'%s%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION))
+if (version < 26) or ('unicode' not in wx.PlatformInfo):
 	print "GNUmed startup: Unsupported wxPython version (%s: %s)." % (wx.VERSION_STRING, wx.PlatformInfo)
 	print "GNUmed startup: wxPython 2.6+ with unicode support is required."
 	print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
@@ -1883,24 +1883,26 @@ class gmApp(wx.App):
 
 		gmGuiHelpers.install_wx_exception_handler()
 
+		import wx.lib.colourdb
+		wx.lib.colourdb.updateColourDB()
+
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
 		#self.SetVendor(u'The GNUmed Development Community.')
 		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = 'gnumed')
 
+		candidates = []
 		explicit_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
-		if explicit_file is None:
-			candidates = [
-				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.local_base_dir, 'gnumed.conf'),
-				os.path.join(paths.working_dir, 'gnumed.conf')
-			]
-		else:
-			candidates = [explicit_file]
+		if explicit_file is not None:
+			candidates.append(explicit_file)
+		# provide a few fallbacks in the event the --conf-file isn't writable
+		candidates.append(os.path.join(paths.user_config_dir, 'gnumed.conf'))
+		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
+		candidates.append(os.path.join(paths.working_dir, 'gnumed.conf'))
 		for candidate in candidates:
 			try:
-				open(candidate).close()
+				open(candidate, 'a+').close()
 				_cfg.set_option(option = u'user_preferences_file', value = candidate)
 				break
 			except IOError:
@@ -2213,13 +2215,14 @@ class gmApp(wx.App):
 		return False
 #==============================================================================
 def main():
+
 	wx.InitAllImageHandlers()
+
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered
 	app = gmApp(redirect = False, clearSigInt = False)
 	_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
-	# and enter the main event loop
 	app.MainLoop()
 #==============================================================================
 # Main
@@ -2236,7 +2239,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.392  2008-03-09 20:16:14  ncq
+# Revision 1.393  2008-03-29 16:09:53  ncq
+# - improved comments
+# - wx version checking for faulty
+# - enhance color db
+# - make sure at least one user preferences file candidate is writable
+#
+# Revision 1.392  2008/03/09 20:16:14  ncq
 # - load_patient_* -> get_person_*
 #
 # Revision 1.391  2008/03/06 18:34:08  ncq
