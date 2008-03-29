@@ -5,24 +5,21 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.1 2008-03-20 15:27:28 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-clin-v_test_results.sql,v 1.2 2008-03-29 16:25:49 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-begin;
-set transaction_read_only to 'off';
+select gm.add_table_for_notifies('clin', 'test_result');
+select gm.add_table_for_notifies('clin', 'reviewed_test_results');
+
 
 \unset ON_ERROR_STOP
 drop view clin.v_test_results cascade;
 \set ON_ERROR_STOP 1
 
-commit;
-
-begin;
-set transaction_read_only to 'off';
 
 create view clin.v_test_results as
 select
@@ -112,7 +109,7 @@ select
 	 where
 		fk_reviewed_row = tr.pk
 		and fk_reviewer = (select pk from dem.staff where db_user=current_user)
-	) as clinically_relevant_by_you,
+	) as is_clinically_relevant_by_you,
 
 	(select comment
 	 from clin.reviewed_test_results
@@ -133,7 +130,7 @@ select
 	 where
 		fk_reviewed_row = tr.pk
 		and fk_reviewer = tr.fk_intended_reviewer
-	) as clinically_relevant_by_reviewer,
+	) as is_clinically_relevant_by_reviewer,
 
 	(select comment
 	 from clin.reviewed_test_results
@@ -156,7 +153,7 @@ select
 	tr.fk_episode as pk_episode,
 	-- test_result
 	tr.fk_type as pk_test_type,
-	tr.fk_intended_reviewer as pk_reviewer,
+	tr.fk_intended_reviewer as pk_intended_reviewer,
 	tr.xmin as xmin_test_result,
 	-- v_unified_test_types
 	vttu.pk_test_org,
@@ -181,13 +178,15 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.1 $');
-
-commit;
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.1  2008-03-20 15:27:28  ncq
+-- Revision 1.2  2008-03-29 16:25:49  ncq
+-- - align column names
+-- - cleanup
+--
+-- Revision 1.1  2008/03/20 15:27:28  ncq
 -- - add episode/issue/review status
 --
 -- Revision 1.1  2008/01/27 21:06:00  ncq
