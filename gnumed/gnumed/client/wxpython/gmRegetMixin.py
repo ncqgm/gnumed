@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.27 2007-10-29 13:19:07 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmRegetMixin.py,v 1.28 2008-03-29 16:22:47 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -43,62 +43,57 @@ class cRegetOnPaintMixin:
 	def __init__(self):
 		self._data_stale = True
 		try:
-			wx.EVT_PAINT(self, self._on_paint_event)
+			wx.EVT_PAINT(self, self.__on_paint_event)
 		except:
 			print 'you likely need to call "cRegetOnPaintMixin.__init__(self)" later in %s__init__()' % self.__class__.__name__
 			raise
-#		wx.EVT_SET_FOCUS(self, self._on_focus_event)
 	#-----------------------------------------------------
-	def _on_paint_event(self, event):
+	def __on_paint_event(self, event):
 		"""Called just before the widget is repainted.
 
 		Checks whether data needs to be refetched.
 		"""
-		self.repopulate_ui()
+		self.__repopulate_ui()
 		event.Skip()
 	#-----------------------------------------------------
-#	def _on_focus_event(self, event):
-#		"""Doubtful whether that's the proper way to do it but seems OK."""
-#		print "cRegetOnPaintMixin._on_focus_event() for", self.__class__.__name__
-#		self.Refresh()
-#		event.Skip()
-	#-----------------------------------------------------
-	def repopulate_ui(self):
-		"""Checks whether data must be refetched and 
+	def __repopulate_ui(self):
+		"""Checks whether data must be refetched and does so 
 
 		Called on different occasions such as "notebook page
 		raised" or "paint event received".
 		"""
 		if self._data_stale:
-			if self._populate_with_data():
-				self._data_stale = False
-				return True
-			self._data_stale = True
-			return False
-		return True
+			self._data_stale = not self._populate_with_data()
+
+		return not self._data_stale
+	#-----------------------------------------------------
+	# API for child classes
 	#-----------------------------------------------------
 	def _populate_with_data(self):
 		"""Actually fills the UI with data.
 
 		This must be overridden in child classes !
+
+		Must return True/False.
 		"""
 		raise NotImplementedError, "[%s] _populate_with_data() not implemented" % self.__class__.__name__
-		return False
 	#-----------------------------------------------------
 	def _schedule_data_reget(self):
 		"""Flag data as stale and schedule refetch/redisplay.
 
-		- if not visible schedules reget only
-		- if visible redisplays immediately (virtue of Refresh() calling _on_paint_event() if visible)
+		- if not visible schedules refetch only
+		- if visible redisplays immediately (virtue of Refresh()
+		  calling __on_paint_event() if visible) thereby invoking
+		  the actual data refetch
 
-		Called whenever data changes become known such as from
-		database listener threads, dispatcher signals etc.
+		Called by the child class whenever it learns of data changes
+		such as from database listener threads, dispatcher signals etc.
 		"""
 		self._data_stale = True
 
-		# Master Robin Dunn says this is The Way(tm) but
+		# Master Robin Dunn sayeth this is The Way(tm) but
 		# neither this:
-#		wx.GetApp().GetTopWindow().Refresh()
+		#wx.GetApp().GetTopWindow().Refresh()
 		# nor this:
 		#top_parent = wx.GetTopLevelParent(self)
 		#top_parent.Refresh()
@@ -112,19 +107,23 @@ class cRegetOnPaintMixin:
 		#    of the visible widgets - likely because nothing has
 		#    really changed in them, visually.
 
-		# further testing by Hilmar revealed, that the
+		# further testing by Hilmar revealed that the
 		# following appears to work:
 		self.Refresh()
 		# the logic should go like this:
 		# database insert -> after-insert trigger
 		# -> notify
 		# -> middleware listener
-		# -> flush middleware cache
+		# -> flush optional middleware cache
 		# -> dispatcher signal to frontend listener*s*
 		# -> frontend listeners schedule a data reget and a Refresh()
 		# problem: those that are not visible are refreshed, too
 		# FIXME: is this last assumption true ?
 		return True
+	#-----------------------------------------------------
+	def repopulate_ui(self):
+		"""Just a glue method."""
+		self.__repopulate_ui()
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -133,7 +132,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.27  2007-10-29 13:19:07  ncq
+# Revision 1.28  2008-03-29 16:22:47  ncq
+# - significant clarification
+#
+# Revision 1.27  2007/10/29 13:19:07  ncq
 # - cleanup
 #
 # Revision 1.26  2006/05/31 09:48:14  ncq
