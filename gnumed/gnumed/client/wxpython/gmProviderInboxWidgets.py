@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.24 2008-03-05 22:30:14 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmProviderInboxWidgets.py,v 1.25 2008-03-29 16:21:16 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -138,7 +138,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		self.provider = gmPerson.gmCurrentProvider()
 		self.__init_ui()
+
 		cProviderInboxPnl._item_handlers['clinical.review docs'] = self._goto_doc_review
+		cProviderInboxPnl._item_handlers['clinical.review results'] = self._goto_measurements_review
 	#--------------------------------------------------------
 	# reget-on-paint API
 	#--------------------------------------------------------
@@ -149,6 +151,10 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal = u'provider_inbox_mod_db', receiver = self._on_provider_inbox_mod_db)
+		# FIXME: listen for results insertion/deletion
+		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_provider_inbox_mod_db)
+		# FIXME: listen for doc insertion/deletion
+		# FIXME: listen for doc reviews
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.set_columns([u'', _('category'), _('type'), _('message')])
@@ -254,6 +260,19 @@ Leaving message in inbox.""") % handler_key,
 			return False
 		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
+	#--------------------------------------------------------
+	def _goto_measurements_review(self, pk_context=None):
+		if not gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context)):
+			gmGuiHelpers.gm_show_error (
+				_('Supposedly there are unreviewed results'
+				  'for patient [%s]. However, I cannot find'
+				  'that patient in the GNUmed database.'
+				) % pk_context,
+				_('handling provider inbox item')
+			)
+			return False
+		gmDispatcher.send(signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
+		return True	
 #============================================================
 if __name__ == '__main__':
 
@@ -269,7 +288,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.24  2008-03-05 22:30:14  ncq
+# Revision 1.25  2008-03-29 16:21:16  ncq
+# - handle unreviewed tests messages
+# - listen to review changes
+#
+# Revision 1.24  2008/03/05 22:30:14  ncq
 # - new style logging
 #
 # Revision 1.23  2008/02/25 17:40:45  ncq
