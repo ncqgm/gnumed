@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.42 2008-03-06 18:29:29 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmHorstSpace.py,v 1.43 2008-03-29 16:11:10 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -165,7 +165,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		self.__id_evt_page_before_switch = event.GetOldSelection()
 		__id_evt_page_after_switch = event.GetSelection()
 
-		_log.debug('event.GetOldSelection()=%s (current) -> event.GetSelection()=%s', self.__id_evt_page_before_switch, __id_evt_page_after_switch)
+		_log.debug('event.GetOldSelection()=%s* -> event.GetSelection()=%s', self.__id_evt_page_before_switch, __id_evt_page_after_switch)
 
 		if self.__id_evt_page_before_switch != self.__id_nb_page_before_switch:
 			_log.debug('the following two should match but do not:')
@@ -217,12 +217,12 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		id_evt_page_after_switch = event.GetSelection()
 		id_nb_page_after_switch = self.nb.GetSelection()
 
-		_log.debug('event: [%s] -> [%s]*' % (id_evt_page_before_switch, id_evt_page_after_switch))
+		_log.debug('event.GetOldSelection()=%s -> event.GetSelection()=%s*', id_evt_page_before_switch, id_evt_page_after_switch)
 
 		if self.__id_nb_page_before_switch != id_evt_page_before_switch:
 			_log.debug('those two really *should* match:')
-			_log.debug('notebook page before switch          : %s' % self.__id_nb_page_before_switch)
-			_log.debug('previous page from PAGE_CHANGED event: %s' % id_evt_page_before_switch)
+			_log.debug('wx.Notebook.GetSelection() (before switch) : %s' % self.__id_nb_page_before_switch)
+			_log.debug('EVT_NOTEBOOK_PAGE_CHANGED.GetOldSelection(): %s' % id_evt_page_before_switch)
 
 		new_page = self.__gb['horstspace.notebook.pages'][id_evt_page_after_switch]
 
@@ -237,9 +237,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 		# no, complain
 		_log.debug('target page not checked for focussability yet')
-		_log.debug('old page from event  : %s' % id_evt_page_before_switch)
-		_log.debug('new page from event  : %s' % id_evt_page_after_switch)
-		_log.debug('current notebook page: %s' % id_nb_page_after_switch)
+		_log.debug('EVT_NOTEBOOK_PAGE_CHANGED.GetOldSelection(): %s' % id_evt_page_before_switch)
+		_log.debug('EVT_NOTEBOOK_PAGE_CHANGED.GetSelection()   : %s' % id_evt_page_after_switch)
+		_log.debug('wx.Notebook.GetSelection() (after switch)  : %s' % id_nb_page_after_switch)
 
 		# check the new page just for good measure
 		if new_page.can_receive_focus():
@@ -315,7 +315,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.42  2008-03-06 18:29:29  ncq
+# Revision 1.43  2008-03-29 16:11:10  ncq
+# - improve logging of notebook page change events yet again
+#
+# Revision 1.42  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.41  2008/01/30 14:03:42  ncq
