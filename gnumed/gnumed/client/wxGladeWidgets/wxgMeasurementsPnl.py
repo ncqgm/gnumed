@@ -19,28 +19,52 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self.data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, -1, size=(1, 1))
+        self._BTN_review = wx.Button(self, -1, _("&Review"))
+        self._BTN_cut = wx.Button(self, wx.ID_COPY, "")
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_BUTTON, self._on_review_button_pressed, self._BTN_review)
+        self.Bind(wx.EVT_BUTTON, self._on_copy_button_pressed, self._BTN_cut)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementsPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._BTN_review.SetToolTipString(_("Press this to batch-review the selected measurements."))
+        self._BTN_cut.SetToolTipString(_("Copy the selected measurements to the clipboard."))
+        self._BTN_cut.Enable(False)
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgMeasurementsPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __gszr_selectors = wx.FlexGridSizer(2, 2, 3, 5)
-        __gszr_selectors.AddGrowableCol(1)
-        __szr_main.Add(__gszr_selectors, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 3)
-        __szr_main.Add(self.data_grid, 1, wx.ALL|wx.EXPAND, 3)
-        __szr_main.Add(__szr_buttons, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
+        __szr_main.Add(self.data_grid, 1, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
+        __hline_buttons = wx.StaticLine(self, -1)
+        __szr_main.Add(__hline_buttons, 0, wx.ALL|wx.EXPAND, 5)
+        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_review, 0, wx.EXPAND, 0)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_cut, 0, wx.EXPAND, 0)
+        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+        __szr_main.Add(__szr_buttons, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
+
+    def _on_save_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_save_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_copy_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_copy_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_review_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_review_button_pressed' not implemented"
+        event.Skip()
 
 # end of class wxgMeasurementsPnl
 
