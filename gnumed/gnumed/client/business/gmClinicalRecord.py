@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.260 2008-03-20 15:28:17 ncq Exp $
-__version__ = "$Revision: 1.260 $"
+# $Id: gmClinicalRecord.py,v 1.261 2008-03-29 16:04:31 ncq Exp $
+__version__ = "$Revision: 1.261 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1452,10 +1452,10 @@ order by unified_name"""
 	def get_dates_for_results(self):
 		"""Get the dates for which we have results."""
 		cmd = u"""
-select distinct clin_when
+select distinct on (cwhen) date_trunc('day', clin_when) as cwhen
 from clin.v_test_results
 where pk_patient = %(pat)s
-order by clin_when desc"""
+order by cwhen desc"""
 		args = {'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
@@ -1597,9 +1597,9 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	#test_allergic_state()
 	#test_get_test_names()
-	#test_get_dates_for_results()
-	#test_get_measurements()
-	test_get_test_types_details()
+	test_get_dates_for_results()
+	test_get_measurements()
+	#test_get_test_types_details()
 
 	sys.exit(1)
 
@@ -1692,7 +1692,10 @@ if __name__ == "__main__":
 		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.260  2008-03-20 15:28:17  ncq
+# Revision 1.261  2008-03-29 16:04:31  ncq
+# - retrieve test results ordered by day-truncated date
+#
+# Revision 1.260  2008/03/20 15:28:17  ncq
 # - get_test_types_details() w/ test
 #
 # Revision 1.259  2008/03/17 14:53:57  ncq
