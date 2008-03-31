@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.146.2.3 2008-01-08 22:37:37 ncq Exp $
-__version__ = "$Revision: 1.146.2.3 $"
+# $Id: gmPerson.py,v 1.146.2.4 2008-03-31 09:58:40 ncq Exp $
+__version__ = "$Revision: 1.146.2.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -619,7 +619,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			if id_type is not None:
 				r = rows[0]
 				if r['id_type'] != id_type:
-					cmd = "update dem.lnk_person_org_address set id_type = %(type) where id = %(id)s"
+					cmd = "update dem.lnk_person_org_address set id_type = %(type)s where id = %(id)s"
 					gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'type': id_type, 'id': r['id']}}])
 
 		return adr
@@ -2159,7 +2159,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.146.2.3  2008-01-08 22:37:37  ncq
+# Revision 1.146.2.4  2008-03-31 09:58:40  ncq
+# - add missing s in %(type) in link_address
+#
+# Revision 1.146.2.3  2008/01/08 22:37:37  ncq
 # - 'first' / 'last' -> 'firstnames' / 'lastnames'
 #
 # Revision 1.146.2.2  2007/12/26 10:39:49  ncq
