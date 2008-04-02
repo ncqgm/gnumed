@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.5 2008-03-29 16:19:57 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMeasurementWidgets.py,v 1.6 2008-04-02 10:48:33 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -55,17 +55,25 @@ class cMeasurementsGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
-	def review_current_selection(self):
+	def sign_current_selection(self):
 		if not self.IsSelection():
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot review. No results selected.'))
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot sign results. No results selected.'))
 			return True
 
 		selected_cells = self.get_selected_cells()
+		if len(selected_cells) > 10:
+			tests = None
+			test_count = len(selected_cells)
+		else:
+			tests = [ self.__cell_data[c[1]][c[0]] for c in selected_cells if c[1] != 0 ]
+			test_count = None
 
 		dlg = cMeasurementsReviewDlg (
-			None,
+			self,
+#			wx.GetTopLevelParent(self),
 			-1,
-			tests = [ self.__cell_data[c[1]][c[0]] for c in selected_cells if c[1] != 0 ]
+			tests = tests,
+			test_count = test_count
 		)
 		dlg.ShowModal()
 		dlg.Destroy()
@@ -85,9 +93,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 			rr = sel_block_bottom_right[0]
 			ct = sel_block_bottom_right[1] - sel_block_top_left[1]
 			cb = sel_block_bottom_right[1]
-			print "rect range"
-			print "rows:", rl, rr
-			print "cols:", ct, cb
 			selected_cells.extend([ (r, c) for r in range(rl, rr+1) for c in range(ct, cb+1) ])
 
 		if len(sel_rows) > 0:
@@ -121,19 +126,23 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.BeginBatch()
 
+		# row labels in column 0 (test names)
 		self.AppendRows(numRows = len(tests))
 		for row_idx in range(len(tests)):
 			self.SetCellValue(row_idx, 0, tests[row_idx])
-			font = self.GetCellFont(row_idx, 0)
-			font.SetWeight(wx.FONTWEIGHT_BOLD)
-			self.SetCellFont(row_idx, 0, font)
+			self.SetCellBackgroundColour(row_idx, 0, self.GetLabelBackgroundColour())
+#			font = self.GetCellFont(row_idx, 0)
+#			font.SetWeight(wx.FONTWEIGHT_BOLD)
+#			self.SetCellFont(row_idx, 0, font)
 #			self.__cell_tooltips[0] = {}
 #			self.__cell_tooltips[0][row_idx] = _('test type tooltip row %s') % row_idx
 
+		# column labels (test dates)
 		self.AppendCols(numCols = len(dates))
 		for date_idx in range(len(dates)):
 			self.SetColLabelValue(date_idx + 1, dates[date_idx])
 
+		# cell values (test results)
 		for result in results:
 			row = tests.index(u'%s (%s)' % (result[idx['unified_code']], result[idx['unified_name']]))
 			col = dates.index(result[idx['clin_when']].strftime(self.__date_format)) + 1
@@ -144,19 +153,20 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.__cell_data[col] = {}
 			self.__cell_data[col][row] = result
 
+			# is result technically abnormal ?
 			ind = result['abnormality_indicator']
 			if (ind is not None) and (ind.strip() != u''):
-				lab_abnormality_indicator = u' (%s)' % ind
+				lab_abnormality_indicator = u' (%s)' % ind[:3]
 			else:
 				lab_abnormality_indicator = u''
 			review_abnormal = gmTools.coalesce(result['is_technically_abnormal_by_you'], result['is_technically_abnormal_by_reviewer'])
-			# if noone reviewed - use what the lab thinks
+			# - if noone reviewed - use what the lab thinks
 			if review_abnormal is None:
 				abnormality_indicator = lab_abnormality_indicator
-			# if someone reviewed and decreed normality - use that
+			# - if someone reviewed and decreed normality - use that
 			elif review_abnormal is False:
 				abnormality_indicator = u''
-			# if someone reviewed and decreed abnormality ...
+			# - if someone reviewed and decreed abnormality ...
 			else:
 				# ... invent indicator if the lab did't use one
 				if lab_abnormality_indicator == u'':
@@ -166,19 +176,46 @@ class cMeasurementsGrid(wx.grid.Grid):
 				else:
 					abnormality_indicator = lab_abnormality_indicator
 
+			# warn on missing review if
+			#  a) no review at all exists
+			#  b) current user is reviewer but hasn't reviewed
+			if not result['reviewed']:
+				missing_review = True
+			else:
+				missing_review = False
+				if result['you_are_reviewer']:
+					if result['is_clinically_relevant_by_you'] is None:
+						missing_review = True
+
+			# is the result relevant clinically ?
 			review_relevant = gmTools.coalesce(result['is_clinically_relevant_by_you'], result['is_clinically_relevant_by_reviewer'])
 			if review_relevant is None:
 				# FIXME: calculate from clinical range
 				review_relevant = False
 
-			val = u'%s%s' % (result[idx['unified_val']], abnormality_indicator)
+			if len(result[idx['unified_val']]) > 8:
+				val = u'%5.5s\u2026%6.6s%1.1s' % (
+					result['unified_val'][:5],
+					abnormality_indicator,
+					gmTools.bool2subst(missing_review, u'\u237B', u'')
+				)
+			else:
+				val = u'%8.8s%6.6s%1.1s' % (
+					result[idx['unified_val']][:8],
+					abnormality_indicator,
+					gmTools.bool2subst(missing_review, u'\u237B', u'')
+				)
 			self.SetCellValue(row, col, val)
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
+#			font = self.GetCellFont(row, col)
+#			if not font.IsFixedWidth():
+#			font.SetFamily(family = wx.FONTFAMILY_MODERN)
 			if review_relevant:
-				self.SetCellTextColour(row, col, 'firebrick')
 				font = self.GetCellFont(row, col)
+				self.SetCellTextColour(row, col, 'firebrick')
 				font.SetWeight(wx.FONTWEIGHT_BOLD)
 				self.SetCellFont(row, col, font)
+#			self.SetCellFont(row, col, font)
 
 			try:
 				self.__cell_tooltips[col]
@@ -199,9 +236,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 				' Material: %(material)s\n'
 				' Details: %(mat_detail)s\n'
 				'\n'
-				'Reviewed at all: %(reviewed)s\n'
+				'Signed (%(sig_hand)s) at all: %(reviewed)s\n'
 				' Yourself: %(abn_you)s%(rel_you)s%(rev_comment_you)s\n'
-				' Guarantor: %(abn_rev)s%(rel_rev)s%(rev_comment_reviewer)s\n'
+				' Guarantor%(you_are_rev)s: %(abn_rev)s%(rel_rev)s%(rev_comment_reviewer)s\n'
 				'\n'
 				'Test type details:\n'
 				' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
@@ -226,6 +263,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'abn_you': gmTools.bool2subst(result[idx['is_technically_abnormal_by_you']], _('abnormal'), u'', u''),
 				'rel_you': gmTools.bool2subst(result[idx['is_clinically_relevant_by_you']], ', %s' % _('relevant'), u'', u''),
 				'rev_comment_you': gmTools.coalesce(result[idx['your_review_comment']], u'', u', %s'),
+				'you_are_rev': gmTools.bool2subst(result['you_are_reviewer'], u' (%s)' % _('you'), u''),
 				'abn_rev': gmTools.bool2subst(result[idx['is_technically_abnormal_by_reviewer']], _('abnormal'), u'', u''),
 				'rel_rev': gmTools.bool2subst(result[idx['is_clinically_relevant_by_reviewer']], ', %s' % _('relevant'), u'', u''),
 				'rev_comment_reviewer': gmTools.coalesce(result[idx['reviewers_review_comment']], u'', u', %s'),
@@ -241,7 +279,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result[idx['comment_tt']], u'').split('\n')),
 				'name_unified': result[idx['name_unified']],
 				'code_unified': result[idx['code_unified']],
-				'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result[idx['comment_unified']], u'').split('\n'))
+				'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result[idx['comment_unified']], u'').split('\n')),
+				'sig_hand': u'\u270D'
 			})
 
 		self.AutoSize()
@@ -313,18 +352,24 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 
 		tests = kwargs['tests']
 		del kwargs['tests']
+		test_count = kwargs['test_count']
+		del kwargs['test_count']
 
 		wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg.__init__(self, *args, **kwargs)
 
-		msg = ' // '.join(
-			[	u'%s: %s %s (%s)' % (
-					t['unified_code'],
-					t['unified_val'],
-					t['val_unit'],
-					t['clin_when'].strftime('%Y-%m-%d')
-				) for t in tests
-			]
-		)
+		if test_count is not None:
+			msg = _('%s results selected. Too many to list individually.')
+		else:
+			msg = ' // '.join (
+				[	u'%s: %s %s (%s)' % (
+						t['unified_code'],
+						t['unified_val'],
+						t['val_unit'],
+						t['clin_when'].strftime('%Y-%m-%d')
+					) for t in tests
+				]
+			)
+
 		self._LBL_tests.SetLabel(msg)
 		self.Fit()
 	#--------------------------------------------------------
@@ -350,7 +395,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		# FIXME: listen for review changes, too
 	#--------------------------------------------------------
 	def _on_review_button_pressed(self, evt):
-		self.data_grid.review_current_selection()
+		self.data_grid.sign_current_selection()
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -387,7 +432,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.5  2008-03-29 16:19:57  ncq
+# Revision 1.6  2008-04-02 10:48:33  ncq
+# - cleanup, review -> sign
+# - support test_count in review widget
+# - better results formatting as per list discussion
+#
+# Revision 1.5  2008/03/29 16:19:57  ncq
 # - review_current_selection()
 # - get_selected_cells()
 # - bold test names
