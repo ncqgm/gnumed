@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.156 2008-03-06 18:29:29 ncq Exp $
-__version__ = "$Revision: 1.156 $"
+# $Id: gmMedDocWidgets.py,v 1.157 2008-04-02 10:21:25 ncq Exp $
+__version__ = "$Revision: 1.157 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -280,6 +280,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# associated episode (add " " to avoid popping up pick list)
 		self._PhWheel_episode.SetText('%s ' % self.__part['episode'], self.__part['pk_episode'])
 		self._PhWheel_doc_type.SetText(value = self.__part['l10n_type'], data = self.__part['pk_type'])
+		self._PhWheel_doc_type.add_callback_on_set_focus(self._on_doc_type_gets_focus)
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
 		self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
@@ -445,6 +446,12 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._ChBOX_relevant.Enable(enable = state)
 		self._ChBOX_responsible.Enable(enable = state)
 	#--------------------------------------------------------
+	def _on_doc_type_gets_focus(self):
+		"""Per Jim: Changing the doc type happens a lot more often
+		   then correcting spelling, hence select-all on getting focus.
+		"""
+		self._PhWheel_doc_type.SetSelection(-1, -1)
+	#--------------------------------------------------------
 	def _on_doc_type_loses_focus(self):
 		pk_doc_type = self._PhWheel_doc_type.GetData()
 		if pk_doc_type is None:
@@ -603,7 +610,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		if self._PhWheel_reviewer.GetData() is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('You need to select the doctor who must review the document from the list of staff members.'),
+				aMessage = _('You need to select from the list of staff members the doctor who is intended to sign the document.'),
 				aTitle = title
 			)
 			return False
@@ -961,7 +968,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		tmp = _('available documents (%s)')
 		cDocTree._root_node_labels = {
 			'age': tmp % _('most recent on top'),
-			'review': tmp % _('unreviewed on top'),
+			'review': tmp % _('unsigned (%s) on top') % u'\u270D',
 			'episode': tmp % _('sorted by episode'),
 			'type': tmp % _('sorted by type')
 		}
@@ -1078,12 +1085,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			cmt = gmTools.coalesce(doc['comment'], _('no comment available'))
 			page_num = len(parts)
-			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = _('no reference ID found'), template_initial = u'>%s<')
+			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = _('no reference ID found'), template_initial = u'\u00BB%s\u00AB')
 
 			if doc.has_unreviewed_parts():
-				review = '!'
+				review = u'\u270D'
 			else:
-				review = ''
+				review = u''
 
 			label = _('%s%7s %s: %s (%s part(s), %s)') % (
 				review,
@@ -1121,9 +1128,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				cmt = gmTools.coalesce(part['obj_comment'], _("no comment available"))
 				sz = gmTools.size2str(part['size'])
 				rev = gmTools.bool2str (
-					bool = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
+					boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
 					true_str = u'',
-					false_str = ' [%s]' % _('unreviewed')
+					false_str = u' \u237B'
 				)
 
 #				if part['clinically_relevant']:
@@ -1318,7 +1325,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# edit metadata
 		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Review/Edit properties')))
+		menu.AppendItem(wx.MenuItem(menu, ID, _('%s Sign/Edit properties') % u'\u270D'))
 		wx.EVT_MENU(menu, ID, self.__review_curr_part)
 
 		# export pages
@@ -1365,7 +1372,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_MENU(menu, ID, self.__display_curr_part)
 		# edit metadata
 		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Review/Edit properties')))
+		menu.AppendItem(wx.MenuItem(menu, ID, _('%s Sign/Edit properties') % u'\u270D'))
 		wx.EVT_MENU(menu, ID, self.__review_curr_part)
 		# make active patient photograph
 		if self.__curr_node_data['type'] == 'patient photograph':
@@ -1521,7 +1528,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.156  2008-03-06 18:29:29  ncq
+# Revision 1.157  2008-04-02 10:21:25  ncq
+# - select-all on tabbing into doc type phrasewheel
+# - review -> sign
+# - use signing hand/not-checkmark unicode in some places
+#
+# Revision 1.156  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.155  2008/02/25 17:38:05  ncq
