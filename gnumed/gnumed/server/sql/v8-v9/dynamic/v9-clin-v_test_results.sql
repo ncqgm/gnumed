@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.2 2008-03-29 16:25:49 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v9-clin-v_test_results.sql,v 1.3 2008-04-02 10:17:54 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -84,19 +84,11 @@ select
 	-- review status
 	exists(select 1 from clin.reviewed_test_results where fk_reviewed_row = tr.pk)
 		as reviewed,
---	exists (
---		select 1 from clin.reviewed_test_results
---		where
---			fk_reviewed_row = tr.pk and
---			fk_reviewer = (select pk from dem.staff where db_user=current_user)
---		) as reviewed_by_you,
---	exists (
---		select 1 from blobs.reviewed_test_results
---		where
---			fk_reviewed_row = tr.pk and
---			fk_reviewer = tr.fk_intended_reviewer
---		) as reviewed_by_intended_reviewer,
-
+	(
+	 (select pk from dem.staff where db_user=current_user)
+		=
+	 (select tr.fk_intended_reviewer)
+	) as you_are_reviewer,
 	(select is_technically_abnormal
 	 from clin.reviewed_test_results
 	 where
@@ -178,11 +170,15 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.2  2008-03-29 16:25:49  ncq
+-- Revision 1.3  2008-04-02 10:17:54  ncq
+-- - cleanup
+-- - add you_are_reviewer
+--
+-- Revision 1.2  2008/03/29 16:25:49  ncq
 -- - align column names
 -- - cleanup
 --
