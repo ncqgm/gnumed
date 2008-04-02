@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.117 2008-03-06 18:24:45 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmPatientExporter.py,v 1.118 2008-04-02 10:15:54 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -705,12 +705,12 @@ class cEmrExport:
         # general
         txt = (' ' * left_margin) + '#%s: %s - %s   %s' % (
             encounter['pk_encounter'],
-            encounter['started'].strftime('%Y-%m-%d  %H:%M'),
-            encounter['last_affirmed'].strftime('%H:%M'),
+            encounter['started'].strftime('%Y-%m-%d %H:%M'),
+            encounter['last_affirmed'].strftime('%H:%M (%Z)'),
             encounter['l10n_type']
         )
         if (encounter['assessment_of_encounter'] is not None) and (len(encounter['assessment_of_encounter']) > 0):
-            txt += ' (%s)' % encounter['assessment_of_encounter']
+            txt += ' "%s"' % encounter['assessment_of_encounter']
         txt += '\n\n'
 
         # rfe/aoe
@@ -1202,7 +1202,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.117  2008-03-06 18:24:45  ncq
+# Revision 1.118  2008-04-02 10:15:54  ncq
+# - show local time zone in encounter summary
+#
+# Revision 1.117  2008/03/06 18:24:45  ncq
 # - indentation fix
 #
 # Revision 1.116  2008/03/05 22:25:09  ncq
