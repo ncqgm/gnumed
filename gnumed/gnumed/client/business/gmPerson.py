@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.159 2008-03-09 20:13:47 ncq Exp $
-__version__ = "$Revision: 1.159 $"
+# $Id: gmPerson.py,v 1.160 2008-04-02 10:15:17 ncq Exp $
+__version__ = "$Revision: 1.160 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -608,7 +608,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			if id_type is not None:
 				r = rows[0]
 				if r['id_type'] != id_type:
-					cmd = "update dem.lnk_person_org_address set id_type = %(type) where id = %(id)s"
+					cmd = "update dem.lnk_person_org_address set id_type = %(type)s where id = %(id)s"
 					gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'type': id_type, 'id': r['id']}}])
 
 		return adr
@@ -2170,7 +2170,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.159  2008-03-09 20:13:47  ncq
+# Revision 1.160  2008-04-02 10:15:17  ncq
+# - add missing s
+#
+# Revision 1.159  2008/03/09 20:13:47  ncq
 # - cleanup
 #
 # Revision 1.158  2008/02/25 17:31:41  ncq
