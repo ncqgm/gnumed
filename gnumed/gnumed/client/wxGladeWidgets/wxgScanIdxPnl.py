@@ -23,7 +23,7 @@ class wxgScanIdxPnl(wx.Panel):
         self._PhWheel_doc_date = gmDateTimeInput.cFuzzyTimestampInput(self, -1)
         self.__lbl_reviewer = wx.StaticText(self, -1, _("Intended reviewer:"))
         self._PhWheel_reviewer = gmPhraseWheel.cPhraseWheel(self, -1)
-        self._ChBOX_reviewed = wx.CheckBox(self, -1, _("mark as &reviewed"))
+        self._ChBOX_reviewed = wx.CheckBox(self, -1, _("&review and sign"))
         self._ChBOX_abnormal = wx.CheckBox(self, -1, _("&technically abnormal"))
         self._ChBOX_relevant = wx.CheckBox(self, -1, _("&clinically relevant"))
         self._LBOX_doc_pages = wx.ListBox(self, -1, choices=[], style=wx.LB_SINGLE|wx.LB_HSCROLL|wx.LB_NEEDED_SB)

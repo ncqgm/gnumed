@@ -19,7 +19,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self.data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, -1, size=(1, 1))
-        self._BTN_review = wx.Button(self, -1, _("&Review"))
+        self._BTN_review = wx.Button(self, -1, _("&Sign ..."))
         self._BTN_cut = wx.Button(self, wx.ID_COPY, "")
 
         self.__set_properties()
@@ -32,7 +32,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementsPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._BTN_review.SetToolTipString(_("Press this to batch-review the selected measurements."))
+        self._BTN_review.SetToolTipString(_("Press this to batch-sign the selected measurements."))
         self._BTN_cut.SetToolTipString(_("Copy the selected measurements to the clipboard."))
         self._BTN_cut.Enable(False)
         # end wxGlade
@@ -54,16 +54,12 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         __szr_main.Fit(self)
         # end wxGlade
 
-    def _on_save_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
-        print "Event handler `_on_save_button_pressed' not implemented"
+    def _on_review_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_review_button_pressed' not implemented!"
         event.Skip()
 
     def _on_copy_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
-        print "Event handler `_on_copy_button_pressed' not implemented"
-        event.Skip()
-
-    def _on_review_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
-        print "Event handler `_on_review_button_pressed' not implemented"
+        print "Event handler `_on_copy_button_pressed' not implemented!"
         event.Skip()
 
 # end of class wxgMeasurementsPnl

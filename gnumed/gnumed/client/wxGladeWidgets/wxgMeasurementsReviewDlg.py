@@ -14,7 +14,7 @@ class wxgMeasurementsReviewDlg(wx.Dialog):
         # begin wxGlade: wxgMeasurementsReviewDlg.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME|wx.STAY_ON_TOP
         wx.Dialog.__init__(self, *args, **kwds)
-        self._LBL_tests = wx.StaticText(self, -1, _("... test listing goes here ..."))
+        self._LBL_tests = wx.StaticText(self, -1, _("... test results listing goes here ..."))
         self._CHBOX_abnormal = wx.CheckBox(self, -1, _("Technically &abnormal"))
         self._CHBOX_significant = wx.CheckBox(self, -1, _("Clinically &significant"))
         self._CHBOX_responsible = wx.CheckBox(self, -1, _("Take &responsibility"))
@@ -29,12 +29,12 @@ class wxgMeasurementsReviewDlg(wx.Dialog):
 
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementsReviewDlg.__set_properties
-        self.SetTitle(_("Reviewing test results"))
+        self.SetTitle(_("Signing off test results"))
         self._CHBOX_abnormal.SetToolTipString(_("Check this if you consider the test result(s) to be technically abnormal."))
         self._CHBOX_abnormal.SetFocus()
         self._CHBOX_significant.SetToolTipString(_("Check this if you consider the test result(s) to be clinically significant."))
         self._CHBOX_responsible.SetToolTipString(_("Check this to take over responsibility for initiating action on these results."))
-        self._BTN_sign_off.SetToolTipString(_("Sign-off test results and save review for all listed results."))
+        self._BTN_sign_off.SetToolTipString(_("Sign off test results and save review status for all selected results."))
         self._BTN_cancel.SetToolTipString(_("Cancel and discard review, that is, do NOT sign off results."))
         self._BTN_cancel.SetDefault()
         # end wxGlade
@@ -44,7 +44,7 @@ class wxgMeasurementsReviewDlg(wx.Dialog):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_review = wx.BoxSizer(wx.HORIZONTAL)
-        __msg_top = wx.StaticText(self, -1, _("This review applies to ALL test results listed  below!\n\nIf you want to change the scope of the review\nyou need to narrow or widen the selection of tests."), style=wx.ALIGN_CENTRE)
+        __msg_top = wx.StaticText(self, -1, _("This signing applies to ALL results currently selected in the viewer.\n\nIf you want to change the scope of the sign-off\nyou need to narrow or widen the selection of results."), style=wx.ALIGN_CENTRE)
         __szr_main.Add(__msg_top, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
         __hline_atop_tests = wx.StaticLine(self, -1)
         __szr_main.Add(__hline_atop_tests, 0, wx.ALL|wx.EXPAND, 5)
