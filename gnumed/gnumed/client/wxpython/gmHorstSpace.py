@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.43 2008-03-29 16:11:10 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmHorstSpace.py,v 1.44 2008-04-02 10:46:14 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -169,8 +169,8 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 		if self.__id_evt_page_before_switch != self.__id_nb_page_before_switch:
 			_log.debug('the following two should match but do not:')
-			_log.debug('event.GetOldSelection(): %s', self.__id_evt_page_before_switch)
-			_log.debug('notebook.GetSelection(): %s', self.__id_nb_page_before_switch)
+			_log.debug(' event.GetOldSelection(): %s', self.__id_evt_page_before_switch)
+			_log.debug(' notebook.GetSelection(): %s', self.__id_nb_page_before_switch)
 
 		# can we check the target page ?
 		if __id_evt_page_after_switch == self.__id_evt_page_before_switch:
@@ -221,8 +221,8 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 		if self.__id_nb_page_before_switch != id_evt_page_before_switch:
 			_log.debug('those two really *should* match:')
-			_log.debug('wx.Notebook.GetSelection() (before switch) : %s' % self.__id_nb_page_before_switch)
-			_log.debug('EVT_NOTEBOOK_PAGE_CHANGED.GetOldSelection(): %s' % id_evt_page_before_switch)
+			_log.debug(' wx.Notebook.GetSelection() (before switch) : %s' % self.__id_nb_page_before_switch)
+			_log.debug(' EVT_NOTEBOOK_PAGE_CHANGED.GetOldSelection(): %s' % id_evt_page_before_switch)
 
 		new_page = self.__gb['horstspace.notebook.pages'][id_evt_page_after_switch]
 
@@ -315,7 +315,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.43  2008-03-29 16:11:10  ncq
+# Revision 1.44  2008-04-02 10:46:14  ncq
+# - better logging
+#
+# Revision 1.43  2008/03/29 16:11:10  ncq
 # - improve logging of notebook page change events yet again
 #
 # Revision 1.42  2008/03/06 18:29:29  ncq
