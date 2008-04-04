@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.6 2008-04-02 10:48:33 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMeasurementWidgets.py,v 1.7 2008-04-04 13:09:45 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -171,7 +171,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				# ... invent indicator if the lab did't use one
 				if lab_abnormality_indicator == u'':
 					# FIXME: calculate from min/max/range
-					abnormality_indicator = u' (!)'
+					abnormality_indicator = u' (\u00B1)'
 				# ... else use indicator the lab used
 				else:
 					abnormality_indicator = lab_abnormality_indicator
@@ -193,19 +193,27 @@ class cMeasurementsGrid(wx.grid.Grid):
 				# FIXME: calculate from clinical range
 				review_relevant = False
 
-			if len(result[idx['unified_val']]) > 8:
-				val = u'%5.5s\u2026%6.6s%1.1s' % (
-					result['unified_val'][:5],
+			# can we display the full result information ?
+			has_result_comment = gmTools.coalesce (
+				gmTools.coalesce(result['note_test_org'], result['comment']),
+				u''
+			).strip() != u''
+			# no - display ... and truncate to 7 chars
+			if (len(result['unified_val']) > 8) or (has_result_comment):
+				val2display = u'%7.7s\u2026%6.6s%1.1s' % (
+					result[idx['unified_val']][:7],
 					abnormality_indicator,
-					gmTools.bool2subst(missing_review, u'\u237B', u'')
+					gmTools.bool2subst(missing_review, u'\u270D', u'')
 				)
+			# yes - display fully up to 8 chars
 			else:
-				val = u'%8.8s%6.6s%1.1s' % (
+				val2display = u'%8.8s%6.6s%1.1s' % (
 					result[idx['unified_val']][:8],
 					abnormality_indicator,
-					gmTools.bool2subst(missing_review, u'\u237B', u'')
+					gmTools.bool2subst(missing_review, u'\u270D', u'')
 				)
-			self.SetCellValue(row, col, val)
+
+			self.SetCellValue(row, col, val2display)
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 #			font = self.GetCellFont(row, col)
 #			if not font.IsFixedWidth():
@@ -432,7 +440,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.6  2008-04-02 10:48:33  ncq
+# Revision 1.7  2008-04-04 13:09:45  ncq
+# - use +/- as abnormality indicator where not available
+# - more complete calculation of "more result data available"
+#
+# Revision 1.6  2008/04/02 10:48:33  ncq
 # - cleanup, review -> sign
 # - support test_count in review widget
 # - better results formatting as per list discussion
