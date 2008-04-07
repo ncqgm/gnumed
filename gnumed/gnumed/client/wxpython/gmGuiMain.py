@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.10 2008-03-27 12:31:18 ncq Exp $
-__version__ = "$Revision: 1.375.2.10 $"
+# $Id: gmGuiMain.py,v 1.375.2.11 2008-04-07 12:10:02 ncq Exp $
+__version__ = "$Revision: 1.375.2.11 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,7 +75,7 @@ if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
-current_client_ver = u'v0.2.8.5'
+current_client_ver = u'v0.2.8.6'
 
 _log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
 _log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
@@ -1744,10 +1744,12 @@ class gmApp(wx.App):
 		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = 'gnumed')
 
+		candidates = []
 		if gmCLI.has_arg('--conf-file'):
-			candidates = [gmCLI.arg['--conf-file']]
+			candidates.append(gmCLI.arg['--conf-file'])
 		candidates.append(os.path.join(paths.user_config_dir, 'gnumed.conf'))
 		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
+		self.user_prefs_cfg_file = None
 		for candidate in candidates:
 			try:
 				open(candidate, 'a+').close()
@@ -1755,6 +1757,20 @@ class gmApp(wx.App):
 				break
 			except IOError:
 				continue
+
+		if self.user_prefs_cfg_file is None:
+			_log.Log(gmLog.lErr, 'Cannot find any config file. Aborting.')
+			gmGuiHelpers.gm_show_error (
+				_(
+					'Cannot find any configuration file.\n'
+					'\n'
+					'You may need to use:\n'
+					'\n'
+					'	--conf-file=<FILE>'
+				),
+				_('Checking configuration')
+			)
+			return False
 
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
@@ -2054,7 +2070,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.10  2008-03-27 12:31:18  ncq
+# Revision 1.375.2.11  2008-04-07 12:10:02  ncq
+# - fix crash on no --conf-file
+#
+# Revision 1.375.2.10  2008/03/27 12:31:18  ncq
 # - really check for user prefs file writability
 #
 # Revision 1.375.2.9  2008/03/27 12:12:01  ncq
