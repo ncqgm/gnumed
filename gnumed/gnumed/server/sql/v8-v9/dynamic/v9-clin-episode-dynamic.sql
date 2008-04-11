@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-episode-dynamic.sql,v 1.4 2008-03-05 22:31:07 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v9-clin-episode-dynamic.sql,v 1.5 2008-04-11 12:31:43 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -142,17 +142,26 @@ select tmp_add_encounters_to_episodes();
 
 drop function tmp_add_encounters_to_episodes();
 
--- set not null
 alter table clin.episode alter column fk_encounter set not null;
 
 -- alter views
+-- ... missing ...
+
+
+\unset ON_ERROR_STOP
+drop function audit.trf_announce_episode_mod() cascade;
+\set ON_ERROR_STOP 1
+select gm.add_table_for_notifies('clin', 'episode');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-episode-dynamic.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-episode-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v9-clin-episode-dynamic.sql,v $
--- Revision 1.4  2008-03-05 22:31:07  ncq
+-- Revision 1.5  2008-04-11 12:31:43  ncq
+-- - drop announce triggers so they can be recreated
+--
+-- Revision 1.4  2008/03/05 22:31:07  ncq
 -- - add comments
 --
 -- Revision 1.3  2008/03/03 14:26:07  ncq

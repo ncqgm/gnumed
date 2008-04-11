@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-health_issue-dynamic.sql,v 1.4 2008-03-03 14:26:07 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v9-clin-health_issue-dynamic.sql,v 1.5 2008-04-11 12:31:43 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -113,17 +113,26 @@ select tmp_add_encounters_to_issues();
 
 drop function tmp_add_encounters_to_issues();
 
--- set not null
 alter table clin.health_issue alter column fk_encounter set not null;
 
 -- alter views
+-- ... missing  ...
+
+
+\unset ON_ERROR_STOP
+drop function audit.trf_announce_h_issue_mod() cascade;
+\set ON_ERROR_STOP 1
+select gm.add_table_for_notifies('clin', 'health_issue');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v9-clin-health_issue-dynamic.sql,v $
--- Revision 1.4  2008-03-03 14:26:07  ncq
+-- Revision 1.5  2008-04-11 12:31:43  ncq
+-- - drop announce triggers so they can be recreated
+--
+-- Revision 1.4  2008/03/03 14:26:07  ncq
 -- - need to check against fk_health_issue/fk_episode, too
 --
 -- Revision 1.3  2008/03/03 14:05:51  ncq
