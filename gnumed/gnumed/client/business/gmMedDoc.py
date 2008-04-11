@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.102 2008-02-25 17:31:41 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmMedDoc.py,v 1.103 2008-04-11 23:07:22 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -156,10 +156,6 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		'pk_intended_reviewer',
 		'filename'
 	]
-	#--------------------------------------------------------
-#	def __del__(self):
-#		if self.__dict__.has_key('__conn'):
-#			self.__conn.close()
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
@@ -678,7 +674,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.102  2008-02-25 17:31:41  ncq
+# Revision 1.103  2008-04-11 23:07:22  ncq
+# - cleanup
+#
+# Revision 1.102  2008/02/25 17:31:41  ncq
 # - logging cleanup
 #
 # Revision 1.101  2008/01/30 13:34:50  ncq
