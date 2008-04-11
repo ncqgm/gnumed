@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.85 2008-03-05 22:30:14 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmEMRBrowser.py,v 1.86 2008-04-11 12:27:45 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -117,6 +117,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		"""Configures enabled event signals."""
 		wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self._on_tree_item_right_clicked)
+
+		gmDispatcher.connect(signal = 'narrative_mod_db', receiver = self._on_narrative_mod_db)
+		gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_mod_db)
+		gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_issue_mod_db)
 	#--------------------------------------------------------
 	def __populate_tree(self):
 		"""Updates EMR browser data."""
@@ -126,34 +130,54 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		wx.BeginBusyCursor()
 
 		self.snapshot_expansion()
-		self.DeleteAllItems()
 
 		# init new tree
+		self.DeleteAllItems()
 		root_item = self.AddRoot(_('%s EMR') % self.__pat['description'])
 		self.SetPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 
 		# have the tree filled by the exporter
 		self.__exporter.get_historical_tree(self)
+
 		self.SelectItem(root_item)
-
-		# and uncollapse
 		self.Expand(root_item)
-
 		self.SortChildren(root_item)
-
-		# display patient summary info
-		label = _('Summary')
-		underline = '=' * len(label)
-		if self.__narr_display is not None:
-			self.__narr_display.Clear()
-			self.__narr_display.WriteText('%s\n%s\n\n' % (label, underline))
-			self.__narr_display.WriteText(self.__exporter.get_summary_info(0))
+		self.__curr_node = root_item
+		self.__update_text_for_selected_node()
 
 		self.restore_expansion()
 
 		wx.EndBusyCursor()
 		return True
+	#--------------------------------------------------------
+	def __update_text_for_selected_node(self):
+		"""Displays information for the selected tree node."""
+
+		if self.__narr_display is None:
+			return
+
+		node_data = self.GetPyData(self.__curr_node)
+
+		# update displayed text
+		if isinstance(node_data, (gmEMRStructItems.cHealthIssue, types.DictType)):
+			txt = self.__exporter.get_issue_info(issue=node_data)
+
+		elif isinstance(node_data, gmEMRStructItems.cEpisode):
+			txt = node_data.format(left_margin = 1, patient = self.__pat)
+
+		elif isinstance(node_data, gmEMRStructItems.cEncounter):
+			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
+			txt = node_data.format(episode = epi, with_soap = True, left_margin = 1, patient = self.__pat)
+
+		else:
+			label = _('Summary')
+			underline = '=' * len(label)
+			txt = u'%s\n%s\n\n' % (label, underline)
+			txt += self.__exporter.get_summary_info(0)
+
+		self.__narr_display.Clear()
+		self.__narr_display.WriteText(txt)
 	#--------------------------------------------------------
 	def __make_popup_menus(self):
 
@@ -204,16 +228,24 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# print " attach issue to another patient"
 		# print " move all episodes to another issue"
 	#--------------------------------------------------------
-	# episodes
+	def __handle_root_context(self, pos=wx.DefaultPosition):
+		self.PopupMenu(self.__root_context_popup, pos)
+	#--------------------------------------------------------
+	def __handle_issue_context(self, pos=wx.DefaultPosition):
+#		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
+		self.PopupMenu(self.__issue_context_popup, pos)
+	#--------------------------------------------------------
 	def __handle_episode_context(self, pos=wx.DefaultPosition):
 		self.__epi_context_popup.SetTitle(_('Episode %s') % self.__curr_node_data['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
 	#--------------------------------------------------------
+	def __handle_encounter_context(self, pos=wx.DefaultPosition):
+		self.PopupMenu(self.__enc_context_popup, pos)
+	#--------------------------------------------------------
+	#--------------------------------------------------------
 	def __edit_episode(self, event):
 		dlg = gmEMRStructWidgets.cEpisodeEditAreaDlg(parent=self, episode=self.__curr_node_data)
-		result = dlg.ShowModal()
-		if result == wx.ID_OK:
-			self.__populate_tree()
+		dlg.ShowModal()
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -239,12 +271,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		except gmExceptions.DatabaseObjectInUseError:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 			return
-
-		self.__populate_tree()
-	#--------------------------------------------------------
-	# encounters
-	def __handle_encounter_context(self, pos=wx.DefaultPosition):
-		self.PopupMenu(self.__enc_context_popup, pos)
 	#--------------------------------------------------------
 	def __edit_consultation_details(self, event):
 		node_data = self.GetPyData(self.__curr_node)
@@ -270,16 +296,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if result == wx.ID_YES:
 			self.__populate_tree()
 	#--------------------------------------------------------
-	# health issues
-	def __handle_issue_context(self, pos=wx.DefaultPosition):
-#		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
-		self.PopupMenu(self.__issue_context_popup, pos)
-	#--------------------------------------------------------
 	def __edit_issue(self, event):
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1, issue=self.__curr_node_data)
-		if ea.ShowModal() == wx.ID_OK:
-			self.__populate_tree()
-		return
+		ea.ShowModal()
 	#--------------------------------------------------------
 	def __delete_issue(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -304,50 +323,33 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			gmEMRStructItems.delete_health_issue(health_issue = self.__curr_node_data)
 		except gmExceptions.DatabaseObjectInUseError:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete health issue. There is still clinical data recorded for it.'))
-			return
-
-		self.__populate_tree()
-	#--------------------------------------------------------
-	# root
-	def __handle_root_context(self, pos=wx.DefaultPosition):
-		self.PopupMenu(self.__root_context_popup, pos)
 	#--------------------------------------------------------
 	def __create_issue(self, event):
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
-		if ea.ShowModal() == wx.ID_OK:
-			self.__populate_tree()
-		return
+		ea.ShowModal()
 	#--------------------------------------------------------
 	def __document_allergy(self, event):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
+		# FIXME: use signal and use node level update
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__populate_tree()
 		return
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
+	def _on_narrative_mod_db(self, *args, **kwargs):
+		wx.CallAfter(self.__update_text_for_selected_node)
+	#--------------------------------------------------------
+	def _on_episode_mod_db(self, *args, **kwargs):
+		wx.CallAfter(self.__populate_tree)
+	#--------------------------------------------------------
+	def _on_issue_mod_db(self, *args, **kwargs):
+		wx.CallAfter(self.__populate_tree)
+	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
-		"""Displays information for a selected tree node."""
-		# retrieve the selected EMR element
 		sel_item = event.GetItem()
-		node_data = self.GetPyData(sel_item)
 		self.__curr_node = sel_item
-
-		# update displayed text
-		if isinstance(node_data, (gmEMRStructItems.cHealthIssue, types.DictType)):
-			txt = self.__exporter.get_issue_info(issue=node_data)
-		elif isinstance(node_data, gmEMRStructItems.cEpisode):
-			txt = self.__exporter.get_episode_summary(episode=node_data)
-		elif isinstance(node_data, gmEMRStructItems.cEncounter):
-			epi = self.GetPyData(self.GetItemParent(sel_item))
-			txt = self.__exporter.get_encounter_info(episode=epi, encounter=node_data)
-		else:
-			txt = _('Summary') + '\n=======\n\n' + self.__exporter.get_summary_info(0)
-
-		if self.__narr_display is not None:
-			self.__narr_display.Clear()
-			self.__narr_display.WriteText(txt)
-
+		self.__update_text_for_selected_node()
 		return True
 	#--------------------------------------------------------
 	def _on_tree_item_right_clicked(self, event):
@@ -552,7 +554,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.85  2008-03-05 22:30:14  ncq
+# Revision 1.86  2008-04-11 12:27:45  ncq
+# - listen to issue/episode/narrative change signals thereby
+#   reducing direct repopulate calls
+# - factor out __update_text_for_selected_node() and
+#   call format() on nodes that have it
+# - rearrange code layout
+#
+# Revision 1.85  2008/03/05 22:30:14  ncq
 # - new style logging
 #
 # Revision 1.84  2008/01/30 14:07:24  ncq
