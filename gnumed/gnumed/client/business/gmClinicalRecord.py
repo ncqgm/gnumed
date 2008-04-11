@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.261 2008-03-29 16:04:31 ncq Exp $
-__version__ = "$Revision: 1.261 $"
+# $Id: gmClinicalRecord.py,v 1.262 2008-04-11 23:07:08 ncq Exp $
+__version__ = "$Revision: 1.262 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1398,14 +1398,14 @@ where
 
 		# FIXME: this should be done async
 		cmd = u"""
-delete from clin.encounter cle where
-	cle.fk_patient = %(pat)s and
-	age(cle.last_affirmed) > %(ttl)s::interval and
-	not exists (select 1 from clin.clin_root_item where fk_encounter = cle.pk) and
-	not exists (select 1 from blobs.doc_med where fk_encounter = cle.pk) and
-	not exists (select 1 from clin.episode where fk_encounter = cle.pk) and
-	not exists (select 1 from clin.health_issue where fk_encounter = cle.pk) and
-	not exists (select 1 from clin.operation where fk_encounter = cle.pk)
+delete from clin.encounter where
+	clin.encounter.fk_patient = %(pat)s and
+	age(clin.encounter.last_affirmed) > %(ttl)s::interval and
+	not exists (select 1 from clin.clin_root_item where fk_encounter = clin.encounter.pk) and
+	not exists (select 1 from blobs.doc_med where fk_encounter = clin.encounter.pk) and
+	not exists (select 1 from clin.episode where fk_encounter = clin.encounter.pk) and
+	not exists (select 1 from clin.health_issue where fk_encounter = clin.encounter.pk) and
+	not exists (select 1 from clin.operation where fk_encounter = clin.encounter.pk)
 """
 		try:
 			rows, idx = gmPG2.run_rw_queries(queries = [{
@@ -1692,7 +1692,10 @@ if __name__ == "__main__":
 		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.261  2008-03-29 16:04:31  ncq
+# Revision 1.262  2008-04-11 23:07:08  ncq
+# - fix remove_empty_encounters()
+#
+# Revision 1.261  2008/03/29 16:04:31  ncq
 # - retrieve test results ordered by day-truncated date
 #
 # Revision 1.260  2008/03/20 15:28:17  ncq
