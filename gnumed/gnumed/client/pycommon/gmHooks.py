@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.9 2008-01-27 21:10:34 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmHooks.py,v 1.10 2008-04-11 23:11:52 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -47,7 +47,10 @@ known_hooks = [
 	u'request_user_attention',
 	u'app_activated_startup',
 	u'app_activated',
-	u'app_deactivated'
+	u'app_deactivated',
+	u'before_print_doc',
+	u'before_fax_doc',
+	u'before_mail_doc'
 ]
 
 
@@ -69,9 +72,12 @@ def __import_hook_module():
 	if not os.access(full_script, os.F_OK):
 		f = open(full_script, 'w')
 		f.write("""
+# known hooks:
+#  %s
+
 def run_script(hook=None):
 	pass
-""")
+""" % '#  '.join(known_hooks))
 		f.close()
 		os.chmod(full_script, 384)
 
@@ -123,7 +129,11 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.9  2008-01-27 21:10:34  ncq
+# Revision 1.10  2008-04-11 23:11:52  ncq
+# - add fax/mail/print hooks
+# - list known hooks when creating hook script
+#
+# Revision 1.9  2008/01/27 21:10:34  ncq
 # - fix stat()ing of the hook script
 #
 # Revision 1.8  2008/01/22 22:03:25  ncq
