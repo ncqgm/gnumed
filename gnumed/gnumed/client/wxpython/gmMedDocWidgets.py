@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.158 2008-04-11 12:28:55 ncq Exp $
-__version__ = "$Revision: 1.158 $"
+# $Id: gmMedDocWidgets.py,v 1.159 2008-04-11 23:14:09 ncq Exp $
+__version__ = "$Revision: 1.159 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -14,7 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools
+from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
@@ -22,6 +22,9 @@ from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelecta
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+
+
+default_chunksize = 1 * 1024 * 1024		# 1 MB
 #============================================================
 def _save_file_as_new_document(**kwargs):
 	wx.CallAfter(save_file_as_new_document, **kwargs)
@@ -966,9 +969,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		tmp = _('available documents (%s)')
+		unsigned = _('unsigned (%s) on top') % u'\u270D'
 		cDocTree._root_node_labels = {
 			'age': tmp % _('most recent on top'),
-			'review': tmp % _('unsigned (%s) on top') % u'\u270D',
+			'review': tmp % unsigned,
 			'episode': tmp % _('sorted by episode'),
 			'type': tmp % _('sorted by type')
 		}
@@ -1333,6 +1337,21 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		menu.AppendItem(wx.MenuItem(menu, ID, _('Export to disk')))
 		wx.EVT_MENU(menu, ID, self.__export_doc_to_disk)
 
+		# print
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Print')))
+		wx.EVT_MENU(menu, ID, self.__print_doc)
+
+		# fax
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Fax')))
+		wx.EVT_MENU(menu, ID, self.__fax_doc)
+
+		# email
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Mail')))
+		wx.EVT_MENU(menu, ID, self.__mail_doc)
+
 		# edit encounter
 		ID = wx.NewId()
 		menu.AppendItem(wx.MenuItem(menu, ID, _('Edit corresponding consultation')))
@@ -1413,7 +1432,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
-			default = 1 * 1024 * 1024		# 1 MB
+			default = default_chunksize
 		))
 
 		# shall we force blocking during view ?
@@ -1471,6 +1490,88 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
 		dlg.ShowModal()
 	#--------------------------------------------------------
+	def __process_doc(self, action=None, l10n_action=None):
+
+		gmHooks.run_hook_script(hook = action)
+
+		wx.BeginBusyCursor()
+
+		# detect wrapper
+		found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.sh' % action)
+		if not found:
+			found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.bat' % action)
+		if not found:
+			_log.error('neither of gm_%s_doc.sh or gm_%s_doc.bat found', action, action)
+			wx.EndBusyCursor()
+			gmGuiHelpers.gm_show_error (
+				_('Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n'
+				  '\n'
+				  'Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n'
+				  'must be in the execution path. The command will\n'
+				  'be passed a list of filenames to %(l10n_action)s.'
+				) % {'action': action, 'l10n_action': l10n_action},
+				_('Processing document: %s') % l10n_action
+			)
+			return
+
+		cfg = gmCfg.cCfgSQL()
+
+		# get export directory for temporary files
+		tmp_dir = gmTools.coalesce (
+			cfg.get2 (
+				option = "horstspace.tmp_dir",
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'workplace'
+			),
+			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+		)
+		_log.debug("temporary directory [%s]", tmp_dir)
+
+		# determine database export chunk size
+		chunksize = int(cfg.get2 (
+			option = "horstspace.blob_export_chunk_size",
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace',
+			default = default_chunksize
+		))
+
+		part_files = self.__curr_node_data.export_parts_to_files (
+			export_dir = tmp_dir,
+			chunksize = chunksize
+		)
+
+		cmd = external_cmd + u' ' + u' '.join(part_files)
+		success = gmShellAPI.run_command_in_shell (
+			command = cmd,
+			blocking = False
+		)
+
+		wx.EndBusyCursor()
+
+		if not success:
+			_log.error('%s command failed: [%s]', action, cmd)
+			gmGuiHelpers.gm_show_error (
+				_('Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n'
+				  '\n'
+				  'You may need to check and fix either of\n'
+				  ' gm_%(action)s_doc.sh (Unix/Mac) or\n'
+				  ' gm_%(action)s_doc.bat (Windows)\n'
+				  '\n'
+				  'The command is passed a list of filenames to %(l10n_action)s.'
+				) % {'action': action, 'l10n_action': l10n_action},
+				_('Processing document: %s') % l10n_action
+			)
+	#--------------------------------------------------------
+	# FIXME: icons in the plugin toolbar
+	def __print_doc(self, evt):
+		self.__process_doc(action = u'print', l10n_action = _('print'))
+	#--------------------------------------------------------
+	def __fax_doc(self, evt):
+		self.__process_doc(action = u'fax', l10n_action = _('fax'))
+	#--------------------------------------------------------
+	def __mail_doc(self, evt):
+		self.__process_doc(action = u'mail', l10n_action = _('mail'))
+	#--------------------------------------------------------
 	def __export_doc_to_disk(self, evt):
 		"""Export document into directory.
 
@@ -1499,8 +1600,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		if result != wx.ID_OK:
 			return True
 
+		# determine database export chunk size
+		chunksize = int(cfg.get2 (
+			option = "horstspace.blob_export_chunk_size",
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace',
+			default = default_chunksize
+		))
+
 		wx.BeginBusyCursor()
-		fnames = self.__curr_node_data.export_parts_to_files(export_dir=dirname)
+		fnames = self.__curr_node_data.export_parts_to_files(export_dir = dirname, chunksize = chunksize)
 		wx.EndBusyCursor()
 
 		gmDispatcher.send(signal='statustext', msg=_('Successfully exported %s parts into the directory [%s].') % (len(fnames), dirname))
@@ -1528,7 +1637,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.158  2008-04-11 12:28:55  ncq
+# Revision 1.159  2008-04-11 23:14:09  ncq
+# - centralize default_chunksize
+# - handle print/fax/mail document
+#
+# Revision 1.158  2008/04/11 12:28:55  ncq
 # - use signing hand again
 #
 # Revision 1.157  2008/04/02 10:21:25  ncq
