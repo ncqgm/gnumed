@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.157 2008-04-02 10:21:25 ncq Exp $
-__version__ = "$Revision: 1.157 $"
+# $Id: gmMedDocWidgets.py,v 1.158 2008-04-11 12:28:55 ncq Exp $
+__version__ = "$Revision: 1.158 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1130,7 +1130,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				rev = gmTools.bool2str (
 					boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
 					true_str = u'',
-					false_str = u' \u237B'
+					false_str = u' \u270D'
 				)
 
 #				if part['clinically_relevant']:
@@ -1528,7 +1528,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.157  2008-04-02 10:21:25  ncq
+# Revision 1.158  2008-04-11 12:28:55  ncq
+# - use signing hand again
+#
+# Revision 1.157  2008/04/02 10:21:25  ncq
 # - select-all on tabbing into doc type phrasewheel
 # - review -> sign
 # - use signing hand/not-checkmark unicode in some places
