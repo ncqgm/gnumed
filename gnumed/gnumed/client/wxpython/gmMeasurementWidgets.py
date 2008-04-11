@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.7 2008-04-04 13:09:45 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmMeasurementWidgets.py,v 1.8 2008-04-11 23:12:23 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -188,8 +188,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 						missing_review = True
 
 			# is the result relevant clinically ?
+			# FIXME: take into account primary_GP once we support that
 			review_relevant = gmTools.coalesce(result['is_clinically_relevant_by_you'], result['is_clinically_relevant_by_reviewer'])
 			if review_relevant is None:
+				# FIXME: take into account other review if there's only one
+				# FIMXE: take into account most recent review if there's more than one
 				# FIXME: calculate from clinical range
 				review_relevant = False
 
@@ -440,7 +443,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.7  2008-04-04 13:09:45  ncq
+# Revision 1.8  2008-04-11 23:12:23  ncq
+# - improve docs
+#
+# Revision 1.7  2008/04/04 13:09:45  ncq
 # - use +/- as abnormality indicator where not available
 # - more complete calculation of "more result data available"
 #
