@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.118 2008-04-02 10:15:54 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gmPatientExporter.py,v 1.119 2008-04-11 12:21:11 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -758,14 +758,13 @@ class cEmrExport:
         for an_item in self.__filtered_items:
             if an_item['pk_encounter'] == encounter['pk_encounter']:
                 txt += self.get_item_output(an_item, left_margin)
-        return txt      
+        return txt
     #--------------------------------------------------------  
     def dump_historical_tree(self):
         """Dumps patient's historical in form of a tree of health issues
                                                         -> episodes
                                                            -> encounters
                                                               -> clinical items
-                                                              
         """
 
         # fecth all values
@@ -1202,7 +1201,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.118  2008-04-02 10:15:54  ncq
+# Revision 1.119  2008-04-11 12:21:11  ncq
+# - some cleanup
+#
+# Revision 1.118  2008/04/02 10:15:54  ncq
 # - show local time zone in encounter summary
 #
 # Revision 1.117  2008/03/06 18:24:45  ncq
