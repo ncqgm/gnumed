@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -11,13 +11,13 @@ import sys, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject
 
 
 _log = logging.getLogger('gm.emr')
 _log.info(__version__)
 
-_ = lambda x:x
 
 soap_cat2l10n = {
 	's': _('soap_S').strip(u'soap_'),
@@ -25,6 +25,14 @@ soap_cat2l10n = {
 	'a': _('soap_A').strip(u'soap_'),
 	'p': _('soap_P').strip(u'soap_'),
 	None: _('soap_ADMIN').strip(u'soap_')
+}
+
+soap_cat2l10n_str = {
+	's': _('soap_Subjective').strip(u'soap_'),
+	'o': _('soap_Objective').strip(u'soap_'),
+	'a': _('soap_Assessment').strip(u'soap_'),
+	'p': _('soap_Plan').strip(u'soap_'),
+	None: _('soap_Administrative').strip(u'soap_')
 }
 
 l10n2soap_cat = {
@@ -253,7 +261,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.31  2008-01-30 13:34:49  ncq
+# Revision 1.32  2008-04-11 12:20:16  ncq
+# - soap_cat2l10n_str
+#
+# Revision 1.31  2008/01/30 13:34:49  ncq
 # - switch to std lib logging
 #
 # Revision 1.30  2008/01/22 22:02:29  ncq
