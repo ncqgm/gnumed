@@ -1,17 +1,18 @@
+# -*- coding: utf8 -*-
 """GNUmed health related business object.
 
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.109 $"
+__version__ = "$Revision: 1.110 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-import types, sys, string, datetime, logging
+import types, sys, string, datetime, logging, time
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime
+from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools
 from Gnumed.business import gmClinNarrative
 
 
@@ -308,7 +309,56 @@ from (
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
+	#--------------------------------------------------------
+	def format(self, left_margin=0, patient=None):
 
+		lines = []
+
+		lines.append(_('Episode %s%s%s (%s) [#%s]\n') % (
+			u'\u00BB',
+			self._payload[self._idx['description']],
+			u'\u00AB',
+			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
+			self._payload[self._idx['pk_episode']]
+		))
+
+		if patient.ID != self._payload[self._idx['pk_patient']]:
+			msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
+				patient.ID,
+				self._payload[self._idx['pk_episode']],
+				self._payload[self._idx['pk_patient']]
+			)
+			raise ValueError(msg)
+
+		emr = patient.get_emr()
+		encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
+		if encs is None:
+			lines.append(_('Error retrieving encounters for this episode.'))
+		elif len(encs) == 0:
+			lines.append(_('There are no encounters for this episode.'))
+		else:
+			first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
+			last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
+
+			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
+
+			lines.append(_('Encounters: %s (%s - %s):\n') % (
+				len(encs),
+				first_encounter['started'].strftime('%m/%Y'),
+				last_encounter['last_affirmed'].strftime('%m/%Y')
+			))
+
+			for enc in encs:
+				lines.append(u'%s - %s (%s):%s' % (
+					enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+					enc['last_affirmed_original_tz'].strftime('%H:%M'),
+					enc['l10n_type'],
+					gmTools.coalesce(enc['assessment_of_encounter'], u'', u' \u00BB%s\u00AB')
+				))
+
+		left_margin = u' ' * left_margin
+		eol_w_margin = u'\n%s' % left_margin
+		return left_margin + eol_w_margin.join(lines) + u'\n'
 #============================================================
 def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False, allow_dupes=False, encounter=None):
 	"""Creates a new episode for a given patient's health issue.
@@ -476,6 +526,128 @@ select exists (
 			}]
 		)
 		return rows[0][0]
+	#--------------------------------------------------------
+	def format(self, episode=None, with_soap=False, left_margin=0, patient=None):
+
+		left_margin = u' ' * left_margin
+
+		lines = []
+
+		lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
+			left_margin,
+			self._payload[self._idx['l10n_type']],
+			self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
+			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
+			self._payload[self._idx['source_time_zone']],
+			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
+			self._payload[self._idx['pk_encounter']]
+		))
+
+		lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
+			self._payload[self._idx['started']].strftime('%Y-%m-%d %H:%M'),
+			self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
+			gmDateTime.current_iso_timezone_string,
+			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, time.tzname[1], time.tzname[0]),
+			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
+		))
+
+		lines.append(u'%s: %s' % (
+			_('RFE'),
+			gmTools.coalesce(self._payload[self._idx['reason_for_encounter']], u'')
+		))
+		lines.append(u'%s: %s' % (
+			_('AOE'),
+			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'')
+		))
+
+		if not with_soap:
+			eol_w_margin = u'\n%s' % left_margin
+			return u'%s\n' % eol_w_margin.join(lines)
+
+		lines.append('\n')
+
+		if patient.ID != self._payload[self._idx['pk_patient']]:
+			msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
+				patient.ID,
+				self._payload[self._idx['pk_encounter']],
+				self._payload[self._idx['pk_patient']]
+			)
+			raise ValueError(msg)
+
+		emr = patient.get_emr()
+
+		if episode['episode_open']:
+			template = _('Progress notes for ongoing episode %s%s%s:')
+		else:
+			template = _('Progress notes for closed episode %s%s%s:')
+		lines.append(template % (
+			u'\u00BB',
+			episode['description'],
+			u'\u00AB'
+		))
+
+		# soap
+		for soap_cat in 'soap':
+			soap_cat_narratives = emr.get_clin_narrative (
+				episodes = [episode['pk_episode']],
+				encounters = [self._payload[self._idx['pk_encounter']]],
+				soap_cats = [soap_cat]
+			)
+			if soap_cat_narratives is None:
+				continue
+			if len(soap_cat_narratives) == 0:
+				continue
+
+			lines.append('%s:' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+			for soap_entry in soap_cat_narratives:
+				txt = gmTools.wrap (
+					text = '%s %.8s: %s' % (
+						soap_entry['date'].strftime('%d.%m  %H:%M'),
+						soap_entry['provider'],
+						soap_entry['narrative']
+					),
+					width = 75,
+					initial_indent = u'',
+					subsequent_indent = left_margin + u'   '
+				)
+				lines.append(txt)
+
+		eol_w_margin = u'\n%s' % left_margin
+		return u'%s\n' % eol_w_margin.join(lines)
+
+		# special items (allergies, documents, vaccinations, ...)
+
+#        filtered_items = []
+ #       filtered_items.extend(emr.get_allergies(
+  #          since=self.__constraints['since'],
+   #         until=self.__constraints['until'],
+    #        encounters=self.__constraints['encounters'],
+     #       episodes=self.__constraints['episodes'],
+      #      issues=self.__constraints['issues']))
+#        try:
+ #               filtered_items.extend(emr.get_vaccinations(
+  #                  since=self.__constraints['since'],
+   #                 until=self.__constraints['until'],
+    #                encounters=self.__constraints['encounters'],
+     #               episodes=self.__constraints['episodes'],
+      #              issues=self.__constraints['issues']))
+       # except:
+        #        _log.error("vaccination error? outside regime")
+
+#        filtered_items.extend(emr.get_lab_results(
+ #           since=self.__constraints['since'],
+  #          until=self.__constraints['until'],
+   #         encounters=self.__constraints['encounters'],
+    #        episodes=self.__constraints['episodes'],
+     #       issues=self.__constraints['issues']))
+#        self.__filtered_items = filtered_items
+
+		# items
+#		for an_item in self.__filtered_items:
+#			if an_item['pk_encounter'] == encounter['pk_encounter']:
+#				txt += self.get_item_output(an_item, left_margin)
+#		return txt
+
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
@@ -659,7 +831,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.109  2008-03-05 22:24:31  ncq
+# Revision 1.110  2008-04-11 12:20:52  ncq
+# - format() on episode and encounter
+#
+# Revision 1.109  2008/03/05 22:24:31  ncq
 # - support fk_encounter in issue and episode creation
 #
 # Revision 1.108  2008/02/25 17:29:59  ncq
