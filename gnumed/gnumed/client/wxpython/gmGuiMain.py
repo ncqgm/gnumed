@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.393 2008-03-29 16:09:53 ncq Exp $
-__version__ = "$Revision: 1.393 $"
+# $Id: gmGuiMain.py,v 1.394 2008-04-11 12:28:30 ncq Exp $
+__version__ = "$Revision: 1.394 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1908,6 +1908,18 @@ class gmApp(wx.App):
 			except IOError:
 				continue
 
+		if _cfg.get(option = u'user_preferences_file') is None:
+			msg = _(
+				'Cannot find configuration file in any of:\n'
+				'\n'
+				' %s\n'
+				'You may need to use the comand line option\n'
+				'\n'
+				'	--conf-file=<FILE>'
+			) % '\n '.join(candidates)
+			gmGuiHelpers.gm_show_error(msg, _('Checking configuration files'))
+			return False
+
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
@@ -2216,8 +2228,6 @@ class gmApp(wx.App):
 #==============================================================================
 def main():
 
-	wx.InitAllImageHandlers()
-
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered
@@ -2239,7 +2249,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.393  2008-03-29 16:09:53  ncq
+# Revision 1.394  2008-04-11 12:28:30  ncq
+# - abort if there's no user preferences config file whatsoever
+#
+# Revision 1.393  2008/03/29 16:09:53  ncq
 # - improved comments
 # - wx version checking for faulty
 # - enhance color db
