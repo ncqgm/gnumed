@@ -6,10 +6,14 @@ Theory of operation:
 
 Any table that should send notifies must be recorded in
 the table "gm.notifying_tables".
+
+Any table inheriting from clin.clin_root_item is added
+automatically and the signal narrative_mod_db is sent
+from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -138,6 +142,92 @@ where
 	schema_name = '%(schema)s' and
 	table_name = '%(tbl)s';
 """
+
+func_narrative_mod_announce = """
+-- ----------------------------------------------
+-- narrative modfication announcement triggers
+-- on clin.clin_root_item child tables
+-- ----------------------------------------------
+
+\unset ON_ERROR_STOP
+drop function clin.trf_announce_narrative_mod() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_announce_narrative_mod()
+	returns trigger
+	 language 'plpgsql'
+	as '
+declare
+	_pk_identity integer;
+begin
+	_pk_identity := NULL;
+
+	-- retrieve identity PK via fk_encounter
+	if TG_OP = ''DELETE'' then
+		select into _pk_identity fk_patient from clin.encounter where pk = OLD.fk_encounter limit 1;
+	else
+		select into _pk_identity fk_patient from clin.encounter where pk = NEW.fk_encounter limit 1;
+	end if;
+
+	-- soft error out if not found
+	if _pk_identity is NULL then
+		raise notice ''clin.trf_announce_narrative_mod(): cannot determine identity PK on clin.clin_root_item child table'';
+		return NULL;
+	end if;
+
+	-- now, execute() the NOTIFY
+	execute ''notify "narrative_mod_db:'' || _pk_identity || ''"'';
+	return NULL;
+end;
+';
+
+-- tell backend listener to listen for patient-specific signals on this table
+-- it does in fact not matter which table this is about,
+-- it suffices to record the signal at all
+
+delete from gm.notifying_tables where
+	schema_name = 'any'
+	and signal = 'narrative';
+
+insert into gm.notifying_tables (
+	schema_name, table_name, signal, carries_identity_pk
+) values (
+	'any',
+	'clin.clin_root_item children',
+	'narrative',
+	True
+);
+"""
+
+trigger_narrative_mod_announce = """
+-- %(schema)s.%(tbl)s
+create constraint trigger tr_narrative_mod
+	after insert or delete or update
+	on %(schema)s.%(tbl)s
+	deferrable
+	for each row
+		execute procedure clin.trf_announce_narrative_mod();
+"""
+#------------------------------------------------------------------
+def create_narrative_notification_schema(cursor):
+
+	rows = gmPG2.get_child_tables (
+		schema = u'clin',
+		table = u'clin_root_item',
+		link_obj = cursor
+	)
+
+	_log.info('child tables of clin.clin_root_item:')
+	_log.info(', '.join([ u'%s.%s' % (r[0], r[1]) for r in rows ]))
+
+	ddl = [func_narrative_mod_announce]
+
+	for row in rows:
+		ddl.append(trigger_narrative_mod_announce % {'schema': row[0], 'tbl': row[1]})
+
+	ddl.append('-- ----------------------------------------------')
+
+	return ddl
 #------------------------------------------------------------------
 def create_notification_schema(cursor):
 	cmd = u"select schema_name, table_name, signal from gm.notifying_tables"
@@ -213,10 +303,11 @@ if __name__ == "__main__" :
 
 	logging.getLogger().setLevel(logging.DEBUG)
 
-	conn = gmPG2.get_connection(readonly=False, pooled=False)
+	conn = gmPG2.get_connection(readonly=True, pooled=False)
 	curs = conn.cursor()
 
 	schema = create_notification_schema(curs)
+	schema.extend(create_narrative_notification_schema(curs))
 
 	curs.close()
 	conn.close()
@@ -232,7 +323,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.27  2008-01-07 14:15:43  ncq
+# Revision 1.28  2008-04-11 12:30:22  ncq
+# - create notification schema for clin.clin_root_item children
+#
+# Revision 1.27  2008/01/07 14:15:43  ncq
 # - port to gmCfg2/gmLog2
 # - create database with default transaction mode set to readonly
 #
