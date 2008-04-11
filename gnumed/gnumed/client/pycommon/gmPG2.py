@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -330,7 +330,7 @@ def get_current_user():
 	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
 	return rows[0][0]
 #------------------------------------------------------------------------
-def get_child_tables(schema='public', table=None):
+def get_child_tables(schema='public', table=None, link_obj=None):
 	"""Return child tables of <table>."""
 	cmd = u"""
 select
@@ -349,7 +349,7 @@ where
 				relname = %(table)s
 		)
 	)"""
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
 	return rows
 #------------------------------------------------------------------------
 def table_exists(link_obj=None, schema=None, table=None):
@@ -1400,7 +1400,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.74  2008-03-20 15:29:13  ncq
+# Revision 1.75  2008-04-11 12:21:59  ncq
+# - support link_obj in get_child_tables()
+#
+# Revision 1.74  2008/03/20 15:29:13  ncq
 # - sanity_check_time_skew() and test
 #
 # Revision 1.73  2008/03/11 16:59:54  ncq
