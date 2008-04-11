@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.49 2008-03-20 15:29:51 ncq Exp $
+# $Id: gmTools.py,v 1.50 2008-04-11 12:24:39 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -468,27 +468,25 @@ def capitalize(text=None, mode=CAPS_NAMES):
 	print "ERROR: invalid capitalization mode: [%s], leaving input as is" % mode
 	return text
 #---------------------------------------------------------------------------
-def wrap(text, width):
+def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u''):
 	"""
 	A word-wrap function that preserves existing line breaks
 	and most spaces in the text. Expects that existing line
 	breaks are posix newlines (\n).
-
-	FIXME: add initial/subsequent indent etc
 	"""
-	return reduce (
+	wrapped = initial_indent + reduce (
 		lambda line, word, width=width: '%s%s%s' % (
 			line,
-			' \n'[(
-				len(line)
-				- line.rfind('\n')
-				- 1
-				+ len(word.split('\n',1)[0])
-				>= width
-			)],
-			word),
+			' \n'[(len(line) - line.rfind('\n') - 1 + len(word.split('\n',1)[0]) >= width)],
+			word
+		),
 		text.split(' ')
 	)
+
+	if subsequent_indent != u'':
+		wrapped = ('\n%s' % subsequent_indent).join(wrapped.split('\n'))
+
+	return wrapped
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -650,7 +648,6 @@ This is a test mail from the gmTools.py module.
 				print 'ERROR: bool2str(%s, %s, %s) returned [%s], expected [%s]' % (test[0], test[1], test[2], bool2str(test[0], test[1], test[2]), test[3])
 
 		return True
-
 	#-----------------------------------------------------------------------
 	def test_get_unique_filename():
 		print get_unique_filename()
@@ -666,6 +663,40 @@ This is a test mail from the gmTools.py module.
 		for test in tests:
 			print size2str(test)
 	#-----------------------------------------------------------------------
+	def test_wrap():
+		test = 'line 1\nline 2\nline 3'
+
+		print "wrap 5-6-7 initial 0, subsequent 0"
+		print wrap(test, 5)
+		print
+		print wrap(test, 6)
+		print
+		print wrap(test, 7)
+		print "-------"
+		raw_input()
+		print "wrap 5 initial 1-1-3, subsequent 1-3-1"
+		print wrap(test, 5, u' ', u' ')
+		print
+		print wrap(test, 5, u' ', u'   ')
+		print
+		print wrap(test, 5, u'   ', u' ')
+		print "-------"
+		raw_input()
+		print "wrap 6 initial 1-1-3, subsequent 1-3-1"
+		print wrap(test, 6, u' ', u' ')
+		print
+		print wrap(test, 6, u' ', u'   ')
+		print
+		print wrap(test, 6, u'   ', u' ')
+		print "-------"
+		raw_input()
+		print "wrap 7 initial 1-1-3, subsequent 1-3-1"
+		print wrap(test, 7, u' ', u' ')
+		print
+		print wrap(test, 7, u' ', u'   ')
+		print
+		print wrap(test, 7, u'   ', u' ')
+	#-----------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
 		logging.basicConfig(level = logging.DEBUG)
@@ -676,15 +707,19 @@ This is a test mail from the gmTools.py module.
 		#test_import_module()
 		#test_mkdir()
 		#test_send_mail()
-		test_gmPaths()
+		#test_gmPaths()
 		#test_none_if()
 		#test_bool2str()
 		#test_get_unique_filename()
-		test_size2str()
+		#test_size2str()
+		test_wrap()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.49  2008-03-20 15:29:51  ncq
+# Revision 1.50  2008-04-11 12:24:39  ncq
+# - add initial_indent/subsequent_indent and tests to wrap()
+#
+# Revision 1.49  2008/03/20 15:29:51  ncq
 # - bool2subst() supporting None, make bool2str() use it
 #
 # Revision 1.48  2008/03/02 15:10:32  ncq
