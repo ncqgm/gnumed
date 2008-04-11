@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -907,6 +907,7 @@ class database:
 		# create notification schema
 		curs = self.conn.cursor()
 		notification_schema = notify_gen.create_notification_schema(curs)
+		notification_schema.extend(notify_gen.create_narrative_notification_schema(curs))
 		curs.close()
 		if notification_schema is None:
 			_log.error('cannot generate notification schema for GNUmed database [%s]' % self.name)
@@ -1309,7 +1310,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.76  2008-03-11 17:01:14  ncq
+# Revision 1.77  2008-04-11 12:31:00  ncq
+# - bootstrap notification on clin.clin_root_item children
+#
+# Revision 1.76  2008/03/11 17:01:14  ncq
 # - mention command line options in doc string
 #
 # Revision 1.75  2008/03/06 23:19:38  ncq
