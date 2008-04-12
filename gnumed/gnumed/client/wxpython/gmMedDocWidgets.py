@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.159 2008-04-11 23:14:09 ncq Exp $
-__version__ = "$Revision: 1.159 $"
+# $Id: gmMedDocWidgets.py,v 1.160 2008-04-12 19:21:19 ncq Exp $
+__version__ = "$Revision: 1.160 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -980,6 +980,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.root = None
 		self.__sort_mode = 'age'
 
+		self.__build_context_menus()
 		self.__register_interests()
 		self._schedule_data_reget()
 	#--------------------------------------------------------
@@ -1047,6 +1048,70 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
 		gmDispatcher.connect(signal = u'doc_page_mod_db', receiver = self._on_doc_page_mod_db)
+	#--------------------------------------------------------
+	def __build_context_menus(self):
+
+		# --- part context menu ---
+		self.__part_context_menu = wx.Menu(title = _('part menu'))
+
+		ID = wx.NewId()
+		self.__part_context_menu.Append(ID, _('Display part'))
+		wx.EVT_MENU(self.__part_context_menu, ID, self.__display_curr_part)
+
+		ID = wx.NewId()
+		self.__part_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')
+		wx.EVT_MENU(self.__part_context_menu, ID, self.__review_curr_part)
+
+		self.__part_context_menu.AppendSeparator()
+
+		ID = wx.NewId()
+		self.__part_context_menu.Append(ID, _('Print part'))
+		wx.EVT_MENU(self.__part_context_menu, ID, self.__print_part)
+
+		ID = wx.NewId()
+		self.__part_context_menu.Append(ID, _('Fax part'))
+		wx.EVT_MENU(self.__part_context_menu, ID, self.__fax_part)
+
+		ID = wx.NewId()
+		self.__part_context_menu.Append(ID, _('Mail part'))
+		wx.EVT_MENU(self.__part_context_menu, ID, self.__mail_part)
+
+		self.__part_context_menu.AppendSeparator()
+
+
+		# --- doc context menu ---
+		self.__doc_context_menu = wx.Menu(title = _('document menu'))
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__review_curr_part)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Export to disk'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__export_doc_to_disk)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Print parts'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__print_doc)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Fax parts'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__fax_doc)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Mail parts'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__mail_doc)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Edit corresponding consultation'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__edit_consultation_details)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Delete'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__delete_document)
+
+		self.__doc_context_menu.AppendSeparator()
+
 	#--------------------------------------------------------
 	def __populate_tree(self):
 
@@ -1325,44 +1390,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
 
-		menu = wx.Menu(title = _('document menu'))
-
-		# edit metadata
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('%s Sign/Edit properties') % u'\u270D'))
-		wx.EVT_MENU(menu, ID, self.__review_curr_part)
-
-		# export pages
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Export to disk')))
-		wx.EVT_MENU(menu, ID, self.__export_doc_to_disk)
-
-		# print
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Print')))
-		wx.EVT_MENU(menu, ID, self.__print_doc)
-
-		# fax
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Fax')))
-		wx.EVT_MENU(menu, ID, self.__fax_doc)
-
-		# email
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Mail')))
-		wx.EVT_MENU(menu, ID, self.__mail_doc)
-
-		# edit encounter
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Edit corresponding consultation')))
-		wx.EVT_MENU(menu, ID, self.__edit_consultation_details)
-
-		# delete for good
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Delete')))
-		wx.EVT_MENU(menu, ID, self.__delete_document)
-
-		# show descriptions
 		descriptions = self.__curr_node_data.get_descriptions()
 		desc_menu = wx.Menu()
 		for desc in descriptions:
@@ -1371,36 +1398,36 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			tmp = regex.split('\r\n+|\r+|\n+|\s+|\t+', desc)
 			tmp = ' '.join(tmp)
 			# but only use first 30 characters
-			tmp = "%s ..." % tmp[:30]
-			desc_menu.AppendItem(wx.MenuItem(desc_menu, d_id, tmp))
+			tmp = "%s%s" % (tmp[:30], u'\u2026')
+			desc_menu.Append(d_id, tmp)
 			# connect handler
 			wx.EVT_MENU(desc_menu, d_id, self.__show_description)
+		ID = wx.NewId()
+		self.__doc_context_menu.AppendMenu(ID, _('descriptions ...'), desc_menu)
 
-		menu.AppendMenu(wx.NewId(), _('descriptions ...'), desc_menu)
+		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
 
-		# show menu
-		self.PopupMenu(menu, wx.DefaultPosition)
-		menu.Destroy()
+		#self.__doc_context_menu.Destroy(ID)
+		#self.__doc_context_menu.Delete(ID)
+		self.__doc_context_menu.Remove(ID)
+		desc_menu.Destroy()
 	#--------------------------------------------------------
 	def __handle_part_context(self):
-		# build menu
-		menu = wx.Menu(title = _('part menu'))
-		# display file
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Display part')))
-		wx.EVT_MENU(menu, ID, self.__display_curr_part)
-		# edit metadata
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('%s Sign/Edit properties') % u'\u270D'))
-		wx.EVT_MENU(menu, ID, self.__review_curr_part)
+
 		# make active patient photograph
 		if self.__curr_node_data['type'] == 'patient photograph':
 			ID = wx.NewId()
-			menu.AppendItem(wx.MenuItem(menu, ID, _('Activate as current photo')))
-			wx.EVT_MENU(menu, ID, self.__activate_as_current_photo)
-		# show menu
-		self.PopupMenu(menu, wx.DefaultPosition)
-		menu.Destroy()
+			self.__part_context_menu.Append(ID, _('Activate as current photo'))
+			wx.EVT_MENU(self.__part_context_menu, ID, self.__activate_as_current_photo)
+		else:
+			ID = None
+
+		self.PopupMenu(self.__part_context_menu, wx.DefaultPosition)
+
+		if ID is not None:
+			self.__part_context_menu.Delete(ID)
+	#--------------------------------------------------------
+	# part level context menu handlers
 	#--------------------------------------------------------
 	def __display_part(self, part):
 		"""Display document part."""
@@ -1483,6 +1510,88 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		dlg.ShowModal()
 	#--------------------------------------------------------
+	def __process_part(self, action=None, l10n_action=None):
+
+		gmHooks.run_hook_script(hook = u'before_%s_doc_part' % action)
+
+		wx.BeginBusyCursor()
+
+		# detect wrapper
+		found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.sh' % action)
+		if not found:
+			found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.bat' % action)
+		if not found:
+			_log.error('neither of gm_%s_doc.sh or gm_%s_doc.bat found', action, action)
+			wx.EndBusyCursor()
+			gmGuiHelpers.gm_show_error (
+				_('Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n'
+				  '\n'
+				  'Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n'
+				  'must be in the execution path. The command will\n'
+				  'be passed the filename to %(l10n_action)s.'
+				) % {'action': action, 'l10n_action': l10n_action},
+				_('Processing document part: %s') % l10n_action
+			)
+			return
+
+		cfg = gmCfg.cCfgSQL()
+
+		# get export directory for temporary files
+		tmp_dir = gmTools.coalesce (
+			cfg.get2 (
+				option = "horstspace.tmp_dir",
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'workplace'
+			),
+			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+		)
+		_log.debug("temporary directory [%s]", tmp_dir)
+
+		# determine database export chunk size
+		chunksize = int(cfg.get2 (
+			option = "horstspace.blob_export_chunk_size",
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace',
+			default = default_chunksize
+		))
+
+		part_file = self.__curr_node_data.export_to_file (
+			aTempDir = tmp_dir,
+			aChunkSize = chunksize
+		)
+
+		cmd = u'%s %s' % (external_cmd, part_file)
+		success = gmShellAPI.run_command_in_shell (
+			command = cmd,
+			blocking = False
+		)
+
+		wx.EndBusyCursor()
+
+		if not success:
+			_log.error('%s command failed: [%s]', action, cmd)
+			gmGuiHelpers.gm_show_error (
+				_('Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n'
+				  '\n'
+				  'You may need to check and fix either of\n'
+				  ' gm_%(action)s_doc.sh (Unix/Mac) or\n'
+				  ' gm_%(action)s_doc.bat (Windows)\n'
+				  '\n'
+				  'The command is passed the filename to %(l10n_action)s.'
+				) % {'action': action, 'l10n_action': l10n_action},
+				_('Processing document part: %s') % l10n_action
+			)
+	#--------------------------------------------------------
+	# FIXME: icons in the plugin toolbar
+	def __print_part(self, evt):
+		self.__process_part(action = u'print', l10n_action = _('print'))
+	#--------------------------------------------------------
+	def __fax_part(self, evt):
+		self.__process_part(action = u'fax', l10n_action = _('fax'))
+	#--------------------------------------------------------
+	def __mail_part(self, evt):
+		self.__process_part(action = u'mail', l10n_action = _('mail'))
+	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
 	def __edit_consultation_details(self, evt):
@@ -1492,7 +1601,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):
 
-		gmHooks.run_hook_script(hook = action)
+		gmHooks.run_hook_script(hook = u'before_%s_doc' % action)
 
 		wx.BeginBusyCursor()
 
@@ -1637,7 +1746,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.159  2008-04-11 23:14:09  ncq
+# Revision 1.160  2008-04-12 19:21:19  ncq
+# - build doc/part context menus only once as far as
+#   possible in doc tree thereby preserving wx IDs
+# - handle print/fax/mail doc part
+# - properly call hook script
+#
+# Revision 1.159  2008/04/11 23:14:09  ncq
 # - centralize default_chunksize
 # - handle print/fax/mail document
 #
