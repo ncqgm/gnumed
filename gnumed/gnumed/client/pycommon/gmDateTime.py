@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.18 2008-01-13 01:14:26 ncq Exp $
+# $Id: gmDateTime.py,v 1.19 2008-04-12 22:30:46 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -665,7 +665,7 @@ def __single_dot(str2parse):
 
 	return matches
 #---------------------------------------------------------------------------
-def str2fuzzy_timestamp_matches(str2parse=None, default_time=None):
+def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None):
 	"""
 	Turn a string into candidate fuzzy timestamps and auto-completions the user is likely to type.
 
@@ -673,7 +673,7 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None):
 	somewhere in your code previously.
 
 	@param default_time: if you want to force the time part of the time
-		stamp to a given value and the user doesn't type and time part
+		stamp to a given value and the user doesn't type any time part
 		this value will be used
 	@type default_time: an mx.DateTime.DateTimeDelta instance
 	"""
@@ -692,8 +692,8 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None):
 				formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
 			)
 			# time, too ?
-			time = mxDT.Parser.TimeFromString(text = str2parse)
-			datetime = date_only + time
+			time_part = mxDT.Parser.TimeFromString(text = str2parse)
+			datetime = date_only + time_part
 			if datetime == date_only:
 				accuracy = acc_days
 				if isinstance(default_time, mxDT.DateTimeDeltaType):
@@ -711,6 +711,28 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None):
 			})
 		except (ValueError, mxDT.RangeError):
 			pass
+
+	if patterns is None:
+		patterns = []
+
+	patterns.append(['%Y.%m.%d', acc_days])
+	patterns.append(['%Y/%m/%d', acc_days])
+
+	for pattern in patterns:
+		try:
+			fts = cFuzzyTimestamp (
+				timestamp = pyDT.datetime.fromtimestamp(time.mktime(time.strptime(str2parse, pattern[0]))),
+				accuracy = pattern[1]
+			)
+			matches.append ({
+				'data': fts,
+				'label': fts.format_accurately()
+			})
+		except AttributeError:
+			# strptime() only available starting with Python 2.5
+			break
+		except ValueError:
+			continue
 
 	return matches
 
@@ -923,13 +945,16 @@ if __name__ == '__main__':
 		init()
 
 		#test_date_time()
-		#test_str2fuzzy_timestamp_matches()
+		test_str2fuzzy_timestamp_matches()
 		#test_cFuzzyTimeStamp()
-		test_get_pydt()
+		#test_get_pydt()
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.18  2008-01-13 01:14:26  ncq
+# Revision 1.19  2008-04-12 22:30:46  ncq
+# - support more date/time patterns
+#
+# Revision 1.18  2008/01/13 01:14:26  ncq
 # - does need gmI18N
 #
 # Revision 1.17  2008/01/05 16:37:47  ncq
