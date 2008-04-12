@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.10 2008-04-11 23:11:52 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmHooks.py,v 1.11 2008-04-12 19:17:35 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -50,7 +50,10 @@ known_hooks = [
 	u'app_deactivated',
 	u'before_print_doc',
 	u'before_fax_doc',
-	u'before_mail_doc'
+	u'before_mail_doc',
+	u'before_print_doc_part',
+	u'before_fax_doc_part',
+	u'before_mail_doc_part'
 ]
 
 
@@ -129,7 +132,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.10  2008-04-11 23:11:52  ncq
+# Revision 1.11  2008-04-12 19:17:35  ncq
+# - doc part hooks
+#
+# Revision 1.10  2008/04/11 23:11:52  ncq
 # - add fax/mail/print hooks
 # - list known hooks when creating hook script
 #
