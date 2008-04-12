@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.90 2008-03-06 18:33:12 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmGuiHelpers.py,v 1.91 2008-04-12 19:18:48 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -31,6 +31,7 @@ _log2 = logging.getLogger('gm.gui')
 _log2.info(__version__)
 
 _prev_excepthook = None
+application_is_closing = False
 #=========================================================================
 def set_staff_name(staff_name):
 	global _staff_name
@@ -43,6 +44,11 @@ def handle_uncaught_exception_wx(t, v, tb):
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
 	except: pass
+
+	# dead object error on shutdown ?
+	if application_is_closing:
+		if t == wx._core.PyDeadObjectError:
+			return
 
 	# failed import ?
 	if t == exceptions.ImportError:
@@ -109,6 +115,8 @@ def install_wx_exception_handler():
 	global _staff_name
 	_staff_name = _local_account
 
+	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
+
 	return True
 # ------------------------------------------------------------------------
 def uninstall_wx_exception_handler():
@@ -117,6 +125,10 @@ def uninstall_wx_exception_handler():
 		return True
 	sys.excepthook = _prev_excepthook
 	return True
+# ------------------------------------------------------------------------
+def _on_application_closing():
+	global application_is_closing
+	application_is_closing = True
 # ========================================================================
 class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
@@ -736,7 +748,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.90  2008-03-06 18:33:12  ncq
+# Revision 1.91  2008-04-12 19:18:48  ncq
+# - listen to application_closing and ignore
+#   PyDeadObjectError when closing down
+#
+# Revision 1.90  2008/03/06 18:33:12  ncq
 # - properly log exception information for unhandled exceptions
 #
 # Revision 1.89  2008/03/02 15:11:55  ncq
