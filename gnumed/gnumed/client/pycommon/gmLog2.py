@@ -40,8 +40,8 @@ will merrily and automagically start logging away.
 # - ascii_ctrl2mnemonic()
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.9 2008-03-06 21:23:22 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmLog2.py,v 1.10 2008-04-13 14:42:13 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -88,12 +88,25 @@ AsciiName = ['<#0-0x00-nul>',
 			 '<#31-0x1F-us>'
 			]
 
-#msg = reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(tmp))), '')
+# msg = reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(tmp))), '')
+#
 #	def __char2AsciiName(self, aChar):
 #		try:
 #			return AsciiName[ord(aChar)]
 #		except IndexError:
 #			return aChar
+#
+#	def __tracestack(self):
+#		"""extract data from the current execution stack
+#
+#		this is rather fragile, I guess
+#		"""
+#		stack = traceback.extract_stack()
+#		self.__modulename = stack[-4][0]
+#		self.__linenumber = stack[-4][1]
+#		self.__functionname = stack[-4][2]
+#		if (self.__functionname == "?"):
+#			self.__functionname = "Main"
 
 #===============================================================
 # external API
@@ -268,7 +281,10 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.9  2008-03-06 21:23:22  ncq
+# Revision 1.10  2008-04-13 14:42:13  ncq
+# - saviour the last bits from the old logging code
+#
+# Revision 1.9  2008/03/06 21:23:22  ncq
 # - keep some interesting stuff from the old logging infrastructure
 #
 # Revision 1.8  2008/03/06 18:46:55  ncq
