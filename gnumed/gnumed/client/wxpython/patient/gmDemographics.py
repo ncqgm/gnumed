@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.39 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmDemographics.py,v 1.40 2008-04-13 14:39:49 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "R.Terry, SJ Tan"
 
 
@@ -28,7 +28,7 @@ except ImportError:
 
 from mx import DateTime
 
-from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher
+from Gnumed.pycommon import gmGuiBroker, gmDispatcher
 
 import gmPlugin
 import gmSQLListControl
@@ -434,7 +434,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.39  2008-01-30 14:03:42  ncq
+# Revision 1.40  2008-04-13 14:39:49  ncq
+# - no more old style logging
+#
+# Revision 1.39  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

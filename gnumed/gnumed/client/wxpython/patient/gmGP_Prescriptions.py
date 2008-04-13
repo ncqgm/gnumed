@@ -34,7 +34,6 @@ import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headi
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea                              #panel class holding editing
 import gmPlugin_Patient
-import gmLog
 from gmPatientHolder import PatientHolder
 
 

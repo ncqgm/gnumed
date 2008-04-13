@@ -18,7 +18,7 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_FamilyHistory.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
 try:
@@ -27,7 +27,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-import gmEditArea, gmPlugin_Patient, gmLog
+import gmEditArea, gmPlugin_Patient
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
@@ -203,7 +203,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================# 
 # $Log: gmGP_FamilyHistory.py,v $
-# Revision 1.10  2005-09-26 18:01:53  ncq
+# Revision 1.11  2008-04-13 14:39:49  ncq
+# - no more old style logging
+#
+# Revision 1.10  2005/09/26 18:01:53  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

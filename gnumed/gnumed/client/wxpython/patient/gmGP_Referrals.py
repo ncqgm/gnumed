@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.13 2005-09-26 18:01:53 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmGP_Referrals.py,v 1.14 2008-04-13 14:39:49 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "R.Terry, I.Haywood"
 
 try:
@@ -17,7 +17,6 @@ except ImportError:
 	from wxPython import wx
 
 from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel, gmGuiElement_DividerCaptionPanel, gmGuiElement_AlertCaptionPanel, gmEditArea, gmPlugin_Patient
-from Gnumed.pycommon import gmLog
 from Gnumed.wxpython.gmPatientHolder import PatientHolder
 
 ID_REFERRALDATE = wxNewId()
@@ -102,7 +101,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #==============================================================
 # $Log: gmGP_Referrals.py,v $
-# Revision 1.13  2005-09-26 18:01:53  ncq
+# Revision 1.14  2008-04-13 14:39:49  ncq
+# - no more old style logging
+#
+# Revision 1.13  2005/09/26 18:01:53  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

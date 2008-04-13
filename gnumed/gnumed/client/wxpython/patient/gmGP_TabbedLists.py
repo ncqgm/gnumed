@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.20 2005-09-26 18:01:53 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmGP_TabbedLists.py,v 1.21 2008-04-13 14:39:49 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 
 try:
 	import wxversion
@@ -41,7 +41,7 @@ except ImportError:
 import keyword
 import time
 import images #bitmaps for column headers of lists
-import gmPlugin, gmShadow, gmLog
+import gmPlugin, gmShadow
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 import zlib, cPickle
 
@@ -343,7 +343,10 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.20  2005-09-26 18:01:53  ncq
+# Revision 1.21  2008-04-13 14:39:49  ncq
+# - no more old style logging
+#
+# Revision 1.20  2005/09/26 18:01:53  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
