@@ -13,13 +13,12 @@
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDrugObject.py,v $      
-# $Id: gmDrugObject.py,v 1.3 2005-03-17 20:32:14 hinnef Exp $
-__version__ = "$Revision: 1.3 $"                                               
+# $Id: gmDrugObject.py,v 1.4 2008-04-13 14:41:40 ncq Exp $
+__version__ = "$Revision: 1.4 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types, os.path
 
-import gmLog,gmCfg, gmPG
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	# running standalone means diagnostics by definition, hehe
@@ -317,7 +316,10 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.3  2005-03-17 20:32:14  hinnef
+# Revision 1.4  2008-04-13 14:41:40  ncq
+# - old style logging is out
+#
+# Revision 1.3  2005/03/17 20:32:14  hinnef
 # -fixed module dependencies
 #
 # Revision 1.2  2005/01/19 11:15:41  ncq

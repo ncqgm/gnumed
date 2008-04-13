@@ -15,12 +15,12 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string, types, pickle
 
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2
+from Gnumed.pycommon import gmCfg, gmPG2
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
@@ -871,7 +871,10 @@ def importDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.9  2006-12-13 14:56:38  ncq
+# Revision 1.10  2008-04-13 14:41:40  ncq
+# - old style logging is out
+#
+# Revision 1.9  2006/12/13 14:56:38  ncq
 # - comment out some printk()s
 #
 # Revision 1.8  2006/12/05 13:55:13  ncq

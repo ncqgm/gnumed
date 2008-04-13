@@ -2,7 +2,7 @@
 import sys, string, re, types
 
 
-from Gnumed.pycommon import gmLog, gmCfg, gmDrugObject, gmExceptions
+from Gnumed.pycommon import gmCfg, gmDrugObject, gmExceptions
 from Gnumed.business import gmSurgery
 
 
@@ -396,7 +396,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.11  2007-10-07 12:29:12  ncq
+# Revision 1.12  2008-04-13 14:41:40  ncq
+# - old style logging is out
+#
+# Revision 1.11  2007/10/07 12:29:12  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.10  2007/02/17 14:13:11  ncq
