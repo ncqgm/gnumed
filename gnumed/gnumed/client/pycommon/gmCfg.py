@@ -2,50 +2,20 @@
 
 Two sources of configuration information are supported:
 
- - INI-style configuration files
  - database tables
 
-Just import this module to have access to a default config file:
-
-> from Gnumed.pycommon import gmCfg
-> _cfg = gmCfg.gmDefCfgFile
-> option = _cfg.get(group, option)
-
 Theory of operation:
-
-Upon importing this module a "default" config file will be parsed. This
-file is registered as the default source for configuration information.
-
-The module will look for the config file in the following standard
-places:
-
-1) programmer supplied arguments
-2) user supplied command line (getopt style):	--conf-file=<a file name>
-3) user supplied $aName_DIR environment variable (all uppercase)
-4) ~/.<aDir>/<aName>.conf
-5) ~/.<aName>.conf
-6) /etc/<aDir>/<aName>.conf
-7) /etc/<aName>.conf
-8) ./<aName>.conf		- last resort for DOS/Win
-
-<aDir> and <aName> will be derived automatically from the name of
-the main script.
 
 It is helpful to have a solid log target set up before importing this
 module in your code. This way you will be able to see even those log
 messages generated during module import.
 
-It is also possible to instantiate objects for other config files
-later on.
-
 Once your software has established database connectivity you can
 set up a config source from the database. You can limit the option
 applicability by the constraints "workplace", "user", and "cookie".
 
-The basic API for handling items is get()/set() which works for both
-database and INI file access. Both sources cache data. The database
-config objects auto-syncs with the backend. To make INI file changes
-permanent you need to call store() on the file object.
+The basic API for handling items is get()/set().
+The database config objects auto-syncs with the backend.
 
 @copyright: GPL
 """
@@ -53,33 +23,25 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import os.path, fileinput, string, sys, shutil, types, cPickle, decimal, logging, re as regex, codecs
+import sys, types, cPickle, decimal, logging, re as regex
 
 
 # gnumed modules
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmNull, gmPG2, gmTools, gmBorg
+from Gnumed.pycommon import gmPG2, gmTools
+
 
 _log = logging.getLogger('gm.cfg')
-
-# flags for __get_conf_name
-cfg_SEARCH_STD_DIRS = 1
-# FIXME: make this cfg_HONOR_CMD_LINE and make IGNORE the default
-cfg_IGNORE_CMD_LINE = 2
+_log.info(__version__)
 
 # don't change this without knowing what you do as
 # it will already be in many databases
 cfg_DEFAULT = "xxxDEFAULTxxx"
-
-_log.info(__version__)
-
-gmDefCfgFile = gmNull.cNull()	# default config file initializes to Null object
-
 #==================================================================
 # FIXME: make a cBorg around this
 class cCfgSQL:
@@ -226,10 +188,6 @@ class cCfgSQL:
 		)
 		if not success:
 			return None
-		return default
-	#-----------------------------------------------
-	def get_by_workplace(self, option=None, workplace=None, cookie=None, default=None):
-		print "%s.get_by_workplace() deprecated, use get2() instead" % self.__class__.__name__
 		return default
 	#-----------------------------------------------
 	def getID(self, workplace = None, cookie = None, option = None):
@@ -389,540 +347,6 @@ delete from cfg.cfg_item where
 	def __make_alias(self, workplace, user, cookie, option):
 		return '%s-%s-%s-%s' % (workplace, user, cookie, option)
 #===================================================================
-class cCfgFile_old_delete_soon:
-	"""Handle common INI-style config files.
-
-	The INI file structure follows the common rules. Option values
-	can be strings or lists of strings. Lists are handled transparently.
-	The list format is as follows:
-
-	listname = $listname$ # comment
-	item 1
-	item 2
-	item 3
-	$listname$
-
-	Config data is cached in the following layout:
-
-	self._cfg_data	= {dict}
-	|
-	|-> 'comment'	= [list of strings]
-	`-> 'groups'	= {dict}
-	 |
-	 |-> group 1	= {dict}
-	 | ...
-	 `-> group n
-	  |
-	  |-> 'comment' = [list of strings]
-	  `-> 'options'	= {dict}
-	   |
-	   |-> option 1	= {dict}
-	   | ...
-	   `-> option n
-		|
-		|-> 'comment' [list of strings]
-		`-> 'value'
-	"""
-
-	_modified = None
-	#----------------------------
-	def __init__(self, aPath = None, aFile = None, flags = 0, aContents = None):
-		"""Init ConfigFile object. For valid combinations of these
-		parameters see above. Raises a ConfigError exception if
-		no config file could be found. 
-		"""
-		self._cfg_data = {}
-		if aContents:
-			if not self.__parse_conf(aContents.split('\n')):
-				raise SyntaxError, "cannot parse config file"
-		else:
-			# get conf file name
-			if not self.__get_conf_name(aPath, aFile, flags):
-				raise IOError, "cannot find config file"
-			# load config file
-			if not self.__parse_conf_file():
-				raise SyntaxError, "cannot parse config file"
-	#----------------------------
-	# API - access config data
-	#----------------------------
-	def getCfg(self):
-		"""Return handle to entire config dict."""
-		return self._cfg_data
-	#----------------------------
-	def getGroups(self):
-		"""Return list of all groups in config dict."""
-		return self._cfg_data['groups'].keys()
-	#----------------------------
-	def getOptions(self, aGroup = None):
-		"""Return list of all options in a group."""
-		if not self._cfg_data['groups'].has_key(aGroup):
-			_log.warning("Cannot return options for [%s]. No such group." % aGroup)
-			return None
-
-		return self._cfg_data['groups'][aGroup]['options'].keys()
-	#----------------------------
-	def get(self, aGroup = None, anOption = None):
-		if not self._cfg_data['groups'].has_key(aGroup):
-			_log.warning('group [%s] not found' % aGroup)
-			return None
-
-		group = self._cfg_data['groups'][aGroup]
-
-		if not group['options'].has_key(anOption):
-			_log.warning('option <%s> not found in group [%s]' % (anOption, aGroup))
-			return None
-
-		return group['options'][anOption]['value']
-	#----------------------------
-	def getComment(self, aGroup = None, anOption = None):
-		# file level
-		if aGroup is None:
-			# return file level comment if available
-			if self._cfg_data.has_key('comment'):
-				return self._cfg_data['comment']
-			else:
-				_log.warning('file [%s] has no comment' % self.cfgName)
-				return None
-
-		# group or option level
-		if self._cfg_data['groups'].has_key(aGroup):
-			if anOption is None:
-				if self._cfg_data['groups'][aGroup].has_key('comment'):
-					return self._cfg_data['groups'][aGroup]['comment']
-				else:
-					_log.warning('group [%s] (in [%s]) has no comment' % (aGroup, self.cfgName))
-					return None
-			else:
-				if self._cfg_data['groups'][aGroup]['options'].has_key(anOption):
-					if self._cfg_data['groups'][aGroup]['options'][anOption].has_key('comment'):
-						return self._cfg_data['groups'][aGroup]['options'][anOption]['comment']
-					else:
-						_log.warning('option [%s] in group [%s] (in [%s]) has no comment' % (anOption, aGroup, self.cfgName))
-						return None
-				else:
-					_log.error('option [%s] not in group [%s] in file [%s]' % (anOption, aGroup, self.cfgName))
-					return None
-		else:
-			_log.error('group [%s] not in file [%s]' % (aGroup, self.cfgName))
-			return None
-	#----------------------------
-	# API - setting config items
-	#----------------------------
-	def set(self, aGroup = None, anOption = None, aValue = None, aComment = None):
-		"""Set an option to an arbitrary type.
-
-		This does not write the changed configuration to a file !
-		"""
-		# setting file level comment ?
-		if aGroup is None:
-			if aComment is None:
-				_log.error("don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
-				return None
-			self._cfg_data['comment'] = [str(aComment)]
-			self._modified = 1
-			return 1
-
-		# make sure group is there
-		if not self._cfg_data['groups'].has_key(aGroup):
-			self._cfg_data['groups'][aGroup] = {'options': {}}
-
-		# setting group level comment ?
-		if anOption is None:
-			if aComment is None:
-				_log.error("don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
-				return None
-			self._cfg_data['groups'][aGroup]['comment'] = aComment
-			self._modified = 1
-			return 1
-
-		# setting option
-		if aValue is None:
-			_log.error("don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
-			return None
-		# make sure option is there
-		if not self._cfg_data['groups'][aGroup]['options'].has_key(anOption):
-			self._cfg_data['groups'][aGroup]['options'][anOption] = {}
-		# set value
-		self._cfg_data['groups'][aGroup]['options'][anOption]['value'] = aValue
-		# set comment
-		if not aComment is None:
-			self._cfg_data['groups'][aGroup]['options'][anOption]['comment'] = aComment
-		self._modified = 1
-		return 1
-	#----------------------------
-	def store(self):
-		"""Store changed configuration in config file.
-
-		- first backup old config file in case we want to take
-		  back changes of content
-		- then create the new config file with a separate name
-		- only copy the new file to the old name if writing the
-		  new file succeeds
-		# FIXME: actually we need to reread the config file here before writing
-		"""
-		if not self._modified:
-			_log.info("No changed items: nothing to be stored.")
-			return 1
-
-		bak_name = "%s.gmCfg.bak" % self.cfgName
-		try:
-			os.remove(bak_name)
-		except:
-			pass
-
-		try:
-			shutil.copyfile(self.cfgName, bak_name)
-		except:
-			_log.exception("Problem backing up config file !")
-
-		# open new file for writing
-		new_name = "%s.gmCfg.new" % self.cfgName
-		new_file = open(new_name, "wb")
-
-		# file level comment
-		if self._cfg_data.has_key('comment'):
-			if not self._cfg_data['comment'] == []:
-				for line in self._cfg_data['comment']:
-					new_file.write("# %s\n" % line)
-				new_file.write("\n")
-		# loop over groups
-		for group in self._cfg_data['groups'].keys():
-			gdata = self._cfg_data['groups'][group]
-			# group level comment
-			if gdata.has_key('comment'):
-				if not gdata['comment'] == []:
-					for line in gdata['comment']:
-						new_file.write("# %s\n" % line)
-			new_file.write("[%s]\n" % group)
-			# loop over options for group
-			for opt in gdata['options'].keys():
-				odata = gdata['options'][opt]
-				# option level comment
-				if odata.has_key('comment'):
-					for line in odata['comment']:
-						new_file.write("# %s\n" % line)
-				if type(odata['value']) == type([]):
-					new_file.write("%s = $%s$\n" % (opt, opt))
-					for line in odata['value']:
-						new_file.write("%s\n" % line)
-					new_file.write("$%s$\n" % opt)
-				else:
-					new_file.write("%s = %s\n" % (opt, odata['value']))
-			new_file.write("\n\n")
-
-		new_file.close()
-		# copy new file to old file
-		try:
-			shutil.copyfile(new_name, self.cfgName)
-		except StandardError:
-			_log.exception('cannot move modified options into config file')
-
-		os.remove(new_name)
-		return 1
-	#----------------------------
-	def delete(self, aGroup = None, anOption = None):
-		"""
-		Deletes an option or a whole group.
-		Note that you have to call store() in order to save
-		the changes.
-		"""
-		# check if the group exists
-		if aGroup is not None:
-			if not self._cfg_data['groups'].has_key(aGroup):
-				_log.warning('group [%s] not found' % aGroup)
-				return None
-		else:
-			_log.warning('No group to delete specified.')
-			return None
-		
-		# now we know that the group exists
-		if anOption is None:
-			del self._cfg_data['groups'][aGroup]
-			return 1
-		else:			
-			group = self._cfg_data['groups'][aGroup]
-
-			if not group['options'].has_key(anOption):
-				_log.warning('option <%s> not found in group [%s]' % (anOption, aGroup))
-				return None
-			else:
-				del group['options'][anOption]
-		return 1
-
-	#----------------------------
-	# internal methods
-	#----------------------------
-	def __get_conf_name(self, aDir = None, aName = None, flags = 0):
-		"""Try to construct a valid config file name.
-
-		- None: no valid name found
-		- true(1): valid name found
-		"""
-		_log.debug('(<aDir=%s>, <aName=%s>)' % (aDir, aName))
-
-		candidate_files = []
-
-		# now make base path components
-		base_name = None
-		base_dir = None
-		# 1) get base name:
-		if aName is None:
-			# - from name of script if no file name given
-			base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
-		else:
-			# - from given file name/dir
-			# don't try to expand give filen name if
-			# explicitely asked to search in standard dirs
-			if (flags & cfg_SEARCH_STD_DIRS):
-				base_name = aName
-			# else do try to expand
-			else:
-				if aDir is None:
-					absName = os.path.abspath(aName)
-				else:
-					absName = os.path.abspath(os.path.join(aDir, aName))
-				# this candidate will stay the only one
-				candidate_files.append(absName)
-		# 2) get base dir
-		if aDir is None:
-			# from name of script
-			base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-		else:
-			# or from path in arguments
-			base_dir = aDir
-
-		# if we don't have a filename given we explicitly want
-		# to search various locations -> create location list
-		# if the programmer specified a filename and 
-		# does NOT want to search standard dirs then only try
-		# to find that very location (i.e. skip std dir generation)
-		if (flags & cfg_SEARCH_STD_DIRS) or aName is None:
-			# create list of standard config file locations
-			std_dirs = []
-			# - $(<script-name>_DIR)/etc/
-			env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
-			if os.environ.has_key(env_key):
-				env_key_val = os.environ[env_key]
-				a_dir = os.path.abspath(os.path.expanduser(os.path.join(env_key_val, 'etc')))
-				std_dirs.append(a_dir)
-			else:
-				_log.info("$%s not set" % env_key)
-
-			# - ~/.base_dir/
-			a_dir = os.path.expanduser(os.path.join('~', '.' + base_dir))
-			std_dirs.append(a_dir)	
-
-			# - /etc/base_dir/
-			a_dir = os.path.join('/etc', base_dir)
-			std_dirs.append(a_dir)
-
-			# - /etc/
-			std_dirs.append('/etc')
-
-			# - ./
-			# last resort for inferior operating systems such as DOS/Windows
-			a_dir = os.path.abspath(os.path.split(sys.argv[0])[0])
-			std_dirs.append(a_dir)
-			std_dirs.append(os.path.join (a_dir, '..', 'etc'))
-
-			# compile candidate file names from
-			# standard dirs and base name
-			for a_dir in std_dirs:
-				candidate_files.append(os.path.join(a_dir, base_name))
-
-			# eventually add hidden file:
-			# - ~/.base_name
-			cfgNameHidden = os.path.expanduser(os.path.join('~', '.' + base_name))
-			candidate_files.insert(1, cfgNameHidden)
-
-		_log.debug("config file search order: %s" % str(candidate_files))
-
-		# eventually loop through all candidates
-		for candidate in (candidate_files):
-			if not os.path.isfile(candidate):
-				_log.info("config file [%s] not found" % candidate)
-			else:
-				_log.info('found config file [%s]' % candidate)
-				self.cfgName = candidate
-				return 1
-
-		# still don't have a valid config file name ?!?
-		# we can't help it
-		_log.error("cannot find config file in any of the standard paths")
-		return None
-	#----------------------------
-	def __parse_conf_file(self):
-		if not os.path.exists(self.cfgName):
-			_log.warning("config file [%s] not found" % self.cfgName)
-
-		_log.debug("parsing config file [%s]" % self.cfgName)
-
-		return self.__parse_conf (fileinput.input(self.cfgName))
-
-	#-------------------------------------------------
-	def __parse_conf (self, conf_file):
-		self._cfg_data['groups'] = {}
-
-		curr_group = None
-		curr_opt = None
-		in_list = None
-		comment_buf = []
-		file_comment_buf = []
-		for line in conf_file:
-			# remove trailing CR and/or LF
-			line = string.replace(line,'\015','')
-			line = string.replace(line,'\012','')
-			# remove leading/trailing whitespace
-			line = string.strip(line)
-
-			#-----------------------
-			# are we inside a list ?
-			if in_list:
-				# end of list ?
-				if line == ("$%s$" % curr_opt):
-					in_list = None
-					continue
-				# else keep unmodified line as list item
-				self._cfg_data['groups'][curr_group]['options'][curr_opt]['value'].append(line)
-				continue
-
-			#-----------------------
-			# ignore empty lines
-			if line == "":
-				# if before first group
-				if curr_group is None:
-					if self._cfg_data.has_key('comment'):
-						self._cfg_data['comment'].append(comment_buf)
-					else:
-						self._cfg_data['comment'] = comment_buf
-					comment_buf = []
-				continue
-
-			#----------
-			# comment ?
-			if line.startswith('#') or line.startswith(';'):
-				comment = string.strip(line[1:])
-				if not comment == "":
-					comment_buf.append(comment)
-				continue
-
-			#----------
-			# [group] ?
-			if line.startswith('['):
-				try:
-					tmp, comment = line.split(']', 1)
-				except:
-					_log.error('parse error in line #%s of config file [%s]' % (fileinput.filelineno(), fileinput.filename()))
-					raise
-				if tmp == "[":
-					_log.error('empty group definition "[]" not allowed')
-					continue
-
-				comment = string.strip(comment)
-				if not comment == "":
-					comment_buf.append(comment)
-
-				curr_group = tmp[1:]
-				if self._cfg_data['groups'].has_key(curr_group):
-					_log.warning('duplicate group [%s] (file [%s]) - overriding options' % (curr_group, self.cfgName))
-				else:
-					self._cfg_data['groups'][curr_group] = {'options': {}}
-
-				self._cfg_data['groups'][curr_group]['comment'] = comment_buf
-				comment_buf = []
-				continue
-
-			#----------
-			# option= ?
-			if not curr_group:
-				_log.error('option found before first group statement')
-				continue
-
-			#  normalize
-			colon_pos = line.find(":")
-			equal_pos = line.find("=")
-			if colon_pos == -1 and equal_pos == -1:
-				_log.error('option [%s] does not contain a separator ("=" or ":")' % line)
-				continue
-			if colon_pos < equal_pos:
-				line = line.replace(':', '=', 1)
-
-			#  separate <opt_name> = <opt_val # opt_comment>
-			name, tmp = line.split('=', 1)
-			name = string.strip(name)
-			if name == "":
-				_log.error('option name must not be empty')
-				continue
-			curr_opt = name
-			if self._cfg_data['groups'][curr_group]['options'].has_key(curr_opt):
-				_log.warning('duplicate option [%s] (group [%s], file [%s]) - overriding value' % (curr_opt, curr_group, self.cfgName))
-			else:
-				self._cfg_data['groups'][curr_group]['options'][curr_opt] = {}
-
-			#  normalize again
-			tmp = string.replace(tmp, ';', '#', 1)
-			if tmp.find("#") == -1:
-				val = tmp
-				comment = ""
-			else:
-				#  separate <opt_val> # <opt_comment>
-				val, comment = tmp.split('#', 1)
-				comment = string.strip(comment)
-			val = string.strip(val)
-			if comment != "":
-				comment_buf.append(comment)
-
-			self._cfg_data['groups'][curr_group]['options'][curr_opt]['comment'] = comment_buf
-			comment_buf = []
-
-			# start of list ?
-			if val == ("$%s$" % curr_opt):
-				in_list = 1
-				self._cfg_data['groups'][curr_group]['options'][curr_opt]['value'] = []
-			else:
-				self._cfg_data['groups'][curr_group]['options'][curr_opt]['value'] = val
-
-		return 1
-#=============================================================
-def create_default_cfg_file_old_delete_soon():
-	# get base dir from name of script
-	base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-
-	# make sure base directory is there
-	# FIXME: this isn't portable very well
-	# - should we rather use the current dir ?
-	# - but no, this may not be writeable
-	tmp = os.path.expanduser(os.path.join('~', "." + base_dir))
-	if not os.path.exists(tmp):
-		os.mkdir(tmp)
-
-	base_dir = tmp
-
-	# get base name from name of script
-	base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-	conf_name = base_name + ".conf"
-
-	# - now the path exists but we still need to
-	#   make sure the file itself exists
-	tmp = os.path.join(base_dir, conf_name)
-	if not os.path.exists(tmp):
-		try:
-			f = open(tmp, "wb")
-			f.write('# [%s]: empty default config file\n' % base_name)
-			f.write('# -------------------------------------------------------------\n')
-			f.write('# created by gmCfg because no other config file could be found,\n')
-			f.write('# please check the docs that came with the software\n')
-			f.write('# to find out what options you can set in here\n')
-			f.write('\n')
-			f.close()
-		except StandardError:
-			_log.exception("Cannot create empty default config file [%s]." % tmp)
-			return None
-
-	_log.error('Created empty config file [%s].' % tmp)
-	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
-	return 1
-#-------------------------------------------------------------
 def getDBParam(workplace = None, cookie = None, option = None):
 	"""Convenience function to get config value from database.
 
@@ -1042,74 +466,20 @@ if __name__ == "__main__":
 		print "complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user')
 
 	#---------------------------------------------------------
-
-#	# if there's an argument assume it to be a config
-#	# file and test that
-#	if len(sys.argv) > 1:
-#		print "testing config file handling"
-#		print "============================"
-#		try:
-#			myCfg = cCfgFile(aFile = sys.argv[1])
-#			myCfg = cCfgFile(aFile = sys.argv[1],flags=cfg_SEARCH_STD_DIRS)
-#		except:
-#			exc = sys.exc_info()
-#			_log.exception('unhandled exception')
-#			raise
-
-#		print myCfg
-
-#		# display file level data
-#		print "file: %s" % myCfg.cfgName
-#		tmp = myCfg.getComment()
-#		if not tmp is None:
-#			print "comment:", tmp
-
-#		# display group level data
-#		groups = myCfg.getGroups()
-#		print "groups:", str(groups)
-
-#		# recurse groups
-#		for group in groups:
-#			print "GROUP [%s]" % group
-
-#			tmp = myCfg.getComment(aGroup = group)
-#			if not tmp is None:
-#				print " ", tmp
-
-#			# recurse options
-#			options = myCfg.getOptions(group)
-#			for option in options:
-#				tmp = myCfg.get(group, option)
-#				if not tmp is None:
-#					print "OPTION <%s> = >>>%s<<<" % (option, tmp)
-#				tmp = myCfg.getComment(group, option)
-#				if not tmp is None:
-#					print "  %s" % tmp
-
-#		myCfg.set("date", "modified", "right now", ["should always be rather current"])
-#		myCfg.store()
-
-#		sys.exit(0)
-
-	try:
-		test_db_cfg()
-	except:
-		_log.exception('test suite failed')
-		raise
-
-#else:
-#	# - we are being imported
-
-#	# - IF the caller really knows what she does she can handle
-#	#   that exception in her own code
-#	try:
-#		gmDefCfgFile = cCfgFile()
-#	except IOError:
-#		_log.exception('unhandled exception')
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+		try:
+			test_db_cfg()
+		except:
+			_log.exception('test suite failed')
+			raise
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.58  2008-01-30 14:04:32  ncq
+# Revision 1.59  2008-04-13 13:57:32  ncq
+# - lay to rest the venerable cCfgFile, it
+#   has served us well
+#
+# Revision 1.58  2008/01/30 14:04:32  ncq
 # - disable support from gmCfgFile()
 #
 # Revision 1.57  2007/12/26 18:34:02  ncq
