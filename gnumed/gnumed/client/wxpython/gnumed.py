@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.137 2008-03-06 21:30:49 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gnumed.py,v 1.138 2008-04-13 14:40:17 ncq Exp $
+__version__ = "$Revision: 1.138 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -362,7 +362,7 @@ setup_console_exception_handler()
 setup_cli()
 setup_signal_handlers()
 
-from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks		#, gmLog
+from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
 
 #setup_legacy_logging()
 setup_locale()
@@ -396,7 +396,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.137  2008-03-06 21:30:49  ncq
+# Revision 1.138  2008-04-13 14:40:17  ncq
+# - no old style logging anymore
+#
+# Revision 1.137  2008/03/06 21:30:49  ncq
 # - comment out legacy logging
 # - shutdown_backend()
 # - shutdown_logging()
