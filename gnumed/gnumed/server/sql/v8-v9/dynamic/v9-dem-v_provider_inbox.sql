@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v9-dem-v_provider_inbox.sql,v 1.1 2008-03-29 16:03:40 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-dem-v_provider_inbox.sql,v 1.2 2008-04-14 17:15:57 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -118,15 +118,21 @@ Using UNION makes sure we get the right level of uniqueness.';
 select i18n.i18n('review results');
 select i18n.i18n('unreviewed results for patient');
 
+select i18n.upd_tx('de_DE', 'review results', 'Tests durchsehen');
+select i18n.upd_tx('de_DE', 'unreviewed results for patient', 'neue Testergebnisse beim Patienten');
+
 -- --------------------------------------------------------------
 grant select on dem.v_provider_inbox to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-dem-v_provider_inbox.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v9-dem-v_provider_inbox.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-dem-v_provider_inbox.sql,v $
--- Revision 1.1  2008-03-29 16:03:40  ncq
+-- Revision 1.2  2008-04-14 17:15:57  ncq
+-- - translate to German
+--
+-- Revision 1.1  2008/03/29 16:03:40  ncq
 -- - add unreviewed results
 --
 --
