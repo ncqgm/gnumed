@@ -1,12 +1,12 @@
 #!/bin/sh
 
 #=================================================
-# $Id: get-changelog.sh,v 1.1 2006-11-07 15:21:01 ncq Exp $
-# $Revision: 1.1 $
+# $Id: get-changelog.sh,v 1.2 2008-04-14 16:59:46 ncq Exp $
+# $Revision: 1.2 $
 #-------------------------------------------------
 
-REV1="rel-0-2-patches"
-REV2="rel-0-2-patches"
+REV1="rel-0-2-8-patches"
+REV2="rel-0-2-8-patches"
 
 # rev1 to rev2
 #REVDEF="-r$REV1:$REV2"
@@ -38,7 +38,10 @@ cvs log -S $REVDEF >> $LOG
 
 #=================================================
 # $Log: get-changelog.sh,v $
-# Revision 1.1  2006-11-07 15:21:01  ncq
+# Revision 1.2  2008-04-14 16:59:46  ncq
+# - edit to actually produce something meaningful
+#
+# Revision 1.1  2006/11/07 15:21:01  ncq
 # - extract changelog between revisions from CVS
 #
 #
