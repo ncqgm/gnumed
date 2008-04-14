@@ -5,17 +5,13 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.3 2008-04-02 10:17:54 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v9-clin-v_test_results.sql,v 1.4 2008-04-14 17:15:41 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-select gm.add_table_for_notifies('clin', 'test_result');
-select gm.add_table_for_notifies('clin', 'reviewed_test_results');
-
-
 \unset ON_ERROR_STOP
 drop view clin.v_test_results cascade;
 \set ON_ERROR_STOP 1
@@ -84,52 +80,41 @@ select
 	-- review status
 	exists(select 1 from clin.reviewed_test_results where fk_reviewed_row = tr.pk)
 		as reviewed,
-	(
-	 (select pk from dem.staff where db_user=current_user)
-		=
-	 (select tr.fk_intended_reviewer)
-	) as you_are_reviewer,
+
+	(select coalesce (
+		(tr.fk_intended_reviewer = (select pk from dem.staff where db_user=current_user)),
+		False
+	)) as you_are_reviewer,
+
+	(select exists (
+		select 1 from clin.reviewed_test_results
+		where
+			fk_reviewed_row = tr.pk and
+			fk_reviewer = (select pk from dem.staff where db_user = current_user)
+	)) as you_reviewed,
+
+	(select exists (
+		select 1 from clin.reviewed_test_results
+		where
+			fk_reviewed_row = tr.pk and
+			fk_reviewer = tr.fk_intended_reviewer
+	)) as reviewer_reviewed,
+
 	(select is_technically_abnormal
 	 from clin.reviewed_test_results
-	 where
-		fk_reviewed_row = tr.pk
-		and fk_reviewer = (select pk from dem.staff where db_user=current_user)
-	) as is_technically_abnormal_by_you,
+	 where fk_reviewed_row = tr.pk
+	) as is_technically_abnormal,
 
 	(select clinically_relevant
 	 from clin.reviewed_test_results
-	 where
-		fk_reviewed_row = tr.pk
-		and fk_reviewer = (select pk from dem.staff where db_user=current_user)
-	) as is_clinically_relevant_by_you,
+	 where fk_reviewed_row = tr.pk
+	) as is_clinically_relevant,
 
 	(select comment
 	 from clin.reviewed_test_results
 	 where
 		fk_reviewed_row = tr.pk
-		and fk_reviewer = (select pk from dem.staff where db_user=current_user)
-	) as your_review_comment,
-
-	(select is_technically_abnormal
-	 from clin.reviewed_test_results
-	 where
-		fk_reviewed_row = tr.pk
-		and fk_reviewer = tr.fk_intended_reviewer
-	) as is_technically_abnormal_by_reviewer,
-
-	(select clinically_relevant
-	 from clin.reviewed_test_results
-	 where
-		fk_reviewed_row = tr.pk
-		and fk_reviewer = tr.fk_intended_reviewer
-	) as is_clinically_relevant_by_reviewer,
-
-	(select comment
-	 from clin.reviewed_test_results
-	 where
-		fk_reviewed_row = tr.pk
-		and fk_reviewer = tr.fk_intended_reviewer
-	) as reviewers_review_comment,
+	) as review_comment,
 
 	case when ((select 1 from dem.v_staff where db_user = tr.modified_by) is null)
 		then '<' || tr.modified_by || '>'
@@ -170,11 +155,15 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.3  2008-04-02 10:17:54  ncq
+-- Revision 1.4  2008-04-14 17:15:41  ncq
+-- - notification setup moved away
+-- - only one review per row of results so support that
+--
+-- Revision 1.3  2008/04/02 10:17:54  ncq
 -- - cleanup
 -- - add you_are_reviewer
 --
