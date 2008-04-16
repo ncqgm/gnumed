@@ -19,22 +19,26 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self.data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, -1, size=(1, 1))
-        self._BTN_review = wx.Button(self, -1, _("&Sign ..."))
-        self._BTN_cut = wx.Button(self, wx.ID_COPY, "")
+        self._BTN_select_unsigned = wx.Button(self, -1, _("Select &unsigned"))
+        self._BTN_select_your_unsigned = wx.Button(self, -1, _("Select &your unsigned"))
+        self._BTN_review = wx.Button(self, -1, _("&Sign ... "))
 
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_BUTTON, self._on_select_unsigned_button_pressed, self._BTN_select_unsigned)
+        self.Bind(wx.EVT_BUTTON, self._on_select_your_unsigned_results_button_pressed, self._BTN_select_your_unsigned)
         self.Bind(wx.EVT_BUTTON, self._on_review_button_pressed, self._BTN_review)
-        self.Bind(wx.EVT_BUTTON, self._on_copy_button_pressed, self._BTN_cut)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementsPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._BTN_select_unsigned.SetToolTipString(_("Select all unsigned results, regardless of who is responsible for them."))
+        self._BTN_select_unsigned.Enable(False)
+        self._BTN_select_your_unsigned.SetToolTipString(_("Select those unsigned results for which you are responsible."))
+        self._BTN_select_your_unsigned.Enable(False)
         self._BTN_review.SetToolTipString(_("Press this to batch-sign the selected measurements."))
-        self._BTN_cut.SetToolTipString(_("Copy the selected measurements to the clipboard."))
-        self._BTN_cut.Enable(False)
         # end wxGlade
 
     def __do_layout(self):
@@ -45,21 +49,26 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         __hline_buttons = wx.StaticLine(self, -1)
         __szr_main.Add(__hline_buttons, 0, wx.ALL|wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_select_unsigned, 0, wx.RIGHT|wx.EXPAND, 3)
+        __szr_buttons.Add(self._BTN_select_your_unsigned, 0, wx.LEFT|wx.EXPAND, 3)
+        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_review, 0, wx.EXPAND, 0)
-        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_cut, 0, wx.EXPAND, 0)
         __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
         __szr_main.Add(__szr_buttons, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
 
-    def _on_review_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
-        print "Event handler `_on_review_button_pressed' not implemented!"
+    def _on_select_unsigned_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_select_unsigned_button_pressed' not implemented!"
         event.Skip()
 
-    def _on_copy_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
-        print "Event handler `_on_copy_button_pressed' not implemented!"
+    def _on_select_your_unsigned_results_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_select_your_unsigned_results_button_pressed' not implemented!"
+        event.Skip()
+
+    def _on_review_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_review_button_pressed' not implemented!"
         event.Skip()
 
 # end of class wxgMeasurementsPnl

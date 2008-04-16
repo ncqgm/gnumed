@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.18 2008-03-20 15:30:21 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmAuthWidgets.py,v 1.19 2008-04-16 20:39:39 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -41,8 +41,9 @@ GNUmed database version mismatch.
 
 This database version cannot be used with this client:
 
- version detected: %s
- version needed: %s
+ client version: %s
+ database version detected: %s
+ database version needed: %s
 
 Currently connected to database:
 
@@ -82,11 +83,11 @@ There may be schema related errors. Please report and/or
 fix them. Do not rely on this database to work properly
 in all cases !""")
 
-curr_db = 'gnumed_v9'
+current_db_name = 'gnumed_v9'
 #================================================================
 # convenience functions
 #----------------------------------------------------------------
-def connect_to_database(max_attempts=3, expected_version=None, require_version=True):
+def connect_to_database(max_attempts=3, expected_version=None, require_version=True, client_version=u'*** unknown ***'):
 	"""Display the login dialog and try to log into the backend.
 
 	- up to max_attempts times
@@ -97,7 +98,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 	attempt = 0
 
-	dlg = cLoginDialog(None, -1)
+	dlg = cLoginDialog(None, -1, client_version = client_version)
 	dlg.Centre(wx.BOTH)
 
 	while attempt < max_attempts:
@@ -151,7 +152,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		if not compatible:
 			connected_db_version = gmPG2.get_schema_version()
-			msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
+			msg = msg_generic % (client_version, connected_db_version, expected_version, login.host, login.database, login.user)
 			if require_version:
 				gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
 				continue
@@ -226,10 +227,10 @@ class cLoginDialog(wx.Dialog):
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
 
-	def __init__(self, parent, id, title=_("Welcome to the")):
+	def __init__(self, parent, id, title=_("Welcome to the"), client_version=u'*** unknown ***'):
 		wx.Dialog.__init__(self, parent, id, title)
-		self.panel = cLoginPanel(self, -1, isDialog=1)
-		self.Fit () # needed for Windoze.
+		self.panel = cLoginPanel(self, -1, isDialog=1, client_version = client_version)
+		self.Fit() # needed for Windoze.
 		self.Centre()
 
 		# set window icon
@@ -245,11 +246,8 @@ class cLoginPanel(wx.Panel):
 		previously entered settings.
 	"""
 	def __init__(self, parent, id,
-		pos = wx.DefaultPosition,
-		size = wx.DefaultSize,
-		style = wx.TAB_TRAVERSAL,
-		isDialog = 0
-		):
+					pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.TAB_TRAVERSAL,
+					isDialog = 0, client_version = u'*** unknown ***'):
 		"""Create login panel.
 
 		isDialog:	if this panel is the main panel of a dialog, the panel will
@@ -294,9 +292,9 @@ class cLoginPanel(wx.Panel):
 			)
 
 		if _cfg.get(option = 'slave'):
-			paramsbox_caption = _("Slave Login - %s" % gmSurgery.gmCurrentPractice().active_workplace)
+			paramsbox_caption = _("GNUmed %s - Slave Login - %s" % (client_version, gmSurgery.gmCurrentPractice().active_workplace))
 		else:
-			paramsbox_caption = _("Login - %s" % gmSurgery.gmCurrentPractice().active_workplace)
+			paramsbox_caption = _("GNUmed %s - Login - %s" % (client_version, gmSurgery.gmCurrentPractice().active_workplace))
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -491,12 +489,12 @@ class cLoginPanel(wx.Panel):
 
 		if len(profiles) == 0:
 			host = u'salaam.homeunix.com'
-			label = u'public GNUmed database (%s@%s)' % (curr_db, host)
+			label = u'public GNUmed database (%s@%s)' % (current_db_name, host)
 			profiles[label] = cBackendProfile()
 			profiles[label].name = label
 			profiles[label].host = host
 			profiles[label].port = 5432
-			profiles[label].database = curr_db
+			profiles[label].database = current_db_name
 			profiles[label].encoding = u'UTF8'
 			
 		return profiles
@@ -653,7 +651,11 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.18  2008-03-20 15:30:21  ncq
+# Revision 1.19  2008-04-16 20:39:39  ncq
+# - working versions of the wxGlade code and use it, too
+# - show client version in login dialog
+#
+# Revision 1.18  2008/03/20 15:30:21  ncq
 # - use gmPG2.sanity_check_time_skew()
 #
 # Revision 1.17  2008/03/11 17:00:49  ncq

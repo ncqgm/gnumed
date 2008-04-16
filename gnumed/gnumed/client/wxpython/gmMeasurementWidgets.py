@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.8 2008-04-11 23:12:23 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmMeasurementWidgets.py,v 1.9 2008-04-16 20:39:39 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -62,11 +62,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		selected_cells = self.get_selected_cells()
 		if len(selected_cells) > 10:
-			tests = None
 			test_count = len(selected_cells)
+			tests = None
 		else:
-			tests = [ self.__cell_data[c[1]][c[0]] for c in selected_cells if c[1] != 0 ]
 			test_count = None
+			tests = [ self.__cell_data[c[1]][c[0]] for c in selected_cells if c[1] != 0 ]
 
 		dlg = cMeasurementsReviewDlg (
 			self,
@@ -153,18 +153,17 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.__cell_data[col] = {}
 			self.__cell_data[col][row] = result
 
-			# is result technically abnormal ?
+			# is the result technically abnormal ?
 			ind = result['abnormality_indicator']
 			if (ind is not None) and (ind.strip() != u''):
 				lab_abnormality_indicator = u' (%s)' % ind[:3]
 			else:
 				lab_abnormality_indicator = u''
-			review_abnormal = gmTools.coalesce(result['is_technically_abnormal_by_you'], result['is_technically_abnormal_by_reviewer'])
 			# - if noone reviewed - use what the lab thinks
-			if review_abnormal is None:
+			if result['is_technically_abnormal'] is None:
 				abnormality_indicator = lab_abnormality_indicator
 			# - if someone reviewed and decreed normality - use that
-			elif review_abnormal is False:
+			elif result['is_technically_abnormal'] is False:
 				abnormality_indicator = u''
 			# - if someone reviewed and decreed abnormality ...
 			else:
@@ -176,25 +175,25 @@ class cMeasurementsGrid(wx.grid.Grid):
 				else:
 					abnormality_indicator = lab_abnormality_indicator
 
-			# warn on missing review if
-			#  a) no review at all exists
-			#  b) current user is reviewer but hasn't reviewed
-			if not result['reviewed']:
-				missing_review = True
-			else:
-				missing_review = False
-				if result['you_are_reviewer']:
-					if result['is_clinically_relevant_by_you'] is None:
-						missing_review = True
-
 			# is the result relevant clinically ?
 			# FIXME: take into account primary_GP once we support that
-			review_relevant = gmTools.coalesce(result['is_clinically_relevant_by_you'], result['is_clinically_relevant_by_reviewer'])
-			if review_relevant is None:
+			result_relevant = result['is_clinically_relevant']
+			if result_relevant is None:
 				# FIXME: take into account other review if there's only one
 				# FIMXE: take into account most recent review if there's more than one
 				# FIXME: calculate from clinical range
-				review_relevant = False
+				result_relevant = False
+
+			missing_review = False
+			# warn on missing review if
+			# a) no review at all exists or
+			if not result['reviewed']:
+				missing_review = True
+			# b) there is a review but
+			else:
+				# current user is reviewer and hasn't reviewed
+				if result['you_are_responsible'] and not result['review_by_you']:
+					missing_review = True
 
 			# can we display the full result information ?
 			has_result_comment = gmTools.coalesce (
@@ -221,7 +220,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 #			font = self.GetCellFont(row, col)
 #			if not font.IsFixedWidth():
 #			font.SetFamily(family = wx.FONTFAMILY_MODERN)
-			if review_relevant:
+			if result_relevant:
 				font = self.GetCellFont(row, col)
 				self.SetCellTextColour(row, col, 'firebrick')
 				font.SetWeight(wx.FONTWEIGHT_BOLD)
@@ -247,9 +246,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 				' Material: %(material)s\n'
 				' Details: %(mat_detail)s\n'
 				'\n'
-				'Signed (%(sig_hand)s) at all: %(reviewed)s\n'
-				' Yourself: %(abn_you)s%(rel_you)s%(rev_comment_you)s\n'
-				' Guarantor%(you_are_rev)s: %(abn_rev)s%(rel_rev)s%(rev_comment_reviewer)s\n'
+				'Signed (%(sig_hand)s): %(reviewed)s\n'
+				' Last reviewer: %(reviewer)s\n'
+				'  Technically abnormal: %(abnormal)s\n'
+				'  Clinically relevant: %(relevant)s\n'
+				'  Comment: %(rev_comment)s\n'
+				' Responsible clinician: %(responsible_reviewer)s\n'
 				'\n'
 				'Test type details:\n'
 				' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
@@ -264,20 +266,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'val': result[idx['unified_val']],
 				'unit': gmTools.coalesce(result[idx['val_unit']], u'', u' %s'),
 				'ind': gmTools.coalesce(result[idx['abnormality_indicator']], u'', u' (%s)'),
-				'epi': result[idx['episode']],
-				'issue': gmTools.coalesce(result[idx['health_issue']], u''),
-				'material': gmTools.coalesce(result[idx['material']], u''),
-				'mat_detail': gmTools.coalesce(result[idx['material_detail']], u''),
-				'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result[idx['comment']], u'').split('\n')),
-				'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result[idx['comment']], u'').split('\n')),
-				'reviewed': gmTools.bool2str(result[idx['reviewed']], _('yes'), _('no')),
-				'abn_you': gmTools.bool2subst(result[idx['is_technically_abnormal_by_you']], _('abnormal'), u'', u''),
-				'rel_you': gmTools.bool2subst(result[idx['is_clinically_relevant_by_you']], ', %s' % _('relevant'), u'', u''),
-				'rev_comment_you': gmTools.coalesce(result[idx['your_review_comment']], u'', u', %s'),
-				'you_are_rev': gmTools.bool2subst(result['you_are_reviewer'], u' (%s)' % _('you'), u''),
-				'abn_rev': gmTools.bool2subst(result[idx['is_technically_abnormal_by_reviewer']], _('abnormal'), u'', u''),
-				'rel_rev': gmTools.bool2subst(result[idx['is_clinically_relevant_by_reviewer']], ', %s' % _('relevant'), u'', u''),
-				'rev_comment_reviewer': gmTools.coalesce(result[idx['reviewers_review_comment']], u'', u', %s'),
 				'norm_min': gmTools.coalesce(result[idx['val_normal_min']], u'?'),
 				'norm_max': gmTools.coalesce(result[idx['val_normal_max']], u'?'),
 				'norm_range': gmTools.coalesce(result[idx['val_normal_range']], u'', u' / %s'),
@@ -285,12 +273,28 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'clin_min': gmTools.coalesce(result[idx['val_target_min']], u'?'),
 				'clin_max': gmTools.coalesce(result[idx['val_target_max']], u'?'),
 				'clin_range': gmTools.coalesce(result[idx['val_target_range']], u'', u' / %s'),
-				'mod_when': result[idx['modified_when']].strftime('%c'),
-				'mod_by': result[idx['modified_by']],
+				'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result[idx['comment']], u'').split('\n')),
+				'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result[idx['comment']], u'').split('\n')),
+				'epi': result[idx['episode']],
+				'issue': gmTools.coalesce(result[idx['health_issue']], u''),
+				'material': gmTools.coalesce(result[idx['material']], u''),
+				'mat_detail': gmTools.coalesce(result[idx['material_detail']], u''),
+
+				'reviewed': gmTools.bool2str(result[idx['reviewed']], result[idx['last_reviewed']], _('not yet')),
+				'reviewer': gmTools.bool2subst(result[idx['review_by_you']], _('you'), gmTools.coalesce(result[idx['last_reviewer']], u'')),
+				'abnormal': gmTools.coalesce(result[idx['is_technically_abnormal']], u''),
+				'relevant': gmTools.coalesce(result[idx['is_clinically_relevant']], u''),
+				'rev_comment': gmTools.coalesce(result[idx['review_comment']], u''),
+				'responsible_reviewer': gmTools.bool2subst(result[idx['you_are_responsible']], _('you'), result[idx['responsible_reviewer']]),
+
 				'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result[idx['comment_tt']], u'').split('\n')),
 				'name_unified': result[idx['name_unified']],
 				'code_unified': result[idx['code_unified']],
 				'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result[idx['comment_unified']], u'').split('\n')),
+
+				'mod_when': result[idx['modified_when']].strftime('%c'),
+				'mod_by': result[idx['modified_by']],
+
 				'sig_hand': u'\u270D'
 			})
 
@@ -361,15 +365,19 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 
 	def __init__(self, *args, **kwargs):
 
-		tests = kwargs['tests']
-		del kwargs['tests']
-		test_count = kwargs['test_count']
-		del kwargs['test_count']
+		try:
+			tests = kwargs['tests']
+			del kwargs['tests']
+			test_count = len(tests)
+		except KeyError:
+			tests = None
+			test_count = kwargs['test_count']
+			del kwargs['test_count']
 
 		wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg.__init__(self, *args, **kwargs)
 
-		if test_count is not None:
-			msg = _('%s results selected. Too many to list individually.')
+		if tests is None:
+			msg = _('%s results selected. Too many to list individually.') % test_count
 		else:
 			msg = ' // '.join (
 				[	u'%s: %s %s (%s)' % (
@@ -382,6 +390,11 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 			)
 
 		self._LBL_tests.SetLabel(msg)
+
+		if test_count == 1:
+			self._TCTRL_comment.Enable(True)
+			self._TCTRL_comment.SetValue(gmTools.coalesce(tests[0]['review_comment'], u''))
+
 		self.Fit()
 	#--------------------------------------------------------
 	# event handling
@@ -443,7 +456,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.8  2008-04-11 23:12:23  ncq
+# Revision 1.9  2008-04-16 20:39:39  ncq
+# - working versions of the wxGlade code and use it, too
+# - show client version in login dialog
+#
+# Revision 1.8  2008/04/11 23:12:23  ncq
 # - improve docs
 #
 # Revision 1.7  2008/04/04 13:09:45  ncq

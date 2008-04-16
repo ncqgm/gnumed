@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.106 2008-03-20 15:31:59 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmPatSearchWidgets.py,v 1.107 2008-04-16 20:39:39 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -489,6 +489,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		self._display_name()
 
+		self.__just_got_focus = False
 		self.__register_events()
 	#--------------------------------------------------------
 	# utility methods
@@ -527,29 +528,49 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
 		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
+#		wx.EVT_LEFT_DOWN(self, self._on_left_mousebutton_down)
+	#--------------------------------------------------------
+	def _on_left_mousebutton_down(self, evt):
+		"""Select all text but only if just after getting focus."""
+
+		if not self.__just_got_focus:
+			evt.Skip()
+			return
+
+		print "left clicked just after getting focus"
+#		self.__just_got_focus = False
 	#--------------------------------------------------------
 	def _on_left_mousebutton_up(self, evt):
-		"""upon left click release
 
-		- select all text in the field so that the next
-		  character typed will delete it
-		
-		- or set cursor to text position in case more left
-		  clicks follow
-		"""
-		# unclicked, not highlighted
-		if self._lclick_count == 0:
-			self.SetSelection (-1,-1)			# highlight entire text
-			self._lclick_count = 1
+		if not self.__just_got_focus:
 			evt.Skip()
-			return None
+			return
+
+		print "left released just after getting focus"
+		self.__just_got_focus = False
+	#--------------------------------------------------------
+#	def _on_left_mousebutton_up(self, evt):
+#		"""upon left click release
+
+#		- select all text in the field so that the next
+#		  character typed will delete it
+		
+#		- or set cursor to text position in case more left
+#		  clicks follow
+#		"""
+		# unclicked, not highlighted
+#		if self._lclick_count == 0:
+#			self.SetSelection (-1,-1)			# highlight entire text
+#			self._lclick_count = 1
+#			evt.Skip()
+#			return None
 			
 		# has been clicked before - should be highlighted
-		start, end = self.GetSelection()
-		self.SetSelection(start, end)
-		self._lclick_count = 0
-		evt.Skip()
-		return None
+#		start, end = self.GetSelection()
+#		self.SetSelection(start, end)
+#		self._lclick_count = 0
+#		evt.Skip()
+#		return None
 	#--------------------------------------------------------
 	def _on_get_focus(self, evt):
 		"""upon tabbing in
@@ -558,6 +579,8 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		  character typed will delete it
 		"""
 		self.SetSelection (-1,-1)
+		self.__just_got_focus = True
+
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
@@ -574,9 +597,12 @@ class cPersonSearchCtrl(wx.TextCtrl):
 #		if self.IsModified() and (curr_search_term.strip() != ''):
 #			self._prev_search_term = curr_search_term
 
-		self._display_name()
+		# just for good measure
+		self.__just_got_focus = False
 		self.SetSelection(0,0)
-		self._lclick_count = 0
+#		self._lclick_count = 0
+
+		self._display_name()
 		self._remember_ident(self.person)
 
 		evt.Skip()
@@ -588,6 +614,9 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		"""True: patient was selected.
 		   False: no patient was selected.
 		"""
+		# just for good measure so tabbing in, then
+		# typing, then clicking doesn't select-all
+		self.__just_got_focus = False
 
 		keycode = evt.GetKeyCode()
 
@@ -975,7 +1004,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.106  2008-03-20 15:31:59  ncq
+# Revision 1.107  2008-04-16 20:39:39  ncq
+# - working versions of the wxGlade code and use it, too
+# - show client version in login dialog
+#
+# Revision 1.106  2008/03/20 15:31:59  ncq
 # - missing \n added
 #
 # Revision 1.105  2008/03/09 20:18:22  ncq

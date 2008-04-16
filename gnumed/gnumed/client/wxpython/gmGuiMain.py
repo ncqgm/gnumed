@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.394 2008-04-11 12:28:30 ncq Exp $
-__version__ = "$Revision: 1.394 $"
+# $Id: gmGuiMain.py,v 1.395 2008-04-16 20:39:39 ncq Exp $
+__version__ = "$Revision: 1.395 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1929,7 +1929,12 @@ class gmApp(wx.App):
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmAuthWidgets
 		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
-		if not gmAuthWidgets.connect_to_database(expected_version = expected_db_ver, require_version = not override):
+		connected = gmAuthWidgets.connect_to_database (
+			expected_version = expected_db_ver,
+			require_version = not override,
+			client_version = current_client_ver
+		)
+		if not connected:
 			_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
@@ -2249,7 +2254,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.394  2008-04-11 12:28:30  ncq
+# Revision 1.395  2008-04-16 20:39:39  ncq
+# - working versions of the wxGlade code and use it, too
+# - show client version in login dialog
+#
+# Revision 1.394  2008/04/11 12:28:30  ncq
 # - abort if there's no user preferences config file whatsoever
 #
 # Revision 1.393  2008/03/29 16:09:53  ncq
