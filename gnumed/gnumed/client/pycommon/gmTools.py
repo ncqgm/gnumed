@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.50 2008-04-11 12:24:39 ncq Exp $
+# $Id: gmTools.py,v 1.51 2008-04-16 20:34:43 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -649,6 +649,12 @@ This is a test mail from the gmTools.py module.
 
 		return True
 	#-----------------------------------------------------------------------
+	def test_bool2subst():
+
+		print bool2subst(True, 'True', 'False', 'is None')
+		print bool2subst(False, 'True', 'False', 'is None')
+		print bool2subst(None, 'True', 'False', 'is None')
+	#-----------------------------------------------------------------------
 	def test_get_unique_filename():
 		print get_unique_filename()
 		print get_unique_filename(prefix='test-')
@@ -710,13 +716,17 @@ This is a test mail from the gmTools.py module.
 		#test_gmPaths()
 		#test_none_if()
 		#test_bool2str()
+		test_bool2subst()
 		#test_get_unique_filename()
 		#test_size2str()
-		test_wrap()
+		#test_wrap()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.50  2008-04-11 12:24:39  ncq
+# Revision 1.51  2008-04-16 20:34:43  ncq
+# - add bool2subst tests
+#
+# Revision 1.50  2008/04/11 12:24:39  ncq
 # - add initial_indent/subsequent_indent and tests to wrap()
 #
 # Revision 1.49  2008/03/20 15:29:51  ncq
