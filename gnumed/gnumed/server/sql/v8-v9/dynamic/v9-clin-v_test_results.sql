@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.4 2008-04-14 17:15:41 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v9-clin-v_test_results.sql,v 1.5 2008-04-16 20:40:46 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -77,44 +77,79 @@ select
 	vpe.description as episode,
 	vpe.health_issue,
 
-	-- review status
-	exists(select 1 from clin.reviewed_test_results where fk_reviewed_row = tr.pk)
+	-- status of last review
+	coalesce(rtr.fk_reviewed_row, 0)::bool
+--	exists(select 1 from clin.reviewed_test_results where fk_reviewed_row = tr.pk)
 		as reviewed,
 
-	(select coalesce (
-		(tr.fk_intended_reviewer = (select pk from dem.staff where db_user=current_user)),
+	rtr.is_technically_abnormal
+--	(select is_technically_abnormal
+--	 from clin.reviewed_test_results
+--	 where fk_reviewed_row = tr.pk
+--	)
+		as is_technically_abnormal,
+
+	rtr.clinically_relevant
+--	(select clinically_relevant
+--	 from clin.reviewed_test_results
+--	 where fk_reviewed_row = tr.pk
+--	)
+		as is_clinically_relevant,
+
+	rtr.comment
+--	(select comment
+--	 from clin.reviewed_test_results
+--	 where
+--		fk_reviewed_row = tr.pk
+--	)
+		as review_comment,
+
+	(select
+		short_alias || ' (' ||
+		coalesce(title || ' ', '') ||
+		coalesce(firstnames || ' ', '') ||
+		coalesce(lastnames, '') ||
+		')'
+	 from dem.v_staff
+	 where pk_staff = rtr.fk_reviewer
+	) as last_reviewer,
+
+	rtr.modified_when
+		as last_reviewed,
+
+	coalesce((rtr.fk_reviewer = (select pk from dem.staff where db_user = current_user)), False)
+--	(select exists (
+--		select 1 from clin.reviewed_test_results
+--		where
+--			fk_reviewed_row = tr.pk and
+--			fk_reviewer = (select pk from dem.staff where db_user = current_user)
+--	))
+		as review_by_you,
+
+	coalesce((tr.fk_intended_reviewer = rtr.fk_reviewer), False)
+--	(select exists (
+--		select 1 from clin.reviewed_test_results
+--		where
+--			fk_reviewed_row = tr.pk and
+--			fk_reviewer = tr.fk_intended_reviewer
+--	))
+		as review_by_responsible_reviewer,
+
+	-- potential review status
+	(select
+		short_alias || ' (' ||
+		coalesce(title || ' ', '') ||
+		coalesce(firstnames || ' ', '') ||
+		coalesce(lastnames, '') ||
+		')'
+	 from dem.v_staff
+	 where pk_staff = tr.fk_intended_reviewer
+	) as responsible_reviewer,
+
+	coalesce (
+		(tr.fk_intended_reviewer = (select pk from dem.staff where db_user = current_user)),
 		False
-	)) as you_are_reviewer,
-
-	(select exists (
-		select 1 from clin.reviewed_test_results
-		where
-			fk_reviewed_row = tr.pk and
-			fk_reviewer = (select pk from dem.staff where db_user = current_user)
-	)) as you_reviewed,
-
-	(select exists (
-		select 1 from clin.reviewed_test_results
-		where
-			fk_reviewed_row = tr.pk and
-			fk_reviewer = tr.fk_intended_reviewer
-	)) as reviewer_reviewed,
-
-	(select is_technically_abnormal
-	 from clin.reviewed_test_results
-	 where fk_reviewed_row = tr.pk
-	) as is_technically_abnormal,
-
-	(select clinically_relevant
-	 from clin.reviewed_test_results
-	 where fk_reviewed_row = tr.pk
-	) as is_clinically_relevant,
-
-	(select comment
-	 from clin.reviewed_test_results
-	 where
-		fk_reviewed_row = tr.pk
-	) as review_comment,
+	) as you_are_responsible,
 
 	case when ((select 1 from dem.v_staff where db_user = tr.modified_by) is null)
 		then '<' || tr.modified_by || '>'
@@ -136,15 +171,17 @@ select
 	vttu.pk_test_org,
 	vttu.pk_test_type_unified,
 	-- v_pat_episodes
-	vpe.pk_health_issue
+	vpe.pk_health_issue,
+	-- reviewed_test_results
+	rtr.fk_reviewer as pk_last_reviewer
 from
-	clin.test_result tr,
+	clin.test_result tr left join clin.reviewed_test_results rtr on (tr.pk = rtr.fk_reviewed_row),
 	clin.v_unified_test_types vttu,
 	clin.v_pat_episodes vpe
 where
-	vttu.pk_test_type=tr.fk_type
+	vttu.pk_test_type = tr.fk_type
 		and
-	tr.fk_episode=vpe.pk_episode
+	tr.fk_episode = vpe.pk_episode
 ;
 
 
@@ -155,11 +192,15 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.4  2008-04-14 17:15:41  ncq
+-- Revision 1.5  2008-04-16 20:40:46  ncq
+-- - do proper join on clin.reviewed_test_results
+-- - support one-review-per-row paradigm
+--
+-- Revision 1.4  2008/04/14 17:15:41  ncq
 -- - notification setup moved away
 -- - only one review per row of results so support that
 --
