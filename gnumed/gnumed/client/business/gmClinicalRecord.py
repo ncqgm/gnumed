@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.262 2008-04-11 23:07:08 ncq Exp $
-__version__ = "$Revision: 1.262 $"
+# $Id: gmClinicalRecord.py,v 1.263 2008-04-22 21:12:08 ncq Exp $
+__version__ = "$Revision: 1.263 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -38,7 +38,7 @@ import mx.DateTime as mxDT, psycopg2, logging
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools
-from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
+from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab
 
 
 _log = logging.getLogger('gm.emr')
@@ -1460,15 +1460,18 @@ order by cwhen desc"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 	#------------------------------------------------------------------
-	def get_measurements_by_date(self):
-		"""Get the results ordered by date."""
+	def get_test_results_by_date(self):
 		cmd = u"""
-select * from clin.v_test_results
+select *, xmin_test_result from clin.v_test_results
 where pk_patient = %(pat)s
 order by clin_when desc, pk_episode, unified_name"""
 		args = {'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return rows, idx
+
+		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
+		return tests
+	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	def get_lab_results(self, limit=None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves lab result clinical items.
@@ -1588,6 +1591,13 @@ if __name__ == "__main__":
 		for row in rows:
 			print row
 	#-----------------------------------------
+	def test_get_test_results_by_date():
+		emr = cClinicalRecord(aPKey=12)
+		tests = emr.get_test_results_by_date()
+		print "test results:"
+		for test in tests:
+			print test
+	#-----------------------------------------
 	def test_get_test_types_details():
 		emr = cClinicalRecord(aPKey=12)
 		rows, idx = emr.get_test_types_details()
@@ -1597,8 +1607,9 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	#test_allergic_state()
 	#test_get_test_names()
-	test_get_dates_for_results()
-	test_get_measurements()
+	#test_get_dates_for_results()
+	#test_get_measurements()
+	test_get_test_results_by_date()
 	#test_get_test_types_details()
 
 	sys.exit(1)
@@ -1692,7 +1703,10 @@ if __name__ == "__main__":
 		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.262  2008-04-11 23:07:08  ncq
+# Revision 1.263  2008-04-22 21:12:08  ncq
+# - get_test_results_by_date and test
+#
+# Revision 1.262  2008/04/11 23:07:08  ncq
 # - fix remove_empty_encounters()
 #
 # Revision 1.261  2008/03/29 16:04:31  ncq
