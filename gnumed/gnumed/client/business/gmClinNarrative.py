@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -11,9 +11,12 @@ import sys, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	_ = lambda x:x
 from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject
 
+try:
+	_('dummy-no-need-to-translate')
+except NameError:
+	_ = lambda x:x
 
 _log = logging.getLogger('gm.emr')
 _log.info(__version__)
@@ -42,7 +45,6 @@ l10n2soap_cat = {
 	_('soap_P').strip(u'soap_'): 'p',
 	_('soap_ADMIN').strip(u'soap_'): None
 }
-
 #============================================================
 class cDiag(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one real diagnosis.
@@ -261,7 +263,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.32  2008-04-11 12:20:16  ncq
+# Revision 1.33  2008-04-22 21:11:05  ncq
+# - define _() for testing
+#
+# Revision 1.32  2008/04/11 12:20:16  ncq
 # - soap_cat2l10n_str
 #
 # Revision 1.31  2008/01/30 13:34:49  ncq
