@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-dynamic.sql,v 1.3 2008-04-14 17:14:48 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v9-clin-test_result-dynamic.sql,v 1.4 2008-04-22 21:21:03 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -32,6 +32,27 @@ create rule r_no_del_clin_reviewed_test_results as
 
 comment on rule r_no_del_clin_reviewed_test_results on clin.reviewed_test_results is
 'Once a review exists it cannot be deleted anymore.';
+
+
+\unset ON_ERROR_STOP
+drop function clin.f_fk_reviewer_default() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.f_fk_reviewer_default()
+	returns integer
+	language 'plpgsql'
+	as '
+declare
+	_pk_staff integer;
+begin
+	select pk into _pk_staff from dem.staff where db_user = current_user;
+	return _pk_staff;
+end;';
+
+alter table clin.reviewed_test_results
+	alter column fk_reviewer
+		set default clin.f_fk_reviewer_default();
+
 
 \unset ON_ERROR_STOP
 drop function clin.trf_notify_reviewer_of_review_change() cascade;
@@ -122,11 +143,14 @@ select i18n.upd_tx('de_DE', 'results review change', 'Ergebnisbewertung geänder
 select i18n.upd_tx('de_DE', 'results review changed for patient', 'Bewertung von Testergebnissen änderte sich beim Patienten');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v9-clin-test_result-dynamic.sql,v $
--- Revision 1.3  2008-04-14 17:14:48  ncq
+-- Revision 1.4  2008-04-22 21:21:03  ncq
+-- - function for clin.reviewed_test_results.fk_reviwer default value
+--
+-- Revision 1.3  2008/04/14 17:14:48  ncq
 -- - setup clin.test_result and clin.reviewed_test_results for notification
 -- - popular request wants one review per result row, not one per provider per row
 -- - notify previous reviewer by trigger of review change
