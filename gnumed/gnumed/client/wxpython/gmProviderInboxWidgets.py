@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.25 2008-03-29 16:21:16 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmProviderInboxWidgets.py,v 1.26 2008-04-22 21:19:22 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -249,7 +249,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None):
-		if not gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context)):
+		wx.BeginBusyCursor()
+		success = gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context))
+		wx.EndBusyCursor()
+		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Supposedly there are unreviewed documents'
 				  'for patient [%s]. However, I cannot find'
@@ -262,7 +265,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 	#--------------------------------------------------------
 	def _goto_measurements_review(self, pk_context=None):
-		if not gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context)):
+		wx.BeginBusyCursor()
+		success = gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context))
+		wx.EndBusyCursor()
+		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Supposedly there are unreviewed results'
 				  'for patient [%s]. However, I cannot find'
@@ -288,7 +294,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.25  2008-03-29 16:21:16  ncq
+# Revision 1.26  2008-04-22 21:19:22  ncq
+# - signal busy-ness when activating patient
+#
+# Revision 1.25  2008/03/29 16:21:16  ncq
 # - handle unreviewed tests messages
 # - listen to review changes
 #
