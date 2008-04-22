@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.47 2008-03-17 14:56:33 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.48 2008-04-22 21:20:03 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -31,7 +31,6 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/server/pycommon/gmSerialTools.py "\
 "./GNUmed-$CLIENTREV/server/pycommon/gmTrace.py "\
 "./GNUmed-$CLIENTREV/server/pycommon/gmdbf.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmCLI.py "\
 "./GNUmed-$CLIENTREV/server/pycommon/gmPG.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/README "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_AdminLoginV01.py "\
@@ -366,7 +365,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.47  2008-03-17 14:56:33  ncq
+# Revision 1.48  2008-04-22 21:20:03  ncq
+# - no more gmCLI
+#
+# Revision 1.47  2008/03/17 14:56:33  ncq
 # - properly cleanup pycommon/ in server/, too
 #
 # Revision 1.46  2008/02/25 17:45:50  ncq
