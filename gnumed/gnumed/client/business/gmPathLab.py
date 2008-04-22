@@ -1,17 +1,17 @@
-"""GnuMed vaccination related business objects.
+"""GNUmed vaccination related business objects.
 
 license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.58 2008-02-25 17:31:41 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmPathLab.py,v 1.59 2008-04-22 21:15:16 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys, logging
 
 
-from Gnumed.pycommon import gmExceptions, gmBusinessDBObject
+from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2
 
 
 _log = logging.getLogger('gm.lab')
@@ -20,10 +20,166 @@ _log.info(__version__)
 # FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 
 #============================================================
-# FIXME: TODO
 class cTestResult(gmBusinessDBObject.cBusinessDBObject):
-	def link_to_lab_request(self):
-		pass
+	"""Represents one test result."""
+
+	_cmd_fetch_payload = u"select *, xmin_test_result from clin.v_test_results where pk_test_result = %s"
+
+	_cmds_store_payload = [
+		u"""update clin.test_result set
+				clin_when =
+				narrative = comment
+				val_num = 
+				val_alpha = 
+				val_unit =
+				val_normal_min =
+				val_normal_max = 
+				val_normal_range =
+				val_target_min =
+				val_target_max =
+				val_target_range =
+				abnormality_indicator =
+				norm_ref_group =
+				note_test_org =
+				material =
+				material_detail =
+				fk_intended_reviewer =
+				fk_encounter =
+				fk_episode =
+				fk_type =
+			where
+				pk = %(pk_obj)s and
+				xmin = %(xmin_test_result)s""",
+		u"""select xmin_test_result from clin.v_test_results where pk_test_result = %(pk_obj)s"""
+	]
+
+	_updatable_fields = [
+		'clin_when',
+		'comment',
+		'val_num',
+		'val_alpha',
+		'val_unit',
+		'val_normal_min',
+		'val_normal_max',
+		'val_normal_range',
+		'val_target_min',
+		'val_target_max',
+		'val_target_range',
+		'abnormality_indicator',
+		'norm_ref_group',
+		'note_test_org',
+		'material',
+		'material_detail',
+		'pk_intended_reviewer',
+		'pk_encounter',
+		'pk_episode',
+		'pk_test_type'
+	]
+	#--------------------------------------------------------
+	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=None):
+
+		if comment is not None:
+			comment = comment.strip()
+
+		if ((technically_abnormal is None) and (clinically_relevant is None)
+				and (comment is None) and (make_me_responsible is False)):
+			return True
+
+		# FIXME: this is not concurrency safe
+		if self._payload[self._idx['reviewed']]:
+			self.__change_existing_review (
+				technically_abnormal = technically_abnormal,
+				clinically_relevant = clinically_relevant,
+				comment = comment
+			)
+		else:
+			self.__set_new_review (
+				technically_abnormal = technically_abnormal,
+				clinically_relevant = clinically_relevant,
+				comment = comment
+			)
+
+		if make_me_responsible is not None:
+			cmd = u"select pk from dem.staff where db_user = current_user"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+			self['pk_intended_reviewer'] = rows[0][0]
+			self.save_payload()
+		else:
+			self.refetch_payload()
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __set_new_review(self, technically_abnormal=None, clinically_relevant=None, comment=None):
+		"""Add a review to a row.
+
+			- if technically abnormal is not provided/None it will be set
+			  to True if the lab's indicator has a meaningful value
+			- if clinically relevant is not provided/None it is set to
+			  whatever technically abnormal is
+		"""
+		if technically_abnormal is None:
+			technically_abnormal = False
+			if self._payload[self._idx['abnormality_indicator']] is not None:
+				if self._payload[self._idx['abnormality_indicator']].strip() != u'':
+					technically_abnormal = True
+
+		if clinically_relevant is None:
+			clinically_relevant = technically_abnormal
+
+		cmd = u"""
+insert into clin.reviewed_test_results (
+	fk_reviewed_row,
+	is_technically_abnormal,
+	clinically_relevant,
+	comment
+) values (
+	%(pk)s,
+	%(abnormal)s,
+	%(relevant)s,
+	%(cmt)s
+)"""
+		args = {
+			'pk': self._payload[self._idx['pk_test_result']],
+			'abnormal': technically_abnormal,
+			'relevant': clinically_relevant,
+			'cmt': comment
+		}
+
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def __change_existing_review(self, technically_abnormal=None, clinically_relevant=None, comment=None):
+		"""Change a review on a row.
+
+			- if technically abnormal/clinically relevant/comment are
+			  None (or empty) they are not set
+		"""
+		args = {
+			'pk_row': self._payload[self._idx['pk_test_result']],
+			'abnormal': technically_abnormal,
+			'relevant': clinically_relevant
+		}
+
+		set_parts = []
+
+		if technically_abnormal is not None:
+			set_parts.append(u'is_technically_abnormal = %(abnormal)s')
+
+		if clinically_relevant is not None:
+			set_parts.append(u'clinically_relevant= %(relevant)s')
+
+		if comment is not None:
+			set_parts.append('comment = %(cmt)s')
+			args['cmt'] = comment
+
+		cmd = u"""
+update clin.reviewed_test_results set
+	fk_reviewer = (select pk from dem.staff where db_user = current_user),
+	%s
+where
+	fk_reviewed_row = %%(pk_row)s
+""" % u',\n	'.join(set_parts)
+
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
 class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab result."""
@@ -347,7 +503,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.58 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.59 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -434,7 +590,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.58 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.59 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -677,14 +833,20 @@ if __name__ == '__main__':
 		for result in data:
 			print result
 	#--------------------------------------------------------
-	test_result()
-	test_request()
-#	test_create_result()
-	test_unreviewed()
-	test_pending()
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+		#test_result()
+		#test_request()
+		#test_create_result()
+		#test_unreviewed()
+		#test_pending()
+		pass
+
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.58  2008-02-25 17:31:41  ncq
+# Revision 1.59  2008-04-22 21:15:16  ncq
+# - cTestResult
+#
+# Revision 1.58  2008/02/25 17:31:41  ncq
 # - logging cleanup
 #
 # Revision 1.57  2008/01/30 13:34:50  ncq
