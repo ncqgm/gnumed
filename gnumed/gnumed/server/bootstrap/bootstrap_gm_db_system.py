@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -47,7 +47,7 @@ try:
 except ImportError:
 	print """Please make sure the GNUmed Python modules are in the Python path !"""
 	raise
-from Gnumed.pycommon import gmCfg2, gmPsql, gmPG2, gmTools
+from Gnumed.pycommon import gmCfg2, gmPsql, gmPG2, gmTools, gmI18N
 from Gnumed.pycommon.gmExceptions import ConstructorError
 
 
@@ -487,7 +487,6 @@ class database:
 
 		overrider = cfg_get(self.section, 'override name by')
 		if overrider is not None:
-			_log.info('if environment variable [%s] exists, it overrides database name in config file' % overrider)
 			self.name = os.getenv(overrider)
 			if self.name is None:
 				_log.info('environment variable [%s] is not set, using database name from config file' % overrider)
@@ -1270,6 +1269,8 @@ def main():
 #==================================================================
 if __name__ == "__main__":
 
+	gmI18N.activate_locale()
+
 	_log.info("startup (%s)" % __version__)
 
 	try:
@@ -1310,7 +1311,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.77  2008-04-11 12:31:00  ncq
+# Revision 1.78  2008-04-25 10:45:11  ncq
+# - activate_locale() so bootstrapping v2 works on systems
+#   with ASCII default encoding
+#
+# Revision 1.77  2008/04/11 12:31:00  ncq
 # - bootstrap notification on clin.clin_root_item children
 #
 # Revision 1.76  2008/03/11 17:01:14  ncq
