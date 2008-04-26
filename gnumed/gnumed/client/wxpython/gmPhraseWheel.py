@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.112 2008-04-26 09:30:28 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmPhraseWheel.py,v 1.113 2008-04-26 10:06:37 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -203,12 +203,13 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# multiple matches dropdown list
 		try:
-			raise NotImplementedError
+#			raise NotImplementedError
 			self.__picklist_dropdown = wx.PopupWindow(parent)
 			add_picklist_to_sizer = False
+			self.__dropdown_needs_relative_position = False
 		except NotImplementedError:
 			# on MacOSX wx.PopupWindow is not implemented
-#			self.__picklist_dropdown = wx.Window(parent=self, style = wx.SIMPLE_BORDER)
+			self.__dropdown_needs_relative_position = True
 			self.__picklist_dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
 			self.__picklist_dropdown.SetSizer(szr_scroll)
@@ -439,6 +440,8 @@ class cPhraseWheel(wx.TextCtrl):
 		self.__picklist_dropdown.SetSize(dropdown_size)
 		self._picklist.SetSize(self.__picklist_dropdown.GetClientSize())
 		self.mac_log('pick list size set to: %s' % self.__picklist_dropdown.GetSize())
+		if self.__dropdown_needs_relative_position:
+			dropdown_new_x, dropdown_new_y = self.__picklist_dropdown.GetParent().ScreenToClientXY(dropdown_new_x, dropdown_new_y)
 		self.__picklist_dropdown.MoveXY(dropdown_new_x, dropdown_new_y)
 
 		# select first value
@@ -805,8 +808,8 @@ class cPhraseWheel(wx.TextCtrl):
 		return True
 	#----------------------------------------------------
 	def mac_log(self, msg):
-#		if wx.Platform == '__WXMAC__':
-		_log.error(msg)
+		self.__dropdown_needs_relative_position:
+			_log.error(msg)
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
@@ -932,7 +935,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.112  2008-04-26 09:30:28  ncq
+# Revision 1.113  2008-04-26 10:06:37  ncq
+# - on MacOSX use relative position for popup window
+#
+# Revision 1.112  2008/04/26 09:30:28  ncq
 # - instrument phrasewheel to exhibit Mac problem
 #   with dropdown placement
 #
