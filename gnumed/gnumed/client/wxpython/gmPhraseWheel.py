@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.113 2008-04-26 10:06:37 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmPhraseWheel.py,v 1.114 2008-04-26 16:29:15 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -808,8 +808,8 @@ class cPhraseWheel(wx.TextCtrl):
 		return True
 	#----------------------------------------------------
 	def mac_log(self, msg):
-		self.__dropdown_needs_relative_position:
-			_log.error(msg)
+		if self.__dropdown_needs_relative_position:
+			_log.debug(msg)
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
@@ -935,7 +935,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.113  2008-04-26 10:06:37  ncq
+# Revision 1.114  2008-04-26 16:29:15  ncq
+# - missing if
+#
+# Revision 1.113  2008/04/26 10:06:37  ncq
 # - on MacOSX use relative position for popup window
 #
 # Revision 1.112  2008/04/26 09:30:28  ncq
