@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.10 2008-04-22 21:18:49 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmMeasurementWidgets.py,v 1.11 2008-04-26 10:05:32 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -469,6 +469,8 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		if test_count == 1:
 			self._TCTRL_comment.Enable(True)
 			self._TCTRL_comment.SetValue(gmTools.coalesce(tests[0]['review_comment'], u''))
+			if tests[0]['you_are_responsible']:
+				self._CHBOX_responsible.Enable(False)
 
 		self.Fit()
 	#--------------------------------------------------------
@@ -540,7 +542,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.10  2008-04-22 21:18:49  ncq
+# Revision 1.11  2008-04-26 10:05:32  ncq
+# - in review dialog when user is already responsible
+#   disable make_me_responsible checkbox
+#
+# Revision 1.10  2008/04/22 21:18:49  ncq
 # - implement signing
 # - improved tooltip
 # - properly clear grid when active patient changes
