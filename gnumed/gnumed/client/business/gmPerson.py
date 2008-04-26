@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.160 2008-04-02 10:15:17 ncq Exp $
-__version__ = "$Revision: 1.160 $"
+# $Id: gmPerson.py,v 1.161 2008-04-26 21:30:35 ncq Exp $
+__version__ = "$Revision: 1.161 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -497,8 +497,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		if occupation is None:
 			return True
 		occupation = occupation.strip()
-		cmd = u"delete from dem.lnk_job2person where fk_identity=%s and fk_occupation=(select id from dem.occupation where _(name) = _(%(job)s))"
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, occupation]}])
+		cmd = u"delete from dem.lnk_job2person where fk_identity=%(pk)s and fk_occupation in (select id from dem.occupation where _(name) = _(%(job)s))"
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'job': occupation}}])
 		return True
 	#--------------------------------------------------------
 	# comms API
@@ -2170,7 +2170,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.160  2008-04-02 10:15:17  ncq
+# Revision 1.161  2008-04-26 21:30:35  ncq
+# - fix unlink_occupation
+#
+# Revision 1.160  2008/04/02 10:15:17  ncq
 # - add missing s
 #
 # Revision 1.159  2008/03/09 20:13:47  ncq
