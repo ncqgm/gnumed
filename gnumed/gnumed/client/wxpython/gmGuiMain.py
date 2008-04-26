@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.395 2008-04-16 20:39:39 ncq Exp $
-__version__ = "$Revision: 1.395 $"
+# $Id: gmGuiMain.py,v 1.396 2008-04-26 21:36:42 ncq Exp $
+__version__ = "$Revision: 1.396 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1452,7 +1452,7 @@ class gmTopLevelFrame(wx.Frame):
 		if choice != wx.ID_OK:
 			return True
 
-		_log2.warning('syncing log file for backup to [%s]', new_name)
+		_log.warning('syncing log file for backup to [%s]', new_name)
 		gmLog2.flush()
 		shutil.copy2(gmLog2._logfile_name, new_name)
 		gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
@@ -1987,6 +1987,7 @@ class gmApp(wx.App):
 
 		if _cfg.get(option = 'debug'):
 			self.RedirectStdio()
+			print "***** Redirecting STDOUT/STDERR to this log window *****"
 
 		wx.CallAfter(self._do_after_init)
 
@@ -2254,7 +2255,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.395  2008-04-16 20:39:39  ncq
+# Revision 1.396  2008-04-26 21:36:42  ncq
+# - fix faulty variable
+# - when debugging explicitely print into log window
+#   immediately after creation so focus isn't taken
+#   away at a later and inconvenient time
+#
+# Revision 1.395  2008/04/16 20:39:39  ncq
 # - working versions of the wxGlade code and use it, too
 # - show client version in login dialog
 #
