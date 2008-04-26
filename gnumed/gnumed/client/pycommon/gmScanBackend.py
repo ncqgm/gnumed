@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.49 2007-09-10 20:27:40 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmScanBackend.py,v 1.49.4.1 2008-04-26 16:57:07 ncq Exp $
+__version__ = "$Revision: 1.49.4.1 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -321,7 +321,8 @@ class cXSaneScanner:
 		# while not strictly necessary it is good to fail early
 		# this will tell us fairly safely whether XSane is properly installed
 		if not os.access(cXSaneScanner._xsanerc, os.W_OK):
-			raise IOError(errno.EACCES, 'XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
+			#raise IOError(errno.EACCES, 'XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
+			raise ImportError('XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
 
 		self.device_settings_file = None
 		self.default_device = None
@@ -362,7 +363,8 @@ class cXSaneScanner:
 			flist.sort()
 			return flist
 
-		raise OSError(-1, 'cannot start XSane', cmd)
+		#raise OSError(-1, 'cannot start XSane', cmd)
+		raise ImportError('Error starting XSane as [%s]' % cmd)
 	#---------------------------------------------------
 	def image_transfer_done(self):
 		return True
@@ -483,7 +485,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.49  2007-09-10 20:27:40  ncq
+# Revision 1.49.4.1  2008-04-26 16:57:07  ncq
+# - raise ImportErrors on missing XSane so this
+#   gets handled better
+#
+# Revision 1.49  2007/09/10 20:27:40  ncq
 # - eventually find out how xsane handles counter filenames
 #
 # Revision 1.48  2007/08/29 14:33:38  ncq
