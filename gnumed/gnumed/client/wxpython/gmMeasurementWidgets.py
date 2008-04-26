@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.11 2008-04-26 10:05:32 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmMeasurementWidgets.py,v 1.12 2008-04-26 21:40:58 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -122,11 +122,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		selected_cells = []
 
-		if (len(sel_block_top_left) > 1) and (len(sel_block_bottom_right) > 0):
-			row_left = sel_block_bottom_right[0] - sel_block_top_left[0]
-			row_right = sel_block_bottom_right[0]
-			col_top = sel_block_bottom_right[1] - sel_block_top_left[1]
-			col_bottom = sel_block_bottom_right[1]
+		for block_idx in range(len(sel_block_top_left)):
+			row_left = sel_block_bottom_right[block_idx][0] - sel_block_top_left[block_idx][0]
+			row_right = sel_block_bottom_right[block_idx][0]
+			col_top = sel_block_bottom_right[block_idx][1] - sel_block_top_left[block_idx][1]
+			col_bottom = sel_block_bottom_right[block_idx][1]
 			selected_cells.extend([ (r, c) for r in range(row_left, row_right+1) for c in range(col_top, col_bottom+1) ])
 
 		if len(sel_rows) > 0:
@@ -143,6 +143,26 @@ class cMeasurementsGrid(wx.grid.Grid):
 #			ret = [(cell, cell)]
 
 		return set(selected_cells)
+	#------------------------------------------------------------
+	def select_cells(self, unsigned_only=False, accountables_only=False, keep_preselections=False):
+		wx.BeginBusyCursor()
+		self.BeginBatch()
+
+		if not keep_preselections:
+			self.ClearSelection()
+
+		for col_idx in self.__cell_data.keys():
+			for row_idx in self.__cell_data[col_idx].keys():
+				if unsigned_only:
+					if self.__cell_data[col_idx][row_idx]['reviewed']:
+						continue
+				if accountables_only:
+					if not self.__cell_data[col_idx][row_idx]['you_are_responsible']:
+						continue
+				self.SelectBlock(row_idx, col_idx, row_idx, col_idx, addToSelected = True)
+
+		self.EndBatch()
+		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def repopulate_grid(self):
 
@@ -507,6 +527,12 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def _on_review_button_pressed(self, evt):
 		self.data_grid.sign_current_selection()
 	#--------------------------------------------------------
+	def _on_select_my_unsigned_results_button_pressed(self, evt):
+		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+	#--------------------------------------------------------
+	def _on_select_all_unsigned_results_button_pressed(self, evt):
+		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
@@ -542,7 +568,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.11  2008-04-26 10:05:32  ncq
+# Revision 1.12  2008-04-26 21:40:58  ncq
+# - eventually support selecting certain ranges of cells
+#
+# Revision 1.11  2008/04/26 10:05:32  ncq
 # - in review dialog when user is already responsible
 #   disable make_me_responsible checkbox
 #
