@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.111 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmPhraseWheel.py,v 1.112 2008-04-26 09:30:28 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -27,6 +27,10 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
 from Gnumed.pycommon import gmTools, gmDispatcher
+
+
+import logging
+_log = logging.getLogger('macosx')
 
 #============================================================
 # those can be used by the <accepted_chars> phrasewheel parameter
@@ -199,6 +203,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# multiple matches dropdown list
 		try:
+			raise NotImplementedError
 			self.__picklist_dropdown = wx.PopupWindow(parent)
 			add_picklist_to_sizer = False
 		except NotImplementedError:
@@ -406,6 +411,7 @@ class cPhraseWheel(wx.TextCtrl):
 			rows = 2
 		if rows > 20:				# 20 rows maximum
 			rows = 20
+		self.mac_log('dropdown needs rows: %s' % rows)
 		dropdown_size = self.__picklist_dropdown.GetSize()
 		pw_size = self.GetSize()
 		dropdown_size.SetWidth(pw_size.width)
@@ -413,24 +419,36 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# recalculate position
 		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
-		new_x = pw_x_abs
-		new_y = pw_y_abs + pw_size.height
+		self.mac_log('phrasewheel position (on screen): x:%s-%s, y:%s-%s' % (pw_x_abs, (pw_x_abs+pw_size.width), pw_y_abs, (pw_y_abs+pw_size.height)))
+		dropdown_new_x = pw_x_abs
+		dropdown_new_y = pw_y_abs + pw_size.height
+		self.mac_log('desired dropdown position (on screen): x:%s-%s, y:%s-%s' % (dropdown_new_x, (dropdown_new_x+dropdown_size.width), dropdown_new_y, (dropdown_new_y+dropdown_size.height)))
+		self.mac_log('desired dropdown size: %s' % dropdown_size)
+
 		# reaches beyond screen ?
-		if (dropdown_size.height + new_y) > self._screenheight:
-			max_height = self._screenheight - new_y - 4
+		if (dropdown_new_y + dropdown_size.height) > self._screenheight:
+			self.mac_log('dropdown extends offscreen (screen max y: %s)' % self._screenheight)
+			max_height = self._screenheight - dropdown_new_y - 4
+			self.mac_log('max dropdown height would be: %s' % max_height)
 			if max_height > ((pw_size.height * 2) + 4):
 				dropdown_size.SetHeight(max_height)
+				self.mac_log('possible dropdown position (on screen): x:%s-%s, y:%s-%s' % (dropdown_new_x, (dropdown_new_x+dropdown_size.width), dropdown_new_y, (dropdown_new_y+dropdown_size.height)))
+				self.mac_log('possible dropdown size: %s' % dropdown_size)
 
 		# now set dimensions
 		self.__picklist_dropdown.SetSize(dropdown_size)
 		self._picklist.SetSize(self.__picklist_dropdown.GetClientSize())
-		self.__picklist_dropdown.MoveXY(new_x, new_y)
+		self.mac_log('pick list size set to: %s' % self.__picklist_dropdown.GetSize())
+		self.__picklist_dropdown.MoveXY(dropdown_new_x, dropdown_new_y)
 
 		# select first value
 		self._picklist.Select(0)
 
 		# and show it
 		self.__picklist_dropdown.Show(True)
+
+		self.mac_log('dropdown origin now (on screen): %s' % str(self.__picklist_dropdown.ClientToScreenXY(0,0)))
+		self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
 	#--------------------------------------------------------
 	def _hide_picklist(self):
 		"""Hide the pick list."""
@@ -785,6 +803,10 @@ class cPhraseWheel(wx.TextCtrl):
 
 		event.Skip()
 		return True
+	#----------------------------------------------------
+	def mac_log(self, msg):
+#		if wx.Platform == '__WXMAC__':
+		_log.error(msg)
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
@@ -910,7 +932,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.111  2008-01-30 14:03:42  ncq
+# Revision 1.112  2008-04-26 09:30:28  ncq
+# - instrument phrasewheel to exhibit Mac problem
+#   with dropdown placement
+#
+# Revision 1.111  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #
