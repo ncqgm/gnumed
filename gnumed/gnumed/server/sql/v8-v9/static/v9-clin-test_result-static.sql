@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-static.sql,v 1.2 2008-03-29 16:26:54 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v9-clin-test_result-static.sql,v 1.3 2008-04-26 10:08:39 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -44,12 +44,25 @@ alter table clin.test_result
 		on delete restrict
 ;
 
+
+-- clin.reviewed_test_results
+alter table clin.reviewed_test_results
+	add foreign key (fk_reviewer)
+		references dem.staff(pk)
+		on update cascade
+		on delete restrict
+;
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-test_result-static.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-test_result-static.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v9-clin-test_result-static.sql,v $
--- Revision 1.2  2008-03-29 16:26:54  ncq
+-- Revision 1.3  2008-04-26 10:08:39  ncq
+-- - add foreign key from clin.reviewed_test_results.fk_reviewer
+--   to dem.staff.pk
+--
+-- Revision 1.2  2008/03/29 16:26:54  ncq
 -- - fix fk_intended_reviewer to point to dem.staff(pk)
 --   rather than dem.identity(pk) !
 --
