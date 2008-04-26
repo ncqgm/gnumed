@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.11 2008-04-07 12:10:02 ncq Exp $
-__version__ = "$Revision: 1.375.2.11 $"
+# $Id: gmGuiMain.py,v 1.375.2.12 2008-04-26 16:57:46 ncq Exp $
+__version__ = "$Revision: 1.375.2.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,7 +75,7 @@ if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
-current_client_ver = u'v0.2.8.6'
+current_client_ver = u'v0.2.8.7'
 
 _log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
 _log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
@@ -2070,7 +2070,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.11  2008-04-07 12:10:02  ncq
+# Revision 1.375.2.12  2008-04-26 16:57:46  ncq
+# - bump version
+#
+# Revision 1.375.2.11  2008/04/07 12:10:02  ncq
 # - fix crash on no --conf-file
 #
 # Revision 1.375.2.10  2008/03/27 12:31:18  ncq
