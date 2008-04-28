@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -18,6 +18,12 @@ from Gnumed.pycommon import gmDispatcher, gmExceptions, gmBorg
 
 _log = logging.getLogger('gm.database')
 _log.info(__version__)
+
+
+static_signals = [
+	u'db_maintenance_warning',		# warns of impending maintenance and asks for disconnect
+	u'db_maintenance_disconnect'	# announces a forced disconnect and disconnects
+]
 #=====================================================================
 class gmBackendListener(gmBorg.cBorg):
 
@@ -111,6 +117,7 @@ class gmBackendListener(gmBorg.cBorg):
 		self._conn_lock.release()
 		rows = self._cursor.fetchall()
 		self.unspecific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
+		self.unspecific_notifications.extend(static_signals)
 		_log.info('configured unspecific notifications:')
 		_log.info('%s' % self.unspecific_notifications)
 		gmDispatcher.known_signals.extend(self.unspecific_notifications)
@@ -370,7 +377,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.15  2008-01-07 19:48:22  ncq
+# Revision 1.16  2008-04-28 13:31:16  ncq
+# - now static signals for database maintenance
+#
+# Revision 1.15  2008/01/07 19:48:22  ncq
 # - bump db version
 #
 # Revision 1.14  2007/12/12 16:17:15  ncq
