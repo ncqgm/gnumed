@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.396 2008-04-26 21:36:42 ncq Exp $
-__version__ = "$Revision: 1.396 $"
+# $Id: gmGuiMain.py,v 1.397 2008-04-28 13:32:39 ncq Exp $
+__version__ = "$Revision: 1.397 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -693,6 +693,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		gmDispatcher.connect(self._on_set_statustext, u'statustext')
 		gmDispatcher.connect(self._on_request_user_attention, u'request_user_attention')
+
+		gmDispatcher.connect(self._on_db_maintenance_warning, u'db_maintenance_warning')
 	#-----------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
 
@@ -706,6 +708,48 @@ class gmTopLevelFrame(wx.Frame):
 
 		if beep:
 			wx.Bell()
+	#-----------------------------------------------
+	def _on_db_maintenance_warning(self):
+		wx.CallAfter(self.__on_db_maintenance_warning)
+	#-----------------------------------------------
+	def __on_db_maintenance_warning(self):
+
+		self.SetStatusText(_('The database will be shut down for maintenance in a few minutes.'))
+		wx.Bell()
+		if not wx.GetApp().IsActive():
+			self.RequestUserAttention(flags = wx.USER_ATTENTION_ERROR)
+
+		gmHooks.run_hook_script(hook = u'db_maintenance_warning')
+
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			None,
+			-1,
+			caption = _('Database shutdown warning'),
+			question = _(
+				'The database will be shut down for maintenance\n'
+				'in a few minutes.\n'
+				'\n'
+				'In order to not suffer any loss of data you\n'
+				'will need to save your current work and log\n'
+				'out of this GNUmed client.\n'
+			),
+			button_defs = [
+				{
+					u'label': _('Close now'),
+					u'tooltip': _('Close this GNUmed client immediately.'),
+					u'default': False
+				},
+				{
+					u'label': _('Finish work'),
+					u'tooltip': _('Finish and save current work first, then manually close this GNUmed client.'),
+					u'default': True
+				}
+			]
+		)
+		decision = dlg.ShowModal()
+		if decision == wx.ID_YES:
+			top_win = wx.GetApp().GetTopWindow()
+			wx.CallAfter(top_win.Close)
 	#-----------------------------------------------
 	def _on_request_user_attention(self, msg=None, urgent=False):
 		wx.CallAfter(self.__on_request_user_attention, msg, urgent)
@@ -2255,7 +2299,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.396  2008-04-26 21:36:42  ncq
+# Revision 1.397  2008-04-28 13:32:39  ncq
+# - take approprate action on db maintenance warning
+#
+# Revision 1.396  2008/04/26 21:36:42  ncq
 # - fix faulty variable
 # - when debugging explicitely print into log window
 #   immediately after creation so focus isn't taken
