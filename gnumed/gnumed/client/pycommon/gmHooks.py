@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.11 2008-04-12 19:17:35 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmHooks.py,v 1.12 2008-04-28 13:32:07 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -53,7 +53,8 @@ known_hooks = [
 	u'before_mail_doc',
 	u'before_print_doc_part',
 	u'before_fax_doc_part',
-	u'before_mail_doc_part'
+	u'before_mail_doc_part',
+	u'db_maintenance_warning'
 ]
 
 
@@ -132,7 +133,11 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.11  2008-04-12 19:17:35  ncq
+# Revision 1.12  2008-04-28 13:32:07  ncq
+# - run hook on database maintenance notification - so maybe
+#   user can be paged to his desk to close GNUmed clients
+#
+# Revision 1.11  2008/04/12 19:17:35  ncq
 # - doc part hooks
 #
 # Revision 1.10  2008/04/11 23:11:52  ncq
