@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.397 2008-04-28 13:32:39 ncq Exp $
-__version__ = "$Revision: 1.397 $"
+# $Id: gmGuiMain.py,v 1.398 2008-04-29 18:30:42 ncq Exp $
+__version__ = "$Revision: 1.398 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -182,7 +182,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
-		_log.debug('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
+		_log.info('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -2299,7 +2299,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.397  2008-04-28 13:32:39  ncq
+# Revision 1.398  2008-04-29 18:30:42  ncq
+# - promote workplace logging to info
+#
+# Revision 1.397  2008/04/28 13:32:39  ncq
 # - take approprate action on db maintenance warning
 #
 # Revision 1.396  2008/04/26 21:36:42  ncq
