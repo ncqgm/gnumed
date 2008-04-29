@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.25 2007-12-12 16:17:15 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmMatchProvider.py,v 1.26 2008-04-29 18:29:29 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -95,10 +95,6 @@ class cMatchProvider:
 		pass
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
-		pass
-	#--------------------------------------------------------
-	def increaseScore(self, anItem):
-		"""Increase the score/weighting for a particular item due to it being used."""
 		pass
 	#--------------------------------------------------------
 	def learn(self, anItem, aContext):
@@ -484,7 +480,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.25  2007-12-12 16:17:15  ncq
+# Revision 1.26  2008-04-29 18:29:29  ncq
+# - remove increaseScore
+#
+# Revision 1.25  2007/12/12 16:17:15  ncq
 # - better logger names
 #
 # Revision 1.24  2007/12/11 14:31:11  ncq
