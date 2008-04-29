@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.57 2008-02-25 17:31:41 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmForms.py,v 1.58 2008-04-29 18:27:44 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -252,7 +252,7 @@ def init_ooo():
 	_log.debug('python UNO bridge successfully initialized')
 
 #------------------------------------------------------------
-class cOOoConnector(gmBorg.cBorg):
+class gmOOoConnector(gmBorg.cBorg):
 	"""This class handles the connection to OOo.
 
 	Its Singleton instance stays around once initialized.
@@ -331,7 +331,7 @@ class cOOoLetter(object):
 	#--------------------------------------------------------
 	def open_in_ooo(self):
 		# connect to OOo
-		ooo_srv = cOOoConnector()
+		ooo_srv = gmOOoConnector()
 		# open doc in OOo
 		self.ooo_doc = ooo_srv.open_document(filename=self.template_file)
 		if self.ooo_doc is None:
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.57  2008-02-25 17:31:41  ncq
+# Revision 1.58  2008-04-29 18:27:44  ncq
+# - cOOoConnector -> gmOOoConnector
+#
+# Revision 1.57  2008/02/25 17:31:41  ncq
 # - logging cleanup
 #
 # Revision 1.56  2008/01/30 13:34:50  ncq
