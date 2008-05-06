@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.109 $
+# $Revision: 1.109.2.1 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
@@ -3819,7 +3819,7 @@ msgid "Manage templates for forms and letters."
 msgstr "Brief- und Formularvorlagen verwalten."
 
 msgid "&Correspondence"
-msgstr "&Schriftkram"
+msgstr "&Schriftverkehr"
 
 msgid "&Tools"
 msgstr "&Werkzeuge"
