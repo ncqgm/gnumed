@@ -37,7 +37,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         self.__pnl_top_message.SetBackgroundColour(wx.Colour(255, 0, 0))
         self._TCTRL_comment.SetToolTipString(_("Enter any additional data or commentary you wish to provide such as what you were about to do."))
         self._TCTRL_comment.SetFocus()
-        self._TCTRL_sender.SetToolTipString(_("Please enter your email address so we can provide direct feedback."))
+        self._TCTRL_sender.SetToolTipString(_("Please enter your email address so we can provide feedback directly to you. Otherwise, feedback will be given on the GNUmed mailing list (http://lists.gnu.org/mailman/listinfo/gnumed-devel)."))
         self._TCTRL_helpdesk.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_helpdesk.Enable(False)
         self._TCTRL_logfile.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
@@ -50,7 +50,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         self._BTN_ok.SetDefault()
         self._BTN_close.SetToolTipString(_("Close this dialog AND the GNUmed client."))
         self._BTN_view_log.SetToolTipString(_("View the log file."))
-        self._BTN_mail.SetToolTipString(_("Email a bug report to the GNUmed developers.\n\nMost questions will be answered on the mailing list so you are well advised to either subscribe or check its archive (lists.gnu.org/mailman/listinfo/gnumed-devel)."))
+        self._BTN_mail.SetToolTipString(_("Email a bug report to the GNUmed developers.\n\nMost questions will be answered on the mailing list so you are well advised to either subscribe or check its archive (http://lists.gnu.org/mailman/listinfo/gnumed-devel).\n\nIf you specify your address in the Sender field above the developers will be able to contact you directly for feedback."))
         # end wxGlade
 
     def __do_layout(self):
