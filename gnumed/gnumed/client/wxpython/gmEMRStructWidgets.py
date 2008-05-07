@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.71 2007-10-07 12:32:41 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmEMRStructWidgets.py,v 1.71.2.1 2008-05-07 15:12:50 ncq Exp $
+__version__ = "$Revision: 1.71.2.1 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -825,6 +825,10 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			if self._PRW_year_noted.GetValue().strip() == '':
 				wx.CallAfter(self._PRW_age_noted.SetText, '')
 				return True
+			self._PRW_year_noted.SetBackgroundColour('pink')
+			self._PRW_year_noted.Refresh()
+			wx.CallAfter(self._PRW_age_noted.SetText, u'', None)
+			return True
 
 		year_noted = year_noted.get_pydt()
 
@@ -832,7 +836,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			gmDispatcher.send(signal='statustext', msg=_('Condition diagnosed in the future.'))
 			self._PRW_year_noted.SetBackgroundColour('pink')
 			self._PRW_year_noted.Refresh()
-			wx.CallAfter(self._PRW_age_noted.SetText, '')
+			wx.CallAfter(self._PRW_age_noted.SetText, u'')
 			return True
 
 		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
@@ -1161,7 +1165,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.71  2007-10-07 12:32:41  ncq
+# Revision 1.71.2.1  2008-05-07 15:12:50  ncq
+# - do not crash when leaving an invalidly filled year noted
+#   field in the health issue edit area
+#
+# Revision 1.71  2007/10/07 12:32:41  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.70  2007/08/29 22:08:57  ncq
