@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.51 2008-04-16 20:34:43 ncq Exp $
+# $Id: gmTools.py,v 1.52 2008-05-07 15:18:01 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -15,10 +15,13 @@ import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	# for testing:
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 from Gnumed.pycommon import gmBorg
 
 
-_ = lambda x:x
 _log = logging.getLogger('gm.tools')
 _log.info(__version__)
 
@@ -294,12 +297,22 @@ days_per_week = 7
 #---------------------------------------------------------------------------
 def str2interval(str_interval=None):
 
-	# "(~)35(yYjJaA)"	- at age 35 years
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(y|Y|j|J|a|A|\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+	unit_keys = {
+		'year': _('yYaA_keys_year'),
+		'month': _('mM_keys_month'),
+		'week': _('wW_keys_week'),
+		'day': _('dD_keys_day'),
+		'hour': _('hH_keys_hour')
+	}
+
+	# "(~)35(yY)"	- at age 35 years
+	keys = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
 		return pydt.timedelta(days = (int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]) * days_per_year))
 
 	# "(~)12mM" - at age 12 months
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(m|M)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+	keys = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
 		years, months = divmod (
 			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
 			12
@@ -307,15 +320,18 @@ def str2interval(str_interval=None):
 		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
 
 	# weeks
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(w|W)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+	keys = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
 		return pydt.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# days
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(d|D|t|T)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+	keys = '|'.join(list(unit_keys['day'].replace('_keys_day', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
 		return pydt.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# hours
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(h|H)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+	keys = '|'.join(list(unit_keys['hour'].replace('_keys_hour', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
 		return pydt.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# x/12 - months
@@ -344,7 +360,9 @@ def str2interval(str_interval=None):
 		return pydt.timedelta(minutes = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# nYnM - years, months
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(y|Y|j|J|a|A|\s|\t)+\d+(\s|\t)*(m|M)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+	keys_year = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
+	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+(\s|\t)*$' % (keys_year, keys_month), str_interval, flags = regex.LOCALE | regex.UNICODE):
 		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
 		years, months = divmod(int(parts[1]), 12)
 		years += int(parts[0])
@@ -510,7 +528,8 @@ if __name__ == '__main__':
 		]
 
 		for str_interval in str_intervals:
-			print "interval:", str2interval(str_interval=str_interval), "; original: <%s>" % str_interval
+			print "input: <%s>" % str_interval
+			print "  ==>", str2interval(str_interval=str_interval)
 
 		return True
 	#-----------------------------------------------------------------------
@@ -707,7 +726,7 @@ This is a test mail from the gmTools.py module.
 
 		logging.basicConfig(level = logging.DEBUG)
 
-		#test_str2interval()
+		test_str2interval()
 		#test_coalesce()
 		#test_capitalize()
 		#test_import_module()
@@ -716,14 +735,17 @@ This is a test mail from the gmTools.py module.
 		#test_gmPaths()
 		#test_none_if()
 		#test_bool2str()
-		test_bool2subst()
+		#test_bool2subst()
 		#test_get_unique_filename()
 		#test_size2str()
 		#test_wrap()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.51  2008-04-16 20:34:43  ncq
+# Revision 1.52  2008-05-07 15:18:01  ncq
+# - i18n str2interval
+#
+# Revision 1.51  2008/04/16 20:34:43  ncq
 # - add bool2subst tests
 #
 # Revision 1.50  2008/04/11 12:24:39  ncq
