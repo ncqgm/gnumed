@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.112 $
+# $Revision: 1.113 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-04-16 22:41+CEST\n"
-"PO-Revision-Date: 2008-04-16 22:55+0100\n"
+"POT-Creation-Date: 2008-05-07 15:09+CEST\n"
+"PO-Revision-Date: 2008-05-07 15:47+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -31,6 +31,9 @@ msgstr "hat Allergien"
 
 msgid "ERROR: unknown allergic state [%s]"
 msgstr "FEHLER: fehlerhafter Allergiestatus [%s]"
+
+msgid "dummy-no-need-to-translate"
+msgstr ""
 
 msgid "soap_S"
 msgstr "soap_A"
@@ -508,18 +511,6 @@ msgstr ""
 "Beim Exportieren der Personalien ist ein Fehler aufgetreten.\n"
 "Genaue Fehlerbeschreibung in der Logdatei."
 
-msgid "S"
-msgstr "A"
-
-msgid "O"
-msgstr "B"
-
-msgid "A"
-msgstr "D"
-
-msgid "P"
-msgstr "T"
-
 msgid "emr-journal"
 msgstr "Kartei-Journal"
 
@@ -682,6 +673,21 @@ msgstr "Die wxPython-GUI ist noch nicht initialisiert."
 
 msgid "Can't connect to database without login information!"
 msgstr "Ohne Login-Informationen kann keine Verbindung zur Datenbank aufgebaut werden!"
+
+msgid "yYaA_keys_year"
+msgstr "yYjJaA_keys_year"
+
+msgid "mM_keys_month"
+msgstr "mM_keys_month"
+
+msgid "wW_keys_week"
+msgstr "wW_keys_week"
+
+msgid "dD_keys_day"
+msgstr "tTdD_keys_day"
+
+msgid "hH_keys_hour"
+msgstr "hH_keys_hour"
 
 msgid "1 Byte"
 msgstr "1 Byte"
@@ -1399,23 +1405,26 @@ msgstr "OK"
 msgid "Health issue selector"
 msgstr "Wahl einer Grunderkrankung"
 
-msgid "Select &unsigned"
-msgstr "unsignierte markieren"
+msgid "&My unsigned"
+msgstr "&Meine unsignierten"
 
-msgid "Select &your unsigned"
-msgstr "Ihre unsignierten markieren"
+msgid "&All unsigned"
+msgstr "&Alle unsignierten"
 
-msgid "&Sign ... "
-msgstr "&Abzeichnen"
-
-msgid "Select all unsigned results, regardless of who is responsible for them."
-msgstr "Alle unsignierten Ergebnisse markieren, egal wer für diese verantwortlich ist."
+msgid "&Sign selected  ... "
+msgstr "Markierte &unterschreiben"
 
 msgid "Select those unsigned results for which you are responsible."
 msgstr "Diejenigen unsignierten Ergebnisse markieren, für die Sie verantwortlich sind."
 
+msgid "Select all unsigned results, regardless of who is responsible for them."
+msgstr "Alle unsignierten Ergebnisse markieren, egal wer für diese verantwortlich ist."
+
 msgid "Press this to batch-sign the selected measurements."
 msgstr "Hier drücken, um die markierten Ergebnisse in einem Rutsch zu bewerten."
+
+msgid "Select:"
+msgstr "Markieren:"
 
 msgid "Clinically relevant"
 msgstr "Medizinisch relevant"
@@ -1441,7 +1450,7 @@ msgstr "Nicht relevant"
 msgid "&Relevant"
 msgstr "&Relevant"
 
-msgid "Take &responsibility"
+msgid "&Take responsibility"
 msgstr "die &Verantwortung übernehmen"
 
 msgid "Signing off test results"
@@ -1851,8 +1860,8 @@ msgstr "GNUmed-Fehlerbehandlung"
 msgid "Enter any additional data or commentary you wish to provide such as what you were about to do."
 msgstr "Geben Sie zusätzliche Informationen ein, die Sie dem Bericht hinzufügen möchte, etwa was Sie gerade zu tun beabsichtigten."
 
-msgid "Please enter your email address so we can provide direct feedback."
-msgstr "Geben Sie Ihre E-Mail-Adresse ein, sodaß wir auch direkt antworten können."
+msgid "Please enter your email address so we can provide feedback directly to you. Otherwise, feedback will be given on the GNUmed mailing list (http://lists.gnu.org/mailman/listinfo/gnumed-devel)."
+msgstr "Bitte geben Sie Ihre E-Mail-Adresse ein, sodaß wir Sie direkt erreichen können. Ihre Fehlermeldung wird ansonsten auf dem GNUmed-Mailingliste (http://lists.gnu.org/mailman/listinfo/gnumed-devel) bearbeitet."
 
 msgid "Close this dialog but keep running GNUmed."
 msgstr "Diesen Dialog schließen, GNUmed läuft weiter."
@@ -1866,11 +1875,14 @@ msgstr "Die Logdatei ansehen."
 msgid ""
 "Email a bug report to the GNUmed developers.\n"
 "\n"
-"Most questions will be answered on the mailing list so you are well advised to either subscribe or check its archive (lists.gnu.org/mailman/listinfo/gnumed-devel)."
-msgstr ""
-"Einen Fehlerbericht an die GNUmed-Übersetzer schicken.\n"
+"Most questions will be answered on the mailing list so you are well advised to either subscribe or check its archive (http://lists.gnu.org/mailman/listinfo/gnumed-devel).\n"
 "\n"
-"Die meisten Fragen werden auf der Mailingliste beantwortet, daherist es ratsam, diese zu abonnieren oder das Archiv zu durchforsten (lists.gnu.org/mailmain/listinfo/gnumed-devel)."
+"If you specify your address in the Sender field above the developers will be able to contact you directly for feedback."
+msgstr ""
+"Einen Fehlerbericht an die GNUmed-Entwickler schicken.\n"
+"\n"
+"Die meisten Fragen werden auf der Mailingliste beantwortet, daher ist es ratsam, diese zu abonnieren oder das Archiv zu durchforsten (lists.gnu.org/mailmain/listinfo/gnumed-devel).\n"
+"Wenn Sie Ihre Adresse oben im Feld \"Absender\" eingegeben haben, können die Entwickler Ihnen auch direkt antworten."
 
 msgid "An unhandled exception has occurred."
 msgstr "Ein nicht vorhergesehener Fehler ist aufgetreten."
@@ -1948,9 +1960,6 @@ msgid "Failed to enrol patient in %s"
 msgstr ""
 
 msgid "Failed to  delist patient from %s"
-msgstr ""
-
-msgid "dummy-no-need-to-translate"
 msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
@@ -3084,8 +3093,8 @@ msgstr "Grunderkrankung wählen"
 msgid "Cannot parse [%s] into valid interval."
 msgstr "Kann <%s> nicht in einen Zeitraum übersetzen."
 
-msgid "Patient is only %s old. Cannot accept age [%s]."
-msgstr "Patient ist erst %s alt. Kann Alter [%s] nicht akzeptieren."
+msgid "Foundational health issue cannot have been noted at age %s. Patient is only %s old."
+msgstr "Grunderkrankung kann nicht im Alter von %s bemerkt worden sein. Der Patient ist ja erst %s alt."
 
 msgid "Condition diagnosed in the future."
 msgstr "Diagnosestellung ist in der Zukunft."
@@ -3845,6 +3854,39 @@ msgstr "GNUmed-Helfer"
 
 msgid "programmer forgot to specify status message"
 msgstr "Programmierer hat vergessen, Statusmeldung anzugeben."
+
+msgid "The database will be shut down for maintenance in a few minutes."
+msgstr "Die Datenbank wird in einigen Minuten zur Wartung heruntergefahren."
+
+msgid "Database shutdown warning"
+msgstr "Hinweis auf Datenbankwartung"
+
+msgid ""
+"The database will be shut down for maintenance\n"
+"in a few minutes.\n"
+"\n"
+"In order to not suffer any loss of data you\n"
+"will need to save your current work and log\n"
+"out of this GNUmed client.\n"
+msgstr ""
+"Die Datenbank wird in wenigen Minuten wegen\n"
+"Wartungsarbeiten heruntergefahren.\n"
+"\n"
+"Beenden Sie Ihre Arbeit mit GNUmed und\n"
+"melden Sie sich ab, ansonsten könnten zu spät\n"
+"eingegebene Daten verlustig gehen.\n"
+
+msgid "Close now"
+msgstr "Jetzt schließen"
+
+msgid "Close this GNUmed client immediately."
+msgstr "Dieses GNUmed-Fenster jetzt schließen."
+
+msgid "Finish work"
+msgstr "Noch weiterarbeiten"
+
+msgid "Finish and save current work first, then manually close this GNUmed client."
+msgstr "Ich will die jetzige Arbeit vollenden und mich dann bei GNUmed abmelden."
 
 msgid "Cannot run script after patient activation."
 msgstr "Kann Skript nach Patientenaktivierung nicht ausführen."
@@ -4614,14 +4656,20 @@ msgstr ""
 msgid "Cannot sign results. No results selected."
 msgstr "Kann Ergebnisse nicht abzeichen. Nichts ausgewählt."
 
+msgid "Test"
+msgstr "Test"
+
+msgid "not yet"
+msgstr "bislang nicht"
+
 msgid ""
 "Measurement details:                                     \n"
 " Date: %(clin_when)s\n"
 " Type: \"%(name)s\" (%(code)s)\n"
 " Result: %(val)s%(unit)s%(ind)s\n"
-" Standard normal range: %(norm_min)s - %(norm_max)s%(norm_range)s  \n"
+" Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
 " Reference group: %(ref_group)s\n"
-" Clinical target range: %(clin_min)s - %(clin_max)s%(clin_range)s  \n"
+" Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
 " Doc: %(comment_doc)s\n"
 " Lab: %(comment_lab)s\n"
 " Episode: %(epi)s\n"
@@ -4647,9 +4695,9 @@ msgstr ""
 " Datum: %(clin_when)s\n"
 " Messung: \"%(name)s\" (%(code)s)\n"
 " Ergebnis: %(val)s%(unit)s%(ind)s\n"
-" Normalbereich: %(norm_min)s - %(norm_max)s%(norm_range)s  \n"
+" Normalbereich: %(norm_min_max)s%(norm_range)s  \n"
 " Referenzgruppe: %(ref_group)s\n"
-" Zielbereich: %(clin_min)s - %(clin_max)s%(clin_range)s  \n"
+" Zielbereich: %(clin_min_max)s%(clin_range)s  \n"
 " Arzt: %(comment_doc)s\n"
 " Labor: %(comment_lab)s\n"
 " Episode: %(epi)s\n"
@@ -4671,14 +4719,14 @@ msgstr ""
 "\n"
 "Zuletzt geändert %(mod_when)s von %(mod_by)s."
 
-msgid "not yet"
-msgstr "bislang nicht"
-
 msgid "you"
 msgstr "Sie"
 
-msgid "Test"
-msgstr "Test"
+msgid "no"
+msgstr "nein"
+
+msgid "yes"
+msgstr "ja"
 
 msgid "%s results selected. Too many to list individually."
 msgstr "%s Ergebnisse markiert. Zu viele, um alle einzeln anzuzeigen."
@@ -5442,6 +5490,12 @@ msgstr "Bef"
 
 msgid "Findings"
 msgstr "Befund"
+
+msgid "A"
+msgstr "D"
+
+msgid "P"
+msgstr "T"
 
 msgid "xxxSOAPxxx"
 msgstr "xxxABDTxxx"
@@ -6494,6 +6548,15 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "S"
+#~ msgstr "A"
+#~ msgid "O"
+#~ msgstr "B"
+#~ msgid "Please enter your email address so we can provide direct feedback."
+#~ msgstr ""
+#~ "Geben Sie Ihre E-Mail-Adresse ein, sodaß wir auch direkt antworten können."
+#~ msgid "Patient is only %s old. Cannot accept age [%s]."
+#~ msgstr "Patient ist erst %s alt. Kann Alter [%s] nicht akzeptieren."
 #~ msgid "Agree with tester"
 #~ msgstr "Techniker hat Recht"
 #~ msgid "All normal "
@@ -6508,10 +6571,6 @@ msgstr "erstmals"
 #~ msgstr ""
 #~ "außerhalb\n"
 #~ "Normbereich:"
-#~ msgid "no"
-#~ msgstr "nein"
-#~ msgid "yes"
-#~ msgstr "ja"
 #~ msgid "Mail"
 #~ msgstr "Mail"
 #~ msgid "&Review"
