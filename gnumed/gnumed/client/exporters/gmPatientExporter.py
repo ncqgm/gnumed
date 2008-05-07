@@ -10,21 +10,23 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.119 2008-04-11 12:21:11 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmPatientExporter.py,v 1.120 2008-05-07 15:16:01 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import os.path, sys, traceback, string, types, time, codecs, datetime as pyDT, locale, logging
 
+
 import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
 
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
 from Gnumed.pycommon import gmI18N, gmExceptions, gmNull, gmPG2, gmTools
-from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord
+from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord, gmClinNarrative
+
 
 _log = logging.getLogger('gm.export')
 _log.info(__version__)
@@ -941,13 +943,6 @@ class cEMRJournalExporter:
 	"""
 	def __init__(self):
 		self.__part_len = 72
-		self.__tx_soap = {
-			u's': _('S'),
-			u'o': _('O'),
-			u'a': _('A'),
-			u'p': _('P'),
-			None: u' ',
-		}
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1049,7 +1044,7 @@ where pk_patient=%s order by date, pk_episode, scr"""
 			target.write(u'| %10.10s | %9.9s | %s | %s\n' % (
 				curr_date,
 				curr_doc,
-				self.__tx_soap[curr_soap],
+				gmClinNarrative.soap_cat2l10n[curr_soap],
 				txt[0:self.__part_len]
 			))
 			# more parts ?
@@ -1075,12 +1070,6 @@ class cMedistarSOAPExporter:
 			if not isinstance(patient, gmPerson.cIdentity):
 				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cIdentity>, but is: %s' % type(patient)
 			self.__pat = patient
-		self.__tx_soap = {
-			's': 'A',
-			'o': 'B',
-			'a': 'D',
-			'p': 'T'
-		}
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1116,7 +1105,7 @@ class cMedistarSOAPExporter:
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in 'soap':
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['pk_identity'], encounter['pk_encounter'], soap_cat)}])
-			target.write('*MD%s*\n' % self.__tx_soap[soap_cat])
+			target.write('*MD%s*\n' % gmClinNarrative.soap_cat2l10n[soap_cat])
 			for row in rows:
 				text = row[0]
 				if text is not None:
@@ -1201,7 +1190,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.119  2008-04-11 12:21:11  ncq
+# Revision 1.120  2008-05-07 15:16:01  ncq
+# - use centralized soap category translations from gmClinNarrative
+#
+# Revision 1.119  2008/04/11 12:21:11  ncq
 # - some cleanup
 #
 # Revision 1.118  2008/04/02 10:15:54  ncq
