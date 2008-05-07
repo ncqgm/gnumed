@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.59 2008-04-02 10:22:03 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmDateTimeInput.py,v 1.60 2008-05-07 15:20:36 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -149,7 +149,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def SetText(self, value=u'', data=None):
+	def SetText(self, value=u'', data=None, suppress_smarts=False):
 #		if data is None:
 #			data = self.__text2timestamp(val=value)
 
@@ -159,7 +159,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			if value.strip() == u'':
 				value = data.format_accurately()
 
-		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data)
+		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data, suppress_smarts = suppress_smarts)
 	#--------------------------------------------------------
 	def SetData(self, data=None):
 		if data is not None:
@@ -232,7 +232,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.59  2008-04-02 10:22:03  ncq
+# Revision 1.60  2008-05-07 15:20:36  ncq
+# - support suppress smarts in SetText
+#
+# Revision 1.59  2008/04/02 10:22:03  ncq
 # - optionalize test suite running
 #
 # Revision 1.58  2008/03/05 22:30:13  ncq
