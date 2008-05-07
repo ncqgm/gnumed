@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.74 2008-03-05 22:37:45 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmEMRStructWidgets.py,v 1.75 2008-05-07 15:21:10 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -749,8 +749,6 @@ class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl):
 	"""Panel encapsulating health issue edit area functionality."""
 
-	# FIXME: add on_lose_focus handling for year_diagnosed
-
 	def __init__(self, *args, **kwargs):
 		wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl.__init__(self, *args, **kwargs)
 
@@ -778,10 +776,13 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 	#--------------------------------------------------------
 	def _on_leave_age_noted(self, *args, **kwargs):
 
+		if not self._PRW_age_noted.IsModified():
+			return True
+
 		str_age = self._PRW_age_noted.GetValue().strip()
 
-		if str_age == '':
-			wx.CallAfter(self._PRW_year_noted.SetText, '')
+		if str_age == u'':
+			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
 			return True
 
 		age = gmTools.str2interval(str_interval = str_age)
@@ -791,12 +792,17 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		if age is None:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot parse [%s] into valid interval.') % str_age)
 		if age >= max_age:
-			gmDispatcher.send(signal='statustext', msg=_('Patient is only %s old. Cannot accept age [%s].') % (pat.get_medical_age(), age))
+			gmDispatcher.send (
+				signal = 'statustext',
+				msg = _(
+					'Foundational health issue cannot have been noted at age %s. Patient is only %s old.'
+				) % (age, pat.get_medical_age())
+			)
 
 		if (age is None) or (age >= max_age):
 			self._PRW_age_noted.SetBackgroundColour('pink')
 			self._PRW_age_noted.Refresh()
-			wx.CallAfter(self._PRW_year_noted.SetText, '')
+			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
 			return True
 
 		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
@@ -817,12 +823,19 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 	#--------------------------------------------------------
 	def _on_leave_year_noted(self, *args, **kwargs):
 
+		if not self._PRW_year_noted.IsModified():
+			return True
+
 		year_noted = self._PRW_year_noted.GetData()
 
 		if year_noted is None:
-			if self._PRW_year_noted.GetValue().strip() == '':
-				wx.CallAfter(self._PRW_age_noted.SetText, '')
+			if self._PRW_year_noted.GetValue().strip() == u'':
+				wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
 				return True
+			self._PRW_year_noted.SetBackgroundColour('pink')
+			self._PRW_year_noted.Refresh()
+			wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
+			return True
 
 		year_noted = year_noted.get_pydt()
 
@@ -830,7 +843,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			gmDispatcher.send(signal='statustext', msg=_('Condition diagnosed in the future.'))
 			self._PRW_year_noted.SetBackgroundColour('pink')
 			self._PRW_year_noted.Refresh()
-			wx.CallAfter(self._PRW_age_noted.SetText, '')
+			wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
 			return True
 
 		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
@@ -844,17 +857,11 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		return True
 	#--------------------------------------------------------
 	def _on_modified_age_noted(self, *args, **kwargs):
-		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		#self._PRW_year_noted.Refresh()
-		self._PRW_year_noted.suppress_text_update_smarts = True
-		wx.CallAfter(self._PRW_year_noted.SetText)
+		wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
 		return True
 	#--------------------------------------------------------
 	def _on_modified_year_noted(self, *args, **kwargs):
-		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		#self._PRW_age_noted.Refresh()
-		self._PRW_age_noted.suppress_text_update_smarts = True
-		wx.CallAfter(self._PRW_age_noted.SetText)
+		wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -1025,10 +1032,6 @@ class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDl
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-	gmDateTime.init()
 	
 	#================================================================	
 	class testapp (wx.App):
@@ -1130,12 +1133,18 @@ if __name__ == '__main__':
 		app.MainLoop()
 	#================================================================
 
-	# obtain patient
-	pat = gmPerson.ask_for_patient()
-	if pat is None:
-		print "No patient. Exiting gracefully..."
-		sys.exit(0)
-	gmPerson.set_active_patient(patient=pat)
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+		gmDateTime.init()
+
+		# obtain patient
+		pat = gmPerson.ask_for_patient()
+		if pat is None:
+			print "No patient. Exiting gracefully..."
+			sys.exit(0)
+		gmPerson.set_active_patient(patient=pat)
 
 #	try:
 		# lauch emr dialogs test application
@@ -1146,16 +1155,19 @@ if __name__ == '__main__':
 		# but re-raise them
 #		raise
 
-	#test_encounter_edit_area_panel()
-	test_encounter_edit_area_dialog()
-	#test_epsiode_edit_area_pnl()
-	#test_episode_edit_area_dialog()
-	#test_health_issue_edit_area_dlg()
-	#test_episode_selection_prw()
+		#test_encounter_edit_area_panel()
+		#test_encounter_edit_area_dialog()
+		#test_epsiode_edit_area_pnl()
+		#test_episode_edit_area_dialog()
+		test_health_issue_edit_area_dlg()
+		#test_episode_selection_prw()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.74  2008-03-05 22:37:45  ncq
+# Revision 1.75  2008-05-07 15:21:10  ncq
+# - move health issue EA behaviour close to Richard's specs
+#
+# Revision 1.74  2008/03/05 22:37:45  ncq
 # - new style logging
 # - new health issue adding
 #
