@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.97.2.1 2008-01-08 22:39:31 ncq Exp $
-__version__ = "$Revision: 1.97.2.1 $"
+# $Id: gmPatSearchWidgets.py,v 1.97.2.2 2008-05-07 16:04:11 ncq Exp $
+__version__ = "$Revision: 1.97.2.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -631,9 +631,9 @@ class cPatientSelector(wx.TextCtrl):
 				wx.BeginBusyCursor()
 				person = dlg.get_selected_person()
 				self.SetActivePatient(person)
-			dlg.Destroy()
+				wx.EndBusyCursor()
 
-			wx.EndBusyCursor()
+			dlg.Destroy()
 			return True
 
 		# previous search fragment
@@ -856,7 +856,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.97.2.1  2008-01-08 22:39:31  ncq
+# Revision 1.97.2.2  2008-05-07 16:04:11  ncq
+# - MacOSX detected a faulty indentation for wx.EndBusyCursor()
+#
+# Revision 1.97.2.1  2008/01/08 22:39:31  ncq
 # - 'first' / 'last' -> 'firstnames' / 'lastnames'
 #
 # Revision 1.97  2007/11/12 23:05:55  ncq
