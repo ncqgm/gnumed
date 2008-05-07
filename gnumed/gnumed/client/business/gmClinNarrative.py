@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -23,27 +23,27 @@ _log.info(__version__)
 
 
 soap_cat2l10n = {
-	's': _('soap_S').strip(u'soap_'),
-	'o': _('soap_O').strip(u'soap_'),
-	'a': _('soap_A').strip(u'soap_'),
-	'p': _('soap_P').strip(u'soap_'),
-	None: _('soap_ADMIN').strip(u'soap_')
+	's': _('soap_S').replace(u'soap_', u''),
+	'o': _('soap_O').replace(u'soap_', u''),
+	'a': _('soap_A').replace(u'soap_', u''),
+	'p': _('soap_P').replace(u'soap_', u''),
+	None: _('soap_ADMIN').replace(u'soap_', u'')
 }
 
 soap_cat2l10n_str = {
-	's': _('soap_Subjective').strip(u'soap_'),
-	'o': _('soap_Objective').strip(u'soap_'),
-	'a': _('soap_Assessment').strip(u'soap_'),
-	'p': _('soap_Plan').strip(u'soap_'),
-	None: _('soap_Administrative').strip(u'soap_')
+	's': _('soap_Subjective').replace(u'soap_', u''),
+	'o': _('soap_Objective').replace(u'soap_', u''),
+	'a': _('soap_Assessment').replace(u'soap_', u''),
+	'p': _('soap_Plan').replace(u'soap_', u''),
+	None: _('soap_Administrative').replace(u'soap_', u'')
 }
 
 l10n2soap_cat = {
-	_('soap_S').strip(u'soap_'): 's',
-	_('soap_O').strip(u'soap_'): 'o',
-	_('soap_A').strip(u'soap_'): 'a',
-	_('soap_P').strip(u'soap_'): 'p',
-	_('soap_ADMIN').strip(u'soap_'): None
+	_('soap_S').replace(u'soap_', u''): 's',
+	_('soap_O').replace(u'soap_', u''): 'o',
+	_('soap_A').replace(u'soap_', u''): 'a',
+	_('soap_P').replace(u'soap_', u''): 'p',
+	_('soap_ADMIN').replace(u'soap_', u''): None
 }
 #============================================================
 class cDiag(gmBusinessDBObject.cBusinessDBObject):
@@ -263,7 +263,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.33  2008-04-22 21:11:05  ncq
+# Revision 1.34  2008-05-07 15:15:15  ncq
+# - use replace() rather than strip() to remove suffixes
+#
+# Revision 1.33  2008/04/22 21:11:05  ncq
 # - define _() for testing
 #
 # Revision 1.32  2008/04/11 12:20:16  ncq
