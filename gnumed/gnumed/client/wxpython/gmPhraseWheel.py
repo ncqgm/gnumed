@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.114 2008-04-26 16:29:15 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmPhraseWheel.py,v 1.115 2008-05-07 15:21:44 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -326,7 +326,9 @@ class cPhraseWheel(wx.TextCtrl):
 		"""
 		return self.data
 	#---------------------------------------------------------
-	def SetText (self, value=u'', data=None):
+	def SetText (self, value=u'', data=None, suppress_smarts=False):
+
+		self.suppress_text_update_smarts = suppress_smarts
 
 		if data is not None:
 			self.suppress_text_update_smarts = True
@@ -368,6 +370,7 @@ class cPhraseWheel(wx.TextCtrl):
 			self.matcher.unset_context(context=context)
 	#--------------------------------------------------------
 	def enable_default_spellchecker(self):
+		# FIXME: use Debian's wgerman-medical as "personal" wordlist if available
 		try:
 			import enchant
 		except ImportError:
@@ -935,7 +938,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.114  2008-04-26 16:29:15  ncq
+# Revision 1.115  2008-05-07 15:21:44  ncq
+# - support suppress smarts argument to SetText
+#
+# Revision 1.114  2008/04/26 16:29:15  ncq
 # - missing if
 #
 # Revision 1.113  2008/04/26 10:06:37  ncq
