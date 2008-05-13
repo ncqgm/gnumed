@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.75 2008-05-07 15:21:10 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmEMRStructWidgets.py,v 1.76 2008-05-13 14:11:53 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -791,6 +791,11 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		if age is None:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot parse [%s] into valid interval.') % str_age)
+			self._PRW_age_noted.SetBackgroundColour('pink')
+			self._PRW_age_noted.Refresh()
+			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
+			return True
+
 		if age >= max_age:
 			gmDispatcher.send (
 				signal = 'statustext',
@@ -798,8 +803,6 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 					'Foundational health issue cannot have been noted at age %s. Patient is only %s old.'
 				) % (age, pat.get_medical_age())
 			)
-
-		if (age is None) or (age >= max_age):
 			self._PRW_age_noted.SetBackgroundColour('pink')
 			self._PRW_age_noted.Refresh()
 			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
@@ -1164,7 +1167,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.75  2008-05-07 15:21:10  ncq
+# Revision 1.76  2008-05-13 14:11:53  ncq
+# - properly handle age=None in pHX ea
+#
+# Revision 1.75  2008/05/07 15:21:10  ncq
 # - move health issue EA behaviour close to Richard's specs
 #
 # Revision 1.74  2008/03/05 22:37:45  ncq
