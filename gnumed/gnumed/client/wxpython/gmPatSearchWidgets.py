@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.107 2008-04-16 20:39:39 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmPatSearchWidgets.py,v 1.108 2008-05-13 14:13:57 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -489,7 +489,6 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		self._display_name()
 
-		self.__just_got_focus = False
 		self.__register_events()
 	#--------------------------------------------------------
 	# utility methods
@@ -527,27 +526,6 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		wx.EVT_SET_FOCUS(self, self._on_get_focus)
 		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
-		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
-#		wx.EVT_LEFT_DOWN(self, self._on_left_mousebutton_down)
-	#--------------------------------------------------------
-	def _on_left_mousebutton_down(self, evt):
-		"""Select all text but only if just after getting focus."""
-
-		if not self.__just_got_focus:
-			evt.Skip()
-			return
-
-		print "left clicked just after getting focus"
-#		self.__just_got_focus = False
-	#--------------------------------------------------------
-	def _on_left_mousebutton_up(self, evt):
-
-		if not self.__just_got_focus:
-			evt.Skip()
-			return
-
-		print "left released just after getting focus"
-		self.__just_got_focus = False
 	#--------------------------------------------------------
 #	def _on_left_mousebutton_up(self, evt):
 #		"""upon left click release
@@ -578,9 +556,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		- select all text in the field so that the next
 		  character typed will delete it
 		"""
-		self.SetSelection (-1,-1)
-		self.__just_got_focus = True
-
+		wx.CallAfter(self.SetSelection, -1, -1)
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
@@ -598,8 +574,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 #			self._prev_search_term = curr_search_term
 
 		# just for good measure
-		self.__just_got_focus = False
-		self.SetSelection(0,0)
+		wx.CallAfter(self.SetSelection, 0, 0)
 #		self._lclick_count = 0
 
 		self._display_name()
@@ -614,10 +589,6 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		"""True: patient was selected.
 		   False: no patient was selected.
 		"""
-		# just for good measure so tabbing in, then
-		# typing, then clicking doesn't select-all
-		self.__just_got_focus = False
-
 		keycode = evt.GetKeyCode()
 
 		# list of previously active patients
@@ -816,7 +787,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			name = curr_pat['description']
 			if curr_pat.locked:
 				name = _('%(name)s (locked)') % {'name': name}
-			name = '%s%s' % (name, gmTools.coalesce(self._prev_search_term, u'', u' [%s]'))
+#			name = '%s%s' % (name, gmTools.coalesce(self._prev_search_term, u'', u' [%s]'))
 
 		self.SetValue(name)
 	#--------------------------------------------------------
@@ -1004,7 +975,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.107  2008-04-16 20:39:39  ncq
+# Revision 1.108  2008-05-13 14:13:57  ncq
+# - fix on-focus-select-all behaviour
+# - don't display search term after name - when a search failed this gets confusing
+#
+# Revision 1.107  2008/04/16 20:39:39  ncq
 # - working versions of the wxGlade code and use it, too
 # - show client version in login dialog
 #
