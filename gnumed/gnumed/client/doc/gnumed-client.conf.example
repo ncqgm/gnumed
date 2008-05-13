@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.9 2008-01-07 19:45:11 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.10 2008-05-13 14:07:32 ncq Exp $
 
 
 
@@ -42,6 +42,23 @@ port = 5432
 database = gnumed_v9
 #encoding = UTF8
 
+# this option controls whether the database is in-production
+# storing real patient data or is a public database with
+# open access for testing and development
+#
+# among other things it controls whether log files are by
+# default attached to bug reports mailed out to developers,
+# for real patient databases set this to 0
+public/open access = 1
+
+# this option defines who is in charge of tech support
+# for this GNUmed database,
+# public databases are usually serviced via the public
+# mailing list,
+# set this to an internal staff address for real
+# patient databases
+help desk = GNUmed Development List <Gnumed-devel@gnu.org>
+
 
 
 [profile local GNUmed database (Linux/Mac)]
@@ -49,6 +66,7 @@ host =
 port = 5432
 database = gnumed_v9
 #encoding = UTF8
+help desk = Your own IT support <needs configuration>
 
 
 
@@ -57,12 +75,17 @@ host = 127.0.0.1
 port = 5432
 database = gnumed_v9
 #encoding = cp1252
+help desk = Your own IT support <needs configuration>
 
 
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.9  2008-01-07 19:45:11  ncq
+# Revision 1.10  2008-05-13 14:07:32  ncq
+# - add/document per-profile help desk options
+# - add/document "public/open access" option
+#
+# Revision 1.9  2008/01/07 19:45:11  ncq
 # - bump db version
 #
 # Revision 1.8  2008/01/07 14:10:40  ncq
