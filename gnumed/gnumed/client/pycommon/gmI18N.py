@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.40 2008-01-14 20:26:35 ncq Exp $
+# $Id: gmI18N.py,v 1.41 2008-05-13 14:08:44 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -310,6 +310,8 @@ def install_domain(domain=None, language=None):
 	dummy.install()
 	return True
 #===========================================================================
+_encoding_mismatch_already_logged = False
+
 def get_encoding():
 	"""Try to get a sane encoding.
 
@@ -336,7 +338,10 @@ def get_encoding():
 	enc = locale.getlocale()[1]
 	if enc is not None:
 		return enc
-	_log.debug('*actual* encoding of locale is None, using encoding *recommended* by locale')
+	global _encoding_mismatch_already_logged
+	if not _encoding_mismatch_already_logged:
+		_log.debug('*actual* encoding of locale is None, using encoding *recommended* by locale')
+		_encoding_mismatch_already_logged = True
 	return locale.getpreferredencoding(do_setlocale=False)
 #===========================================================================
 # Main
@@ -368,7 +373,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.40  2008-01-14 20:26:35  ncq
+# Revision 1.41  2008-05-13 14:08:44  ncq
+# - get_encoding: log encoding mismatch only once
+#
+# Revision 1.40  2008/01/14 20:26:35  ncq
 # - cleanup
 #
 # Revision 1.39  2008/01/13 01:14:48  ncq
