@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.110 $"
+__version__ = "$Revision: 1.111 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -564,7 +564,7 @@ select exists (
 			eol_w_margin = u'\n%s' % left_margin
 			return u'%s\n' % eol_w_margin.join(lines)
 
-		lines.append('\n')
+		lines.append(u'')
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
 			msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
@@ -602,7 +602,7 @@ select exists (
 			for soap_entry in soap_cat_narratives:
 				txt = gmTools.wrap (
 					text = '%s %.8s: %s' % (
-						soap_entry['date'].strftime('%d.%m  %H:%M'),
+						soap_entry['date'].strftime('%d.%m. %H:%M'),
 						soap_entry['provider'],
 						soap_entry['narrative']
 					),
@@ -831,7 +831,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.110  2008-04-11 12:20:52  ncq
+# Revision 1.111  2008-05-13 14:06:17  ncq
+# - remove superfluous \n
+# - add missing .
+#
+# Revision 1.110  2008/04/11 12:20:52  ncq
 # - format() on episode and encounter
 #
 # Revision 1.109  2008/03/05 22:24:31  ncq
