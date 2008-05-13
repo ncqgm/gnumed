@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.398 2008-04-29 18:30:42 ncq Exp $
-__version__ = "$Revision: 1.398 $"
+# $Id: gmGuiMain.py,v 1.399 2008-05-13 14:12:55 ncq Exp $
+__version__ = "$Revision: 1.399 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,7 +52,7 @@ if (version < 26) or ('unicode' not in wx.PlatformInfo):
 
 # GNUmed libs
 from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2, gmLog2
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.exporters import gmPatientExporter
 
@@ -1925,7 +1925,7 @@ class gmApp(wx.App):
 
 	def OnInit(self):
 
-		gmGuiHelpers.install_wx_exception_handler()
+		gmExceptionHandlingWidgets.install_wx_exception_handler()
 
 		import wx.lib.colourdb
 		wx.lib.colourdb.updateColourDB()
@@ -2005,7 +2005,7 @@ class gmApp(wx.App):
 			_provider['short_alias'],
 			_provider['db_user']
 		)
-		gmGuiHelpers.set_staff_name(staff_name = tmp)
+		gmExceptionHandlingWidgets.set_staff_name(staff_name = tmp)
 
 		self.__starting_up = True
 		self.__register_events()
@@ -2056,7 +2056,7 @@ class gmApp(wx.App):
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
 		"""
-		gmGuiHelpers.uninstall_wx_exception_handler()
+		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
 		print "unhandled event detected: QUERY_END_SESSION"
@@ -2299,7 +2299,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.398  2008-04-29 18:30:42  ncq
+# Revision 1.399  2008-05-13 14:12:55  ncq
+# - exc handling adjustments
+#
+# Revision 1.398  2008/04/29 18:30:42  ncq
 # - promote workplace logging to info
 #
 # Revision 1.397  2008/04/28 13:32:39  ncq
