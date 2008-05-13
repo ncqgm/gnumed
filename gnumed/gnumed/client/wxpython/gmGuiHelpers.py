@@ -11,270 +11,19 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.91 2008-04-12 19:18:48 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmGuiHelpers.py,v 1.92 2008-05-13 14:12:33 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os, shutil, datetime as pyDT, traceback, exceptions, re as regex, codecs, logging
+import os
 
 
 import wx
 
 
-from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmPG2, gmLoginInfo, gmDispatcher, gmTools, gmCfg, gmI18N, gmLog2, gmCfg2
-from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg, wxgGreetingEditorDlg
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg
 
-
-_log2 = logging.getLogger('gm.gui')
-_log2.info(__version__)
-
-_prev_excepthook = None
-application_is_closing = False
-#=========================================================================
-def set_staff_name(staff_name):
-	global _staff_name
-	_staff_name = staff_name
-#-------------------------------------------------------------------------
-def handle_uncaught_exception_wx(t, v, tb):
-
-	_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
-
-	# careful: MSW does reference counting on Begin/End* :-(
-	try: wx.EndBusyCursor()
-	except: pass
-
-	# dead object error on shutdown ?
-	if application_is_closing:
-		if t == wx._core.PyDeadObjectError:
-			return
-
-	# failed import ?
-	if t == exceptions.ImportError:
-		gm_show_error (
-			aTitle = _('Missing GNUmed module'),
-			aMessage = _(
-				'GNUmed detected that parts of it are not\n'
-				'properly insalled. The following message\n'
-				'names the missing part:\n'
-				'\n'
-				' "%s"\n'
-				'\n'
-				'Please make sure to get the missing\n'
-				'parts installed. Otherwise some of the\n'
-				'functionality will not be accessible.'
-			) % v
-		)
-		_log2.error('module [%s] not installed', v)
-		return
-
-	# other exceptions
-	_log2.error('enabling debug mode')
-	_cfg = gmCfg2.gmCfgData()
-	_cfg.set_option(option = 'debug', value = True)
-	root_logger = logging.getLogger()
-	root_logger.setLevel(logging.DEBUG)
-	gmLog2.log_stack_trace()
-
-	name = os.path.basename(_logfile_name)
-	name, ext = os.path.splitext(name)
-	new_name = os.path.expanduser(os.path.join (
-		'~',
-		'gnumed',
-		'logs',
-		'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-	))
-
-	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
-	dlg.ShowModal()
-	comment = dlg._TCTRL_comment.GetValue()
-	dlg.Destroy()
-	if (comment is not None) and (comment.strip() != u''):
-		_log2.error(u'user comment: %s', comment.strip())
-
-	_log2.warning('syncing log file for backup to [%s]', new_name)
-	gmLog2.flush()
-	shutil.copy2(_logfile_name, new_name)
-# ------------------------------------------------------------------------
-def install_wx_exception_handler():
-	office = gmSurgery.gmCurrentPractice()
-	global _helpdesk
-	_helpdesk = office.helpdesk
-
-	global _prev_excepthook
-	_prev_excepthook = sys.excepthook
-	sys.excepthook = handle_uncaught_exception_wx
-
-	global _logfile_name
-	_logfile_name = gmLog2._logfile_name
-
-	global _local_account
-	_local_account = os.path.basename(os.path.expanduser('~'))
-
-	global _staff_name
-	_staff_name = _local_account
-
-	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
-
-	return True
-# ------------------------------------------------------------------------
-def uninstall_wx_exception_handler():
-	if _prev_excepthook is None:
-		sys.excepthook = sys.__excepthook__
-		return True
-	sys.excepthook = _prev_excepthook
-	return True
-# ------------------------------------------------------------------------
-def _on_application_closing():
-	global application_is_closing
-	application_is_closing = True
-# ========================================================================
-class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
-
-	def __init__(self, *args, **kwargs):
-
-		exception = kwargs['exception']
-		del kwargs['exception']
-		self.logfile = kwargs['logfile']
-		del kwargs['logfile']
-
-		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
-
-		self._TCTRL_helpdesk.SetValue(_helpdesk)
-		self._TCTRL_logfile.SetValue(self.logfile)
-		t, v, tb = exception
-		self._TCTRL_exc_type.SetValue(str(t))
-		self._TCTRL_exc_value.SetValue(str(v))
-		self._TCTRL_traceback.SetValue(''.join(traceback.format_tb(tb)))
-
-		self.Fit()
-	#------------------------------------------
-	def _on_close_gnumed_button_pressed(self, evt):
-		comment = self._TCTRL_comment.GetValue()
-		if (comment is not None) and (comment.strip() != u''):
-			_log2.error(u'user comment: %s', comment.strip())
-		_log2.warning('syncing log file for backup to [%s]', self.logfile)
-		gmLog2.flush()
-		shutil.copy2(_logfile_name, self.logfile)
-		top_win = wx.GetApp().GetTopWindow()
-		wx.CallAfter(top_win.Close)
-		evt.Skip()
-	#------------------------------------------
-	def _on_mail_button_pressed(self, evt):
-
-		comment = self._TCTRL_comment.GetValue()
-		if (comment is None) or (comment.strip() == u''):
-			comment = wx.GetTextFromUser (
-				message = _(
-					'Please enter a short note on what you\n'
-					'were about to do in GNUmed:'
-				),
-				caption = _('Sending bug report'),
-				parent = self
-			)
-			if comment.strip() == u'':
-				comment = u'user did not enter comment on bug report'
-
-		receivers = regex.findall (
-			'[\S]+@[\S]+',
-			self._TCTRL_helpdesk.GetValue().strip(),
-			flags = regex.UNICODE | regex.LOCALE
-		)
-		if len(receivers) == 0:
-			receivers = [u'gnumed-devel@gnu.org']
-
-		receiver_string = wx.GetTextFromUser (
-			message = _(
-				'Edit the list of email addresses to send the\n'
-				'bug report to (separate addresses by spaces).\n'
-				'\n'
-				'Note that <gnumed-devel@gnu.org> refers to\n'
-				'the public GNUmed mailing list.'
-			),
-			caption = _('Sending bug report'),
-			default_value = ','.join(receivers),
-			parent = self
-		)
-		if receiver_string.strip() == u'':
-			evt.Skip()
-			return
-
-		receivers = regex.findall (
-			'[\S]+@[\S]+',
-			receiver_string,
-			flags = regex.UNICODE | regex.LOCALE
-		)
-
-		dlg = c2ButtonQuestionDlg (
-			self,
-			-1,
-			caption = _('Sending bug report'),
-			question = _(
-				'Your bug report will be sent to:\n'
-				'\n'
-				'%s\n'
-				'\n'
-				'Make sure you have reviewed the log file for potentially\n'
-				'sensitive information before sending out the bug report.\n'
-				'\n'
-				'Note that emailing the report may take a while depending\n'
-				'on the speed of your internet connection.\n'
-			) % u'\n'.join(receivers),
-			button_defs = [
-				{'label': _('Send report'), 'tooltip': _('Yes, send the bug report.')},
-				{'label': _('Cancel'), 'tooltip': _('No, do not send the bug report.')}
-			],
-			show_checkbox = True,
-			checkbox_msg = _('include log file in bug report')
-		)
-		dlg._CHBOX_dont_ask_again.SetValue(True)
-		go_ahead = dlg.ShowModal()
-		if go_ahead == wx.ID_NO:
-			dlg.Destroy()
-			evt.Skip()
-			return
-
-		sender_email = gmTools.coalesce(self._TCTRL_sender.GetValue(), _('<not supplied>'))
-		msg = u"""\
-Report sent via GNUmed's handler for unexpected exceptions.
-
-user comment  : %s
-
-system account: %s
-staff member  : %s
-sender email  : %s
-
-""" % (comment, _local_account, _staff_name, sender_email)
-		if dlg._CHBOX_dont_ask_again.GetValue():
-			_log2.error(comment)
-			_log2.warning('syncing log file for emailing')
-			gmLog2.flush()
-			for line in codecs.open(_logfile_name, 'rU', 'utf8', 'replace'):
-				msg = msg + line
-
-		dlg.Destroy()
-
-		wx.BeginBusyCursor()
-		gmTools.send_mail (
-			sender = '%s <%s>' % (_staff_name, gmTools.default_mail_sender),
-			receiver = receivers,
-			subject = u'<bug>: %s' % comment,
-			message = msg,
-			encoding = gmI18N.get_encoding(),
-			server = gmTools.default_mail_server,
-			auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
-		)
-		wx.EndBusyCursor()
-		gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
-
-		evt.Skip()
-	#------------------------------------------
-	def _on_view_log_button_pressed(self, evt):
-		from Gnumed.pycommon import gmMimeLib
-		gmLog2.flush()
-		gmMimeLib.call_viewer_on_file(_logfile_name, block = False)
-		evt.Skip()
 # ========================================================================
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
@@ -399,7 +148,8 @@ class cStartupProgressBar(wx.ProgressDialog):
 		try:
 			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
 		except:
-			_log2.warning('wx.Icon.LoadFile() not supported')
+			pass
+#			_log2.warning('wx.Icon.LoadFile() not supported')
 		self.SetIcon(icon)
 		self.idx = 0
 #		self.nr_plugins = nr_plugins
@@ -748,7 +498,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.91  2008-04-12 19:18:48  ncq
+# Revision 1.92  2008-05-13 14:12:33  ncq
+# - factor out exception handling
+#
+# Revision 1.91  2008/04/12 19:18:48  ncq
 # - listen to application_closing and ignore
 #   PyDeadObjectError when closing down
 #
