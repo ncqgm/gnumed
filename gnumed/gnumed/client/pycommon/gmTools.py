@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.52 2008-05-07 15:18:01 ncq Exp $
+# $Id: gmTools.py,v 1.53 2008-05-13 14:09:36 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -368,6 +368,15 @@ def str2interval(str_interval=None):
 		years += int(parts[0])
 		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
 
+	# nMnW - months, weeks
+	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	keys_week = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+(\s|\t)*$' % (keys_month, keys_week), str_interval, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
+		months, weeks = divmod(int(parts[1]), 4)
+		months += int(parts[0])
+		return pydt.timedelta(days = ((months * days_per_month) + (weeks * days_per_week)))
+
 	return None
 #===========================================================================
 # text related tools
@@ -524,6 +533,7 @@ if __name__ == '__main__':
 			'12h', '17 h', '12	H', '17H', '	~ 	17	h	 ', ' ~ 36	/ 24', '7/24', '0/24',
 			' ~ 36	/ 60', '7/60', '190/60', '0/60',
 			'12a1m', '12 a 1  M', '12	a17m', '12j		12m', '12J7m', '12y7m', '12Y7M', '	~ 	12	a	 37 m	', '~0a0m',
+			'10m1w',
 			'invalid interval input'
 		]
 
@@ -742,7 +752,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.52  2008-05-07 15:18:01  ncq
+# Revision 1.53  2008-05-13 14:09:36  ncq
+# - str2interval: support xMxW syntax
+#
+# Revision 1.52  2008/05/07 15:18:01  ncq
 # - i18n str2interval
 #
 # Revision 1.51  2008/04/16 20:34:43  ncq
