@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.71.2.1 2008-05-07 15:12:50 ncq Exp $
-__version__ = "$Revision: 1.71.2.1 $"
+# $Id: gmEMRStructWidgets.py,v 1.71.2.2 2008-05-13 11:46:09 ncq Exp $
+__version__ = "$Revision: 1.71.2.2 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -792,10 +792,13 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		if age is None:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot parse [%s] into valid interval.') % str_age)
+			self._PRW_age_noted.SetBackgroundColour('pink')
+			self._PRW_age_noted.Refresh()
+			wx.CallAfter(self._PRW_year_noted.SetText, '')
+			return True
+
 		if age >= max_age:
 			gmDispatcher.send(signal='statustext', msg=_('Patient is only %s old. Cannot accept age [%s].') % (pat.get_medical_age(), age))
-
-		if (age is None) or (age >= max_age):
 			self._PRW_age_noted.SetBackgroundColour('pink')
 			self._PRW_age_noted.Refresh()
 			wx.CallAfter(self._PRW_year_noted.SetText, '')
@@ -1165,7 +1168,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.71.2.1  2008-05-07 15:12:50  ncq
+# Revision 1.71.2.2  2008-05-13 11:46:09  ncq
+# - properly handle age is None in pHX edit area
+#
+# Revision 1.71.2.1  2008/05/07 15:12:50  ncq
 # - do not crash when leaving an invalidly filled year noted
 #   field in the health issue edit area
 #
