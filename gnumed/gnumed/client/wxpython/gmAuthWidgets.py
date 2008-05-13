@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.19 2008-04-16 20:39:39 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmAuthWidgets.py,v 1.20 2008-05-13 14:10:35 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N
 from Gnumed.business import gmSurgery
-from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmGuiHelpers, gmExceptionHandlingWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -52,13 +52,24 @@ Currently connected to database:
  user: %s
 """)
 
-msg_time_skew = _("""\
+msg_time_skew_fail = _("""\
 The server and client clocks are off
-by more than %s seconds !
+by more than %s minutes !
 
 You must fix the time settings before
 you can use this database with this
 client.
+
+You may have to contact your
+administrator for help.""")
+
+msg_time_skew_warn = _("""\
+The server and client clocks are off
+by more than %s minutes !
+
+You should fix the time settings.
+Otherwise clinical data may appear to
+have been entered at the wrong time.
 
 You may have to contact your
 administrator for help.""")
@@ -159,16 +170,24 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'))
 
 		# FIXME: make configurable
-		max_skew = 30
-		if not gmPG2.sanity_check_time_skew(tolerance = max_skew):
-			gmGuiHelpers.gm_show_error(msg_time_skew % max_skew, _('Verifying database settings'))
-			continue
+		max_skew = 1		# minutes
+		if _cfg.get(option = 'debug'):
+			max_skew = 10
+		if not gmPG2.sanity_check_time_skew(tolerance = (max_skew * 60)):
+			if _cfg.get(option = 'debug'):
+				gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
+			else:
+				gmGuiHelpers.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
+				continue
 
 		sanity_level, message = gmPG2.sanity_check_database_settings()
 		if sanity_level != 0:
 			gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
 			if sanity_level == 2:
 				continue
+
+		gmExceptionHandlingWidgets.set_is_public_database(login.public_db)
+		gmExceptionHandlingWidgets.set_database_helpdesk(login.helpdesk)
 
 		listener = gmBackendListener.gmBackendListener(conn=conn)
 		break
@@ -291,10 +310,7 @@ class cLoginPanel(wx.Panel):
 				border = 10
 			)
 
-		if _cfg.get(option = 'slave'):
-			paramsbox_caption = _("GNUmed %s - Slave Login - %s" % (client_version, gmSurgery.gmCurrentPractice().active_workplace))
-		else:
-			paramsbox_caption = _("GNUmed %s - Login - %s" % (client_version, gmSurgery.gmCurrentPractice().active_workplace))
+		paramsbox_caption = _('"%s" (version %s)') % (gmSurgery.gmCurrentPractice().active_workplace, client_version)
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -468,6 +484,7 @@ class cLoginPanel(wx.Panel):
 		profiles = {}
 
 		for profile_name in profile_names:
+			# FIXME: once the profile has been found always use the corresponding source !
 			profile = cBackendProfile()
 			profile.name = profile_name
 			profile_section = 'profile %s' % profile_name
@@ -485,6 +502,8 @@ class cLoginPanel(wx.Panel):
 				_log.warning('database name not specified, skipping profile [%s]', profile_name)
 				continue
 			profile.encoding = gmTools.coalesce(_cfg.get(profile_section, u'encoding', src_order), u'UTF8')
+			profile.public_db = bool(_cfg.get(profile_section, u'public/open access', src_order))
+			profile.helpdesk = _cfg.get(profile_section, u'help desk', src_order)
 			profiles[profile_name] = profile
 
 		if len(profiles) == 0:
@@ -496,7 +515,7 @@ class cLoginPanel(wx.Panel):
 			profiles[label].port = 5432
 			profiles[label].database = current_db_name
 			profiles[label].encoding = u'UTF8'
-			
+			profiles[label].public_db = True
 		return profiles
 	#----------------------------------------------------------
 	def __load_state(self):
@@ -556,6 +575,8 @@ class cLoginPanel(wx.Panel):
 				database = profile.database,
 				port = profile.port
 			)
+			login.public_db = profile.public_db
+			login.helpdesk = profile.helpdesk
 			return login
 
 		return None
@@ -651,7 +672,11 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.19  2008-04-16 20:39:39  ncq
+# Revision 1.20  2008-05-13 14:10:35  ncq
+# - be more permissive in time skew check
+# - handle per-profile public-db/helpdesk options
+#
+# Revision 1.19  2008/04/16 20:39:39  ncq
 # - working versions of the wxGlade code and use it, too
 # - show client version in login dialog
 #
