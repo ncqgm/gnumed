@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.115 2008-05-07 15:21:44 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmPhraseWheel.py,v 1.116 2008-05-13 14:15:16 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -203,17 +203,17 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# multiple matches dropdown list
 		try:
-#			raise NotImplementedError
-			self.__picklist_dropdown = wx.PopupWindow(parent)
-			add_picklist_to_sizer = False
+#			raise NotImplementedError		# for testing
 			self.__dropdown_needs_relative_position = False
+			add_picklist_to_sizer = False
+			self.__picklist_dropdown = wx.PopupWindow(parent)
 		except NotImplementedError:
 			# on MacOSX wx.PopupWindow is not implemented
 			self.__dropdown_needs_relative_position = True
-			self.__picklist_dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
+			add_picklist_to_sizer = True
+			self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.SIMPLE_BORDER)
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
 			self.__picklist_dropdown.SetSizer(szr_scroll)
-			add_picklist_to_sizer = True
 
 		# FIXME: support optional headers
 #		if kwargs['show_list_headers']:
@@ -555,12 +555,25 @@ class cPhraseWheel(wx.TextCtrl):
 			pass
 	#--------------------------------------------------------
 	def __on_tab(self):
-		if self.__picklist_dropdown.IsShown():
-			if len(self.__current_matches) == 1:
-				self.__select_picklist_row(new_row_idx=0)
-				self._on_list_item_selected()
-				return True
-		return False
+		"""Under certain circumstances takes special action on TAB.
+
+		returns:
+			True: TAB was handled
+			False: TAB was not handled
+		"""
+		if not self.__picklist_dropdown.IsShown():
+			return False
+
+		if len(self.__current_matches) != 1:
+			return False
+
+		if not self.selection_only:
+			return False
+
+		self.__select_picklist_row(new_row_idx=0)
+		self._on_list_item_selected()
+
+		return True
 	#--------------------------------------------------------
 	# internal helpers: logic
 	#--------------------------------------------------------
@@ -938,7 +951,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.115  2008-05-07 15:21:44  ncq
+# Revision 1.116  2008-05-13 14:15:16  ncq
+# - TAB = select-single-match only when selection_only True
+# - improve wxPopupWindow emulation
+#
+# Revision 1.115  2008/05/07 15:21:44  ncq
 # - support suppress smarts argument to SetText
 #
 # Revision 1.114  2008/04/26 16:29:15  ncq
