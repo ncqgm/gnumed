@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.146 2008-03-05 22:30:13 ncq Exp $
-__version__ = "$Revision: 1.146 $"
+# $Id: gmDemographicsWidgets.py,v 1.147 2008-05-13 14:11:21 ncq Exp $
+__version__ = "$Revision: 1.147 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1669,7 +1669,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 	
 	form_fields = (
 			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title', 'occupation',
-			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone'
+			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone', 'comment'
 	)
 	
 	def __init__(self, parent, title):
@@ -1759,12 +1759,17 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
 		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
 
+		# comment
+		STT_comment = wx.StaticText(PNL_form, -1, _('Comment'))
+		self.TCTRL_comment = wx.TextCtrl(PNL_form, -1)
+		self.TCTRL_comment.SetToolTipString(_('A comment on this patient.'))
+
 		# form main validator
 		self.form_DTD = cFormDTD(fields = self.__class__.form_fields)
 		PNL_form.SetValidator(cBasicPatDetailsPageValidator(dtd = self.form_DTD))
-				
+
 		# layout input widgets
-		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
+		SZR_input = wx.FlexGridSizer(cols = 2, rows = 16, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)
 		SZR_input.Add(STT_lastname, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_lastname, 1, wx.EXPAND)
@@ -1794,6 +1799,8 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
 		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
+		SZR_input.Add(STT_comment, 0, wx.SHAPED)
+		SZR_input.Add(self.TCTRL_comment, 1, wx.EXPAND)
 
 		PNL_form.SetSizerAndFit(SZR_input)
 
@@ -2014,7 +2021,8 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		_pnl_form.PRW_state.SetData(self.form_DTD['state'])
 		_pnl_form.PRW_country.SetData(self.form_DTD['country'])
 		_pnl_form.TTC_phone.SetValue(self.form_DTD['phone'])
-		return True # Prevent wxDialog from complaining.	
+		_pnl_form.TCTRL_comment.SetValue(self.form_DTD['comment'])
+		return True # Prevent wxDialog from complaining
 	#--------------------------------------------------------
 	def TransferFromWindow(self):
 		"""
@@ -2042,6 +2050,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			self.form_DTD['state'] = _pnl_form.PRW_state.GetData()
 			self.form_DTD['country'] = _pnl_form.PRW_country.GetData()
 			self.form_DTD['phone'] = _pnl_form.TTC_phone.GetValue()
+			self.form_DTD['comment'] = _pnl_form.TCTRL_comment.GetValue()
 		except:
 			return False
 		return True
@@ -2294,6 +2303,12 @@ def create_identity_from_dtd(dtd=None):
 		_log.error('cannot create identity from %s' % str(dtd))
 		return None
 	_log.debug('identity created: %s' % new_identity)
+
+	if dtd['comment'] is not None:
+		if dtd['comment'].strip() != u'':
+			name = new_identity.get_active_name()
+			name['comment'] = dtd['comment']
+			name.save_payload()
 	
 	return new_identity
 #============================================================
@@ -2318,10 +2333,11 @@ def update_identity_from_dtd(identity, dtd=None):
 	# view, identity['keys'], eg. lastnames and firstnames
 	# are not refreshed.
 	identity.save_payload()
+
 	# names
 	# FIXME: proper handling of "active"
 	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
-		identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True)
+		new_name = identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True)
 	# nickname
 	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
 		identity.set_nickname(nickname = dtd['nick'])
@@ -2554,7 +2570,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.146  2008-03-05 22:30:13  ncq
+# Revision 1.147  2008-05-13 14:11:21  ncq
+# - support comment on new patient
+#
+# Revision 1.146  2008/03/05 22:30:13  ncq
 # - new style logging
 #
 # Revision 1.145  2008/02/26 16:26:05  ncq
