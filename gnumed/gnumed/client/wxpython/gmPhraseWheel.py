@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.116 2008-05-13 14:15:16 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmPhraseWheel.py,v 1.117 2008-05-14 13:46:37 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -203,7 +203,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# multiple matches dropdown list
 		try:
-#			raise NotImplementedError		# for testing
+			#raise NotImplementedError		# for testing
 			self.__dropdown_needs_relative_position = False
 			add_picklist_to_sizer = False
 			self.__picklist_dropdown = wx.PopupWindow(parent)
@@ -211,7 +211,8 @@ class cPhraseWheel(wx.TextCtrl):
 			# on MacOSX wx.PopupWindow is not implemented
 			self.__dropdown_needs_relative_position = True
 			add_picklist_to_sizer = True
-			self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.SIMPLE_BORDER)
+			self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
+			self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
 			self.__picklist_dropdown.SetSizer(szr_scroll)
 
@@ -453,8 +454,10 @@ class cPhraseWheel(wx.TextCtrl):
 		# and show it
 		self.__picklist_dropdown.Show(True)
 
-		self.mac_log('dropdown origin now (on screen): %s' % str(self.__picklist_dropdown.ClientToScreenXY(0,0)))
-		self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
+		dd_tl = self.__picklist_dropdown.ClientToScreenXY(0,0)
+		dd_size = self.__picklist_dropdown.GetSize()
+		dd_br = self.__picklist_dropdown.ClientToScreenXY(dd_size.width, dd_size.height)
+		self.mac_log('dropdown placement now (on screen): x:%s-%s, y:%s-%s' % (dd_tl[0], dd_br[0], dd_tl[1], dd_br[1]))
 	#--------------------------------------------------------
 	def _hide_picklist(self):
 		"""Hide the pick list."""
@@ -705,9 +708,8 @@ class cPhraseWheel(wx.TextCtrl):
 			if event.ShiftDown():
 				self.Navigate(flags = wx.NavigationKeyEvent.IsBackward)
 				return
-			tab_handled = self.__on_tab()
-			if not tab_handled:
-				self.Navigate(flags = wx.NavigationKeyEvent.IsForward)
+			self.__on_tab()
+			self.Navigate(flags = wx.NavigationKeyEvent.IsForward)
 			return
 
 		# FIXME: need PAGE UP/DOWN//POS1/END here to move in picklist
@@ -951,7 +953,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.116  2008-05-13 14:15:16  ncq
+# Revision 1.117  2008-05-14 13:46:37  ncq
+# - better logging
+#
+# Revision 1.116  2008/05/13 14:15:16  ncq
 # - TAB = select-single-match only when selection_only True
 # - improve wxPopupWindow emulation
 #
