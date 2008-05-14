@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.113 $
+# $Revision: 1.114 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
@@ -3377,8 +3377,8 @@ msgid ""
 "Please enter a short note on what you\n"
 "were about to do in GNUmed:"
 msgstr ""
-"Geben Sie eine kurze Notiz darüber ein\n"
-"was Sie gerade in GNUmed zu tun beabsichtigten:"
+"Geben Sie eine kurze Notiz darüber ein, was\n"
+"Sie gerade in GNUmed zu tun beabsichtigten:"
 
 msgid "Sending bug report"
 msgstr "Fehlerbericht senden"
@@ -3637,13 +3637,13 @@ msgid "Manage document types"
 msgstr "Dokumententypen verwalten"
 
 msgid "&Office"
-msgstr "&Praxis"
+msgstr "P&raxis"
 
 msgid "Register a new patient with this practice"
 msgstr "Neuen Patienten in dieser Praxis registrieren"
 
 msgid "Register new"
-msgstr "Neu anlegen"
+msgstr "&Neu anlegen"
 
 msgid "Load and possibly create patient from an external source."
 msgstr "Aus einer externen Quelle laden und ggf. anlegen."
