@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.12 2008-04-26 21:40:58 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmMeasurementWidgets.py,v 1.13 2008-05-14 15:01:43 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -518,7 +518,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._schedule_data_reget)
 		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self, evt):
+	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
 	#--------------------------------------------------------
 	def __on_pre_patient_selection(self):
@@ -568,7 +568,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.12  2008-04-26 21:40:58  ncq
+# Revision 1.13  2008-05-14 15:01:43  ncq
+# - remove spurious evt argument in _on_pre_patient_selection()
+#
+# Revision 1.12  2008/04/26 21:40:58  ncq
 # - eventually support selecting certain ranges of cells
 #
 # Revision 1.11  2008/04/26 10:05:32  ncq
