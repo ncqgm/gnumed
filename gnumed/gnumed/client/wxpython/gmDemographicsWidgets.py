@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.147 2008-05-13 14:11:21 ncq Exp $
-__version__ = "$Revision: 1.147 $"
+# $Id: gmDemographicsWidgets.py,v 1.148 2008-05-14 13:45:48 ncq Exp $
+__version__ = "$Revision: 1.148 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -227,13 +227,13 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_columns(columns = [
 			_('Type'),
 			_('Street'),
-			_('Directions'),
+			_('Street info'),
 			_('Number'),
 			_('Subunit'),
-			_('Postcode'),
-			_('Town'),
+			_('Postal code'),
+			_('Place'),
 			_('Suburb'),
-			_('State'),
+			_('Region'),
 			_('Country'),
 			_('Comment')
 		])
@@ -570,7 +570,7 @@ class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 select code, name from (
-	select distinct on (code, name) code, name, rank from (
+	select distinct on (name) code, name, rank from (
 			-- 1: find states based on name, context: zip and country name
 			select
 				code_state as code, state as name, 1 as rank
@@ -659,8 +659,8 @@ class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		}
 		query = u"""
 select s1, s2 from (
-	select distinct on (s1, s2) s1, s2, rank from (
-			select
+	select s1, s2, rank from (
+			select distinct on (street)
 				street as s1, street as s2, 1 as rank
 			from dem.v_zip2data
 			where
@@ -669,7 +669,7 @@ select s1, s2 from (
 
 		union all
 
-			select
+			select distinct on (name)
 				name as s1, name as s2, 2 as rank
 			from dem.street
 			where
@@ -724,8 +724,8 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		}
 		query = u"""
 select u1, u2 from (
-	select distinct on (u1,u2) u1, u2, rank from (
-			select
+	select u1, u2, rank from (
+			select distinct on (urb)
 				urb as u1, urb as u2, 1 as rank
 			from dem.v_zip2data
 			where
@@ -734,12 +734,11 @@ select u1, u2 from (
 
 		union all
 
-			select
+			select distinct on (name)
 				name as u1, name as u2, 2 as rank
 			from dem.urb
 			where
 				name %(fragment_condition)s
-
 	) as q2
 ) as q1 order by rank, u2 limit 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
@@ -1721,9 +1720,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.PRW_title = cTitlePhraseWheel(parent = PNL_form, id = -1)
 
 		# zip code
-		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
+		STT_zip_code = wx.StaticText(PNL_form, -1, _('Postal code'))
 		self.PRW_zip_code = cZipcodePhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
+		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip/postal code"))
 
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
@@ -1736,14 +1735,14 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
 
 		# town
-		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
+		STT_town = wx.StaticText(PNL_form, -1, _('Place'))
 		self.PRW_town = cUrbPhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
+		self.PRW_town.SetToolTipString(_("primary/home address: city/town/village/dwelling/..."))
 
 		# state
-		STT_state = wx.StaticText(PNL_form, -1, _('State'))
+		STT_state = wx.StaticText(PNL_form, -1, _('Region'))
 		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
-		self.PRW_state.SetToolTipString(_("primary/home address: state"))
+		self.PRW_state.SetToolTipString(_("primary/home address: state/province/county/..."))
 
 		# country
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
@@ -2433,6 +2432,13 @@ if __name__ == "__main__":
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
+	def test_urb_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cUrbPhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		pw.set_context(context = u'zip', val = u'04317')
+		app.MainLoop()
+	#--------------------------------------------------------
 	def test_suburb_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cSuburbPhraseWheel(app.frame, -1)
@@ -2552,7 +2558,8 @@ if __name__ == "__main__":
 #		test_organizer_pnl()
 		#test_address_type_prw()
 		#test_suburb_prw()
-		test_address_prw()
+		test_urb_prw()
+		#test_address_prw()
 
 		# contacts related widgets
 		#test_address_ea_pnl()
@@ -2570,7 +2577,15 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.147  2008-05-13 14:11:21  ncq
+# Revision 1.148  2008-05-14 13:45:48  ncq
+# - Directions -> Street info
+# - Postcode -> Postal code
+# - Town -> Place
+# - State -> Region
+# - fix phrasewheel SQL
+# - test for urb phrasewheel
+#
+# Revision 1.147  2008/05/13 14:11:21  ncq
 # - support comment on new patient
 #
 # Revision 1.146  2008/03/05 22:30:13  ncq
