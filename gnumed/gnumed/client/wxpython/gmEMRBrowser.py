@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.86 2008-04-11 12:27:45 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmEMRBrowser.py,v 1.87 2008-05-19 16:23:33 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -171,10 +171,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			txt = node_data.format(episode = epi, with_soap = True, left_margin = 1, patient = self.__pat)
 
 		else:
-			label = _('Summary')
-			underline = '=' * len(label)
-			txt = u'%s\n%s\n\n' % (label, underline)
-			txt += self.__exporter.get_summary_info(0)
+			emr = self.__pat.get_emr()
+			txt = emr.format_summary()
 
 		self.__narr_display.Clear()
 		self.__narr_display.WriteText(txt)
@@ -554,7 +552,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.86  2008-04-11 12:27:45  ncq
+# Revision 1.87  2008-05-19 16:23:33  ncq
+# - let EMR format its summary itself
+#
+# Revision 1.86  2008/04/11 12:27:45  ncq
 # - listen to issue/episode/narrative change signals thereby
 #   reducing direct repopulate calls
 # - factor out __update_text_for_selected_node() and

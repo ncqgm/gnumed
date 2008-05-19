@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.399 2008-05-13 14:12:55 ncq Exp $
-__version__ = "$Revision: 1.399 $"
+# $Id: gmGuiMain.py,v 1.400 2008-05-19 16:24:07 ncq Exp $
+__version__ = "$Revision: 1.400 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1575,15 +1575,9 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 
 		emr = pat.get_emr()
-		msg = _("""Medical problems: %(problems)s
-Total visits: %(visits)s
-Total EMR entries: %(items)s
-Stored documents: %(documents)s
-
-""") % emr.get_summary()
 		dlg = wx.MessageDialog (
-			parent = None,
-			message = msg,
+			parent = self,
+			message = emr.format_statistics(),
 			caption = _('EMR Summary'),
 			style = wx.OK | wx.STAY_ON_TOP
 		)
@@ -2299,7 +2293,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.399  2008-05-13 14:12:55  ncq
+# Revision 1.400  2008-05-19 16:24:07  ncq
+# - let EMR format its summary itself
+#
+# Revision 1.399  2008/05/13 14:12:55  ncq
 # - exc handling adjustments
 #
 # Revision 1.398  2008/04/29 18:30:42  ncq
