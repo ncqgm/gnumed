@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.263 2008-04-22 21:12:08 ncq Exp $
-__version__ = "$Revision: 1.263 $"
+# $Id: gmClinicalRecord.py,v 1.264 2008-05-19 15:43:17 ncq Exp $
+__version__ = "$Revision: 1.264 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -525,18 +525,28 @@ where
 	def get_patient_ID(self):
 		return self.pk_patient
 	#--------------------------------------------------------
-	def get_summary(self):
-		cmds = [
-			(u'select count(*) from clin.v_problem_list where pk_patient=%s', 'problems'),
-			(u'select count(*) from clin.encounter where fk_patient=%s', 'visits'),
-			(u'select count(*) from clin.v_pat_items where pk_patient=%s', 'items'),
-			(u'select count(*) from blobs.doc_med where fk_identity=%s', 'documents')
-		]
-		summary = {}
-		for cmd in cmds:
-			query, key = cmd
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': [self.pk_patient]}])
-			summary[key] = rows[0][0]
+	def get_statistics(self):
+		union_query = u'\n	union all\n'.join ([
+			u'select count(*) from clin.v_problem_list where pk_patient = %(pat)s',
+			u'select count(*) from clin.encounter where fk_patient = %(pat)s',
+			u'select count(*) from clin.v_pat_items where pk_patient = %(pat)s',
+			u'select count(*) from blobs.doc_med where fk_identity = %(pat)s',
+			u'select count(*) from clin.v_test_results where pk_patient = %(pat)s'
+		])
+
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{'cmd': union_query, 'args': {'pat': self.pk_patient}}],
+			get_col_idx = False
+		)
+
+		summary = dict (
+			problems = rows[0][0],
+			visits = rows[1][0],
+			items = rows[2][0],
+			documents = rows[3][0],
+			results = rows[4][0]
+		)
+
 		return summary
 	#--------------------------------------------------------
 	# allergy API
@@ -1605,105 +1615,84 @@ if __name__ == "__main__":
 		for row in rows:
 			print row
 	#-----------------------------------------
-	#test_allergic_state()
-	#test_get_test_names()
-	#test_get_dates_for_results()
-	#test_get_measurements()
-	test_get_test_results_by_date()
-	#test_get_test_types_details()
+	def test_get_statistics():
+		emr = cClinicalRecord(aPKey=12)
+		for key, item in emr.get_statistics().iteritems():
+			print key, ":", item
+	#-----------------------------------------
+	if (len(sys.argv) > 0) and (sys.argv[1] == 'test'):
+		#test_allergic_state()
+		#test_get_test_names()
+		#test_get_dates_for_results()
+		#test_get_measurements()
+		#test_get_test_results_by_date()
+		#test_get_test_types_details()
+		test_get_statistics()
 
 	sys.exit(1)
 
-	import traceback
-	try:
-		emr = cClinicalRecord(aPKey = 12)
+	emr = cClinicalRecord(aPKey = 12)
 
-		# problems
-		problems = emr.get_problems()
-		print 'Problems:'
-		for a_problem in problems:
-			print '    -[problem:"%s"] [type:"%s"]' % (a_problem['problem'], a_problem['type'])
-			if a_problem['type'] == 'episode':
-				print '      .as episode: %s' % emr.problem2episode(a_problem)
+	# Vacc regimes
+	vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
+	print '\nVaccination regimes: '
+	for a_regime in vacc_regimes:
+		pass
+		#print a_regime
+	vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
+	#print vacc_regime
 		
-		# Vacc regimes
-		vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
-		print '\nVaccination regimes: '
-		for a_regime in vacc_regimes:
-			pass
-			#print a_regime
-		vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
-		#print vacc_regime
-		
-		# vaccination regimes and vaccinations for regimes
-		scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
-		print 'Vaccinations for the regime:'
-		for a_scheduled_vacc in scheduled_vaccs:
-			pass
-			#print '   %s' %(a_scheduled_vacc)
+	# vaccination regimes and vaccinations for regimes
+	scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
+	print 'Vaccinations for the regime:'
+	for a_scheduled_vacc in scheduled_vaccs:
+		pass
+		#print '   %s' %(a_scheduled_vacc)
 
-		# vaccination next shot and booster
-		vaccinations = emr.get_vaccinations()
-		for a_vacc in vaccinations:
-			print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].strftime('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
+	# vaccination next shot and booster
+	vaccinations = emr.get_vaccinations()
+	for a_vacc in vaccinations:
+		print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].strftime('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
 
-		# first and last encounters
-		first_encounter = emr.get_first_encounter(issue_id = 1)
-		print '\nFirst encounter: ' + str(first_encounter)
-		last_encounter = emr.get_last_encounter(episode_id = 1)
-		print '\nLast encounter: ' + str(last_encounter)
-		print ''
+	# first and last encounters
+	first_encounter = emr.get_first_encounter(issue_id = 1)
+	print '\nFirst encounter: ' + str(first_encounter)
+	last_encounter = emr.get_last_encounter(episode_id = 1)
+	print '\nLast encounter: ' + str(last_encounter)
+	print ''
 		
-		# lab results
-		lab = emr.get_lab_results()
-		lab_file = open('lab-data.txt', 'wb')
-		for lab_result in lab:
-			lab_file.write(str(lab_result))
-			lab_file.write('\n')
-		lab_file.close()
+	# lab results
+	lab = emr.get_lab_results()
+	lab_file = open('lab-data.txt', 'wb')
+	for lab_result in lab:
+		lab_file.write(str(lab_result))
+		lab_file.write('\n')
+	lab_file.close()
 		
-		# soap notes
-		narrative = emr.get_clin_narrative(
-			since = mxDT.DateTime(2000, 2, 18),
-			until = mxDT.DateTime(2010, 9, 18),
-			issues = [1],
-			episodes = [1],
-			encounters = [1,2],
-			soap_cats = ['s', 'p']
-		)
-		print '# of clinical notes:', str(len(narrative))
-		for a_narr in narrative:
-			print '%s - %s - %s - %s - %s - %s\n' % (
-				a_narr['date'].strftime('%Y-%m-%d'),
-				str(a_narr['pk_health_issue']),
-				str(a_narr['pk_episode']),
-				str(a_narr['pk_encounter']),
-				a_narr['soap_cat'],
-				a_narr['narrative']
-			)
-			 
-	#	dump = record.get_missing_vaccinations()
-	#	f = open('vaccs.lst', 'wb')
-	#	if dump is not None:
-	#		print "=== due ==="
-	#		f.write("=== due ===\n")
-	#		for row in dump['due']:
-	#			print row
-	#			f.write(repr(row))
-	#			f.write('\n')
-	#		print "=== overdue ==="
-	#		f.write("=== overdue ===\n")
-	#		for row in dump['overdue']:
-	#			print row
-	#			f.write(repr(row))
-	#			f.write('\n')
-	#	f.close()
-	except:
-		traceback.print_exc(file=sys.stdout)
-		_log.exception('unhandled exception', sys.exc_info(), verbose=1)
+	#dump = record.get_missing_vaccinations()
+	#f = open('vaccs.lst', 'wb')
+	#if dump is not None:
+	#	print "=== due ==="
+	#	f.write("=== due ===\n")
+	#	for row in dump['due']:
+	#		print row
+	#		f.write(repr(row))
+	#		f.write('\n')
+	#	print "=== overdue ==="
+	#	f.write("=== overdue ===\n")
+	#	for row in dump['overdue']:
+	#		print row
+	#		f.write(repr(row))
+	#		f.write('\n')
+	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.263  2008-04-22 21:12:08  ncq
+# Revision 1.264  2008-05-19 15:43:17  ncq
+# - get_summary -> _statistics
+# - get all statistics in one database roundtrip
+# - fix test suite
+#
+# Revision 1.263  2008/04/22 21:12:08  ncq
 # - get_test_results_by_date and test
 #
 # Revision 1.262  2008/04/11 23:07:08  ncq
