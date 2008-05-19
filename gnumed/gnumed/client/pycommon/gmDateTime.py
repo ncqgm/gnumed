@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.19 2008-04-12 22:30:46 ncq Exp $
+# $Id: gmDateTime.py,v 1.20 2008-05-19 15:45:26 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -58,13 +58,18 @@ _log = logging.getLogger('gm.datetime')
 _log.info(__version__)
 
 
+dst_locally_in_use = None
 dst_currently_in_effect = None
-current_utc_offset = None
-current_timezone_interval = None
-current_iso_timezone_string = None
+
+current_local_utc_offset_in_seconds = None
+current_local_timezone_interval = None
+current_local_iso_numeric_timezone_string = None
+current_local_timezone_name = None
+
 cLocalTimezone = psycopg2.tz.LocalTimezone					# remove as soon as datetime supports timezone classes
 cFixedOffsetTimezone = psycopg2.tz.FixedOffsetTimezone		# remove as soon as datetime supports timezone classes
 gmCurrentLocalTimezone = 'gmCurrentLocalTimezone not initialized'
+
 
 (	acc_years,
 	acc_months,
@@ -119,31 +124,47 @@ def init():
 	_log.debug('time.tzname  : [%s / %s] (non-DST / DST)' % time.tzname)
 	_log.debug('mx.DateTime.now().gmtoffset(): [%s]' % mxDT.now().gmtoffset())
 
+	global dst_locally_in_use
+	dst_locally_in_use = (time.daylight != 0)
+
 	global dst_currently_in_effect
 	dst_currently_in_effect = bool(time.localtime()[8])
 	_log.debug('DST currently in effect: [%s]' % dst_currently_in_effect)
 
-	global current_utc_offset
-	msg = 'DST currently%sin effect, using UTC offset of [%s] seconds instead of [%s] seconds'
+	if (not dst_locally_in_use) and dst_currently_in_effect:
+		_log.error('system inconsistency: DST not in use - but DST currently in effect ?')
+
+	global current_local_utc_offset_in_seconds
+	msg = 'DST currently%sin effect: using UTC offset of [%s] seconds instead of [%s] seconds'
 	if dst_currently_in_effect:
-		current_utc_offset = time.altzone * -1
+		current_local_utc_offset_in_seconds = time.altzone * -1
 		_log.debug(msg % (' ', time.altzone * -1, time.timezone * -1))
 	else:
-		current_utc_offset = time.timezone * -1
+		current_local_utc_offset_in_seconds = time.timezone * -1
 		_log.debug(msg % (' not ', time.timezone * -1, time.altzone * -1))
 
-	if current_utc_offset > 0:
+	if current_local_utc_offset_in_seconds > 0:
 		_log.debug('UTC offset is positive, assuming EAST of Greenwich ("clock is ahead")')
-	elif current_utc_offset < 0:
+	elif current_local_utc_offset_in_seconds < 0:
 		_log.debug('UTC offset is negative, assuming WEST of Greenwich ("clock is behind")')
 	else:
 		_log.debug('UTC offset is ZERO, assuming Greenwich Time')
 
-	global current_timezone_interval
-	current_timezone_interval = mxDT.now().gmtoffset()
-	_log.debug('ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_timezone_interval)
-	global current_iso_timezone_string
-	current_iso_timezone_string = str(current_timezone_interval).replace(',', '.')
+	global current_local_timezone_interval
+	current_local_timezone_interval = mxDT.now().gmtoffset()
+	_log.debug('ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_local_timezone_interval)
+
+	global current_local_iso_numeric_timezone_string
+	current_local_iso_numeric_timezone_string = str(current_local_timezone_interval).replace(',', '.')
+
+	global current_local_timezone_name
+	try:
+		current_local_timezone_name = os.environ['TZ']
+	except KeyError:
+		if dst_currently_in_effect:
+			current_local_timezone_name = time.tzname[1]
+		else:
+			current_local_timezone_name = time.tzname[0]
 
 	# do some magic to convert Python's timezone to a valid ISO timezone
 	# is this safe or will it return things like 13.5 hours ?
@@ -152,8 +173,8 @@ def init():
 
 	global gmCurrentLocalTimezone
 	gmCurrentLocalTimezone = cFixedOffsetTimezone (
-		offset = (current_utc_offset / 60),
-		name = current_iso_timezone_string
+		offset = (current_local_utc_offset_in_seconds / 60),
+		name = current_local_iso_numeric_timezone_string
 	)
 
 #===========================================================================
@@ -872,9 +893,9 @@ if __name__ == '__main__':
 	#-------------------------------------------------
 	def test_date_time():
 		print "DST currently in effect:", dst_currently_in_effect
-		print "current UTC offset:", current_utc_offset, "seconds"
-		print "current timezone (interval):", current_timezone_interval
-		print "current timezone (ISO conformant string):", current_iso_timezone_string
+		print "current UTC offset:", current_local_utc_offset_in_seconds, "seconds"
+		print "current timezone (interval):", current_local_timezone_interval
+		print "current timezone (ISO conformant numeric string):", current_local_iso_numeric_timezone_string
 		print "local timezone class:", cLocalTimezone
 		print ""
 		tz = cLocalTimezone()
@@ -951,7 +972,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.19  2008-04-12 22:30:46  ncq
+# Revision 1.20  2008-05-19 15:45:26  ncq
+# - re-adjust timezone handling code
+# - remember timezone *name* for PG
+#
+# Revision 1.19  2008/04/12 22:30:46  ncq
 # - support more date/time patterns
 #
 # Revision 1.18  2008/01/13 01:14:26  ncq
