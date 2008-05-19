@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.111 $"
+__version__ = "$Revision: 1.112 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -546,7 +546,7 @@ select exists (
 		lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
 			self._payload[self._idx['started']].strftime('%Y-%m-%d %H:%M'),
 			self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
-			gmDateTime.current_iso_timezone_string,
+			gmDateTime.current_local_iso_numeric_timezone_string,
 			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, time.tzname[1], time.tzname[0]),
 			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
 		))
@@ -831,7 +831,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.111  2008-05-13 14:06:17  ncq
+# Revision 1.112  2008-05-19 15:43:45  ncq
+# - adapt to TZ code changes
+#
+# Revision 1.111  2008/05/13 14:06:17  ncq
 # - remove superfluous \n
 # - add missing .
 #
