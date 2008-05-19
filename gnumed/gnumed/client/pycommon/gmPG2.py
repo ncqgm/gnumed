@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.76 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -64,18 +64,13 @@ import psycopg2.extensions
 import psycopg2.pool
 
 # =======================================================================
-#_default_client_encoding = 'UNICODE'
 _default_client_encoding = 'UTF8'
 _log.info('assuming default client encoding of [%s]' % _default_client_encoding)
 
-# default time zone for connections
-if gmDateTime.current_iso_timezone_string is None:
-	gmDateTime.init()
-_default_client_timezone = gmDateTime.current_iso_timezone_string
-_log.info('assuming default client time zone of [%s]' % _default_client_timezone)
-
-# MUST NOT be uniocde or else getquoted will not work
-_timestamp_template = "cast('%s' as timestamp with time zone)"
+# things timezone
+_default_client_timezone = None			# default time zone for connections
+_sql_set_timezone = None
+_timestamp_template = "cast('%s' as timestamp with time zone)"		# MUST NOT be uniocde or else getquoted will not work
 FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
 
 _default_dsn = None
@@ -159,11 +154,102 @@ def set_default_client_encoding(encoding = None):
 	return True
 #---------------------------------------------------
 def set_default_client_timezone(timezone = None):
-	# FIXME: verify against database before setting
+
+	# FIXME: use __validate
 	global _default_client_timezone
 	_log.info('setting default client time zone from [%s] to [%s]' % (_default_client_timezone, timezone))
 	_default_client_timezone = timezone
+
 	return True
+#---------------------------------------------------
+def __validate_timezone(conn=None, timezone=None):
+
+	cmd = u'set timezone to %(tz)s'
+	args = {u'tz': timezone}
+
+	conn.commit()
+	curs = conn.cursor()
+	try:
+		curs.execute(cmd, args)
+		_log.info('valid client time zone found: [%s]' % timezone)
+		is_valid = True
+	except dbapi.DataError:
+		_log.info('timezone [%s] seems invalid', timezone)
+		is_valid = False
+	curs.close()
+	conn.rollback()
+
+	return is_valid
+#---------------------------------------------------
+def __expand_timezone(conn=None, timezone=None):
+	"""some timezone defs are abbreviations so try to expand
+	them because "set time zone" doesn't take abbreviations"""
+
+	cmd = u"""
+select distinct on (abbrev) name
+from pg_timezone_names
+where
+	abbrev = %(tz)s and
+	name ~ '^[^/]+/[^/]+$' and
+	name !~ '^Etc/'
+"""
+	args = {u'tz': timezone}
+
+	conn.commit()
+	curs = conn.cursor()
+	try:
+		curs.execute(cmd, args)
+		rows = curs.fetchall()
+		if len(rows) > 0:
+			result = rows[0][0]
+		_log.debug('[%s] maps to [%s]', timezone, result)
+	except:
+		_log.exception(u'cannot expand timezone abbreviation [%s]', timezone)
+		result = timezone
+	curs.close()
+	conn.rollback()
+
+	return result
+#---------------------------------------------------
+def __detect_client_timezone(conn=None):
+	"""This is run on the very first connection."""
+
+	# we need gmDateTime to be initialized
+	if gmDateTime.current_local_iso_numeric_timezone_string is None:
+		gmDateTime.init()
+
+	_log.debug('trying to detect timezone from system')
+
+	tz_candidates = []
+	try:
+		tz_candidates.append(os.environ['TZ'])
+		expanded = __expand_timezone(conn = conn, timezone = os.environ['TZ'])
+		if expanded != os.environ['TZ']:
+			tz_candidates.append(expanded)
+	except KeyError:
+		pass
+
+	tz_candidates.append(gmDateTime.current_local_timezone_name)
+	expanded = __expand_timezone(conn = conn, timezone = gmDateTime.current_local_timezone_name)
+	if expanded != gmDateTime.current_local_timezone_name:
+		tz_candidates.append(expanded)
+
+	_log.debug('candidates: %s', str(tz_candidates))
+
+	# find best among candidates
+	global _default_client_timezone
+	global _sql_set_timezone
+	found = False
+	for tz in tz_candidates:
+		if __validate_timezone(conn = conn, timezone = tz):
+			_default_client_timezone = tz
+			_sql_set_timezone = u'set timezone to %s'
+			found = True
+			break
+
+	if not found:
+		_default_client_timezone = gmDateTime.current_local_iso_numeric_timezone_string
+		_sql_set_timezone = u"set time zone interval %s hour to minute"
 # =======================================================================
 # login API
 # =======================================================================
@@ -466,7 +552,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
 		data_size = rows[0][0]
 		if data_size in [None, 0]:
-			conn.close()
+			conn.rollback()
 			return True
 
 	_log.debug('expecting bytea data of size: [%s] bytes' % data_size)
@@ -498,7 +584,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
 		except:
 			_log.error('cannot retrieve chunk [%s/%s], size [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, chunk_size))
-			conn.close()
+			conn.rollback()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
 		file_obj.write(str(rows[0][0]))
@@ -512,12 +598,12 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
 		except:
 			_log.error('cannot retrieve remaining [%s] bytes' % remainder)
-			conn.close()
+			conn.rollback()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
 		file_obj.write(str(rows[0][0]))
 
-	conn.close()
+	conn.rollback()
 	return True
 #------------------------------------------------------------------------
 def file2bytea(query=None, filename=None, args=None, conn=None):
@@ -579,18 +665,15 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 	if isinstance(link_obj, dbapi._psycopg.cursor):
 		curs = link_obj
 		curs_close = __noop
-		conn_close = __noop
 		tx_rollback = __noop
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		curs = link_obj.cursor()
 		curs_close = curs.close
-		conn_close = __noop
 		tx_rollback = link_obj.rollback
 	elif link_obj is None:
 		conn = get_connection(readonly=True, verbose=verbose)
 		curs = conn.cursor()
 		curs_close = curs.close
-		conn_close = conn.close
 		tx_rollback = conn.rollback
 	else:
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
@@ -616,7 +699,6 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			# FIXME: use .pgcode
 			curs_close()
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
-			conn_close()
 			_log.error('query failed: [%s]' % curs.query)
 			_log.error('PG status message: %s' % curs.statusmessage)
 			raise
@@ -633,7 +715,6 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 
 	curs_close()
 	tx_rollback()		# rollback just so that we don't stay IDLE IN TRANSACTION forever
-	conn_close()
 	return (data, col_idx)
 #------------------------------------------------------------------------
 def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, get_col_idx=False, verbose=False):
@@ -758,6 +839,9 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 
 		conn = get_raw_connection(dsn = self._kwargs['dsn'], verbose = self._kwargs['verbose'], readonly=True)
 
+		conn.original_close = conn.close
+		conn.close = _raise_exception_on_ro_conn_close
+
 		if key is not None:
 			self._used[key] = conn
 			self._rused[id(conn)] = key
@@ -769,7 +853,7 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 	def shutdown(self):
 		for conn_key in self._used.keys():
 			_log.debug('closing database connection [%s]', conn_key)
-			self._used[conn_key].close()
+			self._used[conn_key].original_close()
 # -----------------------------------------------------------------------
 def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	"""Get a raw, unadorned connection.
@@ -809,6 +893,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 
 		raise
 
+	# do first-time stuff
 	global postgresql_version
 	if postgresql_version is None:
 		curs = conn.cursor()
@@ -824,6 +909,9 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 			__log_PG_settings(curs=curs)
 		curs.close()
 		conn.commit()
+
+	if _default_client_timezone is None:
+		__detect_client_timezone(conn = conn)
 
 	# set access mode
 	if readonly:
@@ -859,7 +947,6 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 				verbose = verbose
 			)
 		conn = __ro_conn_pool.getconn()
-		conn.close = __noop					# do not close pooled ro connections
 	else:
 		conn = get_raw_connection(dsn=dsn, verbose=verbose, readonly=False)
 
@@ -872,7 +959,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		encoding = gmI18N.get_encoding()
 		_log.warning('client encoding not specified')
 		_log.warning('the string encoding currently set in the active locale is used: [%s]' % encoding)
-		_log.warning('for this to work the application MUST have called locale.setlocale() before')
+		_log.warning('for this to work properly the application MUST have called locale.setlocale() before')
 
 	# set connection properties
 	# 1) client encoding
@@ -895,28 +982,18 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	curs = conn.cursor()
 
-	# 3) client time zone
+	# client time zone
 	_log.debug('time zone [%s]' % _default_client_timezone)
-	cmd = "set time zone interval '%s' hour to minute" % _default_client_timezone
-	curs.execute(cmd)
+	curs.execute(_sql_set_timezone, [_default_client_timezone])
 
-	# 4) datestyle
+	# datestyle
 	# regarding DMY/YMD handling: since we force *input* to
 	# ISO, too, the DMY/YMD setting is not needed
 	_log.debug('datestyle [ISO]')
 	cmd = "set datestyle to 'ISO'"
 	curs.execute(cmd)
 
-#	# 5) access mode
-#	if readonly:
-#		access_mode = 'READ ONLY'
-#	else:
-#		access_mode = 'READ WRITE'
-#	_log.debug('access mode [%s]' % access_mode)
-#	cmd = 'set session characteristics as transaction %s' % access_mode
-#	curs.execute(cmd)
-
-	# 6) SQL inheritance mode
+	# SQL inheritance mode
 	_log.debug('sql_inheritance [on]')
 	cmd = 'set sql_inheritance to on'
 	curs.execute(cmd)
@@ -944,6 +1021,9 @@ def shutdown():
 #-----------------------------------------------------------------------
 def __noop():
 	pass
+#-----------------------------------------------------------------------
+def _raise_exception_on_ro_conn_close():
+	raise TypeError('close() called on read-only connection')
 #-----------------------------------------------------------------------
 def sanity_check_time_skew(tolerance=60):
 	"""Check server time and local time to be within
@@ -1400,7 +1480,16 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.75  2008-04-11 12:21:59  ncq
+# Revision 1.76  2008-05-19 15:55:01  ncq
+# - some cleanup
+# - redo timezone detection since numeric timezones will do the right
+#   thing *now* but will not allow for DST boundary crossing detection
+#   and correction, so try to find a TZ name first, but fallback to
+#   numeric offset if no name is found and verifiable against PostgreSQL
+# - don't close() RO conns and raise an error if we do (unless we
+#   *know* what we are doing)
+#
+# Revision 1.75  2008/04/11 12:21:59  ncq
 # - support link_obj in get_child_tables()
 #
 # Revision 1.74  2008/03/20 15:29:13  ncq
