@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.12 2008-04-28 13:32:07 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmHooks.py,v 1.13 2008-05-19 15:45:39 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -103,7 +103,7 @@ def run_script(hook=None):
 	if script_mode != 384:				# octal 0600
 		gmDispatcher.send (
 			signal = 'statustext',
-			msg = _('Script must have permissions "0600": [%s].') % full_script
+			msg = _('Script must be readable by the calling user only (permissions "0600"): [%s].') % full_script
 		)
 		return False
 
@@ -133,7 +133,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.12  2008-04-28 13:32:07  ncq
+# Revision 1.13  2008-05-19 15:45:39  ncq
+# - slightly better wording
+#
+# Revision 1.12  2008/04/28 13:32:07  ncq
 # - run hook on database maintenance notification - so maybe
 #   user can be paged to his desk to close GNUmed clients
 #
