@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.120 2008-05-07 15:16:01 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmPatientExporter.py,v 1.121 2008-05-19 15:44:16 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -604,7 +604,7 @@ class cEmrExport:
 			if add_encounters != []:
 				#print "DEBUG found encounters to add"
 				self._add_encounters_to_tree( add_encounters, emr_tree, id_episode)
-    #--------------------------------------------------------  
+    #--------------------------------------------------------
     def get_summary_info(self, left_margin = 0):
         """
         Dumps patient EMR summary
@@ -612,7 +612,7 @@ class cEmrExport:
         txt = ''
         for an_item in self.__filtered_items:
             txt += self.get_item_summary(an_item, left_margin)
-        return txt                      
+        return txt
     #--------------------------------------------------------
     def get_issue_info(self, issue=None, left_margin=0):
         """Dumps health issue specific data
@@ -1190,7 +1190,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.120  2008-05-07 15:16:01  ncq
+# Revision 1.121  2008-05-19 15:44:16  ncq
+# - just silly cleanup
+#
+# Revision 1.120  2008/05/07 15:16:01  ncq
 # - use centralized soap category translations from gmClinNarrative
 #
 # Revision 1.119  2008/04/11 12:21:11  ncq
