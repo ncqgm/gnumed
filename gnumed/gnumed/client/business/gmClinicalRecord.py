@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.264 2008-05-19 15:43:17 ncq Exp $
-__version__ = "$Revision: 1.264 $"
+# $Id: gmClinicalRecord.py,v 1.265 2008-05-19 16:22:55 ncq Exp $
+__version__ = "$Revision: 1.265 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -539,7 +539,7 @@ where
 			get_col_idx = False
 		)
 
-		summary = dict (
+		stats = dict (
 			problems = rows[0][0],
 			visits = rows[1][0],
 			items = rows[2][0],
@@ -547,7 +547,42 @@ where
 			results = rows[4][0]
 		)
 
-		return summary
+		return stats
+	#--------------------------------------------------------
+	def format_statistics(self):
+		return _("""Medical problems: %(problems)s
+Total visits: %(visits)s
+Total EMR entries: %(items)s
+Documents: %(documents)s
+Test results: %(results)s
+
+"""			) % self.get_statistics()
+	#--------------------------------------------------------
+	def format_summary(self):
+
+		stats = self.get_statistics()
+		first = self.get_first_encounter()
+		last = self.get_last_encounter()
+
+		txt = _('EMR Statistics\n\n')
+		txt += _(' %s known problems\n') % stats['problems']
+		txt += _(' %s visits from %s to %s\n') % (
+			stats['visits'],
+			first['started'].strftime('%x'),
+			last['started'].strftime('%x')
+		)
+		txt += _(' %s documents\n') % stats['documents']
+		txt += _(' %s test results\n\n') % stats['results']
+
+		if self.allergic_state:
+			txt += _('Allergies and Intolerances\n\n')
+			for allg in self.get_allergies():
+				txt += u' %s: %s\n' % (
+					allg['descriptor'],
+					gmTools.coalesce(allg['reaction'], _('unknown reaction'))
+				)
+
+		return txt
 	#--------------------------------------------------------
 	# allergy API
 	#--------------------------------------------------------
@@ -1687,7 +1722,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.264  2008-05-19 15:43:17  ncq
+# Revision 1.265  2008-05-19 16:22:55  ncq
+# - format_statistics/summary()
+#
+# Revision 1.264  2008/05/19 15:43:17  ncq
 # - get_summary -> _statistics
 # - get all statistics in one database roundtrip
 # - fix test suite
