@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.148 2008-05-14 13:45:48 ncq Exp $
-__version__ = "$Revision: 1.148 $"
+# $Id: gmDemographicsWidgets.py,v 1.149 2008-05-20 16:43:25 ncq Exp $
+__version__ = "$Revision: 1.149 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -724,8 +724,10 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		}
 		query = u"""
 select u1, u2 from (
-	select u1, u2, rank from (
-			select distinct on (urb)
+	select distinct on (rank, u1)
+		u1, u2, rank
+	from (
+			select
 				urb as u1, urb as u2, 1 as rank
 			from dem.v_zip2data
 			where
@@ -734,13 +736,16 @@ select u1, u2 from (
 
 		union all
 
-			select distinct on (name)
+			select
 				name as u1, name as u2, 2 as rank
 			from dem.urb
 			where
 				name %(fragment_condition)s
-	) as q2
-) as q1 order by rank, u2 limit 50"""
+	) as union_result
+	order by rank, u1
+) as distincted_union
+limit 50
+"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(3, 5, 7)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -2282,7 +2287,7 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__patient_notebook.identity = None
 		self.__patient_notebook.refresh()
 		return True
-#============================================================				
+#============================================================
 def create_identity_from_dtd(dtd=None):
 	"""
 	Register a new patient, given the data supplied in the 
@@ -2577,7 +2582,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.148  2008-05-14 13:45:48  ncq
+# Revision 1.149  2008-05-20 16:43:25  ncq
+# - improve match provider SQL for urb phrasewheel
+#
+# Revision 1.148  2008/05/14 13:45:48  ncq
 # - Directions -> Street info
 # - Postcode -> Postal code
 # - Town -> Place
