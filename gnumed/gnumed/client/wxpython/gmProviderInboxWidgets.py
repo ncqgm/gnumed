@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.26 2008-04-22 21:19:22 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmProviderInboxWidgets.py,v 1.27 2008-05-20 16:45:43 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -130,6 +130,7 @@ def configure_workplace_plugins(parent=None):
 class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	_item_handlers = {}
+	_patient_msg_types = ['clinical.review docs', 'clinical.review results']
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
 		wxgProviderInboxPnl.wxgProviderInboxPnl.__init__(self, *args, **kwds)
@@ -137,15 +138,19 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.provider = gmPerson.gmCurrentProvider()
+		self.filter_mode = 'all'
 		self.__init_ui()
 
 		cProviderInboxPnl._item_handlers['clinical.review docs'] = self._goto_doc_review
 		cProviderInboxPnl._item_handlers['clinical.review results'] = self._goto_measurements_review
+
+		self.__register_interests()
 	#--------------------------------------------------------
 	# reget-on-paint API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
 		self.__populate_inbox()
+		return True
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -155,6 +160,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_provider_inbox_mod_db)
 		# FIXME: listen for doc insertion/deletion
 		# FIXME: listen for doc reviews
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.set_columns([u'', _('category'), _('type'), _('message')])
@@ -177,11 +183,24 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		"""Fill UI with data."""
 		self.__msgs = self.provider.inbox.messages
 
+		if self.filter_mode == 'active':
+			curr_pat = gmPerson.gmCurrentPatient()
+			self.__msgs = [
+				msg for msg in self.__msgs if (
+					('%s.%s' % (msg['category'], msg['type']) not in cProviderInboxPnl._patient_msg_types)
+						or
+					(msg['pk_context'] == curr_pat.ID)
+				)
+			]
+
 		self._LCTRL_provider_inbox.set_string_items(items = [ [_indicator[m[0]], m[1], m[2], m[3]] for m in self.__msgs ])
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
 	#--------------------------------------------------------
 	# event handlers
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		wx.CallAfter(self._RBTN_active_patient.Enable)
 	#--------------------------------------------------------
 	def _on_provider_inbox_mod_db(self, *args, **kwargs):
 		wx.CallAfter(self._schedule_data_reget)
@@ -240,6 +259,14 @@ Leaving message in inbox.""") % handler_key,
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
 	#--------------------------------------------------------
+	def _on_all_patients_radiobutton_selected(self, event):
+		self.filter_mode = 'all'
+		self.__populate_inbox()
+	#--------------------------------------------------------
+	def _on_active_patient_radiobutton_selected(self, event):
+		self.filter_mode = 'active'
+		self.__populate_inbox()
+	#--------------------------------------------------------
 	# item handlers
 	#--------------------------------------------------------
 	def _on_delete_focussed_msg(self, evt):
@@ -289,12 +316,22 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (400, 300))
 		configure_workplace_plugins()
 
+	def test_provider_inbox():
+		app = wx.PyWidgetTester(size = (800, 600))
+		app.SetWidget(cProviderInboxPnl, -1)
+		app.MainLoop()
+
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		test_configure_wp_plugins()
+		#test_configure_wp_plugins()
+		test_provider_inbox()
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.26  2008-04-22 21:19:22  ncq
+# Revision 1.27  2008-05-20 16:45:43  ncq
+# - add filter for active patient messages
+# - fix longstanding bug updating display on *every* PAINT event
+#
+# Revision 1.26  2008/04/22 21:19:22  ncq
 # - signal busy-ness when activating patient
 #
 # Revision 1.25  2008/03/29 16:21:16  ncq
