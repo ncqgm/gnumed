@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.400 2008-05-19 16:24:07 ncq Exp $
-__version__ = "$Revision: 1.400 $"
+# $Id: gmGuiMain.py,v 1.401 2008-05-20 16:44:44 ncq Exp $
+__version__ = "$Revision: 1.401 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,7 +52,9 @@ if (version < 26) or ('unicode' not in wx.PlatformInfo):
 
 # GNUmed libs
 from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2, gmLog2
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
+from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
+from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets, gmTimer
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.exporters import gmPatientExporter
 
@@ -1919,105 +1921,28 @@ class gmApp(wx.App):
 
 	def OnInit(self):
 
-		gmExceptionHandlingWidgets.install_wx_exception_handler()
+		self.__starting_up = True
 
-		import wx.lib.colourdb
-		wx.lib.colourdb.updateColourDB()
+		gmExceptionHandlingWidgets.install_wx_exception_handler()
 
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
-		#self.SetVendor(u'The GNUmed Development Community.')
+#		self.SetVendor(u'The GNUmed Development Community.')
 		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = 'gnumed')
 
-		candidates = []
-		explicit_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
-		if explicit_file is not None:
-			candidates.append(explicit_file)
-		# provide a few fallbacks in the event the --conf-file isn't writable
-		candidates.append(os.path.join(paths.user_config_dir, 'gnumed.conf'))
-		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
-		candidates.append(os.path.join(paths.working_dir, 'gnumed.conf'))
-		for candidate in candidates:
-			try:
-				open(candidate, 'a+').close()
-				_cfg.set_option(option = u'user_preferences_file', value = candidate)
-				break
-			except IOError:
-				continue
-
-		if _cfg.get(option = u'user_preferences_file') is None:
-			msg = _(
-				'Cannot find configuration file in any of:\n'
-				'\n'
-				' %s\n'
-				'You may need to use the comand line option\n'
-				'\n'
-				'	--conf-file=<FILE>'
-			) % '\n '.join(candidates)
-			gmGuiHelpers.gm_show_error(msg, _('Checking configuration files'))
+		if not self.__setup_cfg():
 			return False
-
-		# create a GUI element dictionary that
-		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
-
 		self.__setup_platform()
-
-		# connect to backend (implicitely runs login dialog)
-		from Gnumed.wxpython import gmAuthWidgets
-		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
-		connected = gmAuthWidgets.connect_to_database (
-			expected_version = expected_db_ver,
-			require_version = not override,
-			client_version = current_client_ver
-		)
-		if not connected:
-			_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
+		if not self.__establish_backend_connection():
 			return False
 
-		# check account <-> staff member association
-		try:
-			global _provider
-			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
-		except gmExceptions.ConstructorError, ValueError:
-			account = gmPG2.get_current_user()
-			_log.exception('DB account [%s] cannot be used as a GNUmed staff login', account)
-			msg = _(
-				'The database account [%s] cannot be used as a\n'
-				'staff member login for GNUmed. There was an\n'
-				'error retrieving staff details for it.\n\n'
-				'Please ask your administrator for help.\n'
-			) % account
-			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
-			return False
-
-		tmp = '%s%s %s (%s = %s)' % (
-			gmTools.coalesce(_provider['title'], ''),
-			_provider['firstnames'],
-			_provider['lastnames'],
-			_provider['short_alias'],
-			_provider['db_user']
-		)
-		gmExceptionHandlingWidgets.set_staff_name(staff_name = tmp)
-
-		self.__starting_up = True
-		self.__register_events()
-		self.__set_db_lang()
-
-		# display database banner
-		surgery = gmSurgery.gmCurrentPractice()
-		msg = surgery.db_logon_banner
-		if msg != u'':
-			gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
-
-		# create the main window
 		# FIXME: load last position from backend
 		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440))
-		self.SetTopWindow(frame)
-
 		frame.CentreOnScreen(wx.BOTH)
 		frame.Show(True)
+		self.SetTopWindow(frame)
 
 		if _cfg.get(option = 'slave'):
 			if not self.__setup_scripting_listener():
@@ -2027,22 +1952,21 @@ class gmApp(wx.App):
 			self.RedirectStdio()
 			print "***** Redirecting STDOUT/STDERR to this log window *****"
 
+		self.user_activity_detected = True
+		self.elapsed_inactivity_slices = 0
+		# FIXME: make configurable
+		self.max_user_inactivity_slices = 15	# 15 * 2000ms == 30 seconds
+		self.user_activity_timer = gmTimer.cTimer (
+			callback = self._on_user_activity_timer_expired,
+			delay = 2000			# hence a minimum of 2 and max of 3.999... seconds after which inactivity is detected
+		)
+		self.user_activity_timer.Start(oneShot=True)
+
+		self.__register_events()
+
 		wx.CallAfter(self._do_after_init)
 
 		return True
-	#----------------------------------------------
-	def _do_after_init(self):
-
-		self.__starting_up = False
-
-		# - setup GUI callback in clinical record
-		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
-
-		# - raise startup-default plugin (done in cTopLevelFrame)
-
-		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
-
-		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
@@ -2072,6 +1996,27 @@ class gmApp(wx.App):
 
 		evt.Skip()
 	#----------------------------------------------
+	def _on_user_activity(self, evt):
+		self.user_activity_detected = True
+		evt.Skip()
+	#----------------------------------------------
+	def _on_user_activity_timer_expired(self, cookie=None):
+
+#		print "inactivity timer expired"
+#		print "elapsed slices:", self.elapsed_inactivity_slices + 1
+#		print "activity:", self.user_activity_detected
+
+		if self.user_activity_detected:
+			self.elapsed_inactivity_slices = 0
+			self.user_activity_detected = False
+			self.elapsed_inactivity_slices += 1
+		else:
+			if self.elapsed_inactivity_slices >= self.max_user_inactivity_slices:
+#				print "User was inactive for 30 seconds."
+				pass
+
+		self.user_activity_timer.Start(oneShot = True)
+	#----------------------------------------------
 	# internal helpers
 	#----------------------------------------------
 	def _signal_debugging_monitor(*args, **kwargs):
@@ -2085,6 +2030,12 @@ class gmApp(wx.App):
 		for key in kwargs.keys():
 			print '    [%s]: %s' % (key, kwargs[key])
 	#----------------------------------------------
+	def _do_after_init(self):
+		self.__starting_up = False
+		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
+		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
+		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
+	#----------------------------------------------
 	def __register_events(self):
 		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		wx.EVT_END_SESSION(self, self._on_end_session)
@@ -2094,8 +2045,98 @@ class gmApp(wx.App):
 		#windows and call evt.GetActive() in the handler to see whether it is
 		#gaining or loosing focus.
 
+		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
+		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
+
 		if _cfg.get(option = 'debug'):
 			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
+	#----------------------------------------------
+	def __establish_backend_connection(self):
+		"""Handle all the database related tasks necessary for startup."""
+
+		# log on
+		from Gnumed.wxpython import gmAuthWidgets
+		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
+		connected = gmAuthWidgets.connect_to_database (
+			expected_version = expected_db_ver,
+			require_version = not override,
+			client_version = current_client_ver
+		)
+		if not connected:
+			_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
+			return False
+
+		# check account <-> staff member association
+		try:
+			global _provider
+			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+		except gmExceptions.ConstructorError, ValueError:
+			account = gmPG2.get_current_user()
+			_log.exception('DB account [%s] cannot be used as a GNUmed staff login', account)
+			msg = _(
+				'The database account [%s] cannot be used as a\n'
+				'staff member login for GNUmed. There was an\n'
+				'error retrieving staff details for it.\n\n'
+				'Please ask your administrator for help.\n'
+			) % account
+			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
+			return False
+
+		# improve exception handler setup
+		tmp = '%s%s %s (%s = %s)' % (
+			gmTools.coalesce(_provider['title'], ''),
+			_provider['firstnames'],
+			_provider['lastnames'],
+			_provider['short_alias'],
+			_provider['db_user']
+		)
+		gmExceptionHandlingWidgets.set_staff_name(staff_name = tmp)
+
+		# display database banner
+		surgery = gmSurgery.gmCurrentPractice()
+		msg = surgery.db_logon_banner
+		if msg != u'':
+			gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
+
+		# check database language settings
+		self.__set_db_lang()
+
+		return True
+	#----------------------------------------------
+	def __setup_cfg(self):
+
+		paths = gmTools.gmPaths()
+
+		candidates = []
+		explicit_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
+		if explicit_file is not None:
+			candidates.append(explicit_file)
+		# provide a few fallbacks in the event the --conf-file isn't writable
+		candidates.append(os.path.join(paths.user_config_dir, 'gnumed.conf'))
+		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
+		candidates.append(os.path.join(paths.working_dir, 'gnumed.conf'))
+
+		for candidate in candidates:
+			try:
+				open(candidate, 'a+').close()
+				_cfg.set_option(option = u'user_preferences_file', value = candidate)
+				break
+			except IOError:
+				continue
+
+		if _cfg.get(option = u'user_preferences_file') is None:
+			msg = _(
+				'Cannot find configuration file in any of:\n'
+				'\n'
+				' %s\n'
+				'You may need to use the comand line option\n'
+				'\n'
+				'	--conf-file=<FILE>'
+			) % '\n '.join(candidates)
+			gmGuiHelpers.gm_show_error(msg, _('Checking configuration files'))
+			return False
+
+		return True
 	#----------------------------------------------
 	def __setup_scripting_listener(self):
 
@@ -2152,15 +2193,15 @@ class gmApp(wx.App):
 		return True
 	#----------------------------------------------
 	def __setup_platform(self):
-		#do the platform dependent stuff
+
+		import wx.lib.colourdb
+		wx.lib.colourdb.updateColourDB()
+
 		if wx.Platform == '__WXMSW__':
-			#windoze specific stuff here
 			_log.info('running on MS Windows')
 		elif wx.Platform == '__WXGTK__':
-			#GTK (Linux etc.) specific stuff here
 			_log.info('running on GTK (probably Linux)')
 		elif wx.Platform == '__WXMAC__':
-			#Mac OS specific stuff here
 			_log.info('running on Mac OS')
 		else:
 			_log.info('running on an unknown platform (%s)' % wx.Platform)
@@ -2293,7 +2334,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.400  2008-05-19 16:24:07  ncq
+# Revision 1.401  2008-05-20 16:44:44  ncq
+# - clean up OnInit
+# - start listening to user inactivity
+#
+# Revision 1.400  2008/05/19 16:24:07  ncq
 # - let EMR format its summary itself
 #
 # Revision 1.399  2008/05/13 14:12:55  ncq
