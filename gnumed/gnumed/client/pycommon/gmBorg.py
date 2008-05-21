@@ -1,27 +1,11 @@
 #===================================================
 # Thanks to Python Patterns !
 # ---------------------------
-# $Id: gmBorg.py,v 1.5 2007-10-23 21:23:30 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmBorg.py,v 1.6 2008-05-21 13:57:57 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
-#===================================================
-class cBorgOld:
-	"""A generic Borg mixin for old-style classes.
-
-	- mixin this class with your class' ancestors to borg it
-	- call cBorg.__init__(self) right away in your own __init__()
-
-	- there may be many instances of this but they all share state
-
-	CAVE: ALL inherited classes share state !!!
-	"""
-	_shared_state = {}
-
-	def __init__(self):
-		# share state among all instances ...
-		self.__dict__ = self._shared_state
 #===================================================
 class cBorg(object):
 	"""A generic Borg mixin for new-style classes.
@@ -46,14 +30,6 @@ if __name__ == '__main__':
 	class B(cBorg):
 		pass
 
-	print "testing old-style classes borg"
-	a1 = cBorgOld()
-	a2 = cBorgOld()
-	a1.a = 5
-	print a1.a, "==", a2.a
-	a3 = cBorgOld()
-	print a1.a, "==", a2.a, "==", a3.a
-
 	print "testing new-style classes borg"
 	a1 = A()
 	a2 = A()
@@ -70,7 +46,10 @@ if __name__ == '__main__':
 
 #===================================================
 # $Log: gmBorg.py,v $
-# Revision 1.5  2007-10-23 21:23:30  ncq
+# Revision 1.6  2008-05-21 13:57:57  ncq
+# - remove old borg
+#
+# Revision 1.5  2007/10/23 21:23:30  ncq
 # - cleanup
 #
 # Revision 1.4  2007/09/24 22:05:23  ncq
