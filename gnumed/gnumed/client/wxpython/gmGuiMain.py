@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.401 2008-05-20 16:44:44 ncq Exp $
-__version__ = "$Revision: 1.401 $"
+# $Id: gmGuiMain.py,v 1.402 2008-05-21 15:53:06 ncq Exp $
+__version__ = "$Revision: 1.402 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -72,9 +72,10 @@ _scripting_listener = None
 
 expected_db_ver = u'devel'
 current_client_ver = u'CVS HEAD'
+current_client_branch = '0.2'
 
-_log.info('GNUmed client version [%s]' % current_client_ver)
-_log.info('expected database version [%s]' % expected_db_ver)
+_log.info('GNUmed client version [%s] on branch [%s]', current_client_ver, current_client_branch)
+_log.info('expected database version [%s]', expected_db_ver)
 
 #==============================================================================
 
@@ -380,7 +381,11 @@ class gmTopLevelFrame(wx.Frame):
 		# --
 		menu_gnumed.AppendSeparator()
 
-		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
+		ID = wx.NewId()
+		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
+		wx.EVT_MENU(self, ID, self.__on_check_for_updates)
+
+		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client.'))
 		wx.EVT_MENU(self, wx.ID_EXIT, self.__on_exit_gnumed)
 
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
@@ -910,7 +915,22 @@ class gmTopLevelFrame(wx.Frame):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
 		# calls wx.EVT_CLOSE handler
 		self.Close()
+	#----------------------------------------------
+	def __on_check_for_updates(self, evt):
 
+		found, msg = gmTools.check_for_update (
+			# FIXME: configurable
+			#url = u'http://www.gnumed.de/downloads/gnumed-versions.txt',
+			url = u'file:///home/ncq/gm-versions.txt',
+			current_branch = current_client_branch,
+			current_version = current_client_ver,
+			consider_latest_branch = True		# FIXME: configurable
+		)
+
+		gmGuiHelpers.gm_show_info (
+			msg,
+			_('Checking client version')
+		)
 	#----------------------------------------------
 	# submenu GNUmed / database
 	#----------------------------------------------
@@ -2334,7 +2354,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.401  2008-05-20 16:44:44  ncq
+# Revision 1.402  2008-05-21 15:53:06  ncq
+# - add initial support for update notifier
+#
+# Revision 1.401  2008/05/20 16:44:44  ncq
 # - clean up OnInit
 # - start listening to user inactivity
 #
