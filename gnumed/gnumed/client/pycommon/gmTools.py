@@ -2,23 +2,25 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.53 2008-05-13 14:09:36 ncq Exp $
+# $Id: gmTools.py,v 1.54 2008-05-21 14:01:32 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging
+import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging, codecs, urllib2 as wget
 
 
 # GNUmed libs
 if __name__ == '__main__':
-	sys.path.insert(0, '../../')
 	# for testing:
+	logging.basicConfig(level = logging.DEBUG)
+	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+
 from Gnumed.pycommon import gmBorg
 
 
@@ -39,6 +41,91 @@ default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
 
+#===========================================================================
+def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
+	"""Check for new releases at <url>.
+
+	Returns (bool, text).
+	True: new release available
+	False: up to data
+	None: don't know
+	"""
+	try:
+		remote_file = wget.urlopen(url)
+	except (wget.URLError, ValueError):		# sublcass of IOError
+		_log.exception("cannot retrieve version file from [%s]", url)
+		return (None, _('Cannot retrieve version information.'))
+
+	_log.debug('retrieving version information from [%s]', url)
+
+	from Gnumed.pycommon import gmCfg2
+	cfg = gmCfg2.gmCfgData()
+	cfg.add_stream_source(source = 'gm-versions', stream = remote_file)
+	remote_file.close()
+
+	latest_branch = cfg.get('latest branch', 'branch', source_order = [('gm-versions', 'return')])
+	latest_release_on_latest_branch = cfg.get('latest branch', 'latest release', source_order = [('gm-versions', 'return')])
+	latest_release_on_current_branch = cfg.get('branch %s' % current_branch, 'latest release', source_order = [('gm-versions', 'return')])
+
+	_log.info('current release: %s', current_version)
+	_log.info('current branch: %s', current_branch)
+	_log.info('latest release on current branch: %s', latest_release_on_current_branch)
+	_log.info('latest branch: %s', latest_branch)
+	_log.info('latest release on latest branch: %s', latest_release_on_latest_branch)
+
+	# anything known ?
+	no_release_information_available = (
+		(
+			(latest_release_on_current_branch is None) and
+			(latest_release_on_latest_branch is None)
+		) or (
+			not consider_latest_branch and
+			(latest_release_on_current_branch is None)
+		)
+	)
+	if no_release_information_available:
+		msg = _('There is no version information available from:\n\n %s') % url
+		return (None, msg)
+
+	# up to date ?
+	if not consider_latest_branch:
+		if current_version == latest_release_on_current_branch:
+			return (False, None)
+	else:
+		if current_version == latest_release_on_latest_branch:
+			return (False, None)
+		if latest_release_on_latest_branch is None:
+			if current_version == latest_release_on_current_branch:
+				return (False, None)
+
+	current_branch_release_available = (
+		(latest_release_on_current_branch is not None) and
+		(latest_release_on_current_branch > current_version)
+	)
+
+	latest_branch_release_available = (
+		(latest_branch is not None)
+			and
+		(
+			(latest_branch > current_branch) or (
+				(latest_branch == current_branch) and
+				(latest_release_on_latest_branch > current_version)
+			)
+		)
+	)
+
+	# not up to date
+	msg = _('A new version of GNUmed is available.\n\n')
+	msg += _(' Your version: "%s"\n') % current_version
+	if consider_latest_branch:
+		if current_branch_release_available:
+			msg += _(' New version: "%s"\n') % latest_release_on_current_branch
+		if latest_branch_release_available:
+			msg += _(' New version: "%s"\n') % latest_release_on_latest_branch
+	else:
+		msg += _(' New version: "%s"\n') % latest_release_on_current_branch
+
+	return (True, msg)
 #===========================================================================
 def utf_8_encoder(unicode_csv_data):
 	for line in unicode_csv_data:
@@ -732,11 +819,27 @@ This is a test mail from the gmTools.py module.
 		print
 		print wrap(test, 7, u'   ', u' ')
 	#-----------------------------------------------------------------------
+	def test_check_for_update():
+
+		test_data = [
+			('http://www.gnumed.de/downloads/gnumed-versions.txt', None, None, False),
+			('file:///home/ncq/gm-versions.txt', None, None, False),
+			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', False),
+			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', True),
+			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.5', True)
+		]
+
+		for test in test_data:
+			print "arguments:", test
+			found, msg = check_for_update(test[0], test[1], test[2], test[3])
+			print msg
+
+		return
+	#-----------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-		logging.basicConfig(level = logging.DEBUG)
-
-		test_str2interval()
+		test_check_for_update()
+		#test_str2interval()
 		#test_coalesce()
 		#test_capitalize()
 		#test_import_module()
@@ -752,7 +855,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.53  2008-05-13 14:09:36  ncq
+# Revision 1.54  2008-05-21 14:01:32  ncq
+# - add check_for_update and tests
+#
+# Revision 1.53  2008/05/13 14:09:36  ncq
 # - str2interval: support xMxW syntax
 #
 # Revision 1.52  2008/05/07 15:18:01  ncq
