@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -291,7 +291,7 @@ class gmCfgData(gmBorg.cBorg):
 			try: source_data = self.__cfg_data[source]
 			except KeyError:
 				_log.error('invalid config source [%s]', source)
-				_log.debug('currently known sources: %s' % self.__cfg_data.keys())
+				_log.debug('currently known sources: %s', self.__cfg_data.keys())
 				#raise
 				continue
 
@@ -313,6 +313,19 @@ class gmCfgData(gmBorg.cBorg):
 
 		return results
 	#--------------------------------------------------
+	def add_stream_source(self, source=None, stream=None):
+
+		try:
+			data = parse_INI_stream(stream = stream)
+		except ValueError:
+			_log.exception('error parsing source <%s> from [%s]', source, stream)
+			raise
+
+		if self.__cfg_data.has_key(source):
+			_log.warning('overriding source <%s> with [%s]', source, stream)
+
+		self.__cfg_data[source] = data
+	#--------------------------------------------------
 	def add_file_source(self, source=None, file=None, encoding='utf8'):
 		"""Add a source (a file) to the instance."""
 		_log.info('file source "%s": %s (%s)', source, file, encoding)
@@ -325,20 +338,19 @@ class gmCfgData(gmBorg.cBorg):
 
 		if cfg_file is None:
 			file = None
-			data = {}
+			if self.__cfg_data.has_key(source):
+				_log.warning('overriding source <%s> with dummy', source)
+			self.__cfg_data[source] = {}
 		else:
-			try:
-				data = parse_INI_stream(stream = cfg_file)
-			except ValueError:
-				_log.exception('error parsing source <%s> from [%s] (%s)', source, file, encoding)
-				cfg_file.close()
-				raise
+			self.add_stream_source(source = source, stream = cfg_file)
+#			try:
+#				data = parse_INI_stream(stream = cfg_file)
+#			except ValueError:
+#				_log.exception('error parsing source <%s> from [%s] (%s)', source, file, encoding)
+#				cfg_file.close()
+#				raise
 			cfg_file.close()
 
-		if self.__cfg_data.has_key(source):
-			_log.warning('overriding source <%s> with [%s]', source, file)
-
-		self.__cfg_data[source] = data
 		self.source_files[source] = file
 	#--------------------------------------------------
 	def set_option(self, option=None, value=None, group=None, source=None):
@@ -471,7 +483,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.10  2008-03-09 20:15:29  ncq
+# Revision 1.11  2008-05-21 13:58:50  ncq
+# - factor out add_stream_source from add_file_source
+#
+# Revision 1.10  2008/03/09 20:15:29  ncq
 # - don't fail on non-existing sources
 # - cleanup
 # - better docs
