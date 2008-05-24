@@ -1,0 +1,12 @@
+#
+# This file stores GNUmed versions information.
+#
+
+
+[latest branch]
+branch = 0.2
+latest release = 0.2.8.7
+
+
+[branch 0.2]
+latest release = 0.2.8.7
