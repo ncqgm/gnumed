@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.403 2008-05-26 12:09:37 ncq Exp $
-__version__ = "$Revision: 1.403 $"
+# $Id: gmGuiMain.py,v 1.404 2008-05-26 13:31:34 ncq Exp $
+__version__ = "$Revision: 1.404 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -68,7 +68,7 @@ _provider = None
 _scripting_listener = None
 expected_db_ver = u'devel'
 current_client_ver = u'CVS HEAD'
-current_client_branch = '0.2'
+current_client_branch = '0.2.8'
 
 _log = logging.getLogger('gm.main')
 _log.info(__version__)
@@ -2487,7 +2487,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.403  2008-05-26 12:09:37  ncq
+# Revision 1.404  2008-05-26 13:31:34  ncq
+# - "properly" set current branch
+#
+# Revision 1.403  2008/05/26 12:09:37  ncq
 # - some cleanup
 # - check_for_updates and call that from menu item
 #   and startup process
