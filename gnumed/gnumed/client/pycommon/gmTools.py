@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.55 2008-05-21 15:51:45 ncq Exp $
+# $Id: gmTools.py,v 1.56 2008-05-26 12:05:50 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -89,13 +89,13 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	# up to date ?
 	if not consider_latest_branch:
-		if current_version == latest_release_on_current_branch:
+		if current_version <= latest_release_on_current_branch:
 			return (False, None)
 	else:
-		if current_version == latest_release_on_latest_branch:
+		if current_version <= latest_release_on_latest_branch:
 			return (False, None)
 		if latest_release_on_latest_branch is None:
-			if current_version == latest_release_on_current_branch:
+			if current_version <= latest_release_on_current_branch:
 				return (False, None)
 
 	current_branch_release_available = (
@@ -114,16 +114,28 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		)
 	)
 
+	if not (current_branch_release_available or latest_branch_release_available):
+		return (False, None)
+
 	# not up to date
 	msg = _('A new version of GNUmed is available.\n\n')
 	msg += _(' Your version: "%s"\n') % current_version
 	if consider_latest_branch:
 		if current_branch_release_available:
 			msg += _(' New version: "%s"\n') % latest_release_on_current_branch
+			msg += _(' - bug fixes only\n')
+			msg += _(' - no database upgrade needed\n')
 		if latest_branch_release_available:
 			msg += _(' New version: "%s"\n') % latest_release_on_latest_branch
+			msg += _(' - bug fixes and new features\n')
+			msg += _(' - database upgrade required\n')
 	else:
 		msg += _(' New version: "%s"\n') % latest_release_on_current_branch
+		msg += _(' - bug fixes only\n')
+		msg += _(' - no database upgrade needed\n')
+
+	msg += '\n\n'
+	msg += _('Version information loaded from:\n [%s]') % url
 
 	return (True, msg)
 #===========================================================================
@@ -855,7 +867,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.55  2008-05-21 15:51:45  ncq
+# Revision 1.56  2008-05-26 12:05:50  ncq
+# - improved wording of update message
+# - better handling of CVS tip
+#
+# Revision 1.55  2008/05/21 15:51:45  ncq
 # - if cannot open update URL may throw OSError, so deal with that
 #
 # Revision 1.54  2008/05/21 14:01:32  ncq
