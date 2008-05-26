@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.402 2008-05-21 15:53:06 ncq Exp $
-__version__ = "$Revision: 1.402 $"
+# $Id: gmGuiMain.py,v 1.403 2008-05-26 12:09:37 ncq Exp $
+__version__ = "$Revision: 1.403 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -65,15 +65,14 @@ except NameError:
 
 _cfg = gmCfg2.gmCfgData()
 _provider = None
-_log = logging.getLogger('gm.main')
-_log.info(__version__)
-_log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 _scripting_listener = None
-
 expected_db_ver = u'devel'
 current_client_ver = u'CVS HEAD'
 current_client_branch = '0.2'
 
+_log = logging.getLogger('gm.main')
+_log.info(__version__)
+_log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 _log.info('GNUmed client version [%s] on branch [%s]', current_client_ver, current_client_branch)
 _log.info('expected database version [%s]', expected_db_ver)
 
@@ -160,6 +159,41 @@ def jump_to_ifap(import_drugs=False):
 			csv_file.close()
 
 	return True
+#==============================================================================
+# FIXME: this belongs elsewhere
+def check_for_updates():
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	url = dbcfg.get2 (
+		option = u'horstspace.update.url',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = u'http://www.gnumed.de/downloads/gnumed-versions.txt'
+	)
+
+	consider_latest_branch = bool(dbcfg.get2 (
+		option = u'horstspace.update.consider_latest_branch',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = True
+	))
+
+	found, msg = gmTools.check_for_update (
+		url = url,
+		current_branch = current_client_branch,
+		current_version = current_client_ver,
+		consider_latest_branch = consider_latest_branch
+	)
+
+	if found is False:
+		gmDispatcher.send(signal = 'statustext', msg = _('Your client is up to date.'))
+		return
+
+	gmGuiHelpers.gm_show_info (
+		msg,
+		_('Checking for client updates')
+	)
 
 #==============================================================================
 class gmTopLevelFrame(wx.Frame):
@@ -302,17 +336,37 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ui.Append(ID, _('Workplaces'), _('Choose the plugins to load per workplace.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
 
+		# -- submenu gnumed / config / ui / docs
+		menu_cfg_doc = wx.Menu()
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Document handling ...'), menu_cfg_doc)
+
 		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('Document review'), _('Configure review dialog after document display.'))
+		menu_cfg_doc.Append(ID, _('Review dialog'), _('Configure review dialog after document display.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_doc_review_dialog)
 
 		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('Document UUID display'), _('Configure unique ID dialog on document import.'))
+		menu_cfg_doc.Append(ID, _('UUID display'), _('Configure unique ID dialog on document import.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_doc_uuid_dialog)
 
 		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('Allow empty documents'), _('Whether to allow saving documents without parts.'))
+		menu_cfg_doc.Append(ID, _('Empty documents'), _('Whether to allow saving documents without parts.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_partless_docs)
+
+		# -- submenu gnumed / config / ui / updates
+		menu_cfg_update = wx.Menu()
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Update handling ...'), menu_cfg_update)
+
+		ID = wx.NewId()
+		menu_cfg_update.Append(ID, _('Auto-check'), _('Whether to auto-check for updates at startup.'))
+		wx.EVT_MENU(self, ID, self.__on_configure_update_check)
+
+		ID = wx.NewId()
+		menu_cfg_update.Append(ID, _('Check scope'), _('When checking for updates, consider latest branch, too ?'))
+		wx.EVT_MENU(self, ID, self.__on_configure_update_check_scope)
+
+		ID = wx.NewId()
+		menu_cfg_update.Append(ID, _('URL'), _('The URL to retrieve version information from.'))
+		wx.EVT_MENU(self, ID, self.__on_configure_update_url)
 
 		# -- submenu gnumed / config / ui / patient search
 		menu_cfg_pat_search = wx.Menu()
@@ -917,20 +971,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Close()
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
-
-		found, msg = gmTools.check_for_update (
-			# FIXME: configurable
-			#url = u'http://www.gnumed.de/downloads/gnumed-versions.txt',
-			url = u'file:///home/ncq/gm-versions.txt',
-			current_branch = current_client_branch,
-			current_version = current_client_ver,
-			consider_latest_branch = True		# FIXME: configurable
-		)
-
-		gmGuiHelpers.gm_show_info (
-			msg,
-			_('Checking client version')
-		)
+		check_for_updates()
 	#----------------------------------------------
 	# submenu GNUmed / database
 	#----------------------------------------------
@@ -1319,6 +1360,78 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_workplace(self, evt):
 		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
+	#----------------------------------------------
+	def __on_configure_update_check(self, evt):
+		gmCfgWidgets.configure_boolean_option (
+			question = _(
+				'Do you want GNUmed to check for updates at startup ?\n'
+				'\n'
+				'You will still need your system administrator to\n'
+				'actually install any updates for you.\n'
+			),
+			option = u'horstspace.update.autocheck_at_startup',
+			button_tooltips = [
+				_('Yes, check for updates at startup.'),
+				_('No, do not check for updates at startup.')
+			]
+		)
+	#----------------------------------------------
+	def __on_configure_update_check_scope(self, evt):
+		gmCfgWidgets.configure_boolean_option (
+			question = _(
+				'When checking for updates do you want GNUmed to\n'
+				'look for bug fix updates only or do you want to\n'
+				'know about features updates, too ?\n'
+				'\n'
+				'Minor updates (x.y.z.a -> x.y.z.b) contain bug fixes\n'
+				'only. They can usually be installed without much\n'
+				'preparation. They never require a database upgrade.\n'
+				'\n'
+				'Major updates (x.y.a -> x..y.b or y.a -> x.b) come\n'
+				'with new features. They need more preparation and\n'
+				'often require a database upgrade.\n'
+				'\n'
+				'You will still need your system administrator to\n'
+				'actually install any updates for you.\n'
+			),
+			option = u'horstspace.update.consider_latest_branch',
+			button_tooltips = [
+				_('Yes, check for feature updates, too.'),
+				_('No, check for bug-fix updates only.')
+			]
+		)
+	#----------------------------------------------
+	def __on_configure_update_url(self, evt):
+
+		import urllib2 as url
+
+		def is_valid(value):
+			try:
+				url.urlopen(value)
+			except:
+				return False, value
+
+			return True, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed can check for new releases being available. To do\n'
+				'so it needs to load version information from an URL.\n'
+				'\n'
+				'The default URL is:\n'
+				'\n'
+				' http://www.gnumed.de/downloads/gnumed-versions.txt\n'
+				'\n'
+				'but you can configure any other URL locally. Note\n'
+				'that you must enter the location as a valid URL.\n'
+				'Depending on the URL the client will need online\n'
+				'access when checking for updates.'
+			),
+			option = u'horstspace.update.url',
+			bias = u'workplace',
+			default_value = u'http://www.gnumed.de/downloads/gnumed-versions.txt',
+			validator = is_valid
+		)
 	#----------------------------------------------
 	def __on_configure_partless_docs(self, evt):
 		gmCfgWidgets.configure_boolean_option (
@@ -1953,10 +2066,14 @@ class gmApp(wx.App):
 
 		if not self.__setup_cfg():
 			return False
+
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
+
 		if not self.__establish_backend_connection():
 			return False
+
+		self.__check_for_updates()
 
 		# FIXME: load last position from backend
 		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440))
@@ -2070,6 +2187,22 @@ class gmApp(wx.App):
 
 		if _cfg.get(option = 'debug'):
 			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
+	#----------------------------------------------
+	def __check_for_updates(self):
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		do_check = bool(dbcfg.get2 (
+			option = u'horstspace.update.autocheck_at_startup',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace',
+			default = True
+		))
+
+		if not do_check:
+			return
+
+		check_for_updates()
 	#----------------------------------------------
 	def __establish_backend_connection(self):
 		"""Handle all the database related tasks necessary for startup."""
@@ -2354,7 +2487,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.402  2008-05-21 15:53:06  ncq
+# Revision 1.403  2008-05-26 12:09:37  ncq
+# - some cleanup
+# - check_for_updates and call that from menu item
+#   and startup process
+# - menu items for configuring update check
+#
+# Revision 1.402  2008/05/21 15:53:06  ncq
 # - add initial support for update notifier
 #
 # Revision 1.401  2008/05/20 16:44:44  ncq
