@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.20 2008-05-13 14:10:35 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmAuthWidgets.py,v 1.21 2008-05-28 21:26:40 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -136,22 +136,27 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		except gmPG2.cAuthenticationError, e:
 			attempt += 1
 			_log.error(u"login attempt %s/%s failed: %s", attempt, max_attempts, e)
-			_log.debug(u'retrying')
 			if attempt < max_attempts:
 				gmGuiHelpers.gm_show_error (_(
-						"Unable to connect to database:\n\n"
-						"%s\n\n"
-						"Please retry or cancel !"
+					"Unable to connect to database:\n\n"
+					"%s\n\n"
+					"Please retry with proper\n"
+					"credentials or cancel !"
 					) % e,
 					_('Connecting to backend')
 				)
 			continue
 		except gmPG2.dbapi.OperationalError, e:
-			_log.error(u"login attempt %s/%s failed", attempt+1, max_attempts)
-			_log.debug('useless to retry')
+			_log.error(u"login attempt %s/%s failed: %s", attempt+1, max_attempts, e)
+			gmGuiHelpers.gm_show_error (_(
+				"Unable to connect to database:\n\n"
+				"%s\n\n"
+				"Please retry with another profile !\n"
+				) % e,
+				_('Connecting to backend')
+			)
 #			gmLog2.log_stack_trace()
-#			break
-			raise
+			continue
 
 		# connect was successful:
 		gmPG2.set_default_login(login = login)
@@ -672,7 +677,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.20  2008-05-13 14:10:35  ncq
+# Revision 1.21  2008-05-28 21:26:40  ncq
+# - gracefully handle OperationalErrors such as "server not available"
+#
+# Revision 1.20  2008/05/13 14:10:35  ncq
 # - be more permissive in time skew check
 # - handle per-profile public-db/helpdesk options
 #
