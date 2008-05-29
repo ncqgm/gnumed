@@ -1,15 +1,12 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- Source database version: v2
--- Target database version: v3
---
 -- License: GPL
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: zzz-template.sql,v 1.7 2007-05-07 16:32:09 ncq Exp $
--- $Revision: 1.7 $
+-- $Id: zzz-template.sql,v 1.8 2008-05-29 15:33:27 ncq Exp $
+-- $Revision: 1.8 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -29,11 +26,14 @@ comment on forgot_to_edit_comment is
 grant select on forgot_to_edit_grants to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.7 $');
+select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.8 $');
 
 -- ==============================================================
 -- $Log: zzz-template.sql,v $
--- Revision 1.7  2007-05-07 16:32:09  ncq
+-- Revision 1.8  2008-05-29 15:33:27  ncq
+-- - no more source/target db version
+--
+-- Revision 1.7  2007/05/07 16:32:09  ncq
 -- - log_script_insertion() now in gm.
 --
 -- Revision 1.6  2007/01/27 21:16:08  ncq
