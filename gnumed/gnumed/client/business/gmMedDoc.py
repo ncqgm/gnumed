@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.103 2008-04-11 23:07:22 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmMedDoc.py,v 1.104 2008-05-29 13:26:22 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -595,6 +595,27 @@ def delete_document_type(document_type=None):
 	)
 	return True
 #------------------------------------------------------------
+def reclassify_documents_by_type(original_type=None, target_type=None):
+
+	_log.debug('reclassifying documents by type')
+	_log.debug('original: %s', original_type)
+	_log.debug('target: %s', target_type)
+
+	if target_type['pk_doc_type'] == original_type['pk_doc_type']:
+		return True
+
+	cmd = u"""
+update blobs.doc_med set
+	fk_type = %(new_type)s
+where
+	fk_type = %(old_type)s
+"""
+	args = {u'new_type': target_type['pk_doc_type'], u'old_type': original_type['pk_doc_type']}
+
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	return True
+#------------------------------------------------------------
 def get_ext_ref():
 	"""This needs *considerably* more smarts."""
 	dirname = gmTools.get_unique_filename (
@@ -674,7 +695,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.103  2008-04-11 23:07:22  ncq
+# Revision 1.104  2008-05-29 13:26:22  ncq
+# - add reclassify_documents_by_type
+#
+# Revision 1.103  2008/04/11 23:07:22  ncq
 # - cleanup
 #
 # Revision 1.102  2008/02/25 17:31:41  ncq
