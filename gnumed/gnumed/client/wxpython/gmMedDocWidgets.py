@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.161 2008-05-29 13:29:42 ncq Exp $
-__version__ = "$Revision: 1.161 $"
+# $Id: gmMedDocWidgets.py,v 1.162 2008-05-29 15:31:46 ncq Exp $
+__version__ = "$Revision: 1.162 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -131,11 +131,18 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	def __init__(self, *args, **kwargs):
 		wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl.__init__(self, *args, **kwargs)
 		self.__init_ui()
+		self.__register_interests()
 		self.repopulate_ui()
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_doc_type.set_columns([_('Type'), _('Translation'), _('User defined'), _('In use')])
 		self._LCTRL_doc_type.set_column_widths()
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'doc_type_mod_db', receiver = self._on_doc_type_mod_db)
+	#--------------------------------------------------------
+	def _on_doc_type_mod_db(self):
+		wx.CallAfter(self.repopulate_ui)
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 
@@ -158,13 +165,13 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 			self._LCTRL_doc_type.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_doc_type.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 
+		self._TCTRL_type.SetValue('')
+		self._TCTRL_l10n_type.SetValue('')
+
 		self._BTN_set_translation.Enable(False)
 		self._BTN_delete.Enable(False)
 		self._BTN_add.Enable(False)
 		self._BTN_reassign.Enable(False)
-
-		self._TCTRL_type.SetValue('')
-		self._TCTRL_l10n_type.SetValue('')
 
 		self._LCTRL_doc_type.SetFocus()
 	#--------------------------------------------------------
@@ -196,7 +203,6 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		doc_type = self._LCTRL_doc_type.get_selected_item_data()
 		doc_type.set_translation(translation = self._TCTRL_l10n_type.GetValue().strip())
 
-		self.repopulate_ui()
 		return
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
@@ -214,7 +220,6 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		gmMedDoc.delete_document_type(document_type = doc_type)
 
-		self.repopulate_ui()
 		return
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
@@ -224,7 +229,6 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 			l10n_desc = self._TCTRL_l10n_type.GetValue().strip()
 			if (l10n_desc != '') and (l10n_desc != doc_type['l10n_type']):
 				doc_type.set_translation(translation = l10n_desc)
-			self.repopulate_ui()
 
 		return
 	#--------------------------------------------------------
@@ -1781,7 +1785,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.161  2008-05-29 13:29:42  ncq
+# Revision 1.162  2008-05-29 15:31:46  ncq
+# - transition doc types editor to db change signal listener
+#
+# Revision 1.161  2008/05/29 13:29:42  ncq
 # - doc type handling: improve layout, support type change across all docs
 #
 # Revision 1.160  2008/04/12 19:21:19  ncq
