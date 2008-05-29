@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.404 2008-05-26 13:31:34 ncq Exp $
-__version__ = "$Revision: 1.404 $"
+# $Id: gmGuiMain.py,v 1.405 2008-05-29 13:28:37 ncq Exp $
+__version__ = "$Revision: 1.405 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -740,13 +740,13 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __register_events(self):
 		"""register events we want to react to"""
-		# wxPython events
-#		wx.EVT_IDLE(self, self.OnIdle)
+
 		wx.EVT_CLOSE(self, self.OnClose)
 		wx.EVT_ICONIZE(self, self.OnIconize)
 		wx.EVT_MAXIMIZE(self, self.OnMaximize)
+		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
+		wx.EVT_END_SESSION(self, self._on_end_session)
 
-		# intra-client signals
 		gmDispatcher.connect(self._on_pre_patient_selection, 'pre_patient_selection')
 		gmDispatcher.connect(self._on_post_patient_selection, 'post_patient_selection')
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_pat_name_changed)
@@ -756,6 +756,23 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(self._on_request_user_attention, u'request_user_attention')
 
 		gmDispatcher.connect(self._on_db_maintenance_warning, u'db_maintenance_warning')
+	#----------------------------------------------
+	def _on_query_end_session(self, *args, **kwargs):
+		wx.Bell()
+		wx.Bell()
+		wx.Bell()
+		_log.warning('unhandled event detected: QUERY_END_SESSION')
+		_log.info('we should be saving ourselves from here')
+		gmLog2.flush()
+		print "unhandled event detected: QUERY_END_SESSION"
+	#----------------------------------------------
+	def _on_end_session(self, *args, **kwargs):
+		wx.Bell()
+		wx.Bell()
+		wx.Bell()
+		_log.warning('unhandled event detected: END_SESSION')
+		gmLog2.flush()
+		print "unhandled event detected: END_SESSION"
 	#-----------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
 
@@ -2114,13 +2131,21 @@ class gmApp(wx.App):
 		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
-		print "unhandled event detected: QUERY_END_SESSION"
+		wx.Bell()
+		wx.Bell()
+		wx.Bell()
 		_log.warning('unhandled event detected: QUERY_END_SESSION')
 		_log.info('we should be saving ourselves from here')
+		gmLog2.flush()
+		print "unhandled event detected: QUERY_END_SESSION"
 	#----------------------------------------------
 	def _on_end_session(self, *args, **kwargs):
-		print "unhandled event detected: END_SESSION"
+		wx.Bell()
+		wx.Bell()
+		wx.Bell()
 		_log.warning('unhandled event detected: END_SESSION')
+		gmLog2.flush()
+		print "unhandled event detected: END_SESSION"
 	#----------------------------------------------
 	def _on_app_activated(self, evt):
 		if evt.GetActive():
@@ -2487,7 +2512,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.404  2008-05-26 13:31:34  ncq
+# Revision 1.405  2008-05-29 13:28:37  ncq
+# - improved logging of EVT(_QUERY)_END_SESSION
+#
+# Revision 1.404  2008/05/26 13:31:34  ncq
 # - "properly" set current branch
 #
 # Revision 1.403  2008/05/26 12:09:37  ncq
