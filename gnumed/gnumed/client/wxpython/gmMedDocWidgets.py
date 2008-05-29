@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.160 2008-04-12 19:21:19 ncq Exp $
-__version__ = "$Revision: 1.160 $"
+# $Id: gmMedDocWidgets.py,v 1.161 2008-05-29 13:29:42 ncq Exp $
+__version__ = "$Revision: 1.161 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -134,11 +134,8 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		self.repopulate_ui()
 	#--------------------------------------------------------
 	def __init_ui(self):
-		# add column headers
-		self._LCTRL_doc_type.InsertColumn(0, _('type'))
-		self._LCTRL_doc_type.InsertColumn(1, _('description'))
-		self._LCTRL_doc_type.InsertColumn(2, _('user defined'))
-		self._LCTRL_doc_type.InsertColumn(3, _('in use'))
+		self._LCTRL_doc_type.set_columns([_('Type'), _('Translation'), _('User defined'), _('In use')])
+		self._LCTRL_doc_type.set_column_widths()
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 
@@ -163,6 +160,8 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		self._BTN_set_translation.Enable(False)
 		self._BTN_delete.Enable(False)
+		self._BTN_add.Enable(False)
+		self._BTN_reassign.Enable(False)
 
 		self._TCTRL_type.SetValue('')
 		self._TCTRL_l10n_type.SetValue('')
@@ -180,6 +179,17 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		self._BTN_set_translation.Enable(True)
 		self._BTN_delete.Enable(not bool(doc_type['is_in_use']))
 		self._BTN_add.Enable(False)
+		self._BTN_reassign.Enable(True)
+
+		return
+	#--------------------------------------------------------
+	def _on_type_modified(self, event):
+		self._BTN_set_translation.Enable(False)
+		self._BTN_delete.Enable(False)
+		self._BTN_reassign.Enable(False)
+
+		self._BTN_add.Enable(True)
+#		self._LCTRL_doc_type.deselect_selected_item()
 		return
 	#--------------------------------------------------------
 	def _on_set_translation_button_pressed(self, event):
@@ -218,11 +228,36 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		return
 	#--------------------------------------------------------
-	def _on_type_modified(self, event):
-		self._BTN_set_translation.Enable(False)
-		self._BTN_delete.Enable(False)
-		self._BTN_add.Enable(True)
-#		self._LCTRL_doc_type.deselect_selected_item()
+	def _on_reassign_button_pressed(self, event):
+
+		orig_type = self._LCTRL_doc_type.get_selected_item_data()
+		doc_types = gmMedDoc.get_document_types()
+
+		new_type = gmListWidgets.get_choices_from_list (
+			parent = self,
+			msg = _(
+				'From the list below select the document type you want\n'
+				'all documents currently classified as:\n\n'
+				' "%s"\n\n'
+				'to be changed to.\n\n'
+				'Be aware that this change will be applied to ALL such documents. If there\n'
+				'are many documents to change it can take quite a while.\n\n'
+				'Make sure this is what you want to happen !\n'
+			) % orig_type['l10n_type'],
+			caption = _('Reassigning document type'),
+			choices = [ [gmTools.bool2subst(dt['is_user_defined'], u'X', u''), dt['type'], dt['l10n_type']] for dt in doc_types ],
+			columns = [_('User defined'), _('Type'), _('Translation')],
+			data = doc_types,
+			single_selection = True
+		)
+
+		if new_type is None:
+			return
+
+		wx.BeginBusyCursor()
+		gmMedDoc.reclassify_documents_by_type(original_type = orig_type, target_type = new_type)
+		wx.EndBusyCursor()
+
 		return
 #============================================================
 class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1746,7 +1781,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.160  2008-04-12 19:21:19  ncq
+# Revision 1.161  2008-05-29 13:29:42  ncq
+# - doc type handling: improve layout, support type change across all docs
+#
+# Revision 1.160  2008/04/12 19:21:19  ncq
 # - build doc/part context menus only once as far as
 #   possible in doc tree thereby preserving wx IDs
 # - handle print/fax/mail doc part
