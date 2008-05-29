@@ -15,10 +15,11 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
         self._LCTRL_doc_type = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
         self._TCTRL_type = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_l10n_type = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._BTN_set_translation = wx.Button(self, -1, _("Set translation"))
-        self._BTN_add = wx.Button(self, -1, _("Add"))
-        self._BTN_delete = wx.Button(self, -1, _("Delete"))
-        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Close"))
+        self._BTN_set_translation = wx.Button(self, -1, _("Set &translation"))
+        self._BTN_add = wx.Button(self, wx.ID_ADD, "")
+        self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
+        self._BTN_reassign = wx.Button(self, -1, _("&Reassign"))
+        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("&Close"))
 
         self.__set_properties()
         self.__do_layout()
@@ -28,6 +29,7 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_set_translation_button_pressed, self._BTN_set_translation)
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
+        self.Bind(wx.EVT_BUTTON, self._on_reassign_button_pressed, self._BTN_reassign)
         # end wxGlade
 
     def __set_properties(self):
@@ -43,6 +45,8 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
         self._BTN_add.Enable(False)
         self._BTN_delete.SetToolTipString(_("Delete selected document type. Note that you can only delete document types that are not in use."))
         self._BTN_delete.Enable(False)
+        self._BTN_reassign.SetToolTipString(_("Change the type of all documents currently having the selected document type."))
+        self._BTN_reassign.Enable(False)
         self._BTN_dismiss.SetDefault()
         # end wxGlade
 
@@ -51,7 +55,7 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
         _szr_main = wx.BoxSizer(wx.VERTICAL)
         _szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         _gszr_editor = wx.FlexGridSizer(2, 2, 2, 2)
-        _szr_main.Add(self._LCTRL_doc_type, 1, wx.EXPAND, 0)
+        _szr_main.Add(self._LCTRL_doc_type, 1, wx.EXPAND, 5)
         _lbl_name = wx.StaticText(self, -1, _("Type (English)"))
         _gszr_editor.Add(_lbl_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_editor.Add(self._TCTRL_type, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -59,17 +63,16 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
         _gszr_editor.Add(_lbl_local_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_editor.Add(self._TCTRL_l10n_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_editor.AddGrowableCol(1)
-        _szr_main.Add(_gszr_editor, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 2)
-        _szr_buttons.Add(self._BTN_set_translation, 0, 0, 0)
-        _szr_buttons.Add(self._BTN_add, 0, 0, 0)
-        _szr_buttons.Add(self._BTN_delete, 0, 0, 0)
+        _szr_main.Add(_gszr_editor, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
+        _szr_buttons.Add(self._BTN_set_translation, 0, wx.RIGHT, 3)
+        _szr_buttons.Add(self._BTN_add, 0, wx.RIGHT, 3)
+        _szr_buttons.Add(self._BTN_delete, 0, wx.RIGHT, 3)
+        _szr_buttons.Add(self._BTN_reassign, 0, 0, 3)
         _szr_buttons.Add((5, 5), 1, wx.EXPAND, 0)
         _szr_buttons.Add(self._BTN_dismiss, 0, 0, 0)
         _szr_main.Add(_szr_buttons, 0, wx.EXPAND, 0)
-        self.SetAutoLayout(True)
         self.SetSizer(_szr_main)
         _szr_main.Fit(self)
-        _szr_main.SetSizeHints(self)
         # end wxGlade
 
     def _on_list_item_selected(self, event): # wxGlade: wxgEditDocumentTypesPnl.<event_handler>
@@ -90,6 +93,10 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
 
     def _on_set_translation_button_pressed(self, event): # wxGlade: wxgEditDocumentTypesPnl.<event_handler>
         print "Event handler `_on_set_translation_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_reassign_button_pressed(self, event): # wxGlade: wxgEditDocumentTypesPnl.<event_handler>
+        print "Event handler `_on_reassign_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgEditDocumentTypesPnl
