@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.115 $
+# $Revision: 1.116 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-05-26 14:10+CEST\n"
-"PO-Revision-Date: 2008-05-26 15:19+0100\n"
+"POT-Creation-Date: 2008-05-29 15:21+CEST\n"
+"PO-Revision-Date: 2008-05-29 15:25+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -754,7 +754,7 @@ msgid " - bug fixes and new features\n"
 msgstr " - Fehlerbehebung und neue Funktionen\n"
 
 msgid " - database upgrade required\n"
-msgstr " - Datenbankupgrade erforderlich"
+msgstr " - Datenbankupgrade erforderlich\n"
 
 msgid ""
 "Version information loaded from:\n"
@@ -1093,14 +1093,14 @@ msgstr "<= markierte ="
 msgid "Edit Document Types"
 msgstr "Dokumententypen editieren"
 
-msgid "Set translation"
-msgstr "Übersetzung speichern"
+msgid "Set &translation"
+msgstr "&Übersetzung speichern"
 
-msgid "Add"
-msgstr "Hinzufügen"
+msgid "&Reassign"
+msgstr "&Zuordnung ändern"
 
-msgid "Close"
-msgstr "Schließen"
+msgid "&Close"
+msgstr "&Schließen"
 
 msgid "This lists the available document types."
 msgstr "Zeigt die Liste vorhandener Dokumententypen."
@@ -1120,6 +1120,9 @@ msgstr "Die Eingaben als neuen Dokumententyp abspeichern."
 msgid "Delete selected document type. Note that you can only delete document types that are not in use."
 msgstr "Den markierten Dokumententyp löschen. Sie können nur solche Typen löschen, die nicht in Benutzung sind."
 
+msgid "Change the type of all documents currently having the selected document type."
+msgstr "Allen Dokumenten des markierten Typs einen anderen Dokumententyp zuordnen."
+
 msgid "Type (English)"
 msgstr "Typ (Englisch)"
 
@@ -1131,6 +1134,9 @@ msgstr "Aktivieren"
 
 msgid "Deactivate"
 msgstr "Deaktivieren"
+
+msgid "Close"
+msgstr "Schließen"
 
 msgid "Edit staff list"
 msgstr "Mitarbeiterliste bearbeiten"
@@ -2065,10 +2071,10 @@ msgid "enrolled regime vaccinations not yet given"
 msgstr "Impfungen für den aktiven Impfplan noch nicht verabreicht"
 
 msgid "Failed to enrol patient in %s"
-msgstr ""
+msgstr "Kann Patient nicht in %s aufnehmen"
 
 msgid "Failed to  delist patient from %s"
-msgstr ""
+msgstr "Kann Patient nicht aus %s entlassen"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Monty die Python && die FSF präsentieren"
@@ -2265,16 +2271,31 @@ msgid ""
 "\n"
 "%s\n"
 "\n"
-"Please retry or cancel !"
+"Please retry with proper\n"
+"credentials or cancel !"
 msgstr ""
 "Anmeldung bei Datenbank fehlgeschlagen:\n"
 "\n"
 "%s\n"
 "\n"
-"Bitte versuchen Sie es erneut oder brechen Sie ab."
+"Bitte versuchen Sie es mit den richtigen\n"
+"Anmeldedaten erneut oder brechen Sie ab."
 
 msgid "Connecting to backend"
 msgstr "Verbinde mit Datenbank"
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with another profile !\n"
+msgstr ""
+"Anmeldung bei Datenbank fehlgeschlagen:\n"
+"\n"
+"%s\n"
+"\n"
+"Bitte versuchen Sie es mit einem anderen Profil.\n"
 
 msgid "Verifying database version"
 msgstr "Verifiziere Datenbankversion"
@@ -5006,14 +5027,14 @@ msgstr "Dokumente"
 msgid "Select the episode under which to file the document ..."
 msgstr "Wählen Sie die Episode, der das Dokument zugeordnet werden soll ..."
 
-msgid "description"
-msgstr "Beschreibung"
+msgid "In use"
+msgstr "In Verwendung"
 
-msgid "user defined"
-msgstr "vor Ort angelegt"
+msgid "Translation"
+msgstr "Übersetzung"
 
-msgid "in use"
-msgstr "in Verwendung"
+msgid "User defined"
+msgstr "Vor Ort angelegt"
 
 msgid ""
 "Cannot delete document type\n"
@@ -5026,6 +5047,23 @@ msgstr ""
 
 msgid "deleting document type"
 msgstr "Dokumententyp löschen"
+
+msgid ""
+"From the list below select the document type you want\n"
+"all documents currently classified as:\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"to be changed to.\n"
+"\n"
+"Be aware that this change will be applied to ALL such documents. If there\n"
+"are many documents to change it can take quite a while.\n"
+"\n"
+"Make sure this is what you want to happen !\n"
+msgstr ""
+
+msgid "Reassigning document type"
+msgstr "Dokumente anders klassifizieren"
 
 msgid "who"
 msgstr "wer"
@@ -6817,6 +6855,10 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Add"
+#~ msgstr "Hinzufügen"
+#~ msgid "description"
+#~ msgstr "Beschreibung"
 #~ msgid "Document review"
 #~ msgstr "Dokumentenbewertung"
 #~ msgid "Allow empty documents"
