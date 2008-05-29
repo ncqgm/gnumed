@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.138 2008-04-13 14:40:17 ncq Exp $
-__version__ = "$Revision: 1.138 $"
+# $Id: gnumed.py,v 1.139 2008-05-29 13:32:22 ncq Exp $
+__version__ = "$Revision: 1.139 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -78,7 +78,6 @@ against. Please run GNUmed as a non-root user.
 
 _log = None
 _cfg = None
-#_old_sig_hup = None
 _old_sig_term = None
 _known_short_options = u'h?'
 _known_long_options = [
@@ -174,17 +173,10 @@ def setup_cli():
 		value = val
 	)
 #==========================================================
-def handle_sig_hup(signum, frame):
-	print "SIGHUP caught"
-	print signum
-	print frame
-	if _old_sig_hup in [None, signal.SIG_IGN]:
-		sys.exit(signal.SIGHUP)
-	else:
-		_old_sig_hup(signum, frame)
-#----------------------------------------------------------
 def handle_sig_term(signum, frame):
-	print 'GNUmed: SIGTERM (SIG%s) caught, shutting down ...' % signum
+	_log.critical('SIGTERM (SIG%s) received, shutting down ...' % signum)
+	gmLog2.flush()
+	print 'GNUmed: SIGTERM (SIG%s) received, shutting down ...' % signum
 	if frame is not None:
 		print '%s::%s@%s' % (frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno)
 
@@ -196,8 +188,6 @@ def handle_sig_term(signum, frame):
 		_old_sig_term(signum, frame)
 #----------------------------------------------------------
 def setup_signal_handlers():
-#	global _old_sig_hup
-#	old_sig_hup = signal.signal(signal.SIGHUP, handle_sig_hup)
 	global _old_sig_term
 	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
 #==========================================================
@@ -396,7 +386,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.138  2008-04-13 14:40:17  ncq
+# Revision 1.139  2008-05-29 13:32:22  ncq
+# - signal handlers cleanup
+#
+# Revision 1.138  2008/04/13 14:40:17  ncq
 # - no old style logging anymore
 #
 # Revision 1.137  2008/03/06 21:30:49  ncq
