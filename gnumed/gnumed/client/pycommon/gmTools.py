@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.56 2008-05-26 12:05:50 ncq Exp $
+# $Id: gmTools.py,v 1.57 2008-05-31 16:32:42 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -40,6 +40,16 @@ default_mail_sender = u'gnumed@gmx.net'
 default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
+
+u_ellipsis = u'\u2026'
+u_diameter = u'\u2300'
+u_checkmark_crossed_out = u'\u237B'
+u_checkmark_thin = u'\u2713'
+u_checkmark_thick = u'\u2714'
+u_writing_hand = u'\u270d'
+u_pencil_1 = u'\u270e'
+u_pencil_2 = u'\u270f'
+u_pencil_3 = u'\u2710'
 
 #===========================================================================
 def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
@@ -867,7 +877,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.56  2008-05-26 12:05:50  ncq
+# Revision 1.57  2008-05-31 16:32:42  ncq
+# - a couple of unicode shortcuts
+#
+# Revision 1.56  2008/05/26 12:05:50  ncq
 # - improved wording of update message
 # - better handling of CVS tip
 #
