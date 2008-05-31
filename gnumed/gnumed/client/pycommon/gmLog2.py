@@ -40,8 +40,8 @@ will merrily and automagically start logging away.
 # - ascii_ctrl2mnemonic()
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.10 2008-04-13 14:42:13 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmLog2.py,v 1.11 2008-05-31 17:44:31 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -207,9 +207,9 @@ def __setup_logging():
 		return False
 
 	if sys.version[:3] < '2.5':
-		fmt = '%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s @ #%(lineno)d): %(message)s'
+		fmt = u'%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s @ #%(lineno)d): %(message)s'
 	else:
-		fmt = '%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
+		fmt = u'%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
 
 	_logfile = codecs.open(filename = _logfile_name, mode = 'wb', encoding = 'utf8', errors = 'replace')
 
@@ -273,7 +273,7 @@ if __name__ == '__main__':
 		try:
 			int(None)
 		except:
-			logger.exception('unhandled exception')
+			logger.exception(u'unhandled exception')
 			log_stack_trace()
 		flush()
 	#-----------------------------------------------------------
@@ -281,7 +281,10 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.10  2008-04-13 14:42:13  ncq
+# Revision 1.11  2008-05-31 17:44:31  ncq
+# - defautl format defs in u''
+#
+# Revision 1.10  2008/04/13 14:42:13  ncq
 # - saviour the last bits from the old logging code
 #
 # Revision 1.9  2008/03/06 21:23:22  ncq
