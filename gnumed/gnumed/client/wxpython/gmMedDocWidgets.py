@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.162 2008-05-29 15:31:46 ncq Exp $
-__version__ = "$Revision: 1.162 $"
+# $Id: gmMedDocWidgets.py,v 1.163 2008-05-31 16:38:57 ncq Exp $
+__version__ = "$Revision: 1.163 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1142,6 +1142,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__mail_doc)
 
 		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Access external original'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__access_external_original)
+
+		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('Edit corresponding consultation'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__edit_consultation_details)
 
@@ -1720,6 +1724,53 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __mail_doc(self, evt):
 		self.__process_doc(action = u'mail', l10n_action = _('mail'))
 	#--------------------------------------------------------
+	def __access_external_original(self, evt):
+
+		gmHooks.run_hook_script(hook = u'before_external_doc_access')
+
+		wx.BeginBusyCursor()
+
+		# detect wrapper
+		found, external_cmd = gmShellAPI.detect_external_binary(u'gm_access_external_doc.sh')
+		if not found:
+			found, external_cmd = gmShellAPI.detect_external_binary(u'gm_access_external_doc.bat')
+		if not found:
+			_log.error('neither of gm_access_external_doc.sh or .bat found')
+			wx.EndBusyCursor()
+			gmGuiHelpers.gm_show_error (
+				_('Cannot access external document - access command not found.\n'
+				  '\n'
+				  'Either of gm_access_external_doc.sh or *.bat must be\n'
+				  'in the execution path. The command will be passed the\n'
+				  'document type and the reference URL for processing.'
+				),
+				_('Accessing external document')
+			)
+			return
+
+		cmd = u'%s "%s" "%s"' % (external_cmd, self.__curr_node_data['type'], self.__curr_node_data['ext_ref'])
+		success = gmShellAPI.run_command_in_shell (
+			command = cmd,
+			blocking = False
+		)
+
+		wx.EndBusyCursor()
+
+		if not success:
+			_log.error('External access command failed: [%s]', cmd)
+			gmGuiHelpers.gm_show_error (
+				_('Cannot access external document - access command failed.\n'
+				  '\n'
+				  'You may need to check and fix either of\n'
+				  ' gm_access_external_doc.sh (Unix/Mac) or\n'
+				  ' gm_access_external_doc.bat (Windows)\n'
+				  '\n'
+				  'The command is passed the document type and the\n'
+				  'external reference URL on the command line.'
+				),
+				_('Accessing external document')
+			)
+	#--------------------------------------------------------
 	def __export_doc_to_disk(self, evt):
 		"""Export document into directory.
 
@@ -1785,7 +1836,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.162  2008-05-29 15:31:46  ncq
+# Revision 1.163  2008-05-31 16:38:57  ncq
+# - add permalink handling
+#
+# Revision 1.162  2008/05/29 15:31:46  ncq
 # - transition doc types editor to db change signal listener
 #
 # Revision 1.161  2008/05/29 13:29:42  ncq
