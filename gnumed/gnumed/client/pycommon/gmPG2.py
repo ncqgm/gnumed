@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -171,11 +171,16 @@ def __validate_timezone(conn=None, timezone=None):
 	curs = conn.cursor()
 	try:
 		curs.execute(cmd, args)
-		_log.info('valid client time zone found: [%s]' % timezone)
+		_log.info(u'valid client time zone found: [%s]' % timezone)
 		is_valid = True
 	except dbapi.DataError:
-		_log.info('timezone [%s] seems invalid', timezone)
+		_log.info(u'time zone [%s] seems invalid', timezone)
 		is_valid = False
+	except:
+		_log.exception('failed to set time zone to [%s]', timezone)
+		curs.close()
+		conn.rollback()
+		raise
 	curs.close()
 	conn.rollback()
 
@@ -1480,7 +1485,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.76  2008-05-19 15:55:01  ncq
+# Revision 1.77  2008-05-31 17:45:03  ncq
+# - log other sorts of time zone errors, too
+#
+# Revision 1.76  2008/05/19 15:55:01  ncq
 # - some cleanup
 # - redo timezone detection since numeric timezones will do the right
 #   thing *now* but will not allow for DST boundary crossing detection
