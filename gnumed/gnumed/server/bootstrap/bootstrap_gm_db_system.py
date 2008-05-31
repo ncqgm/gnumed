@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.78 $"
+__version__ = "$Revision: 1.79 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -170,7 +170,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
 	try:
 		_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
-		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False)
+		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True)
 		cached_host = (host, port) # learn from past successes
 		cached_passwd[user] = passwd
 		_log.info('successfully connected')
@@ -1311,7 +1311,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.78  2008-04-25 10:45:11  ncq
+# Revision 1.79  2008-05-31 16:30:35  ncq
+# - verbose connect
+#
+# Revision 1.78  2008/04/25 10:45:11  ncq
 # - activate_locale() so bootstrapping v2 works on systems
 #   with ASCII default encoding
 #
