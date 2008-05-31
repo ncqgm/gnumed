@@ -1,9 +1,20 @@
 """GNUmed list controls and widgets.
+
+TODO:
+
+	From: Rob McMullen <rob.mcmullen@gmail.com>
+	To: wxPython-users@lists.wxwidgets.org
+	Subject: Re: [wxPython-users] ANN: ColumnSizer mixin for ListCtrl
+
+	Thanks for all the suggestions, on and off line.  There's an update
+	with a new name (ColumnAutoSizeMixin) and better sizing algorithm at:
+
+	http://trac.flipturn.org/browser/trunk/peppy/lib/column_autosize.py
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.22 2008-02-26 16:28:04 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmListWidgets.py,v 1.23 2008-05-31 16:33:07 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -409,7 +420,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.22  2008-02-26 16:28:04  ncq
+# Revision 1.23  2008-05-31 16:33:07  ncq
+# - add TODO with URL
+#
+# Revision 1.22  2008/02/26 16:28:04  ncq
 # - when auto-setting col widths in lists w/o items use header as width ;-)
 #
 # Revision 1.21  2007/11/28 22:37:00  ncq
