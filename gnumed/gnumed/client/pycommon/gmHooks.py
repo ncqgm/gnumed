@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.13 2008-05-19 15:45:39 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmHooks.py,v 1.14 2008-05-31 16:32:04 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -54,7 +54,8 @@ known_hooks = [
 	u'before_print_doc_part',
 	u'before_fax_doc_part',
 	u'before_mail_doc_part',
-	u'db_maintenance_warning'
+	u'db_maintenance_warning',
+	u'before_external_doc_access'
 ]
 
 
@@ -133,7 +134,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.13  2008-05-19 15:45:39  ncq
+# Revision 1.14  2008-05-31 16:32:04  ncq
+# - add before external doc access hook
+#
+# Revision 1.13  2008/05/19 15:45:39  ncq
 # - slightly better wording
 #
 # Revision 1.12  2008/04/28 13:32:07  ncq
