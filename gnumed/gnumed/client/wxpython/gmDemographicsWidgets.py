@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.137.2.2 2008-02-21 18:10:26 ncq Exp $
-__version__ = "$Revision: 1.137.2.2 $"
+# $Id: gmDemographicsWidgets.py,v 1.137.2.3 2008-06-02 14:15:49 ncq Exp $
+__version__ = "$Revision: 1.137.2.3 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1950,17 +1950,33 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			_pnl_form.PRW_dob.Refresh()
 						
 		# address		
+		is_any_field_filled = False
 		address_fields = (
 			_pnl_form.TTC_address_number,
 			_pnl_form.PRW_zip_code,
 			_pnl_form.PRW_street,
-			_pnl_form.PRW_town,
+			_pnl_form.PRW_town
+		)
+		for field in address_fields:
+			if field.GetValue().strip() != '':
+				is_any_field_filled = True
+				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+				field.Refresh()
+				continue
+			if is_any_field_filled:
+				error = True
+				msg = _('To properly create an address, all the related fields must be filled in.')
+				gmGuiHelpers.gm_show_error(msg, _('Required fields'), gmLog.lErr)
+				field.SetBackgroundColour('pink')
+				field.SetFocus()
+				field.Refresh()
+
+		address_fields = (
 			_pnl_form.PRW_state,
 			_pnl_form.PRW_country
 		)
-		is_any_field_filled = False
 		for field in address_fields:
-			if field.GetValue().strip() != '':
+			if field.GetData() is not None:
 				is_any_field_filled = True
 				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 				field.Refresh()
@@ -2538,7 +2554,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.137.2.2  2008-02-21 18:10:26  ncq
+# Revision 1.137.2.3  2008-06-02 14:15:49  ncq
+# - properly validate new-patient contact data
+#
+# Revision 1.137.2.2  2008/02/21 18:10:26  ncq
 # - somewhat tighten check on patient address
 #
 # Revision 1.137.2.1  2008/01/14 13:20:04  ncq
