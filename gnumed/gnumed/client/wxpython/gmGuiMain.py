@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.13 2008-05-26 12:21:02 ncq Exp $
-__version__ = "$Revision: 1.375.2.13 $"
+# $Id: gmGuiMain.py,v 1.375.2.14 2008-06-03 16:44:46 ncq Exp $
+__version__ = "$Revision: 1.375.2.14 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -71,7 +71,7 @@ _log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.P
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
-if timezone is not None:
+if (timezone is not None) and not (isinstance(timezone, gmNull.cNull)):
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
@@ -2070,7 +2070,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.13  2008-05-26 12:21:02  ncq
+# Revision 1.375.2.14  2008-06-03 16:44:46  ncq
+# - work around --conf-file missing hence get(timezone) being cNull
+#   instance and failing, ugh
+#
+# Revision 1.375.2.13  2008/05/26 12:21:02  ncq
 # - bump version
 #
 # Revision 1.375.2.12  2008/04/26 16:57:46  ncq
