@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.116 2008-03-06 18:29:29 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmEditArea.py,v 1.117 2008-06-09 15:34:26 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -17,7 +17,7 @@ import wx
 from Gnumed.pycommon import gmGuiBroker, gmMatchProvider, gmDispatcher, gmExceptions, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg, wxgGenericEditAreaDlg2
 
 
 _log = logging.getLogger('gm.ui')
@@ -48,14 +48,6 @@ ID_REQUEST_BILL_BB = wx.NewId()
 ID_REQUEST_BILL_PRIVATE = wx.NewId()
 ID_REQUEST_BILL_wcover = wx.NewId()
 ID_REQUEST_BILL_REBATE  = wx.NewId()
-#---------------------------------------------
-gmSECTION_MEASUREMENTS = 10
-ID_MEASUREMENT_TYPE = wx.NewId()
-ID_MEASUREMENT_VALUE = wx.NewId()
-ID_MEASUREMENT_DATE = wx.NewId()
-ID_MEASUREMENT_COMMENT = wx.NewId()
-ID_MEASUREMENT_NEXTVALUE = wx.NewId()
-ID_MEASUREMENT_GRAPH   = wx.NewId()
 #---------------------------------------------
 gmSECTION_REFERRALS = 11
 ID_REFERRAL_CATEGORY        = wx.NewId()
@@ -126,6 +118,44 @@ CONTROLS_WITHOUT_LABELS =['wxTextCtrl', 'cEditAreaField', 'wx.SpinCtrl', 'gmPhra
 def _decorate_editarea_field(widget):
 	widget.SetForegroundColour(wx.Color(255, 0, 0))
 	widget.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
+
+#====================================================================
+class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
+
+	def __init__(self, *args, **kwargs):
+
+		ea = kwargs['edit_area']
+		del kwargs['edit_area']
+
+		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
+
+		# replace dummy panel
+		szr = self._PNL_ea.GetContainingSizer()
+		szr.Remove(self._PNL_ea)
+		ea.Reparent(self)
+		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
+		self._PNL_ea = ea
+
+		# redraw layout
+		self.Layout()
+		szr = self.GetSizer()
+		szr.Fit(self)
+		self.Refresh()
+		self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		if self._PNL_ea.save():
+			if self.IsModal():
+				self.EndModal(wx.ID_OK)
+			else:
+				self.Close()
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_forward_button_pressed(self, evt):
+		if self._PNL_ea.save():
+			self._PNL_ea.refresh()
 
 #====================================================================
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
@@ -1451,65 +1481,6 @@ class gmReferralEditArea(gmEditArea):
 #====================================================================
 # unconverted edit areas below
 #====================================================================
-class gmMeasurementEditArea(gmEditArea):
-
-	T= 'type'
-	D= 'date'
-	V= 'value'
-	C= 'comment'
-	P= 'progress_notes'
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'measurement')
-		except gmExceptions.ConstructorError:
-			stacktrace()
-
-			_log.exceptions('cannot instantiate measurement edit area')
-			raise
-
-
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.debug("making measurement lines")
-		lines = []
-		self.txt_type = cEditAreaField(parent)
-		self.txt_date = cEditAreaField(parent)
-		self.txt_value = cEditAreaField(parent)
-		self.txt_comment = cEditAreaField(parent)
-		self.txt_progressnotes= cEditAreaField(parent)
-		
-		lines.append(self.txt_type)
-		lines.append(self.txt_date)
-		lines.append(self.txt_value)
-		lines.append(self.txt_comment)
-		lines.append(self.txt_progressnotes)
-		lines.append(self._make_standard_buttons(parent))
-
-		c = gmMeasurementEditArea
-		self.input_fields = {
-			c.T : self.txt_type,
-			c.D : self.txt_date ,
-			c.V : self.txt_value,
-			c.C : self.txt_comment,
-			c.P : self.txt_progressnotes
-		}
-
-		return lines
-
-	def get_field_formatting_values(self):
-		c = gmMeasurementEditArea
-		fields = [ c.T, c.D, c.V, c.C, c.P , 'id_measurement']
-		values = self.getInputFieldValues(fields)
-		s , n = "'%s'", "%d"
-		formatting =  { c.T:s, c.D:s, c.V:n, c.C:s, c.P:s }
-		values['id_measurement'] = self.getDataId()
-		return fields, formatting, values
-
-	def _save_data(self):
-		return 1
-
-
-#====================================================================
 class gmPrescriptionEditArea(gmEditArea):
 	def __init__(self, parent, id):
 		try:
@@ -1686,8 +1657,6 @@ class EditTextBoxes(wx.Panel):
 		elif section == gmSECTION_SCRIPT:
 			pass
 		elif section == gmSECTION_REQUESTS:
-			pass
-		elif section == gmSECTION_MEASUREMENTS:
 			pass
 		elif section == gmSECTION_RECALLS:
 			pass
@@ -2087,7 +2056,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.116  2008-03-06 18:29:29  ncq
+# Revision 1.117  2008-06-09 15:34:26  ncq
+# - cleanup
+#
+# Revision 1.116  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.115  2008/01/30 14:03:42  ncq
