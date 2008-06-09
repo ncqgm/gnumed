@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.76 2008-05-13 14:11:53 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmEMRStructWidgets.py,v 1.77 2008-06-09 15:33:59 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -396,41 +396,44 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
-		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}
+		ctxt = {'ctxt_pat': {'where_part': u'and pk_patient = %(pat)s', 'placeholder': u'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""
-select * from (
-	(select
-		pk_episode,
-		case when health_issue is Null
-			then description
-			else description || ' - ' || health_issue
-		end as description,
-		1 as weight
-	 from
-	  	clin.v_pat_episodes
-	 where
-		episode_open is true and
-		description %(fragment_condition)s and
-		%(ctxt_pat)s
-	) union all (
-	 select
-		pk_episode,
-		case when health_issue is Null
-			then description || _(' (closed)')
-			else description || _(' (closed)') || ' - ' || health_issue
-		end as description,
-		1 as weight
-	 from
-		clin.v_pat_episodes
-	 where
-		description %(fragment_condition)s and
-		episode_open is false and
-		%(ctxt_pat)s
-	)) as union_result
-order by weight, description
+u"""(
+
+select
+	pk_episode,
+	coalesce (
+		description || ' - ' || health_issue,
+		description
+	) as description,
+	1 as rank
+from
+  	clin.v_pat_episodes
+where
+	episode_open is true and
+	description %(fragment_condition)s
+	%(ctxt_pat)s
+
+) union all (
+
+select
+	pk_episode,
+	coalesce (
+		description || _(' (closed)') || ' - ' || health_issue,
+		description || _(' (closed)')
+	) as description,
+	1 as rank
+from
+	clin.v_pat_episodes
+where
+	description %(fragment_condition)s and
+	episode_open is false
+	%(ctxt_pat)s
+
+)
+order by rank, description
 limit 30"""
 ],
 			context = ctxt
@@ -1162,12 +1165,15 @@ if __name__ == '__main__':
 		#test_encounter_edit_area_dialog()
 		#test_epsiode_edit_area_pnl()
 		#test_episode_edit_area_dialog()
-		test_health_issue_edit_area_dlg()
-		#test_episode_selection_prw()
+		#test_health_issue_edit_area_dlg()
+		test_episode_selection_prw()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.76  2008-05-13 14:11:53  ncq
+# Revision 1.77  2008-06-09 15:33:59  ncq
+# - improved episode selector SQL
+#
+# Revision 1.76  2008/05/13 14:11:53  ncq
 # - properly handle age=None in pHX ea
 #
 # Revision 1.75  2008/05/07 15:21:10  ncq
