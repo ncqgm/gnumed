@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.26 2008-04-29 18:29:29 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmMatchProvider.py,v 1.27 2008-06-09 15:28:21 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -36,6 +36,7 @@ class cMatchProvider:
 	__threshold = {}
 	default_word_separators = re.compile('[- \t=+&:@]+')
 	default_ignored_chars = re.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
+	print_queries = False
 	#--------------------------------------------------------
 	def __init__(self):
 		self.enableMatching()
@@ -456,6 +457,10 @@ class cMatchProvider_SQL2(cMatchProvider):
 
 			cmd = query % where_fragments
 
+			if self.print_queries:
+				print self.__class__.__name__
+				print cmd
+
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}])
 			except:
@@ -480,7 +485,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.26  2008-04-29 18:29:29  ncq
+# Revision 1.27  2008-06-09 15:28:21  ncq
+# - .print_queries and support it in sql provider
+#
+# Revision 1.26  2008/04/29 18:29:29  ncq
 # - remove increaseScore
 #
 # Revision 1.25  2007/12/12 16:17:15  ncq
