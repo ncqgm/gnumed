@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.405 2008-05-29 13:28:37 ncq Exp $
-__version__ = "$Revision: 1.405 $"
+# $Id: gmGuiMain.py,v 1.406 2008-06-09 15:34:57 ncq Exp $
+__version__ = "$Revision: 1.406 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,11 +52,12 @@ if (version < 26) or ('unicode' not in wx.PlatformInfo):
 
 # GNUmed libs
 from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2, gmLog2
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
-from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
-from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets, gmTimer
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.exporters import gmPatientExporter
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
+from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
+from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
+from Gnumed.wxpython import gmTimer, gmMeasurementWidgets
 
 try:
 	_('do-not-translate-but-make-epydoc-happy')
@@ -502,6 +503,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_emr = wx.Menu()
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
+
 		# - submenu "export as"
 		menu_emr_export = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('Export as ...'), menu_emr_export)
@@ -529,6 +531,7 @@ class gmTopLevelFrame(wx.Frame):
 			_("GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file.")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
+
 		# - summary
 		ID_EMR_SUMMARY = wx.NewId()
 		menu_emr.Append (
@@ -537,12 +540,15 @@ class gmTopLevelFrame(wx.Frame):
 			_('Show a summary of the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_EMR_SUMMARY, self.__on_show_emr_summary)
+
 		# - submenu "show as"
 		menu_emr_show = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
 		self.__gb['main.emr_showmenu'] = menu_emr_show
+
 		# - draw a line
 		menu_emr.AppendSeparator()
+
 		# - search
 		ID_SEARCH_EMR = wx.NewId()
 		menu_emr.Append (
@@ -551,6 +557,7 @@ class gmTopLevelFrame(wx.Frame):
 			_('Search for data in the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_SEARCH_EMR, self.__on_search_emr)
+
 		# - start new encounter
 		ID = wx.NewId()
 		menu_emr.Append (
@@ -591,6 +598,10 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
+		# - add measurement
+		ID = wx.NewId()
+		menu_history.Append(ID, _('&Measurements'), _('Add a measurement result for the current patient.'))
+		wx.EVT_MENU(self, ID, self.__on_add_measurement)
 
 		# - draw a line
 		menu_emr.AppendSeparator()
@@ -1708,16 +1719,23 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.is_connected():
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add allergy. No active patient.'))
 			return False
-
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_edit_occupation(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add allergy. No active patient.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit occupation. No active patient.'))
 			return False
 		gmDemographicsWidgets.edit_occupation()
+		evt.Skip()
+	#----------------------------------------------
+	def __on_add_measurement(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add measurement. No active patient.'))
+			return False
+		gmMeasurementWidgets.add_new_measurement(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
@@ -2164,10 +2182,6 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def _on_user_activity_timer_expired(self, cookie=None):
 
-#		print "inactivity timer expired"
-#		print "elapsed slices:", self.elapsed_inactivity_slices + 1
-#		print "activity:", self.user_activity_detected
-
 		if self.user_activity_detected:
 			self.elapsed_inactivity_slices = 0
 			self.user_activity_detected = False
@@ -2512,7 +2526,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.405  2008-05-29 13:28:37  ncq
+# Revision 1.406  2008-06-09 15:34:57  ncq
+# - "add measurement" from menu
+#
+# Revision 1.405  2008/05/29 13:28:37  ncq
 # - improved logging of EVT(_QUERY)_END_SESSION
 #
 # Revision 1.404  2008/05/26 13:31:34  ncq
