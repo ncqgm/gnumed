@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.41 2008-05-13 14:08:44 ncq Exp $
+# $Id: gmI18N.py,v 1.42 2008-06-09 15:28:00 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -93,7 +93,7 @@ def __split_locale_into_levels():
 	  - en_US:en
 	  - German_Germany.1252
 	"""
-	_log.debug('splitting canonical locale [%s] into levels' % system_locale)
+	_log.debug('splitting canonical locale [%s] into levels', system_locale)
 
 	global system_locale_level
 	system_locale_level['full'] = system_locale
@@ -102,7 +102,7 @@ def __split_locale_into_levels():
 	# trim '_<COUNTRY>@<variant>' part
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 
-	_log.debug('system locale levels: %s' % system_locale_level)
+	_log.debug('system locale levels: %s', system_locale_level)
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
 	_setlocale_categories = {}
@@ -110,7 +110,7 @@ def __log_locale_settings(message=None):
 		try:
 			_setlocale_categories[category] = getattr(locale, category)
 		except:
-			_log.warning('this OS does not have locale.%s' % category)
+			_log.warning('this OS does not have locale.%s', category)
 
 	_getlocale_categories = {}
 	for category in 'LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
@@ -304,7 +304,7 @@ def install_domain(domain=None, language=None):
 			return True
 
 	# 5) install a dummy translation class
-	_log.warning("Giving up and falling back to NullTranslations() class in despair.")
+	_log.warning("falling back to NullTranslations() class")
 	# this shouldn't fail
 	dummy = gettext.NullTranslations()
 	dummy.install()
@@ -373,7 +373,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.41  2008-05-13 14:08:44  ncq
+# Revision 1.42  2008-06-09 15:28:00  ncq
+# - better logging
+#
+# Revision 1.41  2008/05/13 14:08:44  ncq
 # - get_encoding: log encoding mismatch only once
 #
 # Revision 1.40  2008/01/14 20:26:35  ncq
