@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.27 2008-05-20 16:45:43 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmProviderInboxWidgets.py,v 1.28 2008-06-09 15:36:58 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg
 from Gnumed.business import gmPerson, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin
+from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
 
 
@@ -30,11 +30,22 @@ _indicator = {
 }
 
 #============================================================
+class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = gmPerson.cMatchProvider_Provider()
+		self.SetToolTipString(_('Select a healthcare provider.'))
+		self.selection_only = True
+#============================================================
 # practice related widgets 
 #============================================================
 # FIXME: this should be moved elsewhere !
-
-#============================================================
 def configure_workplace_plugins(parent=None):
 
 	#-----------------------------------
@@ -327,7 +338,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.27  2008-05-20 16:45:43  ncq
+# Revision 1.28  2008-06-09 15:36:58  ncq
+# - provider phrasewheel
+#
+# Revision 1.27  2008/05/20 16:45:43  ncq
 # - add filter for active patient messages
 # - fix longstanding bug updating display on *every* PAINT event
 #
