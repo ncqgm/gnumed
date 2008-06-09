@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.117 2008-05-14 13:46:37 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmPhraseWheel.py,v 1.118 2008-06-09 15:36:39 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -241,6 +241,8 @@ class cPhraseWheel(wx.TextCtrl):
 		)
 		# initially stopped
 		self.__timer.Stop()
+
+		self.__non_edit_font = self.GetFont()
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -770,6 +772,12 @@ class cPhraseWheel(wx.TextCtrl):
 		self._has_focus = True
 		event.Skip()
 
+		self.__non_edit_font = self.GetFont()
+		edit_font = self.GetFont()
+		edit_font.SetPointSize(pointSize = self.__non_edit_font.GetPointSize() + 2)
+		self.SetFont(edit_font)
+		self.Refresh()
+
 		# notify interested parties
 		for callback in self._on_set_focus_callbacks:
 			callback()
@@ -792,6 +800,9 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# unset selection
 		self.SetSelection(1,1)
+
+		self.SetFont(self.__non_edit_font)
+		self.Refresh()
 
 		# the user may have typed a phrase that is an exact match,
 		# however, just typing it won't associate data from the
@@ -953,7 +964,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.117  2008-05-14 13:46:37  ncq
+# Revision 1.118  2008-06-09 15:36:39  ncq
+# - increase font size by 2 points when editing
+#
+# Revision 1.117  2008/05/14 13:46:37  ncq
 # - better logging
 #
 # Revision 1.116  2008/05/13 14:15:16  ncq
