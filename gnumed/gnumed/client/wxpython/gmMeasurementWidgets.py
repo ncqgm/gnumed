@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.13 2008-05-14 15:01:43 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmMeasurementWidgets.py,v 1.14 2008-06-09 15:36:04 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -17,13 +17,27 @@ import wx, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmTools, gmDispatcher
-from Gnumed.wxpython import gmRegetMixin
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider
+from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
+from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+#================================================================
+# convenience functions
+#================================================================
+def add_new_measurement(parent=None):
+	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+#	dlg = gmEditArea.cGenericEditAreaDlg(parent = parent, id = -1, edit_area = ea)
+	dlg.SetTitle(_('Adding new measurement'))
+	if dlg.ShowModal() == wx.ID_OK:
+		return True
+	return False
+#================================================================
+# display widgets
 #================================================================
 class cMeasurementsGrid(wx.grid.Grid):
 	"""A grid class for displaying measurment results.
@@ -454,6 +468,52 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 	patient = property(lambda x:x, _set_patient)
 #================================================================
+class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRegetOnPaintMixin):
+
+	"""Panel holding a grid with lab data. Used as notebook page."""
+
+	def __init__(self, *args, **kwargs):
+
+		wxgMeasurementsPnl.wxgMeasurementsPnl.__init__(self, *args, **kwargs)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__register_interests()
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
+	#--------------------------------------------------------
+	def _on_pre_patient_selection(self):
+		wx.CallAfter(self.__on_pre_patient_selection)
+	#--------------------------------------------------------
+	def __on_pre_patient_selection(self):
+		self.data_grid.patient = None
+	#--------------------------------------------------------
+	def _on_review_button_pressed(self, evt):
+		self.data_grid.sign_current_selection()
+	#--------------------------------------------------------
+	def _on_select_my_unsigned_results_button_pressed(self, evt):
+		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+	#--------------------------------------------------------
+	def _on_select_all_unsigned_results_button_pressed(self, evt):
+		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		"""Populate fields in pages with data from model."""
+		pat = gmPerson.gmCurrentPatient()
+		if pat.is_connected():
+			self.data_grid.patient = pat
+		else:
+			self.data_grid.patient = None
+		return True
+#================================================================
+# editing widgets
+#================================================================
 class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -502,47 +562,151 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		else:
 			self.Close()
 #================================================================
-class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRegetOnPaintMixin):
+class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl.__init__(self, *args, **kwargs)
+		self.__init_ui()
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._PRW_test.add_callback_on_lose_focus(self._on_leave_test_prw)
+	#--------------------------------------------------------
+	def _on_leave_test_prw(self):
+
+		pk_test = self._PRW_test.GetData()
+		if pk_test is None:
+			self._PRW_units.unset_context(context = u'pk_type')
+		else:
+			self._PRW_units.set_context(context = u'pk_type', val = pk_test)
+	#--------------------------------------------------------
+	def refresh(self):
+		print "refreshing"
+	#--------------------------------------------------------
+	def save(self):
+		print "saving"
+#================================================================
+# convenience widgets
+#================================================================
+class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		wxgMeasurementsPnl.wxgMeasurementsPnl.__init__(self, *args, **kwargs)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__register_interests()
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
-	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__on_pre_patient_selection)
-	#--------------------------------------------------------
-	def __on_pre_patient_selection(self):
-		self.data_grid.patient = None
-	#--------------------------------------------------------
-	def _on_review_button_pressed(self, evt):
-		self.data_grid.sign_current_selection()
-	#--------------------------------------------------------
-	def _on_select_my_unsigned_results_button_pressed(self, evt):
-		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
-	#--------------------------------------------------------
-	def _on_select_all_unsigned_results_button_pressed(self, evt):
-		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
-	#--------------------------------------------------------
-	# reget mixin API
-	#--------------------------------------------------------
-	def _populate_with_data(self):
-		"""Populate fields in pages with data from model."""
-		pat = gmPerson.gmCurrentPatient()
-		if pat.is_connected():
-			self.data_grid.patient = pat
-		else:
-			self.data_grid.patient = None
-		return True
+		query = u"""
+	(
+select
+	pk_test_type,
+	name_tt
+		|| ' ('
+		|| coalesce (
+			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			'%(in_house)s'
+			)
+		|| ')'
+	as name
+from clin.v_unified_test_types vcutt
+where
+	name_unified %%(fragment_condition)s
+
+) union (
+
+select
+	pk_test_type,
+	name_tt
+		|| ' ('
+		|| coalesce (
+			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			'%(in_house)s'
+			)
+		|| ')'
+	as name
+from clin.v_unified_test_types vcutt
+where
+	name_tt %%(fragment_condition)s
+
+) union (
+
+select
+	pk_test_type,
+	name_tt
+		|| ' ('
+		|| coalesce (
+			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			'%(in_house)s'
+			)
+		|| ')'
+	as name
+from clin.v_unified_test_types vcutt
+where
+	code_unified %%(fragment_condition)s
+
+) union (
+
+select
+	pk_test_type,
+	name_tt
+		|| ' ('
+		|| coalesce (
+			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			'%(in_house)s'
+			)
+		|| ')'
+	as name
+from clin.v_unified_test_types vcutt
+where
+	code_tt %%(fragment_condition)s
+)
+
+order by name
+limit 50""" % {'in_house': _('in house lab')}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = mp
+		self.SetToolTipString(_('Select the type of measurement.'))
+		self.selection_only = False
+#================================================================
+class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+select distinct val_unit,
+	val_unit, val_unit
+from clin.v_test_results
+where
+	val_unit %(fragment_condition)s
+	or conversion_unit %(fragment_condition)s
+	%(ctxt_test_name)s
+	%(ctxt_test_pk)s
+order by val_unit
+limit 25"""
+
+		ctxt = {
+			'ctxt_test_name': {
+				'where_part': u'and %(test)s in (name_tt, name_unified, code_tt, code_unified)',
+				'placeholder': u'test'
+			},
+			'ctxt_test_pk': {
+				'where_part': u'and pk_test_type = %(pk_type)s',
+				'placeholder': u'pk_type'
+			}
+		}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=ctxt)
+		mp.setThresholds(1, 2, 4)
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = mp
+		self.SetToolTipString(_('Select the unit of the test result.'))
+		self.selection_only = False
 #================================================================
 # main
 #----------------------------------------------------------------
@@ -563,12 +727,27 @@ if __name__ == '__main__':
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------
+	def test_test_ea_pnl():
+		pat = gmPerson.ask_for_patient()
+		gmPerson.set_active_patient(patient=pat)
+		app = wx.PyWidgetTester(size = (500, 300))
+		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)
+		app.frame.Show()
+		app.MainLoop()
+	#------------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		test_grid()
+		#test_grid()
+		test_test_ea_pnl()
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.13  2008-05-14 15:01:43  ncq
+# Revision 1.14  2008-06-09 15:36:04  ncq
+# - reordered for clarity
+# - add_new_measurement
+# - edit area start
+# - phrasewheels
+#
+# Revision 1.13  2008/05/14 15:01:43  ncq
 # - remove spurious evt argument in _on_pre_patient_selection()
 #
 # Revision 1.12  2008/04/26 21:40:58  ncq
