@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.149 2008-05-20 16:43:25 ncq Exp $
-__version__ = "$Revision: 1.149 $"
+# $Id: gmDemographicsWidgets.py,v 1.150 2008-06-09 15:33:31 ncq Exp $
+__version__ = "$Revision: 1.150 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -424,32 +424,51 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 
+		# validate required fields
+		is_any_field_filled = False
+
 		required_fields = (
 			self._PRW_type,
 			self._PRW_zip,
 			self._PRW_street,
 			self._TCTRL_number,
-			self._PRW_urb,
-			self._PRW_state,
-			self._PRW_country
+			self._PRW_urb
 		)
-		# validate required fields
-		is_any_field_filled = False
 		for field in required_fields:
-			if len(field.GetValue().strip()) > 0:
+			if len(field.GetValue().strip()) == 0:
+				if is_any_field_filled:
+					field.SetBackgroundColour('pink')
+					field.SetFocus()
+					field.Refresh()
+					gmGuiHelpers.gm_show_error (
+						_('Address details must be filled in completely or not at all.'),
+						_('Saving contact data')
+					)
+					return False
+			else:
 				is_any_field_filled = True
 				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 				field.Refresh()
-				continue
-			if is_any_field_filled:
-				field.SetBackgroundColour('pink')
-				field.SetFocus()
+
+		required_fields = (
+			self._PRW_state,
+			self._PRW_country
+		)
+		for field in required_fields:
+			if field.GetData() is None:
+				if is_any_field_filled:
+					field.SetBackgroundColour('pink')
+					field.SetFocus()
+					field.Refresh()
+					gmGuiHelpers.gm_show_error (
+						_('Address details must be filled in completely or not at all.'),
+						_('Saving contact data')
+					)
+					return False
+			else:
+				is_any_field_filled = True
+				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 				field.Refresh()
-				gmGuiHelpers.gm_show_error (
-					_('Address details must be filled in completely or not at all.'),
-					_('Saving contact data')
-				)
-				return False
 
 		return True
 #============================================================
@@ -1976,29 +1995,45 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		else:
 			_pnl_form.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			_pnl_form.PRW_dob.Refresh()
-						
-		# address		
+		
+		# address
+		is_any_field_filled = False
 		address_fields = (
 			_pnl_form.TTC_address_number,
 			_pnl_form.PRW_zip_code,
 			_pnl_form.PRW_street,
-			_pnl_form.PRW_town,
-			_pnl_form.PRW_state,
-			_pnl_form.PRW_country
+			_pnl_form.PRW_town
 		)
-		is_any_field_filled = False
 		for field in address_fields:
-			if field.GetValue().strip() != '':
+			if field.GetValue().strip() == u'':
+				if is_any_field_filled:
+					error = True
+					msg = _('To properly create an address, all the related fields must be filled in.')
+					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
+					field.SetBackgroundColour('pink')
+					field.SetFocus()
+					field.Refresh()
+			else:
 				is_any_field_filled = True
 				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 				field.Refresh()
-				continue
-			if is_any_field_filled:
-				error = True
-				msg = _('To properly create an address, all the related fields must be filled in.')
-				gmGuiHelpers.gm_show_error(msg, _('Required fields'))
-				field.SetBackgroundColour('pink')
-				field.SetFocus()
+
+		address_fields = (
+			_pnl_form.PRW_state,
+			_pnl_form.PRW_country
+		)
+		for field in address_fields:
+			if field.GetData() is None:
+				if is_any_field_filled:
+					error = True
+					msg = _('To properly create an address, all the related fields must be filled in.')
+					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
+					field.SetBackgroundColour('pink')
+					field.SetFocus()
+					field.Refresh()
+			else:
+				is_any_field_filled = True
+				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 				field.Refresh()
 
 		return (not error)
@@ -2042,18 +2077,23 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = _pnl_form.PRW_gender.GetData()
 			self.form_DTD['dob'] = _pnl_form.PRW_dob.GetData()
+
 			self.form_DTD['lastnames'] = _pnl_form.PRW_lastname.GetValue()
 			self.form_DTD['firstnames'] = _pnl_form.PRW_firstname.GetValue()
 			self.form_DTD['title'] = _pnl_form.PRW_title.GetValue()
 			self.form_DTD['nick'] = _pnl_form.PRW_nick.GetValue()
+
 			self.form_DTD['occupation'] = _pnl_form.PRW_occupation.GetValue()
+
 			self.form_DTD['address_number'] = _pnl_form.TTC_address_number.GetValue()
 			self.form_DTD['street'] = _pnl_form.PRW_street.GetValue()
 			self.form_DTD['zip_code'] = _pnl_form.PRW_zip_code.GetValue()
 			self.form_DTD['town'] = _pnl_form.PRW_town.GetValue()
 			self.form_DTD['state'] = _pnl_form.PRW_state.GetData()
 			self.form_DTD['country'] = _pnl_form.PRW_country.GetData()
+
 			self.form_DTD['phone'] = _pnl_form.TTC_phone.GetValue()
+
 			self.form_DTD['comment'] = _pnl_form.TCTRL_comment.GetValue()
 		except:
 			return False
@@ -2582,7 +2622,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.149  2008-05-20 16:43:25  ncq
+# Revision 1.150  2008-06-09 15:33:31  ncq
+# - much improved sanity check when saving/editing patient address
+#
+# Revision 1.149  2008/05/20 16:43:25  ncq
 # - improve match provider SQL for urb phrasewheel
 #
 # Revision 1.148  2008/05/14 13:45:48  ncq
