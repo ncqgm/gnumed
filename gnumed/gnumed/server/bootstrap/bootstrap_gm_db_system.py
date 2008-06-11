@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.79 $"
+__version__ = "$Revision: 1.80 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -168,15 +168,28 @@ def connect (host, port, db, user, passwd, superuser=0):
 
 	conn = None
 	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
+	_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
 	try:
-		_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
 		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True)
 		cached_host = (host, port) # learn from past successes
 		cached_passwd[user] = passwd
 		_log.info('successfully connected')
-	except gmPG2.dbapi.OperationalError, message:
+
+	except gmPG2.cAuthenticationError:
+		_log.exception("password not accepted, retrying")
+		passwd = getpass.getpass("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
+		conn = connect (host, port, db, user, passwd)
+
+	except gmPG2.dbapi.OperationalError, e:
 		_log.exception('connection failed')
-		m = str(message)
+
+		t, v, tb = sys.exc_info()
+		try:
+			msg = e.args[0]
+		except (AttributeError, IndexError, TypeError):
+			raise
+		m = unicode(msg, gmI18N.get_encoding(), 'replace')
+
 		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
 			# this pretty much means we're screwed
 			if _interactive:
@@ -185,11 +198,6 @@ def connect (host, port, db, user, passwd, superuser=0):
 			# didn't like blank password trick
 			_log.warning("attempt w/ blank password failed, retrying with password")
 			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
-			conn = connect (host, port, db, user, passwd)
-		elif re.search ("^FATAL:.*Password authentication failed.*", m):
-			# didn't like supplied password
-			_log.warning("password not accepted, retrying")
-			passwd = getpass.getpass ("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("could not connect to server", m):
 			if len(host) == 0:
@@ -209,15 +217,54 @@ def connect (host, port, db, user, passwd, superuser=0):
 						else:
 							host = host[0]
 							conn = connect (host, port, db, user, password)
-		elif re.search ("^FATAL:.*IDENT authentication failed.*", m):
-			if _interactive:
-				if superuser:
-					print_msg(superuser_sermon % user)
-				else:
-					print_msg(pg_hba_sermon)
 		else:
 			if _interactive:
 				print_msg(no_clues % (message, sys.platform))
+
+#	except gmPG2.dbapi.OperationalError, message:
+#		_log.exception('connection failed')
+#		m = str(message)
+#		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
+#			# this pretty much means we're screwed
+#			if _interactive:
+#				print_msg(pg_hba_sermon)
+#		elif re.search ("no password supplied", m):
+#			# didn't like blank password trick
+#			_log.warning("attempt w/ blank password failed, retrying with password")
+#			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
+#			conn = connect (host, port, db, user, passwd)
+#		elif re.search ("^FATAL:.*Password authentication failed.*", m):
+#			# didn't like supplied password
+#			_log.warning("password not accepted, retrying")
+#			passwd = getpass.getpass ("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
+#			conn = connect (host, port, db, user, passwd)
+#		elif re.search ("could not connect to server", m):
+#			if len(host) == 0:
+#				# try again on TCP/IP loopback
+#				_log.warning("UNIX socket connection failed, retrying on 127.0.0.1")
+#				conn = connect ("127.0.0.1", port, db, user, passwd)
+#			else:
+#				_log.warning("connection to host %s:%s failed" % (host, port))
+#				if _interactive:
+#					print_msg(no_server_sermon)
+#					host = raw_input("New host to connect to:")
+#					if len(host) > 0:
+#						host.split(':')
+#						if len(host) > 1:
+#							port = host[1]
+#							host = host[0]
+#						else:
+#							host = host[0]
+#							conn = connect (host, port, db, user, password)
+#		elif re.search ("^FATAL:.*IDENT authentication failed.*", m):
+#			if _interactive:
+#				if superuser:
+#					print_msg(superuser_sermon % user)
+#				else:
+#					print_msg(pg_hba_sermon)
+#		else:
+#			if _interactive:
+#				print_msg(no_clues % (message, sys.platform))
 	return conn
 #==================================================================
 class user:
@@ -1270,6 +1317,7 @@ def main():
 if __name__ == "__main__":
 
 	gmI18N.activate_locale()
+	gmLog2.set_string_encoding()
 
 	_log.info("startup (%s)" % __version__)
 
@@ -1311,7 +1359,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.79  2008-05-31 16:30:35  ncq
+# Revision 1.80  2008-06-11 19:13:22  ncq
+# - improve exception logging on connect()
+# - recall gmLog2.set_string_encoding appropriately
+#
+# Revision 1.79  2008/05/31 16:30:35  ncq
 # - verbose connect
 #
 # Revision 1.78  2008/04/25 10:45:11  ncq
