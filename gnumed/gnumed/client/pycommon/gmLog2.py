@@ -40,8 +40,8 @@ will merrily and automagically start logging away.
 # - ascii_ctrl2mnemonic()
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.11 2008-05-31 17:44:31 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmLog2.py,v 1.12 2008-06-11 19:11:48 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -173,24 +173,24 @@ def set_string_encoding(encoding=None):
 	if encoding is not None:
 		codecs.lookup(encoding)
 		_string_encoding = encoding
-		logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
+		logger.info(u'setting python.str -> python.unicode encoding to <%s> (explicit)', _string_encoding)
 		return True
 
 	enc = sys.getdefaultencoding()
 	if enc != 'ascii':
 		_string_encoding = enc
-		logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
+		logger.info(u'setting python.str -> python.unicode encoding to <%s> (sys.getdefaultencoding)', _string_encoding)
 		return True
 
 	enc = locale.getlocale()[1]
 	if enc is not None:
 		_string_encoding = enc
-		logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
+		logger.info(u'setting python.str -> python.unicode encoding to <%s> (locale.getlocale)', _string_encoding)
 		return True
 
 	# FIXME: or rather use utf8 ?
 	_string_encoding = locale.getpreferredencoding(do_setlocale=False)
-	logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
+	logger.info(u'setting python.str -> python.unicode encoding to <%s> (locale.getpreferredencoding)', _string_encoding)
 	return True
 #===============================================================
 # internal API
@@ -281,7 +281,10 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.11  2008-05-31 17:44:31  ncq
+# Revision 1.12  2008-06-11 19:11:48  ncq
+# - improved logging
+#
+# Revision 1.11  2008/05/31 17:44:31  ncq
 # - defautl format defs in u''
 #
 # Revision 1.10  2008/04/13 14:42:13  ncq
