@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.139 2008-05-29 13:32:22 ncq Exp $
-__version__ = "$Revision: 1.139 $"
+# $Id: gnumed.py,v 1.140 2008-06-11 19:12:13 ncq Exp $
+__version__ = "$Revision: 1.140 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -200,6 +200,8 @@ def setup_locale():
 	l =  _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
 	gmI18N.install_domain(domain = td, language = l)
 
+	# make sure we re-get the default encoding
+	# in case it changed
 	gmLog2.set_string_encoding()
 #==========================================================
 def check_help_request():
@@ -386,7 +388,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.139  2008-05-29 13:32:22  ncq
+# Revision 1.140  2008-06-11 19:12:13  ncq
+# - add a comment
+#
+# Revision 1.139  2008/05/29 13:32:22  ncq
 # - signal handlers cleanup
 #
 # Revision 1.138  2008/04/13 14:40:17  ncq
