@@ -48,15 +48,15 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.42 2008-06-09 15:28:00 ncq Exp $
+# $Id: gmI18N.py,v 1.43 2008-06-11 19:11:26 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import sys, os.path, os, re as regex, locale, gettext, logging
+import sys, os.path, os, re as regex, locale, gettext, logging, codecs
 
 
 _log = logging.getLogger('gm.i18n')
@@ -146,10 +146,12 @@ def __log_locale_settings(message=None):
 	_log.debug('sys.getfilesystemencoding(): [%s]' % sys_fs_enc)
 	if loc_enc is not None:
 		loc_enc = loc_enc.upper()
-	if pref_loc_enc.upper() != loc_enc:
+		loc_enc_compare = loc_enc.replace(u'-', u'')
+	else:
+		loc_enc_compare = loc_enc
+	if pref_loc_enc.upper().replace(u'-', u'') != loc_enc_compare:
 		_log.warning('encoding suggested by locale (%s) does not match encoding currently set in locale (%s)' % (pref_loc_enc, loc_enc))
 		_log.warning('this might lead to encoding errors')
-	import codecs
 	for enc in [pref_loc_enc, loc_enc, py_str_enc, sys_fs_enc]:
 		if enc is not None:
 			try:
@@ -373,7 +375,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.42  2008-06-09 15:28:00  ncq
+# Revision 1.43  2008-06-11 19:11:26  ncq
+# - slight cleanup
+# - ignore - in encoding for comparison
+#
+# Revision 1.42  2008/06/09 15:28:00  ncq
 # - better logging
 #
 # Revision 1.41  2008/05/13 14:08:44  ncq
