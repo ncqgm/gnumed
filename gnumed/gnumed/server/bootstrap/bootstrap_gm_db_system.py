@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.80 $"
+__version__ = "$Revision: 1.81 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -188,6 +188,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 			msg = e.args[0]
 		except (AttributeError, IndexError, TypeError):
 			raise
+
 		m = unicode(msg, gmI18N.get_encoding(), 'replace')
 
 		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
@@ -220,6 +221,10 @@ def connect (host, port, db, user, passwd, superuser=0):
 		else:
 			if _interactive:
 				print_msg(no_clues % (message, sys.platform))
+
+	except:
+		_log.exception(u'connection failed')
+		raise
 
 #	except gmPG2.dbapi.OperationalError, message:
 #		_log.exception('connection failed')
@@ -265,6 +270,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 #		else:
 #			if _interactive:
 #				print_msg(no_clues % (message, sys.platform))
+
 	return conn
 #==================================================================
 class user:
@@ -318,7 +324,7 @@ class db_server:
 
 		_bootstrapped_servers[self.alias] = self
 
-		return None
+		_log.info('done bootstrapping server [%s]', aSrv_alias)
 	#--------------------------------------------------------------
 	def __bootstrap(self):
 		self.superuser = user(anAlias = cfg_get(self.section, "super user alias"))
@@ -1002,7 +1008,7 @@ class gmBundle:
 		try:
 			database(aDB_alias = database_alias)
 		except:
-			_log.exception("Cannot bootstrap bundle [%s]." % self.alias)
+			_log.exception(u"Cannot bootstrap bundle [%s].", self.alias)
 			return None
 		self.db = _bootstrapped_dbs[database_alias]
 
@@ -1359,7 +1365,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.80  2008-06-11 19:13:22  ncq
+# Revision 1.81  2008-06-13 10:33:56  ncq
+# - log all connect related exceptions
+#
+# Revision 1.80  2008/06/11 19:13:22  ncq
 # - improve exception logging on connect()
 # - recall gmLog2.set_string_encoding appropriately
 #
