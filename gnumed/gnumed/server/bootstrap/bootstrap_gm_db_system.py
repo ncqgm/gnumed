@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.81 $"
+__version__ = "$Revision: 1.82 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -176,11 +176,13 @@ def connect (host, port, db, user, passwd, superuser=0):
 		_log.info('successfully connected')
 
 	except gmPG2.cAuthenticationError:
+		_log.critical('authentication error')
 		_log.exception("password not accepted, retrying")
 		passwd = getpass.getpass("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
 		conn = connect (host, port, db, user, passwd)
 
 	except gmPG2.dbapi.OperationalError, e:
+		_log.critical('operational error')
 		_log.exception('connection failed')
 
 		t, v, tb = sys.exc_info()
@@ -223,6 +225,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 				print_msg(no_clues % (message, sys.platform))
 
 	except:
+		_log.critical('other connect-related error')
 		_log.exception(u'connection failed')
 		raise
 
@@ -1365,7 +1368,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.81  2008-06-13 10:33:56  ncq
+# Revision 1.82  2008-06-13 10:37:26  ncq
+# - fiddle with connect exception logging
+#
+# Revision 1.81  2008/06/13 10:33:56  ncq
 # - log all connect related exceptions
 #
 # Revision 1.80  2008/06/11 19:13:22  ncq
