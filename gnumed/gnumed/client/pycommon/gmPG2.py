@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -164,6 +164,8 @@ def set_default_client_timezone(timezone = None):
 #---------------------------------------------------
 def __validate_timezone(conn=None, timezone=None):
 
+	_log.debug(u'validating time zone [%s]', timezone)
+
 	cmd = u'set timezone to %(tz)s'
 	args = {u'tz': timezone}
 
@@ -171,16 +173,15 @@ def __validate_timezone(conn=None, timezone=None):
 	curs = conn.cursor()
 	try:
 		curs.execute(cmd, args)
-		_log.info(u'valid client time zone found: [%s]' % timezone)
+		_log.info(u'time zone [%s] seems valid', timezone)
 		is_valid = True
 	except dbapi.DataError:
-		_log.info(u'time zone [%s] seems invalid', timezone)
+		_log.warning(u'time zone [%s] seems invalid', timezone)
 		is_valid = False
 	except:
-		_log.exception('failed to set time zone to [%s]', timezone)
-		curs.close()
-		conn.rollback()
-		raise
+		_log.exception(u'failed to set time zone to [%s]', timezone)
+		is_valid = False
+
 	curs.close()
 	conn.rollback()
 
@@ -202,15 +203,17 @@ where
 
 	conn.commit()
 	curs = conn.cursor()
+
 	try:
 		curs.execute(cmd, args)
 		rows = curs.fetchall()
 		if len(rows) > 0:
 			result = rows[0][0]
-		_log.debug('[%s] maps to [%s]', timezone, result)
+		_log.debug(u'[%s] maps to [%s]', timezone, result)
 	except:
 		_log.exception(u'cannot expand timezone abbreviation [%s]', timezone)
 		result = timezone
+
 	curs.close()
 	conn.rollback()
 
@@ -255,6 +258,8 @@ def __detect_client_timezone(conn=None):
 	if not found:
 		_default_client_timezone = gmDateTime.current_local_iso_numeric_timezone_string
 		_sql_set_timezone = u"set time zone interval %s hour to minute"
+
+	_log.info('client system time zone detected as [%s]', _default_client_timezone)
 # =======================================================================
 # login API
 # =======================================================================
@@ -887,9 +892,6 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		if msg.find('fe_sendauth') != -1:
 			raise cAuthenticationError, (dsn, msg), tb
 
-#		if msg.find('authentication failed for user') != -1:
-#			raise cAuthenticationError, (dsn, v), tb
-
 		if regex.search('user ".*" does not exist', msg) is not None:
 			raise cAuthenticationError, (dsn, msg), tb
 
@@ -1485,7 +1487,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.77  2008-05-31 17:45:03  ncq
+# Revision 1.78  2008-06-13 10:32:55  ncq
+# - better time zone detection logging
+#
+# Revision 1.77  2008/05/31 17:45:03  ncq
 # - log other sorts of time zone errors, too
 #
 # Revision 1.76  2008/05/19 15:55:01  ncq
