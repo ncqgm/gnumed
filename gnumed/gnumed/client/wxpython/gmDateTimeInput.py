@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.60 2008-05-07 15:20:36 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmDateTimeInput.py,v 1.61 2008-06-15 20:33:55 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -38,8 +38,8 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 		self.set_offset_chars()
 		gmMatchProvider.cMatchProvider.__init__(self)
 		self.setThresholds(aPhrase = 1, aWord = 998, aSubstring = 999)
-		self.setWordSeparators('xxx_do_not_separate_words_xxx')
-#		self.setIgnoredChars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
+		self.word_separators = None
+#		self.ignored_chars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -208,7 +208,7 @@ if __name__ == '__main__':
 		#----------------------------------------------------
 		def test_cli():
 			mp = cMatchProvider_FuzzyTimestamp()
-			mp.setWordSeparators('xxx_do_not_separate_words_xxx')
+			mp.word_separators = None
 			mp.setThresholds(aWord = 998, aSubstring = 999)
 			val = None
 			while val != 'exit':
@@ -232,7 +232,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.60  2008-05-07 15:20:36  ncq
+# Revision 1.61  2008-06-15 20:33:55  ncq
+# - adjust to match provider properties
+#
+# Revision 1.60  2008/05/07 15:20:36  ncq
 # - support suppress smarts in SetText
 #
 # Revision 1.59  2008/04/02 10:22:03  ncq

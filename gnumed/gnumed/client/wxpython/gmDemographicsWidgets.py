@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.150 2008-06-09 15:33:31 ncq Exp $
-__version__ = "$Revision: 1.150 $"
+# $Id: gmDemographicsWidgets.py,v 1.151 2008-06-15 20:34:31 ncq Exp $
+__version__ = "$Revision: 1.151 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -522,7 +522,7 @@ select * from (
 order by union_result.address limit 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(2, 4, 6)
-#		mp.setWordSeparators(separators=u'[ \t]+')
+#		mp.word_separators = u'[ \t]+'
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -551,7 +551,7 @@ order by
 """
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
-		mp.setWordSeparators(separators=u'[ \t]+')
+		mp.word_separators = u'[ \t]+'
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -635,7 +635,7 @@ select code, name from (
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 6)
-		mp.setWordSeparators(separators=u'[ \t]+')
+		mp.word_separators = u'[ \t]+'
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -866,7 +866,7 @@ order by
 """
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
-		mp.setWordSeparators(separators=u'[ \t]+')
+		mp.word_separators = u'[ \t]+'
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -2622,7 +2622,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.150  2008-06-09 15:33:31  ncq
+# Revision 1.151  2008-06-15 20:34:31  ncq
+# - adjust to match provider properties
+#
+# Revision 1.150  2008/06/09 15:33:31  ncq
 # - much improved sanity check when saving/editing patient address
 #
 # Revision 1.149  2008/05/20 16:43:25  ncq
