@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.78 $"
+__version__ = "$Revision: 1.79 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -171,16 +171,16 @@ def __validate_timezone(conn=None, timezone=None):
 
 	conn.commit()
 	curs = conn.cursor()
+	is_valid = False
 	try:
 		curs.execute(cmd, args)
 		_log.info(u'time zone [%s] seems valid', timezone)
 		is_valid = True
 	except dbapi.DataError:
 		_log.warning(u'time zone [%s] seems invalid', timezone)
-		is_valid = False
 	except:
-		_log.exception(u'failed to set time zone to [%s]', timezone)
-		is_valid = False
+		_log.error(u'failed to set time zone to [%s]', timezone)
+		_log.exception()
 
 	curs.close()
 	conn.rollback()
@@ -221,6 +221,9 @@ where
 #---------------------------------------------------
 def __detect_client_timezone(conn=None):
 	"""This is run on the very first connection."""
+
+	# FIXME: check whether server.timezone is the same
+	# FIXME: value as what we eventually detect
 
 	# we need gmDateTime to be initialized
 	if gmDateTime.current_local_iso_numeric_timezone_string is None:
@@ -659,6 +662,12 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 			')', '\)'
 		).replace (
 			'[', '\['
+		).replace (
+			'+', '\+'
+		).replace (
+			'.', '\.'
+		).replace (
+			'*', '\*'
 		)
 		#']', '\]',			# not needed
 #------------------------------------------------------------------------
@@ -1487,7 +1496,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.78  2008-06-13 10:32:55  ncq
+# Revision 1.79  2008-06-15 20:32:46  ncq
+# - improve sanitize_pg_regex
+#
+# Revision 1.78  2008/06/13 10:32:55  ncq
 # - better time zone detection logging
 #
 # Revision 1.77  2008/05/31 17:45:03  ncq
