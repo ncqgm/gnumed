@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.121 2008-05-19 15:44:16 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmPatientExporter.py,v 1.122 2008-06-15 20:16:02 ncq Exp $
+__version__ = "$Revision: 1.122 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -528,7 +528,7 @@ class cEmrExport:
     #--------------------------------------------------------             
     def _add_encounters_to_tree( self, encounters, emr_tree, episode_node):
                for an_encounter in encounters:
-                    label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].strftime('%Y-%m-%d'))
+                    label = '%s: %s' % (an_encounter['l10n_type'], an_encounter['started'].strftime('%Y-%m-%d'))
                     encounter_node = emr_tree.AppendItem(episode_node, label)
                     emr_tree.SetPyData(encounter_node, an_encounter)
     #--------------------------------------------------------
@@ -1190,7 +1190,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.121  2008-05-19 15:44:16  ncq
+# Revision 1.122  2008-06-15 20:16:02  ncq
+# - add a space
+#
+# Revision 1.121  2008/05/19 15:44:16  ncq
 # - just silly cleanup
 #
 # Revision 1.120  2008/05/07 15:16:01  ncq
