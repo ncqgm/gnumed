@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -69,16 +69,22 @@ class gmBackendListener(gmBorg.cBorg):
 	def stop_thread(self):
 		if self._listener_thread is None:
 			return
+
 		_log.info('stopping backend notifications listener thread')
 		self._quit_lock.release()
-		# give the worker thread time to terminate
-		self._listener_thread.join(self._poll_interval+2.0)
 		try:
-			if self._listener_thread.isAlive():
-				_log.error('listener thread still alive after join()')
-				_log.debug('active threads: %s' % threading.enumerate())
+			# give the worker thread time to terminate
+			self._listener_thread.join(self._poll_interval+2.0)
+			try:
+				if self._listener_thread.isAlive():
+					_log.error('listener thread still alive after join()')
+					_log.debug('active threads: %s' % threading.enumerate())
+			except:
+				pass
 		except:
-			pass
+			print sys.exc_info()
+
+		self._listener_thread = None
 
 		self.__unregister_patient_notifications()
 		self.__unregister_unspecific_notifications()
@@ -248,7 +254,8 @@ class gmBackendListener(gmBorg.cBorg):
 					_have_quit_lock = 1
 					break
 
-		self._listener_thread = None
+		# exit thread activity
+		return
 #=====================================================================
 # main
 #=====================================================================
@@ -377,7 +384,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.16  2008-04-28 13:31:16  ncq
+# Revision 1.17  2008-06-15 20:17:17  ncq
+# - be even more careful rejoining worker threads
+#
+# Revision 1.16  2008/04/28 13:31:16  ncq
 # - now static signals for database maintenance
 #
 # Revision 1.15  2008/01/07 19:48:22  ncq
