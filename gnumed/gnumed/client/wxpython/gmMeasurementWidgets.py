@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.14 2008-06-09 15:36:04 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmMeasurementWidgets.py,v 1.15 2008-06-15 20:43:31 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -31,7 +31,6 @@ _log.info(__version__)
 def add_new_measurement(parent=None):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
-#	dlg = gmEditArea.cGenericEditAreaDlg(parent = parent, id = -1, edit_area = ea)
 	dlg.SetTitle(_('Adding new measurement'))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -250,7 +249,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 			result_relevant = result['is_clinically_relevant']
 			if result_relevant is None:
 				# FIXME: take into account other review if there's only one
-				# FIMXE: take into account most recent review if there's more than one
 				# FIXME: calculate from clinical range
 				result_relevant = False
 
@@ -572,12 +570,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._PRW_test.add_callback_on_lose_focus(self._on_leave_test_prw)
 	#--------------------------------------------------------
 	def _on_leave_test_prw(self):
-
-		pk_test = self._PRW_test.GetData()
-		if pk_test is None:
+		pk_type = self._PRW_test.GetData()
+		if pk_type is None:
 			self._PRW_units.unset_context(context = u'pk_type')
 		else:
-			self._PRW_units.set_context(context = u'pk_type', val = pk_test)
+			self._PRW_units.set_context(context = u'pk_type', val = pk_type)
 	#--------------------------------------------------------
 	def refresh(self):
 		print "refreshing"
@@ -679,8 +676,11 @@ select distinct val_unit,
 	val_unit, val_unit
 from clin.v_test_results
 where
-	val_unit %(fragment_condition)s
-	or conversion_unit %(fragment_condition)s
+	(
+		val_unit %(fragment_condition)s
+			or
+		conversion_unit %(fragment_condition)s
+	)
 	%(ctxt_test_name)s
 	%(ctxt_test_pk)s
 order by val_unit
@@ -706,6 +706,33 @@ limit 25"""
 		)
 		self.matcher = mp
 		self.SetToolTipString(_('Select the unit of the test result.'))
+		self.selection_only = False
+		#mp.print_queries = True
+#================================================================
+class cTestResultIndicatorPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+select distinct abnormality_indicator,
+	abnormality_indicator, abnormality_indicator
+from clin.v_test_results
+where
+	abnormality_indicator %(fragment_condition)s
+order by abnormality_indicator
+limit 25"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 1, 2)
+		mp.ignored_chars = "[.'\\\[\]#$%_]+" + '"'
+		mp.word_separators = '[ \t&:]+'
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = mp
+		self.SetToolTipString(_('Select an indicator for the level of abnormality.'))
 		self.selection_only = False
 #================================================================
 # main
@@ -741,7 +768,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.14  2008-06-09 15:36:04  ncq
+# Revision 1.15  2008-06-15 20:43:31  ncq
+# - add test result indicator phrasewheel
+#
+# Revision 1.14  2008/06/09 15:36:04  ncq
 # - reordered for clarity
 # - add_new_measurement
 # - edit area start
