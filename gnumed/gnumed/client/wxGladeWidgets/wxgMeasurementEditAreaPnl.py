@@ -20,12 +20,15 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
         self._PRW_test = gmMeasurementWidgets.cMeasurementTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_result = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_units = gmMeasurementWidgets.cUnitPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_abnormality_indicator = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_abnormality_indicator = gmMeasurementWidgets.cTestResultIndicatorPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._DPRW_evaluated = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_note_test_org = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_intended_reviewer = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_problem = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_narrative = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._CHBOX_review = wx.CheckBox(self, -1, _("&Sign as:"))
+        self._CHBOX_abnormal = wx.CheckBox(self, -1, _("&Abnormal"))
+        self._CHBOX_relevant = wx.CheckBox(self, -1, _("&Relevant"))
         self._TCTRL_normal_min = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_normal_max = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_normal_range = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
@@ -36,6 +39,8 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_CHECKBOX, self._on_review_box_checked, self._CHBOX_review)
         # end wxGlade
 
     def __set_properties(self):
@@ -51,6 +56,11 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
         self._PRW_intended_reviewer.SetToolTipString(_("The doctor in charge who will have to assess and sign off this result."))
         self._PRW_problem.SetToolTipString(_("The medical problem this test results pertains to."))
         self._TCTRL_narrative.SetToolTipString(_("A clinical assessment of the measurement.\nUsually by a doctor."))
+        self._CHBOX_review.SetToolTipString(_("Check if you want to save a review."))
+        self._CHBOX_abnormal.SetToolTipString(_("Check if this result is technically abnormal."))
+        self._CHBOX_abnormal.Enable(False)
+        self._CHBOX_relevant.SetToolTipString(_("Check if this result is clinically relevant."))
+        self._CHBOX_relevant.Enable(False)
         self._TCTRL_normal_min.SetToolTipString(_("The lower bound of the range of technically normal values."))
         self._TCTRL_normal_max.SetToolTipString(_("The upper bound of the range of technically normal values."))
         self._TCTRL_normal_range.SetToolTipString(_("An alphanumeric range of technically normal values."))
@@ -62,9 +72,10 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgMeasurementEditAreaPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(16, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(17, 2, 1, 3)
         __szr_range_target = wx.BoxSizer(wx.HORIZONTAL)
         __szr_range_normal = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_review = wx.BoxSizer(wx.HORIZONTAL)
         __szr_result = wx.BoxSizer(wx.HORIZONTAL)
         _gszr_main.Add((20, 20), 0, wx.EXPAND, 0)
         __lbl_result_details = wx.StaticText(self, -1, _("Measurement details"))
@@ -106,8 +117,14 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
         _gszr_main.Add(__lbl_problem, 0, wx.ALIGN_CENTER_VERTICAL, 3)
         _gszr_main.Add(self._PRW_problem, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __lbl_narrative = wx.StaticText(self, -1, _("Note"))
-        _gszr_main.Add(__lbl_narrative, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+        _gszr_main.Add(__lbl_narrative, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_narrative, 2, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_review = wx.StaticText(self, -1, _("Review"))
+        _gszr_main.Add(__lbl_review, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_review.Add(self._CHBOX_review, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_review.Add(self._CHBOX_abnormal, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_review.Add(self._CHBOX_relevant, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(__szr_review, 1, wx.EXPAND, 0)
         _gszr_main.Add((20, 20), 0, wx.EXPAND, 0)
         __lbl_reference = wx.StaticText(self, -1, _("Reference information"))
         __lbl_reference.SetForegroundColour(wx.Colour(95, 159, 159))
@@ -139,6 +156,10 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
         _gszr_main.Fit(self)
         _gszr_main.AddGrowableCol(1)
         # end wxGlade
+
+    def _on_review_box_checked(self, event): # wxGlade: wxgMeasurementEditAreaPnl.<event_handler>
+        print "Event handler `_on_review_box_checked' not implemented"
+        event.Skip()
 
 # end of class wxgMeasurementEditAreaPnl
 
