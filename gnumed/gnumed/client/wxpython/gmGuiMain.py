@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.14 2008-06-03 16:44:46 ncq Exp $
-__version__ = "$Revision: 1.375.2.14 $"
+# $Id: gmGuiMain.py,v 1.375.2.15 2008-06-15 18:24:45 ncq Exp $
+__version__ = "$Revision: 1.375.2.15 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,7 +75,7 @@ if (timezone is not None) and not (isinstance(timezone, gmNull.cNull)):
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
-current_client_ver = u'v0.2.8.8'
+current_client_ver = u'v0.2.8.9'
 
 _log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
 _log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
@@ -2070,7 +2070,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.14  2008-06-03 16:44:46  ncq
+# Revision 1.375.2.15  2008-06-15 18:24:45  ncq
+# - bump version
+#
+# Revision 1.375.2.14  2008/06/03 16:44:46  ncq
 # - work around --conf-file missing hence get(timezone) being cNull
 #   instance and failing, ugh
 #
