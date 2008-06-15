@@ -8,12 +8,12 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.27 2008-06-09 15:28:21 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmMatchProvider.py,v 1.28 2008-06-15 20:31:10 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
-import string, types, time, sys, re, logging
+import string, types, time, sys, re as regex, logging
 
 
 # GNUmed
@@ -23,7 +23,7 @@ import gmPG2, gmExceptions
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #============================================================
-class cMatchProvider:
+class cMatchProvider(object):
 	"""Base class for match providing objects.
 
 	Match sources might be:
@@ -34,17 +34,17 @@ class cMatchProvider:
 	- in-memory list created on the fly
 	"""
 	__threshold = {}
-	default_word_separators = re.compile('[- \t=+&:@]+')
-	default_ignored_chars = re.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
+	default_word_separators = regex.compile('[- \t=+&:@]+')
+	default_ignored_chars = regex.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
 	print_queries = False
 	#--------------------------------------------------------
 	def __init__(self):
-		self.enableMatching()
 		self.enableLearning()
 		self.setThresholds()
-		self.setWordSeparators()
-		self.setIgnoredChars()
+
 		self._context_vals = {}
+		self.__ignored_chars = regex.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
+		self.__word_separators = regex.compile('[- \t=+&:@]+')
 	#--------------------------------------------------------
 	# actions
 	#--------------------------------------------------------
@@ -53,29 +53,27 @@ class cMatchProvider:
 
 		FIXME: design decision: we dont worry about data source changes
 			   during the lifetime of a MatchProvider
-		FIXME: sort according to weight
 		FIXME: append _("*get all items*") on truncation
 		"""
-		# do we return matches at all ?
-		if not self.__deliverMatches:
-			return (False, [])
-
 		# sanity check
 		if aFragment is None:
 			raise ValueError, 'Cannot find matches without a fragment.'
 
-		# user explicitely wants all matches
-		if aFragment == "*":
+		# user explicitely wants all matches				
+		if aFragment == u'*':
 			return self.getAllMatches()
 
 		# case insensitivity
-		tmpFragment = string.lower(aFragment)
+		tmpFragment = aFragment.lower()
 		# remove ignored chars
-		tmpFragment = self.ignored_chars.sub('', tmpFragment)
+		if self.__ignored_chars is not None:
+			tmpFragment = self.__ignored_chars.sub('', tmpFragment)
 		# normalize word separators
-		tmpFragment = string.join(self.word_separators.split(tmpFragment), ' ')
+		if self.__word_separators is not None:
+			tmpFragment = u' '.join(self.__word_separators.split(tmpFragment))
 		# length in number of significant characters only
 		lngFragment = len(tmpFragment)
+
 		# order is important !
 		if lngFragment >= self.__threshold_substring:
 			return self.getMatchesBySubstr(tmpFragment)
@@ -87,16 +85,16 @@ class cMatchProvider:
 			return (False, [])
 	#--------------------------------------------------------
 	def getAllMatches(self):
-		pass
+		raise NotImplementedError
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
-		pass
+		raise NotImplementedError
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
-		pass
+		raise NotImplementedError
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
-		pass
+		raise NotImplementedError
 	#--------------------------------------------------------
 	def learn(self, anItem, aContext):
 		"""Add this item to the match source so we can find it next time around.
@@ -124,10 +122,10 @@ class cMatchProvider:
 		# sanity checks
 		if aSubstring < aWord:
 			_log.error('Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_substring, self.__threshold_word))
-			return (1==0)
+			return False
 		if aWord < aPhrase:
 			_log.error('Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_word, self.__threshold_phrase))
-			return (1==0)
+			return False
 
 		# now actually reassign thresholds
 		self.__threshold_phrase	= aPhrase
@@ -136,40 +134,31 @@ class cMatchProvider:
 
 		return True
 	#--------------------------------------------------------
-	def setWordSeparators(self, separators = None):
-		if separators is None:
-			self.word_separators = cMatchProvider.default_word_separators
-			return 1
-		if separators == "":
-			_log.error('Not defining any word separators does not make sense ! Keeping previous setting.')
-			return None
-		try:
-			self.word_separators = re.compile(separators)
-		except:
-			_log.exception('cannot compile word separators regex >>>%s<<<, keeping previous setting' % separators)
-			return None
-		return True
-	#--------------------------------------------------------
-	def setIgnoredChars(self, ignored_chars = None):
-		if ignored_chars is None:
-			self.ignored_chars = cMatchProvider.default_ignored_chars
-			return 1
-		try:
-			self.ignored_chars = re.compile(ignored_chars)
-		except:
-			_log.exception('cannot compile ignored_chars regex >>>%s<<<, keeping previous setting' % ignored_chars)
-			return None
-		return True
-	#--------------------------------------------------------
-	def disableMatching(self):
-		"""Don't search for matches.
+	def _set_word_separators(self, word_separators=None):
+		if word_separators is None:
+			self.__word_separators = None
+		else:
+			self.__word_separators = regex.compile(word_separators)
 
-		Useful if a slow network database link is detected, for example.
-		"""
-		self.__deliverMatches = False
+	def _get_word_separators(self):
+		if self.__word_separators is None:
+			return None
+		return self.__word_separators.pattern
+
+	word_separators = property(_get_word_separators, _set_word_separators)
 	#--------------------------------------------------------
-	def enableMatching(self):
-		self.__deliverMatches = True
+	def _set_ignored_chars(self, ignored_chars=None):
+		if ignored_chars is None:
+			self.__ignored_chars = None
+		else:
+			self.__ignored_chars = regex.compile(ignored_chars)
+
+	def _get_ignored_chars(self):
+		if self.__ignored_chars is None:
+			return None
+		return self.__ignored_chars.pattern
+
+	ignored_chars = property(_get_ignored_chars, _set_ignored_chars)
 	#--------------------------------------------------------
 	def disableLearning(self):
 		"""Immediately stop learning new items."""
@@ -437,7 +426,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
-		return self.getMatchesBySubstr('')
+		return self.getMatchesBySubstr(u'')
 	#--------------------------------------------------------
 	def __find_matches(self, fragment_condition):
 		matches = []
@@ -459,6 +448,8 @@ class cMatchProvider_SQL2(cMatchProvider):
 
 			if self.print_queries:
 				print self.__class__.__name__
+				print self._context_vals
+				print self._args
 				print cmd
 
 			try:
@@ -485,7 +476,13 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.27  2008-06-09 15:28:21  ncq
+# Revision 1.28  2008-06-15 20:31:10  ncq
+# - make match provider derive from object
+# - turn ignored chars and word separators into properties
+# - raise NotImplementedError in base match provider
+# - remove dis/enableMatching
+#
+# Revision 1.27  2008/06/09 15:28:21  ncq
 # - .print_queries and support it in sql provider
 #
 # Revision 1.26  2008/04/29 18:29:29  ncq
