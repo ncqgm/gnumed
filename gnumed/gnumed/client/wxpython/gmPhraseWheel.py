@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.118 2008-06-09 15:36:39 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gmPhraseWheel.py,v 1.119 2008-06-15 20:40:43 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -137,28 +137,36 @@ class cPhraseWheel(wx.TextCtrl):
 	@param matcher: a class used to find matches for the current input
 	@type matcher: a L{match provider<Gnumed.pycommon.gmMatchProvider.cMatchProvider>}
 		instance or C{None}
+
 	@param selection_only: whether free-text can be entered without associated data
 	@type selection_only: boolean
+
 	@param capitalisation_mode: how to auto-capitalize input, valid values
 		are found in L{capitalize()<Gnumed.pycommon.gmTools.capitalize>}
 	@type capitalisation_mode: integer
+
 	@param accepted_chars: a regex pattern defining the characters
 		acceptable in the input string, if None no checking is performed
 	@type accepted_chars: None or a string holding a valid regex pattern
+
 	@param final_regex: when the control loses focus the input is
 		checked against this regular expression
 	@type final_regex: a string holding a valid regex pattern
+
 	@param phrase_separators: if not None, input is split into phrases
 		at boundaries defined by this regex and matching/spellchecking
 		is performed on the phrase the cursor is in only
 	@type phrase_separators: None or a string holding a valid regex pattern
+
 	@param navigate_after_selection: whether or not to immediately
 		navigate to the widget next-in-tab-order after selecting an
 		item from the dropdown picklist
 	@type navigate_after_selection: boolean
+
 	@param speller: if not None used to spellcheck the current input
 		and to retrieve suggested replacements/completions
 	@type speller: None or a L{enchant Dict<enchant>} descendant
+
 	@param picklist_delay: this much time of user inactivity must have
 		passed before the input related smarts kick in and the drop
 		down pick list is shown
@@ -477,8 +485,10 @@ class cPhraseWheel(wx.TextCtrl):
 
 		self.input2match = val
 		if self.input2match is None:
-			# get current(ly relevant part of) input
-			if self.__phrase_separators is not None:
+			if self.__phrase_separators is None:
+				self.input2match = self.GetValue().strip()
+			else:
+				# get current(ly relevant part of) input
 				entire_input = self.GetValue()
 				cursor_pos = self.GetInsertionPoint()
 				left_of_cursor = entire_input[:cursor_pos]
@@ -497,8 +507,6 @@ class cPhraseWheel(wx.TextCtrl):
 					phrase_end = len(entire_input) - 1
 				self.right_part = entire_input[phrase_end+1:]
 				self.input2match = entire_input[phrase_start:phrase_end+1]
-			else:
-				self.input2match = self.GetValue().strip()
 
 		# get all currently matching items
 		if self.matcher is not None:
@@ -544,7 +552,7 @@ class cPhraseWheel(wx.TextCtrl):
 		# select another contextual item)
 		else:
 			self.__timer.Stop()
-			if self.GetValue().strip() == '':
+			if self.GetValue().strip() == u'':
 				self.__update_matches_in_picklist(val='*')
 			else:
 				self.__update_matches_in_picklist()
@@ -888,7 +896,7 @@ if __name__ == '__main__':
 
 		mp = gmMatchProvider.cMatchProvider_FixedList(items)
 		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
-		mp.setWordSeparators(separators = '[ \t=+&:@]+')
+		mp.word_separators = '[ \t=+&:@]+'
 		global prw
 		prw = cPhraseWheel(parent = app.frame, id = -1)
 		prw.matcher = mp
@@ -964,7 +972,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.118  2008-06-09 15:36:39  ncq
+# Revision 1.119  2008-06-15 20:40:43  ncq
+# - adjust test suite to match provider properties
+#
+# Revision 1.118  2008/06/09 15:36:39  ncq
 # - increase font size by 2 points when editing
 #
 # Revision 1.117  2008/05/14 13:46:37  ncq
