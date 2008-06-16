@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.265 2008-05-19 16:22:55 ncq Exp $
-__version__ = "$Revision: 1.265 $"
+# $Id: gmClinicalRecord.py,v 1.266 2008-06-16 15:01:01 ncq Exp $
+__version__ = "$Revision: 1.266 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -37,6 +37,10 @@ import mx.DateTime as mxDT, psycopg2, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmLog2, gmDateTime, gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+	gmDateTime.init()
 from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab
 
@@ -1517,6 +1521,34 @@ order by clin_when desc, pk_episode, unified_name"""
 
 		return tests
 	#------------------------------------------------------------------
+	def add_test_result(self, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None):
+
+		try:
+			epi = int(episode)
+		except:
+			epi = episode['pk_episode']
+
+		try:
+			type = int(type)
+		except:
+			type = type['pk_test_type']
+
+		if intended_reviewer is None:
+			from Gnumed.business import gmPerson
+			intended_reviewer = _me['pk_staff']
+
+		tr = gmPathLab.create_test_result (
+			encounter = self.__encounter['pk_encounter'],
+			episode = epi,
+			type = type,
+			intended_reviewer = intended_reviewer,
+			val_num = val_num,
+			val_alpha = val_alpha,
+			unit = unit
+		)
+
+		return tr
+	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	def get_lab_results(self, limit=None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves lab result clinical items.
@@ -1601,12 +1633,6 @@ def set_func_ask_user(a_func = None):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
-	from Gnumed.pycommon import gmLog2, gmDateTime
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-	gmDateTime.init()
-
 	#-----------------------------------------
 	def test_allergic_state():
 		emr = cClinicalRecord(aPKey=1)
@@ -1655,6 +1681,18 @@ if __name__ == "__main__":
 		for key, item in emr.get_statistics().iteritems():
 			print key, ":", item
 	#-----------------------------------------
+	def test_add_test_result():
+		emr = cClinicalRecord(aPKey=12)
+		tr = emr.add_test_result (
+			episode = 1,
+			intended_reviewer = 1,
+			type = 1,
+			val_num = 75,
+			val_alpha = u'somewhat obese',
+			unit = u'kg'
+		)
+		print tr
+	#-----------------------------------------
 	if (len(sys.argv) > 0) and (sys.argv[1] == 'test'):
 		#test_allergic_state()
 		#test_get_test_names()
@@ -1662,47 +1700,48 @@ if __name__ == "__main__":
 		#test_get_measurements()
 		#test_get_test_results_by_date()
 		#test_get_test_types_details()
-		test_get_statistics()
+		#test_get_statistics()
+		test_add_test_result()
 
 	sys.exit(1)
 
-	emr = cClinicalRecord(aPKey = 12)
+#	emr = cClinicalRecord(aPKey = 12)
 
-	# Vacc regimes
-	vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
-	print '\nVaccination regimes: '
-	for a_regime in vacc_regimes:
-		pass
-		#print a_regime
-	vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
-	#print vacc_regime
+#	# Vacc regimes
+#	vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
+#	print '\nVaccination regimes: '
+#	for a_regime in vacc_regimes:
+#		pass
+#		#print a_regime
+#	vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
+#	#print vacc_regime
 		
-	# vaccination regimes and vaccinations for regimes
-	scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
-	print 'Vaccinations for the regime:'
-	for a_scheduled_vacc in scheduled_vaccs:
-		pass
-		#print '   %s' %(a_scheduled_vacc)
+#	# vaccination regimes and vaccinations for regimes
+#	scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
+#	print 'Vaccinations for the regime:'
+#	for a_scheduled_vacc in scheduled_vaccs:
+#		pass
+#		#print '   %s' %(a_scheduled_vacc)
 
-	# vaccination next shot and booster
-	vaccinations = emr.get_vaccinations()
-	for a_vacc in vaccinations:
-		print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].strftime('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
+#	# vaccination next shot and booster
+#	vaccinations = emr.get_vaccinations()
+#	for a_vacc in vaccinations:
+#		print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].strftime('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
 
-	# first and last encounters
-	first_encounter = emr.get_first_encounter(issue_id = 1)
-	print '\nFirst encounter: ' + str(first_encounter)
-	last_encounter = emr.get_last_encounter(episode_id = 1)
-	print '\nLast encounter: ' + str(last_encounter)
-	print ''
+#	# first and last encounters
+#	first_encounter = emr.get_first_encounter(issue_id = 1)
+#	print '\nFirst encounter: ' + str(first_encounter)
+#	last_encounter = emr.get_last_encounter(episode_id = 1)
+#	print '\nLast encounter: ' + str(last_encounter)
+#	print ''
 		
-	# lab results
-	lab = emr.get_lab_results()
-	lab_file = open('lab-data.txt', 'wb')
-	for lab_result in lab:
-		lab_file.write(str(lab_result))
-		lab_file.write('\n')
-	lab_file.close()
+#	# lab results
+#	lab = emr.get_lab_results()
+#	lab_file = open('lab-data.txt', 'wb')
+#	for lab_result in lab:
+#		lab_file.write(str(lab_result))
+#		lab_file.write('\n')
+#	lab_file.close()
 		
 	#dump = record.get_missing_vaccinations()
 	#f = open('vaccs.lst', 'wb')
@@ -1722,7 +1761,11 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.265  2008-05-19 16:22:55  ncq
+# Revision 1.266  2008-06-16 15:01:01  ncq
+# - test suite cleanup
+# - add_test_result
+#
+# Revision 1.265  2008/05/19 16:22:55  ncq
 # - format_statistics/summary()
 #
 # Revision 1.264  2008/05/19 15:43:17  ncq
