@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.15 2008-06-15 20:43:31 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmMeasurementWidgets.py,v 1.16 2008-06-16 15:03:20 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -223,8 +223,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 			self.__cell_data[col][row] = result
 
 			# is the result technically abnormal ?
-			ind = result['abnormality_indicator']
-			if (ind is not None) and (ind.strip() != u''):
+			ind = gmTools.coalesce(result['abnormality_indicator'], u'').strip()
+			if ind != u'':
 				lab_abnormality_indicator = u' (%s)' % ind[:3]
 			else:
 				lab_abnormality_indicator = u''
@@ -393,8 +393,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'responsible_reviewer': gmTools.bool2subst(result['you_are_responsible'], _('you'), result['responsible_reviewer']),
 
 				'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split('\n')),
-				'name_unified': result['name_unified'],
-				'code_unified': result['code_unified'],
+				'name_unified': gmTools.coalesce(result['name_unified'], u''),
+				'code_unified': gmTools.coalesce(result['code_unified'], u''),
 				'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split('\n')),
 
 				'mod_when': result['modified_when'].strftime('%c'),
@@ -568,19 +568,78 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._PRW_test.add_callback_on_lose_focus(self._on_leave_test_prw)
+		self._PRW_abnormality_indicator.add_callback_on_lose_focus(self._on_leave_indicator_prw)
 	#--------------------------------------------------------
 	def _on_leave_test_prw(self):
 		pk_type = self._PRW_test.GetData()
+
+		# units context
 		if pk_type is None:
 			self._PRW_units.unset_context(context = u'pk_type')
 		else:
 			self._PRW_units.set_context(context = u'pk_type', val = pk_type)
 	#--------------------------------------------------------
+	def _on_leave_indicator_prw(self):
+		# if the user hasn't explicitely enabled reviewing
+		if not self._CHBOX_review.GetValue():
+			self._CHBOX_abnormal.SetValue(self._PRW_abnormality_indicator.GetValue().strip() != u'')
+	#--------------------------------------------------------
+	def _on_review_box_checked(self, evt):
+		self._CHBOX_abnormal.Enable(self._CHBOX_review.GetValue())
+		self._CHBOX_relevant.Enable(self._CHBOX_review.GetValue())
+	#--------------------------------------------------------
+	# generic edit area API
+	#--------------------------------------------------------
 	def refresh(self):
 		print "refreshing"
 	#--------------------------------------------------------
 	def save(self):
-		print "saving"
+		if self.__valid_for_save():
+			emr = gmPerson.gmCurrentPatient().get_emr()
+
+			try:
+				v_num = int(self._TCTRL_result.GetValue().strip())
+				v_al = None
+			except:
+				v_num = None
+				v_al = self._TCTRL_result.GetValue().strip()
+				
+			tr = emr.add_test_result (
+				# FIXME: map from problem to (possibly new) episode
+				episode = self._PRW_problem.GetData(),
+				type = self._PRW_test.GetData(),
+				intended_reviewer = self._PRW_intended_reviewer.GetData(),
+				val_num = v_num,
+				val_alpha = v_al,
+				unit = self._PRW_units.GetValue()
+			)
+			#tr[''] = 1
+			#tr.save_payload()
+			return True
+		return False
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __valid_for_save(self):
+
+		# FIXME: improve, use can_create, verify Date
+
+		if self._TCTRL_result.GetValue().strip() == u'':
+			return False
+
+		if self._PRW_problem.GetData() is None:
+			return False
+
+		if self._PRW_test.GetData() is None:
+			return False
+
+		if self._PRW_intended_reviewer.GetData() is None:
+			return False
+
+		if self._PRW_units.GetValue().strip() == u'':
+			return False
+
+		return True
 #================================================================
 # convenience widgets
 #================================================================
@@ -707,7 +766,9 @@ limit 25"""
 		self.matcher = mp
 		self.SetToolTipString(_('Select the unit of the test result.'))
 		self.selection_only = False
-		#mp.print_queries = True
+
+#================================================================
+
 #================================================================
 class cTestResultIndicatorPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -768,7 +829,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.15  2008-06-15 20:43:31  ncq
+# Revision 1.16  2008-06-16 15:03:20  ncq
+# - first cut at saving test results
+#
+# Revision 1.15  2008/06/15 20:43:31  ncq
 # - add test result indicator phrasewheel
 #
 # Revision 1.14  2008/06/09 15:36:04  ncq
