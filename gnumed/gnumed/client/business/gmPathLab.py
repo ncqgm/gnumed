@@ -4,13 +4,18 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.59 2008-04-22 21:15:16 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmPathLab.py,v 1.60 2008-06-16 15:01:53 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys, logging
 
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmLog2, gmDateTime, gmI18N
+	gmDateTime.init()
+	gmI18N.activate_locale()
 from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2
 
 
@@ -23,7 +28,7 @@ _log.info(__version__)
 class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result."""
 
-	_cmd_fetch_payload = u"select *, xmin_test_result from clin.v_test_results where pk_test_result = %s"
+	_cmd_fetch_payload = u"select * from clin.v_test_results where pk_test_result = %s"
 
 	_cmds_store_payload = [
 		u"""update clin.test_result set
@@ -75,6 +80,31 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'pk_episode',
 		'pk_test_type'
 	]
+	#--------------------------------------------------------
+	def _get_reference_ranges(self):
+
+		cmd = u"""
+select
+distinct on (norm_ref_group_str, val_unit, val_normal_min, val_normal_max, val_normal_range, val_target_min, val_target_max, val_target_range)
+	pk_patient,
+	val_unit,
+	val_normal_min, val_normal_max, val_normal_range,
+	val_target_min, val_target_max, val_target_range,
+	norm_ref_group,
+	coalesce(norm_ref_group, '') as norm_ref_group_str
+from
+	clin.v_test_results
+where
+	pk_test_type = %(pk_type)s
+"""
+		args = {'pk_type': self._payload[self._idx['pk_test_type']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return rows
+
+	def _set_reference_ranges(self, val):
+		raise AttributeError('[%s]: reference ranges not settable') % self.__class__.__name__
+
+	reference_ranges = property(_get_reference_ranges, _set_reference_ranges)
 	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=None):
 
@@ -180,6 +210,61 @@ where
 """ % u',\n	'.join(set_parts)
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#------------------------------------------------------------
+def create_test_result(encounter=None, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None):
+
+	cmd1 = u"""
+insert into clin.test_result (
+	fk_encounter,
+	fk_episode,
+	fk_type,
+	fk_intended_reviewer,
+	val_num,
+	val_alpha,
+	val_unit
+) values (
+	%(enc)s,
+	%(epi)s,
+	%(type)s,
+	%(rev)s,
+	%(v_num)s,
+	%(v_alpha)s,
+	%(unit)s
+)"""
+
+	cmd2 = u"""
+select *
+from
+	clin.v_test_results
+where
+	pk_test_result = currval(pg_get_serial_sequence('clin.test_result', 'pk'))"""
+
+	args = {
+		u'enc': encounter,
+		u'epi': episode,
+		u'type': type,
+		u'rev': intended_reviewer,
+		u'v_num': val_num,
+		u'v_alpha': val_alpha,
+		u'unit': unit
+	}
+
+	rows, idx = gmPG2.run_rw_queries (
+		queries = [
+			{'cmd': cmd1, 'args': args},
+			{'cmd': cmd2}
+		],
+		return_data = True,
+		get_col_idx = True
+	)
+
+	tr = cTestResult(row = {
+		'pk_field': 'pk_test_result',
+		'idx': idx,
+		'data': rows[0]
+	})
+
+	return tr
 #============================================================
 class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab result."""
@@ -419,48 +504,59 @@ class cTestType(gmBusinessDBObject.cBusinessDBObject):
 		if aPK_obj is None:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
 			return
-		pk = aPK_obj
-		# instantiate from lab/code/name ?
-		if type(aPK_obj) == types.DictType:
-			# sanity checks
-			try:
-				aPK_obj['lab']
-			except KeyError:
-				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
-				raise gmExceptions.ConstructorError, '[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj)
-			try:
-				aPK_obj['code']
-			except KeyError:
-				aPK_obj['code'] = None
-			try:
-				aPK_obj['name']
-			except KeyError:
-				if aPK_obj['code'] is None:
-					_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
-					raise gmExceptions.ConstructorError, '[%s:??]: must have <code> and/or <name>' % self.__class__.__name__
-				aPK_obj['name'] = None
 
-			# generate query
-			where_snippets = []
-			vals = {}
-			if type(aPK_obj['lab']) == types.IntType:
-				where_snippets.append('fk_test_org=%(lab)s')
-			else:
-				where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
-			if aPK_obj['code'] is not None:
-				where_snippets.append('code=%(code)s')
-			if aPK_obj['name'] is not None:
-				where_snippets.append('name=%(name)s')
-			where_clause = ' and '.join(where_snippets)
-			cmd = "select pk from test_type where %s" % where_clause
-			# get pk
-			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
-			if data is None:
-				raise gmExceptions.ConstructorError, 'error getting test type for [%s:%s:%s]' % (lab, code, name)
-			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError, 'no test type for [%s:%s:%s]' % (lab, code, name)
-			pk = data[0][0]
-		# instantiate class
+		# instantiate from primary key ?
+		try:
+			int(aPK_obj)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj)
+			return
+		except:
+			pass
+
+		# instantiate from lab/code/name ?
+		pk = aPK_obj
+
+		# sanity checks
+		try:
+			aPK_obj['lab']
+			aPK_obj['code']
+		except KeyError:
+			_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]', self.__class__.__name__, aPK_obj)
+			raise
+
+		try:
+			aPK_obj['name']
+		except KeyError:
+			if aPK_obj['code'] is None:
+				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
+				raise gmExceptions.ConstructorError, '[%s:??]: must have <code> and/or <name>' % self.__class__.__name__
+			aPK_obj['name'] = None
+
+		# generate query
+		where_snippets = []
+
+		try:
+			int(aPK_obj['lab'])
+			where_snippets.append('fk_test_org=%(lab)s')
+		except:
+			where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
+
+		if aPK_obj['code'] is not None:
+			where_snippets.append('code=%(code)s')
+
+		if aPK_obj['name'] is not None:
+			where_snippets.append('name=%(name)s')
+		where_clause = ' and '.join(where_snippets)
+		cmd = "select pk from test_type where %s" % where_clause
+
+		# get pk
+		data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
+		if data is None:
+			raise gmExceptions.ConstructorError, 'error getting test type for [%s:%s:%s]' % (lab, code, name)
+		if len(data) == 0:
+			raise gmExceptions.NoSuchClinItemError, 'no test type for [%s:%s:%s]' % (lab, code, name)
+		pk = data[0][0]
+
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
@@ -503,7 +599,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.59 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.60 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -590,7 +686,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.59 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.60 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -618,6 +714,9 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
+
+
+
 #------------------------------------------------------------
 def create_lab_result(patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None, encounter_id=None, request=None):
 	tres = None
@@ -774,7 +873,24 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 if __name__ == '__main__':
 	import time
 
+	def test_create_test_result():
+		tr = create_test_result (
+			encounter = 1,
+			episode = 1,
+			type = 1,
+			intended_reviewer = 1,
+			val_num = '12',
+			val_alpha=None,
+			unit = 'mg/dl'
+		)
+		print tr
+	#------------------------------------------
 	def test_result():
+		r = cTestResult(aPK_obj=1)
+		print r
+		print r.reference_ranges
+	#------------------------------------------
+	def test_lab_result():
 		print "test_result()"
 #		lab_result = cLabResult(aPK_obj=4)
 		data = {
@@ -795,7 +911,7 @@ if __name__ == '__main__':
 		print time.time()
 		print lab_result.get_patient()
 		print time.time()
-	#--------------------------------------------------------
+	#------------------------------------------
 	def test_request():
 		print "test_request()"
 		try:
@@ -834,16 +950,23 @@ if __name__ == '__main__':
 			print result
 	#--------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+
 		#test_result()
+		test_create_test_result()
+		#test_lab_result()
 		#test_request()
 		#test_create_result()
 		#test_unreviewed()
 		#test_pending()
-		pass
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.59  2008-04-22 21:15:16  ncq
+# Revision 1.60  2008-06-16 15:01:53  ncq
+# - create_test_result
+# - test suite cleanup
+# - reference_ranges property on cTestResult
+#
+# Revision 1.59  2008/04/22 21:15:16  ncq
 # - cTestResult
 #
 # Revision 1.58  2008/02/25 17:31:41  ncq
