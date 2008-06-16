@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.28 2008-06-15 20:31:10 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmMatchProvider.py,v 1.29 2008-06-16 15:02:35 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -33,13 +33,11 @@ class cMatchProvider(object):
 	- config files
 	- in-memory list created on the fly
 	"""
-	__threshold = {}
 	default_word_separators = regex.compile('[- \t=+&:@]+')
 	default_ignored_chars = regex.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
 	print_queries = False
 	#--------------------------------------------------------
 	def __init__(self):
-		self.enableLearning()
 		self.setThresholds()
 
 		self._context_vals = {}
@@ -96,18 +94,6 @@ class cMatchProvider(object):
 	def getMatchesBySubstr(self, aFragment):
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def learn(self, anItem, aContext):
-		"""Add this item to the match source so we can find it next time around.
-
-		- aContext can be used to denote the context where to use this item for matching
-		- it is typically used to select a context sensitive item list during matching
-		"""
-		pass
-	#--------------------------------------------------------
-	def forget(self, anItem, aContext):
-		"""Remove this item from the match source if possible."""
-		pass
-	#--------------------------------------------------------
 	# configuration
 	#--------------------------------------------------------
 	def setThresholds(self, aPhrase = 1, aWord = 3, aSubstring = 5):
@@ -159,14 +145,6 @@ class cMatchProvider(object):
 		return self.__ignored_chars.pattern
 
 	ignored_chars = property(_get_ignored_chars, _set_ignored_chars)
-	#--------------------------------------------------------
-	def disableLearning(self):
-		"""Immediately stop learning new items."""
-		self.__learnNewItems = False
-	#--------------------------------------------------------
-	def enableLearning(self):
-		"""Immediately start learning new items."""
-		self.__learnNewItems = True
 	#--------------------------------------------------------
 	def set_context (self, context=None, val=None):
 		"""Set value to provide context information	for matches.
@@ -476,7 +454,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.28  2008-06-15 20:31:10  ncq
+# Revision 1.29  2008-06-16 15:02:35  ncq
+# - cleanup
+# - remove unneeded methods
+#
+# Revision 1.28  2008/06/15 20:31:10  ncq
 # - make match provider derive from object
 # - turn ignored chars and word separators into properties
 # - raise NotImplementedError in base match provider
