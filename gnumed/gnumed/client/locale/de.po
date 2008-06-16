@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.116 $
+# $Revision: 1.117 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-05-29 15:21+CEST\n"
-"PO-Revision-Date: 2008-05-29 15:25+0100\n"
+"POT-Creation-Date: 2008-06-16 17:00+CEST\n"
+"PO-Revision-Date: 2008-06-16 17:08+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1366,6 +1366,12 @@ msgstr "Die eingegebenen Daten abspeichern."
 msgid "Cancel editing the data and discard changes."
 msgstr "Abbrechen und Änderungen verwerfen."
 
+msgid "GNUmed generic EditArea dialog"
+msgstr "allgemeiner Bearbeitungsdialog"
+
+msgid "Save data into database and clear fields for next value."
+msgstr "Daten in der Datenbank speichern und Felder für die nächste Eingabe zurücksetzen."
+
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -1504,6 +1510,129 @@ msgstr "OK"
 msgid "Health issue selector"
 msgstr "Wahl einer Grunderkrankung"
 
+msgid "&Sign as:"
+msgstr "&Unterschreiben:"
+
+msgid "&Abnormal"
+msgstr "&Außerhalb Normbereich"
+
+msgid "&Relevant"
+msgstr "&Relevant"
+
+msgid "The type of measurement or test this result is about."
+msgstr "Der Test, für den dieses Ergebnis erhoben wurde."
+
+msgid "The result of the measurement. Numeric and alphanumeric input is allowed."
+msgstr "Das Meßergebnis. Buchstaben, Zahlen und Sonderzeichen sind erlaubt."
+
+msgid "The units this result comes in."
+msgstr "Die Einheit des Meßergebnisses."
+
+msgid ""
+"Enter an indicator for the degree of abnormality.\n"
+"Often +, -, !, ?, () or any combination thereof."
+msgstr ""
+"Ein Indikator für das Ausmaß der Pathologie.\n"
+"Oft Kombinationen aus +, -, !, ? und ()."
+
+msgid "When was this result actually obtained. Usually the same or between the time for \"sample taken\" and \"result reported\"."
+msgstr "Wann das Ergebnis ermittelt wurde. Zwischen \"Probengewinnung\" und \"Ergebnismeldung\" liegend, zuweilen identisch."
+
+msgid ""
+"A technical comment on the result.\n"
+"Usually by the entering Medical Technical Assistant."
+msgstr ""
+"Ein technischer Kommentar zum Ergebnis.\n"
+"Für gewöhnlich durch den/die MTA."
+
+msgid "The doctor in charge who will have to assess and sign off this result."
+msgstr "Der Arzt, der dieses Ergebnis abzeichen muß."
+
+msgid "The medical problem this test results pertains to."
+msgstr "Das zu dieser Messung gehörige Gesundheitsproblem."
+
+msgid ""
+"A clinical assessment of the measurement.\n"
+"Usually by a doctor."
+msgstr ""
+"Eine medizinische Bewertung der Messung.\n"
+"Für gewöhnlich durch einen Arzt."
+
+msgid "Check if you want to save a review."
+msgstr "Hier ankreuzen, um eine Bewertung zu speichern."
+
+msgid "Check if this result is technically abnormal."
+msgstr "Hier ankreuzen, wenn das Ergebnis außerhalb des Normbereichs liegt."
+
+msgid "Check if this result is clinically relevant."
+msgstr "Hier ankreuzen, wenn das Ergebnis medizinisch gesehen erwähnenswert ist."
+
+msgid "The lower bound of the range of technically normal values."
+msgstr "Die Untergrenze des labortechnischen Normalbereichs."
+
+msgid "The upper bound of the range of technically normal values."
+msgstr "Die Obergrenze des labortechnischen Normalbereichs."
+
+msgid "An alphanumeric range of technically normal values."
+msgstr "Der Normalbereich als Beschreibung."
+
+msgid "The lower bound of the target range for this test in this patient."
+msgstr "Die Untergrenze des medizinischen Zielbereichs für diesen Test bei diesem Patienten."
+
+msgid "An alphanumeric target range for this test in this patient."
+msgstr "Ein beschreibender Zielbereich für diesen Test bei diesem Patienten."
+
+msgid "The reference group the normal range for this value pertains to."
+msgstr "Die Referenzgruppe, für die der Normalbereich gilt."
+
+msgid "Measurement details"
+msgstr "Details zur Messung"
+
+msgid "Test"
+msgstr "Test"
+
+msgid "Units"
+msgstr "Einheit"
+
+msgid "Indicator"
+msgstr "Indikator"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Clinical context"
+msgstr "Medizinischer Kontext"
+
+msgid "In charge"
+msgstr "Verantwortlicher"
+
+msgid "Problem"
+msgstr "Problem"
+
+msgid "Note"
+msgstr "Notiz"
+
+msgid "Review"
+msgstr "Beurteilung"
+
+msgid "Reference information"
+msgstr "Referenzinformationen"
+
+msgid "Normal"
+msgstr "normal"
+
+msgid "--"
+msgstr ""
+
+msgid "or"
+msgstr "oder"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Group"
+msgstr "Gruppe"
+
 msgid "&My unsigned"
 msgstr "&Meine unsignierten"
 
@@ -1545,9 +1674,6 @@ msgstr "&Außerhalb Normbereich"
 
 msgid "Not relevant"
 msgstr "Nicht relevant"
-
-msgid "&Relevant"
-msgstr "&Relevant"
 
 msgid "&Take responsibility"
 msgstr "die &Verantwortung übernehmen"
@@ -1754,9 +1880,6 @@ msgstr "Bewertung abbrechen."
 
 msgid "Episode"
 msgstr "Episode"
-
-msgid "Date"
-msgstr "Datum"
 
 msgid "Reference"
 msgstr "Referenz"
@@ -2980,9 +3103,6 @@ msgstr "pigmentiert"
 msgid "Purpura"
 msgstr "Purpura"
 
-msgid "Normal"
-msgstr "normal"
-
 msgid "Bullous"
 msgstr "vesikulär"
 
@@ -3962,6 +4082,12 @@ msgstr "&Beruf"
 msgid "Edit occupation details for the current patient."
 msgstr "Berufsangaben für den aktiven Patienten bearbeiten."
 
+msgid "&Measurements"
+msgstr "&Meßwerte"
+
+msgid "Add a measurement result for the current patient."
+msgstr "Ein Meßergebnis für den aktiven Patienten erfassen."
+
 msgid "&Write letter"
 msgstr "&Brief schreiben"
 
@@ -4550,6 +4676,12 @@ msgstr "Kann Medikation nicht eintragen. Kein Patient aktiv."
 msgid "Cannot add allergy. No active patient."
 msgstr "Kann Allergie nicht eintragen. Kein Patient aktiv."
 
+msgid "Cannot edit occupation. No active patient."
+msgstr "Kann Beruf nicht ändern. Kein Patient aktiv."
+
+msgid "Cannot add measurement. No active patient."
+msgstr "Kann Messungen nicht eintragen. Kein Patient aktiv."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr "Kann Karteizusammenfassung nicht zeigen. Kein Patient aktiv."
 
@@ -4936,6 +5068,9 @@ msgstr ""
 msgid "forced detach attempt"
 msgstr "Versuch erzwungenen Verbindungsabbruchs"
 
+msgid "Adding new measurement"
+msgstr "Testergebnisse eingeben"
+
 msgid ""
 "lab_grid_date_format::%Y\n"
 "%b %d"
@@ -4945,9 +5080,6 @@ msgstr ""
 
 msgid "Cannot sign results. No results selected."
 msgstr "Kann Ergebnisse nicht abzeichen. Nichts ausgewählt."
-
-msgid "Test"
-msgstr "Test"
 
 msgid "not yet"
 msgstr "bislang nicht"
@@ -5021,6 +5153,18 @@ msgstr "ja"
 msgid "%s results selected. Too many to list individually."
 msgstr "%s Ergebnisse markiert. Zu viele, um alle einzeln anzuzeigen."
 
+msgid "in house lab"
+msgstr "praxisintern"
+
+msgid "Select the type of measurement."
+msgstr "Wählen Sie den Typ der Messung."
+
+msgid "Select the unit of the test result."
+msgstr "Wählen Sie die Einheiten für das Ergebnis."
+
+msgid "Select an indicator for the level of abnormality."
+msgstr "Wählen Sie einen Indikator für den Grad der Abnormität des Ergebnisses."
+
 msgid "Documents"
 msgstr "Dokumente"
 
@@ -5061,6 +5205,17 @@ msgid ""
 "\n"
 "Make sure this is what you want to happen !\n"
 msgstr ""
+"Wählen Sie aus der Liste denjenigen Dokumententyp,\n"
+"den alle momentan als:\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"klassifizierten Dokumente erhalten sollen.\n"
+"\n"
+"Dieser Wechsel wird ALLE derartigen Dokumente betreffen. Es kann daher\n"
+"recht lange dauern, wenn es viele solche Dokumente gibt.\n"
+"\n"
+"Überlegen Sie, ob das tatsächlich beabsichtigt ist.\n"
 
 msgid "Reassigning document type"
 msgstr "Dokumente anders klassifizieren"
@@ -5330,6 +5485,9 @@ msgstr "Teile faxen"
 msgid "Mail parts"
 msgstr "Teile mailen"
 
+msgid "Access external original"
+msgstr "Zugriff auf das externe Original"
+
 msgid "Edit corresponding consultation"
 msgstr "Zugehörige Konsultation bearbeiten"
 
@@ -5441,6 +5599,41 @@ msgstr ""
 " gm_%(action)s_doc.bat (Windows)\n"
 "anpassen.\n"
 "Dem Script wird eine Liste Dateinamen zum %(l10n_action)s übergeben."
+
+msgid ""
+"Cannot access external document - access command not found.\n"
+"\n"
+"Either of gm_access_external_doc.sh or *.bat must be\n"
+"in the execution path. The command will be passed the\n"
+"document type and the reference URL for processing."
+msgstr ""
+"Kann externes Dokument nicht aufrufen - Zugriffsbefehl nicht gefunden.\n"
+"\n"
+"Entweder gm_access_external_doc.sh oder *.bat muß im\n"
+"Pfad zu finden sein. Dem Script werden der Dokumententyp\n"
+"und die Referenz-URL zur Weiterverarbeitung übergeben."
+
+msgid "Accessing external document"
+msgstr "Zugriff auf externes Dokument"
+
+msgid ""
+"Cannot access external document - access command failed.\n"
+"\n"
+"You may need to check and fix either of\n"
+" gm_access_external_doc.sh (Unix/Mac) or\n"
+" gm_access_external_doc.bat (Windows)\n"
+"\n"
+"The command is passed the document type and the\n"
+"external reference URL on the command line."
+msgstr ""
+"Kann externes Dokument nicht aufrufen - Zugriffskommando schlug fehl.\n"
+"\n"
+"Sie müssen ggf. eines der Skripte\n"
+" gm_access_external_doc.sh (Unix/Mac) oder\n"
+" gm_access_external_doc.bat (Windows)\n"
+"anpassen.\n"
+"Dem Script werden der Dokumententyp und die externe\n"
+"Referenz-URL zur Weiterverarbeitung übergeben."
 
 msgid "Save document into directory ..."
 msgstr "Dokument speichern in das Verzeichnis ..."
@@ -5806,6 +5999,9 @@ msgstr "T"
 
 msgid "xxxSOAPxxx"
 msgstr "xxxABDTxxx"
+
+msgid "Select a healthcare provider."
+msgstr "Einen Arzt wählen"
 
 msgid "Enter a descriptive name for the new workplace:"
 msgstr "Geben Sie dem neuen Arbeitsplatz einen aussagekräftigen Namen:"
@@ -6475,7 +6671,7 @@ msgid "DrugBrowser"
 msgstr "Medikamente"
 
 msgid "&DrugBrowser"
-msgstr ""
+msgstr "&Medikamente"
 
 msgid "EMR tree"
 msgstr "Kartei - Baum"
@@ -6817,13 +7013,13 @@ msgid "Scratch Pad"
 msgstr "Notizblock"
 
 msgid "Recalls/Reviews"
-msgstr ""
+msgstr "Erinnerungen/Kontrollen"
 
 msgid "Logged"
 msgstr "Vermerkt"
 
 msgid "Recall or Review"
-msgstr ""
+msgstr "Erinnerung bzw. Kontrolle"
 
 msgid "Prescriptions"
 msgstr "Verordnungen"
@@ -6835,7 +7031,7 @@ msgid "Referrals"
 msgstr "Überweisungen"
 
 msgid "Recalls and Reviews"
-msgstr ""
+msgstr "Erinnerungen und Kontrollen"
 
 msgid "icon_inbox"
 msgstr ""
@@ -6894,8 +7090,6 @@ msgstr "erstmals"
 #~ "Normbereich:"
 #~ msgid "Mail"
 #~ msgstr "Mail"
-#~ msgid "&Review"
-#~ msgstr "&Beurteilung"
 #~ msgid "Copy the selected measurements to the clipboard."
 #~ msgstr "Gewählte Ergebnisse in die Zwischenablage kopieren."
 #~ msgid "mark as &reviewed"
@@ -7772,8 +7966,6 @@ msgstr "erstmals"
 #~ msgstr "Datum des Dokuments:"
 #~ msgid "document comment"
 #~ msgstr "Kommentar zum Dokument"
-#~ msgid "or"
-#~ msgstr "oder"
 #~ msgid "cannot resolve db account name to primary key of staff member"
 #~ msgstr ""
 #~ "kann zum DB-Nutzer keine Primärschlüssel eines Angestellten ermitteln"
