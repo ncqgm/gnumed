@@ -5,7 +5,7 @@
 # - first arg should be ISO language code
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_po.sh,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 # what language are we working on
 LANGNAME="$1"
@@ -19,7 +19,9 @@ BASE="../"
 # what to call the result
 POTNAME="gnumed.pot"
 
-echo "harvesting python source files in ${BASE} into the file ${POTNAME}"
+echo "looking for translatable strings"
+echo " source: ${BASE}*.py"
+echo " target: ${POTNAME}"
 find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext --no-location -v -o ${POTNAME} "-" &> create-${LANGNAME}-po.log
 #find ${BASE} -follow -name '*.py' -print0 | xargs -0 xgettext -L Python -j -o ${LANGNAME}.po "-" &> create-${LANGNAME}-po.log
 
