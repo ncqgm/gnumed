@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.406 2008-06-09 15:34:57 ncq Exp $
-__version__ = "$Revision: 1.406 $"
+# $Id: gmGuiMain.py,v 1.407 2008-06-16 21:35:12 ncq Exp $
+__version__ = "$Revision: 1.407 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -567,9 +567,9 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID, self.__on_start_new_encounter)
 
-		# - submenu "Medical History"
+		# - submenu EMR / History taking
 		menu_history = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('Medical &history ...'), menu_history)
+		menu_emr.AppendMenu(wx.NewId(), _('&History taking ...'), menu_history)
 		# - add health issue
 		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 		menu_history.Append (
@@ -598,9 +598,14 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
+
+		# - submenu EMR / Observations
+		menu_obs = wx.Menu()
+		menu_emr.AppendMenu(wx.NewId(), _('&Observations ...'), menu_obs)
+
 		# - add measurement
 		ID = wx.NewId()
-		menu_history.Append(ID, _('&Measurements'), _('Add a measurement result for the current patient.'))
+		menu_obs.Append(ID, _('Add &Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
 		wx.EVT_MENU(self, ID, self.__on_add_measurement)
 
 		# - draw a line
@@ -2526,7 +2531,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.406  2008-06-09 15:34:57  ncq
+# Revision 1.407  2008-06-16 21:35:12  ncq
+# - put "add measurements" under "observations" in emr menu
+#
+# Revision 1.406  2008/06/09 15:34:57  ncq
 # - "add measurement" from menu
 #
 # Revision 1.405  2008/05/29 13:28:37  ncq
