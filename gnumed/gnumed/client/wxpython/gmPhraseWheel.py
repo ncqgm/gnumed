@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.119 2008-06-15 20:40:43 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmPhraseWheel.py,v 1.120 2008-06-18 15:48:21 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -32,6 +32,9 @@ from Gnumed.pycommon import gmTools, gmDispatcher
 import logging
 _log = logging.getLogger('macosx')
 
+
+color_prw_invalid = 'pink'
+color_prw_valid = None
 #============================================================
 # those can be used by the <accepted_chars> phrasewheel parameter
 NUMERIC = '0-9'
@@ -207,50 +210,17 @@ class cPhraseWheel(wx.TextCtrl):
 			kwargs['style'] = kwargs['style'] | wx.TE_PROCESS_TAB
 		except KeyError:
 			kwargs['style'] = wx.TE_PROCESS_TAB
-		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
-
-		# multiple matches dropdown list
-		try:
-			#raise NotImplementedError		# for testing
-			self.__dropdown_needs_relative_position = False
-			add_picklist_to_sizer = False
-			self.__picklist_dropdown = wx.PopupWindow(parent)
-		except NotImplementedError:
-			# on MacOSX wx.PopupWindow is not implemented
-			self.__dropdown_needs_relative_position = True
-			add_picklist_to_sizer = True
-			self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
-			self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
-			szr_scroll = wx.BoxSizer(wx.VERTICAL)
-			self.__picklist_dropdown.SetSizer(szr_scroll)
-
-		# FIXME: support optional headers
-#		if kwargs['show_list_headers']:
-#			flags = 0
-#		else:
-#			flags = wx.LC_NO_HEADER
-		self._picklist = cPhraseWheelListCtrl (
-			self.__picklist_dropdown,
-			style = wx.LC_NO_HEADER
-		)
-		self._picklist.InsertColumn(0, '')
-
-		if add_picklist_to_sizer:
-			szr_scroll.Add(self._picklist, 1, wx.EXPAND)
-
-		self.__picklist_dropdown.Hide()
-
-		# set event handlers
-		self.__register_events()
-
-		self.__timer = gmTimer.cTimer (
-			callback = self._on_timer_fired,
-			delay = self.picklist_delay
-		)
-		# initially stopped
-		self.__timer.Stop()
+		wx.TextCtrl.__init__(self, parent, id, **kwargs)
 
 		self.__non_edit_font = self.GetFont()
+		self.__color_valid = self.GetBackgroundColour()
+		global color_prw_valid
+		if color_prw_valid is None:
+			color_prw_valid = wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW)
+
+		self.__init_dropdown(parent = parent)
+		self.__register_events()
+		self.__init_timer()
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -317,7 +287,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		for match in matches:
 			if match['data'] == data:
-				self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+				self.display_as_valid(valid = True)
 				self.suppress_text_update_smarts = True
 				wx.TextCtrl.SetValue(self, match['label'])
 				self.data = data
@@ -328,7 +298,7 @@ class cPhraseWheel(wx.TextCtrl):
 			return False
 
 		self.data = data
-		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self.display_as_valid(valid = True)
 		return True
 	#---------------------------------------------------------
 	def GetData(self):
@@ -345,7 +315,7 @@ class cPhraseWheel(wx.TextCtrl):
 			self.suppress_text_update_smarts = True
 			self.data = data
 		wx.TextCtrl.SetValue(self, value)
-		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self.display_as_valid(valid = True)
 
 		# if data already available
 		if self.data is not None:
@@ -367,7 +337,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# not found
 		if self.selection_only:
-			self.SetBackgroundColour('pink')
+			self.display_as_valid(valid = False)
 			return False
 
 		return True
@@ -394,9 +364,49 @@ class cPhraseWheel(wx.TextCtrl):
 			return False
 		return True
 	#--------------------------------------------------------
+	def display_as_valid(self, valid=None):
+		if valid is True:
+			self.SetBackgroundColour(self.__color_valid)
+		elif valid is False:
+			self.SetBackgroundColour(color_prw_invalid)
+		else:
+			raise ArgumentError(u'<valid> must be True or False')
+		self.Refresh()
+	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	# picklist handling
+	#--------------------------------------------------------
+	def __init_dropdown(self, parent = None):
+		szr_dropdown = None
+		try:
+			#raise NotImplementedError		# for testing
+			self.__dropdown_needs_relative_position = False
+			self.__picklist_dropdown = wx.PopupWindow(parent)
+		except NotImplementedError:
+			# on MacOSX wx.PopupWindow is not implemented
+			self.__dropdown_needs_relative_position = True
+			add_picklist_to_sizer = True
+			self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
+			self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
+			szr_dropdown = wx.BoxSizer(wx.VERTICAL)
+			self.__picklist_dropdown.SetSizer(szr_dropdown)
+
+		# FIXME: support optional headers
+#		if kwargs['show_list_headers']:
+#			flags = 0
+#		else:
+#			flags = wx.LC_NO_HEADER
+		self._picklist = cPhraseWheelListCtrl (
+			self.__picklist_dropdown,
+			style = wx.LC_NO_HEADER
+		)
+		self._picklist.InsertColumn(0, '')
+
+		if szr_dropdown is not None:
+			szr_dropdown.Add(self._picklist, 1, wx.EXPAND)
+
+		self.__picklist_dropdown.Hide()
 	#--------------------------------------------------------
 	def _show_picklist(self):
 		"""Display the pick list."""
@@ -524,12 +534,11 @@ class cPhraseWheel(wx.TextCtrl):
 					for spell in spells:
 						self.__current_matches.append({'label': truncated_input2match + spell, 'data': None})
 					self._picklist.SetItems(self.__current_matches)
-
-	#--------------------------------------------------------
-	# internal helpers: GUI
 	#--------------------------------------------------------
 	def _picklist_selection2display_string(self):
 		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
+	#--------------------------------------------------------
+	# internal helpers: GUI
 	#--------------------------------------------------------
 	def _on_enter(self):
 		"""Called when the user pressed <ENTER>."""
@@ -641,6 +650,14 @@ class cPhraseWheel(wx.TextCtrl):
 	#------------
 	speller_word_separators = property(_get_speller_word_separators, _set_speller_word_separators)
 	#--------------------------------------------------------
+	def __init_timer(self):
+		self.__timer = gmTimer.cTimer (
+			callback = self._on_timer_fired,
+			delay = self.picklist_delay
+		)
+		# initially stopped
+		self.__timer.Stop()
+	#--------------------------------------------------------
 	def _on_timer_fired(self, cookie):
 		"""Callback for delayed match retrieval timer.
 
@@ -672,7 +689,7 @@ class cPhraseWheel(wx.TextCtrl):
 		"""Gets called when user selected a list item."""
 
 		self._hide_picklist()
-		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self.display_as_valid(valid = True)
 
 		self.data = self._picklist.GetSelectedItemData()	# just so that _picklist_selection2display_string could use it
 
@@ -823,19 +840,19 @@ class cPhraseWheel(wx.TextCtrl):
 					if match['label'] == val:
 						self.data = match['data']
 						self.MarkDirty()
-						self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+						self.display_as_valid(valid = True)
 						break
 
 		# no exact match found
 		if self.data is None:
 			if self.selection_only:
 				gmDispatcher.send(signal='statustext', msg=self.selection_only_error_msg)
-				self.SetBackgroundColour('pink')
+				self.display_as_valid(valid = False)
 
 		# check value against final_regex if any given
 		if not self.__final_regex.match(self.GetValue().strip()):
 			gmDispatcher.send(signal='statustext', msg=self.final_regex_error_msg % self.__final_regex.pattern)
-			self.SetBackgroundColour('pink')
+			self.display_as_valid(valid = False)
 
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
@@ -972,7 +989,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.119  2008-06-15 20:40:43  ncq
+# Revision 1.120  2008-06-18 15:48:21  ncq
+# - support valid/invalid coloring via display_as_valid
+# - cleanup init flow
+#
+# Revision 1.119  2008/06/15 20:40:43  ncq
 # - adjust test suite to match provider properties
 #
 # Revision 1.118  2008/06/09 15:36:39  ncq
