@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.61 2008-06-15 20:33:55 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmDateTimeInput.py,v 1.62 2008-06-18 15:46:49 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -34,41 +34,15 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def __init__(self):
 		self.__allow_past = 1
 		self.__shifting_base = None
-		self.set_single_character_triggers()
-		self.set_offset_chars()
+
 		gmMatchProvider.cMatchProvider.__init__(self)
+
 		self.setThresholds(aPhrase = 1, aWord = 998, aSubstring = 999)
 		self.word_separators = None
 #		self.ignored_chars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def set_single_character_triggers(self, triggers = 'ndmy'):
-		"""Set trigger characters.
-
-		Default is 'ndmy':
-			n - now
-			d - toDay
-			m - toMorrow	Someone please suggest a synonym !
-			y - yesterday
-
-		This also defines the significance of the order of the characters.
-		"""
-		self.__single_char_triggers = triggers[:4].lower()
-	#--------------------------------------------------------
-	def set_offset_chars(self, offset_chars = 'hdwmy'):
-		"""Set offset characters.
-
-		Default is 'hdwm':
-			h - hours
-			d - days
-			w - weeks
-			m - months
-			y - years
-
-		This also defines the significance of the order of the characters.
-		"""
-		self.__offset_chars = offset_chars[:5].lower()
 	#--------------------------------------------------------
 	# base class API
 	#--------------------------------------------------------
@@ -119,7 +93,8 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if val is None:
 			val = self.GetValue().strip()
 
-		matches = gmDateTime.str2fuzzy_timestamp_matches(str2parse=val)
+		success, matches = self.matcher.getMatchesByPhrase(val)
+		#matches = gmDateTime.str2fuzzy_timestamp_matches(str2parse=val)
 		if len(matches) == 1:
 			return matches[0]['data']
 
@@ -232,7 +207,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.61  2008-06-15 20:33:55  ncq
+# Revision 1.62  2008-06-18 15:46:49  ncq
+# - cleanup: offset/trigger chars are handled in the str 2 timestamp function directly
+#
+# Revision 1.61  2008/06/15 20:33:55  ncq
 # - adjust to match provider properties
 #
 # Revision 1.60  2008/05/07 15:20:36  ncq
