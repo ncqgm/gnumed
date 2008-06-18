@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.16 2008-06-16 15:03:20 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmMeasurementWidgets.py,v 1.17 2008-06-18 15:49:22 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -594,52 +594,76 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		print "refreshing"
 	#--------------------------------------------------------
 	def save(self):
-		if self.__valid_for_save():
-			emr = gmPerson.gmCurrentPatient().get_emr()
+		if not self.__valid_for_save():
+			return False
 
-			try:
-				v_num = int(self._TCTRL_result.GetValue().strip())
-				v_al = None
-			except:
-				v_num = None
-				v_al = self._TCTRL_result.GetValue().strip()
+		emr = gmPerson.gmCurrentPatient().get_emr()
+
+		try:
+			v_num = int(self._TCTRL_result.GetValue().strip())
+			v_al = None
+		except:
+			v_num = None
+			v_al = self._TCTRL_result.GetValue().strip()
 				
-			tr = emr.add_test_result (
-				# FIXME: map from problem to (possibly new) episode
-				episode = self._PRW_problem.GetData(),
-				type = self._PRW_test.GetData(),
-				intended_reviewer = self._PRW_intended_reviewer.GetData(),
-				val_num = v_num,
-				val_alpha = v_al,
-				unit = self._PRW_units.GetValue()
-			)
-			#tr[''] = 1
-			#tr.save_payload()
-			return True
-		return False
+		tr = emr.add_test_result (
+			# FIXME: map from problem to (possibly new) episode
+			episode = self._PRW_problem.GetData(),
+			type = self._PRW_test.GetData(),
+			intended_reviewer = self._PRW_intended_reviewer.GetData(),
+			val_num = v_num,
+			val_alpha = v_al,
+			unit = self._PRW_units.GetValue()
+		)
+		tr['clin_when'] = self._DPRW_evaluated.GetData()
+		tr.save_payload()
+
+		return True
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 
-		# FIXME: improve, use can_create, verify Date
+		# FIXME: use can_create
+		validity = True
+
+		if not self._DPRW_evaluated.is_valid_timestamp():
+			self._DPRW_evaluated.display_as_valid(False)
+			validity = False
+		else:
+			self._DPRW_evaluated.display_as_valid(True)
 
 		if self._TCTRL_result.GetValue().strip() == u'':
-			return False
+			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			validity = False
+		else:
+			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
 
 		if self._PRW_problem.GetData() is None:
-			return False
+			self._PRW_problem.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_problem.display_as_valid(True)
 
 		if self._PRW_test.GetData() is None:
-			return False
+			self._PRW_test.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_test.display_as_valid(True)
 
 		if self._PRW_intended_reviewer.GetData() is None:
-			return False
+			self._PRW_intended_reviewer.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_intended_reviewer.display_as_valid(True)
 
 		if self._PRW_units.GetValue().strip() == u'':
-			return False
+			self._PRW_units.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_units.display_as_valid(True)
 
-		return True
+		return validity
 #================================================================
 # convenience widgets
 #================================================================
@@ -829,7 +853,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.16  2008-06-16 15:03:20  ncq
+# Revision 1.17  2008-06-18 15:49:22  ncq
+# - improve save validity check on edit area
+#
+# Revision 1.16  2008/06/16 15:03:20  ncq
 # - first cut at saving test results
 #
 # Revision 1.15  2008/06/15 20:43:31  ncq
