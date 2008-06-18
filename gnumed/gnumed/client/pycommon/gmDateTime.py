@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.20 2008-05-19 15:45:26 ncq Exp $
+# $Id: gmDateTime.py,v 1.21 2008-06-18 15:28:32 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -178,7 +178,7 @@ def init():
 	)
 
 #===========================================================================
-def __explicit_offset(str2parse, offset_chars='hdwmy'):
+def __explicit_offset(str2parse, offset_chars=None):
 	"""
 			Default is 'hdwm':
 			h - hours
@@ -189,6 +189,9 @@ def __explicit_offset(str2parse, offset_chars='hdwmy'):
 
 		This also defines the significance of the order of the characters.
 	"""
+	if offset_chars is None:
+		offset_chars = _('hdwmy (single character date offset triggers)')[:5].lower()
+
 	# "+/-XXd/w/m/t"
 	if not regex.match(u"^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[%s](\s|\t)*$" % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
 		return []
@@ -259,7 +262,7 @@ def __explicit_offset(str2parse, offset_chars='hdwmy'):
 	}
 	return [tmp]
 #---------------------------------------------------------------------------
-def __single_char(str2parse, trigger_chars='ndmy'):
+def __single_char(str2parse, trigger_chars=None):
 	"""This matches on single characters.
 
 	Spaces and tabs are discarded.
@@ -272,6 +275,9 @@ def __single_char(str2parse, trigger_chars='ndmy'):
 
 	This also defines the significance of the order of the characters.
 	"""
+	if trigger_chars is None:
+		trigger_chars = _('ndmy (single character date triggers)')[:4].lower()
+
 	if not regex.match(u'^(\s|\t)*[%s]{1}(\s|\t)*$' % trigger_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
 		return []
 	val = str2parse.strip().lower()
@@ -697,6 +703,9 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 		stamp to a given value and the user doesn't type any time part
 		this value will be used
 	@type default_time: an mx.DateTime.DateTimeDelta instance
+
+	@param patterns: list of [time.strptime compatible date/time pattern, accuracy]
+	@type patterns: list
 	"""
 	matches = __single_dot(str2parse)
 	matches.extend(__numbers_only(str2parse))
@@ -972,7 +981,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.20  2008-05-19 15:45:26  ncq
+# Revision 1.21  2008-06-18 15:28:32  ncq
+# - properly i18n trigger chars in str 2 timestamp conversions
+# - document "patterns" arg for str 2 timestamp conversion
+#
+# Revision 1.20  2008/05/19 15:45:26  ncq
 # - re-adjust timezone handling code
 # - remember timezone *name* for PG
 #
