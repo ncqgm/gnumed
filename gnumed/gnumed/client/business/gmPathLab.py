@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.60 2008-06-16 15:01:53 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmPathLab.py,v 1.61 2008-06-19 15:24:47 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys, logging
@@ -32,30 +32,30 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmds_store_payload = [
 		u"""update clin.test_result set
-				clin_when =
-				narrative = comment
-				val_num = 
-				val_alpha = 
-				val_unit =
-				val_normal_min =
-				val_normal_max = 
-				val_normal_range =
-				val_target_min =
-				val_target_max =
-				val_target_range =
-				abnormality_indicator =
-				norm_ref_group =
-				note_test_org =
-				material =
-				material_detail =
-				fk_intended_reviewer =
-				fk_encounter =
-				fk_episode =
-				fk_type =
+				clin_when = %(clin_when)s,
+				narrative = %(comment)s,
+				val_num = %(val_num)s,
+				val_alpha = %(val_alpha)s,
+				val_unit = %(val_unit)s,
+				val_normal_min = %(val_normal_min)s,
+				val_normal_max = %(val_normal_max)s,
+				val_normal_range = %(val_normal_range)s,
+				val_target_min = %(val_target_min)s,
+				val_target_max = %(val_target_max)s,
+				val_target_range = %(val_target_range)s,
+				abnormality_indicator = %(abnormality_indicator)s,
+				norm_ref_group = %(norm_ref_group)s,
+				note_test_org = %(note_test_org)s,
+				material = %(material)s,
+				material_detail = %(material_detail)s,
+				fk_intended_reviewer = %(pk_intended_reviewer)s,
+				fk_encounter = %(pk_encounter)s,
+				fk_episode = %(pk_episode)s,
+				fk_type = %(pk_test_type)s
 			where
-				pk = %(pk_obj)s and
+				pk = %(pk_test_result)s and
 				xmin = %(xmin_test_result)s""",
-		u"""select xmin_test_result from clin.v_test_results where pk_test_result = %(pk_obj)s"""
+		u"""select xmin_test_result from clin.v_test_results where pk_test_result = %(pk_test_result)s"""
 	]
 
 	_updatable_fields = [
@@ -106,14 +106,16 @@ where
 
 	reference_ranges = property(_get_reference_ranges, _set_reference_ranges)
 	#--------------------------------------------------------
-	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=None):
+	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):
 
 		if comment is not None:
 			comment = comment.strip()
 
-		if ((technically_abnormal is None) and (clinically_relevant is None)
-				and (comment is None) and (make_me_responsible is False)):
-			return True
+		if ((technically_abnormal is None) and
+			(clinically_relevant is None) and
+			(comment is None) and
+			(make_me_responsible is False)):
+				return True
 
 		# FIXME: this is not concurrency safe
 		if self._payload[self._idx['reviewed']]:
@@ -129,7 +131,7 @@ where
 				comment = comment
 			)
 
-		if make_me_responsible is not None:
+		if make_me_responsible is True:
 			cmd = u"select pk from dem.staff where db_user = current_user"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 			self['pk_intended_reviewer'] = rows[0][0]
@@ -599,7 +601,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.60 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.61 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -686,7 +688,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.60 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.61 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -961,7 +963,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.60  2008-06-16 15:01:53  ncq
+# Revision 1.61  2008-06-19 15:24:47  ncq
+# - fix updating cTestResult
+#
+# Revision 1.60  2008/06/16 15:01:53  ncq
 # - create_test_result
 # - test suite cleanup
 # - reference_ranges property on cTestResult
