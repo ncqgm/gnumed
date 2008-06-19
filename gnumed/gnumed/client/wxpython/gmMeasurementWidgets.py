@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.17 2008-06-18 15:49:22 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmMeasurementWidgets.py,v 1.18 2008-06-19 15:26:09 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -283,20 +283,20 @@ class cMeasurementsGrid(wx.grid.Grid):
 					gmTools.bool2subst(missing_review, u'\u270D', u'')
 				)
 
-			has_normal_min_or_max = (result['val_normal_min'] is not None) or (result['val_normal_min'] is not None)
+			has_normal_min_or_max = (result['val_normal_min'] is not None) or (result['val_normal_max'] is not None)
 			if has_normal_min_or_max:
 				normal_min_max = u'%s - %s' % (
 					gmTools.coalesce(result['val_normal_min'], u'?'),
-					gmTools.coalesce(result['val_normal_min'], u'?')
+					gmTools.coalesce(result['val_normal_max'], u'?')
 				)
 			else:
 				normal_min_max = u''
 
-			has_clinical_min_or_max = (result['val_target_min'] is not None) or (result['val_target_min'] is not None)
+			has_clinical_min_or_max = (result['val_target_min'] is not None) or (result['val_target_max'] is not None)
 			if has_clinical_min_or_max:
 				clinical_min_max = u'%s - %s' % (
 					gmTools.coalesce(result['val_target_min'], u'?'),
-					gmTools.coalesce(result['val_target_min'], u'?')
+					gmTools.coalesce(result['val_target_max'], u'?')
 				)
 			else:
 				clinical_min_max = u''
@@ -379,7 +379,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					)
 				),
 				'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split('\n')),
-				'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['comment'], u'').split('\n')),
+				'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split('\n')),
 				'epi': result['episode'],
 				'issue': gmTools.coalesce(result['health_issue'], u''),
 				'material': gmTools.coalesce(result['material'], u''),
@@ -587,6 +587,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	def _on_review_box_checked(self, evt):
 		self._CHBOX_abnormal.Enable(self._CHBOX_review.GetValue())
 		self._CHBOX_relevant.Enable(self._CHBOX_review.GetValue())
+		self._TCTRL_review_comment.Enable(self._CHBOX_review.GetValue())
 	#--------------------------------------------------------
 	# generic edit area API
 	#--------------------------------------------------------
@@ -615,8 +616,35 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			val_alpha = v_al,
 			unit = self._PRW_units.GetValue()
 		)
-		tr['clin_when'] = self._DPRW_evaluated.GetData()
+
+		tr['clin_when'] = self._DPRW_evaluated.GetData().get_pydt()
+
+		ctrls = [
+			('abnormality_indicator', self._PRW_abnormality_indicator),
+			('note_test_org', self._TCTRL_note_test_org),
+			('comment', self._TCTRL_narrative),
+			('val_normal_min', self._TCTRL_normal_min),
+			('val_normal_max', self._TCTRL_normal_max),
+			('val_normal_range', self._TCTRL_normal_range),
+			('val_target_min', self._TCTRL_target_min),
+			('val_target_max', self._TCTRL_target_max),
+			('val_target_range', self._TCTRL_target_range),
+			('norm_ref_group', self._TCTRL_norm_ref_group)
+		]
+		for field, widget in ctrls:
+			val = widget.GetValue().strip()
+			if val != u'':
+				tr[field] = val
+
 		tr.save_payload()
+
+		if self._CHBOX_review.GetValue() is True:
+			tr.set_review (
+				technically_abnormal = self._CHBOX_abnormal.GetValue(),
+				clinically_relevant = self._CHBOX_relevant.GetValue(),
+				comment = gmTools.none_if(self._TCTRL_review_comment.GetValue().strip(), u''),
+				make_me_responsible = False
+			)
 
 		return True
 	#--------------------------------------------------------
@@ -662,6 +690,21 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			validity = False
 		else:
 			self._PRW_units.display_as_valid(True)
+
+		ctrls = [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_target_min, self._TCTRL_target_max]
+		for widget in ctrls:
+			val = widget.GetValue().strip()
+			if val == u'':
+				continue
+			try:
+				int(val)
+				widget.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			except:
+				widget.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+				validity = False
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Missing essential input.'))
 
 		return validity
 #================================================================
@@ -853,7 +896,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.17  2008-06-18 15:49:22  ncq
+# Revision 1.18  2008-06-19 15:26:09  ncq
+# - finish saving test result from edit area
+# - fix a few oversights in the result tooltip
+#
+# Revision 1.17  2008/06/18 15:49:22  ncq
 # - improve save validity check on edit area
 #
 # Revision 1.16  2008/06/16 15:03:20  ncq
