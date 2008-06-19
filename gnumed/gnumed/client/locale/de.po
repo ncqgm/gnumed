@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.117 $
+# $Revision: 1.118 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-06-16 17:00+CEST\n"
-"PO-Revision-Date: 2008-06-16 17:08+0100\n"
+"POT-Creation-Date: 2008-06-18 17:37+CEST\n"
+"PO-Revision-Date: 2008-06-18 17:42+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -587,6 +587,9 @@ msgstr "Exportiert: %s\n"
 msgid "unknown test status [%s]"
 msgstr "unbekannter Teststatus [%s]"
 
+msgid "hdwmy (single character date offset triggers)"
+msgstr "stwmj (Stunden, Tage, Wochen, Monate, Jahre)"
+
 msgid "in %d hour(s) - %s"
 msgstr "in %d Stunde(n) - %s"
 
@@ -616,6 +619,9 @@ msgstr "in %d Jahr(en) - %s"
 
 msgid "%d year(s) ago - %s"
 msgstr "vor %d Jahr(en) - %s"
+
+msgid "ndmy (single character date triggers)"
+msgstr "jhmg (jetzt, heute, morgen, gestern)"
 
 msgid "right now (%s, %s)"
 msgstr "genau jetzt (%s, %s)"
@@ -4055,8 +4061,8 @@ msgstr "Neuen Kontakt beginnen"
 msgid "Start a new encounter for the active patient right now."
 msgstr "Sofort einen neuen Kontakt für den aktiven Patienten beginnen."
 
-msgid "Medical &history ..."
-msgstr "&Anamneseerhebung ..."
+msgid "&History taking ..."
+msgstr "&Anamnese ..."
 
 msgid "&Past history (foundational issue / PMH)"
 msgstr "&Grunderkrankung (Eigenanamnese)"
@@ -4082,11 +4088,14 @@ msgstr "&Beruf"
 msgid "Edit occupation details for the current patient."
 msgstr "Berufsangaben für den aktiven Patienten bearbeiten."
 
-msgid "&Measurements"
-msgstr "&Meßwerte"
+msgid "&Observations ..."
+msgstr "Befunde ..."
 
-msgid "Add a measurement result for the current patient."
-msgstr "Ein Meßergebnis für den aktiven Patienten erfassen."
+msgid "Add &Measurement(s)"
+msgstr "&Meßwert(e) eingeben"
+
+msgid "Add (a) measurement result(s) for the current patient."
+msgstr "Meßergebnisse für den aktiven Patienten erfassen."
 
 msgid "&Write letter"
 msgstr "&Brief schreiben"
@@ -7051,6 +7060,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Medical &history ..."
+#~ msgstr "&Anamneseerhebung ..."
 #~ msgid "Add"
 #~ msgstr "Hinzufügen"
 #~ msgid "description"
