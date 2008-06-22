@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.62 2008-06-18 15:46:49 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmDateTimeInput.py,v 1.63 2008-06-22 17:31:50 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -137,12 +137,12 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data, suppress_smarts = suppress_smarts)
 	#--------------------------------------------------------
 	def SetData(self, data=None):
-		if data is not None:
+		if data is None:
+			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
+		else:
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
 			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(), data = data)
-		else:
-			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
 	#--------------------------------------------------------
 	def is_valid_timestamp(self):
 		if self.data is not None:
@@ -207,7 +207,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.62  2008-06-18 15:46:49  ncq
+# Revision 1.63  2008-06-22 17:31:50  ncq
+# - some cleanup
+#
+# Revision 1.62  2008/06/18 15:46:49  ncq
 # - cleanup: offset/trigger chars are handled in the str 2 timestamp function directly
 #
 # Revision 1.61  2008/06/15 20:33:55  ncq
