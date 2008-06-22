@@ -46,6 +46,7 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementEditAreaPnl.__set_properties
+        self.SetSize((600, 360))
         self.SetScrollRate(10, 10)
         self._PRW_test.SetToolTipString(_("The type of measurement or test this result is about."))
         self._PRW_test.SetFocus()
@@ -157,7 +158,6 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
         _gszr_main.Add(__lbl_ref_group, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_norm_ref_group, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(_gszr_main)
-        _gszr_main.Fit(self)
         _gszr_main.AddGrowableCol(1)
         # end wxGlade
 
