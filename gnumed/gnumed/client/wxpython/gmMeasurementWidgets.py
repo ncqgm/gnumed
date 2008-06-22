@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.18 2008-06-19 15:26:09 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmMeasurementWidgets.py,v 1.19 2008-06-22 17:32:39 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging
+import sys, logging, datetime as pyDT
 
 
 import wx, wx.grid
@@ -17,7 +17,7 @@ import wx, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
@@ -563,10 +563,48 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):
+
+		try:
+			date = kwargs['date']
+			del kwargs['date']
+		except KeyError:
+			date = None
+
 		wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl.__init__(self, *args, **kwargs)
-		self.__init_ui()
+		self.__init_ui(date = date)
+		self.__register_interests()
 	#--------------------------------------------------------
-	def __init_ui(self):
+	def __init_ui(self, date=None, clear_test=True, clear_date=True):
+		if clear_test:
+			self._PRW_test.SetText(u'', None, True)
+		self._TCTRL_result.SetValue(u'')
+		if clear_test:
+			self._PRW_units.SetText(u'', None, True)
+		self._PRW_abnormality_indicator.SetText(u'', None, True)
+		if clear_date:
+			if date is None:
+				date = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+			self._DPRW_evaluated.SetData(data = date)
+		self._TCTRL_note_test_org.SetValue(u'')
+		#self._PRW_intended_reviewer.SetData()
+		#self._PRW_problem.SetData()
+		self._TCTRL_narrative.SetValue(u'')
+		self._CHBOX_review.SetValue(False)
+		self._CHBOX_abnormal.SetValue(False)
+		self._CHBOX_relevant.SetValue(False)
+		self._CHBOX_abnormal.Enable(False)
+		self._CHBOX_relevant.Enable(False)
+		self._TCTRL_review_comment.SetValue(u'')
+		if clear_test:
+			self._TCTRL_normal_min.SetValue(u'')
+			self._TCTRL_normal_max.SetValue(u'')
+			self._TCTRL_normal_range.SetValue(u'')
+			self._TCTRL_target_min.SetValue(u'')
+			self._TCTRL_target_max.SetValue(u'')
+			self._TCTRL_target_range.SetValue(u'')
+			self._TCTRL_norm_ref_group.SetValue(u'')
+	#--------------------------------------------------------
+	def __register_interests(self):
 		self._PRW_test.add_callback_on_lose_focus(self._on_leave_test_prw)
 		self._PRW_abnormality_indicator.add_callback_on_lose_focus(self._on_leave_indicator_prw)
 	#--------------------------------------------------------
@@ -592,7 +630,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	# generic edit area API
 	#--------------------------------------------------------
 	def refresh(self):
-		print "refreshing"
+		self.__init_ui(clear_test=False, clear_date=False)
 	#--------------------------------------------------------
 	def save(self):
 		if not self.__valid_for_save():
@@ -867,7 +905,7 @@ limit 25"""
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmLog2, gmI18N, gmDateTime
+	from Gnumed.pycommon import gmLog2, gmI18N
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -896,7 +934,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.18  2008-06-19 15:26:09  ncq
+# Revision 1.19  2008-06-22 17:32:39  ncq
+# - implement refresh on measurement ea so "Next" will work in dialog
+#
+# Revision 1.18  2008/06/19 15:26:09  ncq
 # - finish saving test result from edit area
 # - fix a few oversights in the result tooltip
 #
