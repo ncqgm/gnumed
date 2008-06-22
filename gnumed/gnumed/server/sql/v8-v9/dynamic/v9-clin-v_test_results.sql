@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.5 2008-04-16 20:40:46 ncq Exp $
--- $Revision: 1.5 $
+-- $Id: v9-clin-v_test_results.sql,v 1.6 2008-06-22 17:34:33 ncq Exp $
+-- $Revision: 1.6 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -34,20 +34,16 @@ select
 			else tr.val_num::text || ' (' || tr.val_alpha || ')'
 		end
 	end as unified_val,
-	case when tr.val_target_min is null
-		then tr.val_normal_min
-		else tr.val_target_min
-	end as unified_target_min,
-	case when tr.val_target_max is null
-		then tr.val_normal_max
-		else tr.val_target_max
-	end as unified_target_max,
-	case when tr.val_target_range is null
-		then tr.val_normal_range
-		else tr.val_target_range
-	end as unified_target_range,
+	coalesce(tr.val_target_min, tr.val_normal_min)
+		as unified_target_min,
+	coalesce(tr.val_target_max, tr.val_normal_max)
+		as unified_target_max,
+	coalesce(tr.val_target_range, tr.val_normal_range)
+		as unified_target_range,
 	tr.soap_cat,
-	coalesce(tr.narrative, '') as comment,
+--	coalesce(tr.narrative, '') as comment,
+	tr.narrative
+		as comment,
 	-- test result data
 	tr.val_num,
 	tr.val_alpha,
@@ -79,29 +75,12 @@ select
 
 	-- status of last review
 	coalesce(rtr.fk_reviewed_row, 0)::bool
---	exists(select 1 from clin.reviewed_test_results where fk_reviewed_row = tr.pk)
 		as reviewed,
-
 	rtr.is_technically_abnormal
---	(select is_technically_abnormal
---	 from clin.reviewed_test_results
---	 where fk_reviewed_row = tr.pk
---	)
 		as is_technically_abnormal,
-
 	rtr.clinically_relevant
---	(select clinically_relevant
---	 from clin.reviewed_test_results
---	 where fk_reviewed_row = tr.pk
---	)
 		as is_clinically_relevant,
-
 	rtr.comment
---	(select comment
---	 from clin.reviewed_test_results
---	 where
---		fk_reviewed_row = tr.pk
---	)
 		as review_comment,
 
 	(select
@@ -118,21 +97,8 @@ select
 		as last_reviewed,
 
 	coalesce((rtr.fk_reviewer = (select pk from dem.staff where db_user = current_user)), False)
---	(select exists (
---		select 1 from clin.reviewed_test_results
---		where
---			fk_reviewed_row = tr.pk and
---			fk_reviewer = (select pk from dem.staff where db_user = current_user)
---	))
 		as review_by_you,
-
 	coalesce((tr.fk_intended_reviewer = rtr.fk_reviewer), False)
---	(select exists (
---		select 1 from clin.reviewed_test_results
---		where
---			fk_reviewed_row = tr.pk and
---			fk_reviewer = tr.fk_intended_reviewer
---	))
 		as review_by_responsible_reviewer,
 
 	-- potential review status
@@ -192,11 +158,81 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.5 $');
+\unset ON_ERROR_STOP
+drop view clin.v_test_results_journal cascade;
+\set ON_ERROR_STOP 1
+
+
+create view clin.v_test_results_journal as
+select
+	vtr.pk_patient
+		as pk_patient,
+	vtr.modified_when
+		as modified_when,
+	vtr.clin_when
+		as clin_when,
+	vtr.modified_by
+		as modified_by,
+	vtr.soap_cat
+		as soap_cat,
+	_('Test ')
+		|| vtr.unified_code || ' ('
+		|| vtr.unified_name || ') = '
+		|| vtr.unified_val::text || ' '
+		|| coalesce(vtr.val_unit, '') || ' '
+		|| coalesce('(' || vtr.abnormality_indicator || ')', '') || E'\n'
+		|| _('Range: ')
+			|| coalesce(vtr.unified_target_min::text, '') || ' - '
+			|| coalesce(vtr.unified_target_max::text, '') || ' / '
+			|| coalesce(vtr.unified_target_range, '')
+			|| coalesce(' (' || vtr.norm_ref_group || ')', '') || E'\n'
+		|| coalesce(_('Doc: ') || vtr.comment || E'\n', '')
+		|| coalesce(_('MTA: ') || vtr.note_test_org || E'\n', '')
+		|| coalesce (
+			_('Review: ')
+				|| vtr.last_reviewer || ' @ '
+				|| vtr.last_reviewed || ': '
+				|| _('abnormal = ') || vtr.is_technically_abnormal::text || ', '
+				|| _('relevant = ') || vtr.is_clinically_relevant::text
+				|| coalesce(' (' || vtr.review_comment || E')\n', E'\n')
+			, ''
+		)
+		|| _('Responsible clinician: ')
+			|| vtr.responsible_reviewer || E'\n'
+		|| _('Episode "')
+			|| vtr.episode || '"'
+			|| coalesce(_(' in health issue "') || vtr.health_issue || '"', '')
+		as narrative,
+	vtr.pk_encounter
+		as pk_encounter,
+	vtr.pk_episode
+		as pk_episode,
+	vtr.pk_health_issue
+		as pk_health_issue,
+	vtr.pk_test_result
+		as src_pk,
+	'clin.test_result'
+		as src_table
+from
+	clin.v_test_results vtr
+;
+
+
+comment on view clin.v_test_results_journal is
+	'formatting of v_test_results for inclusion in v_emr_journal';
+
+
+grant select on clin.v_test_results_journal to group "gm-doctors";
+-- --------------------------------------------------------------
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.6 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.5  2008-04-16 20:40:46  ncq
+-- Revision 1.6  2008-06-22 17:34:33  ncq
+-- - cleanup
+-- - v_test_results_journal
+--
+-- Revision 1.5  2008/04/16 20:40:46  ncq
 -- - do proper join on clin.reviewed_test_results
 -- - support one-review-per-row paradigm
 --
