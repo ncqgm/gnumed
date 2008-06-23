@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.61 2008-06-19 15:24:47 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmPathLab.py,v 1.62 2008-06-23 21:49:19 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys, logging
@@ -24,6 +24,174 @@ _log.info(__version__)
 
 # FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 
+#============================================================
+class cTestType(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents one test result type."""
+
+	_cmd_fetch_payload = u"""select *, xmin from clin.test_type where pk = %s"""
+
+	_cmds_store_payload = [
+		u"""update clin.test_type set
+				fk_test_org = %(fk_test_org)s,
+				code = %(code)s,
+				coding_system = %(coding_system)s,
+				name = %(name)s,
+				comment = %(comment)s,
+				conversion_unit = %(conversion_unit)s
+			where pk = %(pk)s""",
+		u"""select xmin from clin.test_type where pk = %(pk)"""
+	]
+
+	_updatable_fields = [
+		'fk_test_org',
+		'code',
+		'coding_system',
+		'name',
+		'comment',
+		'conversion_unit'
+	]
+	#--------------------------------------------------------
+#	def __init__(self, aPK_obj=None, row=None):
+#		"""Instantiate lab request.
+#
+#		The aPK_obj can be either a dict with the keys "lab",
+#		"code" and "name" or a simple primary key.
+#		"""
+#		# instantiate from row data ?
+#		if aPK_obj is None:
+#			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
+#			return
+#
+#		# instantiate from primary key ?
+#		try:
+#			int(aPK_obj)
+#		except:
+#			pass
+#
+#		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj)
+#		return
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+
+		# find fk_test_org from name
+		if (attribute == 'fk_test_org') and (value is not None):
+			try:
+				int(value)
+			except:
+				cmd = u"select pk from clin.test_org where internal_name = %(val)s"
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'val': value}}])
+				if len(rows) == 0:
+					raise ValueError('[%s]: no test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute))
+				value = rows[0][0]
+
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+#------------------------------------------------------------
+def find_test_type(lab=None, code=None, name=None):
+
+		where_snippets = []
+
+		if lab is None:
+			where_snippets.append('fk_test_org is null')
+		else:
+			try:
+				int(lab)
+				where_snippets.append('fk_test_org = %(lab)s')
+			except (TypeError, ValueError):
+				where_snippets.append('fk_test_org = (select pk from clin.test_org where internal_name=%(lab)s)')
+
+		if (code is None) and (name is None):
+			raise ArgumentError('must have <code> and/or <name> set')
+
+		if code is not None:
+			where_snippets.append('code = %(code)s')
+
+		if name is not None:
+			where_snippets.append('name = %(name)s')
+
+		where_clause = u' and '.join(where_snippets)
+		cmd = u"select *, xmin from clin.test_type where %s" % where_clause
+		args = {'lab': lab, 'code': code, 'name': name}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		if len(rows) == 0:
+			return None
+
+		tt = cTestType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
+		return tt
+#------------------------------------------------------------
+def create_test_type(lab=None, code=None, unit=None, name=None):
+	"""Create or get test type."""
+
+	ttype = find_test_type(lab = lab, code = code, name = name)
+	# found ?
+	if ttype is not None:
+		return ttype
+#		if name is None:
+#			return ttype
+#		db_lname = ttype['name']
+#		# yes but ambigous
+#		if name != db_lname:
+#			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
+#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.62 $'
+#			to = 'user'
+#			prob = _('The test type already exists but the long name is different. '
+#					'The test facility may have changed the descriptive name of this test.')
+#			sol = _('Verify with facility and change the old descriptive name to the new one.')
+#			ctxt = _('lab [%s], code [%s], expected long name [%s], existing long name [%s], unit [%s]') % (lab, code, name, db_lname, unit)
+#			cat = 'lab'
+#			status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
+#			return None
+#		return ttype
+
+	_log.debug('creating test type [%s:%s:%s:%s]', lab, code, name, unit)
+
+	# not found, so create it
+	if unit is None:
+		_log.error('need <unit> to create test type: %s:%s:%s:%s' % (lab, code, name, unit))
+		raise ValueError('need <unit> to create test type')
+
+	# make query
+	cols = []
+	val_snippets = []
+	vals = {}
+
+	# lab
+	if lab is not None:
+		cols.append('fk_test_org')
+		try:
+			vals['lab'] = int(lab)
+			val_snippets.append('%(lab)s')
+		except:
+			vals['lab'] = lab
+			val_snippets.append('(select pk from clin.test_org where internal_name = %(lab)s)')
+
+	# code
+	cols.append('code')
+	val_snippets.append('%(code)s')
+	vals['code'] = code
+
+	# unit
+	cols.append('conversion_unit')
+	val_snippets.append('%(unit)s')
+	vals['unit'] = unit
+
+	# name
+	if name is not None:
+		cols.append('name')
+		val_snippets.append('%(name)s')
+		vals['name'] = name
+
+	col_clause = u', '.join(cols)
+	val_clause = u', '.join(val_snippets)
+	queries = [
+		{'cmd': u'insert into clin.test_type (%s) values (%s)' % (col_clause, val_clause), 'args': vals},
+		{'cmd': u"select *, xmin from clin.test_type where pk = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
+	]
+	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = True, return_data = True)
+	ttype = cTestType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
+
+	return ttype
 #============================================================
 class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result."""
@@ -469,195 +637,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return pat[0]
 #============================================================
-class cTestType(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one test result type."""
-
-	_cmd_fetch_payload = """select *, xmin from test_type where pk=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from test_type where pk=%(pk)s and xmin=%(xmin)s for update"""
-	]
-	_cmds_store_payload = [
-		"""update test_type set
-				fk_test_org=%(fk_test_org)s,
-				code=%(code)s,
-				coding_system=%(coding_system)s,
-				name=%(name)s,
-				comment=%(comment)s,
-				conversion_unit=%(conversion_unit)s
-			where pk=%(pk)s""",
-		"""select xmin from test_type where pk=%(pk)"""
-	]
-	_updatable_fields = [
-		'fk_test_org',
-		'code',
-		'coding_system',
-		'name',
-		'comment',
-		'conversion_unit'
-	]
-	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None):
-		"""Instantiate lab request.
-
-		The aPK_obj can be either a dict with the keys "lab",
-		"code" and "name" or a simple primary key.
-		"""
-		# instantiate from row data ?
-		if aPK_obj is None:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
-			return
-
-		# instantiate from primary key ?
-		try:
-			int(aPK_obj)
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj)
-			return
-		except:
-			pass
-
-		# instantiate from lab/code/name ?
-		pk = aPK_obj
-
-		# sanity checks
-		try:
-			aPK_obj['lab']
-			aPK_obj['code']
-		except KeyError:
-			_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]', self.__class__.__name__, aPK_obj)
-			raise
-
-		try:
-			aPK_obj['name']
-		except KeyError:
-			if aPK_obj['code'] is None:
-				_log.exception('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
-				raise gmExceptions.ConstructorError, '[%s:??]: must have <code> and/or <name>' % self.__class__.__name__
-			aPK_obj['name'] = None
-
-		# generate query
-		where_snippets = []
-
-		try:
-			int(aPK_obj['lab'])
-			where_snippets.append('fk_test_org=%(lab)s')
-		except:
-			where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
-
-		if aPK_obj['code'] is not None:
-			where_snippets.append('code=%(code)s')
-
-		if aPK_obj['name'] is not None:
-			where_snippets.append('name=%(name)s')
-		where_clause = ' and '.join(where_snippets)
-		cmd = "select pk from test_type where %s" % where_clause
-
-		# get pk
-		data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
-		if data is None:
-			raise gmExceptions.ConstructorError, 'error getting test type for [%s:%s:%s]' % (lab, code, name)
-		if len(data) == 0:
-			raise gmExceptions.NoSuchClinItemError, 'no test type for [%s:%s:%s]' % (lab, code, name)
-		pk = data[0][0]
-
-		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
-	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		# find fk_test_org from name
-		if attribute == 'fk_test_org':
-			if type(value) != types.IntType:
-				cmd = "select pk from test_org where internal_name=%s"
-				data = gmPG.run_ro_query('historica', cmd, None, str(value))
-				# error
-				if data is None:
-					raise ValueError, '[%s]: error finding test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute)
-				if len(data) == 0:
-					raise ValueError, '[%s]: no test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute)
-				value = data[0][0]
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-#============================================================
 # convenience functions
-#------------------------------------------------------------
-def create_test_type(lab=None, code=None, unit=None, name=None):
-	"""Create or get test type.
-
-		returns tuple (status, value):
-			(True, test type instance)
-			(False, error message)
-			(None, housekeeping_todo primary key)
-	"""
-	ttype = None
-	try:
-		ttype = cTestType(lab=lab, code=code)
-	except gmExceptions.NoSuchClinItemError:
-		_log.info('will try to create test type')
-	except gmExceptions.ConstructorError, msg:
-		_log.exception(str(msg), sys.exc_info(), verbose=0)
-		return (False, msg)
-	# found ?
-	if ttype is not None:
-		if name is None:
-			return (True, ttype)
-		db_lname = ttype['name']
-		# yes but ambigous
-		if name != db_lname:
-			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.61 $'
-			to = 'user'
-			prob = _('The test type already exists but the long name is different. '
-					'The test facility may have changed the descriptive name of this test.')
-			sol = _('Verify with facility and change the old descriptive name to the new one.')
-			ctxt = _('lab [%s], code [%s], expected long name [%s], existing long name [%s], unit [%s]') % (lab, code, name, db_lname, unit)
-			cat = 'lab'
-			status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
-			return (None, data)
-		return (True, ttype)
-	# not found, so create it
-	if unit is None:
-		_log.error('need <unit> to create test type: %s:%s:%s:%s' % (lab, code, name, unit))
-		return (False, 'argument error: %s:%s:%s%s' % (lab, code, name, unit))
-	# make query
-	cols = []
-	val_snippets = []
-	vals = {}
-	# lab
-	cols.append('fk_test_org')
-	if type(lab) is types.IntType:
-		val_snippets.append('%(lab)s')
-		vals['lab'] = lab
-	else:
-		val_snippets.append('(select pk from test_org where internal_name=%(lab)s)')
-		vals['lab'] = str(lab)
-	# code
-	cols.append('code')
-	val_snippets.append('%(code)s')
-	vals['code'] = code
-	# unit
-	cols.append('conversion_unit')
-	val_snippets.append('%(unit)s')
-	vals['unit'] = unit
-	# name
-	if name is not None:
-		cols.append('name')
-		val_snippets.append('%(name)s')
-		vals['name'] = name
-	# join query parts
-	col_clause = ','.join(cols)
-	val_clause = ','.join(val_snippets)
-	queries = []
-	cmd = "insert into test_type(%s) values (%s)" % (col_clause, val_clause)
-	queries.append((cmd, [vals]))
-	cmd = "select currval('test_type_pk_seq')"
-	queries.append((cmd, []))
-	# insert new
-	result, err = gmPG.run_commit('historica', queries, True)
-	if result is None:
-		return (False, err)
-	try:
-		ttype = cTestType(aPK_obj=result[0][0])
-	except gmExceptions.ConstructorError, msg:
-		_log.exception(str(msg), sys.exc_info(), verbose=0)
-		return (False, msg)
-	return (True, ttype)
 #------------------------------------------------------------
 def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, episode_id=None):
 	"""Create or get lab request.
@@ -688,7 +668,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.61 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.62 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -716,9 +696,6 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
-
-
-
 #------------------------------------------------------------
 def create_lab_result(patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None, encounter_id=None, request=None):
 	tres = None
@@ -936,11 +913,6 @@ if __name__ == '__main__':
 		print lab_req.get_patient()
 		print time.time()
 	#--------------------------------------------------------
-	def test_create_result():
-#		data = create_test_result(patient_id=12, when_field='lab_rxd_when', when='2000-09-17 15:40', test_type=6, val_num=9.5, unit='Gpt/l')
-		print data[0]
-		print data[1]
-	#--------------------------------------------------------
 	def test_unreviewed():
 		data = get_unreviewed_results()
 		for result in data:
@@ -951,10 +923,19 @@ if __name__ == '__main__':
 		for result in data:
 			print result
 	#--------------------------------------------------------
+	def test_create_test_type():
+		print create_test_type (
+			lab = None,
+			code = u'tBZ2',
+			unit = u'mg%',
+			name = 'BZ (test 2)'
+		)
+	#--------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 
 		#test_result()
-		test_create_test_result()
+		#test_create_test_result()
+		test_create_test_type()
 		#test_lab_result()
 		#test_request()
 		#test_create_result()
@@ -963,7 +944,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.61  2008-06-19 15:24:47  ncq
+# Revision 1.62  2008-06-23 21:49:19  ncq
+# - pimp cTestType, find/create_test_type
+# - some tests
+#
+# Revision 1.61  2008/06/19 15:24:47  ncq
 # - fix updating cTestResult
 #
 # Revision 1.60  2008/06/16 15:01:53  ncq
