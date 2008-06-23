@@ -4,7 +4,7 @@ This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, SimpleXMLRPCServer, select, logging
@@ -45,7 +45,11 @@ class cScriptingListener:
 		self._server.register_instance(self._macro_executor)
 		self._server.allow_reuse_address = True
 
-		self._thread = threading.Thread(target = self._process_RPCs)
+		self._thread = threading.Thread (
+			target = self._process_RPCs,
+			name = self.__class__.__name__
+		)
+		self._thread.setDaemon(True)
 		self._thread.start()
 
 		_log.info('scripting listener started on [%s:%s]' % (self._listener_address, self._port))
@@ -56,10 +60,24 @@ class cScriptingListener:
 	def shutdown(self):
 		"""Cleanly shut down. Complement to __init__()."""
 
-		# allow listener thread to acquire quit lock and give it time to terminate
+		if self._thread is None:
+			return
+
+		_log.info('stopping frontend scripting listener thread')
 		self._quit_lock.release()
-		if self._thread is not None:
+		try:
+			# give the worker thread time to terminate
 			self._thread.join(self._poll_interval+5)
+			try:
+				if self._thread.isAlive():
+					_log.error('listener thread still alive after join()')
+					_log.debug('active threads: %s' % threading.enumerate())
+			except:
+				pass
+		except:
+			print sys.exc_info()
+
+		self._thread = None
 
 		try:
 			self._server.socket.shutdown(2)
@@ -101,7 +119,8 @@ class cScriptingListener:
 				if self._quit_lock.acquire(0):
 					break
 
-		self._thread = None
+		# exit thread activity
+		return
 #=====================================================================
 # main
 #=====================================================================
@@ -131,7 +150,10 @@ if __name__ == "__main__":
 		listener.shutdown()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.5  2007-12-12 16:17:16  ncq
+# Revision 1.6  2008-06-23 21:49:58  ncq
+# - clean up thread handling
+#
+# Revision 1.5  2007/12/12 16:17:16  ncq
 # - better logger names
 #
 # Revision 1.4  2007/12/11 15:39:01  ncq
