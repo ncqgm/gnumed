@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.122 2008-06-15 20:16:02 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gmPatientExporter.py,v 1.123 2008-06-23 09:59:57 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -993,7 +993,7 @@ class cEMRJournalExporter:
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (patient['dob'].strftime('%Y-%m-%d'), patient.get_medical_age()))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(u'| %10.10s | %9.9s |   | %s\n' % (_('Entered'), _('Doc'), _('Narrative')))
+		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Entered'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 
 		# get data
@@ -1003,7 +1003,8 @@ select
 	vemrj.*,
 	(select rank from clin.soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
 from clin.v_emr_journal vemrj
-where pk_patient=%s order by date, pk_episode, scr"""
+where pk_patient = %s
+order by date, pk_episode, scr, src_table"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}], get_col_idx = True)
 
 		# write data
@@ -1012,49 +1013,54 @@ where pk_patient=%s order by date, pk_episode, scr"""
 		prev_soap = u''
 		for row in rows:
 			# narrative
-			if row[idx['narrative']] is None:
+			if row['narrative'] is None:
 				continue
-			txt = row[idx['narrative']].replace(u'\n', u' ').replace(u'\r', u' ')
-			no_parts = (len(txt) / self.__part_len) + 1
+
+			txt = gmTools.wrap (
+				text = row['narrative'].replace(u'\r', u''),
+				width = self.__part_len
+			).split('\n')
 
 			# same provider ?
-			curr_doc = row[idx['modified_by']]
+			curr_doc = row['modified_by']
 			if curr_doc != prev_doc:
 				prev_doc = curr_doc
 			else:
 				curr_doc = u''
+
 			# same soap category ?
-			curr_soap = row[idx['soap_cat']]
+			curr_soap = row['soap_cat']
 			if curr_soap != prev_soap:
 				prev_soap = curr_soap
-			else:
-				curr_soap = None
+
 			# same date ?
-			curr_date = row[idx['date']]
+			curr_date = row['date']
 			if curr_date != prev_date:
 				prev_date = curr_date
-				curr_doc = row[idx['modified_by']]
+				curr_doc = row['modified_by']
 				prev_doc = curr_doc
-				curr_soap = row[idx['soap_cat']]
+				curr_soap = row['soap_cat']
 				prev_soap = curr_soap
 			else:
 				curr_date = u''
 
 			# display first part
-			target.write(u'| %10.10s | %9.9s | %s | %s\n' % (
+			target.write(u'| %10.10s | %9.9s | %3.3s | %s\n' % (
 				curr_date,
 				curr_doc,
 				gmClinNarrative.soap_cat2l10n[curr_soap],
-				txt[0:self.__part_len]
+				txt[0]
 			))
-			# more parts ?
-			if no_parts == 1:
+
+			# only one part ?
+			if len(txt) == 1:
 				continue
-			template = u'| %10.10s | %9.9s | %s | %s\n'
-			for part in range(1, no_parts):
-				msg = txt[(part * self.__part_len):((part+1) * self.__part_len)]
-				line = template % (u'', u'', u' ', msg)
+
+			template = u'| %10.10s | %9.9s | %3.3s | %s\n'
+			for part in txt[1:]:
+				line = template % (u'', u'', u' ', part)
 				target.write(line)
+
 		# write footer
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%c').decode(gmI18N.get_encoding()))
@@ -1190,7 +1196,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.122  2008-06-15 20:16:02  ncq
+# Revision 1.123  2008-06-23 09:59:57  ncq
+# - much improved journal layout
+#
+# Revision 1.122  2008/06/15 20:16:02  ncq
 # - add a space
 #
 # Revision 1.121  2008/05/19 15:44:16  ncq
