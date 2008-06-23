@@ -8,8 +8,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_emr_journal.sql,v 1.1 2008-06-22 17:24:55 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-clin-v_emr_journal.sql,v 1.2 2008-06-23 21:51:43 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -54,8 +54,8 @@ select
 		(select short_alias from dem.staff where db_user = chi.modified_by),
 		'<' || chi.modified_by || '>'
 	) as modified_by,
-	'a' as soap_cat,
-	_('health issue') || ': '
+	'a'::text as soap_cat,
+	_('Foundational Health Issue') || ': '
 		|| chi.description
 		|| coalesce((' (' || chi.laterality || ')'), '') || ', '
 		|| _('noted at age') || ': '
@@ -75,30 +75,7 @@ from
 	clin.health_issue chi
 
 union all	-- encounters
-select
-	cenc.fk_patient as pk_patient,
-	cenc.modified_when as modified_when,
-	-- FIXME: or last_affirmed ?
-	cenc.started as clin_when,
-	coalesce (
-		(select short_alias from dem.staff where db_user = cenc.modified_by),
-		'<' || cenc.modified_by || '>'
-	) as modified_by,
-	's' as soap_cat,
-	_('encounter') || ': '
-		|| (select _(description) from clin.encounter_type where pk=cenc.fk_type)
-		|| to_char(cenc.started, ' YYYY-MM-DD HH24:MI') || to_char(cenc.last_affirmed, ' - HH24:MI') || '; '
-		|| _('RFE') || ': ' || coalesce(cenc.reason_for_encounter, '?') || '; '
-		|| _('AOE') || ': ' || coalesce(cenc.assessment_of_encounter, '?')
-		|| ' //'
-	as narrative,
-	cenc.pk as pk_encounter,
-	-1 as pk_episode,
-	-1 as pk_health_issue,
-	cenc.pk as src_pk,
-	'clin.encounter'::text as src_table
-from
-	clin.encounter cenc
+select * from clin.v_pat_encounters_journal
 
 union all	-- episodes
 select
@@ -109,8 +86,8 @@ select
 		(select short_alias from dem.staff where db_user = vpep.episode_modified_by),
 		'<' || vpep.episode_modified_by || '>'
 	) as modified_by,
-	's' as soap_cat,
-	_('episode') || ': ' || vpep.description || ' //' as narrative,
+	's'::text as soap_cat,
+	_('Episode') || ': ' || vpep.description || ' //' as narrative,
 	-1 as pk_encounter,
 	vpep.pk_episode as pk_episode,
 	-1 as pk_health_issue,
@@ -190,7 +167,7 @@ select
 	vpa.pk_episode as pk_episode,
 	vpa.pk_health_issue as pk_health_issue,
 	vpa.pk_allergy as src_pk,
-	'clin.allergy' as src_table
+	'clin.allergy'::text as src_table
 from
 	clin.v_pat_allergies vpa
 
@@ -215,7 +192,7 @@ select
 	vlr.pk_episode as pk_epiode,
 	vlr.pk_health_issue as pk_health_issue,
 	vlr.pk_item as src_pk,
-	'lab_request' as src_table
+	'clin.lab_request'::text as src_table
 from
 	clin.v_lab_requests vlr
 
@@ -231,7 +208,7 @@ select
 		(select short_alias from dem.staff where db_user = vdm.modified_by),
 		'<' || vdm.modified_by || '>'
 	) as modified_by,
-	'o' as soap_cat,
+	null::text as soap_cat,
 	_('document entry') || ': '
 		|| vdm.l10n_type || ' "'
 		|| vdm.ext_ref || '" ('
@@ -243,10 +220,9 @@ select
 	vdm.pk_episode as pk_episode,
 	vdm.pk_health_issue as pk_health_issue,
 	vdm.pk_doc as src_pk,
-	'blobs.doc_med' as src_table
+	'blobs.doc_med'::text as src_table
 from
 	blobs.v_doc_med vdm
-
 ;
 
 
@@ -264,11 +240,15 @@ select i18n.i18n('document entry');
 select i18n.i18n('Family Hx');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_emr_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_emr_journal.sql,v $
--- Revision 1.1  2008-06-22 17:24:55  ncq
+-- Revision 1.2  2008-06-23 21:51:43  ncq
+-- - formatting improved
+-- - stricter casting
+--
+-- Revision 1.1  2008/06/22 17:24:55  ncq
 -- - recreate
 --
 -- Revision 1.3  2007/06/12 13:23:58  ncq
