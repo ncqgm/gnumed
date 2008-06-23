@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.19 2008-06-22 17:32:39 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmMeasurementWidgets.py,v 1.20 2008-06-23 21:50:26 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,7 +16,7 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmPathLab
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
@@ -413,6 +413,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
 		self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
+		self.__cell_tooltips = {}
+		self.__cell_data = {}
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -644,11 +646,21 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		except:
 			v_num = None
 			v_al = self._TCTRL_result.GetValue().strip()
-				
+
+		pk_type = self._PRW_test.GetData()
+		if pk_type is None:
+			tt = gmPathLab.create_test_type (
+				lab = None,
+				code = self._PRW_test.GetValue().strip(),
+				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u''),
+				name = self._PRW_test.GetValue().strip()
+			)
+			pk_type = tt['pk']
+
 		tr = emr.add_test_result (
 			# FIXME: map from problem to (possibly new) episode
 			episode = self._PRW_problem.GetData(),
-			type = self._PRW_test.GetData(),
+			type = pk_type,
 			intended_reviewer = self._PRW_intended_reviewer.GetData(),
 			val_num = v_num,
 			val_alpha = v_al,
@@ -712,8 +724,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			self._PRW_problem.display_as_valid(True)
 
 		if self._PRW_test.GetData() is None:
-			self._PRW_test.display_as_valid(False)
-			validity = False
+			if self._PRW_test.GetValue().strip() == u'':
+				self._PRW_test.display_as_valid(False)
+				validity = False
 		else:
 			self._PRW_test.display_as_valid(True)
 
@@ -934,7 +947,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.19  2008-06-22 17:32:39  ncq
+# Revision 1.20  2008-06-23 21:50:26  ncq
+# - create test types on the fly
+#
+# Revision 1.19  2008/06/22 17:32:39  ncq
 # - implement refresh on measurement ea so "Next" will work in dialog
 #
 # Revision 1.18  2008/06/19 15:26:09  ncq
