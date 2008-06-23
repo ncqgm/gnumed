@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.6 2008-06-22 17:34:33 ncq Exp $
--- $Revision: 1.6 $
+-- $Id: v9-clin-v_test_results.sql,v 1.7 2008-06-23 21:51:59 ncq Exp $
+-- $Revision: 1.7 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -211,7 +211,7 @@ select
 		as pk_health_issue,
 	vtr.pk_test_result
 		as src_pk,
-	'clin.test_result'
+	'clin.test_result'::text
 		as src_table
 from
 	clin.v_test_results vtr
@@ -224,11 +224,14 @@ comment on view clin.v_test_results_journal is
 
 grant select on clin.v_test_results_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.6 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.7 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.6  2008-06-22 17:34:33  ncq
+-- Revision 1.7  2008-06-23 21:51:59  ncq
+-- - stricter type casting
+--
+-- Revision 1.6  2008/06/22 17:34:33  ncq
 -- - cleanup
 -- - v_test_results_journal
 --
