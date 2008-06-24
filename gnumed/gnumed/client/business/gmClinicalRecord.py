@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.266 2008-06-16 15:01:01 ncq Exp $
-__version__ = "$Revision: 1.266 $"
+# $Id: gmClinicalRecord.py,v 1.267 2008-06-24 16:53:24 ncq Exp $
+__version__ = "$Revision: 1.267 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1509,7 +1509,7 @@ order by cwhen desc"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 	#------------------------------------------------------------------
-	def get_test_results_by_date(self):
+	def get_test_results_by_date(self, encounter=None, episode=None):
 		cmd = u"""
 select *, xmin_test_result from clin.v_test_results
 where pk_patient = %(pat)s
@@ -1518,6 +1518,11 @@ order by clin_when desc, pk_episode, unified_name"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
+		if episode is not None:
+			tests = [ t for t in tests if t['pk_episode'] == episode ]
+		if encounter is not None:
+			tests = [ t for t in tests if t['pk_encounter'] == encounter ]
 
 		return tests
 	#------------------------------------------------------------------
@@ -1761,7 +1766,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.266  2008-06-16 15:01:01  ncq
+# Revision 1.267  2008-06-24 16:53:24  ncq
+# - enhance get_test_results_by_date to filter by episode/encounter
+#
+# Revision 1.266  2008/06/16 15:01:01  ncq
 # - test suite cleanup
 # - add_test_result
 #
