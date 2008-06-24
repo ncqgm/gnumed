@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,7 +44,7 @@ class gmNotebookedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('Add progress notes'))
+		return ('emr', _('&Progress notes editor'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -93,7 +93,10 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.14  2008-03-06 18:32:31  ncq
+# Revision 1.15  2008-06-24 14:01:02  ncq
+# - improved menu item label
+#
+# Revision 1.14  2008/03/06 18:32:31  ncq
 # - standard lib logging only
 #
 # Revision 1.13  2008/01/27 21:21:59  ncq
