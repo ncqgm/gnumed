@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.8 2008-06-24 14:04:23 ncq Exp $
--- $Revision: 1.8 $
+-- $Id: v9-clin-v_test_results.sql,v 1.9 2008-06-24 14:41:06 ncq Exp $
+-- $Revision: 1.9 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -189,12 +189,12 @@ select
 		|| coalesce(_('Doc: ') || vtr.comment || E'\n', '')
 		|| coalesce(_('MTA: ') || vtr.note_test_org || E'\n', '')
 		|| coalesce (
-			_('Review: ')
+			_('Review by ')
 				|| vtr.last_reviewer || ' @ '
-				|| vtr.last_reviewed || ': '
-				|| _('abnormal = ') || vtr.is_technically_abnormal::text || ', '
-				|| _('relevant = ') || vtr.is_clinically_relevant::text
-				|| coalesce(' (' || vtr.review_comment || E')\n', E'\n')
+				|| to_char(vtr.last_reviewed, 'YYYY-MM-DD HH24:MI') || ': '
+				|| case when vtr.is_technically_abnormal then _('abnormal') || ', ' else '' end
+				|| case when vtr.is_clinically_relevant then _('relevant') || ' ' else '' end
+				|| coalesce('(' || vtr.review_comment || E')\n', E'\n')
 			, ''
 		)
 		|| _('Responsible clinician: ')
@@ -224,11 +224,14 @@ comment on view clin.v_test_results_journal is
 
 grant select on clin.v_test_results_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.8 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.9 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.8  2008-06-24 14:04:23  ncq
+-- Revision 1.9  2008-06-24 14:41:06  ncq
+-- - improved formatting again, and made 8.1-proof
+--
+-- Revision 1.8  2008/06/24 14:04:23  ncq
 -- - somewhat better journal formatting
 --
 -- Revision 1.7  2008/06/23 21:51:59  ncq
