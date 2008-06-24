@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-static.sql,v 1.3 2008-04-26 10:08:39 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v9-clin-test_result-static.sql,v 1.4 2008-06-24 14:05:06 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -53,12 +53,25 @@ alter table clin.reviewed_test_results
 		on delete restrict
 ;
 
+alter table clin.reviewed_test_results
+	drop constraint "reviewed_test_results_fk_reviewed_row_fkey" cascade;
+
+alter table clin.reviewed_test_results
+	add foreign key (fk_reviewed_row)
+		references clin.test_result(pk)
+		on update cascade
+		on delete cascade
+;
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-test_result-static.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-test_result-static.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v9-clin-test_result-static.sql,v $
--- Revision 1.3  2008-04-26 10:08:39  ncq
+-- Revision 1.4  2008-06-24 14:05:06  ncq
+-- - make FK on reviewed result cascading on delete
+--
+-- Revision 1.3  2008/04/26 10:08:39  ncq
 -- - add foreign key from clin.reviewed_test_results.fk_reviewer
 --   to dem.staff.pk
 --
