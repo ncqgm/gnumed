@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-dynamic.sql,v 1.4 2008-04-22 21:21:03 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v9-clin-test_result-dynamic.sql,v 1.5 2008-06-24 14:03:55 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -26,12 +26,15 @@ select gm.add_table_for_notifies('clin', 'reviewed_test_results');
 alter table clin.reviewed_test_results
 	add constraint unique_review_per_row unique(fk_reviewed_row);
 
-create rule r_no_del_clin_reviewed_test_results as
-	on delete to clin.reviewed_test_results do instead
-		nothing;
+-- create rule r_no_del_clin_reviewed_test_results as
+--	on delete to clin.reviewed_test_results do instead
+--		nothing;
 
-comment on rule r_no_del_clin_reviewed_test_results on clin.reviewed_test_results is
-'Once a review exists it cannot be deleted anymore.';
+-- comment on rule r_no_del_clin_reviewed_test_results on clin.reviewed_test_results is
+-- 'Once a review exists it cannot be deleted anymore.';
+
+revoke delete on clin.reviewed_test_results from public, "gm-doctors", "gm-public" cascade;
+grant delete on clin.reviewed_test_results to "gm-dbo";
 
 
 \unset ON_ERROR_STOP
@@ -143,11 +146,16 @@ select i18n.upd_tx('de_DE', 'results review change', 'Ergebnisbewertung geänder
 select i18n.upd_tx('de_DE', 'results review changed for patient', 'Bewertung von Testergebnissen änderte sich beim Patienten');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v9-clin-test_result-dynamic.sql,v $
--- Revision 1.4  2008-04-22 21:21:03  ncq
+-- Revision 1.5  2008-06-24 14:03:55  ncq
+-- - can't have DO NOTHING ON DELETE rule on reviews table as
+--   that will prevent deletes cascaded from test result deletions,
+--   instead, revoke DELETE from users
+--
+-- Revision 1.4  2008/04/22 21:21:03  ncq
 -- - function for clin.reviewed_test_results.fk_reviwer default value
 --
 -- Revision 1.3  2008/04/14 17:14:48  ncq
