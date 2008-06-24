@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.118 $
+# $Revision: 1.119 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-06-18 17:37+CEST\n"
-"PO-Revision-Date: 2008-06-18 17:42+0100\n"
+"POT-Creation-Date: 2008-06-24 16:06+CEST\n"
+"PO-Revision-Date: 2008-06-24 16:18+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -48,7 +48,7 @@ msgid "soap_P"
 msgstr "soap_T"
 
 msgid "soap_ADMIN"
-msgstr "soap_ADMIN"
+msgstr "soap_Vw"
 
 msgid "soap_Subjective"
 msgstr "soap_Anamnese"
@@ -241,15 +241,6 @@ msgstr "Ok"
 
 msgid "SQL failed for link persons"
 msgstr ""
-
-msgid "The test type already exists but the long name is different. The test facility may have changed the descriptive name of this test."
-msgstr "Dieser Analysentyp existiert bereits, hat aber einen anderen Namen. Das Labor könnte die Langbezeichnung dieser Analyse geändert haben."
-
-msgid "Verify with facility and change the old descriptive name to the new one."
-msgstr ""
-
-msgid "lab [%s], code [%s], expected long name [%s], existing long name [%s], unit [%s]"
-msgstr "Labor [%s], Kürzel [%s], Analyse: erwartet [%s] - gefunden [%s], Einheit [%s]"
 
 msgid "The lab request already exists but belongs to a different patient."
 msgstr "Diese Laboranforderung gibt es schon für einen anderen Patienten."
@@ -849,7 +840,7 @@ msgid "The currently selected patient is:"
 msgstr "Der aktuelle Patient ist:"
 
 msgid "To enlist this person as a staff member fill in the fields below and hit [Enlist]."
-msgstr "Um diese Person als Mitarbeiter aufzunehmen, füllen Sie die Felder aus und drückenen Sie [Aufnehmen]."
+msgstr "Um diese Person als Mitarbeiter aufzunehmen, füllen Sie die Felder aus und drücken Sie [Aufnehmen]."
 
 msgid "Short alias"
 msgstr "Kürzel"
@@ -1573,6 +1564,9 @@ msgstr "Hier ankreuzen, wenn das Ergebnis außerhalb des Normbereichs liegt."
 msgid "Check if this result is clinically relevant."
 msgstr "Hier ankreuzen, wenn das Ergebnis medizinisch gesehen erwähnenswert ist."
 
+msgid "A comment on this review."
+msgstr "Ein Kommentar zu dieser Bewertung."
+
 msgid "The lower bound of the range of technically normal values."
 msgstr "Die Untergrenze des labortechnischen Normalbereichs."
 
@@ -1639,26 +1633,29 @@ msgstr "Ziel"
 msgid "Group"
 msgstr "Gruppe"
 
-msgid "&My unsigned"
+msgid "&Your unsigned"
 msgstr "&Meine unsignierten"
 
 msgid "&All unsigned"
 msgstr "&Alle unsignierten"
 
-msgid "&Sign selected  ... "
-msgstr "Markierte &unterschreiben"
+msgid "&Select"
+msgstr "&Auswahl"
 
-msgid "Select those unsigned results for which you are responsible."
+msgid "&Actions ... "
+msgstr "Aufgaben ..."
+
+msgid "Apply selection to those unsigned results for which you are to take responsibility."
 msgstr "Diejenigen unsignierten Ergebnisse markieren, für die Sie verantwortlich sind."
 
-msgid "Select all unsigned results, regardless of who is responsible for them."
-msgstr "Alle unsignierten Ergebnisse markieren, egal wer für diese verantwortlich ist."
+msgid "Apply selection to all unsigned results."
+msgstr "Markieren auf alle unsignierten Meßwerte anwenden."
 
-msgid "Press this to batch-sign the selected measurements."
-msgstr "Hier drücken, um die markierten Ergebnisse in einem Rutsch zu bewerten."
+msgid "Select results according to your choice on the left."
+msgstr "Meßwerte anhand der Vorauswahl links markieren."
 
-msgid "Select:"
-msgstr "Markieren:"
+msgid "Invoke actions on the selected measurements."
+msgstr "Bestimmte Aufgaben mit den markierten Ergebnisse erledigen."
 
 msgid "Clinically relevant"
 msgstr "Medizinisch relevant"
@@ -4089,7 +4086,7 @@ msgid "Edit occupation details for the current patient."
 msgstr "Berufsangaben für den aktiven Patienten bearbeiten."
 
 msgid "&Observations ..."
-msgstr "Befunde ..."
+msgstr "&Befunde ..."
 
 msgid "Add &Measurement(s)"
 msgstr "&Meßwert(e) eingeben"
@@ -5087,6 +5084,40 @@ msgstr ""
 "lab_grid_date_format:%Y\n"
 "%d.%b"
 
+msgid "No results selected for deletion."
+msgstr "Keine Meßwerte zum Löschen markiert."
+
+msgid ""
+"There are %s results marked for deletion.\n"
+"\n"
+"Are you sure you want to delete these results ?"
+msgstr ""
+"Es sind %s Meßwerte zum Löschen markiert.\n"
+"\n"
+"Sind Sie sicher, daß Sie diese Meßwerte gelöscht werden sollen ?"
+
+msgid ""
+"The following results are marked for deletion:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you want to delete these results ?"
+msgstr ""
+"Die folgenden Meßwerte sind zum Löschen markiert:\n"
+"\n"
+"%s\n"
+"\n"
+"Sollen diese Messungen wirklich gelöscht werden ?"
+
+msgid "Deleting test results"
+msgstr "Meßergebnisse löschen"
+
+msgid "Yes, delete all the results."
+msgstr "Ja, die Meßwerte löschen."
+
+msgid "No, do NOT delete any results."
+msgstr "Nein, keine Meßwerte löschen."
+
 msgid "Cannot sign results. No results selected."
 msgstr "Kann Ergebnisse nicht abzeichen. Nichts ausgewählt."
 
@@ -5159,8 +5190,23 @@ msgstr "nein"
 msgid "yes"
 msgstr "ja"
 
+msgid "Act on selected results"
+msgstr "Aktionen für markierte Ergebnisse aufrufen"
+
+msgid "Review and &sign"
+msgstr "&Bewerten und abzeichnen"
+
+msgid "Export to &file"
+msgstr "In &Datei exportieren"
+
+msgid "Export to &clipboard"
+msgstr "In die &Zwischenablage kopieren"
+
 msgid "%s results selected. Too many to list individually."
 msgstr "%s Ergebnisse markiert. Zu viele, um alle einzeln anzuzeigen."
+
+msgid "Cannot save result. Missing essential input."
+msgstr "Kann Meßwert nicht speichern. Es fehlen grundlegende Informationen."
 
 msgid "in house lab"
 msgstr "praxisintern"
@@ -6748,6 +6794,9 @@ msgstr "Handbuchseite drucken"
 msgid "Measurements"
 msgstr "Meßwerte"
 
+msgid "&Measurements overview"
+msgstr "&Meßwerte"
+
 msgid "progress notes (sash)"
 msgstr "Verlaufsnotizen (Sash)"
 
@@ -6763,8 +6812,8 @@ msgstr "Personalien ändern"
 msgid "Progress notes"
 msgstr "Verlaufsnotizen"
 
-msgid "Add progress notes"
-msgstr "Verlaufsnotizen hinzufügen"
+msgid "&Progress notes editor"
+msgstr "&Verlaufsnotizen"
 
 msgid "Inbox"
 msgstr "Posteingang"
@@ -7060,6 +7109,29 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid ""
+#~ "The test type already exists but the long name is different. The test "
+#~ "facility may have changed the descriptive name of this test."
+#~ msgstr ""
+#~ "Dieser Analysentyp existiert bereits, hat aber einen anderen Namen. Das "
+#~ "Labor könnte die Langbezeichnung dieser Analyse geändert haben."
+#~ msgid ""
+#~ "lab [%s], code [%s], expected long name [%s], existing long name [%s], "
+#~ "unit [%s]"
+#~ msgstr ""
+#~ "Labor [%s], Kürzel [%s], Analyse: erwartet [%s] - gefunden [%s], Einheit "
+#~ "[%s]"
+#~ msgid "&Sign selected  ... "
+#~ msgstr "Markierte &unterschreiben"
+#~ msgid ""
+#~ "Select all unsigned results, regardless of who is responsible for them."
+#~ msgstr ""
+#~ "Alle unsignierten Ergebnisse markieren, egal wer für diese verantwortlich "
+#~ "ist."
+#~ msgid "Select:"
+#~ msgstr "Markieren:"
+#~ msgid "Add progress notes"
+#~ msgstr "Verlaufsnotizen hinzufügen"
 #~ msgid "Medical &history ..."
 #~ msgstr "&Anamneseerhebung ..."
 #~ msgid "Add"
@@ -7825,8 +7897,6 @@ msgstr "erstmals"
 #~ msgstr "&Neuer Patient"
 #~ msgid "Progress note must have Reason for Encounter and Plan."
 #~ msgstr "Verlaufsnotiz muß mindestens Beratungsanlaß und Therapie umfassen."
-#~ msgid "&Select"
-#~ msgstr "&Auswahl"
 #~ msgid "&Add"
 #~ msgstr "&Hinzufügen"
 #~ msgid "&Merge"
@@ -8050,8 +8120,6 @@ msgstr "erstmals"
 #~ "create a progress note that is not at first associated with any episode"
 #~ msgstr ""
 #~ "neue Verlaufsnotiz anlegen, die vorerst keiner Episode zugeordnet ist"
-#~ msgid "progress note editor"
-#~ msgstr "Editor für Verlaufsnotizen"
 #~ msgid "save progress note"
 #~ msgstr "Verlaufsnotiz speichern"
 #~ msgid ""
