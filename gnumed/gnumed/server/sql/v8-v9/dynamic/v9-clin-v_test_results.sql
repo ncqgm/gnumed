@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.7 2008-06-23 21:51:59 ncq Exp $
--- $Revision: 1.7 $
+-- $Id: v9-clin-v_test_results.sql,v 1.8 2008-06-24 14:04:23 ncq Exp $
+-- $Revision: 1.8 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -177,7 +177,7 @@ select
 		as soap_cat,
 	_('Test ')
 		|| vtr.unified_code || ' ('
-		|| vtr.unified_name || ') = '
+		|| vtr.unified_name || '): '
 		|| vtr.unified_val::text || ' '
 		|| coalesce(vtr.val_unit, '') || ' '
 		|| coalesce('(' || vtr.abnormality_indicator || ')', '') || E'\n'
@@ -224,11 +224,14 @@ comment on view clin.v_test_results_journal is
 
 grant select on clin.v_test_results_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.7 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.8 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.7  2008-06-23 21:51:59  ncq
+-- Revision 1.8  2008-06-24 14:04:23  ncq
+-- - somewhat better journal formatting
+--
+-- Revision 1.7  2008/06/23 21:51:59  ncq
 -- - stricter type casting
 --
 -- Revision 1.6  2008/06/22 17:34:33  ncq
