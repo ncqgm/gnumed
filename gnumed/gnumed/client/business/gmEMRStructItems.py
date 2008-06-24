@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.112 $"
+__version__ = "$Revision: 1.113 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -612,6 +612,36 @@ select exists (
 				)
 				lines.append(txt)
 
+		# test results
+		tests = emr.get_test_results_by_date (
+			episode = episode['pk_episode'],
+			encounter = self._payload[self._idx['pk_encounter']]
+		)
+
+		if len(tests) > 0:
+			lines.append('')
+
+		for t in tests:
+			lines.append(u' %s %s (%s): %s %s (%s)' % (
+				t['clin_when'].strftime('%d.%m. %H:%M'),
+				t['unified_code'],
+				t['unified_name'],
+				t['unified_val'],
+				t['val_unit'],
+				t['abnormality_indicator']
+			))
+			if gmTools.coalesce(t['comment'], u'').strip() != u'':
+				lines.append(u'   Doc: %s' % t['comment'].strip())
+			if gmTools.coalesce(t['comment'], u'').strip() != u'':
+				lines.append(u'   MTA: %s' % t['note_test_org'].strip())
+			if t['reviewed']:
+				lines.append(u'   %s (%s): %s, %s' % (
+					t['last_reviewer'],
+					t['last_reviewed'].strftime('%Y-%m-%d %H:%M'),
+					gmTools.bool2subst(t['is_technically_abnormal'], u'abnormal', u'normal'),
+					gmTools.bool2subst(t['is_clinically_relevant'], u'relevant', u'not relevant')
+				))
+
 		eol_w_margin = u'\n%s' % left_margin
 		return u'%s\n' % eol_w_margin.join(lines)
 
@@ -633,20 +663,6 @@ select exists (
       #              issues=self.__constraints['issues']))
        # except:
         #        _log.error("vaccination error? outside regime")
-
-#        filtered_items.extend(emr.get_lab_results(
- #           since=self.__constraints['since'],
-  #          until=self.__constraints['until'],
-   #         encounters=self.__constraints['encounters'],
-    #        episodes=self.__constraints['episodes'],
-     #       issues=self.__constraints['issues']))
-#        self.__filtered_items = filtered_items
-
-		# items
-#		for an_item in self.__filtered_items:
-#			if an_item['pk_encounter'] == encounter['pk_encounter']:
-#				txt += self.get_item_output(an_item, left_margin)
-#		return txt
 
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
@@ -831,7 +847,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.112  2008-05-19 15:43:45  ncq
+# Revision 1.113  2008-06-24 16:53:58  ncq
+# - include test results in encounter formatting such
+#   as to be included in the EMR tree browser :-)
+#
+# Revision 1.112  2008/05/19 15:43:45  ncq
 # - adapt to TZ code changes
 #
 # Revision 1.111  2008/05/13 14:06:17  ncq
