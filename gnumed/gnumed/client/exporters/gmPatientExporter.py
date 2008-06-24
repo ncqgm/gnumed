@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.123 2008-06-23 09:59:57 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmPatientExporter.py,v 1.124 2008-06-24 13:55:14 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -527,10 +527,10 @@ class cEmrExport:
         return episode_node
     #--------------------------------------------------------             
     def _add_encounters_to_tree( self, encounters, emr_tree, episode_node):
-               for an_encounter in encounters:
-                    label = '%s: %s' % (an_encounter['l10n_type'], an_encounter['started'].strftime('%Y-%m-%d'))
-                    encounter_node = emr_tree.AppendItem(episode_node, label)
-                    emr_tree.SetPyData(encounter_node, an_encounter)
+        for an_encounter in encounters:
+            label = '%s: %s' % (an_encounter['started'].strftime('%Y-%m-%d'), an_encounter['l10n_type'])
+            encounter_node = emr_tree.AppendItem(episode_node, label)
+            emr_tree.SetPyData(encounter_node, an_encounter)
     #--------------------------------------------------------
     def _get_encounters ( self, an_episode, emr ):
                encounters = emr.get_encounters (
@@ -1196,7 +1196,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.123  2008-06-23 09:59:57  ncq
+# Revision 1.124  2008-06-24 13:55:14  ncq
+# - change encounter node label
+#
+# Revision 1.123  2008/06/23 09:59:57  ncq
 # - much improved journal layout
 #
 # Revision 1.122  2008/06/15 20:16:02  ncq
