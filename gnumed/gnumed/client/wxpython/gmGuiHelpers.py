@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.92 2008-05-13 14:12:33 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmGuiHelpers.py,v 1.93 2008-06-24 13:59:18 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -32,6 +32,10 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 		caption = kwargs['caption']
 		question = kwargs['question']
 		button_defs = kwargs['button_defs'][:2]
+		del kwargs['caption']
+		del kwargs['question']
+		del kwargs['button_defs']
+
 		try:
 			show_checkbox = kwargs['show_checkbox']
 			del kwargs['show_checkbox']
@@ -43,10 +47,6 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 			del kwargs['checkbox_msg']
 		except KeyError:
 			checkbox_msg = None
-
-		del kwargs['caption']
-		del kwargs['question']
-		del kwargs['button_defs']
 
 		wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
@@ -64,8 +64,9 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
 			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
 			try:
-				if button_defs[idx]['default']:
+				if button_defs[idx]['default'] is True:
 					buttons[idx].SetDefault()
+					buttons[idx].SetFocus()
 			except KeyError:
 				pass
 
@@ -107,8 +108,9 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
 			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
 			try:
-				if button_defs[idx]['default']:
+				if button_defs[idx]['default'] is True:
 					buttons[idx].SetDefault()
+					buttons[idx].SetFocus()
 			except KeyError:
 				pass
 
@@ -127,7 +129,6 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			self.EndModal(wx.ID_NO)
 		else:
 			self.Close()
-
 # ========================================================================
 class cStartupProgressBar(wx.ProgressDialog):
 	def __init__(self, nr_actions):
@@ -498,7 +499,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.92  2008-05-13 14:12:33  ncq
+# Revision 1.93  2008-06-24 13:59:18  ncq
+# - properly handle default buttons, SetFocus, too, in 2/3ButtonDlg
+#
+# Revision 1.92  2008/05/13 14:12:33  ncq
 # - factor out exception handling
 #
 # Revision 1.91  2008/04/12 19:18:48  ncq
