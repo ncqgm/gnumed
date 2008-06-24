@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.20 2008-06-23 21:50:26 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmMeasurementWidgets.py,v 1.21 2008-06-24 14:00:09 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson, gmPathLab
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
-from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
+from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
@@ -68,6 +68,56 @@ class cMeasurementsGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
+	def delete_current_selection(self):
+		if not self.IsSelection():
+			gmDispatcher.send(signal = u'statustext', msg = _('No results selected for deletion.'))
+			return True
+
+		selected_cells = self.get_selected_cells()
+		if len(selected_cells) > 20:
+			results = None
+			msg = _(
+				'There are %s results marked for deletion.\n'
+				'\n'
+				'Are you sure you want to delete these results ?'
+			) % len(selected_cells)
+		else:
+			results = self.__cells_to_data(cells = selected_cells)
+			txt = u'\n'.join([ '%s %s (%s): %s %s%s' % (
+					r['clin_when'].strftime('%Y-%m-%d %H:%M'),
+					r['unified_code'],
+					r['unified_name'],
+					r['unified_val'],
+					r['val_unit'],
+					gmTools.coalesce(r['abnormality_indicator'], u'', u' (%s)')
+				) for r in results
+			])
+			msg = _(
+				'The following results are marked for deletion:\n'
+				'\n'
+				'%s\n'
+				'\n'
+				'Are you sure you want to delete these results ?'
+			) % txt
+
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			self,
+			-1,
+			caption = _('Deleting test results'),
+			question = msg,
+			button_defs = [
+				{'label': _('Delete'), 'tooltip': _('Yes, delete all the results.'), 'default': False},
+				{'label': _('Cancel'), 'tooltip': _('No, do NOT delete any results.'), 'default': True}
+			]
+		)
+		decision = dlg.ShowModal()
+
+		if decision == wx.ID_YES:
+			if results is None:
+				results = self.__cells_to_data(cells = selected_cells)
+			for result in results:
+				gmPathLab.delete_test_result(result)
+	#------------------------------------------------------------
 	def sign_current_selection(self):
 		if not self.IsSelection():
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot sign results. No results selected.'))
@@ -79,7 +129,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			tests = None
 		else:
 			test_count = None
-			tests = [ self.__cell_data[c[1]][c[0]] for c in selected_cells if c[1] != 0 ]
+			tests = self.__cells_to_data(cells = selected_cells)
 
 		dlg = cMeasurementsReviewDlg (
 			self,
@@ -107,7 +157,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				relevant = True
 
 			if tests is None:
-				tests = [ self.__cell_data[c[1]][c[0]] for c in selected_cells if c[1] != 0 ]
+				tests = self.__cells_to_data(cells = selected_cells)
 
 			comment = None
 			if len(tests) == 1:
@@ -158,6 +208,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 		return set(selected_cells)
 	#------------------------------------------------------------
 	def select_cells(self, unsigned_only=False, accountables_only=False, keep_preselections=False):
+		"""Select a range of cells according to criteria.
+
+		unsigned_only: include only those which are not signed at all yet
+		accountable_only: include only those for which the current user is responsible
+		keep_preselections: broaden (rather than replace) the range of selected cells
+
+		Combinations are powerful !
+		"""
 		wx.BeginBusyCursor()
 		self.BeginBatch()
 
@@ -425,6 +483,20 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.SetRowLabelSize(20)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
 	#------------------------------------------------------------
+	def __cells_to_data(self, cells=None):
+		"""List of <cells> must be in row / col order."""
+		data = []
+		for row, col in cells:
+			# weed out row labels in col 0
+			if col == 0:
+				continue
+			try:
+				# cell data is stored col / row
+				data.append(self.__cell_data[col][row])
+			except KeyError:
+				pass
+		return data
+	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -476,6 +548,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 
 		wxgMeasurementsPnl.wxgMeasurementsPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__init_ui()
 		self.__register_interests()
 	#--------------------------------------------------------
 	# event handling
@@ -493,13 +566,43 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		self.data_grid.patient = None
 	#--------------------------------------------------------
 	def _on_review_button_pressed(self, evt):
+		self.PopupMenu(self.__action_button_popup)
+	#--------------------------------------------------------
+	def _on_select_button_pressed(self, evt):
+		if self._RBTN_my_unsigned.GetValue() is True:
+			self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+		elif self._RBTN_all_unsigned.GetValue() is True:
+			self.data_grid.select_cells(unsigned_only = True, accountables_only = False, keep_preselections = False)
+	#--------------------------------------------------------
+	def __on_sign_current_selection(self, evt):
 		self.data_grid.sign_current_selection()
 	#--------------------------------------------------------
-	def _on_select_my_unsigned_results_button_pressed(self, evt):
-		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+	def __on_delete_current_selection(self, evt):
+		self.data_grid.delete_current_selection()
 	#--------------------------------------------------------
-	def _on_select_all_unsigned_results_button_pressed(self, evt):
-		self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+	# internal API
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self.__action_button_popup = wx.Menu(title = _('Act on selected results'))
+
+		menu_id = wx.NewId()
+		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
+		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_sign_current_selection)
+
+		menu_id = wx.NewId()
+		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &file')))
+		#wx.EVT_MENU(self.__action_button_popup, menu_id, self.data_grid.current_selection_to_file)
+		self.__action_button_popup.Enable(id = menu_id, enable = False)
+
+		menu_id = wx.NewId()
+		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &clipboard')))
+		#wx.EVT_MENU(self.__action_button_popup, menu_id, self.data_grid.current_selection_to_clipboard)
+		self.__action_button_popup.Enable(id = menu_id, enable = False)
+
+		menu_id = wx.NewId()
+		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('&Delete')))
+		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_delete_current_selection)
+		#self.__action_button_popup.Enable(id = menu_id, enable = False)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -947,7 +1050,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.20  2008-06-23 21:50:26  ncq
+# Revision 1.21  2008-06-24 14:00:09  ncq
+# - action button popup menu
+# - handle result deletion
+#
+# Revision 1.20  2008/06/23 21:50:26  ncq
 # - create test types on the fly
 #
 # Revision 1.19  2008/06/22 17:32:39  ncq
