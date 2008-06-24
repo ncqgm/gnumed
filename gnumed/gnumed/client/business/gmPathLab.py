@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.62 2008-06-23 21:49:19 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmPathLab.py,v 1.63 2008-06-24 13:54:47 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys, logging
@@ -50,26 +50,6 @@ class cTestType(gmBusinessDBObject.cBusinessDBObject):
 		'comment',
 		'conversion_unit'
 	]
-	#--------------------------------------------------------
-#	def __init__(self, aPK_obj=None, row=None):
-#		"""Instantiate lab request.
-#
-#		The aPK_obj can be either a dict with the keys "lab",
-#		"code" and "name" or a simple primary key.
-#		"""
-#		# instantiate from row data ?
-#		if aPK_obj is None:
-#			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
-#			return
-#
-#		# instantiate from primary key ?
-#		try:
-#			int(aPK_obj)
-#		except:
-#			pass
-#
-#		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj)
-#		return
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 
@@ -133,7 +113,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 #		# yes but ambigous
 #		if name != db_lname:
 #			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.62 $'
+#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.63 $'
 #			to = 'user'
 #			prob = _('The test type already exists but the long name is different. '
 #					'The test facility may have changed the descriptive name of this test.')
@@ -380,6 +360,16 @@ where
 """ % u',\n	'.join(set_parts)
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#------------------------------------------------------------
+def delete_test_result(result=None):
+
+	try:
+		pk = int(result)
+	except (TypeError, AttributeError):
+		pk = result['pk_test_result']
+
+	cmd = u'delete from clin.test_result where pk = %(pk)s'
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
 #------------------------------------------------------------
 def create_test_result(encounter=None, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None):
 
@@ -668,7 +658,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.62 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.63 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -852,6 +842,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 if __name__ == '__main__':
 	import time
 
+	#------------------------------------------
 	def test_create_test_result():
 		tr = create_test_result (
 			encounter = 1,
@@ -863,6 +854,11 @@ if __name__ == '__main__':
 			unit = 'mg/dl'
 		)
 		print tr
+		return tr
+	#------------------------------------------
+	def test_delete_test_result():
+		tr = test_create_test_result()
+		delete_test_result(tr)
 	#------------------------------------------
 	def test_result():
 		r = cTestResult(aPK_obj=1)
@@ -935,7 +931,8 @@ if __name__ == '__main__':
 
 		#test_result()
 		#test_create_test_result()
-		test_create_test_type()
+		test_delete_test_result()
+		#test_create_test_type()
 		#test_lab_result()
 		#test_request()
 		#test_create_result()
@@ -944,7 +941,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.62  2008-06-23 21:49:19  ncq
+# Revision 1.63  2008-06-24 13:54:47  ncq
+# - delete_test_result and test
+#
+# Revision 1.62  2008/06/23 21:49:19  ncq
 # - pimp cTestType, find/create_test_type
 # - some tests
 #
