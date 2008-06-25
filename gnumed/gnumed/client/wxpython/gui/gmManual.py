@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.43 2007-08-07 21:42:40 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmManual.py,v 1.43.4.1 2008-06-25 08:59:54 ncq Exp $
+__version__ = "$Revision: 1.43.4.1 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path
@@ -45,7 +45,7 @@ class ManualHtmlWindow(wx.html.HtmlWindow):
 		wx.html.HtmlWindow.__init__(self, parent, id)
 		self.parent = parent
 
-	def OnSetTitle(self, title):
+	def OnSetTitle(self, title=u''):
 		self.parent.ShowTitle(title)
 #===========================================================
 class ManualHtmlPanel(wx.Panel):
@@ -89,7 +89,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.already_loaded = 1
 			self.OnShowDefault(None)
 	#--------------------------------------------------------
-	def ShowTitle(self, title):
+	def ShowTitle(self, title=u''):
 		self.infoline.Clear()
 		self.infoline.WriteText(title)
 	#--------------------------------------------------------
@@ -243,7 +243,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.43  2007-08-07 21:42:40  ncq
+# Revision 1.43.4.1  2008-06-25 08:59:54  ncq
+# - MacOSX seems to need a default on SetTitle
+#
+# Revision 1.43  2007/08/07 21:42:40  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.42  2007/06/11 20:26:34  ncq
