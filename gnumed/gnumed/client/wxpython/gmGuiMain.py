@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.15 2008-06-15 18:24:45 ncq Exp $
-__version__ = "$Revision: 1.375.2.15 $"
+# $Id: gmGuiMain.py,v 1.375.2.16 2008-06-25 10:18:09 ncq Exp $
+__version__ = "$Revision: 1.375.2.16 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,7 +75,7 @@ if (timezone is not None) and not (isinstance(timezone, gmNull.cNull)):
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
-current_client_ver = u'v0.2.8.9'
+current_client_ver = u'v0.2.8.10'
 
 _log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
 _log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
@@ -1198,7 +1198,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		cfg = gmSnellen.cSnellenCfgDlg()
-		if cfg.ShowModal() != 0:
+		if cfg.ShowModal() != wx.ID_OK:
 			return
 
 		frame = gmSnellen.cSnellenChart (
@@ -2070,7 +2070,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.15  2008-06-15 18:24:45  ncq
+# Revision 1.375.2.16  2008-06-25 10:18:09  ncq
+# - return wx.ID_* from Snellen cfg dialog and test for
+#   that from main GUI
+#
+# Revision 1.375.2.15  2008/06/15 18:24:45  ncq
 # - bump version
 #
 # Revision 1.375.2.14  2008/06/03 16:44:46  ncq

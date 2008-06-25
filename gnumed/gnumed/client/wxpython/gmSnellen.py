@@ -4,8 +4,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.1.2.1 2007-12-30 21:51:44 ncq Exp $
-__version__ = "$Revision: 1.1.2.1 $"
+# $Id: gmSnellen.py,v 1.1.2.2 2008-06-25 10:18:08 ncq Exp $
+__version__ = "$Revision: 1.1.2.2 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -503,14 +503,14 @@ double-click ends""")), 0, wx.ALL, 15)
 		wx.EVT_BUTTON (ok, wx.ID_OK, self.OnOK)
 		wx.EVT_BUTTON (cancel, wx.ID_CANCEL, self.OnCancel)
 		wx.EVT_CLOSE (self, self.OnClose )
-		self.Show(1)
+#		self.Show(1)
 #		self.parent = parent
 
 	def OnClose (self, event):
-		self.EndModal (1)
+		self.EndModal(wx.ID_CANCEL)
 
 	def OnCancel (self, event):
-		self.EndModal (1)
+		self.EndModal(wx.ID_CANCEL)
 
 	def OnOK (self, event):
 #		if self.Validate() and self.TransferDataFromWindow():
@@ -523,9 +523,8 @@ double-click ends""")), 0, wx.ALL, 15)
 		width = self.width_ctrl.GetValue ()
 		mirr = self.mirror_ctrl.GetValue()
 		self.vals = (width, height, alpha, mirr)
-		self.EndModal(0)
-			
-
+		self.EndModal(wx.ID_OK)
+	
 #============================================================================
 # FIXME needn't be a plugin, rewrite to not be one
 #class gmSnellen (gmPlugin.wx.BasePlugin):
@@ -579,7 +578,11 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.1.2.1  2007-12-30 21:51:44  ncq
+# Revision 1.1.2.2  2008-06-25 10:18:08  ncq
+# - return wx.ID_* from Snellen cfg dialog and test for
+#   that from main GUI
+#
+# Revision 1.1.2.1  2007/12/30 21:51:44  ncq
 # - fix MacOSX crash - clicking OK in Snellen cfg dlg
 #
 # Revision 1.1  2007/10/19 09:37:56  ncq
