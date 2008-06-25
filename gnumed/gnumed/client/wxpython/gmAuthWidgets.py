@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.2.2.1 2008-01-30 11:19:54 ncq Exp $
-__version__ = "$Revision: 1.2.2.1 $"
+# $Id: gmAuthWidgets.py,v 1.2.2.2 2008-06-25 08:59:06 ncq Exp $
+__version__ = "$Revision: 1.2.2.2 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -591,7 +591,7 @@ class cLoginPanel(wx.Panel):
 	def OnHelp(self, event):
 		tmp = _cfg.get('workplace', 'help desk')
 		if tmp is None:
-			print _("You need to set the option [workplace] -> <help desk> in the config file !")
+			print "You need to set the option [workplace] -> <help desk> in the config file !"
 			tmp = "http://www.gnumed.org"
 
 		wx.MessageBox(_(
@@ -677,7 +677,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.2.2.1  2008-01-30 11:19:54  ncq
+# Revision 1.2.2.2  2008-06-25 08:59:06  ncq
+# - don't try printing utf8 to console
+#
+# Revision 1.2.2.1  2008/01/30 11:19:54  ncq
 # - don't fail on faulty profile name in [preferences]
 #
 # Revision 1.2  2007/12/04 16:14:52  ncq
