@@ -4,8 +4,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.3 2008-03-05 22:30:15 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmSnellen.py,v 1.4 2008-06-26 17:01:57 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -503,14 +503,14 @@ double-click ends""")), 0, wx.ALL, 15)
 		wx.EVT_BUTTON (ok, wx.ID_OK, self.OnOK)
 		wx.EVT_BUTTON (cancel, wx.ID_CANCEL, self.OnCancel)
 		wx.EVT_CLOSE (self, self.OnClose )
-		self.Show(1)
+#		self.Show(1)
 #		self.parent = parent
 
 	def OnClose (self, event):
-		self.EndModal (1)
+		self.EndModal (wx.ID_CANCEL)
 
 	def OnCancel (self, event):
-		self.EndModal (1)
+		self.EndModal (wx.ID_CANCEL)
 
 	def OnOK (self, event):
 #		if self.Validate() and self.TransferDataFromWindow():
@@ -523,7 +523,7 @@ double-click ends""")), 0, wx.ALL, 15)
 		width = self.width_ctrl.GetValue ()
 		mirr = self.mirror_ctrl.GetValue()
 		self.vals = (width, height, alpha, mirr)
-		self.EndModal(0)
+		self.EndModal(wx.ID_OK)
 
 #		self.EndModal(1)
 
@@ -580,7 +580,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.3  2008-03-05 22:30:15  ncq
+# Revision 1.4  2008-06-26 17:01:57  ncq
+# - be extra careful about returning distinct results from cfg
+#
+# Revision 1.3  2008/03/05 22:30:15  ncq
 # - new style logging
 #
 # Revision 1.2  2008/01/05 22:31:20  ncq

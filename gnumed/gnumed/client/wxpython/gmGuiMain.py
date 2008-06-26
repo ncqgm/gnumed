@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.407 2008-06-16 21:35:12 ncq Exp $
-__version__ = "$Revision: 1.407 $"
+# $Id: gmGuiMain.py,v 1.408 2008-06-26 17:01:57 ncq Exp $
+__version__ = "$Revision: 1.408 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1549,15 +1549,15 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
 	#----------------------------------------------
 	def __on_snellen(self, evt):
-		cfg = gmSnellen.cSnellenCfgDlg()
-		if cfg.ShowModal() != 0:
+		dlg = gmSnellen.cSnellenCfgDlg()
+		if dlg.ShowModal() != wx.ID_OK:
 			return
 
 		frame = gmSnellen.cSnellenChart (
-			width = cfg.vals[0],
-			height = cfg.vals[1],
-			alpha = cfg.vals[2],
-			mirr = cfg.vals[3],
+			width = dlg.vals[0],
+			height = dlg.vals[1],
+			alpha = dlg.vals[2],
+			mirr = dlg.vals[3],
 			parent = None
 		)
 		frame.CentreOnScreen(wx.BOTH)
@@ -2531,7 +2531,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.407  2008-06-16 21:35:12  ncq
+# Revision 1.408  2008-06-26 17:01:57  ncq
+# - be extra careful about returning distinct results from cfg
+#
+# Revision 1.407  2008/06/16 21:35:12  ncq
 # - put "add measurements" under "observations" in emr menu
 #
 # Revision 1.406  2008/06/09 15:34:57  ncq
