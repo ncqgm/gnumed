@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.45 2008-03-06 18:32:31 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmManual.py,v 1.46 2008-06-26 17:02:26 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path, logging
@@ -45,7 +45,7 @@ class ManualHtmlWindow(wx.html.HtmlWindow):
 		wx.html.HtmlWindow.__init__(self, parent, id)
 		self.parent = parent
 
-	def OnSetTitle(self, title):
+	def OnSetTitle(self, title=u''):
 		self.parent.ShowTitle(title)
 #===========================================================
 class ManualHtmlPanel(wx.Panel):
@@ -89,7 +89,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.already_loaded = 1
 			self.OnShowDefault(None)
 	#--------------------------------------------------------
-	def ShowTitle(self, title):
+	def ShowTitle(self, title=u''):
 		self.infoline.Clear()
 		self.infoline.WriteText(title)
 	#--------------------------------------------------------
@@ -243,7 +243,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.45  2008-03-06 18:32:31  ncq
+# Revision 1.46  2008-06-26 17:02:26  ncq
+# - argument defaults for OnSetTitle
+#
+# Revision 1.45  2008/03/06 18:32:31  ncq
 # - standard lib logging only
 #
 # Revision 1.44  2008/01/22 12:25:47  ncq

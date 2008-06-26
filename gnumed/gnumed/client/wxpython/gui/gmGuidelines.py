@@ -31,7 +31,7 @@ class GuidelinesHtmlWindow(wx.HtmlWindow):
         wx.HtmlWindow.__init__(self, parent, id)
         self.parent = parent
 
-    def OnSetTitle(self, title):
+    def OnSetTitle(self, title=u''):
         self.parent.ShowTitle(title)
 
 
@@ -100,7 +100,7 @@ class GuidelinesHtmlPanel(wx.Panel):
 ##     def __del__(self):
 ##         print 'ManualHtmlPanel.__del__'
 
-    def ShowTitle(self, title):
+    def ShowTitle(self, title=u''):
         self.infoline.Clear()
         self.infoline.WriteText(title)
 
