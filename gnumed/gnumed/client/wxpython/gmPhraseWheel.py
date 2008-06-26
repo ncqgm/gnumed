@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.120 2008-06-18 15:48:21 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmPhraseWheel.py,v 1.121 2008-06-26 17:03:53 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -383,14 +383,30 @@ class cPhraseWheel(wx.TextCtrl):
 			#raise NotImplementedError		# for testing
 			self.__dropdown_needs_relative_position = False
 			self.__picklist_dropdown = wx.PopupWindow(parent)
+			list_parent = self.__picklist_dropdown
 		except NotImplementedError:
-			# on MacOSX wx.PopupWindow is not implemented
-			self.__dropdown_needs_relative_position = True
+			# on MacOSX wx.PopupWindow is not implemented, so emulate it
 			add_picklist_to_sizer = True
-			self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
-			self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
 			szr_dropdown = wx.BoxSizer(wx.VERTICAL)
-			self.__picklist_dropdown.SetSizer(szr_dropdown)
+
+			# using wx.MiniFrame
+			self.__dropdown_needs_relative_position = False
+			self.__picklist_dropdown = wx.MiniFrame (
+				parent = parent,
+				id = -1,
+				style = wx.SIMPLE_BORDER | wx.FRAME_FLOAT_ON_PARENT | wx.FRAME_NO_TASKBAR
+			)
+			scroll_win = wx.ScrolledWindow(parent = self.__picklist_dropdown, style = wx.NO_BORDER)
+			scroll_win.SetSizer(szr_dropdown)
+			list_parent = scroll_win
+
+			# using wx.Window
+			#self.__dropdown_needs_relative_position = True
+			#self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
+			#self.__picklist_dropdown.SetSizer(szr_dropdown)
+			#list_parent = self.__picklist_dropdown
+
+		self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
 
 		# FIXME: support optional headers
 #		if kwargs['show_list_headers']:
@@ -398,7 +414,7 @@ class cPhraseWheel(wx.TextCtrl):
 #		else:
 #			flags = wx.LC_NO_HEADER
 		self._picklist = cPhraseWheelListCtrl (
-			self.__picklist_dropdown,
+			list_parent,
 			style = wx.LC_NO_HEADER
 		)
 		self._picklist.InsertColumn(0, '')
@@ -410,6 +426,9 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _show_picklist(self):
 		"""Display the pick list."""
+
+		border_width = 4
+		extra_height = 25
 
 		self._hide_picklist()
 
@@ -440,7 +459,11 @@ class cPhraseWheel(wx.TextCtrl):
 		dropdown_size = self.__picklist_dropdown.GetSize()
 		pw_size = self.GetSize()
 		dropdown_size.SetWidth(pw_size.width)
-		dropdown_size.SetHeight((pw_size.height * rows) + 4)	# adjust for border width
+		dropdown_size.SetHeight (
+			(pw_size.height * rows)
+			+ border_width
+			+ extra_height
+		)
 
 		# recalculate position
 		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
@@ -989,7 +1012,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.120  2008-06-18 15:48:21  ncq
+# Revision 1.121  2008-06-26 17:03:53  ncq
+# - use a wxMiniFrame instead of a wx.Window when emulating wx.PopupWindow
+# - adjust for some extra space needed by the wx.MiniFrame
+#
+# Revision 1.120  2008/06/18 15:48:21  ncq
 # - support valid/invalid coloring via display_as_valid
 # - cleanup init flow
 #
