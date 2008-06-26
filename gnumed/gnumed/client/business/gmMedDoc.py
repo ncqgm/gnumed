@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.104 2008-05-29 13:26:22 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmMedDoc.py,v 1.105 2008-06-26 21:19:15 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -120,9 +120,10 @@ class cDocumentFolder:
 			doc_ids.append(row[0])
 		return doc_ids
 	#--------------------------------------------------------
-	def get_documents(self, doc_type=None):
+	def get_documents(self, doc_type=None, episode=None, encounter=None):
 		"""Return list of documents."""
 		doc_ids = self.get_doc_list(doc_type=doc_type)
+
 		docs = []
 		for doc_id in doc_ids:
 			try:
@@ -130,6 +131,12 @@ class cDocumentFolder:
 			except gmExceptions.ConstructorError:
 				_log.exception('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
 				continue
+
+		if episode is not None:
+			docs = [ d for d in docs if d['pk_episode'] == episode ]
+		if encounter is not None:
+			docs = [ d for d in docs if d['pk_encounter'] == encounter ]
+
 		return docs
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None):
@@ -695,7 +702,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.104  2008-05-29 13:26:22  ncq
+# Revision 1.105  2008-06-26 21:19:15  ncq
+# - enhance get_documents with episode/encounter filters
+#
+# Revision 1.104  2008/05/29 13:26:22  ncq
 # - add reclassify_documents_by_type
 #
 # Revision 1.103  2008/04/11 23:07:22  ncq
