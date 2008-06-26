@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.113 $"
+__version__ = "$Revision: 1.114 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -342,19 +342,37 @@ from (
 
 			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
 
-			lines.append(_('Encounters: %s (%s - %s):\n') % (
+			lines.append(_('Encounters: %s (%s - %s):') % (
 				len(encs),
 				first_encounter['started'].strftime('%m/%Y'),
 				last_encounter['last_affirmed'].strftime('%m/%Y')
 			))
 
 			for enc in encs:
-				lines.append(u'%s - %s (%s):%s' % (
+				lines.append(u' %s - %s (%s):%s' % (
 					enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 					enc['last_affirmed_original_tz'].strftime('%H:%M'),
 					enc['l10n_type'],
 					gmTools.coalesce(enc['assessment_of_encounter'], u'', u' \u00BB%s\u00AB')
 				))
+
+		# documents
+		doc_folder = patient.get_document_folder()
+		docs = doc_folder.get_documents (
+			episode = self._payload[self._idx['pk_episode']]
+		)
+
+		if len(docs) > 0:
+			lines.append('')
+			lines.append(_('Documents: %s') % len(docs))
+
+		for d in docs:
+			lines.append(u' %s %s:%s%s' % (
+				d['date'].strftime('%Y-%m-%d'),
+				d['l10n_type'],
+				gmTools.coalesce(d['comment'], u'', u' "%s"'),
+				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+			))
 
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
@@ -620,6 +638,7 @@ select exists (
 
 		if len(tests) > 0:
 			lines.append('')
+			lines.append(_('Measurements and Results:'))
 
 		for t in tests:
 			lines.append(u' %s %s (%s): %s %s (%s)' % (
@@ -642,18 +661,30 @@ select exists (
 					gmTools.bool2subst(t['is_clinically_relevant'], u'relevant', u'not relevant')
 				))
 
+		# documents
+		doc_folder = patient.get_document_folder()
+		docs = doc_folder.get_documents (
+			episode = episode['pk_episode'],
+			encounter = self._payload[self._idx['pk_encounter']]
+		)
+
+		if len(docs) > 0:
+			lines.append('')
+			lines.append(_('Documents:'))
+
+		for d in docs:
+			lines.append(u' %s %s:%s%s' % (
+				d['date'].strftime('%Y-%m-%d'),
+				d['l10n_type'],
+				gmTools.coalesce(d['comment'], u'', u' "%s"'),
+				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+			))
+
 		eol_w_margin = u'\n%s' % left_margin
 		return u'%s\n' % eol_w_margin.join(lines)
 
-		# special items (allergies, documents, vaccinations, ...)
+		# special items (vaccinations, ...)
 
-#        filtered_items = []
- #       filtered_items.extend(emr.get_allergies(
-  #          since=self.__constraints['since'],
-   #         until=self.__constraints['until'],
-    #        encounters=self.__constraints['encounters'],
-     #       episodes=self.__constraints['episodes'],
-      #      issues=self.__constraints['issues']))
 #        try:
  #               filtered_items.extend(emr.get_vaccinations(
   #                  since=self.__constraints['since'],
@@ -847,7 +878,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.113  2008-06-24 16:53:58  ncq
+# Revision 1.114  2008-06-26 21:17:59  ncq
+# - episode formatting: include docs
+# - encounter formatting: include results and docs
+#
+# Revision 1.113  2008/06/24 16:53:58  ncq
 # - include test results in encounter formatting such
 #   as to be included in the EMR tree browser :-)
 #
