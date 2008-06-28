@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.408 2008-06-26 17:01:57 ncq Exp $
-__version__ = "$Revision: 1.408 $"
+# $Id: gmGuiMain.py,v 1.409 2008-06-28 18:26:50 ncq Exp $
+__version__ = "$Revision: 1.409 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -321,9 +321,16 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message (all users).'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
 
+		menu_cfg_client = wx.Menu()
+		menu_config.AppendMenu(wx.NewId(), _('Client ...'), menu_cfg_client)
+
 		ID = wx.NewId()
-		menu_cfg_db.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
+		menu_cfg_client.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
 		wx.EVT_MENU(self, ID, self.__on_set_export_chunk_size)
+
+		ID = wx.NewId()
+		menu_cfg_client.Append(ID, _('Temporary directory'), _('Configure the directory to use as scratch space for temporary files.'))
+		wx.EVT_MENU(self, ID, self.__on_set_temp_dir)
 
 		# -- submenu gnumed / config / ui
 		menu_cfg_ui = wx.Menu()
@@ -669,12 +676,19 @@ class gmTopLevelFrame(wx.Frame):
 		# menu "Knowledge" ---------------------
 		menu_knowledge = wx.Menu()
 		self.__gb['main.knowledgemenu'] = menu_knowledge
-		self.mainmenu.Append(menu_knowledge, _("&Knowledge"))
+		self.mainmenu.Append(menu_knowledge, _('&Knowledge'))
+
+		menu_drug_dbs = wx.Menu()
+		menu_knowledge.AppendMenu(wx.NewId(), _('&Drug Resources'), menu_drug_dbs)
 
 		# - IFAP drug DB
 		ID_IFAP = wx.NewId()
-		menu_knowledge.Append(ID_IFAP, _('ifap index (Win)'), _('Start "ifap index PRAXIS (Windows)" drug browser'))
+		menu_drug_dbs.Append(ID_IFAP, u'ifap', _('Start "ifap index PRAXIS" %s drug browser (Windows/Wine, Germany)') % gmTools.u_registered_trademark)
 		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
+
+		menu_id = wx.NewId()
+		menu_drug_dbs.Append(menu_id, u'kompendium.ch', _('Show "kompendium.ch" drug database (online, Switzerland)'))
+		wx.EVT_MENU(self, menu_id, self.__on_kompendium_ch)
 
 #		menu_knowledge.AppendSeparator()
 
@@ -1006,7 +1020,39 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_check_for_updates(self, evt):
 		check_for_updates()
 	#----------------------------------------------
-	# submenu GNUmed / database
+	# submenu GNUmed / options / client
+	#----------------------------------------------
+	def __on_set_temp_dir(self, evt):
+
+		cfg = gmCfg.cCfgSQL()
+
+		tmp_dir = gmTools.coalesce (
+			cfg.get2 (
+				option = "horstspace.tmp_dir",
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'workplace'
+			),
+			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+		)
+
+		dlg = wx.DirDialog (
+			parent = self,
+			message = _('Choose temporary directory ...'),
+			defaultPath = tmp_dir,
+			style = wx.DD_DEFAULT_STYLE
+		)
+		result = dlg.ShowModal()
+		tmp_dir = dlg.GetPath()
+		dlg.Destroy()
+
+		if result != wx.ID_OK:
+			return
+
+		cfg.set (
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			option = "horstspace.tmp_dir",
+			value = tmp_dir
+		)
 	#----------------------------------------------
 	def __on_set_export_chunk_size(self, evt):
 
@@ -1039,6 +1085,8 @@ class gmTopLevelFrame(wx.Frame):
 			default_value = 1024 * 1024,
 			validator = is_valid
 		)
+	#----------------------------------------------
+	# submenu GNUmed / database
 	#----------------------------------------------
 	def __on_set_db_lang(self, event):
 
@@ -1575,6 +1623,13 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_ifap(self, evt):
 		jump_to_ifap()
+	#----------------------------------------------
+	def __on_kompendium_ch(self, evt):
+		webbrowser.open (
+			url = 'http://www.kompendium.ch',
+			new = False,
+			autoraise = True
+		)
 	#----------------------------------------------
 	# Help / Debugging
 	#----------------------------------------------
@@ -2531,7 +2586,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.408  2008-06-26 17:01:57  ncq
+# Revision 1.409  2008-06-28 18:26:50  ncq
+# - enable temp dir configuration
+# - link to kompendium.ch
+# - some menu reorg
+#
+# Revision 1.408  2008/06/26 17:01:57  ncq
 # - be extra careful about returning distinct results from cfg
 #
 # Revision 1.407  2008/06/16 21:35:12  ncq
