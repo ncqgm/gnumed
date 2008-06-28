@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.57 2008-05-31 16:32:42 ncq Exp $
+# $Id: gmTools.py,v 1.58 2008-06-28 18:25:01 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -41,6 +41,7 @@ default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
 
+u_registered_trademark = u'\u00ae'
 u_ellipsis = u'\u2026'
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
@@ -877,7 +878,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.57  2008-05-31 16:32:42  ncq
+# Revision 1.58  2008-06-28 18:25:01  ncq
+# - add unicode Registered TM symbol
+#
+# Revision 1.57  2008/05/31 16:32:42  ncq
 # - a couple of unicode shortcuts
 #
 # Revision 1.56  2008/05/26 12:05:50  ncq
