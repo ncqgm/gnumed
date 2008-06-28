@@ -20,7 +20,6 @@ known_signals = [
 	u'statustext',				# args: msg=message, beep=whether to beep or not
 	u'display_widget',			# args: name=name of widget, other=widget specific (see receivers)
 	u'application_closing',
-	u'episodes_modified',
 	u'request_user_attention'
 ]
 
@@ -301,7 +300,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.14  2007-12-12 16:17:15  ncq
+# Revision 1.15  2008-06-28 22:33:57  ncq
+# - remove obsolete signal
+#
+# Revision 1.14  2007/12/12 16:17:15  ncq
 # - better logger names
 #
 # Revision 1.13  2007/12/11 15:35:46  ncq
