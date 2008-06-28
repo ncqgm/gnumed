@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.87 2008-05-19 16:23:33 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmEMRBrowser.py,v 1.88 2008-06-28 18:25:58 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -32,7 +32,7 @@ def export_emr_to_ascii(parent=None):
 	"""
 	# sanity checks
 	if parent is None:
-		raise TypeError('[export_emr_to_ascii]: expected wx.Window instance as parent, got <None>')
+		raise TypeError('expected wx.Window instance as parent, got <None>')
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.is_connected():
@@ -213,6 +213,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Delete')))
 		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__delete_issue)
 
+		self.__issue_context_popup.AppendSeparator()
+
+		menu_id = wx.NewId()
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Open to encounter level')))
+		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__expand_issue_to_encounter_level)
+		# print " attach issue to another patient"
+		# print " move all episodes to another issue"
+
 		# - root node
 		self.__root_context_popup = wx.Menu(title = _('EMR Menu'))
 		# add health issue
@@ -223,8 +231,24 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('manage allergies')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
-		# print " attach issue to another patient"
-		# print " move all episodes to another issue"
+
+		self.__root_context_popup.AppendSeparator()
+
+		# expand tree
+		expand_menu = wx.Menu()
+		self.__root_context_popup.AppendMenu(wx.NewId(), _('Open EMR to ...'), expand_menu)
+
+		menu_id = wx.NewId()
+		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... issue level')))
+		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_issue_level)
+
+		menu_id = wx.NewId()
+		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... episode level')))
+		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_episode_level)
+
+		menu_id = wx.NewId()
+		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... encounter level')))
+		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_encounter_level)
 	#--------------------------------------------------------
 	def __handle_root_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__root_context_popup, pos)
@@ -322,6 +346,18 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		except gmExceptions.DatabaseObjectInUseError:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete health issue. There is still clinical data recorded for it.'))
 	#--------------------------------------------------------
+	def __expand_issue_to_encounter_level(self, evt):
+
+		if not self.__curr_node.IsOk():
+			return
+
+		self.Expand(self.__curr_node)
+
+		epi, epi_cookie = self.GetFirstChild(self.__curr_node)
+		while epi.IsOk():
+			self.Expand(epi)
+			epi, epi_cookie = self.GetNextChild(self.__curr_node, epi_cookie)
+	#--------------------------------------------------------
 	def __create_issue(self, event):
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
 		ea.ShowModal()
@@ -332,6 +368,63 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__populate_tree()
 		return
+	#--------------------------------------------------------
+	def __expand_to_issue_level(self, evt):
+
+		root_item = self.GetRootItem()
+
+		if not root_item.IsOk():
+			return
+
+		self.Expand(root_item)
+
+		# collapse episodes and issues
+		issue, issue_cookie = self.GetFirstChild(root_item)
+		while issue.IsOk():
+			self.Collapse(issue)
+			epi, epi_cookie = self.GetFirstChild(issue)
+			while epi.IsOk():
+				self.Collapse(epi)
+				epi, epi_cookie = self.GetNextChild(issue, epi_cookie)
+			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
+	#--------------------------------------------------------
+	def __expand_to_episode_level(self, evt):
+
+		root_item = self.GetRootItem()
+
+		if not root_item.IsOk():
+			return
+
+		self.Expand(root_item)
+
+		# collapse episodes, expand issues
+		issue, issue_cookie = self.GetFirstChild(root_item)
+		while issue.IsOk():
+			self.Expand(issue)
+			epi, epi_cookie = self.GetFirstChild(issue)
+			while epi.IsOk():
+				self.Collapse(epi)
+				epi, epi_cookie = self.GetNextChild(issue, epi_cookie)
+			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
+	#--------------------------------------------------------
+	def __expand_to_encounter_level(self, evt):
+
+		root_item = self.GetRootItem()
+
+		if not root_item.IsOk():
+			return
+
+		self.Expand(root_item)
+
+		# collapse episodes, expand issues
+		issue, issue_cookie = self.GetFirstChild(root_item)
+		while issue.IsOk():
+			self.Expand(issue)
+			epi, epi_cookie = self.GetFirstChild(issue)
+			while epi.IsOk():
+				self.Expand(epi)
+				epi, epi_cookie = self.GetNextChild(issue, epi_cookie)
+			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -552,7 +645,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.87  2008-05-19 16:23:33  ncq
+# Revision 1.88  2008-06-28 18:25:58  ncq
+# - add expand to ... level popup menu items in EMR tree
+#
+# Revision 1.87  2008/05/19 16:23:33  ncq
 # - let EMR format its summary itself
 #
 # Revision 1.86  2008/04/11 12:27:45  ncq
