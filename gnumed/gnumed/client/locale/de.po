@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.119 $
+# $Revision: 1.120 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-06-24 16:06+CEST\n"
-"PO-Revision-Date: 2008-06-24 16:18+0100\n"
+"POT-Creation-Date: 2008-06-29 00:40+CEST\n"
+"PO-Revision-Date: 2008-06-29 01:09+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -203,8 +203,11 @@ msgstr "Keine APK für diese Episode gefunden."
 msgid "Last worked on: %s\n"
 msgstr "Zuletzt behandelt: %s\n"
 
-msgid "Encounters: %s (%s - %s):\n"
-msgstr "Konsultationen: %s (%s - %s):\n"
+msgid "Encounters: %s (%s - %s):"
+msgstr "Konsultationen: %s (%s - %s):"
+
+msgid "Documents: %s"
+msgstr "Dokumente: %s"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Ortszeit: %s - %s  (@%s = %s%s)\n"
@@ -223,6 +226,12 @@ msgstr "Verlauf für andauernde Episode %s%s%s:"
 
 msgid "Progress notes for closed episode %s%s%s:"
 msgstr "Verlauf für beendete Episode %s%s%s:"
+
+msgid "Measurements and Results:"
+msgstr "Messungen und Ergebnisse:"
+
+msgid "Documents:"
+msgstr "Dokumente:"
 
 msgid "no descriptions available"
 msgstr "keine Beschreibungen verfügbar"
@@ -3202,6 +3211,9 @@ msgstr "APK-Daten einer anderen Episode zuordnen"
 msgid "Health Issue Menu"
 msgstr "Menü \"Grunderkrankung\""
 
+msgid "Open to encounter level"
+msgstr "Bis zur Konsultationsebene aufklappen"
+
 msgid "EMR Menu"
 msgstr "Menü \"Karteikarte\""
 
@@ -3210,6 +3222,18 @@ msgstr "Grunderkrankung anlegen"
 
 msgid "manage allergies"
 msgstr "Allergien dokumentieren"
+
+msgid "Open EMR to ..."
+msgstr "Karteikarte entfalten auf ..."
+
+msgid "... issue level"
+msgstr "... Ebene \"Grunderkrankungen\""
+
+msgid "... episode level"
+msgstr "... Ebene \"Episoden\""
+
+msgid "... encounter level"
+msgstr "... Ebene \"Konsultationen\""
 
 msgid "Episode %s"
 msgstr "Episode %s"
@@ -3818,11 +3842,20 @@ msgstr "Ändern der Begrüßung durch die Datenbank (alle Benutzer)."
 msgid "Welcome message"
 msgstr "Begrüßung"
 
+msgid "Client parameters ..."
+msgstr "Programmparameter ..."
+
 msgid "Configure the chunk size used when exporting BLOBs from the database."
 msgstr "Konfigurieren der Blockgröße für den Export von Binärdaten aus der Datenbank."
 
 msgid "Export chunk size"
 msgstr "Export-Blockgröße"
+
+msgid "Configure the directory to use as scratch space for temporary files."
+msgstr "Wahl des Arbeitserzeichnisses für temporäre Dateien."
+
+msgid "Temporary directory"
+msgstr "Arbeitsverzeichnis"
 
 msgid "User interface ..."
 msgstr "Programmoberfläche ..."
@@ -3879,7 +3912,7 @@ msgid "The URL to retrieve version information from."
 msgstr "Die Adresse, von der Versionsinformationen geladen werden."
 
 msgid "URL"
-msgstr "Nummer"
+msgstr "Adresse/Nummer"
 
 msgid "Patient search ..."
 msgstr "Patientensuche ..."
@@ -3898,6 +3931,15 @@ msgstr "Sofortige Quellenaktivierung"
 
 msgid "Configure which plugin to show right after patient activation."
 msgstr "Konfiguration des Moduls nach Patientenaufruf."
+
+msgid "Progress notes handling ..."
+msgstr "Management Verlaufsnotizen ..."
+
+msgid "Configure opening multiple new episodes on a patient at once."
+msgstr "Mehrere neue Episoden bei einem Patienten gleichzeitig erlauben."
+
+msgid "Multiple new episodes"
+msgstr "Mehrere neue Episoden"
 
 msgid "External tools ..."
 msgstr "Externe Werkzeuge"
@@ -3918,10 +3960,10 @@ msgid "Encounter ..."
 msgstr "Konsultation ..."
 
 msgid "Edit encounter details on changing of patients."
-msgstr "Bei Patientenwechsel Details der Konsultation ändern."
+msgstr "Bei Patientenwechsel Bearbeiten der Details der Konsultation ermöglichen."
 
 msgid "Edit on patient change"
-msgstr "Bei Patientenwechsel ändern"
+msgstr "Bei Patientenwechsel editieren"
 
 msgid "Minimum duration"
 msgstr "Minimale Dauer"
@@ -3939,7 +3981,7 @@ msgid "Minimum age of an empty encounter before considering for deletion."
 msgstr "Minimalalter eines leeren APK, bevor dieser zum Löschen freigegeben wird."
 
 msgid "Minimum empty age"
-msgstr "Minimales Leeralter."
+msgstr "Minimales Leeralter"
 
 msgid "Default type"
 msgstr "Standardtyp"
@@ -4130,11 +4172,14 @@ msgstr "Snellen-Tafel"
 msgid "&Knowledge"
 msgstr "&Wissen"
 
-msgid "Start \"ifap index PRAXIS (Windows)\" drug browser"
-msgstr "Die Medikamentendatenbank \"ifap index PRAXIS (Windows)\" starten."
+msgid "&Drug Resources"
+msgstr "&Medikamentenquellen"
 
-msgid "ifap index (Win)"
-msgstr "ifap index (Win)"
+msgid "Start \"ifap index PRAXIS\" %s drug browser (Windows/Wine, Germany)"
+msgstr "Starte \"ifap index PRAXIS\" %s (Windows/Wine, Deutschland)."
+
+msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
+msgstr "Zeige Medikamentendatenbank \"kompendium.ch\" (online, Schweiz)"
 
 msgid "Medical links (www)"
 msgstr "Medizinische Links (WWW)"
@@ -4252,6 +4297,9 @@ msgstr "nur Dokumente hinzugefügt"
 
 msgid "Cannot write letter. No active patient."
 msgstr "Kann keinen Brief schreiben. Kein Patient aktiv."
+
+msgid "Choose temporary directory ..."
+msgstr "Arbeitsverzeichnis wählen ..."
 
 msgid ""
 "Some network installations cannot cope with loading\n"
@@ -4381,6 +4429,22 @@ msgstr ""
 " \"heute %s <die hier gesetzte Spanne>\"\n"
 "fällt, denn erinnert GNUmed an den nahen Termin\n"
 "des Jahrestags."
+
+msgid ""
+"When adding progress notes do you want to\n"
+"allow opening several unassociated, new\n"
+"episodes for a patient at once ?\n"
+"\n"
+"This can be particularly helpful when entering\n"
+"progress notes on entirely new patients presenting\n"
+"with a multitude of problems on their first visit."
+msgstr ""
+
+msgid "Yes, allow for multiple new episodes concurrently."
+msgstr "Ja, mehrere neue Episoden gleichzeitig zulassen."
+
+msgid "No, only allow editing one new episode at a time."
+msgstr "Nein, immer nur eine neue Episode gleichzeitig editieren lassen."
 
 msgid ""
 "When a patient is activated GNUmed can\n"
@@ -6196,20 +6260,36 @@ msgstr " Neu "
 msgid "Enter vaccination given"
 msgstr "Verabreichte Impfung eingeben"
 
+msgid ""
+"Are you sure you really want to\n"
+"discard this progress note ?\n"
+msgstr ""
+"Sind Sie sicher, daß diese Verlaufsnotiz\n"
+"verworfen werden soll ?\n"
+
+msgid "Discarding progress note"
+msgstr "Verwerfe Verlaufsnotiz"
+
 msgid "Active problems"
 msgstr "Aktuelle Probleme"
 
 msgid "&New"
 msgstr "&Neu"
 
-msgid "add editor for new unassociated progress note"
-msgstr "Maske für vorerst nicht zugeordnete Verlaufsnotiz öffnen"
+msgid "Add editor for a new unassociated progress note."
+msgstr "Editor für vorerst nicht zugeordnete Verlaufsnotiz öffnen."
 
-msgid "clear progress note editor"
-msgstr "Editor für Verlaufsnotiz leeren"
+msgid "Save progress note into medical record and close this editor."
+msgstr "Verlaufsnotiz in Kartei abspeichern und Editor schließen."
 
-msgid "save progress note into medical record"
-msgstr "Verlaufsnotiz in Kartei abspeichern"
+msgid "Clear this progress note editor."
+msgstr "Editor für Verlaufsnotiz leeren."
+
+msgid "&Discard"
+msgstr "&Verwerfen"
+
+msgid "Discard progress note and close this editor. You will loose any data already typed into this editor !"
+msgstr "Verlaufsnotiz verwerfen und diesen Editor schließen. Sie verlieren dabei alle bereits in diesen Editor eingegebenen Daten !"
 
 msgid ""
 "Cannot open progress note editor for\n"
@@ -7109,6 +7189,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "ifap index (Win)"
+#~ msgstr "ifap index (Win)"
 #~ msgid ""
 #~ "The test type already exists but the long name is different. The test "
 #~ "facility may have changed the descriptive name of this test."
