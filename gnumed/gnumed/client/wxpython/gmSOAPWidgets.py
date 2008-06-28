@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.100 2008-03-05 22:30:15 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmSOAPWidgets.py,v 1.101 2008-06-28 22:37:39 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -108,8 +108,8 @@ progress_note_keywords = {
 }
 #============================================================
 class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
-	"""Notebook style widget displaying progress note editors.
-	"""
+	"""A notebook holding progress note editors."""
+
 	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize):
 		wx.Notebook.__init__ (
 			self,
@@ -147,7 +147,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			label = problem_to_add['problem']
 			# FIXME: configure maximum length
 			if len(label) > 23:
-				label = label[:20] + '...'
+				label = label[:21] + gmTools.u_ellipsis
 
 		if allow_same_problem:
 			new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
@@ -197,6 +197,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 					self.SetSelection(page_idx)
 					return True
 				continue
+
 		# - add new editor
 		new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
 		result = self.AddPage (
@@ -204,7 +205,29 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			text = label,
 			select = True
 		)
+
 		return result
+	#--------------------------------------------------------
+	def close_current_editor(self):
+
+		page_idx = self.GetSelection()
+		page = self.GetPage(page_idx)
+
+		if not page.editor_empty():
+			really_discard = gmGuiHelpers.gm_show_question (
+				_('Are you sure you really want to\n'
+				  'discard this progress note ?\n'
+				),
+				_('Discarding progress note')
+			)
+			if really_discard is False:
+				return
+
+		self.DeletePage(page_idx)
+
+		# always keep one unassociated editor open
+		if self.GetPageCount() == 0:
+			self.add_editor()
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -230,15 +253,19 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		# client internal signals
 		gmDispatcher.connect(signal='pre_patient_selection', receiver=self._on_pre_patient_selection)
 		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
-		gmDispatcher.connect(signal='episodes_modified', receiver=self._on_episodes_modified)
 		gmDispatcher.connect(signal='application_closing', receiver=self._on_application_closing)
+
+		#gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_mod_db)
+		#gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_issue_mod_db)
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		"""Another patient is about to be activated."""
+		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		print "need to ask user about SOAP saving !"
+		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 #		print "[%s]: another patient is about to become active" % self.__class__.__name__
 #		print "need code to:"
 #		print "- ask user about unsaved progress notes"
-		pass
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		"""Patient changed."""
@@ -246,31 +273,33 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		self.add_editor()
 		self._schedule_data_reget()
 	#--------------------------------------------------------
-	def _on_episodes_modified(self):
+#	def _on_episodes_modified(self):
 #		print "[%s]: episode modified" % self.__class__.__name__
 #		print "need code to deal with:"
 #		print "- deleted episode that we show so we can notify the user"
 #		print "- renamed episode so we can update our episode label"
 #		self._schedule_data_reget()
-		pass
+#		pass
 	#--------------------------------------------------------
 	def _on_application_closing(self):
 		"""Patient changed."""
+		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		print "need to ask user about SOAP saving !"
+		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 #		print "[%s]: the application is closing down" % self.__class__.__name__
 #		print "need code to:"
 #		print "- ask user about unsaved data"
-		pass
 #============================================================
 class cNotebookedProgressNoteInputPanel(wx.Panel):
-	"""A progress note input panel.
+	"""A progress notes input panel.
+
+	Expects to be used as a notebook page.
 
 	Left hand side:
 	- problem list (health issues and active episodes)
 
 	Right hand side:
-	- progress note editors notebook
-
-	Expects to live in a notebook.
+	- notebook with progress note editors
 
 	Listens to patient change signals, thus acts on the current patient.
 	"""
@@ -346,23 +375,23 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		self.__soap_notebook = cProgressNoteInputNotebook(PNL_soap_editors, -1)
 		# - buttons
 		self.__BTN_add_unassociated = wx.Button(PNL_soap_editors, -1, _('&New'))
-		self.__BTN_add_unassociated.SetToolTipString(_('add editor for new unassociated progress note'))
-
-		self.__BTN_clear = wx.Button(PNL_soap_editors, -1, _('&Reset'))
-		self.__BTN_clear.SetToolTipString(_('clear progress note editor'))
+		self.__BTN_add_unassociated.SetToolTipString(_('Add editor for a new unassociated progress note.'))
 
 		self.__BTN_save = wx.Button(PNL_soap_editors, -1, _('&Save'))
-		self.__BTN_save.SetToolTipString(_('save progress note into medical record'))
+		self.__BTN_save.SetToolTipString(_('Save progress note into medical record and close this editor.'))
 
-#		self.__BTN_discard = wx.Button(PNL_soap_editors, -1, _('&Discard'))
-#		self.__BTN_discard.SetToolTipString(_('Discard progress note and close editor. This will loose any data you already typed into this editor !'))
+		self.__BTN_clear = wx.Button(PNL_soap_editors, -1, _('&Clear'))
+		self.__BTN_clear.SetToolTipString(_('Clear this progress note editor.'))
+
+		self.__BTN_discard = wx.Button(PNL_soap_editors, -1, _('&Discard'))
+		self.__BTN_discard.SetToolTipString(_('Discard progress note and close this editor. You will loose any data already typed into this editor !'))
 
 		# - arrange
 		szr_btns_right = wx.BoxSizer(wx.HORIZONTAL)
 		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.SHAPED)
 		szr_btns_right.Add(self.__BTN_clear, 0, wx.SHAPED)
 		szr_btns_right.Add(self.__BTN_save, 0, wx.SHAPED)
-#		szr_btns_right.Add(self.__BTN_discard, 0, wx.SHAPED)
+		szr_btns_right.Add(self.__BTN_discard, 0, wx.SHAPED)
 
 		szr_right = wx.BoxSizer(wx.VERTICAL)
 		szr_right.Add(self.__soap_notebook, 1, wx.EXPAND)
@@ -423,20 +452,20 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
 		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
-#		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
+		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
 		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
 		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
-		gmDispatcher.connect(signal='episodes_modified', receiver=self._on_episodes_modified)
-		# FIXME: issues modified missing
+		gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		"""Patient changed."""
 		if self.GetParent().GetCurrentPage() == self:
 			self.reset_ui_content()
 	#--------------------------------------------------------
-	def _on_episodes_modified(self):
+	def _on_episode_issue_mod_db(self):
 		if self.GetParent().GetCurrentPage() == self:
 			self.__refresh_problem_list()
 	#--------------------------------------------------------
@@ -451,7 +480,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 
 		Will throw away data !
 		"""
-		self.__soap_notebook.DeletePage(self.__soap_notebook.GetSelection())
+		self.__soap_notebook.close_current_editor()
 	#--------------------------------------------------------
 	def __on_add_unassociated(self, evt):
 		"""Add new editor for as-yet unassociated progress note.
@@ -586,7 +615,7 @@ class cPopupDataHolder:
 	# def get_data(self, desc=None):
 	# def rename_data(self, old_desc=None, new_desc=None):
 #============================================================
-class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
+class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 	def __init__(self, parent, size, input_defs=None, problem=None):
 		"""Resizing SOAP note input editor.
@@ -684,7 +713,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		# - new episode, must get name from narrative (or user)
 		if (self.__problem is None) or (self.__problem['type'] == 'issue'):
 			# work out episode name
-			epic_name = u''
+			epi_name = u''
 			if len(aoe) != 0:
 				epi_name = aoe
 			else:
@@ -695,9 +724,12 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				message = _('Enter a descriptive name for the new episode:'),
 				caption = _('Adding a new episode'),
 				defaultValue = epi_name.replace('\r', '//').replace('\n', '//'),
-				style = wx.OK | wx.CENTRE
+				style = wx.OK | wx.CANCEL | wx.CENTRE
 			)
-			dlg.ShowModal()
+			decision = dlg.ShowModal()
+			if decision != wx.ID_OK:
+				return False
+
 			epi_name = dlg.GetValue().strip()
 			if epi_name == u'':
 				gmGuiHelpers.gm_show_error(_('Cannot save a new episode without a name.'), _('saving progress note'))
@@ -745,6 +777,15 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 	#--------------------------------------------------------
 	def get_problem(self):
 		return self.__problem
+	#--------------------------------------------------------
+	def is_empty(self):
+		editor_content = self.GetValue()
+
+		for field_content in editor_content.values():
+			if field_content.text.strip() != u'':
+				return False
+
+		return True
 #============================================================
 class cResizingSoapPanel(wx.Panel):
 	"""Basic progress note panel.
@@ -872,8 +913,12 @@ class cResizingSoapPanel(wx.Panel):
 		Check SOAP input widget saved (dumped to backend) state
 		"""
 		return self.__is_saved
+	#--------------------------------------------------------
 	def save(self):
 		return self.__soap_editor.save()
+	#--------------------------------------------------------
+	def editor_empty(self):
+		return self.__soap_editor.is_empty()
 #============================================================
 class cSingleBoxSOAP(wx.TextCtrl):
 	"""if we separate it out like this it can transparently gain features"""
@@ -1131,7 +1176,14 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.100  2008-03-05 22:30:15  ncq
+# Revision 1.101  2008-06-28 22:37:39  ncq
+# - visual improvement
+# - improved code comments
+# - add button to discard current editor
+# - prepare for saving soap on patient change/shutdown
+# - allow backing out of saving soap when asked for title of new episode
+#
+# Revision 1.100  2008/03/05 22:30:15  ncq
 # - new style logging
 #
 # Revision 1.99  2008/02/25 17:43:03  ncq
