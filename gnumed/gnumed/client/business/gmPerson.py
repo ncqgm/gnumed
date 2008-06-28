@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.161 2008-04-26 21:30:35 ncq Exp $
-__version__ = "$Revision: 1.161 $"
+# $Id: gmPerson.py,v 1.162 2008-06-28 18:24:24 ncq Exp $
+__version__ = "$Revision: 1.162 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1674,13 +1674,18 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 	def __init__(self):
 		gmMatchProvider.cMatchProvider_SQL2.__init__(
 			self,
-			queries = [u"""select
-							pk_staff,
-							short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')',
-							1
-						from dem.v_staff
-						where
-							short_alias || ' ' || firstnames || ' ' || lastnames || ' ' || db_user %(fragment_condition)s"""]
+			queries = [
+				u"""select
+						pk_staff,
+						short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')',
+						1
+					from dem.v_staff
+					where
+						short_alias %(fragment_condition)s or
+						firstnames %(fragment_condition)s or
+						lastnames %(fragment_condition)s or
+						db_user %(fragment_condition)s"""
+			]
 		)
 		self.setThresholds(1, 2, 3)
 #============================================================
@@ -2170,7 +2175,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.161  2008-04-26 21:30:35  ncq
+# Revision 1.162  2008-06-28 18:24:24  ncq
+# - fix provider match provider to act on cursor-down / *, too
+#
+# Revision 1.161  2008/04/26 21:30:35  ncq
 # - fix unlink_occupation
 #
 # Revision 1.160  2008/04/02 10:15:17  ncq
