@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.409 2008-06-28 18:26:50 ncq Exp $
-__version__ = "$Revision: 1.409 $"
+# $Id: gmGuiMain.py,v 1.410 2008-06-28 22:34:46 ncq Exp $
+__version__ = "$Revision: 1.410 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -322,7 +322,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
 
 		menu_cfg_client = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('Client ...'), menu_cfg_client)
+		menu_config.AppendMenu(wx.NewId(), _('Client parameters ...'), menu_cfg_client)
 
 		ID = wx.NewId()
 		menu_cfg_client.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
@@ -391,6 +391,14 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after patient activation.'))
 		wx.EVT_MENU(self, ID, self.__on_set_initial_pat_plugin)
+
+		# -- submenu gnumed / config / ui / soap handling
+		menu_cfg_soap_editing = wx.Menu()
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Progress notes handling ...'), menu_cfg_soap_editing)
+
+		ID = wx.NewId()
+		menu_cfg_soap_editing.Append(ID, _('Multiple new episodes'), _('Configure opening multiple new episodes on a patient at once.'))
+		wx.EVT_MENU(self, ID, self.__on_allow_multiple_new_episodes)
 
 		# -- submenu gnumed / config / external tools
 		menu_cfg_ext_tools = wx.Menu()
@@ -1263,6 +1271,26 @@ class gmTopLevelFrame(wx.Frame):
 			bias = 'user',
 			default_value = '1 week',
 			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_allow_multiple_new_episodes(self, evt):
+
+		gmCfgWidgets.configure_boolean_option (
+			parent = self,
+			question = _(
+				'When adding progress notes do you want to\n'
+				'allow opening several unassociated, new\n'
+				'episodes for a patient at once ?\n'
+				'\n'
+				'This can be particularly helpful when entering\n'
+				'progress notes on entirely new patients presenting\n'
+				'with a multitude of problems on their first visit.'
+			),
+			option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
+			button_tooltips = [
+				_('Yes, allow for multiple new episodes concurrently.'),
+				_('No, only allow editing one new episode at a time.')
+			]
 		)
 	#----------------------------------------------
 	def __on_set_initial_pat_plugin(self, evt):
@@ -2586,7 +2614,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.409  2008-06-28 18:26:50  ncq
+# Revision 1.410  2008-06-28 22:34:46  ncq
+# - add option on progress notes editor handling
+#
+# Revision 1.409  2008/06/28 18:26:50  ncq
 # - enable temp dir configuration
 # - link to kompendium.ch
 # - some menu reorg
