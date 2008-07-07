@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.93 2008-06-24 13:59:18 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmGuiHelpers.py,v 1.94 2008-07-07 11:36:44 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -336,7 +336,7 @@ def gm_show_info(aMessage = None, aTitle = None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_warning(aMessage = None, aTitle = None):
+def gm_show_warning(aMessage=None, aTitle=None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify warning')
 
@@ -353,7 +353,7 @@ def gm_show_warning(aMessage = None, aTitle = None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle = 'generic user question dialog', cancel_button=False):
+def gm_show_question(aMessage='programmer forgot to specify question', aTitle='generic user question dialog', cancel_button=False):
 	if cancel_button:
 		style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	else:
@@ -499,7 +499,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.93  2008-06-24 13:59:18  ncq
+# Revision 1.94  2008-07-07 11:36:44  ncq
+# - just cleanup
+#
+# Revision 1.93  2008/06/24 13:59:18  ncq
 # - properly handle default buttons, SetFocus, too, in 2/3ButtonDlg
 #
 # Revision 1.92  2008/05/13 14:12:33  ncq
