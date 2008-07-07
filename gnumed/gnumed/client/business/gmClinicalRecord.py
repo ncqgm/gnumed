@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.267 2008-06-24 16:53:24 ncq Exp $
-__version__ = "$Revision: 1.267 $"
+# $Id: gmClinicalRecord.py,v 1.268 2008-07-07 11:33:15 ncq Exp $
+__version__ = "$Revision: 1.268 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1247,7 +1247,7 @@ where
 			from dem.v_basic_person where pk_identity=%s"""
 		pats, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		pat = pats[0]
-		pat_str = u'%s %s %s (%s), %s, #%s' % (
+		pat_str = u'%s %s %s (%s), %s  [#%s]' % (
 			gmTools.coalesce(pat[0], u'')[:5],
 			pat[1][:15],
 			pat[2][:15],
@@ -1257,24 +1257,18 @@ where
 		)
 		enc = gmI18N.get_encoding()
 		msg = _(
-			'Very recently (between "%s" and "%s" ago)\n'
-			'a consultation has been recorded for the patient:\n'
+			'%s\n'
 			'\n'
-			' %s\n'
+			"This patient's chart was worked on only recently:\n"
 			'\n'
-			'with the following details:\n'
+			' %s  %s - %s  (%s)\n'
 			'\n'
-			' date: %s\n'
-			' time: %s - %s\n'
-			' type: %s\n'
-			' request: %s\n'
-			' outcome: %s\n'
+			' Request: %s\n'
+			' Outcome: %s\n'
 			'\n'
-			'Do you want to continue this consultation\n'
+			'Do you want to continue that consultation\n'
 			'or do you want to start a new one ?\n'
 		) % (
-			max_ttl,
-			min_ttl,
 			pat_str,
 			encounter['started'].strftime('%x').decode(enc),
 			encounter['started'].strftime('%H:%M'), encounter['last_affirmed'].strftime('%H:%M'),
@@ -1284,9 +1278,9 @@ where
 		)
 		attach = False
 		try:
-			attach = _func_ask_user(msg = msg, caption = _('starting patient encounter'))
+			attach = _func_ask_user(msg = msg, caption = _('Starting patient encounter'))
 		except:
-			_log.exception('cannot ask user for guidance')
+			_log.exception('cannot ask user for guidance, not attaching to existing encounter')
 			return False
 		if not attach:
 			return False
@@ -1766,7 +1760,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.267  2008-06-24 16:53:24  ncq
+# Revision 1.268  2008-07-07 11:33:15  ncq
+# - improve "continue encounter ?" message
+#
+# Revision 1.267  2008/06/24 16:53:24  ncq
 # - enhance get_test_results_by_date to filter by episode/encounter
 #
 # Revision 1.266  2008/06/16 15:01:01  ncq
