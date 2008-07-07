@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.29 2008-01-30 14:03:42 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPatPicWidgets.py,v 1.30 2008-07-07 13:43:17 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -86,7 +86,7 @@ class cPatientPicture(wx.StaticBitmap):
 		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal = u'post_patient_selection')
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
-		if not self.__pat.is_connected():
+		if not self.__pat.connected:
 			gmDispatcher.send(signal='statustext', msg=_('No active patient.'))
 			return False
 		self.PopupMenu(self.__photo_menu, event.GetPosition())
@@ -191,7 +191,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.29  2008-01-30 14:03:42  ncq
+# Revision 1.30  2008-07-07 13:43:17  ncq
+# - current patient .connected
+#
+# Revision 1.29  2008/01/30 14:03:42  ncq
 # - use signal names directly
 # - switch to std lib logging
 #

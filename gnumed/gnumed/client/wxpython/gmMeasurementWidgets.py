@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.21 2008-06-24 14:00:09 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmMeasurementWidgets.py,v 1.22 2008-07-07 13:43:17 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -609,7 +609,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def _populate_with_data(self):
 		"""Populate fields in pages with data from model."""
 		pat = gmPerson.gmCurrentPatient()
-		if pat.is_connected():
+		if pat.connected:
 			self.data_grid.patient = pat
 		else:
 			self.data_grid.patient = None
@@ -1050,7 +1050,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.21  2008-06-24 14:00:09  ncq
+# Revision 1.22  2008-07-07 13:43:17  ncq
+# - current patient .connected
+#
+# Revision 1.21  2008/06/24 14:00:09  ncq
 # - action button popup menu
 # - handle result deletion
 #

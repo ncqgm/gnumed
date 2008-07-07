@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.410 2008-06-28 22:34:46 ncq Exp $
-__version__ = "$Revision: 1.410 $"
+# $Id: gmGuiMain.py,v 1.411 2008-07-07 13:43:17 ncq Exp $
+__version__ = "$Revision: 1.411 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -905,7 +905,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def _on_pre_patient_selection(self, **kwargs):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			return True
 
 		# let's try this async
@@ -917,7 +917,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# FIXME: we need a way to make sure the patient has not yet changed
 #		pat = gmPerson.gmCurrentPatient()
-#		if not pat.is_connected():
+#		if not pat.connected:
 #			return True
 
 		return True
@@ -987,7 +987,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_new_letter(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 		gmFormWidgets.create_new_letter(parent = self)
@@ -1777,7 +1777,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_start_new_encounter(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot start new encounter. No active patient.'))
 			return False
 		emr = pat.get_emr()
@@ -1786,7 +1786,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add health issue. No active patient.'))
 			return False
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
@@ -1794,7 +1794,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_medication(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add medication. No active patient.'))
 			return False
 
@@ -1804,7 +1804,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_allergies(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add allergy. No active patient.'))
 			return False
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
@@ -1812,7 +1812,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_edit_occupation(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit occupation. No active patient.'))
 			return False
 		gmDemographicsWidgets.edit_occupation()
@@ -1820,7 +1820,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_measurement(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add measurement. No active patient.'))
 			return False
 		gmMeasurementWidgets.add_new_measurement(parent = self)
@@ -1828,7 +1828,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show EMR summary. No active patient.'))
 			return False
 
@@ -1845,7 +1845,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_search_emr(self, event):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot search EMR. No active patient.'))
 			return False
 
@@ -1885,7 +1885,7 @@ Search results:
 	def __on_export_emr_as_journal(self, event):
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR journal. No active patient.'))
 			return False
 		# get file name
@@ -1932,7 +1932,7 @@ Search results:
 	def __on_export_for_medistar(self, event):
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR for Medistar. No active patient.'))
 			return False
 		# get file name
@@ -2004,7 +2004,7 @@ Search results:
 	#----------------------------------------------
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add staff member. No active patient.'))
 			return False
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
@@ -2012,7 +2012,7 @@ Search results:
 	#----------------------------------------------
 	def __on_delete_patient(self, event):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete patient. No patient active.'))
 			return False
 		gmDemographicsWidgets.disable_identity(identity=pat)
@@ -2106,7 +2106,7 @@ Search results:
 		convention.
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		if pat.is_connected():
+		if pat.connected:
 			title = pat['title']
 			if title is None:
 				title = ''
@@ -2614,7 +2614,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.410  2008-06-28 22:34:46  ncq
+# Revision 1.411  2008-07-07 13:43:17  ncq
+# - current patient .connected
+#
+# Revision 1.410  2008/06/28 22:34:46  ncq
 # - add option on progress notes editor handling
 #
 # Revision 1.409  2008/06/28 18:26:50  ncq

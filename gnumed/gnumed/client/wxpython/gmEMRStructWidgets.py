@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.77 2008-06-09 15:33:59 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmEMRStructWidgets.py,v 1.78 2008-07-07 13:43:16 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -448,7 +448,7 @@ limit 30"""
 			self.use_current_patient = True
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
-			if pat.is_connected():
+			if pat.connected:
 				mp.set_context('pat', pat.ID)
 		else:
 			self.use_current_patient = False
@@ -667,7 +667,7 @@ union
 			self.use_current_patient = True
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
-			if pat.is_connected():
+			if pat.connected:
 				mp.set_context('pat', pat.ID)
 		else:
 			self.use_current_patient = False
@@ -1170,7 +1170,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.77  2008-06-09 15:33:59  ncq
+# Revision 1.78  2008-07-07 13:43:16  ncq
+# - current patient .connected
+#
+# Revision 1.77  2008/06/09 15:33:59  ncq
 # - improved episode selector SQL
 #
 # Revision 1.76  2008/05/13 14:11:53  ncq

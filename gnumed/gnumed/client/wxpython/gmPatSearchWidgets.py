@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.108 2008-05-13 14:13:57 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmPatSearchWidgets.py,v 1.109 2008-07-07 13:43:17 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -377,7 +377,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		dto = dtos[0]['dto']
 		# is it already the current patient ?
 		curr_pat = gmPerson.gmCurrentPatient()
-		if curr_pat.is_connected():
+		if curr_pat.connected:
 			key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
 			names = curr_pat.get_active_name()
 			key_pat = names['firstnames'] + names['lastnames'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
@@ -783,7 +783,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		name = u''
 
 		curr_pat = gmPerson.gmCurrentPatient()
-		if curr_pat.is_connected():
+		if curr_pat.connected:
 			name = curr_pat['description']
 			if curr_pat.locked:
 				name = _('%(name)s (locked)') % {'name': name}
@@ -831,7 +831,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
-		if gmPerson.gmCurrentPatient().is_connected():
+		if gmPerson.gmCurrentPatient().connected:
 			self.person = gmPerson.gmCurrentPatient().patient
 		else:
 			self.person = None
@@ -975,7 +975,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.108  2008-05-13 14:13:57  ncq
+# Revision 1.109  2008-07-07 13:43:17  ncq
+# - current patient .connected
+#
+# Revision 1.108  2008/05/13 14:13:57  ncq
 # - fix on-focus-select-all behaviour
 # - don't display search term after name - when a search failed this gets confusing
 #

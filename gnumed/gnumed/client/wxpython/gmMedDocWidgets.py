@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.163 2008-05-31 16:38:57 ncq Exp $
-__version__ = "$Revision: 1.163 $"
+# $Id: gmMedDocWidgets.py,v 1.164 2008-07-07 13:43:17 ncq Exp $
+__version__ = "$Revision: 1.164 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -32,7 +32,7 @@ def _save_file_as_new_document(**kwargs):
 def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, **kwargs):
 
 	pat = gmPerson.gmCurrentPatient()
-	if not pat.is_connected():
+	if not pat.connected:
 		return
 
 	emr = pat.get_emr()
@@ -531,7 +531,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	def add_filenames(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot accept new documents. No active patient.'))
 			return
 
@@ -1054,7 +1054,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__sort_mode = mode
 
 		curr_pat = gmPerson.gmCurrentPatient()
-		if not curr_pat.is_connected():
+		if not curr_pat.connected:
 			return
 
 		self._schedule_data_reget()
@@ -1065,7 +1065,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _populate_with_data(self):
 		curr_pat = gmPerson.gmCurrentPatient()
-		if not curr_pat.is_connected():
+		if not curr_pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot load documents. No active patient.'))
 			return False
 
@@ -1836,7 +1836,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.163  2008-05-31 16:38:57  ncq
+# Revision 1.164  2008-07-07 13:43:17  ncq
+# - current patient .connected
+#
+# Revision 1.163  2008/05/31 16:38:57  ncq
 # - add permalink handling
 #
 # Revision 1.162  2008/05/29 15:31:46  ncq

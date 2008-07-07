@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.151 2008-06-15 20:34:31 ncq Exp $
-__version__ = "$Revision: 1.151 $"
+# $Id: gmDemographicsWidgets.py,v 1.152 2008-07-07 13:43:16 ncq Exp $
+__version__ = "$Revision: 1.152 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2321,7 +2321,7 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def _populate_with_data(self):
 		"""Populate fields in pages with data from model."""
 		pat = gmPerson.gmCurrentPatient()
-		if pat.is_connected():
+		if pat.connected:
 			self.__patient_notebook.identity = pat
 		else:
 			self.__patient_notebook.identity = None
@@ -2622,7 +2622,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.151  2008-06-15 20:34:31  ncq
+# Revision 1.152  2008-07-07 13:43:16  ncq
+# - current patient .connected
+#
+# Revision 1.151  2008/06/15 20:34:31  ncq
 # - adjust to match provider properties
 #
 # Revision 1.150  2008/06/09 15:33:31  ncq

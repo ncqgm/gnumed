@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.117 2008-06-09 15:34:26 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmEditArea.py,v 1.118 2008-07-07 13:43:16 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -141,6 +141,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		szr = self.GetSizer()
 		szr.Fit(self)
 		self.Refresh()
+
 		self._PNL_ea.refresh()
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
@@ -172,6 +173,7 @@ class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 		ea.Reparent(self)
 		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
 		self._PNL_ea = ea
+
 		self.Layout()
 		szr = self.GetSizer()
 		szr.Fit(self)
@@ -340,7 +342,7 @@ class cEditArea2(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		if self._patient.is_connected():
+		if self._patient.connected:
 			gmDispatcher.connect(signal = 'pre_patient_selection', receiver = self._on_pre_patient_selection)
 			gmDispatcher.connect(signal = 'post_patient_selection', receiver = self.on_post_patient_selection)
 		gmDispatcher.connect(signal = 'application_closing', receiver = self._on_application_closing)
@@ -388,7 +390,7 @@ class cEditArea2(wx.Panel):
 	def _on_application_closing(self, **kwds):
 		self.__deregister_events()
 		# remember wxCallAfter
-		if not self._patient.is_connected():
+		if not self._patient.connected:
 			return True
 		# FIXME: should do this:
 #		if self.user_wants_save():
@@ -401,7 +403,7 @@ class cEditArea2(wx.Panel):
 	def _on_pre_patient_selection(self, **kwds):
 		"""Just before new patient becomes active."""
 		# remember wxCallAfter
-		if not self._patient.is_connected():
+		if not self._patient.connected:
 			return True
 		# FIXME: should do this:
 #		if self.user_wants_save():
@@ -784,7 +786,7 @@ class cEditArea(wx.Panel):
 	#--------------------------------------------------------
 	def _on_application_closing(self, **kwds):
 		# remember wxCallAfter
-		if not self._patient.is_connected():
+		if not self._patient.connected:
 			return True
 		if self._save_data():
 			return True
@@ -793,7 +795,7 @@ class cEditArea(wx.Panel):
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self, **kwds):
 		# remember wxCallAfter
-		if not self._patient.is_connected():
+		if not self._patient.connected:
 			return True
 		if self._save_data():
 			return True
@@ -2056,7 +2058,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.117  2008-06-09 15:34:26  ncq
+# Revision 1.118  2008-07-07 13:43:16  ncq
+# - current patient .connected
+#
+# Revision 1.117  2008/06/09 15:34:26  ncq
 # - cleanup
 #
 # Revision 1.116  2008/03/06 18:29:29  ncq

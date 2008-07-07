@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -53,7 +53,7 @@ class gmBackendListener(gmBorg.cBorg):
 
 		self.curr_patient_pk = None
 		if patient is not None:
-			if patient.is_connected():
+			if patient.connected:
 				self.curr_patient_pk = patient.ID
 		self.__register_interests()
 
@@ -384,7 +384,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.17  2008-06-15 20:17:17  ncq
+# Revision 1.18  2008-07-07 13:39:47  ncq
+# - current patient .connected
+#
+# Revision 1.17  2008/06/15 20:17:17  ncq
 # - be even more careful rejoining worker threads
 #
 # Revision 1.16  2008/04/28 13:31:16  ncq

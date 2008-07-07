@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.21 2008-03-06 18:29:29 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmEMRTextDump.py,v 1.22 2008-07-07 13:43:16 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -55,7 +55,7 @@ class gmEMRDumpPanel(wx.Panel):
 	def populate(self):
 		pat = gmPerson.gmCurrentPatient()
 		# this should not really happen
-		if not pat.is_connected():
+		if not pat.connected:
 			_log.Log(gmLog.lErr, 'no active patient, cannot get EMR text dump')
 			self.txt.SetValue(_('Currently there is no active patient. Cannot retrieve EMR text.'))
 			return None
@@ -117,7 +117,10 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.21  2008-03-06 18:29:29  ncq
+# Revision 1.22  2008-07-07 13:43:16  ncq
+# - current patient .connected
+#
+# Revision 1.21  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.20  2008/01/30 14:03:41  ncq

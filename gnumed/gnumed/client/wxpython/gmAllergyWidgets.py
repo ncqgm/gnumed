@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -396,7 +396,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LCTRL_allergies.DeleteAllItems()
 	#-----------------------------------------------
 	def _populate_with_data(self):
-		if not self.__pat.is_connected():
+		if not self.__pat.connected:
 			return False
 
 		self.LCTRL_allergies.DeleteAllItems()
@@ -470,7 +470,10 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.31  2008-03-06 18:29:29  ncq
+# Revision 1.32  2008-07-07 13:43:16  ncq
+# - current patient .connected
+#
+# Revision 1.31  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.30  2008/01/30 14:03:41  ncq
