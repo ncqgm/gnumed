@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.58 2008-06-28 18:25:01 ncq Exp $
+# $Id: gmTools.py,v 1.59 2008-07-07 11:34:41 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -587,12 +587,16 @@ def capitalize(text=None, mode=CAPS_NAMES):
 		return text
 
 	if mode == CAPS_FIRST:
+		if len(text) == 1:
+			return text[0].upper()
 		return text[0].upper() + text[1:]
 
 	if mode == CAPS_ALLCAPS:
 		return text.upper()
 
 	if mode == CAPS_FIRST_ONLY:
+		if len(text) == 1:
+			return text[0].upper()
 		return text[0].upper() + text[1:].lower()
 
 	if mode == CAPS_WORDS:
@@ -878,7 +882,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.58  2008-06-28 18:25:01  ncq
+# Revision 1.59  2008-07-07 11:34:41  ncq
+# - robustify capsify on single character strings
+#
+# Revision 1.58  2008/06/28 18:25:01  ncq
 # - add unicode Registered TM symbol
 #
 # Revision 1.57  2008/05/31 16:32:42  ncq
