@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -186,8 +186,10 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	os.remove(sink_name)
 #==================================================================
 def parse_INI_stream(stream=None):
-	"""Parse an iterable for INI-style data."""
+	"""Parse an iterable for INI-style data.
 
+	Returns a dict by sections containing a dict of values per section.
+	"""
 	_log.debug(u'parsing INI-style data stream [%s]' % stream)
 
 	data = {}
@@ -343,12 +345,6 @@ class gmCfgData(gmBorg.cBorg):
 			self.__cfg_data[source] = {}
 		else:
 			self.add_stream_source(source = source, stream = cfg_file)
-#			try:
-#				data = parse_INI_stream(stream = cfg_file)
-#			except ValueError:
-#				_log.exception('error parsing source <%s> from [%s] (%s)', source, file, encoding)
-#				cfg_file.close()
-#				raise
 			cfg_file.close()
 
 		self.source_files[source] = file
@@ -483,7 +479,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.11  2008-05-21 13:58:50  ncq
+# Revision 1.12  2008-07-07 11:33:57  ncq
+# - a bit of cleanup
+#
+# Revision 1.11  2008/05/21 13:58:50  ncq
 # - factor out add_stream_source from add_file_source
 #
 # Revision 1.10  2008/03/09 20:15:29  ncq
