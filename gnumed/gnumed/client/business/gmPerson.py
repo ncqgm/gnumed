@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.162 2008-06-28 18:24:24 ncq Exp $
-__version__ = "$Revision: 1.162 $"
+# $Id: gmPerson.py,v 1.163 2008-07-07 13:38:43 ncq Exp $
+__version__ = "$Revision: 1.163 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -908,6 +908,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 			# this lock protects against activating another patient
 			# when we are controlled from a remote application
 			self.__lock_depth = 0
+			# initialize callback state
+			self.__pre_selection_callbacks = []
 
 		# user wants copy of current patient
 		if patient is None:
@@ -921,6 +923,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# user wants to explicitely unset current patient
 		if patient == -1:
 			_log.debug('explicitely unsetting current patient')
+			self.__run_pre_selection_callbacks()
 			self.__send_pre_selection_notification()
 			self.patient.cleanup()
 			self.patient = gmNull.cNull()
@@ -940,6 +943,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		_log.debug('patient change [%s] -> [%s] requested' % (self.patient['pk_identity'], patient['pk_identity']))
 
 		# everything seems swell
+		self.__run_pre_selection_callbacks()
 		self.__send_pre_selection_notification()
 		self.patient.cleanup()
 		self.patient = patient
@@ -947,6 +951,14 @@ class gmCurrentPatient(gmBorg.cBorg):
 		self.__send_selection_notification()
 
 		return None
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_identity_change)
+		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_identity_change)
+	#--------------------------------------------------------
+	def _on_identity_change(self):
+		"""Listen for patient *data* change."""
+		self.patient.refetch_payload()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -967,7 +979,21 @@ class gmCurrentPatient(gmBorg.cBorg):
 #		except:
 #			_log.exception("Cannot test/create lock", sys.exc_info()) 
 	#--------------------------------------------------------
-	# patient change handling
+	# external API
+	#--------------------------------------------------------
+	def register_pre_selection_callback(self, callback=None):
+		if not callable(callback):
+			raise TypeError(u'callback [%s] not callable' % callback)
+
+		self.__pre_selection_callbacks.append(callback)
+	#--------------------------------------------------------
+	def _get_connected(self):
+		return (not isinstance(self.patient, gmNull.cNull))
+
+	def _set_connected(self):
+		raise AttributeError(u'invalid to set <connected> state')
+
+	connected = property(_get_connected, _set_connected)
 	#--------------------------------------------------------
 	def _get_locked(self):
 		return (self.__lock_depth > 0)
@@ -991,15 +1017,24 @@ class gmCurrentPatient(gmBorg.cBorg):
 		self.__lock_depth = 0
 		gmDispatcher.send(signal='patient_unlocked')
 	#--------------------------------------------------------
-	def __register_interests(self):
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_identity_change)
-		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_identity_change)
+	# patient change handling
 	#--------------------------------------------------------
-	def _on_identity_change(self):
-		self.patient.refetch_payload()
+	def __run_pre_selection_callbacks(self):
+		if isinstance(self.patient, gmNull.cNull):
+			return
+		for call_back in self.__pre_selection_callbacks:
+			try:
+				print "calling:", call_back
+				call_back()
+			except:
+				print "pre-selection callback failed"
+				_log.exception('callback [%s] failed', call_back)
 	#--------------------------------------------------------
 	def __send_pre_selection_notification(self):
-		"""Sends signal when another patient is about to become active."""
+		"""Sends signal when another patient is about to become active.
+
+		This does NOT wait for signal handlers to complete.
+		"""
 		kwargs = {
 			'pk_identity': self.patient['pk_identity'],
 			'patient': self.patient['pk_identity'],
@@ -1017,12 +1052,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 			'sender': id(self.__class__)
 		}
 		gmDispatcher.send(**kwargs)
-	#--------------------------------------------------------
-	def is_connected(self):
-		if isinstance(self.patient, gmNull.cNull):
-			return False
-		else:
-			return True
 	#--------------------------------------------------------
 	# __getattr__ handling
 	#--------------------------------------------------------
@@ -2175,7 +2204,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.162  2008-06-28 18:24:24  ncq
+# Revision 1.163  2008-07-07 13:38:43  ncq
+# - is_connected -> connected property
+# - add in-sync pre-selection callbacks
+#
+# Revision 1.162  2008/06/28 18:24:24  ncq
 # - fix provider match provider to act on cursor-down / *, too
 #
 # Revision 1.161  2008/04/26 21:30:35  ncq
