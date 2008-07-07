@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.121 2008-06-26 17:03:53 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmPhraseWheel.py,v 1.122 2008-07-07 11:39:21 ncq Exp $
+__version__ = "$Revision: 1.122 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -381,10 +381,13 @@ class cPhraseWheel(wx.TextCtrl):
 		szr_dropdown = None
 		try:
 			#raise NotImplementedError		# for testing
+			self.__use_fake_popup = False
 			self.__dropdown_needs_relative_position = False
 			self.__picklist_dropdown = wx.PopupWindow(parent)
 			list_parent = self.__picklist_dropdown
 		except NotImplementedError:
+			self.__use_fake_popup = True
+
 			# on MacOSX wx.PopupWindow is not implemented, so emulate it
 			add_picklist_to_sizer = True
 			szr_dropdown = wx.BoxSizer(wx.VERTICAL)
@@ -394,7 +397,7 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__picklist_dropdown = wx.MiniFrame (
 				parent = parent,
 				id = -1,
-				style = wx.SIMPLE_BORDER | wx.FRAME_FLOAT_ON_PARENT | wx.FRAME_NO_TASKBAR
+				style = wx.SIMPLE_BORDER | wx.FRAME_FLOAT_ON_PARENT | wx.FRAME_NO_TASKBAR | wx.POPUP_WINDOW
 			)
 			scroll_win = wx.ScrolledWindow(parent = self.__picklist_dropdown, style = wx.NO_BORDER)
 			scroll_win.SetSizer(szr_dropdown)
@@ -885,7 +888,7 @@ class cPhraseWheel(wx.TextCtrl):
 		return True
 	#----------------------------------------------------
 	def mac_log(self, msg):
-		if self.__dropdown_needs_relative_position:
+		if self.__use_fake_popup:
 			_log.debug(msg)
 #--------------------------------------------------------
 # MAIN
@@ -1012,7 +1015,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.121  2008-06-26 17:03:53  ncq
+# Revision 1.122  2008-07-07 11:39:21  ncq
+# - separate fake_popup from needs_relative_pos flag
+#
+# Revision 1.121  2008/06/26 17:03:53  ncq
 # - use a wxMiniFrame instead of a wx.Window when emulating wx.PopupWindow
 # - adjust for some extra space needed by the wx.MiniFrame
 #
