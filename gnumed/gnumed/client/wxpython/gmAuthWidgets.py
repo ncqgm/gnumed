@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.21 2008-05-28 21:26:40 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmAuthWidgets.py,v 1.22 2008-07-07 11:35:19 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -376,7 +376,7 @@ class cLoginPanel(wx.Panel):
 		label = wx.StaticText(self, -1, _('Options'), wx.DefaultPosition, wx.DefaultSize, 0)
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-		self._CHBOX_debug = wx.CheckBox(self, -1, _('debug mode'))
+		self._CHBOX_debug = wx.CheckBox(self, -1, _('&Debug mode'))
 		self._CHBOX_debug.SetToolTipString(_('Check this to run GNUmed client in debugging mode.'))
 		self.pboxgrid.Add(self._CHBOX_debug, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
@@ -384,7 +384,7 @@ class cLoginPanel(wx.Panel):
 		label = wx.StaticText(self, -1, '', wx.DefaultPosition, wx.DefaultSize, 0)
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-		self._CHBOX_slave = wx.CheckBox(self, -1, _('enable remote control'))
+		self._CHBOX_slave = wx.CheckBox(self, -1, _('Enable &remote control'))
 		self._CHBOX_slave.SetToolTipString(_('Check this to run GNUmed client in slave mode for remote control.'))
 		self.pboxgrid.Add(self._CHBOX_slave, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
@@ -677,7 +677,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.21  2008-05-28 21:26:40  ncq
+# Revision 1.22  2008-07-07 11:35:19  ncq
+# - keyboard shortcuts for check boxes
+#
+# Revision 1.21  2008/05/28 21:26:40  ncq
 # - gracefully handle OperationalErrors such as "server not available"
 #
 # Revision 1.20  2008/05/13 14:10:35  ncq
