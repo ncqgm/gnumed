@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.88 2008-06-28 18:25:58 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmEMRBrowser.py,v 1.89 2008-07-07 13:44:33 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -35,7 +35,7 @@ def export_emr_to_ascii(parent=None):
 		raise TypeError('expected wx.Window instance as parent, got <None>')
 
 	pat = gmPerson.gmCurrentPatient()
-	if not pat.is_connected():
+	if not pat.connected:
 		gmDispatcher.send(signal='statustext', msg=_('Cannot export EMR. No active patient.'))
 		return False
 
@@ -99,7 +99,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	# external API
 	#--------------------------------------------------------
 	def refresh(self):
-		if not self.__pat.is_connected():
+		if not self.__pat.connected:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot load clinical narrative. No active patient.'),)
 			return False
 
@@ -142,7 +142,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		self.SelectItem(root_item)
 		self.Expand(root_item)
-		self.SortChildren(root_item)
 		self.__curr_node = root_item
 		self.__update_text_for_selected_node()
 
@@ -478,13 +477,15 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		item1 = self.GetPyData(node1)
 		item2 = self.GetPyData(node2)
 
+		# encounters: reverse chron
 		if isinstance(item1, gmEMRStructItems.cEncounter):
 			if item1['started'] == item2['started']:
 				return 0
-			if item1['started'] < item2['started']:
+			if item1['started'] > item2['started']:
 				return -1
 			return 1
 
+		# episodes: chron
 		if isinstance(item1, gmEMRStructItems.cEpisode):
 			start1 = item1.get_access_range()[0]
 			start2 = item2.get_access_range()[0]
@@ -494,6 +495,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				return -1
 			return 1
 
+		# issues: alpha
 		if isinstance(item1, gmEMRStructItems.cHealthIssue):
 			if item1['description'].lower() == item2['description'].lower():
 				return 0
@@ -501,7 +503,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				return 1
 			return -1
 
-		# dummpy health issue always on top
+		# dummy health issue always on top
 		if isinstance(item1, type({})):
 			return -1
 
@@ -645,7 +647,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.88  2008-06-28 18:25:58  ncq
+# Revision 1.89  2008-07-07 13:44:33  ncq
+# - current patient .connected
+# - properly sort tree, encounters: most recent on top as per user request
+#
+# Revision 1.88  2008/06/28 18:25:58  ncq
 # - add expand to ... level popup menu items in EMR tree
 #
 # Revision 1.87  2008/05/19 16:23:33  ncq
