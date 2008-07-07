@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.124 2008-06-24 13:55:14 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmPatientExporter.py,v 1.125 2008-07-07 13:39:22 ncq Exp $
+__version__ = "$Revision: 1.125 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -385,7 +385,7 @@ class cEmrExport:
         """
             Retrieve patient clinical items filtered by multiple constraints
         """
-        if not self.__patient.is_connected():
+        if not self.__patient.connected:
             return False
         emr = self.__patient.get_emr()
         filtered_items = []
@@ -503,8 +503,9 @@ class cEmrExport:
             })
         # existing issues        
         for a_health_issue in h_issues:
-		health_issue_action( emr_tree, a_health_issue)
+            health_issue_action( emr_tree, a_health_issue)
 
+        emr_tree.SortChildren(emr_tree.GetRootItem())
     #--------------------------------------------------------             
     def _add_health_issue_branch( self, emr_tree, a_health_issue):
             """appends to a wx emr_tree  , building wx treenodes from the health_issue  make this reusable for non-collapsing tree updates"""
@@ -515,6 +516,7 @@ class cEmrExport:
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
             for an_episode in episodes:
                 self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
+            emr_tree.SortChildren(issue_node)
     #--------------------------------------------------------             
     def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
         episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
@@ -524,6 +526,7 @@ class cEmrExport:
 
         encounters = self._get_encounters( an_episode, emr )
         self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
+        emr_tree.SortChildren(episode_node)
         return episode_node
     #--------------------------------------------------------             
     def _add_encounters_to_tree( self, encounters, emr_tree, episode_node):
@@ -954,7 +957,7 @@ class cEMRJournalExporter:
 		"""
 		if patient is None:
 			patient = gmPerson.gmCurrentPatient()
-			if not patient.is_connected():
+			if not patient.connected:
 				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
 
 		if filename is None:
@@ -982,7 +985,7 @@ class cEMRJournalExporter:
 		"""
 		if patient is None:
 			patient = gmPerson.gmCurrentPatient()
-			if not patient.is_connected():
+			if not patient.connected:
 				raise ValueError('[%s].export(): no active patient' % self.__class__.__name__)
 
 		# write header
@@ -1080,7 +1083,7 @@ class cMedistarSOAPExporter:
 	# external API
 	#--------------------------------------------------------
 	def export_to_file(self, filename=None):
-		if not self.__pat.is_connected():
+		if not self.__pat.connected:
 			return (False, 'no active patient')
 		if filename is None:
 			path = os.path.abspath(os.path.expanduser('~/gnumed/export'))
@@ -1102,7 +1105,7 @@ class cMedistarSOAPExporter:
 	# interal API
 	#--------------------------------------------------------
 	def __export(self, target = None, encounter = None):
-		if not self.__pat.is_connected():
+		if not self.__pat.connected:
 			return False
 		emr = self.__pat.get_emr()
 		if encounter is None:
@@ -1196,7 +1199,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.124  2008-06-24 13:55:14  ncq
+# Revision 1.125  2008-07-07 13:39:22  ncq
+# - properly sort tree
+# - current patient .connected
+#
+# Revision 1.124  2008/06/24 13:55:14  ncq
 # - change encounter node label
 #
 # Revision 1.123  2008/06/23 09:59:57  ncq
