@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.164 2008-07-07 13:43:17 ncq Exp $
-__version__ = "$Revision: 1.164 $"
+# $Id: gmMedDocWidgets.py,v 1.165 2008-07-10 20:00:34 ncq Exp $
+__version__ = "$Revision: 1.165 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1484,6 +1484,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			)
 			return None
 
+		wx.BeginBusyCursor()
+
 		cfg = gmCfg.cCfgSQL()
 
 		# get export directory for temporary files
@@ -1519,6 +1521,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			chunksize = chunksize,
 			block = block_during_view
 		)
+
+		wx.EndBusyCursor()
+
 		if not successful:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot display document part:\n%s') % msg,
@@ -1799,6 +1804,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		if result != wx.ID_OK:
 			return True
 
+		wx.BeginBusyCursor()
+
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
@@ -1807,8 +1814,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			default = default_chunksize
 		))
 
-		wx.BeginBusyCursor()
 		fnames = self.__curr_node_data.export_parts_to_files(export_dir = dirname, chunksize = chunksize)
+
 		wx.EndBusyCursor()
 
 		gmDispatcher.send(signal='statustext', msg=_('Successfully exported %s parts into the directory [%s].') % (len(fnames), dirname))
@@ -1836,7 +1843,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.164  2008-07-07 13:43:17  ncq
+# Revision 1.165  2008-07-10 20:00:34  ncq
+# - a few Begin/EndBusyCursor
+#
+# Revision 1.164  2008/07/07 13:43:17  ncq
 # - current patient .connected
 #
 # Revision 1.163  2008/05/31 16:38:57  ncq
