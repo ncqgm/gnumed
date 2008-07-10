@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.10 2008-05-13 14:07:32 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.11 2008-07-10 11:18:48 ncq Exp $
 
 
 
@@ -53,8 +53,7 @@ public/open access = 1
 
 # this option defines who is in charge of tech support
 # for this GNUmed database,
-# public databases are usually serviced via the public
-# mailing list,
+# public databases are serviced on the mailing list,
 # set this to an internal staff address for real
 # patient databases
 help desk = GNUmed Development List <Gnumed-devel@gnu.org>
@@ -81,7 +80,10 @@ help desk = Your own IT support <needs configuration>
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.10  2008-05-13 14:07:32  ncq
+# Revision 1.11  2008-07-10 11:18:48  ncq
+# - layout cleanup
+#
+# Revision 1.10  2008/05/13 14:07:32  ncq
 # - add/document per-profile help desk options
 # - add/document "public/open access" option
 #
