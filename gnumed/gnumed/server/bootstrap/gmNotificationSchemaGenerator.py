@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -186,13 +186,13 @@ end;
 -- it suffices to record the signal at all
 
 delete from gm.notifying_tables where
-	schema_name = 'any'
+	schema_name = 'any schema'
 	and signal = 'narrative';
 
 insert into gm.notifying_tables (
 	schema_name, table_name, signal, carries_identity_pk
 ) values (
-	'any',
+	'any schema',
 	'clin.clin_root_item children',
 	'narrative',
 	True
@@ -230,7 +230,14 @@ def create_narrative_notification_schema(cursor):
 	return ddl
 #------------------------------------------------------------------
 def create_notification_schema(cursor):
-	cmd = u"select schema_name, table_name, signal from gm.notifying_tables"
+	cmd = u"""
+select
+	schema_name, table_name, signal
+from
+	gm.notifying_tables
+where
+	schema_name != 'any schema'
+"""
 	rows, idx = gmPG2.run_ro_queries(link_obj = cursor, queries = [{'cmd': cmd}])
 
 	if len(rows) == 0:
@@ -323,7 +330,13 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.28  2008-04-11 12:30:22  ncq
+# Revision 1.29  2008-07-10 08:19:30  ncq
+# - protect standard notification generation against existence of
+#   dummy entry for narrative notification used for telling client
+#   backend listener what to listen for (that is, don't fail notification
+#   generation on "any schema"."clin.clin_root_item children")
+#
+# Revision 1.28  2008/04/11 12:30:22  ncq
 # - create notification schema for clin.clin_root_item children
 #
 # Revision 1.27  2008/01/07 14:15:43  ncq
