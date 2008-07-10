@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.95 2008-03-09 20:18:56 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmTopPanel.py,v 1.96 2008-07-10 08:41:09 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -50,7 +50,7 @@ class cMainTopPanel(wx.Panel):
 		self.__register_interests()
 
 		# init plugin toolbars dict
-		self.subbars = {}
+		#self.subbars = {}
 		self.curr_pat = gmPerson.gmCurrentPatient()
 
 		# and actually display ourselves
@@ -264,7 +264,7 @@ class cMainTopPanel(wx.Panel):
 	#----------------------------------------------
 	def _on_allergies_dclicked(self, evt):
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			gmDispatcher.send('statustext', msg = _('Cannot activate Allergy Manager. No active patient.'))
 			return
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
@@ -377,75 +377,75 @@ class cMainTopPanel(wx.Panel):
 		"""
 		self.szr_bottom_row.Prepend(widget, 0, wx.ALL, 0)
 	#-------------------------------------------------------
-	def CreateBar(self):
-		"""Creates empty toolbar suited for adding to top panel."""
-		bar = wx.ToolBar (
-			self.pnl_bottom_row,
-			-1,
-			size = self.pnl_bottom_row.GetClientSize(),
-			style = wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT
-		)
-		return bar
+#	def CreateBar(self):
+#		"""Creates empty toolbar suited for adding to top panel."""
+#		bar = wx.ToolBar (
+#			self.pnl_bottom_row,
+#			-1,
+#			size = self.pnl_bottom_row.GetClientSize(),
+#			style = wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT
+#		)
+#		return bar
 	#-------------------------------------------------------
-	def AddBar(self, key=None, bar=None):
-		"""Creates and returns a new empty toolbar, referenced by key.
-
-		Key should correspond to the notebook page number as defined
-		by the notebook (see gmPlugin.py), so that gmGuiMain can
-		display the toolbar with the notebook
-		"""
-		bar.SetToolBitmapSize((16,16))
-		self.subbars[key] = bar
-		if len(self.subbars) == 1:
-			bar.Show(1)
-			self.__current = key
-		else:
-			bar.Hide()
-		return True
+#	def AddBar(self, key=None, bar=None):
+#		"""Creates and returns a new empty toolbar, referenced by key.
+#
+#		Key should correspond to the notebook page number as defined
+#		by the notebook (see gmPlugin.py), so that gmGuiMain can
+#		display the toolbar with the notebook
+#		"""
+#		bar.SetToolBitmapSize((16,16))
+#		self.subbars[key] = bar
+#		if len(self.subbars) == 1:
+#			bar.Show(1)
+#			self.__current = key
+#		else:
+#			bar.Hide()
+#		return True
 	#-------------------------------------------------------
-	def ReFit (self):
-		"""Refits the toolbar after its been changed
-		"""
-		tw = 0
-		th = 0
-		# get maximum size for the toolbar
-		for i in self.subbars.values ():
-			ntw, nth = i.GetSizeTuple ()
-			if ntw > tw:
-				tw = ntw
-			if nth > th:
-				th = nth
-		#import pdb
-		#pdb.set_trace ()
-		sz = wx.Size (tw, th)
-		self.pnl_bottom_row.SetSize(sz)
-		for i in self.subbars.values():
-			i.SetSize (sz)
-		self.szr_main.Layout()
-		self.szr_main.Fit(self)
+#	def ReFit (self):
+#		"""Refits the toolbar after its been changed
+#		"""
+#		tw = 0
+#		th = 0
+#		# get maximum size for the toolbar
+#		for i in self.subbars.values ():
+#			ntw, nth = i.GetSizeTuple ()
+#			if ntw > tw:
+#				tw = ntw
+#			if nth > th:
+#				th = nth
+#		#import pdb
+#		#pdb.set_trace ()
+#		sz = wx.Size (tw, th)
+#		self.pnl_bottom_row.SetSize(sz)
+#		for i in self.subbars.values():
+#			i.SetSize (sz)
+#		self.szr_main.Layout()
+#		self.szr_main.Fit(self)
 	#-------------------------------------------------------
-	def ShowBar (self, key):
-		"""Displays the named toolbar.
-		"""
-		self.subbars[self.__current].Hide()
-		try:
-			self.subbars[key].Show(1)
-			self.__current = key
-		except KeyError:
-			_log.exception("cannot show undefined toolbar [%s]" % key)
+#	def ShowBar (self, key):
+#		"""Displays the named toolbar.
+#		"""
+#		self.subbars[self.__current].Hide()
+#		try:
+#			self.subbars[key].Show(1)
+#			self.__current = key
+#		except KeyError:
+#			_log.exception("cannot show undefined toolbar [%s]" % key)
 	#-------------------------------------------------------
-	def DeleteBar (self, key):
-		"""Removes a toolbar.
-		"""
-		try:
-			self.subbars[key].Destroy()
-			del self.subbars[key]
-			# FIXME: ??
-			if self.__current == key and len(self.subbars):
-				self.__current = self.subbars.keys()[0]
-				self.subbars[self.__current].Show(1)
-		except KeyError:
-			_log.exception("cannot delete undefined toolbar [%s]" % key)
+#	def DeleteBar (self, key):
+#		"""Removes a toolbar.
+#		"""
+#		try:
+#			self.subbars[key].Destroy()
+#			del self.subbars[key]
+#			# FIXME: ??
+#			if self.__current == key and len(self.subbars):
+#				self.__current = self.subbars.keys()[0]
+#				self.subbars[self.__current].Show(1)
+#		except KeyError:
+#			_log.exception("cannot delete undefined toolbar [%s]" % key)
 
 #===========================================================	
 if __name__ == "__main__":
@@ -455,7 +455,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.95  2008-03-09 20:18:56  ncq
+# Revision 1.96  2008-07-10 08:41:09  ncq
+# - comment out toolbar handling
+# - pat.is_connected -> connected property
+#
+# Revision 1.95  2008/03/09 20:18:56  ncq
 # - use cActivePatientSelector()
 #
 # Revision 1.94  2008/03/05 22:30:15  ncq
