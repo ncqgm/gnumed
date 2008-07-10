@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.163 2008-07-07 13:38:43 ncq Exp $
-__version__ = "$Revision: 1.163 $"
+# $Id: gmPerson.py,v 1.164 2008-07-10 11:16:01 ncq Exp $
+__version__ = "$Revision: 1.164 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1024,10 +1024,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 			return
 		for call_back in self.__pre_selection_callbacks:
 			try:
-				print "calling:", call_back
 				call_back()
 			except:
-				print "pre-selection callback failed"
+				print "*** pre-selection callback failed ***"
 				_log.exception('callback [%s] failed', call_back)
 	#--------------------------------------------------------
 	def __send_pre_selection_notification(self):
@@ -2204,7 +2203,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.163  2008-07-07 13:38:43  ncq
+# Revision 1.164  2008-07-10 11:16:01  ncq
+# - make pre-selection callback failure more obvious
+#
+# Revision 1.163  2008/07/07 13:38:43  ncq
 # - is_connected -> connected property
 # - add in-sync pre-selection callbacks
 #
