@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.46 2008-06-26 17:02:26 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmManual.py,v 1.47 2008-07-10 08:39:20 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path, logging
@@ -148,14 +148,14 @@ class gmManual (gmPlugin.cNotebookPlugin):
 	def can_receive_focus(self):
 		return True
 	#--------------------------------------------------------
-	def populate_toolbar (self, tb, widget):
-		tool1 = tb.AddTool(
-			ID_MANUALCONTENTS,
-			images_for_gnumed_browser16_16.getcontentsBitmap(),
-			shortHelpString=_("GNUmed manual contents"),
-			isToggle=False
-		)
-		wx.EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
+	#def populate_toolbar (self, tb, widget):
+		#tool1 = tb.AddTool(
+		#	ID_MANUALCONTENTS,
+		#	images_for_gnumed_browser16_16.getcontentsBitmap(),
+		#	shortHelpString=_("GNUmed manual contents"),
+		#	isToggle=False
+		#)
+		#wx.EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
 
 #		tool1 = tb.AddTool(
 #			ID_MANUALOPENFILE,
@@ -165,66 +165,66 @@ class gmManual (gmPlugin.cNotebookPlugin):
 #		)
 #		wx.EVT_TOOL (tb, ID_MANUALOPENFILE, widget.OnLoadFile)
 
-		tool1 = tb.AddTool(
-			ID_MANUALBACK,
-			images_for_gnumed_browser16_16.get1leftarrowBitmap(),
-			shortHelpString=_("Back"),
-			isToggle=False
-		)
-		wx.EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
-
-		tool1 = tb.AddTool(
-			ID_MANUALFORWARD,
-			images_for_gnumed_browser16_16.get1rightarrowBitmap(),
-			shortHelpString=_("Forward"),
-			isToggle=False
-		)
-		wx.EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
-
 		#tool1 = tb.AddTool(
-		#	ID_MANUALRELOAD,
-		#	images_for_gnumed_browser16_16.getreloadBitmap(),
-		#	shortHelpString=_("Reload"),
-		#	isToggle=True
-		#)
-		
-		#tb.AddSeparator()
-
-		#tool1 = tb.AddTool(
-		#	ID_MANUALHOME,
-		#	images_for_gnumed_browser16_16.getgohomeBitmap(),
-		#	shortHelpString=_("Home"),
-		#	isToggle=True
-		#)
-		#wx.EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
-
-		#tb.AddSeparator()
-
-		#tool1 = tb.AddTool(
-		#	ID_MANUALBABELFISH,
-		#	images_for_gnumed_browser16_16.getbabelfishBitmap(),
-		#	shortHelpString=_("Translate text"),
+		#	ID_MANUALBACK,
+		#	images_for_gnumed_browser16_16.get1leftarrowBitmap(),
+		#	shortHelpString=_("Back"),
 		#	isToggle=False
 		#)
-		#wx.EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
-
-		#tb.AddSeparator()
+		#wx.EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
 
 		#tool1 = tb.AddTool(
-		#	ID_MANUALBOOKMARKS,
-		#	images_for_gnumed_browser16_16.getbookmarkBitmap(),
-		#	shortHelpString=_("Bookmarks"),
-		#	isToggle=True
+		#	ID_MANUALFORWARD,
+		#	images_for_gnumed_browser16_16.get1rightarrowBitmap(),
+		#	shortHelpString=_("Forward"),
+		#	isToggle=False
 		#)
-		#wx.EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
+		#wx.EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
 
-		#tool1 = tb.AddTool(
-		#	ID_MANUALADDBOOKMARK,
-		#	images_for_gnumed_browser16_16.getbookmark_addBitmap(),
-		#	shortHelpString=_("Add Bookmark"),
-		#	isToggle=True
-		#)
-		#wx.EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
+#		#tool1 = tb.AddTool(
+#		#	ID_MANUALRELOAD,
+#		#	images_for_gnumed_browser16_16.getreloadBitmap(),
+#		#	shortHelpString=_("Reload"),
+#		#	isToggle=True
+#		#)
+		
+#		#tb.AddSeparator()
+
+#		#tool1 = tb.AddTool(
+#		#	ID_MANUALHOME,
+#		#	images_for_gnumed_browser16_16.getgohomeBitmap(),
+#		#	shortHelpString=_("Home"),
+#		#	isToggle=True
+#		#)
+#		#wx.EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
+
+#		#tb.AddSeparator()
+
+#		#tool1 = tb.AddTool(
+#		#	ID_MANUALBABELFISH,
+#		#	images_for_gnumed_browser16_16.getbabelfishBitmap(),
+#		#	shortHelpString=_("Translate text"),
+#		#	isToggle=False
+#		#)
+#		#wx.EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
+
+#		#tb.AddSeparator()
+
+#		#tool1 = tb.AddTool(
+#		#	ID_MANUALBOOKMARKS,
+#		#	images_for_gnumed_browser16_16.getbookmarkBitmap(),
+#		#	shortHelpString=_("Bookmarks"),
+#		#	isToggle=True
+#		#)
+#		#wx.EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
+
+#		#tool1 = tb.AddTool(
+#		#	ID_MANUALADDBOOKMARK,
+#		#	images_for_gnumed_browser16_16.getbookmark_addBitmap(),
+#		#	shortHelpString=_("Add Bookmark"),
+#		#	isToggle=True
+#		#)
+#		#wx.EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
 
 #		tool1 = tb.AddTool(
 #			ID_VIEWSOURCE,
@@ -234,16 +234,19 @@ class gmManual (gmPlugin.cNotebookPlugin):
 #		)
 #		wx.EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
 
-		tool1 = tb.AddTool(
-			ID_MANUALPRINTER,
-			images_for_gnumed_browser16_16.getprinterBitmap(),
-			shortHelpString = _("Print manual page"),
-			isToggle=False
-		)
-		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
+		#tool1 = tb.AddTool(
+		#	ID_MANUALPRINTER,
+		#	images_for_gnumed_browser16_16.getprinterBitmap(),
+		#	shortHelpString = _("Print manual page"),
+		#	isToggle=False
+		#)
+		#wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.46  2008-06-26 17:02:26  ncq
+# Revision 1.47  2008-07-10 08:39:20  ncq
+# - no more toolbar
+#
+# Revision 1.46  2008/06/26 17:02:26  ncq
 # - argument defaults for OnSetTitle
 #
 # Revision 1.45  2008/03/06 18:32:31  ncq

@@ -9,7 +9,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -52,22 +52,22 @@ class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 			self._widget._on_sort_by_review_selected(None)
 		return True
 	#--------------------------------------------------------
-	def populate_toolbar (self, tb, widget):
-		wxID_TB_BTN_show_page = wx.NewId()
-		tool1 = tb.AddTool(
-			wxID_TB_BTN_show_page,
-			images_Archive_plugin.getreportsBitmap(),
-			shortHelpString=_("show document"),
-			isToggle=False
-		)
-		wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, self._widget._doc_tree.display_selected_part)
-		tb.AddControl(wx.StaticBitmap(
-			tb,
-			-1,
-			images_Archive_plugin.getvertical_separator_thinBitmap(),
-			wx.DefaultPosition,
-			wx.DefaultSize
-		))
+#	def populate_toolbar (self, tb, widget):
+#		wxID_TB_BTN_show_page = wx.NewId()
+#		tool1 = tb.AddTool(
+#			wxID_TB_BTN_show_page,
+#			images_Archive_plugin.getreportsBitmap(),
+#			shortHelpString=_("show document"),
+#			isToggle=False
+#		)
+#		wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, self._widget._doc_tree.display_selected_part)
+#		tb.AddControl(wx.StaticBitmap(
+#			tb,
+#			-1,
+#			images_Archive_plugin.getvertical_separator_thinBitmap(),
+#			wx.DefaultPosition,
+#			wx.DefaultSize
+#		))
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -75,7 +75,10 @@ if __name__ == '__main__':
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.74  2008-01-28 16:14:34  ncq
+# Revision 1.75  2008-07-10 08:37:44  ncq
+# - no more toolbar
+#
+# Revision 1.74  2008/01/28 16:14:34  ncq
 # - missing import
 #
 # Revision 1.73  2007/12/26 18:35:57  ncq
