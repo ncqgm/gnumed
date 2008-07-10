@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.101 2008-06-28 22:37:39 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmSOAPWidgets.py,v 1.102 2008-07-10 21:04:10 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -108,8 +108,10 @@ progress_note_keywords = {
 }
 #============================================================
 class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
-	"""A notebook holding progress note editors."""
+	"""A notebook holding panels with progress note editors.
 
+	There is one progress note editor panel for each episode being worked on.
+	"""
 	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize):
 		wx.Notebook.__init__ (
 			self,
@@ -128,8 +130,11 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	# public API
 	#--------------------------------------------------------
 	def add_editor(self, problem=None, allow_same_problem=False):
-		"""Add a progress note editor page."""
+		"""Add a progress note editor page.
 
+		The way <allow_same_problem> is currently used in callers
+		it only applies to unassociated episodes.
+		"""
 		problem_to_add = problem
 
 		# determine label
@@ -251,21 +256,67 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		# wxPython events
 
 		# client internal signals
-		gmDispatcher.connect(signal='pre_patient_selection', receiver=self._on_pre_patient_selection)
+		#gmDispatcher.connect(signal='pre_patient_selection', receiver=self._on_pre_patient_selection)
 		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal='application_closing', receiver=self._on_application_closing)
 
-		#gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_mod_db)
-		#gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_issue_mod_db)
+		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		"""Another patient is about to be activated."""
-		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-		print "need to ask user about SOAP saving !"
-		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-#		print "[%s]: another patient is about to become active" % self.__class__.__name__
-#		print "need code to:"
-#		print "- ask user about unsaved progress notes"
+#	def _on_pre_patient_selection(self):
+#		"""Another patient is about to be activated."""
+#		print "pending SOAP should have been handled"
+	#--------------------------------------------------------
+	def _pre_selection_callback(self):
+		"""Another patient is about to be activated.
+
+		Patient change will not proceed before this returns.
+		"""
+		print "checking for pending SOAP"
+		print "# of pages:", self.GetPageCount()
+
+		save_all = False
+		dlg = None
+		for page_idx in range(self.GetPageCount()):
+			print "checking page", page_idx
+			page = self.GetPage(page_idx)
+			if page.editor_empty():
+				print "page empty"
+				continue
+
+			print "page not empty"
+
+			if dlg is None:
+				dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+					self, 
+					-1,
+					caption = _('Patient change: Unsaved progress note'),
+					question = _(
+						'This progress note has not been saved yet.\n'
+						'\n'
+						'Do you want to save it or discard it ?\n\n'
+					),
+					button_defs = [
+						{'label': _('&Save'), 'tooltip': _('Save this progress note'), 'default': True},
+						{'label': _('&Discard'), 'tooltip': _('Discard this progress note'), 'default': False},
+						{'label': _('Save &all'), 'tooltip': _('Save all remaining unsaved progress notes'), 'default': False}
+					]
+				)
+				print "created dialog"
+
+			if not save_all:
+				#self.SetSelection(page_idx)
+				decision = dlg.ShowModal()
+				if decision == wx.ID_NO:
+					print "skipping note"
+					continue
+				if decision == wx.ID_CANCEL:
+					print "saving all notes"
+					save_all = True
+			print "saving note"
+			page.save
+
+		if dlg is not None:
+			dlg.Destroy()
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		"""Patient changed."""
@@ -291,7 +342,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #		print "- ask user about unsaved data"
 #============================================================
 class cNotebookedProgressNoteInputPanel(wx.Panel):
-	"""A progress notes input panel.
+	"""A panel for entering multiple progress notes in context.
 
 	Expects to be used as a notebook page.
 
@@ -545,7 +596,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		self.__soap_notebook.DeletePage(page_idx)
 		# always keep one unassociated editor open
 		self.__soap_notebook.add_editor()
-		self.__refresh_problem_list()
+		#self.__refresh_problem_list()
 		return True
 	#--------------------------------------------------------
 	# notebook plugin API
@@ -822,14 +873,7 @@ class cResizingSoapPanel(wx.Panel):
 
 		self.__is_saved = False
 		# do layout
-		wx.Panel.__init__ (
-			self,
-			parent,
-			-1,
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			wx.NO_BORDER | wx.TAB_TRAVERSAL
-		)
+		wx.Panel.__init__(self, parent, -1, style = wx.NO_BORDER | wx.TAB_TRAVERSAL)
 		# - editor
 		if input_defs is None:
 			soap_lines = []
@@ -998,7 +1042,7 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		# sanity checks
 		if self.__pat is None:
 			return True
-		if not self.__pat.is_connected():
+		if not self.__pat.connected:
 			return True
 		if not self.__soap_box.IsModified():
 			return True
@@ -1168,7 +1212,7 @@ if __name__ == "__main__":
 #		app = wx.PyWidgetTester(size=(600,600))
 #		app.SetWidget(cSingleBoxSOAPPanel, -1)
 #		app.MainLoop()
-		
+
 	except StandardError:
 		_log.exception("unhandled exception caught !")
 		# but re-raise them
@@ -1176,7 +1220,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.101  2008-06-28 22:37:39  ncq
+# Revision 1.102  2008-07-10 21:04:10  ncq
+# - better comments
+# - experimental pre-selection SOAP saving
+#
+# Revision 1.101  2008/06/28 22:37:39  ncq
 # - visual improvement
 # - improved code comments
 # - add button to discard current editor
