@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.59 2008-07-07 11:34:41 ncq Exp $
+# $Id: gmTools.py,v 1.60 2008-07-10 19:59:09 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -179,7 +179,6 @@ class gmPaths(gmBorg.cBorg):
 
 		<app_name> will default to (name of the script - .py)
 		"""
-
 		try:
 			self.already_inited
 			return
@@ -195,6 +194,7 @@ class gmPaths(gmBorg.cBorg):
 
 		if app_name is None:
 			app_name, ext = os.path.splitext(os.path.basename(sys.argv[0]))
+			_log.info('app name detected as [%s]', app_name)
 
 		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
 		self.working_dir = os.path.abspath(os.curdir)
@@ -219,9 +219,9 @@ class gmPaths(gmBorg.cBorg):
 			self.__log_paths()
 			return True
 
-		#--------------------
 		# retry with wxPython
 		std_paths = wx.StandardPaths.Get()
+		_log.info('wxPython app name set to [%s]', wx.GetApp().GetAppName())
 
 		try:
 			self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
@@ -230,8 +230,10 @@ class gmPaths(gmBorg.cBorg):
 			self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
 
 		try:
-			#self.system_config_dir = os.path.join(std_paths.GetConfigDir(), app_name)
-			self.system_config_dir = std_paths.GetConfigDir()
+			tmp = std_paths.GetConfigDir()
+			if not tmp.endswith(app_name):
+				tmp = os.path.join(tmp, app_name)
+			self.system_config_dir = tmp
 		except ValueError:
 			pass
 
@@ -882,7 +884,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.59  2008-07-07 11:34:41  ncq
+# Revision 1.60  2008-07-10 19:59:09  ncq
+# - better logging
+# - check whether sys config dir ends in "gnumed"
+#
+# Revision 1.59  2008/07/07 11:34:41  ncq
 # - robustify capsify on single character strings
 #
 # Revision 1.58  2008/06/28 18:25:01  ncq
