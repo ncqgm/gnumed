@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.53 2008-04-11 12:24:01 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmScanBackend.py,v 1.54 2008-07-10 11:20:03 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -314,14 +314,25 @@ class cXSaneScanner:
 
 	_filetype = '.png'					# FIXME: configurable, TIFF ?
 	_xsanerc = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc'))
-	_xsanerc_backup = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc.gnumed.bak'))
+	#_xsanerc_backup = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc.gnumed.bak'))
+	_xsanerc_gnumed = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed-xsanerc.conf'))
+	_xsanerc_backup = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed-xsanerc.conf.bak'))
 
 	#----------------------------------------------
 	def __init__(self):
 		# while not strictly necessary it is good to fail early
 		# this will tell us fairly safely whether XSane is properly installed
-		if not os.access(cXSaneScanner._xsanerc, os.W_OK):
-			raise ImportError('XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
+		try:
+			open(cXSaneScanner._xsanerc, 'r').close()
+		except IOError:
+			msg = (
+				'XSane not properly installed for this user:\n\n'
+				' [%s] not found\n\n'
+				'Start XSane once before using it with GNUmed.'
+			) % cXSaneScanner._xsanerc
+			raise ImportError(msg)
+#		if not os.access(cXSaneScanner._xsanerc, os.R_OK):
+#			raise ImportError('XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
 
 		self.device_settings_file = None
 		self.default_device = None
@@ -332,7 +343,7 @@ class cXSaneScanner:
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		"""Call XSane.
 
-		<filename name part must have format name-001.ext>
+		<filename> name part must have format name-001.ext>
 		"""
 		if filename is None:
 			filename = gmTools.get_unique_filename (
@@ -348,21 +359,19 @@ class cXSaneScanner:
 
 		self.__prepare_xsanerc(tmpdir=path)
 
-		cmd = 'xsane --no-mode-selection --save --force-filename "%s" %s %s' % (
+		cmd = 'xsane --no-mode-selection --save --force-filename "%s" --xsane-rc "%s" %s %s' % (
 			filename,
+			cXSaneScanner._xsanerc_gnumed,
 			gmTools.coalesce(self.device_settings_file, '', '--device-settings %s'),
 			gmTools.coalesce(self.default_device, '')
 		)
 		normal_exit = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
-
-		self.__restore_xsanerc()
 
 		if normal_exit:
 			flist = glob.glob(filename.replace('001', '*'))
 			flist.sort()
 			return flist
 
-		#raise OSError(-1, 'cannot start XSane', cmd)
 		raise ImportError('error starting XSane as [%s]' % cmd)
 	#---------------------------------------------------
 	def image_transfer_done(self):
@@ -372,12 +381,18 @@ class cXSaneScanner:
 	#----------------------------------------------
 	def __prepare_xsanerc(self, tmpdir=None):
 
-		shutil.move(cXSaneScanner._xsanerc, cXSaneScanner._xsanerc_backup)
+		try:
+			open(cXSaneScanner._xsanerc_gnumed, 'r+b').close()
+		except IOError:
+			_log.info('creating [%s] from [%s]', cXSaneScanner._xsanerc_gnumed, cXSaneScanner._xsanerc)
+			shutil.copyfile(cXSaneScanner._xsanerc, cXSaneScanner._xsanerc_gnumed)
+
+		shutil.move(cXSaneScanner._xsanerc_gnumed, cXSaneScanner._xsanerc_backup)
 
 		# our closest bet, might contain umlauts
 		enc = gmI18N.get_encoding()
 		fread = codecs.open(cXSaneScanner._xsanerc_backup, mode = "rU", encoding = enc)
-		fwrite = codecs.open(cXSaneScanner._xsanerc, mode = "w", encoding = enc)
+		fwrite = codecs.open(cXSaneScanner._xsanerc_gnumed, mode = "w", encoding = enc)
 
 		val_dict = {
 			'filetype': cXSaneScanner._filetype,
@@ -409,9 +424,9 @@ class cXSaneScanner:
 
 		return True
 	#----------------------------------------------
-	def __restore_xsanerc(self):
-		shutil.copy2(cXSaneScanner._xsanerc_backup, cXSaneScanner._xsanerc)
-		#os.chmod(cXSaneScanner._xsanerc, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
+#	def __restore_xsanerc(self):
+#		shutil.copy2(cXSaneScanner._xsanerc_backup, cXSaneScanner._xsanerc)
+#		#os.chmod(cXSaneScanner._xsanerc, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 #==================================================
 def get_devices():
 	try:
@@ -487,7 +502,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.53  2008-04-11 12:24:01  ncq
+# Revision 1.54  2008-07-10 11:20:03  ncq
+# - use --xsane-rc when calling XSane
+#
+# Revision 1.53  2008/04/11 12:24:01  ncq
 # - better handle missing XSane when TWAIN is missing, too
 #
 # Revision 1.52  2007/12/12 16:17:15  ncq
