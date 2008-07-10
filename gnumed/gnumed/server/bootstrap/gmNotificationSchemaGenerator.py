@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -237,6 +237,8 @@ from
 	gm.notifying_tables
 where
 	schema_name != 'any schema'
+		and
+	schema_name != 'any'
 """
 	rows, idx = gmPG2.run_ro_queries(link_obj = cursor, queries = [{'cmd': cmd}])
 
@@ -330,7 +332,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.29  2008-07-10 08:19:30  ncq
+# Revision 1.30  2008-07-10 08:36:27  ncq
+# - protect against old mischief, too
+#
+# Revision 1.29  2008/07/10 08:19:30  ncq
 # - protect standard notification generation against existence of
 #   dummy entry for narrative notification used for telling client
 #   backend listener what to listen for (that is, don't fail notification
