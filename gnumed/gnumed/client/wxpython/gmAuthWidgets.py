@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.2.2.2 2008-06-25 08:59:06 ncq Exp $
-__version__ = "$Revision: 1.2.2.2 $"
+# $Id: gmAuthWidgets.py,v 1.2.2.3 2008-07-10 09:03:50 ncq Exp $
+__version__ = "$Revision: 1.2.2.3 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -239,15 +239,14 @@ class cLoginPanel(wx.Panel):
 		wx.Panel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
 
-		self.user_preferences_file = None
 		paths = gmTools.gmPaths(app_name = 'gnumed', wx=wx)
+		fnames = []
 		if gmCLI.has_arg('--conf-file'):
-			fnames = [gmCLI.arg['--conf-file']]
-		else:
-			fnames = [
-				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.working_dir, 'gnumed.conf')
-			]
+			fnames.append(gmCLI.arg['--conf-file'])
+		fnames.append(os.path.join(paths.user_config_dir, 'gnumed.conf'))
+		fnames.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
+		fnames.append(os.path.join(paths.working_dir, 'gnumed.conf'))
+		self.user_preferences_file = None
 		for fname in fnames:
 			try:
 				open(fname, 'r+b')
@@ -677,7 +676,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.2.2.2  2008-06-25 08:59:06  ncq
+# Revision 1.2.2.3  2008-07-10 09:03:50  ncq
+# - be more generous when looking for a writable user prefs file
+#
+# Revision 1.2.2.2  2008/06/25 08:59:06  ncq
 # - don't try printing utf8 to console
 #
 # Revision 1.2.2.1  2008/01/30 11:19:54  ncq
