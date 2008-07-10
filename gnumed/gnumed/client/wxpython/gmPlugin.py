@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.77 2008-03-05 22:30:14 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmPlugin.py,v 1.78 2008-07-10 20:54:52 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -88,22 +88,23 @@ class cNotebookPlugin:
 		# create widget
 		nb = self.gb['horstspace.notebook']
 		widget = self.GetWidget(nb)
-		# create toolbar
-		top_panel = self.gb['horstspace.top_panel']
-		tb = top_panel.CreateBar()
-		self.populate_toolbar(tb, widget)
-		tb.Realize()
-		# create menu item
-		menu_info = self.MenuInfo()
 
+		# create toolbar
+		#top_panel = self.gb['horstspace.top_panel']
+		#tb = top_panel.CreateBar()
+		#self.populate_toolbar(tb, widget)
+		#tb.Realize()
 		# place bar in top panel
 		# (pages that don't want a toolbar must install a blank one
 		#  otherwise the previous page's toolbar would be visible)
-		top_panel.AddBar(key=self.__class__.__name__, bar=tb)
-		self.gb['toolbar.%s' % self.__class__.__name__] = tb
+		#top_panel.AddBar(key=self.__class__.__name__, bar=tb)
+		#self.gb['toolbar.%s' % self.__class__.__name__] = tb
+
 		# add ourselves to the main notebook
 		nb.AddPage(widget, self.name())
+
 		# and put ourselves into the menu structure if so
+		menu_info = self.MenuInfo()
 		if menu_info is not None:
 			name_of_menu, menu_item_name = menu_info
 			menu = self.gb['main.%smenu' % name_of_menu]
@@ -130,8 +131,8 @@ class cNotebookPlugin:
 			menu.Delete(self.menu_id)
 
 		# delete toolbar
-		top_panel = self.gb['main.top_panel']
-		top_panel.DeleteBar(self.__class__.__name__)
+		#top_panel = self.gb['main.top_panel']
+		#top_panel.DeleteBar(self.__class__.__name__)
 
 		# correct the notebook page list
 		nb_pages = self.gb['horstspace.notebook.pages']
@@ -152,13 +153,13 @@ class cNotebookPlugin:
 		"""
 		return None
 	#-----------------------------------------------------
-	def populate_toolbar (self, tb, widget):
-		"""Populates the toolbar for this widget.
-
-		- tb is the toolbar to populate
-		- widget is the widget returned by GetWidget()		# FIXME: is this really needed ?
-		"""
-		pass
+#	def populate_toolbar (self, tb, widget):
+#		"""Populates the toolbar for this widget.
+#
+#		- tb is the toolbar to populate
+#		- widget is the widget returned by GetWidget()		# FIXME: is this really needed ?
+#		"""
+#		pass
 	#-----------------------------------------------------
 	# activation API
 	#-----------------------------------------------------
@@ -188,7 +189,7 @@ class cNotebookPlugin:
 		"""
 		# fail if no patient selected
 		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
+		if not pat.connected:
 			# FIXME: people want an optional red backgound here
 			gmDispatcher.send('statustext', msg = _('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
@@ -433,7 +434,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.77  2008-03-05 22:30:14  ncq
+# Revision 1.78  2008-07-10 20:54:52  ncq
+# - comment out toolbar handling
+#
+# Revision 1.77  2008/03/05 22:30:14  ncq
 # - new style logging
 #
 # Revision 1.76  2007/12/11 12:49:26  ncq
