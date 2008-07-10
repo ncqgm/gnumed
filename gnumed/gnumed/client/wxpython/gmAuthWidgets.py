@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.22 2008-07-07 11:35:19 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmAuthWidgets.py,v 1.23 2008-07-10 20:52:21 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -291,7 +291,7 @@ class cLoginPanel(wx.Panel):
 		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
 		# find bitmap
-		paths = gmTools.gmPaths()
+		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
 		bitmap = os.path.join(paths.system_app_data_dir, 'bitmaps', 'gnumedlogo.png')
 		try:
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
@@ -677,7 +677,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.22  2008-07-07 11:35:19  ncq
+# Revision 1.23  2008-07-10 20:52:21  ncq
+# - better to call path detection with app_name and wx
+#
+# Revision 1.22  2008/07/07 11:35:19  ncq
 # - keyboard shortcuts for check boxes
 #
 # Revision 1.21  2008/05/28 21:26:40  ncq
