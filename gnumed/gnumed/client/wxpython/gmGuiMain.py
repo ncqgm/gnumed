@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.16 2008-06-25 10:18:09 ncq Exp $
-__version__ = "$Revision: 1.375.2.16 $"
+# $Id: gmGuiMain.py,v 1.375.2.17 2008-07-10 09:06:47 ncq Exp $
+__version__ = "$Revision: 1.375.2.17 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1749,6 +1749,7 @@ class gmApp(wx.App):
 			candidates.append(gmCLI.arg['--conf-file'])
 		candidates.append(os.path.join(paths.user_config_dir, 'gnumed.conf'))
 		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
+		candidates.append(os.path.join(paths.working_dir, 'gnumed.conf'))
 		self.user_prefs_cfg_file = None
 		for candidate in candidates:
 			try:
@@ -1759,10 +1760,10 @@ class gmApp(wx.App):
 				continue
 
 		if self.user_prefs_cfg_file is None:
-			_log.Log(gmLog.lErr, 'Cannot find any config file. Aborting.')
+			_log.Log(gmLog.lErr, 'Cannot find any writable configuration file. Aborting.')
 			gmGuiHelpers.gm_show_error (
 				_(
-					'Cannot find any configuration file.\n'
+					'Cannot find any writable configuration file.\n'
 					'\n'
 					'You may need to use:\n'
 					'\n'
@@ -2070,7 +2071,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.16  2008-06-25 10:18:09  ncq
+# Revision 1.375.2.17  2008-07-10 09:06:47  ncq
+# - add one more possible path for a writable user prefs file
+# - be more explicit in the error message about missing a writable
+#   user prefs file
+#
+# Revision 1.375.2.16  2008/06/25 10:18:09  ncq
 # - return wx.ID_* from Snellen cfg dialog and test for
 #   that from main GUI
 #
