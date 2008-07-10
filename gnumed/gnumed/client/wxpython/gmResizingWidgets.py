@@ -4,19 +4,19 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.50 2008-03-05 22:30:15 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmResizingWidgets.py,v 1.51 2008-07-10 21:01:22 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
-import sys, logging
+import sys, logging, re as regex
 
 
 import wx
 import wx.stc
 
 
-from Gnumed.pycommon import gmI18N, gmDispatcher
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmPG2
 from Gnumed.wxpython import gmGuiHelpers, gmTimer
 
 _log = logging.getLogger('gm.ui')
@@ -361,7 +361,9 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	def __init__ (self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, data=None):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
+
 		wx.stc.StyledTextCtrl.__init__ (self, parent, id, pos, size, style)
+
 		self.SetWrapMode (wx.stc.STC_WRAP_WORD)
 		# FIXME: configure
 		self.StyleSetSpec (STYLE_ERROR, "fore:#7F11010,bold")
@@ -369,11 +371,8 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		self.StyleSetChangeable (STYLE_EMBED, 0)
 #		self.StyleSetHotSpot (STYLE_EMBED, 1)
 		self.SetEOLMode (wx.stc.STC_EOL_LF)
-		self.SetModEventMask (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_PERFORMED_USER)
 
-		wx.stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
-		wx.EVT_KEY_DOWN (self, self.__on_key_down)
-		wx.EVT_KEY_UP (self, self.__OnKeyUp)
+		self.__register_interests()
 
 		self.next_in_tab_order = None
 		self.prev_in_tab_order = None
@@ -395,6 +394,8 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		self.no_list = 0			# ??
 
 		self.__data = data			# this is just a placeholder for data to be attached to this STC, will be returned from GetData()
+
+		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
 	#------------------------------------------------
 	# public API
 	#------------------------------------------------
@@ -408,26 +409,12 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		wx.stc.StyledTextCtrl.SetText(self, text)
 		self.__show_list = 1
 	#------------------------------------------------
-	def ReplaceText (self, start, end, text, style=-1, space=0):
-		"""
-		Oddly, the otherwise very rich wx.STC API does not provide an
-		easy way to replace text, so we provide it here.
-
-		@param start: the position in the text to start from
-		@param length: the length of the string to replace
-		@param text: the new string
-		@param style: the style for the replaced string
-		"""
-		self.SetTargetStart(start)
-		self.SetTargetEnd(end)
-		self.ReplaceTarget(text)
-		if style > -1:
-			self.StartStyling(start, 0xFF)
-			self.SetStyling(len(text), style)
+	def ReplaceText (self, start, end, text, style=None):
+		self.replace_text(start, end, text, style)
 	#------------------------------------------------
 	def Embed (self, text, data=None):
 		self.no_list = 1
-		self.ReplaceText(self.fragment_start, self.fragment_end, text+';', STYLE_EMBED, 1)
+		self.ReplaceText(self.fragment_start, self.fragment_end, text+';', STYLE_EMBED)
 		self.GotoPos(self.fragment_start+len (text)+1)
 		self.SetFocus()
 #		if data:
@@ -494,18 +481,72 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		"""
 		return self.__data
 	#------------------------------------------------
-	# event handlers
+	def replace_text(self, start=None, end=None, text=None, style=None):
+		"""
+		Oddly, the otherwise very rich wx.STC API does not provide an
+		easy way to replace text, so we provide it here.
+
+		@param start: the position in the text to start from
+		@param length: the length of the string to replace
+		@param text: the new string
+		@param style: the style for the replaced string
+		"""
+		self.SetTargetStart(start)
+		self.SetTargetEnd(end)
+		self.ReplaceTarget(text)
+		if style is not None:
+			self.StartStyling(start, 0xFF)
+			self.SetStyling(len(text), style)
+	#------------------------------------------------
+	def replace_keyword_with_expansion(self, keyword=None, position=None):
+
+		if keyword == u'$$steffi':
+			expansion = u'Hai, play !  Versucht das !  :-)'
+		else:
+			expansion = gmPG2.expand_keyword(keyword = keyword)
+
+		if expansion is None:
+			return
+
+		if expansion == u'':
+			return
+
+		self.replace_text (
+			start = position,
+			end = position + len(keyword),
+			text = expansion
+		)
+
+		self.GotoPos(position + len(expansion) + 1)
+		#wx.stc.StyledTextCtrl.SetFocus(self)
+		cur = self.PointFromPosition(position + len(expansion) + 1)
+		self.__parent.EnsureVisible(self, cur.x, cur.y)
+	#------------------------------------------------
+	# event handling
+	#------------------------------------------------
+	def __register_interests(self):
+		self.SetModEventMask (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_PERFORMED_USER)
+
+		wx.stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
+
+		wx.EVT_KEY_DOWN (self, self.__on_key_down)
+		wx.EVT_KEY_UP (self, self.__OnKeyUp)
+		wx.EVT_CHAR(self, self.__on_char)
 	#------------------------------------------------
 	def __on_STC_modified(self, event):
+
 		# did the user do anything of note to us ?
 		if not (event.GetModificationType() & (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT)):
 			event.Skip()
 			return
+
 		last_char_pos = self.GetLength()
+
 		# stop timer if empty
 		if last_char_pos == 0:
 			self.__timer.Stop()
 			return
+
 		# do we need to resize ?
 		line_height = self.TextHeight(0)
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + line_height
@@ -606,16 +647,6 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 #				elif self.__parent.complete:
 #					self.__parent.complete()
 
-		# <;>
-		# - do not put into empty field
-		# - do not allow consecutive ';'s
-		if event.GetKeyCode() == ord(';'):
-			if self.GetLength() == 0:
-				return
-			# FIXME: smartup for whitespace after trailing ';'
-			if self.GetCharAt(curs_pos-1) == ord(';'):
-				return
-
 		# <DEL>
 		# - if inside embedded string
 		#	- delete entire string and data dict
@@ -658,12 +689,44 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 #					self.AddText (';')
 #				return
 
+		# <;>
+		# - do not put into empty field
+		# - do not allow consecutive ';'s
+#		if event.GetKeyCode() == ord(';'):
+#			if self.GetLength() == 0:
+#				return
+#			# FIXME: smartup for whitespace after trailing ';'
+#			if self.GetCharAt(curs_pos-1) == ord(';'):
+#				return
+
 		event.Skip()	# skip to next event handler to keep processing
 	#------------------------------------------------
 	def __OnKeyUp (self, event):
 		if not self.list:
 			curs_pos = self.PointFromPosition(self.GetCurrentPos())
 			self.__parent.EnsureVisible (self, curs_pos.x, curs_pos.y)
+	#------------------------------------------------
+	def __on_char(self, evt):
+
+		char = unichr(evt.GetUnicodeKey())
+
+		if self.__keyword_separators.match(char) is not None:
+			if self.GetLength() == 1:
+				evt.Skip()
+				return
+
+			line, caret_pos = self.GetCurLine()
+			word = self.__keyword_separators.split(line[:caret_pos])[-1]
+			if (word not in gmPG2.get_text_expansion_keywords()) and (word != u'$$steffi'):
+				evt.Skip()
+				return
+
+			start = self.GetCurrentPos() - len(word)
+			wx.CallAfter(self.replace_keyword_with_expansion, word, start)
+			evt.Skip()
+			return
+
+		evt.Skip()
 	#------------------------------------------------
 #	def _cb_on_popup_completion(self, was_cancelled=False):
 #		"""Callback for popup completion.
@@ -1048,7 +1111,12 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.50  2008-03-05 22:30:15  ncq
+# Revision 1.51  2008-07-10 21:01:22  ncq
+# - factor out char handling into __on_char while key handling stays in __on_key_down
+# - add keyword expansion as per user request
+# - a bit of cleanup in advance of the Great SOAP Merger
+#
+# Revision 1.50  2008/03/05 22:30:15  ncq
 # - new style logging
 #
 # Revision 1.49  2008/01/30 14:03:42  ncq
