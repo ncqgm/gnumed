@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.44 2008-04-02 10:46:14 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmHorstSpace.py,v 1.45 2008-07-10 11:20:27 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -186,7 +186,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			_log.info('cannot check whether notebook page change needs to be vetoed')
 			# but let's do a basic check anyways
 			pat = gmPerson.gmCurrentPatient()
-			if not pat.is_connected():
+			if not pat.connected:
 				gmDispatcher.send(signal = 'statustext', msg =_('Cannot change notebook tabs. No active patient.'))
 				event.Veto()
 				return
@@ -230,7 +230,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		if self.__new_page_already_checked:
 			new_page.receive_focus()
 			# activate toolbar of new page
-			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
+#			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
 			self.__new_page_already_checked = False
 			event.Skip()
 			return
@@ -246,7 +246,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			_log.debug('we are lucky: new page *can* receive focus')
 			new_page.receive_focus()
 			# activate toolbar of new page
-			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
+#			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
 			event.Skip()
 			return
 
@@ -315,7 +315,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.44  2008-04-02 10:46:14  ncq
+# Revision 1.45  2008-07-10 11:20:27  ncq
+# - no more toolbar handling
+#
+# Revision 1.44  2008/04/02 10:46:14  ncq
 # - better logging
 #
 # Revision 1.43  2008/03/29 16:11:10  ncq
