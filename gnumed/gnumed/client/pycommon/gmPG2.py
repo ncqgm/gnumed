@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.80 $"
+__version__ = "$Revision: 1.81 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -507,6 +507,50 @@ def get_col_names(link_obj=None, schema='public', table=None):
 	for row in rows:
 		cols.append(row[0])
 	return cols
+#------------------------------------------------------------------------
+text_expansion_keywords = None
+
+def get_text_expansion_keywords():
+	global text_expansion_keywords
+	if text_expansion_keywords is not None:
+		return text_expansion_keywords
+
+	cmd = u"""
+select distinct keyword
+from clin.keyword_expansion
+where
+	fk_staff is null
+		or
+	fk_staff = (select pk from dem.staff where db_user = current_user)
+"""
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
+	text_expansion_keywords = [ r[0] for r in rows ]
+
+	_log.info('retrieved %s text expansion keywords', len(text_expansion_keywords))
+
+	return text_expansion_keywords
+#------------------------------------------------------------------------
+def expand_keyword(keyword = None):
+
+	cmd = u"""
+select coalesce (
+	(select expansion
+	 from clin.keyword_expansion
+	 where
+		keyword = %(kwd)s
+			and
+		fk_staff = (select pk from dem.staff where db_user = current_user)
+	),
+	(select expansion
+	 from clin.keyword_expansion
+	 where
+		keyword = %(kwd)s
+			and
+		fk_staff is null
+	)
+)"""
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
+	return rows[0][0]
 # =======================================================================
 # query runners and helpers
 # =======================================================================
@@ -1481,7 +1525,14 @@ if __name__ == "__main__":
 	def test_sanity_check_time_skew():
 		sanity_check_time_skew()
 	#--------------------------------------------------------------------
-
+	def test_keyword_expansion():
+		print "keywords, from database:"
+		print get_text_expansion_keywords()
+		print "keywords, cached:"
+		print get_text_expansion_keywords()
+		print "'$keyword' expands to:"
+		print expand_keyword(keyword = u'$keyword')
+	#--------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# run tests
 		#test_file2bytea()
@@ -1494,11 +1545,15 @@ if __name__ == "__main__":
 		#test_list_args()
 		#test_sanitize_pg_regex()
 		#test_is_pg_interval()
-		test_sanity_check_time_skew()
+		#test_sanity_check_time_skew()
+		test_keyword_expansion()
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.80  2008-06-24 16:54:20  ncq
+# Revision 1.81  2008-07-10 19:52:50  ncq
+# - add expansion keyword functions with tests
+#
+# Revision 1.80  2008/06/24 16:54:20  ncq
 # - make v9 database hash known
 #
 # Revision 1.79  2008/06/15 20:32:46  ncq
