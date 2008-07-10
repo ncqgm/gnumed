@@ -3,11 +3,11 @@
 # ------------------------------------------------
 #
 # this plugin displays the list of patient problems
-# toghether whith a notebook container for progress notes
+# together whith a notebook container for progress notes
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -32,7 +32,7 @@ _log.info(__version__)
 
 #======================================================================
 class gmNotebookedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
-	"""Plugin to encapsulate multisash based progress note input window."""
+	"""Plugin to encapsulate notebook based progress note input window."""
 
 	tab_name = _('Progress notes')
 
@@ -93,7 +93,10 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.15  2008-06-24 14:01:02  ncq
+# Revision 1.16  2008-07-10 08:45:14  ncq
+# - fix spelling
+#
+# Revision 1.15  2008/06/24 14:01:02  ncq
 # - improved menu item label
 #
 # Revision 1.14  2008/03/06 18:32:31  ncq
