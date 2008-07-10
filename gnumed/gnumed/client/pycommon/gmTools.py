@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.60 2008-07-10 19:59:09 ncq Exp $
+# $Id: gmTools.py,v 1.61 2008-07-10 20:51:38 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -195,6 +195,8 @@ class gmPaths(gmBorg.cBorg):
 		if app_name is None:
 			app_name, ext = os.path.splitext(os.path.basename(sys.argv[0]))
 			_log.info('app name detected as [%s]', app_name)
+		else:
+			_log.info('app name passed in as [%s]', app_name)
 
 		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
 		self.working_dir = os.path.abspath(os.curdir)
@@ -884,7 +886,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.60  2008-07-10 19:59:09  ncq
+# Revision 1.61  2008-07-10 20:51:38  ncq
+# - better logging
+#
+# Revision 1.60  2008/07/10 19:59:09  ncq
 # - better logging
 # - check whether sys config dir ends in "gnumed"
 #
