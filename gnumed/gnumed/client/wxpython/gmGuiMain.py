@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.411 2008-07-07 13:43:17 ncq Exp $
-__version__ = "$Revision: 1.411 $"
+# $Id: gmGuiMain.py,v 1.412 2008-07-10 20:52:55 ncq Exp $
+__version__ = "$Revision: 1.412 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2385,7 +2385,7 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def __setup_cfg(self):
 
-		paths = gmTools.gmPaths()
+		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
 
 		candidates = []
 		explicit_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
@@ -2614,7 +2614,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.411  2008-07-07 13:43:17  ncq
+# Revision 1.412  2008-07-10 20:52:55  ncq
+# - better to call path detection with app name and wx
+#
+# Revision 1.411  2008/07/07 13:43:17  ncq
 # - current patient .connected
 #
 # Revision 1.410  2008/06/28 22:34:46  ncq
