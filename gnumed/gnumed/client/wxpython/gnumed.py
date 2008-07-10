@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.140 2008-06-11 19:12:13 ncq Exp $
-__version__ = "$Revision: 1.140 $"
+# $Id: gnumed.py,v 1.141 2008-07-10 21:08:16 ncq Exp $
+__version__ = "$Revision: 1.141 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -233,7 +233,7 @@ def setup_paths_and_files():
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'logs')))
 
-	paths = gmTools.gmPaths()
+	paths = gmTools.gmPaths(app_name = u'gnumed')
 
 	open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), 'a+').close()
 #==========================================================
@@ -243,7 +243,7 @@ def setup_date_time():
 def setup_cfg():
 
 	enc = gmI18N.get_encoding()
-	paths = gmTools.gmPaths()
+	paths = gmTools.gmPaths(app_name = u'gnumed')
 
 	# the current working dir
 	_cfg.add_file_source (
@@ -388,7 +388,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.140  2008-06-11 19:12:13  ncq
+# Revision 1.141  2008-07-10 21:08:16  ncq
+# - call path detection with app name
+#
+# Revision 1.140  2008/06/11 19:12:13  ncq
 # - add a comment
 #
 # Revision 1.139  2008/05/29 13:32:22  ncq
