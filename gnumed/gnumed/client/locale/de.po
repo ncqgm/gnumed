@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.120 $
+# $Revision: 1.121 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-06-29 00:40+CEST\n"
-"PO-Revision-Date: 2008-06-29 01:09+0100\n"
+"POT-Creation-Date: 2008-07-11 23:20+CEST\n"
+"PO-Revision-Date: 2008-07-11 23:38+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -108,8 +108,17 @@ msgstr ""
 "Kartei-Statistik\n"
 "\n"
 
+msgid " %s known problems. Clinically relevant:\n"
+msgstr " %s medizinische Probleme. Klinisch relevant davon:\n"
+
 msgid " %s known problems\n"
 msgstr " %s medizinische Probleme\n"
+
+msgid "active"
+msgstr "aktiv"
+
+msgid "inactive"
+msgstr "inaktiv"
 
 msgid " %s visits from %s to %s\n"
 msgstr " %s Konsultationen vom %s bis zum %s\n"
@@ -144,32 +153,26 @@ msgid "no vaccinations recorded"
 msgstr "keine Impfungen vermerkt"
 
 msgid ""
-"Very recently (between \"%s\" and \"%s\" ago)\n"
-"a consultation has been recorded for the patient:\n"
+"%s\n"
 "\n"
-" %s\n"
+"This patient's chart was worked on only recently:\n"
 "\n"
-"with the following details:\n"
+" %s  %s - %s  (%s)\n"
 "\n"
-" date: %s\n"
-" time: %s - %s\n"
-" type: %s\n"
-" request: %s\n"
-" outcome: %s\n"
+" Request: %s\n"
+" Outcome: %s\n"
 "\n"
-"Do you want to continue this consultation\n"
+"Do you want to continue that consultation\n"
 "or do you want to start a new one ?\n"
 msgstr ""
-"Erst kürzlich (vor \"%s\" bis \"%s\")\n"
-"wurde für den Patienten\n"
+"%s\n"
+"\n"
+"Diese Karteikarte wurde erst kürzlich bearbeitet:\n"
+"\n"
+" %s  %s - %s (%s)\n"
 "\n"
 " %s\n"
 "\n"
-"eine Konsultation mit folgenden Details vermerkt:\n"
-"\n"
-" Datum: %s\n"
-" Zeitraum: %s - %s\n"
-" Typ: %s\n"
 " Begehr: %s\n"
 " Ergebnis: %s\n"
 "\n"
@@ -179,17 +182,62 @@ msgstr ""
 msgid "none given"
 msgstr "nicht angegeben"
 
-msgid "starting patient encounter"
+msgid "Starting patient encounter"
 msgstr "beginne Arzt-Patienten-Kontakt"
+
+msgid "Foundational Health Issue %s%s%s [#%s]"
+msgstr "Grunderkrankung %s%s%s [#%s]"
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr " ***** VERTRAULICH *****"
+
+msgid " contributed to death of patient"
+msgstr " trug zum Tode des Patienten bei"
+
+msgid " Noted at age: %s"
+msgstr " Bemerkt im Alter von: %s"
+
+msgid " Status: %s, %s"
+msgstr " Status: %s, %s"
+
+msgid "not clinically relevant"
+msgstr "medizinisch nicht relevant"
+
+msgid "clinically relevant"
+msgstr "medizinisch relevant"
+
+msgid "Error retrieving episodes for this health issue."
+msgstr "Fehler beim Laden der Episoden für diese Grunderkrankung."
+
+msgid "There are no episodes for this health issue."
+msgstr "Keine Episoden für diese Grunderkrankung gefunden."
+
+msgid "Episodes: %s"
+msgstr "Episoden: %s"
+
+msgid " Most recent: %s%s%s"
+msgstr " Jüngst: %s%s%s"
+
+msgid "closed"
+msgstr "beendet"
+
+msgid "ongoing"
+msgstr "andauernd"
+
+msgid "No encounters found for this health issue."
+msgstr "Keine APK für diese Grunderkrankung gefunden."
+
+msgid "Encounters: %s (%s - %s):"
+msgstr "Konsultationen: %s (%s - %s):"
+
+msgid " Most recent: %s - %s"
+msgstr " Zuletzt: %s - %s"
 
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
 
 msgid "Episode %s%s%s (%s) [#%s]\n"
 msgstr "Episode %s%s%s (%s) [#%s]\n"
-
-msgid "active"
-msgstr "aktiv"
 
 msgid "finished"
 msgstr "beendet"
@@ -202,9 +250,6 @@ msgstr "Keine APK für diese Episode gefunden."
 
 msgid "Last worked on: %s\n"
 msgstr "Zuletzt behandelt: %s\n"
-
-msgid "Encounters: %s (%s - %s):"
-msgstr "Konsultationen: %s (%s - %s):"
 
 msgid "Documents: %s"
 msgstr "Dokumente: %s"
@@ -1848,9 +1893,6 @@ msgstr "außerhalb Normbereich"
 msgid "take over responsibility"
 msgstr "die Verantwortung auf mich übertragen"
 
-msgid "clinically relevant"
-msgstr "medizinisch relevant"
-
 msgid "sign all parts"
 msgstr "alle Teile abzeichnen"
 
@@ -2479,14 +2521,14 @@ msgstr "Nutzer"
 msgid "Password"
 msgstr "Passwort"
 
-msgid "debug mode"
-msgstr "Fehlerverfolgung"
+msgid "&Debug mode"
+msgstr "&Fehlerverfolgung"
 
 msgid "Check this to run GNUmed client in debugging mode."
 msgstr "Hier ankreuzen, um eine bessere Fehlersuche zu ermöglichen."
 
-msgid "enable remote control"
-msgstr "Fernsteuerung aktivieren"
+msgid "Enable &remote control"
+msgstr "Fern&steuerung aktivieren"
 
 msgid "Check this to run GNUmed client in slave mode for remote control."
 msgstr "Hier ankreuzen, um die Fernsteuerung von GNUmed einzuschalten."
@@ -3372,9 +3414,6 @@ msgstr "Wählen Sie die Episoden, die von Interesse sind ..."
 
 msgid "Health Issue"
 msgstr "Grunderkrankung"
-
-msgid "ongoing"
-msgstr "andauernd"
 
 msgid "Cannot attach episode [%s] to health issue [%s] because it already has a running episode."
 msgstr "Kann Episode [%s] nicht der Grunderkrankung [%s] zuordnen, weil diese bereits eine laufende Episode hat."
@@ -4439,6 +4478,13 @@ msgid ""
 "progress notes on entirely new patients presenting\n"
 "with a multitude of problems on their first visit."
 msgstr ""
+"Wollen Sie beim Eingeben von Verlaufsnotizen zu einem\n"
+"Patienten mehrere Masken für neue, unzugeordnete\n"
+"Episoden gleichzeitig zulassen ?\n"
+"\n"
+"Dies kann besonders beim Schreiben von Karteieinträgen\n"
+"zu völlig neuen Patienten sein, die ja oft mit einer\n"
+"Vielzahl von Problemen vorstellig werden."
 
 msgid "Yes, allow for multiple new episodes concurrently."
 msgstr "Ja, mehrere neue Episoden gleichzeitig zulassen."
@@ -6119,9 +6165,6 @@ msgstr "T"
 msgid "xxxSOAPxxx"
 msgstr "xxxABDTxxx"
 
-msgid "Select a healthcare provider."
-msgstr "Einen Arzt wählen"
-
 msgid "Enter a descriptive name for the new workplace:"
 msgstr "Geben Sie dem neuen Arbeitsplatz einen aussagekräftigen Namen:"
 
@@ -6146,6 +6189,22 @@ msgstr ""
 
 msgid "Plugins"
 msgstr "Module"
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+"\n"
+"Wählen Sie das Schlüsselwort, welches Sie bearbeiten wollen !\n"
+
+msgid "Editing keyword-based text expansions ..."
+msgstr "Bearbeiten der Textmakros ..."
+
+msgid "Keyword"
+msgstr "Schlüsselwort"
+
+msgid "Select a healthcare provider."
+msgstr "Einen Arzt wählen"
 
 msgid ""
 "\n"
@@ -6270,6 +6329,35 @@ msgstr ""
 msgid "Discarding progress note"
 msgstr "Verwerfe Verlaufsnotiz"
 
+msgid "Patient change: Unsaved progress note"
+msgstr "Patientenwechsel: ungespeicherte Verlaufsnotiz"
+
+msgid ""
+"This progress note has not been saved yet.\n"
+"\n"
+"Do you want to save it or discard it ?\n"
+"\n"
+msgstr ""
+"Diese Verlaufsnotiz ist noch nicht gespeichert.\n"
+"\n"
+"Wollen Sie sie speichern oder verwerfen ?\n"
+"\n"
+
+msgid "Save this progress note"
+msgstr "Diese Verlaufsnotiz speichern"
+
+msgid "Discard this progress note"
+msgstr "Diese Verlaufsnotiz verwerfen"
+
+msgid "&Discard"
+msgstr "&Verwerfen"
+
+msgid "Save &all"
+msgstr " &Alle speichern"
+
+msgid "Save all remaining unsaved progress notes"
+msgstr "Alle ungespeicherten Verlaufsnotiz speichern"
+
 msgid "Active problems"
 msgstr "Aktuelle Probleme"
 
@@ -6284,9 +6372,6 @@ msgstr "Verlaufsnotiz in Kartei abspeichern und Editor schließen."
 
 msgid "Clear this progress note editor."
 msgstr "Editor für Verlaufsnotiz leeren."
-
-msgid "&Discard"
-msgstr "&Verwerfen"
 
 msgid "Discard progress note and close this editor. You will loose any data already typed into this editor !"
 msgstr "Verlaufsnotiz verwerfen und diesen Editor schließen. Sie verlieren dabei alle bereits in diesen Editor eingegebenen Daten !"
@@ -6349,12 +6434,6 @@ msgstr "Karteieintrag verwerfen"
 msgid "clinical progress note"
 msgstr "klinische Verlaufsnotiz"
 
-msgid "&Search"
-msgstr "S&uche"
-
-msgid "&Case insensitive"
-msgstr "&Gross-/Kleinschreibung vernachlässigen"
-
 msgid "Latin"
 msgstr "Latein"
 
@@ -6407,9 +6486,6 @@ msgstr " Abbrechen "
 
 msgid "DB account"
 msgstr "DB-Konto"
-
-msgid "inactive"
-msgstr "inaktiv"
 
 msgid "can login"
 msgstr "Anmeldung möglich"
@@ -6865,12 +6941,6 @@ msgstr "Handbuch"
 msgid "User &manual (local)"
 msgstr "&Handbuch (lokal)"
 
-msgid "GNUmed manual contents"
-msgstr "Inhaltsverzeichnis des GNUmed-Handbuchs"
-
-msgid "Print manual page"
-msgstr "Handbuchseite drucken"
-
 msgid "Measurements"
 msgstr "Meßwerte"
 
@@ -6942,9 +7012,6 @@ msgstr "Dokumente hinzufügen"
 
 msgid "Show &archived documents"
 msgstr "archivierte &Dokumente zeigen"
-
-msgid "show document"
-msgstr "Dokument zeigen"
 
 msgid "&Vaccinations"
 msgstr "Impfungen"
@@ -7189,6 +7256,16 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "&Search"
+#~ msgstr "S&uche"
+#~ msgid "&Case insensitive"
+#~ msgstr "&Gross-/Kleinschreibung vernachlässigen"
+#~ msgid "GNUmed manual contents"
+#~ msgstr "Inhaltsverzeichnis des GNUmed-Handbuchs"
+#~ msgid "Print manual page"
+#~ msgstr "Handbuchseite drucken"
+#~ msgid "show document"
+#~ msgstr "Dokument zeigen"
 #~ msgid "ifap index (Win)"
 #~ msgstr "ifap index (Win)"
 #~ msgid ""
@@ -7527,8 +7604,6 @@ msgstr "erstmals"
 #~ msgstr "Umsetzung in:"
 #~ msgid "Date:"
 #~ msgstr "Datum:"
-#~ msgid "Foundational Issue"
-#~ msgstr "Grunderkrankung"
 #~ msgid "idle"
 #~ msgstr "Leerlauf"
 #~ msgid "generic single choice dialog"
@@ -8194,16 +8269,12 @@ msgstr "erstmals"
 #~ "%s"
 #~ msgid "save focussed progress note into medical record"
 #~ msgstr "aktivierte Verlaufsnotiz in Kartei abspeichern"
-#~ msgid "clear focussed progress note"
-#~ msgstr "gewählte Verlaufsnotiz verwerfen"
 #~ msgid "close focussed progress note"
 #~ msgstr "gewählte Verlaufsnotiz schließen"
 #~ msgid ""
 #~ "create a progress note that is not at first associated with any episode"
 #~ msgstr ""
 #~ "neue Verlaufsnotiz anlegen, die vorerst keiner Episode zugeordnet ist"
-#~ msgid "save progress note"
-#~ msgstr "Verlaufsnotiz speichern"
 #~ msgid ""
 #~ "Need a name for the new episode to save new progress note under.\n"
 #~ "Please type a new episode name or select an existing one from the list."
