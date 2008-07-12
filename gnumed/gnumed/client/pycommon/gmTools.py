@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.62 2008-07-12 15:24:37 ncq Exp $
+# $Id: gmTools.py,v 1.63 2008-07-12 15:30:56 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -673,7 +673,9 @@ if __name__ == '__main__':
 		print "------------------"
 		tests = [
 			[None, 'something other than <None>', None, None, 'something other than <None>'],
-			['Captain', 'Mr.', '%s.'[:4], 'Mr.', 'Capt.']
+			['Captain', 'Mr.', '%s.'[:4], 'Mr.', 'Capt.'],
+			['value to test', 'test 3 failed', 'template with "%s" included', None, 'template with "value to test" included'],
+			['value to test', 'test 4 failed', 'template with value not included', None, 'template with value not included']
 		]
 		passed = True
 		for test in tests:
@@ -876,9 +878,9 @@ This is a test mail from the gmTools.py module.
 	#-----------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-		test_check_for_update()
+		#test_check_for_update()
 		#test_str2interval()
-		#test_coalesce()
+		test_coalesce()
 		#test_capitalize()
 		#test_import_module()
 		#test_mkdir()
@@ -893,7 +895,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.62  2008-07-12 15:24:37  ncq
+# Revision 1.63  2008-07-12 15:30:56  ncq
+# - improved coalesce test
+#
+# Revision 1.62  2008/07/12 15:24:37  ncq
 # - impove coalesce to allow template_initial to be returned *instead* of
 #   initial substituted into the template by not including a substitution
 #
