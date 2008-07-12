@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.125 2008-07-07 13:39:22 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmPatientExporter.py,v 1.126 2008-07-12 15:20:55 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -636,7 +636,7 @@ class cEmrExport:
 #            issue['age_noted']
             issue.age_noted_human_readable()
         )
-        print issue.age_noted_human_readable()
+#        print issue.age_noted_human_readable()
         if issue['clinically_relevant']:
             txt += _('clinically relevant: yes\n')
         else:
@@ -1199,7 +1199,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.125  2008-07-07 13:39:22  ncq
+# Revision 1.126  2008-07-12 15:20:55  ncq
+# - comment out print
+#
+# Revision 1.125  2008/07/07 13:39:22  ncq
 # - properly sort tree
 # - current patient .connected
 #
