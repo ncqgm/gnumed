@@ -117,7 +117,7 @@ else
 	echo "   !!! SKIPPED backup !!!"
 	echo_msg ""
 	echo_msg "   This may prevent you from being able to restore your"
-	echo_msg "   database from a up-to-date backup should you need to."
+	echo_msg "   database from an up-to-date backup should you need to."
 	echo_msg ""
 	echo_msg "   Be sure you really know what you are doing !"
 fi ;
