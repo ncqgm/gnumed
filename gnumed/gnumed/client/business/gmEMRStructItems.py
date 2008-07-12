@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.114 $"
+__version__ = "$Revision: 1.115 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -146,7 +146,86 @@ age (
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
+	#--------------------------------------------------------
+	def format(self, left_margin=0, patient=None):
 
+		if patient.ID != self._payload[self._idx['fk_patient']]:
+			msg = '<patient>.ID = %s but health issue %s belongs to patient %s' % (
+				patient.ID,
+				self._payload[self._idx['pk']],
+				self._payload[self._idx['fk_patient']]
+			)
+			raise ValueError(msg)
+
+		lines = []
+
+		lines.append(_('Foundational Health Issue %s%s%s [#%s]') % (
+			u'\u00BB',
+			self._payload[self._idx['description']],
+			u'\u00AB',
+			self._payload[self._idx['pk']]
+		))
+
+		if self._payload[self._idx['is_confidential']]:
+			lines.append('')
+			lines.append(_(' ***** CONFIDENTIAL *****'))
+			lines.append('')
+
+		if self._payload[self._idx['is_cause_of_death']]:
+			lines.append('')
+			lines.append(_(' contributed to death of patient'))
+			lines.append('')
+
+		lines.append(_(' Noted at age: %s') % self.age_noted_human_readable())
+		lines.append(_(' Status: %s, %s') % (
+			gmTools.bool2subst(self._payload[self._idx['is_active']], _('active'), _('inactive')),
+			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant'))
+		))
+		lines.append('')
+
+		emr = patient.get_emr()
+
+		epis = emr.get_episodes(issues = [self._payload[self._idx['pk']]])
+		if epis is None:
+			lines.append(_('Error retrieving episodes for this health issue.'))
+		elif len(epis) == 0:
+			lines.append(_('There are no episodes for this health issue.'))
+		else:
+			lines.append(_('Episodes: %s') % len(epis))
+			lines.append(_(' Most recent: %s%s%s') % (
+				u'\u00BB',
+				emr.get_most_recent_episode(issue = self._payload[self._idx['pk']])['description'],
+				u'\u00AB'
+			))
+			lines.append('')
+			for epi in epis:
+				lines.append(u' \u00BB%s\u00AB (%s)' % (
+					epi['description'],
+					gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
+				))
+
+		lines.append('')
+
+		first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk']])
+		last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk']])
+
+		if first_encounter is None or last_encounter is None:
+			lines.append(_('No encounters found for this health issue.'))
+		else:
+			encs = emr.get_encounters(issues = [self._payload[self._idx['pk']]])
+			lines.append(_('Encounters: %s (%s - %s):') % (
+				len(encs),
+				first_encounter['started_original_tz'].strftime('%m/%Y'),
+				last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
+			))
+			lines.append(_(' Most recent: %s - %s') % (
+				last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+				last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
+			))
+
+		left_margin = u' ' * left_margin
+		eol_w_margin = u'\n%s' % left_margin
+		return left_margin + eol_w_margin.join(lines) + u'\n'
 #============================================================
 def create_health_issue(patient_id=None, description=None, encounter=None):
 	"""Creates a new health issue for a given patient.
@@ -312,6 +391,14 @@ from (
 	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
+		if patient.ID != self._payload[self._idx['pk_patient']]:
+			msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
+				patient.ID,
+				self._payload[self._idx['pk_episode']],
+				self._payload[self._idx['pk_patient']]
+			)
+			raise ValueError(msg)
+
 		lines = []
 
 		lines.append(_('Episode %s%s%s (%s) [#%s]\n') % (
@@ -321,14 +408,6 @@ from (
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
 			self._payload[self._idx['pk_episode']]
 		))
-
-		if patient.ID != self._payload[self._idx['pk_patient']]:
-			msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
-				patient.ID,
-				self._payload[self._idx['pk_episode']],
-				self._payload[self._idx['pk_patient']]
-			)
-			raise ValueError(msg)
 
 		emr = patient.get_emr()
 		encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
@@ -878,7 +957,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.114  2008-06-26 21:17:59  ncq
+# Revision 1.115  2008-07-12 15:20:30  ncq
+# - add format to health issue
+#
+# Revision 1.114  2008/06/26 21:17:59  ncq
 # - episode formatting: include docs
 # - encounter formatting: include results and docs
 #
