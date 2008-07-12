@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.268 2008-07-07 11:33:15 ncq Exp $
-__version__ = "$Revision: 1.268 $"
+# $Id: gmClinicalRecord.py,v 1.269 2008-07-12 15:19:16 ncq Exp $
+__version__ = "$Revision: 1.269 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -567,9 +567,20 @@ Test results: %(results)s
 		stats = self.get_statistics()
 		first = self.get_first_encounter()
 		last = self.get_last_encounter()
+		probs = self.get_problems()
 
 		txt = _('EMR Statistics\n\n')
-		txt += _(' %s known problems\n') % stats['problems']
+		if len(probs) > 0:
+			txt += _(' %s known problems. Clinically relevant:\n') % stats['problems']
+		else:
+			txt += _(' %s known problems\n') % stats['problems']
+		for prob in probs:
+			if not prob['clinically_relevant']:
+				continue
+			txt += u'   \u00BB%s\u00AB (%s)\n' % (
+				prob['problem'],
+				gmTools.bool2subst(prob['problem_active'], _('active'), _('inactive'))
+			)
 		txt += _(' %s visits from %s to %s\n') % (
 			stats['visits'],
 			first['started'].strftime('%x'),
@@ -751,26 +762,32 @@ Test results: %(results)s
 		)
 		return episode
 	#--------------------------------------------------------
-	def get_most_recent_episode(issue=None):
+	def get_most_recent_episode(self, issue=None):
 		# try to find the episode with the most recently modified clinical item
+
+		issue_where = gmTools.coalesce(issue, u'', u'and pk_health_issue = %(issue)s')
+
 		cmd = u"""
 select pk
 from clin.episode
-where pk=(
+where pk = (
 	select distinct on(pk_episode) pk_episode
 	from clin.v_pat_items
 	where
-		pk_patient=%s
+		pk_patient = %%(pat)s
 			and
-		modified_when=(
+		modified_when = (
 			select max(vpi.modified_when)
 			from clin.v_pat_items vpi
-			where vpi.pk_patient=%(pat)s
+			where vpi.pk_patient = %%(pat)s
 		)
+		%s
 	-- guard against several episodes created at the same moment of time
 	limit 1
-	)"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+	)""" % issue_where
+		rows, idx = gmPG2.run_ro_queries(queries = [
+			{'cmd': cmd, 'args': {'pat': self.pk_patient, 'issue': issue}}
+		])
 		if len(rows) != 0:
 			return gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
 
@@ -781,14 +798,17 @@ select vpe0.pk_episode
 from
 	clin.v_pat_episodes vpe0
 where
-	vpe0.pk_patient = %s
+	vpe0.pk_patient = %%(pat)s
 		and
 	vpe0.episode_modified_when = (
 		select max(vpe1.episode_modified_when)
 		from clin.v_pat_episodes vpe1
-		where vpe1.pk_episode=vpe0.pk_episode
-	)"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+		where vpe1.pk_episode = vpe0.pk_episode
+	)
+	%s""" % issue_where
+		rows, idx = gmPG2.run_ro_queries(queries = [
+			{'cmd': cmd, 'args': {'pat': self.pk_patient, 'issue': issue}}
+		])
 		if len(rows) != 0:
 			return gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
 
@@ -807,10 +827,6 @@ where
 		episodes - Episodes' PKs to filter problems by
 		issues - Health issues' PKs to filter problems by
 		"""
-#		try:
-#			self.__db_cache['problems']
-#		except KeyError:
-
 		cmd = u"""select pk_health_issue, pk_episode from clin.v_problem_list where pk_patient=%s"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 		self.__db_cache['problems'] = []
@@ -1692,6 +1708,10 @@ if __name__ == "__main__":
 		)
 		print tr
 	#-----------------------------------------
+	def test_get_most_recent_episode():
+		emr = cClinicalRecord(aPKey=12)
+		print emr.get_most_recent_episode(issue = 2)
+	#-----------------------------------------
 	if (len(sys.argv) > 0) and (sys.argv[1] == 'test'):
 		#test_allergic_state()
 		#test_get_test_names()
@@ -1700,7 +1720,8 @@ if __name__ == "__main__":
 		#test_get_test_results_by_date()
 		#test_get_test_types_details()
 		#test_get_statistics()
-		test_add_test_result()
+		#test_add_test_result()
+		test_get_most_recent_episode()
 
 	sys.exit(1)
 
@@ -1760,7 +1781,11 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.268  2008-07-07 11:33:15  ncq
+# Revision 1.269  2008-07-12 15:19:16  ncq
+# - improve summary formatting
+# - fix get_most_recent_episode plus test
+#
+# Revision 1.268  2008/07/07 11:33:15  ncq
 # - improve "continue encounter ?" message
 #
 # Revision 1.267  2008/06/24 16:53:24  ncq
