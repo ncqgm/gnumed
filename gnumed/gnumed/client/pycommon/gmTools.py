@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.61 2008-07-10 20:51:38 ncq Exp $
+# $Id: gmTools.py,v 1.62 2008-07-12 15:24:37 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -563,12 +563,19 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 		- list of insteads: initial, [instead, template], [instead, template], [instead, template], template_initial, ...
 	"""
 	if initial is None:
+
 		if template_instead is None:
 			return instead
+
 		return template_instead % instead
+
 	if template_initial is None:
 		return initial
-	return template_initial % initial
+
+	try:
+		return template_initial % initial
+	except TypeError:
+		return template_initial
 #---------------------------------------------------------------------------
 def __cap_name(match_obj=None):
 	val = match_obj.group(0).lower()
@@ -886,7 +893,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.61  2008-07-10 20:51:38  ncq
+# Revision 1.62  2008-07-12 15:24:37  ncq
+# - impove coalesce to allow template_initial to be returned *instead* of
+#   initial substituted into the template by not including a substitution
+#
+# Revision 1.61  2008/07/10 20:51:38  ncq
 # - better logging
 #
 # Revision 1.60  2008/07/10 19:59:09  ncq
