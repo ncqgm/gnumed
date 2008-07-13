@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.122 2008-07-07 11:39:21 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gmPhraseWheel.py,v 1.123 2008-07-13 16:14:00 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -34,7 +34,7 @@ _log = logging.getLogger('macosx')
 
 
 color_prw_invalid = 'pink'
-color_prw_valid = None
+color_prw_valid = None				# this is used by code outside this module
 #============================================================
 # those can be used by the <accepted_chars> phrasewheel parameter
 NUMERIC = '0-9'
@@ -1015,7 +1015,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.122  2008-07-07 11:39:21  ncq
+# Revision 1.123  2008-07-13 16:14:00  ncq
+# - outside code uses color_prw_valid, so leave it and add a comment
+#
+# Revision 1.122  2008/07/07 11:39:21  ncq
 # - separate fake_popup from needs_relative_pos flag
 #
 # Revision 1.121  2008/06/26 17:03:53  ncq
