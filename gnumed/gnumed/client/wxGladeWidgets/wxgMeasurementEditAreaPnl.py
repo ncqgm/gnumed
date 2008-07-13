@@ -16,7 +16,7 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
 
         # begin wxGlade: wxgMeasurementEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
-        wx.ScrolledWindow.__init__(self, *args, **kwds)
+        wx.Panel.__init__(self, *args, **kwds)
         self._PRW_test = gmMeasurementWidgets.cMeasurementTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_result = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_units = gmMeasurementWidgets.cUnitPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -46,8 +46,7 @@ class wxgMeasurementEditAreaPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementEditAreaPnl.__set_properties
-        self.SetSize((600, 360))
-        self.SetScrollRate(10, 10)
+        self.SetSize((602, 362))
         self._PRW_test.SetToolTipString(_("The type of measurement or test this result is about."))
         self._PRW_test.SetFocus()
         self._TCTRL_result.SetToolTipString(_("The result of the measurement. Numeric and alphanumeric input is allowed."))
