@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.412 2008-07-10 20:52:55 ncq Exp $
-__version__ = "$Revision: 1.412 $"
+# $Id: gmGuiMain.py,v 1.413 2008-07-13 16:10:31 ncq Exp $
+__version__ = "$Revision: 1.413 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -463,22 +463,27 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "Office" --------------------
 		self.menu_office = wx.Menu()
 
-		# FIXME: regroup into sub-menus
+		menu_master_data = wx.Menu()
+		self.menu_office.AppendMenu(wx.NewId(), _('&Master data ...'), menu_master_data)
+
+		menu_staff = wx.Menu()
+		menu_master_data.AppendMenu(wx.NewId(), _('&Staff ...'), menu_staff)
 
 		ID_ADD_NEW_STAFF = wx.NewId()
-		self.menu_office.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
+		menu_staff.Append(ID_ADD_NEW_STAFF, _('&Add staff member'), _('Add a new staff member'))
 		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
 
 		ID_DEL_STAFF = wx.NewId()
-		self.menu_office.Append(ID_DEL_STAFF, _('Edit staff list'), _('Edit the list of staff'))
+		menu_staff.Append(ID_DEL_STAFF, _('&Edit staff list'), _('Edit the list of staff'))
 		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_edit_staff_list)
 
-		# - draw a line
-		self.menu_office.AppendSeparator()
-
 		ID_EDIT_DOC_TYPES = wx.NewId()
-		self.menu_office.Append(ID_EDIT_DOC_TYPES, _('Manage document types'), _('Edit the document types available in the system.'))
+		menu_master_data.Append(ID_EDIT_DOC_TYPES, _('Manage document types'), _('Edit the document types available in the system.'))
 		wx.EVT_MENU(self, ID_EDIT_DOC_TYPES, self.__on_edit_doc_types)
+
+		ID = wx.NewId()
+		menu_master_data.Append(ID, _('Manage text expansion'), _('Manage keyword based text expansion macros.'))
+		wx.EVT_MENU(self, ID, self.__on_manage_text_expansion)
 
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
@@ -1823,7 +1828,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add measurement. No active patient.'))
 			return False
-		gmMeasurementWidgets.add_new_measurement(parent = self)
+		gmMeasurementWidgets.edit_measurement(parent = self, measurement = None)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
@@ -2034,6 +2039,9 @@ Search results:
 		dlg = gmMedDocWidgets.cEditDocumentTypesDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
+	def __on_manage_text_expansion(self, evt):
+		gmProviderInboxWidgets.configure_keyword_text_expansion(parent=self)
+	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
 
@@ -2234,6 +2242,8 @@ class gmApp(wx.App):
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
 		"""
+		self.user_activity_timer.Stop()
+		gmTimer.shutdown()
 		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -2614,7 +2624,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.412  2008-07-10 20:52:55  ncq
+# Revision 1.413  2008-07-13 16:10:31  ncq
+# - master data menu
+# - manage text expansions
+# - add_new_measurement -> edit_measurement(measurement = None)
+# - cleanly shutdown timers
+#
+# Revision 1.412  2008/07/10 20:52:55  ncq
 # - better to call path detection with app name and wx
 #
 # Revision 1.411  2008/07/07 13:43:17  ncq
