@@ -1,27 +1,191 @@
 #====================================================================
-# GnuMed
+# GNUmed Richard style Edit Area
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.118 2008-07-07 13:43:16 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gmEditArea.py,v 1.119 2008-07-13 16:07:03 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
-import sys, time, logging
+import logging
 
 
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmMatchProvider, gmDispatcher, gmExceptions, gmI18N
-from Gnumed.business import gmPerson, gmDemographicRecord
-from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
+from Gnumed.pycommon import gmDispatcher, gmExceptions
 from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg, wxgGenericEditAreaDlg2
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+#====================================================================
+edit_area_modes = ['new', 'edit', 'new_from_existing']
+
+class cGenericEditAreaMixin(object):
+	"""Mixin for edit area panels providing generic functionality.
+
+	Implementors must provide:
+		- _valid_for_save
+		- _save_as_new
+		- _save_as_update
+		-_refresh_as_new
+		- _refresh_from_existing
+		- _refresh_as_new_from_existing
+
+	Code using this mixin should set mode and data after
+	instantiating the class.
+	"""
+	def __init__(self):
+		self.__mode = 'new'
+		self.__data = None
+	#----------------------------------------------------------------
+	def _get_mode(self):
+		return self.__mode
+
+	def _set_mode(self, mode=None):
+		if mode not in edit_area_modes:
+			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
+		if mode == 'edit':
+			if self.__data is None:
+				raise ValueError('[%s] <mode> "edit" needs data value' % self.__class__.__name__)
+		self.__mode = mode
+
+	mode = property(_get_mode, _set_mode)
+	#----------------------------------------------------------------
+	def _get_data(self):
+		return self.__data
+
+	def _set_data(self, data=None):
+		if data is None:
+			if self.__mode == 'edit':
+				raise ValueError('[%s] <mode> "edit" needs data value' % self.__class__.__name__)
+		self.__data = data
+		self.refresh()
+
+	data = property(_get_data, _set_data)
+	#----------------------------------------------------------------
+	def save(self):
+		"""Invoked from the generic edit area dialog.
+
+		Invokes _valid_for_save, _save_as_new/_save_as_update on
+		the implementing edit area.
+
+		_save_as_* must set self.__data and return True/False
+		"""
+		if not self._valid_for_save():
+			return False
+
+		if self.__mode in ['new', 'new_from_existing']:
+			if self._save_as_new():
+				self.mode = 'edit'
+				return True
+			return False
+
+		elif self.__mode == 'edit':
+			return self._save_as_update()
+
+		else:
+			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
+	#----------------------------------------------------------------
+	def refresh(self):
+		"""Invoked from the generic edit area dialog.
+
+		Invokes _refresh_as_new/_refresh_from_existing/_refresh_as_new_from_existing
+		on the implementing edit area.
+		"""
+		if self.__mode == 'new':
+			return self._refresh_as_new()
+		elif self.__mode == 'edit':
+			return self._refresh_from_existing()
+		elif self.__mode == 'new_from_existing':
+			return self._refresh_as_new_from_existing()
+		else:
+			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
+#====================================================================
+class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
+	"""Dialog for parenting edit area panels with save/clear/next/cancel"""
+
+	def __init__(self, *args, **kwargs):
+
+		ea = kwargs['edit_area']
+		del kwargs['edit_area']
+
+		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
+
+		# replace dummy panel
+		szr = self._PNL_ea.GetContainingSizer()
+		szr.Remove(self._PNL_ea)
+		ea.Reparent(self)
+		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
+		self._PNL_ea = ea
+
+		# redraw layout
+		self.Layout()
+		szr = self.GetSizer()
+		szr.Fit(self)
+		self.Refresh()
+
+		self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		if self._PNL_ea.save():
+			if self.IsModal():
+				self.EndModal(wx.ID_OK)
+			else:
+				self.Close()
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_forward_button_pressed(self, evt):
+		if self._PNL_ea.save():
+			self._PNL_ea.mode = 'new_from_existing'
+			self._PNL_ea.refresh()
+#====================================================================
+class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
+	"""Dialog for parenting edit area with save/clear/cancel"""
+
+	def __init__(self, *args, **kwargs):
+
+		ea = kwargs['edit_area']
+		del kwargs['edit_area']
+
+		wxgGenericEditAreaDlg.wxgGenericEditAreaDlg.__init__(self, *args, **kwargs)
+
+		szr = self._PNL_ea.GetContainingSizer()
+		szr.Remove(self._PNL_ea)
+		ea.Reparent(self)
+		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
+		self._PNL_ea = ea
+
+		self.Layout()
+		szr = self.GetSizer()
+		szr.Fit(self)
+		self.Refresh()
+
+		self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		"""The edit area save() method must return True/False."""
+		if self._PNL_ea.save():
+			if self.IsModal():
+				self.EndModal(wx.ID_OK)
+			else:
+				self.Close()
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._PNL_ea.refresh()
+#====================================================================
+#====================================================================
+#====================================================================
+import time
+
+from Gnumed.business import gmPerson, gmDemographicRecord
+from Gnumed.pycommon import gmGuiBroker
+from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
+
 _gb = gmGuiBroker.GuiBroker()
 
 ID_PROGRESSNOTES = wx.NewId()
@@ -118,78 +282,6 @@ CONTROLS_WITHOUT_LABELS =['wxTextCtrl', 'cEditAreaField', 'wx.SpinCtrl', 'gmPhra
 def _decorate_editarea_field(widget):
 	widget.SetForegroundColour(wx.Color(255, 0, 0))
 	widget.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
-
-#====================================================================
-class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
-
-	def __init__(self, *args, **kwargs):
-
-		ea = kwargs['edit_area']
-		del kwargs['edit_area']
-
-		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
-
-		# replace dummy panel
-		szr = self._PNL_ea.GetContainingSizer()
-		szr.Remove(self._PNL_ea)
-		ea.Reparent(self)
-		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
-		self._PNL_ea = ea
-
-		# redraw layout
-		self.Layout()
-		szr = self.GetSizer()
-		szr.Fit(self)
-		self.Refresh()
-
-		self._PNL_ea.refresh()
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		if self._PNL_ea.save():
-			if self.IsModal():
-				self.EndModal(wx.ID_OK)
-			else:
-				self.Close()
-	#--------------------------------------------------------
-	def _on_clear_button_pressed(self, evt):
-		self._PNL_ea.refresh()
-	#--------------------------------------------------------
-	def _on_forward_button_pressed(self, evt):
-		if self._PNL_ea.save():
-			self._PNL_ea.refresh()
-
-#====================================================================
-class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
-
-	def __init__(self, *args, **kwargs):
-
-		ea = kwargs['edit_area']
-		del kwargs['edit_area']
-
-		wxgGenericEditAreaDlg.wxgGenericEditAreaDlg.__init__(self, *args, **kwargs)
-
-		szr = self._PNL_ea.GetContainingSizer()
-		szr.Remove(self._PNL_ea)
-		ea.Reparent(self)
-		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
-		self._PNL_ea = ea
-
-		self.Layout()
-		szr = self.GetSizer()
-		szr.Fit(self)
-		self.Refresh()
-
-		self._PNL_ea.refresh()
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		if self._PNL_ea.save():
-			if self.IsModal():
-				self.EndModal(wx.ID_OK)
-			else:
-				self.Close()
-	#--------------------------------------------------------
-	def _on_clear_button_pressed(self, evt):
-		self._PNL_ea.refresh()
 #====================================================================
 class cEditAreaPopup(wx.Dialog):
 	def __init__ (
@@ -2058,7 +2150,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.118  2008-07-07 13:43:16  ncq
+# Revision 1.119  2008-07-13 16:07:03  ncq
+# - major cleanup
+# - cGenericEditAreaMixin implementing common edit area panel code
+# - make generic edit area dialog rev 2 aware of mixin code
+#
+# Revision 1.118  2008/07/07 13:43:16  ncq
 # - current patient .connected
 #
 # Revision 1.117  2008/06/09 15:34:26  ncq
