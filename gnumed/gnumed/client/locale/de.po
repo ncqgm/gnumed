@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.121 $
+# $Revision: 1.122 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-07-11 23:20+CEST\n"
-"PO-Revision-Date: 2008-07-11 23:38+0100\n"
+"POT-Creation-Date: 2008-07-13 18:29+CEST\n"
+"PO-Revision-Date: 2008-07-13 18:46+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -170,8 +170,6 @@ msgstr ""
 "Diese Karteikarte wurde erst kürzlich bearbeitet:\n"
 "\n"
 " %s  %s - %s (%s)\n"
-"\n"
-" %s\n"
 "\n"
 " Begehr: %s\n"
 " Ergebnis: %s\n"
@@ -2130,6 +2128,47 @@ msgstr "Pflichtfeld: Ein kurzer Alias für diesen Mitarbeiter, z.B. die Initiale
 msgid "Optional: A free-text comment on this staff member."
 msgstr "Optional: Ein freier Kommentar zu diesem Mitarbeiter."
 
+msgid "&Me only"
+msgstr "&Privat"
+
+msgid "&All users"
+msgstr "&Alle Anwender"
+
+msgid ""
+"The keyword you want to trigger this text expansion.\n"
+"\n"
+"Try to avoid words or abbreviations in their day-to-day form as you may want to use them verbatim. Rather prefix or suffix your keywords with, say, \"*\" or \"$\". It is wise to not suffix keywords with typical word separators, such as:\n"
+"\n"
+"       ! ? . , : ; ) ] } / ' \" SPACE TAB LINEBREAK\n"
+"\n"
+"as those are needed to detect when to trigger keyword expansion."
+msgstr ""
+"Das Schlüsselwort, welches zu diesem Text erweitert werden soll.\n"
+"\n"
+"Vermeiden Sie Worte und Abkürzungen in ihrer normalen Sprachform, damit Sie diese weiterhin ungestört nutzen können. Setzen Sie besser eine Markierung an Anfang oder Ende, z.B. \"*\" oder \"$\". Nutzen Sie als Endmarkierung aber nicht einen der typischen Worttrenner, wie etwa:\n"
+"\n"
+"  ! ? . , : ; ) ] } / ' \" LEERZEICHEN TABULATOR ZEILENUMBRUCH\n"
+"\n"
+"weil diese zum Auslösen der Schlüsselworterweiterung benötigt werden."
+
+msgid "This is the text the keyword will expand to. You can use any text-based punctuation and formatting."
+msgstr "Zu diesem Text soll das Schlüsselwort erweitert werden. Sie können alle Interpunktionszeichen und textbasierte Formatierungen verwenden."
+
+msgid "Select this if you want to use this text expansion just for yourself."
+msgstr "Markieren Sie dieses Feld, wenn dieses Textmakro nur für Sie persönlich zugänglich sein soll."
+
+msgid "Select this if you want to enable all GNUmed users to invoke this expansion (unless they have defined their own expansion with the same keyword)."
+msgstr "Markieren Sie dieses Feld, wenn dieses Textmakro allen GNUmed-Anwendern zur Verfügung stehen sein soll (außer sie haben für das Schlüsselwort eine eigene Erweiterung festgelegt)."
+
+msgid "Keyword"
+msgstr "Schlüsselwort"
+
+msgid "Expand to"
+msgstr "Erweiterung"
+
+msgid "Scope"
+msgstr "Gültigkeit"
+
 msgid "Details"
 msgstr "Details"
 
@@ -2152,7 +2191,7 @@ msgid "Enter any additional data or commentary you wish to provide such as what 
 msgstr "Geben Sie zusätzliche Informationen ein, die Sie dem Bericht hinzufügen möchte, etwa was Sie gerade zu tun beabsichtigten."
 
 msgid "Please enter your email address so we can provide feedback directly to you. Otherwise, feedback will be given on the GNUmed mailing list (http://lists.gnu.org/mailman/listinfo/gnumed-devel)."
-msgstr "Bitte geben Sie Ihre E-Mail-Adresse ein, sodaß wir Sie direkt erreichen können. Ihre Fehlermeldung wird ansonsten auf dem GNUmed-Mailingliste (http://lists.gnu.org/mailman/listinfo/gnumed-devel) bearbeitet."
+msgstr "Bitte geben Sie Ihre E-Mail-Adresse ein, sodaß wir Sie direkt erreichen können. Ihre Fehlermeldung wird ansonsten auf der GNUmed-Mailingliste (http://lists.gnu.org/mailman/listinfo/gnumed-devel) bearbeitet."
 
 msgid "Close this dialog but keep running GNUmed."
 msgstr "Diesen Dialog schließen, GNUmed läuft weiter."
@@ -4049,11 +4088,20 @@ msgstr "Dieses GNUmed-Fenster schließen."
 msgid "E&xit\tAlt-X"
 msgstr "E&xit\tAlt-X"
 
+msgid "&Master data ..."
+msgstr "&Stammdaten ..."
+
+msgid "&Staff ..."
+msgstr "&Mitarbeiter"
+
+msgid "&Add staff member"
+msgstr "Mitarbeiter &anlegen"
+
 msgid "Add a new staff member"
 msgstr "Einen neuen Mitarbeiter hinzufügen."
 
-msgid "Add staff member"
-msgstr "Mitarbeiter anlegen"
+msgid "&Edit staff list"
+msgstr "Mitarbeiterliste &bearbeiten"
 
 msgid "Edit the list of staff"
 msgstr "Die Liste der Mitarbeiter bearbeiten"
@@ -4063,6 +4111,12 @@ msgstr "Editieren der im System vorhandenen Dokumententypen."
 
 msgid "Manage document types"
 msgstr "Dokumententypen verwalten"
+
+msgid "Manage keyword based text expansion macros."
+msgstr "Bearbeiten der Textmakros."
+
+msgid "Manage text expansion"
+msgstr "Textmakros verwalten"
 
 msgid "&Office"
 msgstr "P&raxis"
@@ -5187,6 +5241,9 @@ msgstr "Versuch erzwungenen Verbindungsabbruchs"
 msgid "Adding new measurement"
 msgstr "Testergebnisse eingeben"
 
+msgid "Editing measurement"
+msgstr "Testergebnis bearbeiten"
+
 msgid ""
 "lab_grid_date_format::%Y\n"
 "%b %d"
@@ -6165,6 +6222,40 @@ msgstr "T"
 msgid "xxxSOAPxxx"
 msgstr "xxxABDTxxx"
 
+msgid "Cannot save text expansion without keyword."
+msgstr "Kann Textmakro ohne Schlüsselwort nicht speichern."
+
+msgid "Cannot save text expansion without expansion text."
+msgstr "Kann Textmakro ohne Makrotext nicht speichern."
+
+msgid "Adding text espansion"
+msgstr "Neues Textmakro hinzufügen"
+
+msgid "Editing text expansion \"%s\""
+msgstr "Bearbeiten des Textmakros \"%s\""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+"\n"
+"Wählen Sie das Textmakro, welches Sie bearbeiten wollen !\n"
+
+msgid "Editing keyword-based text expansions ..."
+msgstr "Bearbeiten der Textmakros ..."
+
+msgid "Owner"
+msgstr "Besitzer"
+
+msgid "Private"
+msgstr "Privat"
+
+msgid "Public"
+msgstr "Öffentlich"
+
+msgid "Select a healthcare provider."
+msgstr "Einen Arzt wählen"
+
 msgid "Enter a descriptive name for the new workplace:"
 msgstr "Geben Sie dem neuen Arbeitsplatz einen aussagekräftigen Namen:"
 
@@ -6189,22 +6280,6 @@ msgstr ""
 
 msgid "Plugins"
 msgstr "Module"
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-"\n"
-"Wählen Sie das Schlüsselwort, welches Sie bearbeiten wollen !\n"
-
-msgid "Editing keyword-based text expansions ..."
-msgstr "Bearbeiten der Textmakros ..."
-
-msgid "Keyword"
-msgstr "Schlüsselwort"
-
-msgid "Select a healthcare provider."
-msgstr "Einen Arzt wählen"
 
 msgid ""
 "\n"
@@ -7410,8 +7485,6 @@ msgstr "erstmals"
 #~ msgstr "Nicht senden"
 #~ msgid "Send"
 #~ msgstr "Senden"
-#~ msgid "Send to"
-#~ msgstr "Senden an"
 #~ msgid "Your email address"
 #~ msgstr "Ihre E-mail-Adresse"
 #~ msgid "I hit the big red button and ..."
@@ -7498,8 +7571,6 @@ msgstr "erstmals"
 #~ msgstr "Veteran"
 #~ msgid "concession"
 #~ msgstr "Zulassung"
-#~ msgid "private"
-#~ msgstr "privat"
 #~ msgid "workcover"
 #~ msgstr "AU"
 #~ msgid "head office"
