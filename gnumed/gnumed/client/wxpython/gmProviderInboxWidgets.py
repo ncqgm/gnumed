@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.28 2008-06-09 15:36:58 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmProviderInboxWidgets.py,v 1.29 2008-07-13 16:14:59 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -14,10 +14,10 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2
 from Gnumed.business import gmPerson, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel
-from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
+from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel, gmEditArea
+from Gnumed.wxGladeWidgets import wxgProviderInboxPnl, wxgTextExpansionEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
@@ -28,7 +28,154 @@ _indicator = {
 	0: '',
 	1: '!'
 }
+#============================================================
+class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl):
 
+	def __init__(self, *args, **kwds):
+
+		try:
+			self.__keyword = kwds['keyword']
+			del kwds['keyword']
+		except KeyError:
+			self.__keyword = None
+
+		wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl.__init__(self, *args, **kwds)
+
+		self.__init_ui()
+		self.__register_interests()
+	#--------------------------------------------------------
+	def save(self):
+		if not self.__valid_for_save():
+			return False
+
+		if self.__keyword is None:
+			result = gmPG2.add_text_expansion (
+				keyword = self._TCTRL_keyword.GetValue().strip(),
+				expansion = self._TCTRL_expansion.GetValue(),
+				public = self._RBTN_public.GetValue()
+			)
+		else:
+			gmPG2.edit_text_expansion (
+				keyword = self._TCTRL_keyword.GetValue().strip(),
+				expansion = self._TCTRL_expansion.GetValue()
+			)
+			result = True
+
+		return result
+	#--------------------------------------------------------
+	def refresh(self):
+		self.__init_ui()
+#		if self.__keyword is not None:
+#			self._TCTRL_expansion.SetValue(u'')
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		self._TCTRL_keyword.Bind(wx.EVT_TEXT, self._on_keyword_modified)
+	#--------------------------------------------------------
+	def _on_keyword_modified(self, evt):
+		if self._TCTRL_keyword.GetValue().strip() == u'':
+			self._TCTRL_expansion.Enable(False)
+		else:
+			self._TCTRL_expansion.Enable(True)
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __valid_for_save(self):
+
+		kwd = self._TCTRL_keyword.GetValue().strip()
+		if kwd == u'':
+			self._TCTRL_keyword.SetBackgroundColour('pink')
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without keyword.'), beep = True)
+			return False
+		self._TCTRL_keyword.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		if self._TCTRL_expansion.GetValue().strip() == u'':
+			self._TCTRL_expansion.SetBackgroundColour('pink')
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without expansion text.'), beep = True)
+			return False
+		self._TCTRL_expansion.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		return True
+	#--------------------------------------------------------
+	def __init_ui(self, keyword=None):
+
+		if keyword is not None:
+			self.__keyword = keyword
+
+		if self.__keyword is None:
+			self._TCTRL_keyword.SetValue(u'')
+			self._TCTRL_keyword.Enable(True)
+			self._TCTRL_expansion.SetValue(u'')
+			self._TCTRL_expansion.Enable(False)
+			self._RBTN_public.Enable(True)
+			self._RBTN_private.Enable(True)
+			self._RBTN_public.SetValue(1)
+		else:
+			expansion = gmPG2.expand_keyword(keyword = self.__keyword)
+			self._TCTRL_keyword.SetValue(self.__keyword)
+			self._TCTRL_keyword.Enable(False)
+			self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
+			self._TCTRL_expansion.Enable(True)
+			self._RBTN_public.Enable(False)
+			self._RBTN_private.Enable(False)
+#============================================================
+def configure_keyword_text_expansion(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#----------------------
+	def refresh(lctrl=None):
+		kwds = [ [
+				r[0],
+				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
+				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
+				r[3]
+			] for r in gmPG2.get_text_expansion_keywords()
+		]
+		data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
+		lctrl.set_string_items(kwds)
+		lctrl.set_data(data)
+	#----------------------
+	def delete(keyword=None):
+		gmPG2.delete_text_expansion(keyword = keyword)
+		return True
+	#----------------------
+	def edit(keyword=None):
+		# add new keyword
+		ea = cTextExpansionEditAreaPnl(parent, -1, keyword=keyword)
+		dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea)
+		dlg.SetTitle (
+			gmTools.coalesce(keyword, _('Adding text espansion'), _('Editing text expansion "%s"'))
+		)
+		if dlg.ShowModal() == wx.ID_OK:
+			return True
+
+		return False
+	#----------------------
+	kwds = [ [
+			r[0],
+			gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
+			gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
+			r[3]
+		] for r in gmPG2.get_text_expansion_keywords()
+	]
+	data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the keyword you want to edit !\n'),
+		caption = _('Editing keyword-based text expansions ...'),
+		choices = kwds,
+		data = data,
+		columns = [_('Keyword'), _('Public'), _('Private'), _('Owner')],
+		single_selection = True,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
+	)
 #============================================================
 class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -338,7 +485,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.28  2008-06-09 15:36:58  ncq
+# Revision 1.29  2008-07-13 16:14:59  ncq
+# - implement keyword based text expansion widgets
+#
+# Revision 1.28  2008/06/09 15:36:58  ncq
 # - provider phrasewheel
 #
 # Revision 1.27  2008/05/20 16:45:43  ncq
