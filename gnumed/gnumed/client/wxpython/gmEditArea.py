@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.119 2008-07-13 16:07:03 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmEditArea.py,v 1.120 2008-07-13 17:16:28 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -111,6 +111,9 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		ea = kwargs['edit_area']
 		del kwargs['edit_area']
+
+		if not isinstance(ea, cGenericEditAreaMixin):
+			raise TypeError('[%s]: edit area instance must be child of cGenericEditAreaMixin')
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
@@ -2150,7 +2153,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.119  2008-07-13 16:07:03  ncq
+# Revision 1.120  2008-07-13 17:16:28  ncq
+# - generic ea dlg 2 type-checks whether ea pnl sublcasses mixin
+#
+# Revision 1.119  2008/07/13 16:07:03  ncq
 # - major cleanup
 # - cGenericEditAreaMixin implementing common edit area panel code
 # - make generic edit area dialog rev 2 aware of mixin code
