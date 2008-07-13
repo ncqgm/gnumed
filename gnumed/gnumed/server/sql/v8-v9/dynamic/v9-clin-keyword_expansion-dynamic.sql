@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v9-clin-keyword_expansion-dynamic.sql,v 1.2 2008-07-13 16:24:38 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v9-clin-keyword_expansion-dynamic.sql,v 1.3 2008-07-13 16:27:44 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -58,6 +58,10 @@ select
 from
 	clin.keyword_expansion cke
 ;
+
+
+comment on view clin.v_keyword_expansions is
+'Just a slightly more convenient view over expansions.';
 
 
 grant select on
@@ -117,16 +121,25 @@ from (
 ;
 
 
+comment on view clin.v_your_keyword_expansions is
+'View over the text expansions relevant to the current user:
+a private expansion set up for the current user overrides a
+public expansion of the same keyword.';
+
+
 grant select on
 	clin.v_your_keyword_expansions
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-keyword_expansion-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-keyword_expansion-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v9-clin-keyword_expansion-dynamic.sql,v $
--- Revision 1.2  2008-07-13 16:24:38  ncq
+-- Revision 1.3  2008-07-13 16:27:44  ncq
+-- - add comments
+--
+-- Revision 1.2  2008/07/13 16:24:38  ncq
 -- - comment on owner
 -- - clin.v_keyword_expansions
 -- - clin.v_your_keyword_expansions
