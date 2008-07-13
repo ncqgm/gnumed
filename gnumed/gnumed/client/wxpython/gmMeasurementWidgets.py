@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.22 2008-07-07 13:43:17 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmMeasurementWidgets.py,v 1.23 2008-07-13 16:13:33 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -28,10 +28,12 @@ _log.info(__version__)
 #================================================================
 # convenience functions
 #================================================================
-def add_new_measurement(parent=None):
+def edit_measurement(parent=None, measurement=None):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
+	ea.data = measurement
+	ea.mode = gmTools.coalesce(measurement, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
-	dlg.SetTitle(_('Adding new measurement'))
+	dlg.SetTitle(gmTools.coalesce(measurement, _('Adding new measurement'), _('Editing measurement')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
 	return False
@@ -44,8 +46,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 	- does NOT listen to the currently active patient
 	- thereby it can display any patient at any time
 	"""
-	# FIXME: sort-by-panels
-	# FIXME: filter-by-panels
+	# FIXME: sort-by-battery
+	# FIXME: filter-by-battery
 	# FIXME: filter out empty
 	# FIXME: filter by tests of a selected date
 	# FIXME: dates DESC/ASC
@@ -500,9 +502,20 @@ class cMeasurementsGrid(wx.grid.Grid):
 	# event handling
 	#------------------------------------------------------------
 	def __register_events(self):
-		# GridWindow, GridRowLabelWindow, GridColLabelWindow, GridCornerLabelWindow
+		# dynamic tooltips: GridWindow, GridRowLabelWindow, GridColLabelWindow, GridCornerLabelWindow
 		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
 		#self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
+
+		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__on_cell_left_dclicked)
+	#------------------------------------------------------------
+	def __on_cell_left_dclicked(self, evt):
+		col = evt.GetCol()
+		row = evt.GetRow()
+		if col == 0:
+			# FIXME: invoke (unified) test type editor
+			return
+
+		edit_measurement(parent = self, measurement = self.__cell_data[col][row])
 	#------------------------------------------------------------
 	def __on_mouse_over_row_labels(self, evt):
 		x, y = self.CalcUnscrolledPosition(evt.GetX(), evt.GetY())
@@ -602,7 +615,6 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('&Delete')))
 		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_delete_current_selection)
-		#self.__action_button_popup.Enable(id = menu_id, enable = False)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -665,34 +677,38 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		else:
 			self.Close()
 #================================================================
-class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl):
+class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
+	"""This edit area saves *new* measurements into the active patient only."""
 
 	def __init__(self, *args, **kwargs):
 
 		try:
-			date = kwargs['date']
+			self.__default_date = kwargs['date']
 			del kwargs['date']
 		except KeyError:
-			date = None
+			self.__default_date = None
 
 		wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl.__init__(self, *args, **kwargs)
-		self.__init_ui(date = date)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+#		self.__init_ui(date = date)
+		self._refresh_as_new()
 		self.__register_interests()
 	#--------------------------------------------------------
-	def __init_ui(self, date=None, clear_test=True, clear_date=True):
-		if clear_test:
-			self._PRW_test.SetText(u'', None, True)
+	# generic edit area mixin API
+	#--------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_test.SetText(u'', None, True)
 		self._TCTRL_result.SetValue(u'')
-		if clear_test:
-			self._PRW_units.SetText(u'', None, True)
+		self._PRW_units.SetText(u'', None, True)
 		self._PRW_abnormality_indicator.SetText(u'', None, True)
-		if clear_date:
-			if date is None:
-				date = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-			self._DPRW_evaluated.SetData(data = date)
+		if self.__default_date is None:
+			self._DPRW_evaluated.SetData(data = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone))
+		else:
+			self._DPRW_evaluated.SetData(data =	None)
 		self._TCTRL_note_test_org.SetValue(u'')
-		#self._PRW_intended_reviewer.SetData()
-		#self._PRW_problem.SetData()
+		self._PRW_intended_reviewer.SetData()
+		self._PRW_problem.SetData()
 		self._TCTRL_narrative.SetValue(u'')
 		self._CHBOX_review.SetValue(False)
 		self._CHBOX_abnormal.SetValue(False)
@@ -700,46 +716,114 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
 		self._TCTRL_review_comment.SetValue(u'')
-		if clear_test:
-			self._TCTRL_normal_min.SetValue(u'')
-			self._TCTRL_normal_max.SetValue(u'')
-			self._TCTRL_normal_range.SetValue(u'')
-			self._TCTRL_target_min.SetValue(u'')
-			self._TCTRL_target_max.SetValue(u'')
-			self._TCTRL_target_range.SetValue(u'')
-			self._TCTRL_norm_ref_group.SetValue(u'')
+		self._TCTRL_normal_min.SetValue(u'')
+		self._TCTRL_normal_max.SetValue(u'')
+		self._TCTRL_normal_range.SetValue(u'')
+		self._TCTRL_target_min.SetValue(u'')
+		self._TCTRL_target_max.SetValue(u'')
+		self._TCTRL_target_range.SetValue(u'')
+		self._TCTRL_norm_ref_group.SetValue(u'')
 	#--------------------------------------------------------
-	def __register_interests(self):
-		self._PRW_test.add_callback_on_lose_focus(self._on_leave_test_prw)
-		self._PRW_abnormality_indicator.add_callback_on_lose_focus(self._on_leave_indicator_prw)
+	def _refresh_from_existing(self):
+		self._PRW_test.SetData(data = self.data['pk_test_type'])
+		self._TCTRL_result.SetValue(self.data['unified_val'])
+		self._PRW_units.SetText(self.data['val_unit'], self.data['val_unit'], True)
+		self._PRW_abnormality_indicator.SetText (
+			gmTools.coalesce(self.data['abnormality_indicator'], u''),
+			gmTools.coalesce(self.data['abnormality_indicator'], u''),
+			True
+		)
+		self._DPRW_evaluated.SetData(data = self.data['clin_when'])
+		self._TCTRL_note_test_org.SetValue(gmTools.coalesce(self.data['note_test_org'], u''))
+		self._PRW_intended_reviewer.SetData(self.data['pk_intended_reviewer'])
+		self._PRW_problem.SetData(self.data['pk_episode'])
+		self._TCTRL_narrative.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._CHBOX_review.SetValue(False)
+		self._CHBOX_abnormal.SetValue(gmTools.coalesce(self.data['is_technically_abnormal'], False))
+		self._CHBOX_relevant.SetValue(gmTools.coalesce(self.data['is_clinically_relevant'], False))
+		self._CHBOX_abnormal.Enable(False)
+		self._CHBOX_relevant.Enable(False)
+		self._TCTRL_review_comment.SetValue(gmTools.coalesce(self.data['review_comment'], u''))
+		self._TCTRL_normal_min.SetValue(gmTools.coalesce(self.data['val_normal_min'], u''))
+		self._TCTRL_normal_max.SetValue(gmTools.coalesce(self.data['val_normal_max'], u''))
+		self._TCTRL_normal_range.SetValue(gmTools.coalesce(self.data['val_normal_range'], u''))
+		self._TCTRL_target_min.SetValue(gmTools.coalesce(self.data['val_target_min'], u''))
+		self._TCTRL_target_max.SetValue(gmTools.coalesce(self.data['val_target_max'], u''))
+		self._TCTRL_target_range.SetValue(gmTools.coalesce(self.data['val_target_range'], u''))
+		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(self.data['norm_ref_group'], u''))
 	#--------------------------------------------------------
-	def _on_leave_test_prw(self):
-		pk_type = self._PRW_test.GetData()
+	def _refresh_as_new_from_existing(self):
+		self._refresh_from_existing()
 
-		# units context
-		if pk_type is None:
-			self._PRW_units.unset_context(context = u'pk_type')
+		self._TCTRL_result.SetValue(u'')
+		self._PRW_abnormality_indicator.SetText(u'', None, True)
+		self._TCTRL_note_test_org.SetValue(u'')
+		self._TCTRL_narrative.SetValue(u'')
+		self._CHBOX_review.SetValue(False)
+		self._CHBOX_abnormal.SetValue(False)
+		self._CHBOX_relevant.SetValue(False)
+		self._CHBOX_abnormal.Enable(False)
+		self._CHBOX_relevant.Enable(False)
+		self._TCTRL_review_comment.SetValue(u'')
+#	#--------------------------------------------------------
+	def _valid_for_save(self):
+
+		# FIXME: use can_create
+		validity = True
+
+		if not self._DPRW_evaluated.is_valid_timestamp():
+			self._DPRW_evaluated.display_as_valid(False)
+			validity = False
 		else:
-			self._PRW_units.set_context(context = u'pk_type', val = pk_type)
+			self._DPRW_evaluated.display_as_valid(True)
+
+		if self._TCTRL_result.GetValue().strip() == u'':
+			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			validity = False
+		else:
+			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+
+		if self._PRW_problem.GetValue().strip() == u'':
+			self._PRW_problem.display_as_valid(False)
+		else:
+			self._PRW_problem.display_as_valid(True)
+
+		if self._PRW_test.GetValue().strip() == u'':
+			self._PRW_test.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_test.display_as_valid(True)
+
+		if self._PRW_intended_reviewer.GetData() is None:
+			self._PRW_intended_reviewer.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_intended_reviewer.display_as_valid(True)
+
+		if self._PRW_units.GetValue().strip() == u'':
+			self._PRW_units.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_units.display_as_valid(True)
+
+		ctrls = [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_target_min, self._TCTRL_target_max]
+		for widget in ctrls:
+			val = widget.GetValue().strip()
+			if val == u'':
+				continue
+			try:
+				int(val)
+				widget.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			except:
+				widget.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+				validity = False
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Missing essential input.'))
+
+		return validity
 	#--------------------------------------------------------
-	def _on_leave_indicator_prw(self):
-		# if the user hasn't explicitely enabled reviewing
-		if not self._CHBOX_review.GetValue():
-			self._CHBOX_abnormal.SetValue(self._PRW_abnormality_indicator.GetValue().strip() != u'')
-	#--------------------------------------------------------
-	def _on_review_box_checked(self, evt):
-		self._CHBOX_abnormal.Enable(self._CHBOX_review.GetValue())
-		self._CHBOX_relevant.Enable(self._CHBOX_review.GetValue())
-		self._TCTRL_review_comment.Enable(self._CHBOX_review.GetValue())
-	#--------------------------------------------------------
-	# generic edit area API
-	#--------------------------------------------------------
-	def refresh(self):
-		self.__init_ui(clear_test=False, clear_date=False)
-	#--------------------------------------------------------
-	def save(self):
-		if not self.__valid_for_save():
-			return False
+	def _save_as_new(self):
 
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
@@ -761,8 +845,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			pk_type = tt['pk']
 
 		tr = emr.add_test_result (
-			# FIXME: map from problem to (possibly new) episode
-			episode = self._PRW_problem.GetData(),
+			episode = self._PRW_problem.GetData(can_create=True, is_open=False),
 			type = pk_type,
 			intended_reviewer = self._PRW_intended_reviewer.GetData(),
 			val_num = v_num,
@@ -799,68 +882,91 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				make_me_responsible = False
 			)
 
+		self.data = tr
+
 		return True
 	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __valid_for_save(self):
+	def _save_as_update(self):
 
-		# FIXME: use can_create
-		validity = True
+		try:
+			v_num = int(self._TCTRL_result.GetValue().strip())
+			v_al = None
+		except:
+			v_num = None
+			v_al = self._TCTRL_result.GetValue().strip()
 
-		if not self._DPRW_evaluated.is_valid_timestamp():
-			self._DPRW_evaluated.display_as_valid(False)
-			validity = False
-		else:
-			self._DPRW_evaluated.display_as_valid(True)
+		pk_type = self._PRW_test.GetData()
+		if pk_type is None:
+			tt = gmPathLab.create_test_type (
+				lab = None,
+				code = self._PRW_test.GetValue().strip(),
+				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u''),
+				name = self._PRW_test.GetValue().strip()
+			)
+			pk_type = tt['pk']
 
-		if self._TCTRL_result.GetValue().strip() == u'':
-			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-			validity = False
-		else:
-			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+		tr = self.data
 
-		if self._PRW_problem.GetData() is None:
-			self._PRW_problem.display_as_valid(False)
-			validity = False
-		else:
-			self._PRW_problem.display_as_valid(True)
+		tr['pk_episode'] = self._PRW_problem.GetData(can_create=True, is_open=False)
+		tr['pk_test_type'] = pk_type
+		tr['pk_intended_reviewer'] = self._PRW_intended_reviewer.GetData()
+		tr['val_num'] = v_num
+		tr['val_alpha'] = v_al
+		tr['val_unit'] = self._PRW_units.GetValue()
+		tr['clin_when'] = self._DPRW_evaluated.GetData().get_pydt()
 
-		if self._PRW_test.GetData() is None:
-			if self._PRW_test.GetValue().strip() == u'':
-				self._PRW_test.display_as_valid(False)
-				validity = False
-		else:
-			self._PRW_test.display_as_valid(True)
-
-		if self._PRW_intended_reviewer.GetData() is None:
-			self._PRW_intended_reviewer.display_as_valid(False)
-			validity = False
-		else:
-			self._PRW_intended_reviewer.display_as_valid(True)
-
-		if self._PRW_units.GetValue().strip() == u'':
-			self._PRW_units.display_as_valid(False)
-			validity = False
-		else:
-			self._PRW_units.display_as_valid(True)
-
-		ctrls = [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_target_min, self._TCTRL_target_max]
-		for widget in ctrls:
+		ctrls = [
+			('abnormality_indicator', self._PRW_abnormality_indicator),
+			('note_test_org', self._TCTRL_note_test_org),
+			('comment', self._TCTRL_narrative),
+			('val_normal_min', self._TCTRL_normal_min),
+			('val_normal_max', self._TCTRL_normal_max),
+			('val_normal_range', self._TCTRL_normal_range),
+			('val_target_min', self._TCTRL_target_min),
+			('val_target_max', self._TCTRL_target_max),
+			('val_target_range', self._TCTRL_target_range),
+			('norm_ref_group', self._TCTRL_norm_ref_group)
+		]
+		for field, widget in ctrls:
 			val = widget.GetValue().strip()
-			if val == u'':
-				continue
-			try:
-				int(val)
-				widget.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-			except:
-				widget.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-				validity = False
+			if val != u'':
+				tr[field] = val
 
-		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Missing essential input.'))
+		tr.save_payload()
 
-		return validity
+		if self._CHBOX_review.GetValue() is True:
+			tr.set_review (
+				technically_abnormal = self._CHBOX_abnormal.GetValue(),
+				clinically_relevant = self._CHBOX_relevant.GetValue(),
+				comment = gmTools.none_if(self._TCTRL_review_comment.GetValue().strip(), u''),
+				make_me_responsible = False
+			)
+
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		self._PRW_test.add_callback_on_lose_focus(self._on_leave_test_prw)
+		self._PRW_abnormality_indicator.add_callback_on_lose_focus(self._on_leave_indicator_prw)
+	#--------------------------------------------------------
+	def _on_leave_test_prw(self):
+		pk_type = self._PRW_test.GetData()
+		# units context
+		if pk_type is None:
+			self._PRW_units.unset_context(context = u'pk_type')
+		else:
+			self._PRW_units.set_context(context = u'pk_type', val = pk_type)
+	#--------------------------------------------------------
+	def _on_leave_indicator_prw(self):
+		# if the user hasn't explicitely enabled reviewing
+		if not self._CHBOX_review.GetValue():
+			self._CHBOX_abnormal.SetValue(self._PRW_abnormality_indicator.GetValue().strip() != u'')
+	#--------------------------------------------------------
+	def _on_review_box_checked(self, evt):
+		self._CHBOX_abnormal.Enable(self._CHBOX_review.GetValue())
+		self._CHBOX_relevant.Enable(self._CHBOX_review.GetValue())
+		self._TCTRL_review_comment.Enable(self._CHBOX_review.GetValue())
 #================================================================
 # convenience widgets
 #================================================================
@@ -1050,7 +1156,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.22  2008-07-07 13:43:17  ncq
+# Revision 1.23  2008-07-13 16:13:33  ncq
+# - add_new_measurement -> edit_measurement
+# - use cGenericEditAreaMixin on results edit area
+# - invoked results edit area via double-click on result in grid
+#
+# Revision 1.22  2008/07/07 13:43:17  ncq
 # - current patient .connected
 #
 # Revision 1.21  2008/06/24 14:00:09  ncq
