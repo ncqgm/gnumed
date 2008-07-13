@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.51 2008-07-10 21:01:22 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmResizingWidgets.py,v 1.52 2008-07-13 16:23:01 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -382,10 +382,10 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		self.__popup_keywords = {}
 
 		# FIXME: delay configurable
-		self.__timer = gmTimer.cTimer (
-			callback = self._on_timer_fired,
-			delay = 300
-		)
+#		self.__timer = gmTimer.cTimer (
+#			callback = self._on_timer_fired,
+#			delay = 300
+#		)
 		self.__matcher = None
 
 		self.__show_list = 1
@@ -544,7 +544,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 		# stop timer if empty
 		if last_char_pos == 0:
-			self.__timer.Stop()
+#			self.__timer.Stop()
 			return
 
 		# do we need to resize ?
@@ -580,11 +580,11 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# is currently relevant term a keyword for popping up an edit area or something ?
 		fragment = self.__get_focussed_fragment()
 		if fragment in self.__popup_keywords.keys():
-			self.__timer.Stop()
+#			self.__timer.Stop()
 			self.__handle_keyword(fragment)
 			return
 		# else restart timer for match list
-		self.__timer.Start(oneShot = True)
+#		self.__timer.Start(oneShot = True)
 #		event.Skip()
 		return
 	#------------------------------------------------
@@ -717,7 +717,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 			line, caret_pos = self.GetCurLine()
 			word = self.__keyword_separators.split(line[:caret_pos])[-1]
-			if (word not in gmPG2.get_text_expansion_keywords()) and (word != u'$$steffi'):
+			if (word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ]) and (word != u'$$steffi'):
 				evt.Skip()
 				return
 
@@ -1111,7 +1111,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.51  2008-07-10 21:01:22  ncq
+# Revision 1.52  2008-07-13 16:23:01  ncq
+# - stop setting up unused timer
+#
+# Revision 1.51  2008/07/10 21:01:22  ncq
 # - factor out char handling into __on_char while key handling stays in __on_key_down
 # - add keyword expansion as per user request
 # - a bit of cleanup in advance of the Great SOAP Merger
