@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.81 $"
+__version__ = "$Revision: 1.82 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -515,16 +515,9 @@ def get_text_expansion_keywords():
 	if text_expansion_keywords is not None:
 		return text_expansion_keywords
 
-	cmd = u"""
-select distinct keyword
-from clin.keyword_expansion
-where
-	fk_staff is null
-		or
-	fk_staff = (select pk from dem.staff where db_user = current_user)
-"""
+	cmd = u"""select keyword, public_expansion, private_expansion, owner from clin.v_keyword_expansions"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
-	text_expansion_keywords = [ r[0] for r in rows ]
+	text_expansion_keywords = rows
 
 	_log.info('retrieved %s text expansion keywords', len(text_expansion_keywords))
 
@@ -532,25 +525,68 @@ where
 #------------------------------------------------------------------------
 def expand_keyword(keyword = None):
 
-	cmd = u"""
-select coalesce (
-	(select expansion
-	 from clin.keyword_expansion
-	 where
-		keyword = %(kwd)s
-			and
-		fk_staff = (select pk from dem.staff where db_user = current_user)
-	),
-	(select expansion
-	 from clin.keyword_expansion
-	 where
-		keyword = %(kwd)s
-			and
-		fk_staff is null
-	)
-)"""
+	cmd = u"""select expansion from clin.v_your_keyword_expansions where keyword = %(kwd)s"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 	return rows[0][0]
+#------------------------------------------------------------------------
+def add_text_expansion(keyword=None, expansion=None, public=None):
+
+	if public:
+		cmd = u"select 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
+	else:
+		cmd = u"select 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
+
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
+	if len(rows) != 0:
+		return False
+
+	if public:
+		cmd = u"""
+insert into clin.keyword_expansion (keyword, expansion, fk_staff)
+values (%(kwd)s, %(exp)s, null)"""
+	else:
+		cmd = u"""
+insert into clin.keyword_expansion (keyword, expansion, fk_staff)
+values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
+
+	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword, 'exp': expansion}}])
+
+	global text_expansion_keywords
+	text_expansion_keywords = None
+
+	return True
+#------------------------------------------------------------------------
+def delete_text_expansion(keyword):
+	cmd = u"""
+delete from clin.keyword_expansion where
+	keyword = %(kwd)s and (
+		(fk_staff = (select pk from dem.staff where db_user = current_user))
+			or
+		(fk_staff is null and owner = current_user)
+	)"""
+	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
+
+	global text_expansion_keywords
+	text_expansion_keywords = None
+#------------------------------------------------------------------------
+def edit_text_expansion(keyword, expansion):
+
+	cmd1 = u"""
+delete from clin.keyword_expansion where
+	keyword = %(kwd)s and 
+	fk_staff = (select pk from dem.staff where db_user = current_user)"""
+
+	cmd2 = u"""
+insert into clin.keyword_expansion (keyword, expansion, fk_staff)
+values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
+
+	rows, idx = run_rw_queries(queries = [
+		{'cmd': cmd1, 'args': {'kwd': keyword}},
+		{'cmd': cmd2, 'args': {'kwd': keyword, 'exp': expansion}},
+	])
+
+	global text_expansion_keywords
+	text_expansion_keywords = None
 # =======================================================================
 # query runners and helpers
 # =======================================================================
@@ -1531,7 +1567,7 @@ if __name__ == "__main__":
 		print "keywords, cached:"
 		print get_text_expansion_keywords()
 		print "'$keyword' expands to:"
-		print expand_keyword(keyword = u'$keyword')
+		print expand_keyword(keyword = u'$dvt')
 	#--------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# run tests
@@ -1550,7 +1586,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.81  2008-07-10 19:52:50  ncq
+# Revision 1.82  2008-07-13 16:04:54  ncq
+# - use views when handling keyword expansions
+# - add/delete/edit_text_expansion,
+#
+# Revision 1.81  2008/07/10 19:52:50  ncq
 # - add expansion keyword functions with tests
 #
 # Revision 1.80  2008/06/24 16:54:20  ncq
