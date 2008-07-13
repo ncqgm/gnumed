@@ -1,17 +1,30 @@
-"""GnuMed wx.Timer proxy object.
+"""GNUmed wx.Timer proxy object.
 
 @copyright: author(s)
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.11 2007-02-05 12:11:58 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmTimer.py,v 1.12 2008-07-13 16:23:27 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
+
+# stdlib
+import logging
 
 # 3rd party
 import wx
 
+
+_log = logging.getLogger('gm.timers')
+_timers = []
+#===========================================================================
+def shutdown():
+	_log.info('shutting down %s pending timers', len(_timers))
+	for timer in _timers:
+		_log.debug('timer [%s]', timer.cookie)
+		timer.Stop()
+		del timer
 #===========================================================================
 class cTimer(wx.Timer):
 	"""wx.Timer proxy.
@@ -32,13 +45,18 @@ class cTimer(wx.Timer):
 			raise ValueError("[%s]: <callback> %s is not a callable()" % (self.__class__.__name__, callback))
 
 		if cookie is None:
-			self.__cookie = id(self)
+			self.cookie = id(self)
 		else:
-			self.__cookie = cookie
+			self.cookie = cookie
 		self.__callback = callback
 		self.__delay = delay
 
 		wx.Timer.__init__(self)
+
+		_log.debug('setting up timer: cookie [%s], delay %sms', self.cookie, self.__delay)
+
+		global _timers
+		_timers.append(self)
 	#-----------------------------------------------------------------------
 	def Start(self, milliseconds=-1, oneShot=False):
 		if milliseconds == -1:
@@ -46,13 +64,13 @@ class cTimer(wx.Timer):
 		wx.Timer.Start(self, milliseconds=milliseconds, oneShot=oneShot)
 	#-----------------------------------------------------------------------
 	def Notify(self):
-		self.__callback(self.__cookie)
+		self.__callback(self.cookie)
 	#-----------------------------------------------------------------------
 	def set_cookie(self, cookie=None):
 		if cookie is None:
-			self.__cookie = id(self)
+			self.cookie = id(self)
 		else:
-			self.__cookie = cookie
+			self.cookie = cookie
 #===========================================================================
 if __name__ == '__main__':
 	import time
@@ -76,7 +94,10 @@ if __name__ == '__main__':
 	time.sleep(10)
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.11  2007-02-05 12:11:58  ncq
+# Revision 1.12  2008-07-13 16:23:27  ncq
+# - add some debugging
+#
+# Revision 1.11  2007/02/05 12:11:58  ncq
 # - imports cleanup
 # - remove gmLog
 #
