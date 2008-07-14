@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.102 2008-07-10 21:04:10 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmSOAPWidgets.py,v 1.103 2008-07-14 13:48:16 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -256,34 +256,22 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		# wxPython events
 
 		# client internal signals
-		#gmDispatcher.connect(signal='pre_patient_selection', receiver=self._on_pre_patient_selection)
 		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal='application_closing', receiver=self._on_application_closing)
 
 		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
-	#--------------------------------------------------------
-#	def _on_pre_patient_selection(self):
-#		"""Another patient is about to be activated."""
-#		print "pending SOAP should have been handled"
 	#--------------------------------------------------------
 	def _pre_selection_callback(self):
 		"""Another patient is about to be activated.
 
 		Patient change will not proceed before this returns.
 		"""
-		print "checking for pending SOAP"
-		print "# of pages:", self.GetPageCount()
-
 		save_all = False
 		dlg = None
 		for page_idx in range(self.GetPageCount()):
-			print "checking page", page_idx
 			page = self.GetPage(page_idx)
 			if page.editor_empty():
-				print "page empty"
 				continue
-
-			print "page not empty"
 
 			if dlg is None:
 				dlg = gmGuiHelpers.c3ButtonQuestionDlg (
@@ -301,19 +289,16 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 						{'label': _('Save &all'), 'tooltip': _('Save all remaining unsaved progress notes'), 'default': False}
 					]
 				)
-				print "created dialog"
 
 			if not save_all:
-				#self.SetSelection(page_idx)
+				self.ChangeSelection(page_idx)
 				decision = dlg.ShowModal()
 				if decision == wx.ID_NO:
-					print "skipping note"
+					_log.info('user requested discarding of unsaved progress note')
 					continue
 				if decision == wx.ID_CANCEL:
-					print "saving all notes"
 					save_all = True
-			print "saving note"
-			page.save
+			page.save()
 
 		if dlg is not None:
 			dlg.Destroy()
@@ -1220,7 +1205,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.102  2008-07-10 21:04:10  ncq
+# Revision 1.103  2008-07-14 13:48:16  ncq
+# - properly save unsaved soap
+# - cleanup
+#
+# Revision 1.102  2008/07/10 21:04:10  ncq
 # - better comments
 # - experimental pre-selection SOAP saving
 #
