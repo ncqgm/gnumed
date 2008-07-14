@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.115 $"
+__version__ = "$Revision: 1.116 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -391,6 +391,8 @@ from (
 	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
+		left_margin = u' ' * left_margin
+
 		if patient.ID != self._payload[self._idx['pk_patient']]:
 			msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
 				patient.ID,
@@ -411,6 +413,8 @@ from (
 
 		emr = patient.get_emr()
 		encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
+		first_encounter = None
+		last_encounter = None
 		if encs is None:
 			lines.append(_('Error retrieving encounters for this episode.'))
 		elif len(encs) == 0:
@@ -453,7 +457,17 @@ from (
 				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
 			))
 
-		left_margin = u' ' * left_margin
+		# spell out last encounter
+		if last_encounter is not None:
+			lines.append('')
+			lines.append(_('Progress notes in most recent encounter:'))
+			lines.extend(last_encounter.format_soap (
+				episode = self._payload[self._idx['pk_episode']],
+				left_margin = left_margin,
+				soap_cats = 'soap',
+				emr = emr
+			))
+
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 #============================================================
@@ -624,6 +638,36 @@ select exists (
 		)
 		return rows[0][0]
 	#--------------------------------------------------------
+	def format_soap(self, episode=None, left_margin=0, soap_cats='soap', emr=None):
+
+		lines = []
+		for soap_cat in soap_cats:
+			soap_cat_narratives = emr.get_clin_narrative (
+				episodes = [episode],
+				encounters = [self._payload[self._idx['pk_encounter']]],
+				soap_cats = [soap_cat]
+			)
+			if soap_cat_narratives is None:
+				continue
+			if len(soap_cat_narratives) == 0:
+				continue
+
+			lines.append('-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+			for soap_entry in soap_cat_narratives:
+				txt = gmTools.wrap (
+					text = '%s %.8s: %s' % (
+						soap_entry['date'].strftime('%d.%m. %H:%M'),
+						soap_entry['provider'],
+						soap_entry['narrative']
+					),
+					width = 75,
+					initial_indent = u'',
+					subsequent_indent = left_margin + u'   '
+				)
+				lines.append(txt)
+
+		return lines
+	#--------------------------------------------------------
 	def format(self, episode=None, with_soap=False, left_margin=0, patient=None):
 
 		left_margin = u' ' * left_margin
@@ -657,88 +701,66 @@ select exists (
 			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'')
 		))
 
-		if not with_soap:
-			eol_w_margin = u'\n%s' % left_margin
-			return u'%s\n' % eol_w_margin.join(lines)
+		if with_soap:
+			lines.append(u'')
 
-		lines.append(u'')
-
-		if patient.ID != self._payload[self._idx['pk_patient']]:
-			msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
-				patient.ID,
-				self._payload[self._idx['pk_encounter']],
-				self._payload[self._idx['pk_patient']]
-			)
-			raise ValueError(msg)
-
-		emr = patient.get_emr()
-
-		if episode['episode_open']:
-			template = _('Progress notes for ongoing episode %s%s%s:')
-		else:
-			template = _('Progress notes for closed episode %s%s%s:')
-		lines.append(template % (
-			u'\u00BB',
-			episode['description'],
-			u'\u00AB'
-		))
-
-		# soap
-		for soap_cat in 'soap':
-			soap_cat_narratives = emr.get_clin_narrative (
-				episodes = [episode['pk_episode']],
-				encounters = [self._payload[self._idx['pk_encounter']]],
-				soap_cats = [soap_cat]
-			)
-			if soap_cat_narratives is None:
-				continue
-			if len(soap_cat_narratives) == 0:
-				continue
-
-			lines.append('%s:' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
-			for soap_entry in soap_cat_narratives:
-				txt = gmTools.wrap (
-					text = '%s %.8s: %s' % (
-						soap_entry['date'].strftime('%d.%m. %H:%M'),
-						soap_entry['provider'],
-						soap_entry['narrative']
-					),
-					width = 75,
-					initial_indent = u'',
-					subsequent_indent = left_margin + u'   '
+			if patient.ID != self._payload[self._idx['pk_patient']]:
+				msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
+					patient.ID,
+					self._payload[self._idx['pk_encounter']],
+					self._payload[self._idx['pk_patient']]
 				)
-				lines.append(txt)
+				raise ValueError(msg)
+
+			emr = patient.get_emr()
+
+#			if episode['episode_open']:
+#				template = _('Progress notes for ongoing episode %s%s%s:')
+#			else:
+#				template = _('Progress notes for closed episode %s%s%s:')
+#			lines.append(template % (
+#				u'\u00BB',
+#				episode['description'],
+#				u'\u00AB'
+#			))
+
+			lines.extend(self.format_soap (
+				episode = episode['pk_episode'],
+				left_margin = left_margin,
+				soap_cats = 'soap',
+				emr = emr
+			))
 
 		# test results
 		tests = emr.get_test_results_by_date (
 			episode = episode['pk_episode'],
 			encounter = self._payload[self._idx['pk_encounter']]
 		)
-
 		if len(tests) > 0:
 			lines.append('')
 			lines.append(_('Measurements and Results:'))
+			for t in tests:
+				lines.extend(t.format())
 
-		for t in tests:
-			lines.append(u' %s %s (%s): %s %s (%s)' % (
-				t['clin_when'].strftime('%d.%m. %H:%M'),
-				t['unified_code'],
-				t['unified_name'],
-				t['unified_val'],
-				t['val_unit'],
-				t['abnormality_indicator']
-			))
-			if gmTools.coalesce(t['comment'], u'').strip() != u'':
-				lines.append(u'   Doc: %s' % t['comment'].strip())
-			if gmTools.coalesce(t['comment'], u'').strip() != u'':
-				lines.append(u'   MTA: %s' % t['note_test_org'].strip())
-			if t['reviewed']:
-				lines.append(u'   %s (%s): %s, %s' % (
-					t['last_reviewer'],
-					t['last_reviewed'].strftime('%Y-%m-%d %H:%M'),
-					gmTools.bool2subst(t['is_technically_abnormal'], u'abnormal', u'normal'),
-					gmTools.bool2subst(t['is_clinically_relevant'], u'relevant', u'not relevant')
-				))
+#			lines.append(u' %s %s (%s): %s %s (%s)' % (
+#				t['clin_when'].strftime('%d.%m. %H:%M'),
+#				t['unified_code'],
+#				t['unified_name'],
+#				t['unified_val'],
+#				t['val_unit'],
+#				t['abnormality_indicator']
+#			))
+#			if gmTools.coalesce(t['comment'], u'').strip() != u'':
+#				lines.append(u'   Doc: %s' % t['comment'].strip())
+#			if gmTools.coalesce(t['comment'], u'').strip() != u'':
+#				lines.append(u'   MTA: %s' % t['note_test_org'].strip())
+#			if t['reviewed']:
+#				lines.append(u'   %s @ %s: %s, %s' % (
+#					t['last_reviewer'],
+#					t['last_reviewed'].strftime('%Y-%m-%d %H:%M'),
+#					gmTools.bool2subst(t['is_technically_abnormal'], _('abnormal'), _('normal')),
+#					gmTools.bool2subst(t['is_clinically_relevant'], _('relevant'), _('not relevant'))
+#				))
 
 		# documents
 		doc_folder = patient.get_document_folder()
@@ -957,7 +979,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.115  2008-07-12 15:20:30  ncq
+# Revision 1.116  2008-07-14 13:44:38  ncq
+# - add .format to episode
+# - factor out .format_soap from .format on encounter
+# - better visualize soap sections in output as per user request
+#
+# Revision 1.115  2008/07/12 15:20:30  ncq
 # - add format to health issue
 #
 # Revision 1.114  2008/06/26 21:17:59  ncq
