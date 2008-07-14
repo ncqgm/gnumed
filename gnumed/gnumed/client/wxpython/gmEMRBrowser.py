@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.90 2008-07-12 15:31:23 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmEMRBrowser.py,v 1.91 2008-07-14 13:46:11 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -162,7 +162,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if isinstance(node_data, (gmEMRStructItems.cHealthIssue, types.DictType)):
 			# FIXME: turn into real dummy issue
 			if node_data['pk'] is None:
-				txt = _('Active health issue "%s"') % node_data['description']
+				txt = _('Pool of unassociated episodes:\n\n  "%s"') % node_data['description']
 			else:
 				txt = node_data.format(left_margin=1, patient = self.__pat)
 
@@ -651,7 +651,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.90  2008-07-12 15:31:23  ncq
+# Revision 1.91  2008-07-14 13:46:11  ncq
+# - better naming of dummy health issue
+#
+# Revision 1.90  2008/07/12 15:31:23  ncq
 # - improved formatting of issue info
 #
 # Revision 1.89  2008/07/07 13:44:33  ncq
