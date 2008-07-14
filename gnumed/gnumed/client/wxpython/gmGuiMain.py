@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.413 2008-07-13 16:10:31 ncq Exp $
-__version__ = "$Revision: 1.413 $"
+# $Id: gmGuiMain.py,v 1.414 2008-07-14 13:47:15 ncq Exp $
+__version__ = "$Revision: 1.414 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -469,21 +469,20 @@ class gmTopLevelFrame(wx.Frame):
 		menu_staff = wx.Menu()
 		menu_master_data.AppendMenu(wx.NewId(), _('&Staff ...'), menu_staff)
 
-		ID_ADD_NEW_STAFF = wx.NewId()
-		menu_staff.Append(ID_ADD_NEW_STAFF, _('&Add staff member'), _('Add a new staff member'))
-		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
+		item = menu_staff.Append(-1, _('&Add staff member'), _('Add a new staff member'))
+		self.Bind(wx.EVT_MENU, self.__on_add_new_staff, item)
 
-		ID_DEL_STAFF = wx.NewId()
-		menu_staff.Append(ID_DEL_STAFF, _('&Edit staff list'), _('Edit the list of staff'))
-		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_edit_staff_list)
+		item = menu_staff.Append(-1, _('&Edit staff list'), _('Edit the list of staff'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_staff_list, item)
 
-		ID_EDIT_DOC_TYPES = wx.NewId()
-		menu_master_data.Append(ID_EDIT_DOC_TYPES, _('Manage document types'), _('Edit the document types available in the system.'))
-		wx.EVT_MENU(self, ID_EDIT_DOC_TYPES, self.__on_edit_doc_types)
+		item = menu_master_data.Append(-1, _('Manage &document types'), _('Edit the document types available in the system.'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_doc_types, item)
 
-		ID = wx.NewId()
-		menu_master_data.Append(ID, _('Manage text expansion'), _('Manage keyword based text expansion macros.'))
-		wx.EVT_MENU(self, ID, self.__on_manage_text_expansion)
+		item = menu_master_data.Append(-1, _('Manage &text expansions'), _('Manage keyword based text expansion macros.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
+
+		item = menu_master_data.Append(-1, _('Manage &form templates'), _('Manage templates for forms and letters.'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_templates, item)
 
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
@@ -643,11 +642,6 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
 
-		menu_paperwork.AppendSeparator()
-
-		item = menu_paperwork.Append(-1, _('Manage templates'), _('Manage templates for forms and letters.'))
-		self.Bind(wx.EVT_MENU, self.__on_edit_templates, item)
-
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
 
 		# menu "View" ---------------------------
@@ -790,7 +784,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		wx.EVT_END_SESSION(self, self._on_end_session)
 
-		gmDispatcher.connect(self._on_pre_patient_selection, 'pre_patient_selection')
+		#gmDispatcher.connect(self._on_pre_patient_selection, 'pre_patient_selection')
 		gmDispatcher.connect(self._on_post_patient_selection, 'post_patient_selection')
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_pat_name_changed)
 		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_pat_name_changed)
@@ -799,6 +793,8 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(self._on_request_user_attention, u'request_user_attention')
 
 		gmDispatcher.connect(self._on_db_maintenance_warning, u'db_maintenance_warning')
+
+		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
 		wx.Bell()
@@ -908,24 +904,13 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot run script after patient activation.'))
 			raise
 	#----------------------------------------------
-	def _on_pre_patient_selection(self, **kwargs):
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
-			return True
-
-		# let's try this async
-		self.__sanity_check_encounter()
-
-		self.__on_pre_patient_selection(**kwargs)
-	#----------------------------------------------
-	def __on_pre_patient_selection(self, **kwargs):
-
-		# FIXME: we need a way to make sure the patient has not yet changed
+#	def _on_pre_patient_selection(self, **kwargs):
 #		pat = gmPerson.gmCurrentPatient()
 #		if not pat.connected:
 #			return True
-
-		return True
+	#----------------------------------------------
+	def _pre_selection_callback(self):
+		self.__sanity_check_encounter()
 	#----------------------------------------------
 	def __sanity_check_encounter(self):
 
@@ -2624,7 +2609,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.413  2008-07-13 16:10:31  ncq
+# Revision 1.414  2008-07-14 13:47:15  ncq
+# - some menu reorg
+# - do synced encounter sanity check on patient change :-)
+#
+# Revision 1.413  2008/07/13 16:10:31  ncq
 # - master data menu
 # - manage text expansions
 # - add_new_measurement -> edit_measurement(measurement = None)
