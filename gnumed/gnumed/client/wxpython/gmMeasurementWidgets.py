@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.23 2008-07-13 16:13:33 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmMeasurementWidgets.py,v 1.24 2008-07-14 13:47:36 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -723,6 +723,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._TCTRL_target_max.SetValue(u'')
 		self._TCTRL_target_range.SetValue(u'')
 		self._TCTRL_norm_ref_group.SetValue(u'')
+
+		self._PRW_test.SetFocus()
 	#--------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_test.SetData(data = self.data['pk_test_type'])
@@ -751,6 +753,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._TCTRL_target_max.SetValue(gmTools.coalesce(self.data['val_target_max'], u''))
 		self._TCTRL_target_range.SetValue(gmTools.coalesce(self.data['val_target_range'], u''))
 		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(self.data['norm_ref_group'], u''))
+
+		self._TCTRL_result.SetFocus()
 	#--------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_from_existing()
@@ -765,7 +769,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
 		self._TCTRL_review_comment.SetValue(u'')
-#	#--------------------------------------------------------
+
+		self._TCTRL_result.SetFocus()
+	#--------------------------------------------------------
 	def _valid_for_save(self):
 
 		# FIXME: use can_create
@@ -1156,7 +1162,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.23  2008-07-13 16:13:33  ncq
+# Revision 1.24  2008-07-14 13:47:36  ncq
+# - explicitely set focus after refresh per user request
+#
+# Revision 1.23  2008/07/13 16:13:33  ncq
 # - add_new_measurement -> edit_measurement
 # - use cGenericEditAreaMixin on results edit area
 # - invoked results edit area via double-click on result in grid
