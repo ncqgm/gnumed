@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 import sys
 
@@ -45,15 +45,15 @@ print "=> checking for Python module 'wxVersion' ..."
 if hasattr(sys, 'frozen'):
 	print "INFO : py2exe or similar in use, cannot check wxPython version"
 	print "INFO : skipping test and hoping for the best"
-	print "INFO : wxPython must be > v2.6 and unicode-enabled"
+	print "INFO : wxPython must be >= v2.8 and unicode-enabled"
 	print "=> cannot check"
 else:
 	try:
 		import wxversion
 		print "   - installed versions:", wxversion.getInstalled()
 		print "=> found"
-		print "   - selecting unicode enabled version >= 2.6"
-		wxversion.select(versions='2.6-unicode', optionsRequired=True)
+		print "   - selecting unicode enabled version >= 2.8"
+		wxversion.select(versions='2.8-unicode', optionsRequired=True)
 		print "=> selected"
 	except ImportError:
 		print "ERROR: wxversion not installed"
@@ -61,10 +61,10 @@ else:
 		print "INFO : for details, see here:"
 		print "INFO : http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
 		print "INFO : skipping test and hoping for the best"
-		print "INFO : wxPython must be > v2.6 and unicode-enabled"
+		print "INFO : wxPython must be >= v2.8 and unicode-enabled"
 		print "=> NOT found"
 	except wxversion.VersionError:
-		print "ERROR: wxPython-2.6-unicode not installed"
+		print "ERROR: wxPython-2.8-unicode not installed"
 		print "ERROR: this is needed to show the GNUmed GUI"
 		print "INFO : wxPython is available from http://www.wxpython.org"
 		print "INFO : sys.path is set as follows:"
@@ -151,7 +151,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.17  2007-09-24 18:25:12  ncq
+# Revision 1.18  2008-07-15 15:23:50  ncq
+# - check for wxp2.8
+#
+# Revision 1.17  2007/09/24 18:25:12  ncq
 # - gnuplot.py
 #
 # Revision 1.16  2007/09/16 01:01:03  ncq
