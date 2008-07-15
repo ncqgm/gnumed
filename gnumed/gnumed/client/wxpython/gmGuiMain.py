@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.414 2008-07-14 13:47:15 ncq Exp $
-__version__ = "$Revision: 1.414 $"
+# $Id: gmGuiMain.py,v 1.415 2008-07-15 15:24:54 ncq Exp $
+__version__ = "$Revision: 1.415 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -30,7 +30,7 @@ import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrows
 # wxpython version cannot be enforced inside py2exe and friends
 if not hasattr(sys, 'frozen'):
 	import wxversion
-	wxversion.ensureMinimal('2.6-unicode', optionsRequired=True)
+	wxversion.ensureMinimal('2.8-unicode', optionsRequired=True)
 
 try:
 	import wx
@@ -43,11 +43,11 @@ except ImportError:
 # do this check just in case, so we can make sure
 # py2exe and friends include the proper version, too
 version = int(u'%s%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION))
-if (version < 26) or ('unicode' not in wx.PlatformInfo):
+if (version < 28) or ('unicode' not in wx.PlatformInfo):
 	print "GNUmed startup: Unsupported wxPython version (%s: %s)." % (wx.VERSION_STRING, wx.PlatformInfo)
-	print "GNUmed startup: wxPython 2.6+ with unicode support is required."
+	print "GNUmed startup: wxPython 2.8+ with unicode support is required."
 	print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
-	raise ValueError('wxPython 2.6+ with unicode support not found')
+	raise ValueError('wxPython 2.8+ with unicode support not found')
 
 
 # GNUmed libs
@@ -69,7 +69,7 @@ _provider = None
 _scripting_listener = None
 expected_db_ver = u'devel'
 current_client_ver = u'CVS HEAD'
-current_client_branch = '0.2.8'
+current_client_branch = '0.3'
 
 _log = logging.getLogger('gm.main')
 _log.info(__version__)
@@ -2609,7 +2609,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.414  2008-07-14 13:47:15  ncq
+# Revision 1.415  2008-07-15 15:24:54  ncq
+# - check for wxp2.8
+# - set current branch to 0.3
+#
+# Revision 1.414  2008/07/14 13:47:15  ncq
 # - some menu reorg
 # - do synced encounter sanity check on patient change :-)
 #
