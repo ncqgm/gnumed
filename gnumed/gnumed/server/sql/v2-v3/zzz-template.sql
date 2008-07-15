@@ -5,16 +5,17 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: zzz-template.sql,v 1.8 2008-05-29 15:33:27 ncq Exp $
--- $Revision: 1.8 $
+-- $Id: zzz-template.sql,v 1.9 2008-07-15 16:49:46 ncq Exp $
+-- $Revision: 1.9 $
 
 -- --------------------------------------------------------------
+--set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 -- remember to handle dependant objects possibly dropped by CASCADE
 \unset ON_ERROR_STOP
-drop forgot_to_edit_drops;
+drop forgot_to_edit_drops cascade;
 \set ON_ERROR_STOP 1
 
 
@@ -23,14 +24,19 @@ comment on forgot_to_edit_comment is
 
 -- --------------------------------------------------------------
 -- don't forget appropriate grants
-grant select on forgot_to_edit_grants to group "gm-doctors";
+grant select on
+	forgot_to_edit_grants
+to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.8 $');
+select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.9 $');
 
 -- ==============================================================
 -- $Log: zzz-template.sql,v $
--- Revision 1.8  2008-05-29 15:33:27  ncq
+-- Revision 1.9  2008-07-15 16:49:46  ncq
+-- - add default transaction handling
+--
+-- Revision 1.8  2008/05/29 15:33:27  ncq
 -- - no more source/target db version
 --
 -- Revision 1.7  2007/05/07 16:32:09  ncq
