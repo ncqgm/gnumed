@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.82 $"
+__version__ = "$Revision: 1.83 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -376,6 +376,17 @@ class db_server:
 			return None
 
 		curs = self.conn.cursor()
+		curs.execute(u"select setting from pg_settings where name = 'lc_ctype'")
+		data = curs.fetchall()
+		lc_ctype = data[0][0]
+		_log.info('template database LC_CTYPE is [%s]', lc_ctype)
+		if not lc_ctype.endswith('.UTF-8'):
+			_log.error('LC_CTYPE does not end in .UTF-8')
+			_log.error('cluster encoding incompatible with utf8 encoded databases but')
+			_log.error('for GNUmed installation the cluster must accept this encoding')
+			_log.error('you may need to re-initdb or create a new cluster')
+			return None
+		# make sure we get english messages
 		curs.execute(u"set lc_messages to 'C'")
 		curs.close()
 
@@ -1368,7 +1379,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.82  2008-06-13 10:37:26  ncq
+# Revision 1.83  2008-07-15 16:50:32  ncq
+# - check template ctype such as to guess whether utf8 will work
+#
+# Revision 1.82  2008/06/13 10:37:26  ncq
 # - fiddle with connect exception logging
 #
 # Revision 1.81  2008/06/13 10:33:56  ncq
