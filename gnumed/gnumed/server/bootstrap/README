@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
-$Id: README,v 1.7 2007-06-14 10:11:07 ncq Exp $
+$Id: README,v 1.8 2008-07-15 15:26:17 ncq Exp $
 --------------------------------------------------------------------------
 
 The files and scripts in the bootstrap/ directory are intended for
@@ -23,8 +23,10 @@ prerequisites that need to be matched:
 
 1) The scripts are best run as root.
 
-2) You need to have the procedural language
-   pl/pgsql available.
+2) You need to have the procedural language pl/pgsql
+   available (Installed in the Operating System,
+   that is. GNUmed will install it into the
+   database if needed).
 
 3) After bootstrapping you need to add the following
    lines to your pg_hba.conf file to allow GNUmed
