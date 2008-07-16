@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -52,12 +52,11 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 			continue
 
 		# another group ?
-		if regex.match('\[%s\].*' % group, line) is not None:
+		if regex.match('\[.+\].*', line) is not None:
 			# next group but option not seen yet ?
 			if group_seen and not option_seen:
-				sink.write(u'%s = %s\n' % (option, value))
+				sink.write(u'%s = %s\n\n\n' % (option, value))
 				option_seen = True
-				continue
 			sink.write(line)
 			continue
 
@@ -169,6 +168,9 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 #==================================================================
 def set_option_in_INI_file(filename=None, group=None, option=None, value=None, encoding='utf8'):
 
+	_log.debug('setting option "%s" to "%s" in group [%s]', option, value, group)
+	_log.debug('file: %s (%s)', filename, encoding)
+
 	src = codecs.open(filename = filename, mode = 'rU', encoding = encoding)
 	sink_name = '.%s.gmCfg2.new.conf' % filename
 	sink = codecs.open(filename = sink_name, mode = 'wb', encoding = encoding)
@@ -272,7 +274,7 @@ class gmCfgData(gmBorg.cBorg):
 			self.__cfg_data = {}
 			self.source_files = {}
 	#--------------------------------------------------
-	def get(self, group=None, option=None, source_order=None, debug=False):
+	def get(self, group=None, option=None, source_order=None):
 		"""Get the value of a configuration option in a config file.
 
 		<source_order> the order in which config files are searched
@@ -301,9 +303,7 @@ class gmCfgData(gmBorg.cBorg):
 			except KeyError:
 				_log.debug('option [%s] not in group [%s] in source [%s]', option, group, source)
 				continue
-
-			if debug:
-				_log.debug(u'option [%s] found in source [%s]', option_path, source)
+			_log.debug(u'option [%s] found in source [%s]', option_path, source)
 
 			if policy == u'return':
 				return value
@@ -349,24 +349,6 @@ class gmCfgData(gmBorg.cBorg):
 
 		self.source_files[source] = file
 	#--------------------------------------------------
-	def set_option(self, option=None, value=None, group=None, source=None):
-		"""Set a particular option to a particular value.
-
-		Note that this does NOT PERSIST the option anywhere !
-		"""
-		if None in [option, value]:
-			raise ValueError('neither <option> nor <value> can be None')
-		if source is None:
-			source = u'internal'
-			try:
-				self.__cfg_data[source]
-			except KeyError:
-				self.__cfg_data[source] = {}
-		if group is None:
-			group = source
-		option_path = u'%s::%s' % (group, option)
-		self.__cfg_data[source][option_path] = value
-	#--------------------------------------------------
 	def add_cli(self, short_options=u'', long_options=None):
 		"""Add command line parameters to config data.
 
@@ -400,6 +382,33 @@ class gmCfgData(gmBorg.cBorg):
 				data[u'%s::%s' % (u'cli', opt)] = val
 
 		self.__cfg_data[u'cli'] = data
+	#--------------------------------------------------
+	def reload_file_source(self, file=None, encoding='utf8'):
+		if file not in self.source_files.values():
+			return
+
+		for src, fname in self.source_files.iteritems():
+			if fname == file:
+				self.add_file_source(source = src, file = fname, encoding = encoding)
+				break
+	#--------------------------------------------------
+	def set_option(self, option=None, value=None, group=None, source=None):
+		"""Set a particular option to a particular value.
+
+		Note that this does NOT PERSIST the option anywhere !
+		"""
+		if None in [option, value]:
+			raise ValueError('neither <option> nor <value> can be None')
+		if source is None:
+			source = u'internal'
+			try:
+				self.__cfg_data[source]
+			except KeyError:
+				self.__cfg_data[source] = {}
+		if group is None:
+			group = source
+		option_path = u'%s::%s' % (group, option)
+		self.__cfg_data[source][option_path] = value
 #==================================================================
 # main
 #==================================================================
@@ -479,7 +488,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.12  2008-07-07 11:33:57  ncq
+# Revision 1.13  2008-07-16 10:36:25  ncq
+# - fix two bugs in INI parsing
+# - better logging, some cleanup
+# - .reload_file_source
+#
+# Revision 1.12  2008/07/07 11:33:57  ncq
 # - a bit of cleanup
 #
 # Revision 1.11  2008/05/21 13:58:50  ncq
