@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.1 2008-05-13 12:32:54 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.2 2008-07-16 11:10:46 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,7 +24,11 @@ _log2.info(__version__)
 _prev_excepthook = None
 application_is_closing = False
 #=========================================================================
-def set_database_helpdesk(helpdesk):
+def set_sender_email(email):
+	global _sender_email
+	_sender_email = email
+#-------------------------------------------------------------------------
+def set_helpdesk(helpdesk):
 	global _helpdesk
 	_helpdesk = helpdesk
 #-------------------------------------------------------------------------
@@ -97,16 +101,6 @@ def handle_uncaught_exception_wx(t, v, tb):
 	shutil.copy2(_logfile_name, new_name)
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
-	praxis = gmSurgery.gmCurrentPractice()
-	global _helpdesk
-	_helpdesk = praxis.helpdesk
-
-	global _db_helpdesk
-	_db_helpdesk = u''
-
-	global _prev_excepthook
-	_prev_excepthook = sys.excepthook
-	sys.excepthook = handle_uncaught_exception_wx
 
 	global _logfile_name
 	_logfile_name = gmLog2._logfile_name
@@ -114,13 +108,16 @@ def install_wx_exception_handler():
 	global _local_account
 	_local_account = os.path.basename(os.path.expanduser('~'))
 
-	global _staff_name
-	_staff_name = _local_account
-
-	global _is_public_database
-	_is_public_database = False
+	set_helpdesk(gmSurgery.gmCurrentPractice().helpdesk)
+	set_staff_name(_local_account)
+	set_is_public_database(False)
+	set_sender_email(None)
 
 	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
+
+	global _prev_excepthook
+	_prev_excepthook = sys.excepthook
+	sys.excepthook = handle_uncaught_exception_wx
 
 	return True
 # ------------------------------------------------------------------------
@@ -133,6 +130,8 @@ def uninstall_wx_exception_handler():
 # ------------------------------------------------------------------------
 def _on_application_closing():
 	global application_is_closing
+	# used to ignore a few exceptions, such as when the
+	# C++ object has been destroyed before the Python one
 	application_is_closing = True
 # ========================================================================
 class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
@@ -146,6 +145,8 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
+		if _sender_email is not None:
+			self._TCTRL_sender.SetValue(_sender_email)
 		self._TCTRL_helpdesk.SetValue(_helpdesk)
 		self._TCTRL_logfile.SetValue(self.logfile)
 		t, v, tb = exception
@@ -303,7 +304,11 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.1  2008-05-13 12:32:54  ncq
+# Revision 1.2  2008-07-16 11:10:46  ncq
+# - set_sender_email and use it
+# - some cleanup and better docs
+#
+# Revision 1.1  2008/05/13 12:32:54  ncq
 # - factor out exception handling widgets
 #
 #
