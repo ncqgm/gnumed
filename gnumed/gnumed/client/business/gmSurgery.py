@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.8 2007-12-23 11:55:49 ncq Exp $
+# $Id: gmSurgery.py,v 1.9 2008-07-16 10:32:50 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -14,6 +14,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2, gmTools, gmBorg, gmCfg2
 
+_cfg = gmCfg2.gmCfgData()
 #============================================================
 class gmCurrentPractice(gmBorg.cBorg):
 
@@ -39,9 +40,8 @@ class gmCurrentPractice(gmBorg.cBorg):
 		if self.__helpdesk is not None:
 			return self.__helpdesk
 
-		cfg = gmCfg2.gmCfgData()
 		self.__helpdesk = gmTools.coalesce (
-			cfg.get (
+			_cfg.get (
 				group = u'workplace',
 				option = u'help desk',
 				source_order = [
@@ -90,9 +90,8 @@ class gmCurrentPractice(gmBorg.cBorg):
 		if self.__active_workplace is not None:
 			return self.__active_workplace
 
-		cfg = gmCfg2.gmCfgData()
 		self.__active_workplace = gmTools.coalesce (
-			cfg.get (
+			_cfg.get (
 				group = u'workplace',
 				option = u'name',
 				source_order = [
@@ -118,6 +117,32 @@ class gmCurrentPractice(gmBorg.cBorg):
 		return [ r[0] for r in rows ]
 
 	workplaces = property(_get_workplaces, _set_workplaces)
+	#--------------------------------------------------------
+	def _get_user_email(self):
+		# FIXME: get this from the current users staff record in the database
+		return _cfg.get (
+			group = u'preferences',
+			option = u'user email',
+			source_order = [
+				('explicit', 'return'),
+				('user', 'return'),
+				('local', 'return'),
+				('workbase', 'return'),
+				('system', 'return')
+			]
+		)
+
+	def _set_user_email(self, val):
+		prefs_file = _cfg.get(option = 'user_preferences_file')
+		gmCfg2.set_option_in_INI_file (
+			filename = prefs_file,
+			group = u'preferences',
+			option = u'user email',
+			value = val
+		)
+		_cfg.reload_file_source(file = prefs_file)
+
+	user_email = property(_get_user_email, _set_user_email)
 #============================================================
 class cSurgery(object):
 
@@ -173,7 +198,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.8  2007-12-23 11:55:49  ncq
+# Revision 1.9  2008-07-16 10:32:50  ncq
+# - add .user_email property
+#
+# Revision 1.8  2007/12/23 11:55:49  ncq
 # - cleanup, use gmCfg2
 #
 # Revision 1.7  2007/10/23 21:20:24  ncq
