@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.23 2008-07-10 20:52:21 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmAuthWidgets.py,v 1.24 2008-07-16 11:11:10 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -192,7 +192,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				continue
 
 		gmExceptionHandlingWidgets.set_is_public_database(login.public_db)
-		gmExceptionHandlingWidgets.set_database_helpdesk(login.helpdesk)
+		gmExceptionHandlingWidgets.set_helpdesk(login.helpdesk)
 
 		listener = gmBackendListener.gmBackendListener(conn=conn)
 		break
@@ -677,7 +677,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.23  2008-07-10 20:52:21  ncq
+# Revision 1.24  2008-07-16 11:11:10  ncq
+# - set_helpdesk (no more _database_)
+#
+# Revision 1.23  2008/07/10 20:52:21  ncq
 # - better to call path detection with app_name and wx
 #
 # Revision 1.22  2008/07/07 11:35:19  ncq
