@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.415 2008-07-15 15:24:54 ncq Exp $
-__version__ = "$Revision: 1.415 $"
+# $Id: gmGuiMain.py,v 1.416 2008-07-16 11:12:01 ncq Exp $
+__version__ = "$Revision: 1.416 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -331,6 +331,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_client.Append(ID, _('Temporary directory'), _('Configure the directory to use as scratch space for temporary files.'))
 		wx.EVT_MENU(self, ID, self.__on_set_temp_dir)
+
+		item = menu_cfg_client.Append(-1, _('Email address'), _('The email address of the user for sending bug reports, etc.'))
+		self.Bind(wx.EVT_MENU, self.__on_set_user_email, item)
 
 		# -- submenu gnumed / config / ui
 		menu_cfg_ui = wx.Menu()
@@ -1457,6 +1460,35 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
+	def __on_set_user_email(self, evt):
+		email = gmSurgery.gmCurrentPractice().user_email
+
+		dlg = wx.TextEntryDialog (
+			parent = self,
+			message = _(
+				'This email address will be used when GNUmed\n'
+				'is sending email on your behalf such as when\n'
+				'reporting bugs or when you choose to contribute\n'
+				'reference material to the GNUmed community.\n'
+				'\n'
+				'The developers will then be able to get back to you\n'
+				'directly with advice. Otherwise you would have to\n'
+				'follow the mailing list discussion for help.\n'
+				'\n'
+				'Leave this blank if you wish to stay anonymous.'
+			),
+			caption = _('Please enter your email address.'),
+			defaultValue = gmTools.coalesce(email, u''),
+			style = wx.OK | wx.CANCEL | wx.CENTRE
+		)
+		decision = dlg.ShowModal()
+		if decision == wx.ID_CANCEL:
+			dlg.Destroy()
+			return
+
+		gmSurgery.gmCurrentPractice().user_email = dlg.GetValue().strip()
+		dlg.Destroy()
+	#----------------------------------------------
 	def __on_configure_workplace(self, evt):
 		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
 	#----------------------------------------------
@@ -2172,8 +2204,8 @@ class gmApp(wx.App):
 
 		self.__starting_up = True
 
+		gmExceptionHandlingWidgets.set_sender_email(gmSurgery.gmCurrentPractice().user_email)
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
-
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
 #		self.SetVendor(u'The GNUmed Development Community.')
@@ -2298,11 +2330,12 @@ class gmApp(wx.App):
 	def __register_events(self):
 		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		wx.EVT_END_SESSION(self, self._on_end_session)
+
+		# You can bind your app to wx.EVT_ACTIVATE_APP which will fire when your
+		# app gets/looses focus, or you can wx.EVT_ACTIVATE with any of your
+		# toplevel windows and call evt.GetActive() in the handler to see whether
+		# it is gaining or loosing focus.
 		self.Bind(wx.EVT_ACTIVATE_APP, self._on_app_activated)
-		#You can bind your app to wx.EVT_ACTIVATE_APP which will fire when your app
-		#get/looses focus, or you can wx.EVT_ACTIVATE with any of your toplevel
-		#windows and call evt.GetActive() in the handler to see whether it is
-		#gaining or loosing focus.
 
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
 		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
@@ -2609,7 +2642,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.415  2008-07-15 15:24:54  ncq
+# Revision 1.416  2008-07-16 11:12:01  ncq
+# - cleanup
+# - enable user email configuration and use it
+#
+# Revision 1.415  2008/07/15 15:24:54  ncq
 # - check for wxp2.8
 # - set current branch to 0.3
 #
