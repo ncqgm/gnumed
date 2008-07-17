@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -263,6 +263,10 @@ def parse_INI_stream(stream=None):
 
 		data[current_option_path] = value
 
+	if inside_list:
+		_log.panic('unclosed list $%s$ detected at end of config stream [%s]', current_option, stream)
+		raise SyntaxError('end of config stream but still in list')
+
 	return data
 #==================================================================
 class gmCfgData(gmBorg.cBorg):
@@ -488,7 +492,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.13  2008-07-16 10:36:25  ncq
+# Revision 1.14  2008-07-17 21:30:01  ncq
+# - detect unterminated list option
+#
+# Revision 1.13  2008/07/16 10:36:25  ncq
 # - fix two bugs in INI parsing
 # - better logging, some cleanup
 # - .reload_file_source
