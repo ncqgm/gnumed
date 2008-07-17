@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.24 2008-07-14 13:47:36 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmMeasurementWidgets.py,v 1.25 2008-07-17 21:41:36 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -691,8 +691,6 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-#		self.__init_ui(date = date)
-		self._refresh_as_new()
 		self.__register_interests()
 	#--------------------------------------------------------
 	# generic edit area mixin API
@@ -774,7 +772,6 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def _valid_for_save(self):
 
-		# FIXME: use can_create
 		validity = True
 
 		if not self._DPRW_evaluated.is_valid_timestamp():
@@ -1162,7 +1159,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.24  2008-07-14 13:47:36  ncq
+# Revision 1.25  2008-07-17 21:41:36  ncq
+# - cleanup
+#
+# Revision 1.24  2008/07/14 13:47:36  ncq
 # - explicitely set focus after refresh per user request
 #
 # Revision 1.23  2008/07/13 16:13:33  ncq
