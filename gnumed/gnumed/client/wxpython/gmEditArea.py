@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.120 2008-07-13 17:16:28 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmEditArea.py,v 1.121 2008-07-17 21:41:14 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -30,7 +30,8 @@ class cGenericEditAreaMixin(object):
 		- _valid_for_save
 		- _save_as_new
 		- _save_as_update
-		-_refresh_as_new
+
+		- _refresh_as_new
 		- _refresh_from_existing
 		- _refresh_as_new_from_existing
 
@@ -40,6 +41,11 @@ class cGenericEditAreaMixin(object):
 	def __init__(self):
 		self.__mode = 'new'
 		self.__data = None
+		self._refresh_as_new()
+		self.__tctrl_validity_colors = {
+			True: wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW),
+			False: 'pink'
+		}
 	#----------------------------------------------------------------
 	def _get_mode(self):
 		return self.__mode
@@ -103,6 +109,10 @@ class cGenericEditAreaMixin(object):
 			return self._refresh_as_new_from_existing()
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
+	#----------------------------------------------------------------
+	def display_tctrl_as_valid(self, tctrl=None, valid=None):
+		tctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
+		tctrl.Refresh()
 #====================================================================
 class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	"""Dialog for parenting edit area panels with save/clear/next/cancel"""
@@ -2153,7 +2163,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.120  2008-07-13 17:16:28  ncq
+# Revision 1.121  2008-07-17 21:41:14  ncq
+# - .display_tctrl_as_valid
+#
+# Revision 1.120  2008/07/13 17:16:28  ncq
 # - generic ea dlg 2 type-checks whether ea pnl sublcasses mixin
 #
 # Revision 1.119  2008/07/13 16:07:03  ncq
