@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -182,7 +182,7 @@ def __validate_timezone(conn=None, timezone=None):
 		_log.warning(u'time zone [%s] seems invalid', timezone)
 	except:
 		_log.error(u'failed to set time zone to [%s]', timezone)
-		_log.exception()
+		_log.exception(u'')
 
 	curs.close()
 	conn.rollback()
@@ -1586,7 +1586,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.83  2008-07-13 17:15:30  ncq
+# Revision 1.84  2008-07-17 21:31:00  ncq
+# - missing arg for log.exception
+#
+# Revision 1.83  2008/07/13 17:15:30  ncq
 # - update v9 database hash
 #
 # Revision 1.82  2008/07/13 16:04:54  ncq
