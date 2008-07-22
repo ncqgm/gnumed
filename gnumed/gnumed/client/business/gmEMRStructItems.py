@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.116 $"
+__version__ = "$Revision: 1.117 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -742,26 +742,6 @@ select exists (
 			for t in tests:
 				lines.extend(t.format())
 
-#			lines.append(u' %s %s (%s): %s %s (%s)' % (
-#				t['clin_when'].strftime('%d.%m. %H:%M'),
-#				t['unified_code'],
-#				t['unified_name'],
-#				t['unified_val'],
-#				t['val_unit'],
-#				t['abnormality_indicator']
-#			))
-#			if gmTools.coalesce(t['comment'], u'').strip() != u'':
-#				lines.append(u'   Doc: %s' % t['comment'].strip())
-#			if gmTools.coalesce(t['comment'], u'').strip() != u'':
-#				lines.append(u'   MTA: %s' % t['note_test_org'].strip())
-#			if t['reviewed']:
-#				lines.append(u'   %s @ %s: %s, %s' % (
-#					t['last_reviewer'],
-#					t['last_reviewed'].strftime('%Y-%m-%d %H:%M'),
-#					gmTools.bool2subst(t['is_technically_abnormal'], _('abnormal'), _('normal')),
-#					gmTools.bool2subst(t['is_clinically_relevant'], _('relevant'), _('not relevant'))
-#				))
-
 		# documents
 		doc_folder = patient.get_document_folder()
 		docs = doc_folder.get_documents (
@@ -833,7 +813,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	return encounter
 #-----------------------------------------------------------
 def get_encounter_types():
-	cmd = u"SELECT _(description), description from clin.encounter_type"
+	cmd = u"SELECT _(description) as l10n_description, description from clin.encounter_type"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 #-----------------------------------------------------------
@@ -979,7 +959,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.116  2008-07-14 13:44:38  ncq
+# Revision 1.117  2008-07-22 13:53:12  ncq
+# - cleanup
+#
+# Revision 1.116  2008/07/14 13:44:38  ncq
 # - add .format to episode
 # - factor out .format_soap from .format on encounter
 # - better visualize soap sections in output as per user request
