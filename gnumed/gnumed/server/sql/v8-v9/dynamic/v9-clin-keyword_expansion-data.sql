@@ -5,8 +5,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: v9-clin-keyword_expansion-data.sql,v 1.1 2008-07-15 15:23:15 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-clin-keyword_expansion-data.sql,v 1.2 2008-07-22 13:56:29 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -34,7 +34,7 @@ Weinen
 Gesichtsausdruck
  0 - entspannt, lächelnd
  1 - Mund verzerrt
- 2 - Mund und Augen grimmasieren
+ 2 - Mund und Augen grimassieren
 Rumpfhaltung
  0 - neutral
  1 - unstet
@@ -77,11 +77,14 @@ for further enlightenment. '
 );
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-keyword_expansion-data.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-keyword_expansion-data.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-clin-keyword_expansion-data.sql,v $
--- Revision 1.1  2008-07-15 15:23:15  ncq
+-- Revision 1.2  2008-07-22 13:56:29  ncq
+-- - typo
+--
+-- Revision 1.1  2008/07/15 15:23:15  ncq
 -- - new
 --
 --
