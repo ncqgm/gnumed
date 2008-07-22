@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1103,6 +1103,8 @@ def ask_for_confirmation():
 	bundles = cfg_get("installation", "bundles")
 	if bundles is None:
 		return True
+	if len(bundles) == 0:
+		return True
 	if not _interactive:
 		print_msg("You are about to install the following parts of GNUmed:")
 		print_msg("-------------------------------------------------------")
@@ -1379,7 +1381,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.83  2008-07-15 16:50:32  ncq
+# Revision 1.84  2008-07-22 15:20:02  ncq
+# - don't ask silly questions when there's nothing to do, really
+#
+# Revision 1.83  2008/07/15 16:50:32  ncq
 # - check template ctype such as to guess whether utf8 will work
 #
 # Revision 1.82  2008/06/13 10:37:26  ncq
