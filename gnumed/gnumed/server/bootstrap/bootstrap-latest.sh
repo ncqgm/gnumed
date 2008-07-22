@@ -5,6 +5,7 @@
 #  quiet
 
 VER="9"
+PREV_VER="8"
 QUIET="$1"
 
 cd ../../
@@ -45,20 +46,30 @@ echo_msg "Bootstrapping latest GNUmed database."
 echo_msg ""
 echo_msg "This will set up a GNUmed database of version v${VER}"
 echo_msg "with the name \"gnumed_v${VER}\"."
-echo_msg "It contains all the currently working parts including"
-echo_msg "localizations for countries you don't live in. This does"
-echo_msg "not disturb the operation of the GNUmed client in your"
-echo_msg "country in any way."
+#echo_msg "It contains all the currently working parts including"
+#echo_msg "localizations for countries you don't live in. This does"
+#echo_msg "not disturb the operation of the GNUmed client in your"
+#echo_msg "country in any way."
 
 
-echo_msg "==========================================================="
-echo_msg "1) Dropping old baseline gnumed_v2 database if there is any."
-echo_msg "   (you may need to provide the password for ${USER})"
-sudo -u postgres dropdb -i ${PORT_DEF} gnumed_v2
-
-
-echo_msg "=========================="
-echo_msg "2) bootstrapping databases"
+# better safe than sorry
+PREV_VER_EXISTS=`sudo -u postgres psql -l | grep gnumed_v${PREV_VER}`
+if test "${PREV_VER_EXISTS}" != "" ; then
+	echo ""
+	echo "There already is a GNUmed database of version v${PREV_VER}."
+	echo ""
+	echo "Are you sure you want to *bootstrap* to version v${VER} ?"
+	echo "If you do so the existing database v${PREV_VER} will be LOST !"
+	echo ""
+	echo "For *upgrading* from v${PREV_VER} to v${VER} you should"
+	echo "run the upgrade script instead."
+	echo ""
+	read -e -p "Continue bootstrapping ? [yes/NO]: "
+	if test "${REPLY}" != "yes" ; then
+		echo "Bootstrapping aborted by user."
+		exit 1
+	fi
+fi
 
 
 # baseline v2
