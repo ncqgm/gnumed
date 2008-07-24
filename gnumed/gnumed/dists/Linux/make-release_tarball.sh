@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.48 2008-04-22 21:20:03 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.49 2008-07-24 18:22:52 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -321,13 +321,9 @@ cp -R ../../server/sql/v7-v8/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/s
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/data
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/python
 
 cp -R ../../server/sql/v8-v9/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
 cp -R ../../server/sql/v8-v9/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
-#cp -R ../../server/sql/v8-v9/data/* ./GNUmed-$CLIENTREV/server/sql/v8-v9/data
-#cp -R ../../server/sql/v8-v9/python/*.py ./GNUmed-$CLIENTREV/server/sql/v8-v9/python
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -365,7 +361,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.48  2008-04-22 21:20:03  ncq
+# Revision 1.49  2008-07-24 18:22:52  ncq
+# - some cleaup
+#
+# Revision 1.48  2008/04/22 21:20:03  ncq
 # - no more gmCLI
 #
 # Revision 1.47  2008/03/17 14:56:33  ncq
