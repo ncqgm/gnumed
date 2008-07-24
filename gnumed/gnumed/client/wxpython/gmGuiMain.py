@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.416 2008-07-16 11:12:01 ncq Exp $
-__version__ = "$Revision: 1.416 $"
+# $Id: gmGuiMain.py,v 1.417 2008-07-24 14:02:03 ncq Exp $
+__version__ = "$Revision: 1.417 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -467,7 +467,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.menu_office = wx.Menu()
 
 		menu_master_data = wx.Menu()
-		self.menu_office.AppendMenu(wx.NewId(), _('&Master data ...'), menu_master_data)
+		self.menu_office.AppendMenu(wx.NewId(), _('Manage &master data ...'), menu_master_data)
 
 		menu_staff = wx.Menu()
 		menu_master_data.AppendMenu(wx.NewId(), _('&Staff ...'), menu_staff)
@@ -478,14 +478,17 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_staff.Append(-1, _('&Edit staff list'), _('Edit the list of staff'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_staff_list, item)
 
-		item = menu_master_data.Append(-1, _('Manage &document types'), _('Edit the document types available in the system.'))
+		item = menu_master_data.Append(-1, _('&Document types'), _('Manage the document types available in the system.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_doc_types, item)
 
-		item = menu_master_data.Append(-1, _('Manage &text expansions'), _('Manage keyword based text expansion macros.'))
+		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
 
-		item = menu_master_data.Append(-1, _('Manage &form templates'), _('Manage templates for forms and letters.'))
+		item = menu_master_data.Append(-1, _('&Form templates'), _('Manage templates for forms and letters.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_templates, item)
+
+		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter (consultation) types.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
 
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
@@ -2059,6 +2062,9 @@ Search results:
 	def __on_manage_text_expansion(self, evt):
 		gmProviderInboxWidgets.configure_keyword_text_expansion(parent=self)
 	#----------------------------------------------
+	def __on_manage_encounter_types(self, evt):
+		gmEMRStructWidgets.manage_encounter_types(parent=self)
+	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
 
@@ -2642,7 +2648,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.416  2008-07-16 11:12:01  ncq
+# Revision 1.417  2008-07-24 14:02:03  ncq
+# - some menu reorg/renaming
+# - invoke encounter type managment
+#
+# Revision 1.416  2008/07/16 11:12:01  ncq
 # - cleanup
 # - enable user email configuration and use it
 #
