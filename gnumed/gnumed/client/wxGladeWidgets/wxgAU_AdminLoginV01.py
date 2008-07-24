@@ -14,7 +14,7 @@ class cAU_AdminLoginDialogV01(wx.Dialog):
         self.label_4 = wx.StaticText(self, -1, "port")
         self.text_ctrl_4 = wx.TextCtrl(self, -1, "")
         self.label_5 = wx.StaticText(self, -1, "database")
-        self.text_ctrl_5 = wx.TextCtrl(self, -1, "gnumed_v2")
+        self.text_ctrl_5 = wx.TextCtrl(self, -1, "gnumed_v9")
         self.label_1 = wx.StaticText(self, -1, "admin user")
         self.text_ctrl_1 = wx.TextCtrl(self, -1, "")
         self.label_2 = wx.StaticText(self, -1, "password")

@@ -144,7 +144,7 @@ diff -c -r1.17 oscar_mcmaster.properties
 + #gnumed demographics server
 + gnumed_driver=org.postgresql.Driver
 + gnumed_uri = jdbc:postgresql://localhost:5434/
-+ gnumed_dbname = gnumed_v2
++ gnumed_dbname = gnumed_v9
 + gnumed_user = any-doc
 + gnumed_password = any-doc
 + is_gnumed_demographics=true
@@ -875,7 +875,7 @@ diff -c -r1.4 dbconnection.jsp
 ! 	if ( gnumedParams[0] == null ) {
 ! 	 	gnumedParams[0] = "gnumed";
 ! 		gnumedParams[1] = "org.postgresql.Driver";
-! 		gnumedParams[2] = "jdbc://postgresql/localhost/gnumed_v2?user=any-doc&password=any-doc";
+! 		gnumedParams[2] = "jdbc://postgresql/localhost/gnumed_v9?user=any-doc&password=any-doc";
 ! 		
 ! 		gnumedParams[3] = "any-doc";
 ! 		gnumedParams[4] = "any-doc";
