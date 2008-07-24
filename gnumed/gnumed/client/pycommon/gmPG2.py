@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -62,6 +62,7 @@ except ValueError:
 import psycopg2.extras
 import psycopg2.extensions
 import psycopg2.pool
+import psycopg2.errorcodes as sql_error_codes
 
 # =======================================================================
 _default_client_encoding = 'UTF8'
@@ -1586,7 +1587,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.84  2008-07-17 21:31:00  ncq
+# Revision 1.85  2008-07-24 13:58:08  ncq
+# - import SQL error codes
+#
+# Revision 1.84  2008/07/17 21:31:00  ncq
 # - missing arg for log.exception
 #
 # Revision 1.83  2008/07/13 17:15:30  ncq
