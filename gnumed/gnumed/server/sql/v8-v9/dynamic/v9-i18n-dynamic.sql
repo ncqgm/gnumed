@@ -1,6 +1,6 @@
 -- ======================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v8-v9/dynamic/v9-i18n-dynamic.sql,v $
--- $Id: v9-i18n-dynamic.sql,v 1.1 2008-03-25 19:34:21 ncq Exp $
+-- $Id: v9-i18n-dynamic.sql,v 1.2 2008-07-24 14:03:58 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -86,11 +86,69 @@ create or replace function public._(text, text)
 	as 'select i18n._($1, $2)';
 
 -- =============================================
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.1 $');
+create or replace function i18n.get_curr_lang()
+	returns text
+	language sql
+	as 'select lang from i18n.curr_lang where user = current_user'
+;
+
+
+create or replace function i18n.get_curr_lang(text)
+	returns text
+	language sql
+	as 'select lang from i18n.curr_lang where user = $1'
+;
+
+-- =============================================
+create or replace function i18n.upd_tx(text, text, text)
+	returns boolean
+	language 'plpgsql'
+	security definer
+	as '
+declare
+	_lang alias for $1;
+	_orig alias for $2;
+	_trans alias for $3;
+	_tmp text;
+begin
+	if _trans = _orig then
+		raise notice ''i18n.upd_tx(text, text, text): Original = translation. Skipping.'';
+		return True;
+	end if;
+
+	select into _tmp ''1'' from i18n.keys where orig = _orig;
+	if not found then
+		raise notice ''i18n.upd_tx(text, text, text): [%] not found in i18n.keys. Creating entry.'', _orig;
+		insert into i18n.keys (orig) values (_orig);
+	end if;
+
+	delete from i18n.translations where lang = _lang and orig = _orig;
+	insert into i18n.translations (lang, orig, trans) values (_lang, _orig, _trans);
+
+	raise notice ''i18n.upd_tx(%: [%] ==> [%])'', _lang, _orig, _trans;
+	return True;
+end;'
+;
+
+
+create or replace function i18n.upd_tx(text, text)
+	returns boolean
+	language sql
+	security definer
+	as 'select i18n.upd_tx((select i18n.get_curr_lang()), $1, $2)'
+;
+
+-- =============================================
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.1  2008-03-25 19:34:21  ncq
+-- Revision 1.2  2008-07-24 14:03:58  ncq
+-- - get_curr_lang
+-- - improved upd_tx(text, text, text)
+-- - upd_tx(text, text)
+--
+-- Revision 1.1  2008/03/25 19:34:21  ncq
 -- - make public._() a wrapper around the real i18n._()
 --
 --
