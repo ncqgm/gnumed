@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.23 2008-05-31 16:33:07 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmListWidgets.py,v 1.24 2008-07-24 14:00:18 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -70,6 +70,7 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 	return None
 #----------------------------------------------------------------
 class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDlg):
+	"""A dialog holding a list and a few buttons to act on the items."""
 
 	def __init__(self, *args, **kwargs):
 
@@ -130,6 +131,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if self.refresh_callback is None:
 			return
 		self.refresh_callback(lctrl = self._LCTRL_items)
+		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
@@ -139,6 +141,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if self.refresh_callback is None:
 			return
 		self.refresh_callback(lctrl = self._LCTRL_items)
+		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		# if the delete button *can* be pressed there are *supposed*
@@ -148,6 +151,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if self.refresh_callback is None:
 			return
 		self.refresh_callback(lctrl = self._LCTRL_items)
+		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -161,6 +165,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	new_callback = property(_get_noop, _set_new_callback)
 #================================================================
 class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
+	"""A panel holding a generic multi-column list and action buttions."""
 
 	def __init__(self, *args, **kwargs):
 
@@ -302,14 +307,18 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			return
 
 		for item in items:
-			if type(item) == types.ListType:
-				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
+			#if type(item) == types.ListType:
+			try:
+				# cannot use errors='replace' since then
+				# None/ints/unicode strings fail to get encoded
 				col_val = unicode(item[0])
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
-				for col_idx in range(1, len(item)):
+				#for col_idx in range(1, len(item)):
+				for col_idx in range(1, min(self.GetColumnCount(), len(item))):
 					col_val = unicode(item[col_idx])
 					self.SetStringItem(index = row_num, col = col_idx, label = col_val)
-			else:
+			#else:
+			except TypeError:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
@@ -420,7 +429,13 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.23  2008-05-31 16:33:07  ncq
+# Revision 1.24  2008-07-24 14:00:18  ncq
+# - better comments
+# - resize columns after list refreshing in generic list selector
+# - differentiate between iterables and non-iterables by means of
+#   an exception rather than checking for type.ListType in set_string_items
+#
+# Revision 1.23  2008/05/31 16:33:07  ncq
 # - add TODO with URL
 #
 # Revision 1.22  2008/02/26 16:28:04  ncq
