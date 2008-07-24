@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.78 2008-07-07 13:43:16 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmEMRStructWidgets.py,v 1.79 2008-07-24 13:58:40 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -26,16 +26,16 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets
+from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
 from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
 from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
-
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
@@ -53,6 +53,54 @@ def ask_for_encounter_continuation(msg=None, caption=None):
 	)
 	result = dlg.ShowModal()
 	if result == wx.ID_YES:
+		return True
+	return False
+#----------------------------------------------------------------
+def manage_encounter_types(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	def edit(enc_type=None):
+		return edit_encounter_type(parent = parent, encounter_type = enc_type)
+
+	def delete(enc_type=None):
+		if gmEMRStructItems.delete_encounter_type(description = enc_type['description']):
+			return True
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Cannot delete encounter type [%s]. It is in use.') % enc_type['l10n_description'],
+			beep = True
+		)
+		return False
+
+	def refresh(lctrl):
+		enc_types = gmEMRStructItems.get_encounter_types()
+		lctrl.set_string_items(items = enc_types)
+
+	enc_types = gmEMRStructItems.get_encounter_types()
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the encounter type you want to edit !\n'),
+		caption = _('Editing encounter types ...'),
+		choices = enc_types,
+		data = None,
+		columns = [_('Name'), _('System type')],
+		single_selection = True,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
+	)
+#----------------------------------------------------------------
+def edit_encounter_type(parent=None, encounter_type=None):
+	ea = cEncounterTypeEditAreaPnl(parent = parent, id = -1)
+	ea.data = encounter_type
+	ea.mode = gmTools.coalesce(encounter_type, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+	dlg.SetTitle(gmTools.coalesce(encounter_type, _('Adding new encounter type'), _('Editing encounter type')))
+	if dlg.ShowModal() == wx.ID_OK:
 		return True
 	return False
 #----------------------------------------------------------------
@@ -100,6 +148,91 @@ select pk, l10n_description from (
 		self.matcher = mp
 		self.selection_only = True
 		self.picklist_delay = 50
+#----------------------------------------------------------------
+class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEditAreaPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.__register_interests()
+	#-------------------------------------------------------
+	# generic edit area API
+	#-------------------------------------------------------
+	def _valid_for_save(self):
+		if self.mode == 'edit':
+			if self._TCTRL_l10n_name.GetValue().strip() == u'':
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = False)
+				return False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = True)
+			return True
+
+		no_errors = True
+
+		if self._TCTRL_l10n_name.GetValue().strip() == u'':
+			if self._TCTRL_name.GetValue().strip() == u'':
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = False)
+				no_errors = False
+			else:
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = True)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_l10n_name, valid = True)
+
+		if self._TCTRL_name.GetValue().strip() == u'':
+			if self._TCTRL_l10n_name.GetValue().strip() == u'':
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_name, valid = False)
+				no_errors = False
+			else:
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_name, valid = True)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_name, valid = True)
+
+		return no_errors
+	#-------------------------------------------------------
+	def _save_as_new(self):
+		enc_type = gmEMRStructItems.create_encounter_type (
+			description = gmTools.none_if(self._TCTRL_name.GetValue().strip(), u''),
+			l10n_description = gmTools.coalesce (
+				gmTools.none_if(self._TCTRL_l10n_name.GetValue().strip(), u''),
+				self._TCTRL_name.GetValue().strip()
+			)
+		)
+		if enc_type is None:
+			return False
+		self.data = enc_type
+		return True
+	#-------------------------------------------------------
+	def _save_as_update(self):
+		enc_type = gmEMRStructItems.update_encounter_type (
+			description = self._TCTRL_name.GetValue().strip(),
+			l10n_description = self._TCTRL_l10n_name.GetValue().strip()
+		)
+		if enc_type is None:
+			return False
+		self.data = enc_type
+		return True
+	#-------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_l10n_name.SetValue(u'')
+		self._TCTRL_name.SetValue(u'')
+		self._TCTRL_name.Enable(True)
+	#-------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_l10n_name.SetValue(self.data['l10n_description'])
+		self._TCTRL_name.SetValue(self.data['description'])
+		# disallow changing type on all encounters by editing system name
+		self._TCTRL_name.Enable(False)
+	#-------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._TCTRL_l10n_name.SetValue(self.data['l10n_description'])
+		self._TCTRL_name.SetValue(self.data['description'])
+		self._TCTRL_name.Enable(True)
+	#-------------------------------------------------------
+	# internal API
+	#-------------------------------------------------------
+	def __register_interests(self):
+		return
 #----------------------------------------------------------------
 class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
@@ -1170,7 +1303,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.78  2008-07-07 13:43:16  ncq
+# Revision 1.79  2008-07-24 13:58:40  ncq
+# - manage encounter types
+#
+# Revision 1.78  2008/07/07 13:43:16  ncq
 # - current patient .connected
 #
 # Revision 1.77  2008/06/09 15:33:59  ncq
