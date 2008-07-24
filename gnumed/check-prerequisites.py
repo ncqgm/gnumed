@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 
 import sys
 
@@ -24,7 +24,6 @@ try:
 except ImportError:
 	print "ERROR: 'enchant' not installed"
 	print "ERROR: this is needed to handle spellchecking"
-#	print "ERROR: mxDateTime is available from http://www.egenix.com/files/python/"
 	print "INFO : sys.path is set as follows:"
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
@@ -151,7 +150,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.18  2008-07-15 15:23:50  ncq
+# Revision 1.19  2008-07-24 17:51:27  ncq
+# - cleanup
+#
+# Revision 1.18  2008/07/15 15:23:50  ncq
 # - check for wxp2.8
 #
 # Revision 1.17  2007/09/24 18:25:12  ncq
