@@ -9,7 +9,7 @@ import sys, os.path
 import psycopg2 as dbapi
 
 __license__ = "GPL"
-dsn = "dbname=gnumed_v2 user=any-doc password=any-doc"
+dsn = "dbname=gnumed_v9 user=any-doc password=any-doc"
 #dsn = "host=salaam.homeunix.com port=5432 dbname=gnumed_v2 user=any-doc password=any-doc"
 fname = sys.argv[1]
 encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
@@ -89,7 +89,10 @@ log.close()
 
 #=======================================================================
 # $Log: test-bytea-import-psycopg2.py,v $
-# Revision 1.3  2007-09-20 19:07:10  ncq
+# Revision 1.4  2008-07-24 18:38:14  ncq
+# - bump database version
+#
+# Revision 1.3  2007/09/20 19:07:10  ncq
 # - port 5432, again
 #
 # Revision 1.2  2007/05/22 13:34:48  ncq
