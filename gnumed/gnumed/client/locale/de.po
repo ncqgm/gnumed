@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.123 $
+# $Revision: 1.124 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-07-14 14:52+CEST\n"
-"PO-Revision-Date: 2008-07-14 15:00+0100\n"
+"POT-Creation-Date: 2008-07-24 16:04+CEST\n"
+"PO-Revision-Date: 2008-07-24 16:18+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1283,6 +1283,21 @@ msgstr "Auftrag"
 msgid "Summary"
 msgstr "Zusammenfassung"
 
+msgid "Required: The name for this encounter type in your local language."
+msgstr "Pflichtfeld: Der Konsultationstyp in der Landessprache."
+
+msgid ""
+"Optional: The system-wide name for this encounter type. If you leave this empty the local name will be used.\n"
+"\n"
+"It is useful to choose an English term but that is not mandatory. One advantage to using a system name is that different people can have the system name translated to their language and still use the same encounter type."
+msgstr ""
+"Optional: Die systemweite Bezeichnung für diesen Typ Konsultation. Wenn Sie dies freilassen, wird der landessprachliche Name verwendet.\n"
+"\n"
+"Es ist sinnvoll, einen englischen Begriff zu wählen, notwendig ist dies aber nicht. Ein Vorteil einer systemweiten Bezeichnung ist, daß die Nutzer ein und denselben Konsultationstyp in ihrer jeweils landessprachlichen Übersetzung nutzen können."
+
+msgid "Local name"
+msgstr "Landessprachlich"
+
 msgid "edit episode details"
 msgstr "Details der Episode .ändern"
 
@@ -1368,7 +1383,7 @@ msgid "Filename"
 msgstr "Dateiname"
 
 msgid "Options"
-msgstr "Optionen"
+msgstr "Einstellungen"
 
 msgid "Processed by:"
 msgstr "Verarbeitet von:"
@@ -3417,6 +3432,30 @@ msgstr "Einen neuen Kontakt beginnen."
 msgid "Start new"
 msgstr "Neubeginn"
 
+msgid "Cannot delete encounter type [%s]. It is in use."
+msgstr ""
+"Kann den Konsultationstyp [%s]\n"
+" nicht löschen, da er in Benutzung ist."
+
+msgid ""
+"\n"
+"Select the encounter type you want to edit !\n"
+msgstr ""
+"\n"
+"Wählen Sie den Konsultationstyp, den Sie bearbeiten wollen !\n"
+
+msgid "Editing encounter types ..."
+msgstr "Bearbeite Konsultationstypen ..."
+
+msgid "System type"
+msgstr "Systemname"
+
+msgid "Adding new encounter type"
+msgstr "Neuen Konsultationstype hinzufügen"
+
+msgid "Editing encounter type"
+msgstr "Bearbeite Konsultationstyp"
+
 msgid "Closed episodes older than %s days on health issue [%s]"
 msgstr "Episoden älter als %s Tage für Grundkrankheit [%s] wurden beendet."
 
@@ -3956,6 +3995,12 @@ msgstr "Wahl des Arbeitserzeichnisses für temporäre Dateien."
 msgid "Temporary directory"
 msgstr "Arbeitsverzeichnis"
 
+msgid "Email address"
+msgstr "E-mail-Adresse"
+
+msgid "The email address of the user for sending bug reports, etc."
+msgstr "Die E-Mail-Adresse des Nutzers. Zum Senden von Fehlerberichten, etc."
+
 msgid "User interface ..."
 msgstr "Programmoberfläche ..."
 
@@ -4109,8 +4154,8 @@ msgstr "Dieses GNUmed-Fenster schließen."
 msgid "E&xit\tAlt-X"
 msgstr "E&xit\tAlt-X"
 
-msgid "&Master data ..."
-msgstr "&Stammdaten ..."
+msgid "Manage &master data ..."
+msgstr "&Stammdaten verwalten ..."
 
 msgid "&Staff ..."
 msgstr "&Mitarbeiter"
@@ -4127,23 +4172,29 @@ msgstr "Mitarbeiterliste &bearbeiten"
 msgid "Edit the list of staff"
 msgstr "Die Liste der Mitarbeiter bearbeiten"
 
-msgid "Edit the document types available in the system."
-msgstr "Editieren der im System vorhandenen Dokumententypen."
+msgid "&Document types"
+msgstr "&Dokumententypen"
 
-msgid "Manage &document types"
-msgstr "&Dokumententypen verwalten"
+msgid "Manage the document types available in the system."
+msgstr "Verwalten der im System vorhandenen Dokumententypen."
 
-msgid "Manage &text expansions"
-msgstr "&Textmakros verwalten"
+msgid "&Text expansions"
+msgstr "&Textmakros"
 
 msgid "Manage keyword based text expansion macros."
 msgstr "Bearbeiten der Textmakros."
 
-msgid "Manage &form templates"
-msgstr "&Formularvorlagen verwalten"
+msgid "&Form templates"
+msgstr "Schrift-&Vorlagen"
 
 msgid "Manage templates for forms and letters."
 msgstr "Brief- und Formularvorlagen verwalten."
+
+msgid "&Encounter types"
+msgstr "&Konsultationstypen"
+
+msgid "Manage encounter (consultation) types."
+msgstr "Konsultationstypen verwalten."
 
 msgid "&Office"
 msgstr "P&raxis"
@@ -4684,6 +4735,31 @@ msgstr ""
 "genug brachlag, fragt GNUmed um Rat.\n"
 "\n"
 "Geben Sie die maximale Ruhezeit in TAGEN ein:"
+
+msgid ""
+"This email address will be used when GNUmed\n"
+"is sending email on your behalf such as when\n"
+"reporting bugs or when you choose to contribute\n"
+"reference material to the GNUmed community.\n"
+"\n"
+"The developers will then be able to get back to you\n"
+"directly with advice. Otherwise you would have to\n"
+"follow the mailing list discussion for help.\n"
+"\n"
+"Leave this blank if you wish to stay anonymous."
+msgstr ""
+"Diese E-Mail-Adresse wird von GNUmed genutzt,\n"
+"wenn Fehlerberichte zu versenden sind oder wenn\n"
+"Sie Referenzmaterial zu GNUmed beitragen wollen.\n"
+"\n"
+"Die Entwickler können Ihnen so Ratschläge direkt\n"
+"zusenden. Ansonsten müßten Sie die Diskussion auf\n"
+"der Mailingliste verfolgen, um Hilfe zu erhalten.\n"
+"\n"
+"Für Anonymität lassen Sie dieses Feld leer."
+
+msgid "Please enter your email address."
+msgstr "Bitte geben Sie Ihre E-Mail-Adresse ein."
 
 msgid ""
 "Do you want GNUmed to check for updates at startup ?\n"
@@ -7352,6 +7428,10 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Manage &document types"
+#~ msgstr "&Dokumententypen verwalten"
+#~ msgid "Manage &form templates"
+#~ msgstr "&Formularvorlagen verwalten"
 #~ msgid "Progress notes for ongoing episode %s%s%s:"
 #~ msgstr "Verlauf für andauernde Episode %s%s%s:"
 #~ msgid "Progress notes for closed episode %s%s%s:"
@@ -7510,8 +7590,6 @@ msgstr "erstmals"
 #~ msgstr "Nicht senden"
 #~ msgid "Send"
 #~ msgstr "Senden"
-#~ msgid "Your email address"
-#~ msgstr "Ihre E-mail-Adresse"
 #~ msgid "I hit the big red button and ..."
 #~ msgstr "Ich habe das und das gemacht ..."
 #~ msgid ""
@@ -8212,8 +8290,6 @@ msgstr "erstmals"
 #~ msgstr ""
 #~ "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung "
 #~ "gewünscht - einfach erfinden (JJJJ-MM-DD)"
-#~ msgid "choose consultation type"
-#~ msgstr "Konsultationstyp wählen"
 #~ msgid "New"
 #~ msgstr "Neu"
 #~ msgid "Date of Birth"
