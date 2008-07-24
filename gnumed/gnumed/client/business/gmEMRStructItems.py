@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.117 $"
+__version__ = "$Revision: 1.118 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -812,8 +812,66 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 	return encounter
 #-----------------------------------------------------------
+def update_encounter_type(description=None, l10n_description=None):
+
+	rows, idx = gmPG2.run_rw_queries(queries = [{
+		'cmd': u"select i18n.upd_tx(%(desc)s, %(l10n_desc)s)",
+		'args': {'desc': description, 'l10n_desc': l10n_description}
+	}])
+
+	return {'description': description, 'l10n_description': l10n_description}
+#-----------------------------------------------------------
+def create_encounter_type(description=None, l10n_description=None):
+	"""This will attempt to create a NEW encounter type."""
+
+	# need a system name, so derive one if necessary
+	if description is None:
+		description = l10n_description
+
+	args = {
+		'desc': description,
+		'l10n_desc': l10n_description
+	}
+
+	_log.debug('creating encounter type: %s, %s', description, l10n_description)
+
+	# does it exist already ?
+	cmd = u"select description, _(description) from clin.encounter_type where description = %(desc)s"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	# yes
+	if len(rows) > 0:
+		# both system and l10n name are the same so all is well
+		if (rows[0][0] == description) and (rows[0][1] == l10n_description):
+			_log.info('encounter type [%s] already exists with the proper translation')
+			return {'description': description, 'l10n_description': l10n_description}
+
+		# or maybe there just wasn't a translation to
+		# the current language for this type yet ?
+		cmd = u"select exists (select 1 from i18n.translations where orig = %(desc)s and lang = i18n.get_curr_lang())"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		# there was, so fail
+		if rows[0][0]:
+			_log.error('encounter type [%s] already exists but with another translation')
+			return None
+
+		# else set it
+		cmd = u"select i18n.upd_tx(%(desc)s, %(l10n_desc)s)"
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return {'description': description, 'l10n_description': l10n_description}
+
+	# no
+	queries = [
+		{'cmd': u"insert into clin.encounter_type (description) values (%(desc)s)", 'args': args},
+		{'cmd': u"select i18n.upd_tx(%(desc)s, %(l10n_desc)s)", 'args': args}
+	]
+	rows, idx = gmPG2.run_rw_queries(queries = queries)
+
+	return {'description': description, 'l10n_description': l10n_description}
+#-----------------------------------------------------------
 def get_encounter_types():
-	cmd = u"SELECT _(description) as l10n_description, description from clin.encounter_type"
+	cmd = u"select _(description) as l10n_description, description from clin.encounter_type"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 #-----------------------------------------------------------
@@ -821,6 +879,18 @@ def get_encounter_type(description=None):
 	cmd = u"SELECT * from clin.encounter_type where description = %s"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [description]}])
 	return rows
+#-----------------------------------------------------------
+def delete_encounter_type(description=None):
+	cmd = u"delete from clin.encounter_type where description = %(desc)s"
+	args = {'desc': description}
+	try:
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	except gmPG2.dbapi.IntegrityError, e:
+		if e.pgcode == gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:
+			return False
+		raise
+
+	return True
 #============================================================		
 class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
@@ -959,7 +1029,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.117  2008-07-22 13:53:12  ncq
+# Revision 1.118  2008-07-24 13:57:51  ncq
+# - update/create/delete_encounter_type
+#
+# Revision 1.117  2008/07/22 13:53:12  ncq
 # - cleanup
 #
 # Revision 1.116  2008/07/14 13:44:38  ncq
