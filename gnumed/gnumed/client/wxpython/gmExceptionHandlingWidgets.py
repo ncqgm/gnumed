@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.2 2008-07-16 11:10:46 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.3 2008-07-28 20:26:49 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -260,7 +260,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 					),
 					_('Sending bug report')
 				)
-				include_log = (result == wx.ID_YES)
+				include_log = (result is True)
 
 		sender_email = gmTools.coalesce(self._TCTRL_sender.GetValue(), _('<not supplied>'))
 		msg = u"""\
@@ -304,7 +304,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.2  2008-07-16 11:10:46  ncq
+# Revision 1.3  2008-07-28 20:26:49  ncq
+# - fixed include_log logic
+#
+# Revision 1.2  2008/07/16 11:10:46  ncq
 # - set_sender_email and use it
 # - some cleanup and better docs
 #
