@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.91 2008-07-14 13:46:11 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmEMRBrowser.py,v 1.92 2008-07-28 15:44:39 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -205,13 +205,16 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_consultation_details)
 
+		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
+		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
+
 		# - health issues
 		self.__issue_context_popup = wx.Menu(title = _('Health Issue Menu'))
-		# edit
+
 		menu_id = wx.NewId()
 		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Edit details')))
 		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__edit_issue)
-		# delete
+
 		menu_id = wx.NewId()
 		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Delete')))
 		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__delete_issue)
@@ -301,6 +304,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		node_data = self.GetPyData(self.__curr_node)
 		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=node_data)
 		dlg.ShowModal()
+		dlg.Destroy()
 		self.__populate_tree()
 	#--------------------------------------------------------
 	def __relink_encounter_data2episode(self, event):
@@ -322,8 +326,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			self.__populate_tree()
 	#--------------------------------------------------------
 	def __edit_issue(self, event):
-		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1, issue=self.__curr_node_data)
-		ea.ShowModal()
+		dlg = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1, issue=self.__curr_node_data)
+		dlg.ShowModal()
+		dlg.Destroy()
 	#--------------------------------------------------------
 	def __delete_issue(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -342,7 +347,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_YES:
+			dlg.Destroy()
 			return
+
+		dlg.Destroy()
 
 		try:
 			gmEMRStructItems.delete_health_issue(health_issue = self.__curr_node_data)
@@ -370,6 +378,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# FIXME: use signal and use node level update
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__populate_tree()
+		dlg.Destroy()
 		return
 	#--------------------------------------------------------
 	def __expand_to_issue_level(self, evt):
@@ -428,6 +437,13 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				self.Expand(epi)
 				epi, epi_cookie = self.GetNextChild(issue, epi_cookie)
 			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
+	#--------------------------------------------------------
+	def __export_encounter_for_medistar(self, evt):
+		gmNarrativeWidgets.export_narrative_for_medistar_import (
+			parent = self,
+			soap_cats = u'soap',
+			encounter = self.__curr_node_data
+		)
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -651,7 +667,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.91  2008-07-14 13:46:11  ncq
+# Revision 1.92  2008-07-28 15:44:39  ncq
+# - context menu based Medistar export for any encounter
+#
+# Revision 1.91  2008/07/14 13:46:11  ncq
 # - better naming of dummy health issue
 #
 # Revision 1.90  2008/07/12 15:31:23  ncq
