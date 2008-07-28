@@ -1,12 +1,11 @@
-"""GNUmed narrative handling widgets.
-"""
+"""GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.7 2008-03-05 22:30:14 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmNarrativeWidgets.py,v 1.8 2008-07-28 15:46:05 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, logging
+import sys, logging, os, os.path, time
 
 
 import wx
@@ -16,6 +15,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative
+from Gnumed.exporters import gmPatientExporter
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg
 
@@ -24,6 +24,68 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #============================================================
 # narrative related widgets/functions
+#------------------------------------------------------------
+def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encounter=None):
+
+	# sanity checks
+	pat = gmPerson.gmCurrentPatient()
+	if not pat.connected:
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR for Medistar. No active patient.'))
+		return False
+
+	if encounter is None:
+		encounter = pat.get_emr().get_active_encounter()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# get file name
+	aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
+		# FIXME: make configurable
+	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed','export')))
+		# FIXME: make configurable
+	fname = '%s-%s-%s-%s-%s.txt' % (
+		'Medistar-MD',
+		time.strftime('%Y-%m-%d',time.localtime()),
+		pat['lastnames'].replace(' ', '-'),
+		pat['firstnames'].replace(' ', '_'),
+		pat['dob'].strftime('%Y-%m-%d')
+	)
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = _("Save EMR extract for MEDISTAR import as..."),
+		defaultDir = aDefDir,
+		defaultFile = fname,
+		wildcard = aWildcard,
+		style = wx.SAVE
+	)
+	choice = dlg.ShowModal()
+	fname = dlg.GetPath()
+	dlg.Destroy()
+	if choice != wx.ID_OK:
+		return False
+
+	wx.BeginBusyCursor()
+	_log.debug('exporting consultation for medistar import to [%s]', fname)
+	exporter = gmPatientExporter.cMedistarSOAPExporter()
+	successful, fname = exporter.export_to_file (
+		filename = fname,
+		encounter = encounter,
+		soap_cats = u'soap',
+		export_to_import_file = True
+	)
+	if not successful:
+		gmGuiHelpers.gm_show_error (
+			_('Error exporting progress notes for MEDISTAR import.'),
+			_('MEDISTAR progress notes export')
+		)
+		wx.EndBusyCursor()
+		return False
+
+	gmDispatcher.send(signal = 'statustext', msg = _('Successfully exported progress notes into file [%s] for Medistar import.') % fname, beep=False)
+
+	wx.EndBusyCursor()
+	return True
 #------------------------------------------------------------
 def select_narrative_from_episodes(parent=None, soap_cats=None):
 	"""soap_cats needs to be a list"""
@@ -227,7 +289,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.7  2008-03-05 22:30:14  ncq
+# Revision 1.8  2008-07-28 15:46:05  ncq
+# - export_narrative_for_medistar_import
+#
+# Revision 1.7  2008/03/05 22:30:14  ncq
 # - new style logging
 #
 # Revision 1.6  2007/12/03 20:45:28  ncq
