@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.417 2008-07-24 14:02:03 ncq Exp $
-__version__ = "$Revision: 1.417 $"
+# $Id: gmGuiMain.py,v 1.418 2008-07-28 15:52:29 ncq Exp $
+__version__ = "$Revision: 1.418 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -57,7 +57,7 @@ from Gnumed.exporters import gmPatientExporter
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
-from Gnumed.wxpython import gmTimer, gmMeasurementWidgets
+from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets
 
 try:
 	_('do-not-translate-but-make-epydoc-happy')
@@ -68,7 +68,9 @@ _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 expected_db_ver = u'devel'
+#expected_db_ver = u'v9'
 current_client_ver = u'CVS HEAD'
+#current_client_ver = u'0.3.rc1'
 current_client_branch = '0.3'
 
 _log = logging.getLogger('gm.main')
@@ -339,9 +341,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ui = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
 
-		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after client startup.'))
-		wx.EVT_MENU(self, ID, self.__on_set_startup_plugin)
+#		ID = wx.NewId()
+#		menu_cfg_ui.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after client startup.'))
+#		wx.EVT_MENU(self, ID, self.__on_set_startup_plugin)
 
 		ID = wx.NewId()
 		menu_cfg_ui.Append(ID, _('Workplaces'), _('Choose the plugins to load per workplace.'))
@@ -1489,7 +1491,9 @@ class gmTopLevelFrame(wx.Frame):
 			dlg.Destroy()
 			return
 
-		gmSurgery.gmCurrentPractice().user_email = dlg.GetValue().strip()
+		email = dlg.GetValue().strip()
+		gmSurgery.gmCurrentPractice().user_email = email
+		gmExceptionHandlingWidgets.set_sender_email(email)
 		dlg.Destroy()
 	#----------------------------------------------
 	def __on_configure_workplace(self, evt):
@@ -1955,53 +1959,11 @@ Search results:
 		return True
 	#----------------------------------------------
 	def __on_export_for_medistar(self, event):
-		# sanity checks
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR for Medistar. No active patient.'))
-			return False
-		# get file name
-		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
-		# FIXME: make configurable
-		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed','export')))
-		# FIXME: make configurable
-		fname = '%s-%s-%s-%s-%s.txt' % (
-			'Medistar-MD',
-			time.strftime('%Y-%m-%d',time.localtime()),
-			pat['lastnames'].replace(' ', '-'),
-			pat['firstnames'].replace(' ', '_'),
-			pat['dob'].strftime('%Y-%m-%d')
-		)
-		dlg = wx.FileDialog (
+		gmNarrativeWidgets.export_narrative_for_medistar_import (
 			parent = self,
-			message = _("Save patient's EMR for MEDISTAR as..."),
-			defaultDir = aDefDir,
-			defaultFile = fname,
-			wildcard = aWildcard,
-			style = wx.SAVE
+			soap_cats = u'soap',
+			encounter = None			# IOW, the current one
 		)
-		choice = dlg.ShowModal()
-		fname = dlg.GetPath()
-		dlg.Destroy()
-		if choice != wx.ID_OK:
-			return False
-
-		_log.debug('exporting EMR journal to [%s]' % fname)
-		# instantiate exporter
-		exporter = gmPatientExporter.cMedistarSOAPExporter()
-		wx.BeginBusyCursor()
-		successful, fname = exporter.export_to_file(filename=fname)
-		wx.EndBusyCursor()
-		if not successful:
-			gmGuiHelpers.gm_show_error (
-				_('Error exporting progress notes of current encounter for MEDISTAR import.'),
-				_('MEDISTAR progress notes export')
-			)
-			return False
-
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully exported todays progress notes into file [%s] for Medistar import.') % fname, beep=False)
-
-		return True
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
 		dbcfg = gmCfg.cCfgSQL()
@@ -2210,7 +2172,6 @@ class gmApp(wx.App):
 
 		self.__starting_up = True
 
-		gmExceptionHandlingWidgets.set_sender_email(gmSurgery.gmCurrentPractice().user_email)
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
@@ -2220,6 +2181,8 @@ class gmApp(wx.App):
 
 		if not self.__setup_cfg():
 			return False
+
+		gmExceptionHandlingWidgets.set_sender_email(gmSurgery.gmCurrentPractice().user_email)
 
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
@@ -2648,7 +2611,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.417  2008-07-24 14:02:03  ncq
+# Revision 1.418  2008-07-28 15:52:29  ncq
+# - no more initial startup plugin, do with hook if wanted
+# - properly set sender email in exception handler after option was modified and client startup
+# - factor out Medistar export
+#
+# Revision 1.417  2008/07/24 14:02:03  ncq
 # - some menu reorg/renaming
 # - invoke encounter type managment
 #
