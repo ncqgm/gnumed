@@ -1,44 +1,44 @@
 ; =============================================================================
 ; Medistar-Formular zum Import von MD-Daten aus GNUmed
 ; 
-; Dieses Formular ermˆglich den Import von Karteieintr‰gen aus
+; Dieses Formular erm√∂glicht den Import von Karteieintr√§gen aus
 ; GNUmed in die medizinischen Daten (MD) von Medistar.
 ;
 ; Installation:
 ; - diese Datei nach LW:\medistar\forms\ kopieren
 ; - in Medistar Formularassembler aufrufen
-; - einen freien Formularplatz w‰hlen, z.B. 95
+; - einen freien Formularplatz w√§hlen, z.B. 95
 ; - als Quelldatei "MS3.GMIMP-S" eingeben
-; - "Formularcode einlesen" ausw‰hlen
+; - "Formularcode einlesen" ausw√§hlen
 ; - Erfolgsmeldung sollte erscheinen
 ;
 ; Nutzung:
 ; - in GNUmed Patienten anlegen oder aufrufen
 ; - in Verlaufsnotizen Konsultationsdaten eingeben und speichern
-; - im Men¸ "Karteikarte" den Punkt "Medistar-Export" aufrufen
+; - im Men√º "Karteikarte" den Punkt "Medistar-Export" aufrufen
 ; - die Exportdatei nach LW:\medistar\inst\soap.txt verschieben
 ; - in Medistar den Patienten anlegen oder aufrufen
 ; - bei Direktbefehl "FA95" eingeben (95 je nach Installation)
-; - den Dateinamen (soap.txt) best‰tigen
+; - den Dateinamen (soap.txt) best√§tigen
 ; - Erfolgsmeldung sollte erscheinen
 ; - in den MD sollten die GNUmed-Daten erscheinen
 ;
 ; Format der Export-/Importdatei:
 ; - zeilenorientiert
-; - maximale Zeilenl‰nge 65 Zeichen
+; - maximale Zeilenl√§nge 65 Zeichen
 ; - CRLF als Zeilenende (DOS-Konvention)
 ; - Zeichensatz "IBM PC" (unter Linux: "recode latin1/CR..IBM-PC/CRLF")
 ; - Markierungs- und Datenzeilen
 ; - Markierungszeilen: "*MD?*" wobei ? in A, B, D, T
-; - Datenezeilen: beliebiger Text
+; - Datenzeilen: beliebiger Text
 ; - alle Datenzeilen werden dem Zeilentyp der zuletzt gelesenen
 ;   Markierungszeile zugeordnet
 ; - Datenzeilen vor der ersten Markierungszeile erhalten den Typ "H"
 ;
 ; =============================================================================
 ; $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/medistar/gmimp.s,v $ 
-; $Id: gmimp.s,v 1.2 2005-05-12 15:10:17 ncq Exp $
-; Version: $Revision: 1.2 $
+; $Id: gmimp.s,v 1.3 2008-07-28 15:43:09 ncq Exp $
+; Version: $Revision: 1.3 $
 ; Autor  : "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 ; Lizenz : "GPL (details at http://www.gnu.org)"
 
@@ -116,7 +116,10 @@ FORMEND
 
 ; =============================================================================
 ; $Log: gmimp.s,v $
-; Revision 1.2  2005-05-12 15:10:17  ncq
+; Revision 1.3  2008-07-28 15:43:09  ncq
+; - transition to utf-8
+;
+; Revision 1.2  2005/05/12 15:10:17  ncq
 ; - improved docs
 ;
 ; Revision 1.1  2005/05/12 10:02:34  ncq
