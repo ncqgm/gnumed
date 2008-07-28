@@ -10,12 +10,12 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.126 2008-07-12 15:20:55 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmPatientExporter.py,v 1.127 2008-07-28 15:42:30 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
-import os.path, sys, traceback, string, types, time, codecs, datetime as pyDT, locale, logging
+import os.path, sys, types, time, codecs, datetime as pyDT, logging, shutil
 
 
 import mx.DateTime.Parser as mxParser
@@ -1082,9 +1082,10 @@ class cMedistarSOAPExporter:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def export_to_file(self, filename=None):
+	def export_to_file(self, filename=None, encounter=None, soap_cats=u'soap', export_to_import_file=False):
 		if not self.__pat.connected:
 			return (False, 'no active patient')
+
 		if filename is None:
 			path = os.path.abspath(os.path.expanduser('~/gnumed/export'))
 			filename = '%s-%s-%s-%s-%s.txt' % (
@@ -1094,31 +1095,52 @@ class cMedistarSOAPExporter:
 				self.__pat['firstnames'].replace(' ', '_'),
 				self.__pat['dob'].strftime('%Y-%m-%d')
 			)
-		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8')
-		status = self.__export(target = f)
+
+		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'cp437', errors='replace')
+		status = self.__export(target = f, encounter = encounter, soap_cats = soap_cats)
 		f.close()
+
+		if export_to_import_file:
+			# detect "LW:\medistar\inst\soap.txt"
+			medistar_found = False
+			for drive in u'cdefghijklmnopqrstuvwxyz':
+				path = drive + ':\\medistar\\inst'
+				if not os.path.isdir(path):
+					continue
+				try:
+					import_fname = path + '\\soap.txt'
+					open(import_fname, mode = 'w+b').close()
+					_log.debug('exporting narrative to [%s] for Medistar import', import_fname)
+					shutil.copyfile(filename, import_fname)
+					medistar_found = True
+				except IOError:
+					continue
+
+			if not medistar_found:
+				_log.debug('no Medistar installation found (no <LW>:\\medistar\\inst\\)')
+
 		return (status, filename)
 	#--------------------------------------------------------
-	def export(self, target):
-		return self.__export(target)
+	def export(self, target, encounter=None, soap_cats=u'soap'):
+		return self.__export(target, encounter = encounter, soap_cats = soap_cats)
 	#--------------------------------------------------------
 	# interal API
 	#--------------------------------------------------------
-	def __export(self, target = None, encounter = None):
-		if not self.__pat.connected:
-			return False
-		emr = self.__pat.get_emr()
-		if encounter is None:
-			encounter = emr.get_active_encounter()
+	def __export(self, target=None, encounter=None, soap_cats=u'soap'):
 		# get data
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
-		for soap_cat in 'soap':
+		for soap_cat in soap_cats:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['pk_identity'], encounter['pk_encounter'], soap_cat)}])
-			target.write('*MD%s*\n' % gmClinNarrative.soap_cat2l10n[soap_cat])
+			target.write('*MD%s*\r\n' % gmClinNarrative.soap_cat2l10n[soap_cat])
 			for row in rows:
 				text = row[0]
-				if text is not None:
-					target.write('%s\n' % gmTools.wrap(text, 64))
+				if text is None:
+					continue
+				target.write('%s\r\n' % gmTools.wrap (
+					text = text,
+					width = 64,
+					eol = u'\r\n'
+				))
 		return True
 #============================================================
 # main
@@ -1199,7 +1221,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.126  2008-07-12 15:20:55  ncq
+# Revision 1.127  2008-07-28 15:42:30  ncq
+# - cleanup
+# - enhance medistar exporter
+#
+# Revision 1.126  2008/07/12 15:20:55  ncq
 # - comment out print
 #
 # Revision 1.125  2008/07/07 13:39:22  ncq
