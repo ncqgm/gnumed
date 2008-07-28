@@ -3,8 +3,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.29 2007-09-20 19:34:04 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmAbout.py,v 1.30 2008-07-28 20:41:58 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -96,7 +96,7 @@ class AboutFrame (wx.Frame):
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
 
-	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
+	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version='???'):
 		wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
 		icon = wx.EmptyIcon()
@@ -126,7 +126,7 @@ class AboutFrame (wx.Frame):
 			box.Add((0,0), 4)
 		else:
 			box.Add((0,0), 4)
-		ver_txt=wx.StaticText(self, -1, _("Version 0.1 brought to you by"))
+		ver_txt=wx.StaticText(self, -1, _("Version %s brought to you by") % version)
 		ver_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(ver_txt, 0, wx.ALIGN_CENTRE)
 
@@ -256,7 +256,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.29  2007-09-20 19:34:04  ncq
+# Revision 1.30  2008-07-28 20:41:58  ncq
+# - support version in about box
+#
+# Revision 1.29  2007/09/20 19:34:04  ncq
 # - cleanup
 #
 # Revision 1.28  2007/09/10 12:35:08  ncq

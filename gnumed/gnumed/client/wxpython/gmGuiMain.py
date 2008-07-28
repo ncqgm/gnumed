@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.418 2008-07-28 15:52:29 ncq Exp $
-__version__ = "$Revision: 1.418 $"
+# $Id: gmGuiMain.py,v 1.419 2008-07-28 20:41:58 ncq Exp $
+__version__ = "$Revision: 1.419 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -997,7 +997,14 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def OnAbout(self, event):
 		from Gnumed.wxpython import gmAbout
-		gmAbout = gmAbout.AboutFrame(self, -1, _("About GNUmed"), size=wx.Size(350, 300), style = wx.MAXIMIZE_BOX)
+		gmAbout = gmAbout.AboutFrame (
+			self,
+			-1,
+			_("About GNUmed"),
+			size=wx.Size(350, 300),
+			style = wx.MAXIMIZE_BOX,
+			version = current_client_ver
+		)
 		gmAbout.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
@@ -2611,7 +2618,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.418  2008-07-28 15:52:29  ncq
+# Revision 1.419  2008-07-28 20:41:58  ncq
+# - support version in about box
+#
+# Revision 1.418  2008/07/28 15:52:29  ncq
 # - no more initial startup plugin, do with hook if wanted
 # - properly set sender email in exception handler after option was modified and client startup
 # - factor out Medistar export
