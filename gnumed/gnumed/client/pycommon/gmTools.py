@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.63 2008-07-12 15:30:56 ncq Exp $
+# $Id: gmTools.py,v 1.64 2008-07-28 15:43:35 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -620,9 +620,8 @@ def capitalize(text=None, mode=CAPS_NAMES):
 	print "ERROR: invalid capitalization mode: [%s], leaving input as is" % mode
 	return text
 #---------------------------------------------------------------------------
-def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u''):
-	"""
-	A word-wrap function that preserves existing line breaks
+def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
+	"""A word-wrap function that preserves existing line breaks
 	and most spaces in the text. Expects that existing line
 	breaks are posix newlines (\n).
 	"""
@@ -636,7 +635,10 @@ def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u''):
 	)
 
 	if subsequent_indent != u'':
-		wrapped = ('\n%s' % subsequent_indent).join(wrapped.split('\n'))
+		wrapped = (u'\n%s' % subsequent_indent).join(wrapped.split('\n'))
+
+	if eol != u'\n':
+		wrapped = wrapped.replace('\n', eol)
 
 	return wrapped
 #===========================================================================
@@ -895,7 +897,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.63  2008-07-12 15:30:56  ncq
+# Revision 1.64  2008-07-28 15:43:35  ncq
+# - teach wrap() about target EOL
+#
+# Revision 1.63  2008/07/12 15:30:56  ncq
 # - improved coalesce test
 #
 # Revision 1.62  2008/07/12 15:24:37  ncq
