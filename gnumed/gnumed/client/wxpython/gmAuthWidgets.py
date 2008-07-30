@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.24 2008-07-16 11:11:10 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmAuthWidgets.py,v 1.25 2008-07-30 12:50:34 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -155,7 +155,6 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				) % e,
 				_('Connecting to backend')
 			)
-#			gmLog2.log_stack_trace()
 			continue
 
 		# connect was successful:
@@ -677,7 +676,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.24  2008-07-16 11:11:10  ncq
+# Revision 1.25  2008-07-30 12:50:34  ncq
+# - cleanup
+#
+# Revision 1.24  2008/07/16 11:11:10  ncq
 # - set_helpdesk (no more _database_)
 #
 # Revision 1.23  2008/07/10 20:52:21  ncq
