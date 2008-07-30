@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -380,7 +380,11 @@ class db_server:
 		data = curs.fetchall()
 		lc_ctype = data[0][0]
 		_log.info('template database LC_CTYPE is [%s]', lc_ctype)
-		if not lc_ctype.endswith('.UTF-8'):
+		if lc_ctype in ['C', 'POSIX']:
+			_log.warning('while this cluster setting allows to store databases')
+			_log.warning('in any encoding as is it does not allow for locale')
+			_log.warning('sorting etc, hence it is not recommended for use')
+		elif not lc_ctype.endswith('.UTF-8'):
 			_log.error('LC_CTYPE does not end in .UTF-8')
 			_log.error('cluster encoding incompatible with utf8 encoded databases but')
 			_log.error('for GNUmed installation the cluster must accept this encoding')
@@ -1381,7 +1385,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.84  2008-07-22 15:20:02  ncq
+# Revision 1.85  2008-07-30 10:09:21  ncq
+# - allow C/POSIX locale
+#
+# Revision 1.84  2008/07/22 15:20:02  ncq
 # - don't ask silly questions when there's nothing to do, really
 #
 # Revision 1.83  2008/07/15 16:50:32  ncq
