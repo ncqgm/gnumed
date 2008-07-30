@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.86 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -162,6 +162,9 @@ def set_default_client_timezone(timezone = None):
 	global _default_client_timezone
 	_log.info('setting default client time zone from [%s] to [%s]' % (_default_client_timezone, timezone))
 	_default_client_timezone = timezone
+
+	global _sql_set_timezone
+	_sql_set_timezone = u'set timezone to %s'
 
 	return True
 #---------------------------------------------------
@@ -1587,7 +1590,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.85  2008-07-24 13:58:08  ncq
+# Revision 1.86  2008-07-30 12:51:14  ncq
+# - set_default_client_timezone needs to set _sql_set_timezone,
+#   too, as noticed by Gour
+#
+# Revision 1.85  2008/07/24 13:58:08  ncq
 # - import SQL error codes
 #
 # Revision 1.84  2008/07/17 21:31:00  ncq
