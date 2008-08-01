@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-apidocs.sh,v $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
@@ -16,7 +16,10 @@ cat $LOG
 
 #============================================
 # $Log: make-apidocs.sh,v $
-# Revision 1.12  2007-01-25 08:32:30  ncq
+# Revision 1.13  2008-08-01 10:08:49  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.12  2007/01/25 08:32:30  ncq
 # - fix path for salaam
 #
 # Revision 1.11  2005/12/27 17:55:01  ncq

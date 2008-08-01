@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
@@ -26,7 +26,10 @@ done
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.18  2008-01-07 19:45:11  ncq
+# Revision 1.19  2008-08-01 10:08:49  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.18  2008/01/07 19:45:11  ncq
 # - bump db version
 #
 # Revision 1.17  2007/12/08 15:18:55  ncq

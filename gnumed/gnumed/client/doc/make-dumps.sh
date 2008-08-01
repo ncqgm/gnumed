@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-dumps.sh,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
@@ -17,7 +17,10 @@ tar -cvzf $GMDUMP $SCHEMADUMP $DATADUMP
 
 #============================================
 # $Log: make-dumps.sh,v $
-# Revision 1.8  2008-01-07 19:45:11  ncq
+# Revision 1.9  2008-08-01 10:08:49  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.8  2008/01/07 19:45:11  ncq
 # - bump db version
 #
 # Revision 1.7  2007/10/22 12:37:02  ncq
