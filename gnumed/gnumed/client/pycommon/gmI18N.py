@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.43 2008-06-11 19:11:26 ncq Exp $
+# $Id: gmI18N.py,v 1.44 2008-08-01 10:46:14 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -244,6 +244,7 @@ def install_domain(domain=None, language=None):
 	_log.info('text domain is [%s]' % domain)
 
 	_log.debug('searching message catalog file for system locale [%s]' % system_locale)
+	# http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap08.html
 	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
 		tmp = os.getenv(env_var)
 		if env_var is None:
@@ -375,7 +376,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.43  2008-06-11 19:11:26  ncq
+# Revision 1.44  2008-08-01 10:46:14  ncq
+# - add URL
+#
+# Revision 1.43  2008/06/11 19:11:26  ncq
 # - slight cleanup
 # - ignore - in encoding for comparison
 #
