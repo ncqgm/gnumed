@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #==================================================
 # This shell script is intended to be placed in
@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.13 2008-07-22 13:55:58 ncq Exp $
+# $Id: gnumed,v 1.14 2008-08-01 10:32:41 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -90,7 +90,10 @@ python ${GNUMED_SCRIPT_PATH}/gnumed.py ${CONFFILE} ${OPTIONS}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.13  2008-07-22 13:55:58  ncq
+# Revision 1.14  2008-08-01 10:32:41  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.13  2008/07/22 13:55:58  ncq
 # - better way of finding gnumed.py as suggested by Ruthard Baudach
 #
 # Revision 1.12  2008/03/29 16:23:11  ncq

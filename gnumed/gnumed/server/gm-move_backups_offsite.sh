@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-move_backups_offsite.sh,v $
-# $Id: gm-move_backups_offsite.sh,v 1.8 2007-12-08 15:23:15 ncq Exp $
+# $Id: gm-move_backups_offsite.sh,v 1.9 2008-08-01 10:34:21 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -77,7 +77,10 @@ fi
 
 #==============================================================
 # $Log: gm-move_backups_offsite.sh,v $
-# Revision 1.8  2007-12-08 15:23:15  ncq
+# Revision 1.9  2008-08-01 10:34:21  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.8  2007/12/08 15:23:15  ncq
 # - minor cleanup
 #
 # Revision 1.7  2007/12/02 11:46:52  ncq

@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_data.sh,v $
-# $Id: gm-backup_data.sh,v 1.4 2007-12-08 15:23:14 ncq Exp $
+# $Id: gm-backup_data.sh,v 1.5 2008-08-01 10:34:21 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -80,7 +80,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_data.sh,v $
-# Revision 1.4  2007-12-08 15:23:14  ncq
+# Revision 1.5  2008-08-01 10:34:21  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.4  2007/12/08 15:23:14  ncq
 # - minor cleanup
 #
 # Revision 1.3  2007/12/02 11:45:18  ncq

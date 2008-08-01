@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 # - generate a current gnumed.pot file from GnuMed source
 # - merge with existing translations
 # - first arg should be ISO language code
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_po.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 # what language are we working on
 LANGNAME="$1"

@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.5 2008-02-29 23:50:41 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.6 2008-08-01 10:38:25 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
@@ -81,7 +81,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.5  2008-02-29 23:50:41  ncq
+# Revision 1.6  2008-08-01 10:38:25  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.5  2008/02/29 23:50:41  ncq
 # - optionalize installing DEPs
 # - improve output
 #

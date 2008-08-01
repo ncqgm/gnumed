@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # this runs the __main__ functions of each widget.e.g. run 
 #

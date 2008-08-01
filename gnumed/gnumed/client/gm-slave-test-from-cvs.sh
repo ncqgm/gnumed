@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/gm-slave-test-from-cvs.sh,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 # maybe force some locale setting here
 #export LANG=fr

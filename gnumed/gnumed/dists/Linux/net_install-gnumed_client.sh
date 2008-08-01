@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.2 2008-02-25 17:47:12 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.3 2008-08-01 10:33:16 ncq Exp $
 # ===========================================================
 
 VER_LATEST="CVS-HEAD"
@@ -171,13 +171,13 @@ if test -e "${LAUNCHER}" ; then
 		read -p "Editing launcher script (hit [ENTER]) ..."
 		mc -e "${LAUNCHER}"
 	else
-		echo "#!/bin/sh" > "${LAUNCHER}"
+		echo "#!/bin/bash" > "${LAUNCHER}"
 		echo "" >> "${LAUNCHER}"
 		echo "cd ${INSTALL_BASE}/GNUmed-${TARGET_VER}/client/" >> "${LAUNCHER}"
 		echo "./gm-from-cvs.sh" >> "${LAUNCHER}"
 	fi
 else
-	echo "#!/bin/sh" > "${LAUNCHER}"
+	echo "#!/bin/bash" > "${LAUNCHER}"
 	echo "" >> "${LAUNCHER}"
 	echo "cd ${INSTALL_BASE}/GNUmed-${TARGET_VER}/client/" >> "${LAUNCHER}"
 	echo "./gm-from-cvs.sh" >> "${LAUNCHER}"
@@ -192,7 +192,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.2  2008-02-25 17:47:12  ncq
+# Revision 1.3  2008-08-01 10:33:16  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.2  2008/02/25 17:47:12  ncq
 # - detect PCLinuxOS for setting installer/dependancies
 #
 # Revision 1.1  2008/02/21 16:22:06  ncq

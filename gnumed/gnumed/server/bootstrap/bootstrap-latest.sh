@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # should be run as root
 # command line options:

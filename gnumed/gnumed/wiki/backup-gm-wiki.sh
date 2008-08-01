@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 #======================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/wiki/backup-gm-wiki.sh,v $
-# $Id: backup-gm-wiki.sh,v 1.5 2006-08-10 07:32:45 ncq Exp $
+# $Id: backup-gm-wiki.sh,v 1.6 2008-08-01 10:46:53 ncq Exp $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 #======================================================
@@ -17,7 +17,10 @@ tar -cvzf GNUmed-Wiki-backup.tgz $BASE
 
 #======================================================
 # $Log: backup-gm-wiki.sh,v $
-# Revision 1.5  2006-08-10 07:32:45  ncq
+# Revision 1.6  2008-08-01 10:46:53  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.5  2006/08/10 07:32:45  ncq
 # - re-added
 #
 # Revision 1.3  2005/12/11 21:01:07  ncq
