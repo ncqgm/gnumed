@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/diff_tree.sh,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 ./remove_pyc.sh
 

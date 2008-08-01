@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 #------------------------------------------------------------------
-# $Id: get-gnumed-anon.sh,v 1.5 2007-08-20 19:21:29 ncq Exp $
+# $Id: get-gnumed-anon.sh,v 1.6 2008-08-01 09:35:25 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/get-gnumed-anon.sh,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 #------------------------------------------------------------------
 
 if [ -d gnumed ] || [ -e update_tree.sh ]; then
@@ -19,7 +19,10 @@ cvs -z9 -d:pserver:anonymous@cvs.sv.gnu.org:/sources/gnumed co -P gnumed
 
 #------------------------------------------------------------------
 # $Log: get-gnumed-anon.sh,v $
-# Revision 1.5  2007-08-20 19:21:29  ncq
+# Revision 1.6  2008-08-01 09:35:25  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.5  2007/08/20 19:21:29  ncq
 # - fix gnumed spelling
 #
 # Revision 1.4  2005/12/23 16:07:26  ncq

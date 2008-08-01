@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 #------------------------------------------------------------------
-# $Id: get-gnumed-user.sh,v 1.3 2005-12-11 18:20:38 ncq Exp $
+# $Id: get-gnumed-user.sh,v 1.4 2008-08-01 09:35:25 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/get-gnumed-user.sh,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 #------------------------------------------------------------------
 
 if [ -d gnumed ] || [ -e update_tree.sh ]; then
@@ -26,7 +26,10 @@ cvs -z9 co gnumed
 
 #------------------------------------------------------------------
 # $Log: get-gnumed-user.sh,v $
-# Revision 1.3  2005-12-11 18:20:38  ncq
+# Revision 1.4  2008-08-01 09:35:25  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.3  2005/12/11 18:20:38  ncq
 # - sources were moved to cvs.savannah.gnu.org
 #
 # Revision 1.2  2005/07/11 08:32:57  ncq

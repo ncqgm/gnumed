@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/remove_pyc.sh,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'

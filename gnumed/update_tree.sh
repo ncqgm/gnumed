@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/update_tree.sh,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 ./remove_pyc.sh
 

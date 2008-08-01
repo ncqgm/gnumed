@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 echo "-------------------------------------------------------------"
 echo "This script will check your environment for applications"
@@ -146,7 +146,10 @@ fi
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.12  2008-02-21 15:25:06  ncq
+# Revision 1.13  2008-08-01 09:35:25  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.12  2008/02/21 15:25:06  ncq
 # - only warn on risky cwd if it IS risky
 # - better wording on PG detection
 # - better comments
