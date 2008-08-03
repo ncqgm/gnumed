@@ -1,6 +1,6 @@
 -- ======================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v8-v9/dynamic/v9-i18n-dynamic.sql,v $
--- $Id: v9-i18n-dynamic.sql,v 1.2 2008-07-24 14:03:58 ncq Exp $
+-- $Id: v9-i18n-dynamic.sql,v 1.3 2008-08-03 20:04:26 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -111,6 +111,11 @@ declare
 	_trans alias for $3;
 	_tmp text;
 begin
+	if _lang is null then
+		raise notice ''i18n.upd_tx(text, text, text): Cannot create translation for language <NULL>.'';
+		return False;
+	end if;
+
 	if _trans = _orig then
 		raise notice ''i18n.upd_tx(text, text, text): Original = translation. Skipping.'';
 		return True;
@@ -139,11 +144,14 @@ create or replace function i18n.upd_tx(text, text)
 ;
 
 -- =============================================
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.2  2008-07-24 14:03:58  ncq
+-- Revision 1.3  2008-08-03 20:04:26  ncq
+-- - gracefully fail on lang == null
+--
+-- Revision 1.2  2008/07/24 14:03:58  ncq
 -- - get_curr_lang
 -- - improved upd_tx(text, text, text)
 -- - upd_tx(text, text)
