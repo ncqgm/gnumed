@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v9-cfg-db_logon_banner.sql,v 1.1 2008-07-30 22:03:10 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-cfg-db_logon_banner.sql,v 1.2 2008-08-03 20:04:04 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 set default_transaction_read_only to off;
@@ -24,16 +24,20 @@ DO NOT USE THIS DATABASE TO STORE REAL LIVE PATIENT DATA.
 
 Starfleet Central Medical Facilities
 
-Uncle Pavel Wants You!    Sign up for Starfleet Now!
-http://wiki.gnumed.de/bin/view/Gnumed/GettingStarted'
+
+Uncle Pavel Wants You!   ---   Sign up for Starfleet Now!
+  http://wiki.gnumed.de/bin/view/Gnumed/GettingStarted'
 ));
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-cfg-db_logon_banner.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v9-cfg-db_logon_banner.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-cfg-db_logon_banner.sql,v $
--- Revision 1.1  2008-07-30 22:03:10  ncq
+-- Revision 1.2  2008-08-03 20:04:04  ncq
+-- - better whitespace
+--
+-- Revision 1.1  2008/07/30 22:03:10  ncq
 -- - new default logon banner
 --
 --
