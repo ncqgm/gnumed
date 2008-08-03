@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -172,7 +172,9 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	_log.debug('file: %s (%s)', filename, encoding)
 
 	src = codecs.open(filename = filename, mode = 'rU', encoding = encoding)
-	sink_name = '.%s.gmCfg2.new.conf' % filename
+	# FIXME: add "." right before the *name* part of filename - this
+	# FIXME: requires proper parsing (think of /home/lala/ -> ./home/lala vs /home/lala/gnumed/.gnumed.conf)
+	sink_name = '%s.gmCfg2.new.conf' % filename
 	sink = codecs.open(filename = sink_name, mode = 'wb', encoding = encoding)
 
 	# is value a list ?
@@ -492,7 +494,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.14  2008-07-17 21:30:01  ncq
+# Revision 1.15  2008-08-03 20:03:11  ncq
+# - do not simply add "." before the entire path of the dummy
+#   conf file when setting option - it should go right before the name part
+#
+# Revision 1.14  2008/07/17 21:30:01  ncq
 # - detect unterminated list option
 #
 # Revision 1.13  2008/07/16 10:36:25  ncq
