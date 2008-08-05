@@ -7,10 +7,5 @@
 # maybe force some locale setting here
 #export LANG=fr
 
-cd ../
-ln -vfsn client Gnumed
-cd -
-export PYTHONPATH="${PYTHONPATH}:../"
-rm -vf $0.log
 python $1 --$0.log --debug
 #--profile=$0.prof
