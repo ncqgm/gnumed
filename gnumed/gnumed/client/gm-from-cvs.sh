@@ -1,18 +1,13 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/gm-from-cvs.sh,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 # maybe force some locale setting here
 #export LANGUAGE=fr
 
 # if there are unicode troubles you can force to ASCII with this:
 #export LANGUAGE=en
-
-cd ../
-ln -vfsn client Gnumed
-cd -
-export PYTHONPATH="${PYTHONPATH}:../"
 
 
 # source systemwide startup extension shell script if it exists
@@ -32,5 +27,5 @@ fi
 # run
 LOG="gm-from-cvs.log"
 rm -vf $LOG
-python wxpython/gnumed.py --log-file=$LOG --conf-file=gm-from-cvs.conf --override-schema-check --debug
+python wxpython/gnumed.py --log-file=$LOG --conf-file=gm-from-cvs.conf --override-schema-check --debug --local-import
 # --profile=gm-from-cvs.prof
