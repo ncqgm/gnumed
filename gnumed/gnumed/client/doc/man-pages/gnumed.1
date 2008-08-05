@@ -16,6 +16,7 @@ You have been warned.
 .RB [--conf-file=FILE]
 .RB [--lang-gettext=LANGUAGE]
 .RB [--override-schema-check]
+.RB [--local-import]
 .RB [--help]
 .RB [-h|?]
 
@@ -69,6 +70,11 @@ from a launcher script.
 Continue loading the client even if the database schema
 version and the client software version cannot be verified
 to be compatible.
+.TP
+.B \--local-import
+At startup adjust the PYTHONPATH such that the GNUmed client is
+run from a local copy of the source tree rather than from a
+proper system-wide installation.
 .TP
 .B \--help, -h, or -?
 Well, show this help.
@@ -124,4 +130,4 @@ Use at your own risk. You have been warned. Take proper backups !
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.18 2007-09-04 23:27:30 ncq Exp $
+$Id: gnumed.1,v 1.19 2008-08-05 12:44:12 ncq Exp $
