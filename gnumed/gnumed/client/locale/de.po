@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.124 $
+# $Revision: 1.125 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-07-24 16:04+CEST\n"
-"PO-Revision-Date: 2008-07-24 16:18+0100\n"
+"POT-Creation-Date: 2008-08-05 17:05+CEST\n"
+"PO-Revision-Date: 2008-08-05 18:51+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -2328,8 +2328,8 @@ msgstr "Monty die Python && die FSF präsentieren"
 msgid "Free eMedicine"
 msgstr "Freie eMedicine"
 
-msgid "Version 0.1 brought to you by"
-msgstr "Version 0.1 präsentiert von"
+msgid "Version %s brought to you by"
+msgstr "Version %s präsentiert von"
 
 msgid "Drs Horst Herb && Karsten Hilbert"
 msgstr "Dres Horst Herb && Karsten Hilbert"
@@ -3328,6 +3328,9 @@ msgstr "Menü \"APK\""
 msgid "Move data to another episode"
 msgstr "APK-Daten einer anderen Episode zuordnen"
 
+msgid "Export for Medistar"
+msgstr "Medistar-Export"
+
 msgid "Health Issue Menu"
 msgstr "Menü \"Grunderkrankung\""
 
@@ -4004,12 +4007,6 @@ msgstr "Die E-Mail-Adresse des Nutzers. Zum Senden von Fehlerberichten, etc."
 msgid "User interface ..."
 msgstr "Programmoberfläche ..."
 
-msgid "Configure which plugin to show right after client startup."
-msgstr "Konfigurieren des nach dem Start der Oberfläche zuerst angezeigten Moduls."
-
-msgid "Initial plugin"
-msgstr "Startmodul"
-
 msgid "Choose the plugins to load per workplace."
 msgstr "Die pro Arbeitsplatz zu ladenden Module wählen."
 
@@ -4075,6 +4072,9 @@ msgstr "Sofortige Quellenaktivierung"
 
 msgid "Configure which plugin to show right after patient activation."
 msgstr "Konfiguration des Moduls nach Patientenaufruf."
+
+msgid "Initial plugin"
+msgstr "Startmodul"
 
 msgid "Progress notes handling ..."
 msgstr "Management Verlaufsnotizen ..."
@@ -4245,10 +4245,10 @@ msgid "Export the EMR of the active patient as a chronological journal into a te
 msgstr "Karteikarte des aktiven Patienten als chronologisches Journal in eine Textdatei exportieren"
 
 msgid "MEDISTAR import format"
-msgstr "Importformat für MEDISTAR"
+msgstr "MEDISTAR-Importformat"
 
 msgid "GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file."
-msgstr "GNUmed -> MEDISTAR. Export der Verlaufsnotizen der aktiven APK des aktiven Patienten in eine Textdatei."
+msgstr "GNUmed -> MEDISTAR. Export der Verlaufsnotizen der aktiven Konsultation des aktiven Patienten in eine von Medistar importierbare Textdatei."
 
 msgid "Show Summary"
 msgstr "Zusammenfassung zeigen"
@@ -4993,21 +4993,6 @@ msgstr "Journalexport der Karteikarte"
 msgid "Successfully exported EMR as chronological journal into file [%s]."
 msgstr "Karteikarte als chronologisches Journal in Datei [%s] exportiert."
 
-msgid "Cannot export EMR for Medistar. No active patient."
-msgstr "Kann Kartei nicht für MEDISTAR exportieren. Kein Patient aktiv."
-
-msgid "Save patient's EMR for MEDISTAR as..."
-msgstr "Speichere Karteikarte des Patienten für MEDISTAR in ..."
-
-msgid "Error exporting progress notes of current encounter for MEDISTAR import."
-msgstr "Fehler beim Export der MD-Daten des aktuellen APK für den MEDISTAR-Import."
-
-msgid "MEDISTAR progress notes export"
-msgstr "Export Verlaufsnotizen an MEDISTAR"
-
-msgid "Successfully exported todays progress notes into file [%s] for Medistar import."
-msgstr "Heutige Verlaufsnotizen erfolgreich in Datei [%s] zum Import in Medistar exportiert."
-
 msgid "Exported demographics to GDT file [%s]."
 msgstr "Stammdaten wurden in GDT-Datei [%s] geschrieben."
 
@@ -5389,7 +5374,7 @@ msgid "not yet"
 msgstr "bislang nicht"
 
 msgid ""
-"Measurement details:                                     \n"
+"Measurement details of most recent result:               \n"
 " Date: %(clin_when)s\n"
 " Type: \"%(name)s\" (%(code)s)\n"
 " Result: %(val)s%(unit)s%(ind)s\n"
@@ -5417,7 +5402,7 @@ msgid ""
 "\n"
 "Last modified %(mod_when)s by %(mod_by)s."
 msgstr ""
-"Meßwertdetails:                                             \n"
+"Details zum jüngsten Meßwert:                                \n"
 " Datum: %(clin_when)s\n"
 " Messung: \"%(name)s\" (%(code)s)\n"
 " Ergebnis: %(val)s%(unit)s%(ind)s\n"
@@ -5453,6 +5438,30 @@ msgstr "nein"
 
 msgid "yes"
 msgstr "ja"
+
+msgid "Excluding multi-result field from further processing."
+msgstr "Schließe Feld mit mehreren Werten von der Weiterverarbeitung aus."
+
+msgid ""
+"Your selection includes a field with multiple results.\n"
+"\n"
+"Please select the individual results you want to work on:"
+msgstr ""
+"Ihre Auswahl beinhaltet ein Feld mit mehreren Werten.\n"
+"\n"
+"Bitte wählen Sie die Werte, die Sie weiterverarbeiten wollen:\n"
+
+msgid "Selecting test results"
+msgstr "Meßergebnisse auswählen"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Date / Time"
+msgstr "Zeitpunkt"
+
+msgid "Result"
+msgstr "Ergebnis"
 
 msgid "Act on selected results"
 msgstr "Aktionen für markierte Ergebnisse aufrufen"
@@ -5959,6 +5968,21 @@ msgstr "Dokument speichern in das Verzeichnis ..."
 
 msgid "Successfully exported %s parts into the directory [%s]."
 msgstr "Erfolgreich %s Teile in das Verzeichnis [%s] gespeichert."
+
+msgid "Cannot export EMR for Medistar. No active patient."
+msgstr "Kann Kartei nicht für MEDISTAR exportieren. Kein Patient aktiv."
+
+msgid "Save EMR extract for MEDISTAR import as..."
+msgstr "Speichere Karteiauszug für MEDISTAR in ..."
+
+msgid "Error exporting progress notes for MEDISTAR import."
+msgstr "Fehler beim Export der MD-Daten für den MEDISTAR-Import."
+
+msgid "MEDISTAR progress notes export"
+msgstr "Export Verlaufsnotizen an MEDISTAR"
+
+msgid "Successfully exported progress notes into file [%s] for Medistar import."
+msgstr "Verlaufsnotizen erfolgreich in Datei [%s] zum Import in Medistar exportiert."
 
 msgid ""
 "\n"
@@ -6720,9 +6744,6 @@ msgstr "Kann Allergiemanager nicht aufrufen. Kein Patient aktiv."
 msgid "%s  %s (%s today !)"
 msgstr "%s \"%s\" (Heute %s alt !)"
 
-msgid "Allergies:"
-msgstr "Allergien:"
-
 msgid "reaction not recorded"
 msgstr "Reaktion nicht dokumentiert"
 
@@ -7428,6 +7449,11 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Allergies:"
+#~ msgstr "Allergien:"
+#~ msgid "Configure which plugin to show right after client startup."
+#~ msgstr ""
+#~ "Konfigurieren des nach dem Start der Oberfläche zuerst angezeigten Moduls."
 #~ msgid "Manage &document types"
 #~ msgstr "&Dokumententypen verwalten"
 #~ msgid "Manage &form templates"
