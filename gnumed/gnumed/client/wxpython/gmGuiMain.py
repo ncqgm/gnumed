@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.419 2008-07-28 20:41:58 ncq Exp $
-__version__ = "$Revision: 1.419 $"
+# $Id: gmGuiMain.py,v 1.420 2008-08-05 16:45:12 ncq Exp $
+__version__ = "$Revision: 1.420 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1028,6 +1028,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_exit_gnumed(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
 		# calls wx.EVT_CLOSE handler
+#		print "SOAP =?"
 		self.Close()
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
@@ -2481,6 +2482,12 @@ class gmApp(wx.App):
 		import wx.lib.colourdb
 		wx.lib.colourdb.updateColourDB()
 
+		traits = self.GetTraits()
+		try:
+			_log.info('desktop environment: [%s]', traits.GetDesktopEnvironment())
+		except:
+			pass
+
 		if wx.Platform == '__WXMSW__':
 			_log.info('running on MS Windows')
 		elif wx.Platform == '__WXGTK__':
@@ -2618,7 +2625,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.419  2008-07-28 20:41:58  ncq
+# Revision 1.420  2008-08-05 16:45:12  ncq
+# - add wxAppTraits querying
+#
+# Revision 1.419  2008/07/28 20:41:58  ncq
 # - support version in about box
 #
 # Revision 1.418  2008/07/28 15:52:29  ncq
