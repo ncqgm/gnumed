@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.103 2008-07-14 13:48:16 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmSOAPWidgets.py,v 1.104 2008-08-05 16:22:17 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -318,7 +318,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #		pass
 	#--------------------------------------------------------
 	def _on_application_closing(self):
-		"""Patient changed."""
+		"""GNUmed is shutting down."""
 		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 		print "need to ask user about SOAP saving !"
 		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -1205,7 +1205,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.103  2008-07-14 13:48:16  ncq
+# Revision 1.104  2008-08-05 16:22:17  ncq
+# - cleanup
+#
+# Revision 1.103  2008/07/14 13:48:16  ncq
 # - properly save unsaved soap
 # - cleanup
 #
