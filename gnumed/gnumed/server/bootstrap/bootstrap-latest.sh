@@ -74,7 +74,6 @@ fi
 
 # baseline v2
 LOG="${GM_LOG_BASE}/bootstrap-v2.log"
-rm -rf ${LOG}
 CONF="redo-v2.conf"
 export GM_CORE_DB="gnumed_v2"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}

@@ -125,7 +125,6 @@ fi ;
 
 echo_msg ""
 echo_msg "2) upgrading to new database ..."
-rm -rf ${LOG}
 # fixup for schema hash function
 # - cannot be done inside bootstrapper
 # - only needed for converting anything below v6 with a v6 bootstrapper
