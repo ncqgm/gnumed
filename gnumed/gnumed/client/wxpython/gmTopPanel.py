@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.96 2008-07-10 08:41:09 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmTopPanel.py,v 1.97 2008-08-05 16:22:44 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -295,7 +295,7 @@ class cMainTopPanel(wx.Panel):
 			template = u'%s  %s (%s)'
 		age = template % (
 			gmPerson.map_gender2symbol[self.curr_pat['gender']],
-			self.curr_pat['dob'].strftime('%Y-%m-%d'),
+			self.curr_pat['dob'].strftime('%x'),
 			self.curr_pat['medical_age']
 		)
 		self.lbl_age.SetLabel(age)
@@ -318,7 +318,7 @@ class cMainTopPanel(wx.Panel):
 			template = u'%s  %s (%s)'
 		age = template % (
 			gmPerson.map_gender2symbol[self.curr_pat['gender']],
-			self.curr_pat['dob'].strftime('%Y-%m-%d'),
+			self.curr_pat['dob'].strftime('%x'),
 			self.curr_pat['medical_age']
 		)
 		self.lbl_age.SetLabel(age)
@@ -343,7 +343,7 @@ class cMainTopPanel(wx.Panel):
 			return True
 
 		tmp = []
-		tt = u'%-70s\n\n' % _('Allergies:')
+		tt = u'%-70s\n' % u' '
 		for allergy in allergies:
 			if allergy['type'] == 'allergy':
 				tmp.append(allergy['descriptor'][:10])
@@ -353,7 +353,7 @@ class cMainTopPanel(wx.Panel):
 				certainty = _('likely')
 			reaction = gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			if len(reaction) > 50:
-				reaction = reaction[:50] + u'...'
+				reaction = reaction[:50] + gmTools.u_ellipsis
 			tt += u'%s - %s (%s): %s\n' % (
 				allergy['descriptor'],
 				allergy['l10n_type'],
@@ -455,7 +455,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.96  2008-07-10 08:41:09  ncq
+# Revision 1.97  2008-08-05 16:22:44  ncq
+# - improve dob display and allergies tooltip
+#
+# Revision 1.96  2008/07/10 08:41:09  ncq
 # - comment out toolbar handling
 # - pat.is_connected -> connected property
 #
