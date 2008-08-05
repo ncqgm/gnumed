@@ -2,7 +2,7 @@
 
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.3 2008-08-01 10:33:16 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.4 2008-08-05 12:45:28 ncq Exp $
 # ===========================================================
 
 VER_LATEST="CVS-HEAD"
@@ -34,7 +34,7 @@ if [ -f /etc/SuSE-release ]; then
 fi
 # Debian
 if [ -f /etc/debian_version ]; then
-	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file python-gnuplot konsolekalendar aspell python python-enchant python-support python-wxgtk2.6"
+	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file python-gnuplot konsolekalendar aspell python python-enchant python-support python-wxgtk2.8 bash xsane apt"
 	PKG_INSTALLER="apt-get install"
 	SYS_TYPE="Debian"
 fi
@@ -192,7 +192,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.3  2008-08-01 10:33:16  ncq
+# Revision 1.4  2008-08-05 12:45:28  ncq
+# - adjust Debian dependancies
+#
+# Revision 1.3  2008/08/01 10:33:16  ncq
 # - /bin/sh -> /bin/bash
 #
 # Revision 1.2  2008/02/25 17:47:12  ncq
