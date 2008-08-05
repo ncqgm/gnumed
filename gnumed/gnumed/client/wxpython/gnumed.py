@@ -34,30 +34,31 @@ care of all the pre- and post-GUI runtime environment setup.
 --override-schema-check
  Continue loading the client even if the database schema version
  and the client software version cannot be verified to be compatible.
+--local-import
+ Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
 --help, -h, or -?
  Show this help.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.141 2008-07-10 21:08:16 ncq Exp $
-__version__ = "$Revision: 1.141 $"
+# $Id: gnumed.py,v 1.142 2008-08-05 12:47:14 ncq Exp $
+__version__ = "$Revision: 1.142 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # standard library
 import sys, os, os.path, signal, logging
-#warnings
 
 
-# 1) don't run as module
+# do not run as module
 if __name__ != "__main__":
-	print "GNUmed startup: This should not be imported as a module !"
-	print "---------------------------------------------------------"
+	print "GNUmed startup: This is not intended to be imported as a module !"
+	print "-----------------------------------------------------------------"
 	print __doc__
-	sys.exit(0)
+	sys.exit(1)
 
 
-# 2) advise not to run as root
+# do not run as root
 if os.name in ['posix'] and os.geteuid() == 0:
 	print """
 GNUmed startup: GNUmed should not be run as root.
@@ -69,13 +70,7 @@ against. Please run GNUmed as a non-root user.
 """
 	sys.exit(1)
 
-
-# Python 2.3 on Mandrake turns True/False deprecation warnings
-# into exceptions, so revert them to warnings again
-#warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
-#warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
-
-
+#----------------------------------------------------------
 _log = None
 _cfg = None
 _old_sig_term = None
@@ -89,6 +84,7 @@ _known_long_options = [
 	u'conf-file=',
 	u'lang-gettext=',
 	u'override-schema-check',
+	u'local-import',
 	u'help'
 ]
 
@@ -113,7 +109,8 @@ did run gnumed/check-prerequisites.sh with good results.
 
 If you still encounter errors after checking the above
 requirements please ask on the mailing list.
-""" % '\n '.join(sys.path)
+"""
+
 
 missing_config_file = """
 GNUmed startup: Missing configuration file.
@@ -126,15 +123,39 @@ on the command line:
 
 The file does not exist, however.
 """
-
 #==========================================================
 # convenience functions
+#==========================================================
+def setup_python_path():
+
+	if not u'--local-import' in sys.argv:
+		return
+
+	print "GNUmed startup: Running from local source tree."
+	print "-----------------------------------------------"
+
+	local_python_base_dir = os.path.dirname (
+		os.path.abspath(os.path.join(sys.argv[0], '..', '..'))
+	)
+
+	# does the path exist at all, physically ?
+	# note that broken links are reported as True
+	if not os.path.lexists(os.path.join(local_python_base_dir, 'Gnumed')):
+		src = os.path.join(local_python_base_dir, 'client')
+		dst = os.path.join(local_python_base_dir, 'Gnumed')
+		print "Creating module import symlink ..."
+		print '', dst, '=>'
+		print '    =>', src
+		os.symlink(src, dst)
+
+	print "Adjusting PYTHONPATH ..."
+	sys.path.insert(0, local_python_base_dir)
 #==========================================================
 def setup_logging():
 	try:
 		from Gnumed.pycommon import gmLog2 as _gmLog2
 	except ImportError:
-		sys.exit(import_error_sermon)
+		sys.exit(import_error_sermon % '\n '.join(sys.path))
 
 	global gmLog2
 	gmLog2 = _gmLog2
@@ -345,6 +366,7 @@ def shutdown_logging():
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
+setup_python_path()
 setup_logging()
 
 _log.info('Starting up as main module (%s).', __version__)
@@ -388,7 +410,11 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.141  2008-07-10 21:08:16  ncq
+# Revision 1.142  2008-08-05 12:47:14  ncq
+# - support --local-import
+# - some cleanup
+#
+# Revision 1.141  2008/07/10 21:08:16  ncq
 # - call path detection with app name
 #
 # Revision 1.140  2008/06/11 19:12:13  ncq
