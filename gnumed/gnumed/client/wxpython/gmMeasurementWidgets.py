@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.25 2008-07-17 21:41:36 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmMeasurementWidgets.py,v 1.26 2008-08-05 16:21:30 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson, gmPathLab
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
-from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
@@ -84,7 +84,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'Are you sure you want to delete these results ?'
 			) % len(selected_cells)
 		else:
-			results = self.__cells_to_data(cells = selected_cells)
+			results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 			txt = u'\n'.join([ '%s %s (%s): %s %s%s' % (
 					r['clin_when'].strftime('%Y-%m-%d %H:%M'),
 					r['unified_code'],
@@ -116,7 +116,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		if decision == wx.ID_YES:
 			if results is None:
-				results = self.__cells_to_data(cells = selected_cells)
+				results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 			for result in results:
 				gmPathLab.delete_test_result(result)
 	#------------------------------------------------------------
@@ -131,7 +131,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			tests = None
 		else:
 			test_count = None
-			tests = self.__cells_to_data(cells = selected_cells)
+			tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 
 		dlg = cMeasurementsReviewDlg (
 			self,
@@ -159,7 +159,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				relevant = True
 
 			if tests is None:
-				tests = self.__cells_to_data(cells = selected_cells)
+				tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 
 			comment = None
 			if len(tests) == 1:
@@ -244,26 +244,28 @@ class cMeasurementsGrid(wx.grid.Grid):
 			return
 
 		emr = self.__patient.get_emr()
-		tests = [ u'%s (%s)' % (test[1], test[0]) for test in emr.get_test_types_for_results() ]
-		if len(tests) == 0:
+
+		test_type_labels = [ u'%s (%s)' % (test[1], test[0]) for test in emr.get_test_types_for_results() ]
+		if len(test_type_labels) == 0:
 			return
+
 #		test_details, td_idx = emr.get_test_types_details()
-		dates = [ date[0].strftime(self.__date_format) for date in emr.get_dates_for_results() ]
+		test_date_labels = [ date[0].strftime(self.__date_format) for date in emr.get_dates_for_results() ]
 		results = emr.get_test_results_by_date()
 
 		self.BeginBatch()
 
-		self.AppendRows(numRows = len(tests))
-		self.AppendCols(numCols = len(dates) + 1)
+		self.AppendRows(numRows = len(test_type_labels))
+		self.AppendCols(numCols = len(test_date_labels) + 1)
 
 		# column labels:
 		self.SetColLabelValue(0, _("Test"))
-		for date_idx in range(len(dates)):
-			self.SetColLabelValue(date_idx + 1, dates[date_idx])
+		for date_idx in range(len(test_date_labels)):
+			self.SetColLabelValue(date_idx + 1, test_date_labels[date_idx])
 
-		# row "labels" (== column 0 cell values)
-		for row_idx in range(len(tests)):
-			self.SetCellValue(row_idx, 0, tests[row_idx])
+		# row "labels" (= cell values in column 0)
+		for row_idx in range(len(test_type_labels)):
+			self.SetCellValue(row_idx, 0, test_type_labels[row_idx])
 			self.SetCellBackgroundColour(row_idx, 0, self.GetLabelBackgroundColour())
 #			font = self.GetCellFont(row_idx, 0)
 #			font.SetWeight(wx.FONTWEIGHT_BOLD)
@@ -271,106 +273,100 @@ class cMeasurementsGrid(wx.grid.Grid):
 #			self.__cell_tooltips[0] = {}
 #			self.__cell_tooltips[0][row_idx] = _('test type tooltip row %s') % row_idx
 
-		# cell values (test results)
+		# cell values (list of test results)
 		for result in results:
-			row = tests.index(u'%s (%s)' % (result['unified_code'], result['unified_name']))
-			col = dates.index(result['clin_when'].strftime(self.__date_format)) + 1
+			row = test_type_labels.index(u'%s (%s)' % (result['unified_code'], result['unified_name']))
+			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format)) + 1
 
 			try:
 				self.__cell_data[col]
 			except KeyError:
 				self.__cell_data[col] = {}
-			self.__cell_data[col][row] = result
 
-			# is the result technically abnormal ?
-			ind = gmTools.coalesce(result['abnormality_indicator'], u'').strip()
-			if ind != u'':
-				lab_abnormality_indicator = u' (%s)' % ind[:3]
+			rebuild_tooltip = False
+			if self.__cell_data[col].has_key(row):
+				if result['clin_when'] < self.__cell_data[col][row][0]['clin_when']:
+					rebuild_tooltip = True
+				self.__cell_data[col][row].append(result)
+				self.__cell_data[col][row].sort(key = lambda x: x['clin_when'], reverse = True)
 			else:
-				lab_abnormality_indicator = u''
-			# - if noone reviewed - use what the lab thinks
-			if result['is_technically_abnormal'] is None:
-				abnormality_indicator = lab_abnormality_indicator
-			# - if someone reviewed and decreed normality - use that
-			elif result['is_technically_abnormal'] is False:
-				abnormality_indicator = u''
-			# - if someone reviewed and decreed abnormality ...
-			else:
-				# ... invent indicator if the lab did't use one
-				if lab_abnormality_indicator == u'':
-					# FIXME: calculate from min/max/range
-					abnormality_indicator = u' (\u00B1)'
-				# ... else use indicator the lab used
+				self.__cell_data[col][row] = [result]
+				rebuild_tooltip = True
+
+			# rebuild cell display string
+			vals2display = []
+			for result in self.__cell_data[col][row]:
+
+				# is the result technically abnormal ?
+				ind = gmTools.coalesce(result['abnormality_indicator'], u'').strip()
+				if ind != u'':
+					lab_abnormality_indicator = u' (%s)' % ind[:3]
 				else:
+					lab_abnormality_indicator = u''
+				# - if noone reviewed - use what the lab thinks
+				if result['is_technically_abnormal'] is None:
 					abnormality_indicator = lab_abnormality_indicator
+				# - if someone reviewed and decreed normality - use that
+				elif result['is_technically_abnormal'] is False:
+					abnormality_indicator = u''
+				# - if someone reviewed and decreed abnormality ...
+				else:
+					# ... invent indicator if the lab did't use one
+					if lab_abnormality_indicator == u'':
+						# FIXME: calculate from min/max/range
+						abnormality_indicator = u' (\u00B1)'
+					# ... else use indicator the lab used
+					else:
+						abnormality_indicator = lab_abnormality_indicator
 
-			# is the result relevant clinically ?
-			# FIXME: take into account primary_GP once we support that
-			result_relevant = result['is_clinically_relevant']
-			if result_relevant is None:
-				# FIXME: take into account other review if there's only one
-				# FIXME: calculate from clinical range
-				result_relevant = False
+				# is the result relevant clinically ?
+				# FIXME: take into account primary_GP once we support that
+				result_relevant = result['is_clinically_relevant']
+				if result_relevant is None:
+					# FIXME: calculate from clinical range
+					result_relevant = False
 
-			missing_review = False
-			# warn on missing review if
-			# a) no review at all exists or
-			if not result['reviewed']:
-				missing_review = True
-			# b) there is a review but
-			else:
-				# current user is reviewer and hasn't reviewed
-				if result['you_are_responsible'] and not result['review_by_you']:
+				missing_review = False
+				# warn on missing review if
+				# a) no review at all exists or
+				if not result['reviewed']:
 					missing_review = True
+				# b) there is a review but
+				else:
+					# current user is reviewer and hasn't reviewed
+					if result['you_are_responsible'] and not result['review_by_you']:
+						missing_review = True
 
-			# can we display the full result information ?
-			has_result_comment = gmTools.coalesce (
-				gmTools.coalesce(result['note_test_org'], result['comment']),
-				u''
-			).strip() != u''
-			# no - display ... and truncate to 7 chars
-			if (len(result['unified_val']) > 8) or (has_result_comment):
-				val2display = u'%7.7s\u2026%6.6s%1.1s' % (
-					result['unified_val'][:7],
-					abnormality_indicator,
-					gmTools.bool2subst(missing_review, u'\u270D', u'')
-				)
-			# yes - display fully up to 8 chars
-			else:
-				val2display = u'%8.8s%6.6s%1.1s' % (
-					result['unified_val'][:8],
-					abnormality_indicator,
-					gmTools.bool2subst(missing_review, u'\u270D', u'')
-				)
+				# can we display the full result information ?
+				has_result_comment = gmTools.coalesce (
+					gmTools.coalesce(result['note_test_org'], result['comment']),
+					u''
+				).strip() != u''
 
-			has_normal_min_or_max = (result['val_normal_min'] is not None) or (result['val_normal_max'] is not None)
-			if has_normal_min_or_max:
-				normal_min_max = u'%s - %s' % (
-					gmTools.coalesce(result['val_normal_min'], u'?'),
-					gmTools.coalesce(result['val_normal_max'], u'?')
-				)
-			else:
-				normal_min_max = u''
+				# no - display ... and truncate to 7 chars
+				if (len(result['unified_val']) > 8) or (has_result_comment):
+					tmp = u'%7.7s%s%6.6s%1.1s' % (
+						result['unified_val'][:7],
+						gmTools.u_ellipsis,
+						abnormality_indicator,
+						gmTools.bool2subst(missing_review, gmTools.u_writing_hand, u'')
+					)
+				# yes - display fully up to 8 chars
+				else:
+					tmp = u'%8.8s%6.6s%1.1s' % (
+						result['unified_val'][:8],
+						abnormality_indicator,
+						gmTools.bool2subst(missing_review, gmTools.u_writing_hand, u'')
+					)
+				if len(self.__cell_data[col][row]) > 1:
+					tmp = '%s %s' % (result['clin_when'].strftime('%H:%M'), tmp)
+				vals2display.append(tmp)
 
-			has_clinical_min_or_max = (result['val_target_min'] is not None) or (result['val_target_max'] is not None)
-			if has_clinical_min_or_max:
-				clinical_min_max = u'%s - %s' % (
-					gmTools.coalesce(result['val_target_min'], u'?'),
-					gmTools.coalesce(result['val_target_max'], u'?')
-				)
-			else:
-				clinical_min_max = u''
-
-			if result['reviewed']:
-				review_status = result['last_reviewed'].strftime('%c')
-			else:
-				review_status = _('not yet')
-
-			self.SetCellValue(row, col, val2display)
+			self.SetCellValue(row, col, '\n'.join(vals2display))
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 #			font = self.GetCellFont(row, col)
 #			if not font.IsFixedWidth():
-#			font.SetFamily(family = wx.FONTFAMILY_MODERN)
+#				font.SetFamily(family = wx.FONTFAMILY_MODERN)
 			if result_relevant:
 				font = self.GetCellFont(row, col)
 				self.SetCellTextColour(row, col, 'firebrick')
@@ -378,90 +374,115 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.SetCellFont(row, col, font)
 #			self.SetCellFont(row, col, font)
 
-			try:
-				self.__cell_tooltips[col]
-			except KeyError:
-				self.__cell_tooltips[col] = {}
-			self.__cell_tooltips[col][row] = _(
-				'Measurement details:                                     \n'
-				' Date: %(clin_when)s\n'
-				' Type: "%(name)s" (%(code)s)\n'
-				' Result: %(val)s%(unit)s%(ind)s\n'
-				' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
-				' Reference group: %(ref_group)s\n'
-				' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
-				' Doc: %(comment_doc)s\n'
-				' Lab: %(comment_lab)s\n'	# note_test_org
-				' Episode: %(epi)s\n'
-				' Issue: %(issue)s\n'
-				' Material: %(material)s\n'
-				' Details: %(mat_detail)s\n'
-				'\n'
-				'Signed (%(sig_hand)s): %(reviewed)s\n'
-				' Last reviewer: %(reviewer)s\n'
-				'  Technically abnormal: %(abnormal)s\n'
-				'  Clinically relevant: %(relevant)s\n'
-				'  Comment: %(rev_comment)s\n'
-				' Responsible clinician: %(responsible_reviewer)s\n'
-				'\n'
-				'Test type details:\n'
-				' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
-				' Type comment: %(comment_type)s\n'
-				' Group comment: %(comment_type_unified)s\n'
-				'\n'
-				'Last modified %(mod_when)s by %(mod_by)s.'
-			) % ({
-				'clin_when': result['clin_when'].strftime('%c'),
-				'code': result['code_tt'],
-				'name': result['name_tt'],
-				'val': result['unified_val'],
-				'unit': gmTools.coalesce(result['val_unit'], u'', u' %s'),
-				'ind': gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)'),
-				'norm_min_max': normal_min_max,
-				'norm_range': gmTools.coalesce (
-					result['val_normal_range'],
-					u'',
-					gmTools.bool2subst (
-						has_normal_min_or_max,
-						u' / %s',
-						u'%s'
+			# tooltip
+			if rebuild_tooltip:
+				has_normal_min_or_max = (result['val_normal_min'] is not None) or (result['val_normal_max'] is not None)
+				if has_normal_min_or_max:
+					normal_min_max = u'%s - %s' % (
+						gmTools.coalesce(result['val_normal_min'], u'?'),
+						gmTools.coalesce(result['val_normal_max'], u'?')
 					)
-				),
-				'ref_group': gmTools.coalesce(result['norm_ref_group'], u''),
-				'clin_min_max': clinical_min_max,
-				'clin_range': gmTools.coalesce (
-					result['val_target_range'],
-					u'',
-					gmTools.bool2subst (
-						has_clinical_min_or_max,
-						u' / %s',
-						u'%s'
+				else:
+					normal_min_max = u''
+
+				has_clinical_min_or_max = (result['val_target_min'] is not None) or (result['val_target_max'] is not None)
+				if has_clinical_min_or_max:
+					clinical_min_max = u'%s - %s' % (
+						gmTools.coalesce(result['val_target_min'], u'?'),
+						gmTools.coalesce(result['val_target_max'], u'?')
 					)
-				),
-				'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split('\n')),
-				'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split('\n')),
-				'epi': result['episode'],
-				'issue': gmTools.coalesce(result['health_issue'], u''),
-				'material': gmTools.coalesce(result['material'], u''),
-				'mat_detail': gmTools.coalesce(result['material_detail'], u''),
+				else:
+					clinical_min_max = u''
 
-				'reviewed': review_status,
-				'reviewer': gmTools.bool2subst(result['review_by_you'], _('you'), gmTools.coalesce(result['last_reviewer'], u'')),
-				'abnormal': gmTools.bool2subst(result['is_technically_abnormal'], _('yes'), _('no'), u''),
-				'relevant': gmTools.bool2subst(result['is_clinically_relevant'], _('yes'), _('no'), u''),
-				'rev_comment': gmTools.coalesce(result['review_comment'], u''),
-				'responsible_reviewer': gmTools.bool2subst(result['you_are_responsible'], _('you'), result['responsible_reviewer']),
+				if result['reviewed']:
+					review_status = result['last_reviewed'].strftime('%c')
+				else:
+					review_status = _('not yet')
 
-				'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split('\n')),
-				'name_unified': gmTools.coalesce(result['name_unified'], u''),
-				'code_unified': gmTools.coalesce(result['code_unified'], u''),
-				'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split('\n')),
+				try:
+					self.__cell_tooltips[col]
+				except KeyError:
+					self.__cell_tooltips[col] = {}
+				self.__cell_tooltips[col][row] = _(
+					'Measurement details of most recent result:               \n'
+					' Date: %(clin_when)s\n'
+					' Type: "%(name)s" (%(code)s)\n'
+					' Result: %(val)s%(unit)s%(ind)s\n'
+					' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
+					' Reference group: %(ref_group)s\n'
+					' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
+					' Doc: %(comment_doc)s\n'
+					' Lab: %(comment_lab)s\n'	# note_test_org
+					' Episode: %(epi)s\n'
+					' Issue: %(issue)s\n'
+					' Material: %(material)s\n'
+					' Details: %(mat_detail)s\n'
+					'\n'
+					'Signed (%(sig_hand)s): %(reviewed)s\n'
+					' Last reviewer: %(reviewer)s\n'
+					'  Technically abnormal: %(abnormal)s\n'
+					'  Clinically relevant: %(relevant)s\n'
+					'  Comment: %(rev_comment)s\n'
+					' Responsible clinician: %(responsible_reviewer)s\n'
+					'\n'
+					'Test type details:\n'
+					' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
+					' Type comment: %(comment_type)s\n'
+					' Group comment: %(comment_type_unified)s\n'
+					'\n'
+					'Last modified %(mod_when)s by %(mod_by)s.'
+				) % ({
+					'clin_when': result['clin_when'].strftime('%c'),
+					'code': result['code_tt'],
+					'name': result['name_tt'],
+					'val': result['unified_val'],
+					'unit': gmTools.coalesce(result['val_unit'], u'', u' %s'),
+					'ind': gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)'),
+					'norm_min_max': normal_min_max,
+					'norm_range': gmTools.coalesce (
+						result['val_normal_range'],
+						u'',
+						gmTools.bool2subst (
+							has_normal_min_or_max,
+							u' / %s',
+							u'%s'
+						)
+					),
+					'ref_group': gmTools.coalesce(result['norm_ref_group'], u''),
+					'clin_min_max': clinical_min_max,
+					'clin_range': gmTools.coalesce (
+						result['val_target_range'],
+						u'',
+						gmTools.bool2subst (
+							has_clinical_min_or_max,
+							u' / %s',
+							u'%s'
+						)
+					),
+					'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split('\n')),
+					'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split('\n')),
+					'epi': result['episode'],
+					'issue': gmTools.coalesce(result['health_issue'], u''),
+					'material': gmTools.coalesce(result['material'], u''),
+					'mat_detail': gmTools.coalesce(result['material_detail'], u''),
 
-				'mod_when': result['modified_when'].strftime('%c'),
-				'mod_by': result['modified_by'],
+					'reviewed': review_status,
+					'reviewer': gmTools.bool2subst(result['review_by_you'], _('you'), gmTools.coalesce(result['last_reviewer'], u'')),
+					'abnormal': gmTools.bool2subst(result['is_technically_abnormal'], _('yes'), _('no'), u''),
+					'relevant': gmTools.bool2subst(result['is_clinically_relevant'], _('yes'), _('no'), u''),
+					'rev_comment': gmTools.coalesce(result['review_comment'], u''),
+					'responsible_reviewer': gmTools.bool2subst(result['you_are_responsible'], _('you'), result['responsible_reviewer']),
 
-				'sig_hand': u'\u270D'
-			})
+					'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split('\n')),
+					'name_unified': gmTools.coalesce(result['name_unified'], u''),
+					'code_unified': gmTools.coalesce(result['code_unified'], u''),
+					'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split('\n')),
+
+					'mod_when': result['modified_when'].strftime('%c'),
+					'mod_by': result['modified_by'],
+
+					'sig_hand': gmTools.u_writing_hand
+				})
 
 		self.AutoSize()
 
@@ -485,18 +506,51 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.SetRowLabelSize(20)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
 	#------------------------------------------------------------
-	def __cells_to_data(self, cells=None):
+	def __cells_to_data(self, cells=None, exclude_multi_cells=False):
 		"""List of <cells> must be in row / col order."""
 		data = []
 		for row, col in cells:
 			# weed out row labels in col 0
 			if col == 0:
 				continue
+
 			try:
 				# cell data is stored col / row
-				data.append(self.__cell_data[col][row])
+				data_list = self.__cell_data[col][row]
 			except KeyError:
-				pass
+				continue
+
+			if len(data_list) == 1:
+				data.append(data_list[0])
+				continue
+
+			if exclude_multi_cells:
+				gmDispatcher.send(signal = u'statustext', msg = _('Excluding multi-result field from further processing.'))
+				continue
+
+			data_to_include = self.__get_choices_from_multi_cell(cell_data = data_list)
+
+			if data_to_include is None:
+				continue
+
+			data.extend(data_to_include)
+
+		return data
+	#------------------------------------------------------------
+	def __get_choices_from_multi_cell(self, cell_data=None, single_selection=False):
+		data = gmListWidgets.get_choices_from_list (
+			parent = self,
+			msg = _(
+				'Your selection includes a field with multiple results.\n'
+				'\n'
+				'Please select the individual results you want to work on:'
+			),
+			caption = _('Selecting test results'),
+			choices = [ [d['clin_when'], d['unified_code'], d['unified_name'], d['unified_val']] for d in cell_data ],
+			columns = [_('Date / Time'), _('Code'), _('Test'), _('Result')],
+			data = cell_data,
+			single_selection = single_selection
+		)
 		return data
 	#------------------------------------------------------------
 	# event handling
@@ -515,7 +569,15 @@ class cMeasurementsGrid(wx.grid.Grid):
 			# FIXME: invoke (unified) test type editor
 			return
 
-		edit_measurement(parent = self, measurement = self.__cell_data[col][row])
+		if len(self.__cell_data[col][row]) > 1:
+			data = self.__get_choices_from_multi_cell(cell_data = self.__cell_data[col][row], single_selection = True)
+		else:
+			data = self.__cell_data[col][row][0]
+
+		if data is None:
+			return
+
+		edit_measurement(parent = self, measurement = data)
 	#------------------------------------------------------------
 	def __on_mouse_over_row_labels(self, evt):
 		x, y = self.CalcUnscrolledPosition(evt.GetX(), evt.GetY())
@@ -1159,7 +1221,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.25  2008-07-17 21:41:36  ncq
+# Revision 1.26  2008-08-05 16:21:30  ncq
+# - support multiple values per cell
+#
+# Revision 1.25  2008/07/17 21:41:36  ncq
 # - cleanup
 #
 # Revision 1.24  2008/07/14 13:47:36  ncq
