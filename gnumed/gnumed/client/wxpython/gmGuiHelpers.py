@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.94 2008-07-07 11:36:44 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmGuiHelpers.py,v 1.95 2008-08-06 13:21:42 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -48,6 +48,12 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 		except KeyError:
 			checkbox_msg = None
 
+		try:
+			checkbox_tooltip = kwargs['checkbox_tooltip']
+			del kwargs['checkbox_tooltip']
+		except KeyError:
+			checkbox_tooltip = None
+
 		wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
 		self.SetTitle(title = caption)
@@ -58,6 +64,8 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 		else:
 			if checkbox_msg is not None:
 				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
+			if checkbox_tooltip is not None:
+				self._CHBOX_dont_ask_again.SetToolTipString(checkbox_tooltip)
 
 		buttons = [self._BTN_1, self._BTN_2]
 		for idx in range(len(button_defs)):
@@ -499,7 +507,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.94  2008-07-07 11:36:44  ncq
+# Revision 1.95  2008-08-06 13:21:42  ncq
+# - add checkbox tooltip support to 2 button question dialog
+#
+# Revision 1.94  2008/07/07 11:36:44  ncq
 # - just cleanup
 #
 # Revision 1.93  2008/06/24 13:59:18  ncq
