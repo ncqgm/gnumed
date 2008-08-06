@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.24 2008-07-24 14:00:18 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmListWidgets.py,v 1.25 2008-08-06 13:22:14 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -307,18 +307,24 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			return
 
 		for item in items:
-			#if type(item) == types.ListType:
 			try:
+				item[0]
+				if not isinstance(item, basestring):
+					is_numerically_iterable = True
+				else:
+					is_numerically_iterable = False
+			except TypeError:
+				is_numerically_iterable = False
+
+			if is_numerically_iterable:
 				# cannot use errors='replace' since then
 				# None/ints/unicode strings fail to get encoded
 				col_val = unicode(item[0])
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
-				#for col_idx in range(1, len(item)):
 				for col_idx in range(1, min(self.GetColumnCount(), len(item))):
 					col_val = unicode(item[col_idx])
 					self.SetStringItem(index = row_num, col = col_idx, label = col_val)
-			#else:
-			except TypeError:
+			else:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
@@ -429,7 +435,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.24  2008-07-24 14:00:18  ncq
+# Revision 1.25  2008-08-06 13:22:14  ncq
+# - fix detection of item list type
+#
+# Revision 1.24  2008/07/24 14:00:18  ncq
 # - better comments
 # - resize columns after list refreshing in generic list selector
 # - differentiate between iterables and non-iterables by means of
