@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-zip+sign_backups.sh,v $
-# $Id: gm-zip+sign_backups.sh,v 1.5 2007-10-31 11:25:39 ncq Exp $
+# $Id: gm-zip+sign_backups.sh,v 1.6 2008-08-06 13:23:18 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -76,40 +76,48 @@ for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 	chmod ${BACKUP_MASK} ${BACKUP}.bz2
 	chown ${BACKUP_OWNER} ${BACKUP}.bz2
 
+	# Reed-Solomon error protection support
+#	if test -n ${ADD_ECC} ; then
+#		rsbep
+#	fi
+
 	# GNotary support
-	if test -z ${GNOTARY_TAN} ; then
-		continue
+	if test -n ${GNOTARY_TAN} ; then
+		LOCAL_MAILER=`which mail`
+
+		#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
+		SHA512=`openssl dgst -sha512 -hex ${BACKUP}.bz2`
+		RMD160=`openssl dgst -ripemd160 -hex ${BACKUP}.bz2`
+
+		export REPLYTO=${SIG_RECEIVER}
+
+		# send mail
+		(
+			echo " "
+			echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
+			echo "<message>"
+			echo "	<tan>$GNOTARY_TAN</tan>"
+			echo "	<action>notarize</action>"
+			echo "	<hashes number=\"2\">"
+			echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
+			echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
+			echo "	</hashes>"
+			echo "</message>"
+			echo " "
+		) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
 	fi
 
-	LOCAL_MAILER=`which mail`
-
-	#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
-	SHA512=`openssl dgst -sha512 -hex ${BACKUP}.bz2`
-	RMD160=`openssl dgst -ripemd160 -hex ${BACKUP}.bz2`
-
-	export REPLYTO=${SIG_RECEIVER}
-
-	# send mail
-	(
-		echo " "
-		echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
-		echo "<message>"
-		echo "	<tan>$GNOTARY_TAN</tan>"
-		echo "	<action>notarize</action>"
-		echo "	<hashes number=\"2\">"
-		echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
-		echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
-		echo "	</hashes>"
-		echo "</message>"
-		echo " "
-	) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
 done
 
 exit 0
 
 #==============================================================
 # $Log: gm-zip+sign_backups.sh,v $
-# Revision 1.5  2007-10-31 11:25:39  ncq
+# Revision 1.6  2008-08-06 13:23:18  ncq
+# - cleanup
+# - start support for Reed Solomon ECC
+#
+# Revision 1.5  2007/10/31 11:25:39  ncq
 # - needs quoting
 # - had inverted logic
 # - lsof acts weird on filename arguments sometimes so use grep
