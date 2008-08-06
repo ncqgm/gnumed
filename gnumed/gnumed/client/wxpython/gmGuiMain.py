@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.420 2008-08-05 16:45:12 ncq Exp $
-__version__ = "$Revision: 1.420 $"
+# $Id: gmGuiMain.py,v 1.421 2008-08-06 13:27:16 ncq Exp $
+__version__ = "$Revision: 1.421 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -70,7 +70,7 @@ _scripting_listener = None
 expected_db_ver = u'devel'
 #expected_db_ver = u'v9'
 current_client_ver = u'CVS HEAD'
-#current_client_ver = u'0.3.rc1'
+#current_client_ver = u'0.3.rc3'
 current_client_branch = '0.3'
 
 _log = logging.getLogger('gm.main')
@@ -1104,19 +1104,28 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_set_db_lang(self, event):
 
+		langs = [
+			gmI18N.system_locale_level['language'],
+			gmI18N.system_locale_level['country'],
+			gmI18N.system_locale_level['full']
+		]
+
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 		)
-		langs = [ row[0] for row in rows ]
+		langs.extend([ r[0] for r in rows ])
 
 		language = gmListWidgets.get_choices_from_list (
 			parent = self,
 			msg = _(
-				'Please select the database language from the list below.\n\n'
-				'This setting will not affect the language the user\n'
-				'interface is displayed in.'
+				'Please select the database language from the list below.\n'
+				'\n'
+				'This setting will not affect the language the user interface is\n'
+				'displayed in but rather that of the data returned from the database\n'
+				'such as encounter types, document types, and EMR formatting.\n'
+				'\n'
 			),
-			caption = _('configuring database language'),
+			caption = _('Configuring database language'),
 			choices = langs,
 			columns = [_('Language')],
 			data = langs,
@@ -1126,9 +1135,31 @@ class gmTopLevelFrame(wx.Frame):
 		if language is None:
 			return
 
+		_log.info('setting database language to [%s]', language)
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}]
 		)
+
+		if rows[0][0]:
+			return
+
+		force_language = gmGuiHelpers.gm_show_question (
+			_('The database currently holds no translations for\n'
+			  'language [%s]. However, you can add translations\n'
+			  'for things like document or encounter types yourself.\n'
+			  '\n'
+			  'Do you want to force the language setting to [%s] ?'
+			) % language, language,
+			_('Configuring database language')
+		)
+		if not force_language:
+			return
+
+		_log.info('forcing database language to [%s]', language)
+		gmPG2.run_rw_queries(queries = [{
+			'cmd': u'select i18n.force_curr_lang(%s)',
+			'args': [gmI18N.system_locale_level['country']]
+		}])
 	#----------------------------------------------
 	def __on_set_db_welcome(self, event):
 		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
@@ -2384,7 +2415,7 @@ class gmApp(wx.App):
 			gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
 
 		# check database language settings
-		self.__set_db_lang()
+		self.__check_db_lang()
 
 		return True
 	#----------------------------------------------
@@ -2497,37 +2528,33 @@ class gmApp(wx.App):
 		else:
 			_log.info('running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------
-	def __set_db_lang(self):
+	def __check_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
 			_log.warning("system locale is undefined (probably meaning 'C')")
 			return True
 
 		db_lang = None
 		# get current database locale
-		rows, idx = gmPG2.run_ro_queries(link_obj=None, queries = [{'cmd': u"select lang from i18n.curr_lang where user=CURRENT_USER"}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u"select i18n.get_curr_lang() as lang"}])
 		if len(rows) == 0:
+			_log.debug("database locale currently not set")
 			msg = _(
 				"There is no language selected in the database for user [%s].\n"
 				"Your system language is currently set to [%s].\n\n"
 				"Do you want to set the database language to '%s' ?\n\n"
-				"Answering <NO> will remember that decision until\n"
-				"the system language is changed. You can also reactivate\n"
-				"this inquiry by removing the appropriate ignore option\n"
-				"from the configuration file."
 			)  % (_provider['db_user'], gmI18N.system_locale, gmI18N.system_locale)
-			_log.debug("database locale currently not set")
+			checkbox_msg = _('Remember to ignore missing language')
 		else:
 			db_lang = rows[0]['lang']
+			_log.debug("current database locale: [%s]" % db_lang)
 			msg = _(
 				"The currently selected database language ('%s') does\n"
-				"not match the current system language ('%s').\n\n"
-				"Do you want to set the database language to '%s' ?\n\n"
-				"Answering <NO> will remember that decision until\n"
-				"the system language is changed. You can also reactivate\n"
-				"this inquiry by removing the appropriate ignore option\n"
-				"from the configuration file."
+				"not match the current system language ('%s').\n"
+				"\n"
+				"Do you want to set the database language to '%s' ?\n"
 			) % (db_lang, gmI18N.system_locale, gmI18N.system_locale)
-			_log.debug("current database locale: [%s]" % db_lang)
+			checkbox_msg = _('Remember to ignore language mismatch')
+
 			# check if we can match up system and db language somehow
 			if db_lang == gmI18N.system_locale_level['full']:
 				_log.debug('Database locale (%s) up to date.' % db_lang)
@@ -2547,21 +2574,42 @@ class gmApp(wx.App):
 			option = u'ignored mismatching system locale',
 			source_order = [('user', 'return'), ('local', 'return')]
 		)
+
 		# are we to ignore *this* mismatch ?
 		if gmI18N.system_locale == ignored_sys_lang:
 			_log.info('configured to ignore system-to-database locale mismatch')
 			return True
+
 		# no, so ask user
-		if not gmGuiHelpers.gm_show_question (
-			aMessage = msg,
-			aTitle = _('checking database language settings'),
-		):
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			None,
+			-1,
+			caption = _('Checking database language settings'),
+			question = msg,
+			button_defs = [
+				{'label': _('Set'), 'tooltip': _('Set your database language to [%s].') % gmI18N.system_locale, 'default': True},
+				{'label': _("Don't set"), 'tooltip': _('Do not set your database language now.'), 'default': False}
+			],
+			show_checkbox = True,
+			checkbox_msg = checkbox_msg,
+			checkbox_tooltip = _(
+				'Checking this will make GNUmed remember your decision\n'
+				'until the system language is changed.\n'
+				'\n'
+				'You can also reactivate this inquiry by removing the\n'
+				'corresponding "ignore" option from the configuration file\n'
+				'\n'
+				' [%s]'
+			) % _cfg.get(option = 'user_preferences_file')
+		)
+		decision = dlg.ShowModal()
+		remember_ignoring_problem = dlg._CHBOX_dont_ask_again.GetValue()
+		dlg.Destroy()
+
+		if decision == wx.ID_NO:
+			if not remember_ignoring_problem:
+				return True
 			_log.info('User did not want to set database locale. Ignoring mismatch next time.')
-#			comment = [
-#				"If the system locale matches this value a mismatch",
-#				"with the database locale will be ignored.",
-#				"Remove this option if you want to stop ignoring mismatches.",
-#			]
 			gmCfg2.set_option_in_INI_file (
 				filename = _cfg.get(option = 'user_preferences_file'),
 				group = 'backend',
@@ -2587,20 +2635,14 @@ class gmApp(wx.App):
 					continue
 				return True
 
-		# user wanted to set the DB language but that failed
-		# so try falling back to Englisch
-		set_default = gmGuiHelpers.gm_show_question (
-			_(
-				'Failed to set database language to [%s].\n\n'
-				'No translation available.\n\n'
-				'Do you want to set the database language to English ?'
-			) % gmI18N.system_locale,
-			_('setting database language')
-		)
-		if set_default:
-			gmPG2.run_rw_queries(link_obj=None, queries=[{'cmd': u'select i18n.force_curr_lang(%s)', 'args': [u'en_GB']}])
+		# no match found but user wanted to set language anyways, so force it
+		_log.info('forcing database language to [%s]', gmI18N.system_locale_level['country'])
+		gmPG2.run_rw_queries(queries = [{
+			'cmd': u'select i18n.force_curr_lang(%s)',
+			'args': [gmI18N.system_locale_level['country']]
+		}])
 
-		return False
+		return True
 #==============================================================================
 def main():
 
@@ -2625,7 +2667,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.420  2008-08-05 16:45:12  ncq
+# Revision 1.421  2008-08-06 13:27:16  ncq
+# - include system locale in list when setting db lang
+# - allow forcing db lang
+# - improve startup db lang check
+#
+# Revision 1.420  2008/08/05 16:45:12  ncq
 # - add wxAppTraits querying
 #
 # Revision 1.419  2008/07/28 20:41:58  ncq
