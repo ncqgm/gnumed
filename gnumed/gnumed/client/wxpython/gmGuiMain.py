@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.421 2008-08-06 13:27:16 ncq Exp $
-__version__ = "$Revision: 1.421 $"
+# $Id: gmGuiMain.py,v 1.422 2008-08-08 13:31:37 ncq Exp $
+__version__ = "$Revision: 1.422 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -70,7 +70,7 @@ _scripting_listener = None
 expected_db_ver = u'devel'
 #expected_db_ver = u'v9'
 current_client_ver = u'CVS HEAD'
-#current_client_ver = u'0.3.rc3'
+#current_client_ver = u'0.3.rc4'
 current_client_branch = '0.3'
 
 _log = logging.getLogger('gm.main')
@@ -222,7 +222,10 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
+		self.__pre_exit_callbacks = []
+
 		_log.info('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
+
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -238,10 +241,7 @@ class gmTopLevelFrame(wx.Frame):
 			self.__title_template = _('Enslaved GNUmed [%s%s.%s@%s] %s')
 		else:
 			self.__title_template = 'GNUmed [%s%s.%s@%s] %s'
-
 		self.updateTitle()
-
-		self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
 
 		# set window icon
 		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
@@ -249,9 +249,9 @@ class gmTopLevelFrame(wx.Frame):
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 
-		self.acctbl = []
-		self.__gb['main.accelerators'] = self.acctbl
 		self.__register_events()
+
+		self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
 		self.vbox = wx.BoxSizer(wx.VERTICAL)
 		self.vbox.Add(self.LayoutMgr, 10, wx.EXPAND | wx.ALL, 1)
 
@@ -266,11 +266,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.Centre(wx.BOTH)
 		self.Show(True)
-	#----------------------------------------------
-	def __setup_accelerators(self):
-		self.acctbl.append((wx.ACCEL_ALT | wx.ACCEL_CTRL, ord('X'), wx.ID_EXIT))
-		self.acctbl.append((wx.ACCEL_CTRL, ord('H'), wx.ID_HELP))
-		self.SetAcceleratorTable(wx.AcceleratorTable(self.acctbl))
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
@@ -792,15 +787,13 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		wx.EVT_END_SESSION(self, self._on_end_session)
 
-		#gmDispatcher.connect(self._on_pre_patient_selection, 'pre_patient_selection')
-		gmDispatcher.connect(self._on_post_patient_selection, 'post_patient_selection')
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_pat_name_changed)
 		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_pat_name_changed)
-
-		gmDispatcher.connect(self._on_set_statustext, u'statustext')
-		gmDispatcher.connect(self._on_request_user_attention, u'request_user_attention')
-
-		gmDispatcher.connect(self._on_db_maintenance_warning, u'db_maintenance_warning')
+		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
+		gmDispatcher.connect(signal = u'request_user_attention', receiver = self._on_request_user_attention)
+		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
+		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
@@ -820,6 +813,12 @@ class gmTopLevelFrame(wx.Frame):
 		_log.warning('unhandled event detected: END_SESSION')
 		gmLog2.flush()
 		print "unhandled event detected: END_SESSION"
+	#-----------------------------------------------
+	def _register_pre_exit_callback(self, callback=None):
+		if not callable(callback):
+			raise TypeError(u'callback [%s] not callable' % callback)
+
+		self.__pre_exit_callbacks.append(callback)
 	#-----------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
 
@@ -911,11 +910,6 @@ class gmTopLevelFrame(wx.Frame):
 		except:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot run script after patient activation.'))
 			raise
-	#----------------------------------------------
-#	def _on_pre_patient_selection(self, **kwargs):
-#		pat = gmPerson.gmCurrentPatient()
-#		if not pat.connected:
-#			return True
 	#----------------------------------------------
 	def _pre_selection_callback(self):
 		self.__sanity_check_encounter()
@@ -1027,9 +1021,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_exit_gnumed(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
-		# calls wx.EVT_CLOSE handler
-#		print "SOAP =?"
-		self.Close()
+		self.Close()	# -> calls wx.EVT_CLOSE handler
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
 		check_for_updates()
@@ -1827,8 +1819,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		- framework still functional
 		"""
-		# FIXME: ask user whether to *really* close and save all data
-		# call cleanup helper
 		self._clean_exit()
 		self.Destroy()
 	#----------------------------------------------
@@ -2075,6 +2065,14 @@ Search results:
 		  regular shutdown should go in here
 		- framework still functional
 		"""
+		# run synchronous pre-exit callback
+		for call_back in self.__pre_exit_callbacks:
+			try:
+				call_back()
+			except:
+				print "*** pre-exit callback failed ***"
+				_log.exception('callback [%s] failed', call_back)
+
 		# shut down backend notifications listener
 		listener = gmBackendListener.gmBackendListener()
 		listener.stop_thread()
@@ -2262,7 +2260,7 @@ class gmApp(wx.App):
 		return True
 	#----------------------------------------------
 	def OnExit(self):
-		"""Called:
+		"""Called internally by wxPython after EVT_CLOSE has been handled on last frame.
 
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
@@ -2667,7 +2665,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.421  2008-08-06 13:27:16  ncq
+# Revision 1.422  2008-08-08 13:31:37  ncq
+# - a bit of cleanup
+# - support pre-exit sync callbacks
+#
+# Revision 1.421  2008/08/06 13:27:16  ncq
 # - include system locale in list when setting db lang
 # - allow forcing db lang
 # - improve startup db lang check
