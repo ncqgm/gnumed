@@ -17,10 +17,11 @@ known_signals = [
 	u'patient_locked',
 	u'patient_unlocked',
 	u'import_document_from_file',
-	u'statustext',				# args: msg=message, beep=whether to beep or not
-	u'display_widget',			# args: name=name of widget, other=widget specific (see receivers)
+	u'statustext',					# args: msg=message, beep=whether to beep or not
+	u'display_widget',				# args: name=name of widget, other=widget specific (see receivers)
 	u'application_closing',
-	u'request_user_attention'
+	u'request_user_attention',
+	u'register_pre_exit_callback'	# args: callback = function to call
 ]
 
 _log = logging.getLogger('gm.messaging')
@@ -300,7 +301,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.15  2008-06-28 22:33:57  ncq
+# Revision 1.16  2008-08-08 13:29:56  ncq
+# - add register_pre_exit_callback signal
+#
+# Revision 1.15  2008/06/28 22:33:57  ncq
 # - remove obsolete signal
 #
 # Revision 1.14  2007/12/12 16:17:15  ncq
