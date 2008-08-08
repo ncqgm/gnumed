@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.26 2008-08-05 16:21:30 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmMeasurementWidgets.py,v 1.27 2008-08-08 13:31:58 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -345,18 +345,18 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 				# no - display ... and truncate to 7 chars
 				if (len(result['unified_val']) > 8) or (has_result_comment):
-					tmp = u'%7.7s%s%6.6s%1.1s' % (
+					tmp = u'%.7s%s%.6s%.2s' % (
 						result['unified_val'][:7],
 						gmTools.u_ellipsis,
 						abnormality_indicator,
-						gmTools.bool2subst(missing_review, gmTools.u_writing_hand, u'')
+						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
 					)
 				# yes - display fully up to 8 chars
 				else:
-					tmp = u'%8.8s%6.6s%1.1s' % (
+					tmp = u'%.8s%.6s%.2s' % (
 						result['unified_val'][:8],
 						abnormality_indicator,
-						gmTools.bool2subst(missing_review, gmTools.u_writing_hand, u'')
+						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
 					)
 				if len(self.__cell_data[col][row]) > 1:
 					tmp = '%s %s' % (result['clin_when'].strftime('%H:%M'), tmp)
@@ -1221,7 +1221,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.26  2008-08-05 16:21:30  ncq
+# Revision 1.27  2008-08-08 13:31:58  ncq
+# - better results layout
+#
+# Revision 1.26  2008/08/05 16:21:30  ncq
 # - support multiple values per cell
 #
 # Revision 1.25  2008/07/17 21:41:36  ncq
