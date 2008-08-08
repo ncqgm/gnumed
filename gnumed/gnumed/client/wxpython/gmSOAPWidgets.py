@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.104 2008-08-05 16:22:17 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmSOAPWidgets.py,v 1.105 2008-08-08 13:32:59 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -234,38 +234,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __do_layout(self):
-		# add one empty unassociated progress note editor - which to
-		# have (by all sensible accounts) seems to be the intent when
-		# instantiating this class
-		self.add_editor()
-	#--------------------------------------------------------
-	# reget mixin API
-	#--------------------------------------------------------
-	def _populate_with_data(self):
-		print '[%s._populate_with_data] nothing to do, really...' % self.__class__.__name__
-		return True
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		"""Configure enabled event signals
-		"""
-		# wxPython events
-
-		# client internal signals
-		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
-		gmDispatcher.connect(signal='application_closing', receiver=self._on_application_closing)
-
-		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
-	#--------------------------------------------------------
-	def _pre_selection_callback(self):
-		"""Another patient is about to be activated.
-
-		Patient change will not proceed before this returns.
-		"""
+	def save_unsaved_soap(self):
 		save_all = False
 		dlg = None
 		for page_idx in range(self.GetPageCount()):
@@ -277,7 +246,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 				dlg = gmGuiHelpers.c3ButtonQuestionDlg (
 					self, 
 					-1,
-					caption = _('Patient change: Unsaved progress note'),
+					caption = _('Unsaved progress note'),
 					question = _(
 						'This progress note has not been saved yet.\n'
 						'\n'
@@ -303,11 +272,61 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		if dlg is not None:
 			dlg.Destroy()
 	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __do_layout(self):
+		# add one empty unassociated progress note editor - which to
+		# have (by all sensible accounts) seems to be the intent when
+		# instantiating this class
+		self.add_editor()
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		print '[%s._populate_with_data] nothing to do, really...' % self.__class__.__name__
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		"""Configure enabled event signals
+		"""
+		# wxPython events
+
+		# client internal signals
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver=self._on_post_patient_selection)
+#		gmDispatcher.connect(signal = u'application_closing', receiver=self._on_application_closing)
+
+		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+
+		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
+	#--------------------------------------------------------
+	def _pre_selection_callback(self):
+		"""Another patient is about to be activated.
+
+		Patient change will not proceed before this returns.
+		"""
+		self.save_unsaved_soap()
+	#--------------------------------------------------------
+	def _pre_exit_callback(self):
+		"""The client is about to be shut down.
+
+		Shutdown will not proceed before this returns.
+		"""
+		self.save_unsaved_soap()
+	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		"""Patient changed."""
 		self.DeleteAllPages()
 		self.add_editor()
 		self._schedule_data_reget()
+	#--------------------------------------------------------
+#	def _on_application_closing(self):
+#		"""GNUmed is shutting down."""
+#		print "[%s]: the application is closing down" % self.__class__.__name__
+#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "need to ask user about SOAP saving !"
+#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	#--------------------------------------------------------
 #	def _on_episodes_modified(self):
 #		print "[%s]: episode modified" % self.__class__.__name__
@@ -316,15 +335,6 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #		print "- renamed episode so we can update our episode label"
 #		self._schedule_data_reget()
 #		pass
-	#--------------------------------------------------------
-	def _on_application_closing(self):
-		"""GNUmed is shutting down."""
-		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-		print "need to ask user about SOAP saving !"
-		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-#		print "[%s]: the application is closing down" % self.__class__.__name__
-#		print "need code to:"
-#		print "- ask user about unsaved data"
 #============================================================
 class cNotebookedProgressNoteInputPanel(wx.Panel):
 	"""A panel for entering multiple progress notes in context.
@@ -1205,7 +1215,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.104  2008-08-05 16:22:17  ncq
+# Revision 1.105  2008-08-08 13:32:59  ncq
+# - factor out save_unsaved_soap()
+# - register and act on pre-exit callback
+# - some cleanup
+#
+# Revision 1.104  2008/08/05 16:22:17  ncq
 # - cleanup
 #
 # Revision 1.103  2008/07/14 13:48:16  ncq
