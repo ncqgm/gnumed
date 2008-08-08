@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.95 2008-08-06 13:21:42 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmGuiHelpers.py,v 1.96 2008-08-08 13:30:12 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,6 +22,7 @@ import os
 import wx
 
 
+from Gnumed.business import gmSurgery
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg
 
 # ========================================================================
@@ -507,7 +508,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.95  2008-08-06 13:21:42  ncq
+# Revision 1.96  2008-08-08 13:30:12  ncq
+# - needs gmSurgery
+#
+# Revision 1.95  2008/08/06 13:21:42  ncq
 # - add checkbox tooltip support to 2 button question dialog
 #
 # Revision 1.94  2008/07/07 11:36:44  ncq
