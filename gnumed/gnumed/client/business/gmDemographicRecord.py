@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.96 2008-02-26 16:24:49 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmDemographicRecord.py,v 1.97 2008-08-15 15:55:53 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -28,6 +28,16 @@ from Gnumed.business import gmMedDoc
 
 _log = logging.getLogger('gm.business')
 _log.info(__version__)
+#============================================================
+def get_provinces():
+	cmd = u"""
+select
+	l10n_state, l10n_country, state, code_state, code_country, pk_state, country_deprecated
+from dem.v_state
+order by l10n_country, l10n_state"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	# FIXME: add caching
+	return rows
 #============================================================
 # address related classes
 #------------------------------------------------------------
@@ -568,7 +578,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.96  2008-02-26 16:24:49  ncq
+# Revision 1.97  2008-08-15 15:55:53  ncq
+# - get_provinces
+#
+# Revision 1.96  2008/02/26 16:24:49  ncq
 # - remove pk_address from create_comm_channel
 #
 # Revision 1.95  2008/02/25 17:29:40  ncq
