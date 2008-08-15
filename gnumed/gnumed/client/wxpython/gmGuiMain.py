@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.422 2008-08-08 13:31:37 ncq Exp $
-__version__ = "$Revision: 1.422 $"
+# $Id: gmGuiMain.py,v 1.423 2008-08-15 16:02:16 ncq Exp $
+__version__ = "$Revision: 1.423 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -486,6 +486,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter (consultation) types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
+
+		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_provinces, item)
 
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
@@ -2006,6 +2009,9 @@ Search results:
 	#----------------------------------------------
 	def __on_export_as_gdt(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as GDT. No active patient.'))
+			return False
 		# FIXME: configurable
 		enc = 'cp850'
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
@@ -2055,6 +2061,9 @@ Search results:
 	#----------------------------------------------
 	def __on_manage_encounter_types(self, evt):
 		gmEMRStructWidgets.manage_encounter_types(parent=self)
+	#----------------------------------------------
+	def __on_manage_provinces(self, evt):
+		gmDemographicsWidgets.manage_provinces(parent=self)
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -2665,7 +2674,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.422  2008-08-08 13:31:37  ncq
+# Revision 1.423  2008-08-15 16:02:16  ncq
+# - do not GDT-export w/o active patient
+# - manage provinces
+#
+# Revision 1.422  2008/08/08 13:31:37  ncq
 # - a bit of cleanup
 # - support pre-exit sync callbacks
 #
