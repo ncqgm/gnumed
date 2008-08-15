@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -101,8 +101,7 @@ class cDiag(gmBusinessDBObject.cBusinessDBObject):
 		return True
 #============================================================
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):
-	"""
-		Represents one clinical free text entry
+	"""Represents one clinical free text entry.
 	"""
 	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%s"
 	_cmds_store_payload = [
@@ -122,13 +121,14 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		'soap_cat',
 		'pk_episode'
 	]
+
+	#xxxxxxxxxxxxxxxx
+	# support row_version in view
+
 	#--------------------------------------------------------
 	def get_codes(self):
+		"""Retrieves codes linked to *this* narrative.
 		"""
-			Retrieves codes linked to *this* narrative
-		"""
-		# Note: caching won't work without having a mechanism
-		# to evict the cache when the backend changes
 		cmd = u"select code, xfk_coding_system from clin.coded_phrase where term=%s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['narrative']]]}])
 		return rows
@@ -263,7 +263,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.34  2008-05-07 15:15:15  ncq
+# Revision 1.35  2008-08-15 15:55:14  ncq
+# - cleanup
+#
+# Revision 1.34  2008/05/07 15:15:15  ncq
 # - use replace() rather than strip() to remove suffixes
 #
 # Revision 1.33  2008/04/22 21:11:05  ncq
