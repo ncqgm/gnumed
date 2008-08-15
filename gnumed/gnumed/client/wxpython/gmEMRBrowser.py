@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.92 2008-07-28 15:44:39 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmEMRBrowser.py,v 1.93 2008-08-15 15:56:38 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -464,8 +464,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def _on_tree_item_right_clicked(self, event):
 		"""Right button clicked: display the popup for the tree"""
-		# FIXME: should get the list item at the current position
-		# FIXME: should then update the context
 
 		node = event.GetItem()
 		self.SelectItem(node)
@@ -481,6 +479,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			self.__handle_encounter_context(pos=pos)
 		elif node == self.GetRootItem():
 			self.__handle_root_context()
+		elif type(self.__curr_node_data) == type({}):
+			# ignore pseudo node "free-standing episodes"
+			pass
 		else:
 			print "error: unknown node type, no popup menu"
 		event.Skip()
@@ -667,7 +668,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.92  2008-07-28 15:44:39  ncq
+# Revision 1.93  2008-08-15 15:56:38  ncq
+# - properly handle context click on pseudo-issue
+#
+# Revision 1.92  2008/07/28 15:44:39  ncq
 # - context menu based Medistar export for any encounter
 #
 # Revision 1.91  2008/07/14 13:46:11  ncq
