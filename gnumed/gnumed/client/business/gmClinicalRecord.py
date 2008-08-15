@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.269 2008-07-12 15:19:16 ncq Exp $
-__version__ = "$Revision: 1.269 $"
+# $Id: gmClinicalRecord.py,v 1.270 2008-08-15 15:55:41 ncq Exp $
+__version__ = "$Revision: 1.270 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -193,6 +193,10 @@ select fk_encounter from
 			where pk_patient = %s
 			order by date, soap_rank
 		"""
+
+		#xxxxxxxxxxxxxxx
+		# support row_version in narrative for display in tree
+
 		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 
 		filtered_narrative = [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
@@ -1781,7 +1785,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.269  2008-07-12 15:19:16  ncq
+# Revision 1.270  2008-08-15 15:55:41  ncq
+# - comment on row_version
+#
+# Revision 1.269  2008/07/12 15:19:16  ncq
 # - improve summary formatting
 # - fix get_most_recent_episode plus test
 #
