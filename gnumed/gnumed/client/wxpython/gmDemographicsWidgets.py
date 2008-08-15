@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.152 2008-07-07 13:43:16 ncq Exp $
-__version__ = "$Revision: 1.152 $"
+# $Id: gmDemographicsWidgets.py,v 1.153 2008-08-15 16:01:06 ncq Exp $
+__version__ = "$Revision: 1.153 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -32,6 +32,32 @@ try:
 except NameError:
 	_ = lambda x:x
 
+#============================================================
+def manage_provinces(parent=None):
+
+	provinces = gmDemographicRecord.get_provinces()
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _(
+			'\n'
+			'This list shows the provinces known to GNUmed.\n'
+			'\n'
+			'In your jurisdiction "province" may correspond to either of "state",\n'
+			'"county", "region", "territory", or some such term.\n'
+			'\n'
+			'Select the province you want to edit !\n'
+		),
+		caption = _('Editing provinces ...'),
+		choices = provinces,
+		columns = [_('Province'), _('Country')],
+		single_selection = True
+#		,
+#		edit_callback = edit,
+#		new_callback = edit,
+#		delete_callback = delete,
+#		refresh_callback = refresh
+	)
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 
@@ -1745,31 +1771,37 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Postal code'))
+		STT_zip_code.SetForegroundColour('orange')
 		self.PRW_zip_code = cZipcodePhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip/postal code"))
 
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
+		STT_street.SetForegroundColour('orange')
 		self.PRW_street = cStreetPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 
 		# address number
 		STT_address_number = wx.StaticText(PNL_form, -1, _('Number'))
+		STT_address_number.SetForegroundColour('orange')
 		self.TTC_address_number = wx.TextCtrl(PNL_form, -1)
 		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
 
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Place'))
+		STT_town.SetForegroundColour('orange')
 		self.PRW_town = cUrbPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_town.SetToolTipString(_("primary/home address: city/town/village/dwelling/..."))
 
 		# state
 		STT_state = wx.StaticText(PNL_form, -1, _('Region'))
+		STT_state.SetForegroundColour('orange')
 		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
 		self.PRW_state.SetToolTipString(_("primary/home address: state/province/county/..."))
 
 		# country
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
+		STT_country.SetForegroundColour('orange')
 		self.PRW_country = cCountryPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
@@ -1899,14 +1931,45 @@ class cNewPatientWizard(wx.wizard.Wizard):
 
 		activate, too, if told to do so (and patient successfully created)
 		"""
-		if not wx.wizard.Wizard.RunWizard(self, self.basic_pat_details):
-			return False
+		while True:
 
-		# retrieve DTD and create patient
-		ident = create_identity_from_dtd(dtd = self.basic_pat_details.form_DTD)
-		update_identity_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
-		link_contacts_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
-		link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
+			if not wx.wizard.Wizard.RunWizard(self, self.basic_pat_details):
+				return False
+
+			try:
+				# retrieve DTD and create patient
+				ident = create_identity_from_dtd(dtd = self.basic_pat_details.form_DTD)
+			except:
+				_log.exception('cannot add new patient - missing identity fields')
+				gmGuiHelpers.gm_show_error (
+					_('Cannot create new patient.\n'
+					  'Missing parts of the identity.'
+					),
+					_('Adding new patient')
+				)
+				continue
+
+			update_identity_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
+
+			try:
+				link_contacts_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
+			except:
+				_log.exception('cannot finalize new patient - missing address fields')
+				gmGuiHelpers.gm_show_error (
+					_('Cannot add address for the new patient.\n'
+					  'You must either enter all of the address fields or\n'
+					  'none at all. The relevant fields are marked in yellow.\n'
+					  '\n'
+					  'You will need to add the address details in the\n'
+					  'demographics module.'
+					),
+					_('Adding new patient')
+				)
+				break
+
+			link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
+
+			break
 
 		if activate:
 			gmPerson.set_active_patient(patient = ident)
@@ -2622,7 +2685,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.152  2008-07-07 13:43:16  ncq
+# Revision 1.153  2008-08-15 16:01:06  ncq
+# - start managing provinces
+# - orange-mark address fields in wizard
+# - better save error handling in wizard
+#
+# Revision 1.152  2008/07/07 13:43:16  ncq
 # - current patient .connected
 #
 # Revision 1.151  2008/06/15 20:34:31  ncq
