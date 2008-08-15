@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: clin-allergy.sql,v 1.1 2007-06-11 18:41:31 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-allergy.sql,v 1.2 2008-08-15 15:59:16 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -38,7 +38,7 @@ BEGIN
 	if TG_OP = ''DELETE'' then
 		-- only run this trigger if deleting last allergy
 		select into _fk_patient fk_patient from clin.encounter where pk = OLD.fk_encounter;
-		select into _no_of_allergies count(1) from clin.allergies where pk_patient = (
+		select into _no_of_allergies count(1) from clin.allergy where fk_encounter = (
 			select pk from clin.encounter where fk_patient = _fk_patient
 		);
 		if _no_of_allergies > 1 then
@@ -76,11 +76,14 @@ create trigger tr_sync_allergic_state_on_allergies_modified
 --grant select on forgot_to_edit_grants to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: clin-allergy.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: clin-allergy.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: clin-allergy.sql,v $
--- Revision 1.1  2007-06-11 18:41:31  ncq
+-- Revision 1.2  2008-08-15 15:59:16  ncq
+-- - fix trigger func
+--
+-- Revision 1.1  2007/06/11 18:41:31  ncq
 -- - new
 --
 -- Revision 1.3  2007/03/26 16:51:13  ncq
