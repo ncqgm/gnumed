@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-v_test_results.sql,v 1.9 2008-06-24 14:41:06 ncq Exp $
--- $Revision: 1.9 $
+-- $Id: v9-clin-v_test_results.sql,v 1.10 2008-08-15 15:59:39 ncq Exp $
+-- $Revision: 1.10 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -123,6 +123,7 @@ select
 	end as modified_by,
 
 	tr.modified_when,
+	tr.row_version as row_version,
 
 	-- management keys
 	-- clin.clin_root_item
@@ -224,11 +225,14 @@ comment on view clin.v_test_results_journal is
 
 grant select on clin.v_test_results_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.9 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.10 $');
 
 -- ==============================================================
 -- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.9  2008-06-24 14:41:06  ncq
+-- Revision 1.10  2008-08-15 15:59:39  ncq
+-- - propagate row_version
+--
+-- Revision 1.9  2008/06/24 14:41:06  ncq
 -- - improved formatting again, and made 8.1-proof
 --
 -- Revision 1.8  2008/06/24 14:04:23  ncq
