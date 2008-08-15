@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.27 2008-08-08 13:31:58 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmMeasurementWidgets.py,v 1.28 2008-08-15 15:57:10 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -430,7 +430,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					' Type comment: %(comment_type)s\n'
 					' Group comment: %(comment_type_unified)s\n'
 					'\n'
-					'Last modified %(mod_when)s by %(mod_by)s.'
+					'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
 				) % ({
 					'clin_when': result['clin_when'].strftime('%c'),
 					'code': result['code_tt'],
@@ -480,6 +480,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 					'mod_when': result['modified_when'].strftime('%c'),
 					'mod_by': result['modified_by'],
+					'row_ver': result['row_version'],
 
 					'sig_hand': gmTools.u_writing_hand
 				})
@@ -1221,7 +1222,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.27  2008-08-08 13:31:58  ncq
+# Revision 1.28  2008-08-15 15:57:10  ncq
+# - indicate data revisions in tooltip
+#
+# Revision 1.27  2008/08/08 13:31:58  ncq
 # - better results layout
 #
 # Revision 1.26  2008/08/05 16:21:30  ncq
