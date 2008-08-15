@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.123 2008-07-13 16:14:00 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmPhraseWheel.py,v 1.124 2008-08-15 15:57:37 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -554,12 +554,13 @@ class cPhraseWheel(wx.TextCtrl):
 			if self.speller is not None:
 				# filter out the last word
 				word = regex.split(self.__speller_word_separators, self.input2match)[-1]
-				if not self.speller.check(word):
-					spells = self.speller.suggest(word)
-					truncated_input2match = self.input2match[:self.input2match.rindex(word)]
-					for spell in spells:
-						self.__current_matches.append({'label': truncated_input2match + spell, 'data': None})
-					self._picklist.SetItems(self.__current_matches)
+				if word.strip() != u'':
+					if not self.speller.check(word):
+						spells = self.speller.suggest(word)
+						truncated_input2match = self.input2match[:self.input2match.rindex(word)]
+						for spell in spells:
+							self.__current_matches.append({'label': truncated_input2match + spell, 'data': None})
+						self._picklist.SetItems(self.__current_matches)
 	#--------------------------------------------------------
 	def _picklist_selection2display_string(self):
 		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
@@ -1015,7 +1016,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.123  2008-07-13 16:14:00  ncq
+# Revision 1.124  2008-08-15 15:57:37  ncq
+# - enchant doesn't like spellchecking '' anymore
+#
+# Revision 1.123  2008/07/13 16:14:00  ncq
 # - outside code uses color_prw_valid, so leave it and add a comment
 #
 # Revision 1.122  2008/07/07 11:39:21  ncq
