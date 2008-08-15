@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.52 2008-07-13 16:23:01 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmResizingWidgets.py,v 1.53 2008-08-15 15:58:47 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -600,37 +600,37 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - if in list: scroll list
 		# - if in last line: goto first line, same character, in next_in_tab_order
 		# - else standard behaviour
-		if event.GetKeyCode() == wx.WXK_DOWN:
+		#if event.GetKeyCode() == wx.WXK_DOWN:
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Down()
 #				return
 #			print "arrow down @ %s (line %s of %s)" % (curs_pos, self.LineFromPosition(curs_pos), self.GetLineCount())
-			if self.LineFromPosition(curs_pos)+1 == self.GetLineCount():
-				if self.next_in_tab_order is not None:
-					curs_coords = self.PointFromPosition(curs_pos)
-					self.next_in_tab_order.SetFocus(x=curs_coords.x, line=1)
-					return
+		#	if self.LineFromPosition(curs_pos)+1 == self.GetLineCount():
+		#		if self.next_in_tab_order is not None:
+		#			curs_coords = self.PointFromPosition(curs_pos)
+		#			self.next_in_tab_order.SetFocus(x=curs_coords.x, line=1)
+		#			return
 
 		# <UP>
 		# - if in list: scroll list
 		# - if in first line: goto last line, same character, in prev_in_tab_order
 		# - else standard behaviour
-		if event.GetKeyCode() == wx.WXK_UP:
-			_log.debug('<UP-ARROW> key press detected')
+		#if event.GetKeyCode() == wx.WXK_UP:
+		#	_log.debug('<UP-ARROW> key press detected')
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Up()
 #				return
-			_log.debug('pos %s = line %s' % (curs_pos, self.LineFromPosition(curs_pos)))
-			if self.LineFromPosition(curs_pos) == 0:
-				_log.debug('first line of STC - special handling')
-				if self.prev_in_tab_order is not None:
-					_log.debug('prev_in_tab_order = %s' % str(self.prev_in_tab_order))
-					curs_coords = self.PointFromPosition(curs_pos)
-					_log.debug('cursor coordinates in current STC: %s:%s' % (curs_coords.x, curs_coords.y))
-					self.prev_in_tab_order.SetFocus(x=curs_coords.x, line=-1)
-					return
-			else:
-				_log.debug('not first line of STC - standard handling')
+		#	_log.debug('pos %s = line %s' % (curs_pos, self.LineFromPosition(curs_pos)))
+		#	if self.LineFromPosition(curs_pos) == 0:
+		#		_log.debug('first line of STC - special handling')
+		#		if self.prev_in_tab_order is not None:
+		#			_log.debug('prev_in_tab_order = %s' % str(self.prev_in_tab_order))
+		#			curs_coords = self.PointFromPosition(curs_pos)
+		#			_log.debug('cursor coordinates in current STC: %s:%s' % (curs_coords.x, curs_coords.y))
+		#			self.prev_in_tab_order.SetFocus(x=curs_coords.x, line=-1)
+		#			return
+		#	else:
+		#		_log.debug('not first line of STC - standard handling')
 
 		# <TAB> key
 		# - move to next/prev_in_tab_order
@@ -643,9 +643,6 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				if self.next_in_tab_order is not None:
 					self.next_in_tab_order.SetFocus()
 			return
-				# FIXME: why ?
-#				elif self.__parent.complete:
-#					self.__parent.complete()
 
 		# <DEL>
 		# - if inside embedded string
@@ -668,36 +665,6 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				self.DelPhrase (curs_pos-1)
 				# FIXME: also delete corresponding "additional data" dict ...
 				return
-
-		# <ENTER>
-		# - if in list: proxy to list
-		# - in empty widget: go to next in tab order
-		# - after last character in widget:
-		#	- if after ';': go to next in tab order
-		#	- f no ';' there: add one
-#		if event.GetKeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
-#			if self.GetLength() == 0:
-#				if self.next_in_tab_order is not None:
-#					self.next_in_tab_order.SetFocus()
-#				return
-#			if curs_pos == self.GetLength():
-#				# FIXME: make this smarter to deal with whitespace after ';'
-#				if self.GetCharAt(curs_pos-1) == ord(';'):
-#					if self.next_in_tab_order:
-#						self.next_in_tab_order.SetFocus()
-#				else:
-#					self.AddText (';')
-#				return
-
-		# <;>
-		# - do not put into empty field
-		# - do not allow consecutive ';'s
-#		if event.GetKeyCode() == ord(';'):
-#			if self.GetLength() == 0:
-#				return
-#			# FIXME: smartup for whitespace after trailing ';'
-#			if self.GetCharAt(curs_pos-1) == ord(';'):
-#				return
 
 		event.Skip()	# skip to next event handler to keep processing
 	#------------------------------------------------
@@ -1111,7 +1078,11 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.52  2008-07-13 16:23:01  ncq
+# Revision 1.53  2008-08-15 15:58:47  ncq
+# - rip out CURSOR-UP/DOWN based SOAP field jumping by popular demand
+# - lotsa other cleanup
+#
+# Revision 1.52  2008/07/13 16:23:01  ncq
 # - stop setting up unused timer
 #
 # Revision 1.51  2008/07/10 21:01:22  ncq
