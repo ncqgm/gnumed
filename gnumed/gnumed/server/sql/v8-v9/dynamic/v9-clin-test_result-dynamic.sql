@@ -5,23 +5,73 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-dynamic.sql,v 1.5 2008-06-24 14:03:55 ncq Exp $
--- $Revision: 1.5 $
+-- $Id: v9-clin-test_result-dynamic.sql,v 1.6 2008-08-16 19:35:50 ncq Exp $
+-- $Revision: 1.6 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 set check_function_bodies to 'on';
 
+--set default_transaction_read_only to off;
+
 -- --------------------------------------------------------------
 -- clin.test_result
 select gm.add_table_for_notifies('clin', 'test_result');
+
 
 comment on column clin.test_result.note_test_org is
 	'A comment on the test result provided by the tester or testing entity.';
 
 
+\unset ON_ERROR_STOP
+drop function clin.trf_invalidate_review_on_result_change() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_invalidate_review_on_result_change()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	is_modified bool;
+BEGIN
+	is_modified := False;
+
+	-- change of test type
+	if NEW.fk_type != OLD.fk_type then
+		is_modified := True;
+	end if;
+
+	-- change of numeric value
+	if NEW.val_num != OLD.val_num then
+		is_modified := True;
+	end if;
+
+	-- change of alpha value
+	if NEW.val_alpha != OLD.val_alpha then
+		is_modified := True;
+	end if;
+
+	-- change of unit
+	if NEW.val_unit != OLD.val_unit then
+		is_modified := True;
+	end if;
+
+	if is_modified is True then
+		delete from clin.reviewed_test_results where fk_reviewed_row = OLD.pk;
+	end if;
+
+	return NEW;
+END;';
+
+create trigger tr_invalidate_review_on_result_change
+	after update on clin.test_result
+	for each row execute procedure clin.trf_invalidate_review_on_result_change()
+;
+
+-- --------------------------------------------------------------
 -- clin.reviewed_test_results
 select gm.add_table_for_notifies('clin', 'reviewed_test_results');
+
 
 alter table clin.reviewed_test_results
 	add constraint unique_review_per_row unique(fk_reviewed_row);
@@ -32,6 +82,7 @@ alter table clin.reviewed_test_results
 
 -- comment on rule r_no_del_clin_reviewed_test_results on clin.reviewed_test_results is
 -- 'Once a review exists it cannot be deleted anymore.';
+
 
 revoke delete on clin.reviewed_test_results from public, "gm-doctors", "gm-public" cascade;
 grant delete on clin.reviewed_test_results to "gm-dbo";
@@ -146,11 +197,14 @@ select i18n.upd_tx('de_DE', 'results review change', 'Ergebnisbewertung geänder
 select i18n.upd_tx('de_DE', 'results review changed for patient', 'Bewertung von Testergebnissen änderte sich beim Patienten');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.5 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.6 $');
 
 -- ==============================================================
 -- $Log: v9-clin-test_result-dynamic.sql,v $
--- Revision 1.5  2008-06-24 14:03:55  ncq
+-- Revision 1.6  2008-08-16 19:35:50  ncq
+-- - invalidate existing review if test result value / unit / type changes
+--
+-- Revision 1.5  2008/06/24 14:03:55  ncq
 -- - can't have DO NOTHING ON DELETE rule on reviews table as
 --   that will prevent deletes cascaded from test result deletions,
 --   instead, revoke DELETE from users
