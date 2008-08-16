@@ -8,13 +8,13 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-allergy-dynamic.sql,v 1.1 2008-08-15 15:54:25 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-clin-allergy-dynamic.sql,v 1.2 2008-08-16 19:31:31 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -73,11 +73,14 @@ create trigger tr_sync_allergic_state_on_allergies_modified
 
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-allergy-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-allergy-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-clin-allergy-dynamic.sql,v $
--- Revision 1.1  2008-08-15 15:54:25  ncq
+-- Revision 1.2  2008-08-16 19:31:31  ncq
+-- - don't default to writable transactions
+--
+-- Revision 1.1  2008/08/15 15:54:25  ncq
 -- - fix trigger function
 --
 --
