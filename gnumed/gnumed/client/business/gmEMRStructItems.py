@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.118 $"
+__version__ = "$Revision: 1.119 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -655,7 +655,7 @@ select exists (
 			lines.append('-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
 			for soap_entry in soap_cat_narratives:
 				txt = gmTools.wrap (
-					text = '%s %.8s: %s' % (
+					text = '%s  %.8s\n%s' % (
 						soap_entry['date'].strftime('%d.%m. %H:%M'),
 						soap_entry['provider'],
 						soap_entry['narrative']
@@ -1029,7 +1029,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.118  2008-07-24 13:57:51  ncq
+# Revision 1.119  2008-08-17 18:13:39  ncq
+# - add CRLF after date/time/provider in soap formatting as
+#   suggested by Rogerio on the list
+#
+# Revision 1.118  2008/07/24 13:57:51  ncq
 # - update/create/delete_encounter_type
 #
 # Revision 1.117  2008/07/22 13:53:12  ncq
