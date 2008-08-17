@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.423 2008-08-15 16:02:16 ncq Exp $
-__version__ = "$Revision: 1.423 $"
+# $Id: gmGuiMain.py,v 1.424 2008-08-17 10:31:38 ncq Exp $
+__version__ = "$Revision: 1.424 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -766,6 +766,9 @@ class gmTopLevelFrame(wx.Frame):
 		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
 		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
 
+		item = help_menu.Append(-1, _('About database'), _('Show information about the current database.'))
+		self.Bind(wx.EVT_MENU, self.__on_about_database, item)
+
 		help_menu.AppendSeparator()
 
 		# among other things the Manual is added from a plugin
@@ -1006,6 +1009,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
 		del gmAbout
+	#----------------------------------------------
+	def __on_about_database(self, evt):
+		praxis = gmSurgery.gmCurrentPractice()
+		msg = praxis.db_logon_banner
+		if msg != u'':
+			gmGuiHelpers.gm_show_info(msg, _('About database'))
 	#----------------------------------------------
 	def __on_show_contributors(self, event):
 		from Gnumed.wxpython import gmAbout
@@ -2674,7 +2683,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.423  2008-08-15 16:02:16  ncq
+# Revision 1.424  2008-08-17 10:31:38  ncq
+# - add "About database"
+#
+# Revision 1.423  2008/08/15 16:02:16  ncq
 # - do not GDT-export w/o active patient
 # - manage provinces
 #
