@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.126 $
+# $Revision: 1.127 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-08-06 15:24+CEST\n"
-"PO-Revision-Date: 2008-08-06 15:43+0100\n"
+"POT-Creation-Date: 2008-08-17 12:36+CEST\n"
+"PO-Revision-Date: 2008-08-17 12:47+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -2857,6 +2857,29 @@ msgstr "Kann Eingabe nicht in einen Zeitpunkt übersetzen."
 msgid "enter time here"
 msgstr "Zeitpunkt eingeben"
 
+msgid ""
+"\n"
+"This list shows the provinces known to GNUmed.\n"
+"\n"
+"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
+"\"county\", \"region\", \"territory\", or some such term.\n"
+"\n"
+"Select the province you want to edit !\n"
+msgstr ""
+"\n"
+"Diese Liste zeigt die GNUmed bekannten Bundesländer.\n"
+"\n"
+"In Ihrer Sprache heißt \"Bundesland\" eventuell \"Staat\", \"Kanton\",\n"
+"\"Bezirk\", \"Provinz\", \"Region\", \"Territorium\" oder ähnliches.\n"
+"\n"
+"Wählen Sie das zu bearbeitende Bundesland !\n"
+
+msgid "Editing provinces ..."
+msgstr "Bearbeite Bundesländer ..."
+
+msgid "Province"
+msgstr "Bundesland"
+
 msgid "Today's KOrganizer appointments ..."
 msgstr "Heutige Termine aus KOrganizer ..."
 
@@ -3142,6 +3165,31 @@ msgstr "Grundlegende Personalangaben"
 
 msgid "Register new person"
 msgstr "Neuen Patienten anlegen"
+
+msgid ""
+"Cannot create new patient.\n"
+"Missing parts of the identity."
+msgstr ""
+"Kann neuen Patienten nicht anlegen.\n"
+"Angaben zur Identität nicht vollständig ausgefüllt."
+
+msgid "Adding new patient"
+msgstr "Neuen Patienten hinzufügen"
+
+msgid ""
+"Cannot add address for the new patient.\n"
+"You must either enter all of the address fields or\n"
+"none at all. The relevant fields are marked in yellow.\n"
+"\n"
+"You will need to add the address details in the\n"
+"demographics module."
+msgstr ""
+"Kann dem neuen Patienten die Adresse nicht hinzufügen.\n"
+"Sie müssen entweder alle Adressfelder ausfüllen oder\n"
+"alle leer lassen. Die relevanten Felder sind gelb markiert.\n"
+"\n"
+"Sie müssen die Adressdetails nun im Stammdatenmodul\n"
+"eintragen."
 
 msgid "Must enter lastname."
 msgstr "Nachname muß angegeben werden."
@@ -4196,6 +4244,12 @@ msgstr "&Konsultationstypen"
 msgid "Manage encounter (consultation) types."
 msgstr "Konsultationstypen verwalten."
 
+msgid "&Provinces"
+msgstr "&Bundesländer"
+
+msgid "Manage provinces (counties, territories, ...)."
+msgstr "Bundeländer verwalten (Provinzen, Staaten, ...)."
+
 msgid "&Office"
 msgstr "P&raxis"
 
@@ -4417,6 +4471,12 @@ msgstr "GNUmed-Helfer zeigen"
 
 msgid "GNUmed contributors"
 msgstr "GNUmed-Helfer"
+
+msgid "Show information about the current database."
+msgstr "Informationen über die Datenbank anzeigen."
+
+msgid "About database"
+msgstr "Über die Datenbank"
 
 msgid "programmer forgot to specify status message"
 msgstr "Programmierer hat vergessen, Statusmeldung anzugeben."
@@ -5010,6 +5070,9 @@ msgstr "Journalexport der Karteikarte"
 msgid "Successfully exported EMR as chronological journal into file [%s]."
 msgstr "Karteikarte als chronologisches Journal in Datei [%s] exportiert."
 
+msgid "Cannot export patient as GDT. No active patient."
+msgstr "Kann Patient nicht als GDT exportieren. Kein Patient aktiv."
+
 msgid "Exported demographics to GDT file [%s]."
 msgstr "Stammdaten wurden in GDT-Datei [%s] geschrieben."
 
@@ -5418,7 +5481,7 @@ msgid ""
 " Type comment: %(comment_type)s\n"
 " Group comment: %(comment_type_unified)s\n"
 "\n"
-"Last modified %(mod_when)s by %(mod_by)s."
+"Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
 msgstr ""
 "Details zum jüngsten Meßwert:                                \n"
 " Datum: %(clin_when)s\n"
@@ -5446,7 +5509,7 @@ msgstr ""
 " Verfahrenskommentar: %(comment_type)s\n"
 " Gruppenkommentar: %(comment_type_unified)s\n"
 "\n"
-"Zuletzt geändert %(mod_when)s von %(mod_by)s."
+"Änderungen: %(row_ver)s, zuletzt %(mod_when)s von %(mod_by)s."
 
 msgid "you"
 msgstr "Sie"
@@ -5467,7 +5530,7 @@ msgid ""
 msgstr ""
 "Ihre Auswahl beinhaltet ein Feld mit mehreren Werten.\n"
 "\n"
-"Bitte wählen Sie die Werte, die Sie weiterverarbeiten wollen:\n"
+"Bitte wählen Sie die Werte, die Sie weiterverarbeiten wollen:"
 
 msgid "Selecting test results"
 msgstr "Meßergebnisse auswählen"
@@ -6543,8 +6606,8 @@ msgstr ""
 msgid "Discarding progress note"
 msgstr "Verwerfe Verlaufsnotiz"
 
-msgid "Patient change: Unsaved progress note"
-msgstr "Patientenwechsel: ungespeicherte Verlaufsnotiz"
+msgid "Unsaved progress note"
+msgstr "Ungespeicherte Verlaufsnotiz"
 
 msgid ""
 "This progress note has not been saved yet.\n"
@@ -7467,6 +7530,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Patient change: Unsaved progress note"
+#~ msgstr "Patientenwechsel: ungespeicherte Verlaufsnotiz"
 #~ msgid "Allergies:"
 #~ msgstr "Allergien:"
 #~ msgid "Configure which plugin to show right after client startup."
