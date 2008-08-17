@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-dynamic.sql,v 1.7 2008-08-17 10:33:08 ncq Exp $
--- $Revision: 1.7 $
+-- $Id: v9-clin-test_result-dynamic.sql,v 1.8 2008-08-17 18:14:16 ncq Exp $
+-- $Revision: 1.8 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -58,7 +58,6 @@ BEGIN
 
 	if is_modified is True then
 		delete from clin.reviewed_test_results where fk_reviewed_row = OLD.pk;
-		-- write note into clin_narrative ? (same with blobs.doc_obj)
 	end if;
 
 	return NEW;
@@ -198,11 +197,14 @@ select i18n.upd_tx('de_DE', 'results review change', 'Ergebnisbewertung geänder
 select i18n.upd_tx('de_DE', 'results review changed for patient', 'Bewertung von Testergebnissen änderte sich beim Patienten');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.7 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.8 $');
 
 -- ==============================================================
 -- $Log: v9-clin-test_result-dynamic.sql,v $
--- Revision 1.7  2008-08-17 10:33:08  ncq
+-- Revision 1.8  2008-08-17 18:14:16  ncq
+-- - remove note as per list discussion
+--
+-- Revision 1.7  2008/08/17 10:33:08  ncq
 -- - comment out note
 --
 -- Revision 1.6  2008/08/16 19:35:50  ncq
