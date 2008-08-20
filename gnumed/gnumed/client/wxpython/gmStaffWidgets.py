@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.20 2008-03-05 22:30:15 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmStaffWidgets.py,v 1.21 2008-08-20 14:55:33 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -225,20 +225,44 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 
 		# create new user
 		pat = gmPerson.gmCurrentPatient()
+		db_account = self._TXT_account.GetValue()
 		queries = [
 			# database account
-			{'cmd': u'select gm_create_user(%s, %s)', 'args': [self._TXT_account.GetValue(), self._TXT_password.GetValue()]},
+			{'cmd': u'select gm_create_user(%s, %s)', 'args': [db_account, self._TXT_password.GetValue()]},
 			# staff entry
-			{'cmd': u"insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name='doctor'), %s, %s)", 'args': [pat.ID, self._TXT_account.GetValue(), self._TXT_short_alias.GetValue()]}
+			{
+				'cmd': u"insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name='doctor'), %s, %s)",
+				'args': [pat.ID, db_account, self._TXT_short_alias.GetValue().strip()]
+			}
 		]
-		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+		try:
+			rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+		except gmPG2.dbapi.IntegrityError, e:
+			if e.pgcode == gmPG2.sql_error_codes.UNIQUE_VIOLATION:
+				gmGuiHelpers.gm_show_error (
+					aMessage = _(
+						'Cannot add GNUmed staff member.\n'
+						'\n'
+						'The database account [%s] is already listed as a\n'
+						'staff member. There can only be one staff member\n'
+						'for each database account.\n'
+					) % db_account,
+					aTitle = _('Adding GNUmed staff member')
+				)
+				return False
+			raise
+
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.20  2008-03-05 22:30:15  ncq
+# Revision 1.21  2008-08-20 14:55:33  ncq
+# - explicitely signal error condition of database
+#   account already being in use for a staff member
+#
+# Revision 1.20  2008/03/05 22:30:15  ncq
 # - new style logging
 #
 # Revision 1.19  2008/01/11 16:15:33  ncq
