@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.64 2008-07-28 15:43:35 ncq Exp $
+# $Id: gmTools.py,v 1.65 2008-08-20 13:53:57 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -677,7 +677,9 @@ if __name__ == '__main__':
 			[None, 'something other than <None>', None, None, 'something other than <None>'],
 			['Captain', 'Mr.', '%s.'[:4], 'Mr.', 'Capt.'],
 			['value to test', 'test 3 failed', 'template with "%s" included', None, 'template with "value to test" included'],
-			['value to test', 'test 4 failed', 'template with value not included', None, 'template with value not included']
+			['value to test', 'test 4 failed', 'template with value not included', None, 'template with value not included'],
+			[None, 'initial value was None', 'template_initial: %s', None, 'initial value was None'],
+			[None, 'initial value was None', 'template_initial: %%(abc)s', None, 'initial value was None']
 		]
 		passed = True
 		for test in tests:
@@ -897,7 +899,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.64  2008-07-28 15:43:35  ncq
+# Revision 1.65  2008-08-20 13:53:57  ncq
+# - add some coalesce tests
+#
+# Revision 1.64  2008/07/28 15:43:35  ncq
 # - teach wrap() about target EOL
 #
 # Revision 1.63  2008/07/12 15:30:56  ncq
