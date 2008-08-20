@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.165 2008-07-10 20:00:34 ncq Exp $
-__version__ = "$Revision: 1.165 $"
+# $Id: gmMedDocWidgets.py,v 1.166 2008-08-20 14:54:46 ncq Exp $
+__version__ = "$Revision: 1.166 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1450,10 +1450,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
 
-		#self.__doc_context_menu.Destroy(ID)
-		#self.__doc_context_menu.Delete(ID)
-		self.__doc_context_menu.Remove(ID)
-		desc_menu.Destroy()
+		self.__doc_context_menu.Delete(ID)
+		try:
+			desc_menu.Destroy()
+		# the C++ object has been observed to have been destroyed already
+		except PyDeadObjectError:
+			pass
 	#--------------------------------------------------------
 	def __handle_part_context(self):
 
@@ -1843,7 +1845,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.165  2008-07-10 20:00:34  ncq
+# Revision 1.166  2008-08-20 14:54:46  ncq
+# - carefully work around wxMenu.Remove() doing something other
+#   than what the documentation suggests it does
+#
+# Revision 1.165  2008/07/10 20:00:34  ncq
 # - a few Begin/EndBusyCursor
 #
 # Revision 1.164  2008/07/07 13:43:17  ncq
