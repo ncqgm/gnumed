@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.86 $"
+__version__ = "$Revision: 1.87 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -95,7 +95,7 @@ known_schema_hashes = {
 	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
 	'v7': '6c9f6d3981483f8e9433df99d1947b27',
 	'v8': '89b13a7af83337c3aad153b717e52360',
-	'v9': '0ca15cfa6f8700e8961b9f5215350571'
+	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d'
 }
 
 map_schema_hash2version = {
@@ -106,7 +106,7 @@ map_schema_hash2version = {
 	'90e2026ac2efd236da9c8608b8685b2d': 'v6',
 	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
 	'89b13a7af83337c3aad153b717e52360': 'v8',
-	'0ca15cfa6f8700e8961b9f5215350571': 'v9'
+	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9'
 }
 
 # get columns and data types for a given table
@@ -1590,7 +1590,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.86  2008-07-30 12:51:14  ncq
+# Revision 1.87  2008-08-21 10:21:40  ncq
+# - update v9 hash
+#
+# Revision 1.86  2008/07/30 12:51:14  ncq
 # - set_default_client_timezone needs to set _sql_set_timezone,
 #   too, as noticed by Gour
 #
