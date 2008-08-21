@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.127 $
+# $Revision: 1.128 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-08-17 12:36+CEST\n"
-"PO-Revision-Date: 2008-08-17 12:47+0100\n"
+"POT-Creation-Date: 2008-08-21 15:32+CEST\n"
+"PO-Revision-Date: 2008-08-21 15:36+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -4445,6 +4445,12 @@ msgstr "Mauszeiger reparieren"
 msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
 msgstr "Den Mauszeiger zurücksetzen, wenn er als Stundenglas hängengeblieben ist."
 
+msgid "pgAdmin III"
+msgstr ""
+
+msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
+msgstr "pgAdmin III: GNUmed-Datenbank im PostgreSQL-Server ansehen."
+
 msgid "Lock/unlock patient"
 msgstr "Patienten sperren/entsperren"
 
@@ -4995,6 +5001,9 @@ msgstr "Kein DICOM-Viewer gefunden."
 
 msgid "Saved screenshot to file [%s]."
 msgstr "BIldschirmphoto in Datei [%s] gespeichert."
+
+msgid "pgAdmin III not found."
+msgstr "pgAdmin III nicht gefunden."
 
 msgid "Save current log as..."
 msgstr "Speichere Log in Datei ..."
@@ -6802,6 +6811,19 @@ msgstr "Einen Mitarbeiter zu GNUmed hinzufügen."
 
 msgid "Enlisting Patient as Staff."
 msgstr "Aktuellen Patienten als Mitarbeiter aufnehmen."
+
+msgid ""
+"Cannot add GNUmed staff member.\n"
+"\n"
+"The database account [%s] is already listed as a\n"
+"staff member. There can only be one staff member\n"
+"for each database account.\n"
+msgstr ""
+"Kann Mitarbeiter nicht zu GNUmed hinzufügen.\n"
+"\n"
+"Das Datenbankkonto [%s] ist schon an einen Mitarbeiter\n"
+"vergeben. Jedes Konto in der Datenbank darf nur einem\n"
+"Mitarbeiter zugeordnet sein.\n"
 
 msgid "Caveat"
 msgstr "Cave"
