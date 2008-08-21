@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.424 2008-08-17 10:31:38 ncq Exp $
-__version__ = "$Revision: 1.424 $"
+# $Id: gmGuiMain.py,v 1.425 2008-08-21 13:29:18 ncq Exp $
+__version__ = "$Revision: 1.425 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -67,10 +67,13 @@ except NameError:
 _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
+
+expected_db_ver = u'v9'
 expected_db_ver = u'devel'
-#expected_db_ver = u'v9'
+
+current_client_ver = u'0.3.rc5'
 current_client_ver = u'CVS HEAD'
-#current_client_ver = u'0.3.rc4'
+
 current_client_branch = '0.3'
 
 _log = logging.getLogger('gm.main')
@@ -739,6 +742,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID_UNBLOCK = wx.NewId()
 		menu_debugging.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
 		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
+
+		item = menu_debugging.Append(-1, _('pgAdmin III'), _('pgAdmin III: Browse GNUmed database(s) in PostgreSQL server.'))
+		self.Bind(wx.EVT_MENU, self.__on_pgadmin3, item)
 
 		if _cfg.get(option = 'debug'):
 			ID_TOGGLE_PAT_LOCK = wx.NewId()
@@ -1789,6 +1795,13 @@ class gmTopLevelFrame(wx.Frame):
 			autoraise = True
 		)
 	#----------------------------------------------
+	def __on_pgadmin3(self, evt):
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
+		if found:
+			gmShellAPI.run_command_in_shell(cmd, blocking=False)
+			return
+		gmDispatcher.send(signal = 'statustext', msg = _('pgAdmin III not found.'), beep = True)
+	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
 	#----------------------------------------------
@@ -2683,7 +2696,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.424  2008-08-17 10:31:38  ncq
+# Revision 1.425  2008-08-21 13:29:18  ncq
+# - add pgAdmin III to debug menu
+#
+# Revision 1.424  2008/08/17 10:31:38  ncq
 # - add "About database"
 #
 # Revision 1.423  2008/08/15 16:02:16  ncq
