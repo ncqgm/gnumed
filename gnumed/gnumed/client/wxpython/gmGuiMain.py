@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.425 2008-08-21 13:29:18 ncq Exp $
-__version__ = "$Revision: 1.425 $"
+# $Id: gmGuiMain.py,v 1.426 2008-08-23 14:47:54 ncq Exp $
+__version__ = "$Revision: 1.426 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -71,7 +71,7 @@ _scripting_listener = None
 expected_db_ver = u'v9'
 expected_db_ver = u'devel'
 
-current_client_ver = u'0.3.rc5'
+current_client_ver = u'0.3.rc6'
 current_client_ver = u'CVS HEAD'
 
 current_client_branch = '0.3'
@@ -2696,7 +2696,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.425  2008-08-21 13:29:18  ncq
+# Revision 1.426  2008-08-23 14:47:54  ncq
+# - bump RC version
+#
+# Revision 1.425  2008/08/21 13:29:18  ncq
 # - add pgAdmin III to debug menu
 #
 # Revision 1.424  2008/08/17 10:31:38  ncq
