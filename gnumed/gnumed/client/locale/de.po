@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.128 $
+# $Revision: 1.129 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-08-21 15:32+CEST\n"
-"PO-Revision-Date: 2008-08-21 15:36+0100\n"
+"POT-Creation-Date: 2008-08-24 12:07+CEST\n"
+"PO-Revision-Date: 2008-08-24 12:22+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -2223,6 +2223,9 @@ msgstr "Geben Sie zusätzliche Informationen ein, die Sie dem Bericht hinzufüge
 msgid "Please enter your email address so we can provide feedback directly to you. Otherwise, feedback will be given on the GNUmed mailing list (http://lists.gnu.org/mailman/listinfo/gnumed-devel)."
 msgstr "Bitte geben Sie Ihre E-Mail-Adresse ein, sodaß wir Sie direkt erreichen können. Ihre Fehlermeldung wird ansonsten auf der GNUmed-Mailingliste (http://lists.gnu.org/mailman/listinfo/gnumed-devel) bearbeitet."
 
+msgid "Find help on http://wiki.gnumed.de, too."
+msgstr "Weitere Hilfe unter <http://wiki.gnumed.de>."
+
 msgid "Close this dialog but keep running GNUmed."
 msgstr "Diesen Dialog schließen, GNUmed läuft weiter."
 
@@ -2259,7 +2262,9 @@ msgid ""
 "close this GNUmed workplace as soon as possible. You can try to save\n"
 "unsaved data but don't count on it.\n"
 "\n"
-"It should then be safe to restart GNUmed."
+"It should then be safe to restart GNUmed.\n"
+"\n"
+"Documentation to be found at <http://wiki.gnumed.de>."
 msgstr ""
 "GNUmed hat einen Fehler bemerkt, dessen Auftreten nicht einkalkuliert war.\n"
 "\n"
@@ -2272,7 +2277,9 @@ msgstr ""
 "Programm baldigst zu beenden. Sie können versuchen, ungesicherte Daten\n"
 "zu speichern, aber Sie können sich nicht darauf verlassen.\n"
 "\n"
-"Sie können das Programm danach gefahrlos neu starten."
+"Sie können das Programm danach gefahrlos neu starten.\n"
+"\n"
+"Programmdokumentation unter <http://wiki.gnumed.de>."
 
 msgid "Enter a short comment on what you were trying to do with GNUmed. This information will be added to the logfile for easier identification later on."
 msgstr "Beschreiben Sie kurz, was Sie in GNUmed gerade zu tun beabsichtigten. Diese Information wird der Logdatei hinzugefügt, sodaß diese später einfacher wiedergefunden werden kann."
