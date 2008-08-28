@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#------------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/egk+kvk-demon.conf.example,v $
+# $Id: egk+kvk-demon.conf.example,v 1.1 2008-08-28 18:00:05 ncq Exp $
+#
+# author: Karsten Hilbert
+# license: GPL v2
+#
+# This is a shell fragment sourced by the GNUmed client rc
+# script (gnumed-client-de, that is).
+#
+# Copy this file to /etc/gnumed/ekg+kvk-demon.conf and
+# configure appropriately.
+#------------------------------------------------------------
+
+#------------------------------------------------------------
+# those need to be changed in most if not all cases
+#------------------------------------------------------------
+
+# set this to "true" if you want to actually start
+# the eGK/KVK demon at system startup
+START_DEMON="false"
+
+#------------------------------------------------------------
+# those need to be changed less likely:
+#------------------------------------------------------------
+
+# this is the script that actually handles incoming cards
+CARD_SCRIPT="/usr/bin/gm-read_chipcard.sh"
+
+# you can add more parameters for the above script here
+# (do NOT include the @cardid@ argument)
+CARD_SCRIPT_ARGS=""
+
+# set this to "false" if you do NOT want
+# the card demon to beep after reading a card
+BEEP_AFTER_READ="true"
+
+
+# this is where KVK/eGK data will eventually be stored
+GM_SPOOLDIR="/var/spool/gnumed/chipcards"
+
+# this is where cards will be dumped to first
+DUMP_FILE="${GM_SPOOLDIR}/card-${CARD_ID}-${TS}.dat"
+
+#============================================================
+# $Log: egk+kvk-demon.conf.example,v $
+# Revision 1.1  2008-08-28 18:00:05  ncq
+# - first check in
+#
+#
