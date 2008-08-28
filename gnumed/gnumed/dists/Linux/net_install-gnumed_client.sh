@@ -2,7 +2,7 @@
 
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.4 2008-08-05 12:45:28 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.5 2008-08-28 18:35:46 ncq Exp $
 # ===========================================================
 
 VER_LATEST="CVS-HEAD"
@@ -10,7 +10,7 @@ INSTALL_BASE=~/".gnumed/client-installation"
 
 # ===========================================================
 VER_CLI="$1"
-DL_BASE_URL="http://www.gnumed.de/downloads/client/0.2"		# FIXME: derive "0.2" from version
+DL_BASE_URL="http://www.gnumed.de/downloads/client/0.3"		# FIXME: derive "0.2" from version
 SYS_TYPE="generic Un*x"
 PKG_INSTALLER=`which true`
 DEPS=""
@@ -192,7 +192,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.4  2008-08-05 12:45:28  ncq
+# Revision 1.5  2008-08-28 18:35:46  ncq
+# - bump download URL
+#
+# Revision 1.4  2008/08/05 12:45:28  ncq
 # - adjust Debian dependancies
 #
 # Revision 1.3  2008/08/01 10:33:16  ncq
