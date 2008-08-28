@@ -22,12 +22,6 @@
 #
 # ========================================================
 
-cd ../../
-ln -vsn client Gnumed
-cd -
-export PYTHONPATH="../../:${PYTHONPATH}"
-
-
 PREV_VER="$1"
 NEXT_VER="$2"
 SKIP_BACKUP="$3"
