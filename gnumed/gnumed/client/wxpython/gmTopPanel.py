@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.97 2008-08-05 16:22:44 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmTopPanel.py,v 1.98 2008-08-28 18:34:47 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -287,8 +287,6 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__on_name_identity_change)
 	#----------------------------------------------
 	def __on_name_identity_change(self):
-		self.patient_selector.SetValue(self.curr_pat['description'])
-
 		if self.curr_pat['dob'].strftime('%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
 			template = _('%s  %s (%s today !)')
 		else:
@@ -308,8 +306,6 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
-		self.patient_selector.SetValue(self.curr_pat['description'])
-
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		if self.curr_pat['dob'].strftime('%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
@@ -455,7 +451,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.97  2008-08-05 16:22:44  ncq
+# Revision 1.98  2008-08-28 18:34:47  ncq
+# - pat search widget now takes care of updating
+#   its display itself when necessary
+#
+# Revision 1.97  2008/08/05 16:22:44  ncq
 # - improve dob display and allergies tooltip
 #
 # Revision 1.96  2008/07/10 08:41:09  ncq
