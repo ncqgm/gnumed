@@ -4,9 +4,12 @@
 
 
 [latest branch]
-branch = 0.2.8
-latest release = 0.2.8.7
+branch = 0.3
 
 
 [branch 0.2.8]
 latest release = 0.2.8.7
+
+
+[branch 0.3]
+lastest release = 0.3.0
