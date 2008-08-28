@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.153 2008-08-15 16:01:06 ncq Exp $
-__version__ = "$Revision: 1.153 $"
+# $Id: gmDemographicsWidgets.py,v 1.154 2008-08-28 18:33:02 ncq Exp $
+__version__ = "$Revision: 1.154 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -83,7 +83,13 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 	#--------------------------------------------------------
 	def _on_BTN_5_pressed(self, event):
 		"""Reload appointments from KOrganizer."""
-		gmShellAPI.run_command_in_shell(command = 'korganizer', blocking = False)
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'korganizer')
+
+		if not found:
+			gmDispatcher.send(signal = 'statustext', msg = _('KOrganizer is not installed.'), beep = True)
+			return
+
+		gmShellAPI.run_command_in_shell(command = cmd, blocking = False)
 	#--------------------------------------------------------
 	def reload_appointments(self):
 		try: os.remove(self.fname)
@@ -2685,7 +2691,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.153  2008-08-15 16:01:06  ncq
+# Revision 1.154  2008-08-28 18:33:02  ncq
+# - inform user on KOrganizer not being callable
+#
+# Revision 1.153  2008/08/15 16:01:06  ncq
 # - start managing provinces
 # - orange-mark address fields in wizard
 # - better save error handling in wizard
