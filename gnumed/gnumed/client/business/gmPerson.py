@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.164 2008-07-10 11:16:01 ncq Exp $
-__version__ = "$Revision: 1.164 $"
+# $Id: gmPerson.py,v 1.165 2008-08-28 18:30:50 ncq Exp $
+__version__ = "$Revision: 1.165 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -123,7 +123,14 @@ where pk_identity in (
 	# customizing behaviour
 	#--------------------------------------------------------
 	def __str__(self):
-		return u'<%s @ %s: %s %s (%s) %s>' % (self.__class__.__name__, id(self), self.firstnames, self.lastnames, self.gender, self.dob)
+		return u'<%s @ %s: %s %s (%s) %s>' % (
+			self.__class__.__name__,
+			id(self),
+			self.firstnames,
+			self.lastnames,
+			self.gender,
+			self.dob
+		)
 	#--------------------------------------------------------
 	def __setattr__(self, attr, val):
 		"""Do some sanity checks on self.* access."""
@@ -2203,7 +2210,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.164  2008-07-10 11:16:01  ncq
+# Revision 1.165  2008-08-28 18:30:50  ncq
+# - cleanup
+#
+# Revision 1.164  2008/07/10 11:16:01  ncq
 # - make pre-selection callback failure more obvious
 #
 # Revision 1.163  2008/07/07 13:38:43  ncq
