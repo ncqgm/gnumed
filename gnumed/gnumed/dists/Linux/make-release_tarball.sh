@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.52 2008-08-23 15:00:05 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.53 2008-08-28 18:35:36 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.3-rc6"
@@ -153,11 +153,17 @@ cp -R ../../client/connectors/gm_ctl_client.* ./GNUmed-$CLIENTREV/client/connect
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/gnumed.conf.example ./GNUmed-$CLIENTREV/client/doc/
-cp -R ../../client/doc/gnumed-client.conf.example ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/hook_script_example.py ./GNUmed-$CLIENTREV/client/doc/hook_script_example.py
-cp -R ../../client/doc/mime_type2file_extension.conf.example ./GNUmed-$CLIENTREV/client/doc/mime_type2file_extension.conf.example
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
+
+
+# etc
+mkdir -p ./GNUmed-$CLIENTREV/client/etc/gnumed/
+cp -R ../../client/etc/gnumed-client-init_script.sh ./GNUmed-$CLIENTREV/client/etc/
+cp -R ../../client/etc/gnumed/gnumed-client.conf.example ./GNUmed-$CLIENTREV/client/etc/gnumed/
+cp -R ../../client/etc/gnumed/mime_type2file_extension.conf.example ./GNUmed-$CLIENTREV/client/etc/gnumed/
+cp -R ../../client/etc/gnumed/egk+kvk-demon.conf.example ./GNUmed-$CLIENTREV/client/etc/gnumed/
 
 
 # exporters
@@ -249,9 +255,13 @@ cp -R ../../server/bootstrap/* ./GNUmed-$CLIENTREV/server/bootstrap/
 
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/server/doc/
-cp -R ../../client/doc/gnumed-backup.conf.example ./GNUmed-$CLIENTREV/server/doc/
-cp -R ../../client/doc/gnumed-restore.conf.example ./GNUmed-$CLIENTREV/server/doc/
 cp -R ../../server/bootstrap/README ./GNUmed-$CLIENTREV/server/doc/
+
+
+# etc
+mkdir -p ./GNUmed-$CLIENTREV/server/etc/gnumed/
+cp -R ../../client/etc/gnumed/gnumed-backup.conf.example ./GNUmed-$CLIENTREV/server/etc/gnumed/
+cp -R ../../client/etc/gnumed/gnumed-restore.conf.example ./GNUmed-$CLIENTREV/server/etc/gnumed/
 
 
 # sql
@@ -364,7 +374,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.52  2008-08-23 15:00:05  ncq
+# Revision 1.53  2008-08-28 18:35:36  ncq
+# - include scripts for KVKd startup
+#
+# Revision 1.52  2008/08/23 15:00:05  ncq
 # - bump RC version
 #
 # Revision 1.51  2008/08/21 13:30:27  ncq
