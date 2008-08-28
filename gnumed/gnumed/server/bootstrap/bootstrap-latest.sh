@@ -1,17 +1,14 @@
 #!/bin/bash
 
-# should be run as root
-# command line options:
-#  quiet
+# - should be run as root
+# - command line options:
+#   - "quiet"
 
 VER="9"
 PREV_VER="8"
+VERSIONS_TO_DROP="2 3 4 5 6 7"
 QUIET="$1"
 
-cd ../../
-ln -vsn client Gnumed
-cd -
-export PYTHONPATH="../../:${PYTHONPATH}"
 
 if test ! -n "${GM_LOG_BASE}" ; then
 	GM_LOG_BASE="."
@@ -46,25 +43,29 @@ echo_msg "Bootstrapping latest GNUmed database."
 echo_msg ""
 echo_msg "This will set up a GNUmed database of version v${VER}"
 echo_msg "with the name \"gnumed_v${VER}\"."
-#echo_msg "It contains all the currently working parts including"
-#echo_msg "localizations for countries you don't live in. This does"
-#echo_msg "not disturb the operation of the GNUmed client in your"
-#echo_msg "country in any way."
 
 
 # better safe than sorry
+TARGET_VER_EXISTS=`sudo -u postgres psql -l | grep gnumed_v${VER}`
 PREV_VER_EXISTS=`sudo -u postgres psql -l | grep gnumed_v${PREV_VER}`
-if test "${PREV_VER_EXISTS}" != "" ; then
+if test "${TARGET_VER_EXISTS}" != "" -o  "${PREV_VER_EXISTS}" != "" ; then
 	echo ""
-	echo "There already is a GNUmed database of version v${PREV_VER}."
+	echo "-----------------------------------------------"
+	echo "At least one of the GNUmed databases"
+	echo "v${PREV_VER} or v${VER} already exists."
 	echo ""
-	echo "Are you sure you want to *bootstrap* to version v${VER} ?"
-	echo "If you do so the existing database v${PREV_VER} will be LOST !"
+	echo "Note that during *bootstrapping* both"
+	echo "databases will be OVERWRITTEN !"
 	echo ""
-	echo "For *upgrading* from v${PREV_VER} to v${VER} you should"
-	echo "run the upgrade script instead."
+	echo "Did you really intend to bootstrap or did you"
+	echo "rather want to *upgrade* from v${PREV_VER} to v${VER} ?"
 	echo ""
-	read -e -p "Continue bootstrapping ? [yes/NO]: "
+	echo "For upgrading you should run the"
+	echo "upgrade script instead."
+	echo ""
+	echo "Continue bootstrapping (deletes databases) ? "
+	echo ""
+	read -e -p "[yes / NO]: "
 	if test "${REPLY}" != "yes" ; then
 		echo "Bootstrapping aborted by user."
 		exit 1
@@ -72,90 +73,17 @@ if test "${PREV_VER_EXISTS}" != "" ; then
 fi
 
 
-# baseline v2
-LOG="${GM_LOG_BASE}/bootstrap-v2.log"
-CONF="redo-v2.conf"
-export GM_CORE_DB="gnumed_v2"
+LOG="${GM_LOG_BASE}/bootstrap-latest.log"
+CONF="bootstrap-latest.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v2\" did not finish successfully. Aborting."
+	echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully. Aborting."
 	exit 1
 fi
-unset GM_CORE_DB
 
 
-# v2 -> v3
-./upgrade-db.sh 2 3 no-backup
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v3\" did not finish successfully. Aborting."
-	exit 1
-fi
-echo_msg "Dropping obsoleted staging database gnumed_v2 ..."
-echo_msg "(you may need to provide the password for ${USER})"
-sudo -u postgres dropdb ${PORT_DEF} gnumed_v2
-
-
-# v3 -> v4
-./upgrade-db.sh 3 4 no-backup
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v4\" did not finish successfully. Aborting."
-	exit 1
-fi
-echo_msg "Dropping obsoleted staging database gnumed_v3 ..."
-echo_msg "(you may need to provide the password for ${USER})"
-sudo -u postgres dropdb ${PORT_DEF} gnumed_v3
-
-
-# v4 -> v5
-./upgrade-db.sh 4 5 no-backup
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v5\" did not finish successfully. Aborting."
-	exit 1
-fi
-echo_msg "Dropping obsoleted staging database gnumed_v4 ..."
-echo_msg "(you may need to provide the password for ${USER})"
-sudo -u postgres dropdb ${PORT_DEF} gnumed_v4
-
-
-# v5 -> v6
-./upgrade-db.sh 5 6 no-backup
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v6\" did not finish successfully. Aborting."
-	exit 1
-fi
-echo_msg "Dropping obsoleted staging database gnumed_v5 ..."
-echo_msg "(you may need to provide the password for ${USER})"
-sudo -u postgres dropdb ${PORT_DEF} gnumed_v5
-
-
-# v6 -> v7
-./upgrade-db.sh 6 7 no-backup
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v7\" did not finish successfully. Aborting."
-	exit 1
-fi
-echo_msg "Dropping obsoleted staging database gnumed_v6 ..."
-echo_msg "(you may need to provide the password for ${USER})"
-sudo -u postgres dropdb ${PORT_DEF} gnumed_v6
-
-
-# v7 -> v8
-./upgrade-db.sh 7 8 no-backup
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v8\" did not finish successfully. Aborting."
-	exit 1
-fi
-echo_msg "Dropping obsoleted staging database gnumed_v7 ..."
-echo_msg "(you may need to provide the password for ${USER})"
-sudo -u postgres dropdb ${PORT_DEF} gnumed_v7
-
-
-# v8 -> v9
-./upgrade-db.sh 8 9 no-backup
-if test "$?" != "0" ; then
-	echo "Bootstrapping \"gnumed_v9\" did not finish successfully. Aborting."
-	exit 1
-fi
-#echo_msg "Dropping obsoleted staging database gnumed_v8 ..."
-#echo_msg "(you may need to provide the password for ${USER})"
-#sudo -u postgres dropdb ${PORT_DEF} gnumed_v8
+for DB_VER in ${VERSIONS_TO_DROP} ; do
+	echo_msg "Dropping obsoleted staging database gnumed_v${DB_VER} ..."
+	echo_msg "(you may need to provide the password for ${USER})"
+	sudo -u postgres dropdb ${PORT_DEF} gnumed_v${DB_VER}
+done
