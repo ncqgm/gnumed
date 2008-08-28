@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.65 2008-08-20 13:53:57 ncq Exp $
+# $Id: gmTools.py,v 1.66 2008-08-28 18:32:24 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -75,7 +75,8 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	remote_file.close()
 
 	latest_branch = cfg.get('latest branch', 'branch', source_order = [('gm-versions', 'return')])
-	latest_release_on_latest_branch = cfg.get('latest branch', 'latest release', source_order = [('gm-versions', 'return')])
+#	latest_release_on_latest_branch = cfg.get('latest branch', 'latest release', source_order = [('gm-versions', 'return')])
+	latest_release_on_latest_branch = cfg.get('branch %s' % latest_branch, 'latest release', source_order = [('gm-versions', 'return')])
 	latest_release_on_current_branch = cfg.get('branch %s' % current_branch, 'latest release', source_order = [('gm-versions', 'return')])
 
 	_log.info('current release: %s', current_version)
@@ -899,7 +900,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.65  2008-08-20 13:53:57  ncq
+# Revision 1.66  2008-08-28 18:32:24  ncq
+# - read latest branch then latest release from branch group
+#
+# Revision 1.65  2008/08/20 13:53:57  ncq
 # - add some coalesce tests
 #
 # Revision 1.64  2008/07/28 15:43:35  ncq
