@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.110 2008-07-28 20:27:20 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmPatSearchWidgets.py,v 1.111 2008-08-28 18:34:18 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -787,7 +787,6 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			name = curr_pat['description']
 			if curr_pat.locked:
 				name = _('%(name)s (locked)') % {'name': name}
-#			name = '%s%s' % (name, gmTools.coalesce(self._prev_search_term, u'', u' [%s]'))
 
 		self.SetValue(name)
 	#--------------------------------------------------------
@@ -827,8 +826,14 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	def __register_events(self):
 		# client internal signals
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_name_identity_change)
+
 		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)
+	#----------------------------------------------
+	def _on_name_identity_change(self, **kwargs):
+		wx.CallAfter(self._display_name)
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		if gmPerson.gmCurrentPatient().connected:
@@ -978,7 +983,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.110  2008-07-28 20:27:20  ncq
+# Revision 1.111  2008-08-28 18:34:18  ncq
+# - make active patient selector react to patient activation,
+#   name/identity change all by itself with updating its display,
+#   don't let top panel do it for us
+#
+# Revision 1.110  2008/07/28 20:27:20  ncq
 # - do not try to activate None person
 #
 # Revision 1.109  2008/07/07 13:43:17  ncq
