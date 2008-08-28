@@ -1,0 +1,154 @@
+#!/bin/bash
+#------------------------------------------------------------
+#
+# This is a shell fragment sourced by backup shell scripts.
+#
+# Copy this file to /etc/gnumed/gnumed-backup.conf and
+# configure appropriately.
+#
+# If the PostgreSQL users $GM_DBO and/or "postgres" need a
+# password you will have to configure that using a .pgpass
+# file (see the PG manual for how to do that):
+#
+# http://www.postgresql.org/docs/8.1/static/libpq-pgpass.html
+#
+#------------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/gnumed-backup.conf.example,v $
+# $Id: gnumed-backup.conf.example,v 1.1 2008-08-28 15:11:48 ncq Exp $
+
+
+#------------------------------------------------------------
+# those need to be changed in most if not all cases
+#------------------------------------------------------------
+
+
+# options for *taking* backups:
+
+# identify the logical/business-level owner of this
+# GNUmed database instance, such as "ACME GP Office",
+# do not use spaces: "ACME_GP_Offices"
+INSTANCE_OWNER="GNUmed_Team"
+
+# where to eventually store the backup
+BACKUP_DIR="${HOME}/.gnumed/backup/"
+
+# which database to backup
+GM_DATABASE="gnumed_v9"
+
+# user/group the backup is eventually owned by
+BACKUP_OWNER="$USER.$USER"
+
+
+# options for *offsiting* backups:
+
+# this needs to be set to a host you can reach via rsync w/o
+# need for manually entering a password (say, SSH public key
+# authentication)
+OFFSITE_BACKUP_HOST="need to set this"
+
+# this is where you want the backup files to end up
+# on OFFSITE_BACKUP_HOST
+OFFSITE_BACKUP_DIR="need to set this"
+
+# the maximum bandwith, in KBytes/second, to utilize,
+# empty means full speed ahead
+MAX_OFFSITING_BANDWIDTH=""
+
+# how to determine whether or not to transfer a file:
+# yes
+#  - compare files by CRC
+#  - can put quite a bit of load on both machines
+# no
+#  - compare files by timestamp and size
+#  - a lot cheaper CPU-wise but may result
+#    in redundant file transfers
+#
+# default "yes" - better safe than sorry
+OFFSITE_BY_CRC="yes"
+
+#------------------------------------------------------------
+# those need to be changed less likely:
+#------------------------------------------------------------
+
+# which PostgreSQL user to dump as, usually "gm-dbo"
+GM_DBO="gm-dbo"
+
+# if your PostgreSQL server is running on another port
+GM_PORT="5432"
+
+# set this if you want to dump from a remote host
+GM_HOST=""
+
+# file permissions mask to set the backup file to
+BACKUP_MASK="0600"
+
+# whether or not to verify that TAR archive,
+# verification may be very time consuming,
+# empty means: do not verify
+VERIFY_TAR=""
+
+# the compression level to use with bzip2 (1-9) (see: man bzip2)
+COMPRESSION_LEVEL="9"
+
+# set this to an email address which will receive
+# digitally signed replies from the GNotary server
+# notarizing the hash of the backup
+SIG_RECEIVER="$USER@localhost"
+
+# set this to the email address of the GNotary server
+# you want your hashes to be signed by
+GNOTARY_SERVER="gnotary@gnotary.de"
+
+# you will have to set the GNotary TAN here,
+# using "free" works but makes you a Freeloader,
+# as it is mainly intended for testing,
+# setting this to "" effectively disables notarizing
+GNOTARY_TAN="free"
+
+#============================================================
+# $Log: gnumed-backup.conf.example,v $
+# Revision 1.1  2008-08-28 15:11:48  ncq
+# - moved here
+#
+# Revision 1.13  2008/08/01 10:08:49  ncq
+# - /bin/sh -> /bin/bash
+#
+# Revision 1.12  2008/01/07 19:45:11  ncq
+# - bump db version
+#
+# Revision 1.11  2007/12/02 11:42:48  ncq
+# - improved docs
+# - add options for moving backups offsite
+#
+# Revision 1.10  2007/10/22 12:37:02  ncq
+# - default database change
+#
+# Revision 1.9  2007/09/24 18:25:45  ncq
+# - VERIFY_TAR
+#
+# Revision 1.8  2007/06/11 20:14:59  ncq
+# - bump database version
+#
+# Revision 1.7  2007/06/05 14:57:03  ncq
+# - add compression level variable
+#
+# Revision 1.6  2007/05/17 15:14:54  ncq
+# - better default backup target dir in line with the rest of GNUmed
+#
+# Revision 1.5  2007/05/14 21:28:09  ncq
+# - better docs
+# - add GM_HOST
+#
+# Revision 1.4  2007/05/07 08:00:52  ncq
+# - default backup location $HOME rather than /
+#
+# Revision 1.3  2007/05/01 19:40:08  ncq
+# - add URL
+#
+# Revision 1.2  2007/05/01 16:45:24  ncq
+# - improved
+#
+# Revision 1.1  2007/05/01 16:34:45  ncq
+# - needed by gm-backup_database.sh
+#
+#
