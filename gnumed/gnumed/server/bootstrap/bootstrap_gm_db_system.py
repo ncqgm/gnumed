@@ -33,12 +33,31 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.86 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # standard library
 import sys, string, os.path, fileinput, os, time, getpass, glob, re, tempfile, logging
+
+
+# adjust Python path
+local_python_base_dir = os.path.dirname (
+	os.path.abspath(os.path.join(sys.argv[0], '..', '..'))
+)
+
+# does the path exist at all, physically ?
+# note that broken links are reported as True
+if not os.path.lexists(os.path.join(local_python_base_dir, 'Gnumed')):
+	src = os.path.join(local_python_base_dir, 'client')
+	dst = os.path.join(local_python_base_dir, 'Gnumed')
+	print "Creating module import symlink ..."
+	print '', dst, '=>'
+	print '    =>', src
+	os.symlink(src, dst)
+
+print "Adjusting PYTHONPATH ..."
+sys.path.insert(0, local_python_base_dir)
 
 
 # GNUmed imports
@@ -71,6 +90,7 @@ cached_host = None
 cached_passwd = {}
 _keep_temp_files = False
 
+conn_ref_count = []
 #==================================================================
 pg_hba_sermon = """
 I have found a connection to the database, but I am forbidden
@@ -166,114 +186,19 @@ def connect (host, port, db, user, passwd, superuser=0):
 		else:
 			passwd = ''
 
-	conn = None
 	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
 	_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
 	try:
 		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False, verbose=True)
-		cached_host = (host, port) # learn from past successes
-		cached_passwd[user] = passwd
-		_log.info('successfully connected')
-
-	except gmPG2.cAuthenticationError:
-		_log.critical('authentication error')
-		_log.exception("password not accepted, retrying")
-		passwd = getpass.getpass("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
-		conn = connect (host, port, db, user, passwd)
-
-	except gmPG2.dbapi.OperationalError, e:
-		_log.critical('operational error')
-		_log.exception('connection failed')
-
-		t, v, tb = sys.exc_info()
-		try:
-			msg = e.args[0]
-		except (AttributeError, IndexError, TypeError):
-			raise
-
-		m = unicode(msg, gmI18N.get_encoding(), 'replace')
-
-		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
-			# this pretty much means we're screwed
-			if _interactive:
-				print_msg(pg_hba_sermon)
-		elif re.search ("no password supplied", m):
-			# didn't like blank password trick
-			_log.warning("attempt w/ blank password failed, retrying with password")
-			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
-			conn = connect (host, port, db, user, passwd)
-		elif re.search ("could not connect to server", m):
-			if len(host) == 0:
-				# try again on TCP/IP loopback
-				_log.warning("UNIX socket connection failed, retrying on 127.0.0.1")
-				conn = connect ("127.0.0.1", port, db, user, passwd)
-			else:
-				_log.warning("connection to host %s:%s failed" % (host, port))
-				if _interactive:
-					print_msg(no_server_sermon)
-					host = raw_input("New host to connect to:")
-					if len(host) > 0:
-						host.split(':')
-						if len(host) > 1:
-							port = host[1]
-							host = host[0]
-						else:
-							host = host[0]
-							conn = connect (host, port, db, user, password)
-		else:
-			if _interactive:
-				print_msg(no_clues % (message, sys.platform))
-
 	except:
-		_log.critical('other connect-related error')
 		_log.exception(u'connection failed')
 		raise
 
-#	except gmPG2.dbapi.OperationalError, message:
-#		_log.exception('connection failed')
-#		m = str(message)
-#		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
-#			# this pretty much means we're screwed
-#			if _interactive:
-#				print_msg(pg_hba_sermon)
-#		elif re.search ("no password supplied", m):
-#			# didn't like blank password trick
-#			_log.warning("attempt w/ blank password failed, retrying with password")
-#			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
-#			conn = connect (host, port, db, user, passwd)
-#		elif re.search ("^FATAL:.*Password authentication failed.*", m):
-#			# didn't like supplied password
-#			_log.warning("password not accepted, retrying")
-#			passwd = getpass.getpass ("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
-#			conn = connect (host, port, db, user, passwd)
-#		elif re.search ("could not connect to server", m):
-#			if len(host) == 0:
-#				# try again on TCP/IP loopback
-#				_log.warning("UNIX socket connection failed, retrying on 127.0.0.1")
-#				conn = connect ("127.0.0.1", port, db, user, passwd)
-#			else:
-#				_log.warning("connection to host %s:%s failed" % (host, port))
-#				if _interactive:
-#					print_msg(no_server_sermon)
-#					host = raw_input("New host to connect to:")
-#					if len(host) > 0:
-#						host.split(':')
-#						if len(host) > 1:
-#							port = host[1]
-#							host = host[0]
-#						else:
-#							host = host[0]
-#							conn = connect (host, port, db, user, password)
-#		elif re.search ("^FATAL:.*IDENT authentication failed.*", m):
-#			if _interactive:
-#				if superuser:
-#					print_msg(superuser_sermon % user)
-#				else:
-#					print_msg(pg_hba_sermon)
-#		else:
-#			if _interactive:
-#				print_msg(no_clues % (message, sys.platform))
+	cached_host = (host, port) # learn from past successes
+	cached_passwd[user] = passwd
+	conn_ref_count.append(conn)
 
+	_log.info('successfully connected')
 	return conn
 #==================================================================
 class user:
@@ -321,6 +246,7 @@ class db_server:
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
 		self.auth_group = auth_group
+		self.conn = None
 
 		if not self.__bootstrap():
 			raise ConstructorError, "db_server.__init__(): Cannot bootstrap db server."
@@ -370,10 +296,16 @@ class db_server:
 			_log.error("Need to know the database server port address.")
 			return None
 
+		if self.conn is not None:
+			if self.conn.closed == 0:
+				self.conn.close()
+
 		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
 		if self.conn is None:
 			_log.error('Cannot connect.')
 			return None
+
+		self.conn.cookie = 'db_server.__connect_superuser_to_srv_template'
 
 		curs = self.conn.cursor()
 		curs.execute(u"select setting from pg_settings where name = 'lc_ctype'")
@@ -547,15 +479,9 @@ class database:
 	def __init__(self, aDB_alias):
 		_log.info("bootstrapping database [%s]" % aDB_alias)
 
-		global _bootstrapped_dbs
-
-		if _bootstrapped_dbs.has_key(aDB_alias):
-			_log.info("database [%s] already bootstrapped" % aDB_alias)
-			return None
-
-		self.conn = None
 		self.section = "database %s" % aDB_alias
 
+		# find database name
 		overrider = cfg_get(self.section, 'override name by')
 		if overrider is not None:
 			self.name = os.getenv(overrider)
@@ -568,6 +494,22 @@ class database:
 		if self.name is None or str(self.name).strip() == '':
 			_log.error("Need to know database name.")
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+
+		# already bootstrapped ?
+		global _bootstrapped_dbs
+		if _bootstrapped_dbs.has_key(aDB_alias):
+			if _bootstrapped_dbs[aDB_alias].name == self.name:
+				_log.info("database [%s] already bootstrapped", self.name)
+				return None
+
+		# no, so bootstrap from scratch
+		_log.info('bootstrapping database [%s] alias "%s"', self.name, aDB_alias)
+
+		for db in _bootstrapped_dbs.values():
+			if db.conn.closed == 0:
+				db.conn.close()
+		_bootstrapped_dbs = {}
+		self.conn = None
 
 		self.server_alias = cfg_get(self.section, "server alias")
 		if self.server_alias is None:
@@ -618,9 +560,12 @@ class database:
 		if not self.__connect_superuser_to_db():
 			_log.error("Cannot connect to database.")
 			return None
-		if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
-			_log.error("cannot import schema definition for database [%s]" % (self.name))
-			return None
+		tmp = cfg_get(self.section, 'superuser schema')
+		if tmp is not None:
+			if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
+				_log.error("cannot import schema definition for database [%s]" % (self.name))
+				return None
+		del tmp
 
 		# transfer users
 		if not self.tranfer_users():
@@ -635,11 +580,16 @@ class database:
 			_log.error("cannot import schema definition for database [%s]" % (self.name))
 			return None
 
+		# don't close this here, the  connection will
+		# be reused later by check_data*/import_data etc.
+		#self.conn.close()
+
 		return True
 	#--------------------------------------------------------------
 	def __connect_superuser_to_template(self):
 		if self.conn is not None:
-			self.conn.close()
+			if self.conn.closed == 0:
+				self.conn.close()
 
 		self.conn = connect (
 			self.server.name,
@@ -649,6 +599,8 @@ class database:
 			self.server.superuser.password
 		)
 
+		self.conn.cookie = 'database.__connect_superuser_to_template'
+
 		curs = self.conn.cursor()
 		curs.execute(u"set lc_messages to 'C'")
 		curs.close()
@@ -657,7 +609,8 @@ class database:
 	#--------------------------------------------------------------
 	def __connect_superuser_to_db(self):
 		if self.conn is not None:
-			self.conn.close()
+			if self.conn.closed == 0:
+				self.conn.close()
 
 		self.conn = connect (
 			self.server.name,
@@ -666,6 +619,8 @@ class database:
 			self.server.superuser.name,
 			self.server.superuser.password
 		)
+
+		self.conn.cookie = 'database.__connect_superuser_to_db'
 
 		curs = self.conn.cursor()
 		# we need English messages to detect errors
@@ -685,6 +640,8 @@ class database:
 		if not self.__connect_superuser_to_db():
 			_log.error("Cannot connect to database.")
 			return False
+
+		self.conn.cookie = 'database.__connect_owner_to_db via database.__connect_superuser_to_db'
 
 		curs = self.conn.cursor()
 		cmd = "set session authorization %(usr)s"
@@ -716,7 +673,7 @@ class database:
 	def __create_db(self):
 		if self.__db_exists():
 			# FIXME: verify that database is owned by "gm-dbo"
-			drop_existing = bool(cfg_get(self.section, 'drop target database'))
+			drop_existing = bool(int(cfg_get(self.section, 'drop target database')))
 			if drop_existing:
 				print_msg("==> dropping pre-existing *target* database [%s] ..." % self.name)
 				_log.info('trying to drop target database')
@@ -732,7 +689,14 @@ class database:
 				cursor.close()
 				self.conn.commit()
 			else:
-				return False
+				use_existing = bool(int(cfg_get(self.section, 'use existing target database')))
+				if use_existing:
+					print_msg("==> using pre-existing *target* database [%s] ..." % self.name)
+					_log.info('using existing database [%s]', self.name)
+					return True
+				else:
+					_log.info('not using existing database [%s]', self.name)
+					return False
 
 		# verify template database hash
 		template_version = cfg_get(self.section, 'template version')
@@ -802,6 +766,8 @@ class database:
 			self.server.superuser.name,
 			self.server.superuser.password
 		)
+		template_conn.cookie = 'check_data_plausibility: template'
+
 		target_conn = connect (
 			self.server.name,
 			self.server.port,
@@ -809,6 +775,7 @@ class database:
 			self.server.superuser.name,
 			self.server.superuser.password
 		)
+		target_conn.cookie = 'check_data_plausibility: target'
 
 		for idx in range(no_of_queries):
 			tag, old_query = plausibility_queries[idx*2].split('::::')
@@ -840,6 +807,9 @@ class database:
 				return False
 
 			_log.info('plausibility check [%s] succeeded' % tag)
+
+		template_conn.close()
+		target_conn.close()
 
 		return True
 	#--------------------------------------------------------------
@@ -1167,7 +1137,7 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 			schema_base_dir = os.path.expandvars('$GNUMED_DIR/server')
 
 	# and import them
-	psql = gmPsql.Psql (conn)
+	psql = gmPsql.Psql(conn)
 	for file in schema_files:
 		the_file = os.path.join(schema_base_dir, file)
 		if psql.run(the_file) == 0:
@@ -1312,6 +1282,7 @@ def main():
 		option = 'config files',
 		source_order = [('file', 'return')]
 	)
+
 	if cfg_files is None:
 		_log.info('single-shot config file')
 		handle_cfg()
@@ -1325,6 +1296,8 @@ def main():
 			)
 			handle_cfg()
 
+	global _bootstrapped_dbs
+
 	# verify result hash
 	db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
 	if not db.verify_result_hash():
@@ -1335,6 +1308,13 @@ def main():
 
 	if not db.import_data():
 		exit_with_msg("Bootstrapping failed: unable to import data")
+
+	for conn in conn_ref_count:
+		if conn.closed == 0:
+			_log.warning('open connection detected: %s', conn.cookie)
+			_log.warning('%s', conn)
+			_log.warning('closing connection')
+			conn.close()
 
 	_log.info("shutdown")
 	print("Done bootstrapping GNUmed database: We very likely succeeded.")
@@ -1350,6 +1330,11 @@ if __name__ == "__main__":
 	try:
 		main()
 	except StandardError:
+		for c in conn_ref_count:
+			if c.closed == 0:
+				print 'closing open connection from:', c.cookie
+				print c
+				c.close()
 		_log.exception('unhandled exception caught')
 		exit_with_msg("Bootstrapping failed: unhandled exception occurred")
 
@@ -1385,7 +1370,13 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.85  2008-07-30 10:09:21  ncq
+# Revision 1.86  2008-08-28 12:16:01  ncq
+# - adjust Python path if needed
+# - cleanup connect
+# - re-bootstrap database when necessary
+#   - thus allow for one-step bootstrapping across several versions
+#
+# Revision 1.85  2008/07/30 10:09:21  ncq
 # - allow C/POSIX locale
 #
 # Revision 1.84  2008/07/22 15:20:02  ncq
