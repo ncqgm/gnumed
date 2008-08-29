@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.58 2008-04-29 18:27:44 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmForms.py,v 1.59 2008-08-29 20:54:28 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -274,13 +274,13 @@ class gmOOoConnector(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def open_document(self, filename=None):
 		"""<filename> must be absolute"""
-		document_uri = uno.systemPathToFileUrl(os.path.abspath(os.path.expanduser(filename)))
-		desktop = self.desktop
-
-		if desktop is None:
+		# make sure we have a desktop
+		if self.desktop is None:
 			return None
 
-		doc = desk.loadComponentFromURL(document_uri, "_blank", 0, ())
+		document_uri = uno.systemPathToFileUrl(os.path.abspath(os.path.expanduser(filename)))
+
+		doc = self.desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
 		return doc
 	#--------------------------------------------------------
 	# properties
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.58  2008-04-29 18:27:44  ncq
+# Revision 1.59  2008-08-29 20:54:28  ncq
+# - cleanup
+#
+# Revision 1.58  2008/04/29 18:27:44  ncq
 # - cOOoConnector -> gmOOoConnector
 #
 # Revision 1.57  2008/02/25 17:31:41  ncq
