@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.93 2008-08-15 15:56:38 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmEMRBrowser.py,v 1.93.2.1 2008-08-31 22:17:01 ncq Exp $
+__version__ = "$Revision: 1.93.2.1 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -91,6 +91,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		except KeyError:
 			self.__narr_display = None
 		self.__pat = gmPerson.gmCurrentPatient()
+		self.__curr_node = None
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
 
 		self.__make_popup_menus()
@@ -154,6 +155,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		"""Displays information for the selected tree node."""
 
 		if self.__narr_display is None:
+			return
+
+		if self.__curr_node is None:
 			return
 
 		node_data = self.GetPyData(self.__curr_node)
@@ -668,7 +672,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.93  2008-08-15 15:56:38  ncq
+# Revision 1.93.2.1  2008-08-31 22:17:01  ncq
+# - don't crash on getting narrative change signal before tree has been populated
+#
+# Revision 1.93  2008/08/15 15:56:38  ncq
 # - properly handle context click on pseudo-issue
 #
 # Revision 1.92  2008/07/28 15:44:39  ncq
