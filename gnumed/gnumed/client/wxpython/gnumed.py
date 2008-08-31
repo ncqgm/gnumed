@@ -41,8 +41,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.142 2008-08-05 12:47:14 ncq Exp $
-__version__ = "$Revision: 1.142 $"
+# $Id: gnumed.py,v 1.142.2.1 2008-08-31 14:25:41 ncq Exp $
+__version__ = "$Revision: 1.142.2.1 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -303,6 +303,14 @@ def setup_cfg():
 		if _cfg.source_files['explicit'] is None:
 			sys.exit(missing_config_file % fname)
 
+	found_any_file = False
+	for f in _cfg.source_files.values():
+		if f is not None:
+			found_any_file = True
+			break
+	if not found_any_file:
+		sys.exit('Cannot find any configuration files.')
+
 	# mime type handling sources
 	fname = u'mime_type2file_extension.conf'
 	_cfg.add_file_source (
@@ -410,7 +418,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.142  2008-08-05 12:47:14  ncq
+# Revision 1.142.2.1  2008-08-31 14:25:41  ncq
+# - explicitely detect and fail when no config file whatsoever is found
+#
+# Revision 1.142  2008/08/05 12:47:14  ncq
 # - support --local-import
 # - some cleanup
 #
