@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.29 2008-08-31 17:04:17 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmMeasurementWidgets.py,v 1.30 2008-08-31 17:13:50 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -568,6 +568,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 		row = evt.GetRow()
 		if col == 0:
 			# FIXME: invoke (unified) test type editor
+			return
+
+		# empty cell, perhaps ?
+		try:
+			self.__cell_data[col][row]
+		except KeyError:
+			# FIXME: invoke editor for adding value for day of that column
+			# FIMXE: and test of that row
 			return
 
 		if len(self.__cell_data[col][row]) > 1:
@@ -1222,7 +1230,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.29  2008-08-31 17:04:17  ncq
+# Revision 1.30  2008-08-31 17:13:50  ncq
+# - don't crash on double-clicking empty test results cell
+#
+# Revision 1.29  2008/08/31 17:04:17  ncq
 # - need to cast val_normal/target_min/max to unicode before display
 #
 # Revision 1.28  2008/08/15 15:57:10  ncq
