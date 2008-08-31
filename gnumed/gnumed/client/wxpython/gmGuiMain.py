@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.427 2008-08-31 16:16:27 ncq Exp $
-__version__ = "$Revision: 1.427 $"
+# $Id: gmGuiMain.py,v 1.428 2008-08-31 18:02:45 ncq Exp $
+__version__ = "$Revision: 1.428 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -723,6 +723,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		help_menu.Append(ID, _('User manual (www)'), _('Go to the User Manual on the web.'))
 		wx.EVT_MENU(self, ID, self.__on_display_user_manual_online)
+
+		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
+		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
 
 		menu_debugging = wx.Menu()
 		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
@@ -1795,6 +1798,13 @@ class gmTopLevelFrame(wx.Frame):
 			autoraise = True
 		)
 	#----------------------------------------------
+	def __on_menu_reference(self, evt):
+		webbrowser.open (
+			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference',
+			new = False,
+			autoraise = True
+		)
+	#----------------------------------------------
 	def __on_pgadmin3(self, evt):
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
 		if found:
@@ -2697,7 +2707,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.427  2008-08-31 16:16:27  ncq
+# Revision 1.428  2008-08-31 18:02:45  ncq
+# - add "Menu reference" menu item
+#
+# Revision 1.427  2008/08/31 16:16:27  ncq
 # - comment
 #
 # Revision 1.426  2008/08/23 14:47:54  ncq
