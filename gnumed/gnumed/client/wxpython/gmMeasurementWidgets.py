@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.28 2008-08-15 15:57:10 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmMeasurementWidgets.py,v 1.28.2.1 2008-08-31 22:20:13 ncq Exp $
+__version__ = "$Revision: 1.28.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -226,11 +226,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		for col_idx in self.__cell_data.keys():
 			for row_idx in self.__cell_data[col_idx].keys():
+				# skip multi-value cells for now
+				if len(self.__cell_data[col_idx][row_idx]) > 1:
+					continue
 				if unsigned_only:
-					if self.__cell_data[col_idx][row_idx]['reviewed']:
+					if self.__cell_data[col_idx][row_idx][0]['reviewed']:
 						continue
 				if accountables_only:
-					if not self.__cell_data[col_idx][row_idx]['you_are_responsible']:
+					if not self.__cell_data[col_idx][row_idx][0]['you_are_responsible']:
 						continue
 				self.SelectBlock(row_idx, col_idx, row_idx, col_idx, addToSelected = True)
 
@@ -492,8 +495,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def empty_grid(self):
 		self.BeginBatch()
 		self.ClearGrid()
-		self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
-		self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
+		# Windows bullsh*t
+		if self.GetNumberRows() > 0:
+			self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
+		if self.GetNumberCols() > 0:
+			self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
 		self.__cell_tooltips = {}
 		self.__cell_data = {}
@@ -568,6 +574,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 		row = evt.GetRow()
 		if col == 0:
 			# FIXME: invoke (unified) test type editor
+			return
+
+		# empty ?
+		try:
+			self.__cell_data[col][row]
+		except KeyError:
 			return
 
 		if len(self.__cell_data[col][row]) > 1:
@@ -807,11 +819,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
 		self._TCTRL_review_comment.SetValue(gmTools.coalesce(self.data['review_comment'], u''))
-		self._TCTRL_normal_min.SetValue(gmTools.coalesce(self.data['val_normal_min'], u''))
-		self._TCTRL_normal_max.SetValue(gmTools.coalesce(self.data['val_normal_max'], u''))
+		self._TCTRL_normal_min.SetValue(unicode(gmTools.coalesce(self.data['val_normal_min'], u'')))
+		self._TCTRL_normal_max.SetValue(unicode(gmTools.coalesce(self.data['val_normal_max'], u'')))
 		self._TCTRL_normal_range.SetValue(gmTools.coalesce(self.data['val_normal_range'], u''))
-		self._TCTRL_target_min.SetValue(gmTools.coalesce(self.data['val_target_min'], u''))
-		self._TCTRL_target_max.SetValue(gmTools.coalesce(self.data['val_target_max'], u''))
+		self._TCTRL_target_min.SetValue(unicode(gmTools.coalesce(self.data['val_target_min'], u'')))
+		self._TCTRL_target_max.SetValue(unicode(gmTools.coalesce(self.data['val_target_max'], u'')))
 		self._TCTRL_target_range.SetValue(gmTools.coalesce(self.data['val_target_range'], u''))
 		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(self.data['norm_ref_group'], u''))
 
@@ -1222,7 +1234,13 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.28  2008-08-15 15:57:10  ncq
+# Revision 1.28.2.1  2008-08-31 22:20:13  ncq
+# - ignore dclick in empty grid cell
+# - properly display non-NULL val_normal/target_min/max
+# - properly handle cell data being list when selecting cells programmatically
+# - work around Windows not being able to do nothing when there's nothing to do
+#
+# Revision 1.28  2008/08/15 15:57:10  ncq
 # - indicate data revisions in tooltip
 #
 # Revision 1.27  2008/08/08 13:31:58  ncq
