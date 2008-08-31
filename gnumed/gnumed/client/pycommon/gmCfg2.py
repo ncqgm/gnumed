@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.15.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -336,13 +336,15 @@ class gmCfgData(gmBorg.cBorg):
 	#--------------------------------------------------
 	def add_file_source(self, source=None, file=None, encoding='utf8'):
 		"""Add a source (a file) to the instance."""
+
 		_log.info('file source "%s": %s (%s)', source, file, encoding)
 
-		try:
-			cfg_file = codecs.open(filename = file, mode = 'rU', encoding = encoding)
-		except IOError:
-			_log.error('cannot open [%s], keeping as dummy source', file)
-			cfg_file = None
+		cfg_file = None
+		if file is not None:
+			try:
+				cfg_file = codecs.open(filename = file, mode = 'rU', encoding = encoding)
+			except IOError:
+				_log.error('cannot open [%s], keeping as dummy source', file)
 
 		if cfg_file is None:
 			file = None
@@ -494,7 +496,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.15  2008-08-03 20:03:11  ncq
+# Revision 1.15.2.1  2008-08-31 14:22:44  ncq
+# - properly act on explicit file=None in add_file_source
+#
+# Revision 1.15  2008/08/03 20:03:11  ncq
 # - do not simply add "." before the entire path of the dummy
 #   conf file when setting option - it should go right before the name part
 #
