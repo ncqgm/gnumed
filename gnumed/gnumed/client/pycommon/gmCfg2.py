@@ -2,12 +2,12 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.15.2.1 $"
+__version__ = "$Revision: 1.15.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
 
-import logging, sys, codecs, re as regex, shutil, os
+import logging, sys, codecs, re as regex, shutil, os, types
 
 
 if __name__ == "__main__":
@@ -314,7 +314,13 @@ class gmCfgData(gmBorg.cBorg):
 			if policy == u'return':
 				return value
 
-			results.append(value)
+			if policy == u'extend':
+				if isinstance(value, types.ListType):
+					results.extend(value)
+				else:
+					results.append(value)
+			else:
+				results.append(value)
 
 		if len(results) == 0:
 			return None
@@ -496,7 +502,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.15.2.1  2008-08-31 14:22:44  ncq
+# Revision 1.15.2.2  2008-08-31 22:14:52  ncq
+# - support "extend" policy on list options
+#
+# Revision 1.15.2.1  2008/08/31 14:22:44  ncq
 # - properly act on explicit file=None in add_file_source
 #
 # Revision 1.15  2008/08/03 20:03:11  ncq
