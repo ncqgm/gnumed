@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.17 2008-08-31 14:49:26 ncq Exp $
+# $Id: gnumed,v 1.18 2008-08-31 18:05:41 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -56,7 +56,7 @@ GNUMED_SCRIPT_PATH_CANDIDATES=\
 
 GM_SCRIPT=""
 for GNUMED_SCRIPT_PATH in ${GNUMED_SCRIPT_PATH_CANDIDATES} ; do
-	if test -f "${GNUMED_SCRIPT_PATH}/gnumed.py" ; then
+	if test -f ${GNUMED_SCRIPT_PATH}/gnumed.py ; then
 		GM_SCRIPT="${GNUMED_SCRIPT_PATH}/gnumed.py"
 		break
 	fi
@@ -72,16 +72,16 @@ fi
 
 
 # check for explicit --conf-file option
-CONFFILE_ARG=""
-if echo $OPTIONS | grep -q -- "--conf-file[[:space:]]*=" ; then
-	CONFFILE_NAME=`echo $OPTIONS | sed -e 's/^.*--conf-file[[:space:]]*=[[:space:]]*\([^[:space:]]\+\).*/\1/'`
-	if [ ! -s ${CONFFILE_NAME} ] ; then
-		echo "Given config file ${CONFFILE_NAME} missing."
-		exit 1
-	fi
-	CONFFILE_ARG="--conf-file=${CONFFILE_NAME}"
-	OPTIONS=`echo $OPTIONS | sed -e 's/--conf-file[[:space:]]*=[[:space:]]*[^[:space:]]\+//'`
-fi
+#CONFFILE_ARG=""
+#if echo $OPTIONS | grep -q -- "--conf-file[[:space:]]*=" ; then
+#	CONFFILE_NAME=`echo $OPTIONS | sed -e 's/^.*--conf-file[[:space:]]*=[[:space:]]*\([^[:space:]]\+\).*/\1/'`
+#	if [ ! -s ${CONFFILE_NAME} ] ; then
+#		echo "Given config file ${CONFFILE_NAME} missing."
+#		exit 1
+#	fi
+#	CONFFILE_ARG="--conf-file=${CONFFILE_NAME}"
+#	OPTIONS=`echo $OPTIONS | sed -e 's/--conf-file[[:space:]]*=[[:space:]]*[^[:space:]]\+//'`
+#fi
 
 
 # source systemwide startup extension shell script if it exists
@@ -97,11 +97,14 @@ fi
 
 
 # now run the client
-python ${GM_SCRIPT} ${CONFFILE_ARG} ${OPTIONS}
+python ${GM_SCRIPT} ${OPTIONS} #${CONFFILE_ARG}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.17  2008-08-31 14:49:26  ncq
+# Revision 1.18  2008-08-31 18:05:41  ncq
+# - no more CONFFILE checking as that's done by GNUmed proper now
+#
+# Revision 1.17  2008/08/31 14:49:26  ncq
 # - disambiguate CONFFILE
 #
 # Revision 1.16  2008/08/31 14:37:49  ncq
