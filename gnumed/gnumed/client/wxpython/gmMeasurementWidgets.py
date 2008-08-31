@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.28 2008-08-15 15:57:10 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmMeasurementWidgets.py,v 1.29 2008-08-31 17:04:17 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -807,11 +807,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
 		self._TCTRL_review_comment.SetValue(gmTools.coalesce(self.data['review_comment'], u''))
-		self._TCTRL_normal_min.SetValue(gmTools.coalesce(self.data['val_normal_min'], u''))
-		self._TCTRL_normal_max.SetValue(gmTools.coalesce(self.data['val_normal_max'], u''))
+		self._TCTRL_normal_min.SetValue(unicode(gmTools.coalesce(self.data['val_normal_min'], u'')))
+		self._TCTRL_normal_max.SetValue(unicode(gmTools.coalesce(self.data['val_normal_max'], u'')))
 		self._TCTRL_normal_range.SetValue(gmTools.coalesce(self.data['val_normal_range'], u''))
-		self._TCTRL_target_min.SetValue(gmTools.coalesce(self.data['val_target_min'], u''))
-		self._TCTRL_target_max.SetValue(gmTools.coalesce(self.data['val_target_max'], u''))
+		self._TCTRL_target_min.SetValue(unicode(gmTools.coalesce(self.data['val_target_min'], u'')))
+		self._TCTRL_target_max.SetValue(unicode(gmTools.coalesce(self.data['val_target_max'], u'')))
 		self._TCTRL_target_range.SetValue(gmTools.coalesce(self.data['val_target_range'], u''))
 		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(self.data['norm_ref_group'], u''))
 
@@ -1222,7 +1222,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.28  2008-08-15 15:57:10  ncq
+# Revision 1.29  2008-08-31 17:04:17  ncq
+# - need to cast val_normal/target_min/max to unicode before display
+#
+# Revision 1.28  2008/08/15 15:57:10  ncq
 # - indicate data revisions in tooltip
 #
 # Revision 1.27  2008/08/08 13:31:58  ncq
