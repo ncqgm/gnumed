@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.25 2008-07-30 12:50:34 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmAuthWidgets.py,v 1.26 2008-08-31 16:15:02 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -474,10 +474,10 @@ class cLoginPanel(wx.Panel):
 		system file.
 		"""
 		src_order = [
-			(u'explicit', u'return'),
-			(u'system', u'append'),
-			(u'user', u'append'),
-			(u'workbase', u'append')
+			(u'explicit', u'extend'),
+			(u'system', u'extend'),
+			(u'user', u'extend'),
+			(u'workbase', u'extend')
 		]
 
 		profile_names = gmTools.coalesce (
@@ -489,6 +489,7 @@ class cLoginPanel(wx.Panel):
 
 		for profile_name in profile_names:
 			# FIXME: once the profile has been found always use the corresponding source !
+			# FIXME: maybe not or else we cannot override parts of the profile
 			profile = cBackendProfile()
 			profile.name = profile_name
 			profile_section = 'profile %s' % profile_name
@@ -676,7 +677,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.25  2008-07-30 12:50:34  ncq
+# Revision 1.26  2008-08-31 16:15:02  ncq
+# - use "extend" policy when retrieving backend profiles
+#
+# Revision 1.25  2008/07/30 12:50:34  ncq
 # - cleanup
 #
 # Revision 1.24  2008/07/16 11:11:10  ncq
