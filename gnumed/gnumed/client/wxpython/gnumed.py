@@ -41,8 +41,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.142 2008-08-05 12:47:14 ncq Exp $
-__version__ = "$Revision: 1.142 $"
+# $Id: gnumed.py,v 1.143 2008-08-31 14:52:58 ncq Exp $
+__version__ = "$Revision: 1.143 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -112,7 +112,7 @@ requirements please ask on the mailing list.
 """
 
 
-missing_config_file = """
+missing_cli_config_file = u"""
 GNUmed startup: Missing configuration file.
 -------------------------------------------
 
@@ -122,6 +122,19 @@ on the command line:
 	--conf-file=%s
 
 The file does not exist, however.
+"""
+
+
+no_config_files = u"""
+GNUmed startup: Missing configuration files.
+--------------------------------------------
+
+None of the below candidate configuration
+files could be found:
+
+ %s
+
+Cannot run GNUmed without any of them.
 """
 #==========================================================
 # convenience functions
@@ -262,46 +275,54 @@ def setup_date_time():
 	gmDateTime.init()
 #==========================================================
 def setup_cfg():
+	"""Detect and setup access to GNUmed config file.
+
+	Parts of this will have limited value due to
+	wxPython not yet being available.
+	"""
 
 	enc = gmI18N.get_encoding()
 	paths = gmTools.gmPaths(app_name = u'gnumed')
 
-	# the current working dir
-	_cfg.add_file_source (
-		source = u'workbase',
-		file = os.path.join(paths.working_dir, 'gnumed.conf'),
-		encoding = enc
-	)
-	# /etc/gnumed/
-	_cfg.add_file_source (
-		source = u'system',
-		file = os.path.join(paths.system_config_dir, 'gnumed-client.conf'),
-		encoding = enc
-	)
-	# ~/.gnumed/
-	_cfg.add_file_source (
-		source = u'user',
-		file = os.path.join(paths.user_config_dir, 'gnumed.conf'),
-		encoding = enc
-	)
-	# CVS/tgz tree .../gnumed/client/ (IOW a local installation)
-	_cfg.add_file_source (
-		source = u'local',
-		file = os.path.join(paths.local_base_dir, 'gnumed.conf'),
-		encoding = enc
-	)
+	candidates = [
+		# the current working dir
+		[u'workbase', os.path.join(paths.working_dir, 'gnumed.conf')],
+		# /etc/gnumed/
+		[u'system', os.path.join(paths.system_config_dir, 'gnumed-client.conf')],
+		# ~/.gnumed/
+		[u'user', os.path.join(paths.user_config_dir, 'gnumed.conf')],
+		# CVS/tgz tree .../gnumed/client/ (IOW a local installation)
+		[u'local', os.path.join(paths.local_base_dir, 'gnumed.conf')]
+	]
 	# --conf-file=
-	fname = _cfg.get(option = u'--conf-file', source_order = [(u'cli', u'return')])
-	if fname is None:
-		_cfg.add_file_source(source = u'explicit')
+	explicit_fname = _cfg.get(option = u'--conf-file', source_order = [(u'cli', u'return')])
+	if explicit_fname is None:
+		candidates.append([u'explicit', None])
 	else:
+		candidates.append([u'explicit', explicit_fname])
+
+	for candidate in candidates:
 		_cfg.add_file_source (
-			source = u'explicit',
-			file = fname,
+			source = candidate[0],
+			file = candidate[1],
 			encoding = enc
 		)
+
+	# --conf-file given but does not actually exist ?
+	if explicit_fname is not None:
 		if _cfg.source_files['explicit'] is None:
+			_log.error('--conf-file argument does not exist')
 			sys.exit(missing_config_file % fname)
+
+	# any config file found at all ?
+	found_any_file = False
+	for f in _cfg.source_files.values():
+		if f is not None:
+			found_any_file = True
+			break
+	if not found_any_file:
+		_log.error('no config file found at all')
+		sys.exit(no_config_files % '\n '.join(candidates))
 
 	# mime type handling sources
 	fname = u'mime_type2file_extension.conf'
@@ -410,7 +431,12 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.142  2008-08-05 12:47:14  ncq
+# Revision 1.143  2008-08-31 14:52:58  ncq
+# - improved error messages
+# - streamline setup_cfg and properly handle no --conf-file
+# - detect and signal "no conf file at all"
+#
+# Revision 1.142  2008/08/05 12:47:14  ncq
 # - support --local-import
 # - some cleanup
 #
