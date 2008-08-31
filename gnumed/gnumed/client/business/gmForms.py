@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.58 2008-04-29 18:27:44 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmForms.py,v 1.58.2.1 2008-08-31 14:19:55 ncq Exp $
+__version__ = "$Revision: 1.58.2.1 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -275,9 +275,9 @@ class gmOOoConnector(gmBorg.cBorg):
 	def open_document(self, filename=None):
 		"""<filename> must be absolute"""
 		document_uri = uno.systemPathToFileUrl(os.path.abspath(os.path.expanduser(filename)))
-		desktop = self.desktop
+		desk = self.desktop
 
-		if desktop is None:
+		if desk is None:
 			return None
 
 		doc = desk.loadComponentFromURL(document_uri, "_blank", 0, ())
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.58  2008-04-29 18:27:44  ncq
+# Revision 1.58.2.1  2008-08-31 14:19:55  ncq
+# - fix faulty variable naming
+#
+# Revision 1.58  2008/04/29 18:27:44  ncq
 # - cOOoConnector -> gmOOoConnector
 #
 # Revision 1.57  2008/02/25 17:31:41  ncq
