@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.30 2008-08-31 17:13:50 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmMeasurementWidgets.py,v 1.31 2008-08-31 18:04:30 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -226,12 +226,21 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		for col_idx in self.__cell_data.keys():
 			for row_idx in self.__cell_data[col_idx].keys():
-				if unsigned_only:
-					if self.__cell_data[col_idx][row_idx]['reviewed']:
-						continue
-				if accountables_only:
-					if not self.__cell_data[col_idx][row_idx]['you_are_responsible']:
-						continue
+				# loop over results in cell and only include
+				# this multi-value cells that are not ambigous
+				do_not_include = False
+				for result in self.__cell_data[col_idx][row_idx]:
+					if unsigned_only:
+						if result['reviewed']:
+							do_not_include = True
+							break
+					if accountables_only:
+						if not result['you_are_responsible']:
+							do_not_include = True
+							break
+				if do_not_include:
+					continue
+
 				self.SelectBlock(row_idx, col_idx, row_idx, col_idx, addToSelected = True)
 
 		self.EndBatch()
@@ -1230,7 +1239,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.30  2008-08-31 17:13:50  ncq
+# Revision 1.31  2008-08-31 18:04:30  ncq
+# - properly handle cell data now being list in select_cells()
+#
+# Revision 1.30  2008/08/31 17:13:50  ncq
 # - don't crash on double-clicking empty test results cell
 #
 # Revision 1.29  2008/08/31 17:04:17  ncq
