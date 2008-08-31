@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.426 2008-08-23 14:47:54 ncq Exp $
-__version__ = "$Revision: 1.426 $"
+# $Id: gmGuiMain.py,v 1.427 2008-08-31 16:16:27 ncq Exp $
+__version__ = "$Revision: 1.427 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2449,6 +2449,7 @@ class gmApp(wx.App):
 		return True
 	#----------------------------------------------
 	def __setup_cfg(self):
+		"""Setup access to a config file for storing preferences."""
 
 		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
 
@@ -2696,7 +2697,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.426  2008-08-23 14:47:54  ncq
+# Revision 1.427  2008-08-31 16:16:27  ncq
+# - comment
+#
+# Revision 1.426  2008/08/23 14:47:54  ncq
 # - bump RC version
 #
 # Revision 1.425  2008/08/21 13:29:18  ncq
