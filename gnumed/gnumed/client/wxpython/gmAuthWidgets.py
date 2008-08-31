@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.26 2008-08-31 16:15:02 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmAuthWidgets.py,v 1.27 2008-08-31 16:34:12 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -473,6 +473,7 @@ class cLoginPanel(wx.Panel):
 		as a profile in the system file will override the
 		system file.
 		"""
+		# find active profiles
 		src_order = [
 			(u'explicit', u'extend'),
 			(u'system', u'extend'),
@@ -484,6 +485,14 @@ class cLoginPanel(wx.Panel):
 			_cfg.get(group = u'backend', option = u'profiles', source_order = src_order),
 			[]
 		)
+
+		# find data for active profiles
+		src_order = [
+			(u'explicit', u'return'),
+			(u'workbase', u'return'),
+			(u'user', u'return'),
+			(u'system', u'return')
+		]
 
 		profiles = {}
 
@@ -677,7 +686,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.26  2008-08-31 16:15:02  ncq
+# Revision 1.27  2008-08-31 16:34:12  ncq
+# - properly set src_order and policy when retrieving profile *data*
+#
+# Revision 1.26  2008/08/31 16:15:02  ncq
 # - use "extend" policy when retrieving backend profiles
 #
 # Revision 1.25  2008/07/30 12:50:34  ncq
