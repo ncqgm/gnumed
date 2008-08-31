@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.53 2008-08-28 18:35:36 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.54 2008-08-31 16:17:43 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.3-rc6"
@@ -126,6 +126,7 @@ cp -R ../../client/gm-from-cvs.sh ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/gm-from-cvs.bat ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./GNUmed-$CLIENTREV/client/
+cp -R ./gm-read_chipcard.sh ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./GNUmed-$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/client/
@@ -374,7 +375,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.53  2008-08-28 18:35:36  ncq
+# Revision 1.54  2008-08-31 16:17:43  ncq
+# - include gm-read_chipcard.sh
+#
+# Revision 1.53  2008/08/28 18:35:36  ncq
 # - include scripts for KVKd startup
 #
 # Revision 1.52  2008/08/23 15:00:05  ncq
