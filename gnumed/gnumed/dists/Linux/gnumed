@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.15 2008-08-29 20:55:18 ncq Exp $
+# $Id: gnumed,v 1.16 2008-08-31 14:37:49 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -15,6 +15,7 @@
 # set -x
 
 OPTIONS=$@
+
 
 # Verify the name of the script for the appendix "-debug"
 # If it is symlinked to a file with this name use --debug as option
@@ -49,12 +50,12 @@ PYVER=`python -c 'import sys; print sys.version[:3]'`
 #		grep -q PCLinuxOS /etc/version
 #		if [ $? -eq 0 ] ; then
 GNUMED_SCRIPT_PATH_CANDIDATES=\
-"/var/lib/python-support/python${PYVER}/Gnumed/wxpython"\ 
-"/usr/lib/python${PYVER}/site-packages/Gnumed/wxpython"\ 
-"/usr/lib64/python${PYVER}/site-packages/Gnumed/wxpython"
+"/var/lib/python-support/python${PYVER}/Gnumed/wxpython"\
+" /usr/lib/python${PYVER}/site-packages/Gnumed/wxpython"\
+" /usr/lib64/python${PYVER}/site-packages/Gnumed/wxpython"
 
 GM_SCRIPT=""
-for GNUMED_SCRIPT_PATH in "${GNUMED_SCRIPT_PATH_CANDIDATES}" ; do
+for GNUMED_SCRIPT_PATH in ${GNUMED_SCRIPT_PATH_CANDIDATES} ; do
 	if test -f "${GNUMED_SCRIPT_PATH}/gnumed.py" ; then
 		GM_SCRIPT="${GNUMED_SCRIPT_PATH}/gnumed.py"
 		break
@@ -63,7 +64,7 @@ done
 
 if test -z "${GM_SCRIPT}" ; then
 	echo "Cannot find \"gnumed.py\" in any of:"
-	for GNUMED_SCRIPT_PATH in "${GNUMED_SCRIPT_PATH_CANDIDATES}" ; do
+	for GNUMED_SCRIPT_PATH in ${GNUMED_SCRIPT_PATH_CANDIDATES} ; do
 		echo " ${GNUMED_SCRIPT_PATH}"
 	done
 	exit 1
@@ -100,7 +101,10 @@ python ${GM_SCRIPT} ${CONFFILE} ${OPTIONS}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.15  2008-08-29 20:55:18  ncq
+# Revision 1.16  2008-08-31 14:37:49  ncq
+# - fix looping over gnumed.py path candidates
+#
+# Revision 1.15  2008/08/29 20:55:18  ncq
 # - actually act on not finding gnumed.py
 #
 # Revision 1.14  2008/08/01 10:32:41  ncq
