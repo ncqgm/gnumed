@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.31 2008-08-31 18:04:30 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmMeasurementWidgets.py,v 1.32 2008-08-31 18:21:54 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -501,8 +501,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def empty_grid(self):
 		self.BeginBatch()
 		self.ClearGrid()
-		self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
-		self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
+		# Windows cannot do nothing, it rather decides to assert()
+		# on thinking it is supposed to do nothing
+		if self.GetNumberRows() > 0:
+			self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
+		if self.GetNumberCols() > 0:
+			self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
 		self.__cell_tooltips = {}
 		self.__cell_data = {}
@@ -1239,7 +1243,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.31  2008-08-31 18:04:30  ncq
+# Revision 1.32  2008-08-31 18:21:54  ncq
+# - work around Windows' inability to do nothing when
+#   there's nothing to do
+#
+# Revision 1.31  2008/08/31 18:04:30  ncq
 # - properly handle cell data now being list in select_cells()
 #
 # Revision 1.30  2008/08/31 17:13:50  ncq
