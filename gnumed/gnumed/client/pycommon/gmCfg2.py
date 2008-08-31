@@ -2,12 +2,12 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
 
-import logging, sys, codecs, re as regex, shutil, os
+import logging, sys, codecs, re as regex, shutil, os, types
 
 
 if __name__ == "__main__":
@@ -288,6 +288,8 @@ class gmCfgData(gmBorg.cBorg):
 			policy:
 				return: return only this value immediately
 				append: append to list of potential values to return
+				extend: if the value per source happens to be a list
+				        extend (rather than append to) the result list
 
 		returns NONE when there's no value for an option
 		"""
@@ -314,7 +316,13 @@ class gmCfgData(gmBorg.cBorg):
 			if policy == u'return':
 				return value
 
-			results.append(value)
+			if policy == u'extend':
+				if isinstance(value, types.ListType):
+					results.extend(value)
+				else:
+					results.append(value)
+			else:
+				results.append(value)
 
 		if len(results) == 0:
 			return None
@@ -496,7 +504,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.16  2008-08-31 14:51:42  ncq
+# Revision 1.17  2008-08-31 16:12:12  ncq
+# - when getting from multiple sources, if policy is "extend",
+#   flatten list options into a single result list
+#
+# Revision 1.16  2008/08/31 14:51:42  ncq
 # - properly handle explicit file=None for dummy sources
 #
 # Revision 1.15  2008/08/03 20:03:11  ncq
