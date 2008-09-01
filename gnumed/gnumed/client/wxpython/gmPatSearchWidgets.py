@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.111 2008-08-28 18:34:18 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmPatSearchWidgets.py,v 1.112 2008-09-01 20:28:51 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -281,14 +281,6 @@ def load_persons_from_xdt():
 #============================================================
 def load_persons_from_pracsoft_au():
 
-	src_order = [
-		('explicit', 'return'),
-		('workbase', 'append'),
-		('local', 'append'),
-		('user', 'append'),
-		('system', 'append')
-	]
-
 	pracsoft_files = []
 
 	# try detecting PATIENTS.IN files
@@ -301,23 +293,40 @@ def load_persons_from_pracsoft_au():
 		drive, filename = os.path.splitdrive(candidate)
 		pracsoft_files.append({'file': candidate, 'source': 'PracSoft (AU): drive %s' % drive})
 
-	# add configured one
-	fname = _cfg.get (
+	# add configured one(s)
+	src_order = [
+		('explicit', 'append'),
+		('workbase', 'append'),
+		('local', 'append'),
+		('user', 'append'),
+		('system', 'append')
+	]
+	fnames = _cfg.get (
 		group = 'AU PracSoft PATIENTS.IN',
 		option = 'filename',
 		source_order = src_order
 	)
+
+	src_order = [
+		('explicit', 'return'),
+		('user', 'return'),
+		('system', 'return'),
+		('local', 'return'),
+		('workbase', 'return')
+	]
 	source = _cfg.get (
 		group = 'AU PracSoft PATIENTS.IN',
 		option = 'source',
 		source_order = src_order
 	)
-	if fname is not None and source is not None:
-		fname = os.path.abspath(os.path.expanduser(fname))
-		if os.access(fname, os.R_OK):
-			pracsoft_files.append({'file': os.path.expanduser(fname), 'source': source})
-		else:
-			_log.error('cannot read [%s] in AU PracSoft profile' % fname)
+
+	if source is not None:
+		for fname in fnames:
+			fname = os.path.abspath(os.path.expanduser(fname))
+			if os.access(fname, os.R_OK):
+				pracsoft_files.append({'file': os.path.expanduser(fname), 'source': source})
+			else:
+				_log.error('cannot read [%s] in AU PracSoft profile' % fname)
 
 	# and parse them
 	dtos = []
@@ -983,7 +992,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.111  2008-08-28 18:34:18  ncq
+# Revision 1.112  2008-09-01 20:28:51  ncq
+# - properly handle case when several option sources define AU PracSoft source
+#
+# Revision 1.111  2008/08/28 18:34:18  ncq
 # - make active patient selector react to patient activation,
 #   name/identity change all by itself with updating its display,
 #   don't let top panel do it for us
