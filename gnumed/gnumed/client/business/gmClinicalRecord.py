@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.270 2008-08-15 15:55:41 ncq Exp $
-__version__ = "$Revision: 1.270 $"
+# $Id: gmClinicalRecord.py,v 1.271 2008-09-02 18:58:26 ncq Exp $
+__version__ = "$Revision: 1.271 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -447,7 +447,7 @@ where
 		issues = self.get_health_issues()
 		issue_map = {}
 		for issue in issues:
-			issue_map[issue['pk']] = issue['description']
+			issue_map[issue['pk_health_issue']] = issue['description']
 		episodes = self.get_episodes()
 		episode_map = {}
 		for episode in episodes:
@@ -661,7 +661,7 @@ Test results: %(results)s
 
 		if episode_id is None:
 			issue = self.add_health_issue(issue_name = _('allergies/intolerances'))
-			epi = self.add_episode(episode_name = substance, pk_health_issue = issue['pk'])
+			epi = self.add_episode(episode_name = substance, pk_health_issue = issue['pk_health_issue'])
 			episode_id = epi['pk_episode']
 
 		new_allergy = gmAllergy.create_allergy (
@@ -901,11 +901,12 @@ where
 	# health issues API
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
-		cmd = u"select *, xmin from clin.health_issue where fk_patient=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx = True)
+
+		cmd = u"select *, xmin_health_issue from clin.v_health_issues where pk_patient=%(pat)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
 		issues = []
 		for row in rows:
-			r = {'idx': idx, 'data': row, 'pk_field': 'pk'}
+			r = {'idx': idx, 'data': row, 'pk_field': 'pk_health_issue'}
 			issues.append(gmEMRStructItems.cHealthIssue(row=r))
 
 		if id_list is None:
@@ -916,7 +917,7 @@ where
 
 		filtered_issues = []
 		for issue in issues:
-			if issue['pk'] in id_list:
+			if issue['pk_health_issue'] in id_list:
 				filtered_issues.append(issue)
 
 		return filtered_issues
@@ -934,7 +935,7 @@ where
 		return issue
 	#--------------------------------------------------------
 	def health_issue2problem(self, issue=None):
-		return self.get_problems(issues = [issue['pk']])
+		return self.get_problems(issues = [issue['pk_health_issue']])
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
@@ -1785,7 +1786,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.270  2008-08-15 15:55:41  ncq
+# Revision 1.271  2008-09-02 18:58:26  ncq
+# - fk_patient dropped from clin.health_issue
+#
+# Revision 1.270  2008/08/15 15:55:41  ncq
 # - comment on row_version
 #
 # Revision 1.269  2008/07/12 15:19:16  ncq

@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.119 $"
+__version__ = "$Revision: 1.120 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -25,20 +25,20 @@ _log.info(__version__)
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue."""
 
-	_cmd_fetch_payload = u"select *, xmin from clin.health_issue where pk=%s"
+	_cmd_fetch_payload = u"select *, xmin_health_issue from clin.v_health_issues where pk=%s"
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
-				description=%(description)s,
-				age_noted=%(age_noted)s,
-				laterality=%(laterality)s,
+				description = %(description)s,
+				age_noted = %(age_noted)s,
+				laterality = %(laterality)s,
 				is_active = %(is_active)s,
 				clinically_relevant = %(clinically_relevant)s,
 				is_confidential = %(is_confidential)s,
 				is_cause_of_death = %(is_cause_of_death)s
 			where
-				pk=%(pk)s and
-				xmin=%(xmin)s""",
-		u"select xmin from clin.health_issue where pk=%(pk)s"
+				pk = %(pk_health_issue)s and
+				xmin = %(xmin_health_issue)s""",
+		u"select xmin from clin.health_issue where pk = %(pk_health_issue)s"
 	]
 	_updatable_fields = [
 		'description',
@@ -50,21 +50,21 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		'is_cause_of_death'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx', row=None):
+	def __init__(self, aPK_obj=None, encounter=None, name='xxxDEFAULTxxx', row=None):
 		pk = aPK_obj
 		if pk is None and row is None:
-			cmd = u"select *, xmin from clin.health_issue where fk_patient=%s and description=%s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient_id, name]}], get_col_idx=True)
+			cmd = u"""select *, xmin
+					from clin.v_health_issues
+					where fk_patient = (select fk_patient from clin.encounter where pk = %s)
+					and description = %s"""
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [encounter, name]}], get_col_idx=True)
 			if len(rows) == 0:
-				raise gmExceptions.NoSuchBusinessObjectError, 'no health issue for [%s:%s]' % (patient_id, name)
+				raise gmExceptions.NoSuchBusinessObjectError, 'no health issue for [%s:%s]' % (encounter, name)
 			pk = rows[0][0]
-			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk'}
+			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_health_issue'}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 		else:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row)
-	#--------------------------------------------------------
-	def get_patient(self):
-		return self._payload[self._idx['fk_patient']]
 	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for issue renaming.
@@ -141,7 +141,7 @@ age (
 )::text || ' ago)'
 """
 		args = {
-			'pat': self._payload[self._idx['fk_patient']],
+			'pat': self._payload[self._idx['pk_patient']],
 			'issue_age': self._payload[self._idx['age_noted']]
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -149,11 +149,11 @@ age (
 	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
-		if patient.ID != self._payload[self._idx['fk_patient']]:
+		if patient.ID != self._payload[self._idx['pk_patient']]:
 			msg = '<patient>.ID = %s but health issue %s belongs to patient %s' % (
 				patient.ID,
-				self._payload[self._idx['pk']],
-				self._payload[self._idx['fk_patient']]
+				self._payload[self._idx['pk_health_issue']],
+				self._payload[self._idx['pk_patient']]
 			)
 			raise ValueError(msg)
 
@@ -163,7 +163,7 @@ age (
 			u'\u00BB',
 			self._payload[self._idx['description']],
 			u'\u00AB',
-			self._payload[self._idx['pk']]
+			self._payload[self._idx['pk_health_issue']]
 		))
 
 		if self._payload[self._idx['is_confidential']]:
@@ -185,7 +185,7 @@ age (
 
 		emr = patient.get_emr()
 
-		epis = emr.get_episodes(issues = [self._payload[self._idx['pk']]])
+		epis = emr.get_episodes(issues = [self._payload[self._idx['pk_health_issue']]])
 		if epis is None:
 			lines.append(_('Error retrieving episodes for this health issue.'))
 		elif len(epis) == 0:
@@ -194,7 +194,7 @@ age (
 			lines.append(_('Episodes: %s') % len(epis))
 			lines.append(_(' Most recent: %s%s%s') % (
 				u'\u00BB',
-				emr.get_most_recent_episode(issue = self._payload[self._idx['pk']])['description'],
+				emr.get_most_recent_episode(issue = self._payload[self._idx['pk_health_issue']])['description'],
 				u'\u00AB'
 			))
 			lines.append('')
@@ -206,13 +206,13 @@ age (
 
 		lines.append('')
 
-		first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk']])
-		last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk']])
+		first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
+		last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
 
 		if first_encounter is None or last_encounter is None:
 			lines.append(_('No encounters found for this health issue.'))
 		else:
-			encs = emr.get_encounters(issues = [self._payload[self._idx['pk']]])
+			encs = emr.get_encounters(issues = [self._payload[self._idx['pk_health_issue']]])
 			lines.append(_('Encounters: %s (%s - %s):') % (
 				len(encs),
 				first_encounter['started_original_tz'].strftime('%m/%Y'),
@@ -227,21 +227,20 @@ age (
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 #============================================================
-def create_health_issue(patient_id=None, description=None, encounter=None):
+def create_health_issue(description=None, encounter=None):
 	"""Creates a new health issue for a given patient.
 
-	patient_id - given patient PK
 	description - health issue name
 	"""
 	try:
-		h_issue = cHealthIssue(patient_id=patient_id, name=description)
+		h_issue = cHealthIssue(name=description, encounter=encounter)
 		return (True, h_issue)
 	except gmExceptions.ConstructorError:
 		pass
 
 	queries = []
-	cmd = u"insert into clin.health_issue (fk_patient, description, fk_encounter) values (%s, %s, %s)"
-	queries.append({'cmd': cmd, 'args': [patient_id, description, encounter]})
+	cmd = u"insert into clin.health_issue (description, fk_encounter) values (%s, %s, %s)"
+	queries.append({'cmd': cmd, 'args': [encounter,]})
 
 	cmd = u"select currval('clin.health_issue_pk_seq')"
 	queries.append({'cmd': cmd})
@@ -253,7 +252,7 @@ def create_health_issue(patient_id=None, description=None, encounter=None):
 #-----------------------------------------------------------
 def delete_health_issue(health_issue=None):
 	if isinstance(health_issue, cHealthIssue):
-		pk = health_issue['pk']
+		pk = health_issue['pk_health_issue']
 	else:
 		pk = int(health_issue)
 
@@ -267,7 +266,7 @@ def delete_health_issue(health_issue=None):
 # use as dummy for unassociated episodes
 def get_dummy_health_issue():
 	issue = {
-		'pk': None,
+		'pk_health_issue': None,
 		'description': _('Unattributed episodes'),
 		'age_noted': None,
 		'laterality': u'na',
@@ -976,7 +975,7 @@ if __name__ == '__main__':
 		print "open episode:", h_issue.get_open_episode()
 		print "updatable:", h_issue.get_updatable_fields()
 		h_issue.close_expired_episode(ttl=7300)
-		h_issue = cHealthIssue(patient_id=12, name=u'post appendectomy/peritonitis')
+		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 		print h_issue
 	#--------------------------------------------------------	
 	def test_episode():
@@ -1029,7 +1028,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.119  2008-08-17 18:13:39  ncq
+# Revision 1.120  2008-09-02 18:58:27  ncq
+# - fk_patient dropped from clin.health_issue
+#
+# Revision 1.119  2008/08/17 18:13:39  ncq
 # - add CRLF after date/time/provider in soap formatting as
 #   suggested by Rogerio on the list
 #
