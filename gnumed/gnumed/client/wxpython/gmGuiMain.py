@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.428 2008-08-31 18:02:45 ncq Exp $
-__version__ = "$Revision: 1.428 $"
+# $Id: gmGuiMain.py,v 1.429 2008-09-02 20:21:48 ncq Exp $
+__version__ = "$Revision: 1.429 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -457,6 +457,12 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
 		wx.EVT_MENU(self, ID, self.__on_check_for_updates)
+
+		item = menu_gnumed.Append(-1, _('Announce maintenance'), _('Announce database maintenance downtime to all connected clients.'))
+		self.Bind(wx.EVT_MENU, self.__on_announce_maintenance, item)
+
+		# --
+		menu_gnumed.AppendSeparator()
 
 		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client.'))
 		wx.EVT_MENU(self, wx.ID_EXIT, self.__on_exit_gnumed)
@@ -1046,6 +1052,19 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
 		check_for_updates()
+	#----------------------------------------------
+	def __on_announce_maintenance(self, evt):
+		send = gmGuiHelpers.gm_show_question (
+			_('This will send a notification about database downtime\n'
+			  'to all GNUmed clients connected to your database.\n'
+			  '\n'
+			  'Do you want to send the notification ?\n'
+			),
+			_('Announcing database maintenance')
+		)
+		if not send:
+			return
+		gmPG2.send_maintenance_notification()
 	#----------------------------------------------
 	# submenu GNUmed / options / client
 	#----------------------------------------------
@@ -2707,7 +2726,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.428  2008-08-31 18:02:45  ncq
+# Revision 1.429  2008-09-02 20:21:48  ncq
+# - menu item to announce maintenance downtime
+#
+# Revision 1.428  2008/08/31 18:02:45  ncq
 # - add "Menu reference" menu item
 #
 # Revision 1.427  2008/08/31 16:16:27  ncq
