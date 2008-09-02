@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.87 $"
+__version__ = "$Revision: 1.88 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -594,6 +594,14 @@ values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user
 # =======================================================================
 # query runners and helpers
 # =======================================================================
+def send_maintenance_notification():
+	cmd = u'notify "db_maintenance_warning:"'
+	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
+#------------------------------------------------------------------------
+def send_maintenance_shutdown():
+	cmd = u'notify "db_maintenance_disconnect:"'
+	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
+#------------------------------------------------------------------------
 def is_pg_interval(candidate=None):
 	cmd = u'select %(candidate)s::interval'
 	try:
@@ -1590,7 +1598,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.87  2008-08-21 10:21:40  ncq
+# Revision 1.88  2008-09-02 20:19:37  ncq
+# - send_maintenance_*
+#
+# Revision 1.87  2008/08/21 10:21:40  ncq
 # - update v9 hash
 #
 # Revision 1.86  2008/07/30 12:51:14  ncq
