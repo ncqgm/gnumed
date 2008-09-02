@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-DB_LIST="gnumed_v8 gnumed_v9"
+DB_LIST="gnumed_v9 gnumed_v10"
 
 export PGUSER="gm-dbo"
 
@@ -26,7 +26,10 @@ done
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.19  2008-08-01 10:08:49  ncq
+# Revision 1.20  2008-09-02 15:44:18  ncq
+# - bump db version
+#
+# Revision 1.19  2008/08/01 10:08:49  ncq
 # - /bin/sh -> /bin/bash
 #
 # Revision 1.18  2008/01/07 19:45:11  ncq
