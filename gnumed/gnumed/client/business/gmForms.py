@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.59 2008-08-29 20:54:28 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmForms.py,v 1.60 2008-09-02 18:59:01 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -262,7 +262,7 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		init_ooo()
 
-		self.ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
+		self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=2002;urp;"'
 		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
 		self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
 		self.desktop_uri = "com.sun.star.frame.Desktop"
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.59  2008-08-29 20:54:28  ncq
+# Revision 1.60  2008-09-02 18:59:01  ncq
+# - add "invisible" to ooo startup command as suggested by Jerzy
+#
+# Revision 1.59  2008/08/29 20:54:28  ncq
 # - cleanup
 #
 # Revision 1.58  2008/04/29 18:27:44  ncq
