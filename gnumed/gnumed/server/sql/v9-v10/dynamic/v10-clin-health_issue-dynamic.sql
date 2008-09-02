@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-health_issue-dynamic.sql,v 1.1 2008-09-02 15:41:19 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-clin-health_issue-dynamic.sql,v 1.2 2008-09-02 19:02:24 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -64,7 +64,7 @@ select
 		(select short_alias from dem.staff where db_user = chi.modified_by),
 		'<' || chi.modified_by || '>'
 	) 	as modified_by,
-	'a'::text
+	null::text
 		as soap_cat,
 	_('Foundational Health Issue') || ': '
 		|| chi.description
@@ -105,11 +105,14 @@ from
 
 grant select on clin.v_health_issues_journal TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-health_issue-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-health_issue-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-health_issue-dynamic.sql,v $
--- Revision 1.1  2008-09-02 15:41:19  ncq
+-- Revision 1.2  2008-09-02 19:02:24  ncq
+-- - make journal entry soap cat NULL for issue/episode
+--
+-- Revision 1.1  2008/09/02 15:41:19  ncq
 -- - new
 --
 --
