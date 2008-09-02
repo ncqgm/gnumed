@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.79 2008-07-24 13:58:40 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmEMRStructWidgets.py,v 1.80 2008-09-02 19:01:12 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -372,7 +372,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	"""
 	# episode is closed: should always work
 	if not episode['episode_open']:
-		episode['pk_health_issue'] = target_issue['pk']
+		episode['pk_health_issue'] = target_issue['pk_health_issue']
 		if save_to_backend:
 			episode.save_payload()
 		return True
@@ -398,14 +398,14 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 
 	# no more open episode on target issue: should work now
 	if existing_epi is None:
-		episode['pk_health_issue'] = target_issue['pk']
+		episode['pk_health_issue'] = target_issue['pk_health_issue']
 		if save_to_backend:
 			episode.save_payload()
 		return True
 
 	# don't conflict on SELF ;-)
 	if existing_epi['pk_episode'] == episode['pk_episode']:
-		episode['pk_health_issue'] = target_issue['pk']
+		episode['pk_health_issue'] = target_issue['pk_health_issue']
 		if save_to_backend:
 			episode.save_payload()
 		return True
@@ -461,7 +461,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	else:
 		raise ValueError('invalid result from c3ButtonQuestionDlg: [%s]' % decision)
 
-	episode['pk_health_issue'] = target_issue['pk']
+	episode['pk_health_issue'] = target_issue['pk_health_issue']
 	if save_to_backend:
 		episode.save_payload()
 	return True
@@ -769,13 +769,13 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
-		ctxt = {'ctxt_pat': {'where_part': u'fk_patient=%(pat)s', 'placeholder': u'pat'}}
+		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
 			queries = [u"""
-(select pk, description, 1
-	from clin.health_issue where
+(select pk_health_issue, description, 1
+	from clin.v_health_issues where
 		is_active is true and
 		description %(fragment_condition)s and
 		%(ctxt_pat)s
@@ -783,8 +783,8 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 union
 
-(select pk, description || _(' (inactive)'), 2
-	from clin.health_issue where
+(select pk_health_issue, description || _(' (inactive)'), 2
+	from clin.v_health_issues where
 		is_active is false and
 		description %(fragment_condition)s and
 		%(ctxt_pat)s
@@ -840,7 +840,7 @@ union
 				if issue is None:
 					self.data = None
 				else:
-					self.data = issue['pk']
+					self.data = issue['pk_health_issue']
 
 		return gmPhraseWheel.cPhraseWheel.GetData(self)
 	#--------------------------------------------------------
@@ -1128,7 +1128,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		if narr != '':
 			pat = gmPerson.gmCurrentPatient()
 			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = self.__issue['pk'], is_open=None)
+			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = self.__issue['pk_health_issue'], is_open=None)
 			if epi is not None:
 				epi['episode_open'] = False
 				epi.save_payload()			# FIXME: error handling
@@ -1303,7 +1303,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.79  2008-07-24 13:58:40  ncq
+# Revision 1.80  2008-09-02 19:01:12  ncq
+# - adjust to clin health_issue fk_patient drop and related changes
+#
+# Revision 1.79  2008/07/24 13:58:40  ncq
 # - manage encounter types
 #
 # Revision 1.78  2008/07/07 13:43:16  ncq

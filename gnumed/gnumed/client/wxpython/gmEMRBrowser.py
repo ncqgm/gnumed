@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.94 2008-08-31 18:39:47 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmEMRBrowser.py,v 1.95 2008-09-02 19:01:11 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -165,7 +165,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# update displayed text
 		if isinstance(node_data, (gmEMRStructItems.cHealthIssue, types.DictType)):
 			# FIXME: turn into real dummy issue
-			if node_data['pk'] is None:
+			if node_data['pk_health_issue'] is None:
 				txt = _('Pool of unassociated episodes:\n\n  "%s"') % node_data['description']
 			else:
 				txt = node_data.format(left_margin=1, patient = self.__pat)
@@ -672,7 +672,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.94  2008-08-31 18:39:47  ncq
+# Revision 1.95  2008-09-02 19:01:11  ncq
+# - adjust to clin health_issue fk_patient drop and related changes
+#
+# Revision 1.94  2008/08/31 18:39:47  ncq
 # - if narrative is added, say a test result with comment, before
 #   the tree was ever displayed (hence not populated) for that patient
 #   there is not yet a currently selected node, so don't update

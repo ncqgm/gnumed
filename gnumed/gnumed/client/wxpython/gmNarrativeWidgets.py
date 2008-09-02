@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.8 2008-07-28 15:46:05 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmNarrativeWidgets.py,v 1.9 2008-09-02 19:01:12 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time
@@ -113,7 +113,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 		)
 		selection_idxs = []
 		for idx in range(len(all_issues)):
-			if all_issues[idx]['pk'] in selected_issue_pks:
+			if all_issues[idx]['pk_health_issue'] in selected_issue_pks:
 				selection_idxs.append(idx)
 		if len(selection_idxs) != 0:
 			dlg.set_selections(selections = selection_idxs)
@@ -124,7 +124,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 		if btn_pressed == wx.ID_CANCEL:
 			return selected_soap.values()
 
-		selected_issue_pks = [ i['pk'] for i in selected_issues ]
+		selected_issue_pks = [ i['pk_health_issue'] for i in selected_issues ]
 
 		while 1:
 			# 2) select episodes to select items from
@@ -289,7 +289,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.8  2008-07-28 15:46:05  ncq
+# Revision 1.9  2008-09-02 19:01:12  ncq
+# - adjust to clin health_issue fk_patient drop and related changes
+#
+# Revision 1.8  2008/07/28 15:46:05  ncq
 # - export_narrative_for_medistar_import
 #
 # Revision 1.7  2008/03/05 22:30:14  ncq

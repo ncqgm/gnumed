@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.105 2008-08-08 13:32:59 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmSOAPWidgets.py,v 1.106 2008-09-02 19:01:12 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -463,7 +463,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 				continue
 			if problem['type'] == 'issue':
 				issue = emr.problem2issue(problem)
-				last_encounter = emr.get_last_encounter(issue_id = issue['pk'])
+				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
 				if last_encounter is None:
 					last = issue['modified_when'].strftime('%m/%Y')
 				else:
@@ -1215,7 +1215,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.105  2008-08-08 13:32:59  ncq
+# Revision 1.106  2008-09-02 19:01:12  ncq
+# - adjust to clin health_issue fk_patient drop and related changes
+#
+# Revision 1.105  2008/08/08 13:32:59  ncq
 # - factor out save_unsaved_soap()
 # - register and act on pre-exit callback
 # - some cleanup
