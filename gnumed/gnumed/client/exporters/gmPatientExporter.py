@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.127 2008-07-28 15:42:30 ncq Exp $
-__version__ = "$Revision: 1.127 $"
+# $Id: gmPatientExporter.py,v 1.128 2008-09-02 18:59:30 ncq Exp $
+__version__ = "$Revision: 1.128 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -499,7 +499,7 @@ class cEmrExport:
         if len(unlinked_episodes) > 0:
             h_issues.insert(0, {
                 'description': _('Unattributed episodes'),
-                'pk': None
+                'pk_health_issue': None
             })
         # existing issues        
         for a_health_issue in h_issues:
@@ -513,7 +513,7 @@ class cEmrExport:
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetPyData(issue_node, a_health_issue)
-            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
+            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk_health_issue']])
             for an_episode in episodes:
                 self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
             emr_tree.SortChildren(issue_node)
@@ -556,7 +556,7 @@ class cEmrExport:
 			_log.error("health issue %s should exist in tree already", a_health_issue['description'] )
 			return
 		issue_node = id
-		episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
+		episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk_health_issue']])
 
 		#check for removed episode and update tree
 		tree_episodes = {} 
@@ -615,63 +615,6 @@ class cEmrExport:
         txt = ''
         for an_item in self.__filtered_items:
             txt += self.get_item_summary(an_item, left_margin)
-        return txt
-    #--------------------------------------------------------
-    def get_issue_info(self, issue=None, left_margin=0):
-        """Dumps health issue specific data
-        """
-        # dummy issue for unlinked episodes ?
-        # FIXME: turn into "proper" dummy episode
-        if issue['pk'] is None:
-            txt = _('Active health issue "%s"') % issue['description']
-            return txt
-
-        if issue['is_active']:
-            status = _('Active health issue')
-        else:
-            status = _('Inactive health issue')
-        txt = _('%s "%s"\n noted at age %s\n') % (
-            status,
-            issue['description'],
-#            issue['age_noted']
-            issue.age_noted_human_readable()
-        )
-#        print issue.age_noted_human_readable()
-        if issue['clinically_relevant']:
-            txt += _('clinically relevant: yes\n')
-        else:
-            txt += _('clinically relevant: no\n')
-        if issue['is_cause_of_death']:
-            txt += _('health issue caused death of patient\n')
-        if issue['is_confidential']:
-            txt += _('\n***** CONFIDENTIAL *****\n\n')
-
-        emr = self.__patient.get_emr()
-        epis = emr.get_episodes(issues=[issue['pk']])
-        if epis is None:
-            txt += left_margin * ' ' + _('Error retrieving episodes for health issue\n%s') % str(issue)
-            return txt
-        no_epis = len(epis)
-        if no_epis == 0:
-            txt += left_margin * ' ' + _('There are no episodes for this health issue.\n')
-            return txt
-
-        first_encounter = emr.get_first_encounter(issue_id = issue['pk'])
-        last_encounter = emr.get_last_encounter(issue_id = issue['pk'])
-        if first_encounter is None or last_encounter is None:
-            txt += _('%s%s episode(s)\n\n%sNo encounters found for this health issue.\n') % (
-                left_margin * ' ',
-                str(no_epis),
-                left_margin * ' ')
-            return txt
-        txt += _('%s%s episode(s) between %s and %s\n') % (
-            left_margin * ' ',
-            str(no_epis),
-            first_encounter['started'].strftime('%m/%Y'),
-            last_encounter['last_affirmed'].strftime('%m/%Y')
-        )
-        txt += _('%sLast seen: %s\n\n') % (left_margin * ' ', last_encounter['last_affirmed'].strftime('%Y-%m-%d %H:%M'))
-        # FIXME: list each episode with range of time
         return txt
     #--------------------------------------------------------
     def get_episode_summary (self, episode, left_margin = 0):
@@ -786,16 +729,16 @@ class cEmrExport:
         # unlinked episodes
         unlinked_episodes = emr.get_episodes(issues = [None])
         if len(unlinked_episodes) > 0:
-            h_issues.insert(0, {'description':_('Unattributed episodes'), 'pk':None})        
+            h_issues.insert(0, {'description':_('Unattributed episodes'), 'pk_health_issue':None})        
         for a_health_issue in h_issues:
             self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
-            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
+            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk_health_issue']])
             for an_episode in episodes:
                self.__target.write('\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n')
-               if a_health_issue['pk'] is None:
+               if a_health_issue['pk_health_issue'] is None:
                   issues = None
                else:
-                  issues = [a_health_issue['pk']]
+                  issues = [a_health_issue['pk_health_issue']]
                encounters = emr.get_encounters (
                   since = self.__constraints['since'],
                   until = self.__constraints['until'],
@@ -1221,7 +1164,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.127  2008-07-28 15:42:30  ncq
+# Revision 1.128  2008-09-02 18:59:30  ncq
+# - no more fk_patient in clin.health_issue and related changes
+#
+# Revision 1.127  2008/07/28 15:42:30  ncq
 # - cleanup
 # - enhance medistar exporter
 #
