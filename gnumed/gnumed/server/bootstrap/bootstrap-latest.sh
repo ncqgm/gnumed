@@ -4,9 +4,9 @@
 # - command line options:
 #   - "quiet"
 
-VER="9"
-PREV_VER="8"
-VERSIONS_TO_DROP="2 3 4 5 6 7"
+VER="10"
+PREV_VER="9"
+VERSIONS_TO_DROP="2 3 4 5 6 7 8"
 QUIET="$1"
 
 
