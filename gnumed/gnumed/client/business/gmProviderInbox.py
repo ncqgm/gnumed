@@ -5,9 +5,9 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.10 2007-10-30 12:47:53 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.11 2008-09-04 12:52:51 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -38,10 +38,11 @@ select
 	type,
 	pk_context,
 	data,
-	pk_provider_inbox
+	pk_provider_inbox,
+	received_when
 from dem.v_provider_inbox vpi
 where pk_staff = %s
-order by importance desc"""
+order by importance desc, received_when desc"""
 		try:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__provider_id]}])
 		except:
@@ -54,6 +55,7 @@ order by importance desc"""
 				'error',
 				None,
 				_('An error occurred while retrieving provider inbox messages from the database.'),
+				None,
 				None
 			]]
 		return rows
@@ -83,7 +85,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.10  2007-10-30 12:47:53  ncq
+# Revision 1.11  2008-09-04 12:52:51  ncq
+# - load received_when
+#
+# Revision 1.10  2007/10/30 12:47:53  ncq
 # - fix test suite
 # - make messages a property on inbox
 #
