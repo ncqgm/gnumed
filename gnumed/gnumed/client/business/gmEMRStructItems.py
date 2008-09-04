@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.120 $"
+__version__ = "$Revision: 1.121 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -664,6 +664,7 @@ select exists (
 					subsequent_indent = left_margin + u'   '
 				)
 				lines.append(txt)
+				lines.append('')
 
 		return lines
 	#--------------------------------------------------------
@@ -1028,7 +1029,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.120  2008-09-02 18:58:27  ncq
+# Revision 1.121  2008-09-04 11:52:17  ncq
+# - append an empty line per soap category
+#
+# Revision 1.120  2008/09/02 18:58:27  ncq
 # - fk_patient dropped from clin.health_issue
 #
 # Revision 1.119  2008/08/17 18:13:39  ncq
