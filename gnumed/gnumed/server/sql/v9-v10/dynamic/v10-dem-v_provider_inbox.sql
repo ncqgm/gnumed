@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-dem-v_provider_inbox.sql,v 1.1 2008-09-02 18:56:39 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-dem-v_provider_inbox.sql,v 1.2 2008-09-04 12:53:43 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -20,6 +20,7 @@ drop view dem.v_provider_inbox cascade;
 create view dem.v_provider_inbox as
 
 select
+	pi.modified_when as received_when,
 	(select short_alias from dem.staff where dem.staff.pk = pi.fk_staff) as provider,
 	pi.importance,
 	vit.category,
@@ -42,6 +43,7 @@ where
 union
 
 select
+	now() as received_when,
 	(select short_alias from dem.staff where dem.staff.pk = vo4dnd.pk_intended_reviewer)
 		as provider,
 	0	as importance,
@@ -77,6 +79,7 @@ where
 union
 
 select
+	now() as received_when,
 	(select short_alias from dem.staff where dem.staff.pk = vtr.pk_intended_reviewer)
 		as provider,
 	0	as importance,
@@ -120,11 +123,14 @@ Using UNION makes sure we get the right level of uniqueness.';
 grant select on dem.v_provider_inbox to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-dem-v_provider_inbox.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-dem-v_provider_inbox.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-dem-v_provider_inbox.sql,v $
--- Revision 1.1  2008-09-02 18:56:39  ncq
+-- Revision 1.2  2008-09-04 12:53:43  ncq
+-- - include received_when column
+--
+-- Revision 1.1  2008/09/02 18:56:39  ncq
 -- - new
 --
 --
