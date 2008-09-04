@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.29 2008-07-13 16:14:59 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmProviderInboxWidgets.py,v 1.30 2008-09-04 12:52:23 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -321,7 +321,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_provider_inbox.set_columns([u'', _('category'), _('type'), _('message')])
+		self._LCTRL_provider_inbox.set_columns([u'', _('date'), _('category'), _('type'), _('message')])
 
 		msg = _("""
 		Welcome %(title)s %(lname)s !
@@ -351,7 +351,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				)
 			]
 
-		self._LCTRL_provider_inbox.set_string_items(items = [ [_indicator[m[0]], m[1], m[2], m[3]] for m in self.__msgs ])
+		self._LCTRL_provider_inbox.set_string_items(items = [ [_indicator[m[0]], m[9].strftime('%Y-%m-%d'), m[1], m[2], m[3]] for m in self.__msgs ])
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
 	#--------------------------------------------------------
@@ -485,7 +485,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.29  2008-07-13 16:14:59  ncq
+# Revision 1.30  2008-09-04 12:52:23  ncq
+# - display received_when for incoming messages
+#
+# Revision 1.29  2008/07/13 16:14:59  ncq
 # - implement keyword based text expansion widgets
 #
 # Revision 1.28  2008/06/09 15:36:58  ncq
