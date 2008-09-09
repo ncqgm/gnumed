@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.121 $"
+__version__ = "$Revision: 1.122 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -25,7 +25,7 @@ _log.info(__version__)
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue."""
 
-	_cmd_fetch_payload = u"select *, xmin_health_issue from clin.v_health_issues where pk=%s"
+	_cmd_fetch_payload = u"select *, xmin_health_issue from clin.v_health_issues where pk_health_issue=%s"
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description = %(description)s,
@@ -1029,7 +1029,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.121  2008-09-04 11:52:17  ncq
+# Revision 1.122  2008-09-09 19:55:07  ncq
+# - Jerzy found a misspelling
+#
+# Revision 1.121  2008/09/04 11:52:17  ncq
 # - append an empty line per soap category
 #
 # Revision 1.120  2008/09/02 18:58:27  ncq
