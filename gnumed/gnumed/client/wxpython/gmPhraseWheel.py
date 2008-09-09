@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.124 2008-08-15 15:57:37 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmPhraseWheel.py,v 1.124.2.1 2008-09-09 17:36:24 ncq Exp $
+__version__ = "$Revision: 1.124.2.1 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -60,10 +60,16 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			row_num = self.InsertStringItem(pos, label=item['label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
-		return self.__data[self.GetFirstSelected()]['data']
+		sel_idx = self.GetFirstSelected()
+		if sel_idx == -1:
+			return None
+		return self.__data[sel_idx]['data']
 	#--------------------------------------------------------
 	def get_selected_item_label(self):
-		return self.__data[self.GetFirstSelected()]['label']
+		sel_idx = self.GetFirstSelected()
+		if sel_idx == -1:
+			return None
+		return self.__data[sel_idx]['label']
 #============================================================
 # FIXME: cols in pick list
 # FIXME: snap_to_basename+set selection
@@ -507,8 +513,8 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _hide_picklist(self):
 		"""Hide the pick list."""
-		if self.__picklist_dropdown.IsShown():
-			self.__picklist_dropdown.Hide()		# dismiss the dropdown list window
+#		if self.__picklist_dropdown.IsShown():
+		self.__picklist_dropdown.Hide()		# dismiss the dropdown list window
 	#--------------------------------------------------------
 	def __select_picklist_row(self, new_row_idx=None, old_row_idx=None):
 		if old_row_idx is not None:
@@ -718,7 +724,11 @@ class cPhraseWheel(wx.TextCtrl):
 		self._hide_picklist()
 		self.display_as_valid(valid = True)
 
-		self.data = self._picklist.GetSelectedItemData()	# just so that _picklist_selection2display_string could use it
+		data = self._picklist.GetSelectedItemData()	# just so that _picklist_selection2display_string could use it
+		if data is None:
+			return
+
+		self.data = data
 
 		# update our display
 		self.suppress_text_update_smarts = True
@@ -1016,7 +1026,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.124  2008-08-15 15:57:37  ncq
+# Revision 1.124.2.1  2008-09-09 17:36:24  ncq
+# - don't try to access the selected list item if there's no
+#   list - it seems IsShown() isn't really true all the time
+#
+# Revision 1.124  2008/08/15 15:57:37  ncq
 # - enchant doesn't like spellchecking '' anymore
 #
 # Revision 1.123  2008/07/13 16:14:00  ncq
