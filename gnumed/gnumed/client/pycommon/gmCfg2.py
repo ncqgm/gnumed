@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -347,6 +347,12 @@ class gmCfgData(gmBorg.cBorg):
 
 		_log.info('file source "%s": %s (%s)', source, file, encoding)
 
+		for existing_source, existing_file in self.source_files.iteritems():
+			if existing_file == file:
+				if source != existing_source:
+					_log.warning('file [%s] already known as source [%s]', file, existing_source)
+					_log.warning('adding it as source [%s] may provoke trouble', source)
+
 		cfg_file = None
 		if file is not None:
 			try:
@@ -406,7 +412,9 @@ class gmCfgData(gmBorg.cBorg):
 		for src, fname in self.source_files.iteritems():
 			if fname == file:
 				self.add_file_source(source = src, file = fname, encoding = encoding)
-				break
+				# don't break the loop because there could be other sources
+				# with the same file (not very reasonable, I know)
+				#break
 	#--------------------------------------------------
 	def set_option(self, option=None, value=None, group=None, source=None):
 		"""Set a particular option to a particular value.
@@ -504,7 +512,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.17  2008-08-31 16:12:12  ncq
+# Revision 1.18  2008-09-09 20:15:42  ncq
+# - warn on same-file different-source
+#
+# Revision 1.17  2008/08/31 16:12:12  ncq
 # - when getting from multiple sources, if policy is "extend",
 #   flatten list options into a single result list
 #
