@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.3 2008-07-28 20:26:49 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.3.2.1 2008-09-09 17:29:16 ncq Exp $
+__version__ = "$Revision: 1.3.2.1 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -272,6 +272,8 @@ system account: %s
 staff member  : %s
 sender email  : %s
 
+ affects gnumed
+
 """ % (comment, _local_account, _staff_name, sender_email)
 		if include_log:
 			_log2.error(comment)
@@ -304,7 +306,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.3  2008-07-28 20:26:49  ncq
+# Revision 1.3.2.1  2008-09-09 17:29:16  ncq
+# - somewhat help Launchpad in bug tracking
+#
+# Revision 1.3  2008/07/28 20:26:49  ncq
 # - fixed include_log logic
 #
 # Revision 1.2  2008/07/16 11:10:46  ncq
