@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.166 2008-08-20 14:54:46 ncq Exp $
-__version__ = "$Revision: 1.166 $"
+# $Id: gmMedDocWidgets.py,v 1.166.2.1 2008-09-09 17:34:09 ncq Exp $
+__version__ = "$Revision: 1.166.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1546,7 +1546,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		if review_after_display == 1:			# always review
 			self.__review_part(part=part)
 		elif review_after_display == 2:			# review if no review by me exists
-			review_by_me = filter(lambda rev: rev['is_review_by_you'], part.get_reviews())
+			review_by_me = filter(lambda rev: rev['is_your_review'], part.get_reviews())
 			if len(review_by_me) == 0:
 				self.__review_part(part=part)
 
@@ -1845,7 +1845,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.166  2008-08-20 14:54:46  ncq
+# Revision 1.166.2.1  2008-09-09 17:34:09  ncq
+# - fix faulty column access in review
+#
+# Revision 1.166  2008/08/20 14:54:46  ncq
 # - carefully work around wxMenu.Remove() doing something other
 #   than what the documentation suggests it does
 #
