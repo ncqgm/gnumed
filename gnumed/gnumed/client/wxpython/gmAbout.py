@@ -1,10 +1,10 @@
-# -*- coding: latin1 -*-
+# -*- coding: utf8 -*-
 #====================================================================
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.30 2008-07-28 20:41:58 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmAbout.py,v 1.31 2008-09-09 20:18:06 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -177,6 +177,16 @@ class cContributorsDlg(wx.Dialog):
 'the user name.\n'
 '%s'
 ) % u"""
+== B ===========================================
+
+James Busser, MD, GP
+ British Columbia
+
+ - test results handling
+ - documentation would be nothing without him
+ - encouragment
+ - testing on MacOSX
+
 == F ===========================================
 
 Joachim Fischer
@@ -185,6 +195,12 @@ Joachim Fischer
  Wolfschlugen
 
  - Karteieintragsarten passend für Deutschland
+
+== H ===========================================
+
+Sebastian Hilbert, MD
+
+ - packaging, PR
 
 == L ===========================================
 
@@ -256,7 +272,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.30  2008-07-28 20:41:58  ncq
+# Revision 1.31  2008-09-09 20:18:06  ncq
+# - cleanup
+#
+# Revision 1.30  2008/07/28 20:41:58  ncq
 # - support version in about box
 #
 # Revision 1.29  2007/09/20 19:34:04  ncq
