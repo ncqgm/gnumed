@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.28 2008-08-31 16:47:48 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmAuthWidgets.py,v 1.29 2008-09-09 20:18:51 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -458,7 +458,7 @@ class cLoginPanel(wx.Panel):
 					(u'workbase', u'extend')
 				]
 			),
-			[]
+			['any-doc']
 		)
 		# FIXME: make unique
 
@@ -688,7 +688,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.28  2008-08-31 16:47:48  ncq
+# Revision 1.29  2008-09-09 20:18:51  ncq
+# - default to any-doc if no previous logins found
+#
+# Revision 1.28  2008/08/31 16:47:48  ncq
 # - proper policy when retrieving previous logins
 #
 # Revision 1.27  2008/08/31 16:34:12  ncq
