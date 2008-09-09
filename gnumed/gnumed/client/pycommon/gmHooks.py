@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.15 2008-09-09 20:17:45 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmHooks.py,v 1.16 2008-09-09 22:03:01 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -32,7 +32,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 # stdlib
 import os, sys, stat, logging
 
-_log = logging.GetLogger('gm.hook')
+_log = logging.getLogger('gm.hook')
 _log.info(__version__)
 
 
@@ -148,7 +148,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.15  2008-09-09 20:17:45  ncq
+# Revision 1.16  2008-09-09 22:03:01  ncq
+# - fix typo
+#
+# Revision 1.15  2008/09/09 20:17:45  ncq
 # - add some logging
 # - don't crash on hook script errors
 #
