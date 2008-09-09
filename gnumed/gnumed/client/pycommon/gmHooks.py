@@ -23,14 +23,17 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.14 2008-05-31 16:32:04 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmHooks.py,v 1.15 2008-09-09 20:17:45 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import os, sys, stat
+import os, sys, stat, logging
+
+_log = logging.GetLogger('gm.hook')
+_log.info(__version__)
 
 
 # GNUmed libs
@@ -75,6 +78,7 @@ def __import_hook_module():
 	full_script = os.path.join(script_path, script_name)
 
 	if not os.access(full_script, os.F_OK):
+		_log.warning('creating default hook script')
 		f = open(full_script, 'w')
 		f.write("""
 # known hooks:
@@ -109,6 +113,7 @@ def run_script(hook=None):
 		return False
 
 	hook_module = gmTools.import_module_from_directory(script_path, script_name)
+	_log.info('hook script: %s', full_script)
 	return True
 # ========================================================================
 def run_hook_script(hook=None):
@@ -123,7 +128,16 @@ def run_hook_script(hook=None):
 	if not __import_hook_module():
 		return False
 
-	hook_module.run_script(hook = hook)
+	try:
+		hook_module.run_script(hook = hook)
+	except StandardError:
+		_log.exception('error running hook script for [%s]', hook)
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Error running hook [%s] script.') % hook,
+			beep = True
+		)
+		return False
 
 	return True
 # ========================================================================
@@ -134,7 +148,11 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.14  2008-05-31 16:32:04  ncq
+# Revision 1.15  2008-09-09 20:17:45  ncq
+# - add some logging
+# - don't crash on hook script errors
+#
+# Revision 1.14  2008/05/31 16:32:04  ncq
 # - add before external doc access hook
 #
 # Revision 1.13  2008/05/19 15:45:39  ncq
