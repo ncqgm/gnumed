@@ -48,8 +48,6 @@ COLOR 0A
 call upgrade-db.bat 2 3
 dropdb -U gm-dbo gnumed_v2
 
-echo "next one"
-
 REM v3 -> v4
 COLOR 0F
 call upgrade-db.bat 3 4
