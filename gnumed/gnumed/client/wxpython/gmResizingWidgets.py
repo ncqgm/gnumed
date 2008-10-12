@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.53 2008-08-15 15:58:47 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmResizingWidgets.py,v 1.54 2008-10-12 16:35:15 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -594,7 +594,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 #		if (self.list is not None) and not self.list.alive:
 #			self.list = None # someone else has destroyed our list!
 
-		curs_pos = self.GetCurrentPos()
+#		curs_pos = self.GetCurrentPos()
 
 		# <DOWN>
 		# - if in list: scroll list
@@ -648,23 +648,23 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - if inside embedded string
 		#	- delete entire string and data dict
 		# - else standard behaviour
-		if event.GetKeyCode() == wx.WXK_DELETE:
-			# FIXME: perhaps add check for regex, too ?
-			if self.GetStyleAt(curs_pos) == STYLE_EMBED:
-				self.DelPhrase(curs_pos)
-				# FIXME: also delete corresponding "additional data" dict ...
-				return
+#		if event.GetKeyCode() == wx.WXK_DELETE:
+#			# FIXME: perhaps add check for regex, too ?
+#			if self.GetStyleAt(curs_pos) == STYLE_EMBED:
+#				self.DelPhrase(curs_pos)
+#				# FIXME: also delete corresponding "additional data" dict ...
+#				return
 
 		# <BACKSPACE>
 		# - if inside embedded string
 		#	- delete entire string and data dict
 		# - else standard behaviour
-		if event.GetKeyCode() == wx.WXK_BACK:
-			# FIXME: perhaps add check for regex, too ?
-			if self.GetStyleAt(curs_pos-1) == STYLE_EMBED:
-				self.DelPhrase (curs_pos-1)
-				# FIXME: also delete corresponding "additional data" dict ...
-				return
+#		if event.GetKeyCode() == wx.WXK_BACK:
+#			# FIXME: perhaps add check for regex, too ?
+#			if self.GetStyleAt(curs_pos-1) == STYLE_EMBED:
+#				self.DelPhrase (curs_pos-1)
+#				# FIXME: also delete corresponding "additional data" dict ...
+#				return
 
 		event.Skip()	# skip to next event handler to keep processing
 	#------------------------------------------------
@@ -1078,7 +1078,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.53  2008-08-15 15:58:47  ncq
+# Revision 1.54  2008-10-12 16:35:15  ncq
+# - comment out key handling code
+#
+# Revision 1.53  2008/08/15 15:58:47  ncq
 # - rip out CURSOR-UP/DOWN based SOAP field jumping by popular demand
 # - lotsa other cleanup
 #
