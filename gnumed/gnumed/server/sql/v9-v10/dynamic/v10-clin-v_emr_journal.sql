@@ -5,8 +5,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_emr_journal.sql,v 1.1 2008-09-02 15:41:19 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-clin-v_emr_journal.sql,v 1.2 2008-10-12 15:00:20 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -41,6 +41,10 @@ union all
 union all
 
 	select * from clin.v_pat_allergies_journal
+
+union all
+
+	select * from clin.v_pat_allergy_state_journal
 
 union all
 
@@ -113,11 +117,14 @@ comment on view clin.v_emr_journal is
 
 grant select on clin.v_emr_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-v_emr_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-v_emr_journal.sql,v $
--- Revision 1.1  2008-09-02 15:41:19  ncq
+-- Revision 1.2  2008-10-12 15:00:20  ncq
+-- - include allergy state
+--
+-- Revision 1.1  2008/09/02 15:41:19  ncq
 -- - new
 --
 --
