@@ -12,15 +12,19 @@ class wxgAllergyManagerDlg(wx.Dialog):
         # begin wxGlade: wxgAllergyManagerDlg.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
+        self._TXT_current_state = wx.StaticText(self, -1, _("<current allergy state>"))
+        self._TXT_last_confirmed = wx.StaticText(self, -1, _("<last confirmed>"))
+        self._RBTN_unknown = wx.RadioButton(self, -1, _("Unknown"))
+        self._RBTN_none = wx.RadioButton(self, -1, _("No allergies"))
+        self._RBTN_some = wx.RadioButton(self, -1, _("Has allergies"))
+        self._TCTRL_state_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._LCTRL_allergies = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.NO_BORDER)
         self._PNL_edit_area = gmAllergyWidgets.cAllergyEditAreaPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
         self._BTN_save = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "", style=wx.BU_EXACTFIT)
         self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
-        self._BTN_undisclosed = wx.Button(self, -1, _("Undisclosed"), style=wx.BU_EXACTFIT)
-        self._BTN_unknown = wx.Button(self, -1, _("Unknown"), style=wx.BU_EXACTFIT)
-        self._BTN_none = wx.Button(self, -1, _("None"), style=wx.BU_EXACTFIT)
-        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, "", style=wx.BU_EXACTFIT)
+        self._BTN_reconfirm = wx.Button(self, -1, _("&Reconfirm"), style=wx.BU_EXACTFIT)
+        self._BTN_dismiss = wx.Button(self, wx.ID_CLOSE, "", style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -29,27 +33,26 @@ class wxgAllergyManagerDlg(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
         self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
-        self.Bind(wx.EVT_BUTTON, self._on_undisclosed_button_pressed, self._BTN_undisclosed)
-        self.Bind(wx.EVT_BUTTON, self._on_unknown_button_pressed, self._BTN_unknown)
-        self.Bind(wx.EVT_BUTTON, self._on_none_button_pressed, self._BTN_none)
+        self.Bind(wx.EVT_BUTTON, self._on_reconfirm_button_pressed, self._BTN_reconfirm)
         self.Bind(wx.EVT_BUTTON, self._on_dismiss_button_pressed, self._BTN_dismiss)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgAllergyManagerDlg.__set_properties
         self.SetTitle(_("Allergy Manager"))
-        self.SetSize((550, 350))
+        self.SetSize((650, 400))
+        self._TXT_current_state.SetToolTipString(_("This displays the current allergy state as saved in the database."))
+        self._TXT_last_confirmed.SetToolTipString(_("When was the allergy state last confirmed."))
+        self._RBTN_unknown.SetToolTipString(_("Select this if there is no information available on whether the patient has any allergies or not."))
+        self._RBTN_none.SetToolTipString(_("Select this if the patient has no known allergies."))
+        self._RBTN_some.SetToolTipString(_("Select this if the patient has known allergies."))
+        self._TCTRL_state_comment.SetToolTipString(_("A comment on the allergy state."))
         self._LCTRL_allergies.SetToolTipString(_("Lists the allergies known for this patient if any."))
-        self._BTN_save.SetToolTipString(_("Save as a new allergy or update the allergy that is selected above."))
+        self._BTN_save.SetToolTipString(_("Save new allergy state, comment and edit area as a new allergy or update the allergy that is selected above.\nThis does NOT change the time of the last reconfirmation, however."))
         self._BTN_clear.SetToolTipString(_("Clear the fields of the edit area. Will discard unsaved data."))
         self._BTN_delete.SetToolTipString(_("Delete the allergy selected in the list from the database."))
         self._BTN_delete.Enable(False)
-        self._BTN_undisclosed.SetToolTipString(_("Undisclosed: The patient does not disclose whether or not an allergy exists."))
-        self._BTN_undisclosed.Enable(False)
-        self._BTN_unknown.SetToolTipString(_("Unknown: It is not known whether any allergies exist in this patient."))
-        self._BTN_unknown.Enable(False)
-        self._BTN_none.SetToolTipString(_("None: It is believed the patient does not currently suffer from any allergies."))
-        self._BTN_none.Enable(False)
+        self._BTN_reconfirm.SetToolTipString(_("Reconfirm the allergy state without altering any of it."))
         self._BTN_dismiss.SetToolTipString(_("Close the dialag. Will discard unsaved data."))
         self._BTN_dismiss.SetDefault()
         # end wxGlade
@@ -58,19 +61,37 @@ class wxgAllergyManagerDlg(wx.Dialog):
         # begin wxGlade: wxgAllergyManagerDlg.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._LCTRL_allergies, 1, wx.ALL|wx.EXPAND, 5)
-        __szr_main.Add(self._PNL_edit_area, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
+        __gszr_state = wx.FlexGridSizer(3, 2, 2, 10)
+        __szr_new_state = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_current_state = wx.BoxSizer(wx.HORIZONTAL)
+        __LBL_state = wx.StaticText(self, -1, _("Current state:"))
+        __gszr_state.Add(__LBL_state, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_current_state.Add(self._TXT_current_state, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 15)
+        __LBL_confirmed = wx.StaticText(self, -1, _("Last confirmed:"))
+        __szr_current_state.Add(__LBL_confirmed, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_current_state.Add(self._TXT_last_confirmed, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gszr_state.Add(__szr_current_state, 1, wx.EXPAND, 0)
+        __LBL_set_state = wx.StaticText(self, -1, _("Set to:"))
+        __gszr_state.Add(__LBL_set_state, 0, wx.ALIGN_CENTER_VERTICAL, 15)
+        __szr_new_state.Add(self._RBTN_unknown, 0, wx.RIGHT|wx.EXPAND, 10)
+        __szr_new_state.Add(self._RBTN_none, 0, wx.RIGHT|wx.EXPAND, 10)
+        __szr_new_state.Add(self._RBTN_some, 0, wx.RIGHT|wx.EXPAND, 10)
+        __gszr_state.Add(__szr_new_state, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __LBL_comment = wx.StaticText(self, -1, _("Comment:"))
+        __gszr_state.Add(__LBL_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gszr_state.Add(self._TCTRL_state_comment, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __gszr_state.AddGrowableCol(1)
+        __szr_main.Add(__gszr_state, 0, wx.ALL|wx.EXPAND, 5)
+        __szr_main.Add(self._LCTRL_allergies, 1, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 5)
+        __szr_main.Add(self._PNL_edit_area, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_save, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_clear, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_undisclosed, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_buttons.Add(self._BTN_unknown, 0, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_none, 0, wx.EXPAND, 0)
-        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_reconfirm, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_dismiss, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 3)
+        __szr_main.Add(__szr_buttons, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         self.Layout()
         self.Centre()
@@ -82,10 +103,6 @@ class wxgAllergyManagerDlg(wx.Dialog):
 
     def _on_clear_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
         print "Event handler `_on_clear_button_pressed' not implemented!"
-        event.Skip()
-
-    def _on_undisclosed_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
-        print "Event handler `_on_undisclosed_button_pressed' not implemented!"
         event.Skip()
 
     def _on_delete_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
@@ -108,16 +125,12 @@ class wxgAllergyManagerDlg(wx.Dialog):
         print "Event handler `_on_list_item_focused' not implemented"
         event.Skip()
 
-    def _on_unknown_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
-        print "Event handler `_on_unknown_button_pressed' not implemented"
-        event.Skip()
-
-    def _on_none_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
-        print "Event handler `_on_none_button_pressed' not implemented"
-        event.Skip()
-
     def _on_dismiss_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
         print "Event handler `_on_dismiss_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_reconfirm_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
+        print "Event handler `_on_reconfirm_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgAllergyManagerDlg
