@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.69.2.1 $"
+__version__ = "$Revision: 1.69.2.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -177,12 +177,14 @@ def connect (host, port, db, user, passwd, superuser=0):
 		elif re.search ("no password supplied", m):
 			# didn't like blank password trick
 			_log.Log (gmLog.lWarn, "attempt w/ blank password failed, retrying with password")
-			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
+			print "I need the password for the GNUmed database user [%s]." % user
+			passwd = getpass.getpass ("Please type password: ")
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("^FATAL:.*Password authentication failed.*", m):
 			# didn't like supplied password
 			_log.Log (gmLog.lWarn, "password not accepted, retrying")
-			passwd = getpass.getpass ("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
+			print "I need the correct password for the GNUmed database user [%s]." % user
+			passwd = getpass.getpass ("Please type password: ")
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("could not connect to server", m):
 			if len(host) == 0:
@@ -241,7 +243,8 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					self.password = getpass.getpass("I need the password for the GNUmed database user [%s].\nPlease type password: " % self.name)
+					print "I need the password for the GNUmed database user [%s]." % self.name
+					self.password = getpass.getpass("Please type password: ")
 				else:
 					_log.Log(gmLog.lWarn, 'password for database user [%s] set to empty string' % self.name)
 
@@ -1284,7 +1287,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.69.2.1  2007-12-26 11:25:12  ncq
+# Revision 1.69.2.2  2008-10-12 12:18:04  ncq
+# - work around windows bug with %s in getpass()
+#
+# Revision 1.69.2.1  2007/12/26 11:25:12  ncq
 # - at least on MacOSX Python silently miscompares float() and Decimal,
 #   so force both versions to float
 #
