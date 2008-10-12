@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.30 2008-10-12 15:02:43 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmAllergy.py,v 1.31 2008-10-12 15:10:05 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -18,15 +18,15 @@ from Gnumed.pycommon import gmPG2, gmI18N, gmBusinessDBObject
 _log = logging.getLogger('gm.domain')
 _log.info(__version__)
 #============================================================
-# allergic state related code
+# allergy state related code
 #============================================================
-allergic_states = [
+allergy_states = [
 	None,		# unknown
 	0,			# no allergies
 	1			# some allergies
 ]
 #------------------------------------------------------------
-def ensure_has_allergic_state(encounter=None):
+def ensure_has_allergy_state(encounter=None):
 
 	args = {'enc': encounter}
 
@@ -52,7 +52,7 @@ where pk_patient = (
 	return cAllergyState(aPK_obj = rows[0][0])
 #------------------------------------------------------------
 class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents the allergic state of one patient."""
+	"""Represents the allergy state of one patient."""
 
 	_cmd_fetch_payload = u"select * from clin.v_pat_allergy_state where pk_allergy_state = %s"
 	_cmds_store_payload = [
@@ -75,13 +75,13 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_string(self):
 		if self._payload[self._idx['has_allergy']] is None:
-			return _('unknown allergic state')
+			return _('unknown allergy state')
 		if self._payload[self._idx['has_allergy']] == 0:
 			return _('no known allergies')
 		if self._payload[self._idx['has_allergy']] == 1:
 			return _('does have allergies')
-		_log.error('unknown allergic state [%s]', self._payload[self._idx['has_allergy']])
-		return _('ERROR: unknown allergic state [%s]') % self._payload[self._idx['has_allergy']]
+		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
+		return _('ERROR: unknown allergy state [%s]') % self._payload[self._idx['has_allergy']]
 
 	def _set_string(self, value):
 		raise AttributeError('invalid to set allergy state string')
@@ -95,8 +95,8 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 			return u'\u2300'
 		if self._payload[self._idx['has_allergy']] == 1:
 			return '!'
-		_log.error('unknown allergic state [%s]', self._payload[self._idx['has_allergy']])
-		return _('ERROR: unknown allergic state [%s]') % self._payload[self._idx['has_allergy']]
+		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
+		return _('ERROR: unknown allergy state [%s]') % self._payload[self._idx['has_allergy']]
 
 	def _set_symbol(self, value):
 		raise AttributeError('invalid to set allergy state symbol')
@@ -241,7 +241,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.30  2008-10-12 15:02:43  ncq
+# Revision 1.31  2008-10-12 15:10:05  ncq
+# - allergic -> allergy
+#
+# Revision 1.30  2008/10/12 15:02:43  ncq
 # - no more allergy state -1
 # - ensure_has_allergic_state()
 # - cAllergyState
