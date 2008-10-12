@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.270 2008-08-15 15:55:41 ncq Exp $
-__version__ = "$Revision: 1.270 $"
+# $Id: gmClinicalRecord.py,v 1.270.2.1 2008-10-12 17:02:26 ncq Exp $
+__version__ = "$Revision: 1.270.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -575,7 +575,7 @@ Test results: %(results)s
 
 		txt = _('EMR Statistics\n\n')
 		if len(probs) > 0:
-			txt += _(' %s known problems. Clinically relevant:\n') % stats['problems']
+			txt += _(' %s known problems. Clinically relevant thereof:\n') % stats['problems']
 		else:
 			txt += _(' %s known problems\n') % stats['problems']
 		for prob in probs:
@@ -585,7 +585,7 @@ Test results: %(results)s
 				prob['problem'],
 				gmTools.bool2subst(prob['problem_active'], _('active'), _('inactive'))
 			)
-		txt += _(' %s visits from %s to %s\n') % (
+		txt += _(' %s encounters from %s to %s\n') % (
 			stats['visits'],
 			first['started'].strftime('%x'),
 			last['started'].strftime('%x')
@@ -1785,7 +1785,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.270  2008-08-15 15:55:41  ncq
+# Revision 1.270.2.1  2008-10-12 17:02:26  ncq
+# - better wording for health issue level
+#
+# Revision 1.270  2008/08/15 15:55:41  ncq
 # - comment on row_version
 #
 # Revision 1.269  2008/07/12 15:19:16  ncq
