@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.48 2007-12-12 16:17:15 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmBusinessDBObject.py,v 1.49 2008-10-12 15:39:49 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -180,14 +180,14 @@ class cBusinessDBObject:
 	def __init__(self, aPK_obj=None, row=None):
 		"""Init business object.
 		"""
+		self._idx = {}
+		self._payload = []		# the cache for backend object values (mainly table fields)
+		self._ext_cache = {}	# the cache for extended method's results
 		self._is_modified = False
 		# check descendants
 		self.__class__._cmd_fetch_payload
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
-		self._payload = []		# the cache for backend object values (mainly table fields)
-		self._ext_cache = {}	# the cache for extended method's results
-		self._idx = {}
 
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
@@ -442,7 +442,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.48  2007-12-12 16:17:15  ncq
+# Revision 1.49  2008-10-12 15:39:49  ncq
+# - set up instance vars before testing for consts so if we fail they exist
+#
+# Revision 1.48  2007/12/12 16:17:15  ncq
 # - better logger names
 #
 # Revision 1.47  2007/12/11 14:17:18  ncq
