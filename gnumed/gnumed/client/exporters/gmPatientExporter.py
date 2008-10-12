@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.128 2008-09-02 18:59:30 ncq Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmPatientExporter.py,v 1.129 2008-10-12 15:32:18 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -939,7 +939,7 @@ class cEMRJournalExporter:
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (patient['dob'].strftime('%Y-%m-%d'), patient.get_medical_age()))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Entered'), _('Doc'), _('Narrative')))
+		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Happened'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 
 		# get data
@@ -947,7 +947,8 @@ class cEMRJournalExporter:
 select
 	to_char(vemrj.clin_when, 'YYYY-MM-DD') as date,
 	vemrj.*,
-	(select rank from clin.soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
+	(select rank from clin.soap_cat_ranks where soap_cat = vemrj.soap_cat) as scr,
+	to_char(vemrj.modified_when, 'YYYY-MM-DD H24:MI') as date_modified
 from clin.v_emr_journal vemrj
 where pk_patient = %s
 order by date, pk_episode, scr, src_table"""
@@ -963,7 +964,7 @@ order by date, pk_episode, scr, src_table"""
 				continue
 
 			txt = gmTools.wrap (
-				text = row['narrative'].replace(u'\r', u''),
+				text = row['narrative'].replace(u'\r', u'') + (u' (%s)' % row['date_modified']),
 				width = self.__part_len
 			).split('\n')
 
@@ -1164,7 +1165,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.128  2008-09-02 18:59:30  ncq
+# Revision 1.129  2008-10-12 15:32:18  ncq
+# - support "mod date" in journal
+#
+# Revision 1.128  2008/09/02 18:59:30  ncq
 # - no more fk_patient in clin.health_issue and related changes
 #
 # Revision 1.127  2008/07/28 15:42:30  ncq
