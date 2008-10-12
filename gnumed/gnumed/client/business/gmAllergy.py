@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.29 2008-01-30 13:34:49 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmAllergy.py,v 1.30 2008-10-12 15:02:43 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -17,9 +17,99 @@ from Gnumed.pycommon import gmPG2, gmI18N, gmBusinessDBObject
 
 _log = logging.getLogger('gm.domain')
 _log.info(__version__)
+#============================================================
+# allergic state related code
+#============================================================
+allergic_states = [
+	None,		# unknown
+	0,			# no allergies
+	1			# some allergies
+]
+#------------------------------------------------------------
+def ensure_has_allergic_state(encounter=None):
 
+	args = {'enc': encounter}
 
-allergic_states = [None, -1, 0, 1]
+	cmd_search = u"""
+select pk_allergy_state from clin.v_pat_allergy_state
+where pk_patient = (
+	select fk_patient from clin.encounter where pk = %(enc)s
+)"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd_search, 'args': args}])
+
+	if len(rows) > 0:
+		return cAllergyState(aPK_obj = rows[0][0])
+
+	cmd_create = u'insert into clin.allergy_state (fk_encounter, has_allergy) values (%(enc)s, NULL)'
+	rows, idx = gmPG2.run_rw_queries (
+		queries = [
+			{'cmd': cmd_create, 'args': args},
+			{'cmd': cmd_search, 'args': args}
+		],
+		return_data = True
+	)
+
+	return cAllergyState(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents the allergic state of one patient."""
+
+	_cmd_fetch_payload = u"select * from clin.v_pat_allergy_state where pk_allergy_state = %s"
+	_cmds_store_payload = [
+		u"""update clin.allergy_state set
+				last_confirmed = %(last_confirmed)s,
+				has_allergy = %(has_allergy)s,
+				comment = %(comment)s
+			where
+				pk = %(pk_allergy_state)s and
+				xmin = %(xmin_allergy_state)s""",
+		u"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
+	]
+	_updatable_fields = [
+		'last_confirmed',
+		'has_allergy',
+		'comment'
+	]
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_as_string(self):
+		if self._payload[self._idx['has_allergy']] is None:
+			return _('unknown allergic state')
+		if self._payload[self._idx['has_allergy']] == 0:
+			return _('no known allergies')
+		if self._payload[self._idx['has_allergy']] == 1:
+			return _('does have allergies')
+		_log.error('unknown allergic state [%s]', self._payload[self._idx['has_allergy']])
+		return _('ERROR: unknown allergic state [%s]') % self._payload[self._idx['has_allergy']]
+
+	def _set_string(self, value):
+		raise AttributeError('invalid to set allergy state string')
+
+	state_string = property(_get_as_string, _set_string)
+	#--------------------------------------------------------
+	def _get_as_symbol(self):
+		if self._payload[self._idx['has_allergy']] is None:
+			return u'?'
+		if self._payload[self._idx['has_allergy']] == 0:
+			return u'\u2300'
+		if self._payload[self._idx['has_allergy']] == 1:
+			return '!'
+		_log.error('unknown allergic state [%s]', self._payload[self._idx['has_allergy']])
+		return _('ERROR: unknown allergic state [%s]') % self._payload[self._idx['has_allergy']]
+
+	def _set_symbol(self, value):
+		raise AttributeError('invalid to set allergy state symbol')
+
+	state_symbol = property(_get_as_symbol, _set_symbol)
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		if attribute == 'comment':
+			if value is not None:
+				if value.strip() == u'':
+					value = None
+
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 #============================================================
 class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one allergy item.
@@ -27,6 +117,8 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	Actually, those things are really things to *avoid*.
 	Allergy is just one of several reasons for that.
 	See Adrian's post on gm-dev.
+
+	Another word might be Therapeutic Precautions.
 	"""
 	_cmd_fetch_payload = u"select * from clin.v_pat_allergies where pk_allergy=%s"
 	_cmds_store_payload = [
@@ -49,7 +141,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'date',
 		'substance',
-		'substance_code',	
+		'substance_code',
 		'generics',
 		'allergene',
 		'atc_code',
@@ -123,19 +215,6 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 
 	return allergy
 #============================================================
-def allergic_state2str(state=None):
-	if state is None:
-		return _('unknown allergic state')
-	if state == -1:
-		return _('undisclosed allergic state')
-	if state == 0:
-		return _('no known allergies')
-	if state == 1:
-		return _('does have allergies')
-	_log.error('unknown allergic state [%s]', state)
-	return _('ERROR: unknown allergic state [%s]') % state
-
-#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -162,7 +241,12 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.29  2008-01-30 13:34:49  ncq
+# Revision 1.30  2008-10-12 15:02:43  ncq
+# - no more allergy state -1
+# - ensure_has_allergic_state()
+# - cAllergyState
+#
+# Revision 1.29  2008/01/30 13:34:49  ncq
 # - switch to std lib logging
 #
 # Revision 1.28  2007/10/25 12:17:28  ncq
