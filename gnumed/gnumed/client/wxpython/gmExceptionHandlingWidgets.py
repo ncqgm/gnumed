@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.3 2008-07-28 20:26:49 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.4 2008-10-12 16:17:57 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,6 +24,10 @@ _log2.info(__version__)
 _prev_excepthook = None
 application_is_closing = False
 #=========================================================================
+def set_client_version(version):
+	global _client_version
+	_client_version = version
+#-------------------------------------------------------------------------
 def set_sender_email(email):
 	global _sender_email
 	_sender_email = email
@@ -112,6 +116,7 @@ def install_wx_exception_handler():
 	set_staff_name(_local_account)
 	set_is_public_database(False)
 	set_sender_email(None)
+	set_client_version(__version__)
 
 	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
 
@@ -268,11 +273,18 @@ Report sent via GNUmed's handler for unexpected exceptions.
 
 user comment  : %s
 
+client version: %s
+
 system account: %s
 staff member  : %s
 sender email  : %s
 
-""" % (comment, _local_account, _staff_name, sender_email)
+ # enable Launchpad bug tracking
+ affects gnumed
+ tag automatic-report
+ importance medium
+
+""" % (comment, _client_version, _local_account, _staff_name, sender_email)
 		if include_log:
 			_log2.error(comment)
 			_log2.warning('syncing log file for emailing')
@@ -304,7 +316,11 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.3  2008-07-28 20:26:49  ncq
+# Revision 1.4  2008-10-12 16:17:57  ncq
+# - include client version at top of bug email
+# - improved launchpad tracking tags
+#
+# Revision 1.3  2008/07/28 20:26:49  ncq
 # - fixed include_log logic
 #
 # Revision 1.2  2008/07/16 11:10:46  ncq
