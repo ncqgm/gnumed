@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.105 2008-06-26 21:19:15 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmMedDoc.py,v 1.106 2008-10-12 15:14:14 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -496,7 +496,7 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
 				{'cmd': u'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
-				{'cmd': u'select i18n.upd_tx((select lang from i18n.curr_lang where user = CURRENT_USER), %(orig)s, %(tx)s)',
+				{'cmd': u'select i18n.upd_tx((select i18n.get_curr_lang(), %(orig)s, %(tx)s)',
 				 'args': {
 				 	'orig': self._payload[self._idx['type']],
 					'tx': translation
@@ -702,7 +702,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.105  2008-06-26 21:19:15  ncq
+# Revision 1.106  2008-10-12 15:14:14  ncq
+# - use i18n.get_curr_lang
+#
+# Revision 1.105  2008/06/26 21:19:15  ncq
 # - enhance get_documents with episode/encounter filters
 #
 # Revision 1.104  2008/05/29 13:26:22  ncq
