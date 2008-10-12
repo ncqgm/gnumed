@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.9 2008-03-05 22:30:14 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmFormWidgets.py,v 1.10 2008-10-12 16:20:11 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, logging
@@ -80,9 +80,12 @@ def create_new_letter(parent=None):
 	if template is None:
 		return
 
+	wx.BeginBusyCursor()
+
 	# 2) export template to file
 	filename = template.export_to_file()
 	if filename is None:
+		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
 			_(	'Error exporting form template\n'
 				'\n'
@@ -95,6 +98,7 @@ def create_new_letter(parent=None):
 	try:
 		doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
 	except ImportError:
+		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
 			_('Cannot connect to OpenOffice.\n\n'
 			  'The UNO bridge module for Python\n'
@@ -105,6 +109,7 @@ def create_new_letter(parent=None):
 		return
 
 	if not doc.open_in_ooo():
+		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
 			_('Cannot connect to OpenOffice.\n'
 			  '\n'
@@ -120,9 +125,16 @@ def create_new_letter(parent=None):
 
 	doc.show(False)
 	ph_handler = gmMacro.gmPlaceholderHandler()
+
+	wx.EndBusyCursor()
+
 	doc.replace_placeholders(handler = ph_handler)
+
+	wx.BeginBusyCursor()
 	filename = filename.replace('.ott', '.odt').replace('-FormTemplate-', '-FormInstance-')
 	doc.save_in_ooo(filename = filename)
+	wx.EndBusyCursor()
+
 	doc.show(True)
 #============================================================
 class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl):
@@ -305,7 +317,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.9  2008-03-05 22:30:14  ncq
+# Revision 1.10  2008-10-12 16:20:11  ncq
+# - add busy cursor around letter creation
+#
+# Revision 1.9  2008/03/05 22:30:14  ncq
 # - new style logging
 #
 # Revision 1.8  2008/01/27 21:14:16  ncq
