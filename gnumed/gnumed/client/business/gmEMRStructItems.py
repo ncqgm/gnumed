@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.122 $"
+__version__ = "$Revision: 1.123 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -20,7 +20,7 @@ _log = logging.getLogger('gm.emr')
 _log.info(__version__)
 
 #============================================================
-# Foundational Health Issues API
+# Health Issues API
 #============================================================
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue."""
@@ -159,7 +159,7 @@ age (
 
 		lines = []
 
-		lines.append(_('Foundational Health Issue %s%s%s [#%s]') % (
+		lines.append(_('Health Issue %s%s%s [#%s]') % (
 			u'\u00BB',
 			self._payload[self._idx['description']],
 			u'\u00AB',
@@ -1029,7 +1029,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.122  2008-09-09 19:55:07  ncq
+# Revision 1.123  2008-10-12 15:13:30  ncq
+# - no more "foundational" in health issue
+#
+# Revision 1.122  2008/09/09 19:55:07  ncq
 # - Jerzy found a misspelling
 #
 # Revision 1.121  2008/09/04 11:52:17  ncq
