@@ -24,7 +24,7 @@
                 <object class="wxStaticText" name="__lbl_instructions" base="EditStaticText">
                     <style>wxALIGN_CENTRE</style>
                     <attribute>0</attribute>
-                    <label>Edit the details for the consultation below.\n\nThe following problems were discussed:</label>
+                    <label>Edit the details for the encounter below.\n\nThe following problems were discussed:</label>
                 </object>
             </object>
             <object class="sizeritem">
@@ -113,7 +113,7 @@
                         <option>0</option>
                         <object class="wxTextCtrl" name="_TCTRL_rfe" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Enter the Reason For Encounter here. This is the patient's initial request which led to the consultation.</tooltip>
+                            <tooltip>Enter the Reason For Encounter here. This is the patient's initial request which led to the encounter.</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">
@@ -131,7 +131,7 @@
                         <option>0</option>
                         <object class="wxTextCtrl" name="_TCTRL_aoe" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Enter the Consultation Summary here. This is your final assessment of the encounter/consultation summary.</tooltip>
+                            <tooltip>Enter the Encounter Summary here. This is your final assessment of the encounter summary.</tooltip>
                         </object>
                     </object>
                 </object>
