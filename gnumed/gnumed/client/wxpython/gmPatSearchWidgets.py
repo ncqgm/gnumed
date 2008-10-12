@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.112 2008-09-01 20:28:51 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmPatSearchWidgets.py,v 1.113 2008-10-12 16:26:46 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -551,7 +551,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 #			self._lclick_count = 1
 #			evt.Skip()
 #			return None
-			
+
 		# has been clicked before - should be highlighted
 #		start, end = self.GetSelection()
 #		self.SetSelection(start, end)
@@ -992,7 +992,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.112  2008-09-01 20:28:51  ncq
+# Revision 1.113  2008-10-12 16:26:46  ncq
+# - cleanup
+#
+# Revision 1.112  2008/09/01 20:28:51  ncq
 # - properly handle case when several option sources define AU PracSoft source
 #
 # Revision 1.111  2008/08/28 18:34:18  ncq
