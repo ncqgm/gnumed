@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.93.2.1 2008-08-31 22:17:01 ncq Exp $
-__version__ = "$Revision: 1.93.2.1 $"
+# $Id: gmEMRBrowser.py,v 1.93.2.2 2008-10-12 17:02:59 ncq Exp $
+__version__ = "$Revision: 1.93.2.2 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -134,7 +134,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# init new tree
 		self.DeleteAllItems()
-		root_item = self.AddRoot(_('%s EMR') % self.__pat['description'])
+		root_item = self.AddRoot(_('EMR of %s') % self.__pat['description'])
 		self.SetPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 
@@ -672,7 +672,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.93.2.1  2008-08-31 22:17:01  ncq
+# Revision 1.93.2.2  2008-10-12 17:02:59  ncq
+# - wording of EMR browser root node as per Jim
+#
+# Revision 1.93.2.1  2008/08/31 22:17:01  ncq
 # - don't crash on getting narrative change signal before tree has been populated
 #
 # Revision 1.93  2008/08/15 15:56:38  ncq
