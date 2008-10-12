@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.17 2008-07-10 09:06:47 ncq Exp $
-__version__ = "$Revision: 1.375.2.17 $"
+# $Id: gmGuiMain.py,v 1.375.2.18 2008-10-12 12:35:15 ncq Exp $
+__version__ = "$Revision: 1.375.2.18 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,7 +75,7 @@ if (timezone is not None) and not (isinstance(timezone, gmNull.cNull)):
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
-current_client_ver = u'v0.2.8.10'
+current_client_ver = u'v0.2.8.11'
 
 _log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
 _log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
@@ -2071,7 +2071,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.17  2008-07-10 09:06:47  ncq
+# Revision 1.375.2.18  2008-10-12 12:35:15  ncq
+# - bump version
+#
+# Revision 1.375.2.17  2008/07/10 09:06:47  ncq
 # - add one more possible path for a writable user prefs file
 # - be more explicit in the error message about missing a writable
 #   user prefs file
