@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.165 2008-08-28 18:30:50 ncq Exp $
-__version__ = "$Revision: 1.165 $"
+# $Id: gmPerson.py,v 1.166 2008-10-12 15:15:07 ncq Exp $
+__version__ = "$Revision: 1.166 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -669,7 +669,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def link_new_relative(self, rel_type = 'parent'):
 		# create new relative
 		id_new_relative = create_dummy_identity()
-		
+
 		relative = cIdentity(aPK_obj=id_new_relative)
 		# pre-fill with data from ourselves
 #		relative.copy_addresses(self)
@@ -763,15 +763,15 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			if len(rows) == 0:
-				raise gmExceptions.ConstructorError, 'no staff record for CURRENT_USER'
+				raise ValueError('no staff record for database account CURRENT_USER')
 			row = {
 				'pk_field': 'pk_staff',
 				'idx': idx,
 				'data': rows[0]
 			}
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row = row)
 		else:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=aPK_obj, row=row)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj, row = row)
 
 		# are we SELF ?
 		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
@@ -966,25 +966,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def _on_identity_change(self):
 		"""Listen for patient *data* change."""
 		self.patient.refetch_payload()
-	#--------------------------------------------------------
-# this MAY eventually become useful when we start
-# using more threads in the frontend
-#	def init_lock(self):
-#		"""initializes a pthread lock. Doesn't matter if 
-#		race of 2 threads in alock assignment, just use the 
-#		last lock created ( unless both threads find no alock,
-#		then one thread sleeps before self.alock = .. is completed ,
-#		the other thread assigns a new RLock object, 
-#		and begins immediately using it on a call to self.lock(),
-#		and gets past self.alock.acquire()
-#		before the first thread wakes up and assigns to self.alock 
-#		, obsoleting
-#		the already in use alock by the second thread )."""
-#		try:
-#			if  not self.__dict__.has_key('alock') :
-#				self.alock = threading.RLock()
-#		except:
-#			_log.exception("Cannot test/create lock", sys.exc_info()) 
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -2210,7 +2191,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.165  2008-08-28 18:30:50  ncq
+# Revision 1.166  2008-10-12 15:15:07  ncq
+# - cleanup
+# - better exception wording
+#
+# Revision 1.165  2008/08/28 18:30:50  ncq
 # - cleanup
 #
 # Revision 1.164  2008/07/10 11:16:01  ncq
