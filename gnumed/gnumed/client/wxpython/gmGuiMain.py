@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.426.2.3 2008-09-09 18:39:34 ncq Exp $
-__version__ = "$Revision: 1.426.2.3 $"
+# $Id: gmGuiMain.py,v 1.426.2.4 2008-10-12 17:04:51 ncq Exp $
+__version__ = "$Revision: 1.426.2.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1144,7 +1144,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		_log.info('setting database language to [%s]', language)
 		rows, idx = gmPG2.run_rw_queries (
-			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}]
+			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}],
+			return_data = True
 		)
 
 		if rows[0][0]:
@@ -1156,7 +1157,7 @@ class gmTopLevelFrame(wx.Frame):
 			  'for things like document or encounter types yourself.\n'
 			  '\n'
 			  'Do you want to force the language setting to [%s] ?'
-			) % language, language,
+			) % (language, language),
 			_('Configuring database language')
 		)
 		if not force_language:
@@ -2693,7 +2694,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.426.2.3  2008-09-09 18:39:34  ncq
+# Revision 1.426.2.4  2008-10-12 17:04:51  ncq
+# - fix database language setting
+#
+# Revision 1.426.2.3  2008/09/09 18:39:34  ncq
 # - bump version
 #
 # Revision 1.426.2.2  2008/09/01 11:42:07  ncq
