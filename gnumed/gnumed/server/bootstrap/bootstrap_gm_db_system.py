@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.85.2.1 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -148,6 +148,41 @@ administrator access.
 
 Please select a database configuation from the list below.
 """
+#------------------------------------------------------------------
+def db_group_exists(cursor=None, group=None):
+	cmd = "SELECT groname FROM pg_group WHERE groname = %(grp)s"
+	args = {'grp': group}
+	try:
+		cursor.execute(cmd, args)
+	except:
+		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
+		return False
+	res = cursor.fetchone()
+	if cursor.rowcount == 1:
+		_log.info("group [%s] exists" % group)
+		return True
+	_log.info("group [%s] does not exist" % group)
+	return False
+#------------------------------------------------------------------
+def create_db_group(cursor=None, group=None):
+
+	# does this group already exist ?
+	if db_group_exists(cursor, group):
+		return True
+
+	cmd = 'create group "%(grp)s"'
+	args = {'grp': group}
+	try:
+		cursor.execute(cmd, args)
+	except:
+		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
+		return False
+
+	# paranoia is good
+	if not db_group_exists(cursor, group):
+		return False
+
+	return True
 #==================================================================
 def connect (host, port, db, user, passwd, superuser=0):
 	"""
@@ -178,7 +213,8 @@ def connect (host, port, db, user, passwd, superuser=0):
 	except gmPG2.cAuthenticationError:
 		_log.critical('authentication error')
 		_log.exception("password not accepted, retrying")
-		passwd = getpass.getpass("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
+		print "I need the correct password for the GNUmed database user [%s]." % user
+		passwd = getpass.getpass("Please type the password: ")
 		conn = connect (host, port, db, user, passwd)
 
 	except gmPG2.dbapi.OperationalError, e:
@@ -200,7 +236,8 @@ def connect (host, port, db, user, passwd, superuser=0):
 		elif re.search ("no password supplied", m):
 			# didn't like blank password trick
 			_log.warning("attempt w/ blank password failed, retrying with password")
-			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
+			print "I need the password for the GNUmed database user [%s]." % user
+			passwd = getpass.getpass ("Please type the password: ")
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("could not connect to server", m):
 			if len(host) == 0:
@@ -302,7 +339,8 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					self.password = getpass.getpass("I need the password for the GNUmed database user [%s].\nPlease type password: " % self.name)
+					print "I need the password for the GNUmed database user [%s]." % self.name
+					self.password = getpass.getpass("Please type password: ")
 				else:
 					_log.warning('password for database user [%s] set to empty string' % self.name)
 
@@ -612,6 +650,14 @@ class database:
 		# make sure db exists
 		if not self.__create_db():
 			_log.error("Cannot create database.")
+			return False
+
+		# create authentication group
+		_log.info('creating database-specific authentication group role')
+		curs = self.conn.cursor()
+		if not create_db_group(cursor = curs, group = self.name):
+			curs.close()
+			_log.error('cannot create authentication group role')
 			return False
 
 		# reconnect as superuser to db
@@ -1385,7 +1431,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.85  2008-07-30 10:09:21  ncq
+# Revision 1.85.2.1  2008-10-12 17:06:36  ncq
+# - work around Windows Python bug with %s in getpass
+# - create auth group at db level so one-step bootstrapping works
+#
+# Revision 1.85  2008/07/30 10:09:21  ncq
 # - allow C/POSIX locale
 #
 # Revision 1.84  2008/07/22 15:20:02  ncq
