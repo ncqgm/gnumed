@@ -51,7 +51,7 @@
                         <option>0</option>
                         <object class="gmEMRStructWidgets.cIssueSelectionPhraseWheel" name="_PRW_issue" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Select the foundational health issue this episode belongs to.</tooltip>
+                            <tooltip>Select the health issue this episode belongs to.</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">

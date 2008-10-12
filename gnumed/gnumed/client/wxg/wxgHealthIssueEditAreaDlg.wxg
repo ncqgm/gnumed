@@ -4,7 +4,7 @@
 <application path="/home/ncq/Projekte/gm-cvs/branches/HEAD/gnumed/gnumed/client/wxGladeWidgets/wxgHealthIssueEditAreaDlg.py" name="" class="" option="0" language="python" top_window="dialog_1" encoding="ISO-8859-15" use_gettext="1" overwrite="0" use_new_namespace="1" for_version="2.6" is_template="0">
     <object class="wxgHealthIssueEditAreaDlg" name="dialog_1" base="EditDialog">
         <style>wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxTHICK_FRAME|wxSTAY_ON_TOP</style>
-        <title>add -- or edit selected -- past history item (Foundational Health Issue)</title>
+        <title>add -- or edit selected -- past history item (Health Issue)</title>
         <centered>1</centered>
         <object class="wxBoxSizer" name="__szr_main" base="EditBoxSizer">
             <orient>wxVERTICAL</orient>
