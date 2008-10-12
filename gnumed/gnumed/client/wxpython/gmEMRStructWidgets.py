@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.80 2008-09-02 19:01:12 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmEMRStructWidgets.py,v 1.81 2008-10-12 16:15:17 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -251,7 +251,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_problems.InsertColumn(0, _('Episode'))
-#		self._LCTRL_problems.InsertColumn(1, _('Foundational Issue'))
+#		self._LCTRL_problems.InsertColumn(1, _('Health Issue'))
 #		self._LCTRL_problems.InsertColumn(2, _('Assessment'))
 		self._LCTRL_problems.InsertColumn(3, _('Narrative'))
 	#--------------------------------------------------------
@@ -416,13 +416,13 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	question = _(
 		'You want to associate the running episode:\n\n'
 		' "%(new_epi_name)s" (%(new_epi_start)s - %(new_epi_end)s)\n\n'
-		'with the foundational health issue:\n\n'
+		'with the health issue:\n\n'
 		' "%(issue_name)s"\n\n'
 		'There already is another episode running\n'
-		'for this foundational isssue:\n\n'
+		'for this health issue:\n\n'
 		' "%(old_epi_name)s" (%(old_epi_start)s - %(old_epi_end)s)\n\n'
 		'However, there can only be one running\n'
-		'episode per foundational health issue.\n\n'
+		'episode per health issue.\n\n'
 		'Which episode do you want to close ?'
 	) % {
 		'new_epi_name': episode['description'],
@@ -718,7 +718,7 @@ class cEpisodeEditAreaDlg(wxgEpisodeEditAreaDlg.wxgEpisodeEditAreaDlg):
 	def _on_clear_button_pressed(self, evt):
 		self._PNL_edit_area.refresh()
 #================================================================
-# foundational issue related widgets/functions
+# health issue related widgets/functions
 #----------------------------------------------------------------
 class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
@@ -936,7 +936,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			gmDispatcher.send (
 				signal = 'statustext',
 				msg = _(
-					'Foundational health issue cannot have been noted at age %s. Patient is only %s old.'
+					'Health issue cannot have been noted at age %s. Patient is only %s old.'
 				) % (age, pat.get_medical_age())
 			)
 			self._PRW_age_noted.SetBackgroundColour('pink')
@@ -1303,7 +1303,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.80  2008-09-02 19:01:12  ncq
+# Revision 1.81  2008-10-12 16:15:17  ncq
+# - no more "foundational" health issue
+#
+# Revision 1.80  2008/09/02 19:01:12  ncq
 # - adjust to clin health_issue fk_patient drop and related changes
 #
 # Revision 1.79  2008/07/24 13:58:40  ncq
