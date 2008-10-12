@@ -1,6 +1,6 @@
 -- ======================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v8-v9/dynamic/v9-i18n-dynamic.sql,v $
--- $Id: v9-i18n-dynamic.sql,v 1.3 2008-08-03 20:04:26 ncq Exp $
+-- $Id: v9-i18n-dynamic.sql,v 1.3.2.1 2008-10-12 17:08:14 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -19,7 +19,7 @@ DECLARE
 	my_lang text;
 BEGIN
 	-- get language
-	select into my_lang lang from i18n.curr_lang where user = CURRENT_USER;
+	select into my_lang lang from i18n.curr_lang where "user" = CURRENT_USER;
 	if not found then
 		return _orig;
 	end if;
@@ -89,14 +89,14 @@ create or replace function public._(text, text)
 create or replace function i18n.get_curr_lang()
 	returns text
 	language sql
-	as 'select lang from i18n.curr_lang where user = current_user'
+	as 'select lang from i18n.curr_lang where "user" = current_user'
 ;
 
 
 create or replace function i18n.get_curr_lang(text)
 	returns text
 	language sql
-	as 'select lang from i18n.curr_lang where user = $1'
+	as 'select lang from i18n.curr_lang where "user" = $1'
 ;
 
 -- =============================================
@@ -144,11 +144,14 @@ create or replace function i18n.upd_tx(text, text)
 ;
 
 -- =============================================
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.3.2.1 $');
 
 -- =============================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.3  2008-08-03 20:04:26  ncq
+-- Revision 1.3.2.1  2008-10-12 17:08:14  ncq
+-- - be careful with "user"
+--
+-- Revision 1.3  2008/08/03 20:04:26  ncq
 -- - gracefully fail on lang == null
 --
 -- Revision 1.2  2008/07/24 14:03:58  ncq
