@@ -1,8 +1,13 @@
 #!/bin/bash
 
 # ===========================================================
+# This script must be run as the user who wants to use the
+# GNUmed client. If you opt for letting the script try to
+# install dependancies it will attempt to use SUDO for which
+# you will need to know your password.
+#
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.5 2008-08-28 18:35:46 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.6 2008-10-12 16:38:46 ncq Exp $
 # ===========================================================
 
 VER_LATEST="CVS-HEAD"
@@ -14,6 +19,17 @@ DL_BASE_URL="http://www.gnumed.de/downloads/client/0.3"		# FIXME: derive "0.2" f
 SYS_TYPE="generic Un*x"
 PKG_INSTALLER=`which true`
 DEPS=""
+
+# do not run as root
+if test "$LOGNAME" == "root" ; then
+	echo ""
+	echo "This script is not intended to be run as root."
+	echo ""
+	echo "Please run it as the user you want"
+	echo "to use the GNUmed client as."
+	echo ""
+	exit
+fi
 
 # determine version to install
 if test -z ${VER_CLI} ; then
@@ -192,7 +208,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.5  2008-08-28 18:35:46  ncq
+# Revision 1.6  2008-10-12 16:38:46  ncq
+# - do not run as root
+#
+# Revision 1.5  2008/08/28 18:35:46  ncq
 # - bump download URL
 #
 # Revision 1.4  2008/08/05 12:45:28  ncq
