@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.95 2008-09-02 19:01:11 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmEMRBrowser.py,v 1.96 2008-10-12 16:13:23 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -134,7 +134,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# init new tree
 		self.DeleteAllItems()
-		root_item = self.AddRoot(_('%s EMR') % self.__pat['description'])
+		root_item = self.AddRoot(_('EMR of %s') % self.__pat['description'])
 		self.SetPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 
@@ -207,7 +207,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# - edit encounter details
 		menu_id = wx.NewId()
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_consultation_details)
+		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_encounter_details)
 
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
@@ -304,7 +304,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 			return
 	#--------------------------------------------------------
-	def __edit_consultation_details(self, event):
+	def __edit_encounter_details(self, event):
 		node_data = self.GetPyData(self.__curr_node)
 		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=node_data)
 		dlg.ShowModal()
@@ -672,7 +672,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.95  2008-09-02 19:01:11  ncq
+# Revision 1.96  2008-10-12 16:13:23  ncq
+# - rename EMR tree root node, per Jim
+#
+# Revision 1.95  2008/09/02 19:01:11  ncq
 # - adjust to clin health_issue fk_patient drop and related changes
 #
 # Revision 1.94  2008/08/31 18:39:47  ncq
