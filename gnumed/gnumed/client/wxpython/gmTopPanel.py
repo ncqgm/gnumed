@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.98 2008-08-28 18:34:47 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmTopPanel.py,v 1.99 2008-10-12 16:36:45 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -44,9 +44,7 @@ class cMainTopPanel(wx.Panel):
 
 		self.__gb = gmGuiBroker.GuiBroker()
 
-#		self.__load_consultation_types()
 		self.__do_layout()
-#		del self.__consultation_types
 		self.__register_interests()
 
 		# init plugin toolbars dict
@@ -173,19 +171,6 @@ class cMainTopPanel(wx.Panel):
 #		)
 #		self.btn_preg.SetToolTip(wxToolTip(_("Pregnancy Calculator")))
 #		self.szr_bottom_row.Add(self.btn_preg, 0)
-		
-		# consultation type selector
-#		self.combo_consultation_type = wx.ComboBox (
-#			self,
-#			ID_CBOX_consult_type,
-#			self.DEF_CONSULT_TYPE,
-#			wx.DefaultPosition,
-#			wx.DefaultSize,
-#			self.__consultation_types,
-#			wx.CB_DROPDOWN | wx.CB_READONLY
-#		)
-#		self.combo_consultation_type.SetToolTip(wx.ToolTip(_('choose consultation type')))
-#		self.szr_bottom_row.Add(self.combo_consultation_type, 1)
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wx.BoxSizer(wx.VERTICAL)
@@ -219,10 +204,6 @@ class cMainTopPanel(wx.Panel):
 	#-------------------------------------------------------
 	# internal helpers
 	#-------------------------------------------------------
-#	def __load_consultation_types(self):
-#		self.__consultation_types = gmEMRStructItems.get_encounter_types()
-#		self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-#		return 1
 	#-------------------------------------------------------
 	# event handling
 	#-------------------------------------------------------
@@ -330,35 +311,48 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__update_allergies)
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
+
 		emr = self.curr_pat.get_emr()
-		allergies = emr.get_allergies()
+		state = emr.allergy_state
 
-		if len(allergies) == 0:
-			self.txt_allergies.SetValue('')
-			self.txt_allergies.SetToolTipString(gmAllergy.allergic_state2str(state = emr.allergic_state))
-			return True
+		# state in tooltip
+		if state['last_confirmed'] is None:
+			confirmed = _('never')
+		else:
+			confirmed = state['last_confirmed'].strftime('%x')
+		tt = (_('%s (last confirmed %s)%-90s') % (
+			state.state_string,
+			confirmed,
+			u' '
+		))[:90] + u'\n'
+		tt += gmTools.coalesce(state['comment'], u'\n', (_('Comment (%s): %%s\n') % state['modified_by']))
 
+		# allergies
 		tmp = []
-		tt = u'%-70s\n' % u' '
-		for allergy in allergies:
+		for allergy in emr.get_allergies():
+			# in field: "true" allergies only, not intolerances
 			if allergy['type'] == 'allergy':
-				tmp.append(allergy['descriptor'][:10])
+				tmp.append(allergy['descriptor'][:10] + gmTools.u_ellipsis)
+			# in tooltip
 			if allergy['definite']:
 				certainty = _('definite')
 			else:
-				certainty = _('likely')
+				certainty = _('suspected')
 			reaction = gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			if len(reaction) > 50:
 				reaction = reaction[:50] + gmTools.u_ellipsis
-			tt += u'%s - %s (%s): %s\n' % (
+			tt += u'%s (%s, %s): %s\n' % (
 				allergy['descriptor'],
 				allergy['l10n_type'],
 				certainty,
 				reaction
 			)
 
-		data = ','.join(tmp)
-		self.txt_allergies.SetValue(data)
+		if len(tmp) == 0:
+			self.txt_allergies.SetValue(state.state_symbol)
+		else:
+			self.txt_allergies.SetValue(','.join(tmp))
+
 		self.txt_allergies.SetToolTipString(tt)
 	#-------------------------------------------------------
 	# remote layout handling
@@ -451,7 +445,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.98  2008-08-28 18:34:47  ncq
+# Revision 1.99  2008-10-12 16:36:45  ncq
+# - cleanup
+# - consultation -> encounter
+# - improved allergies handling
+#
+# Revision 1.98  2008/08/28 18:34:47  ncq
 # - pat search widget now takes care of updating
 #   its display itself when necessary
 #
