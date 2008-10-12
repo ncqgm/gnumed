@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.271 2008-09-02 18:58:26 ncq Exp $
-__version__ = "$Revision: 1.271 $"
+# $Id: gmClinicalRecord.py,v 1.272 2008-10-12 15:12:52 ncq Exp $
+__version__ = "$Revision: 1.272 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -99,7 +99,7 @@ select fk_encounter from
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
-		self.ensure_has_allergic_state()
+		gmAllergy.ensure_has_allergy_state(encounter = self.__encounter['pk_encounter'])
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -549,7 +549,7 @@ where
 
 		stats = dict (
 			problems = rows[0][0],
-			visits = rows[1][0],
+			encounters = rows[1][0],
 			items = rows[2][0],
 			documents = rows[3][0],
 			results = rows[4][0]
@@ -559,7 +559,7 @@ where
 	#--------------------------------------------------------
 	def format_statistics(self):
 		return _("""Medical problems: %(problems)s
-Total visits: %(visits)s
+Total encounters: %(encounters)s
 Total EMR entries: %(items)s
 Documents: %(documents)s
 Test results: %(results)s
@@ -575,7 +575,7 @@ Test results: %(results)s
 
 		txt = _('EMR Statistics\n\n')
 		if len(probs) > 0:
-			txt += _(' %s known problems. Clinically relevant:\n') % stats['problems']
+			txt += _(' %s known problems. Clinically relevant thereof:\n') % stats['problems']
 		else:
 			txt += _(' %s known problems\n') % stats['problems']
 		for prob in probs:
@@ -585,21 +585,23 @@ Test results: %(results)s
 				prob['problem'],
 				gmTools.bool2subst(prob['problem_active'], _('active'), _('inactive'))
 			)
-		txt += _(' %s visits from %s to %s\n') % (
-			stats['visits'],
+		txt += _(' %s encounters from %s to %s\n') % (
+			stats['encounters'],
 			first['started'].strftime('%x'),
 			last['started'].strftime('%x')
 		)
 		txt += _(' %s documents\n') % stats['documents']
 		txt += _(' %s test results\n\n') % stats['results']
 
-		if self.allergic_state:
-			txt += _('Allergies and Intolerances\n\n')
-			for allg in self.get_allergies():
-				txt += u' %s: %s\n' % (
-					allg['descriptor'],
-					gmTools.coalesce(allg['reaction'], _('unknown reaction'))
-				)
+		txt += _('Allergies and Intolerances\n\n')
+		allg_state = self.allergy_state
+		txt += _(' %s%s\n') % (allg_state.state_string, gmTools.coalesce(allg_state['last_confirmed'], u'', _(' (last confirmed %s)')))
+		txt += gmTools.coalesce(allg_state['comment'], u'', u' %s\n')
+		for allg in self.get_allergies():
+			txt += u' %s: %s\n' % (
+				allg['descriptor'],
+				gmTools.coalesce(allg['reaction'], _('unknown reaction'))
+			)
 
 		return txt
 	#--------------------------------------------------------
@@ -678,30 +680,20 @@ Test results: %(results)s
 		args = {'pk_allg': pk_allergy}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
-	def ensure_has_allergic_state(self):
-		cmd = u'insert into clin.allergy_state (fk_patient, has_allergy) values (%(pat)s, %(state)s)'
-		args = {'pat': self.pk_patient, 'state': None}
-		try:
-			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		except psycopg2.IntegrityError:
-			pass		# ignore, row seems to exist already
-		return True
-	#--------------------------------------------------------
-	def _set_allergic_state(self, state):
-		if state not in gmAllergy.allergic_states:
-			raise ValueError('[%s].__set_allergic_state(): <state> must be one of %s' % (self.__class__.__name__, gmAllergy.allergic_states))
-		cmd = u'update clin.allergy_state set has_allergy = %(state)s where fk_patient = %(pat)s'
-		args = {'pat': self.pk_patient, 'state': state}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	def _set_allergy_state(self, state):
+
+		if state not in gmAllergy.allergy_states:
+			raise ValueError('[%s].__set_allergy_state(): <state> must be one of %s' % (self.__class__.__name__, gmAllergy.allergy_states))
+
+		allg_state = gmAllergy.ensure_has_allergy_state(encounter = self.__encounter['pk_encounter'])
+		allg_state['has_allergy'] = state
+		allg_state.save_payload()
 		return True
 
-	def _get_allergic_state(self):
-		cmd = u'select has_allergy from clin.allergy_state where fk_patient = %(pat)s'
-		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return rows[0][0]
+	def _get_allergy_state(self):
+		return gmAllergy.ensure_has_allergy_state(encounter = self.__encounter['pk_encounter'])
 
-	allergic_state = property(_get_allergic_state, _set_allergic_state)
+	allergy_state = property(_get_allergy_state, _set_allergy_state)
 	#--------------------------------------------------------
 	# episodes API
 	#--------------------------------------------------------
@@ -1654,12 +1646,19 @@ def set_func_ask_user(a_func = None):
 if __name__ == "__main__":
 
 	#-----------------------------------------
-	def test_allergic_state():
+	def test_allergy_state():
 		emr = cClinicalRecord(aPKey=1)
-		state = emr.allergic_state
-		print "allergic state is:", state
-		print "setting state to -1"
-		emr.allergic_state = 'abc'
+		state = emr.allergy_state
+		print "allergy state is:", state
+
+		print "setting state to 0"
+		emr.allergy_state = 0
+
+		print "setting state to None"
+		emr.allergy_state = None
+
+		print "setting state to 'abc'"
+		emr.allergy_state = 'abc'
 	#-----------------------------------------
 	def test_get_test_names():
 		emr = cClinicalRecord(aPKey=12)
@@ -1718,7 +1717,7 @@ if __name__ == "__main__":
 		print emr.get_most_recent_episode(issue = 2)
 	#-----------------------------------------
 	if (len(sys.argv) > 0) and (sys.argv[1] == 'test'):
-		#test_allergic_state()
+		test_allergy_state()
 		#test_get_test_names()
 		#test_get_dates_for_results()
 		#test_get_measurements()
@@ -1726,7 +1725,7 @@ if __name__ == "__main__":
 		#test_get_test_types_details()
 		#test_get_statistics()
 		#test_add_test_result()
-		test_get_most_recent_episode()
+		#test_get_most_recent_episode()
 
 	sys.exit(1)
 
@@ -1786,7 +1785,12 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.271  2008-09-02 18:58:26  ncq
+# Revision 1.272  2008-10-12 15:12:52  ncq
+# - adapt to reworked allergy support and adjust test
+# - statistics now says encounters, not visits
+# - improved wording for known problems/clinically relevant
+#
+# Revision 1.271  2008/09/02 18:58:26  ncq
 # - fk_patient dropped from clin.health_issue
 #
 # Revision 1.270  2008/08/15 15:55:41  ncq
