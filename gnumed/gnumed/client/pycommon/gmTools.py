@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.67 2008-08-31 16:13:15 ncq Exp $
+# $Id: gmTools.py,v 1.68 2008-10-12 15:48:33 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -65,7 +65,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		remote_file = wget.urlopen(url)
 	except (wget.URLError, ValueError, OSError):
 		_log.exception("cannot retrieve version file from [%s]", url)
-		return (None, _('Cannot retrieve version information.'))
+		return (None, _('Cannot retrieve version information from:\n\n%s') % url)
 
 	_log.debug('retrieving version information from [%s]', url)
 
@@ -95,7 +95,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		)
 	)
 	if no_release_information_available:
-		msg = _('There is no version information available from:\n\n %s') % url
+		msg = _('There is no version information available from:\n\n%s') % url
 		return (None, msg)
 
 	# up to date ?
@@ -146,7 +146,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		msg += _(' - no database upgrade needed\n')
 
 	msg += '\n\n'
-	msg += _('Version information loaded from:\n [%s]') % url
+	msg += _('Version information loaded from:\n\n %s') % url
 
 	return (True, msg)
 #===========================================================================
@@ -899,7 +899,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.67  2008-08-31 16:13:15  ncq
+# Revision 1.68  2008-10-12 15:48:33  ncq
+# - improved wording when checking for updates
+#
+# Revision 1.67  2008/08/31 16:13:15  ncq
 # - cleanup
 #
 # Revision 1.66  2008/08/28 18:32:24  ncq
