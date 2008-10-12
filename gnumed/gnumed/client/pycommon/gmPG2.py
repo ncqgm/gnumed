@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.63.2.1 $"
+__version__ = "$Revision: 1.63.2.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -567,7 +567,7 @@ def file2bytea(query=None, filename=None, args=None, conn=None):
 
 	# insert the data
 	if conn is None:
-		conn = get_raw_connection()
+		conn = get_connection(readonly = False)
 	run_rw_queries(link_obj=conn, queries = [{'cmd': query, 'args': args}], end_tx=True)
 	conn.close()
 
@@ -831,7 +831,7 @@ def get_raw_connection(dsn=None, verbose=False):
 			__log_PG_settings(curs=curs)
 		curs.close()
 		conn.commit()
-		
+
 	conn.is_decorated = False
 
 	return conn
@@ -1270,7 +1270,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.63.2.1  2008-01-13 01:09:05  ncq
+# Revision 1.63.2.2  2008-10-12 12:16:26  ncq
+# - file2bytea must request rw conn explicitely
+#
+# Revision 1.63.2.1  2008/01/13 01:09:05  ncq
 # - remove misplaced flush()
 #
 # Revision 1.63  2007/12/06 13:07:19  ncq
