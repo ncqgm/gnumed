@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.86 $"
+__version__ = "$Revision: 1.87 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -169,6 +169,56 @@ administrator access.
 Please select a database configuation from the list below.
 """
 #==================================================================
+def user_exists(cursor=None, user=None):
+	cmd = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
+	args = {'usr': user}
+	try:
+		cursor.execute(cmd, args)
+	except:
+		_log.exception(">>>[%s]<<< failed for user [%s]", cmd, user)
+		return None
+	res = cursor.fetchone()
+	if cursor.rowcount == 1:
+		_log.info("user [%s] exists", user)
+		return True
+	_log.info("user [%s] does not exist", user)
+	return None
+#------------------------------------------------------------------
+def db_group_exists(cursor=None, group=None):
+	cmd = "SELECT groname FROM pg_group WHERE groname = %(grp)s"
+	args = {'grp': group}
+	try:
+		cursor.execute(cmd, args)
+	except:
+		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
+		return False
+	res = cursor.fetchone()
+	if cursor.rowcount == 1:
+		_log.info("group [%s] exists" % group)
+		return True
+	_log.info("group [%s] does not exist" % group)
+	return False
+#------------------------------------------------------------------
+def create_db_group(cursor=None, group=None):
+
+	# does this group already exist ?
+	if db_group_exists(cursor, group):
+		return True
+
+	cmd = 'create group "%(grp)s"'
+	args = {'grp': group}
+	try:
+		cursor.execute(cmd, args)
+	except:
+		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
+		return False
+
+	# paranoia is good
+	if not db_group_exists(cursor, group):
+		return False
+
+	return True
+#==================================================================
 def connect (host, port, db, user, passwd, superuser=0):
 	"""
 	This is a wrapper to the database connect function.
@@ -227,7 +277,8 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					self.password = getpass.getpass("I need the password for the GNUmed database user [%s].\nPlease type password: " % self.name)
+					print "I need the password for the GNUmed database user [%s]." % self.name
+					self.password = getpass.getpass("Please type the password: ")
 				else:
 					_log.warning('password for database user [%s] set to empty string' % self.name)
 
@@ -350,20 +401,6 @@ class db_server:
 
 		return True
 	#--------------------------------------------------------------
-	def __user_exists(self, aCursor, aUser):
-		cmd = "SELECT usename FROM pg_user WHERE usename = '%s'" % aUser
-		try:
-			aCursor.execute(cmd)
-		except:
-			_log.exception(">>>[%s]<<< failed." % cmd)
-			return None
-		res = aCursor.fetchone()
-		if aCursor.rowcount == 1:
-			_log.info("User [%s] exists." % aUser)
-			return True
-		_log.info("User [%s] does not exist." % aUser)
-		return None
-	#--------------------------------------------------------------
 	def __create_dbowner(self):
 		global _dbowner
 
@@ -375,7 +412,7 @@ class db_server:
 		cursor = self.conn.cursor()
 		# does this user already exist ?
 		name = cfg_get('user %s' % dbowner_alias, 'name')
-		if self.__user_exists(cursor, name):
+		if user_exists(cursor, name):
 			cmd = 'alter group "gm-logins" add user "%s"; alter group "gm-logins" add user "%s"; alter group "%s" add user "%s"' % (self.superuser.name, name, self.auth_group, name)
 			try:
 				cursor.execute(cmd)
@@ -412,44 +449,12 @@ Make sure to remember the password for later use.
 			return None
 
 		# paranoia is good
-		if not self.__user_exists(cursor, _dbowner.name):
+		if not user_exists(cursor, _dbowner.name):
 			cursor.close()
 			return None
 
 		self.conn.commit()
 		cursor.close()
-		return True
-	#--------------------------------------------------------------
-	def __group_exists(self, aCursor, aGroup):
-		cmd = "SELECT groname FROM pg_group WHERE groname = '%s'" % aGroup
-		try:
-			aCursor.execute(cmd)
-		except:
-			_log.exception(">>>[%s]<<< failed." % cmd)
-			return False
-		res = aCursor.fetchone()
-		if aCursor.rowcount == 1:
-			_log.info("Group %s exists." % aGroup)
-			return True
-		_log.info("Group %s does not exist." % aGroup)
-		return False
-	#--------------------------------------------------------------
-	def __create_group(self, aCursor, aGroup):
-		# does this group already exist ?
-		if self.__group_exists(aCursor, aGroup):
-			return True
-
-		cmd = 'create group "%s"' % aGroup
-		try:
-			aCursor.execute(cmd)
-		except:
-			_log.exception(">>>[%s]<<< failed." % cmd)
-			return False
-
-		# paranoia is good
-		if not self.__group_exists(aCursor, aGroup):
-			return False
-
 		return True
 	#--------------------------------------------------------------
 	def __create_groups(self, aSection = None):
@@ -467,7 +472,7 @@ Make sure to remember the password for later use.
 
 		cursor = self.conn.cursor()
 		for group in groups:
-			if not self.__create_group(cursor, group):
+			if not create_db_group(cursor, group):
 				cursor.close()
 				return False
 
@@ -549,11 +554,19 @@ class database:
 		# connect as owner to template
 		if not self.__connect_superuser_to_template():
 			_log.error("Cannot connect to template database.")
-			return None
+			return False
 
 		# make sure db exists
 		if not self.__create_db():
 			_log.error("Cannot create database.")
+			return False
+
+		# create authentication group
+		_log.info('creating database-specific authentication group role')
+		curs = self.conn.cursor()
+		if not create_db_group(cursor = curs, group = self.name):
+			curs.close()
+			_log.error('cannot create authentication group role')
 			return False
 
 		# reconnect as superuser to db
@@ -564,13 +577,13 @@ class database:
 		if tmp is not None:
 			if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
 				_log.error("cannot import schema definition for database [%s]" % (self.name))
-				return None
+				return False
 		del tmp
 
 		# transfer users
-		if not self.tranfer_users():
+		if not self.transfer_users():
 			_log.error("Cannot transfer users from old to new database.")
-			return None
+			return False
 
 		# reconnect as owner to db
 		if not self.__connect_owner_to_db():
@@ -671,9 +684,19 @@ class database:
 		return None
 	#--------------------------------------------------------------
 	def __create_db(self):
+
+		# verify template database hash
+		template_version = cfg_get(self.section, 'template version')
+		if template_version is None:
+			_log.warning('cannot check template database identity hash, no version specified')
+		else:
+			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
+				_log.error('invalid template database')
+				return False
+
+		# check for target database
 		if self.__db_exists():
-			# FIXME: verify that database is owned by "gm-dbo"
-			drop_existing = bool(int(cfg_get(self.section, 'drop target database')))
+			drop_existing = bool(cfg_get(self.section, 'drop target database'))
 			if drop_existing:
 				print_msg("==> dropping pre-existing *target* database [%s] ..." % self.name)
 				_log.info('trying to drop target database')
@@ -689,23 +712,15 @@ class database:
 				cursor.close()
 				self.conn.commit()
 			else:
-				use_existing = bool(int(cfg_get(self.section, 'use existing target database')))
+				use_existing = bool(cfg_get(self.section, 'use existing target database'))
 				if use_existing:
+					# FIXME: verify that database is owned by "gm-dbo"
 					print_msg("==> using pre-existing *target* database [%s] ..." % self.name)
 					_log.info('using existing database [%s]', self.name)
 					return True
 				else:
 					_log.info('not using existing database [%s]', self.name)
 					return False
-
-		# verify template database hash
-		template_version = cfg_get(self.section, 'template version')
-		if template_version is None:
-			_log.warning('cannot check template database identity hash, no version specified')
-		else:
-			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
-				_log.error('invalid template database')
-				return False
 
 		tablespace = cfg_get(self.section, 'tablespace')
 		if tablespace is None:
@@ -857,15 +872,15 @@ class database:
 		print_msg("    ... failed (hash mismatch)")
 		return False
 	#--------------------------------------------------------------
-	def tranfer_users(self):
+	def transfer_users(self):
 		print_msg("==> transferring users ...")
-		transfer_users = cfg_get(self.section, 'transfer users')
-		if transfer_users is None:
+		do_user_transfer = cfg_get(self.section, 'transfer users')
+		if do_user_transfer is None:
 			_log.info('user transfer not defined')
 			print_msg("    ... skipped (unconfigured)")
 			return True
-		transfer_users = int(transfer_users)
-		if not transfer_users:
+		do_user_transfer = int(do_user_transfer)
+		if not do_user_transfer:
 			_log.info('configured to not transfer users')
 			print_msg("    ... skipped (disabled)")
 			return True
@@ -1370,7 +1385,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.86  2008-08-28 12:16:01  ncq
+# Revision 1.87  2008-10-12 16:42:15  ncq
+# - factor out user_exists/group_exists/create_db_group
+# - work around Windows Python bug with %s in getpass
+# - create auth_group at db level
+#
+# Revision 1.86  2008/08/28 12:16:01  ncq
 # - adjust Python path if needed
 # - cleanup connect
 # - re-bootstrap database when necessary
