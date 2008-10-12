@@ -25,7 +25,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgEpisodeEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._TCTRL_patient.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._PRW_issue.SetToolTipString(_("Select the foundational health issue this episode belongs to."))
+        self._PRW_issue.SetToolTipString(_("Select the health issue this episode belongs to."))
         self._PRW_description.SetToolTipString(_("Type or select the description for this episode. It should be a summary for the episode of illness."))
         self._CHBOX_closed.SetToolTipString(_("If this box is checked the episode is over. If not it is currently ongoing."))
         # end wxGlade

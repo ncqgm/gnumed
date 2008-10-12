@@ -29,8 +29,8 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._LCTRL_problems.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
-        self._TCTRL_rfe.SetToolTipString(_("Enter the Reason For Encounter here. This is the patient's initial request which led to the consultation."))
-        self._TCTRL_aoe.SetToolTipString(_("Enter the Consultation Summary here. This is your final assessment of the encounter/consultation summary."))
+        self._TCTRL_rfe.SetToolTipString(_("Enter the Reason For Encounter here. This is the patient's initial request which led to the encounter."))
+        self._TCTRL_aoe.SetToolTipString(_("Enter the Encounter Summary here. This is your final assessment of the encounter summary."))
         # end wxGlade
 
     def __do_layout(self):
@@ -38,7 +38,7 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __gszr_encounter_details = wx.FlexGridSizer(6, 2, 2, 5)
         __szr_main.Add(self._TCTRL_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 1)
-        __lbl_instructions = wx.StaticText(self, -1, _("Edit the details for the consultation below.\n\nThe following problems were discussed:"), style=wx.ALIGN_CENTRE)
+        __lbl_instructions = wx.StaticText(self, -1, _("Edit the details for the encounter below.\n\nThe following problems were discussed:"), style=wx.ALIGN_CENTRE)
         __szr_main.Add(__lbl_instructions, 0, wx.TOP|wx.EXPAND, 3)
         __szr_main.Add(self._LCTRL_problems, 1, wx.TOP|wx.EXPAND, 3)
         __lbl_type = wx.StaticText(self, -1, _("Type"))

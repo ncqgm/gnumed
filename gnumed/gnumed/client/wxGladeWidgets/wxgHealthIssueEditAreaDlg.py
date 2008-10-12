@@ -26,7 +26,7 @@ class wxgHealthIssueEditAreaDlg(wx.Dialog):
 
     def __set_properties(self):
         # begin wxGlade: wxgHealthIssueEditAreaDlg.__set_properties
-        self.SetTitle(_("add -- or edit selected -- past history item (Foundational Health Issue)"))
+        self.SetTitle(_("add -- or edit selected -- past history item (Health Issue)"))
         self._BTN_save.SetToolTipString(_("Save or update the condition (past history item)."))
         self._BTN_clear.SetToolTipString(_("Clear fields or restore them to the values in the database."))
         self._BTN_close.SetToolTipString(_("Close this dialog."))
