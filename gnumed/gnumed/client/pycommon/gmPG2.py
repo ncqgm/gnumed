@@ -12,23 +12,21 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
+### imports ###
 # stdlib
 import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging, locale
-
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N
 
-
 _log = logging.getLogger('gm.database')
 _log.info(__version__)
-
 
 # 3rd party
 try:
@@ -37,6 +35,8 @@ except ImportError:
 	_log.exception("Python database adapter psycopg2 not found.")
 	print "CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server."
 	raise
+### imports ###
+
 
 _log.info('psycopg2 version: %s' % dbapi.__version__)
 _log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
@@ -107,6 +107,12 @@ map_schema_hash2version = {
 	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
 	'89b13a7af83337c3aad153b717e52360': 'v8',
 	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9'
+}
+
+map_client_branch2required_db_version = {
+	u'CVS HEAD': u'devel',
+	u'0.3': u'v9',
+	u'0.4': u'v10'
 }
 
 # get columns and data types for a given table
@@ -286,7 +292,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v9]: ", 'gnumed_v9')
+		login.database = __prompted_input("database [gnumed_v10]: ", 'gnumed_v10')
 		login.user = __prompted_input("user name: ", '')
 		login.password = getpass.getpass("password (not shown): ")
 		login.port = __prompted_input("port [5432]: ", 5432)
@@ -1598,7 +1604,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.88  2008-09-02 20:19:37  ncq
+# Revision 1.89  2008-10-12 15:40:46  ncq
+# - cleanup
+# - add mapping for client to database version
+#
+# Revision 1.88  2008/09/02 20:19:37  ncq
 # - send_maintenance_*
 #
 # Revision 1.87  2008/08/21 10:21:40  ncq
