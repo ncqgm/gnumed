@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.9 2008-09-02 19:01:12 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmNarrativeWidgets.py,v 1.10 2008-10-12 16:26:20 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time
@@ -66,7 +66,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encount
 		return False
 
 	wx.BeginBusyCursor()
-	_log.debug('exporting consultation for medistar import to [%s]', fname)
+	_log.debug('exporting encounter for medistar import to [%s]', fname)
 	exporter = gmPatientExporter.cMedistarSOAPExporter()
 	successful, fname = exporter.export_to_file (
 		filename = fname,
@@ -289,7 +289,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.9  2008-09-02 19:01:12  ncq
+# Revision 1.10  2008-10-12 16:26:20  ncq
+# - consultation -> encounter
+#
+# Revision 1.9  2008/09/02 19:01:12  ncq
 # - adjust to clin health_issue fk_patient drop and related changes
 #
 # Revision 1.8  2008/07/28 15:46:05  ncq
