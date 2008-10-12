@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.29 2008-09-09 20:18:51 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmAuthWidgets.py,v 1.30 2008-10-12 16:06:07 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -502,8 +502,9 @@ class cLoginPanel(wx.Panel):
 			# FIXME: once the profile has been found always use the corresponding source !
 			# FIXME: maybe not or else we cannot override parts of the profile
 			profile = cBackendProfile()
-			profile.name = profile_name
 			profile_section = 'profile %s' % profile_name
+
+			profile.name = profile_name
 			profile.host = gmTools.coalesce(_cfg.get(profile_section, u'host', src_order), u'').strip()
 			port = gmTools.coalesce(_cfg.get(profile_section, u'port', src_order), 5432)
 			try:
@@ -520,7 +521,9 @@ class cLoginPanel(wx.Panel):
 			profile.encoding = gmTools.coalesce(_cfg.get(profile_section, u'encoding', src_order), u'UTF8')
 			profile.public_db = bool(_cfg.get(profile_section, u'public/open access', src_order))
 			profile.helpdesk = _cfg.get(profile_section, u'help desk', src_order)
-			profiles[profile_name] = profile
+
+			label = u'%s (%s@%s)' % (profile_name, profile.database, profile.host)
+			profiles[label] = profile
 
 		if len(profiles) == 0:
 			host = u'salaam.homeunix.com'
@@ -538,7 +541,6 @@ class cLoginPanel(wx.Panel):
 
 		src_order = [
 			(u'explicit', u'return'),
-			(u'workbase', u'return'),
 			(u'user', u'return'),
 		]
 
@@ -549,11 +551,11 @@ class cLoginPanel(wx.Panel):
 			)
 		)
 
-		prefs_profile = _cfg.get(u'preferences', u'profile', src_order)
-		try:
-			self._CBOX_profile.SetValue(self.__backend_profiles[prefs_profile].name)
-		except KeyError:
-			self._CBOX_profile.SetValue(self.__backend_profiles[self.__backend_profiles.keys()[0]].name)
+		last_used_profile_label = _cfg.get(u'preferences', u'profile', src_order)
+		if last_used_profile_label in self.__backend_profiles.keys():
+			self._CBOX_profile.SetValue(last_used_profile_label)
+		else:
+			self._CBOX_profile.SetValue(self.__backend_profiles.keys()[0])
 
 		self._CHBOX_debug.SetValue(_cfg.get(option = 'debug'))
 		self._CHBOX_slave.SetValue(_cfg.get(option = 'slave'))
@@ -561,7 +563,7 @@ class cLoginPanel(wx.Panel):
 	def save_state(self):
 		"""Save parameter settings to standard configuration file"""
 		prefs_name = _cfg.get(option = 'user_preferences_file')
-		_log.debug(u'saving login choices in [%s]', prefs_name)
+		_log.debug(u'saving login preferences in [%s]', prefs_name)
 
 		gmCfg2.set_option_in_INI_file (
 			filename = prefs_name,
@@ -583,7 +585,18 @@ class cLoginPanel(wx.Panel):
 		"""convenience function for compatibility with gmLoginInfo.LoginInfo"""
 		if not self.cancelled:
 			# FIXME: do not assume conf file is latin1 !
-			profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
+			#profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
+			profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('utf8').strip()]
+			_log.debug(u'backend profile "%s" selected', profile.name)
+			_log.debug(u' details: <%s> on %s@%s:%s (%s, %s)',
+				self._CBOX_user.GetValue(),
+				profile.database,
+				profile.host,
+				profile.port,
+				profile.encoding,
+				gmTools.bool2subst(profile.public_db, u'public', u'private')
+			)
+			_log.debug(u' helpdesk: "%s"', profile.helpdesk)
 			login = gmLoginInfo.LoginInfo (
 				user = self._CBOX_user.GetValue(),
 				password = self.pwdentry.GetValue(),
@@ -688,7 +701,11 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.29  2008-09-09 20:18:51  ncq
+# Revision 1.30  2008-10-12 16:06:07  ncq
+# - make profile label show db@host
+# - log profile used
+#
+# Revision 1.29  2008/09/09 20:18:51  ncq
 # - default to any-doc if no previous logins found
 #
 # Revision 1.28  2008/08/31 16:47:48  ncq
