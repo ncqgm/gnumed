@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.429 2008-09-02 20:21:48 ncq Exp $
-__version__ = "$Revision: 1.429 $"
+# $Id: gmGuiMain.py,v 1.430 2008-10-12 16:48:13 ncq Exp $
+__version__ = "$Revision: 1.430 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -68,19 +68,16 @@ _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 
-expected_db_ver = u'v9'
-expected_db_ver = u'devel'
-
-current_client_ver = u'0.3.rc6'
+current_client_ver = u'0.4.rc1'
 current_client_ver = u'CVS HEAD'
-
-current_client_branch = '0.3'
+current_client_branch = u'0.4'
+current_client_branch = u'CVS HEAD'
 
 _log = logging.getLogger('gm.main')
 _log.info(__version__)
 _log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 _log.info('GNUmed client version [%s] on branch [%s]', current_client_ver, current_client_branch)
-_log.info('expected database version [%s]', expected_db_ver)
+_log.info('expecting database version [%s]', gmPG2.map_client_branch2required_db_version[current_client_branch])
 
 #==============================================================================
 
@@ -493,7 +490,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('&Form templates'), _('Manage templates for forms and letters.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_templates, item)
 
-		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter (consultation) types.'))
+		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
 
 		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
@@ -504,6 +501,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
+		
 
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new'), _("Register a new patient with this practice"))
@@ -608,8 +606,8 @@ class gmTopLevelFrame(wx.Frame):
 		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 		menu_history.Append (
 			ID_ADD_HEALTH_ISSUE_TO_EMR,
-			_('&Past history (foundational issue / PMH)'),
-			_('Add a past/previous medical history item (foundational health issue) to the EMR of the active patient')
+			_('&Past history (health issue / PMH)'),
+			_('Add a past/previous medical history item (health issue) to the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
 		# - document current medication
@@ -1136,16 +1134,18 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_set_db_lang(self, event):
 
-		langs = [
-			gmI18N.system_locale_level['language'],
-			gmI18N.system_locale_level['country'],
-			gmI18N.system_locale_level['full']
-		]
-
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 		)
-		langs.extend([ r[0] for r in rows ])
+		langs = [ r[0] for r in rows ]
+
+		for lang in [
+			gmI18N.system_locale_level['language'],
+			gmI18N.system_locale_level['country'],
+			gmI18N.system_locale_level['full']
+		]:
+			if lang not in langs:
+				langs.append(lang)
 
 		language = gmListWidgets.get_choices_from_list (
 			parent = self,
@@ -1169,7 +1169,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		_log.info('setting database language to [%s]', language)
 		rows, idx = gmPG2.run_rw_queries (
-			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}]
+			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}],
+			return_data = True
 		)
 
 		if rows[0][0]:
@@ -1181,7 +1182,7 @@ class gmTopLevelFrame(wx.Frame):
 			  'for things like document or encounter types yourself.\n'
 			  '\n'
 			  'Do you want to force the language setting to [%s] ?'
-			) % language, language,
+			) % (language, language),
 			_('Configuring database language')
 		)
 		if not force_language:
@@ -1190,7 +1191,7 @@ class gmTopLevelFrame(wx.Frame):
 		_log.info('forcing database language to [%s]', language)
 		gmPG2.run_rw_queries(queries = [{
 			'cmd': u'select i18n.force_curr_lang(%s)',
-			'args': [gmI18N.system_locale_level['country']]
+			'args': [language]
 		}])
 	#----------------------------------------------
 	def __on_set_db_welcome(self, event):
@@ -1428,13 +1429,13 @@ class gmTopLevelFrame(wx.Frame):
 		gmCfgWidgets.configure_boolean_option (
 			parent = self,
 			question = _(
-				'Do you want GNUmed to show the consultation\n'
+				'Do you want GNUmed to show the encounter\n'
 				'details editor when changing the active patient ?'
 			),
 			option = 'encounter.show_editor_before_patient_change',
 			button_tooltips = [
-				_('Yes, show the consultation editor if it seems appropriate.'),
-				_('No, never show the consultation editor even if it would seem useful.')
+				_('Yes, show the encounter editor if it seems appropriate.'),
+				_('No, never show the encounter editor even if it would seem useful.')
 			]
 		)
 	#----------------------------------------------
@@ -1468,12 +1469,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmCfgWidgets.configure_string_option (
 			message = _(
 				'When a patient is activated GNUmed checks the\n'
-				'age of the most recent consultation.\n'
+				'age of the most recent encounter.\n'
 				'\n'
-				'If that consultation is younger than this age\n'
-				'the existing consultation will be continued.\n'
+				'If that encounter is younger than this age\n'
+				'the existing encounter will be continued.\n'
 				'\n'
-				'(If it is really old a new consultation is\n'
+				'(If it is really old a new encounter is\n'
 				' started, or else GNUmed will ask you.)\n'
 			),
 			option = 'encounter.minimum_ttl',
@@ -1490,12 +1491,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmCfgWidgets.configure_string_option (
 			message = _(
 				'When a patient is activated GNUmed checks the\n'
-				'age of the most recent consultation.\n'
+				'age of the most recent encounter.\n'
 				'\n'
-				'If that consultation is older than this age\n'
-				'GNUmed will always start a new consultation.\n'
+				'If that encounter is older than this age\n'
+				'GNUmed will always start a new encounter.\n'
 				'\n'
-				'(If it is very recent the existing consultation\n'
+				'(If it is very recent the existing encounter\n'
 				' is continued, or else GNUmed will ask you.)\n'
 			),
 			option = 'encounter.maximum_ttl',
@@ -1515,8 +1516,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
-				'At any time there can only be one open (ongoing) episode\n'
-				'for each foundational health issue.\n'
+				'At any time there can only be one open (ongoing)\n'
+				'episode for each health issue.\n'
 				'\n'
 				'When you try to open (add data to) an episode on a health\n'
 				'issue GNUmed will check for an existing open episode on\n'
@@ -1762,6 +1763,12 @@ class gmTopLevelFrame(wx.Frame):
 	# Help / Debugging
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
+		wx.CallAfter(self.__save_screenshot)
+		evt.Skip()
+	#----------------------------------------------
+	def __save_screenshot(self):
+
+		time.sleep(0.5)
 
 #		src_rect = self.GetRect()
 #		sdc = wx.ScreenDC()						# whole screen area
@@ -1786,7 +1793,6 @@ class gmTopLevelFrame(wx.Frame):
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % fname)
-		evt.Skip()
 	#----------------------------------------------
 	def __on_test_exception(self, evt):
 		#import nonexistant_module
@@ -2276,10 +2282,11 @@ class gmApp(wx.App):
 		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = 'gnumed')
 
-		if not self.__setup_cfg():
+		if not self.__setup_prefs_file():
 			return False
 
 		gmExceptionHandlingWidgets.set_sender_email(gmSurgery.gmCurrentPractice().user_email)
+		gmExceptionHandlingWidgets.set_client_version(current_client_ver)
 
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
@@ -2432,7 +2439,7 @@ class gmApp(wx.App):
 		from Gnumed.wxpython import gmAuthWidgets
 		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
 		connected = gmAuthWidgets.connect_to_database (
-			expected_version = expected_db_ver,
+			expected_version = gmPG2.map_client_branch2required_db_version[current_client_branch],
 			require_version = not override,
 			client_version = current_client_ver
 		)
@@ -2444,7 +2451,7 @@ class gmApp(wx.App):
 		try:
 			global _provider
 			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
-		except gmExceptions.ConstructorError, ValueError:
+		except ValueError:
 			account = gmPG2.get_current_user()
 			_log.exception('DB account [%s] cannot be used as a GNUmed staff login', account)
 			msg = _(
@@ -2477,7 +2484,7 @@ class gmApp(wx.App):
 
 		return True
 	#----------------------------------------------
-	def __setup_cfg(self):
+	def __setup_prefs_file(self):
 		"""Setup access to a config file for storing preferences."""
 
 		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
@@ -2491,15 +2498,16 @@ class gmApp(wx.App):
 		candidates.append(os.path.join(paths.local_base_dir, 'gnumed.conf'))
 		candidates.append(os.path.join(paths.working_dir, 'gnumed.conf'))
 
+		prefs_file = None
 		for candidate in candidates:
 			try:
 				open(candidate, 'a+').close()
-				_cfg.set_option(option = u'user_preferences_file', value = candidate)
+				prefs_file = candidate
 				break
 			except IOError:
 				continue
 
-		if _cfg.get(option = u'user_preferences_file') is None:
+		if prefs_file is None:
 			msg = _(
 				'Cannot find configuration file in any of:\n'
 				'\n'
@@ -2510,6 +2518,9 @@ class gmApp(wx.App):
 			) % '\n '.join(candidates)
 			gmGuiHelpers.gm_show_error(msg, _('Checking configuration files'))
 			return False
+
+		_cfg.set_option(option = u'user_preferences_file', value = prefs_file)
+		_log.info('user preferences file: %s', prefs_file)
 
 		return True
 	#----------------------------------------------
@@ -2631,7 +2642,7 @@ class gmApp(wx.App):
 		ignored_sys_lang = _cfg.get (
 			group = u'backend',
 			option = u'ignored mismatching system locale',
-			source_order = [('user', 'return'), ('local', 'return')]
+			source_order = [('explicit', 'return'), ('local', 'return'), ('user', 'return'), ('system', 'return')]
 		)
 
 		# are we to ignore *this* mismatch ?
@@ -2726,7 +2737,16 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.429  2008-09-02 20:21:48  ncq
+# Revision 1.430  2008-10-12 16:48:13  ncq
+# - bump version
+# - derive db version via gmPG2 mapping
+# - no more "consultation" or "foundational"
+# - fix setting db lang
+# - apply wx.CallAfter to taking screenshot
+# - cleanup
+# - set client version for exception handling
+#
+# Revision 1.429  2008/09/02 20:21:48  ncq
 # - menu item to announce maintenance downtime
 #
 # Revision 1.428  2008/08/31 18:02:45  ncq
