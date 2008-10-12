@@ -1,3 +1,11 @@
+
+
+
+# This remains for documentation only.
+raise ImportError('This module is deprecated. Use gmPG2.py.')
+
+
+
 """Broker for PostgreSQL distributed backend connections.
 
 @copyright: author
@@ -14,7 +22,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.87 $"
+__version__ = "$Revision: 1.88 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1328,7 +1336,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.87 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.88 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1465,7 +1473,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.87  2007-12-26 18:34:02  ncq
+# Revision 1.88  2008-10-12 15:46:44  ncq
+# - mark obsolete
+#
+# Revision 1.87  2007/12/26 18:34:02  ncq
 # - no more old CLI lib
 #
 # Revision 1.86  2007/10/25 16:41:47  ncq
