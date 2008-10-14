@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.164 2008-07-10 11:16:01 ncq Exp $
-__version__ = "$Revision: 1.164 $"
+# $Id: gmPerson.py,v 1.164.2.1 2008-10-14 21:26:57 ncq Exp $
+__version__ = "$Revision: 1.164.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -754,7 +754,12 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
 			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+			try:
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+			except:
+				_log.exception('cannot instantiate staff instance')
+				_log.log_stack_trace()
+				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
 			if len(rows) == 0:
 				raise gmExceptions.ConstructorError, 'no staff record for CURRENT_USER'
 			row = {
@@ -2203,7 +2208,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.164  2008-07-10 11:16:01  ncq
+# Revision 1.164.2.1  2008-10-14 21:26:57  ncq
+# - properly log exceptions when instantiating cStaff so we
+#   don't cryptically fail early in the startup process
+#
+# Revision 1.164  2008/07/10 11:16:01  ncq
 # - make pre-selection callback failure more obvious
 #
 # Revision 1.163  2008/07/07 13:38:43  ncq
