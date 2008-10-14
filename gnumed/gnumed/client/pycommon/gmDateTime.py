@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.21 2008-06-18 15:28:32 ncq Exp $
+# $Id: gmDateTime.py,v 1.21.2.1 2008-10-14 10:54:20 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.21.2.1 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -763,6 +763,8 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 			break
 		except ValueError:
 			continue
+		except OverflowError:
+			continue
 
 	return matches
 
@@ -981,7 +983,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.21  2008-06-18 15:28:32  ncq
+# Revision 1.21.2.1  2008-10-14 10:54:20  ncq
+# - handle OverflowError in time.mktime
+#
+# Revision 1.21  2008/06/18 15:28:32  ncq
 # - properly i18n trigger chars in str 2 timestamp conversions
 # - document "patterns" arg for str 2 timestamp conversion
 #
