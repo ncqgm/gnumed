@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.426.2.4 2008-10-12 17:04:51 ncq Exp $
-__version__ = "$Revision: 1.426.2.4 $"
+# $Id: gmGuiMain.py,v 1.426.2.5 2008-10-15 14:45:57 ncq Exp $
+__version__ = "$Revision: 1.426.2.5 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -70,7 +70,7 @@ _scripting_listener = None
 
 expected_db_ver = u'v9'
 
-current_client_ver = u'0.3.2'
+current_client_ver = u'0.3.3'
 current_client_branch = '0.3'
 
 _log = logging.getLogger('gm.main')
@@ -961,7 +961,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not has_narr:
 			if empty_aoe:
 				enc['assessment_of_encounter'] = _('only documents added')
-			enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]
+			enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]['pk']
 			# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
 			enc.save_payload()
 			return True
@@ -2694,7 +2694,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.426.2.4  2008-10-12 17:04:51  ncq
+# Revision 1.426.2.5  2008-10-15 14:45:57  ncq
+# - bump client version
+# - fix faulty encounter type setting
+#
+# Revision 1.426.2.4  2008/10/12 17:04:51  ncq
 # - fix database language setting
 #
 # Revision 1.426.2.3  2008/09/09 18:39:34  ncq
