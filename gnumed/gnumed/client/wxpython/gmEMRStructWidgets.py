@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.79 2008-07-24 13:58:40 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmEMRStructWidgets.py,v 1.79.2.1 2008-10-15 14:45:07 ncq Exp $
+__version__ = "$Revision: 1.79.2.1 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1128,7 +1128,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		if narr != '':
 			pat = gmPerson.gmCurrentPatient()
 			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = self.__issue['pk'], is_open=None)
+			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.__issue['pk'], is_open=None)
 			if epi is not None:
 				epi['episode_open'] = False
 				epi.save_payload()			# FIXME: error handling
@@ -1303,7 +1303,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.79  2008-07-24 13:58:40  ncq
+# Revision 1.79.2.1  2008-10-15 14:45:07  ncq
+# - rename pseudo episode for health issue
+#
+# Revision 1.79  2008/07/24 13:58:40  ncq
 # - manage encounter types
 #
 # Revision 1.78  2008/07/07 13:43:16  ncq
