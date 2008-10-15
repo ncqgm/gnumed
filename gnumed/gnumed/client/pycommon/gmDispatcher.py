@@ -244,7 +244,7 @@ class BoundMethodWeakref:
 			method = self.weakFunc().__name__
 			try:
 				return getattr(object, method)
-			except PyDeadObjectError:
+			except wx._core.PyDeadObjectError:
 				self.isDead = 1
 				_removeReceiver(receiver=self)
 				return None
@@ -306,7 +306,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.16.2.1  2008-09-09 17:23:23  ncq
+# Revision 1.16.2.2  2008-10-15 14:44:19  ncq
+# - PyDeadObjectError is in wx._core
+#
+# Revision 1.16.2.1  2008/09/09 17:23:23  ncq
 # - robustify against dead python objects in weak ref calls
 #
 # Revision 1.16  2008/08/08 13:29:56  ncq

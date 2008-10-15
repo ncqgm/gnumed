@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.166.2.1 2008-09-09 17:34:09 ncq Exp $
-__version__ = "$Revision: 1.166.2.1 $"
+# $Id: gmMedDocWidgets.py,v 1.166.2.2 2008-10-15 14:46:22 ncq Exp $
+__version__ = "$Revision: 1.166.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1454,7 +1454,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		try:
 			desc_menu.Destroy()
 		# the C++ object has been observed to have been destroyed already
-		except PyDeadObjectError:
+		except wx._core.PyDeadObjectError:
 			pass
 	#--------------------------------------------------------
 	def __handle_part_context(self):
@@ -1845,7 +1845,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.166.2.1  2008-09-09 17:34:09  ncq
+# Revision 1.166.2.2  2008-10-15 14:46:22  ncq
+# - PyDeadObjectError is in wx._core
+#
+# Revision 1.166.2.1  2008/09/09 17:34:09  ncq
 # - fix faulty column access in review
 #
 # Revision 1.166  2008/08/20 14:54:46  ncq
