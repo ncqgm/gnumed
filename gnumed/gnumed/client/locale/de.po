@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.129 $
+# $Revision: 1.129.2.1 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-08-24 12:07+CEST\n"
-"PO-Revision-Date: 2008-08-24 12:22+0100\n"
+"POT-Creation-Date: 2008-10-15 16:30+CEST\n"
+"PO-Revision-Date: 2008-10-15 16:49+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgid "undisclosed allergic state"
 msgstr "Allergiestatus: Auskunft verweigert"
 
 msgid "no known allergies"
-msgstr "Allergiestatus: keine Allergien bekannt"
+msgstr "keine Allergien bekannt"
 
 msgid "does have allergies"
 msgstr "hat Allergien"
@@ -108,7 +108,7 @@ msgstr ""
 "Kartei-Statistik\n"
 "\n"
 
-msgid " %s known problems. Clinically relevant:\n"
+msgid " %s known problems. Clinically relevant thereof:\n"
 msgstr " %s medizinische Probleme. Klinisch relevant davon:\n"
 
 msgid " %s known problems\n"
@@ -120,8 +120,8 @@ msgstr "aktiv"
 msgid "inactive"
 msgstr "inaktiv"
 
-msgid " %s visits from %s to %s\n"
-msgstr " %s Konsultationen vom %s bis zum %s\n"
+msgid " %s encounters from %s to %s\n"
+msgstr " %s Karteizugriffe vom %s bis zum %s\n"
 
 msgid " %s documents\n"
 msgstr " %s Dokumente\n"
@@ -1129,30 +1129,6 @@ msgstr ""
 "\n"
 "Befehl\n"
 "(SQL)"
-
-msgid "right list"
-msgstr "rechte Liste"
-
-msgid "left list"
-msgstr "linke Liste"
-
-msgid "Do something with the two lists below."
-msgstr "Tue etwas mit den zwei Listen unten."
-
-msgid "Refresh"
-msgstr "Auffrischen"
-
-msgid "= selected =>"
-msgstr "= markierte =>"
-
-msgid "= all =>"
-msgstr "= alle =>"
-
-msgid "<= all ="
-msgstr "<= alle ="
-
-msgid "<= selected ="
-msgstr "<= markierte ="
 
 msgid "Edit Document Types"
 msgstr "Dokumententypen editieren"
@@ -3359,8 +3335,8 @@ msgstr "Karteikarte erfolgreich in Datei [%s] exportiert."
 msgid "Cannot load clinical narrative. No active patient."
 msgstr "Kann Karteieinträge nicht laden. Kein Patient aktiv."
 
-msgid "%s EMR"
-msgstr "Kartei von %s"
+msgid "EMR of %s"
+msgstr "Karteikarte von %s"
 
 msgid ""
 "Pool of unassociated episodes:\n"
@@ -3607,8 +3583,8 @@ msgstr "Diagnosestellung ist in der Zukunft."
 msgid "Creating new health issue not allowed."
 msgstr "Anlegen einer neuen Grunderkrankung nicht vorgesehen."
 
-msgid "past medical history"
-msgstr "Eigenanamnese"
+msgid "inception notes"
+msgstr "Notizen"
 
 msgid "Update"
 msgstr "Update"
@@ -6419,27 +6395,6 @@ msgstr "Woche"
 msgid "weeks"
 msgstr "Wochen"
 
-msgid "Hx"
-msgstr "Ana"
-
-msgid "History Taken"
-msgstr "Anamnese"
-
-msgid "Obj"
-msgstr "Bef"
-
-msgid "Findings"
-msgstr "Befund"
-
-msgid "A"
-msgstr "D"
-
-msgid "P"
-msgstr "T"
-
-msgid "xxxSOAPxxx"
-msgstr "xxxABDTxxx"
-
 msgid "Cannot save text expansion without keyword."
 msgstr "Kann Textmakro ohne Schlüsselwort nicht speichern."
 
@@ -6711,6 +6666,12 @@ msgstr "Fehler beim Speichern der eingebetteten Daten."
 
 msgid "Patient Request"
 msgstr "Beratungsanlaß"
+
+msgid "History Taken"
+msgstr "Anamnese"
+
+msgid "Findings"
+msgstr "Befund"
 
 msgid "save"
 msgstr "speichern"
@@ -7559,6 +7520,36 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "past medical history"
+#~ msgstr "Eigenanamnese"
+#~ msgid "right list"
+#~ msgstr "rechte Liste"
+#~ msgid "left list"
+#~ msgstr "linke Liste"
+#~ msgid "Do something with the two lists below."
+#~ msgstr "Tue etwas mit den zwei Listen unten."
+#~ msgid "Refresh"
+#~ msgstr "Auffrischen"
+#~ msgid "= selected =>"
+#~ msgstr "= markierte =>"
+#~ msgid "= all =>"
+#~ msgstr "= alle =>"
+#~ msgid "<= all ="
+#~ msgstr "<= alle ="
+#~ msgid "<= selected ="
+#~ msgstr "<= markierte ="
+#~ msgid "%s EMR"
+#~ msgstr "Kartei von %s"
+#~ msgid "Hx"
+#~ msgstr "Ana"
+#~ msgid "Obj"
+#~ msgstr "Bef"
+#~ msgid "A"
+#~ msgstr "D"
+#~ msgid "P"
+#~ msgstr "T"
+#~ msgid "xxxSOAPxxx"
+#~ msgstr "xxxABDTxxx"
 #~ msgid "Patient change: Unsaved progress note"
 #~ msgstr "Patientenwechsel: ungespeicherte Verlaufsnotiz"
 #~ msgid "Allergies:"
