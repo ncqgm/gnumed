@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.87.2.1 $"
+__version__ = "$Revision: 1.87.2.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -797,15 +797,15 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
-				_log.debug('ran query: [%s]' % curs.query)
-				_log.debug('PG status message: %s' % curs.statusmessage)
-				_log.debug('cursor description: %s' % curs.description)
+				_log.debug('ran query: [%s]', curs.query)
+				_log.debug('PG status message: %s', curs.statusmessage)
+				_log.debug('cursor description: %s', str(curs.description))
 		except:
 			# FIXME: use .pgcode
 			curs_close()
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
-			_log.error('query failed: [%s]' % curs.query)
-			_log.error('PG status message: %s' % curs.statusmessage)
+			_log.error('query failed: [%s]', curs.query)
+			_log.error('PG status message: %s', curs.statusmessage)
 			raise
 
 	data = None
@@ -813,8 +813,8 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 	if return_data:
 		data = curs.fetchall()
 		if verbose:
-			_log.debug('last query returned [%s (%s)] rows' % (curs.rowcount, len(data)))
-			_log.debug('cursor description: %s' % curs.description)
+			_log.debug('last query returned [%s (%s)] rows', curs.rowcount, len(data))
+			_log.debug('cursor description: %s', str(curs.description))
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
 
@@ -1590,7 +1590,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.87.2.1  2008-10-16 17:25:41  ncq
+# Revision 1.87.2.2  2008-10-16 19:21:21  ncq
+# - properly log cursor.description
+#
+# Revision 1.87.2.1  2008/10/16 17:25:41  ncq
 # - slightly cleanup run_ro_queries(verbose=True)
 #
 # Revision 1.87  2008/08/21 10:21:40  ncq
