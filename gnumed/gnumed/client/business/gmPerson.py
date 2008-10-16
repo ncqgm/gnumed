@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.164.2.1 2008-10-14 21:26:57 ncq Exp $
-__version__ = "$Revision: 1.164.2.1 $"
+# $Id: gmPerson.py,v 1.164.2.2 2008-10-16 14:43:04 ncq Exp $
+__version__ = "$Revision: 1.164.2.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,6 +19,7 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmLog2		# finding Joe's error
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 
@@ -758,7 +759,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			except:
 				_log.exception('cannot instantiate staff instance')
-				_log.log_stack_trace()
+				gmLog2.log_stack_trace()
 				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
 			if len(rows) == 0:
 				raise gmExceptions.ConstructorError, 'no staff record for CURRENT_USER'
@@ -2205,10 +2206,13 @@ if __name__ == '__main__':
 
 		#comms = get_comm_list()
 		#print "\n\nRetrieving communication media enum (id, description): %s" % comms
-				
+
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.164.2.1  2008-10-14 21:26:57  ncq
+# Revision 1.164.2.2  2008-10-16 14:43:04  ncq
+# - add import for gmLog2 so we can log_stack_trace
+#
+# Revision 1.164.2.1  2008/10/14 21:26:57  ncq
 # - properly log exceptions when instantiating cStaff so we
 #   don't cryptically fail early in the startup process
 #
