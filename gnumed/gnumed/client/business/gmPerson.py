@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.164.2.2 2008-10-16 14:43:04 ncq Exp $
-__version__ = "$Revision: 1.164.2.2 $"
+# $Id: gmPerson.py,v 1.164.2.3 2008-10-16 17:25:07 ncq Exp $
+__version__ = "$Revision: 1.164.2.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -756,7 +756,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		if (aPK_obj is None) and (row is None):
 			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
 			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True, verbose=True)
 			except:
 				_log.exception('cannot instantiate staff instance')
 				gmLog2.log_stack_trace()
@@ -769,11 +769,11 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				'data': rows[0]
 			}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
+			self.__is_current_user = True
 		else:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=aPK_obj, row=row)
-
-		# are we SELF ?
-		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
+			# are we SELF ?
+			self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
 
 		self.__inbox = None
 	#--------------------------------------------------------
@@ -2209,7 +2209,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.164.2.2  2008-10-16 14:43:04  ncq
+# Revision 1.164.2.3  2008-10-16 17:25:07  ncq
+# - be more verbose on failing cStaff instantiation
+#
+# Revision 1.164.2.2  2008/10/16 14:43:04  ncq
 # - add import for gmLog2 so we can log_stack_trace
 #
 # Revision 1.164.2.1  2008/10/14 21:26:57  ncq
