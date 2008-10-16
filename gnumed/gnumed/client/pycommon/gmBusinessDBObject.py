@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.48.2.1 2008-10-14 11:03:55 ncq Exp $
-__version__ = "$Revision: 1.48.2.1 $"
+# $Id: gmBusinessDBObject.py,v 1.48.2.2 2008-10-16 08:27:58 ncq Exp $
+__version__ = "$Revision: 1.48.2.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -253,8 +253,11 @@ class cBusinessDBObject:
 	#--------------------------------------------------------
 	def __str__(self):
 		tmp = []
-		[tmp.append('%s: %s' % (attr, self._payload[self._idx[attr]])) for attr in self._idx.keys()]
-		return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
+		try:
+			[ tmp.append('%s: %s' % (attr, self._payload[self._idx[attr]])) for attr in self._idx.keys() ]
+			return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
+		except:
+			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
 		# use try: except: as it is faster and we want this as fast as possible
@@ -443,7 +446,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.48.2.1  2008-10-14 11:03:55  ncq
+# Revision 1.48.2.2  2008-10-16 08:27:58  ncq
+# - make __str__ robust in the face of very early failure
+#
+# Revision 1.48.2.1  2008/10/14 11:03:55  ncq
 # - init instance variables needed by __str__ when failing early
 #
 # Revision 1.48  2007/12/12 16:17:15  ncq
