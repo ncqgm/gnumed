@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.87 $"
+__version__ = "$Revision: 1.87.2.1 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -812,11 +812,11 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 	col_idx = None
 	if return_data:
 		data = curs.fetchall()
-		if get_col_idx:
-			col_idx = get_col_indices(curs)
 		if verbose:
 			_log.debug('last query returned [%s (%s)] rows' % (curs.rowcount, len(data)))
 			_log.debug('cursor description: %s' % curs.description)
+		if get_col_idx:
+			col_idx = get_col_indices(curs)
 
 	curs_close()
 	tx_rollback()		# rollback just so that we don't stay IDLE IN TRANSACTION forever
@@ -1590,7 +1590,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.87  2008-08-21 10:21:40  ncq
+# Revision 1.87.2.1  2008-10-16 17:25:41  ncq
+# - slightly cleanup run_ro_queries(verbose=True)
+#
+# Revision 1.87  2008/08/21 10:21:40  ncq
 # - update v9 hash
 #
 # Revision 1.86  2008/07/30 12:51:14  ncq
