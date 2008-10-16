@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-restore_database.sh,v $
-# $Id: gm-restore_database.sh,v 1.2 2007-12-02 11:48:24 ncq Exp $
+# $Id: gm-restore_database.sh,v 1.3 2008-10-16 09:18:51 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -19,7 +19,7 @@ if test -z ${BACKUP} ; then
 	echo "====================================================="
 	echo "usage: $0 <backup file>"
 	echo ""
-	echo " <backup file>: a backup-gnumed_vX-*.tar.bz2 file"
+	echo " <backup file>: a backup-gnumed_vX-*.tar[.bz2] file"
 	echo "====================================================="
 	exit 1
 fi
@@ -47,12 +47,14 @@ else
 fi
 
 
-echo ""
-echo "==> Testing backup file integrity ..."
-bzip2 -tvv $BACKUP
-if test $? -ne 0 ; then
-	echo "    ERROR: integrity check failed, aborting"
-	exit 1
+if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
+	echo ""
+	echo "==> Testing backup file integrity ..."
+	bzip2 -tvv $BACKUP
+	if test $? -ne 0 ; then
+		echo "    ERROR: integrity check failed, aborting"
+		exit 1
+	fi
 fi
 
 
@@ -71,9 +73,11 @@ cp -v ${BACKUP} ${WORK_DIR}
 
 echo ""
 echo "==> Unpacking backup file ..."
-BACKUP=${WORK_DIR}/`basename ${BACKUP} .tar.bz2`
-bunzip2 -vv ${BACKUP}.tar.bz2
-tar -xvvf ${BACKUP}.tar
+BACKUP=${WORK_DIR}/${BACKUP}
+if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
+	bunzip2 -vv ${BACKUP}
+fi
+tar -xvvf ${BACKUP}
 
 
 echo ""
@@ -150,7 +154,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_database.sh,v $
-# Revision 1.2  2007-12-02 11:48:24  ncq
+# Revision 1.3  2008-10-16 09:18:51  ncq
+# - only optionally unpack the backup if it ends in .bz2
+#
+# Revision 1.2  2007/12/02 11:48:24  ncq
 # - source config before testing backup integrity so we don't waste
 #   time only to discover we cannot find our options ...
 #
