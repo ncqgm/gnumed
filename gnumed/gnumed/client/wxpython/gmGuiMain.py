@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.430 2008-10-12 16:48:13 ncq Exp $
-__version__ = "$Revision: 1.430 $"
+# $Id: gmGuiMain.py,v 1.431 2008-10-22 12:20:32 ncq Exp $
+__version__ = "$Revision: 1.431 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -68,16 +68,9 @@ _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 
-current_client_ver = u'0.4.rc1'
-current_client_ver = u'CVS HEAD'
-current_client_branch = u'0.4'
-current_client_branch = u'CVS HEAD'
-
 _log = logging.getLogger('gm.main')
 _log.info(__version__)
 _log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
-_log.info('GNUmed client version [%s] on branch [%s]', current_client_ver, current_client_branch)
-_log.info('expecting database version [%s]', gmPG2.map_client_branch2required_db_version[current_client_branch])
 
 #==============================================================================
 
@@ -184,8 +177,8 @@ def check_for_updates():
 
 	found, msg = gmTools.check_for_update (
 		url = url,
-		current_branch = current_client_branch,
-		current_version = current_client_ver,
+		current_branch = _cfg.get(option = 'client_branch'),
+		current_version = _cfg.get(option = 'client_version'),
 		consider_latest_branch = consider_latest_branch
 	)
 
@@ -971,7 +964,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not has_narr:
 			if empty_aoe:
 				enc['assessment_of_encounter'] = _('only documents added')
-			enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]
+			enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]['pk']
 			# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
 			enc.save_payload()
 			return True
@@ -1016,7 +1009,7 @@ class gmTopLevelFrame(wx.Frame):
 			_("About GNUmed"),
 			size=wx.Size(350, 300),
 			style = wx.MAXIMIZE_BOX,
-			version = current_client_ver
+			version = _cfg.get(option = 'client_version')
 		)
 		gmAbout.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = gmAbout
@@ -2286,7 +2279,7 @@ class gmApp(wx.App):
 			return False
 
 		gmExceptionHandlingWidgets.set_sender_email(gmSurgery.gmCurrentPractice().user_email)
-		gmExceptionHandlingWidgets.set_client_version(current_client_ver)
+		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
 
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
@@ -2439,9 +2432,8 @@ class gmApp(wx.App):
 		from Gnumed.wxpython import gmAuthWidgets
 		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
 		connected = gmAuthWidgets.connect_to_database (
-			expected_version = gmPG2.map_client_branch2required_db_version[current_client_branch],
-			require_version = not override,
-			client_version = current_client_ver
+			expected_version = gmPG2.map_client_branch2required_db_version[_cfg.get(option = 'client_branch')],
+			require_version = not override
 		)
 		if not connected:
 			_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
@@ -2737,7 +2729,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.430  2008-10-12 16:48:13  ncq
+# Revision 1.431  2008-10-22 12:20:32  ncq
+# - version handling for client, branch and db is now handled
+#   in gnumed.py and gmPG2.py
+#
+# Revision 1.430  2008/10/12 16:48:13  ncq
 # - bump version
 # - derive db version via gmPG2 mapping
 # - no more "consultation" or "foundational"
