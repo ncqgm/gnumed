@@ -1,8 +1,8 @@
 """GNUmed allergy related widgets."""
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-# $Id: gmAllergyWidgets.py,v 1.33 2008-10-12 16:04:28 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmAllergyWidgets.py,v 1.34 2008-10-22 12:12:31 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -220,7 +220,8 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		#  exception value: C++ assertion "i" failed at /BUILD/wxPython-src-2.8.3.0/src/common/wincmn.cpp(2634) in DoMoveInTabOrder(): MoveBefore/AfterInTabOrder(): win is not a sibling
 		# while Win/Linux work just fine
 		#self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)
-		self.__refresh_ui()
+		self.__refresh_state_ui()
+		self.__refresh_details_ui()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -232,7 +233,57 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			_('Reaction')
 		])
 	#--------------------------------------------------------
-	def __refresh_ui(self):
+	def __refresh_state_ui(self):
+
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+		state = emr.allergy_state
+
+		self._TXT_current_state.SetLabel(state.state_string)
+
+		if state['last_confirmed'] is None:
+			self._TXT_last_confirmed.SetLabel(_('<allergy state unasked>'))
+		else:
+			self._TXT_last_confirmed.SetLabel(state['last_confirmed'].strftime('%x %H:%M'))
+
+		if state['has_allergy'] is None:
+			self._RBTN_unknown.SetValue(True)
+			self._RBTN_none.SetValue(False)
+			self._RBTN_some.SetValue(False)
+
+			self._RBTN_unknown.Enable(True)
+			self._RBTN_none.Enable(True)
+
+		elif state['has_allergy'] == 0:
+			self._RBTN_unknown.SetValue(False)
+			self._RBTN_none.SetValue(True)
+			self._RBTN_some.SetValue(False)
+
+			self._RBTN_unknown.Enable(True)
+			self._RBTN_none.Enable(True)
+
+		elif state['has_allergy'] == 1:
+			self._RBTN_unknown.SetValue(False)
+			self._RBTN_none.SetValue(False)
+			self._RBTN_some.SetValue(True)
+
+			self._RBTN_unknown.Enable(True)
+			self._RBTN_none.Enable(False)
+
+		else:
+			self._RBTN_unknown.SetValue(True)
+			self._RBTN_none.SetValue(False)
+			self._RBTN_some.SetValue(False)
+
+			self._RBTN_unknown.Enable(True)
+			self._RBTN_none.Enable(True)
+
+			gmDispatcher.send(signal=u'statustext', msg=_('invalid allergy state [%s]') % state, beep=True)
+
+		if state['comment'] is not None:
+			self._TCTRL_state_comment.SetValue(state['comment'])
+	#--------------------------------------------------------
+	def __refresh_details_ui(self):
 
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
@@ -243,7 +294,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		self._LCTRL_allergies.DeleteAllItems()
 		if no_of_allergies > 0:
 			emr.allergy_state = 1
-			self._LCTRL_allergies.Enable(True)
+
 			for allergy in allergies:
 				row_idx = self._LCTRL_allergies.InsertStringItem(no_of_allergies, label = allergy['l10n_type'])
 				if allergy['definite']:
@@ -254,9 +305,15 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 2, label = allergy['descriptor'])
 				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 3, label = gmTools.coalesce(allergy['reaction'], u''))
 			self._LCTRL_allergies.set_data(data=allergies)
-#		else:
-#			row_idx = self._LCTRL_allergies.InsertStringItem(no_of_allergies, label = _('allergy state'))
-#			self._LCTRL_allergies.SetStringItem(index = row_idx, col = 3, label = gmAllergy.allergy_state2str(state = emr.allergy_state))
+
+			self._LCTRL_allergies.Enable(True)
+			self._RBTN_some.SetValue(True)
+			self._RBTN_unknown.Enable(False)
+			self._RBTN_none.Enable(False)
+		else:
+			self._LCTRL_allergies.Enable(False)
+			self._RBTN_unknown.Enable(True)
+			self._RBTN_none.Enable(True)
 
 		self._LCTRL_allergies.set_column_widths (widths = [
 			wx.LIST_AUTOSIZE,
@@ -264,31 +321,6 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			wx.LIST_AUTOSIZE,
 			wx.LIST_AUTOSIZE
 		])
-
-		# display state
-		state = emr.allergy_state
-		self._TXT_current_state.SetLabel(state.state_string)
-
-		if state['last_confirmed'] is not None:
-			self._TXT_last_confirmed.SetLabel(state['last_confirmed'].strftime('%Y-%m-%d %H:%M'))
-
-		if state['has_allergy'] is None:
-			self._RBTN_unknown.SetValue(True)
-			self._RBTN_none.SetValue(False)
-			self._RBTN_some.SetValue(False)
-		elif state['has_allergy'] == 0:
-			self._RBTN_unknown.SetValue(False)
-			self._RBTN_none.SetValue(True)
-			self._RBTN_some.SetValue(False)
-		elif state['has_allergy'] == 1:
-			self._RBTN_unknown.SetValue(False)
-			self._RBTN_none.SetValue(False)
-			self._RBTN_some.SetValue(True)
-		else:
-			raise ValueError('invalid allergy state [%s]', state)
-
-		if state['comment'] is not None:
-			self._TCTRL_state_comment.SetValue(state['comment'])
 
 		self._PNL_edit_area.clear()
 		self._BTN_delete.Enable(False)
@@ -307,20 +339,25 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		self._BTN_delete.Enable(False)
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
-		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
+
+		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		emr.delete_allergy(pk_allergy = allergy['pk_allergy'])
-		self.__refresh_ui()
+
+		state = emr.allergy_state
+		state['last_confirmed'] = u'now'
+		state.save_payload()
+
+		self.__refresh_state_ui()
+		self.__refresh_details_ui()
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, evt):
 		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		self._PNL_edit_area.refresh(allergy=allergy)
 		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-
-		# save allergy state and comment
+	def _on_confirm_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
 		allergies = emr.get_allergies()
@@ -333,29 +370,45 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 				gmDispatcher.send(signal = u'statustext', msg = _('Cannot set allergy state to <unknown> because there are allergies stored for this patient.'), beep = True)
 				self._RBTN_some.SetValue(True)
 				state['has_allergy'] = 1
+				return False
 			else:
 				state['has_allergy'] = None
+
 		elif self._RBTN_none.GetValue():
 			if len(allergies) > 0:
 				gmDispatcher.send(signal = u'statustext', msg = _('Cannot set allergy state to <None> because there are allergies stored for this patient.'), beep = True)
 				self._RBTN_some.SetValue(True)
 				state['has_allergy'] = 1
+				return False
 			else:
 				state['has_allergy'] = 0
+
 		elif self._RBTN_some.GetValue():
 			if (len(allergies) == 0) and (cmt == u''):
 				gmDispatcher.send(signal = u'statustext', msg = _('Cannot set allergy state to <some> because there are neither allergies nor a comment available for this patient.'), beep = True)
+				return False
 			else:
 				state['has_allergy'] = 1
 
 		state['comment'] = cmt
-		state.save_payload()
+		state['last_confirmed'] = u'now'
 
-		# save allergy edit area
+		state.save_payload()
+		self.__refresh_state_ui()
+	#--------------------------------------------------------
+	def _on_save_details_button_pressed(self, evt):
+
 		if not self._PNL_edit_area.save():
 			return False
 
-		self.__refresh_ui()
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+		state = emr.allergy_state
+		state['last_confirmed'] = u'now'
+		state.save_payload()
+
+		self.__refresh_state_ui()
+		self.__refresh_details_ui()
 #======================================================================
 class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""Allergy details panel.
@@ -510,7 +563,10 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.33  2008-10-12 16:04:28  ncq
+# Revision 1.34  2008-10-22 12:12:31  ncq
+# - rework allergy manager as per list
+#
+# Revision 1.33  2008/10/12 16:04:28  ncq
 # - rework according to list discussion
 #
 # Revision 1.32  2008/07/07 13:43:16  ncq
