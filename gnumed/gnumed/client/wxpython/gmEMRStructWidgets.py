@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.81 2008-10-12 16:15:17 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmEMRStructWidgets.py,v 1.82 2008-10-22 12:19:10 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1128,7 +1128,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		if narr != '':
 			pat = gmPerson.gmCurrentPatient()
 			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = self.__issue['pk_health_issue'], is_open=None)
+			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.__issue['pk_health_issue'], is_open = None)
 			if epi is not None:
 				epi['episode_open'] = False
 				epi.save_payload()			# FIXME: error handling
@@ -1303,7 +1303,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.81  2008-10-12 16:15:17  ncq
+# Revision 1.82  2008-10-22 12:19:10  ncq
+# - rename pseudo episode on health issue creation to "inceptio notes"
+#
+# Revision 1.81  2008/10/12 16:15:17  ncq
 # - no more "foundational" health issue
 #
 # Revision 1.80  2008/09/02 19:01:12  ncq
