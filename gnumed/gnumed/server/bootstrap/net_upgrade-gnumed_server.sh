@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_upgrade-gnumed_server.sh,v $
-# $Id: net_upgrade-gnumed_server.sh,v 1.4 2008-08-01 10:38:25 ncq Exp $
+# $Id: net_upgrade-gnumed_server.sh,v 1.5 2008-10-22 12:25:21 ncq Exp $
 # ============================================
 
 PREV_VER="8"
@@ -11,6 +11,7 @@ NEXT_VER="9"
 OTHER_UPGRADE_OPTS="$1"
 
 # try to determine distribution of target system
+# FIXME: use lsb_release
 # SUSE
 if [ -f /etc/SuSE-release ]; then
 	SYS_TYPE="SuSE"
@@ -57,7 +58,10 @@ sudo ./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}
 
 # ============================================
 # $Log: net_upgrade-gnumed_server.sh,v $
-# Revision 1.4  2008-08-01 10:38:25  ncq
+# Revision 1.5  2008-10-22 12:25:21  ncq
+# - lsb_release
+#
+# Revision 1.4  2008/08/01 10:38:25  ncq
 # - /bin/sh -> /bin/bash
 #
 # Revision 1.3  2008/01/05 20:42:32  ncq

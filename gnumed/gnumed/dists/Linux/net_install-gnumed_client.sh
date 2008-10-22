@@ -7,7 +7,7 @@
 # you will need to know your password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.6 2008-10-12 16:38:46 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.7 2008-10-22 12:24:48 ncq Exp $
 # ===========================================================
 
 VER_LATEST="CVS-HEAD"
@@ -42,6 +42,7 @@ TGZ_NAME="GNUmed-client.${TARGET_VER}.tgz"
 LAUNCHER=~/"Desktop/GNUmed ${TARGET_VER}"
 
 # try to determine distribution of target system
+# FIXME: use "lsb_release"
 # SuSE
 if [ -f /etc/SuSE-release ]; then
 	DEPS="postgresql tar coreutils mc python-psycopg2 openssl wget gzip file"
@@ -208,7 +209,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.6  2008-10-12 16:38:46  ncq
+# Revision 1.7  2008-10-22 12:24:48  ncq
+# - lsb_release
+#
+# Revision 1.6  2008/10/12 16:38:46  ncq
 # - do not run as root
 #
 # Revision 1.5  2008/08/28 18:35:46  ncq

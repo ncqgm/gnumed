@@ -2,10 +2,11 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.6 2008-08-01 10:38:25 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.7 2008-10-22 12:25:23 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
+# FIXME: use lsb_release
 # SUSE
 if [ -f /etc/SuSE-release ]; then
 	DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python-psycopg2 gzip"
@@ -81,7 +82,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.6  2008-08-01 10:38:25  ncq
+# Revision 1.7  2008-10-22 12:25:23  ncq
+# - lsb_release
+#
+# Revision 1.6  2008/08/01 10:38:25  ncq
 # - /bin/sh -> /bin/bash
 #
 # Revision 1.5  2008/02/29 23:50:41  ncq
