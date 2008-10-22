@@ -46,7 +46,7 @@
                         <option>1</option>
                         <object class="wxTextCtrl" name="_TCTRL_type" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>The document type, usually in Englisch.</tooltip>
+                            <tooltip>The document type, usually in English.</tooltip>
                             <events>
                                 <handler event="EVT_TEXT">_on_type_modified</handler>
                             </events>
