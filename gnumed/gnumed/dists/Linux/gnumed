@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.18 2008-08-31 18:05:41 ncq Exp $
+# $Id: gnumed,v 1.19 2008-10-22 12:24:27 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -71,19 +71,6 @@ if test -z "${GM_SCRIPT}" ; then
 fi
 
 
-# check for explicit --conf-file option
-#CONFFILE_ARG=""
-#if echo $OPTIONS | grep -q -- "--conf-file[[:space:]]*=" ; then
-#	CONFFILE_NAME=`echo $OPTIONS | sed -e 's/^.*--conf-file[[:space:]]*=[[:space:]]*\([^[:space:]]\+\).*/\1/'`
-#	if [ ! -s ${CONFFILE_NAME} ] ; then
-#		echo "Given config file ${CONFFILE_NAME} missing."
-#		exit 1
-#	fi
-#	CONFFILE_ARG="--conf-file=${CONFFILE_NAME}"
-#	OPTIONS=`echo $OPTIONS | sed -e 's/--conf-file[[:space:]]*=[[:space:]]*[^[:space:]]\+//'`
-#fi
-
-
 # source systemwide startup extension shell script if it exists
 if [ -r /etc/gnumed/gnumed-startup-local.sh ] ; then
 	. /etc/gnumed/gnumed-startup-local.sh
@@ -101,7 +88,10 @@ python ${GM_SCRIPT} ${OPTIONS} #${CONFFILE_ARG}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.18  2008-08-31 18:05:41  ncq
+# Revision 1.19  2008-10-22 12:24:27  ncq
+# - no more checking for --conf-file, now done in gnumed.py
+#
+# Revision 1.18  2008/08/31 18:05:41  ncq
 # - no more CONFFILE checking as that's done by GNUmed proper now
 #
 # Revision 1.17  2008/08/31 14:49:26  ncq
