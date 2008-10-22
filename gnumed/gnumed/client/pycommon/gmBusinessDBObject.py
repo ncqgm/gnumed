@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.49 2008-10-12 15:39:49 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmBusinessDBObject.py,v 1.50 2008-10-22 12:06:48 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -180,6 +180,10 @@ class cBusinessDBObject:
 	def __init__(self, aPK_obj=None, row=None):
 		"""Init business object.
 		"""
+		# initialize those "too early" because checking descendants might
+		# fail which will then call __str__ in stack trace logging if --debug
+		# was given which in turn needs those instance variables
+		self.pk_obj = '<uninitialized>'
 		self._idx = {}
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
@@ -214,8 +218,10 @@ class cBusinessDBObject:
 			for field in self._idx.keys():
 				self.original_payload[field] = self._payload[self._idx[field]]
 			return True
+
 		if result is None:
 			raise gmExceptions.NoSuchBusinessObjectError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk_obj)
+
 		if result is False:
 			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
 	#--------------------------------------------------------
@@ -252,8 +258,11 @@ class cBusinessDBObject:
 	#--------------------------------------------------------
 	def __str__(self):
 		tmp = []
-		[tmp.append('%s: %s' % (attr, self._payload[self._idx[attr]])) for attr in self._idx.keys()]
-		return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
+		try:
+			[ tmp.append('%s: %s' % (attr, self._payload[self._idx[attr]])) for attr in self._idx.keys() ]
+			return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
+		except:
+			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
 		# use try: except: as it is faster and we want this as fast as possible
@@ -442,7 +451,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.49  2008-10-12 15:39:49  ncq
+# Revision 1.50  2008-10-22 12:06:48  ncq
+# - more careful __str__ for early failure
+#
+# Revision 1.49  2008/10/12 15:39:49  ncq
 # - set up instance vars before testing for consts so if we fail they exist
 #
 # Revision 1.48  2007/12/12 16:17:15  ncq
