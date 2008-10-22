@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.99 2008-10-12 16:36:45 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmTopPanel.py,v 1.100 2008-10-22 12:22:26 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -320,12 +320,10 @@ class cMainTopPanel(wx.Panel):
 			confirmed = _('never')
 		else:
 			confirmed = state['last_confirmed'].strftime('%x')
-		tt = (_('%s (last confirmed %s)%-90s') % (
-			state.state_string,
-			confirmed,
-			u' '
-		))[:90] + u'\n'
-		tt += gmTools.coalesce(state['comment'], u'\n', (_('Comment (%s): %%s\n') % state['modified_by']))
+		tt = (state.state_string + (90 * u' '))[:90] + u'\n'
+		tt += _('last confirmed %s\n') % confirmed
+		tt += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s') % state['modified_by'])
+		tt += u'\n'
 
 		# allergies
 		tmp = []
@@ -349,10 +347,14 @@ class cMainTopPanel(wx.Panel):
 			)
 
 		if len(tmp) == 0:
-			self.txt_allergies.SetValue(state.state_symbol)
+			tmp = state.state_symbol
 		else:
-			self.txt_allergies.SetValue(','.join(tmp))
+			tmp = ','.join(tmp)
 
+		if state['last_confirmed'] is not None:
+			tmp += state['last_confirmed'].strftime(' (%x)')
+
+		self.txt_allergies.SetValue(tmp)
 		self.txt_allergies.SetToolTipString(tt)
 	#-------------------------------------------------------
 	# remote layout handling
@@ -445,7 +447,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.99  2008-10-12 16:36:45  ncq
+# Revision 1.100  2008-10-22 12:22:26  ncq
+# - improved allergies tooltip and display
+#
+# Revision 1.99  2008/10/12 16:36:45  ncq
 # - cleanup
 # - consultation -> encounter
 # - improved allergies handling
