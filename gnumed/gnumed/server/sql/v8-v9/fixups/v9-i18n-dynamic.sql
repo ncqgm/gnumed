@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v9-i18n-dynamic.sql,v 1.1.2.1 2008-10-12 17:00:12 ncq Exp $
--- $Revision: 1.1.2.1 $
+-- $Id: v9-i18n-dynamic.sql,v 1.1.2.2 2008-10-22 22:02:02 ncq Exp $
+-- $Revision: 1.1.2.2 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -14,25 +14,52 @@
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-drop function i18n.set_curr_lang(text) cascade;
+drop function i18n.set_curr_lang(text, name) cascade;
 \set ON_ERROR_STOP 1
 
+create or replace function i18n.set_curr_lang(text, name)
+	returns boolean
+	language 'plpgsql'
+	security definer
+	as E'
+DECLARE
+	_lang ALIAS FOR $1;
+	_user ALIAS FOR $2;
+	lang_has_tx boolean;
+BEGIN
+	select into lang_has_tx exists(select pk from i18n.translations where lang = _lang);
+
+	if lang_has_tx is False then
+		raise notice ''Cannot set current language to [%]. No translations available.'', _lang;
+		return False;
+	end if;
+
+	delete from i18n.curr_lang where quote_ident(user) = _user;
+	insert into i18n.curr_lang ("user", lang) values (_user, _lang);
+	return true;
+END;
+';
+
+comment on function i18n.set_curr_lang(text, name) is
+	'set language to first argument for the user named in
+	 the second argument if translations are available';
+
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop function i18n.set_curr_lang(text) cascade;
+\set ON_ERROR_STOP 1
 
 create function i18n.set_curr_lang(text)
 	returns boolean
 	language 'plpgsql'
-	security definer
 	as '
 DECLARE
 	_lang ALIAS FOR $1;
+	_status boolean;
 BEGIN
-	if exists(select pk from i18n.translations where lang = _lang) then
-		delete from i18n.curr_lang where "user" = CURRENT_USER;
-		insert into i18n.curr_lang (lang) values (_lang);
-		return true;
-	end if;
-	raise notice ''Cannot set current language to [%]. No translations available.'', _lang;
-	return false;
+	select into _status i18n.set_curr_lang(_lang, CURRENT_USER);
+	return _status;
 END;
 ';
 
@@ -41,38 +68,19 @@ comment on function i18n.set_curr_lang(text) is
 	 - for "current user"
 	 - only if translations for this language are available';
 
-
 -- =============================================
-create or replace function i18n._(text)
+create or replace function i18n.get_curr_lang(text)
 	returns text
-	language 'plpgsql'
-	security definer
-	as '
-DECLARE
-	_orig ALIAS FOR $1;
-	trans_str text;
-	my_lang text;
-BEGIN
-	-- get language
-	select into my_lang lang from i18n.curr_lang where "user" = CURRENT_USER;
-	if not found then
-		return _orig;
-	end if;
-	-- get translation
-	select into trans_str trans from i18n.translations
-		where lang = my_lang and orig = _orig;
-	if found then
-		return trans_str;
-	end if;
-	return _orig;
-END;
-';
+	language sql
+	as 'select lang from i18n.curr_lang where "user" = $1'
+;
 
-comment on function i18n._(text) is
-	'will return either the translation into
-	 i18n.curr_lang.lang for the current user
-	 or the input,
-	 created in public schema for easy access';
+
+create or replace function i18n.get_curr_lang()
+	returns text
+	language sql
+	as 'select i18n.get_curr_lang(quote_literal(CURRENT_USER))'
+;
 
 -- =============================================
 create or replace function i18n._(text, text)
@@ -85,20 +93,12 @@ DECLARE
 	_lang alias for $2;
 	trans_str text;
 BEGIN
-	-- no translation available at all ?
-	if not exists(select 1 from i18n.translations where orig = _orig) then
-		return _orig;
-	end if;
-	-- get translation
-	select into trans_str trans
-	from i18n.translations
-	where
-		lang = _lang
-			and
-		orig = _orig;
+	select into trans_str trans from i18n.translations where lang = _lang and orig = _orig;
+
 	if not found then
 		return _orig;
 	end if;
+
 	return trans_str;
 END;
 ';
@@ -109,26 +109,26 @@ comment on function i18n._(text, text) is
 	 created in public schema for easy access';
 
 -- =============================================
-create or replace function i18n.get_curr_lang()
+create or replace function i18n._(text)
 	returns text
 	language sql
-	as 'select lang from i18n.curr_lang where \"user\" = current_user'
-;
+	as 'select i18n._($1, i18n.get_curr_lang())';
 
-
-create or replace function i18n.get_curr_lang(text)
-	returns text
-	language sql
-	as 'select lang from i18n.curr_lang where \"user\" = $1'
-;
-
+comment on function i18n._(text) is
+	'will return either the translation into
+	 i18n.curr_lang.lang for the current user
+	 or the input,
+	 created in public schema for easy access';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.1.2.1 $');
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.1.2.2 $');
 
 -- ==============================================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.1.2.1  2008-10-12 17:00:12  ncq
+-- Revision 1.1.2.2  2008-10-22 22:02:02  ncq
+-- - properly fix the i18n handling
+--
+-- Revision 1.1.2.1  2008/10/12 17:00:12  ncq
 -- - be careful with "user"
 --
 --
