@@ -36,13 +36,15 @@ care of all the pre- and post-GUI runtime environment setup.
  and the client software version cannot be verified to be compatible.
 --local-import
  Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
+--version, -V
+ Show version information.
 --help, -h, or -?
  Show this help.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.143 2008-08-31 14:52:58 ncq Exp $
-__version__ = "$Revision: 1.143 $"
+# $Id: gnumed.py,v 1.144 2008-10-22 12:23:13 ncq Exp $
+__version__ = "$Revision: 1.144 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -71,10 +73,16 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
+current_client_version = u'0.4.rc1'
+current_client_version = u'CVS HEAD'
+current_client_branch = u'0.4'
+current_client_branch = u'CVS HEAD'
+
+
 _log = None
 _cfg = None
 _old_sig_term = None
-_known_short_options = u'h?'
+_known_short_options = u'h?V'
 _known_long_options = [
 	u'debug',
 	u'slave',
@@ -85,7 +93,8 @@ _known_long_options = [
 	u'lang-gettext=',
 	u'override-schema-check',
 	u'local-import',
-	u'help'
+	u'help',
+	u'version'
 ]
 
 import_error_sermon = """
@@ -206,6 +215,17 @@ def setup_cli():
 		option = u'slave',
 		value = val
 	)
+
+	_cfg.set_option (
+		option = u'client_version',
+		value = current_client_version
+	)
+
+	_cfg.set_option (
+		option = u'client_branch',
+		value = current_client_branch
+	)
+
 #==========================================================
 def handle_sig_term(signum, frame):
 	_log.critical('SIGTERM (SIG%s) received, shutting down ...' % signum)
@@ -225,9 +245,6 @@ def setup_signal_handlers():
 	global _old_sig_term
 	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
 #==========================================================
-#def setup_legacy_logging():
-#	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-#==========================================================
 def setup_locale():
 	gmI18N.activate_locale()
 	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])
@@ -238,7 +255,7 @@ def setup_locale():
 	# in case it changed
 	gmLog2.set_string_encoding()
 #==========================================================
-def check_help_request():
+def handle_help_request():
 	src = [(u'cli', u'return')]
 
 	help_requested = (
@@ -254,6 +271,26 @@ def check_help_request():
 		)
 		print __doc__
 		sys.exit(0)
+#==========================================================
+def handle_version_request():
+	src = [(u'cli', u'return')]
+
+	version_requested = (
+		_cfg.get(option = u'--version', source_order = src) or
+		_cfg.get(option = u'-V', source_order = src)
+	)
+
+	if version_requested:
+
+		from Gnumed.pycommon.gmPG2 import map_client_branch2required_db_version, known_schema_hashes
+
+		print 'GNUmed version information'
+		print '--------------------------'
+		print 'client     : %s on branch [%s]' % (current_client_version, current_client_branch)
+		print 'database   : %s' % map_client_branch2required_db_version[current_client_branch]
+		print 'schema hash: %s' % known_schema_hashes[map_client_branch2required_db_version[current_client_branch]]
+		sys.exit(0)
+
 #==========================================================
 def setup_paths_and_files():
 	"""Create needed paths in user home directory."""
@@ -338,6 +375,8 @@ def setup_cfg():
 	)
 #==========================================================
 def setup_backend():
+	_log.info('client expects database version [%s]', gmPG2.map_client_branch2required_db_version[current_client_branch])
+
 	# set up database connection timezone
 	timezone = _cfg.get (
 		group = u'backend',
@@ -392,6 +431,7 @@ setup_logging()
 
 _log.info('Starting up as main module (%s).', __version__)
 _log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
+_log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
 
 setup_console_exception_handler()
 setup_cli()
@@ -399,9 +439,9 @@ setup_signal_handlers()
 
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
 
-#setup_legacy_logging()
 setup_locale()
-check_help_request()
+handle_help_request()
+handle_version_request()
 setup_paths_and_files()
 setup_date_time()
 setup_cfg()
@@ -431,7 +471,11 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.143  2008-08-31 14:52:58  ncq
+# Revision 1.144  2008-10-22 12:23:13  ncq
+# - initiate version handling
+# - add -V/--version
+#
+# Revision 1.143  2008/08/31 14:52:58  ncq
 # - improved error messages
 # - streamline setup_cfg and properly handle no --conf-file
 # - detect and signal "no conf file at all"
