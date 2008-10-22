@@ -2,17 +2,17 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.31 2008-10-12 15:10:05 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmAllergy.py,v 1.32 2008-10-22 12:03:46 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
-import types, sys, logging
+import types, sys, logging, datetime as pyDT
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmI18N, gmBusinessDBObject
+from Gnumed.pycommon import gmPG2, gmI18N, gmBusinessDBObject, gmDateTime
 
 
 _log = logging.getLogger('gm.domain')
@@ -66,9 +66,9 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		u"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
 	]
 	_updatable_fields = [
-		'last_confirmed',
-		'has_allergy',
-		'comment'
+		'last_confirmed',		# special value u'now' will set to datetime.datetime.now() in the local time zone
+		'has_allergy',			# verified against allergy_states (see above)
+		'comment'				# u'' maps to None / NULL
 	]
 	#--------------------------------------------------------
 	# properties
@@ -90,9 +90,15 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_symbol(self):
 		if self._payload[self._idx['has_allergy']] is None:
-			return u'?'
+			if self._payload[self._idx['comment']] is None:
+				return u'?'
+			else:
+				return u'?!'
 		if self._payload[self._idx['has_allergy']] == 0:
-			return u'\u2300'
+			if self._payload[self._idx['comment']] is None:
+				return u'\u2300'
+			else:
+				return u'\u2300!'
 		if self._payload[self._idx['has_allergy']] == 1:
 			return '!'
 		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
@@ -104,10 +110,18 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	state_symbol = property(_get_as_symbol, _set_symbol)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-		if attribute == 'comment':
+		if attribute == u'comment':
 			if value is not None:
 				if value.strip() == u'':
 					value = None
+
+		elif attribute == u'last_confirmed':
+			if value == u'now':
+				value = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+
+		elif attribute == u'has_allergy':
+			if value not in allergy_states:
+				raise ValueError('invalid allergy state [%s]' % value)
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 #============================================================
@@ -241,7 +255,12 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.31  2008-10-12 15:10:05  ncq
+# Revision 1.32  2008-10-22 12:03:46  ncq
+# - better documentation
+# - better allergy state symbols
+# - improved __setitem__ on allergy state
+#
+# Revision 1.31  2008/10/12 15:10:05  ncq
 # - allergic -> allergy
 #
 # Revision 1.30  2008/10/12 15:02:43  ncq
