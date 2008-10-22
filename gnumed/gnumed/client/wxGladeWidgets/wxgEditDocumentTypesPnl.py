@@ -37,7 +37,7 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._LCTRL_doc_type.SetToolTipString(_("This lists the available document types."))
         self._LCTRL_doc_type.SetFocus()
-        self._TCTRL_type.SetToolTipString(_("The document type, usually in Englisch."))
+        self._TCTRL_type.SetToolTipString(_("The document type, usually in English."))
         self._TCTRL_l10n_type.SetToolTipString(_("The document type in the local language."))
         self._BTN_set_translation.SetToolTipString(_("Change translation of selected document type for your local language."))
         self._BTN_set_translation.Enable(False)

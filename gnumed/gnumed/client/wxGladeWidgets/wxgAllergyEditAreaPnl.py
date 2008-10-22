@@ -16,7 +16,7 @@ class wxgAllergyEditAreaPnl(wx.ScrolledWindow):
         self._PRW_trigger = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_brand_name = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_generic = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._ChBOX_generic_specific = wx.CheckBox(self, -1, _("&Generic Specific"))
+        self._ChBOX_generic_specific = wx.CheckBox(self, -1, _("&Tolerates others in class"))
         self._TCTRL_atc_classes = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_reaction = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._RBTN_type_allergy = wx.RadioButton(self, -1, _("&Allergy"), style=wx.RB_GROUP)
