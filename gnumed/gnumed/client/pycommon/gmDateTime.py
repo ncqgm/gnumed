@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.21 2008-06-18 15:28:32 ncq Exp $
+# $Id: gmDateTime.py,v 1.22 2008-10-22 12:07:28 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -56,7 +56,7 @@ from Gnumed.pycommon import gmI18N
 
 _log = logging.getLogger('gm.datetime')
 _log.info(__version__)
-
+_log.info(u'mx.DateTime version: %s', mxDT.__version__)
 
 dst_locally_in_use = None
 dst_currently_in_effect = None
@@ -305,7 +305,7 @@ def __single_char(str2parse, trigger_chars=None):
 				timestamp = now,
 				accuracy = acc_days
 			),
-			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d').decode(enc)
+			'label': _('today (%s)') % now.strftime('%A, %x').decode(enc)
 		}]
 
 	# tomorrow
@@ -316,7 +316,7 @@ def __single_char(str2parse, trigger_chars=None):
 				timestamp = ts,
 				accuracy = acc_days
 			),
-			'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
+			'label': _('tomorrow (%s)') % ts.strftime('%A, %x').decode(enc)
 		}]
 
 	# yesterday
@@ -327,7 +327,7 @@ def __single_char(str2parse, trigger_chars=None):
 				timestamp = ts,
 				accuracy = acc_days
 			),
-			'label': _('yesterday (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
+			'label': _('yesterday (%s)') % ts.strftime('%A, %x').decode(enc)
 		}]
 
 	return []
@@ -761,7 +761,11 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 		except AttributeError:
 			# strptime() only available starting with Python 2.5
 			break
+		except OverflowError:
+			# time.mktime() cannot handle dates older than a platform-dependant limit :-(
+			continue
 		except ValueError:
+			# C-level overflow
 			continue
 
 	return matches
@@ -847,19 +851,19 @@ class cFuzzyTimestamp:
 			return unicode(self.timestamp.year)
 
 		if self.accuracy == acc_months:
-			return unicode(self.timestamp.strftime('%m/%Y'))
+			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
 		if self.accuracy == acc_days:
-			return unicode(self.timestamp.strftime('%Y-%m-%d'))
+			return unicode(self.timestamp.strftime('%x'))
 
 		if self.accuracy == acc_hours:
-			return unicode(self.timestamp.strftime("%Y-%m-%d %I%p"))
+			return unicode(self.timestamp.strftime("%x %I%p"))
 
 		if self.accuracy == acc_minutes:
-			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M"))
+			return unicode(self.timestamp.strftime("%x %H:%M"))
 
 		if self.accuracy == acc_seconds:
-			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
+			return unicode(self.timestamp.strftime("%x %H:%M:%S"))
 
 		if self.accuracy == acc_subseconds:
 			return unicode(self.timestamp)
@@ -981,7 +985,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.21  2008-06-18 15:28:32  ncq
+# Revision 1.22  2008-10-22 12:07:28  ncq
+# - log mx.DateTime version
+# - use %x in strftime
+#
+# Revision 1.21  2008/06/18 15:28:32  ncq
 # - properly i18n trigger chars in str 2 timestamp conversions
 # - document "patterns" arg for str 2 timestamp conversion
 #
