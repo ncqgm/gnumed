@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -798,7 +798,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
 	if verbose:
-		_log.debug('cursor: %s' % curs)
+		_log.debug('cursor: %s', curs)
 
 	for query in queries:
 		if type(query['cmd']) is not types.UnicodeType:
@@ -811,26 +811,26 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
-				_log.debug('ran query: [%s]' % curs.query)
-				_log.debug('PG status message: %s' % curs.statusmessage)
-				_log.debug('cursor description: %s' % curs.description)
+				_log.debug('ran query: [%s]', curs.query)
+				_log.debug('PG status message: %s', curs.statusmessage)
+				_log.debug('cursor description: %s', str(curs.description))
 		except:
 			# FIXME: use .pgcode
 			curs_close()
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
-			_log.error('query failed: [%s]' % curs.query)
-			_log.error('PG status message: %s' % curs.statusmessage)
+			_log.error('query failed: [%s]', curs.query)
+			_log.error('PG status message: %s', curs.statusmessage)
 			raise
 
 	data = None
 	col_idx = None
 	if return_data:
 		data = curs.fetchall()
+		if verbose:
+			_log.debug('last query returned [%s (%s)] rows', curs.rowcount, len(data))
+			_log.debug('cursor description: %s', str(curs.description))
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
-		if verbose:
-			_log.debug('last query returned [%s (%s)] rows' % (curs.rowcount, len(data)))
-			_log.debug('cursor description: %s' % curs.description)
 
 	curs_close()
 	tx_rollback()		# rollback just so that we don't stay IDLE IN TRANSACTION forever
@@ -1604,7 +1604,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.89  2008-10-12 15:40:46  ncq
+# Revision 1.90  2008-10-22 12:08:17  ncq
+# - improved query logging
+#
+# Revision 1.89  2008/10/12 15:40:46  ncq
 # - cleanup
 # - add mapping for client to database version
 #
