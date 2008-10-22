@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.166 2008-10-12 15:15:07 ncq Exp $
-__version__ = "$Revision: 1.166 $"
+# $Id: gmPerson.py,v 1.167 2008-10-22 12:05:22 ncq Exp $
+__version__ = "$Revision: 1.167 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime, gmLog2
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 
@@ -761,7 +761,12 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
 			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+			try:
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+			except:
+				_log.exception('cannot instantiate staff instance')
+				gmLog2.log_stack_trace()
+				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
 			if len(rows) == 0:
 				raise ValueError('no staff record for database account CURRENT_USER')
 			row = {
@@ -2191,7 +2196,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.166  2008-10-12 15:15:07  ncq
+# Revision 1.167  2008-10-22 12:05:22  ncq
+# - improved logging of staff instantiation
+#
+# Revision 1.166  2008/10/12 15:15:07  ncq
 # - cleanup
 # - better exception wording
 #
