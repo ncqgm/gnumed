@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.123 $"
+__version__ = "$Revision: 1.124 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -422,7 +422,7 @@ from (
 			first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
 			last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
 
-			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
+			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%x %H:%M'))
 
 			lines.append(_('Encounters: %s (%s - %s):') % (
 				len(encs),
@@ -432,7 +432,7 @@ from (
 
 			for enc in encs:
 				lines.append(u' %s - %s (%s):%s' % (
-					enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+					enc['started_original_tz'].strftime('%x %H:%M'),
 					enc['last_affirmed_original_tz'].strftime('%H:%M'),
 					enc['l10n_type'],
 					gmTools.coalesce(enc['assessment_of_encounter'], u'', u' \u00BB%s\u00AB')
@@ -450,7 +450,7 @@ from (
 
 		for d in docs:
 			lines.append(u' %s %s:%s%s' % (
-				d['date'].strftime('%Y-%m-%d'),
+				d['date'].strftime('%x'),
 				d['l10n_type'],
 				gmTools.coalesce(d['comment'], u'', u' "%s"'),
 				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
@@ -677,7 +677,7 @@ select exists (
 		lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
 			left_margin,
 			self._payload[self._idx['l10n_type']],
-			self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
+			self._payload[self._idx['started_original_tz']].strftime('%x %H:%M'),
 			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 			self._payload[self._idx['source_time_zone']],
 			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
@@ -685,7 +685,7 @@ select exists (
 		))
 
 		lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
-			self._payload[self._idx['started']].strftime('%Y-%m-%d %H:%M'),
+			self._payload[self._idx['started']].strftime('%x %H:%M'),
 			self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
 			gmDateTime.current_local_iso_numeric_timezone_string,
 			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, time.tzname[1], time.tzname[0]),
@@ -755,7 +755,7 @@ select exists (
 
 		for d in docs:
 			lines.append(u' %s %s:%s%s' % (
-				d['date'].strftime('%Y-%m-%d'),
+				d['date'].strftime('%x'),
 				d['l10n_type'],
 				gmTools.coalesce(d['comment'], u'', u' "%s"'),
 				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
@@ -1029,7 +1029,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.123  2008-10-12 15:13:30  ncq
+# Revision 1.124  2008-10-22 12:04:55  ncq
+# - use %x in strftime
+#
+# Revision 1.123  2008/10/12 15:13:30  ncq
 # - no more "foundational" in health issue
 #
 # Revision 1.122  2008/09/09 19:55:07  ncq

@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.129 2008-10-12 15:32:18 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmPatientExporter.py,v 1.130 2008-10-22 12:06:05 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -119,9 +119,8 @@ class cEmrExport:
         """
         emr = self.__patient.get_emr()
         # patient dob
-        
         patient_dob = self.__patient['dob']
-        date_length = len(patient_dob.strftime('%Y-%m-%d')) + 2 # (YYYY-mm-dd)
+        date_length = len(patient_dob.strftime('%x')) + 2
 
         # dictionary of pairs indication : scheduled vaccination
         vaccinations4regimes = {}
@@ -154,7 +153,7 @@ class cEmrExport:
             vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
                 
         # patient dob in top of vaccination chart 
-        txt = '\nDOB: %s' %(patient_dob.strftime('%Y-%m-%d')) + '\n'         
+        txt = '\nDOB: %s' %(patient_dob.strftime('%x')) + '\n'
 
         # vacc chart table headers
         # top ---- header line
@@ -192,9 +191,9 @@ class cEmrExport:
                 elif row_index < seq_no: # vaccination scheduled
                     try:
                         vacc_date = vaccinations[indication][row_index]['date'] # vaccination given                           
-                        vacc_date_str = vacc_date.strftime('%Y-%m-%d')                        
-                        txt +=    vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'                           
-                        prev_displayed_date[col_index] = vacc_date                                                  
+                        vacc_date_str = vacc_date.strftime('%x')
+                        txt +=    vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'
+                        prev_displayed_date[col_index] = vacc_date
                     except:
                         if row_index == 0: # due first shot
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['age_due_min'] # FIXME 'age_due_min' not properly retrieved
@@ -937,7 +936,7 @@ class cEMRJournalExporter:
 		target.write(u'=' * (len(txt)-1))
 		target.write('\n')
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
-		target.write(_('Born   : %s, age: %s\n\n') % (patient['dob'].strftime('%Y-%m-%d'), patient.get_medical_age()))
+		target.write(_('Born   : %s, age: %s\n\n') % (patient['dob'].strftime('%x'), patient.get_medical_age()))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Happened'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
@@ -1165,7 +1164,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.129  2008-10-12 15:32:18  ncq
+# Revision 1.130  2008-10-22 12:06:05  ncq
+# - use %x in strftime
+#
+# Revision 1.129  2008/10/12 15:32:18  ncq
 # - support "mod date" in journal
 #
 # Revision 1.128  2008/09/02 18:59:30  ncq

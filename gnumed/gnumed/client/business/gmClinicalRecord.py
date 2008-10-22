@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.272 2008-10-12 15:12:52 ncq Exp $
-__version__ = "$Revision: 1.272 $"
+# $Id: gmClinicalRecord.py,v 1.273 2008-10-22 12:04:21 ncq Exp $
+__version__ = "$Revision: 1.273 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -594,8 +594,12 @@ Test results: %(results)s
 		txt += _(' %s test results\n\n') % stats['results']
 
 		txt += _('Allergies and Intolerances\n\n')
+
 		allg_state = self.allergy_state
-		txt += _(' %s%s\n') % (allg_state.state_string, gmTools.coalesce(allg_state['last_confirmed'], u'', _(' (last confirmed %s)')))
+		txt += (u' ' + allg_state.state_string)
+		if allg_state['last_confirmed'] is not None:
+			txt += (_(' (last confirmed %s)') % allg_state['last_confirmed'].strftime('%x'))
+		txt += u'\n'
 		txt += gmTools.coalesce(allg_state['comment'], u'', u' %s\n')
 		for allg in self.get_allergies():
 			txt += u' %s: %s\n' % (
@@ -1265,7 +1269,7 @@ where
 			pat[1][:15],
 			pat[2][:15],
 			pat[3],
-			pat[4].strftime('%Y-%m-%d'),
+			pat[4].strftime('%x'),
 			self.pk_patient
 		)
 		enc = gmI18N.get_encoding()
@@ -1785,7 +1789,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.272  2008-10-12 15:12:52  ncq
+# Revision 1.273  2008-10-22 12:04:21  ncq
+# - use %x in strftime
+#
+# Revision 1.272  2008/10/12 15:12:52  ncq
 # - adapt to reworked allergy support and adjust test
 # - statistics now says encounters, not visits
 # - improved wording for known problems/clinically relevant
