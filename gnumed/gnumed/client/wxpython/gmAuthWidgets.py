@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.30 2008-10-12 16:06:07 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmAuthWidgets.py,v 1.31 2008-10-22 12:13:09 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -35,6 +35,10 @@ try:
 	_('do-not-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
+
+
+current_db_name = 'gnumed_v10'
+
 
 msg_generic = _("""
 GNUmed database version mismatch.
@@ -94,11 +98,11 @@ There may be schema related errors. Please report and/or
 fix them. Do not rely on this database to work properly
 in all cases !""")
 
-current_db_name = 'gnumed_v9'
 #================================================================
 # convenience functions
 #----------------------------------------------------------------
-def connect_to_database(max_attempts=3, expected_version=None, require_version=True, client_version=u'*** unknown ***'):
+#def connect_to_database(max_attempts=3, expected_version=None, require_version=True, client_version=u'*** unknown ***'):
+def connect_to_database(max_attempts=3, expected_version=None, require_version=True):
 	"""Display the login dialog and try to log into the backend.
 
 	- up to max_attempts times
@@ -106,6 +110,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	"""
 	# force programmer to set a valid expected_version
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
+	client_version = _cfg.get(option = u'client_version')
 
 	attempt = 0
 
@@ -701,7 +706,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.30  2008-10-12 16:06:07  ncq
+# Revision 1.31  2008-10-22 12:13:09  ncq
+# - bump db version
+#
+# Revision 1.30  2008/10/12 16:06:07  ncq
 # - make profile label show db@host
 # - log profile used
 #
