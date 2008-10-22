@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.21 2008-08-20 14:55:33 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmStaffWidgets.py,v 1.22 2008-10-22 12:21:58 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -193,7 +193,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		name = pat.get_active_name()
 		txt = _("""
   %s "%s" %s
-  born: %s""") % (name['firstnames'], name['preferred'], name['lastnames'], pat['dob'].strftime('%Y-%m-%d'))
+  born: %s""") % (name['firstnames'], name['preferred'], name['lastnames'], pat['dob'].strftime('%x'))
 		self._TXT_person.SetValue(txt)
 		txt = name['firstnames'][:2] + name['lastnames'][:2]
 		self._TXT_short_alias.SetValue(txt)
@@ -258,7 +258,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.21  2008-08-20 14:55:33  ncq
+# Revision 1.22  2008-10-22 12:21:58  ncq
+# - use %x in strftime where appropriate
+#
+# Revision 1.21  2008/08/20 14:55:33  ncq
 # - explicitely signal error condition of database
 #   account already being in use for a staff member
 #

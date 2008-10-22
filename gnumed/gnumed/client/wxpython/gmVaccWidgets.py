@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.35 2008-03-06 18:29:30 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmVaccWidgets.py,v 1.36 2008-10-22 12:21:58 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -256,7 +256,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			# FIXME: use previously used value from table ?
 			self.fld_site_given.SetValue(_('left/right deltoid'))
 			if aVacc['overdue']:
-				self.fld_progress_note.SetValue(_('was due: %s, delayed because:') % aVacc['latest_due'].strftime('%Y-%m-%d'))
+				self.fld_progress_note.SetValue(_('was due: %s, delayed because:') % aVacc['latest_due'].strftime('%x'))
 			else:
 				self.fld_progress_note.SetValue('')
 			return True
@@ -548,7 +548,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.35  2008-03-06 18:29:30  ncq
+# Revision 1.36  2008-10-22 12:21:58  ncq
+# - use %x in strftime where appropriate
+#
+# Revision 1.35  2008/03/06 18:29:30  ncq
 # - standard lib logging only
 #
 # Revision 1.34  2008/01/30 14:03:42  ncq

@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.32 2008-08-31 18:21:54 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmMeasurementWidgets.py,v 1.33 2008-10-22 12:21:57 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -86,7 +86,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		else:
 			results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 			txt = u'\n'.join([ '%s %s (%s): %s %s%s' % (
-					r['clin_when'].strftime('%Y-%m-%d %H:%M'),
+					r['clin_when'].strftime('%x %H:%M'),
 					r['unified_code'],
 					r['unified_name'],
 					r['unified_val'],
@@ -738,7 +738,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 						t['unified_code'],
 						t['unified_val'],
 						t['val_unit'],
-						t['clin_when'].strftime('%Y-%m-%d')
+						t['clin_when'].strftime('%x')
 					) for t in tests
 				]
 			)
@@ -1243,7 +1243,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.32  2008-08-31 18:21:54  ncq
+# Revision 1.33  2008-10-22 12:21:57  ncq
+# - use %x in strftime where appropriate
+#
+# Revision 1.32  2008/08/31 18:21:54  ncq
 # - work around Windows' inability to do nothing when
 #   there's nothing to do
 #

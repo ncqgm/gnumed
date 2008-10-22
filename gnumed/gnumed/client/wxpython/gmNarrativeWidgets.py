@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.10 2008-10-12 16:26:20 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmNarrativeWidgets.py,v 1.11 2008-10-22 12:21:57 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time
@@ -206,7 +206,7 @@ class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		self._LCTRL_items.set_columns([_('when'), _('who'), _('type'), _('entry')]) #, _('Episode'), u'', _('Health Issue')])
 		# FIXME: date used should be date of encounter, not date_modified
 		self._LCTRL_items.set_string_items (
-			items = [ [narr['date'].strftime('%Y-%m-%d %H:%M'), narr['provider'], gmClinNarrative.soap_cat2l10n[narr['soap_cat']], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
+			items = [ [narr['date'].strftime('%x %H:%M'), narr['provider'], gmClinNarrative.soap_cat2l10n[narr['soap_cat']], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = narrative)
@@ -289,7 +289,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.10  2008-10-12 16:26:20  ncq
+# Revision 1.11  2008-10-22 12:21:57  ncq
+# - use %x in strftime where appropriate
+#
+# Revision 1.10  2008/10/12 16:26:20  ncq
 # - consultation -> encounter
 #
 # Revision 1.9  2008/09/02 19:01:12  ncq

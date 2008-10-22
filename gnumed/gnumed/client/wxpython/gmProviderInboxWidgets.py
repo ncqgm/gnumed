@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.30 2008-09-04 12:52:23 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmProviderInboxWidgets.py,v 1.31 2008-10-22 12:21:57 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -351,7 +351,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				)
 			]
 
-		self._LCTRL_provider_inbox.set_string_items(items = [ [_indicator[m[0]], m[9].strftime('%Y-%m-%d'), m[1], m[2], m[3]] for m in self.__msgs ])
+		self._LCTRL_provider_inbox.set_string_items(items = [ [_indicator[m[0]], m[9].strftime('%x'), m[1], m[2], m[3]] for m in self.__msgs ])
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
 	#--------------------------------------------------------
@@ -485,7 +485,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.30  2008-09-04 12:52:23  ncq
+# Revision 1.31  2008-10-22 12:21:57  ncq
+# - use %x in strftime where appropriate
+#
+# Revision 1.30  2008/09/04 12:52:23  ncq
 # - display received_when for incoming messages
 #
 # Revision 1.29  2008/07/13 16:14:59  ncq

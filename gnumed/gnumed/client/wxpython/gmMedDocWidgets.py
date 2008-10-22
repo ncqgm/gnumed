@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.167 2008-10-12 16:23:19 ncq Exp $
-__version__ = "$Revision: 1.167 $"
+# $Id: gmMedDocWidgets.py,v 1.168 2008-10-22 12:21:57 ncq Exp $
+__version__ = "$Revision: 1.168 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -391,7 +391,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItemTextColour(row_num, col=wx.BLUE)
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=review_by_responsible_doc[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].strftime('%Y-%m-%d %H:%M'))
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].strftime('%x %H:%M'))
 			if review_by_responsible_doc['is_technically_abnormal']:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label=u'X')
 			if review_by_responsible_doc['clinically_relevant']:
@@ -401,7 +401,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		for rev in reviews_by_others:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=rev[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=rev[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].strftime('%Y-%m-%d %H:%M'))
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].strftime('%x %H:%M'))
 			if rev['is_technically_abnormal']:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label=u'X')
 			if rev['clinically_relevant']:
@@ -1454,7 +1454,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		try:
 			desc_menu.Destroy()
 		# the C++ object has been observed to have been destroyed already
-		except PyDeadObjectError:
+		except wx._core.PyDeadObjectError:
 			pass
 	#--------------------------------------------------------
 	def __handle_part_context(self):
@@ -1845,7 +1845,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.167  2008-10-12 16:23:19  ncq
+# Revision 1.168  2008-10-22 12:21:57  ncq
+# - use %x in strftime where appropriate
+#
+# Revision 1.167  2008/10/12 16:23:19  ncq
 # - consultation -> encounter
 # - adjust to changed review view
 #
