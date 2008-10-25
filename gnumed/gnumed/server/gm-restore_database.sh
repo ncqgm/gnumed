@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-restore_database.sh,v $
-# $Id: gm-restore_database.sh,v 1.3 2008-10-16 09:18:51 ncq Exp $
+# $Id: gm-restore_database.sh,v 1.4 2008-10-25 20:41:04 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -26,11 +26,10 @@ fi
 
 
 echo ""
-echo "==> Trying to restore GNUmed backup ..."
+echo "==> Trying to restore a GNUmed backup ..."
 echo "    file: ${BACKUP}"
 if test ! -r ${BACKUP} ; then
-	echo "    ERROR: Cannot read backup file:"
-	echo " ${BACKUP}"
+	echo "    ERROR: Cannot access backup file. Aborting."
 	exit 1
 fi
 
@@ -38,7 +37,6 @@ fi
 echo ""
 echo "==> Reading configuration ..."
 CONF="/etc/gnumed/gnumed-restore.conf"
-echo "    file: $CONF"
 if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
@@ -52,7 +50,7 @@ if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
 	echo "==> Testing backup file integrity ..."
 	bzip2 -tvv $BACKUP
 	if test $? -ne 0 ; then
-		echo "    ERROR: integrity check failed, aborting"
+		echo "    ERROR: Integrity check failed. Aborting."
 		exit 1
 	fi
 fi
@@ -62,22 +60,41 @@ echo ""
 echo "==> Setting up workspace ..."
 TS=`date +%Y-%m-%d-%H-%M-%S`
 WORK_DIR="${WORK_DIR_BASE}/gm-restore-${TS}/"
-mkdir -p -v ${WORK_DIR}
+echo "    ${WORK_DIR}"
+mkdir -p ${WORK_DIR}
+if test $? -ne 0 ; then
+	echo "    ERROR: Cannot create workspace. Aborting."
+	exit 1
+fi
 cd ${WORK_DIR}
 
 
 echo ""
 echo "==> Creating copy of backup file ..."
 cp -v ${BACKUP} ${WORK_DIR}
+if test $? -ne 0 ; then
+	echo "    ERROR: Cannot copy backup file. Aborting."
+	exit 1
+fi
 
 
 echo ""
 echo "==> Unpacking backup file ..."
-BACKUP=${WORK_DIR}/${BACKUP}
+BACKUP=${WORK_DIR}/`basename ${BACKUP}`
 if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
 	bunzip2 -vv ${BACKUP}
+	if test $? -ne 0 ; then
+		echo "    ERROR: Cannot unpack (bzip2) backup file. Aborting."
+		exit 1
+	fi
+	BACKUP=`basename ${BACKUP} .bz2`
 fi
 tar -xvvf ${BACKUP}
+if test $? -ne 0 ; then
+	echo "    ERROR: Cannot unpack (tar) backup file. Aborting."
+	exit 1
+fi
+BACKUP=`basename ${BACKUP} .tar`
 
 
 echo ""
@@ -96,11 +113,11 @@ echo ""
 TARGET_DB=`head -n 40 ${BACKUP}-database.sql | grep -i "create database gnumed_v" | cut -f 3 -d " "`
 echo "==> Checking for existence of target database ${TARGET_DB} ..."
 if test -z ${TARGET_DB} ; then
-	echo "    ERROR: backup does not create target database, aborting"
+	echo "    ERROR: Backup does not create target database. Aborting."
 	exit 1
 fi
 if test `sudo -u postgres psql -l | grep ${TARGET_DB} | wc -l` -ne 0 ; then
-	echo "    ERROR: database ${TARGET_DB} already exists, aborting"
+	echo "    ERROR: Database ${TARGET_DB} already exists. Aborting."
 	exit 1
 fi
 
@@ -111,7 +128,7 @@ LOG="${LOG_BASE}/restoring-roles-${TS}.log"
 # FIXME: when 8.2 becomes standard use --single-transaction
 sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-roles.sql &> ${LOG}
 if test $? -ne 0 ; then
-	echo "    ERROR: failed to restore roles, aborting"
+	echo "    ERROR: Failed to restore roles. Aborting."
 	echo "           see: ${LOG}"
 	sudo -u postgres chmod 0666 ${LOG}
 	exit 1
@@ -125,7 +142,7 @@ LOG="${LOG_BASE}/restoring-database-${TS}.log"
 # FIXME: when 8.2 becomes standard use --single-transaction
 sudo -u postgres psql -p ${GM_PORT} -f ${BACKUP}-database.sql &> ${LOG}
 if test $? -ne 0 ; then
-	echo "    ERROR: failed to restore database, aborting"
+	echo "    ERROR: failed to restore database. Aborting."
 	echo "           see: ${LOG}"
 	sudo -u postgres chmod 0666 ${LOG}
 	exit 1
@@ -154,7 +171,11 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_database.sh,v $
-# Revision 1.3  2008-10-16 09:18:51  ncq
+# Revision 1.4  2008-10-25 20:41:04  ncq
+# - cleanup, better wording and error checking
+# - fix path problem after unbzip2/untar based on Rogerios report
+#
+# Revision 1.3  2008/10/16 09:18:51  ncq
 # - only optionally unpack the backup if it ends in .bz2
 #
 # Revision 1.2  2007/12/02 11:48:24  ncq
