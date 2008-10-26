@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.273 2008-10-22 12:04:21 ncq Exp $
-__version__ = "$Revision: 1.273 $"
+# $Id: gmClinicalRecord.py,v 1.274 2008-10-26 01:21:22 ncq Exp $
+__version__ = "$Revision: 1.274 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -226,12 +226,29 @@ select fk_encounter from
 		search_term = search_term.strip()
 		if search_term == '':
 			return False
-		cmd = """
-select * from clin.v_narrative4search vn4s
+		cmd = u"""
+select
+	*,
+	coalesce((select description from clin.episode where pk = vn4s.pk_episode), vn4s.src_table)
+		as episode,
+	coalesce((select description from clin.health_issue where pk = vn4s.pk_health_issue), vn4s.src_table)
+		as health_issue,
+	(select started from clin.encounter where pk = vn4s.pk_encounter)
+		as encounter_started,
+	(select last_affirmed from clin.encounter where pk = vn4s.pk_encounter)
+		as encounter_ended,
+	(select _(description) from clin.encounter_type where pk = (select fk_type from clin.encounter where pk = vn4s.pk_encounter))
+		as encounter_type
+from clin.v_narrative4search vn4s
 where
-	pk_patient = %s and
-	vn4s.narrative ~ %s"""		# case sensitive
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, search_term]}])
+	pk_patient = %(pat)s and
+	vn4s.narrative ~ %(term)s
+order by
+	encounter_started
+"""		# case sensitive
+		rows, idx = gmPG2.run_ro_queries(queries = [
+			{'cmd': cmd, 'args': {'pat': self.pk_patient, 'term': search_term}}
+		])
 		return rows
 	#--------------------------------------------------------
 	def get_text_dump_old(self):
@@ -1789,7 +1806,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.273  2008-10-22 12:04:21  ncq
+# Revision 1.274  2008-10-26 01:21:22  ncq
+# - improve EMR search result
+#
+# Revision 1.273  2008/10/22 12:04:21  ncq
 # - use %x in strftime
 #
 # Revision 1.272  2008/10/12 15:12:52  ncq
