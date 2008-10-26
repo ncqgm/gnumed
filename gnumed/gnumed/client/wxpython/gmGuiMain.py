@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.431 2008-10-22 12:20:32 ncq Exp $
-__version__ = "$Revision: 1.431 $"
+# $Id: gmGuiMain.py,v 1.432 2008-10-26 01:22:30 ncq Exp $
+__version__ = "$Revision: 1.432 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1955,43 +1955,7 @@ class gmTopLevelFrame(wx.Frame):
 		return True
 	#----------------------------------------------
 	def __on_search_emr(self, event):
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot search EMR. No active patient.'))
-			return False
-
-		searcher = wx.TextEntryDialog (
-			parent = self,
-			message = _('Enter search term:'),
-			caption = _('Text search of entire EMR'),
-			style = wx.OK | wx.CANCEL | wx.CENTRE,
-			pos = wx.DefaultPosition
-		)
-		result = searcher.ShowModal()
-		if result == wx.ID_OK:
-			val = searcher.GetValue()
-			wx.BeginBusyCursor()
-			emr = pat.get_emr()
-			rows = emr.search_narrative_simple(val)
-			wx.EndBusyCursor()
-			txt = ''
-			for row in rows:
-				txt += '%s - %s\n%s\n\n' % (row[1], row[4], row[2])
-			msg = _(
-"""Search term was: "%s"
-
-Search results:
-%s
-""") % (val, txt)
-			dlg = wx.MessageDialog (
-				parent = None,
-				message = msg,
-				caption = _('search results'),
-				style = wx.OK | wx.STAY_ON_TOP
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return True
+		return gmNarrativeWidgets.search_narrative_in_emr(parent=self)
 	#----------------------------------------------
 	def __on_export_emr_as_journal(self, event):
 		# sanity checks
@@ -2729,7 +2693,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.431  2008-10-22 12:20:32  ncq
+# Revision 1.432  2008-10-26 01:22:30  ncq
+# - factor out searching EMR for narrative
+#
+# Revision 1.431  2008/10/22 12:20:32  ncq
 # - version handling for client, branch and db is now handled
 #   in gnumed.py and gmPG2.py
 #

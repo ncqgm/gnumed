@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.11 2008-10-22 12:21:57 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmNarrativeWidgets.py,v 1.12 2008-10-26 01:21:52 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time
@@ -24,6 +24,75 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #============================================================
 # narrative related widgets/functions
+#------------------------------------------------------------
+def search_narrative_in_emr(parent=None, patient=None):
+
+	# sanity checks
+	if patient is None:
+		patient = gmPerson.gmCurrentPatient()
+
+	if not patient.connected:
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot search EMR. No active patient.'))
+		return False
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	searcher = wx.TextEntryDialog (
+		parent = parent,
+		message = _('Enter search term:'),
+		caption = _('Text search of entire EMR of active patient'),
+		style = wx.OK | wx.CANCEL | wx.CENTRE
+	)
+	result = searcher.ShowModal()
+
+	if result == wx.ID_OK:
+
+		wx.BeginBusyCursor()
+		val = searcher.GetValue()
+		emr = patient.get_emr()
+		rows = emr.search_narrative_simple(val)
+		wx.EndBusyCursor()
+
+		txt = u''
+		for row in rows:
+			txt += u'%s: %s\n' % (
+				row['soap_cat'],
+				row['narrative']
+			)
+
+			txt += u' %s: %s - %s %s\n' % (
+				_('Encounter'),
+				row['encounter_started'].strftime('%x %H:%M'),
+				row['encounter_ended'].strftime('%H:%M'),
+				row['encounter_type']
+			)
+			txt += u' %s: %s\n' % (
+				_('Episode'),
+				row['episode']
+			)
+			txt += u' %s: %s\n\n' % (
+				_('Health issue'),
+				row['health_issue']
+			)
+
+		msg = _(
+			'Search term was: "%s"\n'
+			'\n'
+			'Search results:\n\n'
+			'%s\n'
+		) % (val, txt)
+
+		dlg = wx.MessageDialog (
+			parent = parent,
+			message = msg,
+			caption = _('search results'),
+			style = wx.OK | wx.STAY_ON_TOP
+		)
+
+		dlg.ShowModal()
+		dlg.Destroy()
+		return True
 #------------------------------------------------------------
 def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encounter=None):
 
@@ -289,7 +358,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.11  2008-10-22 12:21:57  ncq
+# Revision 1.12  2008-10-26 01:21:52  ncq
+# - factor out searching EMR for narrative
+#
+# Revision 1.11  2008/10/22 12:21:57  ncq
 # - use %x in strftime where appropriate
 #
 # Revision 1.10  2008/10/12 16:26:20  ncq
