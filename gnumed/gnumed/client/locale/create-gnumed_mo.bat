@@ -1,10 +1,12 @@
 @echo off
+set DRIVE_LTR=%~d0
+cd /d %~dp0
 
 echo generate a gnumed.mo file from a translated $LANG.po file
 echo first arg has to be ISO language code
 
 rem $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_mo.bat,v $
-rem $Revision: 1.1 $
+rem $Revision: 1.2 $
 
 SET LANGNAME=%1
 SET MOFILE=%LANGNAME%-gnumed.mo
