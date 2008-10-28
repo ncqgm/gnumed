@@ -3,10 +3,10 @@
 --
 -- License: GPL
 -- Author: karsten.hilbert@gmx.net
--- 
+--
 -- ==============================================================
--- $Id: v9-i18n-dynamic.sql,v 1.1.2.2 2008-10-22 22:02:02 ncq Exp $
--- $Revision: 1.1.2.2 $
+-- $Id: v9-i18n-dynamic.sql,v 1.1.2.3 2008-10-28 12:35:03 ncq Exp $
+-- $Revision: 1.1.2.3 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -79,7 +79,7 @@ create or replace function i18n.get_curr_lang(text)
 create or replace function i18n.get_curr_lang()
 	returns text
 	language sql
-	as 'select i18n.get_curr_lang(quote_literal(CURRENT_USER))'
+	as 'select i18n.get_curr_lang(CURRENT_USER)'
 ;
 
 -- =============================================
@@ -121,11 +121,14 @@ comment on function i18n._(text) is
 	 created in public schema for easy access';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.1.2.2 $');
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.1.2.3 $');
 
 -- ==============================================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.1.2.2  2008-10-22 22:02:02  ncq
+-- Revision 1.1.2.3  2008-10-28 12:35:03  ncq
+-- - still wasn't quite right
+--
+-- Revision 1.1.2.2  2008/10/22 22:02:02  ncq
 -- - properly fix the i18n handling
 --
 -- Revision 1.1.2.1  2008/10/12 17:00:12  ncq
