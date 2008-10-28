@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.65 2008-08-20 13:53:57 ncq Exp $
+# $Id: gmTools.py,v 1.65.2.1 2008-10-28 13:58:18 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.65.2.1 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -58,7 +58,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	Returns (bool, text).
 	True: new release available
-	False: up to data
+	False: up to date
 	None: don't know
 	"""
 	try:
@@ -100,13 +100,13 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	# up to date ?
 	if not consider_latest_branch:
-		if current_version <= latest_release_on_current_branch:
+		if current_version >= latest_release_on_current_branch:
 			return (False, None)
 	else:
-		if current_version <= latest_release_on_latest_branch:
+		if current_version >= latest_release_on_latest_branch:
 			return (False, None)
 		if latest_release_on_latest_branch is None:
-			if current_version <= latest_release_on_current_branch:
+			if current_version >= latest_release_on_current_branch:
 				return (False, None)
 
 	current_branch_release_available = (
@@ -899,7 +899,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.65  2008-08-20 13:53:57  ncq
+# Revision 1.65.2.1  2008-10-28 13:58:18  ncq
+# - fix logic reversal when detecting new client version
+#
+# Revision 1.65  2008/08/20 13:53:57  ncq
 # - add some coalesce tests
 #
 # Revision 1.64  2008/07/28 15:43:35  ncq
