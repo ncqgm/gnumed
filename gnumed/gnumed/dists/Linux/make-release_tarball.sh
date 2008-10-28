@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.52.2.5 2008-10-24 14:12:50 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.52.2.6 2008-10-28 12:36:11 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.3.4"
@@ -322,9 +322,11 @@ cp -R ../../server/sql/v7-v8/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/s
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/fixups
 
 cp -R ../../server/sql/v8-v9/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
 cp -R ../../server/sql/v8-v9/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
+cp -R ../../server/sql/v8-v9/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/fixups
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -362,7 +364,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.52.2.5  2008-10-24 14:12:50  ncq
+# Revision 1.52.2.6  2008-10-28 12:36:11  ncq
+# - include sql/fixups/ for 8-9 as reported by Rogerio
+#
+# Revision 1.52.2.5  2008/10/24 14:12:50  ncq
 # - bump version
 #
 # Revision 1.52.2.4  2008/10/15 15:39:55  ncq
