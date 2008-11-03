@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_data.sh,v $
-# $Id: gm-backup_data.sh,v 1.5 2008-08-01 10:34:21 ncq Exp $
+# $Id: gm-backup_data.sh,v 1.6 2008-11-03 10:31:06 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -48,9 +48,11 @@ else
 	exit 1
 fi
 
+
 TS=`date +%Y-%m-%d-%H-%M-%S`
 BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"`hostname`
 BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
+
 
 cd ${BACKUP_DIR}
 if test "$?" != "0" ; then
@@ -58,8 +60,10 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 
-# local only
+
+# data only
 pg_dump --data-only -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql 2> /dev/null
+
 
 # tar and test it
 if test -z ${VERIFY_TAR} ; then
@@ -67,12 +71,12 @@ if test -z ${VERIFY_TAR} ; then
 else
 	tar -cWf ${BACKUP_FILENAME}-data_only.tar ${BACKUP_FILENAME}-data_only.sql
 fi ;
-
 if test "$?" != "0" ; then
 	echo "Creating backup tar archive [${BACKUP_FILENAME}-data_only.tar] failed. Aborting."
 	exit 1
 fi
 rm -f ${BACKUP_FILENAME}-data_only.sql
+
 
 chown ${BACKUP_OWNER} ${BACKUP_FILENAME}-data_only.tar
 
@@ -80,7 +84,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_data.sh,v $
-# Revision 1.5  2008-08-01 10:34:21  ncq
+# Revision 1.6  2008-11-03 10:31:06  ncq
+# - wording fix
+#
+# Revision 1.5  2008/08/01 10:34:21  ncq
 # - /bin/sh -> /bin/bash
 #
 # Revision 1.4  2007/12/08 15:23:14  ncq
