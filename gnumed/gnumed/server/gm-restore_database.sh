@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-restore_database.sh,v $
-# $Id: gm-restore_database.sh,v 1.4 2008-10-25 20:41:04 ncq Exp $
+# $Id: gm-restore_database.sh,v 1.5 2008-11-03 10:30:40 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -48,9 +48,11 @@ fi
 if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
 	echo ""
 	echo "==> Testing backup file integrity ..."
-	bzip2 -tvv $BACKUP
+	bzip2 -tv $BACKUP
 	if test $? -ne 0 ; then
 		echo "    ERROR: Integrity check failed. Aborting."
+		echo ""
+		echo "    You may want to try recovering data with bzip2recover."
 		exit 1
 	fi
 fi
@@ -82,7 +84,7 @@ echo ""
 echo "==> Unpacking backup file ..."
 BACKUP=${WORK_DIR}/`basename ${BACKUP}`
 if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
-	bunzip2 -vv ${BACKUP}
+	bunzip2 -v ${BACKUP}
 	if test $? -ne 0 ; then
 		echo "    ERROR: Cannot unpack (bzip2) backup file. Aborting."
 		exit 1
@@ -110,14 +112,18 @@ editor ${BACKUP}-roles.sql
 
 
 echo ""
+echo "==> Checking target database status ..."
 TARGET_DB=`head -n 40 ${BACKUP}-database.sql | grep -i "create database gnumed_v" | cut -f 3 -d " "`
-echo "==> Checking for existence of target database ${TARGET_DB} ..."
+if test $? -ne 0 ; then
+	echo "    ERROR: Cannot determine target database from backup file. Aborting."
+	exit 1
+fi
 if test -z ${TARGET_DB} ; then
-	echo "    ERROR: Backup does not create target database. Aborting."
+	echo "    ERROR: Backup does not create target database ${TARGET_DB}. Aborting."
 	exit 1
 fi
 if test `sudo -u postgres psql -l | grep ${TARGET_DB} | wc -l` -ne 0 ; then
-	echo "    ERROR: Database ${TARGET_DB} already exists. Aborting."
+	echo "    ERROR: Target database ${TARGET_DB} already exists. Aborting."
 	exit 1
 fi
 
@@ -171,7 +177,12 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_database.sh,v $
-# Revision 1.4  2008-10-25 20:41:04  ncq
+# Revision 1.5  2008-11-03 10:30:40  ncq
+# - slightly less gossipy
+# - improved wording
+# - better error checking
+#
+# Revision 1.4  2008/10/25 20:41:04  ncq
 # - cleanup, better wording and error checking
 # - fix path problem after unbzip2/untar based on Rogerios report
 #
