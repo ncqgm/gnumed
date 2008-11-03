@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-adjust_db_settings.sh,v $
-# $Id: gm-adjust_db_settings.sh,v 1.1 2008-11-03 11:15:56 ncq Exp $
+# $Id: gm-adjust_db_settings.sh,v 1.2 2008-11-03 11:19:28 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -35,7 +35,7 @@ echo "=> Creating adjustment script ..."
 echo "    ${SQL_FILE}"
 
 echo "-- GNUmed database settings adjustment script" > $SQL_FILE
-echo "-- \$Id: gm-adjust_db_settings.sh,v 1.1 2008-11-03 11:15:56 ncq Exp $" >> $SQL_FILE
+echo "-- \$Id: gm-adjust_db_settings.sh,v 1.2 2008-11-03 11:19:28 ncq Exp $" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
 echo "" >> $SQL_FILE
@@ -56,7 +56,7 @@ echo "-- cannot be changed now (?):" >> $SQL_FILE
 echo "-- alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
 echo "-- alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.1 $');" >> $SQL_FILE
+echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.2 $');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 
@@ -74,12 +74,13 @@ fi
 chmod 0666 ${LOG}
 rm ${SQL_FILE}
 
+
 echo "You will now have to take one of the following actions"
 echo "to make PostgreSQL recognize some of the changes:"
 echo ""
 echo "- run /etc/init.d/postgresql reload (adjust to version)"
-echo "- run pg_ctlcluster"
-echo "- run pg_ctl"
+echo "- run pg_ctlcluster <version> <name> reload"
+echo "- run pg_ctl reload"
 echo "- stop and restart postgres"
 echo "- SIGHUP the server process"
 echo "- reboot the machine"
@@ -87,7 +88,10 @@ echo ""
 
 #==============================================================
 # $Log: gm-adjust_db_settings.sh,v $
-# Revision 1.1  2008-11-03 11:15:56  ncq
+# Revision 1.2  2008-11-03 11:19:28  ncq
+# - improved instructions
+#
+# Revision 1.1  2008/11/03 11:15:56  ncq
 # - new script to adjust db settings
 #
 #
