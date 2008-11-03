@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.15 2007-12-08 15:23:14 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.16 2008-11-03 10:29:57 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -44,6 +44,7 @@ else
 	exit 1
 fi
 
+
 TS=`date +%Y-%m-%d-%H-%M-%S`
 if test -z ${GM_HOST} ; then
 	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"`hostname`
@@ -52,11 +53,13 @@ else
 fi ;
 BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
+
 cd ${BACKUP_DIR}
 if test "$?" != "0" ; then
 	echo "Cannot change into backup directory [${BACKUP_DIR}]. Aborting."
 	exit 1
 fi
+
 
 # create dumps
 if test -z ${GM_HOST} ; then
@@ -74,13 +77,13 @@ else
 	fi ;
 fi ;
 
+
 # tar and test it
 if test -z ${VERIFY_TAR} ; then
 	tar -cf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
 else
 	tar -cWf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
 fi ;
-
 if test "$?" != "0" ; then
 	echo "Creating backup tar archive [${BACKUP_FILENAME}.tar] failed. Aborting."
 	exit 1
@@ -88,13 +91,17 @@ fi
 rm -f ${BACKUP_FILENAME}-database.sql
 rm -f ${BACKUP_FILENAME}-roles.sql
 
+
 chown ${BACKUP_OWNER} ${BACKUP_FILENAME}.tar
 
 exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.15  2007-12-08 15:23:14  ncq
+# Revision 1.16  2008-11-03 10:29:57  ncq
+# - cleanup
+#
+# Revision 1.15  2007/12/08 15:23:14  ncq
 # - minor cleanup
 #
 # Revision 1.14  2007/10/25 12:27:46  ncq
