@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.274 2008-10-26 01:21:22 ncq Exp $
-__version__ = "$Revision: 1.274 $"
+# $Id: gmClinicalRecord.py,v 1.275 2008-11-03 10:27:41 ncq Exp $
+__version__ = "$Revision: 1.275 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -938,7 +938,6 @@ where
 	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue."""
 		success, issue = gmEMRStructItems.create_health_issue (
-			patient_id = self.pk_patient,
 			description = issue_name,
 			encounter = self.__encounter['pk_encounter']
 		)
@@ -1806,7 +1805,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.274  2008-10-26 01:21:22  ncq
+# Revision 1.275  2008-11-03 10:27:41  ncq
+# - no more patient_id in create_health_issue
+#
+# Revision 1.274  2008/10/26 01:21:22  ncq
 # - improve EMR search result
 #
 # Revision 1.273  2008/10/22 12:04:21  ncq
