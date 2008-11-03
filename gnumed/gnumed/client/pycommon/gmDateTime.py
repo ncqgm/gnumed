@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.22 2008-10-22 12:07:28 ncq Exp $
+# $Id: gmDateTime.py,v 1.23 2008-11-03 10:28:03 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -144,9 +144,9 @@ def init():
 		_log.debug(msg % (' not ', time.timezone * -1, time.altzone * -1))
 
 	if current_local_utc_offset_in_seconds > 0:
-		_log.debug('UTC offset is positive, assuming EAST of Greenwich ("clock is ahead")')
+		_log.debug('UTC offset is positive, assuming EAST of Greenwich (clock is "ahead")')
 	elif current_local_utc_offset_in_seconds < 0:
-		_log.debug('UTC offset is negative, assuming WEST of Greenwich ("clock is behind")')
+		_log.debug('UTC offset is negative, assuming WEST of Greenwich (clock is "behind")')
 	else:
 		_log.debug('UTC offset is ZERO, assuming Greenwich Time')
 
@@ -985,7 +985,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.22  2008-10-22 12:07:28  ncq
+# Revision 1.23  2008-11-03 10:28:03  ncq
+# - improved wording
+#
+# Revision 1.22  2008/10/22 12:07:28  ncq
 # - log mx.DateTime version
 # - use %x in strftime
 #
