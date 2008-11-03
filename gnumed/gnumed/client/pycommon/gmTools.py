@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.68 2008-10-12 15:48:33 ncq Exp $
+# $Id: gmTools.py,v 1.69 2008-11-03 10:28:55 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -58,7 +58,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	Returns (bool, text).
 	True: new release available
-	False: up to data
+	False: up to date
 	None: don't know
 	"""
 	try:
@@ -95,26 +95,33 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		)
 	)
 	if no_release_information_available:
+		_log.warning('no release information available')
 		msg = _('There is no version information available from:\n\n%s') % url
 		return (None, msg)
 
 	# up to date ?
-	if not consider_latest_branch:
-		if current_version <= latest_release_on_current_branch:
-			return (False, None)
-	else:
-		if current_version <= latest_release_on_latest_branch:
+	if consider_latest_branch:
+		_log('latest branch taken into account')
+		if current_version >= latest_release_on_latest_branch:
+			_log.debug('up to date: current version >= latest version on latest branch')
 			return (False, None)
 		if latest_release_on_latest_branch is None:
-			if current_version <= latest_release_on_current_branch:
+			if current_version >= latest_release_on_current_branch:
+				_log.debug('up to date: current version >= latest version on current branch and no latest branch available')
 				return (False, None)
+	else:
+		_log('latest branch not taken into account')
+		if current_version >= latest_release_on_current_branch:
+			_log.debug('up to date: current version >= latest version on current branch')
+			return (False, None)
 
-	current_branch_release_available = (
+	new_release_on_current_branch_available = (
 		(latest_release_on_current_branch is not None) and
 		(latest_release_on_current_branch > current_version)
 	)
+	_log.info('%snew release on current branch available', bool2str(new_release_on_current_branch_available, '', 'no '))
 
-	latest_branch_release_available = (
+	new_release_on_latest_branch_available = (
 		(latest_branch is not None)
 			and
 		(
@@ -124,24 +131,33 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 			)
 		)
 	)
+	_log.info('%snew release on latest branch available', bool2str(new_release_on_latest_branch_available, '', 'no '))
 
-	if not (current_branch_release_available or latest_branch_release_available):
+	if not (new_release_on_current_branch_available or new_release_on_latest_branch_available):
+		_log.debug('up to date: no new releases available')
 		return (False, None)
 
 	# not up to date
 	msg = _('A new version of GNUmed is available.\n\n')
-	msg += _(' Your version: "%s"\n') % current_version
+	msg += _(' Your current version: "%s"\n') % current_version
 	if consider_latest_branch:
-		if current_branch_release_available:
-			msg += _(' New version: "%s"\n') % latest_release_on_current_branch
+		if new_release_on_current_branch_available:
+			msg += u'\n'
+			msg += _(' New version: "%s"') % latest_release_on_current_branch
+			msg += u'\n'
 			msg += _(' - bug fixes only\n')
 			msg += _(' - no database upgrade needed\n')
-		if latest_branch_release_available:
-			msg += _(' New version: "%s"\n') % latest_release_on_latest_branch
-			msg += _(' - bug fixes and new features\n')
-			msg += _(' - database upgrade required\n')
+		if new_release_on_latest_branch_available:
+			if current_branch != latest_branch:
+				msg += u'\n'
+				msg += _(' New version: "%s"') % latest_release_on_latest_branch
+				msg += u'\n'
+				msg += _(' - bug fixes and new features\n')
+				msg += _(' - database upgrade required\n')
 	else:
-		msg += _(' New version: "%s"\n') % latest_release_on_current_branch
+		msg += u'\n'
+		msg += _(' New version: "%s"') % latest_release_on_current_branch
+		msg += u'\n'
 		msg += _(' - bug fixes only\n')
 		msg += _(' - no database upgrade needed\n')
 
@@ -899,7 +915,12 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.68  2008-10-12 15:48:33  ncq
+# Revision 1.69  2008-11-03 10:28:55  ncq
+# - check_for_update
+#   - improved logging and wording
+#   - logic reversal fix
+#
+# Revision 1.68  2008/10/12 15:48:33  ncq
 # - improved wording when checking for updates
 #
 # Revision 1.67  2008/08/31 16:13:15  ncq
