@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.153 2008-08-15 16:01:06 ncq Exp $
-__version__ = "$Revision: 1.153 $"
+# $Id: gmDemographicsWidgets.py,v 1.153.2.1 2008-11-10 22:23:00 ncq Exp $
+__version__ = "$Revision: 1.153.2.1 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2049,7 +2049,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			_pnl_form.PRW_gender.Refresh()
 
 		# dob validation
-		if not _pnl_form.PRW_dob.is_valid_timestamp():
+		if (_pnl_form.PRW_dob.GetValue().strip() == u'') or (not _pnl_form.PRW_dob.is_valid_timestamp()):
 			error = True
 			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.PRW_dob.GetValue()
 			gmDispatcher.send(signal = 'statustext', msg = msg)
@@ -2058,7 +2058,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		else:
 			_pnl_form.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			_pnl_form.PRW_dob.Refresh()
-		
+
 		# address
 		is_any_field_filled = False
 		address_fields = (
@@ -2685,7 +2685,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.153  2008-08-15 16:01:06  ncq
+# Revision 1.153.2.1  2008-11-10 22:23:00  ncq
+# - disallow empty DOB in new pat wizard
+#
+# Revision 1.153  2008/08/15 16:01:06  ncq
 # - start managing provinces
 # - orange-mark address fields in wizard
 # - better save error handling in wizard
