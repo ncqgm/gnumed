@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.87.2.2 $"
+__version__ = "$Revision: 1.87.2.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -239,9 +239,10 @@ def __detect_client_timezone(conn=None):
 
 	tz_candidates = []
 	try:
-		tz_candidates.append(os.environ['TZ'])
-		expanded = __expand_timezone(conn = conn, timezone = os.environ['TZ'])
-		if expanded != os.environ['TZ']:
+		tz = os.environ['TZ'].decode(gmI18n.get_encoding(), 'replace')
+		tz_candidates.append(tz)
+		expanded = __expand_timezone(conn = conn, timezone = tz)
+		if expanded != tz:
 			tz_candidates.append(expanded)
 	except KeyError:
 		pass
@@ -1590,7 +1591,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.87.2.2  2008-10-16 19:21:21  ncq
+# Revision 1.87.2.3  2008-11-11 21:01:42  ncq
+# - need to decode $TZ
+#
+# Revision 1.87.2.2  2008/10/16 19:21:21  ncq
 # - properly log cursor.description
 #
 # Revision 1.87.2.1  2008/10/16 17:25:41  ncq
