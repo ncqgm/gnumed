@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.7 2008-10-22 12:25:23 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.8 2008-11-17 23:15:02 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
@@ -31,7 +31,7 @@ echo "================================================"
 echo "This GNUmed helper will download and install the"
 echo "latest GNUmed server onto your ${SYS_TYPE} machine."
 echo ""
-echo "It will also take care to also install the"
+echo "It will also take care of installing the"
 echo "dependancies needed to operate GNUmed smoothly."
 echo "================================================"
 
@@ -82,7 +82,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.7  2008-10-22 12:25:23  ncq
+# Revision 1.8  2008-11-17 23:15:02  ncq
+# - better wording
+#
+# Revision 1.7  2008/10/22 12:25:23  ncq
 # - lsb_release
 #
 # Revision 1.6  2008/08/01 10:38:25  ncq
