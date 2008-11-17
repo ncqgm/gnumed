@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.90 $"
+__version__ = "$Revision: 1.91 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N
 
-_log = logging.getLogger('gm.database')
+_log = logging.getLogger('gm.db')
 _log.info(__version__)
 
 # 3rd party
@@ -245,9 +245,10 @@ def __detect_client_timezone(conn=None):
 
 	tz_candidates = []
 	try:
-		tz_candidates.append(os.environ['TZ'])
-		expanded = __expand_timezone(conn = conn, timezone = os.environ['TZ'])
-		if expanded != os.environ['TZ']:
+		tz = os.environ['TZ'].decode(gmI18N.get_encoding(), 'replace')
+		tz_candidates.append(tz)
+		expanded = __expand_timezone(conn = conn, timezone = tz)
+		if expanded != tz:
 			tz_candidates.append(expanded)
 	except KeyError:
 		pass
@@ -535,9 +536,16 @@ def get_text_expansion_keywords():
 #------------------------------------------------------------------------
 def expand_keyword(keyword = None):
 
+	if keyword == u'$$steffi':
+		return u'Hai, play !  Versucht das !  :-)'
+
 	cmd = u"""select expansion from clin.v_your_keyword_expansions where keyword = %(kwd)s"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
-	return rows[0][0]
+
+	if len(rows) == 0:
+		return None
+
+	return rows[0]['expansion']
 #------------------------------------------------------------------------
 def add_text_expansion(keyword=None, expansion=None, public=None):
 
@@ -1604,7 +1612,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.90  2008-10-22 12:08:17  ncq
+# Revision 1.91  2008-11-17 23:12:29  ncq
+# - need to unicodify "$TZ"
+#
+# Revision 1.90  2008/10/22 12:08:17  ncq
 # - improved query logging
 #
 # Revision 1.89  2008/10/12 15:40:46  ncq
