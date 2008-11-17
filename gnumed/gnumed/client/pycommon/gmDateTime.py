@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.23 2008-11-03 10:28:03 ncq Exp $
+# $Id: gmDateTime.py,v 1.24 2008-11-17 23:11:38 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -65,6 +65,8 @@ current_local_utc_offset_in_seconds = None
 current_local_timezone_interval = None
 current_local_iso_numeric_timezone_string = None
 current_local_timezone_name = None
+py_timezone_name = None
+py_dst_timezone_name = None
 
 cLocalTimezone = psycopg2.tz.LocalTimezone					# remove as soon as datetime supports timezone classes
 cFixedOffsetTimezone = psycopg2.tz.FixedOffsetTimezone		# remove as soon as datetime supports timezone classes
@@ -124,6 +126,12 @@ def init():
 	_log.debug('time.tzname  : [%s / %s] (non-DST / DST)' % time.tzname)
 	_log.debug('mx.DateTime.now().gmtoffset(): [%s]' % mxDT.now().gmtoffset())
 
+	global py_timezone_name
+	py_timezone_name = time.tzname[0].decode(gmI18N.get_encoding(), 'replace')
+
+	global py_dst_timezone_name
+	py_dst_timezone_name = time.tzname[1].decode(gmI18N.get_encoding(), 'replace')
+
 	global dst_locally_in_use
 	dst_locally_in_use = (time.daylight != 0)
 
@@ -159,12 +167,12 @@ def init():
 
 	global current_local_timezone_name
 	try:
-		current_local_timezone_name = os.environ['TZ']
+		current_local_timezone_name = os.environ['TZ'].decode(gmI18N.get_encoding(), 'replace')
 	except KeyError:
 		if dst_currently_in_effect:
-			current_local_timezone_name = time.tzname[1]
+			current_local_timezone_name = time.tzname[1].decode(gmI18N.get_encoding(), 'replace')
 		else:
-			current_local_timezone_name = time.tzname[0]
+			current_local_timezone_name = time.tzname[0].decode(gmI18N.get_encoding(), 'replace')
 
 	# do some magic to convert Python's timezone to a valid ISO timezone
 	# is this safe or will it return things like 13.5 hours ?
@@ -985,7 +993,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.23  2008-11-03 10:28:03  ncq
+# Revision 1.24  2008-11-17 23:11:38  ncq
+# - provide properly utf8iefied py_*_timezone_name
+#
+# Revision 1.23  2008/11/03 10:28:03  ncq
 # - improved wording
 #
 # Revision 1.22  2008/10/22 12:07:28  ncq
