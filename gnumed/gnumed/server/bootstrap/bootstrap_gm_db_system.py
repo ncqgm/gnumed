@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.87 $"
+__version__ = "$Revision: 1.88 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -192,8 +192,8 @@ def db_group_exists(cursor=None, group=None):
 	except:
 		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
 		return False
-	res = cursor.fetchone()
-	if cursor.rowcount == 1:
+	rows = cursor.fetchone()
+	if len(rows) > 0:
 		_log.info("group [%s] exists" % group)
 		return True
 	_log.info("group [%s] does not exist" % group)
@@ -386,7 +386,7 @@ class db_server:
 		_log.info("bootstrapping database users and groups")
 
 		# insert standard groups
-		if self.__create_groups() is None:
+		if not self.__create_groups():
 			_log.error("Cannot create GNUmed standard groups.")
 			return None
 
@@ -467,7 +467,7 @@ Make sure to remember the password for later use.
 		groups = cfg_get(section, "groups")
 		if groups is None:
 			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
-			return None
+			return False
 		groups.append(self.auth_group)
 
 		cursor = self.conn.cursor()
@@ -1385,7 +1385,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.87  2008-10-12 16:42:15  ncq
+# Revision 1.88  2008-11-17 23:14:42  ncq
+# - properly eval return of group creation, with better logging, too
+#
+# Revision 1.87  2008/10/12 16:42:15  ncq
 # - factor out user_exists/group_exists/create_db_group
 # - work around Windows Python bug with %s in getpass
 # - create auth_group at db level
