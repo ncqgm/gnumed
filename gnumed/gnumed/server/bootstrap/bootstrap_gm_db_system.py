@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -192,8 +192,8 @@ def db_group_exists(cursor=None, group=None):
 	except:
 		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
 		return False
-	rows = cursor.fetchone()
-	if len(rows) > 0:
+	row = cursor.fetchone()
+	if row is not None:
 		_log.info("group [%s] exists" % group)
 		return True
 	_log.info("group [%s] does not exist" % group)
@@ -1385,7 +1385,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.88  2008-11-17 23:14:42  ncq
+# Revision 1.89  2008-11-18 22:02:44  ncq
+# - properly evaluate cursor.fetchone()
+#
+# Revision 1.88  2008/11/17 23:14:42  ncq
 # - properly eval return of group creation, with better logging, too
 #
 # Revision 1.87  2008/10/12 16:42:15  ncq
