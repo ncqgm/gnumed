@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.106 2008-10-12 15:14:14 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmMedDoc.py,v 1.107 2008-11-20 18:41:36 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -120,7 +120,7 @@ class cDocumentFolder:
 			doc_ids.append(row[0])
 		return doc_ids
 	#--------------------------------------------------------
-	def get_documents(self, doc_type=None, episode=None, encounter=None):
+	def get_documents(self, doc_type=None, episodes=None, encounter=None):
 		"""Return list of documents."""
 		doc_ids = self.get_doc_list(doc_type=doc_type)
 
@@ -132,8 +132,9 @@ class cDocumentFolder:
 				_log.exception('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
 				continue
 
-		if episode is not None:
-			docs = [ d for d in docs if d['pk_episode'] == episode ]
+		if episodes is not None:
+			docs = [ d for d in docs if d['pk_episode'] in episodes ]
+
 		if encounter is not None:
 			docs = [ d for d in docs if d['pk_encounter'] == encounter ]
 
@@ -702,7 +703,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.106  2008-10-12 15:14:14  ncq
+# Revision 1.107  2008-11-20 18:41:36  ncq
+# - rename arg in get_documents
+#
+# Revision 1.106  2008/10/12 15:14:14  ncq
 # - use i18n.get_curr_lang
 #
 # Revision 1.105  2008/06/26 21:19:15  ncq
