@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.31 2008-10-22 12:13:09 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmAuthWidgets.py,v 1.32 2008-11-20 18:48:15 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -540,6 +540,7 @@ class cLoginPanel(wx.Panel):
 			profiles[label].database = current_db_name
 			profiles[label].encoding = u'UTF8'
 			profiles[label].public_db = True
+			profiles[label].helpdesk = u'http://wiki.gnumed.de'
 		return profiles
 	#----------------------------------------------------------
 	def __load_state(self):
@@ -706,7 +707,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.31  2008-10-22 12:13:09  ncq
+# Revision 1.32  2008-11-20 18:48:15  ncq
+# - add default help desk to builtin default backend profile
+#
+# Revision 1.31  2008/10/22 12:13:09  ncq
 # - bump db version
 #
 # Revision 1.30  2008/10/12 16:06:07  ncq
