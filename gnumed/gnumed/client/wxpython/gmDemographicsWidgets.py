@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.154 2008-08-28 18:33:02 ncq Exp $
-__version__ = "$Revision: 1.154 $"
+# $Id: gmDemographicsWidgets.py,v 1.155 2008-11-20 18:48:55 ncq Exp $
+__version__ = "$Revision: 1.155 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1323,11 +1323,13 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		no_errors = True
 
-		if self._PRW_type.GetData() is None:
+		# do not test .GetData() because adding external IDs
+		# will create types if necessary
+#		if self._PRW_type.GetData() is None:
+		if self._PRW_type.GetValue().strip() == u'':
 			self._PRW_type.SetBackgroundColour('pink')
 			self._PRW_type.SetFocus()
 			self._PRW_type.Refresh()
-			no_errors = False
 		else:
 			self._PRW_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_type.Refresh()
@@ -2055,7 +2057,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			_pnl_form.PRW_gender.Refresh()
 
 		# dob validation
-		if not _pnl_form.PRW_dob.is_valid_timestamp():
+		if (_pnl_form.PRW_dob.GetValue().strip() == u'') or (not _pnl_form.PRW_dob.is_valid_timestamp()):
 			error = True
 			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.PRW_dob.GetValue()
 			gmDispatcher.send(signal = 'statustext', msg = msg)
@@ -2064,7 +2066,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		else:
 			_pnl_form.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			_pnl_form.PRW_dob.Refresh()
-		
+
 		# address
 		is_any_field_filled = False
 		address_fields = (
@@ -2317,7 +2319,7 @@ class cPatOccupationsPanel(wx.Panel):
 		SZR_input.Add(STT_occupation_updated, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_occupation_updated, 1, wx.EXPAND)
 		PNL_form.SetSizerAndFit(SZR_input)
-		
+
 		# layout page
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
@@ -2691,7 +2693,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.154  2008-08-28 18:33:02  ncq
+# Revision 1.155  2008-11-20 18:48:55  ncq
+# - fix overly zealous validation when creating external IDs
+#
+# Revision 1.154  2008/08/28 18:33:02  ncq
 # - inform user on KOrganizer not being callable
 #
 # Revision 1.153  2008/08/15 16:01:06  ncq
