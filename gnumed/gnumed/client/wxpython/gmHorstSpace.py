@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.45 2008-07-10 11:20:27 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmHorstSpace.py,v 1.46 2008-11-20 20:06:12 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -71,7 +71,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
 		self.__gb['horstspace.top_panel'] = self.top_panel
 		self.__load_plugins()
-		
+
 		# layout handling
 		self.main_szr = wx.BoxSizer(wx.VERTICAL)
 		self.main_szr.Add(self.top_panel, 0, wx.EXPAND)
@@ -315,7 +315,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.45  2008-07-10 11:20:27  ncq
+# Revision 1.46  2008-11-20 20:06:12  ncq
+# - cleanup
+#
+# Revision 1.45  2008/07/10 11:20:27  ncq
 # - no more toolbar handling
 #
 # Revision 1.44  2008/04/02 10:46:14  ncq
