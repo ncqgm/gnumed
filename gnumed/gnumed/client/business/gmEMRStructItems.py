@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.124 $"
+__version__ = "$Revision: 1.125 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -276,7 +276,13 @@ def get_dummy_health_issue():
 		'is_cause_of_death': False
 	}
 	return issue
-
+#-----------------------------------------------------------
+def health_issue2problem(health_issue=None):
+	return cProblem(aPK_obj = {
+		'pk_patient': health_issue['pk_patient'],
+		'pk_health_issue': episode['pk_health_issue'],
+		'pk_episode': None
+	})
 #============================================================
 # episodes API
 #============================================================
@@ -441,7 +447,7 @@ from (
 		# documents
 		doc_folder = patient.get_document_folder()
 		docs = doc_folder.get_documents (
-			episode = self._payload[self._idx['pk_episode']]
+			episodes = [ self._payload[self._idx['pk_episode']] ]
 		)
 
 		if len(docs) > 0:
@@ -461,7 +467,7 @@ from (
 			lines.append('')
 			lines.append(_('Progress notes in most recent encounter:'))
 			lines.extend(last_encounter.format_soap (
-				episode = self._payload[self._idx['pk_episode']],
+				episodes = [ self._payload[self._idx['pk_episode']] ],
 				left_margin = left_margin,
 				soap_cats = 'soap',
 				emr = emr
@@ -507,7 +513,13 @@ def delete_episode(episode=None):
 		# should be parsing pgcode/and or error message
 		_log.exception('cannot delete episode')
 		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
-
+#-----------------------------------------------------------
+def episode2problem(episode=None):
+	return cProblem(aPK_obj = {
+		'pk_patient': episode['pk_patient'],
+		'pk_episode': episode['pk_episode'],
+		'pk_health_issue': episode['pk_health_issue']
+	})
 #============================================================
 # encounter API
 #============================================================
@@ -637,12 +649,13 @@ select exists (
 		)
 		return rows[0][0]
 	#--------------------------------------------------------
-	def format_soap(self, episode=None, left_margin=0, soap_cats='soap', emr=None):
+	def format_soap(self, episodes=None, left_margin=u'', soap_cats='soap', emr=None, issues=None):
 
 		lines = []
 		for soap_cat in soap_cats:
 			soap_cat_narratives = emr.get_clin_narrative (
-				episodes = [episode],
+				episodes = episodes,
+				issues = issues,
 				encounters = [self._payload[self._idx['pk_encounter']]],
 				soap_cats = [soap_cat]
 			)
@@ -668,38 +681,52 @@ select exists (
 
 		return lines
 	#--------------------------------------------------------
-	def format(self, episode=None, with_soap=False, left_margin=0, patient=None):
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True):
 
 		left_margin = u' ' * left_margin
 
 		lines = []
 
-		lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
-			left_margin,
-			self._payload[self._idx['l10n_type']],
-			self._payload[self._idx['started_original_tz']].strftime('%x %H:%M'),
-			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
-			self._payload[self._idx['source_time_zone']],
-			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
-			self._payload[self._idx['pk_encounter']]
-		))
+		if fancy_header:
+			lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
+				left_margin,
+				self._payload[self._idx['l10n_type']],
+				self._payload[self._idx['started_original_tz']].strftime('%x %H:%M'),
+				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
+				self._payload[self._idx['source_time_zone']],
+				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
+				self._payload[self._idx['pk_encounter']]
+			))
 
-		lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
-			self._payload[self._idx['started']].strftime('%x %H:%M'),
-			self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
-			gmDateTime.current_local_iso_numeric_timezone_string,
-			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, time.tzname[1], time.tzname[0]),
-			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
-		))
+			lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
+				self._payload[self._idx['started']].strftime('%x %H:%M'),
+				self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
+				gmDateTime.current_local_iso_numeric_timezone_string,
+				gmTools.bool2subst (
+					gmDateTime.dst_currently_in_effect,
+					gmDateTime.py_dst_timezone_name,
+					gmDateTime.py_timezone_name
+				),
+				gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
+			))
 
-		lines.append(u'%s: %s' % (
-			_('RFE'),
-			gmTools.coalesce(self._payload[self._idx['reason_for_encounter']], u'')
-		))
-		lines.append(u'%s: %s' % (
-			_('AOE'),
-			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'')
-		))
+			lines.append(u'%s: %s' % (
+				_('RFE'),
+				gmTools.coalesce(self._payload[self._idx['reason_for_encounter']], u'')
+			))
+			lines.append(u'%s: %s' % (
+				_('AOE'),
+				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'')
+			))
+
+		else:
+			lines.append(u'%s%s: %s - %s%s' % (
+				left_margin,
+				self._payload[self._idx['l10n_type']],
+				self._payload[self._idx['started_original_tz']].strftime('%x %H:%M'),
+				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
+				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
+			))
 
 		if with_soap:
 			lines.append(u'')
@@ -714,52 +741,44 @@ select exists (
 
 			emr = patient.get_emr()
 
-#			if episode['episode_open']:
-#				template = _('Progress notes for ongoing episode %s%s%s:')
-#			else:
-#				template = _('Progress notes for closed episode %s%s%s:')
-#			lines.append(template % (
-#				u'\u00BB',
-#				episode['description'],
-#				u'\u00AB'
-#			))
-
 			lines.extend(self.format_soap (
-				episode = episode['pk_episode'],
+				episodes = episodes,
 				left_margin = left_margin,
 				soap_cats = 'soap',
-				emr = emr
+				emr = emr,
+				issues = issues
 			))
 
 		# test results
-		tests = emr.get_test_results_by_date (
-			episode = episode['pk_episode'],
-			encounter = self._payload[self._idx['pk_encounter']]
-		)
-		if len(tests) > 0:
-			lines.append('')
-			lines.append(_('Measurements and Results:'))
-			for t in tests:
-				lines.extend(t.format())
+		if with_tests:
+			tests = emr.get_test_results_by_date (
+				episodes = episodes,
+				encounter = self._payload[self._idx['pk_encounter']]
+			)
+			if len(tests) > 0:
+				lines.append('')
+				lines.append(_('Measurements and Results:'))
+				for t in tests:
+					lines.extend(t.format())
 
-		# documents
-		doc_folder = patient.get_document_folder()
-		docs = doc_folder.get_documents (
-			episode = episode['pk_episode'],
-			encounter = self._payload[self._idx['pk_encounter']]
-		)
+		if with_docs:
+			doc_folder = patient.get_document_folder()
+			docs = doc_folder.get_documents (
+				episodes = episodes,
+				encounter = self._payload[self._idx['pk_encounter']]
+			)
 
-		if len(docs) > 0:
-			lines.append('')
-			lines.append(_('Documents:'))
+			if len(docs) > 0:
+				lines.append('')
+				lines.append(_('Documents:'))
 
-		for d in docs:
-			lines.append(u' %s %s:%s%s' % (
-				d['date'].strftime('%x'),
-				d['l10n_type'],
-				gmTools.coalesce(d['comment'], u'', u' "%s"'),
-				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
-			))
+			for d in docs:
+				lines.append(u' %s %s:%s%s' % (
+					d['date'].strftime('%x'),
+					d['l10n_type'],
+					gmTools.coalesce(d['comment'], u'', u' "%s"'),
+					gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+				))
 
 		eol_w_margin = u'\n%s' % left_margin
 		return u'%s\n' % eol_w_margin.join(lines)
@@ -1029,7 +1048,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.124  2008-10-22 12:04:55  ncq
+# Revision 1.125  2008-11-20 18:40:53  ncq
+# - health_issue/episode2problem
+# - improved formatting
+#
+# Revision 1.124  2008/10/22 12:04:55  ncq
 # - use %x in strftime
 #
 # Revision 1.123  2008/10/12 15:13:30  ncq
