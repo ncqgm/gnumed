@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.91 $"
+__version__ = "$Revision: 1.92 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1037,15 +1037,22 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	if _default_client_timezone is None:
 		__detect_client_timezone(conn = conn)
 
+	curs = conn.cursor()
+
 	# set access mode
 	if readonly:
-		access_mode = 'READ ONLY'
+		_log.debug('access mode [READ ONLY]')
+		cmd = 'set session characteristics as transaction READ ONLY'
+		curs.execute(cmd)
+		cmd = 'set default_transaction_read_only to on'
+		curs.execute(cmd)
 	else:
-		access_mode = 'READ WRITE'
-	_log.debug('access mode [%s]' % access_mode)
-	cmd = 'set session characteristics as transaction %s' % access_mode
-	curs = conn.cursor()
-	curs.execute(cmd)
+		_log.debug('access mode [READ WRITE]')
+		cmd = 'set session characteristics as transaction READ WRITE'
+		curs.execute(cmd)
+		cmd = 'set default_transaction_read_only to off'
+		curs.execute(cmd)
+
 	curs.close()
 	conn.commit()
 
@@ -1612,7 +1619,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.91  2008-11-17 23:12:29  ncq
+# Revision 1.92  2008-11-20 18:45:10  ncq
+# - modernize read/write conn mode setting
+#
+# Revision 1.91  2008/11/17 23:12:29  ncq
 # - need to unicodify "$TZ"
 #
 # Revision 1.90  2008/10/22 12:08:17  ncq
