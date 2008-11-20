@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.65.2.1 2008-10-28 13:58:18 ncq Exp $
+# $Id: gmTools.py,v 1.65.2.2 2008-11-20 18:25:26 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.65.2.1 $"
+__version__ = "$Revision: 1.65.2.2 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -137,9 +137,10 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 			msg += _(' - bug fixes only\n')
 			msg += _(' - no database upgrade needed\n')
 		if latest_branch_release_available:
-			msg += _(' New version: "%s"\n') % latest_release_on_latest_branch
-			msg += _(' - bug fixes and new features\n')
-			msg += _(' - database upgrade required\n')
+			if latest_release_on_latest_branch != latest_release_on_current_branch:
+				msg += _(' New version: "%s"\n') % latest_release_on_latest_branch
+				msg += _(' - bug fixes and new features\n')
+				msg += _(' - database upgrade required\n')
 	else:
 		msg += _(' New version: "%s"\n') % latest_release_on_current_branch
 		msg += _(' - bug fixes only\n')
@@ -899,7 +900,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.65.2.1  2008-10-28 13:58:18  ncq
+# Revision 1.65.2.2  2008-11-20 18:25:26  ncq
+# - do not announce new version twice
+#
+# Revision 1.65.2.1  2008/10/28 13:58:18  ncq
 # - fix logic reversal when detecting new client version
 #
 # Revision 1.65  2008/08/20 13:53:57  ncq
