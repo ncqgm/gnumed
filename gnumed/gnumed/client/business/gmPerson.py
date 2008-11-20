@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.164.2.3 2008-10-16 17:25:07 ncq Exp $
-__version__ = "$Revision: 1.164.2.3 $"
+# $Id: gmPerson.py,v 1.164.2.4 2008-11-20 21:54:59 ncq Exp $
+__version__ = "$Revision: 1.164.2.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -263,7 +263,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 				'lastnames': '**?**',
 				'title': '**?**',
 				'preferred':'**?**',
-				'active': False
+				'active_name': False
 			}]
 
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
@@ -2209,7 +2209,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.164.2.3  2008-10-16 17:25:07  ncq
+# Revision 1.164.2.4  2008-11-20 21:54:59  ncq
+# - active -> active_name in dummy name record
+#
+# Revision 1.164.2.3  2008/10/16 17:25:07  ncq
 # - be more verbose on failing cStaff instantiation
 #
 # Revision 1.164.2.2  2008/10/16 14:43:04  ncq
