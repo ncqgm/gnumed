@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.166.2.2 2008-10-15 14:46:22 ncq Exp $
-__version__ = "$Revision: 1.166.2.2 $"
+# $Id: gmMedDocWidgets.py,v 1.166.2.3 2008-11-20 21:57:48 ncq Exp $
+__version__ = "$Revision: 1.166.2.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1808,6 +1808,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		wx.BeginBusyCursor()
 
+		cfg = gmCfg.cCfgSQL()
+
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
@@ -1825,10 +1827,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		return True
 	#--------------------------------------------------------
 	def __delete_document(self, evt):
-		curr_pat = gmPerson.gmCurrentPatient()
-		emr = curr_pat.get_emr()
-		enc = emr.get_active_encounter()
-		gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
+		result = gmGuiHelpers.gm_show_question (
+			aMessage = _('Are you sure you want to delete the document ?'),
+			aTitle = _('Deleting document')
+		)
+		if result is True:
+			curr_pat = gmPerson.gmCurrentPatient()
+			emr = curr_pat.get_emr()
+			enc = emr.get_active_encounter()
+			gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1845,7 +1852,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.166.2.2  2008-10-15 14:46:22  ncq
+# Revision 1.166.2.3  2008-11-20 21:57:48  ncq
+# - missing cfg =
+# - confirmation before deleting documents
+#
+# Revision 1.166.2.2  2008/10/15 14:46:22  ncq
 # - PyDeadObjectError is in wx._core
 #
 # Revision 1.166.2.1  2008/09/09 17:34:09  ncq
