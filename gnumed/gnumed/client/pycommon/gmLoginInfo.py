@@ -2,14 +2,14 @@
 # gmLoginInfo - a class to encapsulate Postgres login information
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.16 2008-01-07 19:49:12 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmLoginInfo.py,v 1.17 2008-11-20 18:43:01 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import logging
 
-_log = logging.getLogger('gm.database')
+_log = logging.getLogger('gm.db')
 _log.info(__version__)
 #====================================================================
 class LoginInfo:
@@ -162,7 +162,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.16  2008-01-07 19:49:12  ncq
+# Revision 1.17  2008-11-20 18:43:01  ncq
+# - better logger name
+#
+# Revision 1.16  2008/01/07 19:49:12  ncq
 # - bump db version
 #
 # Revision 1.15  2007/12/12 16:17:15  ncq
