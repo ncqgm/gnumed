@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.96 2008-10-12 16:13:23 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmEMRBrowser.py,v 1.97 2008-11-20 19:50:19 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -175,7 +175,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		elif isinstance(node_data, gmEMRStructItems.cEncounter):
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
-			txt = node_data.format(episode = epi, with_soap = True, left_margin = 1, patient = self.__pat)
+			txt = node_data.format(episodes = [epi['pk_episode']], with_soap = True, left_margin = 1, patient = self.__pat)
 
 		else:
 			emr = self.__pat.get_emr()
@@ -672,7 +672,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.96  2008-10-12 16:13:23  ncq
+# Revision 1.97  2008-11-20 19:50:19  ncq
+# - use improved data formatting
+#
+# Revision 1.96  2008/10/12 16:13:23  ncq
 # - rename EMR tree root node, per Jim
 #
 # Revision 1.95  2008/09/02 19:01:11  ncq
