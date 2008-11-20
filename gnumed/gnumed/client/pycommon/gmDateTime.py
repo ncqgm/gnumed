@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.21.2.2 2008-11-11 21:01:08 ncq Exp $
+# $Id: gmDateTime.py,v 1.21.2.3 2008-11-20 18:24:42 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.21.2.2 $"
+__version__ = "$Revision: 1.21.2.3 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -159,7 +159,7 @@ def init():
 
 	global current_local_timezone_name
 	try:
-		current_local_timezone_name = os.environ['TZ'].decode(gmI18n.get_encoding(), 'replace')
+		current_local_timezone_name = os.environ['TZ'].decode(gmI18N.get_encoding(), 'replace')
 	except KeyError:
 		if dst_currently_in_effect:
 			current_local_timezone_name = time.tzname[1]
@@ -983,7 +983,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.21.2.2  2008-11-11 21:01:08  ncq
+# Revision 1.21.2.3  2008-11-20 18:24:42  ncq
+# - fix spelling
+#
+# Revision 1.21.2.2  2008/11/11 21:01:08  ncq
 # - need to decode $TZ
 #
 # Revision 1.21.2.1  2008/10/14 10:54:20  ncq

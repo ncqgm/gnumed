@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.119.2.1 $"
+__version__ = "$Revision: 1.119.2.2 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -690,8 +690,8 @@ select exists (
 			gmDateTime.current_local_iso_numeric_timezone_string,
 			gmTools.bool2subst (
 				gmDateTime.dst_currently_in_effect,
-				time.tzname[1].decode(gmI18n.get_encoding(), 'replace'),
-				time.tzname[0].decode(gmI18n.get_encoding(), 'replace')
+				time.tzname[1].decode(gmI18N.get_encoding(), 'replace'),
+				time.tzname[0].decode(gmI18N.get_encoding(), 'replace')
 			),
 			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
 		))
@@ -1033,7 +1033,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.119.2.1  2008-11-11 21:00:12  ncq
+# Revision 1.119.2.2  2008-11-20 18:23:18  ncq
+# - fix spelling
+#
+# Revision 1.119.2.1  2008/11/11 21:00:12  ncq
 # - need to encode tzname on Windows
 #
 # Revision 1.119  2008/08/17 18:13:39  ncq
