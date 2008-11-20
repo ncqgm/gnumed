@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -185,15 +185,15 @@ def user_exists(cursor=None, user=None):
 	return None
 #------------------------------------------------------------------
 def db_group_exists(cursor=None, group=None):
-	cmd = "SELECT groname FROM pg_group WHERE groname = %(grp)s"
+	cmd = 'SELECT groname FROM pg_group WHERE groname = %(grp)s'
 	args = {'grp': group}
 	try:
 		cursor.execute(cmd, args)
 	except:
 		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
 		return False
-	row = cursor.fetchone()
-	if row is not None:
+	rows = cursor.fetchall()
+	if len(rows) > 0:
 		_log.info("group [%s] exists" % group)
 		return True
 	_log.info("group [%s] does not exist" % group)
@@ -205,10 +205,9 @@ def create_db_group(cursor=None, group=None):
 	if db_group_exists(cursor, group):
 		return True
 
-	cmd = 'create group "%(grp)s"'
-	args = {'grp': group}
+	cmd = 'create group "%s"' % group
 	try:
-		cursor.execute(cmd, args)
+		cursor.execute(cmd)
 	except:
 		_log.exception(">>>[%s]<<< failed for group [%s]", cmd, group)
 		return False
@@ -219,7 +218,7 @@ def create_db_group(cursor=None, group=None):
 
 	return True
 #==================================================================
-def connect (host, port, db, user, passwd, superuser=0):
+def connect(host, port, db, user, passwd, superuser=0):
 	"""
 	This is a wrapper to the database connect function.
 	Will try to recover gracefully from connection errors where possible
@@ -1385,7 +1384,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.89  2008-11-18 22:02:44  ncq
+# Revision 1.90  2008-11-20 20:23:40  ncq
+# - fix role creation
+#
+# Revision 1.89  2008/11/18 22:02:44  ncq
 # - properly evaluate cursor.fetchone()
 #
 # Revision 1.88  2008/11/17 23:14:42  ncq
