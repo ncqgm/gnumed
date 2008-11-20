@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.153.2.1 2008-11-10 22:23:00 ncq Exp $
-__version__ = "$Revision: 1.153.2.1 $"
+# $Id: gmDemographicsWidgets.py,v 1.153.2.2 2008-11-20 18:26:10 ncq Exp $
+__version__ = "$Revision: 1.153.2.2 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1317,7 +1317,8 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		no_errors = True
 
-		if self._PRW_type.GetData() is None:
+#		if self._PRW_type.GetData() is None:
+		if self._PRW_type.GetValue().strip() == u'':
 			self._PRW_type.SetBackgroundColour('pink')
 			self._PRW_type.SetFocus()
 			self._PRW_type.Refresh()
@@ -2685,7 +2686,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.153.2.1  2008-11-10 22:23:00  ncq
+# Revision 1.153.2.2  2008-11-20 18:26:10  ncq
+# - stop overzealous validation
+#
+# Revision 1.153.2.1  2008/11/10 22:23:00  ncq
 # - disallow empty DOB in new pat wizard
 #
 # Revision 1.153  2008/08/15 16:01:06  ncq
