@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.69 2008-11-03 10:28:55 ncq Exp $
+# $Id: gmTools.py,v 1.70 2008-11-20 18:47:40 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -43,6 +43,7 @@ default_mail_server = u'mail.gmx.net'
 
 u_registered_trademark = u'\u00ae'
 u_ellipsis = u'\u2026'
+u_left_arrow = u'\u2190'
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
 u_checkmark_thin = u'\u2713'
@@ -101,7 +102,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	# up to date ?
 	if consider_latest_branch:
-		_log('latest branch taken into account')
+		_log.debug('latest branch taken into account')
 		if current_version >= latest_release_on_latest_branch:
 			_log.debug('up to date: current version >= latest version on latest branch')
 			return (False, None)
@@ -110,7 +111,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 				_log.debug('up to date: current version >= latest version on current branch and no latest branch available')
 				return (False, None)
 	else:
-		_log('latest branch not taken into account')
+		_log.debug('latest branch not taken into account')
 		if current_version >= latest_release_on_current_branch:
 			_log.debug('up to date: current version >= latest version on current branch')
 			return (False, None)
@@ -915,7 +916,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.69  2008-11-03 10:28:55  ncq
+# Revision 1.70  2008-11-20 18:47:40  ncq
+# - add left arrow unicode
+# - fix logging in update check
+#
+# Revision 1.69  2008/11/03 10:28:55  ncq
 # - check_for_update
 #   - improved logging and wording
 #   - logic reversal fix
