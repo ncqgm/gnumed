@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.129.2.1 $
+# $Revision: 1.129.2.2 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
@@ -824,7 +824,7 @@ msgid ""
 "Version information loaded from:\n"
 " [%s]"
 msgstr ""
-"Keine Versionsinformationen geladen von:\n"
+"Versionsinformationen geladen von:\n"
 " [%s]"
 
 msgid "yYaA_keys_year"
