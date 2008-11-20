@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.275 2008-11-03 10:27:41 ncq Exp $
-__version__ = "$Revision: 1.275 $"
+# $Id: gmClinicalRecord.py,v 1.276 2008-11-20 18:39:40 ncq Exp $
+__version__ = "$Revision: 1.276 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -840,7 +840,7 @@ where
 		"""
 		Retrieve patient's problems: problems are the sum of issues w/o episodes,
 		issues w/ episodes and episodes w/o issues
-		
+
 		episodes - Episodes' PKs to filter problems by
 		issues - Health issues' PKs to filter problems by
 		"""
@@ -1420,6 +1420,8 @@ where
 		issue_id - First encounter associated health issue
 		episode - First encounter associated episode
 		"""
+		# FIXME: use direct query
+
 		if issue_id is None:
 			issues = None
 		else:
@@ -1440,10 +1442,12 @@ where
 	#--------------------------------------------------------		
 	def get_last_encounter(self, issue_id=None, episode_id=None):
 		"""Retrieves last encounter for a concrete issue and/or episode
-			
+
 		issue_id - Last encounter associated health issue
 		episode_id - Last encounter associated episode
 		"""
+		# FIXME: use direct query
+
 		if issue_id is None:
 			issues = None
 		else:
@@ -1461,6 +1465,58 @@ where
 		# FIXME: this does not scale particularly well, I assume
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[-1]
+	#------------------------------------------------------------------
+	def get_last_but_one_encounter(self, issue_id=None, episode_id=None):
+
+		args = {'pat': self.pk_patient}
+
+		if (issue_id is None) and (episode_id is None):
+
+			cmd = u"""
+select * from clin.v_pat_encounters
+where pk_patient = %(pat)s
+order by started desc
+limit 2
+"""
+
+		else:
+			where_parts = []
+
+			if issue_id is not None:
+				where_parts.append(u'pk_health_issue = %(issue)s')
+				args['issue'] = issue_id
+
+			if episode_id is not None:
+				where_parts.append(u'pk_episode = %(epi)s')
+				args['epi'] = episode_id
+
+			cmd = u"""
+select * from clin.v_pat_encounters
+where
+	pk_patient = %s
+		and
+	pk_encounter in (
+		select distinct pk_encounter
+		from clin.v_pat_narrative
+		where
+			%s
+	)
+order by started desc
+limit 2
+""" % (u'%(pat)s', u' and '.join(where_parts))
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		if len(rows) == 0:
+			return None
+
+		if len(rows) == 1:
+			# previous
+			if rows[0]['pk_encounter'] == self.__encounter['pk_encounter']:
+				return None
+			return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+
+		return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'idx': idx, 'pk_field': 'pk_encounter'})
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
 		# remove empty encounters
@@ -1536,7 +1592,8 @@ order by cwhen desc"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 	#------------------------------------------------------------------
-	def get_test_results_by_date(self, encounter=None, episode=None):
+	def get_test_results_by_date(self, encounter=None, episodes=None):
+
 		cmd = u"""
 select *, xmin_test_result from clin.v_test_results
 where pk_patient = %(pat)s
@@ -1546,8 +1603,9 @@ order by clin_when desc, pk_episode, unified_name"""
 
 		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
-		if episode is not None:
-			tests = [ t for t in tests if t['pk_episode'] == episode ]
+		if episodes is not None:
+			tests = [ t for t in tests if t['pk_episode'] in episodes ]
+
 		if encounter is not None:
 			tests = [ t for t in tests if t['pk_encounter'] == encounter ]
 
@@ -1736,8 +1794,13 @@ if __name__ == "__main__":
 		emr = cClinicalRecord(aPKey=12)
 		print emr.get_most_recent_episode(issue = 2)
 	#-----------------------------------------
+	def test_get_almost_recent_encounter():
+		emr = cClinicalRecord(aPKey=12)
+		print emr.get_last_encounter(issue_id=2)
+		print emr.get_last_but_one_encounter(issue_id=2)
+	#-----------------------------------------
 	if (len(sys.argv) > 0) and (sys.argv[1] == 'test'):
-		test_allergy_state()
+		#test_allergy_state()
 		#test_get_test_names()
 		#test_get_dates_for_results()
 		#test_get_measurements()
@@ -1746,6 +1809,7 @@ if __name__ == "__main__":
 		#test_get_statistics()
 		#test_add_test_result()
 		#test_get_most_recent_episode()
+		test_get_almost_recent_encounter()
 
 	sys.exit(1)
 
@@ -1778,7 +1842,7 @@ if __name__ == "__main__":
 #	last_encounter = emr.get_last_encounter(episode_id = 1)
 #	print '\nLast encounter: ' + str(last_encounter)
 #	print ''
-		
+
 #	# lab results
 #	lab = emr.get_lab_results()
 #	lab_file = open('lab-data.txt', 'wb')
@@ -1805,7 +1869,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.275  2008-11-03 10:27:41  ncq
+# Revision 1.276  2008-11-20 18:39:40  ncq
+# - get_last_but_one_encounter
+#
+# Revision 1.275  2008/11/03 10:27:41  ncq
 # - no more patient_id in create_health_issue
 #
 # Revision 1.274  2008/10/26 01:21:22  ncq
