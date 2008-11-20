@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.28 2008-03-29 16:22:47 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmRegetMixin.py,v 1.29 2008-11-20 20:12:57 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -121,8 +121,10 @@ class cRegetOnPaintMixin:
 		# FIXME: is this last assumption true ?
 		return True
 	#-----------------------------------------------------
+	# notebook plugin API if needed
+	#-----------------------------------------------------
 	def repopulate_ui(self):
-		"""Just a glue method."""
+		"""Just a glue method to make this compatible with notebook plugins."""
 		self.__repopulate_ui()
 #===========================================================================
 # main
@@ -132,7 +134,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.28  2008-03-29 16:22:47  ncq
+# Revision 1.29  2008-11-20 20:12:57  ncq
+# - better docs
+#
+# Revision 1.28  2008/03/29 16:22:47  ncq
 # - significant clarification
 #
 # Revision 1.27  2007/10/29 13:19:07  ncq

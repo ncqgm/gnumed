@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.106 2008-09-02 19:01:12 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmSOAPWidgets.py,v 1.107 2008-11-20 20:17:50 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -536,7 +536,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		- if patient has no episodes:
 			- new patient
 			- always allow several NEWs
-		- of patient has episodes:
+		- if patient has episodes:
 			- allow several NEWs per configuration
 		"""
 		emr = self.__pat.get_emr()
@@ -1215,7 +1215,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.106  2008-09-02 19:01:12  ncq
+# Revision 1.107  2008-11-20 20:17:50  ncq
+# - better docs
+#
+# Revision 1.106  2008/09/02 19:01:12  ncq
 # - adjust to clin health_issue fk_patient drop and related changes
 #
 # Revision 1.105  2008/08/08 13:32:59  ncq
