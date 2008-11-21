@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.164.2.4 2008-11-20 21:54:59 ncq Exp $
-__version__ = "$Revision: 1.164.2.4 $"
+# $Id: gmPerson.py,v 1.164.2.5 2008-11-21 12:30:46 ncq Exp $
+__version__ = "$Revision: 1.164.2.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -258,13 +258,14 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 
 		if len(rows) == 0:
 			# no names registered for patient
-			return [{
-				'firstnames': '**?**',
-				'lastnames': '**?**',
-				'title': '**?**',
-				'preferred':'**?**',
-				'active_name': False
-			}]
+			return []
+#			return [{
+#				'firstnames': '**?**',
+#				'lastnames': '**?**',
+#				'title': '**?**',
+#				'preferred':'**?**',
+#				'active_name': False
+#			}]
 
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
@@ -663,7 +664,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def link_new_relative(self, rel_type = 'parent'):
 		# create new relative
 		id_new_relative = create_dummy_identity()
-		
+
 		relative = cIdentity(aPK_obj=id_new_relative)
 		# pre-fill with data from ourselves
 #		relative.copy_addresses(self)
@@ -2209,7 +2210,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.164.2.4  2008-11-20 21:54:59  ncq
+# Revision 1.164.2.5  2008-11-21 12:30:46  ncq
+# - do not return a dummy name
+#
+# Revision 1.164.2.4  2008/11/20 21:54:59  ncq
 # - active -> active_name in dummy name record
 #
 # Revision 1.164.2.3  2008/10/16 17:25:07  ncq
