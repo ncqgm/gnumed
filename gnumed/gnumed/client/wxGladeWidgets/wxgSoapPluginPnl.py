@@ -31,7 +31,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self.__splitter_left_bottom_pnl = wx.ScrolledWindow(self._splitter_left, -1, style=wx.NO_BORDER)
         self.__splitter_left_top_pnl = wx.Panel(self._splitter_left, -1, style=wx.NO_BORDER)
         self.__szr_bottom_left_staticbox = wx.StaticBox(self.__splitter_left_bottom_pnl, -1, _("Tips and Hints"))
-        self.__szr_top_right_staticbox = wx.StaticBox(self.__splitter_right_top_pnl, -1, _("Recent Notes"))
+        self.__szr_top_right_staticbox = wx.StaticBox(self.__splitter_right_top_pnl, -1, _("Most Recent Related Notes"))
         self.__szr_bottom_right_staticbox = wx.StaticBox(self.__splitter_right_bottom_pnl, -1, _("Today's Notes"))
         self.__szr_top_left_staticbox = wx.StaticBox(self.__splitter_left_top_pnl, -1, _("Active Problems"))
         self._LCTRL_active_problems = gmListWidgets.cReportListCtrl(self.__splitter_left_top_pnl, -1, style=wx.LC_REPORT|wx.NO_BORDER)
