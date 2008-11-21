@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.155 2008-11-20 18:48:55 ncq Exp $
-__version__ = "$Revision: 1.155 $"
+# $Id: gmDemographicsWidgets.py,v 1.156 2008-11-21 13:05:48 ncq Exp $
+__version__ = "$Revision: 1.156 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1555,6 +1555,11 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		return False
 	#--------------------------------------------------------
 	def _del_name(self, name):
+
+		if len(self.__identity.get_names()) == 1:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot delete the only name of a person.'), beep = True)
+			return False
+
 		go_ahead = gmGuiHelpers.gm_show_question (
 			_(	'It is often advisable to keep old names around and\n'
 				'just create a new "currently active" name.\n'
@@ -1569,6 +1574,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		)
 		if not go_ahead:
 			return False
+
 		self.__identity.delete_name(name = name)
 		return True
 	#--------------------------------------------------------
@@ -2693,7 +2699,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.155  2008-11-20 18:48:55  ncq
+# Revision 1.156  2008-11-21 13:05:48  ncq
+# - disallow deleting the only name of a person
+#
+# Revision 1.155  2008/11/20 18:48:55  ncq
 # - fix overly zealous validation when creating external IDs
 #
 # Revision 1.154  2008/08/28 18:33:02  ncq
