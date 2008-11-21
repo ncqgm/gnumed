@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.166.2.3 2008-11-20 21:57:48 ncq Exp $
-__version__ = "$Revision: 1.166.2.3 $"
+# $Id: gmMedDocWidgets.py,v 1.166.2.4 2008-11-21 16:11:31 ncq Exp $
+__version__ = "$Revision: 1.166.2.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -325,8 +325,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._PhWheel_doc_type.add_callback_on_set_focus(self._on_doc_type_gets_focus)
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
-		self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
-		self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
+		if self.__reviewing_doc:
+			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
+			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
+		else:
+			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['obj_comment'], ''))
 
 		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
@@ -435,7 +438,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# to it so we don't check patient change
 		self.__doc['pk_episode'] = pk_episode
 		self.__doc['pk_type'] = doc_type
-		self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
+		if self.__reviewing_doc:
+			self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
 		self.__doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 
@@ -468,10 +472,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				gmGuiHelpers.gm_show_error(msg, _('editing document properties'))
 				return False
 
-		# 3) handle page specific parts
+		# 3) handle "page" specific parts
 		if not self.__reviewing_doc:
 			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
 			self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			self.__part['obj_comment'] = self._PRW_doc_comment.GetValue().strip()
 			success, data = self.__part.save_payload()
 			if not success:
 				gmGuiHelpers.gm_show_error (
@@ -1852,7 +1857,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.166.2.3  2008-11-20 21:57:48  ncq
+# Revision 1.166.2.4  2008-11-21 16:11:31  ncq
+# - apply the "comment" to the document or part when the review/details editor is
+#   invoked from a document or part, respectively
+#
+# Revision 1.166.2.3  2008/11/20 21:57:48  ncq
 # - missing cfg =
 # - confirmation before deleting documents
 #
