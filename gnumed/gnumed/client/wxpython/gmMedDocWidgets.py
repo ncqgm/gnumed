@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.168 2008-10-22 12:21:57 ncq Exp $
-__version__ = "$Revision: 1.168 $"
+# $Id: gmMedDocWidgets.py,v 1.169 2008-11-21 13:06:36 ncq Exp $
+__version__ = "$Revision: 1.169 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1173,9 +1173,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		docs_folder = curr_pat.get_document_folder()
 		docs = docs_folder.get_documents()
 		if docs is None:
-			name = curr_pat.get_names()
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['firstnames'], name['lastnames']),
+				aMessage = _('Error searching documents.'),
 				aTitle = _('loading document list')
 			)
 			# avoid recursion of GUI updating
@@ -1502,7 +1501,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		_log.debug("temporary directory [%s]", tmp_dir)
 
 		# determine database export chunk size
-		chunksize = int(cfg.get2 (
+		chunksize = int(
+		cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
@@ -1808,6 +1808,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		wx.BeginBusyCursor()
 
+		cfg = gmCfg.cCfgSQL()
+
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
@@ -1825,10 +1827,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		return True
 	#--------------------------------------------------------
 	def __delete_document(self, evt):
-		curr_pat = gmPerson.gmCurrentPatient()
-		emr = curr_pat.get_emr()
-		enc = emr.get_active_encounter()
-		gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
+		result = gmGuiHelpers.gm_show_question (
+			aMessage = _('Are you sure you want to delete the document ?'),
+			aTitle = _('Deleting document')
+		)
+		if result is True:
+			curr_pat = gmPerson.gmCurrentPatient()
+			emr = curr_pat.get_emr()
+			enc = emr.get_active_encounter()
+			gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1845,7 +1852,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.168  2008-10-22 12:21:57  ncq
+# Revision 1.169  2008-11-21 13:06:36  ncq
+# - missing cfg in doc deletion
+#
+# Revision 1.168  2008/10/22 12:21:57  ncq
 # - use %x in strftime where appropriate
 #
 # Revision 1.167  2008/10/12 16:23:19  ncq
