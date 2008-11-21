@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/emr_browser/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.5 2008-01-11 16:18:14 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmEMRBrowser.py,v 1.6 2008-11-21 13:07:19 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -150,8 +150,11 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		# EMR tree root item
 		identity = self.__pat.get_identity()
-		names = identity.get_names()
-		root_item = self.__emr_tree.AddRoot(_('%s %s EMR') % (names['firstnames'], names['lastnames']))
+		name = identity.get_active_name()
+		if name is None:
+			root_item = self.__emr_tree.AddRoot(_('EMR tree'))
+		else:
+			root_item = self.__emr_tree.AddRoot(_('%s %s EMR') % (name['firstnames'], name['lastnames']))
 
 		# Obtain all the tree from exporter
 		self.__exporter.get_historical_tree(self.__emr_tree)
@@ -502,7 +505,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.5  2008-01-11 16:18:14  ncq
+# Revision 1.6  2008-11-21 13:07:19  ncq
+# - get_names can return empty list
+#
+# Revision 1.5  2008/01/11 16:18:14  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.4  2005/02/03 20:22:07  ncq
