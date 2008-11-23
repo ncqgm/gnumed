@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.169 2008-11-21 13:06:36 ncq Exp $
-__version__ = "$Revision: 1.169 $"
+# $Id: gmMedDocWidgets.py,v 1.170 2008-11-23 12:46:03 ncq Exp $
+__version__ = "$Revision: 1.170 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -325,8 +325,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._PhWheel_doc_type.add_callback_on_set_focus(self._on_doc_type_gets_focus)
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
-		self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
-		self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
+		if self.__reviewing_doc:
+			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
+			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
+		else:
+			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['obj_comment'], ''))
 
 		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
@@ -435,7 +438,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# to it so we don't check patient change
 		self.__doc['pk_episode'] = pk_episode
 		self.__doc['pk_type'] = doc_type
-		self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
+		if self.__reviewing_doc:
+			self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
 		self.__doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 
@@ -468,10 +472,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				gmGuiHelpers.gm_show_error(msg, _('editing document properties'))
 				return False
 
-		# 3) handle page specific parts
+		# 3) handle "page" specific parts
 		if not self.__reviewing_doc:
 			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
 			self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			self.__part['obj_comment'] = self._PRW_doc_comment.GetValue().strip()
 			success, data = self.__part.save_payload()
 			if not success:
 				gmGuiHelpers.gm_show_error (
@@ -920,6 +925,9 @@ from your computer.""") % page_fname,
 			):
 				msg = _('Error setting "reviewed" status of new document.')
 
+		gmHooks.run_hook_script(hook = u'after_new_doc_created')
+
+		# inform user
 		cfg = gmCfg.cCfgSQL()
 		show_id = bool (
 			cfg.get2 (
@@ -944,10 +952,10 @@ off this message in the GNUmed configuration.""") % ref
 				aMessage = msg,
 				aTitle = _('saving document')
 			)
+		else:
+			gmDispatcher.send(signal='statustext', msg=_('Successfully saved new document.'))
 
-		# prepare for next document
 		self.__init_ui_data()
-		gmDispatcher.send(signal='statustext', msg=_('Successfully saved new document.'))
 		return True
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
@@ -1852,7 +1860,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.169  2008-11-21 13:06:36  ncq
+# Revision 1.170  2008-11-23 12:46:03  ncq
+# - apply comment to doc or part, respectively, when
+#   reviewing/signing docs or parts
+# - add hook after new doc was created
+# - only inform user in statusline of new doc created if not new id shown anyway
+#
+# Revision 1.169  2008/11/21 13:06:36  ncq
 # - missing cfg in doc deletion
 #
 # Revision 1.168  2008/10/22 12:21:57  ncq
