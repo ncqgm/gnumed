@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.13 2008-11-20 20:35:50 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmNarrativeWidgets.py,v 1.14 2008-11-23 12:47:02 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -365,6 +365,21 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __init_ui(self):
 		self._LCTRL_active_problems.set_columns([_('Last'), _('Problem'), _('Health issue')])
 		self._LCTRL_active_problems.set_string_items()
+
+		self._splitter_main.SetSashGravity(0.5)
+		self._splitter_left.SetSashGravity(0.5)
+		self._splitter_right.SetSashGravity(1.0)
+
+		splitter_size = self._splitter_main.GetSizeTuple()[0]
+		print splitter_size
+		print type(splitter_size)
+		self._splitter_main.SetSashPosition(splitter_size * 3 / 10, True)
+
+		splitter_size = self._splitter_left.GetSizeTuple()[1]
+		self._splitter_left.SetSashPosition(splitter_size * 6 / 20, True)
+
+		splitter_size = self._splitter_right.GetSizeTuple()[1]
+		self._splitter_right.SetSashPosition(splitter_size * 15 / 20, True)
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		"""
@@ -455,26 +470,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		if problem is None:
 			soap = u''
+
 		elif problem['type'] == u'issue':
 			soap = u''
-#			tmp = emr.get_active_encounter().format (
-#				with_soap = True,
-#				with_docs = False,
-#				with_tests = False,
-#				patient = self.__pat,
-#				issues = [ problem['pk_health_issue'] ],
-#				fancy_header = False
-#			)
-#			if tmp.count('\n') > 2:
-#				soap += tmp
-			tmp = emr.get_active_encounter().format_soap (
-				soap_cats = 'soap',
-				emr = emr,
-				issues = [ problem['pk_health_issue'] ],
-			)
-			if len(tmp) > 0:
-				soap += _('Current encounter:') + u'\n'
-				soap += u'\n'.join(tmp) + u'\n'
+
 			prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
 			if prev_enc is not None:
 				soap += prev_enc.format (
@@ -486,18 +485,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 					fancy_header = False
 				)
 
-		elif problem['type'] == u'episode':
-			soap = u''
-#			tmp = emr.get_active_encounter().format (
-#				with_soap = True,
-#				with_docs = False,
-#				with_tests = False,
-#				patient = self.__pat,
-#				issues = [ problem['pk_health_issue'] ],
-#				fancy_header = False
-#			)
-#			if tmp.count('\n') > 2:
-#				soap += tmp
 			tmp = emr.get_active_encounter().format_soap (
 				soap_cats = 'soap',
 				emr = emr,
@@ -506,6 +493,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			if len(tmp) > 0:
 				soap += _('Current encounter:') + u'\n'
 				soap += u'\n'.join(tmp) + u'\n'
+
+		elif problem['type'] == u'episode':
+			soap = u''
+
 			prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
 			if prev_enc is None:
 				if problem['pk_health_issue'] is not None:
@@ -519,7 +510,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 							issues = [ problem['pk_health_issue'] ],
 							fancy_header = False
 						)
-
 			else:
 				soap += prev_enc.format (
 					episodes = [ problem['pk_episode'] ],
@@ -530,10 +520,20 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 					fancy_header = False
 				)
 
+			tmp = emr.get_active_encounter().format_soap (
+				soap_cats = 'soap',
+				emr = emr,
+				issues = [ problem['pk_health_issue'] ],
+			)
+			if len(tmp) > 0:
+				soap += _('Current encounter:') + u'\n'
+				soap += u'\n'.join(tmp) + u'\n'
+
 		else:
 			soap = u''
 
 		self._TCTRL_recent_notes.SetValue(soap)
+		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -886,7 +886,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.13  2008-11-20 20:35:50  ncq
+# Revision 1.14  2008-11-23 12:47:02  ncq
+# - preset splitter ratios and gravity
+# - cleanup
+# - reorder recent notes with most recent on bottom as per list
+#
+# Revision 1.13  2008/11/20 20:35:50  ncq
 # - new soap plugin widgets
 #
 # Revision 1.12  2008/10/26 01:21:52  ncq
