@@ -43,8 +43,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.144 2008-10-22 12:23:13 ncq Exp $
-__version__ = "$Revision: 1.144 $"
+# $Id: gnumed.py,v 1.145 2008-11-23 12:47:27 ncq Exp $
+__version__ = "$Revision: 1.145 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -432,6 +432,7 @@ setup_logging()
 _log.info('Starting up as main module (%s).', __version__)
 _log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
 _log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
+# FIXME: log output of lsb_release
 
 setup_console_exception_handler()
 setup_cli()
@@ -471,7 +472,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.144  2008-10-22 12:23:13  ncq
+# Revision 1.145  2008-11-23 12:47:27  ncq
+# - comment on lsb_release
+#
+# Revision 1.144  2008/10/22 12:23:13  ncq
 # - initiate version handling
 # - add -V/--version
 #
