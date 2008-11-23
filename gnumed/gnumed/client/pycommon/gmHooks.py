@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.16 2008-09-09 22:03:01 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmHooks.py,v 1.17 2008-11-23 12:44:00 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -44,21 +44,26 @@ from Gnumed.pycommon import gmDispatcher, gmTools
 # ========================================================================
 known_hooks = [
 	u'post_patient_activation',
+
 	u'shutdown-post-GUI',
 	u'startup-after-GUI-init',
 	u'startup-before-GUI',
+
 	u'request_user_attention',
 	u'app_activated_startup',
 	u'app_activated',
 	u'app_deactivated',
+
+	u'after_new_doc_created',
 	u'before_print_doc',
 	u'before_fax_doc',
 	u'before_mail_doc',
 	u'before_print_doc_part',
 	u'before_fax_doc_part',
 	u'before_mail_doc_part',
-	u'db_maintenance_warning',
-	u'before_external_doc_access'
+	u'before_external_doc_access',
+
+	u'db_maintenance_warning'
 ]
 
 
@@ -119,9 +124,6 @@ def run_script(hook=None):
 def run_hook_script(hook=None):
 	# NOTE: this just *might* be a huge security hole
 
-	if hook is None:
-		raise ValueError('run_hook_script(): <hook> cannot be <None>')
-
 	if hook not in known_hooks:
 		raise ValueError('run_hook_script(): unknown hook [%s]' % hook)
 
@@ -148,7 +150,11 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.16  2008-09-09 22:03:01  ncq
+# Revision 1.17  2008-11-23 12:44:00  ncq
+# - add hook after_new_doc_created
+# - since a hook value of None is not in known_hooks do not run an extra check for it
+#
+# Revision 1.16  2008/09/09 22:03:01  ncq
 # - fix typo
 #
 # Revision 1.15  2008/09/09 20:17:45  ncq
