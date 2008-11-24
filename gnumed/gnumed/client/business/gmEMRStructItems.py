@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.125 $"
+__version__ = "$Revision: 1.126 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -53,11 +53,17 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	def __init__(self, aPK_obj=None, encounter=None, name='xxxDEFAULTxxx', row=None):
 		pk = aPK_obj
 		if pk is None and row is None:
-			cmd = u"""select *, xmin
+			cmd = u"""select *, xmin_health_issue
 					from clin.v_health_issues
-					where fk_patient = (select fk_patient from clin.encounter where pk = %s)
-					and description = %s"""
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [encounter, name]}], get_col_idx=True)
+					where
+						description = %(desc)s
+							and
+						pk_patient = (select fk_patient from clin.encounter where pk = %(enc)s)
+			"""
+			rows, idx = gmPG2.run_ro_queries (
+				queries = [{'cmd': cmd, 'args': {'enc': encounter, 'desc': name}}],
+				get_col_idx = True
+			)
 			if len(rows) == 0:
 				raise gmExceptions.NoSuchBusinessObjectError, 'no health issue for [%s:%s]' % (encounter, name)
 			pk = rows[0][0]
@@ -294,8 +300,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		u"""update clin.episode set
 				fk_health_issue=%(pk_health_issue)s,
 				is_open=%(episode_open)s::boolean,
-				description=%(description)s,
-				fk_patient=%(pk_patient)s
+				description=%(description)s
 			where
 				pk=%(pk_episode)s and
 				xmin=%(xmin_episode)s""",
@@ -304,27 +309,44 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'pk_health_issue',
 		'episode_open',
-		'description',
-		'pk_patient'
+		'description'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', health_issue=None, row=None):
+	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', health_issue=None, row=None, encounter=None):
 		pk = aPK_obj
 		if pk is None and row is None:
-			if health_issue is None:
-				cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s and pk_health_issue is %s"
-			else:
-				cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s and pk_health_issue=%s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{
-					'cmd': cmd,
-					'args': [id_patient, name, health_issue]
-				}],
+
+			where_parts = [u'description = %(desc)s']
+
+			if id_patient is not None:
+				where_parts.append(u'pk_patient = %(pat)s')
+
+			if health_issue is not None:
+				where_parts.append(u'pk_health_issue = %(issue)s')
+
+			if encounter is not None:
+				where_parts.append(u'pk_patient = (select fk_patient from clin.encounter where pk = %(enc)s)')
+
+			args = {
+				'pat': id_patient,
+				'issue': health_issue,
+				'enc': encounter,
+				'desc': name
+			}
+
+			cmd = u"select * from clin.v_pat_episodes where %s" % u' and '.join(where_parts)
+
+			rows, idx = gmPG2.run_ro_queries(
+				queries = [{'cmd': cmd, 'args': args}],
 				get_col_idx=True
 			)
+
 			if len(rows) == 0:
-				raise gmExceptions.NoSuchBusinessObjectError, 'no episode for [%s:%s:%s]' % (id_patient, name, health_issue)
+				raise gmExceptions.NoSuchBusinessObjectError, 'no episode for [%s:%s:%s:%s]' % (id_patient, name, health_issue, encounter)
+
 			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
+
 		else:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row)
 	#--------------------------------------------------------
@@ -476,7 +498,7 @@ from (
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 #============================================================
-def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False, allow_dupes=False, encounter=None):
+def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow_dupes=False, encounter=None):
 	"""Creates a new episode for a given patient's health issue.
 
 	pk_health_issue - given health issue PK
@@ -484,7 +506,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	"""
 	if not allow_dupes:
 		try:
-			episode = cEpisode(id_patient=patient_id, name=episode_name, health_issue=pk_health_issue)
+			episode = cEpisode(name=episode_name, health_issue=pk_health_issue, encounter = encounter)
 			if episode['episode_open'] != is_open:
 				episode['episode_open'] = is_open
 				episode.save_payload()
@@ -493,8 +515,8 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 			pass
 
 	queries = []
-	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open, fk_encounter) values (%s, %s, %s, %s::boolean, %s)"
-	queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open, encounter]})
+	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open, fk_encounter) values (%s, (select fk_patient from clin.encounter where pk = %s), %s, %s::boolean, %s)"
+	queries.append({'cmd': cmd, 'args': [pk_health_issue, encounter, episode_name, is_open, encounter]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
 
@@ -993,7 +1015,7 @@ if __name__ == '__main__':
 			print field, ':', h_issue[field]
 		print "has open episode:", h_issue.has_open_episode()
 		print "open episode:", h_issue.get_open_episode()
-		print "updatable:", h_issue.get_updatable_fields()
+		print "updateable:", h_issue.get_updatable_fields()
 		h_issue.close_expired_episode(ttl=7300)
 		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 		print h_issue
@@ -1040,15 +1062,21 @@ if __name__ == '__main__':
 		print "updatable:", encounter.get_updatable_fields()
 
 	#--------------------------------------------------------
-	# run them
-	test_episode()
-	test_problem()
-	test_encounter()
-	test_health_issue()
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+		# run them
+		#test_episode()
+		#test_problem()
+		#test_encounter()
+		test_health_issue()
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.125  2008-11-20 18:40:53  ncq
+# Revision 1.126  2008-11-24 11:09:01  ncq
+# - health issues now stem from a view
+# - no more fk_patient in clin.health_issue
+# - no more patient id in create_episode
+#
+# Revision 1.125  2008/11/20 18:40:53  ncq
 # - health_issue/episode2problem
 # - improved formatting
 #
