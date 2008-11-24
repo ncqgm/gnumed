@@ -1,11 +1,26 @@
 -- ======================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v8-v9/dynamic/v9-i18n-dynamic.sql,v $
--- $Id: v9-i18n-dynamic.sql,v 1.4 2008-10-25 20:47:16 ncq Exp $
+-- $Id: v9-i18n-dynamic.sql,v 1.5 2008-11-24 23:04:29 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- =============================================
+create or replace function i18n.get_curr_lang(text)
+	returns text
+	language sql
+	as 'select lang from i18n.curr_lang where "user" = $1'
+;
+
+
+create or replace function i18n.get_curr_lang()
+	returns text
+	language sql
+	as 'select i18n.get_curr_lang(quote_literal(CURRENT_USER))'
+;
+
 
 -- =============================================
 create or replace function i18n._(text, text)
@@ -114,20 +129,6 @@ comment on function i18n.set_curr_lang(text) is
 	 - for "current user"
 	 - only if translations for this language are available';
 
--- =============================================
-create or replace function i18n.get_curr_lang(text)
-	returns text
-	language sql
-	as 'select lang from i18n.curr_lang where "user" = $1'
-;
-
-
-create or replace function i18n.get_curr_lang()
-	returns text
-	language sql
-	as 'select i18n.get_curr_lang(quote_literal(CURRENT_USER))'
-;
-
 
 -- =============================================
 create or replace function i18n.upd_tx(text, text, text)
@@ -174,11 +175,14 @@ create or replace function i18n.upd_tx(text, text)
 ;
 
 -- =============================================
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.4  2008-10-25 20:47:16  ncq
+-- Revision 1.5  2008-11-24 23:04:29  ncq
+-- - fix ordering
+--
+-- Revision 1.4  2008/10/25 20:47:16  ncq
 -- - port "user" fixes from 0.3 branch
 --
 -- Revision 1.3  2008/08/03 20:04:26  ncq
