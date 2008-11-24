@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.276 2008-11-20 18:39:40 ncq Exp $
-__version__ = "$Revision: 1.276 $"
+# $Id: gmClinicalRecord.py,v 1.277 2008-11-24 11:06:24 ncq Exp $
+__version__ = "$Revision: 1.277 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -773,7 +773,6 @@ Test results: %(results)s
 		episode = gmEMRStructItems.create_episode (
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
-			patient_id = self.pk_patient,
 			is_open = is_open,
 			encounter = self.__encounter['pk_encounter']
 		)
@@ -871,7 +870,7 @@ where
 		"""
 		Retrieve the cEpisode instance equivalent to the given problem.
 		The problem's type attribute must be 'episode'
-		
+
 		@param problem: The problem to retrieve its related episode for
 		@type problem: A gmEMRStructItems.cProblem instance
 		"""
@@ -1869,7 +1868,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.276  2008-11-20 18:39:40  ncq
+# Revision 1.277  2008-11-24 11:06:24  ncq
+# - no more patient_id in create_episode
+#
+# Revision 1.276  2008/11/20 18:39:40  ncq
 # - get_last_but_one_encounter
 #
 # Revision 1.275  2008/11/03 10:27:41  ncq
