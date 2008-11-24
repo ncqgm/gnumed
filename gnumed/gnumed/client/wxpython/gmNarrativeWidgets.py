@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.14 2008-11-23 12:47:02 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmNarrativeWidgets.py,v 1.15 2008-11-24 11:10:29 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -371,8 +371,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._splitter_right.SetSashGravity(1.0)
 
 		splitter_size = self._splitter_main.GetSizeTuple()[0]
-		print splitter_size
-		print type(splitter_size)
 		self._splitter_main.SetSashPosition(splitter_size * 3 / 10, True)
 
 		splitter_size = self._splitter_left.GetSizeTuple()[1]
@@ -886,7 +884,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.14  2008-11-23 12:47:02  ncq
+# Revision 1.15  2008-11-24 11:10:29  ncq
+# - cleanup
+#
+# Revision 1.14  2008/11/23 12:47:02  ncq
 # - preset splitter ratios and gravity
 # - cleanup
 # - reorder recent notes with most recent on bottom as per list
