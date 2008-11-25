@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.119.2.2 $"
+__version__ = "$Revision: 1.119.2.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -12,7 +12,7 @@ import types, sys, string, datetime, logging, time
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools
+from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools, gmI18N
 from Gnumed.business import gmClinNarrative
 
 
@@ -1033,7 +1033,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.119.2.2  2008-11-20 18:23:18  ncq
+# Revision 1.119.2.3  2008-11-25 11:57:42  ncq
+# - missing gmI18N import
+#
+# Revision 1.119.2.2  2008/11/20 18:23:18  ncq
 # - fix spelling
 #
 # Revision 1.119.2.1  2008/11/11 21:00:12  ncq
