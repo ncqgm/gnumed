@@ -11,6 +11,9 @@ import traceback
 import logging
 
 
+from wx._core import PyDeadObjectError as wx_core_PyDeadObjectError
+
+
 known_signals = [
 	u'pre_patient_selection',
 	u'post_patient_selection',
@@ -244,7 +247,7 @@ class BoundMethodWeakref:
 			method = self.weakFunc().__name__
 			try:
 				return getattr(object, method)
-			except wx._core.PyDeadObjectError:
+			except wx_core_PyDeadObjectError:
 				self.isDead = 1
 				_removeReceiver(receiver=self)
 				return None
@@ -306,7 +309,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.16.2.2  2008-10-15 14:44:19  ncq
+# Revision 1.16.2.3  2008-11-25 12:10:46  ncq
+# - import PyDeadObjectError from wx._core (uh oh !)
+#
+# Revision 1.16.2.2  2008/10/15 14:44:19  ncq
 # - PyDeadObjectError is in wx._core
 #
 # Revision 1.16.2.1  2008/09/09 17:23:23  ncq
