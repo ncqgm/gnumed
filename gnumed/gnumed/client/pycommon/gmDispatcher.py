@@ -11,7 +11,7 @@ import traceback
 import logging
 
 
-from wx._core import PyDeadObjectError as wx_core_PyDeadObjectError
+wx_core_PyDeadObjectError = None
 
 
 known_signals = [
@@ -240,6 +240,11 @@ class BoundMethodWeakref:
 	#------------------------------------------------------------------
 	def __call__(self):
 		"""Return a strong reference to the bound method."""
+
+		global wx_core_PyDeadObjectError
+		if wx_core_PyDeadObjectError is None:
+			from wx._core import PyDeadObjectError as wx_core_PyDeadObjectError
+
 		if self.isDead:
 			return None
 		else:
@@ -309,7 +314,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.16.2.3  2008-11-25 12:10:46  ncq
+# Revision 1.16.2.4  2008-11-26 12:17:49  ncq
+# - properly import dead object exception
+#
+# Revision 1.16.2.3  2008/11/25 12:10:46  ncq
 # - import PyDeadObjectError from wx._core (uh oh !)
 #
 # Revision 1.16.2.2  2008/10/15 14:44:19  ncq
