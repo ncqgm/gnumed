@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-static.sql,v 1.4 2008-06-24 14:05:06 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v9-clin-test_result-static.sql,v 1.4.2.1 2008-11-28 22:57:39 ncq Exp $
+-- $Revision: 1.4.2.1 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -53,8 +53,12 @@ alter table clin.reviewed_test_results
 		on delete restrict
 ;
 
+\unset ON_ERROR_STOP
 alter table clin.reviewed_test_results
 	drop constraint "reviewed_test_results_fk_reviewed_row_fkey" cascade;
+alter table clin.reviewed_test_results
+	drop constraint "$1" cascade;
+\set ON_ERROR_STOP 1
 
 alter table clin.reviewed_test_results
 	add foreign key (fk_reviewed_row)
@@ -64,11 +68,14 @@ alter table clin.reviewed_test_results
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-clin-test_result-static.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v9-clin-test_result-static.sql,v $', '$Revision: 1.4.2.1 $');
 
 -- ==============================================================
 -- $Log: v9-clin-test_result-static.sql,v $
--- Revision 1.4  2008-06-24 14:05:06  ncq
+-- Revision 1.4.2.1  2008-11-28 22:57:39  ncq
+-- - old DBs had constraint names like "$1"
+--
+-- Revision 1.4  2008/06/24 14:05:06  ncq
 -- - make FK on reviewed result cascading on delete
 --
 -- Revision 1.3  2008/04/26 10:08:39  ncq
