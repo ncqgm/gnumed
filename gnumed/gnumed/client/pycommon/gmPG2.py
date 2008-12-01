@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.92 $"
+__version__ = "$Revision: 1.93 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1270,7 +1270,9 @@ class cAuthenticationError(dbapi.OperationalError):
 
 	def __str__(self):
 		_log.warning('%s.__str__() called', self.__class__.__name__)
-		return 'PostgreSQL: %sDSN: %s' % (self.prev_val.encode(gmI18N.get_encoding(), 'replace'), self.dsn.encode(gmI18N.get_encoding(), 'replace'))
+		tmp = u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+		_log.error(tmp)
+		return tmp.encode(gmI18N.get_encoding(), 'replace')
 
 	def __unicode__(self):
 		return u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
@@ -1619,7 +1621,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.92  2008-11-20 18:45:10  ncq
+# Revision 1.93  2008-12-01 12:13:24  ncq
+# - log exeption on __str__ in auth error so we have *something*
+#   on encoding errors
+#
+# Revision 1.92  2008/11/20 18:45:10  ncq
 # - modernize read/write conn mode setting
 #
 # Revision 1.91  2008/11/17 23:12:29  ncq
