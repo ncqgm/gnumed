@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.90 $"
+__version__ = "$Revision: 1.91 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -883,6 +883,7 @@ class database:
 			_log.info('configured to not transfer users')
 			print_msg("    ... skipped (disabled)")
 			return True
+		# FIXME: for v11 switch to gm.transfer_users()
 		cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
 		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
 		if rows[0][0]:
@@ -1384,7 +1385,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.90  2008-11-20 20:23:40  ncq
+# Revision 1.91  2008-12-01 12:38:10  ncq
+# - add FIXME comment
+#
+# Revision 1.90  2008/11/20 20:23:40  ncq
 # - fix role creation
 #
 # Revision 1.89  2008/11/18 22:02:44  ncq
