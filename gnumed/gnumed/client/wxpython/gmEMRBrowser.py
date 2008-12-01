@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.97 2008-11-20 19:50:19 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmEMRBrowser.py,v 1.98 2008-12-01 12:37:37 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -94,6 +94,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__curr_node = None
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
 
+		self._old_cursor_pos = None
+
 		self.__make_popup_menus()
 		self.__register_events()
 	#--------------------------------------------------------
@@ -118,6 +120,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		"""Configures enabled event signals."""
 		wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self._on_tree_item_right_clicked)
+
+		# handle tooltips
+#		wx.EVT_MOTION(self, self._on_mouse_motion)
+		wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
 
 		gmDispatcher.connect(signal = 'narrative_mod_db', receiver = self._on_narrative_mod_db)
 		gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_mod_db)
@@ -465,6 +471,57 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__curr_node = sel_item
 		self.__update_text_for_selected_node()
 		return True
+#	#--------------------------------------------------------
+#	def _on_mouse_motion(self, event):
+#
+#		cursor_pos = (event.GetX(), event.GetY())
+#
+#		self.SetToolTipString(u'')
+#
+#		if cursor_pos != self._old_cursor_pos:
+#			self._old_cursor_pos = cursor_pos
+#			(item, flags) = self.HitTest(cursor_pos)
+#			#if flags != wx.TREE_HITTEST_NOWHERE:
+#			if flags == wx.TREE_HITTEST_ONITEMLABEL:
+#				data = self.GetPyData(item)
+#
+#				if not isinstance(data, gmEMRStructItems.cEncounter):
+#					return
+#
+#				self.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
+#					data['started'].strftime('%x'),
+#					data['l10n_type'],
+#					data['started'].strftime('%H:%m'),
+#					data['last_affirmed'].strftime('%H:%m'),
+#					gmTools.coalesce(data['reason_for_encounter'], u''),
+#					gmTools.coalesce(data['assessment_of_encounter'], u'')
+#				))
+	#--------------------------------------------------------
+	def _on_tree_item_gettooltip(self, event):
+
+		item = event.GetItem()
+
+		if not item.IsOk():
+			event.SetToolTip(u' ')
+			return
+
+		data = self.GetPyData(item)
+
+		if isinstance(data, gmEMRStructItems.cEncounter):
+			event.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
+				data['started'].strftime('%x'),
+				data['l10n_type'],
+				data['started'].strftime('%H:%m'),
+				data['last_affirmed'].strftime('%H:%m'),
+				gmTools.coalesce(data['reason_for_encounter'], u''),
+				gmTools.coalesce(data['assessment_of_encounter'], u'')
+			))
+		else:
+			event.SetToolTip(u' ')
+			#self.SetToolTipString(u'')
+
+		# doing this prevents the tooltip from showing at all
+		#event.Skip()
 	#--------------------------------------------------------
 	def _on_tree_item_right_clicked(self, event):
 		"""Right button clicked: display the popup for the tree"""
@@ -672,7 +729,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.97  2008-11-20 19:50:19  ncq
+# Revision 1.98  2008-12-01 12:37:37  ncq
+# - generate encounter node tooltips
+#
+# Revision 1.97  2008/11/20 19:50:19  ncq
 # - use improved data formatting
 #
 # Revision 1.96  2008/10/12 16:13:23  ncq
