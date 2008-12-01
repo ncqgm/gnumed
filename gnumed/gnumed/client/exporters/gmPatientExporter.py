@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.130 2008-10-22 12:06:05 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmPatientExporter.py,v 1.131 2008-12-01 12:36:57 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -151,7 +151,7 @@ class cEmrExport:
             else:
                 column_widths.append(date_length)  # date -> column width at least
             vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
-                
+
         # patient dob in top of vaccination chart 
         txt = '\nDOB: %s' %(patient_dob.strftime('%x')) + '\n'
 
@@ -527,12 +527,22 @@ class cEmrExport:
         self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
         emr_tree.SortChildren(episode_node)
         return episode_node
-    #--------------------------------------------------------             
+    #--------------------------------------------------------
     def _add_encounters_to_tree( self, encounters, emr_tree, episode_node):
         for an_encounter in encounters:
-            label = '%s: %s' % (an_encounter['started'].strftime('%Y-%m-%d'), an_encounter['l10n_type'])
-            encounter_node = emr_tree.AppendItem(episode_node, label)
-            emr_tree.SetPyData(encounter_node, an_encounter)
+#            label = u'%s: %s' % (an_encounter['started'].strftime('%Y-%m-%d'), an_encounter['l10n_type'])
+            label = u'%s: %s' % (
+                an_encounter['started'].strftime('%Y-%m-%d'),
+                gmTools.coalesce (
+                    gmTools.coalesce (
+                        an_encounter['assessment_of_encounter'],
+                        an_encounter['reason_for_encounter']
+                    ),
+                    an_encounter['l10n_type']
+                )[:40]
+            )
+            encounter_node_id = emr_tree.AppendItem(episode_node, label)
+            emr_tree.SetPyData(encounter_node_id, an_encounter)
     #--------------------------------------------------------
     def _get_encounters ( self, an_episode, emr ):
                encounters = emr.get_encounters (
@@ -1164,7 +1174,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.130  2008-10-22 12:06:05  ncq
+# Revision 1.131  2008-12-01 12:36:57  ncq
+# - improved encounter node label
+#
+# Revision 1.130  2008/10/22 12:06:05  ncq
 # - use %x in strftime
 #
 # Revision 1.129  2008/10/12 15:32:18  ncq
