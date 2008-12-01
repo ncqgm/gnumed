@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.23 2008-12-01 12:15:36 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmStaffWidgets.py,v 1.24 2008-12-01 12:17:17 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -148,7 +148,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		# 2) disable database account login
 		rows, idx = gmPG2.run_rw_queries (
 			link_obj = conn,
-			queries = [{'cmd': u'select gm_disable_user(%s)', 'args': [staff['db_user']]}],
+			queries = [{'cmd': u'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
 			end_tx = True
 		)
 		conn.close()
@@ -258,7 +258,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.23  2008-12-01 12:15:36  ncq
+# Revision 1.24  2008-12-01 12:17:17  ncq
+# - again
+#
+# Revision 1.23  2008/12/01 12:15:36  ncq
 # - gm_*_user now live in gm.
 #
 # Revision 1.22  2008/10/22 12:21:58  ncq
