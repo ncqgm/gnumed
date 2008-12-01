@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.22 2008-07-22 13:54:25 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmMimeLib.py,v 1.23 2008-12-01 12:12:37 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -152,6 +152,17 @@ def guess_ext_for_file(aFile=None):
 #-----------------------------------------------------------------------------------
 _system_startfile_cmd = None
 
+open_cmds = {
+	'xdg-open': 'xdg-open %s',				# nascent standard on Linux
+	'kfmclient': 'kfmclient exec %s',		# KDE
+	'gnome-open': 'gnome-open %s',			# GNOME
+	'exo-open': 'exo-open %s',
+	'op': 'op %s',
+	'open': 'open %s'						# MacOSX
+	#'run-mailcap'
+	#'explorer'
+}
+
 def _get_system_startfile_cmd(filename):
 
 	global _system_startfile_cmd
@@ -162,18 +173,9 @@ def _get_system_startfile_cmd(filename):
 	if _system_startfile_cmd is not None:
 		return True, _system_startfile_cmd % filename
 
-	open_cmds = {
-		'xdg-open': 'xdg-open %s',				# nascent standard on Linux
-		'kfmclient': 'kfmclient exec %s',		# KDE
-		'gnome-open': 'gnome-open %s',			# GNOME
-		'exo-open': 'exo-open %s',
-		'op': 'op %s',
-		'open': 'open %s'						# MacOSX
-		#'run-mailcap'
-		#'explorer'
-	}
+	open_cmd_candidates = ['xdg-open', 'kfmclient', 'gnome-open', 'exo-open', 'op', 'open']
 
-	for candidate in open_cmds.keys():
+	for candidate in open_cmd_candidates:
 		found, binary = gmShellAPI.detect_external_binary(binary = candidate)
 		if not found:
 			continue
@@ -200,20 +202,6 @@ def call_viewer_on_file(aFile = None, block=None):
 	if found:
 		if gmShellAPI.run_command_in_shell(command = startfile_cmd, blocking = block):
 			return True, ''
-
-#	# well, maybe we are on KDE, so try to detect kfmclient
-#	__detect_kfmclient()
-#	if kfmclient != u'':
-#		cmd = 'kfmclient exec %s' % aFile
-#		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
-#			return True, ''
-
-#	# or else, are we on GNOME ? try to detect gnome-open
-#	__detect_gnome_open()
-#	if gnome_open != u'':
-#		cmd = 'gnome-open %s' % aFile
-#		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
-#			return True, ''
 
 	mime_type = guess_mimetype(aFile)
 	viewer_cmd = get_viewer_cmd(mime_type, aFile)
@@ -268,15 +256,21 @@ def call_viewer_on_file(aFile = None, block=None):
 if __name__ == "__main__":
 
 	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+
 		filename = sys.argv[2]
 
-		print guess_mimetype(filename)
-		print get_viewer_cmd(guess_mimetype(filename), filename)
+		_get_system_startfile_cmd(filename)
+		print _system_startfile_cmd
+		#print guess_mimetype(filename)
+		#print get_viewer_cmd(guess_mimetype(filename), filename)
 		#print guess_ext_by_mimetype(mimetype=filename)
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.22  2008-07-22 13:54:25  ncq
+# Revision 1.23  2008-12-01 12:12:37  ncq
+# - turn file-open candidates into list so we can influence detection order
+#
+# Revision 1.22  2008/07/22 13:54:25  ncq
 # - xdg-open is intended to become the standard so look for that first
 # - some cleanup
 #
