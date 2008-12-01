@@ -14,7 +14,7 @@
 #
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/gnumed-backup.conf.example,v $
-# $Id: gnumed-backup.conf.example,v 1.1 2008-08-28 15:11:48 ncq Exp $
+# $Id: gnumed-backup.conf.example,v 1.2 2008-12-01 12:11:22 ncq Exp $
 
 
 #------------------------------------------------------------
@@ -33,7 +33,7 @@ INSTANCE_OWNER="GNUmed_Team"
 BACKUP_DIR="${HOME}/.gnumed/backup/"
 
 # which database to backup
-GM_DATABASE="gnumed_v9"
+GM_DATABASE="gnumed_v10"
 
 # user/group the backup is eventually owned by
 BACKUP_OWNER="$USER.$USER"
@@ -107,7 +107,10 @@ GNOTARY_TAN="free"
 
 #============================================================
 # $Log: gnumed-backup.conf.example,v $
-# Revision 1.1  2008-08-28 15:11:48  ncq
+# Revision 1.2  2008-12-01 12:11:22  ncq
+# - bump db version
+#
+# Revision 1.1  2008/08/28 15:11:48  ncq
 # - moved here
 #
 # Revision 1.13  2008/08/01 10:08:49  ncq
