@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.16 2008-11-03 10:29:57 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.17 2008-12-01 12:18:02 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -64,12 +64,32 @@ fi
 # create dumps
 if test -z ${GM_HOST} ; then
 	# locally
-	sudo -u postgres pg_dumpall -g -v -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	# -r -> -g for older versions
+	sudo -u postgres pg_dumpall -r -v -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+
+	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- Below find a list of database roles which were in use" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- in the GNUmed database \"${GM_DATABASE}\"."            >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- "`psql -A -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+
 	pg_dump -C -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql 2> /dev/null
 else
 	# remotely
 	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
-		pg_dumpall -g -v -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		# -r -> -g
+		pg_dumpall -r -v -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+
+		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- Below find a list of database roles which were in use" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- in the GNUmed database \"${GM_DATABASE}\"."            >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- "`psql -A -v -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+
 		pg_dump -C -v -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql 2> /dev/null
 	else
 		echo "Cannot ping database host ${GM_HOST}."
@@ -98,7 +118,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.16  2008-11-03 10:29:57  ncq
+# Revision 1.17  2008-12-01 12:18:02  ncq
+# - log accounts in use during backup
+#
+# Revision 1.16  2008/11/03 10:29:57  ncq
 # - cleanup
 #
 # Revision 1.15  2007/12/08 15:23:14  ncq
