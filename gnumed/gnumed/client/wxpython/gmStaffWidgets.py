@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.22 2008-10-22 12:21:58 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmStaffWidgets.py,v 1.23 2008-12-01 12:15:36 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -126,7 +126,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		# 2) enable database account login
 		rowx, idx = gmPG2.run_rw_queries (
 			link_obj = conn,
-			queries = [{'cmd': u'select gm_create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
+			queries = [{'cmd': u'select gm.create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
 			end_tx = True
 		)
 		conn.close()
@@ -228,7 +228,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		db_account = self._TXT_account.GetValue()
 		queries = [
 			# database account
-			{'cmd': u'select gm_create_user(%s, %s)', 'args': [db_account, self._TXT_password.GetValue()]},
+			{'cmd': u'select gm.create_user(%s, %s)', 'args': [db_account, self._TXT_password.GetValue()]},
 			# staff entry
 			{
 				'cmd': u"insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name='doctor'), %s, %s)",
@@ -258,7 +258,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.22  2008-10-22 12:21:58  ncq
+# Revision 1.23  2008-12-01 12:15:36  ncq
+# - gm_*_user now live in gm.
+#
+# Revision 1.22  2008/10/22 12:21:58  ncq
 # - use %x in strftime where appropriate
 #
 # Revision 1.21  2008/08/20 14:55:33  ncq
