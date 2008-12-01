@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.126 $"
+__version__ = "$Revision: 1.127 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -452,18 +452,44 @@ from (
 
 			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%x %H:%M'))
 
-			lines.append(_('Encounters: %s (%s - %s):') % (
+			lines.append(_('1st and last 3 of %s (%s - %s) encounters:') % (
 				len(encs),
 				first_encounter['started'].strftime('%m/%Y'),
 				last_encounter['last_affirmed'].strftime('%m/%Y')
 			))
 
-			for enc in encs:
+			lines.append(u' %s - %s (%s):%s' % (
+				first_encounter['started_original_tz'].strftime('%x %H:%M'),
+				first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
+				first_encounter['l10n_type'],
+				gmTools.coalesce (
+					first_encounter['assessment_of_encounter'],
+					gmTools.coalesce (
+						first_encounter['reason_for_encounter'],
+						u'',
+						u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
+					),
+					u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
+				)
+			))
+
+			if len(encs) > 4:
+				lines.append(u' ... %s skipped ...' % (len(encs) - 4))
+
+			for enc in encs[1:][-3:]:
 				lines.append(u' %s - %s (%s):%s' % (
 					enc['started_original_tz'].strftime('%x %H:%M'),
 					enc['last_affirmed_original_tz'].strftime('%H:%M'),
 					enc['l10n_type'],
-					gmTools.coalesce(enc['assessment_of_encounter'], u'', u' \u00BB%s\u00AB')
+					gmTools.coalesce (
+						enc['assessment_of_encounter'],
+						gmTools.coalesce (
+							enc['reason_for_encounter'],
+							u'',
+							u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
+						),
+						u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
+					)
 				))
 
 		# documents
@@ -1071,7 +1097,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.126  2008-11-24 11:09:01  ncq
+# Revision 1.127  2008-12-01 12:36:13  ncq
+# - much improved formatting
+#
+# Revision 1.126  2008/11/24 11:09:01  ncq
 # - health issues now stem from a view
 # - no more fk_patient in clin.health_issue
 # - no more patient id in create_episode
