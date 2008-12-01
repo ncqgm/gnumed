@@ -11,6 +11,9 @@ import traceback
 import logging
 
 
+wx_core_PyDeadObjectError = None
+
+
 known_signals = [
 	u'pre_patient_selection',
 	u'post_patient_selection',
@@ -237,6 +240,11 @@ class BoundMethodWeakref:
 	#------------------------------------------------------------------
 	def __call__(self):
 		"""Return a strong reference to the bound method."""
+
+		global wx_core_PyDeadObjectError
+		if wx_core_PyDeadObjectError is None:
+			from wx._core import PyDeadObjectError as wx_core_PyDeadObjectError
+
 		if self.isDead:
 			return None
 
@@ -244,7 +252,7 @@ class BoundMethodWeakref:
 		method = self.weakFunc().__name__
 		try:
 			return getattr(object, method)
-		except wx._core.PyDeadObjectError:
+		except wx_core_PyDeadObjectError:
 			self.isDead = 1
 			_removeReceiver(receiver=self)
 			return None
@@ -306,7 +314,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.18  2008-10-22 12:07:43  ncq
+# Revision 1.19  2008-12-01 12:12:06  ncq
+# - lazy import of wx._core.PyDeadObjectError
+#
+# Revision 1.18  2008/10/22 12:07:43  ncq
 # - spurious double :
 #
 # Revision 1.17  2008/09/09 20:16:35  ncq
