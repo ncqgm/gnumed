@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.100 2008-10-22 12:22:26 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmTopPanel.py,v 1.101 2008-12-09 23:43:50 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -180,7 +180,7 @@ class cMainTopPanel(wx.Panel):
 			self.szr_stacked_rows.Add(1, 1, 0)
 		except:
 			self.szr_stacked_rows.Add((1, 1), 0)
-		
+
 		# 0 here indicates the sizer cannot change its heights - which is intended
 		self.szr_stacked_rows.Add(self.szr_top_row, 0, wx.EXPAND)
 		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wx.EXPAND|wx.TOP, 5)
@@ -447,7 +447,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.100  2008-10-22 12:22:26  ncq
+# Revision 1.101  2008-12-09 23:43:50  ncq
+# - cleanup
+#
+# Revision 1.100  2008/10/22 12:22:26  ncq
 # - improved allergies tooltip and display
 #
 # Revision 1.99  2008/10/12 16:36:45  ncq
