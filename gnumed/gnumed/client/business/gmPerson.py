@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.169 2008-11-23 12:42:57 ncq Exp $
-__version__ = "$Revision: 1.169 $"
+# $Id: gmPerson.py,v 1.170 2008-12-09 23:19:47 ncq Exp $
+__version__ = "$Revision: 1.170 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -269,15 +269,19 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
 	#--------------------------------------------------------
-	def get_description(self):
-		"""Return descriptive string for patient."""
-
-		return '%(last)s, %(title)s %(first)s%(nick)s' % {
+	def get_description_gender(self):
+		return '%(sex)s%(title)s %(last)s, %(first)s%(nick)s' % {
 			'last': self._payload[self._idx['lastnames']],
-			'title': gmTools.coalesce (
-				self._payload[self._idx['title']],
-				map_gender2salutation(self._payload[self._idx['gender']])
-			),
+			'first': self._payload[self._idx['firstnames']],
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s'),
+			'sex': map_gender2salutation(self._payload[self._idx['gender']]),
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s')
+		}
+	#--------------------------------------------------------
+	def get_description(self):
+		return '%(last)s,%(title)s %(first)s%(nick)s' % {
+			'last': self._payload[self._idx['lastnames']],
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s'),
 			'first': self._payload[self._idx['firstnames']],
 			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s')
 		}
@@ -2190,7 +2194,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.169  2008-11-23 12:42:57  ncq
+# Revision 1.170  2008-12-09 23:19:47  ncq
+# - attribute description vs description_gender
+#
+# Revision 1.169  2008/11/23 12:42:57  ncq
 # - no more dummy names
 #
 # Revision 1.168  2008/11/21 13:03:36  ncq
