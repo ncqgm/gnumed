@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.97 2008-08-15 15:55:53 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmDemographicRecord.py,v 1.98 2008-12-09 23:47:12 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -570,6 +570,7 @@ if __name__ == "__main__":
 			continue
 		print "ID       ", myPatient.ID
 		print "name     ", myPatient['description']
+		print "name     ", myPatient['description_gender']
 		print "title    ", myPatient['title']
 		print "dob      ", myPatient['dob']
 		print "med age  ", myPatient['medical_age']
@@ -578,7 +579,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.97  2008-08-15 15:55:53  ncq
+# Revision 1.98  2008-12-09 23:47:12  ncq
+# - adjust to description_gender
+#
+# Revision 1.97  2008/08/15 15:55:53  ncq
 # - get_provinces
 #
 # Revision 1.96  2008/02/26 16:24:49  ncq
