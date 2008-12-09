@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.113 2008-10-12 16:26:46 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmPatSearchWidgets.py,v 1.114 2008-12-09 23:43:27 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -819,7 +819,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			enc = gmI18N.get_encoding()
 			gmDispatcher.send(signal = 'statustext', msg = _(
 				'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
-					'pat': pat.get_description(),
+					'pat': pat.get_description_gender(),
 					'age': pat.get_medical_age().strip('y'),
 					'month': pat['dob'].strftime('%B').decode(enc),
 					'day': pat['dob'].strftime('%d'),
@@ -864,8 +864,6 @@ class cActivePatientSelector(cPersonSearchCtrl):
 
 		self._set_person_as_active_patient(self.person)
 		self._display_name()
-
-		gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 	#----------------------------------------------
 	def _on_char(self, evt):
 
@@ -992,7 +990,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.113  2008-10-12 16:26:46  ncq
+# Revision 1.114  2008-12-09 23:43:27  ncq
+# - use description_gender
+# - no more hardcoded plugin raising after patient activation
+#
+# Revision 1.113  2008/10/12 16:26:46  ncq
 # - cleanup
 #
 # Revision 1.112  2008/09/01 20:28:51  ncq
