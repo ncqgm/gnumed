@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.127 $"
+__version__ = "$Revision: 1.128 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -504,11 +504,12 @@ from (
 
 		for d in docs:
 			lines.append(u' %s %s:%s%s' % (
-				d['date'].strftime('%x'),
+				d['clin_when'].strftime('%x'),
 				d['l10n_type'],
 				gmTools.coalesce(d['comment'], u'', u' "%s"'),
 				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
 			))
+		del docs
 
 		# spell out last encounter
 		if last_encounter is not None:
@@ -541,8 +542,8 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 			pass
 
 	queries = []
-	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open, fk_encounter) values (%s, (select fk_patient from clin.encounter where pk = %s), %s, %s::boolean, %s)"
-	queries.append({'cmd': cmd, 'args': [pk_health_issue, encounter, episode_name, is_open, encounter]})
+	cmd = u"insert into clin.episode (fk_health_issue, description, is_open, fk_encounter) values (%s, %s, %s::boolean, %s)"
+	queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open, encounter]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
 
@@ -648,8 +649,9 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	def has_clinical_data(self):
 		cmd = u"""
 select exists (
-	select 1 from clin.v_pat_items where pk_patient=%(pat)s and pk_encounter=%(enc)s union all
-	select 1 from blobs.doc_med where fk_identity=%(pat)s and fk_encounter=%(enc)s
+	select 1 from clin.v_pat_items where pk_patient = %(pat)s and pk_encounter = %(enc)s
+		union all
+	select 1 from blobs.v_doc_med where pk_patient = %(pat)s and pk_encounter = %(enc)s
 )"""
 		args = {
 			'pat': self._payload[self._idx['pk_patient']],
@@ -683,7 +685,7 @@ select exists (
 	def has_documents(self):
 		cmd = u"""
 select exists (
-	select 1 from blobs.doc_med where fk_identity=%(pat)s and fk_encounter=%(enc)s
+	select 1 from blobs.v_doc_med where pk_patient = %(pat)s and pk_encounter = %(enc)s
 )"""
 		args = {
 			'pat': self._payload[self._idx['pk_patient']],
@@ -806,8 +808,11 @@ select exists (
 			if len(tests) > 0:
 				lines.append('')
 				lines.append(_('Measurements and Results:'))
-				for t in tests:
-					lines.extend(t.format())
+
+			for t in tests:
+				lines.extend(t.format())
+
+			del tests
 
 		if with_docs:
 			doc_folder = patient.get_document_folder()
@@ -822,11 +827,13 @@ select exists (
 
 			for d in docs:
 				lines.append(u' %s %s:%s%s' % (
-					d['date'].strftime('%x'),
+					d['clin_when'].strftime('%x'),
 					d['l10n_type'],
 					gmTools.coalesce(d['comment'], u'', u' "%s"'),
 					gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
 				))
+
+			del docs
 
 		eol_w_margin = u'\n%s' % left_margin
 		return u'%s\n' % eol_w_margin.join(lines)
@@ -1097,7 +1104,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.127  2008-12-01 12:36:13  ncq
+# Revision 1.128  2008-12-09 23:21:00  ncq
+# - .date -> .clin_when in documents
+# - no more fk_patient in episode
+#
+# Revision 1.127  2008/12/01 12:36:13  ncq
 # - much improved formatting
 #
 # Revision 1.126  2008/11/24 11:09:01  ncq
