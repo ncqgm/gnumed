@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.107 2008-11-20 18:41:36 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmMedDoc.py,v 1.108 2008-12-09 23:21:54 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -78,15 +78,15 @@ class cDocumentFolder:
 		else:
 			cmd = u"""
 				select
-					dm.pk as pk_doc,
+					vdm.pk_doc as pk_doc,
 					dobj.pk as pk_obj
 				from
-					blobs.doc_med dm
+					blobs.v_doc_med vdm
 					blobs.doc_obj dobj
 				where
-					dm.fk_type = (select pk from blobs.doc_type where name='patient photograph') and
-					dm.fk_identity=%s and
-					and dobj.fk_doc = dm.pk
+					vdm.pk_type = (select pk from blobs.doc_type where name = 'patient photograph')
+					and vdm.pk_patient = %s
+					and dobj.fk_doc = vdm.pk_doc
 			"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		return rows
@@ -99,21 +99,21 @@ class cDocumentFolder:
 		}
 		# FIXME: might have to order by on modified_when, date is a string
 		if doc_type is None:
-			cmd = u"""select pk from blobs.doc_med where fk_identity=%(ID)s"""
+			cmd = u"select pk_doc from blobs.v_doc_med where pk_patient = %(ID)s"
 		elif type(doc_type) == types.StringType:
 			cmd = u"""
-				select dm.pk
-				from blobs.doc_med dm
+				select vdm.pk_doc
+				from blobs.v_doc_med vdm
 				where
-					dm.fk_identity = %(ID)s and
-					dm.fk_type = (select pk from blobs.doc_type where name=%(TYP)s)"""
+					vdm.pk_patient = %(ID)s and
+					vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)"""
 		else:
 			cmd = u"""
-				select dm.pk
-				from blobs.doc_med dm
+				select vdm.pk_doc
+				from blobs.v_doc_med vdm
 				where
-					dm.fk_identity = %(ID)s and
-					dm.fk_type = %(TYP)s"""
+					vdm.pk_patient = %(ID)s and
+					vdm.pk_type = %(TYP)s"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		doc_ids = []
 		for row in rows:
@@ -141,7 +141,7 @@ class cDocumentFolder:
 		return docs
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None):
-		return create_document(patient_id=self.pk_patient, document_type=document_type, encounter=encounter, episode=episode)
+		return create_document(document_type = document_type, encounter = encounter, episode = episode)
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
@@ -329,21 +329,21 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"""select * from blobs.v_doc_med where pk_doc=%s"""
 	_cmds_store_payload = [
 		u"""update blobs.doc_med set
-				fk_type=%(pk_type)s,
-				comment=%(comment)s,
-				date=%(date)s,
-				ext_ref=%(ext_ref)s,
-				fk_episode=%(pk_episode)s
+				fk_type = %(pk_type)s,
+				comment = %(comment)s,
+				clin_when = %(clin_when)s,
+				ext_ref = %(ext_ref)s,
+				fk_episode = %(pk_episode)s
 			where
-				pk=%(pk_doc)s and
-				xmin=%(xmin_doc_med)s""",
-		u"""select xmin_doc_med from blobs.v_doc_med where pk_doc=%(pk_doc)s"""
+				pk = %(pk_doc)s and
+				xmin = %(xmin_doc_med)s""",
+		u"""select xmin_doc_med from blobs.v_doc_med where pk_doc = %(pk_doc)s"""
 		]
 
 	_updatable_fields = [
 		'pk_type',
 		'comment',
-		'date',
+		'clin_when',
 		'ext_ref',
 		'pk_episode'
 	]
@@ -514,14 +514,14 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 # convenience functions
 #============================================================
-def create_document(patient_id=None, document_type=None, encounter=None, episode=None):
+def create_document(document_type=None, encounter=None, episode=None):
 	"""Returns new document instance or raises an exception.
 	"""
-	cmd1 = u"""insert into blobs.doc_med (fk_identity, fk_type, fk_encounter, fk_episode) VALUES (%s, %s, %s, %s)"""
+	cmd1 = u"""insert into blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s)"""
 	cmd2 = u"""select currval('blobs.doc_med_pk_seq')"""
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
-			{'cmd': cmd1, 'args': [patient_id, document_type, encounter, episode]},
+			{'cmd': cmd1, 'args': {'type': document_type, 'enc': encounter, 'epi': episode}},
 			{'cmd': cmd2}
 		],
 		return_data = True
@@ -537,13 +537,13 @@ def search_for_document(patient_id=None, type_id=None):
 	"""
 	# sanity checks
 	if patient_id is None:
-		raise ValueError('need patient id to create document')
+		raise ValueError('need patient id to search for document')
 
 	args = {'pat_id': patient_id, 'type_id': type_id}
 	if type_id is None:
-		cmd = u"SELECT pk from blobs.doc_med WHERE fk_identity=%(pat_id)s"
+		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s"
 	else:
-		cmd = u"SELECT pk from blobs.doc_med WHERE fk_identity=%(pat_id)s and fk_type=%(type_id)s"
+		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s and fk_type = %(type_id)s"
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -576,7 +576,7 @@ def get_document_types():
 #------------------------------------------------------------
 def create_document_type(document_type=None):
 	# check for potential dupes:
-	cmd = u'select pk from blobs.doc_type where name=%s'
+	cmd = u'select pk from blobs.doc_type where name = %s'
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': cmd, 'args': [document_type]}]
 	)
@@ -703,7 +703,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.107  2008-11-20 18:41:36  ncq
+# Revision 1.108  2008-12-09 23:21:54  ncq
+# - no more fk_identity in doc_med
+# - date -> clin_when in doc_med
+#
+# Revision 1.107  2008/11/20 18:41:36  ncq
 # - rename arg in get_documents
 #
 # Revision 1.106  2008/10/12 15:14:14  ncq
