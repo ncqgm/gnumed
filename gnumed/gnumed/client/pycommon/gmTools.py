@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.70 2008-11-20 18:47:40 ncq Exp $
+# $Id: gmTools.py,v 1.71 2008-12-09 23:28:15 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -408,13 +408,12 @@ def import_module_from_directory(module_path=None, module_name=None):
 
 	try:
 		module = __import__(module_name)
-		_log.info('imported module [%s] as [%s]' % (module_name, module))
 	except StandardError:
 		_log.exception('cannot __import__() module [%s] from [%s]' % (module_name, module_path))
-		if remove_path:
-			sys.path.remove(module_path)
+		sys.path.remove(module_path)
 		raise
 
+	_log.info('imported module [%s] as [%s]' % (module_name, module))
 	if remove_path:
 		sys.path.remove(module_path)
 
@@ -916,7 +915,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.70  2008-11-20 18:47:40  ncq
+# Revision 1.71  2008-12-09 23:28:15  ncq
+# - better logging
+# - always remove aux module path if importing fails
+#
+# Revision 1.70  2008/11/20 18:47:40  ncq
 # - add left arrow unicode
 # - fix logging in update check
 #
