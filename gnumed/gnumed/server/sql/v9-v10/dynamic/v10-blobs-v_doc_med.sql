@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-blobs-v_doc_med.sql,v 1.1 2008-12-01 21:46:34 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-blobs-v_doc_med.sql,v 1.2 2008-12-09 23:13:24 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -18,7 +18,7 @@ create view blobs.v_doc_med as
 select
 	(select fk_patient from clin.encounter where pk = dm.fk_encounter) as pk_patient,
 	dm.pk as pk_doc,
-	dm.date as date,
+	dm.clin_when as clin_when,
 	dt.name as type,
 	_(dt.name) as l10n_type,
 	dm.ext_ref as ext_ref,
@@ -46,11 +46,14 @@ where
 GRANT SELECT ON blobs.v_doc_med TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-blobs-v_doc_med.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-blobs-v_doc_med.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-blobs-v_doc_med.sql,v $
--- Revision 1.1  2008-12-01 21:46:34  ncq
+-- Revision 1.2  2008-12-09 23:13:24  ncq
+-- - .date -> .clin_when
+--
+-- Revision 1.1  2008/12/01 21:46:34  ncq
 -- - new
 --
 --

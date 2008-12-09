@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-blobs-v_doc_med_journal.sql,v 1.1 2008-09-02 15:41:19 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-blobs-v_doc_med_journal.sql,v 1.2 2008-12-09 23:13:24 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -23,7 +23,7 @@ select
 		as pk_patient,
 	dm.modified_when
 		as modified_when,
-	dm.date
+	dm.clin_when
 		as clin_when,
 	coalesce (
 		(select short_alias from dem.staff where db_user = dm.modified_by),
@@ -34,7 +34,7 @@ select
 		as soap_cat,
 	_('Document') || ': ' || _(dt.name)
 		|| coalesce(' "' || dm.ext_ref || '" (', ' (')
-		|| to_char(dm.date, 'YYYY-MM-DD HH24:MI') || ')'
+		|| to_char(dm.clin_when, 'YYYY-MM-DD HH24:MI') || ')'
 		|| coalesce(E'\n ' || dm.comment, '')
 		as narrative,
 	dm.fk_encounter
@@ -57,11 +57,14 @@ where
 
 grant select on blobs.v_doc_med_journal TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-blobs-v_doc_med_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-blobs-v_doc_med_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-blobs-v_doc_med_journal.sql,v $
--- Revision 1.1  2008-09-02 15:41:19  ncq
+-- Revision 1.2  2008-12-09 23:13:24  ncq
+-- - .date -> .clin_when
+--
+-- Revision 1.1  2008/09/02 15:41:19  ncq
 -- - new
 --
 --

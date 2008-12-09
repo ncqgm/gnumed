@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-blobs-v_obj4doc_no_data.sql,v 1.1 2008-12-01 21:46:34 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-blobs-v_obj4doc_no_data.sql,v 1.2 2008-12-09 23:13:24 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -24,7 +24,7 @@ select
 		as seq_idx,
 	octet_length(coalesce(dobj.data, ''))
 		as size,
-	vdm.date
+	vdm.clin_when
 		as date_generated,
 	vdm.type
 		as type,
@@ -82,11 +82,14 @@ comment on view blobs.v_obj4doc_no_data is
 GRANT SELECT ON blobs.v_obj4doc_no_data TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-blobs-v_obj4doc_no_data.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-blobs-v_obj4doc_no_data.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-blobs-v_obj4doc_no_data.sql,v $
--- Revision 1.1  2008-12-01 21:46:34  ncq
+-- Revision 1.2  2008-12-09 23:13:24  ncq
+-- - .date -> .clin_when
+--
+-- Revision 1.1  2008/12/01 21:46:34  ncq
 -- - new
 --
 --
