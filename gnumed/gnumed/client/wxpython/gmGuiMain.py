@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.432 2008-10-26 01:22:30 ncq Exp $
-__version__ = "$Revision: 1.432 $"
+# $Id: gmGuiMain.py,v 1.433 2008-12-09 23:31:18 ncq Exp $
+__version__ = "$Revision: 1.433 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -731,6 +731,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_debugging.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
 		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
 
+		item = menu_debugging.Append(-1, _('Show log file'), _('Show the log file in text viewer.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_log_file, item)
+
 		ID = wx.NewId()
 		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
 		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
@@ -745,6 +748,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_debugging.Append(-1, _('pgAdmin III'), _('pgAdmin III: Browse GNUmed database(s) in PostgreSQL server.'))
 		self.Bind(wx.EVT_MENU, self.__on_pgadmin3, item)
+
+#		item = menu_debugging.Append(-1, _('Reload hook script'), _('Reload hook script from hard drive.'))
+#		self.Bind(wx.EVT_MENU, self.__on_reload_hook_script, item)
 
 		if _cfg.get(option = 'debug'):
 			ID_TOGGLE_PAT_LOCK = wx.NewId()
@@ -1830,6 +1836,10 @@ class gmTopLevelFrame(wx.Frame):
 			return
 		gmDispatcher.send(signal = 'statustext', msg = _('pgAdmin III not found.'), beep = True)
 	#----------------------------------------------
+	def __on_reload_hook_script(self, evt):
+		if not gmHooks.import_hook_module(reimport = True):
+			gmDispatcher.send(signal = 'statustext', msg = _('Error reloading hook script.'))
+	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
 	#----------------------------------------------
@@ -1839,6 +1849,11 @@ class gmTopLevelFrame(wx.Frame):
 			curr_pat.force_unlock()
 		else:
 			curr_pat.locked = True
+	#----------------------------------------------
+	def __on_show_log_file(self, evt):
+		from Gnumed.pycommon import gmMimeLib
+		gmLog2.flush()
+		gmMimeLib.call_viewer_on_file(gmLog2._logfile_name, block = False)
 	#----------------------------------------------
 	def __on_backup_log_file(self, evt):
 		name = os.path.basename(gmLog2._logfile_name)
@@ -2693,7 +2708,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.432  2008-10-26 01:22:30  ncq
+# Revision 1.433  2008-12-09 23:31:18  ncq
+# - help menu: show log file
+#
+# Revision 1.432  2008/10/26 01:22:30  ncq
 # - factor out searching EMR for narrative
 #
 # Revision 1.431  2008/10/22 12:20:32  ncq
