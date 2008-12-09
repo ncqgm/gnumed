@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.20 $
+# $Revision: 1.21 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
@@ -11,7 +11,7 @@ export PGUSER="gm-dbo"
 
 for DB in ${DB_LIST} ; do
 
-	mkdir ~/gm-schemadocs/${DB}/
+	mkdir -p ~/gm-schemadocs/${DB}/
 
 	postgresql_autodoc -d ${DB} -f ~/gm-schemadocs/${DB}/gnumed-schema -t html
 	postgresql_autodoc -d ${DB} -f ~/gm-schemadocs/${DB}/gnumed-schema -t dot
@@ -26,7 +26,10 @@ done
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.20  2008-09-02 15:44:18  ncq
+# Revision 1.21  2008-12-09 23:22:32  ncq
+# - mkdir can use a -p
+#
+# Revision 1.20  2008/09/02 15:44:18  ncq
 # - bump db version
 #
 # Revision 1.19  2008/08/01 10:08:49  ncq
