@@ -5,11 +5,12 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-allergy_state-dynamic.sql,v 1.1 2008-10-12 14:58:07 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-clin-allergy_state-dynamic.sql,v 1.2 2008-12-09 23:15:02 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 alter table clin.allergy_state
@@ -17,8 +18,10 @@ alter table clin.allergy_state
 		set not null;
 
 
+\unset ON_ERROR_STOP
 alter table clin.allergy_state
 	drop constraint allergy_state_has_allergy_check;
+\set ON_ERROR_STOP 1
 
 alter table clin.allergy_state
 	add check (has_allergy in (null::integer, 0, 1));
@@ -43,21 +46,26 @@ declare
 	_new_pk_patient integer;
 	_old_pk_patient integer;
 begin
+	-- find patient from encounter
 	select into _new_pk_patient fk_patient
 		from clin.encounter
 		where pk = NEW.fk_encounter;
 
-	-- new row, patient already there ?
+	if not FOUND then
+		raise exception ''Encounter % does not exist !?'', NEW.fk_encounter;
+		return NEW;
+	end if;
+
+	-- new row
 	if TG_OP = ''INSERT'' then
-		perform exists (
-			select 1 from clin.allergy_state
-			where fk_encounter in (
-				select pk from clin.encounter where fk_patient = _new_pk_patient
-			)
-		);
+
+		-- patient already there ?
+		perform 1 from clin.allergy_state
+		where
+			fk_encounter in (select pk from clin.encounter where fk_patient = _new_pk_patient);
 
 		if FOUND then
-			raise exception ''Cannot insert second allergy state for patient %.'', _new_pk_patient;
+			raise exception ''Cannot insert second allergy state for patient % via encounter %.'', _new_pk_patient, NEW.fk_encounter;
 			return NEW;
 		end if;
 
@@ -185,11 +193,15 @@ select i18n.i18n('unknown, unasked');
 select i18n.i18n('last confirmed');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-allergy_state-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-allergy_state-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-allergy_state-dynamic.sql,v $
--- Revision 1.1  2008-10-12 14:58:07  ncq
+-- Revision 1.2  2008-12-09 23:15:02  ncq
+-- - cleanup
+-- - fix uniqueness check
+--
+-- Revision 1.1  2008/10/12 14:58:07  ncq
 -- - new
 --
 --
