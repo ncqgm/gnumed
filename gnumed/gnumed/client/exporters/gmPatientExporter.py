@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.131 2008-12-01 12:36:57 ncq Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gmPatientExporter.py,v 1.132 2008-12-09 23:24:29 ncq Exp $
+__version__ = "$Revision: 1.132 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -500,7 +500,7 @@ class cEmrExport:
                 'description': _('Unattributed episodes'),
                 'pk_health_issue': None
             })
-        # existing issues        
+        # existing issues
         for a_health_issue in h_issues:
             health_issue_action( emr_tree, a_health_issue)
 
@@ -811,7 +811,7 @@ class cEmrExport:
         docs = doc_folder.get_documents()
         for doc in docs:
             self.__target.write('\n\n    (%s) %s - %s "%s"' % (
-                doc['date'].strftime('%Y-%m-%d'),
+                doc['clin_when'].strftime('%Y-%m-%d'),
                 doc['ext_ref'],
                 doc['l10n_type'],
                 doc['comment'])
@@ -1174,7 +1174,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.131  2008-12-01 12:36:57  ncq
+# Revision 1.132  2008-12-09 23:24:29  ncq
+# - .date -> .clin_when in doc_med
+#
+# Revision 1.131  2008/12/01 12:36:57  ncq
 # - improved encounter node label
 #
 # Revision 1.130  2008/10/22 12:06:05  ncq
