@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.17 2008-11-23 12:44:00 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmHooks.py,v 1.18 2008-12-09 23:25:43 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -66,14 +66,19 @@ known_hooks = [
 	u'db_maintenance_warning'
 ]
 
+_log.debug('known hooks:')
+for hook in known_hooks:
+	_log.debug(hook)
 
-hook_module = None
 # ========================================================================
-def __import_hook_module():
+hook_module = None
+
+def import_hook_module(reimport=False):
 
 	global hook_module
-	if hook_module is not None:
-		return True
+	if not reimport:
+		if hook_module is not None:
+			return True
 
 	# hardcoding path and script name allows us to
 	# not need configuration for it, the environment
@@ -117,7 +122,16 @@ def run_script(hook=None):
 		)
 		return False
 
-	hook_module = gmTools.import_module_from_directory(script_path, script_name)
+	try:
+		tmp = gmTools.import_module_from_directory(script_path, script_name)
+	except StandardError:
+		_log.exception('cannot import hook script')
+		return False
+
+	hook_module = tmp
+#	if reimport:
+#		reload(tmp)			# this has well-known shortcomings !
+
 	_log.info('hook script: %s', full_script)
 	return True
 # ========================================================================
@@ -127,7 +141,7 @@ def run_hook_script(hook=None):
 	if hook not in known_hooks:
 		raise ValueError('run_hook_script(): unknown hook [%s]' % hook)
 
-	if not __import_hook_module():
+	if not import_hook_module(reimport = False):
 		return False
 
 	try:
@@ -150,7 +164,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.17  2008-11-23 12:44:00  ncq
+# Revision 1.18  2008-12-09 23:25:43  ncq
+# - prepare hook script reload infrastructure
+#
+# Revision 1.17  2008/11/23 12:44:00  ncq
 # - add hook after_new_doc_created
 # - since a hook value of None is not in known_hooks do not run an extra check for it
 #
