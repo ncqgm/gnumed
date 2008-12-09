@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.46 2008-11-20 20:06:12 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmHorstSpace.py,v 1.47 2008-12-09 23:30:38 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -152,7 +152,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			bias = u'user',
 			default = u'gmEMRBrowserPlugin'
 		)
-		gmDispatcher.send(signal = 'display_widget', name = default_plugin)
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = default_plugin)
 	#----------------------------------------------
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed."""
@@ -315,7 +315,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.46  2008-11-20 20:06:12  ncq
+# Revision 1.47  2008-12-09 23:30:38  ncq
+# - make raising plugin after patient activation thread safe
+#
+# Revision 1.46  2008/11/20 20:06:12  ncq
 # - cleanup
 #
 # Revision 1.45  2008/07/10 11:20:27  ncq
