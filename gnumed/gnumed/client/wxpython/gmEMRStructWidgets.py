@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.82 2008-10-22 12:19:10 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmEMRStructWidgets.py,v 1.83 2008-12-09 23:28:51 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -299,7 +299,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		else:
 			self._TCTRL_aoe.SetFocus()
 
-		self._TCTRL_patient.SetLabel(pat.get_description())
+		self._TCTRL_patient.SetLabel(pat.get_description_gender())
 
 		return True
 	#--------------------------------------------------------
@@ -661,7 +661,7 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 			return
 
 		ident = gmPerson.cIdentity(aPK_obj = self.__episode['pk_patient'])
-		self._TCTRL_patient.SetValue(ident.get_description())
+		self._TCTRL_patient.SetValue(ident.get_description_gender())
 
 		if self.__episode['pk_health_issue'] is not None:
 			self._PRW_issue.SetText(self.__episode['health_issue'], data=self.__episode['pk_health_issue'])
@@ -1303,7 +1303,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.82  2008-10-22 12:19:10  ncq
+# Revision 1.83  2008-12-09 23:28:51  ncq
+# - use description_gender
+#
+# Revision 1.82  2008/10/22 12:19:10  ncq
 # - rename pseudo episode on health issue creation to "inceptio notes"
 #
 # Revision 1.81  2008/10/12 16:15:17  ncq
