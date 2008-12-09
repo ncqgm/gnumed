@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.170 2008-11-23 12:46:03 ncq Exp $
-__version__ = "$Revision: 1.170 $"
+# $Id: gmMedDocWidgets.py,v 1.171 2008-12-09 23:33:14 ncq Exp $
+__version__ = "$Revision: 1.171 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -440,7 +440,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self.__doc['pk_type'] = doc_type
 		if self.__reviewing_doc:
 			self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
-		self.__doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
+		self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 
 		success, data = self.__doc.save_payload()
@@ -879,7 +879,7 @@ from your computer.""") % page_fname,
 
 		# update business object with metadata
 		# - date of generation
-		new_doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
+		new_doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		# - external reference
 		ref = gmMedDoc.get_ext_ref()
 		if ref is not None:
@@ -1213,7 +1213,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			label = _('%s%7s %s: %s (%s part(s), %s)') % (
 				review,
-				doc['date'].strftime('%m/%Y'),
+				doc['clin_when'].strftime('%m/%Y'),
 				doc['l10n_type'][:26],
 				cmt,
 				page_num,
@@ -1288,7 +1288,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# doc node
 		if isinstance(item1, gmMedDoc.cMedDoc):
 
-			date_field = 'date'
+			date_field = 'clin_when'
 			#date_field = 'modified_when'
 
 			if self.__sort_mode == 'age':
@@ -1795,7 +1795,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		pat = gmPerson.gmCurrentPatient()
 		dname = '%s-%s%s' % (
 			self.__curr_node_data['l10n_type'],
-			self.__curr_node_data['date'].strftime('%Y-%m-%d'),
+			self.__curr_node_data['clin_when'].strftime('%Y-%m-%d'),
 			gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
 		)
 		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', pat['dirname'], dname))
@@ -1860,7 +1860,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.170  2008-11-23 12:46:03  ncq
+# Revision 1.171  2008-12-09 23:33:14  ncq
+# - doc_med.date -> clin_when
+#
+# Revision 1.170  2008/11/23 12:46:03  ncq
 # - apply comment to doc or part, respectively, when
 #   reviewing/signing docs or parts
 # - add hook after new doc was created
