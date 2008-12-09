@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.277 2008-11-24 11:06:24 ncq Exp $
-__version__ = "$Revision: 1.277 $"
+# $Id: gmClinicalRecord.py,v 1.278 2008-12-09 23:19:15 ncq Exp $
+__version__ = "$Revision: 1.278 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -552,11 +552,11 @@ order by
 	#--------------------------------------------------------
 	def get_statistics(self):
 		union_query = u'\n	union all\n'.join ([
-			u'select count(*) from clin.v_problem_list where pk_patient = %(pat)s',
-			u'select count(*) from clin.encounter where fk_patient = %(pat)s',
-			u'select count(*) from clin.v_pat_items where pk_patient = %(pat)s',
-			u'select count(*) from blobs.doc_med where fk_identity = %(pat)s',
-			u'select count(*) from clin.v_test_results where pk_patient = %(pat)s'
+			u'select count(1) from clin.v_problem_list where pk_patient = %(pat)s',
+			u'select count(1) from clin.encounter where fk_patient = %(pat)s',
+			u'select count(1) from clin.v_pat_items where pk_patient = %(pat)s',
+			u'select count(1) from blobs.v_doc_med where pk_patient = %(pat)s',
+			u'select count(1) from clin.v_test_results where pk_patient = %(pat)s'
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
@@ -1868,7 +1868,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.277  2008-11-24 11:06:24  ncq
+# Revision 1.278  2008-12-09 23:19:15  ncq
+# - adjust to blobs.doc_med changes
+#
+# Revision 1.277  2008/11/24 11:06:24  ncq
 # - no more patient_id in create_episode
 #
 # Revision 1.276  2008/11/20 18:39:40  ncq
