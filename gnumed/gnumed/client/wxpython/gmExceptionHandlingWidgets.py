@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.5 2008-11-20 19:50:45 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.6 2008-12-09 23:29:54 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -295,15 +295,18 @@ sender email  : %s
 		dlg.Destroy()
 
 		wx.BeginBusyCursor()
-		gmTools.send_mail (
-			sender = '%s <%s>' % (_staff_name, gmTools.default_mail_sender),
-			receiver = receivers,
-			subject = u'<bug>: %s' % comment,
-			message = msg,
-			encoding = gmI18N.get_encoding(),
-			server = gmTools.default_mail_server,
-			auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
-		)
+		try:
+			gmTools.send_mail (
+				sender = '%s <%s>' % (_staff_name, gmTools.default_mail_sender),
+				receiver = receivers,
+				subject = u'<bug>: %s' % comment,
+				message = msg,
+				encoding = gmI18N.get_encoding(),
+				server = gmTools.default_mail_server,
+				auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+			)
+		except StandardError:
+			_log.exception('cannot send bug report')
 		wx.EndBusyCursor()
 		gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
 
@@ -316,7 +319,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.5  2008-11-20 19:50:45  ncq
+# Revision 1.6  2008-12-09 23:29:54  ncq
+# - trap exceptions during smtp handling inside top-level exception handler
+#
+# Revision 1.5  2008/11/20 19:50:45  ncq
 # - improved wording
 #
 # Revision 1.4  2008/10/12 16:17:57  ncq
