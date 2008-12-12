@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.93 $"
+__version__ = "$Revision: 1.94 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1216,6 +1216,8 @@ def sanity_check_database_settings():
 		u'fsync': [u'on', u'data loss/corruption', True],
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
+		u'log_connections': [u'on', u'non-compliance with HIPAA', False],
+		u'log_disconnections': [u'on', u'non-compliance with HIPAA', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
 		u'regex_flavor': [u'advanced', u'query breakage', False],
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
@@ -1621,7 +1623,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.93  2008-12-01 12:13:24  ncq
+# Revision 1.94  2008-12-12 16:35:06  ncq
+# - add HIPAA compliance to db settings checks, needs configurability
+#
+# Revision 1.93  2008/12/01 12:13:24  ncq
 # - log exeption on __str__ in auth error so we have *something*
 #   on encoding errors
 #
