@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.19 2008-10-22 12:24:27 ncq Exp $
+# $Id: gnumed,v 1.20 2008-12-12 16:37:02 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -86,9 +86,15 @@ fi
 # now run the client
 python ${GM_SCRIPT} ${OPTIONS} #${CONFFILE_ARG}
 
+# sync the discs just in case
+sync
+
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.19  2008-10-22 12:24:27  ncq
+# Revision 1.20  2008-12-12 16:37:02  ncq
+# - sync discs after running gnumed client just in case
+#
+# Revision 1.19  2008/10/22 12:24:27  ncq
 # - no more checking for --conf-file, now done in gnumed.py
 #
 # Revision 1.18  2008/08/31 18:05:41  ncq
