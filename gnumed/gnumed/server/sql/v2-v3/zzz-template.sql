@@ -3,10 +3,10 @@
 --
 -- License: GPL
 -- Author: 
--- 
+--
 -- ==============================================================
--- $Id: zzz-template.sql,v 1.9 2008-07-15 16:49:46 ncq Exp $
--- $Revision: 1.9 $
+-- $Id: zzz-template.sql,v 1.10 2008-12-12 16:37:44 ncq Exp $
+-- $Revision: 1.10 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -19,21 +19,24 @@ drop forgot_to_edit_drops cascade;
 \set ON_ERROR_STOP 1
 
 
-comment on forgot_to_edit_comment is
+comment on column/table .forgot_to_edit_comment. is
 	'';
 
 -- --------------------------------------------------------------
 -- don't forget appropriate grants
-grant select on
-	forgot_to_edit_grants
+grant select, insert, update, delete on
+	.forgot_to_edit_grants
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.9 $');
+select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.10 $');
 
 -- ==============================================================
 -- $Log: zzz-template.sql,v $
--- Revision 1.9  2008-07-15 16:49:46  ncq
+-- Revision 1.10  2008-12-12 16:37:44  ncq
+-- - somewhat improve presets
+--
+-- Revision 1.9  2008/07/15 16:49:46  ncq
 -- - add default transaction handling
 --
 -- Revision 1.8  2008/05/29 15:33:27  ncq
