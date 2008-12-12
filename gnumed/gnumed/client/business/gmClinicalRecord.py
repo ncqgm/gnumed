@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.278 2008-12-09 23:19:15 ncq Exp $
-__version__ = "$Revision: 1.278 $"
+# $Id: gmClinicalRecord.py,v 1.279 2008-12-12 16:34:13 ncq Exp $
+__version__ = "$Revision: 1.279 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -63,6 +63,11 @@ class cClinicalRecord(object):
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
+		# log access to patient record (HIPAA, for example)
+		cmd = u'select gm.log_access2emr(%(todo)s)'
+		args = {'todo': u'patient [%s]' % aPKey}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 		from Gnumed.business import gmSurgery, gmPerson
 		global _me
 		if _me is None:
@@ -1868,7 +1873,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.278  2008-12-09 23:19:15  ncq
+# Revision 1.279  2008-12-12 16:34:13  ncq
+# - HIPAA: log "access to the EMR"
+#
+# Revision 1.278  2008/12/09 23:19:15  ncq
 # - adjust to blobs.doc_med changes
 #
 # Revision 1.277  2008/11/24 11:06:24  ncq
