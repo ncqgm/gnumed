@@ -75,7 +75,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._BTN_save_all.SetToolTipString(_("Save encounter details and all progress notes."))
         self._BTN_save_encounter.SetToolTipString(_("Save the encounter details."))
         self._BTN_save_note.SetToolTipString(_("Save the currently displayed progress note."))
-        self._BTN_new_editor.SetToolTipString(_("Open a new progress note editor."))
+        self._BTN_new_editor.SetToolTipString(_("Open a new progress note editor.\n\nThere is a configuration item on whether to allow several new-episode editors at once."))
         self._BTN_clear_editor.SetToolTipString(_("Clear the editor for the displayed progress note."))
         self._BTN_discard_editor.SetToolTipString(_("Discard the editor for the displayed progress note."))
         self.__splitter_right_bottom_pnl.SetScrollRate(10, 10)
