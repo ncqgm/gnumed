@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.107 2008-11-20 20:17:50 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmSOAPWidgets.py,v 1.108 2008-12-12 16:36:36 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -421,7 +421,12 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		self.__soap_notebook = cProgressNoteInputNotebook(PNL_soap_editors, -1)
 		# - buttons
 		self.__BTN_add_unassociated = wx.Button(PNL_soap_editors, -1, _('&New'))
-		self.__BTN_add_unassociated.SetToolTipString(_('Add editor for a new unassociated progress note.'))
+		tt = _(
+			'Add editor for a new unassociated progress note.\n\n'
+			'There is a configuration option whether or not to\n'
+			'allow several new unassociated progress notes at once.'
+		)
+		self.__BTN_add_unassociated.SetToolTipString(tt)
 
 		self.__BTN_save = wx.Button(PNL_soap_editors, -1, _('&Save'))
 		self.__BTN_save.SetToolTipString(_('Save progress note into medical record and close this editor.'))
@@ -1215,7 +1220,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.107  2008-11-20 20:17:50  ncq
+# Revision 1.108  2008-12-12 16:36:36  ncq
+# - better tooltip
+#
+# Revision 1.107  2008/11/20 20:17:50  ncq
 # - better docs
 #
 # Revision 1.106  2008/09/02 19:01:12  ncq
