@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.94 $"
+__version__ = "$Revision: 1.95 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -441,6 +441,58 @@ def get_schema_structure(link_obj=None):
 def get_current_user():
 	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
 	return rows[0][0]
+#------------------------------------------------------------------------
+def get_foreign_keys2column(schema='public', table=None, column=None, link_obj=None):
+	"""Get the foreign keys pointing to schema.table.column.
+
+	Does not properly work with multi-column FKs.
+	GNUmed doesn't use any, however.
+	"""
+	cmd = u"""
+select
+	%(schema)s as referenced_schema,
+	%(tbl)s as referenced_table,
+	%(col)s as referenced_column,
+	pgc.confkey as referenced_column_list,
+	pgc.conrelid::regclass as referencing_table,
+	pgc.conkey as referencing_column_list,
+	(select attname from pg_attribute where attnum = pgc.conkey[1] and attrelid = pgc.conrelid) as referencing_column
+from
+	pg_constraint pgc
+where
+	pgc.contype = 'f'
+		and
+	pgc.confrelid = (
+		select oid from pg_class where relname = %(tbl)s and relnamespace = (
+			select oid from pg_namespace where nspname = %(schema)s
+		 )
+	)	and
+	(
+		select attnum
+		from pg_attribute
+		where
+			attrelid = (select oid from pg_class where relname = %(tbl)s and relnamespace = (
+				select oid from pg_namespace where nspname = %(schema)s
+			))
+				and
+			attname = %(col)s
+	) = any(pgc.confkey)
+"""
+
+	args = {
+		'schema': schema,
+		'tbl': table,
+		'col': column
+	}
+
+	rows, idx = run_ro_queries (
+		link_obj = link_obj,
+		queries = [
+			{'cmd': cmd, 'args': args}
+		]
+	)
+
+	return rows
 #------------------------------------------------------------------------
 def get_child_tables(schema='public', table=None, link_obj=None):
 	"""Return child tables of <table>."""
@@ -1216,13 +1268,20 @@ def sanity_check_database_settings():
 		u'fsync': [u'on', u'data loss/corruption', True],
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
-		u'log_connections': [u'on', u'non-compliance with HIPAA', False],
-		u'log_disconnections': [u'on', u'non-compliance with HIPAA', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
 		u'regex_flavor': [u'advanced', u'query breakage', False],
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}
+
+	from Gnumed.pycommon import gmCfg2
+	_cfg = gmCfg2.gmCfgData()
+	if _cfg.get(option = u'hipaa'):
+		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
+		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
+	else:
+		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
+		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
 
 	cmd = u"select name, setting from pg_settings where name in %(settings)s"
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
@@ -1232,11 +1291,17 @@ def sanity_check_database_settings():
 	msg = []
 	for row in rows:
 		if row[1] != settings[row[0]][0]:
-			if settings[row[0]][2]:
+			if settings[row[0]][2] is True:
 				found_error = True
-			else:
+			elif settings[row[0]][2] is False:
 				found_problem = True
-			msg.append(' option [%s] = [%s] risks "%s"' % (row[0], row[1], settings[row[0]][1]))
+			elif settings[row[0]][2] is None:
+				pass
+			else:
+				_log.error(settings[row[0]])
+				raise ValueError(u'invalid database configuration sanity check')
+			msg.append(_(' option [%s]: %s') % (row[0], row[1]))
+			msg.append(_('  risk: %s') % settings[row[0]][1])
 			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
 
 	if found_error:
@@ -1606,6 +1671,20 @@ if __name__ == "__main__":
 		print "'$keyword' expands to:"
 		print expand_keyword(keyword = u'$dvt')
 	#--------------------------------------------------------------------
+	def test_get_foreign_key_details():
+		for row in get_foreign_keys2column (
+			schema = u'dem',
+			table = u'identity',
+			column = u'pk'
+		):
+			print '%s.%s references %s.%s.%s' % (
+				row['referencing_table'],
+				row['referencing_column'],
+				row['referenced_schema'],
+				row['referenced_table'],
+				row['referenced_column']
+			)
+	#--------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# run tests
 		#test_file2bytea()
@@ -1619,11 +1698,16 @@ if __name__ == "__main__":
 		#test_sanitize_pg_regex()
 		#test_is_pg_interval()
 		#test_sanity_check_time_skew()
-		test_keyword_expansion()
+		#test_keyword_expansion()
+		test_get_foreign_key_details()
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.94  2008-12-12 16:35:06  ncq
+# Revision 1.95  2008-12-17 21:55:38  ncq
+# - get_foreign_keys2column
+# - only check HIPAA compliance when --hipaa was given
+#
+# Revision 1.94  2008/12/12 16:35:06  ncq
 # - add HIPAA compliance to db settings checks, needs configurability
 #
 # Revision 1.93  2008/12/01 12:13:24  ncq
