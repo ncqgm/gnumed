@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.170 2008-12-09 23:19:47 ncq Exp $
-__version__ = "$Revision: 1.170 $"
+# $Id: gmPerson.py,v 1.171 2008-12-17 21:52:36 ncq Exp $
+__version__ = "$Revision: 1.171 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -201,6 +201,7 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 	description = property(_get_description, lambda x:x)
+
 #============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
@@ -419,6 +420,68 @@ delete from dem.lnk_identity2ext_id
 where id_identity = %(pat)s and id = %(pk)s"""
 		args = {'pat': self.ID, 'pk': pk_ext_id}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def assimilate_identity(self, other_identity=None, link_obj=None):
+		"""Merge another identity into this one.
+
+		Keep this one. Delete other one."""
+
+		if other_identity.ID == self.ID:
+			return True, None
+
+		curr_pat = gmCurrentPatient()
+		if curr_pat.connected:
+			if other_identity.ID == curr_pat.ID:
+				return False, _('Cannot merge active patient into another patient.')
+
+		queries = []
+		args = {'old_pat': other_identity.ID, 'new_pat': self.ID}
+
+		# delete old allergy state
+		queries.append ({
+			'cmd': u'delete from clin.allergy_state where pk = (select pk_allergy_state from clin.v_pat_allergy_state where pk_patient = %(old_pat)s)',
+			'args': args
+		})
+		# FIXME: adjust allergy_state in kept patient
+
+		# deactivate all names of old patient
+		queries.append ({
+			'cmd': u'update dem.names set active = False where id_identity = %(old_pat)s',
+			'args': args
+		})
+
+		# find FKs pointing to identity
+		FKs = gmPG2.get_foreign_keys2column (
+			schema = u'dem',
+			table = u'identity',
+			column = u'pk'
+		)
+
+		# generate UPDATEs
+		cmd_template = u'update %s set %s = %%(new_pat)s where %s = %%(old_pat)s'
+		for FK in FKs:
+			queries.append ({
+				'cmd': cmd_template % (FK['referencing_table'], FK['referencing_column'], FK['referencing_column']),
+				'args': args
+			})
+
+		# remove old identity entry
+		queries.append ({
+			'cmd': u'delete from dem.identity where pk = %(old_pat)s',
+			'args': args
+		})
+
+		_log.warning('identity [%s] is about to assimilate identity [%s]', self.ID, other_identity.ID)
+
+		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
+
+		self.add_external_id (
+			id_type = u'merged GNUmed identity primary key',
+			id_value = u'GNUmed::pk::%s' % other_identity.ID,
+			issuer = u'GNUmed'
+		)
+
+		return True, None
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
@@ -2191,10 +2254,13 @@ if __name__ == '__main__':
 
 		#comms = get_comm_list()
 		#print "\n\nRetrieving communication media enum (id, description): %s" % comms
-				
+
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.170  2008-12-09 23:19:47  ncq
+# Revision 1.171  2008-12-17 21:52:36  ncq
+# - add assimilation
+#
+# Revision 1.170  2008/12/09 23:19:47  ncq
 # - attribute description vs description_gender
 #
 # Revision 1.169  2008/11/23 12:42:57  ncq
