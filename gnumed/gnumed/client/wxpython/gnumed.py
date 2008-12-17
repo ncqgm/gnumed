@@ -13,6 +13,8 @@ care of all the pre- and post-GUI runtime environment setup.
 --slave
  Pre-set the [enable remote control] checkbox in the login
  dialog to enable the XML-RPC remote control feature.
+--hipaa
+ Enable HIPAA functionality which has user impact.
 --profile=<file>
  Activate profiling and write profile data to <file>.
 --text-domain=<text domain>
@@ -43,8 +45,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.145 2008-11-23 12:47:27 ncq Exp $
-__version__ = "$Revision: 1.145 $"
+# $Id: gnumed.py,v 1.146 2008-12-17 21:59:46 ncq Exp $
+__version__ = "$Revision: 1.146 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -94,7 +96,8 @@ _known_long_options = [
 	u'override-schema-check',
 	u'local-import',
 	u'help',
-	u'version'
+	u'version',
+	u'hipaa'
 ]
 
 import_error_sermon = """
@@ -213,6 +216,14 @@ def setup_cli():
 		val = False
 	_cfg.set_option (
 		option = u'slave',
+		value = val
+	)
+
+	val = _cfg.get(option = '--hipaa', source_order = [('cli', 'return')])
+	if val is None:
+		val = False
+	_cfg.set_option (
+		option = u'hipaa',
 		value = val
 	)
 
@@ -472,7 +483,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.145  2008-11-23 12:47:27  ncq
+# Revision 1.146  2008-12-17 21:59:46  ncq
+# - support --hipaa
+#
+# Revision 1.145  2008/11/23 12:47:27  ncq
 # - comment on lsb_release
 #
 # Revision 1.144  2008/10/22 12:23:13  ncq
