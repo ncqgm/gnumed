@@ -2,13 +2,15 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-adjust_db_settings.sh,v $
-# $Id: gm-adjust_db_settings.sh,v 1.2 2008-11-03 11:19:28 ncq Exp $
+# $Id: gm-adjust_db_settings.sh,v 1.3 2008-12-17 22:00:45 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
 #
 # This script can be used to try to adjust database settings
 # if the GNUmed client complains about them at startup.
+#
+# usage: ./gm-adjust_db_settings.sh <database name>
 #
 #==============================================================
 
@@ -35,12 +37,13 @@ echo "=> Creating adjustment script ..."
 echo "    ${SQL_FILE}"
 
 echo "-- GNUmed database settings adjustment script" > $SQL_FILE
-echo "-- \$Id: gm-adjust_db_settings.sh,v 1.2 2008-11-03 11:19:28 ncq Exp $" >> $SQL_FILE
+echo "-- \$Id: gm-adjust_db_settings.sh,v 1.3 2008-12-17 22:00:45 ncq Exp $" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "set default_transaction_read_only to 'off';" >> $SQL_FILE
 echo "" >> $SQL_FILE
+
 echo "begin;" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set default_transaction_read_only to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set lc_messages to 'C';" >> $SQL_FILE
@@ -48,15 +51,20 @@ echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
+
 echo "" >> $SQL_FILE
 echo "-- cannot be set after server start:" >> $SQL_FILE
-echo "-- alter database ${TARGET_DB} set allow_system_table_mods to 'off';" >> $SQL_FILE
+echo "--alter database ${TARGET_DB} set allow_system_table_mods to 'off';" >> $SQL_FILE
+echo "-- (only needed for HIPAA compliance)" >> $SQL_FILE
+echo "--alter database ${TARGET_DB} set log_connections to 'on';" >> $SQL_FILE
+echo "--alter database ${TARGET_DB} set log_disconnections to 'on';" >> $SQL_FILE
+
 echo "" >> $SQL_FILE
 echo "-- cannot be changed now (?):" >> $SQL_FILE
-echo "-- alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
-echo "-- alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
+echo "--alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
+echo "--alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.2 $');" >> $SQL_FILE
+echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.3 $');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 
@@ -88,7 +96,10 @@ echo ""
 
 #==============================================================
 # $Log: gm-adjust_db_settings.sh,v $
-# Revision 1.2  2008-11-03 11:19:28  ncq
+# Revision 1.3  2008-12-17 22:00:45  ncq
+# - add log_connections/log_disconnections
+#
+# Revision 1.2  2008/11/03 11:19:28  ncq
 # - improved instructions
 #
 # Revision 1.1  2008/11/03 11:15:56  ncq
