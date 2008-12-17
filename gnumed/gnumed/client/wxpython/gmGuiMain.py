@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.433 2008-12-09 23:31:18 ncq Exp $
-__version__ = "$Revision: 1.433 $"
+# $Id: gmGuiMain.py,v 1.434 2008-12-17 21:58:23 ncq Exp $
+__version__ = "$Revision: 1.434 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -494,7 +494,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
-		
+
 
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new'), _("Register a new patient with this practice"))
@@ -507,6 +507,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID_DEL_PAT = wx.NewId()
 		menu_patient.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) patient record in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
+
+		item = menu_patient.Append(-1, _('&Merge patients'), _('Merge two patients into one.'))
+		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
 
 		menu_patient.AppendSeparator()
 
@@ -2069,6 +2072,9 @@ class gmTopLevelFrame(wx.Frame):
 		gmDemographicsWidgets.disable_identity(identity=pat)
 		return True
 	#----------------------------------------------
+	def __on_merge_patients(self, event):
+		gmPatSearchWidgets.merge_patients(parent=self)
+	#----------------------------------------------
 	def __on_add_new_staff(self, event):
 		"""Create new person and add it as staff."""
 		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
@@ -2708,7 +2714,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.433  2008-12-09 23:31:18  ncq
+# Revision 1.434  2008-12-17 21:58:23  ncq
+# - add merging two patients
+#
+# Revision 1.433  2008/12/09 23:31:18  ncq
 # - help menu: show log file
 #
 # Revision 1.432  2008/10/26 01:22:30  ncq
