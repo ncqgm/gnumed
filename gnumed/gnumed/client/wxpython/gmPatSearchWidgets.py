@@ -10,12 +10,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.114 2008-12-09 23:43:27 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmPatSearchWidgets.py,v 1.115 2008-12-17 21:59:22 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, glob, datetime as pyDT, re as regex, logging
+import sys, os.path, glob, datetime as pyDT, re as regex, logging, webbrowser
 
 
 import wx
@@ -26,8 +26,8 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
 from Gnumed.business import gmPerson, gmKVK, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
-from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
+from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets
+from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgMergePatientsDlg
 
 
 _log = logging.getLogger('gm.person')
@@ -38,6 +38,120 @@ _cfg = gmCfg2.gmCfgData()
 ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()
 
+#============================================================
+def merge_patients(parent=None):
+	dlg = cMergePatientsDlg(parent, -1)
+	result = dlg.ShowModal()
+#============================================================
+class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgMergePatientsDlg.wxgMergePatientsDlg.__init__(self, *args, **kwargs)
+
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			self._TCTRL_patient1.person = curr_pat
+			self._TCTRL_patient1._display_name()
+			self._RBTN_patient1.SetValue(True)
+	#--------------------------------------------------------
+	def _on_merge_button_pressed(self, event):
+
+		if self._TCTRL_patient1.person is None:
+			return
+
+		if self._TCTRL_patient2.person is None:
+			return
+
+		if self._RBTN_patient1.GetValue():
+			patient2keep = self._TCTRL_patient1.person
+			patient2merge = self._TCTRL_patient2.person
+		else:
+			patient2keep = self._TCTRL_patient2.person
+			patient2merge = self._TCTRL_patient1.person
+
+		if patient2merge['lastnames'] == u'Kirk':
+			if _cfg.get(option = 'debug'):
+				webbrowser.open (
+					url = 'http://en.wikipedia.org/wiki/File:Picard_as_Locutus.jpg',
+					new = False,
+					autoraise = True
+				)
+				gmGuiHelpers.gm_show_info(_('\n\nYou will be assimilated.\n\n'), _('The Borg'))
+				return
+			else:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot merge Kirk into another patient.'), beep = True)
+				return
+
+		doit = gmGuiHelpers.gm_show_question (
+			aMessage = _(
+				'Are you positively sure you want to merge patient\n\n'
+				' #%s: %s (%s, %s)\n\n'
+				'into patient\n\n'
+				' #%s: %s (%s, %s) ?\n\n'
+				'Note that this action can ONLY be reversed by a laborious\n'
+				'manual process requiring in-depth knowledge about databases\n'
+				'and the patients in question !\n'
+			) % (
+				patient2merge.ID,
+				patient2merge['description_gender'],
+				patient2merge['gender'],
+				patient2merge['dob'].strftime('%x'),
+				patient2keep.ID,
+				patient2keep['description_gender'],
+				patient2keep['gender'],
+				patient2keep['dob'].strftime('%x')
+			),
+			aTitle = _('Merging patients: confirmation'),
+			cancel_button = False
+		)
+		if not doit:
+			return
+
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Merging patients'))
+		if conn is None:
+			return
+
+		success, msg = patient2keep.assimilate_identity(other_identity = patient2merge, link_obj = conn)
+		conn.close()
+		if not success:
+			gmDispatcher.send(signal = 'statustext', msg = msg, beep = True)
+			return
+
+		# announce success, offer to activate kept patient if not active
+		doit = gmGuiHelpers.gm_show_question (
+			aMessage = _(
+				'The patient\n'
+				'\n'
+				' #%s: %s (%s, %s)\n'
+				'\n'
+				'has successfully been merged into\n'
+				'\n'
+				' #%s: %s (%s, %s)\n'
+				'\n'
+				'\n'
+				'Do you want to activate that patient\n'
+				'now for further modifications ?\n'
+			) % (
+				patient2merge.ID,
+				patient2merge['description_gender'],
+				patient2merge['gender'],
+				patient2merge['dob'].strftime('%x'),
+				patient2keep.ID,
+				patient2keep['description_gender'],
+				patient2keep['gender'],
+				patient2keep['dob'].strftime('%x')
+			),
+			aTitle = _('Merging patients: success'),
+			cancel_button = False
+		)
+		if doit:
+			if not isinstance(patient2keep, gmPerson.gmCurrentPatient):
+				wx.CallAfter(gmPerson.set_active_patient, patient = patient2keep)
+
+		if self.IsModal():
+			self.EndModal(wx.ID_OK)
+		else:
+			self.Close()
 #============================================================
 class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):
 
@@ -541,7 +655,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 #		- select all text in the field so that the next
 #		  character typed will delete it
-		
+
 #		- or set cursor to text position in case more left
 #		  clicks follow
 #		"""
@@ -990,7 +1104,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.114  2008-12-09 23:43:27  ncq
+# Revision 1.115  2008-12-17 21:59:22  ncq
+# - add support for merging patients
+#
+# Revision 1.114  2008/12/09 23:43:27  ncq
 # - use description_gender
 # - no more hardcoded plugin raising after patient activation
 #
