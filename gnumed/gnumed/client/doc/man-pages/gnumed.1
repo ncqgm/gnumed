@@ -44,9 +44,15 @@ which controls increased verbosity in the log file.
 
 Useful for, well, debugging :-)  Slower, too.
 .TP
-.B --slave
+.B \--slave
 Pre-set the [enable remote control] checkbox in the login
 dialog to enable the XML-RPC remote control feature.
+.TP
+.B \--hipaa
+Enable HIPAA features with user workflow impact.
+
+Those features which do not affect the workflow of the user
+are permanently enabled.
 .TP
 .B \--text-domain=TEXTDOMAIN
 Set this to change the name of the language file to be loaded.
@@ -136,4 +142,4 @@ Use at your own risk. You have been warned. Take proper backups !
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.20 2008-10-22 12:05:45 ncq Exp $
+$Id: gnumed.1,v 1.21 2008-12-17 21:53:07 ncq Exp $
