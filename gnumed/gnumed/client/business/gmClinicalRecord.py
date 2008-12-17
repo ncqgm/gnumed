@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.279 2008-12-12 16:34:13 ncq Exp $
-__version__ = "$Revision: 1.279 $"
+# $Id: gmClinicalRecord.py,v 1.280 2008-12-17 21:52:11 ncq Exp $
+__version__ = "$Revision: 1.280 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -176,7 +176,7 @@ select fk_encounter from
 			return None
 		return data
 	#--------------------------------------------------------
-	def get_clin_narrative(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None):
+	def get_clin_narrative(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None):
 		"""Get SOAP notes pertinent to this encounter.
 
 			since
@@ -224,6 +224,9 @@ select fk_encounter from
 		if soap_cats is not None:
 			soap_cats = map(lambda c: c.lower(), soap_cats)
 			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
+
+		if providers is not None:
+			filtered_narrative = filter(lambda narr: narr['provider'] in providers, filtered_narrative)
 
 		return filtered_narrative
 	#--------------------------------------------------------
@@ -1873,7 +1876,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.279  2008-12-12 16:34:13  ncq
+# Revision 1.280  2008-12-17 21:52:11  ncq
+# - filter narrative by provider
+#
+# Revision 1.279  2008/12/12 16:34:13  ncq
 # - HIPAA: log "access to the EMR"
 #
 # Revision 1.278  2008/12/09 23:19:15  ncq
