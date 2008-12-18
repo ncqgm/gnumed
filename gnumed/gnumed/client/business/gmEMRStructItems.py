@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.128 $"
+__version__ = "$Revision: 1.129 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -714,10 +714,10 @@ select exists (
 			if len(soap_cat_narratives) == 0:
 				continue
 
-			lines.append('-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+			lines.append(u'-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
 			for soap_entry in soap_cat_narratives:
 				txt = gmTools.wrap (
-					text = '%s  %.8s\n%s' % (
+					text = u'%s  %.8s\n%s' % (
 						soap_entry['date'].strftime('%d.%m. %H:%M'),
 						soap_entry['provider'],
 						soap_entry['narrative']
@@ -1104,7 +1104,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.128  2008-12-09 23:21:00  ncq
+# Revision 1.129  2008-12-18 21:26:20  ncq
+# - u''ify some strings
+#
+# Revision 1.128  2008/12/09 23:21:00  ncq
 # - .date -> .clin_when in documents
 # - no more fk_patient in episode
 #
