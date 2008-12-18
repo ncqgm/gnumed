@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.130 $
+# $Revision: 1.131 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2008-10-22 14:26+CEST\n"
-"PO-Revision-Date: 2008-10-22 14:33+0100\n"
+"POT-Creation-Date: 2008-12-17 23:14+CET\n"
+"PO-Revision-Date: 2008-12-18 12:37+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -54,10 +54,10 @@ msgid "soap_Objective"
 msgstr "soap_Befund"
 
 msgid "soap_Assessment"
-msgstr "soap_Bewertung"
+msgstr "soap_Beurteilung"
 
 msgid "soap_Plan"
-msgstr "soap_Therapie"
+msgstr "soap_Procedere"
 
 msgid "soap_Administrative"
 msgstr "soap_Verwaltung"
@@ -249,6 +249,15 @@ msgstr "Keine APK für diese Episode gefunden."
 msgid "Last worked on: %s\n"
 msgstr "Zuletzt behandelt: %s\n"
 
+msgid "1st and last 3 of %s (%s - %s) encounters:"
+msgstr "1. und letzte 3 von %s (%s - %s) Kontakten:"
+
+msgid "RFE"
+msgstr "BA"
+
+msgid "AOE"
+msgstr "BE"
+
 msgid "Documents: %s"
 msgstr "Dokumente: %s"
 
@@ -260,12 +269,6 @@ msgstr "  Ortszeit: %s - %s  (@%s = %s%s)\n"
 
 msgid "daylight savings time in effect"
 msgstr "Sommerzeit aktiv"
-
-msgid "RFE"
-msgstr "BA"
-
-msgid "AOE"
-msgstr "BE"
 
 msgid "Measurements and Results:"
 msgstr "Messungen und Ergebnisse:"
@@ -326,6 +329,9 @@ msgstr "Fehler beim Laden ungesichteter Werte"
 
 msgid "external patient source (name, gender, date of birth)"
 msgstr "externe Patientenquelle (Name, Geschlecht, Geburtsdatum)"
+
+msgid "Cannot merge active patient into another patient."
+msgstr "Kann aktiven Patienten nicht in einen anderen Patienten einfügen."
 
 msgid "internal patient ID"
 msgstr "interne Patientennummer"
@@ -522,10 +528,10 @@ msgid "Objective"
 msgstr "Befund"
 
 msgid "Assessment"
-msgstr "Bewertung"
+msgstr "Beurteilung"
 
 msgid "Plan"
-msgstr "Therapie"
+msgstr "Procedere"
 
 msgid "Administrative"
 msgstr "Verwaltung"
@@ -723,6 +729,12 @@ msgstr "Die wxPython-GUI ist noch nicht initialisiert."
 msgid "Can't connect to database without login information!"
 msgstr "Ohne Login-Informationen kann keine Verbindung zur Datenbank aufgebaut werden!"
 
+msgid " option [%s]: %s"
+msgstr " Option [%s]: %s"
+
+msgid "  risk: %s"
+msgstr "  Gefahr: %s"
+
 msgid ""
 "Cannot retrieve version information from:\n"
 "\n"
@@ -748,11 +760,11 @@ msgstr ""
 "Eine neue Version von GNUmed ist verfügbar.\n"
 "\n"
 
-msgid " Your version: \"%s\"\n"
-msgstr " Ihre Version: \"%s\"\n"
+msgid " Your current version: \"%s\"\n"
+msgstr " Ihre jetzige Version: \"%s\"\n"
 
-msgid " New version: \"%s\"\n"
-msgstr " Neue Version: \"%s\"\n"
+msgid " New version: \"%s\""
+msgstr " Neue Version: \"%s\""
 
 msgid " - bug fixes only\n"
 msgstr " - ausschließlich Fehlerkorrekturen\n"
@@ -1794,6 +1806,21 @@ msgstr ""
 "Wenn dies nicht Ihre Absicht ist, müssen Sie die Auswahl\n"
 "an Testergebnissen ändern."
 
+msgid "Keep *this* patient"
+msgstr "*Diesen* Patienten behalten"
+
+msgid "Merge"
+msgstr "Zusammenführen"
+
+msgid "Merging patients"
+msgstr "Patienten zusammenführen"
+
+msgid "Select this if you want to keep this patient."
+msgstr "Hier markieren, wenn Sie diesen Datensatz behalten wollen."
+
+msgid "Details of the patients to merge:"
+msgstr "Details der zusammenzuführenden Patienten:"
+
 msgid "Move"
 msgstr "Verschieben"
 
@@ -2100,6 +2127,117 @@ msgstr "Sortiere Dokumente nach ihrem Typ."
 msgid "Sort documents by"
 msgstr "Sortiere Dokumente nach"
 
+msgid "Most Recent Related Notes"
+msgstr "Letzte Karteieinträge zum Problem"
+
+msgid "Today's Notes"
+msgstr "Heutige Karteieinträge"
+
+msgid "Tips and Hints"
+msgstr "Tips und Hinweise"
+
+msgid "Active Problems"
+msgstr "aktuelle Probleme"
+
+msgid ""
+"In this area GNUmed will place the notes of the\n"
+"previous encounter as well as notes by other\n"
+"staff for the current encounter.\n"
+"\n"
+"Note that this may change depending on which\n"
+"active problem is selected in the editor below."
+msgstr ""
+
+msgid "&All"
+msgstr "&Alles"
+
+msgid "&Encounter"
+msgstr "A&PK"
+
+msgid "&Note"
+msgstr "&Eintrag"
+
+msgid "&New"
+msgstr "&Neu"
+
+msgid "&Clear"
+msgstr "&Leeren"
+
+msgid "&Discard"
+msgstr "&Verwerfen"
+
+msgid ""
+"In this area GNUmed will place hints and tips\n"
+"related to the current progress note and patient.\n"
+"\n"
+"Those hints will be derived from a variety of\n"
+"sources such as classifications (ICD, ...), expert\n"
+"systems (EGADDS), online resources (Google\n"
+"and friends), drug databases, etc.\n"
+"\n"
+"Eventually, those hints will be active in that you\n"
+"can click on them and be taken to the relevant\n"
+"information/an appropriate action be performed."
+msgstr ""
+
+msgid "This shows the list of active problems, They include open episodes as well as active health issues."
+msgstr "Die Liste der aktiven Probleme. Diese umfassen die laufenden Episoden und die aktiven Grunderkrankungen."
+
+msgid "Date and time when the current (!) encounter started."
+msgstr "Zeitpunkt, an dem der aktuelle (!) APK gestartet wurde."
+
+msgid "Date and time when the current (!) encounter ends."
+msgstr "Zeitpunkt, an dem der aktive APK beendet wird."
+
+msgid ""
+"This documents why the encounter takes place.\n"
+"\n"
+"It may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here.\n"
+"\n"
+"Also known as the Reason For Encounter/Visit (RFE)."
+msgstr ""
+"Dies beschreibt, warum der aktuelle APK zustande kam.\n"
+"\n"
+"Es kann sich um eine Anliegen des Patienten oder um andere Gründe handeln. Wird oft initial an der Rezeption abgefragt und in der Wartezimmerliste als Notiz abgelegt. Kann sich als Proxy-Anliegen dafür erweisen, warum der Patient wirklich hier ist.\n"
+"\n"
+"Auch bekannt als Beratungsanlaß (-ursache/RFE)."
+
+msgid "This summarizes the outcome/assessment of the consultation from the doctors point of view. Note that this summary spans all the problems discussed during this encounter."
+msgstr "Hier wird das Ergebnis des APK aus Sicht des Arztes zusammengefaßt. Diese Zusammenfassung bezieht sich auf alle Probleme, die in diesem APK angesprochen wurden !"
+
+msgid "Save encounter details and all progress notes."
+msgstr "Die Details zur Konsultation und alle Verlaufsnotizen speichern."
+
+msgid "Save the currently displayed progress note."
+msgstr "Die selektierte Verlaufsnotiz speichern."
+
+msgid ""
+"Open a new progress note editor.\n"
+"\n"
+"There is a configuration item on whether to allow several new-episode editors at once."
+msgstr ""
+"Einen neuen Verlaufseditor öffnen.\n"
+"\n"
+"Sie können konfigurieren, ob Sie nebeneinander mehrere Verlaufseditoren für unzugeordnete Notizen zulassen wollen."
+
+msgid "Clear the editor for the displayed progress note."
+msgstr "Den aktiven Editor leeren."
+
+msgid "Discard the editor for the displayed progress note."
+msgstr "Den aktiven Editor verwerfen."
+
+msgid "until"
+msgstr "bis"
+
+msgid "tab1"
+msgstr ""
+
+msgid "Save:"
+msgstr "Speichern:"
+
+msgid "Editor:"
+msgstr "Editor:"
+
 msgid "Edit staff details"
 msgstr "Mitarbeiterdaten .ändern"
 
@@ -2353,9 +2491,6 @@ msgstr ""
 msgid "Creating new allergy not allowed."
 msgstr "Anlegen einer neuen Allergie nicht vorgesehen."
 
-msgid "&Clear"
-msgstr "&Leeren"
-
 msgid "&Restore"
 msgstr "&Zurücksetzen"
 
@@ -2423,8 +2558,8 @@ msgstr ""
 "Diese Datenbankversion kann mit dieser Programmversion nicht verwendet werden:\n"
 "\n"
 " Version des Client: %s\n"
-" Gefundene Version: %s\n"
-" Benötigte Version: %s\n"
+" Gefundene Datenbank: %s\n"
+" Benötigte Datenbank: %s\n"
 "\n"
 "Momentan geöffnete Datenbank:\n"
 "\n"
@@ -2567,7 +2702,7 @@ msgstr ""
 "\n"
 " [%s]\n"
 "\n"
-"Dies ist eine zugangsbeschränkte Funktion. Wir\n"
+"Dies ist eine zugangsbeschränkte Funktion. Sie\n"
 "benötigen das Passwort des Datenbank-Besitzers.\n"
 "\n"
 "Bitte geben Sie das Passwort für <gm-dbo> ein:"
@@ -3077,6 +3212,9 @@ msgstr "Neuen Namen hinzufügen"
 msgid "Editing name"
 msgstr "Name bearbeiten"
 
+msgid "Cannot delete the only name of a person."
+msgstr "Kann den einzigen Patientennamen nicht löschen."
+
 msgid ""
 "It is often advisable to keep old names around and\n"
 "just create a new \"currently active\" name.\n"
@@ -3381,6 +3519,9 @@ msgstr "Menü \"APK\""
 
 msgid "Move data to another episode"
 msgstr "APK-Daten einer anderen Episode zuordnen"
+
+msgid "Edit notes"
+msgstr "Verlaufsnotizen ändern"
 
 msgid "Export for Medistar"
 msgstr "Medistar-Export"
@@ -4283,6 +4424,12 @@ msgstr "Patienten in der Datenbank deaktivieren."
 msgid "Deactivate record"
 msgstr "Eintrag deaktivieren"
 
+msgid "&Merge patients"
+msgstr "Patienten &zusammenführen"
+
+msgid "Merge two patients into one."
+msgstr "Zwei Patienten in einen zusammenführen."
+
 msgid "Enlist as staff"
 msgstr "Als Mitarbeiter aufnehmen"
 
@@ -4444,6 +4591,12 @@ msgstr "Ein Bildschirmphoto des Programms erstellen."
 
 msgid "Screenshot"
 msgstr "Bildschirmphoto"
+
+msgid "Show log file"
+msgstr "Log-Datei anzeigen."
+
+msgid "Show the log file in text viewer."
+msgstr "Die Logdatei anzeigen."
 
 msgid "Backup log file"
 msgstr "Logdatei sichern"
@@ -5037,6 +5190,9 @@ msgstr "BIldschirmphoto in Datei [%s] gespeichert."
 msgid "pgAdmin III not found."
 msgstr "pgAdmin III nicht gefunden."
 
+msgid "Error reloading hook script."
+msgstr "Fehler beim Neuladen des Hook-Skripts."
+
 msgid "Save current log as..."
 msgstr "Speichere Log in Datei ..."
 
@@ -5072,29 +5228,6 @@ msgstr "Kann Karteizusammenfassung nicht zeigen. Kein Patient aktiv."
 
 msgid "EMR Summary"
 msgstr "Zusammenfassung der Kartei"
-
-msgid "Cannot search EMR. No active patient."
-msgstr "Kann Kartei nicht durchsuchen. Kein Patient aktiv."
-
-msgid "Enter search term:"
-msgstr "Suchbegriff:"
-
-msgid "Text search of entire EMR"
-msgstr "Textsuche in der Karteikarte"
-
-msgid ""
-"Search term was: \"%s\"\n"
-"\n"
-"Search results:\n"
-"%s\n"
-msgstr ""
-"Suchbegriff war: \"%s\"\n"
-"\n"
-"Suchergebnisse:\n"
-"%s\n"
-
-msgid "search results"
-msgstr "Suchergebnisse"
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr "Kann Karteijournal nicht exportieren. Kein Patient aktiv."
@@ -5941,12 +6074,8 @@ msgstr "Zugriff auf das externe Original"
 msgid "Edit corresponding encounter"
 msgstr "Zugehörige Konsultation bearbeiten"
 
-msgid ""
-"Error searching documents for patient\n"
-"[%s %s]."
-msgstr ""
-"Fehler beim Suchen nach Dokumenten für:\n"
-"[%s %s]."
+msgid "Error searching documents."
+msgstr "Fehler beim Suchen von Dokumenten."
 
 msgid "loading document list"
 msgstr "Dokumentenliste laden"
@@ -6091,6 +6220,50 @@ msgstr "Dokument speichern in das Verzeichnis ..."
 msgid "Successfully exported %s parts into the directory [%s]."
 msgstr "Erfolgreich %s Teile in das Verzeichnis [%s] gespeichert."
 
+msgid "Are you sure you want to delete the document ?"
+msgstr "Sind Sie sicher, daß das Dokument gelöscht werden soll ?"
+
+msgid "Deleting document"
+msgstr "Dokument löschen"
+
+msgid "Cannot edit progress notes. No active patient."
+msgstr "Kann Verlaufsnotizen nicht ändern. Kein Patient aktiv."
+
+msgid ""
+"\n"
+" Select the progress note you want to edit from the list below:\n"
+msgstr ""
+"\n"
+"Wählen Sie den Karteieintrag, den Sie bearbeiten wollen:\n"
+
+msgid "Cannot search EMR. No active patient."
+msgstr "Kann Kartei nicht durchsuchen. Kein Patient aktiv."
+
+msgid "Enter search term:"
+msgstr "Suchbegriff:"
+
+msgid "Text search of entire EMR of active patient"
+msgstr "Textsuche in der Karteikarte des aktiven Patienten"
+
+msgid "Health issue"
+msgstr "Grunderkrankung"
+
+msgid ""
+"Search term was: \"%s\"\n"
+"\n"
+"Search results:\n"
+"\n"
+"%s\n"
+msgstr ""
+"Suchbegriff war: \"%s\"\n"
+"\n"
+"Suchergebnisse:\n"
+"\n"
+"%s\n"
+
+msgid "search results"
+msgstr "Suchergebnisse"
+
 msgid "Cannot export EMR for Medistar. No active patient."
 msgstr "Kann Kartei nicht für MEDISTAR exportieren. Kein Patient aktiv."
 
@@ -6153,6 +6326,35 @@ msgstr "Keine Karteieingräge für diese Episode gefunden."
 msgid "Must select episode to move narrative to first."
 msgstr "Sie müssen erst eine Episode zum Verschieben der Karteieinträge wählen."
 
+msgid "Last"
+msgstr "Zuletzt"
+
+msgid "Current encounter:"
+msgstr "Aktive Konsultation:"
+
+msgid ""
+"Cannot open progress note editor for\n"
+"\n"
+"[%s].\n"
+"\n"
+msgstr ""
+"Kann keinen Editor für Verlaufsnotiz zum Problem:\n"
+"[%s]\n"
+"anlegen.\n"
+
+msgid "opening progress note editor"
+msgstr "Editor für Verlaufsnotiz öffnen"
+
+msgid ""
+"Are you sure you really want to\n"
+"discard this progress note ?\n"
+msgstr ""
+"Sind Sie sicher, daß diese Verlaufsnotiz\n"
+"verworfen werden soll ?\n"
+
+msgid "Discarding progress note"
+msgstr "Verwerfe Verlaufsnotiz"
+
 msgid "Refresh from database"
 msgstr "Neu laden"
 
@@ -6176,6 +6378,57 @@ msgstr "Praxis"
 
 msgid "Cannot set patient picture from [%s]."
 msgstr "Kann Patientenbild nicht aus Datei [%s] laden."
+
+msgid ""
+"\n"
+"\n"
+"You will be assimilated.\n"
+"\n"
+msgstr ""
+"\n"
+"\n"
+"You will be assimilated.\n"
+"\n"
+
+msgid "The Borg"
+msgstr "Die Borg"
+
+msgid "Cannot merge Kirk into another patient."
+msgstr "Kann Kirk keinem anderen Patienten zuordnen."
+
+msgid ""
+"Are you positively sure you want to merge patient\n"
+"\n"
+" #%s: %s (%s, %s)\n"
+"\n"
+"into patient\n"
+"\n"
+" #%s: %s (%s, %s) ?\n"
+"\n"
+"Note that this action can ONLY be reversed by a laborious\n"
+"manual process requiring in-depth knowledge about databases\n"
+"and the patients in question !\n"
+msgstr ""
+
+msgid "Merging patients: confirmation"
+msgstr "Patienten zusammenführen: Bestätigung"
+
+msgid ""
+"The patient\n"
+"\n"
+" #%s: %s (%s, %s)\n"
+"\n"
+"has successfully been merged into\n"
+"\n"
+" #%s: %s (%s, %s)\n"
+"\n"
+"\n"
+"Do you want to activate that patient\n"
+"now for further modifications ?\n"
+msgstr ""
+
+msgid "Merging patients: success"
+msgstr "Patienten zusammenführen: Erfolg"
 
 msgid "Firstname"
 msgstr "Vorname"
@@ -6637,16 +6890,6 @@ msgstr " Neu "
 msgid "Enter vaccination given"
 msgstr "Verabreichte Impfung eingeben"
 
-msgid ""
-"Are you sure you really want to\n"
-"discard this progress note ?\n"
-msgstr ""
-"Sind Sie sicher, daß diese Verlaufsnotiz\n"
-"verworfen werden soll ?\n"
-
-msgid "Discarding progress note"
-msgstr "Verwerfe Verlaufsnotiz"
-
 msgid "Unsaved progress note"
 msgstr "Ungespeicherte Verlaufsnotiz"
 
@@ -6667,9 +6910,6 @@ msgstr "Diese Verlaufsnotiz speichern"
 msgid "Discard this progress note"
 msgstr "Diese Verlaufsnotiz verwerfen"
 
-msgid "&Discard"
-msgstr "&Verwerfen"
-
 msgid "Save &all"
 msgstr " &Alle speichern"
 
@@ -6679,11 +6919,12 @@ msgstr "Alle ungespeicherten Verlaufsnotiz speichern"
 msgid "Active problems"
 msgstr "Aktuelle Probleme"
 
-msgid "&New"
-msgstr "&Neu"
-
-msgid "Add editor for a new unassociated progress note."
-msgstr "Editor für vorerst nicht zugeordnete Verlaufsnotiz öffnen."
+msgid ""
+"Add editor for a new unassociated progress note.\n"
+"\n"
+"There is a configuration option whether or not to\n"
+"allow several new unassociated progress notes at once."
+msgstr ""
 
 msgid "Save progress note into medical record and close this editor."
 msgstr "Verlaufsnotiz in Kartei abspeichern und Editor schließen."
@@ -6693,19 +6934,6 @@ msgstr "Editor für Verlaufsnotiz leeren."
 
 msgid "Discard progress note and close this editor. You will loose any data already typed into this editor !"
 msgstr "Verlaufsnotiz verwerfen und diesen Editor schließen. Sie verlieren dabei alle bereits in diesen Editor eingegebenen Daten !"
-
-msgid ""
-"Cannot open progress note editor for\n"
-"\n"
-"[%s].\n"
-"\n"
-msgstr ""
-"Kann keinen Editor für Verlaufsnotiz zum Problem:\n"
-"[%s]\n"
-"anlegen.\n"
-
-msgid "opening progress note editor"
-msgstr "Editor für Verlaufsnotiz öffnen"
 
 msgid "Problem saving progress note: duplicate information ?"
 msgstr "Problem beim Speichern der Verlaufsnotiz: Duplikat ?"
@@ -7353,6 +7581,12 @@ msgstr "Dokumente hinzufügen"
 msgid "Show &archived documents"
 msgstr "archivierte &Dokumente zeigen"
 
+msgid "Progress notes 2"
+msgstr ""
+
+msgid "&Progress notes editor 2"
+msgstr ""
+
 msgid "&Vaccinations"
 msgstr "Impfungen"
 
@@ -7421,9 +7655,6 @@ msgstr ""
 
 msgid "icon-future_mom"
 msgstr ""
-
-msgid "Active Problems"
-msgstr "aktuelle Probleme"
 
 msgid "     Habits            Risk Factors"
 msgstr "     Angewohnheiten       Risikofaktoren"
@@ -7596,6 +7827,16 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Open a new progress note editor."
+#~ msgstr "Einen neuen Editor für eine Verlaufsnotiz öffnen."
+#~ msgid "Add editor for a new unassociated progress note."
+#~ msgstr "Editor für vorerst nicht zugeordnete Verlaufsnotiz öffnen."
+#~ msgid ""
+#~ "Error searching documents for patient\n"
+#~ "[%s %s]."
+#~ msgstr ""
+#~ "Fehler beim Suchen nach Dokumenten für:\n"
+#~ "[%s %s]."
 #~ msgid "No allergies known"
 #~ msgstr "Keine Allergien bekannt"
 #~ msgid "%s (last confirmed %s)%-90s"
@@ -7796,8 +8037,6 @@ msgstr "erstmals"
 #~ msgstr ""
 #~ "Diesen Patienten gibt es in der Datenbank nicht.\n"
 #~ "\"%s %s\""
-#~ msgid "searching patient"
-#~ msgstr "suche Patient"
 #~ msgid "Data in xDT file matches more than one patient in database !"
 #~ msgstr ""
 #~ "Die Daten in der xDT-Datei passen auf mehrere Patienten in der Datenbank !"
@@ -7922,8 +8161,6 @@ msgstr "erstmals"
 #~ msgstr "Kann Telefonnummer des Patienten nicht aktualisieren."
 #~ msgid "restore fields with current values from backend"
 #~ msgstr "Setze Eingabefelder auf Werte in der Datenbank"
-#~ msgid "save patient information"
-#~ msgstr "Patientendaten speichern"
 #~ msgid "The addresses known for this patient."
 #~ msgstr "Die für diesen Patienten bekannten Adressen."
 #~ msgid "Add an address for this patient."
@@ -7962,8 +8199,6 @@ msgstr "erstmals"
 #~ msgstr "Signifikanz"
 #~ msgid "Progress Notes"
 #~ msgstr "Verlaufsnotizen"
-#~ msgid "More Notes"
-#~ msgstr "Karteieintrag"
 #~ msgid "Year"
 #~ msgstr "Jahr"
 #~ msgid "Class"
@@ -8064,8 +8299,6 @@ msgstr "erstmals"
 #~ msgstr "0 Byte - fehlen die Daten ?"
 #~ msgid "Cannot export document part from database to file."
 #~ msgstr "Kann diesen Dokumententeil nicht in eine Datei exportieren."
-#~ msgid "Delete patient"
-#~ msgstr "Patienten löschen"
 #~ msgid "invalid type for DOB (must be datetime.datetime): %s [%s]"
 #~ msgstr ""
 #~ "ungültiger Datentyp für Geburtsdatum (muß datetime.datetime sein): %s [%s]"
@@ -8122,8 +8355,6 @@ msgstr "erstmals"
 #~ "Soll dieser Arzt-Patienten-Kontakt fortgesetzt werden ?\n"
 #~ "\n"
 #~ "Mit \"Nein\" beginnen Sie einen neuen Kontakt."
-#~ msgid "Error saving document review."
-#~ msgstr "Kann Abzeichnung des Dokuments nicht speichern."
 #~ msgid "No config file to read workplace name from !"
 #~ msgstr ""
 #~ "Keine Konfigurationsdatei zum Lesen des Arbeitsplatznamens verfügbar."
@@ -8227,8 +8458,6 @@ msgstr "erstmals"
 #~ msgstr "Straße"
 #~ msgid "insurance company"
 #~ msgstr "Krankenkasse"
-#~ msgid "valid until"
-#~ msgstr "gültig bis"
 #~ msgid "Add health issue (pHx item)"
 #~ msgstr "Grunderkrankung (EA) hinzufügen"
 #~ msgid "invalid gender: [%s]"
@@ -8496,8 +8725,6 @@ msgstr "erstmals"
 #~ msgstr "Verlaufsnotiz muß mindestens Beratungsanlaß und Therapie umfassen."
 #~ msgid "&Add"
 #~ msgstr "&Hinzufügen"
-#~ msgid "&Merge"
-#~ msgstr "&Zusammenführen"
 #~ msgid "Failed to activate GNUmed database user."
 #~ msgstr "Kann Mitarbeiter nicht für GNUmed aktivieren."
 #~ msgid "Activating GNUmed staff member"
