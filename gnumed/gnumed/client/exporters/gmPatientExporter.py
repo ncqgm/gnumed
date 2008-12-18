@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.132 2008-12-09 23:24:29 ncq Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gmPatientExporter.py,v 1.133 2008-12-18 21:26:45 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -957,7 +957,7 @@ select
 	to_char(vemrj.clin_when, 'YYYY-MM-DD') as date,
 	vemrj.*,
 	(select rank from clin.soap_cat_ranks where soap_cat = vemrj.soap_cat) as scr,
-	to_char(vemrj.modified_when, 'YYYY-MM-DD H24:MI') as date_modified
+	to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') as date_modified
 from clin.v_emr_journal vemrj
 where pk_patient = %s
 order by date, pk_episode, scr, src_table"""
@@ -1174,7 +1174,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.132  2008-12-09 23:24:29  ncq
+# Revision 1.133  2008-12-18 21:26:45  ncq
+# - missing H in HH24 in date formatting in journal exporter
+#
+# Revision 1.132  2008/12/09 23:24:29  ncq
 # - .date -> .clin_when in doc_med
 #
 # Revision 1.131  2008/12/01 12:36:57  ncq
