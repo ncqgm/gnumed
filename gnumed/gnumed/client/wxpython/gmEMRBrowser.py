@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.98 2008-12-01 12:37:37 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmEMRBrowser.py,v 1.99 2008-12-18 21:27:56 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -215,6 +215,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_encounter_details)
 
+		item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
+		self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
+
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
 
@@ -309,6 +312,13 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		except gmExceptions.DatabaseObjectInUseError:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 			return
+	#--------------------------------------------------------
+	def __edit_progress_notes(self, event):
+		encounter = self.GetPyData(self.__curr_node)
+		node_parent = self.GetItemParent(self.__curr_node)
+		owning_episode = self.GetPyData(node_parent)
+
+		gmNarrativeWidgets.edit_progress_notes(parent = self, encounters = [encounter['pk_encounter']], episodes = [owning_episode['pk_episode']])
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, event):
 		node_data = self.GetPyData(self.__curr_node)
@@ -729,7 +739,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.98  2008-12-01 12:37:37  ncq
+# Revision 1.99  2008-12-18 21:27:56  ncq
+# - add editing progress notes from encounter context menu
+#
+# Revision 1.98  2008/12/01 12:37:37  ncq
 # - generate encounter node tooltips
 #
 # Revision 1.97  2008/11/20 19:50:19  ncq
