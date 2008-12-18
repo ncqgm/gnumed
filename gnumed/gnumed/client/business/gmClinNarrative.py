@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -11,7 +11,7 @@ import sys, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject
+from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject, gmTools
 
 try:
 	_('dummy-no-need-to-translate')
@@ -146,6 +146,36 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+	#--------------------------------------------------------
+	def format(self, left_margin=u'', fancy=False, width=75):
+
+		if fancy:
+			# FIXME: add revision
+			txt = gmTools.wrap (
+				text = _('%s: %s by %.8s\n%s') % (
+					self._payload[self._idx['date']].strftime('%x %H:%M'),
+					soap_cat2l10n_str[self._payload[self._idx['soap_cat']]],
+					self._payload[self._idx['provider']],
+					self._payload[self._idx['narrative']]
+				),
+				width = width,
+				initial_indent = u'',
+				subsequent_indent = left_margin + u'   '
+			)
+		else:
+			txt = u'%s [%s]: %s (%.8s)' % (
+				self._payload[self._idx['date']].strftime('%x %H:%M'),
+				soap_cat2l10n[self._payload[self._idx['soap_cat']]],
+				self._payload[self._idx['narrative']],
+				self._payload[self._idx['provider']]
+			)
+			if len(txt) > width:
+				txt = txt[:width] + gmTools.u_ellipsis
+
+		return txt
+
+#		lines.append('-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+
 #============================================================
 # convenience functions
 #============================================================
@@ -263,7 +293,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.35  2008-08-15 15:55:14  ncq
+# Revision 1.36  2008-12-18 21:25:56  ncq
+# - add format() to cClinNarrative
+#
+# Revision 1.35  2008/08/15 15:55:14  ncq
 # - cleanup
 #
 # Revision 1.34  2008/05/07 15:15:15  ncq
