@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.97 2008-11-21 13:06:09 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmGuiHelpers.py,v 1.98 2008-12-18 21:28:26 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,7 +23,7 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg, wxgMultilineTextEntryDlg
 
 # ========================================================================
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
@@ -186,6 +186,70 @@ class cStartupProgressBar(wx.ProgressDialog):
 #				self.nr_plugins,
 #				plugin
 #			)
+
+# ========================================================================
+class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			title = kwargs['title']
+			del kwargs['title']
+		except KeyError:
+			title = None
+
+		try:
+			msg = kwargs['msg']
+			del kwargs['msg']
+		except KeyError:
+			msg = None
+
+		try:
+			self.original_text = kwargs['text']
+			del kwargs['text']
+		except KeyError:
+			self.original_text = None
+
+		try:
+			self.save_callback = kwargs['cb_save']
+			del kwargs['cb_save']
+		except KeyError:
+			self.save_callback = None
+
+		wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg.__init__(self, *args, **kwargs)
+
+		if title is not None:
+			self.SetTitle(title)
+
+		if msg is None:
+			self._LBL_msg.Hide()
+		else:
+			self._LBL_msg.SetLabel(msg)
+			self.Refresh()
+
+		if self.original_text is not None:
+			self._TCTRL_text.SetValue(self.original_text)
+
+		if self.save_callback is not None:
+			self._BTN_save.Enable(True)
+
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+
+		if self.save_callback is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Saving text disabled.'), beep = True)
+			return
+
+		if not self.save_callback(new = self._TCTRL_text.GetValue(), old = self.original_text):
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text.'), beep = True)
+			return
+
+		if self.IsModal():
+			self.EndModal(wx.ID_SAVE)
+		else:
+			self.Close()
 
 # ========================================================================
 class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
@@ -508,7 +572,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.97  2008-11-21 13:06:09  ncq
+# Revision 1.98  2008-12-18 21:28:26  ncq
+# - cMultilineTextEntryDlg
+#
+# Revision 1.97  2008/11/21 13:06:09  ncq
 # - cleanup
 #
 # Revision 1.96  2008/08/08 13:30:12  ncq
