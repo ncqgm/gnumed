@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.171 2008-12-17 21:52:36 ncq Exp $
-__version__ = "$Revision: 1.171 $"
+# $Id: gmPerson.py,v 1.172 2008-12-22 18:58:02 ncq Exp $
+__version__ = "$Revision: 1.172 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -207,19 +207,20 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
 	_cmds_store_payload = [
 		u"""update dem.identity set
-			title=%(title)s,
-			dob=%(dob)s,
-			cob=%(cob)s,
-			gender=%(gender)s,
-			fk_marital_status = %(pk_marital_status)s,
-			karyotype = %(karyotype)s,
-			pupic = %(pupic)s
-		where
-			pk=%(pk_identity)s and
-			xmin = %(xmin_identity)s""",
+				title = %(title)s,
+				dob = %(dob)s,
+				tob = %(tob)s,
+				cob = %(cob)s,
+				gender = %(gender)s,
+				fk_marital_status = %(pk_marital_status)s,
+				karyotype = %(karyotype)s,
+				pupic = %(pupic)s
+			where
+				pk=%(pk_identity)s and
+				xmin = %(xmin_identity)s""",
 		u"""select xmin_identity from dem.v_basic_person where pk_identity=%(pk_identity)s"""
 	]
-	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
+	_updatable_fields = ["title", "dob", "tob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
 	#--------------------------------------------------------
 	def _get_ID(self):
 		return self._payload[self._idx['pk_identity']]
@@ -2257,7 +2258,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.171  2008-12-17 21:52:36  ncq
+# Revision 1.172  2008-12-22 18:58:02  ncq
+# - start supporting .tob
+#
+# Revision 1.171  2008/12/17 21:52:36  ncq
 # - add assimilation
 #
 # Revision 1.170  2008/12/09 23:19:47  ncq
