@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.8 2008-03-06 18:29:29 ncq Exp $
-__version__ = '$Revision: 1.8 $'
+# $Id: gmDataMiningWidgets.py,v 1.9 2008-12-22 18:59:56 ncq Exp $
+__version__ = '$Revision: 1.9 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -330,7 +330,7 @@ The GNUmed client.
 		self._LCTRL_result.patient_key = None
 
 		# FIXME: make configurable
-		query = u'select * from (' + query + u') as real_query limit 1024'
+		query = u'select * from (' + query + u'\n) as real_query limit 1024'
 		try:
 			# read-only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
@@ -411,7 +411,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.8  2008-03-06 18:29:29  ncq
+# Revision 1.9  2008-12-22 18:59:56  ncq
+# - put \n before appended wrapper query because original query might have
+#   a line starting with "-- " as the last line ...
+#
+# Revision 1.8  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.7  2007/12/11 12:49:25  ncq
