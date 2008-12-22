@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.71 2008-12-09 23:28:15 ncq Exp $
+# $Id: gmTools.py,v 1.72 2008-12-22 18:58:53 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -900,7 +900,7 @@ This is a test mail from the gmTools.py module.
 
 		#test_check_for_update()
 		#test_str2interval()
-		test_coalesce()
+		#test_coalesce()
 		#test_capitalize()
 		#test_import_module()
 		#test_mkdir()
@@ -911,11 +911,14 @@ This is a test mail from the gmTools.py module.
 		#test_bool2subst()
 		#test_get_unique_filename()
 		#test_size2str()
-		#test_wrap()
+		test_wrap()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.71  2008-12-09 23:28:15  ncq
+# Revision 1.72  2008-12-22 18:58:53  ncq
+# - cleanup
+#
+# Revision 1.71  2008/12/09 23:28:15  ncq
 # - better logging
 # - always remove aux module path if importing fails
 #
