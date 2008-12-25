@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.95 $"
+__version__ = "$Revision: 1.96 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -570,6 +570,58 @@ def get_col_names(link_obj=None, schema='public', table=None):
 	for row in rows:
 		cols.append(row[0])
 	return cols
+#------------------------------------------------------------------------
+def get_translation_languages():
+	rows, idx = run_ro_queries (
+		queries = [{'cmd': u'select distinct lang from i18n.translations'}]
+	)
+	return [ r[0] for r in rows ]
+#------------------------------------------------------------------------
+def set_user_language(user=None, language=None):
+	"""Set the user language in the database.
+
+	user = None: current db user
+	language = None: unset
+	"""
+	_log.info('setting database language for user [%s] to [%s]', user, language)
+
+	args = {
+		'usr': user,
+		'lang': language
+	}
+
+	if language is None:
+		if user is None:
+			queries = [{'cmd': u'select i18n.unset_curr_lang()'}]
+		else:
+			queries = [{'cmd': u'select i18n.unset_curr_lang(%(usr)s)', 'args': args}]
+		queries.append({'cmd': u'select True'})
+	else:
+		if user is None:
+			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': args}]
+		else:
+			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s, %(usr)s)', 'args': args}]
+
+	rows, idx = run_rw_queries(queries = queries, return_data = True)
+
+	if not rows[0][0]:
+		_log.error('cannot set database language to [%s] for user [%s]', language, user)
+
+	return rows[0][0]
+#------------------------------------------------------------------------
+def force_user_language(language=None):
+	"""Set the user language in the database.
+
+	- regardless of whether there is any translation available.
+	- only for the current user
+	"""
+	_log.info('forcing database language for current db user to [%s]', language)
+
+	run_rw_queries(queries = [{
+		'cmd': u'select i18n.force_curr_lang(%(lang)s)',
+		'args': {'lang': language}
+	}])
+#------------------------------------------------------------------------
 #------------------------------------------------------------------------
 text_expansion_keywords = None
 
@@ -1685,6 +1737,35 @@ if __name__ == "__main__":
 				row['referenced_column']
 			)
 	#--------------------------------------------------------------------
+	def test_set_user_language():
+		# (user, language, result, exception type)
+		tests = [
+			# current user
+			[None, 'de_DE', True],
+			[None, 'lang_w/o_tx', False],
+			[None, None, True],
+			# valid user
+			['any-doc', 'de_DE', True],
+			['any-doc', 'lang_w/o_tx', False],
+			['any-doc', None, True],
+			# invalid user
+			['invalid user', 'de_DE', None],
+			['invalid user', 'lang_w/o_tx', False], # lang checking happens before user checking
+			['invalid user', None, True]
+		]
+		for test in tests:
+			try:
+				result = set_user_language(user = test[0], language = test[1])
+				if result != test[2]:
+					print "test:", test
+					print "result:", result, "expected:", test[2]
+			except psycopg2.IntegrityError, e:
+				if test[2] is None:
+					continue
+				print "test:", test
+				print "expected exception"
+				print "result:", e
+	#--------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# run tests
 		#test_file2bytea()
@@ -1699,11 +1780,15 @@ if __name__ == "__main__":
 		#test_is_pg_interval()
 		#test_sanity_check_time_skew()
 		#test_keyword_expansion()
-		test_get_foreign_key_details()
+		#test_get_foreign_key_details()
+		test_set_user_language()
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.95  2008-12-17 21:55:38  ncq
+# Revision 1.96  2008-12-25 16:54:01  ncq
+# - support around user db language handling
+#
+# Revision 1.95  2008/12/17 21:55:38  ncq
 # - get_foreign_keys2column
 # - only check HIPAA compliance when --hipaa was given
 #
