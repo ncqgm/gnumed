@@ -5,11 +5,11 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v9-i18n-dynamic.sql,v 1.1.2.3 2008-10-28 12:35:03 ncq Exp $
--- $Revision: 1.1.2.3 $
+-- $Id: v9-i18n-dynamic.sql,v 1.1.2.4 2008-12-25 11:17:41 ncq Exp $
+-- $Revision: 1.1.2.4 $
 
 -- --------------------------------------------------------------
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
@@ -34,7 +34,7 @@ BEGIN
 		return False;
 	end if;
 
-	delete from i18n.curr_lang where quote_ident(user) = _user;
+	delete from i18n.curr_lang where i18n.curr_lang.user = _user;
 	insert into i18n.curr_lang ("user", lang) values (_user, _lang);
 	return true;
 END;
@@ -121,11 +121,14 @@ comment on function i18n._(text) is
 	 created in public schema for easy access';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.1.2.3 $');
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.1.2.4 $');
 
 -- ==============================================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.1.2.3  2008-10-28 12:35:03  ncq
+-- Revision 1.1.2.4  2008-12-25 11:17:41  ncq
+-- - fix DELETE exception when re-setting DB language
+--
+-- Revision 1.1.2.3  2008/10/28 12:35:03  ncq
 -- - still wasn't quite right
 --
 -- Revision 1.1.2.2  2008/10/22 22:02:02  ncq
