@@ -1,6 +1,6 @@
 -- ======================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v8-v9/dynamic/v9-i18n-dynamic.sql,v $
--- $Id: v9-i18n-dynamic.sql,v 1.5 2008-11-24 23:04:29 ncq Exp $
+-- $Id: v9-i18n-dynamic.sql,v 1.6 2008-12-25 16:57:11 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -96,7 +96,7 @@ BEGIN
 		return False;
 	end if;
 
-	delete from i18n.curr_lang where quote_ident(user) = _user;
+	delete from i18n.curr_lang where i18n.curr_lang.user = _user;
 	insert into i18n.curr_lang ("user", lang) values (_user, _lang);
 	return true;
 END;
@@ -175,11 +175,14 @@ create or replace function i18n.upd_tx(text, text)
 ;
 
 -- =============================================
-select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.5 $');
+select gm.log_script_insertion('$RCSfile: v9-i18n-dynamic.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: v9-i18n-dynamic.sql,v $
--- Revision 1.5  2008-11-24 23:04:29  ncq
+-- Revision 1.6  2008-12-25 16:57:11  ncq
+-- - fix re-setting language
+--
+-- Revision 1.5  2008/11/24 23:04:29  ncq
 -- - fix ordering
 --
 -- Revision 1.4  2008/10/25 20:47:16  ncq
