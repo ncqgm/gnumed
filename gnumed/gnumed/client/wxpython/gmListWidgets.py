@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.25 2008-08-06 13:22:14 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmListWidgets.py,v 1.26 2008-12-25 16:55:36 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -34,7 +34,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg, wxgGenericListManagerPnl
 
 #================================================================
-def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False):
+def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False, can_return_empty=False):
 	"""Let user select item(s) from a list.
 
 	- edit_callback: (item data)
@@ -59,12 +59,15 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 		dlg.set_selections(selections = selections)
 	if data is not None:
 		dlg.set_data(data=data)
+	dlg.can_return_empty = can_return_empty
 
 	btn_pressed = dlg.ShowModal()
 	sels = dlg.get_selected_item_data(only_one = single_selection)
 	dlg.Destroy()
 
 	if btn_pressed == wx.ID_OK:
+		if can_return_empty and (sels is None):
+			return []
 		return sels
 
 	return None
@@ -90,6 +93,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
+
+		self.can_return_empty = False
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -120,8 +125,9 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
-			self._BTN_ok.Enable(False)
-			self._BTN_cancel.SetDefault()
+			if not self.can_return_empty:
+				self._BTN_ok.Enable(False)
+				self._BTN_cancel.SetDefault()
 			self._BTN_edit.Enable(False)
 			self._BTN_delete.Enable(False)
 	#------------------------------------------------------------
@@ -435,7 +441,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.25  2008-08-06 13:22:14  ncq
+# Revision 1.26  2008-12-25 16:55:36  ncq
+# - allow returniny empty list = no item selected if desired
+#
+# Revision 1.25  2008/08/06 13:22:14  ncq
 # - fix detection of item list type
 #
 # Revision 1.24  2008/07/24 14:00:18  ncq
