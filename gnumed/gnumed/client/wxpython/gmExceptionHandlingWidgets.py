@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.6 2008-12-09 23:29:54 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.7 2008-12-25 23:31:51 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,10 +52,13 @@ def handle_uncaught_exception_wx(t, v, tb):
 	try: wx.EndBusyCursor()
 	except: pass
 
-	# dead object error on shutdown ?
+	# exception on shutdown ?
 	if application_is_closing:
+		# dead object error ?
 		if t == wx._core.PyDeadObjectError:
 			return
+		gmLog2.log_stack_trace()
+		return
 
 	# failed import ?
 	if t == exceptions.ImportError:
@@ -319,7 +322,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.6  2008-12-09 23:29:54  ncq
+# Revision 1.7  2008-12-25 23:31:51  ncq
+# - ignore but log most exceptions during application shutdown
+#
+# Revision 1.6  2008/12/09 23:29:54  ncq
 # - trap exceptions during smtp handling inside top-level exception handler
 #
 # Revision 1.5  2008/11/20 19:50:45  ncq
