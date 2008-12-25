@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.51 2008-11-20 18:43:01 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmBusinessDBObject.py,v 1.52 2008-12-25 16:53:18 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -142,7 +142,7 @@ from Gnumed.pycommon import gmExceptions, gmPG2
 _log = logging.getLogger('gm.db')
 _log.info(__version__)
 #============================================================
-class cBusinessDBObject:
+class cBusinessDBObject(object):
 	"""Represents business objects in the database.
 
 	Rules:
@@ -451,7 +451,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.51  2008-11-20 18:43:01  ncq
+# Revision 1.52  2008-12-25 16:53:18  ncq
+# - business object base class really should support properties
+#   so make it inherit from object
+#
+# Revision 1.51  2008/11/20 18:43:01  ncq
 # - better logger name
 #
 # Revision 1.50  2008/10/22 12:06:48  ncq
