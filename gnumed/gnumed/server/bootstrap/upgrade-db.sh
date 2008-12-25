@@ -137,4 +137,12 @@ fi
 #echo_msg "   You may need to type in the password for gm-dbo."
 #vacuumdb --full --analyze ${PORT_DEF} -U gm-dbo -d gnumed_v${NEXT_VER}
 
+
+echo_msg ""
+echo_msg "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo_msg "! Make sure to upgrade your database backup procedures to       !"
+echo_msg "! appropriately refer to the new database \"gnumed_v${NEXT_VER}\"!         !"
+echo_msg "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+
 exit 0
