@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-dem-identity-dynamic.sql,v 1.1 2008-12-22 18:57:00 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-dem-identity-dynamic.sql,v 1.2 2008-12-25 16:57:40 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -42,7 +42,7 @@ BEGIN
 END;';
 
 create trigger tr_normalize_time_in_dob
-	after insert or update on dem.identity
+	before insert or update on dem.identity
 	for each row execute procedure dem.trf_normalize_time_in_dob()
 ;
 
@@ -58,11 +58,14 @@ alter table dem.identity
 
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-dem-identity-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-dem-identity-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-dem-identity-dynamic.sql,v $
--- Revision 1.1  2008-12-22 18:57:00  ncq
+-- Revision 1.2  2008-12-25 16:57:40  ncq
+-- - DOB normalize trigger must be BEFORE
+--
+-- Revision 1.1  2008/12/22 18:57:00  ncq
 -- - support .tob
 --
 --
