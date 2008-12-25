@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.32 2008-11-20 18:48:15 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmAuthWidgets.py,v 1.33 2008-12-25 17:46:09 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -119,6 +119,8 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 	while attempt < max_attempts:
 
+		_log.debug('login attempt %s of %s', (attempt+1), max_attempts)
+
 		connected = False
 
 		dlg.ShowModal()
@@ -140,7 +142,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			connected = True
 		except gmPG2.cAuthenticationError, e:
 			attempt += 1
-			_log.error(u"login attempt %s/%s failed: %s", attempt, max_attempts, e)
+			_log.error(u"login attempt failed: %s", e)
 			if attempt < max_attempts:
 				gmGuiHelpers.gm_show_error (_(
 					"Unable to connect to database:\n\n"
@@ -152,17 +154,17 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				)
 			continue
 		except gmPG2.dbapi.OperationalError, e:
-			_log.error(u"login attempt %s/%s failed: %s", attempt+1, max_attempts, e)
+			_log.error(u"login attempt failed: %s", e)
 			gmGuiHelpers.gm_show_error (_(
-				"Unable to connect to database:\n\n"
-				"%s\n\n"
-				"Please retry with another profile !\n"
-				) % e,
+					"Unable to connect to database:\n\n"
+					"%s\n\n"
+					"Please retry with another profile !\n"
+				) % gmPG2.extract_msg_from_pg_exception(e),
 				_('Connecting to backend')
 			)
 			continue
 
-		# connect was successful:
+		# connect was successful
 		gmPG2.set_default_login(login = login)
 		gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
 
@@ -707,7 +709,11 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.32  2008-11-20 18:48:15  ncq
+# Revision 1.33  2008-12-25 17:46:09  ncq
+# - better logging
+# - work around PG unknown initial encoding problem
+#
+# Revision 1.32  2008/11/20 18:48:15  ncq
 # - add default help desk to builtin default backend profile
 #
 # Revision 1.31  2008/10/22 12:13:09  ncq
