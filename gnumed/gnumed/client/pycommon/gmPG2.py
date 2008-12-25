@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.96 $"
+__version__ = "$Revision: 1.97 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1258,7 +1258,7 @@ def __noop():
 	pass
 #-----------------------------------------------------------------------
 def _raise_exception_on_ro_conn_close():
-	raise TypeError('close() called on read-only connection')
+	raise TypeError(u'close() called on read-only connection')
 #-----------------------------------------------------------------------
 def sanity_check_time_skew(tolerance=60):
 	"""Check server time and local time to be within
@@ -1380,6 +1380,15 @@ def __log_PG_settings(curs=None):
 	for setting in settings:
 		_log.debug(u'PG option [%s]: %s', setting[0], setting[1])
 	return True
+# =======================================================================
+def extract_msg_from_pg_exception(exc=None):
+
+	try:
+		msg = exc.args[0]
+	except (AttributeError, IndexError, TypeError):
+		return u'cannot extract message from exception'
+
+	return unicode(msg, gmI18N.get_encoding(), 'replace')
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):
 
@@ -1785,7 +1794,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.96  2008-12-25 16:54:01  ncq
+# Revision 1.97  2008-12-25 17:43:08  ncq
+# - add exception msg extraction function
+#
+# Revision 1.96  2008/12/25 16:54:01  ncq
 # - support around user db language handling
 #
 # Revision 1.95  2008/12/17 21:55:38  ncq
