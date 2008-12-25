@@ -139,10 +139,10 @@ fi
 
 
 echo_msg ""
-echo_msg "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-echo_msg "! Make sure to upgrade your database backup procedures to       !"
-echo_msg "! appropriately refer to the new database \"gnumed_v${NEXT_VER}\"!         !"
-echo_msg "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo_msg "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo_msg " Make sure to upgrade your database backup procedures to"
+echo_msg " appropriately refer to the new database \"gnumed_v${NEXT_VER}\" !"
+echo_msg "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 
 exit 0
