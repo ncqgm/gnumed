@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-i18n-dynamic.sql,v 1.4 2008-12-25 16:59:33 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v10-i18n-dynamic.sql,v 1.5 2008-12-25 23:34:30 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -63,7 +63,7 @@ BEGIN
 	return;
 END;';
 
-comment on function i18n.unset_curr_lang() is 'unset the db language for a user (thereby reverting to the default English)';
+comment on function i18n.unset_curr_lang(name) is 'unset the db language for a user (thereby reverting to the default English)';
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -185,11 +185,14 @@ comment on function i18n._(text) is
 	 created in public schema for easy access';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-i18n-dynamic.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v10-i18n-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v10-i18n-dynamic.sql,v $
--- Revision 1.4  2008-12-25 16:59:33  ncq
+-- Revision 1.5  2008-12-25 23:34:30  ncq
+-- - fix comment
+--
+-- Revision 1.4  2008/12/25 16:59:33  ncq
 -- - user exists check in curr_lang
 -- - unset_curr_lang
 --
