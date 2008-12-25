@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.434 2008-12-17 21:58:23 ncq Exp $
-__version__ = "$Revision: 1.434 $"
+# $Id: gmGuiMain.py,v 1.435 2008-12-25 16:54:56 ncq Exp $
+__version__ = "$Revision: 1.435 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1136,10 +1136,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_set_db_lang(self, event):
 
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
-		)
-		langs = [ r[0] for r in rows ]
+		langs = gmPG2.get_translation_languages()
 
 		for lang in [
 			gmI18N.system_locale_level['language'],
@@ -1154,29 +1151,33 @@ class gmTopLevelFrame(wx.Frame):
 			msg = _(
 				'Please select the database language from the list below.\n'
 				'\n'
-				'This setting will not affect the language the user interface is\n'
-				'displayed in but rather that of the data returned from the database\n'
-				'such as encounter types, document types, and EMR formatting.\n'
+				'This setting will not affect the language the user interface\n'
+				'is displayed in but rather that of the metadata returned\n'
+				'from the database such as encounter types, document types,\n'
+				'and EMR formatting.\n'
 				'\n'
+				'To switch back to the default English language unselect all\n'
+				'pre-selected languages from the list below.'
 			),
 			caption = _('Configuring database language'),
 			choices = langs,
 			columns = [_('Language')],
 			data = langs,
-			single_selection = True
+			single_selection = True,
+			can_return_empty = True
 		)
 
 		if language is None:
 			return
 
-		_log.info('setting database language to [%s]', language)
-		rows, idx = gmPG2.run_rw_queries (
-			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}],
-			return_data = True
-		)
+		if language == []:
+			language = None
 
-		if rows[0][0]:
+		try:
+			_provider.get_staff().database_language = language
 			return
+		except ValueError:
+			pass
 
 		force_language = gmGuiHelpers.gm_show_question (
 			_('The database currently holds no translations for\n'
@@ -1190,11 +1191,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not force_language:
 			return
 
-		_log.info('forcing database language to [%s]', language)
-		gmPG2.run_rw_queries(queries = [{
-			'cmd': u'select i18n.force_curr_lang(%s)',
-			'args': [language]
-		}])
+		gmPG2.force_user_language(language = language)
 	#----------------------------------------------
 	def __on_set_db_welcome(self, event):
 		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
@@ -2714,7 +2711,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.434  2008-12-17 21:58:23  ncq
+# Revision 1.435  2008-12-25 16:54:56  ncq
+# - support unsetting DB language
+#
+# Revision 1.434  2008/12/17 21:58:23  ncq
 # - add merging two patients
 #
 # Revision 1.433  2008/12/09 23:31:18  ncq
