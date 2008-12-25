@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.435 2008-12-25 16:54:56 ncq Exp $
-__version__ = "$Revision: 1.435 $"
+# $Id: gmGuiMain.py,v 1.436 2008-12-25 23:32:50 ncq Exp $
+__version__ = "$Revision: 1.436 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2106,6 +2106,9 @@ class gmTopLevelFrame(wx.Frame):
 		  regular shutdown should go in here
 		- framework still functional
 		"""
+		self.user_activity_timer.Stop()
+		gmTimer.shutdown()
+
 		# run synchronous pre-exit callback
 		for call_back in self.__pre_exit_callbacks:
 			try:
@@ -2307,8 +2310,6 @@ class gmApp(wx.App):
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
 		"""
-		self.user_activity_timer.Stop()
-		gmTimer.shutdown()
 		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -2711,7 +2712,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.435  2008-12-25 16:54:56  ncq
+# Revision 1.436  2008-12-25 23:32:50  ncq
+# - shutdown timers as early as possible during application shutdown
+#
+# Revision 1.435  2008/12/25 16:54:56  ncq
 # - support unsetting DB language
 #
 # Revision 1.434  2008/12/17 21:58:23  ncq
