@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.172 2008-12-22 18:58:02 ncq Exp $
-__version__ = "$Revision: 1.172 $"
+# $Id: gmPerson.py,v 1.173 2008-12-25 16:52:41 ncq Exp $
+__version__ = "$Revision: 1.173 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -807,14 +807,14 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_staff where pk_staff=%s"
 	_cmds_store_payload = [
 		u"""update dem.staff set
-			fk_role = %(pk_role)s,
-			short_alias = %(short_alias)s,
-			comment = %(comment)s,
-			is_active = %(is_active)s,
-			db_user = %(db_user)s
-		where
-			pk=%(pk_staff)s and
-			xmin = %(xmin_staff)s""",
+				fk_role = %(pk_role)s,
+				short_alias = %(short_alias)s,
+				comment = %(comment)s,
+				is_active = %(is_active)s,
+				db_user = %(db_user)s
+			where
+				pk=%(pk_staff)s and
+				xmin = %(xmin_staff)s""",
 		u"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
@@ -852,6 +852,24 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
+	def _get_db_lang(self):
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': u'select i18n.get_curr_lang(%(usr)s)',
+				'args': {'usr': self._payload[self._idx['db_user']]}
+			}]
+		)
+		return rows[0][0]
+
+	def _set_db_lang(self, language):
+		if not gmPG2.set_user_language(language = language):
+			raise ValueError (
+				u'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
+			)
+		return
+
+	database_language = property(_get_db_lang, _set_db_lang)
+	#--------------------------------------------------------
 	def _get_inbox(self):
 		if self.__inbox is None:
 			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload[self._idx['pk_staff']])
@@ -876,7 +894,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""
 		# make sure we do have a provider pointer
 		try:
-			tmp = self.provider
+			self.provider
 		except AttributeError:
 			self.provider = gmNull.cNull()
 
@@ -911,7 +929,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""
 		return self.provider[aVar]
 	#--------------------------------------------------------
-	# __getattr__ handling
+	# __s/getattr__ handling
 	#--------------------------------------------------------
 	def __getattr__(self, attribute):
 		if attribute == 'provider':			# so we can __init__ ourselves
@@ -2079,7 +2097,12 @@ if __name__ == '__main__':
 		print provider
 		print provider.inbox
 		print provider.inbox.messages
-
+		print provider.database_language
+		tmp = provider.database_language
+		provider.database_language = None
+		print provider.database_language
+		provider.database_language = tmp
+		print provider.database_language
 	#--------------------------------------------------------
 	def test_identity():
 		# create patient
@@ -2242,8 +2265,8 @@ if __name__ == '__main__':
 		#test_set_active_pat()
 		#test_search_by_dto()
 		#test_staff()
-		#test_current_provider()
-		test_name()
+		test_current_provider()
+		#test_name()
 
 		#map_gender2salutation('m')
 
@@ -2258,7 +2281,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.172  2008-12-22 18:58:02  ncq
+# Revision 1.173  2008-12-25 16:52:41  ncq
+# - cleanup
+# - support .database_language on cStaff
+#
+# Revision 1.172  2008/12/22 18:58:02  ncq
 # - start supporting .tob
 #
 # Revision 1.171  2008/12/17 21:52:36  ncq
