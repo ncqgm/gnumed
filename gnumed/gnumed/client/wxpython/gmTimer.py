@@ -4,8 +4,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.12 2008-07-13 16:23:27 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmTimer.py,v 1.13 2008-12-26 16:04:12 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -20,11 +20,12 @@ _log = logging.getLogger('gm.timers')
 _timers = []
 #===========================================================================
 def shutdown():
+	global _timers
 	_log.info('shutting down %s pending timers', len(_timers))
 	for timer in _timers:
 		_log.debug('timer [%s]', timer.cookie)
 		timer.Stop()
-		del timer
+	_timers = []
 #===========================================================================
 class cTimer(wx.Timer):
 	"""wx.Timer proxy.
@@ -94,7 +95,10 @@ if __name__ == '__main__':
 	time.sleep(10)
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.12  2008-07-13 16:23:27  ncq
+# Revision 1.13  2008-12-26 16:04:12  ncq
+# - properly shutdown timers
+#
+# Revision 1.12  2008/07/13 16:23:27  ncq
 # - add some debugging
 #
 # Revision 1.11  2007/02/05 12:11:58  ncq
