@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.15 2008-11-24 11:10:29 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmNarrativeWidgets.py,v 1.16 2008-12-26 22:35:44 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -17,7 +17,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime, gmPG2
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
+from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin, gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg, wxgSoapNoteExpandoEditAreaPnl
 
 
@@ -25,6 +25,74 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #============================================================
 # narrative related widgets/functions
+#------------------------------------------------------------
+def edit_progress_notes(parent=None, encounters=None, episodes=None, patient=None):
+
+	#-------------------------------------
+	def save_note(new=None, old=None):
+		if new is None:
+			return False
+
+		if new.strip() == u'':
+			return False
+
+		selected_narr['narrative'] = new
+		selected_narr.save_payload()
+
+		return True
+	#-------------------------------------
+	# sanity checks
+	if patient is None:
+		patient = gmPerson.gmCurrentPatient()
+
+	if not patient.connected:
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit progress notes. No active patient.'))
+		return False
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	emr = patient.get_emr()
+	notes = emr.get_clin_narrative (
+		encounters = encounters,
+		episodes = episodes,
+		providers = [ gmPerson.gmCurrentProvider()['short_alias'] ]
+	)
+
+	dlg = cNarrativeListSelectorDlg (
+		parent = parent,
+		id = -1,
+		narrative = notes,
+		msg = _(
+			'\n'
+			' This list shows the progress notes by %s.\n'
+			'\n\n'
+			' Select the one you want to edit:\n'
+		) % gmPerson.gmCurrentProvider()['short_alias'],
+		style = wx.LC_SINGLE_SEL
+	)
+
+	btn_pressed = dlg.ShowModal()
+	selected_narr = dlg.get_selected_item_data(only_one = True)
+	dlg.Destroy()
+
+	if btn_pressed == wx.ID_CANCEL:
+		return
+
+	dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+		parent,
+		-1,
+		title = _('Editing progress note'),
+		msg = _(
+			'This is the original progress note:\n'
+			'\n'
+			' %s'
+		) % selected_narr.format(left_margin = u' ', fancy = True),
+		text = selected_narr['narrative'],
+		cb_save = save_note
+	)
+	dlg.ShowModal()
+
 #------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
 
@@ -356,9 +424,34 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self.__reset_ui_content()
 
 		self.__register_interests()
-#	#--------------------------------------------------------
-#	# public API
-#	#--------------------------------------------------------
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	def save_encounter(self):
+
+		if not self.__encounter_valid_for_save():
+			return False
+
+		emr = self.__pat.get_emr()
+		enc = emr.get_active_encounter()
+
+		enc['pk_type'] = self._PRW_encounter_type.GetData()
+		enc['started'] = self._PRW_encounter_start.GetData().get_pydt()
+		enc['last_affirmed'] = self._PRW_encounter_end.GetData().get_pydt()
+		rfe = self._TCTRL_rfe.GetValue().strip()
+		if len(rfe) == 0:
+			enc['reason_for_encounter'] = None
+		else:
+			enc['reason_for_encounter'] = rfe
+		aoe = self._TCTRL_aoe.GetValue().strip()
+		if len(aoe) == 0:
+			enc['assessment_of_encounter'] = None
+		else:
+			enc['assessment_of_encounter'] = aoe
+
+		enc.save_payload()
+
+		return True
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -438,29 +531,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return True
 	#--------------------------------------------------------
-	def __refresh_encounter(self):
-		"""Update encounter fields.
-		"""
-		emr = self.__pat.get_emr()
-		enc = emr.get_active_encounter()
-		self._PRW_encounter_type.SetText(value = enc['l10n_type'], data = enc['pk_type'])
-
-		fts = gmDateTime.cFuzzyTimestamp (
-			timestamp = enc['started'],
-			accuracy = gmDateTime.acc_minutes
-		)
-		self._PRW_encounter_start.SetText(fts.format_accurately(), data=fts)
-
-		fts = gmDateTime.cFuzzyTimestamp (
-			timestamp = enc['last_affirmed'],
-			accuracy = gmDateTime.acc_minutes
-		)
-		self._PRW_encounter_end.SetText(fts.format_accurately(), data=fts)
-
-		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], ''))
-
-		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], ''))
-	#--------------------------------------------------------
 	def __refresh_recent_notes(self):
 
 		emr = self.__pat.get_emr()
@@ -533,17 +603,86 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._TCTRL_recent_notes.SetValue(soap)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
 	#--------------------------------------------------------
+	def __refresh_encounter(self):
+		"""Update encounter fields.
+		"""
+		emr = self.__pat.get_emr()
+		enc = emr.get_active_encounter()
+		self._PRW_encounter_type.SetText(value = enc['l10n_type'], data = enc['pk_type'])
+
+		fts = gmDateTime.cFuzzyTimestamp (
+			timestamp = enc['started'],
+			accuracy = gmDateTime.acc_minutes
+		)
+		self._PRW_encounter_start.SetText(fts.format_accurately(), data=fts)
+
+		fts = gmDateTime.cFuzzyTimestamp (
+			timestamp = enc['last_affirmed'],
+			accuracy = gmDateTime.acc_minutes
+		)
+		self._PRW_encounter_end.SetText(fts.format_accurately(), data=fts)
+
+		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], ''))
+
+		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], ''))
+	#--------------------------------------------------------
+	def __encounter_modified(self):
+		"""Assumes that the field data is valid."""
+
+		emr = self.__pat.get_emr()
+		enc = emr.get_active_encounter()
+
+		if self._PRW_encounter_type.GetData() != enc['pk_type']:
+			return True
+
+		if self._PRW_encounter_start.GetData() is None:
+			return True
+
+		if self._PRW_encounter_start.GetData().get_pydt() != enc['started']:
+			return True
+
+		if self._PRW_encounter_end.GetData() is None:
+			return True
+
+		if self._PRW_encounter_end.GetData().get_pydt() != enc['last_affirmed']:
+			return True
+
+		if self._TCTRL_rfe.GetValue().strip() != enc['reason_for_encounter']:
+			return True
+
+		if self._TCTRL_aoe.GetValue().strip() != enc['assessment_of_encounter']:
+			return True
+
+		return False
+	#--------------------------------------------------------
+	def __encounter_valid_for_save(self):
+
+		found_error = False
+
+		if self._PRW_encounter_type.GetData() is None:
+			found_error = True
+			msg = _('Cannot save encounter: missing type.')
+
+		if self._PRW_encounter_start.GetData() is None:
+			found_error = True
+			msg = _('Cannot save encounter: missing start time.')
+
+		if self._PRW_encounter_end.GetData() is None:
+			found_error = True
+			msg = _('Cannot save encounter: missing end time.')
+
+		if found_error:
+			gmDispatcher.send(signal = 'statustext', msg = msg, beep = True)
+			return False
+
+		return True
+	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
 		"""Configure enabled event signals.
 		"""
 		# wxPython events
-#		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
-#		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
-#		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
-#		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
-
 		# - notebook page is about to change
 		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing)
 		# - notebook page has been changed
@@ -572,7 +711,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_encounter_mod_db(self):
-		wx.CallAfter(self._schedule_data_reget)
+		#wx.CallAfter(self._schedule_data_reget)
+		wx.CallAfter(self.__refresh_encounter)
 	#--------------------------------------------------------
 	def _on_problem_activated(self, event):
 		"""Open progress note editor for this problem.
@@ -591,17 +731,56 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			) % problem['problem'],
 			aTitle = _('opening progress note editor')
 		)
+		event.Skip()
 		return False
 	#--------------------------------------------------------
 	def _on_discard_editor_button_pressed(self, event):
-		"""Discard raised SOAP input widget.
-		"""
 		self._NB_soap_editors.close_current_editor()
+		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_editor_button_pressed(self, event):
 		self._NB_soap_editors.add_editor()
+		event.Skip()
 	#--------------------------------------------------------
-#	def _on_clear_editor_button_pressed(self, event):
+	def _on_clear_editor_button_pressed(self, event):
+		self._NB_soap_editors.clear_current_editor()
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_save_all_button_pressed(self, event):
+		self.save_encounter()
+		self._NB_soap_editors.save_all_editors()
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_save_encounter_button_pressed(self, event):
+		self.save_encounter()
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_save_note_button_pressed(self, event):
+		self._NB_soap_editors.save_current_editor()
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_new_encounter_button_pressed(self, event):
+
+		if self.__encounter_modified():
+			do_save_enc = gmGuiHelpers.gm_show_question (
+				aMessage = _(
+					'You have modified the details\n'
+					'of the current encounter.\n'
+					'\n'
+					'Do you want to save those changes ?'
+				),
+				aTitle = _('Starting new encounter')
+			)
+			if do_save_enc:
+				if not self.save_encounter():
+					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
+					return False
+
+		emr = self.__pat.get_emr()
+		emr.start_new_encounter()
+		gmDispatcher.send(signal = u'statustext', msg = _('Started new encounter for active patient.'))
+
+		event.Skip()
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -742,6 +921,17 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 	#--------------------------------------------------------
+	def save_current_editor(self):
+		raise NotImplementedError('save current editor')
+	#--------------------------------------------------------
+	def save_all_editors(self):
+		raise NotImplementedError('save all editors')
+	#--------------------------------------------------------
+	def clear_current_editor(self):
+		page_idx = self.GetSelection()
+		page = self.GetPage(page_idx)
+		page.clear()
+	#--------------------------------------------------------
 	def get_current_problem(self):
 		page_idx = self.GetSelection()
 		page = self.GetPage(page_idx)
@@ -758,22 +948,22 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			self.problem = None
 
 		wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpandoEditAreaPnl.__init__(self, *args, **kwargs)
-	#--------------------------------------------------------
 
-
-	#--------------------------------------------------------
-	def _get_empty(self):
-
-		fields = [
+		self.fields = [
 			self._TCTRL_Soap,
 			self._TCTRL_sOap,
 			self._TCTRL_soAp,
 			self._TCTRL_soaP
 		]
-		for field in fields:
+	#--------------------------------------------------------
+	def clear(self):
+		for field in self.fields:
+			field.SetValue(u'')
+	#--------------------------------------------------------
+	def _get_empty(self):
+		for field in self.fields:
 			if field.GetValue().strip() != u'':
 				return False
-
 		return True
 
 	empty = property(_get_empty, lambda x:x)
@@ -884,7 +1074,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.15  2008-11-24 11:10:29  ncq
+# Revision 1.16  2008-12-26 22:35:44  ncq
+# - edit_progress_notes
+# - implement most of new soap plugin functionality
+#
+# Revision 1.15  2008/11/24 11:10:29  ncq
 # - cleanup
 #
 # Revision 1.14  2008/11/23 12:47:02  ncq
