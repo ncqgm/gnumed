@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.52 2008-12-25 16:53:18 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmBusinessDBObject.py,v 1.53 2008-12-26 22:33:57 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -188,6 +188,7 @@ class cBusinessDBObject(object):
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._is_modified = False
+
 		# check descendants
 		self.__class__._cmd_fetch_payload
 		self.__class__._cmds_store_payload
@@ -197,6 +198,7 @@ class cBusinessDBObject(object):
 			self.__init_from_pk(aPK_obj=aPK_obj)
 		else:
 			self._init_from_row_data(row=row)
+
 		self._is_modified = False
 	#--------------------------------------------------------
 	def __init_from_pk(self, aPK_obj=None):
@@ -451,7 +453,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.52  2008-12-25 16:53:18  ncq
+# Revision 1.53  2008-12-26 22:33:57  ncq
+# - cleanup
+#
+# Revision 1.52  2008/12/25 16:53:18  ncq
 # - business object base class really should support properties
 #   so make it inherit from object
 #
