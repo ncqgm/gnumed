@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.16 2008-12-26 22:35:44 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmNarrativeWidgets.py,v 1.17 2008-12-27 15:50:41 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -756,7 +756,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_save_note_button_pressed(self, event):
-		self._NB_soap_editors.save_current_editor()
+		emr = self.__pat.get_emr()
+		self._NB_soap_editors.save_current_editor (
+			emr = emr,
+			rfe = self._TCTRL_rfe.GetValue().strip(),
+			aoe = self._TCTRL_aoe.GetValue().strip()
+		)
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_encounter_button_pressed(self, event):
@@ -921,8 +926,19 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 	#--------------------------------------------------------
-	def save_current_editor(self):
-		raise NotImplementedError('save current editor')
+	def save_current_editor(self, emr=None, rfe=None, aoe=None):
+
+		page_idx = self.GetSelection()
+		page = self.GetPage(page_idx)
+
+		if not page.save(emr = emr, rfe = rfe, aoe = aoe):
+			return
+
+		self.DeletePage(page_idx)
+
+		# always keep one unassociated editor open
+		if self.GetPageCount() == 0:
+			self.add_editor()
 	#--------------------------------------------------------
 	def save_all_editors(self):
 		raise NotImplementedError('save all editors')
@@ -959,6 +975,94 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 	def clear(self):
 		for field in self.fields:
 			field.SetValue(u'')
+	#--------------------------------------------------------
+	def save(self, emr=None, rfe=None, aoe=None):
+
+		if self.empty:
+			return True
+
+		# new unassociated episode
+		if (self.problem is None) or (self.problem['type'] == 'issue'):
+
+			epi_name = gmTools.coalesce (
+				aoe,
+				gmTools.coalesce (
+					rfe,
+					u''
+				)
+			).strip().replace('\r', '//').replace('\n', '//')
+
+			dlg = wx.TextEntryDialog (
+				parent = self,
+				message = _('Enter a descriptive name for the new episode:'),
+				caption = _('Adding a new episode'),
+				defaultValue = epi_name,
+				style = wx.OK | wx.CANCEL | wx.CENTRE
+			)
+			decision = dlg.ShowModal()
+			if decision != wx.ID_OK:
+				return False
+
+			epi_name = dlg.GetValue().strip()
+			if epi_name == u'':
+				gmGuiHelpers.gm_show_error(_('Cannot save a new episode without a name.'), _('saving progress note'))
+				return False
+
+			# create episode
+			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
+
+			if self.problem is not None:
+				issue = emr.problem2issue(self.problem)
+				if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
+					gmGuiHelpers.gm_show_warning (
+						_(
+							'The new episode:\n'
+							'\n'
+							' "%s"\n'
+							'\n'
+							'will remain unassociated despite the editor\n'
+							'having been invoked from the health issue:\n'
+							'\n'
+							' "%s"'
+						) % (
+							new_episode['description'],
+							issue['description']
+						),
+						_('saving progress note')
+					)
+
+			epi_id = new_episode['pk_episode']
+		else:
+			epi_id = self.problem['pk_episode']
+
+		emr.add_notes(notes = self.soap, episode = epi_id)
+
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_soap(self):
+		note = []
+
+		tmp = self._TCTRL_Soap.GetValue().strip()
+		if tmp != u'':
+			note.append(['s', tmp])
+
+		tmp = self._TCTRL_sOap.GetValue().strip()
+		if tmp != u'':
+			note.append(['o', tmp])
+
+		tmp = self._TCTRL_soAp.GetValue().strip()
+		if tmp != u'':
+			note.append(['a', tmp])
+
+		tmp = self._TCTRL_soaP.GetValue().strip()
+		if tmp != u'':
+			note.append(['p', tmp])
+
+		return note
+
+	soap = property(_get_soap, lambda x:x)
 	#--------------------------------------------------------
 	def _get_empty(self):
 		for field in self.fields:
@@ -1074,7 +1178,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.16  2008-12-26 22:35:44  ncq
+# Revision 1.17  2008-12-27 15:50:41  ncq
+# - almost finish implementing soap saving
+#
+# Revision 1.16  2008/12/26 22:35:44  ncq
 # - edit_progress_notes
 # - implement most of new soap plugin functionality
 #
