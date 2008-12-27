@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.280 2008-12-17 21:52:11 ncq Exp $
-__version__ = "$Revision: 1.280 $"
+# $Id: gmClinicalRecord.py,v 1.281 2008-12-27 15:49:42 ncq Exp $
+__version__ = "$Revision: 1.281 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -160,6 +160,18 @@ select fk_encounter from
 		_log.debug('DB: clin_root_item modification')
 	#--------------------------------------------------------
 	# Narrative API
+	#--------------------------------------------------------
+	def add_notes(self, notes=None, episode=None):
+
+		for note in notes:
+			success, data = gmClinNarrative.create_clin_narrative (
+				narrative = note[1],
+				soap_cat = note[0],
+				episode_id = episode,
+				encounter_id = self.__encounter['pk_encounter']
+			)
+
+		return True
 	#--------------------------------------------------------
 	def add_clin_narrative(self, note='', soap_cat='s', episode=None):
 		if note.strip() == '':
@@ -1876,7 +1888,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.280  2008-12-17 21:52:11  ncq
+# Revision 1.281  2008-12-27 15:49:42  ncq
+# - add_notes
+#
+# Revision 1.280  2008/12/17 21:52:11  ncq
 # - filter narrative by provider
 #
 # Revision 1.279  2008/12/12 16:34:13  ncq
