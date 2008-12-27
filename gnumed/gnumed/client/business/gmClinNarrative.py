@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -180,9 +180,8 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 # convenience functions
 #============================================================
 def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encounter_id=None):
-	"""
-		Creates a new clinical narrative entry
-		
+	"""Creates a new clinical narrative entry
+
 		narrative - free text clinical narrative
 		soap_cat - soap category
 		episode_id - episodes's primary key
@@ -227,10 +226,10 @@ select pk_patient from clin.v_pat_encounters where pk_encounter = %(enc)s
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		_log.error('error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
-		return (False, _('internal error, check log'))
+		raise ValueError('internal error, check log')
 	if len(rows) > 1:
 		_log.error('episode [%s] and encounter [%s] belong to different patients !?!' % (episode_id, encounter_id))
-		return (False, _('consistency error, check log'))
+		raise ValueError('clinical narrative consistency error, check log')
 
 	# insert new narrative
 	queries = [
@@ -293,7 +292,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.36  2008-12-18 21:25:56  ncq
+# Revision 1.37  2008-12-27 15:49:21  ncq
+# - raise exception on integrity problems in create_narrative
+#
+# Revision 1.36  2008/12/18 21:25:56  ncq
 # - add format() to cClinNarrative
 #
 # Revision 1.35  2008/08/15 15:55:14  ncq
