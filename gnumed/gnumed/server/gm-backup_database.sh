@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.17 2008-12-01 12:18:02 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.18 2008-12-28 15:06:21 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -45,6 +45,26 @@ else
 fi
 
 
+# are we backing up the latest DB ?
+OUR_VER=`echo ${GM_DATABASE} | cut -f 2 -d v`
+if test -z ${GM_HOST} ; then
+	HAS_HIGHER_VER=`sudo -u postgres psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -c "SELECT exists (select 1 from pg_database where datname like 'gnumed_v%' and substring(datname from 9 for 3)::integer > '${OUR_VER}');"`
+else
+	HAS_HIGHER_VER=`sudo -u postgres psql -A -t -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -c "SELECT exists (select 1 from pg_database where datname like 'gnumed_v%' and substring(datname from 9 for 3)::integer > '${OUR_VER}');"`
+fi;
+
+if test "${HAS_HIGHER_VER}" = "t" ; then
+	echo "Backing up database ${GM_DATABASE}. However,"
+	echo "a newer database seems to exist:"
+	echo ""
+	sudo -u postgres psql -l | grep gnumed_v
+	echo ""
+	echo "Make sure you really want to backup the old database !"
+fi ;
+exit 1
+
+
+# generate backup file name
 TS=`date +%Y-%m-%d-%H-%M-%S`
 if test -z ${GM_HOST} ; then
 	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"`hostname`
@@ -73,7 +93,7 @@ if test -z ${GM_HOST} ; then
 	echo "-- in the GNUmed database \"${GM_DATABASE}\"."            >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
-	echo "-- "`psql -A -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- "`psql -A -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 	pg_dump -C -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql 2> /dev/null
 else
@@ -88,7 +108,7 @@ else
 		echo "-- in the GNUmed database \"${GM_DATABASE}\"."            >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
-		echo "-- "`psql -A -v -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- "`psql -A -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 		pg_dump -C -v -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql 2> /dev/null
 	else
@@ -118,7 +138,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.17  2008-12-01 12:18:02  ncq
+# Revision 1.18  2008-12-28 15:06:21  ncq
+# - warn if backing up older database
+#
+# Revision 1.17  2008/12/01 12:18:02  ncq
 # - log accounts in use during backup
 #
 # Revision 1.16  2008/11/03 10:29:57  ncq
