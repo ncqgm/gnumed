@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.17 2008-12-27 15:50:41 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmNarrativeWidgets.py,v 1.18 2009-01-02 11:41:16 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -633,24 +633,33 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		enc = emr.get_active_encounter()
 
 		if self._PRW_encounter_type.GetData() != enc['pk_type']:
+			print "pk type difference"
+			print "field:", self._PRW_encounter_type.GetData()
+			print "class:", enc['pk_type']
 			return True
 
 		if self._PRW_encounter_start.GetData() is None:
+			print "start time None"
 			return True
 
 		if self._PRW_encounter_start.GetData().get_pydt() != enc['started']:
+			print "start time difference"
 			return True
 
 		if self._PRW_encounter_end.GetData() is None:
+			print "end time None"
 			return True
 
 		if self._PRW_encounter_end.GetData().get_pydt() != enc['last_affirmed']:
+			print "end time difference"
 			return True
 
 		if self._TCTRL_rfe.GetValue().strip() != enc['reason_for_encounter']:
+			print "rfe difference"
 			return True
 
 		if self._TCTRL_aoe.GetValue().strip() != enc['assessment_of_encounter']:
+			print "aoe difference"
 			return True
 
 		return False
@@ -680,23 +689,64 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		"""Configure enabled event signals.
-		"""
-		# wxPython events
-		# - notebook page is about to change
-		#self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing)
-		# - notebook page has been changed
-		self._NB_soap_editors.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_soap_editors_notebook_page_changed)
-
+		"""Configure enabled event signals."""
 		# client internal signals
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'encounter_mod_db', receiver = self._on_encounter_mod_db)
+		#gmDispatcher.connect(signal = u'encounter_mod_db', receiver = self._on_encounter_mod_db)
+		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
+
+		# synchronous signals
+		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 	#--------------------------------------------------------
-	def _on_soap_editors_notebook_page_changed(self, evt):
-		wx.CallAfter(self.__refresh_recent_notes)
+	def _pre_selection_callback(self):
+		"""Another patient is about to be activated.
+
+		Patient change will not proceed before this returns.
+		"""
+		if self.__encounter_modified():
+			do_save_enc = gmGuiHelpers.gm_show_question (
+				aMessage = _(
+					'You have modified the details\n'
+					'of the current encounter.\n'
+					'\n'
+					'Do you want to save those changes ?'
+				),
+				aTitle = _('Starting new encounter')
+			)
+			if do_save_enc:
+				if not self.save_encounter():
+					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
+					return False
+
+		if not self._NB_soap_editors.save_all_editors():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
+	#--------------------------------------------------------
+	def _pre_exit_callback(self):
+		"""The client is about to be shut down.
+
+		Shutdown will not proceed before this returns.
+		"""
+		if self.__encounter_modified():
+			do_save_enc = gmGuiHelpers.gm_show_question (
+				aMessage = _(
+					'You have modified the details\n'
+					'of the current encounter.\n'
+					'\n'
+					'Do you want to save those changes ?'
+				),
+				aTitle = _('Starting new encounter')
+			)
+			if do_save_enc:
+				if not self.save_encounter():
+					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
+					return False
+
+		if not self._NB_soap_editors.save_all_editors():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
@@ -710,7 +760,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_episode_issue_mod_db(self):
 		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
-	def _on_encounter_mod_db(self):
+	def _on_current_encounter_modified(self):
+	#def _on_encounter_mod_db(self):
 		#wx.CallAfter(self._schedule_data_reget)
 		wx.CallAfter(self.__refresh_encounter)
 	#--------------------------------------------------------
@@ -722,6 +773,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			return True
 
 		if self._NB_soap_editors.add_editor(problem = problem):
+			self.__refresh_recent_notes()
 			return True
 
 		gmGuiHelpers.gm_show_error (
@@ -748,7 +800,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_save_all_button_pressed(self, event):
 		self.save_encounter()
-		self._NB_soap_editors.save_all_editors()
+		if not self._NB_soap_editors.save_all_editors():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_save_encounter_button_pressed(self, event):
@@ -793,7 +846,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self.__refresh_problem_list()
 		self.__refresh_encounter()
 		# don't ! only do on NB page change, add_editor etc
-		self.__refresh_recent_notes()
+		#self.__refresh_recent_notes()
 		return True
 #============================================================
 class cSoapNoteInputNotebook(wx.Notebook):
@@ -941,7 +994,21 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			self.add_editor()
 	#--------------------------------------------------------
 	def save_all_editors(self):
-		raise NotImplementedError('save all editors')
+
+		all_closed = True
+
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx+1)
+			if page.save(emr = emr, rfe = rfe, aoe = aoe):
+				self.DeletePage(page_idx)
+			else:
+				all_closed = False
+
+		# always keep one unassociated editor open
+		if self.GetPageCount() == 0:
+			self.add_editor()
+
+		return (all_closed == True)
 	#--------------------------------------------------------
 	def clear_current_editor(self):
 		page_idx = self.GetSelection()
@@ -1178,7 +1245,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.17  2008-12-27 15:50:41  ncq
+# Revision 1.18  2009-01-02 11:41:16  ncq
+# - improved event handling
+#
+# Revision 1.17  2008/12/27 15:50:41  ncq
 # - almost finish implementing soap saving
 #
 # Revision 1.16  2008/12/26 22:35:44  ncq
