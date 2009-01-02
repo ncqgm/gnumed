@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.33 2008-10-22 12:21:57 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmMeasurementWidgets.py,v 1.34 2009-01-02 11:40:27 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT
+import sys, logging, datetime as pyDT, decimal
 
 
 import wx, wx.grid
@@ -899,14 +899,14 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			if val == u'':
 				continue
 			try:
-				int(val)
+				decimal.Decimal(val.replace(',', u'.', 1))
 				widget.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
 			except:
 				widget.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 				validity = False
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Missing essential input.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Invalid or missing essential input.'))
 
 		return validity
 	#--------------------------------------------------------
@@ -915,7 +915,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
 		try:
-			v_num = int(self._TCTRL_result.GetValue().strip())
+			v_num = decimal.Decimal(self._TCTRL_result.GetValue().strip().replace(',', '.', 1))
 			v_al = None
 		except:
 			v_num = None
@@ -975,10 +975,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def _save_as_update(self):
 
-		try:
-			v_num = int(self._TCTRL_result.GetValue().strip())
+		success, result = gmTools.input2decimal(self._TCTRL_result.GetValue())
+		if success:
+			v_num = result
 			v_al = None
-		except:
+		else:
 			v_num = None
 			v_al = self._TCTRL_result.GetValue().strip()
 
@@ -1243,7 +1244,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.33  2008-10-22 12:21:57  ncq
+# Revision 1.34  2009-01-02 11:40:27  ncq
+# - properly check for numericity of value/range input
+#
+# Revision 1.33  2008/10/22 12:21:57  ncq
 # - use %x in strftime where appropriate
 #
 # Revision 1.32  2008/08/31 18:21:54  ncq
