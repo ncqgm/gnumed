@@ -12,8 +12,8 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgEncounterEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._TCTRL_patient = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
-        self._LCTRL_problems = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT)
+        self._LBL_patient = wx.StaticText(self, -1, "")
+        self._LBL_instructions = wx.StaticText(self, -1, _("Edit the details for the encounter below:"))
         self._PRW_encounter_type = gmEMRStructWidgets.cEncounterTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_start = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
         self._PRW_end = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
@@ -27,7 +27,6 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgEncounterEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._LCTRL_problems.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
         self._TCTRL_rfe.SetToolTipString(_("Enter the Reason For Encounter here. This is the patient's initial request which led to the encounter."))
         self._TCTRL_aoe.SetToolTipString(_("Enter the Encounter Summary here. This is your final assessment of the encounter summary."))
@@ -37,10 +36,12 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgEncounterEditAreaPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __gszr_encounter_details = wx.FlexGridSizer(6, 2, 2, 5)
-        __szr_main.Add(self._TCTRL_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 1)
-        __lbl_instructions = wx.StaticText(self, -1, _("Edit the details for the encounter below.\n\nThe following problems were discussed:"), style=wx.ALIGN_CENTRE)
-        __szr_main.Add(__lbl_instructions, 0, wx.TOP|wx.EXPAND, 3)
-        __szr_main.Add(self._LCTRL_problems, 1, wx.TOP|wx.EXPAND, 3)
+        __szr_patient = wx.BoxSizer(wx.HORIZONTAL)
+        __lbl_patient = wx.StaticText(self, -1, _("Patient:"))
+        __szr_patient.Add(__lbl_patient, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_patient.Add(self._LBL_patient, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 1)
+        __szr_main.Add(__szr_patient, 0, wx.EXPAND, 0)
+        __szr_main.Add(self._LBL_instructions, 0, wx.TOP|wx.EXPAND, 3)
         __lbl_type = wx.StaticText(self, -1, _("Type"))
         __gszr_encounter_details.Add(__lbl_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(self._PRW_encounter_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
