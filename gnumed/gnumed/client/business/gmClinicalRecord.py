@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.281 2008-12-27 15:49:42 ncq Exp $
-__version__ = "$Revision: 1.281 $"
+# $Id: gmClinicalRecord.py,v 1.282 2009-01-02 11:34:35 ncq Exp $
+__version__ = "$Revision: 1.282 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -63,6 +63,8 @@ class cClinicalRecord(object):
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
+		self.pk_patient = aPKey			# == identity.pk == primary key
+
 		# log access to patient record (HIPAA, for example)
 		cmd = u'select gm.log_access2emr(%(todo)s)'
 		args = {'todo': u'patient [%s]' % aPKey}
@@ -91,8 +93,6 @@ select fk_encounter from
 				[ union_phrase % (child[0], child[1]) for child in clin_root_item_children ]
 			)
 		# ...........................................
-
-		self.pk_patient = aPKey			# == identity.pk == primary key
 
 		self.__db_cache = {
 			'vaccinations': {}
@@ -125,6 +125,24 @@ select fk_encounter from
 	# messaging
 	#--------------------------------------------------------
 	def _register_interests(self):
+		gmDispatcher.connect(signal = u'encounter_mod_db', receiver = self.db_callback_encounter_mod_db)
+
+		return True
+	#--------------------------------------------------------
+	def db_callback_encounter_mod_db(self, **kwds):
+		# get current encounter as extra instance
+		enc = gmEMRStructItems.cEncounter(aPK_obj = self.__encounter['pk_encounter'])
+
+		# did another transaction commit a change ?
+		if enc['xmin_encounter'] == self.__encounter['xmin_encounter']:
+			# no, ignore the signal
+			return True
+
+		# yes, reload encounter ignoring any changes
+		self.__encounter.refetch_payload(ignore_changes=True)
+
+		gmDispatcher.send(signal = u'current_encounter_modified')
+
 		return True
 	#--------------------------------------------------------
 	def db_callback_vaccs_modified(self, **kwds):
@@ -1328,9 +1346,15 @@ where
 			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
 			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),
 		)
+#		msg = _(
+#			"This patient's chart was worked on only recently.\n"
+#			'\n'
+#			'Do you want to continue that consultation\n'
+#			'or do you want to start a new one ?\n'
+#		)
 		attach = False
 		try:
-			attach = _func_ask_user(msg = msg, caption = _('Starting patient encounter'))
+			attach = _func_ask_user(msg = msg, caption = _('Starting patient encounter'), encounter = encounter)
 		except:
 			_log.exception('cannot ask user for guidance, not attaching to existing encounter')
 			return False
@@ -1538,7 +1562,6 @@ limit 2
 		return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'idx': idx, 'pk_field': 'pk_encounter'})
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
-		# remove empty encounters
 		cfg_db = gmCfg.cCfgSQL()
 		ttl = cfg_db.get2 (
 			option = u'encounter.ttl_if_empty',
@@ -1549,13 +1572,20 @@ limit 2
 
 		# FIXME: this should be done async
 		cmd = u"""
-delete from clin.encounter where
-	clin.encounter.fk_patient = %(pat)s and
-	age(clin.encounter.last_affirmed) > %(ttl)s::interval and
-	not exists (select 1 from clin.clin_root_item where fk_encounter = clin.encounter.pk) and
-	not exists (select 1 from blobs.doc_med where fk_encounter = clin.encounter.pk) and
-	not exists (select 1 from clin.episode where fk_encounter = clin.encounter.pk) and
-	not exists (select 1 from clin.health_issue where fk_encounter = clin.encounter.pk) and
+delete from clin.encounter
+where
+	clin.encounter.fk_patient = %(pat)s
+		and
+	age(clin.encounter.last_affirmed) > %(ttl)s::interval
+		and
+	not exists (select 1 from clin.clin_root_item where fk_encounter = clin.encounter.pk)
+		and
+	not exists (select 1 from blobs.doc_med where fk_encounter = clin.encounter.pk)
+		and
+	not exists (select 1 from clin.episode where fk_encounter = clin.encounter.pk)
+		and
+	not exists (select 1 from clin.health_issue where fk_encounter = clin.encounter.pk)
+		and
 	not exists (select 1 from clin.operation where fk_encounter = clin.encounter.pk)
 """
 		try:
@@ -1888,7 +1918,13 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.281  2008-12-27 15:49:42  ncq
+# Revision 1.282  2009-01-02 11:34:35  ncq
+# - cleanup
+# - pk_patient earlier in __init__
+# - listen to db encounter mods, check for current encounter mod,
+#   send send specific signal
+#
+# Revision 1.281  2008/12/27 15:49:42  ncq
 # - add_notes
 #
 # Revision 1.280  2008/12/17 21:52:11  ncq
