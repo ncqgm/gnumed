@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.173 2008-12-25 16:52:41 ncq Exp $
-__version__ = "$Revision: 1.173 $"
+# $Id: gmPerson.py,v 1.174 2009-01-02 11:36:18 ncq Exp $
+__version__ = "$Revision: 1.174 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -201,7 +201,141 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 	description = property(_get_description, lambda x:x)
+#============================================================
+class cStaff(gmBusinessDBObject.cBusinessDBObject):
+	_cmd_fetch_payload = u"select * from dem.v_staff where pk_staff=%s"
+	_cmds_store_payload = [
+		u"""update dem.staff set
+				fk_role = %(pk_role)s,
+				short_alias = %(short_alias)s,
+				comment = %(comment)s,
+				is_active = %(is_active)s,
+				db_user = %(db_user)s
+			where
+				pk=%(pk_staff)s and
+				xmin = %(xmin_staff)s""",
+		u"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
+	]
+	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
+	#--------------------------------------------------------
+	def __init__(self, aPK_obj=None, row=None):
+		# by default get staff corresponding to CURRENT_USER
+		if (aPK_obj is None) and (row is None):
+			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
+			try:
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+			except:
+				_log.exception('cannot instantiate staff instance')
+				gmLog2.log_stack_trace()
+				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
+			if len(rows) == 0:
+				raise ValueError('no staff record for database account CURRENT_USER')
+			row = {
+				'pk_field': 'pk_staff',
+				'idx': idx,
+				'data': rows[0]
+			}
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row = row)
+		else:
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj, row = row)
 
+		# are we SELF ?
+		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
+
+		self.__inbox = None
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		if attribute == 'db_user':
+			if self.__is_current_user:
+				_log.debug('will not modify database account association of CURRENT_USER staff member')
+				return
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+	#--------------------------------------------------------
+	def _get_db_lang(self):
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': u'select i18n.get_curr_lang(%(usr)s)',
+				'args': {'usr': self._payload[self._idx['db_user']]}
+			}]
+		)
+		return rows[0][0]
+
+	def _set_db_lang(self, language):
+		if not gmPG2.set_user_language(language = language):
+			raise ValueError (
+				u'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
+			)
+		return
+
+	database_language = property(_get_db_lang, _set_db_lang)
+	#--------------------------------------------------------
+	def _get_inbox(self):
+		if self.__inbox is None:
+			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload[self._idx['pk_staff']])
+		return self.__inbox
+
+	def _set_inbox(self, inbox):
+		return
+
+	inbox = property(_get_inbox, _set_inbox)
+#============================================================
+class gmCurrentProvider(gmBorg.cBorg):
+	"""Staff member Borg to hold currently logged on provider.
+
+	There may be many instances of this but they all share state.
+	"""
+	def __init__(self, provider=None):
+		"""Change or get currently logged on provider.
+
+		provider:
+		* None: get currently logged on provider
+		* cStaff instance: change logged on provider (role)
+		"""
+		# make sure we do have a provider pointer
+		try:
+			self.provider
+		except AttributeError:
+			self.provider = gmNull.cNull()
+
+		# user wants copy of currently logged on provider
+		if provider is None:
+			return None
+
+		# must be cStaff instance, then
+		if not isinstance(provider, cStaff):
+			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
+
+		# same ID, no change needed
+		if self.provider['pk_staff'] == provider['pk_staff']:
+			return None
+
+		# first invocation
+		if isinstance(self.provider, gmNull.cNull):
+			self.provider = provider
+			return None
+
+		# user wants different provider
+		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.provider['pk_staff'], provider['pk_staff'])
+
+	#--------------------------------------------------------
+	def get_staff(self):
+		return self.provider
+	#--------------------------------------------------------
+	# __getitem__ handling
+	#--------------------------------------------------------
+	def __getitem__(self, aVar):
+		"""Return any attribute if known how to retrieve it by proxy.
+		"""
+		return self.provider[aVar]
+	#--------------------------------------------------------
+	# __s/getattr__ handling
+	#--------------------------------------------------------
+	def __getattr__(self, attribute):
+		if attribute == 'provider':			# so we can __init__ ourselves
+			raise AttributeError
+		if not isinstance(self.provider, gmNull.cNull):
+			return getattr(self.provider, attribute)
+#		raise AttributeError
 #============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
@@ -803,141 +937,6 @@ class cStaffMember(cIdentity):
 	def get_inbox(self):
 		return gmProviderInbox.cProviderInbox(provider_id = self.ID)
 #============================================================
-class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"select * from dem.v_staff where pk_staff=%s"
-	_cmds_store_payload = [
-		u"""update dem.staff set
-				fk_role = %(pk_role)s,
-				short_alias = %(short_alias)s,
-				comment = %(comment)s,
-				is_active = %(is_active)s,
-				db_user = %(db_user)s
-			where
-				pk=%(pk_staff)s and
-				xmin = %(xmin_staff)s""",
-		u"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
-	]
-	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
-	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None):
-		# by default get staff corresponding to CURRENT_USER
-		if (aPK_obj is None) and (row is None):
-			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
-			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
-			except:
-				_log.exception('cannot instantiate staff instance')
-				gmLog2.log_stack_trace()
-				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
-			if len(rows) == 0:
-				raise ValueError('no staff record for database account CURRENT_USER')
-			row = {
-				'pk_field': 'pk_staff',
-				'idx': idx,
-				'data': rows[0]
-			}
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row = row)
-		else:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj, row = row)
-
-		# are we SELF ?
-		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
-
-		self.__inbox = None
-	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		if attribute == 'db_user':
-			if self.__is_current_user:
-				_log.debug('will not modify database account association of CURRENT_USER staff member')
-				return
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-	#--------------------------------------------------------
-	def _get_db_lang(self):
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': u'select i18n.get_curr_lang(%(usr)s)',
-				'args': {'usr': self._payload[self._idx['db_user']]}
-			}]
-		)
-		return rows[0][0]
-
-	def _set_db_lang(self, language):
-		if not gmPG2.set_user_language(language = language):
-			raise ValueError (
-				u'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
-			)
-		return
-
-	database_language = property(_get_db_lang, _set_db_lang)
-	#--------------------------------------------------------
-	def _get_inbox(self):
-		if self.__inbox is None:
-			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload[self._idx['pk_staff']])
-		return self.__inbox
-
-	def _set_inbox(self, inbox):
-		return
-
-	inbox = property(_get_inbox, _set_inbox)
-#============================================================
-class gmCurrentProvider(gmBorg.cBorg):
-	"""Staff member Borg to hold currently logged on provider.
-
-	There may be many instances of this but they all share state.
-	"""
-	def __init__(self, provider=None):
-		"""Change or get currently logged on provider.
-
-		provider:
-		* None: get currently logged on provider
-		* cStaff instance: change logged on provider (role)
-		"""
-		# make sure we do have a provider pointer
-		try:
-			self.provider
-		except AttributeError:
-			self.provider = gmNull.cNull()
-
-		# user wants copy of currently logged on provider
-		if provider is None:
-			return None
-
-		# must be cStaff instance, then
-		if not isinstance(provider, cStaff):
-			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
-
-		# same ID, no change needed
-		if self.provider['pk_staff'] == provider['pk_staff']:
-			return None
-
-		# first invocation
-		if isinstance(self.provider, gmNull.cNull):
-			self.provider = provider
-			return None
-
-		# user wants different provider
-		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.provider['pk_staff'], provider['pk_staff'])
-
-	#--------------------------------------------------------
-	def get_staff(self):
-		return self.provider
-	#--------------------------------------------------------
-	# __getitem__ handling
-	#--------------------------------------------------------
-	def __getitem__(self, aVar):
-		"""Return any attribute if known how to retrieve it by proxy.
-		"""
-		return self.provider[aVar]
-	#--------------------------------------------------------
-	# __s/getattr__ handling
-	#--------------------------------------------------------
-	def __getattr__(self, attribute):
-		if attribute == 'provider':			# so we can __init__ ourselves
-			raise AttributeError
-		if not isinstance(self.provider, gmNull.cNull):
-			return getattr(self.provider, attribute)
-#		raise AttributeError
-#============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
 
@@ -947,6 +946,7 @@ class cPatient(cIdentity):
 	def __init__(self, aPK_obj=None, row=None):
 		cIdentity.__init__(self, aPK_obj=aPK_obj, row=row)
 		self.__db_cache = {}
+		self.__emr_access_lock = threading.Lock()
 	#--------------------------------------------------------
 	def cleanup(self):
 		"""Do cleanups before dying.
@@ -960,12 +960,17 @@ class cPatient(cIdentity):
 		cIdentity.cleanup(self)
 	#----------------------------------------------------------
 	def get_emr(self):
+		if not self.__emr_access_lock.acquire(False):
+			raise AttributeError('cannot access EMR')
 		try:
-			return self.__db_cache['clinical record']
+			emr = self.__db_cache['clinical record']
+			self.__emr_access_lock.release()
+			return emr
 		except KeyError:
 			pass
 
 		self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
+		self.__emr_access_lock.release()
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
 	def get_document_folder(self):
@@ -2281,7 +2286,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.173  2008-12-25 16:52:41  ncq
+# Revision 1.174  2009-01-02 11:36:18  ncq
+# - slightly reorder code for class dependancy clarity
+# - property database_language on staff
+# - raise AttributeError on faulty concurrent get_emr
+#
+# Revision 1.173  2008/12/25 16:52:41  ncq
 # - cleanup
 # - support .database_language on cStaff
 #
