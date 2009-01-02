@@ -40,8 +40,8 @@ will merrily and automagically start logging away.
 # - ascii_ctrl2mnemonic()
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.12 2008-06-11 19:11:48 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmLog2.py,v 1.13 2009-01-02 11:37:44 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,6 +52,8 @@ import logging, sys, os, codecs, locale
 
 _logfile_name = None
 _logfile = None
+
+_string_encoding = None
 
 # table used for cooking non-printables
 AsciiName = ['<#0-0x00-nul>',
@@ -157,11 +159,16 @@ def log_stack_trace(message=None):
 		for varname, value in frame.f_locals.items():
 			if varname == u'__doc__':
 				continue
+
 			try:
-				value = u'%s' % unicode(value)
-			except UnicodeDecodeError:
-				value = '%s' % str(value)
-				value = value.decode(_string_encoding, 'replace')
+				value = unicode(value, encoding = _string_encoding, errors = 'replace')
+			except TypeError:
+				try:
+					value = unicode(value)
+				except (UnicodeDecodeError, TypeError):
+					value = '%s' % str(value)
+					value = value.decode(_string_encoding, 'replace')
+
 			logger.debug(u'%20s = %s', varname, value)
 #===============================================================
 def set_string_encoding(encoding=None):
@@ -281,7 +288,10 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.12  2008-06-11 19:11:48  ncq
+# Revision 1.13  2009-01-02 11:37:44  ncq
+# - improved unicoding on log_stack_trace
+#
+# Revision 1.12  2008/06/11 19:11:48  ncq
 # - improved logging
 #
 # Revision 1.11  2008/05/31 17:44:31  ncq
