@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.53 2008-12-26 22:33:57 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmBusinessDBObject.py,v 1.54 2009-01-02 11:37:09 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -342,12 +342,18 @@ class cBusinessDBObject(object):
 		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
 	#--------------------------------------------------------
-	def refetch_payload(self):
+	def refetch_payload(self, ignore_changes=False):
 		"""Fetch field values from backend.
 		"""
 		if self._is_modified:
-			_log.critical('[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
-			return False
+			if ignore_changes:
+				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
+				_log.debug('original: %s' % self.original_payload)
+				_log.debug('modified: %s' % self._payload)
+			else:
+				_log.critical('[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
+				return False
+
 		if type(self.pk_obj) == types.DictType:
 			arg = self.pk_obj
 		else:
@@ -453,7 +459,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.53  2008-12-26 22:33:57  ncq
+# Revision 1.54  2009-01-02 11:37:09  ncq
+# - teach refetch_payload to ignore changes on demand
+#
+# Revision 1.53  2008/12/26 22:33:57  ncq
 # - cleanup
 #
 # Revision 1.52  2008/12/25 16:53:18  ncq
