@@ -15,6 +15,7 @@ wx_core_PyDeadObjectError = None
 
 
 known_signals = [
+	u'current_encounter_modified',
 	u'pre_patient_selection',
 	u'post_patient_selection',
 	u'patient_locked',
@@ -314,7 +315,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.19  2008-12-01 12:12:06  ncq
+# Revision 1.20  2009-01-02 11:37:19  ncq
+# - new signal
+#
+# Revision 1.19  2008/12/01 12:12:06  ncq
 # - lazy import of wx._core.PyDeadObjectError
 #
 # Revision 1.18  2008/10/22 12:07:43  ncq
