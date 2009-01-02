@@ -2,14 +2,14 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.72 2008-12-22 18:58:53 ncq Exp $
+# $Id: gmTools.py,v 1.73 2009-01-02 11:38:09 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging, codecs, urllib2 as wget
+import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging, codecs, urllib2 as wget, decimal
 
 
 # GNUmed libs
@@ -636,6 +636,28 @@ def capitalize(text=None, mode=CAPS_NAMES):
 	print "ERROR: invalid capitalization mode: [%s], leaving input as is" % mode
 	return text
 #---------------------------------------------------------------------------
+def input2decimal(initial=None):
+
+	val = initial
+
+	# float ? -> to string first
+	if type(val) == type(1.4):
+		val = str(val)
+
+	# string ? -> "," to "."
+	if isinstance(val, basestring):
+		val = val.replace(',', '.', 1)
+		val = val.strip()
+#		val = val.lstrip('0')
+#		if val.startswith('.'):
+#			val = '0' + val
+
+	try:
+		d = decimal.Decimal(val)
+		return True, d
+	except (TypeError, decimal.InvalidOperation):
+		return False, val
+#---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
 	and most spaces in the text. Expects that existing line
@@ -662,6 +684,62 @@ def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 
+	#-----------------------------------------------------------------------
+	def test_input2decimal():
+
+		tests = [
+			[None, False],
+
+			['', False],
+			[' 0 ', True, 0],
+
+			[0, True, 0],
+			[0.0, True, 0],
+			[.0, True, 0],
+			['0', True, 0],
+			['0.0', True, 0],
+			['0,0', True, 0],
+			['00.0', True, 0],
+			['.0', True, 0],
+			[',0', True, 0],
+
+			[0.1, True, decimal.Decimal('0.1')],
+			[.01, True, decimal.Decimal('0.01')],
+			['0.1', True, decimal.Decimal('0.1')],
+			['0,1', True, decimal.Decimal('0.1')],
+			['00.1', True, decimal.Decimal('0.1')],
+			['.1', True, decimal.Decimal('0.1')],
+			[',1', True, decimal.Decimal('0.1')],
+
+			[1, True, 1],
+			[1.0, True, 1],
+			['1', True, 1],
+			['1.', True, 1],
+			['1,', True, 1],
+			['1.0', True, 1],
+			['1,0', True, 1],
+			['01.0', True, 1],
+			['01,0', True, 1],
+			[' 01, ', True, 1],
+		]
+		for test in tests:
+			conversion_worked, result = input2decimal(initial = test[0])
+
+			expected2work = test[1]
+
+			if conversion_worked:
+				if expected2work:
+					if result == test[2]:
+						continue
+					else:
+						print "ERROR (conversion result wrong): >%s<, expected >%s<, got >%s<" % (test[0], test[2], result)
+				else:
+					print "ERROR (conversion worked but was expected to fail): >%s<, got >%s<" % (test[0], result)
+			else:
+				if not expected2work:
+					continue
+				else:
+					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
 	#-----------------------------------------------------------------------
 	def test_str2interval():
 		print "testing str2interval()"
@@ -911,11 +989,15 @@ This is a test mail from the gmTools.py module.
 		#test_bool2subst()
 		#test_get_unique_filename()
 		#test_size2str()
-		test_wrap()
+		#test_wrap()
+		test_input2decimal()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.72  2008-12-22 18:58:53  ncq
+# Revision 1.73  2009-01-02 11:38:09  ncq
+# - input2decimal + tests
+#
+# Revision 1.72  2008/12/22 18:58:53  ncq
 # - cleanup
 #
 # Revision 1.71  2008/12/09 23:28:15  ncq
