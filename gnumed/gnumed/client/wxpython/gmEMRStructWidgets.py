@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.83 2008-12-09 23:28:51 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmEMRStructWidgets.py,v 1.84 2009-01-02 11:39:48 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -39,7 +39,21 @@ _log.info(__version__)
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
-def ask_for_encounter_continuation(msg=None, caption=None):
+def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+#	dlg = cEncounterEditAreaDlg (
+#		parent = parent,
+#		encounter = encounter,
+#		button_defs = [
+#			[_('Continue'), _('Continue this encounter saving any changes.')],
+#			[_('Start new'), _('Start a new encounter. The one shown here will be closed.')]
+#		],
+#		msg = msg
+#	)
+
 	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 		parent = None,
 		id = -1,
@@ -51,9 +65,14 @@ def ask_for_encounter_continuation(msg=None, caption=None):
 		],
 		show_checkbox = False
 	)
+
 	result = dlg.ShowModal()
+	dlg.Destroy()
+
 	if result == wx.ID_YES:
+#	if result == wx.ID_OK:
 		return True
+
 	return False
 #----------------------------------------------------------------
 def manage_encounter_types(parent=None):
@@ -243,39 +262,33 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		except KeyError:
 			self.__encounter = None
 
+		try:
+			msg = kwargs['msg']
+			del kwargs['msg']
+		except KeyError:
+			msg = None
+
 		wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl.__init__(self, *args, **kwargs)
 
-		self.__init_ui()
-		if self.__encounter is not None:
-			self.refresh()
-	#--------------------------------------------------------
-	def __init_ui(self):
-		self._LCTRL_problems.InsertColumn(0, _('Episode'))
-#		self._LCTRL_problems.InsertColumn(1, _('Health Issue'))
-#		self._LCTRL_problems.InsertColumn(2, _('Assessment'))
-		self._LCTRL_problems.InsertColumn(3, _('Narrative'))
+		self.refresh(msg = msg)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def refresh(self, encounter = None):
+	def refresh(self, encounter=None, msg=None):
+
+		if msg is not None:
+			self._LBL_instructions.SetLabel(msg)
 
 		if encounter is not None:
 			self.__encounter = encounter
 
+		if self.__encounter is None:
+			return True
+
 		# getting the patient via the encounter allows us to act
 		# on any encounter regardless of the currently active patient
 		pat = gmPerson.cPatient(aPK_obj = self.__encounter['pk_patient'])
-		emr = pat.get_emr()
-		episodes = emr.get_episodes_by_encounter(pk_encounter = self.__encounter['pk_encounter'])
-		pos = len(episodes) + 1
-
-		self._LCTRL_problems.DeleteAllItems()
-		for episode in episodes:
-			row_num = self._LCTRL_problems.InsertStringItem(pos, label = episode['description'])
-#			self._LCTRL_problems.SetStringItem(index = row_num, col = 1, label = gmTools.coalesce(episode['health_issue'], ''))
-		if len(episodes) > 0:
-			self._LCTRL_problems.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
-#			self._LCTRL_problems.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)		# wx.LIST_AUTOSIZE_USEHEADER
+		self._LBL_patient.SetLabel(pat.get_description_gender())
 
 		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
 
@@ -298,8 +311,6 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_end.SetFocus()
 		else:
 			self._TCTRL_aoe.SetFocus()
-
-		self._TCTRL_patient.SetLabel(pat.get_description_gender())
 
 		return True
 	#--------------------------------------------------------
@@ -347,9 +358,28 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 		encounter = kwargs['encounter']
 		del kwargs['encounter']
 
+		try:
+			button_defs = kwargs['button_defs']
+			del kwargs['button_defs']
+		except KeyError:
+			button_defs = None
+
+		try:
+			msg = kwargs['msg']
+			del kwargs['msg']
+		except KeyError:
+			msg = None
+
 		wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg.__init__(self, *args, **kwargs)
 
-		self._PNL_edit_area.refresh(encounter=encounter)
+		if button_defs is not None:
+			self._BTN_save.SetLabel(button_defs[0][0])
+			self._BTN_save.SetToolTipString(button_defs[0][1])
+			self._BTN_close.SetLabel(button_defs[1][0])
+			self._BTN_close.SetToolTipString(button_defs[1][1])
+			self.Refresh()
+
+		self._PNL_edit_area.refresh(encounter = encounter, msg = msg)
 
 		self.Fit()
 	#--------------------------------------------------------
@@ -1303,7 +1333,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.83  2008-12-09 23:28:51  ncq
+# Revision 1.84  2009-01-02 11:39:48  ncq
+# - support custom message/buttons in encounter edit area/dlg
+#
+# Revision 1.83  2008/12/09 23:28:51  ncq
 # - use description_gender
 #
 # Revision 1.82  2008/10/22 12:19:10  ncq
