@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.133 2008-12-18 21:26:45 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gmPatientExporter.py,v 1.134 2009-01-02 11:36:43 ncq Exp $
+__version__ = "$Revision: 1.134 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -772,7 +772,6 @@ class cEmrExport:
     def dump_clinical_record(self):
         """
         Dumps in ASCII format patient's clinical record
-        
         """
         emr = self.__patient.get_emr()
         if emr is None:
@@ -1174,7 +1173,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.133  2008-12-18 21:26:45  ncq
+# Revision 1.134  2009-01-02 11:36:43  ncq
+# - cleanup
+#
+# Revision 1.133  2008/12/18 21:26:45  ncq
 # - missing H in HH24 in date formatting in journal exporter
 #
 # Revision 1.132  2008/12/09 23:24:29  ncq

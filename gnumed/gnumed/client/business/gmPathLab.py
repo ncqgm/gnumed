@@ -4,9 +4,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.65 2008-10-22 12:04:55 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmPathLab.py,v 1.66 2009-01-02 11:34:50 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+
 
 import types, sys, logging
 
@@ -113,7 +114,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 #		# yes but ambigous
 #		if name != db_lname:
 #			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.65 $'
+#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.66 $'
 #			to = 'user'
 #			prob = _('The test type already exists but the long name is different. '
 #					'The test facility may have changed the descriptive name of this test.')
@@ -684,7 +685,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.65 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.66 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -967,7 +968,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.65  2008-10-22 12:04:55  ncq
+# Revision 1.66  2009-01-02 11:34:50  ncq
+# - cleanup
+#
+# Revision 1.65  2008/10/22 12:04:55  ncq
 # - use %x in strftime
 #
 # Revision 1.64  2008/07/14 13:45:08  ncq
