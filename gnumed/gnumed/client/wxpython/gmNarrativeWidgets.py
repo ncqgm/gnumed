@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.18 2009-01-02 11:41:16 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmNarrativeWidgets.py,v 1.19 2009-01-03 17:29:01 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -695,7 +695,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
-		#gmDispatcher.connect(signal = u'encounter_mod_db', receiver = self._on_encounter_mod_db)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
 
 		# synchronous signals
@@ -707,21 +706,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		Patient change will not proceed before this returns.
 		"""
-		if self.__encounter_modified():
-			do_save_enc = gmGuiHelpers.gm_show_question (
-				aMessage = _(
-					'You have modified the details\n'
-					'of the current encounter.\n'
-					'\n'
-					'Do you want to save those changes ?'
-				),
-				aTitle = _('Starting new encounter')
-			)
-			if do_save_enc:
-				if not self.save_encounter():
-					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
-					return False
-
+		# don't worry about the encounter here - it will be offered
+		# for editing higher up if anything was saved to the EMR
 		if not self._NB_soap_editors.save_all_editors():
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 	#--------------------------------------------------------
@@ -730,20 +716,19 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		Shutdown will not proceed before this returns.
 		"""
-		if self.__encounter_modified():
-			do_save_enc = gmGuiHelpers.gm_show_question (
-				aMessage = _(
-					'You have modified the details\n'
-					'of the current encounter.\n'
-					'\n'
-					'Do you want to save those changes ?'
-				),
-				aTitle = _('Starting new encounter')
-			)
-			if do_save_enc:
-				if not self.save_encounter():
-					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
-					return False
+#		if self.__encounter_modified():
+#			do_save_enc = gmGuiHelpers.gm_show_question (
+#				aMessage = _(
+#					'You have modified the details\n'
+#					'of the current encounter.\n'
+#					'\n'
+#					'Do you want to save those changes ?'
+#				),
+#				aTitle = _('Starting new encounter')
+#			)
+#			if do_save_enc:
+#				if not self.save_encounter():
+#					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
 
 		if not self._NB_soap_editors.save_all_editors():
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
@@ -761,8 +746,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_current_encounter_modified(self):
-	#def _on_encounter_mod_db(self):
-		#wx.CallAfter(self._schedule_data_reget)
 		wx.CallAfter(self.__refresh_encounter)
 	#--------------------------------------------------------
 	def _on_problem_activated(self, event):
@@ -788,6 +771,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_discard_editor_button_pressed(self, event):
 		self._NB_soap_editors.close_current_editor()
+		self.__refresh_recent_notes()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_editor_button_pressed(self, event):
@@ -815,6 +799,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			rfe = self._TCTRL_rfe.GetValue().strip(),
 			aoe = self._TCTRL_aoe.GetValue().strip()
 		)
+		self.__refresh_recent_notes()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_encounter_button_pressed(self, event):
@@ -1245,7 +1230,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.18  2009-01-02 11:41:16  ncq
+# Revision 1.19  2009-01-03 17:29:01  ncq
+# - listen on new current_encounter_modified
+# - detecting encounter field changes at exit/patient doesn't properly work
+# - refresh recent notes where needed
+#
+# Revision 1.18  2009/01/02 11:41:16  ncq
 # - improved event handling
 #
 # Revision 1.17  2008/12/27 15:50:41  ncq
