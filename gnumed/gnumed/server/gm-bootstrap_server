@@ -1,0 +1,40 @@
+#!/bin/sh
+
+#==============================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-bootstrap_server,v $
+# $Id: gm-bootstrap_server,v 1.1 2009-01-05 12:13:53 ncq Exp $
+#
+# author: Andreas Tille, Karsten Hilbert
+# license: GPL v2
+#
+# This wrapper is intended to be installed into a systemwide
+# admin-only executable directory such as "/usr/sbin/"
+#
+# It should be run as root and will call the upstream script to
+# actually bootstrap the latest database from scratch.
+#
+#==============================================================
+# those probably need some adjustment from package maintainers:
+
+GM_LOG_BASE="/var/log/gnumed/server"
+GM_SERVER_DIR="/var/lib/gnumed/server/bootstrap"
+
+#==============================================================
+
+set -e
+
+if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" postgres | grep -q -e C -e UTF-8 ; then
+	echo "Your PostgreSQL installation seems not to have lc_ctype UTF-8 or C."
+	echo "This will most probably lead to failures of the GNUmed server installation."
+	exit -1
+fi
+
+cd ${GM_SERVER_DIR}
+./bootstrap-latest.sh
+
+#==============================================================
+# $Log: gm-bootstrap_server,v $
+# Revision 1.1  2009-01-05 12:13:53  ncq
+# - new, as per discussion on list for Debian
+#
+#
