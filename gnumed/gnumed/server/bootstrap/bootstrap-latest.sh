@@ -46,8 +46,8 @@ echo_msg "with the name \"gnumed_v${VER}\"."
 
 
 # better safe than sorry
-TARGET_VER_EXISTS=`sudo -u postgres psql -l | grep gnumed_v${VER}`
-PREV_VER_EXISTS=`sudo -u postgres psql -l | grep gnumed_v${PREV_VER}`
+TARGET_VER_EXISTS=`su -c "psql -l" postgres | grep gnumed_v${VER}`
+PREV_VER_EXISTS=`su -c "psql -l" postgres | grep gnumed_v${PREV_VER}`
 if test "${TARGET_VER_EXISTS}" != "" -o  "${PREV_VER_EXISTS}" != "" ; then
 	echo ""
 	echo "-----------------------------------------------"
@@ -85,5 +85,5 @@ fi
 for DB_VER in ${VERSIONS_TO_DROP} ; do
 	echo_msg "Dropping obsoleted staging database gnumed_v${DB_VER} ..."
 	echo_msg "(you may need to provide the password for ${USER})"
-	sudo -u postgres dropdb ${PORT_DEF} gnumed_v${DB_VER}
+	su -c "dropdb ${PORT_DEF} gnumed_v${DB_VER}" postgres
 done

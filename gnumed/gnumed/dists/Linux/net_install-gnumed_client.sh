@@ -3,11 +3,11 @@
 # ===========================================================
 # This script must be run as the user who wants to use the
 # GNUmed client. If you opt for letting the script try to
-# install dependancies it will attempt to use SUDO for which
-# you will need to know your password.
+# install dependancies it will attempt to use SU for which
+# you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.7 2008-10-22 12:24:48 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.8 2009-01-06 18:26:30 ncq Exp $
 # ===========================================================
 
 VER_LATEST="CVS-HEAD"
@@ -15,7 +15,7 @@ INSTALL_BASE=~/".gnumed/client-installation"
 
 # ===========================================================
 VER_CLI="$1"
-DL_BASE_URL="http://www.gnumed.de/downloads/client/0.3"		# FIXME: derive "0.2" from version
+DL_BASE_URL="http://www.gnumed.de/downloads/client/0.3"		# FIXME: derive from version
 SYS_TYPE="generic Un*x"
 PKG_INSTALLER=`which true`
 DEPS=""
@@ -102,7 +102,7 @@ read -e -p "Install dependancies ? [y/N]: "
 if test "${REPLY}" == "y" ; then
 	echo ""
 	echo "You may need to enter the password for \"${USER}\" now:"
-	sudo ${PKG_INSTALLER} ${DEPS}
+	su -c "${PKG_INSTALLER} ${DEPS}"
 fi
 
 
@@ -209,7 +209,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.7  2008-10-22 12:24:48  ncq
+# Revision 1.8  2009-01-06 18:26:30  ncq
+# - sudo -> su
+#
+# Revision 1.7  2008/10/22 12:24:48  ncq
 # - lsb_release
 #
 # Revision 1.6  2008/10/12 16:38:46  ncq

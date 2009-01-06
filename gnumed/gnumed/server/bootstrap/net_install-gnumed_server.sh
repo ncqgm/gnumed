@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.8 2008-11-17 23:15:02 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.9 2009-01-06 18:23:24 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
@@ -53,8 +53,8 @@ echo ""
 read -e -p "Install dependancies ? [y/N]: "
 if test "${REPLY}" == "y" ; then
 	echo ""
-	echo "You may need to enter the password for \"${USER}\" now:"
-	sudo ${PKG_INSTALLER} ${DEPS}
+	echo "You may need to enter the root password now:"
+	su -c "${PKG_INSTALLER} ${DEPS}"
 fi
 
 # get and unpack package
@@ -78,11 +78,14 @@ echo " ["`pwd`"]"
 echo ""
 echo "The GNUmed database is about to be installed."
 echo "You may need to enter your password now:"
-sudo ./bootstrap-latest.sh
+su -c "./bootstrap-latest.sh"
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.8  2008-11-17 23:15:02  ncq
+# Revision 1.9  2009-01-06 18:23:24  ncq
+# - sudo -> su
+#
+# Revision 1.8  2008/11/17 23:15:02  ncq
 # - better wording
 #
 # Revision 1.7  2008/10/22 12:25:23  ncq

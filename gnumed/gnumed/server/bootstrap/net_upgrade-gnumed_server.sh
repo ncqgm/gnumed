@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_upgrade-gnumed_server.sh,v $
-# $Id: net_upgrade-gnumed_server.sh,v 1.5 2008-10-22 12:25:21 ncq Exp $
+# $Id: net_upgrade-gnumed_server.sh,v 1.6 2009-01-06 18:23:24 ncq Exp $
 # ============================================
 
 PREV_VER="8"
@@ -54,11 +54,14 @@ echo " ["`pwd`"]"
 echo ""
 echo "The GNUmed database is about to be upgraded."
 echo "You may need to enter your password now:"
-sudo ./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}
+su -c "./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}"
 
 # ============================================
 # $Log: net_upgrade-gnumed_server.sh,v $
-# Revision 1.5  2008-10-22 12:25:21  ncq
+# Revision 1.6  2009-01-06 18:23:24  ncq
+# - sudo -> su
+#
+# Revision 1.5  2008/10/22 12:25:21  ncq
 # - lsb_release
 #
 # Revision 1.4  2008/08/01 10:38:25  ncq
