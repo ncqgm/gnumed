@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -34,7 +34,7 @@ _log.info(__version__)
 class gmSoapPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebook based progress note input window."""
 
-	tab_name = _('Progress notes 2')
+	tab_name = _('Notes')
 
 	def name (self):
 		return gmSoapPlugin.tab_name
@@ -44,7 +44,7 @@ class gmSoapPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('&Progress notes editor 2'))
+		return ('emr', _('Integrated &Progress notes'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -93,7 +93,10 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmSoapPlugin.py,v $
-# Revision 1.1  2008-11-20 20:30:49  ncq
+# Revision 1.2  2009-01-06 18:21:55  ncq
+# - better tab name
+#
+# Revision 1.1  2008/11/20 20:30:49  ncq
 # - new plugin
 #
 #
