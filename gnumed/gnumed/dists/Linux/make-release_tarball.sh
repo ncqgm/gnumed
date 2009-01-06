@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.54 2008-08-31 16:17:43 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.55 2009-01-06 18:27:02 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.3-rc6"
@@ -236,11 +236,19 @@ echo "============"
 # client
 mkdir -p ./GNUmed-$CLIENTREV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
+
+cp -R ../../server/gm-bootstrap_server ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-adjust_db_settings.sh ./GNUmed-$CLIENTREV/server/
+
 cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-restore_database.sh ./GNUmed-$CLIENTREV/server/
+
 cp -R ../../server/gm-backup_data.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-restore_data ./GNUmed-$CLIENTREV/server/
+
 cp -R ../../server/gm-zip+sign_backups.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
+
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
 
 
@@ -257,6 +265,7 @@ cp -R ../../server/bootstrap/* ./GNUmed-$CLIENTREV/server/bootstrap/
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/server/doc/
 cp -R ../../server/bootstrap/README ./GNUmed-$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-bootstrap_server.1 ./GNUmed-$CLIENTREV/server/doc/
 
 
 # etc
@@ -375,7 +384,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.54  2008-08-31 16:17:43  ncq
+# Revision 1.55  2009-01-06 18:27:02  ncq
+# - include more server side scripts and man pages
+#
+# Revision 1.54  2008/08/31 16:17:43  ncq
 # - include gm-read_chipcard.sh
 #
 # Revision 1.53  2008/08/28 18:35:36  ncq
