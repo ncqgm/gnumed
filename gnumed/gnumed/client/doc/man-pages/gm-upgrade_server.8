@@ -1,0 +1,61 @@
+.TH GM-UPGRADE_SERVER 8 "2009 January 4th" "Manual for upgrading GNUmed Server"
+
+.SH NAME
+.B gm-upgrade_server
+- upgrade an existing SQL database for GNUmed to the next version
+
+.SH SYNOPSIS
+.B gm-upgrade_server
+.I VERSION
+.I VERSION+1
+[
+.I no-backup | no-compression
+]
+[
+.I quiet
+]
+
+.SH DESCRIPTION
+.B gm-upgrade_server
+is a simple helper script which is provided by the Debian
+GNU/Linux distribution to simplify upgrading the GNUmed
+database from version
+.I VERSION
+to the next version
+.I VERSION+1.
+
+.SH OPTIONS
+.PP
+.TP
+.B no-backup
+Do not create a database backup before upgrading (you got faith).
+.TP
+.B no-compression
+Create a backup but do not compress it. Useful if you got plenty
+of disk but are low on cycles.
+.TP
+.B quiet
+Display failures only, do not chatter about progress.
+
+.SH WARNING
+This script may result in
+.B deletion of
+existing GNUmed
+.B databases
+if so instructed.
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert <karsten.hilbert@gmx.net>.
+
+.SH REVISION
+
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gm-upgrade_server.8,v $
+
+$Id: gm-upgrade_server.8,v 1.1 2009-01-07 12:03:32 ncq Exp $
+
+.\" ========================================================
+.\" $Log: gm-upgrade_server.8,v $
+.\" Revision 1.1  2009-01-07 12:03:32  ncq
+.\" - new
+.\"
+.\"
