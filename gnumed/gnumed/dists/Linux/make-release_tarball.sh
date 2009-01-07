@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.55 2009-01-06 18:27:02 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.56 2009-01-07 12:30:48 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.3-rc6"
@@ -35,6 +35,7 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/server/pycommon/gmTrace.py "\
 "./GNUmed-$CLIENTREV/server/pycommon/gmdbf.py "\
 "./GNUmed-$CLIENTREV/server/pycommon/gmPG.py "\
+"./GNUmed-$CLIENTREV/server/bootstrap/README "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/README "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_AdminLoginV01.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_DBUserSetupV01.py "\
@@ -238,6 +239,7 @@ mkdir -p ./GNUmed-$CLIENTREV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../server/gm-bootstrap_server ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-upgrade_server ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-adjust_db_settings.sh ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
@@ -265,7 +267,8 @@ cp -R ../../server/bootstrap/* ./GNUmed-$CLIENTREV/server/bootstrap/
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/server/doc/
 cp -R ../../server/bootstrap/README ./GNUmed-$CLIENTREV/server/doc/
-cp -R ../../client/doc/man-pages/gm-bootstrap_server.1 ./GNUmed-$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-bootstrap_server.8 ./GNUmed-$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-upgrade_server.8 ./GNUmed-$CLIENTREV/server/doc/
 
 
 # etc
@@ -384,7 +387,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.55  2009-01-06 18:27:02  ncq
+# Revision 1.56  2009-01-07 12:30:48  ncq
+# - fix double README in server package
+# - put man pages into proper section
+#
+# Revision 1.55  2009/01/06 18:27:02  ncq
 # - include more server side scripts and man pages
 #
 # Revision 1.54  2008/08/31 16:17:43  ncq
