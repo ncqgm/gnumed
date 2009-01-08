@@ -1,8 +1,6 @@
-#!/bin/bash
-
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/egk+kvk-demon.conf.example,v $
-# $Id: egk+kvk-demon.conf.example,v 1.1 2008-08-28 18:00:05 ncq Exp $
+# $Id: egk+kvk-demon.conf.example,v 1.2 2009-01-08 21:12:01 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -46,7 +44,10 @@ DUMP_FILE="${GM_SPOOLDIR}/card-${CARD_ID}-${TS}.dat"
 
 #============================================================
 # $Log: egk+kvk-demon.conf.example,v $
-# Revision 1.1  2008-08-28 18:00:05  ncq
+# Revision 1.2  2009-01-08 21:12:01  ncq
+# - remove /bin/bash as it is not really a shell script
+#
+# Revision 1.1  2008/08/28 18:00:05  ncq
 # - first check in
 #
 #
