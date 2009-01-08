@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -47,13 +47,6 @@ col2identity_accessor = {
 		select into _pk_identity fk_patient from clin.encounter where pk = OLD.fk_encounter limit 1;
 	else
 		select into _pk_identity fk_patient from clin.encounter where pk = NEW.fk_encounter limit 1;
-	end if;""",
-
-	'fk_doc': u"""-- retrieve identity PK via fk_doc
-	if TG_OP = ''DELETE'' then
-		select into _pk_identity fk_identity from blobs.doc_med where pk = OLD.fk_doc limit 1;
-	else
-		select into _pk_identity fk_identity from blobs.doc_med where pk = NEW.fk_doc limit 1;
 	end if;""",
 
 	'fk_identity': u"""-- retrieve identity PK via fk_identity
@@ -332,7 +325,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.30  2008-07-10 08:36:27  ncq
+# Revision 1.31  2009-01-08 16:43:58  ncq
+# - no more fk_identity in blobs.doc_med so remove identity accessor mapping
+#
+# Revision 1.30  2008/07/10 08:36:27  ncq
 # - protect against old mischief, too
 #
 # Revision 1.29  2008/07/10 08:19:30  ncq
