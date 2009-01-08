@@ -1,4 +1,6 @@
-#!/bin/bash
+#------------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/gnumed-restore.conf.example,v $
+# $Id: gnumed-restore.conf.example,v 1.2 2009-01-08 21:12:42 ncq Exp $
 #------------------------------------------------------------
 #
 # this is a shell fragment used by gm-restore_from_backup.sh
@@ -13,8 +15,6 @@
 # http://www.postgresql.org/docs/8.1/static/libpq-pgpass.html
 #
 #------------------------------------------------------------
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/gnumed-restore.conf.example,v $
-# $Id: gnumed-restore.conf.example,v 1.1 2008-08-28 15:11:48 ncq Exp $
 
 # if your PostgreSQL server is running on another port
 GM_PORT="5432"
@@ -31,7 +31,10 @@ LOG_BASE="."
 
 #============================================================
 # $Log: gnumed-restore.conf.example,v $
-# Revision 1.1  2008-08-28 15:11:48  ncq
+# Revision 1.2  2009-01-08 21:12:42  ncq
+# - remove /bin/bash
+#
+# Revision 1.1  2008/08/28 15:11:48  ncq
 # - moved here
 #
 # Revision 1.3  2008/08/01 10:08:49  ncq
