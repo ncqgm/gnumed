@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.108 2008-12-09 23:21:54 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmMedDoc.py,v 1.109 2009-01-08 16:42:01 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -351,19 +351,14 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	def get_descriptions(self, max_lng=250):
 		"""Get document descriptions.
 
-		- will return a list of strings
+		- will return a list of rows
 		"""
 		if max_lng is None:
-			cmd = u"SELECT text FROM blobs.doc_desc WHERE fk_doc=%s"
+			cmd = u"SELECT pk, text FROM blobs.doc_desc WHERE fk_doc = %s"
 		else:
-			cmd = u"SELECT substring(text from 1 for %s) FROM blobs.doc_desc WHERE fk_doc=%%s" % max_lng
+			cmd = u"SELECT pk, substring(text from 1 for %s) FROM blobs.doc_desc WHERE fk_doc=%%s" % max_lng
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		if len(rows) == 0:
-			return [_('no descriptions available')]
-		data = []
-		for desc in rows:
-			data.extend(desc)
-		return data
+		return rows
 	#--------------------------------------------------------
 	def add_description(self, description):
 		cmd = u"insert into blobs.doc_desc (fk_doc, text) values (%s, %s)"
@@ -703,7 +698,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.108  2008-12-09 23:21:54  ncq
+# Revision 1.109  2009-01-08 16:42:01  ncq
+# - get_descriptions now includes pks of rows
+#
+# Revision 1.108  2008/12/09 23:21:54  ncq
 # - no more fk_identity in doc_med
 # - date -> clin_when in doc_med
 #
