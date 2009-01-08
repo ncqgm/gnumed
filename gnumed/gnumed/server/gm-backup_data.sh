@@ -2,14 +2,20 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_data.sh,v $
-# $Id: gm-backup_data.sh,v 1.6 2008-11-03 10:31:06 ncq Exp $
+# $Id: gm-backup_data.sh,v 1.7 2009-01-08 16:43:18 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
 #
+# This script creates a backup of the data of a GNUmed
+# database. It includes neither roles nor the schema.
+# The backup can be used to restore the data into a
+# preexisting, empty database.
+#
 # You need to be able to access the GNUmed database as
 # user "gm-dbo" by either editing pg_hba.conf or using a
 # .pgpass file.
+#
 #
 # To restore the data-only dump do this:
 #
@@ -84,7 +90,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_data.sh,v $
-# Revision 1.6  2008-11-03 10:31:06  ncq
+# Revision 1.7  2009-01-08 16:43:18  ncq
+# - improve docstring
+#
+# Revision 1.6  2008/11/03 10:31:06  ncq
 # - wording fix
 #
 # Revision 1.5  2008/08/01 10:34:21  ncq

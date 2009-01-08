@@ -2,10 +2,19 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.18 2008-12-28 15:06:21 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.19 2009-01-08 16:43:18 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
+#
+# This script creates a backup of the database schema,
+# data, and roles which can be used to restore a GNUmed
+# database from scratch.
+#
+# You need to allow root to access the GNUmed database as
+# user "gm-dbo" by either editing pg_hba.conf or using a
+# .pgpass file.
+#
 #
 # anacron
 # -------
@@ -23,10 +32,6 @@
 #
 #  47 12,19 * * * * /usr/bin/gm-backup_database.sh
 #
-#
-# You need to allow root to access the GNUmed database as
-# user "gm-dbo" by either editing pg_hba.conf or using a
-# .pgpass file.
 #==============================================================
 
 CONF="/etc/gnumed/gnumed-backup.conf"
@@ -138,7 +143,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.18  2008-12-28 15:06:21  ncq
+# Revision 1.19  2009-01-08 16:43:18  ncq
+# - improve docstring
+#
+# Revision 1.18  2008/12/28 15:06:21  ncq
 # - warn if backing up older database
 #
 # Revision 1.17  2008/12/01 12:18:02  ncq
