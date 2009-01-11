@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.109 2009-01-08 16:42:01 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmMedDoc.py,v 1.110 2009-01-11 19:16:05 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -365,6 +365,9 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, str(description)]}])
 		return True
 	#--------------------------------------------------------
+	def update_description(self, pk=None, description=None):
+		print "updating description"
+	#--------------------------------------------------------
 	def get_parts(self):
 		cmd = u"select pk_obj from blobs.v_obj4doc_no_data where pk_doc=%s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
@@ -698,7 +701,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.109  2009-01-08 16:42:01  ncq
+# Revision 1.110  2009-01-11 19:16:05  ncq
+# - pseudo method
+#
+# Revision 1.109  2009/01/08 16:42:01  ncq
 # - get_descriptions now includes pks of rows
 #
 # Revision 1.108  2008/12/09 23:21:54  ncq
