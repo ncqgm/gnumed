@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.171 2008-12-09 23:33:14 ncq Exp $
-__version__ = "$Revision: 1.171 $"
+# $Id: gmMedDocWidgets.py,v 1.172 2009-01-11 19:19:19 ncq Exp $
+__version__ = "$Revision: 1.172 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1123,8 +1123,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__part_context_menu.Append(ID, _('Mail part'))
 		wx.EVT_MENU(self.__part_context_menu, ID, self.__mail_part)
 
-		self.__part_context_menu.AppendSeparator()
-
+		self.__part_context_menu.AppendSeparator()			# so we can append some items
 
 		# --- doc context menu ---
 		self.__doc_context_menu = wx.Menu(title = _('document menu'))
@@ -1162,6 +1161,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__delete_document)
 
 		self.__doc_context_menu.AppendSeparator()
+
+		self.__desc_menu = wx.Menu()
+		ID = wx.NewId()
+		self.__doc_context_menu.AppendMenu(ID, _('Descriptions ...'), self.__desc_menu)
 
 	#--------------------------------------------------------
 	def __populate_tree(self):
@@ -1204,7 +1207,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			cmt = gmTools.coalesce(doc['comment'], _('no comment available'))
 			page_num = len(parts)
-			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = _('no reference ID found'), template_initial = u'\u00BB%s\u00AB')
+			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = _('no reference ID'), template_initial = u'\u00BB%s\u00AB')
 
 			if doc.has_unreviewed_parts():
 				review = u'\u270D'
@@ -1431,38 +1434,80 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__display_part(part=self.__curr_node_data)
 	#--------------------------------------------------------
 	def __review_curr_part(self, evt):
-		self.__review_part(part=self.__curr_node_data)
+		self.__review_part(part = self.__curr_node_data)
 	#--------------------------------------------------------
 	def __show_description(self, evt):
-		print "showing description"
+
+		pk_desc = self.desc_mapping[evt.Id][0]
+		original = self.desc_mapping[evt.Id][1]
+		#-----------------------------------------
+		def delete_description():
+			doit = gmGuiHelpers.gm_show_question (
+				_(	'Are you sure you want to delete this\n'
+					'description from the document ?\n'
+				),
+				_('Deleting document description')
+			)
+			if not doit:
+				return False
+
+			return self.__curr_node_data.delete_description(pk = pk_desc)
+		#-----------------------------------------
+		def save_description(new=None, old=None):
+			if new == old:
+				return True
+
+			if new.strip() == u'':
+				return False
+
+			return self.__curr_node_data.update_description(pk = pk_desc, description = new)
+		#-----------------------------------------
+
+		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+			self,
+			-1,
+			title = _('Editing document description'),
+			msg = _('Below you can edit the document description.\n'),
+			text = original,
+			cb_save = save_description,
+			cb_delete = delete_description
+		)
+		dlg.ShowModal()
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
 
+		self.desc_mapping = {}
+		desc_menu_ids = []
+
 		descriptions = self.__curr_node_data.get_descriptions()
-		desc_menu = wx.Menu()
+
 		for desc in descriptions:
-			d_id = wx.NewId()
+			desc_id = wx.NewId()
+			desc_menu_ids.append(desc_id)
+			self.desc_mapping[desc_id] = desc
 			# contract string
-			tmp = regex.split('\r\n+|\r+|\n+|\s+|\t+', desc)
-			tmp = ' '.join(tmp)
+			label = regex.split('\r\n+|\r+|\n+|\s+|\t+', desc[1])
+			label = ' '.join(label)
 			# but only use first 30 characters
-			tmp = "%s%s" % (tmp[:30], u'\u2026')
-			desc_menu.Append(d_id, tmp)
+			label = "%s%s" % (label[:30], gmTools.u_ellipsis)
+			self.__desc_menu.Append(desc_id, label)
 			# connect handler
-			wx.EVT_MENU(desc_menu, d_id, self.__show_description)
-		ID = wx.NewId()
-		self.__doc_context_menu.AppendMenu(ID, _('descriptions ...'), desc_menu)
+			wx.EVT_MENU(self.__desc_menu, desc_id, self.__show_description)
 
 		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
 
-		self.__doc_context_menu.Delete(ID)
-		try:
-			desc_menu.Destroy()
-		# the C++ object has been observed to have been destroyed already
-		except wx._core.PyDeadObjectError:
-			pass
+		del self.desc_mapping
+		for desc_id in desc_menu_ids:
+			self.__desc_menu.Delete(desc_id)
+		del desc_menu_ids
+
+#		try:
+#			desc_menu.Destroy()
+#		# the C++ object has been observed to have been destroyed already
+#		except wx._core.PyDeadObjectError:
+#			pass
 	#--------------------------------------------------------
 	def __handle_part_context(self):
 
@@ -1860,7 +1905,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.171  2008-12-09 23:33:14  ncq
+# Revision 1.172  2009-01-11 19:19:19  ncq
+# - start supporting editing of document descriptions
+#
+# Revision 1.171  2008/12/09 23:33:14  ncq
 # - doc_med.date -> clin_when
 #
 # Revision 1.170  2008/11/23 12:46:03  ncq
