@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.98 2008-12-18 21:28:26 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmGuiHelpers.py,v 1.99 2009-01-11 19:17:17 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -189,6 +189,11 @@ class cStartupProgressBar(wx.ProgressDialog):
 
 # ========================================================================
 class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
+	"""Editor for a bit of text.
+
+	cb_save: a function which accepts <new> and <old> kw args
+			 which hold the new and old text, respectively
+	"""
 
 	def __init__(self, *args, **kwargs):
 
@@ -216,6 +221,12 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		except KeyError:
 			self.save_callback = None
 
+		try:
+			self.delete_callback = kwargs['cb_delete']
+			del kwargs['cb_delete']
+		except KeyError:
+			self.delete_callback = None
+
 		wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg.__init__(self, *args, **kwargs)
 
 		if title is not None:
@@ -229,10 +240,13 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 
 		if self.original_text is not None:
 			self._TCTRL_text.SetValue(self.original_text)
+			self._BTN_restore.Enable(True)
 
 		if self.save_callback is not None:
 			self._BTN_save.Enable(True)
 
+		if self.delete_callback is not None:
+			self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -250,7 +264,28 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self.EndModal(wx.ID_SAVE)
 		else:
 			self.Close()
+	#--------------------------------------------------------
+	def _on_delete_button_pressed(self, evt):
 
+		if self.delete_callback is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Deleting text disabled.'), beep = True)
+			return
+
+		if not self.delete_callback():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete text.'), beep = True)
+			return
+
+		if self.IsModal():
+			self.EndModal(wx.ID_DELETE)
+		else:
+			self.Close()
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._TCTRL_text.SetValue(u'')
+	#--------------------------------------------------------
+	def _on_restore_button_pressed(self, evt):
+		if self.original_text is not None:
+			self._TCTRL_text.SetValue(self.original_text)
 # ========================================================================
 class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 
@@ -572,7 +607,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.98  2008-12-18 21:28:26  ncq
+# Revision 1.99  2009-01-11 19:17:17  ncq
+# - support new action buttons in text editor
+#
+# Revision 1.98  2008/12/18 21:28:26  ncq
 # - cMultilineTextEntryDlg
 #
 # Revision 1.97  2008/11/21 13:06:09  ncq
