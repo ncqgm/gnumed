@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.110.2.1 2008-09-09 17:35:11 ncq Exp $
-__version__ = "$Revision: 1.110.2.1 $"
+# $Id: gmPatSearchWidgets.py,v 1.110.2.2 2009-01-15 08:58:19 ncq Exp $
+__version__ = "$Revision: 1.110.2.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -858,8 +858,6 @@ class cActivePatientSelector(cPersonSearchCtrl):
 
 		self._set_person_as_active_patient(self.person)
 		self._display_name()
-
-		gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 	#----------------------------------------------
 	def _on_char(self, evt):
 
@@ -986,7 +984,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.110.2.1  2008-09-09 17:35:11  ncq
+# Revision 1.110.2.2  2009-01-15 08:58:19  ncq
+# - do not hard code an initial patient plugin
+#
+# Revision 1.110.2.1  2008/09/09 17:35:11  ncq
 # - don't crash on incomplete PracSoft profiles
 #
 # Revision 1.110  2008/07/28 20:27:20  ncq
