@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.99 2009-01-11 19:17:17 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmGuiHelpers.py,v 1.100 2009-01-15 11:37:06 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -139,55 +139,6 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 		else:
 			self.Close()
 # ========================================================================
-class cStartupProgressBar(wx.ProgressDialog):
-	def __init__(self, nr_actions):
-
-		wx.ProgressDialog.__init__(
-			self,
-			parent = None,
-			title = _('GNUmed: Starting up ...'),
-			message = u' ' * 80 + u'\n\n\n',
-			maximum = nr_actions,
-			style = wx.PD_ELAPSED_TIME | wx.PD_CAN_ABORT
-		)
-
-		# set window icon
-		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
-		png_fname = os.path.join(paths.system_app_data_dir, 'bitmaps', 'serpent.png')
-		icon = wx.EmptyIcon()
-		try:
-			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
-		except:
-			pass
-#			_log2.warning('wx.Icon.LoadFile() not supported')
-		self.SetIcon(icon)
-		self.idx = 0
-#		self.nr_plugins = nr_plugins
-#		self.prev_plugin = ""
-	#----------------------------------------------------------
-	def Update (self, msg = None):
-#		if result == -1:
-#			result = ""
-#		elif result == 0:
-#			result = _("failed")
-#		else:
-#			result = _("success")
-
-#_("GNUmed: configuring [%s] (%s plugins)") % (gmSurgery.gmCurrentPractice().active_workplace, nr_plugins),
-#_("loading list of plugins                               "),
-		wx.ProgressDialog.Update(self, self.idx, msg)
-#		self.prev_plugin = plugin
-		self.idx += 1
-
-#			_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
-#				self.prev_plugin,
-#				result,
-#				(self.idx+1),
-#				self.nr_plugins,
-#				plugin
-#			)
-
-# ========================================================================
 class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 	"""Editor for a bit of text.
 
@@ -215,18 +166,6 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		except KeyError:
 			self.original_text = None
 
-		try:
-			self.save_callback = kwargs['cb_save']
-			del kwargs['cb_save']
-		except KeyError:
-			self.save_callback = None
-
-		try:
-			self.delete_callback = kwargs['cb_delete']
-			del kwargs['cb_delete']
-		except KeyError:
-			self.delete_callback = None
-
 		wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg.__init__(self, *args, **kwargs)
 
 		if title is not None:
@@ -241,42 +180,18 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		if self.original_text is not None:
 			self._TCTRL_text.SetValue(self.original_text)
 			self._BTN_restore.Enable(True)
+	#--------------------------------------------------------
+	def _get_value(self):
+		return self._TCTRL_text.GetValue()
 
-		if self.save_callback is not None:
-			self._BTN_save.Enable(True)
-
-		if self.delete_callback is not None:
-			self._BTN_delete.Enable(True)
+	value = property(_get_value, lambda x:x)
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 
-		if self.save_callback is None:
-			gmDispatcher.send(signal = 'statustext', msg = _('Saving text disabled.'), beep = True)
-			return
-
-		if not self.save_callback(new = self._TCTRL_text.GetValue(), old = self.original_text):
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text.'), beep = True)
-			return
-
 		if self.IsModal():
 			self.EndModal(wx.ID_SAVE)
-		else:
-			self.Close()
-	#--------------------------------------------------------
-	def _on_delete_button_pressed(self, evt):
-
-		if self.delete_callback is None:
-			gmDispatcher.send(signal = 'statustext', msg = _('Deleting text disabled.'), beep = True)
-			return
-
-		if not self.delete_callback():
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete text.'), beep = True)
-			return
-
-		if self.IsModal():
-			self.EndModal(wx.ID_DELETE)
 		else:
 			self.Close()
 	#--------------------------------------------------------
@@ -607,7 +522,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.99  2009-01-11 19:17:17  ncq
+# Revision 1.100  2009-01-15 11:37:06  ncq
+# - no more save callback in multiline text editor
+#
+# Revision 1.99  2009/01/11 19:17:17  ncq
 # - support new action buttons in text editor
 #
 # Revision 1.98  2008/12/18 21:28:26  ncq
