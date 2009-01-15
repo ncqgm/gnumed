@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.37 2008-03-06 18:32:31 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmXdtViewer.py,v 1.38 2009-01-15 11:41:18 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs, logging
@@ -38,9 +38,10 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		self.filename = None
 
 		self.__cols = [
-			_('xDT field'),
-			_('field content'),
-			_('xDT field ID')
+			_('Field name'),
+			_('Interpreted content'),
+			_('xDT field ID'),
+			_('Raw content')
 		]
 		self.__init_ui()
 	#--------------------------------------------------------------
@@ -132,6 +133,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			self._LCTRL_xdt.InsertStringItem(index=idx, label=left)
 			self._LCTRL_xdt.SetStringItem(index=idx, col=1, label=right)
 			self._LCTRL_xdt.SetStringItem(index=idx, col=2, label=field)
+			self._LCTRL_xdt.SetStringItem(index=idx, col=3, label=content)
 			idx += 1
 
 		xdt_file.close()
@@ -423,7 +425,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.37  2008-03-06 18:32:31  ncq
+# Revision 1.38  2009-01-15 11:41:18  ncq
+# - improved list layout
+#
+# Revision 1.37  2008/03/06 18:32:31  ncq
 # - standard lib logging only
 #
 # Revision 1.36  2008/01/30 14:03:42  ncq
