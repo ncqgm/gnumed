@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -182,6 +182,8 @@ class cMacroPrimitives:
 		self.__auth_cookie = str(random.random())
 		self.__pat_lock_cookie = str(random.random())
 		self.__lock_after_load_cookie = str(random.random())
+
+		_log.info('slave mode personality is [%s]', personality)
 	#-----------------------------------------------------------------
 	# public API
 	#-----------------------------------------------------------------
@@ -214,7 +216,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.41 $" % self.__class__.__name__
+		return "%s $Revision: 1.42 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -457,7 +459,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.41  2008-03-20 15:30:37  ncq
+# Revision 1.42  2009-01-15 11:40:20  ncq
+# - better logging
+#
+# Revision 1.41  2008/03/20 15:30:37  ncq
 # - fix misplaced %
 #
 # Revision 1.40  2008/03/09 20:16:32  ncq
