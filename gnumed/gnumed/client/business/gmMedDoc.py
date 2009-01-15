@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.110 2009-01-11 19:16:05 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmMedDoc.py,v 1.111 2009-01-15 11:31:58 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -360,13 +360,22 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		return rows
 	#--------------------------------------------------------
-	def add_description(self, description):
+	def add_description(self, description=None):
 		cmd = u"insert into blobs.doc_desc (fk_doc, text) values (%s, %s)"
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, str(description)]}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, description]}])
 		return True
 	#--------------------------------------------------------
 	def update_description(self, pk=None, description=None):
-		print "updating description"
+		cmd = u"update blobs.doc_desc set text = %(desc)s where fk_doc = %(doc)s and pk = %(pk_desc)s"
+		gmPG2.run_rw_queries(queries = [
+			{'cmd': cmd, 'args': {'doc': self.pk_obj, 'pk_desc': pk, 'desc': description}}
+		])
+		return True
+	#--------------------------------------------------------
+	def delete_description(self, pk=None):
+		cmd = u"delete from blobs.doc_desc where fk_doc = %(doc)s and pk = %(desc)s"
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'doc': self.pk_obj, 'desc': pk}}])
+		return True
 	#--------------------------------------------------------
 	def get_parts(self):
 		cmd = u"select pk_obj from blobs.v_obj4doc_no_data where pk_doc=%s"
@@ -701,7 +710,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.110  2009-01-11 19:16:05  ncq
+# Revision 1.111  2009-01-15 11:31:58  ncq
+# - implement description handling
+#
+# Revision 1.110  2009/01/11 19:16:05  ncq
 # - pseudo method
 #
 # Revision 1.109  2009/01/08 16:42:01  ncq
