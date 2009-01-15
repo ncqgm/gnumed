@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.437 2008-12-26 16:03:36 ncq Exp $
-__version__ = "$Revision: 1.437 $"
+# $Id: gmGuiMain.py,v 1.438 2009-01-15 11:38:44 ncq Exp $
+__version__ = "$Revision: 1.438 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -60,7 +60,7 @@ from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gm
 from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets
 
 try:
-	_('do-not-translate-but-make-epydoc-happy')
+	_('dummy-no-need-to-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
 
@@ -231,7 +231,10 @@ class gmTopLevelFrame(wx.Frame):
 
 		# set window title via template
 		if _cfg.get(option = 'slave'):
-			self.__title_template = _('Enslaved GNUmed [%s%s.%s@%s] %s')
+			self.__title_template = u'%s:%s [%%s%%s.%%s@%%s] %%s' % (
+				_cfg.get(option = 'slave personality'),
+				_cfg.get(option = 'xml-rpc port')
+			)
 		else:
 			self.__title_template = 'GNUmed [%s%s.%s@%s] %s'
 		self.updateTitle()
@@ -1048,7 +1051,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_exit_gnumed(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
+		_log.debug('gmTopLevelFrame.__on_exit_gnumed() start')
 		self.Close()	# -> calls wx.EVT_CLOSE handler
+		_log.debug('gmTopLevelFrame.__on_exit_gnumed() end')
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
 		check_for_updates()
@@ -1887,8 +1892,10 @@ class gmTopLevelFrame(wx.Frame):
 
 		- framework still functional
 		"""
+		_log.debug('gmTopLevelFrame.OnClose() start')
 		self._clean_exit()
 		self.Destroy()
+		_log.debug('gmTopLevelFrame.OnClose() end')
 	#----------------------------------------------
 	def OnExportEMR(self, event):
 		"""
@@ -2106,6 +2113,9 @@ class gmTopLevelFrame(wx.Frame):
 		  regular shutdown should go in here
 		- framework still functional
 		"""
+		_log.debug('gmTopLevelFrame._clean_exit() start')
+
+		self.timer.Stop()
 		gmTimer.shutdown()
 
 		# run synchronous pre-exit callback
@@ -2114,6 +2124,7 @@ class gmTopLevelFrame(wx.Frame):
 				call_back()
 			except:
 				print "*** pre-exit callback failed ***"
+				print call_back
 				_log.exception('callback [%s] failed', call_back)
 
 		# shut down backend notifications listener
@@ -2147,11 +2158,11 @@ class gmTopLevelFrame(wx.Frame):
 			workplace = gmSurgery.gmCurrentPractice().active_workplace
 		)
 
-		self.timer.Stop()
-
 		sys.stdin = sys.__stdin__
 		sys.stdout = sys.__stdout__
 		sys.stderr = sys.__stderr__
+
+		_log.debug('gmTopLevelFrame._clean_exit() end')
 	#----------------------------------------------
 #	def OnIdle(self, event):
 #		"""Here we can process any background tasks
@@ -2174,6 +2185,7 @@ class gmTopLevelFrame(wx.Frame):
 		"""Update title of main window based on template.
 
 		This gives nice tooltips on iconified GNUmed instances.
+
 		User research indicates that in the title bar people want
 		the date of birth, not the age, so please stick to this
 		convention.
@@ -2273,15 +2285,15 @@ class gmApp(wx.App):
 
 		self.__check_for_updates()
 
+		if _cfg.get(option = 'slave'):
+			if not self.__setup_scripting_listener():
+				return False
+
 		# FIXME: load last position from backend
 		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440))
 		frame.CentreOnScreen(wx.BOTH)
 		frame.Show(True)
 		self.SetTopWindow(frame)
-
-		if _cfg.get(option = 'slave'):
-			if not self.__setup_scripting_listener():
-				return False
 
 		if _cfg.get(option = 'debug'):
 			self.RedirectStdio()
@@ -2309,11 +2321,13 @@ class gmApp(wx.App):
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
 		"""
+		_log.debug('gmApp.OnExit() start')
 		try:
 			self.user_activity_timer.Stop()
 		except:
 			pass
 		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
+		_log.debug('gmApp.OnExit() end')
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
 		wx.Bell()
@@ -2521,21 +2535,25 @@ class gmApp(wx.App):
 		 	),
 			u'gnumed-client'
 		)
+		_cfg.set_option(option = 'slave personality', value = slave_personality)
 
 		# FIXME: handle port via /var/run/
-		port = gmTools.coalesce (
-			int(_cfg.get (
-				group = u'workplace',
-				option = u'xml-rpc port',
-				source_order = [
-					('explicit', 'return'),
-					('workbase', 'return'),
-					('user', 'return'),
-					('system', 'return')
-				]
-			)),
-			9999
+		port = int (
+			gmTools.coalesce (
+				_cfg.get (
+					group = u'workplace',
+					option = u'xml-rpc port',
+					source_order = [
+						('explicit', 'return'),
+						('workbase', 'return'),
+						('user', 'return'),
+						('system', 'return')
+					]
+				),
+				9999
+			)
 		)
+		_cfg.set_option(option = 'xml-rpc port', value = port)
 
 		macro_executor = gmMacro.cMacroPrimitives(personality = slave_personality)
 		global _scripting_listener
@@ -2553,7 +2571,6 @@ class gmApp(wx.App):
 			)
 			return False
 
-		_log.info('slave mode personality is [%s]' % slave_personality)
 		return True
 	#----------------------------------------------
 	def __setup_platform(self):
@@ -2715,7 +2732,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.437  2008-12-26 16:03:36  ncq
+# Revision 1.438  2009-01-15 11:38:44  ncq
+# - better logging, cleanup
+# - fix logic error in xml-rpc port detection
+# - display personality/port in window title if enslaved
+#
+# Revision 1.437  2008/12/26 16:03:36  ncq
 # - properly dispose of user activity timer
 #
 # Revision 1.436  2008/12/25 23:32:50  ncq
