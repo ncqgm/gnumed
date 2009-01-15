@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.56 2009-01-07 12:30:48 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.57 2009-01-15 11:41:41 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.3-rc6"
@@ -219,9 +219,10 @@ echo "picking up GNUmed User Manual from the web"
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
 rm -vf PublishManual*
-wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/pub/Gnumed.tgz
+wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/twiki/pub/Gnumed.zip
 cd ./GNUmed-$CLIENTREV/client/doc/user-manual/
-tar -xvzf GNUmed-User-Manual.tgz
+unzip GNUmed-User-Manual.zip
+#tar -xvzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
 ln -s GnumedManual.html index.html
 rm -vf GNUmed-User-Manual.tgz
@@ -387,7 +388,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.56  2009-01-07 12:30:48  ncq
+# Revision 1.57  2009-01-15 11:41:41  ncq
+# - the user manual now is a zip file
+#
+# Revision 1.56  2009/01/07 12:30:48  ncq
 # - fix double README in server package
 # - put man pages into proper section
 #
