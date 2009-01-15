@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.52.2.10 2008-11-26 12:22:25 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.52.2.11 2009-01-15 08:59:55 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.3.8"
+CLIENTREV="0.3.9"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 
 SRVREV="9"
@@ -364,7 +364,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.52.2.10  2008-11-26 12:22:25  ncq
+# Revision 1.52.2.11  2009-01-15 08:59:55  ncq
+# - bump version
+#
+# Revision 1.52.2.10  2008/11/26 12:22:25  ncq
 # - bump version
 #
 # Revision 1.52.2.9  2008/11/23 17:22:57  ncq
