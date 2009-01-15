@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.33 2008-12-25 17:46:09 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmAuthWidgets.py,v 1.34 2009-01-15 11:35:41 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -32,7 +32,7 @@ _log.info(__version__)
 _cfg = gmCfg2.gmCfgData()
 
 try:
-	_('do-not-translate-but-make-epydoc-happy')
+	_('dummy-no-need-to-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
 
@@ -709,7 +709,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.33  2008-12-25 17:46:09  ncq
+# Revision 1.34  2009-01-15 11:35:41  ncq
+# - cleanup
+#
+# Revision 1.33  2008/12/25 17:46:09  ncq
 # - better logging
 # - work around PG unknown initial encoding problem
 #

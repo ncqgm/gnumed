@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.26 2008-12-25 16:55:36 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmListWidgets.py,v 1.27 2009-01-15 11:39:59 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -41,6 +41,9 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 	- new_callback: ()
 	- delete_callback: (item data)
 	- refresh_callback: (listctrl)
+
+	returns None if cancelled
+	returns list (may be empty) of selected items
 	"""
 	if caption is None:
 		caption = _('generic multi choice dialog')
@@ -151,8 +154,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		# if the delete button *can* be pressed there are *supposed*
-		# to be both an item selected and an deletor configured
-		if not self.delete_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+		# to be both an item selected and a deletor configured
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if item_data is None:
+			return
+		if not self.delete_callback(item_data):
 			return
 		if self.refresh_callback is None:
 			return
@@ -441,7 +447,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.26  2008-12-25 16:55:36  ncq
+# Revision 1.27  2009-01-15 11:39:59  ncq
+# - cleanup
+#
+# Revision 1.26  2008/12/25 16:55:36  ncq
 # - allow returniny empty list = no item selected if desired
 #
 # Revision 1.25  2008/08/06 13:22:14  ncq

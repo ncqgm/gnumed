@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -14,7 +14,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject, gmTools
 
 try:
-	_('dummy-no-need-to-translate')
+	_('dummy-no-need-to-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
 
@@ -292,7 +292,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.37  2008-12-27 15:49:21  ncq
+# Revision 1.38  2009-01-15 11:31:00  ncq
+# - cleanup
+#
+# Revision 1.37  2008/12/27 15:49:21  ncq
 # - raise exception on integrity problems in create_narrative
 #
 # Revision 1.36  2008/12/18 21:25:56  ncq

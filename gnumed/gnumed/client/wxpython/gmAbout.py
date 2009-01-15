@@ -3,8 +3,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.31 2008-09-09 20:18:06 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmAbout.py,v 1.32 2009-01-15 11:35:06 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -15,7 +15,7 @@ import wx
 
 
 try:
-	_('dummy-no-need-to-translate')
+	_('dummy-no-need-to-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
 
@@ -272,7 +272,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.31  2008-09-09 20:18:06  ncq
+# Revision 1.32  2009-01-15 11:35:06  ncq
+# - cleanup
+#
+# Revision 1.31  2008/09/09 20:18:06  ncq
 # - cleanup
 #
 # Revision 1.30  2008/07/28 20:41:58  ncq

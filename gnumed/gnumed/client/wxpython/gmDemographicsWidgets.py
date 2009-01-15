@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.156 2008-11-21 13:05:48 ncq Exp $
-__version__ = "$Revision: 1.156 $"
+# $Id: gmDemographicsWidgets.py,v 1.157 2009-01-15 11:35:41 ncq Exp $
+__version__ = "$Revision: 1.157 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -28,7 +28,7 @@ _log = logging.getLogger('gm.ui')
 
 
 try:
-	_('do-not-translate-but-make-epydoc-happy')
+	_('dummy-no-need-to-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
 
@@ -2699,7 +2699,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.156  2008-11-21 13:05:48  ncq
+# Revision 1.157  2009-01-15 11:35:41  ncq
+# - cleanup
+#
+# Revision 1.156  2008/11/21 13:05:48  ncq
 # - disallow deleting the only name of a person
 #
 # Revision 1.155  2008/11/20 18:48:55  ncq
