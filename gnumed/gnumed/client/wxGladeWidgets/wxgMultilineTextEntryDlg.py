@@ -17,7 +17,6 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         self._LBL_msg = wx.StaticText(self, -1, "")
         self._TCTRL_text = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.HSCROLL)
         self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
-        self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
         self._BTN_restore = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
@@ -26,7 +25,6 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
-        self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
         self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
         self.Bind(wx.EVT_BUTTON, self._on_restore_button_pressed, self._BTN_restore)
         # end wxGlade
@@ -35,8 +33,6 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         # begin wxGlade: wxgMultilineTextEntryDlg.__set_properties
         self.SetTitle(_("Generic multi line text entry dialog"))
         self.SetSize((600, 350))
-        self._BTN_save.Enable(False)
-        self._BTN_delete.Enable(False)
         self._BTN_restore.Enable(False)
         # end wxGlade
 
@@ -46,8 +42,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_main.Add(self._LBL_msg, 0, wx.ALL|wx.EXPAND, 5)
         __szr_main.Add(self._TCTRL_text, 1, wx.ALL|wx.EXPAND, 5)
-        __szr_buttons.Add(self._BTN_save, 0, wx.RIGHT|wx.EXPAND, 5)
-        __szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND, 3)
+        __szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_clear, 0, wx.RIGHT|wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_restore, 0, wx.EXPAND, 3)
