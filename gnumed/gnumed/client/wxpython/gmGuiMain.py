@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.426.2.11 2008-11-26 12:20:08 ncq Exp $
-__version__ = "$Revision: 1.426.2.11 $"
+# $Id: gmGuiMain.py,v 1.426.2.12 2009-01-15 08:53:54 ncq Exp $
+__version__ = "$Revision: 1.426.2.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -70,7 +70,7 @@ _scripting_listener = None
 
 expected_db_ver = u'v9'
 
-current_client_ver = u'0.3.8'
+current_client_ver = u'0.3.9'
 current_client_branch = '0.3'
 
 _log = logging.getLogger('gm.main')
@@ -2502,18 +2502,20 @@ class gmApp(wx.App):
 		)
 
 		# FIXME: handle port via /var/run/
-		port = gmTools.coalesce (
-			int(_cfg.get (
-				group = u'workplace',
-				option = u'xml-rpc port',
-				source_order = [
-					('explicit', 'return'),
-					('workbase', 'return'),
-					('user', 'return'),
-					('system', 'return')
-				]
-			)),
-			9999
+		port = int (
+			gmTools.coalesce (
+				_cfg.get (
+					group = u'workplace',
+					option = u'xml-rpc port',
+					source_order = [
+						('explicit', 'return'),
+						('workbase', 'return'),
+						('user', 'return'),
+						('system', 'return')
+					]
+				),
+				9999
+			)
 		)
 
 		macro_executor = gmMacro.cMacroPrimitives(personality = slave_personality)
@@ -2694,7 +2696,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.426.2.11  2008-11-26 12:20:08  ncq
+# Revision 1.426.2.12  2009-01-15 08:53:54  ncq
+# - bump version
+# - fix logic error in slave port detection
+#
+# Revision 1.426.2.11  2008/11/26 12:20:08  ncq
 # - bump version
 #
 # Revision 1.426.2.10  2008/11/23 17:23:51  ncq
