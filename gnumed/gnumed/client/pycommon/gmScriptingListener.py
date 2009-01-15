@@ -4,7 +4,7 @@ This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, SimpleXMLRPCServer, select, logging
@@ -53,7 +53,8 @@ class cScriptingListener:
 		self._thread.start()
 
 		_log.info('scripting listener started on [%s:%s]' % (self._listener_address, self._port))
-		_log.info('macro executor is [%s]' % self._macro_executor)
+		_log.info('macro executor: %s' % self._macro_executor)
+		_log.info('poll interval: %s seconds', self._poll_interval)
 	#-------------------------------
 	# public API
 	#-------------------------------
@@ -150,7 +151,10 @@ if __name__ == "__main__":
 		listener.shutdown()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.6  2008-06-23 21:49:58  ncq
+# Revision 1.7  2009-01-15 11:34:17  ncq
+# - improved logging
+#
+# Revision 1.6  2008/06/23 21:49:58  ncq
 # - clean up thread handling
 #
 # Revision 1.5  2007/12/12 16:17:16  ncq
