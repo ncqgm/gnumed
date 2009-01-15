@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.119.2.3 $"
+__version__ = "$Revision: 1.119.2.4 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -28,17 +28,17 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select *, xmin from clin.health_issue where pk=%s"
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
-				description=%(description)s,
-				age_noted=%(age_noted)s,
-				laterality=%(laterality)s,
+				description = %(description)s,
+				age_noted = %(age_noted)s,
+				laterality = %(laterality)s,
 				is_active = %(is_active)s,
 				clinically_relevant = %(clinically_relevant)s,
 				is_confidential = %(is_confidential)s,
 				is_cause_of_death = %(is_cause_of_death)s
 			where
-				pk=%(pk)s and
-				xmin=%(xmin)s""",
-		u"select xmin from clin.health_issue where pk=%(pk)s"
+				pk = %(pk)s and
+				xmin = %(xmin)s""",
+		u"select xmin from clin.health_issue where pk = %(pk)s"
 	]
 	_updatable_fields = [
 		'description',
@@ -1033,7 +1033,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.119.2.3  2008-11-25 11:57:42  ncq
+# Revision 1.119.2.4  2009-01-15 08:53:12  ncq
+# - cleanup
+#
+# Revision 1.119.2.3  2008/11/25 11:57:42  ncq
 # - missing gmI18N import
 #
 # Revision 1.119.2.2  2008/11/20 18:23:18  ncq
