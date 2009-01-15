@@ -5,8 +5,8 @@ This maps xDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.44 2007-08-28 21:47:00 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmXdtMappings.py,v 1.45 2009-01-15 11:32:15 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -448,12 +448,12 @@ xdt_id_map = {
 	'8000': 'Satzidentifikation >>===============',
 	'8100': 'Satzlänge',
 
-	'8301': 'UNBEKANNT Datum',       ## nicht in GDT 2.1 Specs (KS)
-	'8302': 'UNBEKANNT Datum',       ## nicht in GDT 2.1 Specs (KS)
-	'8303': 'UNBEKANNT Uhrzeit',     ## nicht in GDT 2.1 Specs (KS)
+	'8301': 'Eingangsdatum des Auftrags im Labor',       ## nicht in GDT 2.1 Specs (KS)
+	'8302': 'Berichtsdatum',       ## nicht in GDT 2.1 Specs (KS)
+	'8303': 'Berichtszeit',     ## nicht in GDT 2.1 Specs (KS)
 	'8310': 'Anforderungsnummer', 
-	'8311': 'UNBEKANNT Integer lang',## nicht in GDT 2.1 Specs (KS)
-	'8312': 'UNBEKANNT Integer kurz',## nicht in GDT 2.1 Specs (KS)
+	'8311': '(interne) Auftragsnummer des Labors',## nicht in GDT 2.1 Specs (KS)
+	'8312': 'Kunden- bzw. Arztnummer',## nicht in GDT 2.1 Specs (KS)
 	'8315': 'GDT-ID Empfänger',
 	'8316': 'GDT-ID Sender',
 	'8320': 'Labor Bezeichnung',     ## nicht in GDT 2.1 Specs (KS)
@@ -461,12 +461,12 @@ xdt_id_map = {
 	'8322': 'Labor PLZ',             ## nicht in GDT 2.1 Specs (KS)
 	'8323': 'Labor Ort',             ## nicht in GDT 2.1 Specs (KS)
 
-	'8401': 'Befundstatus, E=End,T=Teil,V=Vor,A=Archiv',
+	'8401': 'Befundstatus (E=End, T=Teil, V=Vor, A=Archiv)',
 	'8402': 'Geräte-/Verfahrensspezifisches Kennfeld',
 	'8403': 'Gebührenordnung',
 	'8404': 'Kosten in Doppelpfennigen',
 	'8406': 'Kosten in Cent',
-	'8407': 'UNBEKANNT Flag 1|2',    ## nicht in GDT 2.1 Specs (KS)
+	'8407': 'Geschlecht Patient',    ## nicht in GDT 2.1 Specs (KS)
 	'8410': 'Test-Ident/LDT-Kürzel',
 	'8411': 'Testbezeichnung',
 	'8417': 'Zuordnung (A,D,T,L...) neu für KVT',
@@ -502,9 +502,9 @@ xdt_id_map = {
 
 	'9100': 'Arztnummer des Absenders',
 	'9102': 'Empfänger',
-	'9103': 'Erstellungsdatum, TTMMJJJJ',
+	'9103': 'Erstellungsdatum (TTMMJJJJ)',
 	'9105': 'laufende Nummer Datenträger im Paket (xBDT: immer 1)',
-	'9106': 'verwendeter Zeichensatz, 1=7 / 2=8-bit-Code',
+	'9106': 'verwendeter Zeichensatz (1=7, 2=8-bit-Code)',
 	'9115': 'Erstellungsdatum ADT-Datenpaket',
 	'9116': 'Erstellungsdatum KADT-Datenpaket',
 	'9117': 'Erstellungsdatum AODT-Datenpaket',
@@ -522,9 +522,9 @@ xdt_id_map = {
 	'9218': 'Version GDT',
 	'9233': 'GO-Stammdatei-Version',
 
-	'9600': 'Archivierungsart, 1=Gesamt, 2=Zeitraum, 3=Quartal',
-	'9601': 'Zeitraum der Speicherung, TTMMJJJJTTMMJJJJ',
-	'9602': 'Beginn der Übertragung, HHMMSSCC',
+	'9600': 'Archivierungsart (1=Gesamt, 2=Zeitraum, 3=Quartal)',
+	'9601': 'Zeitraum der Speicherung (TTMMJJJJTTMMJJJJ)',
+	'9602': 'Beginn der Übertragung (HHMMSSCC)',
 
 	'9901': 'Systeminterner Parameter /// xBDT: Praxishaupttyp bei untergeordneten Praxen'
 
@@ -559,6 +559,10 @@ xdt_packet_type_map = {
 	'6302': "========<< GDT: Untersuchung (neue) anfordern >>========",
 	'6310': "========<< GDT: Untersuchung übermitteln >>========",
 	'6311': "========<< GDT: Untersuchung anzeigen >>========",
+
+	'8202': u'========<< LDT: LG-Bericht >>========',
+	'8220': u'========<< LDT: L-Datenpaket-Header >>========',
+	'8221': u'========<< LDT: L-Datenpaket-Abschluß >>========',
 
 	'adt0': "========<< ADT-Datenpaket-Header >>========",
 	'adt9': "========<< ADT-Datenpaket-Abschluss >>========",
@@ -1254,7 +1258,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.44  2007-08-28 21:47:00  ncq
+# Revision 1.45  2009-01-15 11:32:15  ncq
+# - close some gaps in mapping
+#
+# Revision 1.44  2007/08/28 21:47:00  ncq
 # - improve mappings based on some DocConcept info
 #
 # Revision 1.43  2007/08/09 09:17:08  ncq
