@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.115 2008-12-17 21:59:22 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmPatSearchWidgets.py,v 1.116 2009-01-17 23:08:31 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
 from Gnumed.business import gmPerson, gmKVK, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgMergePatientsDlg
 
 
@@ -985,18 +985,108 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		if success:
 			self._set_person_as_active_patient(self.person)
 #============================================================
+from Gnumed.wxGladeWidgets import wxgWaitingListPnl
+
+class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOnPaintMixin):
+
+	def __init__ (self, *args, **kwargs):
+
+		wxgWaitingListPnl.wxgWaitingListPnl.__init__(self, *args, **kwargs)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
+		self.__init_ui()
+		self.__register_events()
+	#--------------------------------------------------------
+	# interal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_patients.set_columns ([
+			_('Zone'),
+			' ! ',
+			_('Waiting time'),
+			_('Patient'),
+			_('Born'),
+			_('Comment')
+		])
+		self._LCTRL_patients.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+	#--------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = u'waiting_list_generic_mod_db', receiver = self._on_waiting_list_modified)
+	#--------------------------------------------------------
+	def __refresh_waiting_list(self):
+		praxis = gmSurgery.gmCurrentPractice()
+		pats = praxis.waiting_list_patients
+		self._LCTRL_patients.set_string_items (
+			[ [
+				gmTools.coalesce(p['waiting_zone'], u''),
+				p['urgency'],
+				p['waiting_time_formatted'],
+				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
+				p['dob'].strftime('%x'),
+				gmTools.coalesce(p['comment'], u'')
+			  ] for p in pats
+			]
+		)
+		self._LCTRL_patients.set_column_widths()
+		self._LCTRL_patients.set_data(pats)
+		self._LCTRL_patients.Refresh()
+
+		if len(pats) == 0:
+			self._BTN_activate.Enable(False)
+			self._BTN_activateplus.Enable(False)
+			self._BTN_remove.Enable(False)
+			self._BTN_edit.Enable(False)
+			self._BTN_up.Enable(False)
+			self._BTN_down.Enable(False)
+		else:
+			self._BTN_activate.Enable(True)
+			self._BTN_activateplus.Enable(True)
+			self._BTN_remove.Enable(True)
+			self._BTN_edit.Enable(True)
+		if len(pats) > 1:
+			self._BTN_up.Enable(True)
+			self._BTN_down.Enable(True)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_waiting_list_modified(self, *args, **kwargs):
+		wx.CallAfter(self._schedule_data_reget)
+		#wx.CallAfter(self.refresh_waiting_list)
+	#--------------------------------------------------------
+	def _on_add_patient_button_pressed(self, evt):
+		if self._PRW_search_patient.person is None:
+			return
+		self._PRW_search_patient.person.put_on_waiting_list(urgency=0)
+		self._PRW_search_patient.person = None
+		self._PRW_search_patient._display_name()
+	#--------------------------------------------------------
+	def _on_remove_button_pressed(self, evt):
+		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		if item is None:
+			return
+		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
+	#--------------------------------------------------------
+	# reget-on-paint API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		self.__refresh_waiting_list()
+		return True
+#============================================================
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
 
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	if len(sys.argv) > 1:
+		if sys.argv[1] == 'test':
+			gmI18N.activate_locale()
+			gmI18N.install_domain()
 
-	app = wx.PyWidgetTester(size = (200, 40))
-#	app.SetWidget(cSelectPersonFromListDlg, -1)
-#	app.SetWidget(cPersonSearchCtrl, -1)
-	app.SetWidget(cActivePatientSelector, -1)
-	app.MainLoop()
+			app = wx.PyWidgetTester(size = (200, 40))
+#			app.SetWidget(cSelectPersonFromListDlg, -1)
+#			app.SetWidget(cPersonSearchCtrl, -1)
+#			app.SetWidget(cActivePatientSelector, -1)
+			app.SetWidget(cWaitingListPnl, -1)
+			app.MainLoop()
 
 #============================================================
 # docs
@@ -1104,7 +1194,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.115  2008-12-17 21:59:22  ncq
+# Revision 1.116  2009-01-17 23:08:31  ncq
+# - waiting list
+#
+# Revision 1.115  2008/12/17 21:59:22  ncq
 # - add support for merging patients
 #
 # Revision 1.114  2008/12/09 23:43:27  ncq
