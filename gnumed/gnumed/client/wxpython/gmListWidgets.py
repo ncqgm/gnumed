@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.27 2009-01-15 11:39:59 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmListWidgets.py,v 1.28 2009-01-17 23:07:29 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -282,6 +282,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
+
+		self.__widths = None
 	#------------------------------------------------------------
 	# setters
 	#------------------------------------------------------------
@@ -297,17 +299,35 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			self.InsertColumn(idx, columns[idx])
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
-		if widths is None:
-			if self.GetItemCount() == 0:
-				width_type = wx.LIST_AUTOSIZE_USEHEADER
-			else:
-				width_type = wx.LIST_AUTOSIZE
-			for idx in range(self.GetColumnCount()):
-				self.SetColumnWidth(col = idx, width = width_type)
+		"""Set the column width policy.
+
+		widths = None:
+			use previous policy if any or default policy
+		widths != None:
+			use this policy and remember it for later calls
+
+		This means there is no way to *revert* to the default policy :-(
+		"""
+		# explicit policy ?
+		if widths is not None:
+			self.__widths = widths
+			for idx in range(len(self.__widths)):
+				self.SetColumnWidth(col = idx, width = self.__widths[idx])
 			return
 
-		for idx in range(len(widths)):
-			self.SetColumnWidth(col = idx, width = widths[idx])
+		# previous policy ?
+		if self.__widths is not None:
+			for idx in range(len(self.__widths)):
+				self.SetColumnWidth(col = idx, width = self.__widths[idx])
+			return
+
+		# default policy !
+		if self.GetItemCount() == 0:
+			width_type = wx.LIST_AUTOSIZE_USEHEADER
+		else:
+			width_type = wx.LIST_AUTOSIZE
+		for idx in range(self.GetColumnCount()):
+			self.SetColumnWidth(col = idx, width = width_type)
 	#------------------------------------------------------------
 	def set_string_items(self, items = None):
 		"""All item members must be unicode()able or None."""
@@ -447,7 +467,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.27  2009-01-15 11:39:59  ncq
+# Revision 1.28  2009-01-17 23:07:29  ncq
+# - support remembering previous widths policy
+#
+# Revision 1.27  2009/01/15 11:39:59  ncq
 # - cleanup
 #
 # Revision 1.26  2008/12/25 16:55:36  ncq
