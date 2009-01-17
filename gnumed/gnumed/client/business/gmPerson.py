@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.174 2009-01-02 11:36:18 ncq Exp $
-__version__ = "$Revision: 1.174 $"
+# $Id: gmPerson.py,v 1.175 2009-01-17 23:00:51 ncq Exp $
+__version__ = "$Revision: 1.175 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -618,6 +618,18 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 		return True, None
 	#--------------------------------------------------------
+	#--------------------------------------------------------
+	def put_on_waiting_list(self, urgency=0, comment=None):
+		cmd = u"""
+			insert into clin.waiting_list (fk_patient, urgency, comment, list_position)
+			values (
+				%(pat)s,
+				%(urg)s,
+				%(cmt)s,
+				(select max(list_position) + 1 from clin.waiting_list)
+			)"""
+		args = {'pat': self.ID, 'urg': urgency, 'cmt': comment}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose=True)
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
@@ -2286,7 +2298,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.174  2009-01-02 11:36:18  ncq
+# Revision 1.175  2009-01-17 23:00:51  ncq
+# - put_on_waiting_list
+#
+# Revision 1.174  2009/01/02 11:36:18  ncq
 # - slightly reorder code for class dependancy clarity
 # - property database_language on staff
 # - raise AttributeError on faulty concurrent get_emr
