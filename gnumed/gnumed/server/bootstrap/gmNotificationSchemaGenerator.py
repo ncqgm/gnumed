@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -31,13 +31,6 @@ _log.info(__version__)
 #==================================================================
 # SQL statements for notification triggers
 #------------------------------------------------------------------
-
-dem_identity_accessor = u"""-- retrieve identity PK via pk
-	if TG_OP = ''DELETE'' then
-		_pk_identity := OLD.pk;
-	else
-		_pk_identity := NEW.pk;
-	end if;"""
 
 # this map defines how table columns can be used in SQL to
 # access the identity PK related to a row in that table
@@ -75,9 +68,10 @@ trigger_ddl_without_pk = """
 -- ----------------------------------------------
 \unset ON_ERROR_STOP
 drop function %(schema)s.trf_announce_%(sig)s_mod() cascade;
+drop function %(schema)s.trf_announce_%(sig)s_mod_no_pk() cascade;
 \set ON_ERROR_STOP 1
 
-create function %(schema)s.trf_announce_%(sig)s_mod() returns trigger as '
+create function %(schema)s.trf_announce_%(sig)s_mod_no_pk() returns trigger as '
 begin
 	execute ''notify "%(sig)s_mod_db:"'';
 	return NULL;
@@ -89,8 +83,17 @@ create constraint trigger tr_%(sig)s_mod
 	on %(schema)s.%(tbl)s
 	deferrable
 	for each row
-		execute procedure %(schema)s.trf_announce_%(sig)s_mod()
-;
+		execute procedure %(schema)s.trf_announce_%(sig)s_mod_no_pk();
+
+-- tell backend listener to NOT listen for patient-specific signals on this table
+update
+	gm.notifying_tables
+set
+	carries_identity_pk = False
+where
+	schema_name = '%(schema)s'
+	and table_name = '%(tbl)s'
+	and signal = '%(sig)s';
 """
 
 trigger_ddl_with_pk = """
@@ -132,8 +135,9 @@ update
 set
 	carries_identity_pk = True
 where
-	schema_name = '%(schema)s' and
-	table_name = '%(tbl)s';
+	schema_name = '%(schema)s'
+	and table_name = '%(tbl)s'
+	and signal = '%(sig)s';
 """
 
 func_narrative_mod_announce = """
@@ -201,6 +205,31 @@ create constraint trigger tr_narrative_mod
 	for each row
 		execute procedure clin.trf_announce_narrative_mod();
 """
+
+
+
+dem_identity_accessor = u"""-- retrieve identity PK via pk
+	if TG_OP = ''DELETE'' then
+		_pk_identity := OLD.pk;
+	else
+		_pk_identity := NEW.pk;
+	end if;"""
+
+trigger_identity_mod_announce = """
+\unset ON_ERROR_STOP
+drop function dem.trf_identity_mod() cascade;
+drop function dem.trf_identity_mod_no_pk() cascade;
+\set ON_ERROR_STOP 1
+
+%s
+""" % (trigger_ddl_with_pk % {
+		'schema': 'dem',
+		'tbl': 'identity',
+		'sig': 'identity',
+		'identity_accessor': dem_identity_accessor
+	}
+)
+
 #------------------------------------------------------------------
 def create_narrative_notification_schema(cursor):
 
@@ -282,6 +311,9 @@ where
 				notifying_def['schema_name'],
 				notifying_def['table_name']
 			))
+			if '%s.%s' % (notifying_def['schema_name'], notifying_def['table_name']) == 'dem.identity':
+				_log.info('skipping dem.identity')
+				continue
 			schema.append(trigger_ddl_without_pk % {
 				'schema': notifying_def['schema_name'],
 				'tbl': notifying_def['table_name'],
@@ -289,12 +321,15 @@ where
 			})
 
 	# explicitely append dem.identity
-	schema.append(trigger_ddl_with_pk % {
-		'schema': 'dem',
-		'tbl': 'identity',
-		'sig': 'identity',
-		'identity_accessor': dem_identity_accessor
+	schema.append(trigger_identity_mod_announce)
+
+	# explicitely append clin.waiting_list with generic non-patient signal
+	schema.append(trigger_ddl_without_pk % {
+		'schema': 'clin',
+		'tbl': 'waiting_list',
+		'sig': 'waiting_list_generic'
 	})
+
 	schema.append('-- ----------------------------------------------')
 
 	return schema
@@ -325,7 +360,13 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.31  2009-01-08 16:43:58  ncq
+# Revision 1.32  2009-01-17 23:13:18  ncq
+# - better name for non-identity announcers
+# - explicitely disable identity listening for non-identity tables
+# - improve dem.identity support
+# - add explicit generic waiting list support
+#
+# Revision 1.31  2009/01/08 16:43:58  ncq
 # - no more fk_identity in blobs.doc_med so remove identity accessor mapping
 #
 # Revision 1.30  2008/07/10 08:36:27  ncq
