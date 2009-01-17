@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.31 2008-10-22 12:21:57 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmProviderInboxWidgets.py,v 1.32 2009-01-17 23:09:30 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -291,8 +291,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	_patient_msg_types = ['clinical.review docs', 'clinical.review results']
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
-		wxgProviderInboxPnl.wxgProviderInboxPnl.__init__(self, *args, **kwds)
 
+		wxgProviderInboxPnl.wxgProviderInboxPnl.__init__(self, *args, **kwds)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.provider = gmPerson.gmCurrentProvider()
@@ -485,7 +485,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.31  2008-10-22 12:21:57  ncq
+# Revision 1.32  2009-01-17 23:09:30  ncq
+# - cleanup
+#
+# Revision 1.31  2008/10/22 12:21:57  ncq
 # - use %x in strftime where appropriate
 #
 # Revision 1.30  2008/09/04 12:52:23  ncq
