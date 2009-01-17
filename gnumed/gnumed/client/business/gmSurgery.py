@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.9 2008-07-16 10:32:50 ncq Exp $
+# $Id: gmSurgery.py,v 1.10 2009-01-17 23:01:18 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -30,7 +30,22 @@ class gmCurrentPractice(gmBorg.cBorg):
 
 		self.already_inited = True
 	#--------------------------------------------------------
+	def remove_from_waiting_list(self, pk=None):
+		cmd = u'delete from clin.waiting_list where pk = %(pk)s'
+		args = {'pk': pk}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
 	# properties
+	#--------------------------------------------------------
+	def _get_waiting_list_patients(self):
+		cmd = u'select * from clin.v_waiting_list order by list_position'
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{'cmd': cmd}],
+			get_col_idx = False
+		)
+		return rows
+
+	waiting_list_patients = property (_get_waiting_list_patients, lambda x:x)
 	#--------------------------------------------------------
 	def _set_helpdesk(self, helpdesk):
 		return
@@ -144,32 +159,6 @@ class gmCurrentPractice(gmBorg.cBorg):
 
 	user_email = property(_get_user_email, _set_user_email)
 #============================================================
-class cSurgery(object):
-
-	#--------------------------------------------------------
-	# reports API
-	#--------------------------------------------------------
-	def report_exists(self, name=None):
-		rows, idx = gmPG2.run_ro_query(queries = [{
-			'cmd': 'select exists(select 1 from cfg.report_query where label=%(name)s)',
-			'args': {'name': name}
-		}])
-		return rows[0][0]
-	#--------------------------------------------------------
-	def save_report_definition(self, name=None, query=None, overwrite=False):
-		if not overwrite:
-			if self.report_exists(name=name):
-				return False
-
-		queries = [
-			{'cmd': u'delete from cfg.report_query where label=%(name)s', 'args': {'name': name}},
-			{'cmd': u'insert into cfg.report_query (label, cmd) values (%(name)s, %(query)s)',
-			 'args': {'name': name, 'query': query}}
-		]
-		rows, idx = gmPG2.run_rw_queries(queries=queries)
-		return True
-
-#============================================================
 if __name__ == '__main__':
 
 	def run_tests():
@@ -198,7 +187,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.9  2008-07-16 10:32:50  ncq
+# Revision 1.10  2009-01-17 23:01:18  ncq
+# - waiting list handling
+#
+# Revision 1.9  2008/07/16 10:32:50  ncq
 # - add .user_email property
 #
 # Revision 1.8  2007/12/23 11:55:49  ncq
