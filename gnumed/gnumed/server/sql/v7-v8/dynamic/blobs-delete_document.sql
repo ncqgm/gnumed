@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: blobs-delete_document.sql,v 1.5 2008-01-11 16:17:09 ncq Exp $
--- $Revision: 1.5 $
+-- $Id: blobs-delete_document.sql,v 1.5.2.1 2009-01-18 13:11:21 ncq Exp $
+-- $Revision: 1.5.2.1 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -60,6 +60,7 @@ BEGIN
 		NULL
 	);
 
+	delete from blobs.doc_obj where fk_doc = _pk_doc;
 	delete from blobs.doc_med where pk = _pk_doc;
 
 	return True;
@@ -73,11 +74,14 @@ select i18n.upd_tx('de_DE', 'Deletion of document', 'Dokument gelöscht');
 revoke delete on blobs.doc_med from "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.5 $');
+select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.5.2.1 $');
 
 -- ==============================================================
 -- $Log: blobs-delete_document.sql,v $
--- Revision 1.5  2008-01-11 16:17:09  ncq
+-- Revision 1.5.2.1  2009-01-18 13:11:21  ncq
+-- - delete doc parts explicitely
+--
+-- Revision 1.5  2008/01/11 16:17:09  ncq
 -- - fix delete_document()
 --
 -- Revision 1.4  2007/11/12 23:22:22  ncq
