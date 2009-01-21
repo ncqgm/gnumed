@@ -5,12 +5,12 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-waiting_list-dynamic.sql,v 1.2 2009-01-17 23:16:35 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v10-clin-waiting_list-dynamic.sql,v 1.3 2009-01-21 22:39:39 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -27,7 +27,7 @@ comment on column clin.waiting_list.area is
 select gm.add_table_for_notifies('clin', 'waiting_list');
 select gm.add_table_for_notifies('clin', 'waiting_list', 'waiting_list_generic');
 
-
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view clin.v_waiting_list cascade;
 \set ON_ERROR_STOP 1
@@ -58,7 +58,7 @@ select
 		as registered,
 	(select now() - wl.registered)
 		as waiting_time,
-	(select to_char(age(now(), wl.registered), 'HH24:MI'))
+	(select to_char(age(now(), wl.registered), 'TMDD HH24:MI'))
 		as waiting_time_formatted,
 --	(select started from clin.v_most_recent_encounters where wl.fk_patient = vmre.pk_patient)
 --		as start_most_recent_encounter,
@@ -106,11 +106,14 @@ insert into clin.waiting_list (
 );
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-waiting_list-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-waiting_list-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v10-clin-waiting_list-dynamic.sql,v $
--- Revision 1.2  2009-01-17 23:16:35  ncq
+-- Revision 1.3  2009-01-21 22:39:39  ncq
+-- - display days, too
+--
+-- Revision 1.2  2009/01/17 23:16:35  ncq
 -- - add proper signals
 -- - improve view
 --
