@@ -18,6 +18,7 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._PRW_zone = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.NO_BORDER)
+        self._LBL_no_of_patients = wx.StaticText(self, -1, "")
         self._PRW_search_patient = gmPatSearchWidgets.cPersonSearchCtrl(self, -1, "", style=wx.NO_BORDER)
         self._BTN_add_patient = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
         self._LCTRL_patients = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.SIMPLE_BORDER)
@@ -34,7 +35,7 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_add_patient_button_pressed, self._BTN_add_patient)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self._LCTRL_patients)
         self.Bind(wx.EVT_BUTTON, self._on_activate_button_pressed, self._BTN_activate)
-        self.Bind(wx.EVT_BUTTON, self._on_activateplus_button_called, self._BTN_activateplus)
+        self.Bind(wx.EVT_BUTTON, self._on_activateplus_button_pressed, self._BTN_activateplus)
         self.Bind(wx.EVT_BUTTON, self._on_remove_button_pressed, self._BTN_remove)
         self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
         self.Bind(wx.EVT_BUTTON, self._on_up_button_pressed, self._BTN_up)
@@ -70,7 +71,8 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         __szr_top = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_zone = wx.StaticText(self, -1, _("Zone:"))
         __szr_top.Add(__lbl_zone, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_top.Add(self._PRW_zone, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_top.Add(self._PRW_zone, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_top.Add(self._LBL_no_of_patients, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_top.Add((20, 20), 1, wx.EXPAND, 0)
         __lbl_add_patient = wx.StaticText(self, -1, _("Patient:"))
         __szr_top.Add(__lbl_add_patient, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -124,6 +126,10 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
 
     def _on_list_item_activated(self, event): # wxGlade: wxgWaitingListPnl.<event_handler>
         print "Event handler `_on_list_item_activated' not implemented"
+        event.Skip()
+
+    def _on_activateplus_button_pressed(self, event): # wxGlade: wxgWaitingListPnl.<event_handler>
+        print "Event handler `_on_activateplus_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgWaitingListPnl
