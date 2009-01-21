@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.176 2009-01-21 17:59:57 ncq Exp $
-__version__ = "$Revision: 1.176 $"
+# $Id: gmPerson.py,v 1.177 2009-01-21 18:52:34 ncq Exp $
+__version__ = "$Revision: 1.177 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1127,20 +1127,19 @@ class gmCurrentPatient(gmBorg.cBorg):
 		This does NOT wait for signal handlers to complete.
 		"""
 		kwargs = {
-			'pk_identity': self.patient['pk_identity'],
-			'patient': self.patient['pk_identity'],
 			'signal': u'pre_patient_selection',
-			'sender': id(self.__class__)
+			'sender': id(self.__class__),
+			'pk_identity': self.patient['pk_identity']
+#			'patient': self.patient['pk_identity']
 		}
-		gmDispatcher.send(u'pre_patient_selection', kwds=kwargs)
+		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
-			'pk_identity': self.patient['pk_identity'],
-			'patient': self.patient,
 			'signal': u'post_patient_selection',
-			'sender': id(self.__class__)
+			'sender': id(self.__class__),
+			'pk_identity': self.patient['pk_identity']
 		}
 		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
@@ -2300,7 +2299,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.176  2009-01-21 17:59:57  ncq
+# Revision 1.177  2009-01-21 18:52:34  ncq
+# - signals cleanup
+#
+# Revision 1.176  2009/01/21 17:59:57  ncq
 # - improved logging
 #
 # Revision 1.175  2009/01/17 23:00:51  ncq
