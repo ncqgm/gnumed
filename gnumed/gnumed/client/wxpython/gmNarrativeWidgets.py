@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.19 2009-01-03 17:29:01 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmNarrativeWidgets.py,v 1.20 2009-01-21 18:53:57 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -471,6 +471,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		splitter_size = self._splitter_right.GetSizeTuple()[1]
 		self._splitter_right.SetSashPosition(splitter_size * 15 / 20, True)
+
+		self._NB_soap_editors.DeleteAllPages()
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		"""
@@ -708,14 +710,22 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		"""
 		# don't worry about the encounter here - it will be offered
 		# for editing higher up if anything was saved to the EMR
-		if not self._NB_soap_editors.save_all_editors():
+		if not self.__pat.connected:
+			return True
+		emr = self.__pat.get_emr()
+		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
+			return False
+		return True
 	#--------------------------------------------------------
 	def _pre_exit_callback(self):
 		"""The client is about to be shut down.
 
 		Shutdown will not proceed before this returns.
 		"""
+		if not self.__pat.connected:
+			return True
+
 #		if self.__encounter_modified():
 #			do_save_enc = gmGuiHelpers.gm_show_question (
 #				aMessage = _(
@@ -730,8 +740,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 #				if not self.save_encounter():
 #					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
 
-		if not self._NB_soap_editors.save_all_editors():
+		emr = self.__pat.get_emr()
+		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
+			return False
+		return True
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
@@ -784,7 +797,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_save_all_button_pressed(self, event):
 		self.save_encounter()
-		if not self._NB_soap_editors.save_all_editors():
+		emr = self.__pat.get_emr()
+		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 		event.Skip()
 	#--------------------------------------------------------
@@ -978,12 +992,11 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 	#--------------------------------------------------------
-	def save_all_editors(self):
+	def save_all_editors(self, emr=None, rfe=None, aoe=None):
 
 		all_closed = True
-
 		for page_idx in range(self.GetPageCount()):
-			page = self.GetPage(page_idx+1)
+			page = self.GetPage(page_idx)
 			if page.save(emr = emr, rfe = rfe, aoe = aoe):
 				self.DeletePage(page_idx)
 			else:
@@ -1230,7 +1243,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.19  2009-01-03 17:29:01  ncq
+# Revision 1.20  2009-01-21 18:53:57  ncq
+# - fix save_all_editors and call it with proper args
+#
+# Revision 1.19  2009/01/03 17:29:01  ncq
 # - listen on new current_encounter_modified
 # - detecting encounter field changes at exit/patient doesn't properly work
 # - refresh recent notes where needed
