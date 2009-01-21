@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.116 2009-01-17 23:08:31 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmPatSearchWidgets.py,v 1.117 2009-01-21 18:04:41 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -1031,6 +1031,13 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		self._LCTRL_patients.set_data(pats)
 		self._LCTRL_patients.Refresh()
 
+		self._LBL_no_of_patients.SetLabel(_('(%s patients)') % len(pats))
+		self._LCTRL_patients.SetToolTipString ( _(
+			'%s patients are waiting.\n'
+			'\n'
+			'Doubleclick to activate (entry will stay in list).'
+		) % len(pats))
+
 		if len(pats) == 0:
 			self._BTN_activate.Enable(False)
 			self._BTN_activateplus.Enable(False)
@@ -1053,18 +1060,56 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		wx.CallAfter(self._schedule_data_reget)
 		#wx.CallAfter(self.refresh_waiting_list)
 	#--------------------------------------------------------
-	def _on_add_patient_button_pressed(self, evt):
-		if self._PRW_search_patient.person is None:
+	def _on_list_item_activated(self, evt):
+		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		if item is None:
 			return
-		self._PRW_search_patient.person.put_on_waiting_list(urgency=0)
-		self._PRW_search_patient.person = None
-		self._PRW_search_patient._display_name()
+		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		wx.CallAfter(gmPerson.set_active_patient, patient = pat)
+	#--------------------------------------------------------
+	def _on_activate_button_pressed(self, evt):
+		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		if item is None:
+			return
+		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		wx.CallAfter(gmPerson.set_active_patient, patient = pat)
+	#--------------------------------------------------------
+	def _on_activateplus_button_pressed(self, evt):
+		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		if item is None:
+			return
+		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
+		wx.CallAfter(gmPerson.set_active_patient, patient = pat)
+	#--------------------------------------------------------
+	def _on_add_patient_button_pressed(self, evt):
+
+		if self._PRW_search_patient.person is not None:
+			self._PRW_search_patient.person.put_on_waiting_list(urgency=0)
+			self._PRW_search_patient.person = None
+			self._PRW_search_patient._display_name()
+			return
+
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			return
+		# FIXME: filter out dupes
+		curr_pat.put_on_waiting_list(urgency=0)
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
+	#--------------------------------------------------------
+	def _on_up_button_pressed(self, evt):
+		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		if item is None:
+			return
+		gmSurgery.gmCurrentPractice().raise_in_waiting_list(current_position = item['list_position'])
+	#--------------------------------------------------------
+	# edit
+	# down
 	#--------------------------------------------------------
 	# reget-on-paint API
 	#--------------------------------------------------------
@@ -1194,7 +1239,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.116  2009-01-17 23:08:31  ncq
+# Revision 1.117  2009-01-21 18:04:41  ncq
+# - implement most of waiting list
+#
+# Revision 1.116  2009/01/17 23:08:31  ncq
 # - waiting list
 #
 # Revision 1.115  2008/12/17 21:59:22  ncq
