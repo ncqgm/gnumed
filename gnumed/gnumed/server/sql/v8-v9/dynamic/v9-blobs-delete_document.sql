@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v9-blobs-delete_document.sql,v 1.1 2008-01-11 15:38:27 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v9-blobs-delete_document.sql,v 1.2 2009-01-21 18:06:48 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -57,6 +57,7 @@ BEGIN
 		NULL
 	);
 
+	delete from blobs.doc_obj where fk_doc = _pk_doc;
 	delete from blobs.doc_med where pk = _pk_doc;
 
 	return True;
@@ -66,11 +67,14 @@ END;';
 revoke delete on blobs.doc_med from "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v9-blobs-delete_document.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v9-blobs-delete_document.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v9-blobs-delete_document.sql,v $
--- Revision 1.1  2008-01-11 15:38:27  ncq
+-- Revision 1.2  2009-01-21 18:06:48  ncq
+-- - properly delete document parts
+--
+-- Revision 1.1  2008/01/11 15:38:27  ncq
 -- - even though we fixed delete_document() in v8 we still need
 --   to repeat that here so people using v9 to upgrade from
 --   8 to 9 get it, too
