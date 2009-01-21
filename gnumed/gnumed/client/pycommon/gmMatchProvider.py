@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.29 2008-06-16 15:02:35 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmMatchProvider.py,v 1.30 2009-01-21 22:34:09 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -250,19 +250,20 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches.sort(self.__cmp_items)
 		return (True, matches)
 	#--------------------------------------------------------
-	def setItems(self, items):
+	def set_items(self, items):
 		"""items must be a list of dicts. Each dict must have the keys (data, label, weight)"""
 		self.__items = items
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""Compare items based on weight."""
+		if item1['weight'] == item2['weight']:
+			return 0
+
 		# do it the wrong way round to do sorting/reversing at once
 		if item1['weight'] < item2['weight']:
 			return 1
-		elif item1['weight'] > item2['weight']:
+		if item1['weight'] > item2['weight']:
 			return -1
-		else:
-			return 0
 # ===========================================================
 class cMatchProvider_Func(cMatchProvider):
 	"""Match provider which searches matches
@@ -454,7 +455,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.29  2008-06-16 15:02:35  ncq
+# Revision 1.30  2009-01-21 22:34:09  ncq
+# - make FixedList match provider work nicely again
+#
+# Revision 1.29  2008/06/16 15:02:35  ncq
 # - cleanup
 # - remove unneeded methods
 #
