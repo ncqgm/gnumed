@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.175 2009-01-17 23:00:51 ncq Exp $
-__version__ = "$Revision: 1.175 $"
+# $Id: gmPerson.py,v 1.176 2009-01-21 17:59:57 ncq Exp $
+__version__ = "$Revision: 1.176 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1049,7 +1049,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			return None
 
 		# user wants different patient
-		_log.debug('patient change [%s] -> [%s] requested' % (self.patient['pk_identity'], patient['pk_identity']))
+		_log.debug('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
 
 		# everything seems swell
 		self.__run_pre_selection_callbacks()
@@ -1117,6 +1117,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 				call_back()
 			except:
 				print "*** pre-selection callback failed ***"
+				print type(call_back)
+				print call_back
 				_log.exception('callback [%s] failed', call_back)
 	#--------------------------------------------------------
 	def __send_pre_selection_notification(self):
@@ -2298,7 +2300,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.175  2009-01-17 23:00:51  ncq
+# Revision 1.176  2009-01-21 17:59:57  ncq
+# - improved logging
+#
+# Revision 1.175  2009/01/17 23:00:51  ncq
 # - put_on_waiting_list
 #
 # Revision 1.174  2009/01/02 11:36:18  ncq
