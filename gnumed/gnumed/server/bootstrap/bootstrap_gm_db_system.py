@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.91 $"
+__version__ = "$Revision: 1.92 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -279,7 +279,8 @@ class user:
 					print "I need the password for the GNUmed database user [%s]." % self.name
 					self.password = getpass.getpass("Please type the password: ")
 				else:
-					_log.warning('password for database user [%s] set to empty string' % self.name)
+					_log.warning('cannot get password for database user [%s]', self.name)
+					raise ValueError('no password for user %s' % self.name)
 
 		return None
 #==================================================================
@@ -429,7 +430,7 @@ class db_server:
 			_dbowner = user(anAlias = dbowner_alias)
 			return True
 
-		print_msg((
+		print_msg ((
 """The database owner will be created.
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
@@ -1385,7 +1386,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.91  2008-12-01 12:38:10  ncq
+# Revision 1.92  2009-01-21 18:05:31  ncq
+# - fail if no password can be gotten for new user, do not
+#   silently assume ''
+#
+# Revision 1.91  2008/12/01 12:38:10  ncq
 # - add FIXME comment
 #
 # Revision 1.90  2008/11/20 20:23:40  ncq
