@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -98,7 +98,7 @@ class gmBackendListener(gmBorg.cBorg):
 		self.curr_patient_pk = None
 	#-------------------------------
 	def _on_post_patient_selection(self, *args, **kwargs):
-		self.curr_patient_pk = kwargs['patient'].ID
+		self.curr_patient_pk = kwargs['pk_identity']
 		self.__register_patient_notifications()
 	#-------------------------------
 	# internal helpers
@@ -384,7 +384,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.19  2008-11-20 18:43:01  ncq
+# Revision 1.20  2009-01-21 18:53:04  ncq
+# - adjust to signals
+#
+# Revision 1.19  2008/11/20 18:43:01  ncq
 # - better logger name
 #
 # Revision 1.18  2008/07/07 13:39:47  ncq
