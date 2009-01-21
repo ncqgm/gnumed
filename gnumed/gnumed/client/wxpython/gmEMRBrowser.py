@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.99 2008-12-18 21:27:56 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmEMRBrowser.py,v 1.100 2009-01-21 18:03:53 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -532,6 +532,13 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# doing this prevents the tooltip from showing at all
 		#event.Skip()
+
+#widgetXY.GetToolTip().Enable(False)
+#
+#seems to work, supposing the tooltip is actually set for the widget,
+#otherwise a test would be needed
+#if widgetXY.GetToolTip():
+#    widgetXY.GetToolTip().Enable(False)
 	#--------------------------------------------------------
 	def _on_tree_item_right_clicked(self, event):
 		"""Right button clicked: display the popup for the tree"""
@@ -739,7 +746,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.99  2008-12-18 21:27:56  ncq
+# Revision 1.100  2009-01-21 18:03:53  ncq
+# - comment on tooltip handling
+#
+# Revision 1.99  2008/12/18 21:27:56  ncq
 # - add editing progress notes from encounter context menu
 #
 # Revision 1.98  2008/12/01 12:37:37  ncq
