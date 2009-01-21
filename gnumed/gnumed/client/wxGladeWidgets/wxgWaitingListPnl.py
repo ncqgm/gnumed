@@ -17,7 +17,7 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgWaitingListPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_zone = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.NO_BORDER)
+        self._PRW_zone = gmPatSearchWidgets.cWaitingZonePhraseWheel(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.NO_BORDER)
         self._LBL_no_of_patients = wx.StaticText(self, -1, "")
         self._PRW_search_patient = gmPatSearchWidgets.cPersonSearchCtrl(self, -1, "", style=wx.NO_BORDER)
         self._BTN_add_patient = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
@@ -46,7 +46,7 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgWaitingListPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._PRW_zone.SetToolTipString(_("Enter the waiting zone you want to filter by here.\nIf you leave this empty all waiting patients will be shown regardless of which zone they are waiting in."))
-        self._BTN_add_patient.SetToolTipString(_("Add the patient to the waiting list."))
+        self._BTN_add_patient.SetToolTipString(_("Add patient to the waiting list.\n\nAdds active patient (if any) if search field is empty."))
         self._LCTRL_patients.SetToolTipString(_("These patients are waiting.\n\nDoubleclick to activate (entry will stay in list)."))
         self._BTN_activate.SetToolTipString(_("Activate patient but do not remove from waiting list."))
         self._BTN_activate.Enable(False)
