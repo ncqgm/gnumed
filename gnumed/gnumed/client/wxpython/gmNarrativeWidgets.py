@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.20 2009-01-21 18:53:57 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmNarrativeWidgets.py,v 1.21 2009-01-21 22:37:14 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -714,8 +714,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			return True
 		emr = self.__pat.get_emr()
 		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
-			return False
+			gmDispatcher.send(signal = 'statustext', msg = _('Could not save all editors.'), beep = True)
 		return True
 	#--------------------------------------------------------
 	def _pre_exit_callback(self):
@@ -743,7 +742,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		emr = self.__pat.get_emr()
 		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
-			return False
 		return True
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
@@ -1243,7 +1241,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.20  2009-01-21 18:53:57  ncq
+# Revision 1.21  2009-01-21 22:37:14  ncq
+# - do not fail save_all_editors() where not appropriate
+#
+# Revision 1.20  2009/01/21 18:53:57  ncq
 # - fix save_all_editors and call it with proper args
 #
 # Revision 1.19  2009/01/03 17:29:01  ncq
