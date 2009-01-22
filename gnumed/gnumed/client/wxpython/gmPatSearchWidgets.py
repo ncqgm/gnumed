@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.118 2009-01-21 22:39:02 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gmPatSearchWidgets.py,v 1.119 2009-01-22 11:16:41 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -1055,7 +1055,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			[ [
 				gmTools.coalesce(p['waiting_zone'], u''),
 				p['urgency'],
-				p['waiting_time_formatted'].replace(u'00 ', u'', 1),
+				p['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
 				p['dob'].strftime('%x'),
 				gmTools.coalesce(p['comment'], u'')
@@ -1148,8 +1148,13 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			return
 		gmSurgery.gmCurrentPractice().raise_in_waiting_list(current_position = item['list_position'])
 	#--------------------------------------------------------
+	def _on_down_button_pressed(self, evt):
+		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		if item is None:
+			return
+		gmSurgery.gmCurrentPractice().lower_in_waiting_list(current_position = item['list_position'])
+	#--------------------------------------------------------
 	# edit
-	# down
 	#--------------------------------------------------------
 	# reget-on-paint API
 	#--------------------------------------------------------
@@ -1279,7 +1284,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.118  2009-01-21 22:39:02  ncq
+# Revision 1.119  2009-01-22 11:16:41  ncq
+# - implement moving waiting list entries
+#
+# Revision 1.118  2009/01/21 22:39:02  ncq
 # - waiting zones phrasewheel and use it
 #
 # Revision 1.117  2009/01/21 18:04:41  ncq
