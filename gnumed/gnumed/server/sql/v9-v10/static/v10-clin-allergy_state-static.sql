@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-allergy_state-static.sql,v 1.1 2008-10-12 14:59:25 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-clin-allergy_state-static.sql,v 1.2 2009-01-23 11:36:03 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -50,17 +50,17 @@ set
 where
 	has_allergy = 1;
 
-update clin.allergy_state as a
+update clin.allergy_state
 set
 	fk_encounter = (
 		select cle.pk
 		from clin.encounter cle
 		where
-			cle.fk_patient = a.fk_patient
+			cle.fk_patient = clin.allergy_state.fk_patient
 		limit 1
 	)
 where
-	a.fk_encounter is null
+	clin.allergy_state.fk_encounter is null
 ;
 
 update clin.allergy_state
@@ -88,11 +88,14 @@ alter table audit.log_allergy_state
 	rename column id to pk;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-allergy_state-static.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-allergy_state-static.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-allergy_state-static.sql,v $
--- Revision 1.1  2008-10-12 14:59:25  ncq
+-- Revision 1.2  2009-01-23 11:36:03  ncq
+-- - don't use alias in update for the benefit of older PGs
+--
+-- Revision 1.1  2008/10/12 14:59:25  ncq
 -- - new
 --
 --
