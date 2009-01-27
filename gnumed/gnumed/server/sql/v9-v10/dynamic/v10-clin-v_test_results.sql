@@ -5,11 +5,32 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_test_results.sql,v 1.1 2008-09-02 15:41:21 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-clin-v_test_results.sql,v 1.2 2009-01-27 11:42:08 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop index clin.idx_test_result_fk_type cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_test_result_fk_type on clin.test_result(fk_type);
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop index clin.idx_rtr_fk_reviewer cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_rtr_fk_reviewer on clin.reviewed_test_results(fk_reviewer);
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop index clin.idx_ltt2ut_fk_ttu cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_ltt2ut_fk_ttu on clin.lnk_ttype2unified_type(fk_test_type_unified);
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -147,10 +168,14 @@ select
 	-- reviewed_test_results
 	rtr.fk_reviewer as pk_last_reviewer
 from
-	clin.test_result tr left join clin.reviewed_test_results rtr on (tr.pk = rtr.fk_reviewed_row),
+--	clin.test_result tr left join clin.reviewed_test_results rtr on (tr.pk = rtr.fk_reviewed_row),
+	clin.test_result tr,
+	clin.reviewed_test_results rtr,
 	clin.v_unified_test_types vttu
 where
 	vttu.pk_test_type = tr.fk_type
+		and
+	tr.pk = rtr.fk_reviewed_row
 ;
 
 
@@ -161,11 +186,15 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-v_test_results.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-v_test_results.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-v_test_results.sql,v $
--- Revision 1.1  2008-09-02 15:41:21  ncq
+-- Revision 1.2  2009-01-27 11:42:08  ncq
+-- - add indexe
+-- - give the planner better chances at optimizing joins
+--
+-- Revision 1.1  2008/09/02 15:41:21  ncq
 -- - new
 --
 --
