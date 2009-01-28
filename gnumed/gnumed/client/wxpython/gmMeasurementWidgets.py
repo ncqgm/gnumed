@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.34 2009-01-02 11:40:27 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmMeasurementWidgets.py,v 1.35 2009-01-28 11:27:56 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -292,6 +292,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			except KeyError:
 				self.__cell_data[col] = {}
 
+			# the tooltip always shows the youngest sub result details
 			rebuild_tooltip = False
 			if self.__cell_data[col].has_key(row):
 				if result['clin_when'] < self.__cell_data[col][row][0]['clin_when']:
@@ -304,19 +305,19 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 			# rebuild cell display string
 			vals2display = []
-			for result in self.__cell_data[col][row]:
+			for sub_result in self.__cell_data[col][row]:
 
-				# is the result technically abnormal ?
-				ind = gmTools.coalesce(result['abnormality_indicator'], u'').strip()
+				# is the sub_result technically abnormal ?
+				ind = gmTools.coalesce(sub_result['abnormality_indicator'], u'').strip()
 				if ind != u'':
 					lab_abnormality_indicator = u' (%s)' % ind[:3]
 				else:
 					lab_abnormality_indicator = u''
 				# - if noone reviewed - use what the lab thinks
-				if result['is_technically_abnormal'] is None:
+				if sub_result['is_technically_abnormal'] is None:
 					abnormality_indicator = lab_abnormality_indicator
 				# - if someone reviewed and decreed normality - use that
-				elif result['is_technically_abnormal'] is False:
+				elif sub_result['is_technically_abnormal'] is False:
 					abnormality_indicator = u''
 				# - if someone reviewed and decreed abnormality ...
 				else:
@@ -328,34 +329,34 @@ class cMeasurementsGrid(wx.grid.Grid):
 					else:
 						abnormality_indicator = lab_abnormality_indicator
 
-				# is the result relevant clinically ?
+				# is the sub_result relevant clinically ?
 				# FIXME: take into account primary_GP once we support that
-				result_relevant = result['is_clinically_relevant']
-				if result_relevant is None:
+				sub_result_relevant = sub_result['is_clinically_relevant']
+				if sub_result_relevant is None:
 					# FIXME: calculate from clinical range
-					result_relevant = False
+					sub_result_relevant = False
 
 				missing_review = False
 				# warn on missing review if
 				# a) no review at all exists or
-				if not result['reviewed']:
+				if not sub_result['reviewed']:
 					missing_review = True
 				# b) there is a review but
 				else:
 					# current user is reviewer and hasn't reviewed
-					if result['you_are_responsible'] and not result['review_by_you']:
+					if sub_result['you_are_responsible'] and not sub_result['review_by_you']:
 						missing_review = True
 
-				# can we display the full result information ?
-				has_result_comment = gmTools.coalesce (
-					gmTools.coalesce(result['note_test_org'], result['comment']),
+				# can we display the full sub_result information ?
+				has_sub_result_comment = gmTools.coalesce (
+					gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
 					u''
 				).strip() != u''
 
 				# no - display ... and truncate to 7 chars
-				if (len(result['unified_val']) > 8) or (has_result_comment):
+				if (len(sub_result['unified_val']) > 8) or (has_sub_result_comment):
 					tmp = u'%.7s%s%.6s%.2s' % (
-						result['unified_val'][:7],
+						sub_result['unified_val'][:7],
 						gmTools.u_ellipsis,
 						abnormality_indicator,
 						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
@@ -363,12 +364,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 				# yes - display fully up to 8 chars
 				else:
 					tmp = u'%.8s%.6s%.2s' % (
-						result['unified_val'][:8],
+						sub_result['unified_val'][:8],
 						abnormality_indicator,
 						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
 					)
 				if len(self.__cell_data[col][row]) > 1:
-					tmp = '%s %s' % (result['clin_when'].strftime('%H:%M'), tmp)
+					tmp = '%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
 				vals2display.append(tmp)
 
 			self.SetCellValue(row, col, '\n'.join(vals2display))
@@ -376,7 +377,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 #			font = self.GetCellFont(row, col)
 #			if not font.IsFixedWidth():
 #				font.SetFamily(family = wx.FONTFAMILY_MODERN)
-			if result_relevant:
+			# FIXME: what about partial sub results being relevant ??
+			if sub_result_relevant:
 				font = self.GetCellFont(row, col)
 				self.SetCellTextColour(row, col, 'firebrick')
 				font.SetWeight(wx.FONTWEIGHT_BOLD)
@@ -1244,7 +1246,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.34  2009-01-02 11:40:27  ncq
+# Revision 1.35  2009-01-28 11:27:56  ncq
+# - slightly better naming and comments
+#
+# Revision 1.34  2009/01/02 11:40:27  ncq
 # - properly check for numericity of value/range input
 #
 # Revision 1.33  2008/10/22 12:21:57  ncq
