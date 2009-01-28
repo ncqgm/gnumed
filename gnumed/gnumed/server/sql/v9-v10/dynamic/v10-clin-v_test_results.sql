@@ -5,11 +5,12 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_test_results.sql,v 1.2 2009-01-27 11:42:08 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v10-clin-v_test_results.sql,v 1.3 2009-01-28 11:29:30 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -39,12 +40,14 @@ drop view clin.v_test_results cascade;
 
 
 create view clin.v_test_results as
+
 select
-	(select fk_patient from clin.encounter where pk = tr.fk_encounter) as pk_patient,
+	cenc.fk_patient
+		as pk_patient,
 	-- test_result
 	tr.pk as pk_test_result,
-	-- unified
 	tr.clin_when,
+	-- unified
 	vttu.unified_code,
 	vttu.unified_name,
 	case when coalesce(trim(both from tr.val_alpha), '') = ''
@@ -61,7 +64,6 @@ select
 	coalesce(tr.val_target_range, tr.val_normal_range)
 		as unified_target_range,
 	tr.soap_cat,
---	coalesce(tr.narrative, '') as comment,
 	tr.narrative
 		as comment,
 	-- test result data
@@ -91,11 +93,9 @@ select
 	vttu.comment_unified,
 
 	-- episode/issue data
-	(select description from clin.episode where pk = tr.fk_episode)
+	epi.description
 		as episode,
-	(select description from clin.health_issue where pk = (
-		(select fk_health_issue from clin.episode where pk = tr.fk_episode)
-	))
+	chi.description
 		as health_issue,
 
 	-- status of last review
@@ -108,44 +108,39 @@ select
 	rtr.comment
 		as review_comment,
 
-	(select
-		short_alias || ' (' ||
-		coalesce(title || ' ', '') ||
-		coalesce(firstnames || ' ', '') ||
-		coalesce(lastnames, '') ||
-		')'
-	 from dem.v_staff
-	 where pk_staff = rtr.fk_reviewer
-	) as last_reviewer,
+	(select short_alias from dem.staff where pk = rtr.fk_reviewer)
+		as last_reviewer,
 
 	rtr.modified_when
 		as last_reviewed,
 
-	coalesce((rtr.fk_reviewer = (select pk from dem.staff where db_user = current_user)), False)
+	coalesce (
+		(rtr.fk_reviewer = (select pk from dem.staff where db_user = current_user)),
+		False
+	)
 		as review_by_you,
-	coalesce((tr.fk_intended_reviewer = rtr.fk_reviewer), False)
+
+	coalesce (
+		(tr.fk_intended_reviewer = rtr.fk_reviewer),
+		False
+	)
 		as review_by_responsible_reviewer,
 
 	-- potential review status
-	(select
-		short_alias || ' (' ||
-		coalesce(title || ' ', '') ||
-		coalesce(firstnames || ' ', '') ||
-		coalesce(lastnames, '') ||
-		')'
-	 from dem.v_staff
-	 where pk_staff = tr.fk_intended_reviewer
-	) as responsible_reviewer,
+	(select short_alias from dem.staff where pk = tr.fk_intended_reviewer)
+		as responsible_reviewer,
 
 	coalesce (
 		(tr.fk_intended_reviewer = (select pk from dem.staff where db_user = current_user)),
 		False
-	) as you_are_responsible,
+	)
+		as you_are_responsible,
 
-	case when ((select 1 from dem.v_staff where db_user = tr.modified_by) is null)
+	case when ((select 1 from dem.staff where db_user = tr.modified_by) is null)
 		then '<' || tr.modified_by || '>'
-		else (select short_alias from dem.v_staff where db_user = tr.modified_by)
-	end as modified_by,
+		else (select short_alias from dem.staff where db_user = tr.modified_by)
+	end
+		as modified_by,
 
 	tr.modified_when,
 	tr.row_version as row_version,
@@ -163,19 +158,20 @@ select
 	vttu.pk_test_org,
 	vttu.pk_test_type_unified,
 	-- v_pat_episodes
-	(select fk_health_issue from clin.episode where pk = tr.fk_episode)
+	epi.fk_health_issue
 		as pk_health_issue,
 	-- reviewed_test_results
 	rtr.fk_reviewer as pk_last_reviewer
 from
---	clin.test_result tr left join clin.reviewed_test_results rtr on (tr.pk = rtr.fk_reviewed_row),
-	clin.test_result tr,
-	clin.reviewed_test_results rtr,
+	clin.test_result tr
+		left join clin.encounter cenc on (tr.fk_encounter = cenc.pk)
+			left join clin.episode epi on (tr.fk_episode = epi.pk)
+				left join clin.reviewed_test_results rtr on (tr.pk = rtr.fk_reviewed_row)
+					left join clin.health_issue chi on (epi.fk_health_issue = chi.pk)
+	,
 	clin.v_unified_test_types vttu
 where
-	vttu.pk_test_type = tr.fk_type
-		and
-	tr.pk = rtr.fk_reviewed_row
+	tr.fk_type = vttu.pk_test_type
 ;
 
 
@@ -186,11 +182,14 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-v_test_results.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-v_test_results.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v10-clin-v_test_results.sql,v $
--- Revision 1.2  2009-01-27 11:42:08  ncq
+-- Revision 1.3  2009-01-28 11:29:30  ncq
+-- - improved query speed as per list discussion with Tom Lane et al
+--
+-- Revision 1.2  2009/01/27 11:42:08  ncq
 -- - add indexe
 -- - give the planner better chances at optimizing joins
 --
