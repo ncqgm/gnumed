@@ -4,8 +4,8 @@ REM should be run as root
 REM command line options:
 REM  quiet
 
-SET VER=9
-SET PREV_VER=8
+SET VER=10
+SET PREV_VER=9
 SET QUIET=%1
 
 SET PYTHONPATH="%PYTHONPATH%;../../"
@@ -40,7 +40,7 @@ COLOR 0E
 SET LOG=bootstrap-latest-v2.log
 SET CONF=redo-v2.conf
 SET GM_CORE_DB=gnumed_v2
-python bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF%
+bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF%
 set GM_CORE_DB=
 
 REM v2 -> v3
@@ -77,3 +77,8 @@ REM v8 -> v9
 COLOR 0F
 call upgrade-db.bat 8 9
 dropdb -U gm-dbo gnumed_v8
+
+REM v9 -> v10
+COLOR 0F
+call upgrade-db.bat 9 10
+dropdb -U gm-dbo gnumed_v9
