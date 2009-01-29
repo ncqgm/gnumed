@@ -1,4 +1,6 @@
 @echo off
+SET DRIVE_LTR=%~d0
+cd /d %~dp0
 SET PYTHONPATH="%PYTHONPATH%;../../"
 
 
