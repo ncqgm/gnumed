@@ -64,4 +64,4 @@ echo ===========================================================
 
 
 echo 2) upgrading to new database ...
-python bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF% %QUIET
+bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF% %QUIET
