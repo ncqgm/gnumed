@@ -1,5 +1,7 @@
 @echo off
 
+SET DRIVE_LTR=%~d0
+cd /d %~dp0
 REM should be run as root
 REM command line options:
 REM  quiet
