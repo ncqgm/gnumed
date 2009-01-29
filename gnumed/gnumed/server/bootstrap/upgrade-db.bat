@@ -25,6 +25,8 @@ REM ========================================================
 
 REM SET PYTHONPATH="%PYTHONPATH%;../../"
 
+SET DRIVE_LTR=%~d0
+cd /d %~dp0
 
 SET PREV_VER=%1
 SET NEXT_VER=%2
