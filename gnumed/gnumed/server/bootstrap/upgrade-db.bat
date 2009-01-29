@@ -20,4 +20,4 @@ echo ===========================================================
 del %LOG%
 echo =======================
 echo bootstrapping database
-python bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF%
+bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF%
