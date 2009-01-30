@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.119 2009-01-22 11:16:41 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmPatSearchWidgets.py,v 1.120 2009-01-30 12:11:43 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
 from Gnumed.business import gmPerson, gmKVK, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets, gmRegetMixin, gmPhraseWheel
+from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets, gmRegetMixin, gmPhraseWheel, gmEditArea
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgMergePatientsDlg
 
 
@@ -1001,6 +1001,92 @@ class cWaitingZonePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher.set_items([ {'data': i, 'label': i, 'weight': 1} for i in items ])
 
 #============================================================
+from Gnumed.wxGladeWidgets import wxgWaitingListEntryEditAreaPnl
+
+class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingListEntryEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__ (self, *args, **kwargs):
+
+		try:
+			self.patient = kwargs['patient']
+			del kwargs['patient']
+		except KeyError:
+			self.patient = None
+
+		try:
+			data = kwargs['entry']
+			del kwargs['entry']
+		except KeyError:
+			data = None
+
+		wxgWaitingListEntryEditAreaPnl.wxgWaitingListEntryEditAreaPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		if data is None:
+			self.mode = 'new'
+		else:
+			self.data = data
+			self.mode = 'edit'
+
+		praxis = gmSurgery.gmCurrentPractice()
+		pats = praxis.waiting_list_patients
+		zones = {}
+		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
+		self._PRW_zone.update_matcher(items = zones.keys())
+	#--------------------------------------------------------
+	# edit area mixin API
+	#--------------------------------------------------------
+	def _refresh_as_new(self):
+		if self.patient is None:
+			self._PRW_patient.person = None
+			self._PRW_patient.Enable(True)
+			self._PRW_patient.SetFocus()
+		else:
+			self._PRW_patient.person = self.patient
+			self._PRW_patient.Enable(False)
+			self._PRW_comment.SetFocus()
+		self._PRW_patient._display_name()
+
+		self._PRW_comment.SetValue(u'')
+		self._PRW_zone.SetValue(u'')
+		self._SPCTRL_urgency.SetValue(0)
+	#--------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_identity'])
+		self._PRW_patient.Enable(False)
+		self._PRW_patient._display_name()
+
+		self._PRW_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._PRW_zone.SetValue(gmTools.coalesce(self.data['waiting_zone'], u''))
+		self._SPCTRL_urgency.SetValue(self.data['urgency'])
+
+		self._PRW_comment.SetFocus()
+	#--------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
+
+		self.display_tctrl_as_valid(tctrl = self._PRW_patient, valid = (self._PRW_patient.person is not None))
+		validity = (self._PRW_patient.person is not None)
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add to waiting list. Missing essential input.'))
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# FIXME: filter out dupes
+		self._PRW_patient.person.put_on_waiting_list (
+			urgency = self._SPCTRL_urgency.GetValue(),
+			comment = gmTools.none_if(self._PRW_comment.GetValue().strip(), u''),
+			zone = gmTools.none_if(self._PRW_zone.GetValue().strip(), u'')
+		)
+		# dummy:
+		self.data = {'pk_identity': None, 'comment': None, 'waiting_zone': None, 'urgency': 0}
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		pass
+#============================================================
 from Gnumed.wxGladeWidgets import wxgWaitingListPnl
 
 class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOnPaintMixin):
@@ -1124,17 +1210,28 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	#--------------------------------------------------------
 	def _on_add_patient_button_pressed(self, evt):
 
+		pat = None
 		if self._PRW_search_patient.person is not None:
-			self._PRW_search_patient.person.put_on_waiting_list(urgency=0)
-			self._PRW_search_patient.person = None
-			self._PRW_search_patient._display_name()
-			return
+			pat = self._PRW_search_patient.person
+		else:
+			curr_pat = gmPerson.gmCurrentPatient()
+			if curr_pat.connected:
+				pat = curr_pat
 
-		curr_pat = gmPerson.gmCurrentPatient()
-		if not curr_pat.connected:
+		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = pat)
+		dlg = gmEditArea.cGenericEditAreaDlgSingle(self, -1, edit_area = ea)
+		dlg.ShowModal()
+
+		self._PRW_search_patient.person = None
+		self._PRW_search_patient._display_name()
+	#--------------------------------------------------------
+	def _on_edit_button_pressed(self, event):
+		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		if item is None:
 			return
-		# FIXME: filter out dupes
-		curr_pat.put_on_waiting_list(urgency=0)
+		ea = cWaitingListEntryEditAreaPnl(self, -1, entry = item)
+		dlg = gmEditArea.cGenericEditAreaDlgSingle(self, -1, edit_area = ea)
+		dlg.ShowModal()
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
@@ -1284,7 +1381,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.119  2009-01-22 11:16:41  ncq
+# Revision 1.120  2009-01-30 12:11:43  ncq
+# - waiting list entry edit area
+#
+# Revision 1.119  2009/01/22 11:16:41  ncq
 # - implement moving waiting list entries
 #
 # Revision 1.118  2009/01/21 22:39:02  ncq
