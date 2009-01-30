@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.177 2009-01-21 18:52:34 ncq Exp $
-__version__ = "$Revision: 1.177 $"
+# $Id: gmPerson.py,v 1.178 2009-01-30 12:08:20 ncq Exp $
+__version__ = "$Revision: 1.178 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -619,16 +619,17 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		return True, None
 	#--------------------------------------------------------
 	#--------------------------------------------------------
-	def put_on_waiting_list(self, urgency=0, comment=None):
+	def put_on_waiting_list(self, urgency=0, comment=None, zone=None):
 		cmd = u"""
-			insert into clin.waiting_list (fk_patient, urgency, comment, list_position)
+			insert into clin.waiting_list (fk_patient, urgency, comment, area, list_position)
 			values (
 				%(pat)s,
 				%(urg)s,
 				%(cmt)s,
+				%(area)s,
 				(select max(list_position) + 1 from clin.waiting_list)
 			)"""
-		args = {'pat': self.ID, 'urg': urgency, 'cmt': comment}
+		args = {'pat': self.ID, 'urg': urgency, 'cmt': comment, 'area': zone}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose=True)
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
@@ -2299,7 +2300,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.177  2009-01-21 18:52:34  ncq
+# Revision 1.178  2009-01-30 12:08:20  ncq
+# - support zone in put_on_waiting_list
+#
+# Revision 1.177  2009/01/21 18:52:34  ncq
 # - signals cleanup
 #
 # Revision 1.176  2009/01/21 17:59:57  ncq
