@@ -1,10 +1,10 @@
 #====================================================================
 # GNUmed Richard style Edit Area
-# GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.121 2008-07-17 21:41:14 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmEditArea.py,v 1.122 2009-01-30 12:10:42 ncq Exp $
+__license__ = 'GPL'
+__version__ = "$Revision: 1.122 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -27,16 +27,34 @@ class cGenericEditAreaMixin(object):
 	"""Mixin for edit area panels providing generic functionality.
 
 	Implementors must provide:
-		- _valid_for_save
-		- _save_as_new
-		- _save_as_update
 
-		- _refresh_as_new
-		- _refresh_from_existing
-		- _refresh_as_new_from_existing
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		return True/False
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		self.__data =
+		return True/False
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.__data =
+		return True/False
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+	#----------------------------------------------------------------
 
 	Code using this mixin should set mode and data after
-	instantiating the class.
+	instantiating the class:
+
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+		self.mode = 
+		self.data =
 	"""
 	def __init__(self):
 		self.__mode = 'new'
@@ -98,7 +116,7 @@ class cGenericEditAreaMixin(object):
 	def refresh(self):
 		"""Invoked from the generic edit area dialog.
 
-		Invokes _refresh_as_new/_refresh_from_existing/_refresh_as_new_from_existing
+		Invokes _refresh_as_new/_refresh_from_existing/_refresh_as_new_from_existing 	
 		on the implementing edit area.
 		"""
 		if self.__mode == 'new':
@@ -156,6 +174,13 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		if self._PNL_ea.save():
 			self._PNL_ea.mode = 'new_from_existing'
 			self._PNL_ea.refresh()
+#====================================================================
+class cGenericEditAreaDlgSingle(cGenericEditAreaDlg2): 
+	"""Like the standard save/next/cancel but without the next button."""
+
+	def __init__(self, *args, **kwargs):
+		cGenericEditAreaDlg2.__init__(self, *args, **kwargs)
+		self._BTN_forward.Enable(False)
 #====================================================================
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 	"""Dialog for parenting edit area with save/clear/cancel"""
@@ -2163,7 +2188,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.121  2008-07-17 21:41:14  ncq
+# Revision 1.122  2009-01-30 12:10:42  ncq
+# - improved docs
+# - new style edit area dlg w/o NEXT button
+#
+# Revision 1.121  2008/07/17 21:41:14  ncq
 # - .display_tctrl_as_valid
 #
 # Revision 1.120  2008/07/13 17:16:28  ncq
