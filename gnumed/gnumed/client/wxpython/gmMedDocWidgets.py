@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.173 2009-01-15 11:40:54 ncq Exp $
-__version__ = "$Revision: 1.173 $"
+# $Id: gmMedDocWidgets.py,v 1.174 2009-01-30 12:11:02 ncq Exp $
+__version__ = "$Revision: 1.174 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1439,6 +1439,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# part node
 		if isinstance(item1, gmMedDoc.cMedDocPart):
 			# compare sequence IDs (= "page" numbers)
+			# FIXME: wrong order ?
 			if item1['seq_idx'] < item2['seq_idx']:
 				return -1
 			if item1['seq_idx'] == item2['seq_idx']:
@@ -1928,7 +1929,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.173  2009-01-15 11:40:54  ncq
+# Revision 1.174  2009-01-30 12:11:02  ncq
+# - comment
+#
+# Revision 1.173  2009/01/15 11:40:54  ncq
 # - implement managing document descriptions
 #
 # Revision 1.172  2009/01/11 19:19:19  ncq
