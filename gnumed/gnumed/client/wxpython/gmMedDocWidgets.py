@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.174 2009-01-30 12:11:02 ncq Exp $
-__version__ = "$Revision: 1.174 $"
+# $Id: gmMedDocWidgets.py,v 1.175 2009-02-04 21:47:17 ncq Exp $
+__version__ = "$Revision: 1.175 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1353,7 +1353,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				part_node = self.AppendItem(parent = doc_node, text = label)
 				self.SetPyData(part_node, part)
 
-		self.SortChildren(self.root)
+		self.__sort_nodes()
 		self.SelectItem(self.root)
 
 		# FIXME: apply expansion state if available or else ...
@@ -1447,10 +1447,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return 1
 
 		# else sort alphabetically
-		if item1 < item2:
-			return -1
-		if item1 == item2:
-			return 0
+		if None in [item1, item2]:
+			if node1 < node2:
+				return -1
+			if node1 == node2:
+				return 0
+		else:
+			if item1 < item2:
+				return -1
+			if item1 == item2:
+				return 0
 		return 1
 	#------------------------------------------------------------------------
 	# event handlers
@@ -1529,6 +1535,24 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		manage_document_descriptions(parent = self, document = self.__curr_node_data)
 	#--------------------------------------------------------
 	# internal API
+	#--------------------------------------------------------
+	def __sort_nodes(self, start_node=None):
+		if start_node is None:
+			start_node = self.root
+
+		# protect against empty tree where not even
+		# a root node exists
+		if not start_node.IsOk():
+			return True
+
+		self.SortChildren(start_node)
+
+		child_node, cookie = self.GetFirstChild(start_node)
+		while child_node.IsOk():
+			self.__sort_nodes(start_node = child_node)
+			child_node, cookie = self.GetNextChild(start_node, cookie)
+
+		return
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
 		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
@@ -1929,7 +1953,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.174  2009-01-30 12:11:02  ncq
+# Revision 1.175  2009-02-04 21:47:17  ncq
+# - properly sort tree
+#
+# Revision 1.174  2009/01/30 12:11:02  ncq
 # - comment
 #
 # Revision 1.173  2009/01/15 11:40:54  ncq
