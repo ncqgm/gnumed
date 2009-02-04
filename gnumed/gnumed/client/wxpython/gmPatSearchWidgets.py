@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.120 2009-01-30 12:11:43 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmPatSearchWidgets.py,v 1.121 2009-02-04 12:35:18 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -1085,7 +1085,13 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		pass
+		gmSurgery.gmCurrentPractice().update_in_waiting_list (
+			pk = self.data['pk_waiting_list'],
+			urgency = self._SPCTRL_urgency.GetValue(),
+			comment = self._PRW_comment.GetValue().strip(),
+			zone = self._PRW_zone.GetValue().strip()
+		)
+		return True
 #============================================================
 from Gnumed.wxGladeWidgets import wxgWaitingListPnl
 
@@ -1381,7 +1387,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.120  2009-01-30 12:11:43  ncq
+# Revision 1.121  2009-02-04 12:35:18  ncq
+# - support editing waiting list entries
+#
+# Revision 1.120  2009/01/30 12:11:43  ncq
 # - waiting list entry edit area
 #
 # Revision 1.119  2009/01/22 11:16:41  ncq
