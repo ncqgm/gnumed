@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.125 2008-10-12 16:32:40 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmPhraseWheel.py,v 1.126 2009-02-04 21:47:54 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -845,7 +845,6 @@ class cPhraseWheel(wx.TextCtrl):
 			callback()
 
 		self.__timer.Start(oneShot = True, milliseconds = self.picklist_delay)
-
 		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
@@ -1026,7 +1025,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.125  2008-10-12 16:32:40  ncq
+# Revision 1.126  2009-02-04 21:47:54  ncq
+# - cleanup
+#
+# Revision 1.125  2008/10/12 16:32:40  ncq
 # - make more robust when getting data of selected item
 #
 # Revision 1.124  2008/08/15 15:57:37  ncq
