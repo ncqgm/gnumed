@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.11 2009-01-22 11:15:55 ncq Exp $
+# $Id: gmSurgery.py,v 1.12 2009-02-04 12:28:44 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -35,6 +35,24 @@ class gmCurrentPractice(gmBorg.cBorg):
 	def remove_from_waiting_list(self, pk=None):
 		cmd = u'delete from clin.waiting_list where pk = %(pk)s'
 		args = {'pk': pk}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def update_in_waiting_list(self, pk = None, urgency = 0, comment = None, zone = None):
+		cmd = u"""
+update clin.waiting_list
+set
+	urgency = %(urg)s,
+	comment = %(cmt)s,
+	area = %(zone)s
+where
+	pk = %(pk)s"""
+		args = {
+			'pk': pk,
+			'urg': urgency,
+			'cmt': gmTools.none_if(comment, u''),
+			'zone': gmTools.none_if(zone, u'')
+		}
+
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
 	def raise_in_waiting_list(self, current_position=None):
@@ -204,7 +222,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.11  2009-01-22 11:15:55  ncq
+# Revision 1.12  2009-02-04 12:28:44  ncq
+# - update in waiting list
+#
+# Revision 1.11  2009/01/22 11:15:55  ncq
 # - move entries in waiting list
 #
 # Revision 1.10  2009/01/17 23:01:18  ncq
