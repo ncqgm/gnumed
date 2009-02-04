@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.438 2009-01-15 11:38:44 ncq Exp $
-__version__ = "$Revision: 1.438 $"
+# $Id: gmGuiMain.py,v 1.439 2009-02-04 12:34:55 ncq Exp $
+__version__ = "$Revision: 1.439 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -259,9 +259,6 @@ class gmTopLevelFrame(wx.Frame):
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
 		self.__set_GUI_size()
-
-		self.Centre(wx.BOTH)
-		self.Show(True)
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
@@ -2292,8 +2289,8 @@ class gmApp(wx.App):
 		# FIXME: load last position from backend
 		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440))
 		frame.CentreOnScreen(wx.BOTH)
-		frame.Show(True)
 		self.SetTopWindow(frame)
+		frame.Show(True)
 
 		if _cfg.get(option = 'debug'):
 			self.RedirectStdio()
@@ -2732,7 +2729,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.438  2009-01-15 11:38:44  ncq
+# Revision 1.439  2009-02-04 12:34:55  ncq
+# - cleanup frame init
+#
+# Revision 1.438  2009/01/15 11:38:44  ncq
 # - better logging, cleanup
 # - fix logic error in xml-rpc port detection
 # - display personality/port in window title if enslaved
