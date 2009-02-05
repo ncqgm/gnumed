@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.30 2008-01-30 13:34:50 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmXdtObjects.py,v 1.31 2009-02-05 21:16:59 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -33,20 +33,24 @@ class cDTO_xdt_person(gmPerson.cDTO_person):
 #==============================================================
 def determine_xdt_encoding(filename=None, default_encoding=None):
 
-	encoding = default_encoding
-
 	f = codecs.open(filename=filename, mode='rU', encoding='utf8', errors='ignore')
 
+	file_encoding = None
 	for line in f:
 		field = line[3:7]
 		if field in gmXdtMappings._charset_fields:
+			_log.debug('found charset field [%s] in <%s>', field, filename)
 			val = line[7:8]
-			encoding = gmXdtMappings._map_field2charset[field][val]
+			file_encoding = gmXdtMappings._map_field2charset[field][val]
+			_log.debug('encoding in file is "%s" (%s)', file_encoding, val)
 			break
-
 	f.close()
 
-	return encoding
+	if file_encoding is None:
+		_log.debug('no encoding found in <%s>, assuming [%s]', filename, default_encoding)
+		return default_encoding
+
+	return file_encoding
 #==============================================================
 def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
@@ -148,6 +152,115 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 		dto.source = None
 
 	return dto
+#==============================================================
+class cLDTFile(object):
+
+	def __init__(self, filename=None, encoding=None, override_encoding=False):
+
+		file_encoding = determine_xdt_encoding(filename=filename)
+		if file_encoding is None:
+			_log.warning('LDT file <%s> does not specify encoding', filename)
+			if encoding is None:
+				raise ValueError('no encoding specified in file <%s> or method call' % filename)
+
+		if override_encoding:
+			if encoding is None:
+				raise ValueError('no encoding specified in method call for overriding encoding in file <%s>' % filename)
+			self.encoding = encoding
+		else:
+			if file_encoding is None:
+				self.encoding = encoding
+			else:
+				self.encoding = file_encoding
+
+		self.filename = filename
+
+		self.__header = None
+		self.__tail = None
+	#----------------------------------------------------------
+	def _get_header(self):
+
+		if self.__header is not None:
+			return self.__header
+
+		ldt_file = codecs.open(filename = self.filename, mode = 'rU', encoding = self.encoding)
+		self.__header = []
+		for line in ldt_file:
+			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
+			# loop until found first LG-Bericht
+			if field == u'8000':
+				if content in [u'8202']:
+					break
+			self.__header.append(line)
+
+		ldt_file.close()
+		return self.__header
+
+	header = property(_get_header, lambda x:x)
+	#----------------------------------------------------------
+	def _get_tail(self):
+
+		if self.__tail is not None:
+			return self.__tail
+
+		ldt_file = codecs.open(filename = self.filename, mode = 'rU', encoding = self.encoding)
+		self.__tail = []
+		in_tail = False
+		for line in ldt_file:
+			if in_tail:
+				self.__tail.append(line)
+				continue
+
+			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
+
+			# loop until found tail
+			if field == u'8000':
+				if content not in [u'8221']:
+					continue
+				in_tail = True
+				self.__tail.append(line)
+
+		ldt_file.close()
+		return self.__tail
+
+	tail = property(_get_tail, lambda x:x)
+	#----------------------------------------------------------
+	def split_by_patient(self, dir=None, file=None):
+
+		ldt_file = codecs.open(filename = self.filename, mode = 'rU', encoding = self.encoding)
+		out_file = None
+
+		in_patient = False
+		for line in ldt_file:
+
+			if in_patient:
+				out_file.write(line)
+				continue
+
+			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
+
+			# start of record
+			if field == u'8000':
+				# start of LG-Bericht
+				if content == u'8202':
+					in_patient = True
+					if out_file is not None:
+						out_file.write(u''.join(self.tail))
+						out_file.close()
+					#out_file = codecs.open(filename=filename_xxxx, mode=xxxx_'rU', encoding=self.encoding)
+					out_file.write(u''.join(self.header))
+				else:
+					in_patient = False
+					if out_file is not None:
+						out_file.write(u''.join(self.tail))
+						out_file.close()
+
+		if out_file is not None:
+			if not out_file.closed:
+				out_file.write(u''.join(self.tail))
+				out_file.close()
+
+		ldt_file.close()
 #==============================================================
 # FIXME: the following *should* get wrapped in class XdtFile ...
 #--------------------------------------------------------------
@@ -285,32 +398,48 @@ def add_file_to_patlst(ID, name, patlst, new_file, ahash):
 # main
 #--------------------------------------------------------------
 if __name__ == "__main__":
-	from Gnumed.pycommon import gmI18N
-	from Gnumed.business import gmPerson
+	from Gnumed.pycommon import gmI18N, gmLog2
+
+	root_log = logging.getLogger()
+	root_log.setLevel(logging.DEBUG)
+	_log = logging.getLogger('gm.xdt')
+
+	#from Gnumed.business import gmPerson
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
 
-	# test framework if run by itself
-	patfile = sys.argv[1]
-	dobformat = sys.argv[2]
-	encoding = sys.argv[3]
-	print "reading patient data from xDT file [%s]" % patfile
+	ldt = cLDTFile(filename = sys.argv[1])
+	print "header:"
+	for line in ldt.header:
+		print line.encode('utf8', 'replace')
+	print "tail:"
+	for line in ldt.tail:
+		print line.encode('utf8', 'replace')
 
-	dto = read_person_from_xdt(patfile, dob_format=dobformat, encoding=encoding)
-	print "DTO:", dto
-	print "dto.dob:", dto.dob, type(dto.dob)
-	print "dto.dob.tz:", dto.dob.tzinfo
-	print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
-	print "dto.street", dto.street
-	searcher = gmPerson.cPatientSearcher_SQL()
-	ident = searcher.get_identities(dto=dto)[0]
-	print ident
-#	print ident.get_medical_age()
+#	# test framework if run by itself
+#	patfile = sys.argv[1]
+#	dobformat = sys.argv[2]
+#	encoding = sys.argv[3]
+#	print "reading patient data from xDT file [%s]" % patfile
+
+#	dto = read_person_from_xdt(patfile, dob_format=dobformat, encoding=encoding)
+#	print "DTO:", dto
+#	print "dto.dob:", dto.dob, type(dto.dob)
+#	print "dto.dob.tz:", dto.dob.tzinfo
+#	print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
+#	print "dto.street", dto.street
+#	searcher = gmPerson.cPatientSearcher_SQL()
+#	ident = searcher.get_identities(dto=dto)[0]
+#	print ident
+##	print ident.get_medical_age()
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.30  2008-01-30 13:34:50  ncq
+# Revision 1.31  2009-02-05 21:16:59  ncq
+# - start supporting importing LDT
+#
+# Revision 1.30  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.29  2007/07/11 21:05:10  ncq
