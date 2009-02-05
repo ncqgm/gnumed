@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.440 2009-02-05 13:03:38 ncq Exp $
-__version__ = "$Revision: 1.440 $"
+# $Id: gmGuiMain.py,v 1.441 2009-02-05 21:10:59 ncq Exp $
+__version__ = "$Revision: 1.441 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -216,6 +216,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
 		self.__pre_exit_callbacks = []
+		self.menu_id2plugin = {}
 
 		_log.info('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
 
@@ -295,6 +296,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "GNUmed" -----------------
 		menu_gnumed = wx.Menu()
+
+		self.menu_plugins = wx.Menu()
+		menu_gnumed.AppendMenu(wx.NewId(), _('Plugins ...'), self.menu_plugins)
 
 		menu_config = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('Options ...'), menu_config)
@@ -815,8 +819,20 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(signal = u'request_user_attention', receiver = self._on_request_user_attention)
 		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
+		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
 
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
+	#----------------------------------------------
+	def _on_plugin_loaded(self, name=None):
+		item = self.menu_plugins.Append(-1, name, _('Raise plugin [%s].') % name)
+		self.Bind(wx.EVT_MENU, self.__on_raise_a_plugin, item)
+		self.menu_id2plugin[item.Id] = name
+	#----------------------------------------------
+	def __on_raise_a_plugin(self, evt):
+		gmDispatcher.send (
+			signal = u'display_widget',
+			name = self.menu_id2plugin[evt.Id]
+		)
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
 		wx.Bell()
@@ -2730,7 +2746,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.440  2009-02-05 13:03:38  ncq
+# Revision 1.441  2009-02-05 21:10:59  ncq
+# - rapid plugin access
+#
+# Revision 1.440  2009/02/05 13:03:38  ncq
 # - cleanup
 #
 # Revision 1.439  2009/02/04 12:34:55  ncq
