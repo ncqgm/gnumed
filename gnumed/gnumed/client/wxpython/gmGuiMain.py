@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.439 2009-02-04 12:34:55 ncq Exp $
-__version__ = "$Revision: 1.439 $"
+# $Id: gmGuiMain.py,v 1.440 2009-02-05 13:03:38 ncq Exp $
+__version__ = "$Revision: 1.440 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2426,8 +2426,9 @@ class gmApp(wx.App):
 		"""Handle all the database related tasks necessary for startup."""
 
 		# log on
-		from Gnumed.wxpython import gmAuthWidgets
 		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
+
+		from Gnumed.wxpython import gmAuthWidgets
 		connected = gmAuthWidgets.connect_to_database (
 			expected_version = gmPG2.map_client_branch2required_db_version[_cfg.get(option = 'client_branch')],
 			require_version = not override
@@ -2729,7 +2730,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.439  2009-02-04 12:34:55  ncq
+# Revision 1.440  2009-02-05 13:03:38  ncq
+# - cleanup
+#
+# Revision 1.439  2009/02/04 12:34:55  ncq
 # - cleanup frame init
 #
 # Revision 1.438  2009/01/15 11:38:44  ncq
