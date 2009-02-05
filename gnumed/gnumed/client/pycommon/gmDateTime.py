@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.24 2008-11-17 23:11:38 ncq Exp $
+# $Id: gmDateTime.py,v 1.25 2009-02-05 14:28:30 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -781,6 +781,8 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 #===========================================================================
 class cFuzzyTimestamp:
 
+	# FIXME: add properties for year, month, ...
+
 	"""A timestamp implementation with definable inaccuracy.
 
 	This class contains an mxDateTime.DateTime instance to
@@ -993,7 +995,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.24  2008-11-17 23:11:38  ncq
+# Revision 1.25  2009-02-05 14:28:30  ncq
+# - comment
+#
+# Revision 1.24  2008/11/17 23:11:38  ncq
 # - provide properly utf8iefied py_*_timezone_name
 #
 # Revision 1.23  2008/11/03 10:28:03  ncq
