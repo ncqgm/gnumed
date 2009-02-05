@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.121 2009-02-04 12:35:18 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmPatSearchWidgets.py,v 1.122 2009-02-05 14:30:36 ncq Exp $
+__version__ = "$Revision: 1.122 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -821,11 +821,14 @@ class cPersonSearchCtrl(wx.TextCtrl):
 					{'label': _('Create new'), 'tooltip': _('Create new patient.')}
 				]
 			)
-			if dlg.ShowModal() == wx.ID_YES:
+			if dlg.ShowModal() != wx.ID_NO:
 				return
 
 			wiz = gmDemographicsWidgets.cNewPatientWizard(parent = self.GetParent())
-			self.person = wiz.RunWizard(activate = False)
+			result = wiz.RunWizard(activate = False)
+			if result is False:
+				return None
+			self.person = result
 			self._display_name()
 			return None
 
@@ -1387,7 +1390,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.121  2009-02-04 12:35:18  ncq
+# Revision 1.122  2009-02-05 14:30:36  ncq
+# - only run new-patient-wizard if user explicitely said so
+# - do not try to set active patient if user cancelled new patient wizard
+#
+# Revision 1.121  2009/02/04 12:35:18  ncq
 # - support editing waiting list entries
 #
 # Revision 1.120  2009/01/30 12:11:43  ncq
