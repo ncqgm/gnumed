@@ -2,14 +2,14 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.58 2009-01-17 23:10:25 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.59 2009-02-05 13:05:08 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.4-rc1"
+CLIENTREV="0.4-rc3"
 CLIENTREV="CVS-HEAD"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 
-SRVREV="10-rc1"
+SRVREV="10-rc3"
 SRVREV="CVS-HEAD"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
 
@@ -247,7 +247,7 @@ cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-restore_database.sh ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../server/gm-backup_data.sh ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/gm-restore_data ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-restore_data.sh ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../server/gm-zip+sign_backups.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
@@ -388,7 +388,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.58  2009-01-17 23:10:25  ncq
+# Revision 1.59  2009-02-05 13:05:08  ncq
+# - fix typo
+#
+# Revision 1.58  2009/01/17 23:10:25  ncq
 # - bump version
 #
 # Revision 1.57  2009/01/15 11:41:41  ncq
