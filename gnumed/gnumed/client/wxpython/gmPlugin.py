@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.78 2008-07-10 20:54:52 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmPlugin.py,v 1.79 2009-02-05 21:12:28 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -117,6 +117,8 @@ class cNotebookPlugin:
 		self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__] = self
 		self.gb['horstspace.notebook.pages'].append(self)
 
+		gmDispatcher.send(signal = u'plugin_loaded', name = self.name())
+
 		return True
 	#-----------------------------------------------------
 	def unregister(self):
@@ -144,7 +146,7 @@ class cNotebookPlugin:
 		nb.DeletePage(nb_page_num)
 	#-----------------------------------------------------
 	def name(self):
-		return 'plugin %s' % self.__class__.__name__
+		return 'plugin <%s>' % self.__class__.__name__
 	#-----------------------------------------------------
 	def MenuInfo(self):
 		"""Return tuple of (menuname, menuitem).
@@ -211,17 +213,18 @@ class cNotebookPlugin:
 	#-----------------------------------------------------
 	def _on_raise_by_signal(self, **kwds):
 		# does this signal concern us ?
-		if kwds['name'] != self.__class__.__name__:
+		#if kwds['name'] != self.__class__.__name__:
+		if kwds['name'] not in [self.__class__.__name__, self.name()]:
 			return False
 		return self._on_raise_by_menu(None)
 	# -----------------------------------------------------
 	# event handlers for the popup window
-	def on_load (self, evt):
+	def on_load(self, evt):
 		# FIXME: talk to the configurator so we're loaded next time
 		self.register()
 		# FIXME: raise ?
 	# -----------------------------------------------------
-	def OnShow (self, evt):
+	def OnShow(self, evt):
 		self.register() # register without changing configuration
 	# -----------------------------------------------------
 	def __register_events(self):
@@ -434,7 +437,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.78  2008-07-10 20:54:52  ncq
+# Revision 1.79  2009-02-05 21:12:28  ncq
+# - support "plugin loaded" signal
+#
+# Revision 1.78  2008/07/10 20:54:52  ncq
 # - comment out toolbar handling
 #
 # Revision 1.77  2008/03/05 22:30:14  ncq
