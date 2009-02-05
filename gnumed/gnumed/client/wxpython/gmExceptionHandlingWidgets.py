@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.7 2008-12-25 23:31:51 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.8 2009-02-05 14:29:27 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -308,10 +308,11 @@ sender email  : %s
 				server = gmTools.default_mail_server,
 				auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
 			)
+			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
 		except StandardError:
 			_log.exception('cannot send bug report')
+			gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
 		wx.EndBusyCursor()
-		gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
 
 		evt.Skip()
 	#------------------------------------------
@@ -322,7 +323,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.7  2008-12-25 23:31:51  ncq
+# Revision 1.8  2009-02-05 14:29:27  ncq
+# - improved report mail reporting
+#
+# Revision 1.7  2008/12/25 23:31:51  ncq
 # - ignore but log most exceptions during application shutdown
 #
 # Revision 1.6  2008/12/09 23:29:54  ncq
