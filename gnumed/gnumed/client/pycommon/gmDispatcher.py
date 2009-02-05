@@ -23,6 +23,7 @@ known_signals = [
 	u'import_document_from_file',
 	u'statustext',					# args: msg=message, beep=whether to beep or not
 	u'display_widget',				# args: name=name of widget, other=widget specific (see receivers)
+	u'plugin_loaded',				# args: name=name of plugin
 	u'application_closing',
 	u'request_user_attention',
 	u'register_pre_exit_callback'	# args: callback = function to call
@@ -315,7 +316,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.20  2009-01-02 11:37:19  ncq
+# Revision 1.21  2009-02-05 21:07:50  ncq
+# - add signal
+#
+# Revision 1.20  2009/01/02 11:37:19  ncq
 # - new signal
 #
 # Revision 1.19  2008/12/01 12:12:06  ncq
