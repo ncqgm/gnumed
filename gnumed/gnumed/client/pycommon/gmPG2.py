@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.97 $"
+__version__ = "$Revision: 1.98 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -95,7 +95,8 @@ known_schema_hashes = {
 	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
 	'v7': '6c9f6d3981483f8e9433df99d1947b27',
 	'v8': '89b13a7af83337c3aad153b717e52360',
-	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d'
+	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
+	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a'
 }
 
 map_schema_hash2version = {
@@ -106,7 +107,8 @@ map_schema_hash2version = {
 	'90e2026ac2efd236da9c8608b8685b2d': 'v6',
 	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
 	'89b13a7af83337c3aad153b717e52360': 'v8',
-	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9'
+	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
+	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10'
 }
 
 map_client_branch2required_db_version = {
@@ -1794,7 +1796,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.97  2008-12-25 17:43:08  ncq
+# Revision 1.98  2009-02-05 13:00:56  ncq
+# - add v10 hashes
+#
+# Revision 1.97  2008/12/25 17:43:08  ncq
 # - add exception msg extraction function
 #
 # Revision 1.96  2008/12/25 16:54:01  ncq
