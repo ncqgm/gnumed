@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.157 2009-01-15 11:35:41 ncq Exp $
-__version__ = "$Revision: 1.157 $"
+# $Id: gmDemographicsWidgets.py,v 1.158 2009-02-05 14:29:09 ncq Exp $
+__version__ = "$Revision: 1.158 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2063,7 +2063,11 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			_pnl_form.PRW_gender.Refresh()
 
 		# dob validation
-		if (_pnl_form.PRW_dob.GetValue().strip() == u'') or (not _pnl_form.PRW_dob.is_valid_timestamp()):
+		if (
+				(_pnl_form.PRW_dob.GetValue().strip() == u'')
+				or (not _pnl_form.PRW_dob.is_valid_timestamp())
+				or (_pnl_form.PRW_dob.GetData().timestamp.year < 1900)
+		):
 			error = True
 			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.PRW_dob.GetValue()
 			gmDispatcher.send(signal = 'statustext', msg = msg)
@@ -2699,7 +2703,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.157  2009-01-15 11:35:41  ncq
+# Revision 1.158  2009-02-05 14:29:09  ncq
+# - verify DOB > 1900
+#
+# Revision 1.157  2009/01/15 11:35:41  ncq
 # - cleanup
 #
 # Revision 1.156  2008/11/21 13:05:48  ncq
