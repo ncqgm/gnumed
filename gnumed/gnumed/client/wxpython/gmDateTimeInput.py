@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.63 2008-06-22 17:31:50 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmDateTimeInput.py,v 1.64 2009-02-05 14:28:46 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -108,11 +108,6 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			# no, so try
 			self.data = self.__text2timestamp()
 
-#		# now valid ?
-#		if self.data is not None:
-#			# yes, so set text from the data (to make sure we can re-parse it later if need be)
-#			gmPhraseWheel.cPhraseWheel.SetText(self, value=self.data.format_accurately(), data=self.data)
-
 		# let the base class do its thing
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
 	#--------------------------------------------------------
@@ -125,8 +120,6 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	# external API
 	#--------------------------------------------------------
 	def SetText(self, value=u'', data=None, suppress_smarts=False):
-#		if data is None:
-#			data = self.__text2timestamp(val=value)
 
 		if data is not None:
 			if isinstance(data, pyDT.datetime):
@@ -207,7 +200,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.63  2008-06-22 17:31:50  ncq
+# Revision 1.64  2009-02-05 14:28:46  ncq
+# - cleanup
+#
+# Revision 1.63  2008/06/22 17:31:50  ncq
 # - some cleanup
 #
 # Revision 1.62  2008/06/18 15:46:49  ncq
