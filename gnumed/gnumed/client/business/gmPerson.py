@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.164.2.5 2008-11-21 12:30:46 ncq Exp $
-__version__ = "$Revision: 1.164.2.5 $"
+# $Id: gmPerson.py,v 1.164.2.6 2009-02-08 20:09:01 ncq Exp $
+__version__ = "$Revision: 1.164.2.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -544,7 +544,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#--------------------------------------------------------
 	def unlink_comm_channel(self, comm_channel=None):
 		gmDemographicRecord.delete_comm_channel (
-			pk = comm_channel['pk_link_identity2comm'],
+			pk = comm_channel['pk_lnk_identity2comm'],
 			pk_patient = self.pk_obj
 		)
 	#--------------------------------------------------------
@@ -2210,7 +2210,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.164.2.5  2008-11-21 12:30:46  ncq
+# Revision 1.164.2.6  2009-02-08 20:09:01  ncq
+# - fix typo
+#
+# Revision 1.164.2.5  2008/11/21 12:30:46  ncq
 # - do not return a dummy name
 #
 # Revision 1.164.2.4  2008/11/20 21:54:59  ncq
