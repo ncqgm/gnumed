@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.85.2.1 $"
+__version__ = "$Revision: 1.85.2.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -342,7 +342,8 @@ class user:
 					print "I need the password for the GNUmed database user [%s]." % self.name
 					self.password = getpass.getpass("Please type password: ")
 				else:
-					_log.warning('password for database user [%s] set to empty string' % self.name)
+					_log.warning('cannot get password for database user [%s]', self.name)
+					raise ValueError('no password for user %s' % self.name)
 
 		return None
 #==================================================================
@@ -1431,7 +1432,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.85.2.1  2008-10-12 17:06:36  ncq
+# Revision 1.85.2.2  2009-02-08 20:23:55  ncq
+# - do not assume '' as password if none given
+#
+# Revision 1.85.2.1  2008/10/12 17:06:36  ncq
 # - work around Windows Python bug with %s in getpass
 # - create auth group at db level so one-step bootstrapping works
 #
