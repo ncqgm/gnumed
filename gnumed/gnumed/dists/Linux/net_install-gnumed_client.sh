@@ -2,10 +2,10 @@
 
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.4.2.9 2009-01-15 08:59:55 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.4.2.10 2009-02-10 12:45:42 ncq Exp $
 # ===========================================================
 
-VER_LATEST="0.3.9"
+VER_LATEST="0.3.10"
 INSTALL_BASE=~/".gnumed/client-installation"
 
 # ===========================================================
@@ -192,7 +192,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.4.2.9  2009-01-15 08:59:55  ncq
+# Revision 1.4.2.10  2009-02-10 12:45:42  ncq
+# - bump to 0.3.10
+#
+# Revision 1.4.2.9  2009/01/15 08:59:55  ncq
 # - bump version
 #
 # Revision 1.4.2.8  2008/11/26 12:22:26  ncq
