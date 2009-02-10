@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.98 $"
+__version__ = "$Revision: 1.99 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -188,10 +188,18 @@ def __validate_timezone(conn=None, timezone=None):
 	is_valid = False
 	try:
 		curs.execute(cmd, args)
-		_log.info(u'time zone [%s] seems valid', timezone)
-		is_valid = True
+		_log.info(u'time zone [%s] is settable', timezone)
+		# can we actually use it, though ?
+		cmd = u"""select '1920-01-19 23:00:00+01'::timestamp with time zone"""
+		try:
+			curs.execute(cmd)
+			curs.fetchone()
+			_log.info(u'time zone [%s] is usable', timezone)
+			is_valid = True
+		except:
+			_log.error('error using time zone [%s]', timezone)
 	except dbapi.DataError:
-		_log.warning(u'time zone [%s] seems invalid', timezone)
+		_log.warning(u'time zone [%s] is not settable', timezone)
 	except:
 		_log.error(u'failed to set time zone to [%s]', timezone)
 		_log.exception(u'')
@@ -425,6 +433,9 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 			_log.debug('schema dump follows:')
 			for line in get_schema_structure(link_obj=link_obj).split():
 				_log.debug(line)
+			_log.debug('schema revision history dump follows:')
+			for line in get_schema_revision_history(link_obj=link_obj):
+				_log.debug(u' - '.join(line))
 		return False
 	_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
 	return True
@@ -439,6 +450,18 @@ def get_schema_version(link_obj=None):
 def get_schema_structure(link_obj=None):
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm.concat_table_structure()'}])
 	return rows[0][0]
+#------------------------------------------------------------------------
+def get_schema_revision_history(link_obj=None):
+	cmd = u"""
+select
+	imported::text,
+	version,
+	filename
+from gm_schema_revision
+order by imported
+"""
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': cmd}])
+	return rows
 #------------------------------------------------------------------------
 def get_current_user():
 	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
@@ -1777,6 +1800,10 @@ if __name__ == "__main__":
 				print "expected exception"
 				print "result:", e
 	#--------------------------------------------------------------------
+	def test_get_schema_revision_history():
+		for line in get_schema_revision_history():
+			print u' - '.join(line)
+	#--------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# run tests
 		#test_file2bytea()
@@ -1792,11 +1819,16 @@ if __name__ == "__main__":
 		#test_sanity_check_time_skew()
 		#test_keyword_expansion()
 		#test_get_foreign_key_details()
-		test_set_user_language()
+		#test_set_user_language()
+		test_get_schema_revision_history()
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.98  2009-02-05 13:00:56  ncq
+# Revision 1.99  2009-02-10 18:39:11  ncq
+# - test time zone for usability, not just for settability ...
+# - get_schema_revision_history and use it
+#
+# Revision 1.98  2009/02/05 13:00:56  ncq
 # - add v10 hashes
 #
 # Revision 1.97  2008/12/25 17:43:08  ncq
