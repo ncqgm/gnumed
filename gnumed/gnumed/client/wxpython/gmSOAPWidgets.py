@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.108 2008-12-12 16:36:36 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmSOAPWidgets.py,v 1.109 2009-02-10 18:40:07 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -163,6 +163,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			)
 			return result
 
+		# check for dupes
 		# new unassociated problem
 		if problem_to_add is None:
 			# check for dupes
@@ -192,7 +193,11 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 				continue
 			# editor is for episode
 			if problem_of_page['type'] == 'episode':
-				if problem_of_page['pk_episode'] == problem_to_add['pk_episode']:
+				if problem_to_add['type'] == 'issue':
+					is_equal = (problem_of_page['pk_health_issue'] == problem_to_add['pk_health_issue'])
+				else:
+					is_equal = (problem_of_page['pk_episode'] == problem_to_add['pk_episode'])
+				if is_equal:
 					self.SetSelection(page_idx)
 					return True
 				continue
@@ -1220,7 +1225,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.108  2008-12-12 16:36:36  ncq
+# Revision 1.109  2009-02-10 18:40:07  ncq
+# - allow one editor per issue regardless of opening order
+#
+# Revision 1.108  2008/12/12 16:36:36  ncq
 # - better tooltip
 #
 # Revision 1.107  2008/11/20 20:17:50  ncq
