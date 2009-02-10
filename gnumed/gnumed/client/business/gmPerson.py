@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.178 2009-01-30 12:08:20 ncq Exp $
-__version__ = "$Revision: 1.178 $"
+# $Id: gmPerson.py,v 1.179 2009-02-10 18:37:36 ncq Exp $
+__version__ = "$Revision: 1.179 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -758,7 +758,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#--------------------------------------------------------
 	def unlink_comm_channel(self, comm_channel=None):
 		gmDemographicRecord.delete_comm_channel (
-			pk = comm_channel['pk_link_identity2comm'],
+			pk = comm_channel['pk_lnk_identity2comm'],
 			pk_patient = self.pk_obj
 		)
 	#--------------------------------------------------------
@@ -2300,7 +2300,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.178  2009-01-30 12:08:20  ncq
+# Revision 1.179  2009-02-10 18:37:36  ncq
+# - typo when deleting comm channel
+#
+# Revision 1.178  2009/01/30 12:08:20  ncq
 # - support zone in put_on_waiting_list
 #
 # Revision 1.177  2009/01/21 18:52:34  ncq
