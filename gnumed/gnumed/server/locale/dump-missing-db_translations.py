@@ -4,11 +4,13 @@
 
 This script dumps all the strings in the database
 for which no translation is given.
+
+Usage: just run it
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/locale/dump-missing-db_translations.py,v $
-# $Id: dump-missing-db_translations.py,v 1.8 2008-08-17 12:07:56 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: dump-missing-db_translations.py,v 1.9 2009-02-10 18:51:18 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string, codecs, logging
@@ -51,7 +53,10 @@ if __name__ == '__main__':
 	print "done"
 #============================================================
 # $Log: dump-missing-db_translations.py,v $
-# Revision 1.8  2008-08-17 12:07:56  ncq
+# Revision 1.9  2009-02-10 18:51:18  ncq
+# - document usage
+#
+# Revision 1.8  2008/08/17 12:07:56  ncq
 # - adjust to new middleware
 #
 # Revision 1.7  2007/06/12 13:23:06  ncq
