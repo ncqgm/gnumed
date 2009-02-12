@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -86,8 +86,14 @@ class gmBackendListener(gmBorg.cBorg):
 
 		self._listener_thread = None
 
-		self.__unregister_patient_notifications()
-		self.__unregister_unspecific_notifications()
+		try:
+			self.__unregister_patient_notifications()
+		except:
+			_log.exception('unable to unregister patient notifications')
+		try:
+			self.__unregister_unspecific_notifications()
+		except:
+			_log.exception('unable to unregister unspecific notifications')
 
 		return
 	#-------------------------------
@@ -384,7 +390,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.20  2009-01-21 18:53:04  ncq
+# Revision 1.21  2009-02-12 16:21:15  ncq
+# - be more careful about signal de-registration
+#
+# Revision 1.20  2009/01/21 18:53:04  ncq
 # - adjust to signals
 #
 # Revision 1.19  2008/11/20 18:43:01  ncq
