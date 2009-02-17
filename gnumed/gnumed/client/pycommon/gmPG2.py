@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.100 $"
+__version__ = "$Revision: 1.101 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1445,6 +1445,8 @@ class cAuthenticationError(dbapi.OperationalError):
 		return u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
 # =======================================================================
+# custom psycopg2 extensions
+# =======================================================================
 class cEncodingError(dbapi.OperationalError):
 
 	def __init__(self, encoding=None, prev_val=None):
@@ -1457,7 +1459,10 @@ class cEncodingError(dbapi.OperationalError):
 
 	def __unicode__(self):
 		return u'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
-# =======================================================================
+
+# -----------------------------------------------------------------------
+# Python -> PostgreSQL
+# -----------------------------------------------------------------------
 class cAdapterPyDateTime(object):
 
 	def __init__(self, dt):
@@ -1466,9 +1471,9 @@ class cAdapterPyDateTime(object):
 		self.__dt = dt
 
 	def getquoted(self):
-		#return (_timestamp_template % self.__dt.isoformat()).replace(',', '.')
 		return _timestamp_template % self.__dt.isoformat()
-# -----------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
 class cAdapterMxDateTime(object):
 
 	def __init__(self, dt):
@@ -1477,8 +1482,41 @@ class cAdapterMxDateTime(object):
 		self.__dt = dt
 
 	def getquoted(self):
-#		return (_timestamp_template % mxDT.ISO.str(self.__dt)).replace(',', '.')
+		# under some locale settings the mx.DateTime ISO formatter
+		# will insert "," into the ISO string,
+		# while this is allowed per the ISO8601 spec PostgreSQL
+		# cannot currently handle that,
+		# so map those "," to "." to make things work:
 		return mxDT.ISO.str(self.__dt).replace(',', '.')
+
+# ----------------------------------------------------------------------
+# PostgreSQL -> Python
+# ----------------------------------------------------------------------
+
+# We need this because some places once used time "zones"
+# with true local time, IOW having seconds in the UTC offset.
+# The Python datetime zone code cannot handle that, however,
+# which makes psycopg2 fail when loading timestamps with such
+# time zones from the backend ...
+# So we (almost silently) drop the seconds and try again.
+def convert_ts_with_odd_tz(string_value, cursor):
+	try:
+		return dbapi.DATETIME(string_value, cursor)
+	except dbapi.DataError:
+		_log.error('unable to parse [%s] as <timestamp with time zone>', string_value)
+		if regex.match('(\+|-)\d\d:\d\d:\d\d', string_value[-9:]) is not None:
+			# parsing doesn't succeed even if seconds
+			# are ":00" so truncate in any case
+			_log.debug('time zone with seconds detected (true local time ?)')
+			adjusted_string_value = string_value[:-3]
+			_log.warning('truncating to [%s] and trying again', adjusted_string_value)
+			_log.warning('value will be off by %s seconds', string_value[-2:])
+			return dbapi.DATETIME(adjusted_string_value, cursor)
+		raise
+
+DT_W_ODD_TZ = psycopg2.extensions.new_type(dbapi.DATETIME.values, 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
+psycopg2.extensions.register_type(DT_W_ODD_TZ)
+
 #=======================================================================
 #  main
 #-----------------------------------------------------------------------
@@ -1489,7 +1527,7 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
 # properly adapt *tuples* into (a, b, c, ...) for
 # "where ... IN (...)" queries
-# but only needed/possible in psycopg2 < 0.2.6
+# but only needed/possible in psycopg2 < 2.0.6
 try:
 	psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
 except AttributeError:
@@ -1838,7 +1876,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.100  2009-02-17 08:00:46  ncq
+# Revision 1.101  2009-02-17 17:46:42  ncq
+# - work around Python datetime not being able
+#   to use time zones with seconds
+#
+# Revision 1.100  2009/02/17 08:00:46  ncq
 # - get_keyword_expansion_candidates
 #
 # Revision 1.99  2009/02/10 18:39:11  ncq
