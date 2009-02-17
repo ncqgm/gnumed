@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.134 $
+# $Revision: 1.135 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-01-22 12:18+CET\n"
-"PO-Revision-Date: 2009-01-30 13:14+0100\n"
+"POT-Creation-Date: 2009-02-17 12:32+CET\n"
+"PO-Revision-Date: 2009-02-17 12:44+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1876,6 +1876,167 @@ msgstr "Geschlecht"
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Der zugehörige Patient kann durch Doppelklick einer Zeile aktiviert werden."
 
+msgid "Schock index"
+msgstr "Schockindex"
+
+msgid "<SI>"
+msgstr ""
+
+msgid "rhythmic"
+msgstr "rhythmisch"
+
+msgid "arrhythmic"
+msgstr "arrhythmisch"
+
+msgid "°C"
+msgstr ""
+
+msgid "°F"
+msgstr ""
+
+msgid "<last height>"
+msgstr ""
+
+msgid "BMI"
+msgstr "BMI"
+
+msgid "<last weight>"
+msgstr ""
+
+msgid "<BMI>"
+msgstr ""
+
+msgid "<last waist>"
+msgstr ""
+
+msgid "RR measured on the left arm."
+msgstr "Blutdruck am linken Arm."
+
+msgid ""
+"SI = Pulse / RR (syst)\n"
+"\n"
+"  0.4-0.7 = normal\n"
+"  >1 = critical"
+msgstr ""
+"SI = Puls / RR (syst)\n"
+"\n"
+"  0.4-0.7 = normal\n"
+"  >1 = kritisch"
+
+msgid "RR measured on the right arm."
+msgstr "Blutdruck am rechten Arm."
+
+msgid "Heart rate in beats per minute."
+msgstr "Herzfrequenz in Schlägen pro Minute."
+
+msgid ""
+"The quality of the pulse.\n"
+"Let's not forget good old GP medicine !"
+msgstr ""
+"Pulsqualität.\n"
+"Gute alte Hausarztmedizin !"
+
+msgid ""
+"Peripheral body temperature:\n"
+" axillar\n"
+" oral\n"
+" forehead\n"
+" tympanic"
+msgstr ""
+"Periphere Körpertemperatur:\n"
+" axillär\n"
+" oral\n"
+" Stirn\n"
+" Trommelfell"
+
+msgid ""
+"\"Core\" body temperature:\n"
+" rectal\n"
+" intravascular"
+msgstr ""
+"\"Kern\"-Temperatur:\n"
+" rektal\n"
+" intravaskulär"
+
+msgid "Respiration rate."
+msgstr "Atemfrequenz."
+
+msgid "Current height in cm."
+msgstr "Jetzige Größe in cm."
+
+msgid ""
+"Body Mass Index.\n"
+"\n"
+"BMI = weight / height²"
+msgstr ""
+"Body-Mass-Index.\n"
+"\n"
+"BMI = Gewicht / Größe²"
+
+msgid ""
+"Current weight in gram or kg.\n"
+"\n"
+"Cutoff is 500:\n"
+" <500: kg\n"
+" >500: g"
+msgstr ""
+"Jetziges Gewicht in g oder kg.\n"
+"\n"
+"Trennpunkt ist 500:\n"
+" < 500: kg\n"
+" > 500: g"
+
+msgid "Current waist circumference in cm."
+msgstr "Jetziger Bauchumfang in cm."
+
+msgid "Vitals"
+msgstr "Vitalparameter"
+
+msgid "RR left"
+msgstr "RR links"
+
+msgid "mmHg"
+msgstr ""
+
+msgid "RR right"
+msgstr "RR rechts"
+
+msgid "Pulse"
+msgstr "Puls"
+
+msgid "/min"
+msgstr ""
+
+msgid "Temp"
+msgstr "Temp"
+
+msgid "(axill./oral/...)"
+msgstr "(axill./oral/...)"
+
+msgid "(rectal)"
+msgstr "(rektal)"
+
+msgid "Resp"
+msgstr "Atmung"
+
+msgid "Figure"
+msgstr "Habitus"
+
+msgid "Height"
+msgstr "Größe"
+
+msgid "cm"
+msgstr ""
+
+msgid "Weight"
+msgstr "Gewicht"
+
+msgid "g or kg"
+msgstr "g oder kg"
+
+msgid "Waist"
+msgstr "Taille"
+
 msgid "Programmer must override this text."
 msgstr "Programmierer muß diesen Text überschreiben"
 
@@ -2422,6 +2583,32 @@ msgstr "Hotline"
 msgid "Log file"
 msgstr "Log-Datei"
 
+msgid "Waiting list details for this patient."
+msgstr "Wartelisteneintrag für diesen Patienten."
+
+msgid "What is the patient here for. Could be the Reason for Encounter."
+msgstr "Warum der Patient hier ist. Mit anderen Worten der Beratungsanlaß."
+
+msgid "Select or enter the zone the patient is waiting in."
+msgstr "Die Wartezone für den Patienten wählen."
+
+msgid ""
+"Select the urgency for this patient.\n"
+"\n"
+"Default is 0. Range is 0-10.\n"
+"Higher values mean higher urgency."
+msgstr ""
+"Wählen Sie die Dringlichkeit für diesen Patienten.\n"
+"\n"
+"0 ist normal. Der Bereich ist 0 - 10.\n"
+"Höhere Werte bedeuten höhere Dringlichkeit."
+
+msgid "&Zone:"
+msgstr "&Bereich:"
+
+msgid "&Urgency:"
+msgstr "&Dringlichkeit:"
+
 msgid "&Activate"
 msgstr "&Aufrufen"
 
@@ -2886,9 +3073,6 @@ msgstr "Größe (cm): "
 
 msgid "Mass (kg)"
 msgstr "Gewicht (kg)"
-
-msgid "BMI"
-msgstr "BMI"
 
 msgid "Adjusted Values"
 msgstr "Resultierende Werte"
@@ -4068,6 +4252,9 @@ msgstr "<nicht angegeben>"
 msgid "Bug report has been emailed."
 msgstr "Fehlerbericht wurde versandt."
 
+msgid "Bug report COULD NOT be emailed."
+msgstr "Fehlerbericht konnte NICHT versandt werden."
+
 msgid "Printer Setup"
 msgstr "Druckerkonfiguration"
 
@@ -4210,6 +4397,9 @@ msgstr "Updates suchen"
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "Sie sind als %s%s.%s (%s) angemeldet. Datenbankkonto <%s>."
 
+msgid "Plugins ..."
+msgstr "Module ..."
+
 msgid "Options ..."
 msgstr "Optionen ..."
 
@@ -4251,12 +4441,6 @@ msgstr "Die E-Mail-Adresse des Nutzers. Zum Senden von Fehlerberichten, etc."
 
 msgid "User interface ..."
 msgstr "Programmoberfläche ..."
-
-msgid "Choose the plugins to load per workplace."
-msgstr "Die pro Arbeitsplatz zu ladenden Module wählen."
-
-msgid "Workplaces"
-msgstr "Arbeitsplätze"
 
 msgid "Document handling ..."
 msgstr "Dokumentenmanagement ..."
@@ -4422,6 +4606,12 @@ msgstr "Mitarbeiterliste &bearbeiten"
 
 msgid "Edit the list of staff"
 msgstr "Die Liste der Mitarbeiter bearbeiten"
+
+msgid "Manage the plugins to load per workplace."
+msgstr "Die pro Arbeitsplatz zu ladenden Module verwalten."
+
+msgid "Workplace profiles"
+msgstr "Arbeitsplatz-Profile"
 
 msgid "&Document types"
 msgstr "&Dokumententypen"
@@ -4704,6 +4894,9 @@ msgstr "Informationen über die Datenbank anzeigen."
 
 msgid "About database"
 msgstr "Über die Datenbank"
+
+msgid "Raise plugin [%s]."
+msgstr "Modul [%s] zeigen."
 
 msgid "programmer forgot to specify status message"
 msgstr "Programmierer hat vergessen, Statusmeldung anzugeben."
@@ -6522,6 +6715,18 @@ msgstr ""
 "\n"
 " \"%s\""
 
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+"Mehrere Textbausteine passen zum Schlüsselwort [%s].\n"
+"\n"
+"Wählen Sie den gewünschten Baustein aus."
+
+msgid "Selecting text macro"
+msgstr "Textmakro wählen"
+
 msgid "Refresh from database"
 msgstr "Neu laden"
 
@@ -6800,6 +7005,9 @@ msgstr "%(name)s (fixiert)"
 
 msgid "%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)"
 msgstr "%(pat)s wird am %(day)s. %(month)s %(age)s Jahre alt ! (Heute ist der %(day_now)s. %(month_now)s.)"
+
+msgid "Cannot add to waiting list. Missing essential input."
+msgstr "Kann nicht in Warteliste eintragen. Es fehlen grundlegende Informationen."
 
 msgid "Zone"
 msgstr "Bereich"
@@ -8035,6 +8243,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Workplaces"
+#~ msgstr "Arbeitsplätze"
 #~ msgid "Add the patient to the waiting list."
 #~ msgstr "Den Patienten in die Warteliste eintragen."
 #~ msgid "GNUmed: Starting up ..."
@@ -8307,8 +8517,6 @@ msgstr "erstmals"
 #~ msgstr ""
 #~ "Sie müssen in der Konfigurationsdatei die Option [workplace] -> <help "
 #~ "desk>einstellen!"
-#~ msgid "Workplace plugins"
-#~ msgstr "Arbeitsplatz-Module"
 #~ msgid "Pages"
 #~ msgstr "Seiten"
 #~ msgid "GDT export"
@@ -8395,8 +8603,6 @@ msgstr "erstmals"
 #~ msgstr "Setze Eingabefelder auf Werte in der Datenbank"
 #~ msgid "The addresses known for this patient."
 #~ msgstr "Die für diesen Patienten bekannten Adressen."
-#~ msgid "Add an address for this patient."
-#~ msgstr "Eine Adresse für diesen Patienten hinzufügen."
 #~ msgid "The address is no longer associated with this patient."
 #~ msgstr "Die Adresse ist diesem Patienten nicht länger zugeordnet."
 #~ msgid "The communication paths known for this patient."
