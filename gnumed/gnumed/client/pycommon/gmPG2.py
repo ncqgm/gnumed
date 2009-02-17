@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.99 $"
+__version__ = "$Revision: 1.100 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -666,7 +666,7 @@ def get_text_expansion_keywords():
 def expand_keyword(keyword = None):
 
 	if keyword == u'$$steffi':
-		return u'Hai, play !  Versucht das !  :-)'
+		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
 	cmd = u"""select expansion from clin.v_your_keyword_expansions where keyword = %(kwd)s"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
@@ -675,6 +675,20 @@ def expand_keyword(keyword = None):
 		return None
 
 	return rows[0]['expansion']
+#------------------------------------------------------------------------
+def get_keyword_expansion_candidates(keyword = None):
+
+	if keyword is None:
+		return []
+
+	get_text_expansion_keywords()
+
+	candidates = []
+	for kwd in text_expansion_keywords:
+		if kwd['keyword'].startswith(keyword):
+			candidates.append(kwd['keyword'])
+
+	return candidates
 #------------------------------------------------------------------------
 def add_text_expansion(keyword=None, expansion=None, public=None):
 
@@ -1824,7 +1838,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.99  2009-02-10 18:39:11  ncq
+# Revision 1.100  2009-02-17 08:00:46  ncq
+# - get_keyword_expansion_candidates
+#
+# Revision 1.99  2009/02/10 18:39:11  ncq
 # - test time zone for usability, not just for settability ...
 # - get_schema_revision_history and use it
 #
