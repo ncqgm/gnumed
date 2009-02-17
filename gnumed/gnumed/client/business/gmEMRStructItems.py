@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.129 $"
+__version__ = "$Revision: 1.130 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -245,13 +245,13 @@ def create_health_issue(description=None, encounter=None):
 		pass
 
 	queries = []
-	cmd = u"insert into clin.health_issue (description, fk_encounter) values (%s, %s, %s)"
-	queries.append({'cmd': cmd, 'args': [encounter,]})
+	cmd = u"insert into clin.health_issue (description, fk_encounter) values (%(desc)s, %(enc)s)"
+	queries.append({'cmd': cmd, 'args': {'desc': description, 'enc': encounter}})
 
 	cmd = u"select currval('clin.health_issue_pk_seq')"
 	queries.append({'cmd': cmd})
 
-	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	h_issue = cHealthIssue(aPK_obj = rows[0][0])
 
 	return (True, h_issue)
@@ -1104,7 +1104,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.129  2008-12-18 21:26:20  ncq
+# Revision 1.130  2009-02-17 17:45:53  ncq
+# - fix create_health_issue
+#
+# Revision 1.129  2008/12/18 21:26:20  ncq
 # - u''ify some strings
 #
 # Revision 1.128  2008/12/09 23:21:00  ncq
