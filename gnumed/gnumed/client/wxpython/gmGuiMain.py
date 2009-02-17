@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.441 2009-02-05 21:10:59 ncq Exp $
-__version__ = "$Revision: 1.441 $"
+# $Id: gmGuiMain.py,v 1.442 2009-02-17 08:34:58 ncq Exp $
+__version__ = "$Revision: 1.442 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1783,28 +1783,49 @@ class gmTopLevelFrame(wx.Frame):
 		wx.CallAfter(self.__save_screenshot)
 		evt.Skip()
 	#----------------------------------------------
+#	def __save_screenshot_old(self):
+#
+#		time.sleep(0.5)
+#
+#		w, h = self.GetSize()
+#		wdc = wx.WindowDC(self)
+#		mdc = wx.MemoryDC()
+#		img = wx.EmptyBitmap(w, h)
+#		mdc.SelectObject(img)
+#		mdc.Blit(0, 0, w, h, wdc, 0, 0)
+#
+#		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
+#		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+#		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
+#		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % fname)
+	#----------------------------------------------
 	def __save_screenshot(self):
 
 		time.sleep(0.5)
 
-#		src_rect = self.GetRect()
-#		sdc = wx.ScreenDC()						# whole screen area
-#		mdc = wx.MemoryDC()
-#		img = wx.EmptyBitmap(src_rect.width, src_rect.height)	# must be large enough for snapshot
-#		mdc.SelectObject(img)
-#		mdc.Blit (								# copy ...
-#			0, 0,								# ... to here in the target ...
-#			src_rect.width, src_rect.height,	# ... that much in ...
-#			sdc,								# ... the source (the screen) ...
-#			0, 0								# ... starting at
-#		)
+		rect = self.GetRect()
 
-		w, h = self.GetSize()
-		wdc = wx.WindowDC(self)
+		# adjust for window decoration on Linux
+		if sys.platform == 'linux2':
+			client_x, client_y = self.ClientToScreen((0, 0))
+			border_width = client_x - rect.x
+			title_bar_height = client_y - rect.y
+			# If the window has a menu bar, remove it from the title bar height.
+			if self.GetMenuBar():
+				title_bar_height /= 2
+			rect.width += (border_width * 2)
+			rect.height += title_bar_height + border_width
+
+		wdc = wx.ScreenDC()
 		mdc = wx.MemoryDC()
-		img = wx.EmptyBitmap(w, h)
+		img = wx.EmptyBitmap(rect.width, rect.height)
 		mdc.SelectObject(img)
-		mdc.Blit(0, 0, w, h, wdc, 0, 0)
+		mdc.Blit (						# copy ...
+			0, 0,						# ... to here in the target ...
+			rect.width, rect.height,	# ... that much from ...
+			wdc,						# ... the source ...
+			rect.x, rect.y				# ... starting here
+		)
 
 		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -2746,7 +2767,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.441  2009-02-05 21:10:59  ncq
+# Revision 1.442  2009-02-17 08:34:58  ncq
+# - save screenshot now also supports window decorations
+#
+# Revision 1.441  2009/02/05 21:10:59  ncq
 # - rapid plugin access
 #
 # Revision 1.440  2009/02/05 13:03:38  ncq
