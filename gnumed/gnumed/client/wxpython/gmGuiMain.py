@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.442 2009-02-17 08:34:58 ncq Exp $
-__version__ = "$Revision: 1.442 $"
+# $Id: gmGuiMain.py,v 1.443 2009-02-17 11:49:45 ncq Exp $
+__version__ = "$Revision: 1.443 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -333,14 +333,6 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ui = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
 
-#		ID = wx.NewId()
-#		menu_cfg_ui.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after client startup.'))
-#		wx.EVT_MENU(self, ID, self.__on_set_startup_plugin)
-
-		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('Workplaces'), _('Choose the plugins to load per workplace.'))
-		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
-
 		# -- submenu gnumed / config / ui / docs
 		menu_cfg_doc = wx.Menu()
 		menu_cfg_ui.AppendMenu(wx.NewId(), _('Document handling ...'), menu_cfg_doc)
@@ -477,6 +469,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_staff.Append(-1, _('&Edit staff list'), _('Edit the list of staff'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_staff_list, item)
+
+		item = menu_master_data.Append(-1, _('Workplace profiles'), _('Manage the plugins to load per workplace.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_workplace, item)
 
 		item = menu_master_data.Append(-1, _('&Document types'), _('Manage the document types available in the system.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_doc_types, item)
@@ -2767,7 +2762,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.442  2009-02-17 08:34:58  ncq
+# Revision 1.443  2009-02-17 11:49:45  ncq
+# - manage workplaces under master data now
+#
+# Revision 1.442  2009/02/17 08:34:58  ncq
 # - save screenshot now also supports window decorations
 #
 # Revision 1.441  2009/02/05 21:10:59  ncq
