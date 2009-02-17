@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.21 2009-01-21 22:37:14 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmNarrativeWidgets.py,v 1.22 2009-02-17 08:07:37 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -1155,28 +1155,67 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 	def __on_char(self, evt):
 		char = unichr(evt.GetUnicodeKey())
 
-		if self.__keyword_separators.match(char) is None:
-			evt.Skip()
-			return
-
 		if self.LastPosition == 1:
 			evt.Skip()
 			return
+
+		explicit_expansion = False
+		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT): # portable CTRL-ALT-...
+			if evt.GetKeyCode() != 13:
+				evt.Skip()
+				return
+			explicit_expansion = True
+
+		if not explicit_expansion:
+			if self.__keyword_separators.match(char) is None:
+				evt.Skip()
+				return
 
 		caret_pos, line_no = self.PositionToXY(self.InsertionPoint)
 		line = self.GetLineText(line_no)
 		word = self.__keyword_separators.split(line[:caret_pos])[-1]
 
-		if (word != u'$$steffi') and (word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ]):
+		if (
+			(not explicit_expansion)
+				and
+			(word != u'$$steffi')
+				and
+			(word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ])
+		):
 			evt.Skip()
 			return
 
 		start = self.InsertionPoint - len(word)
-		wx.CallAfter(self.replace_keyword_with_expansion, word, start)
+		wx.CallAfter(self.replace_keyword_with_expansion, word, start, explicit_expansion)
+
 		evt.Skip()
 		return
 	#------------------------------------------------
-	def replace_keyword_with_expansion(self, keyword=None, position=None):
+	def replace_keyword_with_expansion(self, keyword=None, position=None, show_list=False):
+
+		if show_list:
+			candidates = gmPG2.get_keyword_expansion_candidates(keyword = keyword)
+			if len(candidates) == 0:
+				return
+			if len(candidates) == 1:
+				keyword = candidates[0]
+			else:
+				keyword = gmListWidgets.get_choices_from_list (
+					parent = self,
+					msg = _(
+						'Several macros match the keyword [%s].\n'
+						'\n'
+						'Please select the expansion you want to happen.'
+					) % keyword,
+					caption = _('Selecting text macro'),
+					choices = candidates,
+					columns = [_('Keyword')],
+#					data = candidates,
+					single_selection = True,
+					can_return_empty = False
+				)
+				if keyword is None:
+					return
 
 		expansion = gmPG2.expand_keyword(keyword = keyword)
 
@@ -1241,7 +1280,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.21  2009-01-21 22:37:14  ncq
+# Revision 1.22  2009-02-17 08:07:37  ncq
+# - support explicit macro expansion
+#
+# Revision 1.21  2009/01/21 22:37:14  ncq
 # - do not fail save_all_editors() where not appropriate
 #
 # Revision 1.20  2009/01/21 18:53:57  ncq
