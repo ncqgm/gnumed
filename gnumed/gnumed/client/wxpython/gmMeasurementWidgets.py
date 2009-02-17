@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.36 2009-02-12 16:23:39 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmMeasurementWidgets.py,v 1.37 2009-02-17 17:47:31 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -38,7 +38,7 @@ def edit_measurement(parent=None, measurement=None):
 		return True
 	return False
 #================================================================
-from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
+#from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
 
 #================================================================
 # display widgets
@@ -1243,20 +1243,23 @@ if __name__ == '__main__':
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------
-	def test_primary_care_vitals_pnl():
-		app = wx.PyWidgetTester(size = (500, 300))
-		pnl = wxgPrimaryCareVitalsInputPnl.wxgPrimaryCareVitalsInputPnl(parent = app.frame, id = -1)
-		app.frame.Show()
-		app.MainLoop()
+#	def test_primary_care_vitals_pnl():
+#		app = wx.PyWidgetTester(size = (500, 300))
+#		pnl = wxgPrimaryCareVitalsInputPnl.wxgPrimaryCareVitalsInputPnl(parent = app.frame, id = -1)
+#		app.frame.Show()
+#		app.MainLoop()
 	#------------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		#test_grid()
-		#test_test_ea_pnl()
-		test_primary_care_vitals_pnl()
+		test_test_ea_pnl()
+		#test_primary_care_vitals_pnl()
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.36  2009-02-12 16:23:39  ncq
+# Revision 1.37  2009-02-17 17:47:31  ncq
+# - comment out primary care vitals
+#
+# Revision 1.36  2009/02/12 16:23:39  ncq
 # - start work on primary care vitals input
 #
 # Revision 1.35  2009/01/28 11:27:56  ncq
