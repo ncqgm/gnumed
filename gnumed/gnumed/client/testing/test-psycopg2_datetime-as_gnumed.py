@@ -1,11 +1,11 @@
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/testing/test-psycopg2_datetime-as_gnumed.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 # =======================================================================
 import sys, logging
-sys.path.insert(0, '../')
+sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmLog2, gmI18N
 gmI18N.activate_locale()
@@ -46,7 +46,10 @@ except:
 
 # =======================================================================
 # $Log: test-psycopg2_datetime-as_gnumed.py,v $
-# Revision 1.1  2009-02-10 18:47:25  ncq
+# Revision 1.2  2009-02-17 17:47:07  ncq
+# - adjust path
+#
+# Revision 1.1  2009/02/10 18:47:25  ncq
 # - more TZ trouble test cases
 #
 #
