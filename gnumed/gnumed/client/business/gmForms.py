@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.60 2008-09-02 18:59:01 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmForms.py,v 1.61 2009-02-18 13:43:37 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -143,7 +143,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 			filename = gmTools.get_unique_filename (
 				prefix = 'gm-%s-Template-' % self._payload[self._idx['engine']],
 				suffix = suffix,
-				dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+				tmp_dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
 			)
 
 		data_query = {
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.60  2008-09-02 18:59:01  ncq
+# Revision 1.61  2009-02-18 13:43:37  ncq
+# - get_unique_filename API change
+#
+# Revision 1.60  2008/09/02 18:59:01  ncq
 # - add "invisible" to ooo startup command as suggested by Jerzy
 #
 # Revision 1.59  2008/08/29 20:54:28  ncq

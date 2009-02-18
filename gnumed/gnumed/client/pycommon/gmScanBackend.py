@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.54 2008-07-10 11:20:03 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmScanBackend.py,v 1.55 2009-02-18 13:45:25 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -59,7 +59,7 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
-			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp', dir=tmpdir)
+			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp', tmp_dir=tmpdir)
 		else:
 			tmp, ext = os.path.splitext(filename)
 			if ext != '.bmp':
@@ -265,7 +265,7 @@ class cSaneScanner:
 	#---------------------------------------------------
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
-			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp', dir=tmpdir)
+			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp', tmp_dir=tmpdir)
 		else:
 			tmp, ext = os.path.splitext(filename)
 			if ext != '.bmp':
@@ -349,7 +349,7 @@ class cXSaneScanner:
 			filename = gmTools.get_unique_filename (
 				prefix = 'gmScannedObj-',
 				suffix = cXSaneScanner._filetype,
-				dir = tmpdir
+				tmp_dir = tmpdir
 			)
 		name, ext = os.path.splitext(filename)
 		filename = '%s-001%s' % (name, cXSaneScanner._filetype)
@@ -502,7 +502,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.54  2008-07-10 11:20:03  ncq
+# Revision 1.55  2009-02-18 13:45:25  ncq
+# - get_unique_filename API change
+#
+# Revision 1.54  2008/07/10 11:20:03  ncq
 # - use --xsane-rc when calling XSane
 #
 # Revision 1.53  2008/04/11 12:24:01  ncq

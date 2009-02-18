@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.111 2009-01-15 11:31:58 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmMedDoc.py,v 1.112 2009-02-18 13:43:38 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -184,7 +184,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			filename = gmTools.get_unique_filename (
 				prefix = 'gm-doc_obj-page_%s-' % self._payload[self._idx['seq_idx']],
 				suffix = suffix,
-				dir = aTempDir
+				tmp_dir = aTempDir
 			)
 
 		success = gmPG2.bytea2file (
@@ -710,7 +710,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.111  2009-01-15 11:31:58  ncq
+# Revision 1.112  2009-02-18 13:43:38  ncq
+# - get_unique_filename API change
+#
+# Revision 1.111  2009/01/15 11:31:58  ncq
 # - implement description handling
 #
 # Revision 1.110  2009/01/11 19:16:05  ncq

@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.31 2009-02-05 21:16:59 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmXdtObjects.py,v 1.32 2009-02-18 13:43:38 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -361,7 +361,7 @@ def split_xdt_file(aFile,patlst,cfg):
 	return 1
 #==============================================================
 def get_rand_fname(aDir):
-	tmpname = gmTools.get_unique_filename(prefix='', suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()), dir=aDir)
+	tmpname = gmTools.get_unique_filename(prefix='', suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()), tmp_dir=aDir)
 	path, fname = os.path.split(tmpname)
 	return fname
 #==============================================================
@@ -436,7 +436,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.31  2009-02-05 21:16:59  ncq
+# Revision 1.32  2009-02-18 13:43:38  ncq
+# - get_unique_filename API change
+#
+# Revision 1.31  2009/02/05 21:16:59  ncq
 # - start supporting importing LDT
 #
 # Revision 1.30  2008/01/30 13:34:50  ncq

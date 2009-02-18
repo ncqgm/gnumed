@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.73 2009-01-02 11:38:09 ncq Exp $
+# $Id: gmTools.py,v 1.74 2009-02-18 13:45:25 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -367,13 +367,22 @@ def mkdir(directory=None):
 			raise
 	return True
 #---------------------------------------------------------------------------
-def get_unique_filename(prefix=None, suffix=None, dir=None):
+def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	"""This introduces a race condition between the file.close() and
 	actually using the filename.
 
 	The file will not exist after calling this function.
 	"""
-	kwargs = {'dir': dir}
+	if tmp_dir is not None:
+		if (
+			not os.access(tmp_dir, os.F_OK)
+				or
+			not os.access(tmp_dir, os.X_OK | os.W_OK)
+		):
+			_log.info('cannot use temporary dir [%s]', tmp_dir)
+			tmp_dir = None
+
+	kwargs = {'dir': tmp_dir}
 
 	if prefix is None:
 		kwargs['prefix'] = 'gnumed-'
@@ -914,7 +923,7 @@ This is a test mail from the gmTools.py module.
 		print get_unique_filename(prefix='test-')
 		print get_unique_filename(suffix='tst')
 		print get_unique_filename(prefix='test-', suffix='tst')
-		print get_unique_filename(dir='/home/ncq/Archiv/')
+		print get_unique_filename(tmp_dir='/home/ncq/Archiv/')
 	#-----------------------------------------------------------------------
 	def test_size2str():
 		print "testing size2str()"
@@ -994,7 +1003,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.73  2009-01-02 11:38:09  ncq
+# Revision 1.74  2009-02-18 13:45:25  ncq
+# - get_unique_filename API change
+#
+# Revision 1.73  2009/01/02 11:38:09  ncq
 # - input2decimal + tests
 #
 # Revision 1.72  2008/12/22 18:58:53  ncq
