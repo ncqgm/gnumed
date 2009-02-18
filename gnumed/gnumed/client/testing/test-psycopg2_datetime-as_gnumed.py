@@ -1,6 +1,6 @@
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/testing/test-psycopg2_datetime-as_gnumed.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 # =======================================================================
@@ -27,6 +27,7 @@ l.password = 'any-doc'
 
 gmPG2.set_default_login(l)
 
+gmPG2.set_default_client_timezone(timezone = 'Asia/Colombo')
 gmPG2.set_default_client_timezone(timezone = 'Asia/Calcutta')
 
 conn = gmPG2.get_connection()
@@ -46,7 +47,10 @@ except:
 
 # =======================================================================
 # $Log: test-psycopg2_datetime-as_gnumed.py,v $
-# Revision 1.2  2009-02-17 17:47:07  ncq
+# Revision 1.3  2009-02-18 13:46:02  ncq
+# - add example for succeeding time zone
+#
+# Revision 1.2  2009/02/17 17:47:07  ncq
 # - adjust path
 #
 # Revision 1.1  2009/02/10 18:47:25  ncq
