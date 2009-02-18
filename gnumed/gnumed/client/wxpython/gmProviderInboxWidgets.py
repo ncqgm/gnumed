@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.32 2009-01-17 23:09:30 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmProviderInboxWidgets.py,v 1.33 2009-02-18 13:47:43 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -14,7 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2, gmExceptions
 from Gnumed.business import gmPerson, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel, gmEditArea
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl, wxgTextExpansionEditAreaPnl
@@ -435,8 +435,25 @@ Leaving message in inbox.""") % handler_key,
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None):
 		wx.BeginBusyCursor()
-		success = gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context))
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_context)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_context)
+			gmGuiHelpers.gm_show_error (
+				_('Supposedly there are unreviewed documents'
+				  'for patient [%s]. However, I cannot find'
+				  'that patient in the GNUmed database.'
+				) % pk_context,
+				_('handling provider inbox item')
+			)
+			return False
+
+		success = gmPerson.set_active_patient(patient = pat)
+
 		wx.EndBusyCursor()
+
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Supposedly there are unreviewed documents'
@@ -446,6 +463,7 @@ Leaving message in inbox.""") % handler_key,
 				_('handling provider inbox item')
 			)
 			return False
+
 		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
 	#--------------------------------------------------------
@@ -485,7 +503,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.32  2009-01-17 23:09:30  ncq
+# Revision 1.33  2009-02-18 13:47:43  ncq
+# - do not throw exception in _goto_doc_review if patient
+#   does not exist, rather report error
+#
+# Revision 1.32  2009/01/17 23:09:30  ncq
 # - cleanup
 #
 # Revision 1.31  2008/10/22 12:21:57  ncq
