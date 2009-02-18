@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.1 2008-08-28 15:11:48 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.2 2009-02-18 09:03:32 shilbert Exp $
 
 
 
@@ -39,7 +39,7 @@ $profiles$
 [profile public GNUmed database]
 host = salaam.homeunix.com
 port = 5432
-database = gnumed_v9
+database = gnumed_v10
 #encoding = UTF8
 
 # this option controls whether the database is in-production
@@ -63,7 +63,7 @@ help desk = GNUmed Development List <Gnumed-devel@gnu.org>
 [profile local GNUmed database (Linux/Mac)]
 host = 
 port = 5432
-database = gnumed_v9
+database = gnumed_v10
 #encoding = UTF8
 help desk = Your own IT support <needs configuration>
 
@@ -72,7 +72,7 @@ help desk = Your own IT support <needs configuration>
 [profile local GNUmed database (Windows)]
 host = 127.0.0.1
 port = 5432
-database = gnumed_v9
+database = gnumed_v10
 #encoding = cp1252
 help desk = Your own IT support <needs configuration>
 
@@ -80,7 +80,10 @@ help desk = Your own IT support <needs configuration>
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.1  2008-08-28 15:11:48  ncq
+# Revision 1.2  2009-02-18 09:03:32  shilbert
+# - database version upped to v10
+#
+# Revision 1.1  2008/08/28 15:11:48  ncq
 # - moved here
 #
 # Revision 1.11  2008/07/10 11:18:48  ncq
