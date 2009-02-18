@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.101 $"
+__version__ = "$Revision: 1.102 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1502,19 +1502,32 @@ class cAdapterMxDateTime(object):
 def convert_ts_with_odd_tz(string_value, cursor):
 	try:
 		return dbapi.DATETIME(string_value, cursor)
-	except dbapi.DataError:
-		_log.error('unable to parse [%s] as <timestamp with time zone>', string_value)
-		if regex.match('(\+|-)\d\d:\d\d:\d\d', string_value[-9:]) is not None:
-			# parsing doesn't succeed even if seconds
-			# are ":00" so truncate in any case
-			_log.debug('time zone with seconds detected (true local time ?)')
-			adjusted_string_value = string_value[:-3]
-			_log.warning('truncating to [%s] and trying again', adjusted_string_value)
-			_log.warning('value will be off by %s seconds', string_value[-2:])
-			return dbapi.DATETIME(adjusted_string_value, cursor)
-		raise
+	except (dbapi.DataError,), exc:
+		_log.error('unable to parse [%s]', string_value)
 
-DT_W_ODD_TZ = psycopg2.extensions.new_type(dbapi.DATETIME.values, 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
+		if exc.message != "unable to parse time":
+			raise
+
+		_log.debug('unable to parse as <timestamp with time zone>')
+
+		if regex.match('(\+|-)\d\d:\d\d:\d\d', string_value[-9:]) is None:
+			raise
+
+		# parsing doesn't succeed even if seconds
+		# are ":00" so truncate in any case
+		_log.debug('time zone with seconds detected (true local time ?): %s', string_value[-9:])
+		truncated_string_value = string_value[:-3]
+		_log.warning('truncating to [%s] and trying again', truncated_string_value)
+		_log.warning('value will be off by %s seconds', string_value[-2:])
+		return dbapi.DATETIME(truncated_string_value, cursor)
+
+
+TIMESTAMPTZ_OID = 1184		# taken from PostgreSQL headers
+if TIMESTAMPTZ_OID not in dbapi.DATETIME.values:
+	raise ImportError('TIMESTAMPTZ_OID <1184> not in psycopg2.DATETIME.values [%s]' % dbapi.DATETIME.values)
+
+#DT_W_ODD_TZ = psycopg2.extensions.new_type(dbapi.DATETIME.values, 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
+DT_W_ODD_TZ = psycopg2.extensions.new_type((TIMESTAMPTZ_OID,), 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
 psycopg2.extensions.register_type(DT_W_ODD_TZ)
 
 #=======================================================================
@@ -1876,7 +1889,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.101  2009-02-17 17:46:42  ncq
+# Revision 1.102  2009-02-18 13:45:04  ncq
+# - narrow down exception handler for odd time zones
+#
+# Revision 1.101  2009/02/17 17:46:42  ncq
 # - work around Python datetime not being able
 #   to use time zones with seconds
 #
