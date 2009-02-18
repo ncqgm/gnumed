@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.54 2009-01-02 11:37:09 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmBusinessDBObject.py,v 1.55 2009-02-18 13:44:32 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -220,9 +220,6 @@ class cBusinessDBObject(object):
 			for field in self._idx.keys():
 				self.original_payload[field] = self._payload[self._idx[field]]
 			return True
-
-		if result is None:
-			raise gmExceptions.NoSuchBusinessObjectError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk_obj)
 
 		if result is False:
 			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
@@ -459,7 +456,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.54  2009-01-02 11:37:09  ncq
+# Revision 1.55  2009-02-18 13:44:32  ncq
+# - streamline exception handling in __init__
+#
+# Revision 1.54  2009/01/02 11:37:09  ncq
 # - teach refetch_payload to ignore changes on demand
 #
 # Revision 1.53  2008/12/26 22:33:57  ncq
