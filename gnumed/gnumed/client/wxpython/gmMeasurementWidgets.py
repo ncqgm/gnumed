@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.37 2009-02-17 17:47:31 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmMeasurementWidgets.py,v 1.38 2009-02-20 15:43:21 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -418,33 +418,33 @@ class cMeasurementsGrid(wx.grid.Grid):
 				except KeyError:
 					self.__cell_tooltips[col] = {}
 				self.__cell_tooltips[col][row] = _(
-					'Measurement details of most recent result:               \n'
-					' Date: %(clin_when)s\n'
-					' Type: "%(name)s" (%(code)s)\n'
-					' Result: %(val)s%(unit)s%(ind)s\n'
-					' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
-					' Reference group: %(ref_group)s\n'
-					' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
-					' Doc: %(comment_doc)s\n'
-					' Lab: %(comment_lab)s\n'	# note_test_org
-					' Episode: %(epi)s\n'
-					' Issue: %(issue)s\n'
-					' Material: %(material)s\n'
-					' Details: %(mat_detail)s\n'
-					'\n'
-					'Signed (%(sig_hand)s): %(reviewed)s\n'
-					' Last reviewer: %(reviewer)s\n'
-					'  Technically abnormal: %(abnormal)s\n'
-					'  Clinically relevant: %(relevant)s\n'
-					'  Comment: %(rev_comment)s\n'
-					' Responsible clinician: %(responsible_reviewer)s\n'
-					'\n'
-					'Test type details:\n'
-					' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
-					' Type comment: %(comment_type)s\n'
-					' Group comment: %(comment_type_unified)s\n'
-					'\n'
-					'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
+					u'Measurement details of most recent result:               \n'
+					u' Date: %(clin_when)s\n'
+					u' Type: "%(name)s" (%(code)s)\n'
+					u' Result: %(val)s%(unit)s%(ind)s\n'
+					u' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
+					u' Reference group: %(ref_group)s\n'
+					u' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
+					u' Doc: %(comment_doc)s\n'
+					u' Lab: %(comment_lab)s\n'	# note_test_org
+					u' Episode: %(epi)s\n'
+					u' Issue: %(issue)s\n'
+					u' Material: %(material)s\n'
+					u' Details: %(mat_detail)s\n'
+					u'\n'
+					u'Signed (%(sig_hand)s): %(reviewed)s\n'
+					u' Last reviewer: %(reviewer)s\n'
+					u'  Technically abnormal: %(abnormal)s\n'
+					u'  Clinically relevant: %(relevant)s\n'
+					u'  Comment: %(rev_comment)s\n'
+					u' Responsible clinician: %(responsible_reviewer)s\n'
+					u'\n'
+					u'Test type details:\n'
+					u' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
+					u' Type comment: %(comment_type)s\n'
+					u' Group comment: %(comment_type_unified)s\n'
+					u'\n'
+					u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
 				) % ({
 					'clin_when': result['clin_when'].strftime('%c'),
 					'code': result['code_tt'],
@@ -1256,7 +1256,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.37  2009-02-17 17:47:31  ncq
+# Revision 1.38  2009-02-20 15:43:21  ncq
+# - u''ify
+#
+# Revision 1.37  2009/02/17 17:47:31  ncq
 # - comment out primary care vitals
 #
 # Revision 1.36  2009/02/12 16:23:39  ncq
