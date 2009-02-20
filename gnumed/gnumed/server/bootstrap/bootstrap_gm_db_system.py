@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.95 $"
+__version__ = "$Revision: 1.96 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -562,6 +562,11 @@ class database:
 			_log.error("Cannot create database.")
 			return False
 
+		# reconnect as superuser to db
+		if not self.__connect_superuser_to_db():
+			_log.error("Cannot connect to database.")
+			return None
+
 		# create authentication group
 		_log.info('creating database-specific authentication group role')
 		curs = self.conn.cursor()
@@ -569,13 +574,17 @@ class database:
 			curs.close()
 			_log.error('cannot create authentication group role')
 			return False
-		curs.close()
 		self.conn.commit()
+		curs.close()
 
-		# reconnect as superuser to db
-		if not self.__connect_superuser_to_db():
-			_log.error("Cannot connect to database.")
-			return None
+		# paranoia check
+		curs = self.conn.cursor()
+		if not db_group_exists(cursor = curs, group = self.name):
+			curs.close()
+			_log.error('cannot find authentication group role')
+			return False
+		curs.close()
+
 		tmp = cfg_get(self.section, 'superuser schema')
 		if tmp is not None:
 			if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
@@ -639,6 +648,7 @@ class database:
 		self.conn.cookie = 'database.__connect_superuser_to_db'
 
 		curs = self.conn.cursor()
+		curs.execute(u'set default_transaction_read_only to off')
 		# we need English messages to detect errors
 		curs.execute(u"set lc_messages to 'C'")
 		curs.execute(u"alter database %s set lc_messages to 'C'" % self.name)
@@ -647,6 +657,8 @@ class database:
 		# we want READ ONLY default transactions for maximum patient data safety
 		curs.execute("alter database %s set default_transaction_read_only to on" % self.name)
 		curs.close()
+
+		self.conn.commit()
 
 		return self.conn and 1
 	#--------------------------------------------------------------
@@ -1389,7 +1401,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.95  2009-02-20 10:46:27  ncq
+# Revision 1.96  2009-02-20 13:40:05  ncq
+# - fix group creation problems
+#
+# Revision 1.95  2009/02/20 10:46:27  ncq
 # - add missing commit() which prevented auth groups from being
 #   properly created sometimes
 #
