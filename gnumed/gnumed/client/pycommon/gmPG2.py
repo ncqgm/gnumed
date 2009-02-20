@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.102 $"
+__version__ = "$Revision: 1.103 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1513,6 +1513,10 @@ def convert_ts_with_odd_tz(string_value, cursor):
 		if regex.match('(\+|-)\d\d:\d\d:\d\d', string_value[-9:]) is None:
 			raise
 
+		if regex.match('-\d\d:\d\d:\d\d', string_value[-9:]) is not None:
+			if string_value[-5:-3] != '00':
+				_log.debug('psycopg2 versions < 2.0.8 may misinterpret this time zone: [%s]', string_value[-9:])
+
 		# parsing doesn't succeed even if seconds
 		# are ":00" so truncate in any case
 		_log.debug('time zone with seconds detected (true local time ?): %s', string_value[-9:])
@@ -1524,11 +1528,11 @@ def convert_ts_with_odd_tz(string_value, cursor):
 
 TIMESTAMPTZ_OID = 1184		# taken from PostgreSQL headers
 if TIMESTAMPTZ_OID not in dbapi.DATETIME.values:
-	raise ImportError('TIMESTAMPTZ_OID <1184> not in psycopg2.DATETIME.values [%s]' % dbapi.DATETIME.values)
+	raise ImportError('TIMESTAMPTZ_OID <%s> not in psycopg2.DATETIME.values [%s]' % (TIMESTAMPTZ_OID, dbapi.DATETIME.values))
 
 #DT_W_ODD_TZ = psycopg2.extensions.new_type(dbapi.DATETIME.values, 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
 DT_W_ODD_TZ = psycopg2.extensions.new_type((TIMESTAMPTZ_OID,), 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
-psycopg2.extensions.register_type(DT_W_ODD_TZ)
+#psycopg2.extensions.register_type(DT_W_ODD_TZ)
 
 #=======================================================================
 #  main
@@ -1889,7 +1893,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.102  2009-02-18 13:45:04  ncq
+# Revision 1.103  2009-02-20 15:42:51  ncq
+# - warn on negative non-whole-number timezones as those are
+#   currently wrongly calculated by psycopg2
+#
+# Revision 1.102  2009/02/18 13:45:04  ncq
 # - narrow down exception handler for odd time zones
 #
 # Revision 1.101  2009/02/17 17:46:42  ncq
