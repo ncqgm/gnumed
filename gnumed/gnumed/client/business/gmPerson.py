@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.179 2009-02-10 18:37:36 ncq Exp $
-__version__ = "$Revision: 1.179 $"
+# $Id: gmPerson.py,v 1.180 2009-02-20 15:42:08 ncq Exp $
+__version__ = "$Revision: 1.180 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -627,7 +627,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				%(urg)s,
 				%(cmt)s,
 				%(area)s,
-				(select max(list_position) + 1 from clin.waiting_list)
+				(select coalesce((max(list_position) + 1), 1) from clin.waiting_list)
 			)"""
 		args = {'pat': self.ID, 'urg': urgency, 'cmt': comment, 'area': zone}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose=True)
@@ -1910,7 +1910,7 @@ def set_active_patient(patient=None, forced_reload=False):
 
 	# attempt to switch
 	try:
-		pat = gmCurrentPatient(patient=pat, forced_reload=forced_reload)
+		gmCurrentPatient(patient=pat, forced_reload=forced_reload)
 	except:
 		_log.exception('error changing active patient to [%s]' % patient)
 		return False
@@ -2300,7 +2300,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.179  2009-02-10 18:37:36  ncq
+# Revision 1.180  2009-02-20 15:42:08  ncq
+# - putting first patient on waiting list needs more care
+#
+# Revision 1.179  2009/02/10 18:37:36  ncq
 # - typo when deleting comm channel
 #
 # Revision 1.178  2009/01/30 12:08:20  ncq
