@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.20 2008-12-12 16:37:02 ncq Exp $
+# $Id: gnumed,v 1.21 2009-02-20 10:45:44 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -17,15 +17,6 @@
 OPTIONS=$@
 
 
-# Verify the name of the script for the appendix "-debug"
-# If it is symlinked to a file with this name use --debug as option
-name=`basename $0`
-if echo $name | grep -q -- "-debug" ; then
-	name=`echo $name | sed 's/-debug//'`
-	OPTIONS="$OPTIONS --debug"
-fi
-
-
 # The system-wide configuration file for backend profiles.
 SYSCONF="/etc/gnumed/gnumed-client.conf"
 if [ ! -e ${SYSCONF} ] ; then
@@ -34,41 +25,41 @@ if [ ! -e ${SYSCONF} ] ; then
 fi
 
 
-## Different ways to obtain the version number of the running Python interpreter
-## store this here just for the purpose of education :-)
-# PYVER=`python -V 2>&1 | sed 's/Python[[:space:]]\+\([0-9]\+\.[0-9]\+\).*/\1/'`
-# PYVER=`pyversions -vd`
-# PYVER=`python -c 'import platform; print platform.python_version()'`
-PYVER=`python -c 'import sys; print sys.version[:3]'`
-
-
-# this is where the gnumed.py Python script actually lives
-# Debian: /var/lib/python-support/python${PYVER}/Gnumed/wxpython
-# SuSE/PCLinuxOS: /usr/lib/python${PYVER}/site-packages/Gnumed/wxpython
-#	if [ -f /etc/SuSE-release ] ; then
-#	if [ -f /etc/version ] ; then
-#		grep -q PCLinuxOS /etc/version
-#		if [ $? -eq 0 ] ; then
-GNUMED_SCRIPT_PATH_CANDIDATES=\
-"/var/lib/python-support/python${PYVER}/Gnumed/wxpython"\
-" /usr/lib/python${PYVER}/site-packages/Gnumed/wxpython"\
-" /usr/lib64/python${PYVER}/site-packages/Gnumed/wxpython"
-
-GM_SCRIPT=""
-for GNUMED_SCRIPT_PATH in ${GNUMED_SCRIPT_PATH_CANDIDATES} ; do
-	if test -f ${GNUMED_SCRIPT_PATH}/gnumed.py ; then
-		GM_SCRIPT="${GNUMED_SCRIPT_PATH}/gnumed.py"
-		break
-	fi
-done
-
-if test -z "${GM_SCRIPT}" ; then
-	echo "Cannot find \"gnumed.py\" in any of:"
-	for GNUMED_SCRIPT_PATH in ${GNUMED_SCRIPT_PATH_CANDIDATES} ; do
-		echo " ${GNUMED_SCRIPT_PATH}"
-	done
-	exit 1
-fi
+### Different ways to obtain the version number of the running Python interpreter
+### store this here just for the purpose of education :-)
+## PYVER=`python -V 2>&1 | sed 's/Python[[:space:]]\+\([0-9]\+\.[0-9]\+\).*/\1/'`
+## PYVER=`pyversions -vd`
+## PYVER=`python -c 'import platform; print platform.python_version()'`
+#PYVER=`python -c 'import sys; print sys.version[:3]'`
+#
+#
+## this is where the gnumed.py Python script actually lives
+## Debian: /var/lib/python-support/python${PYVER}/Gnumed/wxpython
+## SuSE/PCLinuxOS: /usr/lib/python${PYVER}/site-packages/Gnumed/wxpython
+##	if [ -f /etc/SuSE-release ] ; then
+##	if [ -f /etc/version ] ; then
+##		grep -q PCLinuxOS /etc/version
+##		if [ $? -eq 0 ] ; then
+#GNUMED_SCRIPT_PATH_CANDIDATES=\
+#"/var/lib/python-support/python${PYVER}/Gnumed/wxpython"\
+#" /usr/lib/python${PYVER}/site-packages/Gnumed/wxpython"\
+#" /usr/lib64/python${PYVER}/site-packages/Gnumed/wxpython"
+#
+#GM_SCRIPT=""
+#for GNUMED_SCRIPT_PATH in ${GNUMED_SCRIPT_PATH_CANDIDATES} ; do
+#	if test -f ${GNUMED_SCRIPT_PATH}/gnumed.py ; then
+#		GM_SCRIPT="${GNUMED_SCRIPT_PATH}/gnumed.py"
+#		break
+#	fi
+#done
+#
+#if test -z "${GM_SCRIPT}" ; then
+#	echo "Cannot find \"gnumed.py\" in any of:"
+#	for GNUMED_SCRIPT_PATH in ${GNUMED_SCRIPT_PATH_CANDIDATES} ; do
+#		echo " ${GNUMED_SCRIPT_PATH}"
+#	done
+#	exit 1
+#fi
 
 
 # source systemwide startup extension shell script if it exists
@@ -84,14 +75,20 @@ fi
 
 
 # now run the client
-python ${GM_SCRIPT} ${OPTIONS} #${CONFFILE_ARG}
+#python ${GM_SCRIPT} ${OPTIONS}
+python -m Gnumed.wxpython.gnumed ${OPTIONS}
 
 # sync the discs just in case
 sync
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.20  2008-12-12 16:37:02  ncq
+# Revision 1.21  2009-02-20 10:45:44  ncq
+# - get rid of all the gnumed.py detection login by
+#   using python -m as suggested by Josselin Mouette
+# - also, no more "gnumed-debug" and no more CONFFILE_ARG
+#
+# Revision 1.20  2008/12/12 16:37:02  ncq
 # - sync discs after running gnumed client just in case
 #
 # Revision 1.19  2008/10/22 12:24:27  ncq
