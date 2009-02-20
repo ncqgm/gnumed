@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.8 2009-02-05 14:29:27 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.9 2009-02-20 15:43:05 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -66,7 +66,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 			aTitle = _('Missing GNUmed module'),
 			aMessage = _(
 				'GNUmed detected that parts of it are not\n'
-				'properly insalled. The following message\n'
+				'properly installed. The following message\n'
 				'names the missing part:\n'
 				'\n'
 				' "%s"\n'
@@ -323,7 +323,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.8  2009-02-05 14:29:27  ncq
+# Revision 1.9  2009-02-20 15:43:05  ncq
+# - typo fix
+#
+# Revision 1.8  2009/02/05 14:29:27  ncq
 # - improved report mail reporting
 #
 # Revision 1.7  2008/12/25 23:31:51  ncq
