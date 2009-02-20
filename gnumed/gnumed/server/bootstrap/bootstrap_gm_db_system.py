@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.94 $"
+__version__ = "$Revision: 1.95 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -467,8 +467,9 @@ Make sure to remember the password for later use.
 		groups = cfg_get(section, "groups")
 		if groups is None:
 			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
-			return False
-		groups.append(self.auth_group)
+			groups = [self.auth_group]
+		else:
+			groups.append(self.auth_group)
 
 		cursor = self.conn.cursor()
 		for group in groups:
@@ -568,6 +569,8 @@ class database:
 			curs.close()
 			_log.error('cannot create authentication group role')
 			return False
+		curs.close()
+		self.conn.commit()
 
 		# reconnect as superuser to db
 		if not self.__connect_superuser_to_db():
@@ -1386,7 +1389,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.94  2009-02-10 18:40:36  ncq
+# Revision 1.95  2009-02-20 10:46:27  ncq
+# - add missing commit() which prevented auth groups from being
+#   properly created sometimes
+#
+# Revision 1.94  2009/02/10 18:40:36  ncq
 # - slightly relax UTF8 checking
 #
 # Revision 1.93  2009/01/27 11:59:01  ncq
