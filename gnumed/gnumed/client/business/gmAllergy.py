@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.32 2008-10-22 12:03:46 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmAllergy.py,v 1.33 2009-02-20 15:41:24 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -30,17 +30,23 @@ def ensure_has_allergy_state(encounter=None):
 
 	args = {'enc': encounter}
 
+	cmd_create = u"""
+insert into clin.allergy_state (fk_encounter, has_allergy)
+
+	select %(enc)s, NULL
+	where not exists (
+		select 1 from clin.v_pat_allergy_state
+		where pk_patient = (
+			select fk_patient from clin.encounter where pk = %(enc)s
+		)
+	)"""
+
 	cmd_search = u"""
 select pk_allergy_state from clin.v_pat_allergy_state
 where pk_patient = (
 	select fk_patient from clin.encounter where pk = %(enc)s
 )"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd_search, 'args': args}])
 
-	if len(rows) > 0:
-		return cAllergyState(aPK_obj = rows[0][0])
-
-	cmd_create = u'insert into clin.allergy_state (fk_encounter, has_allergy) values (%(enc)s, NULL)'
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
 			{'cmd': cmd_create, 'args': args},
@@ -255,7 +261,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.32  2008-10-22 12:03:46  ncq
+# Revision 1.33  2009-02-20 15:41:24  ncq
+# - fix ensure_has_allergy_state
+#
+# Revision 1.32  2008/10/22 12:03:46  ncq
 # - better documentation
 # - better allergy state symbols
 # - improved __setitem__ on allergy state
