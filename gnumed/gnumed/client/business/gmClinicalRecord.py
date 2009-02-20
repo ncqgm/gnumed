@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.282 2009-01-02 11:34:35 ncq Exp $
-__version__ = "$Revision: 1.282 $"
+# $Id: gmClinicalRecord.py,v 1.283 2009-02-20 15:41:42 ncq Exp $
+__version__ = "$Revision: 1.283 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1587,6 +1587,8 @@ where
 	not exists (select 1 from clin.health_issue where fk_encounter = clin.encounter.pk)
 		and
 	not exists (select 1 from clin.operation where fk_encounter = clin.encounter.pk)
+		and
+	not exists (select 1 from clin.allergy_state where fk_encounter = clin.encounter.pk)
 """
 		try:
 			rows, idx = gmPG2.run_rw_queries(queries = [{
@@ -1918,7 +1920,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.282  2009-01-02 11:34:35  ncq
+# Revision 1.283  2009-02-20 15:41:42  ncq
+# - fix remove_empty_encounters
+#
+# Revision 1.282  2009/01/02 11:34:35  ncq
 # - cleanup
 # - pk_patient earlier in __init__
 # - listen to db encounter mods, check for current encounter mod,
