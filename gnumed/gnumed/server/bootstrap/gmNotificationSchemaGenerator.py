@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -69,6 +69,7 @@ trigger_ddl_without_pk = """
 \unset ON_ERROR_STOP
 drop function %(schema)s.trf_announce_%(sig)s_mod() cascade;
 drop function %(schema)s.trf_announce_%(sig)s_mod_no_pk() cascade;
+drop trigger tr_%(sig)s_mod cascade;
 \set ON_ERROR_STOP 1
 
 create function %(schema)s.trf_announce_%(sig)s_mod_no_pk() returns trigger as '
@@ -100,6 +101,7 @@ trigger_ddl_with_pk = """
 -- ----------------------------------------------
 \unset ON_ERROR_STOP
 drop function %(schema)s.trf_announce_%(sig)s_mod() cascade;
+drop trigger tr_%(sig)s_mod cascade;
 \set ON_ERROR_STOP 1
 
 create function %(schema)s.trf_announce_%(sig)s_mod() returns trigger as '
@@ -148,6 +150,7 @@ func_narrative_mod_announce = """
 
 \unset ON_ERROR_STOP
 drop function clin.trf_announce_narrative_mod() cascade;
+drop trigger tr_narrative_mod cascade;
 \set ON_ERROR_STOP 1
 
 create function clin.trf_announce_narrative_mod()
@@ -360,7 +363,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.32  2009-01-17 23:13:18  ncq
+# Revision 1.33  2009-02-23 08:47:22  ncq
+# - more careful deletion of triggers
+#
+# Revision 1.32  2009/01/17 23:13:18  ncq
 # - better name for non-identity announcers
 # - explicitely disable identity listening for non-identity tables
 # - improve dem.identity support
