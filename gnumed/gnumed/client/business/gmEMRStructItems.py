@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.130 $"
+__version__ = "$Revision: 1.131 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -38,7 +38,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			where
 				pk = %(pk_health_issue)s and
 				xmin = %(xmin_health_issue)s""",
-		u"select xmin from clin.health_issue where pk = %(pk_health_issue)s"
+		u"select xmin as xmin_health_issue from clin.health_issue where pk = %(pk_health_issue)s"
 	]
 	_updatable_fields = [
 		'description',
@@ -1104,7 +1104,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.130  2009-02-17 17:45:53  ncq
+# Revision 1.131  2009-02-23 08:46:01  ncq
+# - fix faulty column label
+#
+# Revision 1.130  2009/02/17 17:45:53  ncq
 # - fix create_health_issue
 #
 # Revision 1.129  2008/12/18 21:26:20  ncq
