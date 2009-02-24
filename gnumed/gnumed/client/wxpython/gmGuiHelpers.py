@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.100 2009-01-15 11:37:06 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmGuiHelpers.py,v 1.101 2009-02-24 11:19:54 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -140,11 +140,7 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			self.Close()
 # ========================================================================
 class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
-	"""Editor for a bit of text.
-
-	cb_save: a function which accepts <new> and <old> kw args
-			 which hold the new and old text, respectively
-	"""
+	"""Editor for a bit of text."""
 
 	def __init__(self, *args, **kwargs):
 
@@ -522,7 +518,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.100  2009-01-15 11:37:06  ncq
+# Revision 1.101  2009-02-24 11:19:54  ncq
+# - cleanup
+#
+# Revision 1.100  2009/01/15 11:37:06  ncq
 # - no more save callback in multiline text editor
 #
 # Revision 1.99  2009/01/11 19:17:17  ncq
