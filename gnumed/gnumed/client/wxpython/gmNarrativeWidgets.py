@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.22 2009-02-17 08:07:37 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmNarrativeWidgets.py,v 1.23 2009-02-24 13:22:06 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -28,19 +28,6 @@ _log.info(__version__)
 #------------------------------------------------------------
 def edit_progress_notes(parent=None, encounters=None, episodes=None, patient=None):
 
-	#-------------------------------------
-	def save_note(new=None, old=None):
-		if new is None:
-			return False
-
-		if new.strip() == u'':
-			return False
-
-		selected_narr['narrative'] = new
-		selected_narr.save_payload()
-
-		return True
-	#-------------------------------------
 	# sanity checks
 	if patient is None:
 		patient = gmPerson.gmCurrentPatient()
@@ -88,10 +75,20 @@ def edit_progress_notes(parent=None, encounters=None, episodes=None, patient=Non
 			'\n'
 			' %s'
 		) % selected_narr.format(left_margin = u' ', fancy = True),
-		text = selected_narr['narrative'],
-		cb_save = save_note
+		text = selected_narr['narrative']
 	)
-	dlg.ShowModal()
+	btn_pressed = dlg.ShowModal()
+
+	if btn_pressed != wx.ID_SAVE:
+		return
+
+	val = dlg.value
+	dlg.Destroy()
+	if val.strip() == u'':
+		return
+
+	selected_narr['narrative'] = val
+	selected_narr.save_payload()
 
 #------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
@@ -1280,7 +1277,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.22  2009-02-17 08:07:37  ncq
+# Revision 1.23  2009-02-24 13:22:06  ncq
+# - fix saving edited progress notes
+#
+# Revision 1.22  2009/02/17 08:07:37  ncq
 # - support explicit macro expansion
 #
 # Revision 1.21  2009/01/21 22:37:14  ncq
