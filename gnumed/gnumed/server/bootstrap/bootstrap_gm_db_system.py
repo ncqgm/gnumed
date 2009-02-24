@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.96 $"
+__version__ = "$Revision: 1.97 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -47,14 +47,16 @@ local_python_base_dir = os.path.dirname (
 )
 
 # does the path exist at all, physically ?
-# note that broken links are reported as True
-if not os.path.lexists(os.path.join(local_python_base_dir, 'Gnumed')):
-	src = os.path.join(local_python_base_dir, 'client')
-	dst = os.path.join(local_python_base_dir, 'Gnumed')
+# (*broken* links are reported as False)
+if not os.path.exists(os.path.join(local_python_base_dir, 'Gnumed')):
+	orig = os.path.join(local_python_base_dir, 'server')
+	if not os.path.exists(orig):
+		orig = os.path.join(local_python_base_dir, 'client')			# CVS tree
+	lnk = os.path.join(local_python_base_dir, 'Gnumed')
 	print "Creating module import symlink ..."
-	print '', dst, '=>'
-	print '    =>', src
-	os.symlink(src, dst)
+	print ' original:', orig
+	print '     link:', lnk
+	os.symlink(orig, lnk)
 
 print "Adjusting PYTHONPATH ..."
 sys.path.insert(0, local_python_base_dir)
@@ -1401,7 +1403,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.96  2009-02-20 13:40:05  ncq
+# Revision 1.97  2009-02-24 10:39:58  ncq
+# - make PYTHONPATH link setting work both in local CVS tree
+#   and server tarball tree
+#
+# Revision 1.96  2009/02/20 13:40:05  ncq
 # - fix group creation problems
 #
 # Revision 1.95  2009/02/20 10:46:27  ncq
