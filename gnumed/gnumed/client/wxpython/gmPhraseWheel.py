@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.126 2009-02-04 21:47:54 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmPhraseWheel.py,v 1.127 2009-02-24 10:16:48 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -561,7 +561,13 @@ class cPhraseWheel(wx.TextCtrl):
 				# filter out the last word
 				word = regex.split(self.__speller_word_separators, self.input2match)[-1]
 				if word.strip() != u'':
-					if not self.speller.check(word):
+					success = False
+					try:
+						success = self.speller.check(word)
+					except:
+						_log.exception('had to disable enchant spell checker')
+						self.speller = None
+					if success:
 						spells = self.speller.suggest(word)
 						truncated_input2match = self.input2match[:self.input2match.rindex(word)]
 						for spell in spells:
@@ -1025,7 +1031,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.126  2009-02-04 21:47:54  ncq
+# Revision 1.127  2009-02-24 10:16:48  ncq
+# - don't hiccup when spell checker hiccups, simply disable it
+#
+# Revision 1.126  2009/02/04 21:47:54  ncq
 # - cleanup
 #
 # Revision 1.125  2008/10/12 16:32:40  ncq
