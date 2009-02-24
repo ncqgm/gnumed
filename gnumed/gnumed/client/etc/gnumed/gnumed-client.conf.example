@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/etc/gnumed/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.2 2009-02-18 09:03:32 shilbert Exp $
+# $Id: gnumed-client.conf.example,v 1.3 2009-02-24 10:07:18 ncq Exp $
 
 
 
@@ -56,7 +56,7 @@ public/open access = 1
 # public databases are serviced on the mailing list,
 # set this to an internal staff address for real
 # patient databases
-help desk = GNUmed Development List <Gnumed-devel@gnu.org>
+help desk = GNUmed Bugs List <Gnumed-bugs@gnu.org>
 
 
 
@@ -80,7 +80,10 @@ help desk = Your own IT support <needs configuration>
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.2  2009-02-18 09:03:32  shilbert
+# Revision 1.3  2009-02-24 10:07:18  ncq
+# - bugs mailing list
+#
+# Revision 1.2  2009/02/18 09:03:32  shilbert
 # - database version upped to v10
 #
 # Revision 1.1  2008/08/28 15:11:48  ncq
