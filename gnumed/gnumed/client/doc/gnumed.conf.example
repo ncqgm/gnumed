@@ -6,7 +6,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 
 
@@ -48,7 +48,7 @@ $logins$
 # GNUmed installation here. If this includes a
 # valid email address that address can be used
 # to email error logs to on request.
-help desk = GNUmed developers <gnumed-devel@gnu.org>
+help desk = GNUmed developers <gnumed-bugs@gnu.org>
 
 
 # here you can define profiles for XDT files
@@ -87,7 +87,10 @@ encoding =
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.11  2008-07-10 11:17:31  ncq
+# Revision 1.12  2009-02-24 10:06:26  ncq
+# - proper bugs mailing list
+#
+# Revision 1.11  2008/07/10 11:17:31  ncq
 # - better client time zone example
 #
 # Revision 1.10  2007/12/04 15:10:37  ncq
