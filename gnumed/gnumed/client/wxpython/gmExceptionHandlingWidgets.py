@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.9 2009-02-20 15:43:05 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.10 2009-02-24 10:13:02 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -197,15 +197,15 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		)
 		if len(receivers) == 0:
 			if _is_public_database:
-				receivers = [u'gnumed-devel@gnu.org']
+				receivers = [u'gnumed-bugs@gnu.org']
 
 		receiver_string = wx.GetTextFromUser (
 			message = _(
 				'Edit the list of email addresses to send the\n'
 				'bug report to (separate addresses by spaces).\n'
 				'\n'
-				'Note that <gnumed-devel@gnu.org> refers to\n'
-				'the public (!) GNUmed mailing list.'
+				'Note that <gnumed-bugs@gnu.org> refers to\n'
+				'the public (!) GNUmed bugs mailing list.'
 			),
 			caption = _('Sending bug report'),
 			default_value = ','.join(receivers),
@@ -323,7 +323,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.9  2009-02-20 15:43:05  ncq
+# Revision 1.10  2009-02-24 10:13:02  ncq
+# - -devel -> -bugs
+#
+# Revision 1.9  2009/02/20 15:43:05  ncq
 # - typo fix
 #
 # Revision 1.8  2009/02/05 14:29:27  ncq
