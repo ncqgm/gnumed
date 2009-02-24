@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.103 $"
+__version__ = "$Revision: 1.104 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1500,10 +1500,14 @@ class cAdapterMxDateTime(object):
 # time zones from the backend ...
 # So we (almost silently) drop the seconds and try again.
 def convert_ts_with_odd_tz(string_value, cursor):
+	#_log.debug('parsing [%s]' % string_value)
 	try:
 		return dbapi.DATETIME(string_value, cursor)
 	except (dbapi.DataError,), exc:
-		_log.error('unable to parse [%s]', string_value)
+		_log.error('unable to parse [%s]' % string_value)
+
+		if string_value is None:
+			raise
 
 		if exc.message != "unable to parse time":
 			raise
@@ -1530,7 +1534,6 @@ TIMESTAMPTZ_OID = 1184		# taken from PostgreSQL headers
 if TIMESTAMPTZ_OID not in dbapi.DATETIME.values:
 	raise ImportError('TIMESTAMPTZ_OID <%s> not in psycopg2.DATETIME.values [%s]' % (TIMESTAMPTZ_OID, dbapi.DATETIME.values))
 
-#DT_W_ODD_TZ = psycopg2.extensions.new_type(dbapi.DATETIME.values, 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
 DT_W_ODD_TZ = psycopg2.extensions.new_type((TIMESTAMPTZ_OID,), 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
 #psycopg2.extensions.register_type(DT_W_ODD_TZ)
 
@@ -1893,7 +1896,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.103  2009-02-20 15:42:51  ncq
+# Revision 1.104  2009-02-24 10:19:21  ncq
+# - improved TZ caster
+#
+# Revision 1.103  2009/02/20 15:42:51  ncq
 # - warn on negative non-whole-number timezones as those are
 #   currently wrongly calculated by psycopg2
 #
