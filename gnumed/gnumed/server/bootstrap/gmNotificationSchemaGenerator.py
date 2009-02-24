@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -69,7 +69,7 @@ trigger_ddl_without_pk = """
 \unset ON_ERROR_STOP
 drop function %(schema)s.trf_announce_%(sig)s_mod() cascade;
 drop function %(schema)s.trf_announce_%(sig)s_mod_no_pk() cascade;
-drop trigger tr_%(sig)s_mod;
+drop trigger tr_%(sig)s_mod on %(schema)s.%(tbl)s cascade;
 \set ON_ERROR_STOP 1
 
 create function %(schema)s.trf_announce_%(sig)s_mod_no_pk() returns trigger as '
@@ -101,7 +101,7 @@ trigger_ddl_with_pk = """
 -- ----------------------------------------------
 \unset ON_ERROR_STOP
 drop function %(schema)s.trf_announce_%(sig)s_mod() cascade;
-drop trigger tr_%(sig)s_mod;
+drop trigger tr_%(sig)s_mod on %(schema)s.%(tbl)s cascade;
 \set ON_ERROR_STOP 1
 
 create function %(schema)s.trf_announce_%(sig)s_mod() returns trigger as '
@@ -150,7 +150,6 @@ func_narrative_mod_announce = """
 
 \unset ON_ERROR_STOP
 drop function clin.trf_announce_narrative_mod() cascade;
-drop trigger tr_narrative_mod;
 \set ON_ERROR_STOP 1
 
 create function clin.trf_announce_narrative_mod()
@@ -200,6 +199,10 @@ insert into gm.notifying_tables (
 """
 
 trigger_narrative_mod_announce = """
+\unset ON_ERROR_STOP
+drop trigger tr_narrative_mod on %(schema)s.%(tbl)s cascade;
+\set ON_ERROR_STOP 1
+
 -- %(schema)s.%(tbl)s
 create constraint trigger tr_narrative_mod
 	after insert or delete or update
@@ -363,7 +366,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.34  2009-02-24 09:49:18  ncq
+# Revision 1.35  2009-02-24 10:04:14  ncq
+# - fix DROP TRIGGER SQL
+#
+# Revision 1.34  2009/02/24 09:49:18  ncq
 # - DROPping TRIGGERs cannot CASCADE
 #
 # Revision 1.33  2009/02/23 08:47:22  ncq
