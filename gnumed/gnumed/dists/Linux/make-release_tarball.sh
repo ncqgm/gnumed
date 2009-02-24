@@ -2,14 +2,14 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.61 2009-02-18 16:55:45 shilbert Exp $
+# $Id: make-release_tarball.sh,v 1.62 2009-02-24 18:06:03 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.4-rc4"
+CLIENTREV="0.4-rc7"
 CLIENTREV="CVS-HEAD"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 
-SRVREV="10-rc4"
+SRVREV="10-rc7"
 SRVREV="CVS-HEAD"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
 
@@ -128,6 +128,7 @@ cp -R ../../client/gm-from-cvs.bat ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./GNUmed-$CLIENTREV/client/
 cp -R ./gm-read_chipcard.sh ./GNUmed-$CLIENTREV/client/
+cp -R ./gm-install_client_locally.sh ./GNUmed-$CLIENTREV/
 cp -R ../../client/sitecustomize.py ./GNUmed-$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/client/
@@ -352,6 +353,7 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
 cp -R ../../server/sql/v8-v9/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
 cp -R ../../server/sql/v8-v9/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
 
+
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/static
@@ -397,7 +399,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.61  2009-02-18 16:55:45  shilbert
+# Revision 1.62  2009-02-24 18:06:03  ncq
+# - include new local installer
+#
+# Revision 1.61  2009/02/18 16:55:45  shilbert
 # - added missing file for v9 to v10 upgrade
 #
 # Revision 1.60  2009/02/17 12:00:09  ncq
