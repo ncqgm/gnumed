@@ -45,8 +45,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.147 2009-02-17 12:01:43 ncq Exp $
-__version__ = "$Revision: 1.147 $"
+# $Id: gnumed.py,v 1.148 2009-02-24 10:38:41 ncq Exp $
+__version__ = "$Revision: 1.148 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -75,7 +75,7 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'0.4-rc4'
+current_client_version = u'0.4-rc7'
 current_client_version = u'CVS HEAD'
 current_client_branch = u'0.4'
 current_client_branch = u'CVS HEAD'
@@ -164,14 +164,14 @@ def setup_python_path():
 	)
 
 	# does the path exist at all, physically ?
-	# note that broken links are reported as True
-	if not os.path.lexists(os.path.join(local_python_base_dir, 'Gnumed')):
-		src = os.path.join(local_python_base_dir, 'client')
-		dst = os.path.join(local_python_base_dir, 'Gnumed')
+	# (*broken* links are reported as False)
+	lnk = os.path.join(local_python_base_dir, 'Gnumed')
+	if not os.path.exists(lnk):
+		orig = os.path.join(local_python_base_dir, 'client')
 		print "Creating module import symlink ..."
-		print '', dst, '=>'
-		print '    =>', src
-		os.symlink(src, dst)
+		print ' original:', orig
+		print '     link:', lnk
+		os.symlink(orig, lnk)
 
 	print "Adjusting PYTHONPATH ..."
 	sys.path.insert(0, local_python_base_dir)
@@ -483,7 +483,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.147  2009-02-17 12:01:43  ncq
+# Revision 1.148  2009-02-24 10:38:41  ncq
+# - improve python path manipulation
+#
+# Revision 1.147  2009/02/17 12:01:43  ncq
 # - bump version
 #
 # Revision 1.146  2008/12/17 21:59:46  ncq
