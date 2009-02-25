@@ -5,15 +5,15 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-keyword_expansion-data.sql,v 1.1 2009-02-17 10:49:28 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-clin-keyword_expansion-data.sql,v 1.2 2009-02-25 09:38:49 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-delete from clin.keyword_expansion where keyword = 'score-wells';
+delete from clin.keyword_expansion where keyword = 'score-TVT-Wells';
 
 insert into clin.keyword_expansion (
 	fk_staff,
@@ -21,7 +21,7 @@ insert into clin.keyword_expansion (
 	expansion
 ) values (
 	null,
-	'score-wells',
+	'score-TVT-Wells',
 'Wells-Score: Wahrscheinlichkeit akute tiefe Beinvenenthrombose
 --------------------------------------------------------------
 +1: maligne Erkrankung vorhanden oder Therapie in den letzten 6 Monaten;
@@ -44,8 +44,37 @@ D-Dimer-Schnelltest:
 D-Dimer quantitativ:
 
 Vd. US-Thrombose links/rechts
-'
-);
+');
+
+-- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'score-TVT-AMUSE';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-TVT-AMUSE',
+'AMUSE-Score: Wahrscheinlichkeit akute tiefe Beinvenenthrombose
+
+klinischer Verdacht:
+
+	Rötung, Schwellung oder Schmerz
+
+1  männlich
+1  hormonelle Kontrazeption
+1  Karzinom im zurückliegenden halben Jahr
+1  Operation im zurückliegenden Monat
+1  kein Trauma der unteren Extremität
+1  Dilatation kollateraler Beinvenen
+1  Umfangsdifferenz > 2,9 cm (10 cm unter Tibiaplateau)
+     re:  cm
+     li:  cm
+6  erhöhtes D-Dimer:
+-------------------
+   Summe (> 3 => zur Sonographie)
+');
 
 -- --------------------------------------------------------------
 delete from clin.keyword_expansion where keyword = 'score-gcs';
@@ -87,15 +116,17 @@ insert into clin.keyword_expansion (
 1: keine Reaktion auf Schmerzreiz
 
 14 - 15 leicht, 9 - 13 mittel, 3 - 8 schwer
-'
-);
+');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-keyword_expansion-data.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-keyword_expansion-data.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-keyword_expansion-data.sql,v $
--- Revision 1.1  2009-02-17 10:49:28  ncq
+-- Revision 1.2  2009-02-25 09:38:49  ncq
+-- - AMUSE score for TVT
+--
+-- Revision 1.1  2009/02/17 10:49:28  ncq
 -- - add Wells and GCS
 --
 --
