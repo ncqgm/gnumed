@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.180 2009-02-20 15:42:08 ncq Exp $
-__version__ = "$Revision: 1.180 $"
+# $Id: gmPerson.py,v 1.181 2009-02-25 09:49:49 ncq Exp $
+__version__ = "$Revision: 1.181 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1801,10 +1801,12 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 						1
 					from dem.v_staff
 					where
-						short_alias %(fragment_condition)s or
-						firstnames %(fragment_condition)s or
-						lastnames %(fragment_condition)s or
-						db_user %(fragment_condition)s"""
+						is_active and (
+							short_alias %(fragment_condition)s or
+							firstnames %(fragment_condition)s or
+							lastnames %(fragment_condition)s or
+							db_user %(fragment_condition)s
+						)"""
 			]
 		)
 		self.setThresholds(1, 2, 3)
@@ -2300,7 +2302,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.180  2009-02-20 15:42:08  ncq
+# Revision 1.181  2009-02-25 09:49:49  ncq
+# - fix provider matcher to exlude inactive providers
+#
+# Revision 1.180  2009/02/20 15:42:08  ncq
 # - putting first patient on waiting list needs more care
 #
 # Revision 1.179  2009/02/10 18:37:36  ncq
