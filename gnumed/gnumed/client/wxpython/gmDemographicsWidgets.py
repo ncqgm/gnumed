@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.158 2009-02-05 14:29:09 ncq Exp $
-__version__ = "$Revision: 1.158 $"
+# $Id: gmDemographicsWidgets.py,v 1.159 2009-02-25 21:07:41 ncq Exp $
+__version__ = "$Revision: 1.159 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -400,17 +400,31 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 			return False
 
 		# link address to patient
-		adr = self.identity.link_address (
-			number = self._TCTRL_number.GetValue().strip(),
-			street = self._PRW_street.GetValue().strip(),
-			postcode = self._PRW_zip.GetValue().strip(),
-			urb = self._PRW_urb.GetValue().strip(),
-			state = self._PRW_state.GetData(),
-			country = self._PRW_country.GetData(),
-			subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u''),
-			suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
-			id_type = self._PRW_type.GetData()
-		)
+		try:
+			adr = self.identity.link_address (
+				number = self._TCTRL_number.GetValue().strip(),
+				street = self._PRW_street.GetValue().strip(),
+				postcode = self._PRW_zip.GetValue().strip(),
+				urb = self._PRW_urb.GetValue().strip(),
+				state = self._PRW_state.GetData(),
+				country = self._PRW_country.GetData(),
+				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u''),
+				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
+				id_type = self._PRW_type.GetData()
+			)
+		except:
+			_log.exception('cannot save address')
+			gmGuiHelpers.gm_show_error (
+				_('Cannot save address.\n\n'
+				  'Does the state [%s]\n'
+				  'exist in country [%s] ?'
+				) % (
+					self._PRW_state.GetValue().strip(),
+					self._PRW_country.GetValue().strip()
+				),
+				_('Saving address')
+			)
+			return False
 
 		notes = self._TCTRL_notes_street.GetValue().strip()
 		if notes != u'':
@@ -2703,7 +2717,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.158  2009-02-05 14:29:09  ncq
+# Revision 1.159  2009-02-25 21:07:41  ncq
+# - catch exception when failing to save address
+#
+# Revision 1.158  2009/02/05 14:29:09  ncq
 # - verify DOB > 1900
 #
 # Revision 1.157  2009/01/15 11:35:41  ncq
