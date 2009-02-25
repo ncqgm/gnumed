@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.62 2009-02-24 18:06:03 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.63 2009-02-25 09:56:34 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc7"
@@ -128,7 +128,7 @@ cp -R ../../client/gm-from-cvs.bat ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./GNUmed-$CLIENTREV/client/
 cp -R ./gm-read_chipcard.sh ./GNUmed-$CLIENTREV/client/
-cp -R ./gm-install_client_locally.sh ./GNUmed-$CLIENTREV/
+cp -R ./gm-install_client_locally.sh ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./GNUmed-$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/client/
@@ -399,7 +399,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.62  2009-02-24 18:06:03  ncq
+# Revision 1.63  2009-02-25 09:56:34  ncq
+# - proper path
+#
+# Revision 1.62  2009/02/24 18:06:03  ncq
 # - include new local installer
 #
 # Revision 1.61  2009/02/18 16:55:45  shilbert
