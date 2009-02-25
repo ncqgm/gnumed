@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.181 2009-02-25 09:49:49 ncq Exp $
-__version__ = "$Revision: 1.181 $"
+# $Id: gmPerson.py,v 1.182 2009-02-25 21:05:36 ncq Exp $
+__version__ = "$Revision: 1.182 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -2165,7 +2165,7 @@ if __name__ == '__main__':
 			country = 'DE'
 		)
 		print 'Identity addresses: %s' % new_identity.get_addresses()
-		
+
 		print '\nIdentity communications: %s' % new_identity.get_comm_channels()
 		print 'Creating identity communication...'
 		new_identity.link_comm_channel('homephone', '1234566')
@@ -2302,7 +2302,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.181  2009-02-25 09:49:49  ncq
+# Revision 1.182  2009-02-25 21:05:36  ncq
+# - cleanup
+#
+# Revision 1.181  2009/02/25 09:49:49  ncq
 # - fix provider matcher to exlude inactive providers
 #
 # Revision 1.180  2009/02/20 15:42:08  ncq
