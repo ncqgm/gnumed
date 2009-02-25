@@ -7,14 +7,13 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.1 2009-02-24 17:57:32 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.2 2009-02-25 09:38:18 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
 DL_BASE_URL="http://www.gnumed.de/downloads/client/0.4"		# FIXME: derive from version
 
 # ===========================================================
-# do not run as root
 if test "$LOGNAME" == "root" ; then
 	echo ""
 	echo "This script is not intended to be run as root."
@@ -34,7 +33,9 @@ if test -z ${ARG_ONE} ; then
 	echo " <version>: the client version to install from the net"
 	echo " <tarball>: a downloaded client tarball"
 	echo ""
-	echo " download area: http://www.gnumed.de/downloads/client/"
+	echo " Download area: http://www.gnumed.de/downloads/client/"
+	echo ""
+	echo " Note: This does NOT run as root !"
 	echo "======================================================="
 	exit 1
 fi
@@ -85,7 +86,7 @@ fi
 
 
 echo ""
-echo "======================================================="
+echo "=========================================================="
 echo "This GNUmed helper will install the GNUmed client v${TARGET_VER}"
 echo "onto your ${SYS_TYPE} machine. The system account"
 echo "\"${USER}\" will be the only one able to use it."
@@ -99,7 +100,7 @@ echo ""
 echo "Installation directory:"
 echo ""
 echo "  ${INSTALL_BASE}/GNUmed-${TARGET_VER}/"
-echo "======================================================="
+echo "=========================================================="
 
 
 # install dependancies
@@ -137,13 +138,14 @@ fi
 
 # prepare environment
 mkdir -p ${INSTALL_BASE}
-cp -f ${TGZ_NAME} ${INSTALL_BASE}/
+mv -f ${TGZ_NAME} ${INSTALL_BASE}/
 cd ${INSTALL_BASE}
 
 
-# get and unpack package
+# check previous installation and unpack package
 echo ""
 if test -d GNUmed-${TARGET_VER}/ ; then
+	echo ""
 	echo "It seems the client version v${TARGET_VER} is"
 	echo "already installed. What do you want to do ?"
 	echo ""
@@ -155,11 +157,14 @@ if test -d GNUmed-${TARGET_VER}/ ; then
 else
 	REPLY="o"
 fi
+
 if test "${REPLY}" == "q" ; then
 	exit 0
 fi
+
 if test "${REPLY}" == "c" ; then
 	CONFIGURE="true"
+
 elif test "${REPLY}" == "o" ; then
 	rm -rf GNUmed-${TARGET_VER}/
 	tar -xzf ${TGZ_NAME}
@@ -168,13 +173,14 @@ elif test "${REPLY}" == "o" ; then
 		exit 1
 	fi
 	CONFIGURE="false"
+
 else
 	echo "ERROR: invalid choice: ${REPLY}"
 	exit 1
 fi
 
 
-# check for dependancies
+# check dependancies
 echo ""
 echo "Checking dependencies ..."
 cd GNUmed-${TARGET_VER}/client/
@@ -238,7 +244,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.1  2009-02-24 17:57:32  ncq
+# Revision 1.2  2009-02-25 09:38:18  ncq
+# - better wording
+#
+# Revision 1.1  2009/02/24 17:57:32  ncq
 # - added install script, works both from local tarball or from the net
 #
 # Revision 1.9  2009/02/17 11:58:53  ncq
