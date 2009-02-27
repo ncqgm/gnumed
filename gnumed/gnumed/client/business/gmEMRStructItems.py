@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.131 $"
+__version__ = "$Revision: 1.132 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -474,7 +474,7 @@ from (
 			))
 
 			if len(encs) > 4:
-				lines.append(u' ... %s skipped ...' % (len(encs) - 4))
+				lines.append(_(' ... %s skipped ...') % (len(encs) - 4))
 
 			for enc in encs[1:][-3:]:
 				lines.append(u' %s - %s (%s):%s' % (
@@ -717,14 +717,14 @@ select exists (
 			lines.append(u'-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
 			for soap_entry in soap_cat_narratives:
 				txt = gmTools.wrap (
-					text = u'%s  %.8s\n%s' % (
-						soap_entry['date'].strftime('%d.%m. %H:%M'),
+					text = u'%s\n (%.8s %s)' % (
+						soap_entry['narrative'],
 						soap_entry['provider'],
-						soap_entry['narrative']
+						soap_entry['date'].strftime('%x %H:%M')
 					),
 					width = 75,
 					initial_indent = u'',
-					subsequent_indent = left_margin + u'   '
+					subsequent_indent = left_margin + u''
 				)
 				lines.append(txt)
 				lines.append('')
@@ -1104,7 +1104,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.131  2009-02-23 08:46:01  ncq
+# Revision 1.132  2009-02-27 12:38:03  ncq
+# - improved SOAP formatting
+#
+# Revision 1.131  2009/02/23 08:46:01  ncq
 # - fix faulty column label
 #
 # Revision 1.130  2009/02/17 17:45:53  ncq
