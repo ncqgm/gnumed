@@ -1,6 +1,6 @@
 #!/bin/bash
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 echo "-------------------------------------------------------------"
 echo "This script will check your environment for applications"
@@ -23,7 +23,7 @@ echo "server. It is, however, non-trivial to reliably"
 echo "test for that."
 echo "If you want to work with a *local* database (on this"
 echo "machine) you should see at least one process saying"
-echo "'postmaster' in the following list."
+echo "'postgres' in the following list."
 echo "If you don't you can still use our public database"
 echo "at salaam.homeunix.com for testing or connect to a"
 echo "GNUmed database installed on another machine."
@@ -62,91 +62,103 @@ echo "are not strictly required for standard operation."
 read -p "Press <RETURN> key to continue."
 echo    "-------------------------------"
 
-echo "=> checking for 'file' command ..."
+echo -n "'file' command... "
 BIN=`which file`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'file' command installed."
 	echo "INFO : It is available with your OS. On Windows it is not needed."
 else
-	echo "=> found"
+	echo "found"
 fi
 
-echo "=> checking for 'extract' command ..."
+echo -n "'extract' command... "
 BIN=`which extract`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'extract' command installed."
 	echo "INFO : It is available with your OS. On Windows it is not needed."
 else
-	echo "=> found"
+	echo "found"
 fi
 
-echo "=> checking for Aeskulap DICOM viewer ..."
+echo -n "'Aeskulap' DICOM viewer... "
 BIN=`which aeskulap`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'aeskulap' command installed."
 	echo "INFO : It is available with your OS. On Windows it is not needed."
 else
-	echo "=> found"
+	echo "found"
 fi
 
-echo "=> checking for XMedCon DICOM viewer ..."
-BIN=`which xmedcon`
-if [ "x${BIN}x" == "xx" ]; then
-	echo "INFO : You don't seem to have the 'xmedcon' command installed."
-	echo "INFO : It is available with your OS. On Windows it is not needed."
-else
-	echo "=> found"
-fi
-
-echo "=> checking for AMIDE DICOM viewer ..."
+echo -n "'AMIDE' DICOM viewer... "
 BIN=`which amide`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'amide' command installed."
 	echo "INFO : It is available with your OS. On Windows it is not needed."
 else
-	echo "=> found"
+	echo "found"
 fi
 
-echo "=> checking for XSane scanner frontend ..."
+echo -n "'XMedCon' DICOM viewer... "
+BIN=`which xmedcon`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "INFO : You don't seem to have the 'xmedcon' command installed."
+	echo "INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "found"
+fi
+
+echo -n "'XSane' scanner frontend... "
 BIN=`which xsane`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'xsane' command installed."
 	echo "INFO : It is available with your OS. On Windows it is not needed."
 else
-	echo "=> found"
+	echo "found"
 fi
 
-echo "=> checking for aspell spell checker ..."
+echo -n "'aspell' spell checker... "
 BIN=`which aspell`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'aspell' command installed."
 	echo "INFO : It is available with your OS."
 else
-	echo "=> found"
+	echo "found"
 fi
 
-echo "=> checking for konsolekalender KOrganizer controller ..."
+echo -n "'konsolekalender' KOrganizer controller... "
 BIN=`which konsolekalendar`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'konsolekalendar' command installed."
 	echo "INFO : It is available with your OS."
 else
-	echo "=> found"
+	echo "found"
 fi
 
-echo "=> checking for GNUplot ..."
+echo -n "'gnuplot' command... "
 BIN=`which gnuplot`
 if [ "x${BIN}x" == "xx" ]; then
+	echo ""
 	echo "INFO : You don't seem to have the 'gnuplot' command installed."
 	echo "INFO : It is available with your OS or can be downloaded from the web."
 else
-	echo "=> found"
+	echo "found"
 fi
 
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.13  2008-08-01 09:35:25  ncq
+# Revision 1.14  2009-02-27 11:59:06  ncq
+# - improved output
+#
+# Revision 1.13  2008/08/01 09:35:25  ncq
 # - /bin/sh -> /bin/bash
 #
 # Revision 1.12  2008/02/21 15:25:06  ncq

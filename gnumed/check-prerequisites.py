@@ -1,146 +1,157 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 
 import sys
 
-print "=> checking for Python module 'mxDateTime' ..."
+missing = False
+
+print "Checking for Python modules"
+print "==========================="
+
+print " mx.DateTime...",
 try:
 	import mx.DateTime
-	print "=> found"
+	print "found"
 except ImportError:
-	print "ERROR: mxDateTime not installed"
-	print "ERROR: this is needed to handle dates and times"
-	print "ERROR: mxDateTime is available from http://www.egenix.com/files/python/"
-	print "INFO : sys.path is set as follows:"
-	print "INFO :", "\nINFO : ".join(sys.path)
-	sys.exit(-1)
+	missing = True
+	print ""
+	print "  ERROR: mxDateTime not installed"
+	print "  ERROR: this is needed to handle dates and times"
+	print "  ERROR: mxDateTime is available from http://www.egenix.com/files/python/"
 
-print "=> checking for Python module 'enchant' ..."
+print " enchant...",
 try:
 	import enchant
-	print "=> found"
+	print "found"
 except ImportError:
-	print "ERROR: 'enchant' not installed"
-	print "ERROR: this is needed to handle spellchecking"
-	print "INFO : sys.path is set as follows:"
-	print "INFO :", "\nINFO : ".join(sys.path)
-	sys.exit(-1)
+	missing = True
+	print ""
+	print "  ERROR: 'enchant' not installed"
+	print "  ERROR: this is used to handle spellchecking"
 
-print "=> checking for Python module 'psycopg2' ..."
+print " psycopg2...",
 try:
 	import psycopg2
-	print "=> found"
+	print "found"
 except ImportError:
-	print "ERROR: psycopg2 not installed"
-	print "ERROR: this is needed to access PostgreSQL"
-	print "ERROR: psycopg2 is available from http://www.initd.org/"
-	print "INFO : sys.path is set as follows:"
-	print "INFO :", "\nINFO : ".join(sys.path)
-	sys.exit(-1)
+	missing = True
+	print ""
+	print "  ERROR: psycopg2 not installed"
+	print "  ERROR: this is needed to access PostgreSQL"
+	print "  ERROR: psycopg2 is available from http://www.initd.org/"
 
-print "=> checking for Python module 'wxVersion' ..."
+print " wxversion...",
 if hasattr(sys, 'frozen'):
-	print "INFO : py2exe or similar in use, cannot check wxPython version"
-	print "INFO : skipping test and hoping for the best"
-	print "INFO : wxPython must be >= v2.8 and unicode-enabled"
-	print "=> cannot check"
+	print "cannot check"
+	print "  INFO : py2exe or similar in use, cannot check wxPython version"
+	print "  INFO : skipping test and hoping for the best"
+	print "  INFO : wxPython must be >= v2.8 and unicode-enabled"
 else:
 	try:
 		import wxversion
-		print "   - installed versions:", wxversion.getInstalled()
-		print "=> found"
-		print "   - selecting unicode enabled version >= 2.8"
+		print "found"
+#		print "  installed versions:", wxversion.getInstalled()
+		print "  selecting unicode enabled version >= 2.8...",
 		wxversion.select(versions='2.8-unicode', optionsRequired=True)
-		print "=> selected"
+		print "success"
 	except ImportError:
-		print "ERROR: wxversion not installed"
-		print "ERROR: this is used to select the proper wxPython version"
-		print "INFO : for details, see here:"
-		print "INFO : http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
-		print "INFO : skipping test and hoping for the best"
-		print "INFO : wxPython must be >= v2.8 and unicode-enabled"
-		print "=> NOT found"
+		missing = True
+		print ""
+		print "  ERROR: wxversion not installed"
+		print "  ERROR: this is used to select the proper wxPython version"
+		print "  INFO : for details, see here:"
+		print "  INFO : http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
+		print "  INFO : skipping test and hoping for the best"
+		print "  INFO : wxPython must be >= v2.8 and unicode-enabled"
 	except wxversion.VersionError:
-		print "ERROR: wxPython-2.8-unicode not installed"
-		print "ERROR: this is needed to show the GNUmed GUI"
-		print "INFO : wxPython is available from http://www.wxpython.org"
-		print "INFO : sys.path is set as follows:"
-		print "INFO :", "\nINFO : ".join(sys.path)
-		sys.exit(-1)
+		print "failure"
+		print "  ERROR: wxPython-2.8-unicode not installed"
+		print "  ERROR: this is needed to show the GNUmed GUI"
+		print "  INFO : wxPython is available from http://www.wxpython.org"
 
-print "=> checking for Python module 'wxPython' ..."
+print " wx(python)...",
 try:
 	import wx
-	print "   - active version:", wx.VERSION_STRING
-	try:
-		print "   - platform info:", wx.PlatformInfo
-	except: pass
-	print "=> found"
+	print "found"
+#	print "  active version:", wx.VERSION_STRING
+#	try:
+#		print "  platform info:", wx.PlatformInfo
+#	except: pass
 except ImportError:
+	missing = True
+	print ""
 	import os
 	if os.getenv('DISPLAY') is None:
-		print "INFO : you may have to explicitely set $DISPLAY"
-	print "ERROR: wxPython not installed"
-	print "ERROR: this is needed to show the GNUmed GUI"
-	print "INFO : wxPython is available from http://www.wxpython.org"
-	print "INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
-	print "INFO : sys.path is set as follows:"
-	print "INFO :", "\nINFO : ".join(sys.path)
-	sys.exit(-1)
+		print "  INFO : you may have to explicitely set $DISPLAY"
+	print "  ERROR: wxPython not installed"
+	print "  ERROR: this is needed to show the GNUmed GUI"
+	print "  INFO : wxPython is available from http://www.wxpython.org"
+	print "  INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
+
+print " uno...",
+try:
+	import uno
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: uno not installed"
+	print "  INFO : this is needed for form and letter handling"
+	print "  INFO : GNUmed will work but you will be unable"
+	print "  INFO : to use OpenOffice to write letters and"
+	print "  INFO : fill in forms"
+
+print " Gnuplot...",
+try:
+	import Gnuplot
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: Gnuplot python binding not installed"
+	print "  INFO : this is needed for data visualization"
+	print "  INFO : GNUmed will work but you will be unable"
+	print "  INFO : to visualize search results and lab data"
+
+print " GNUmed Python modules...",
+try:
+	from Gnumed.pycommon import gmNull
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: GNUmed's own Python modules not installed site-wide"
+	print "  INFO : these handle most of the work in GNUmed"
+	print "  INFO : it may still be possible to run GNUmed locally"
+	print "  INFO : from a directory containing a CVS tree"
 
 #print "=> checking for Python module 'sane' ..."
 #try:
 #	import sane
 #	print "=> found"
 #except ImportError:
-#	print "ERROR: sane not installed"
-#	print "INFO : this is needed to access scanners on Linux"
-#	print "INFO : GNUmed will work but you will be unable to scan"
+#	print "  ERROR: sane not installed"
+#	print "  INFO : this is needed to access scanners on Linux"
+#	print "  INFO : GNUmed will work but you will be unable to scan"
 
-print "=> checking for Python module 'twain' ..."
+print " twain...",
 try:
 	import twain
-	print "=> found"
+	print "found"
 except ImportError:
-	print "ERROR: twain not installed"
-	print "INFO : this is needed to access scanners on Windows"
-	print "INFO : GNUmed will work but you will be unable to"
-	print "INFO : scan if you are on a Windows machine"
+	missing = True
+	print ""
+	print "  ERROR: twain not installed"
+	print "  INFO : this is needed to access scanners on Windows"
+	print "  INFO : GNUmed will work but you will be unable to"
+	print "  INFO : scan if you are on a Windows machine"
 
-print "=> checking for Python module 'uno' ..."
-try:
-	import uno
-	print "=> found"
-except ImportError:
-	print "ERROR: uno not installed"
-	print "INFO : this is needed for form and letter handling"
-	print "INFO : GNUmed will work but you will be unable"
-	print "INFO : to use OpenOffice to write letters and"
-	print "INFO : fill in forms"
-
-print "=> checking for Python module 'Gnuplot' ..."
-try:
-	import Gnuplot
-	print "=> found"
-except ImportError:
-	print "ERROR: Gnuplot python binding not installed"
-	print "INFO : this is needed for data visualization"
-	print "INFO : GNUmed will work but you will be unable"
-	print "INFO : to visualize search results and lab data"
-
-print "=> checking for GNUmed's own Python modules ..."
-try:
-	from Gnumed.pycommon import gmNull
-	print "=> found"
-except ImportError:
-	print "ERROR: GNUmed's own Python modules not installed site-wide"
-	print "ERROR: these handle most of the work in GNUmed"
-	print "INFO : it may still be possible to run GNUmed locally"
-	print "INFO : from a directory containing a CVS tree"
-	print "INFO : sys.path is set as follows:"
-	print "INFO :", "\nINFO : ".join(sys.path)
+if missing:
+	print ""
+	print "sys.path is currently set as follows:"
+	print " ", "\n  ".join(sys.path)
 	sys.exit(-1)
 
 print "\n****************************************************"
@@ -150,7 +161,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.19  2008-07-24 17:51:27  ncq
+# Revision 1.20  2009-02-27 11:59:06  ncq
+# - improved output
+#
+# Revision 1.19  2008/07/24 17:51:27  ncq
 # - cleanup
 #
 # Revision 1.18  2008/07/15 15:23:50  ncq
