@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.64 2008-07-14 13:45:08 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmPathLab.py,v 1.64.2.1 2009-02-27 13:06:13 ncq Exp $
+__version__ = "$Revision: 1.64.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys, logging
@@ -113,7 +113,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 #		# yes but ambigous
 #		if name != db_lname:
 #			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.64 $'
+#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.64.2.1 $'
 #			to = 'user'
 #			prob = _('The test type already exists but the long name is different. '
 #					'The test facility may have changed the descriptive name of this test.')
@@ -243,7 +243,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		))
 		if gmTools.coalesce(self._payload[self._idx['comment']], u'').strip() != u'':
 			lines.append(_('   Doc: %s') % self._payload[self._idx['comment']].strip())
-		if gmTools.coalesce(self._payload[self._idx['comment']], u'').strip() != u'':
+		if gmTools.coalesce(self._payload[self._idx['note_test_org']], u'').strip() != u'':
 			lines.append(_('   MTA: %s') % self._payload[self._idx['note_test_org']].strip())
 		if self._payload[self._idx['reviewed']]:
 			lines.append(u'   %s @ %s: %s, %s' % (
@@ -684,7 +684,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.64 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.64.2.1 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -967,7 +967,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.64  2008-07-14 13:45:08  ncq
+# Revision 1.64.2.1  2009-02-27 13:06:13  ncq
+# - properly format lab results
+#
+# Revision 1.64  2008/07/14 13:45:08  ncq
 # - add .format to test results
 #
 # Revision 1.63  2008/06/24 13:54:47  ncq
