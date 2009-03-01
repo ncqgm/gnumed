@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.28.2.1 2008-08-31 22:20:13 ncq Exp $
-__version__ = "$Revision: 1.28.2.1 $"
+# $Id: gmMeasurementWidgets.py,v 1.28.2.2 2009-03-01 16:40:08 ncq Exp $
+__version__ = "$Revision: 1.28.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import wx, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson, gmPathLab
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
@@ -362,10 +362,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
 					)
 				if len(self.__cell_data[col][row]) > 1:
-					tmp = '%s %s' % (result['clin_when'].strftime('%H:%M'), tmp)
+					tmp = u'%s %s' % (result['clin_when'].strftime('%H:%M'), tmp)
 				vals2display.append(tmp)
 
-			self.SetCellValue(row, col, '\n'.join(vals2display))
+			self.SetCellValue(row, col, u'\n'.join(vals2display))
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 #			font = self.GetCellFont(row, col)
 #			if not font.IsFixedWidth():
@@ -398,7 +398,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					clinical_min_max = u''
 
 				if result['reviewed']:
-					review_status = result['last_reviewed'].strftime('%c')
+					review_status = result['last_reviewed'].strftime('%c').decode(gmI18N.get_encoding())
 				else:
 					review_status = _('not yet')
 
@@ -407,35 +407,35 @@ class cMeasurementsGrid(wx.grid.Grid):
 				except KeyError:
 					self.__cell_tooltips[col] = {}
 				self.__cell_tooltips[col][row] = _(
-					'Measurement details of most recent result:               \n'
-					' Date: %(clin_when)s\n'
-					' Type: "%(name)s" (%(code)s)\n'
-					' Result: %(val)s%(unit)s%(ind)s\n'
-					' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
-					' Reference group: %(ref_group)s\n'
-					' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
-					' Doc: %(comment_doc)s\n'
-					' Lab: %(comment_lab)s\n'	# note_test_org
-					' Episode: %(epi)s\n'
-					' Issue: %(issue)s\n'
-					' Material: %(material)s\n'
-					' Details: %(mat_detail)s\n'
-					'\n'
-					'Signed (%(sig_hand)s): %(reviewed)s\n'
-					' Last reviewer: %(reviewer)s\n'
-					'  Technically abnormal: %(abnormal)s\n'
-					'  Clinically relevant: %(relevant)s\n'
-					'  Comment: %(rev_comment)s\n'
-					' Responsible clinician: %(responsible_reviewer)s\n'
-					'\n'
-					'Test type details:\n'
-					' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
-					' Type comment: %(comment_type)s\n'
-					' Group comment: %(comment_type_unified)s\n'
-					'\n'
-					'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
+					u'Measurement details of most recent result:               \n'
+					u' Date: %(clin_when)s\n'
+					u' Type: "%(name)s" (%(code)s)\n'
+					u' Result: %(val)s%(unit)s%(ind)s\n'
+					u' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
+					u' Reference group: %(ref_group)s\n'
+					u' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
+					u' Doc: %(comment_doc)s\n'
+					u' Lab: %(comment_lab)s\n'	# note_test_org
+					u' Episode: %(epi)s\n'
+					u' Issue: %(issue)s\n'
+					u' Material: %(material)s\n'
+					u' Details: %(mat_detail)s\n'
+					u'\n'
+					u'Signed (%(sig_hand)s): %(reviewed)s\n'
+					u' Last reviewer: %(reviewer)s\n'
+					u'  Technically abnormal: %(abnormal)s\n'
+					u'  Clinically relevant: %(relevant)s\n'
+					u'  Comment: %(rev_comment)s\n'
+					u' Responsible clinician: %(responsible_reviewer)s\n'
+					u'\n'
+					u'Test type details:\n'
+					u' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
+					u' Type comment: %(comment_type)s\n'
+					u' Group comment: %(comment_type_unified)s\n'
+					u'\n'
+					u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
 				) % ({
-					'clin_when': result['clin_when'].strftime('%c'),
+					'clin_when': result['clin_when'].strftime('%c').decode(gmI18N.get_encoding()),
 					'code': result['code_tt'],
 					'name': result['name_tt'],
 					'val': result['unified_val'],
@@ -462,8 +462,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 							u'%s'
 						)
 					),
-					'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split('\n')),
-					'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split('\n')),
+					'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split(u'\n')),
+					'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split(u'\n')),
 					'epi': result['episode'],
 					'issue': gmTools.coalesce(result['health_issue'], u''),
 					'material': gmTools.coalesce(result['material'], u''),
@@ -476,12 +476,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 					'rev_comment': gmTools.coalesce(result['review_comment'], u''),
 					'responsible_reviewer': gmTools.bool2subst(result['you_are_responsible'], _('you'), result['responsible_reviewer']),
 
-					'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split('\n')),
+					'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split(u'\n')),
 					'name_unified': gmTools.coalesce(result['name_unified'], u''),
 					'code_unified': gmTools.coalesce(result['code_unified'], u''),
-					'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split('\n')),
+					'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split(u'\n')),
 
-					'mod_when': result['modified_when'].strftime('%c'),
+					'mod_when': result['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
 					'mod_by': result['modified_by'],
 					'row_ver': result['row_version'],
 
@@ -1205,7 +1205,7 @@ limit 25"""
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmLog2, gmI18N
+	from Gnumed.pycommon import gmLog2
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -1234,7 +1234,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.28.2.1  2008-08-31 22:20:13  ncq
+# Revision 1.28.2.2  2009-03-01 16:40:08  ncq
+# - lots of u''
+#
+# Revision 1.28.2.1  2008/08/31 22:20:13  ncq
 # - ignore dclick in empty grid cell
 # - properly display non-NULL val_normal/target_min/max
 # - properly handle cell data being list when selecting cells programmatically
