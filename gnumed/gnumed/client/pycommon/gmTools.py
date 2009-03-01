@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.74 2009-02-18 13:45:25 ncq Exp $
+# $Id: gmTools.py,v 1.75 2009-03-01 18:10:50 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -42,6 +42,7 @@ default_mail_server = u'mail.gmx.net'
 
 
 u_registered_trademark = u'\u00ae'
+u_plus_minus = u'\u00B1'
 u_ellipsis = u'\u2026'
 u_left_arrow = u'\u2190'
 u_diameter = u'\u2300'
@@ -162,7 +163,13 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		msg += _(' - bug fixes only\n')
 		msg += _(' - no database upgrade needed\n')
 
-	msg += '\n\n'
+	msg += u'\n\n'
+	msg += _(
+		'Note, however, that this version may not yet\n'
+		'be available *pre-packaged* for your system.'
+	)
+
+	msg += u'\n\n'
 	msg += _('Version information loaded from:\n\n %s') % url
 
 	return (True, msg)
@@ -1003,7 +1010,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.74  2009-02-18 13:45:25  ncq
+# Revision 1.75  2009-03-01 18:10:50  ncq
+# - improve update-avail message
+#
+# Revision 1.74  2009/02/18 13:45:25  ncq
 # - get_unique_filename API change
 #
 # Revision 1.73  2009/01/02 11:38:09  ncq
