@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.137 $
+# $Revision: 1.138 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-02-25 21:59+CET\n"
-"PO-Revision-Date: 2009-02-25 22:09+0100\n"
+"POT-Creation-Date: 2009-03-01 18:49+CET\n"
+"PO-Revision-Date: 2009-03-01 18:52+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -259,6 +259,9 @@ msgstr "BA"
 msgid "AOE"
 msgstr "BE"
 
+msgid " ... %s skipped ..."
+msgstr " ... %s übersprungen ..."
+
 msgid "Documents: %s"
 msgstr "Dokumente: %s"
 
@@ -298,17 +301,14 @@ msgstr "   Dr.: %s"
 msgid "   MTA: %s"
 msgstr "   MTA: %s"
 
-msgid "abnormal"
-msgstr "außerhalb Normbereich"
+msgid "abnormal and relevant"
+msgstr "pathologisch und relevant"
 
-msgid "normal"
-msgstr "normal"
+msgid "normal but relevant"
+msgstr "nicht pathologisch, aber relevant"
 
-msgid "not relevant"
-msgstr "nicht relevant"
-
-msgid "relevant"
-msgstr "relevant"
+msgid "   unreviewed"
+msgstr "   nicht abgezeichnet"
 
 msgid "The lab request already exists but belongs to a different patient."
 msgstr "Diese Laboranforderung gibt es schon für einen anderen Patienten."
@@ -778,6 +778,11 @@ msgstr " - Fehlerbehebung und neue Funktionen\n"
 
 msgid " - database upgrade required\n"
 msgstr " - Datenbankupgrade erforderlich\n"
+
+msgid ""
+"Note, however, that this version may not yet\n"
+"be available *pre-packaged* for your system."
+msgstr "Achtung: Es kann natürlich sein, daß für Ihr Systemdiese Version noch nicht bereitgestellt wurde."
 
 msgid ""
 "Version information loaded from:\n"
@@ -3974,6 +3979,9 @@ msgstr "Kann Episode [%s] nicht der Grunderkrankung [%s] zuordnen, weil diese be
 
 msgid "Select the health issues you are interested in ..."
 msgstr "Wählen Sie die Grunderkrankungen, die von Interesse sind ..."
+
+msgid "relevant"
+msgstr "relevant"
 
 msgid "fatal"
 msgstr "terminal"
@@ -8257,6 +8265,10 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "abnormal"
+#~ msgstr "außerhalb Normbereich"
+#~ msgid "normal"
+#~ msgstr "normal"
 #~ msgid "Workplaces"
 #~ msgstr "Arbeitsplätze"
 #~ msgid "Add the patient to the waiting list."
@@ -8483,8 +8495,6 @@ msgstr "erstmals"
 #~ msgstr "Gewählte Ergebnisse in die Zwischenablage kopieren."
 #~ msgid "mark as &reviewed"
 #~ msgstr "ab&zeichnen"
-#~ msgid "unreviewed"
-#~ msgstr "nicht abgezeichnet"
 #~ msgid "Sort by"
 #~ msgstr "Sortiere nach"
 #~ msgid ""
