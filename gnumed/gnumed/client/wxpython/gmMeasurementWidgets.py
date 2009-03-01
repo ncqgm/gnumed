@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.38 2009-02-20 15:43:21 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmMeasurementWidgets.py,v 1.39 2009-03-01 18:15:55 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import wx, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson, gmPathLab
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
@@ -88,8 +88,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 			) % len(selected_cells)
 		else:
 			results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
-			txt = u'\n'.join([ '%s %s (%s): %s %s%s' % (
-					r['clin_when'].strftime('%x %H:%M'),
+			txt = u'\n'.join([ u'%s %s (%s): %s %s%s' % (
+					r['clin_when'].strftime('%x %H:%M').decode(gmI18N.get_encoding()),
 					r['unified_code'],
 					r['unified_name'],
 					r['unified_val'],
@@ -327,7 +327,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					# ... invent indicator if the lab did't use one
 					if lab_abnormality_indicator == u'':
 						# FIXME: calculate from min/max/range
-						abnormality_indicator = u' (\u00B1)'
+						abnormality_indicator = u' (%s)' % gmTools.u_plus_minus
 					# ... else use indicator the lab used
 					else:
 						abnormality_indicator = lab_abnormality_indicator
@@ -372,10 +372,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
 					)
 				if len(self.__cell_data[col][row]) > 1:
-					tmp = '%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
+					tmp = u'%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
 				vals2display.append(tmp)
 
-			self.SetCellValue(row, col, '\n'.join(vals2display))
+			self.SetCellValue(row, col, u'\n'.join(vals2display))
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 #			font = self.GetCellFont(row, col)
 #			if not font.IsFixedWidth():
@@ -409,7 +409,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					clinical_min_max = u''
 
 				if result['reviewed']:
-					review_status = result['last_reviewed'].strftime('%c')
+					review_status = result['last_reviewed'].strftime('%c').decode(gmI18N.get_encoding())
 				else:
 					review_status = _('not yet')
 
@@ -446,7 +446,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					u'\n'
 					u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
 				) % ({
-					'clin_when': result['clin_when'].strftime('%c'),
+					'clin_when': result['clin_when'].strftime('%c').decode(gmI18N.get_encoding()),
 					'code': result['code_tt'],
 					'name': result['name_tt'],
 					'val': result['unified_val'],
@@ -473,8 +473,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 							u'%s'
 						)
 					),
-					'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split('\n')),
-					'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split('\n')),
+					'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split(u'\n')),
+					'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split(u'\n')),
 					'epi': result['episode'],
 					'issue': gmTools.coalesce(result['health_issue'], u''),
 					'material': gmTools.coalesce(result['material'], u''),
@@ -487,12 +487,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 					'rev_comment': gmTools.coalesce(result['review_comment'], u''),
 					'responsible_reviewer': gmTools.bool2subst(result['you_are_responsible'], _('you'), result['responsible_reviewer']),
 
-					'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split('\n')),
+					'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split(u'\n')),
 					'name_unified': gmTools.coalesce(result['name_unified'], u''),
 					'code_unified': gmTools.coalesce(result['code_unified'], u''),
-					'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split('\n')),
+					'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split(u'\n')),
 
-					'mod_when': result['modified_when'].strftime('%c'),
+					'mod_when': result['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
 					'mod_by': result['modified_by'],
 					'row_ver': result['row_version'],
 
@@ -743,7 +743,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 						t['unified_code'],
 						t['unified_val'],
 						t['val_unit'],
-						t['clin_when'].strftime('%x')
+						t['clin_when'].strftime('%x').decode(gmI18N.get_encoding())
 					) for t in tests
 				]
 			)
@@ -1137,6 +1137,7 @@ limit 50""" % {'in_house': _('in house lab')}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
+		mp.word_separators = '[ \t:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -1220,7 +1221,7 @@ limit 25"""
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmLog2, gmI18N
+	from Gnumed.pycommon import gmLog2
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -1256,7 +1257,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.38  2009-02-20 15:43:21  ncq
+# Revision 1.39  2009-03-01 18:15:55  ncq
+# - lots of missing u'', decode strftime results
+# - adjust word separators in test type match provider
+#
+# Revision 1.38  2009/02/20 15:43:21  ncq
 # - u''ify
 #
 # Revision 1.37  2009/02/17 17:47:31  ncq
