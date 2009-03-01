@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.30 2009-01-21 22:34:09 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmMatchProvider.py,v 1.31 2009-03-01 18:07:14 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -22,6 +22,10 @@ import gmPG2, gmExceptions
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+
+
+default_ignored_chars = "[?!.'\\(){}\[\]<>~#*$%^_]+" + '"'
+default_word_separators = '[- \t=+&:@]+'
 #============================================================
 class cMatchProvider(object):
 	"""Base class for match providing objects.
@@ -33,16 +37,14 @@ class cMatchProvider(object):
 	- config files
 	- in-memory list created on the fly
 	"""
-	default_word_separators = regex.compile('[- \t=+&:@]+')
-	default_ignored_chars = regex.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
 	print_queries = False
 	#--------------------------------------------------------
 	def __init__(self):
 		self.setThresholds()
 
 		self._context_vals = {}
-		self.__ignored_chars = regex.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
-		self.__word_separators = regex.compile('[- \t=+&:@]+')
+		self.__ignored_chars = regex.compile(default_ignored_chars)
+		self.__word_separators = regex.compile(default_word_separators)
 	#--------------------------------------------------------
 	# actions
 	#--------------------------------------------------------
@@ -57,7 +59,7 @@ class cMatchProvider(object):
 		if aFragment is None:
 			raise ValueError, 'Cannot find matches without a fragment.'
 
-		# user explicitely wants all matches				
+		# user explicitely wants all matches
 		if aFragment == u'*':
 			return self.getAllMatches()
 
@@ -455,7 +457,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.30  2009-01-21 22:34:09  ncq
+# Revision 1.31  2009-03-01 18:07:14  ncq
+# - factor out default ignored chars/word separators onto module level
+#
+# Revision 1.30  2009/01/21 22:34:09  ncq
 # - make FixedList match provider work nicely again
 #
 # Revision 1.29  2008/06/16 15:02:35  ncq
