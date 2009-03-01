@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.127 2009-02-24 10:16:48 ncq Exp $
-__version__ = "$Revision: 1.127 $"
+# $Id: gmPhraseWheel.py,v 1.128 2009-03-01 18:18:50 ncq Exp $
+__version__ = "$Revision: 1.128 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -35,7 +35,10 @@ _log = logging.getLogger('macosx')
 
 color_prw_invalid = 'pink'
 color_prw_valid = None				# this is used by code outside this module
-#============================================================
+
+default_phrase_separators = '[;/|]+'
+default_spelling_word_separators = '[\W\d_]+'
+
 # those can be used by the <accepted_chars> phrasewheel parameter
 NUMERIC = '0-9'
 ALPHANUMERIC = 'a-zA-Z0-9'
@@ -191,10 +194,10 @@ class cPhraseWheel(wx.TextCtrl):
 		self.accepted_chars = None
 		self.final_regex = '.*'
 		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]')
-		self.phrase_separators = '[;/|]+'
+		self.phrase_separators = default_phrase_separators
 		self.navigate_after_selection = False
 		self.speller = None
-		self.speller_word_separators = '[\W\d_]+'
+		self.speller_word_separators = default_spelling_word_separators
 		self.picklist_delay = 150		# milliseconds
 
 		# state tracking
@@ -1031,7 +1034,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.127  2009-02-24 10:16:48  ncq
+# Revision 1.128  2009-03-01 18:18:50  ncq
+# - factor out default phrase separators/spelling word separators
+#
+# Revision 1.127  2009/02/24 10:16:48  ncq
 # - don't hiccup when spell checker hiccups, simply disable it
 #
 # Revision 1.126  2009/02/04 21:47:54  ncq
