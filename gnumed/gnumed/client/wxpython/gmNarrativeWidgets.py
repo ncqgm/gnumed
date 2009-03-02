@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.23 2009-02-24 13:22:06 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmNarrativeWidgets.py,v 1.24 2009-03-02 18:57:52 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -1031,6 +1031,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			self._TCTRL_soAp,
 			self._TCTRL_soaP
 		]
+
+		self.__register_interests()
 	#--------------------------------------------------------
 	def clear(self):
 		for field in self.fields:
@@ -1099,6 +1101,45 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 		return True
 	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		for field in self.fields:
+			wxexpando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
+	#--------------------------------------------------------
+	def _on_expando_needs_layout(self, evt):
+		# need to tell ourselves to re-Layout to refresh scroll bars
+
+		# provoke adding scrollbar if needed
+		self.Fit()
+
+		if self.HasScrollbar(wx.VERTICAL):
+			# scroll panel to show cursor
+			expando = self.FindWindowById(evt.GetId())
+			y_expando = expando.GetPositionTuple()[1]
+			h_expando = expando.GetSizeTuple()[1]
+			line_cursor = expando.PositionToXY(expando.GetInsertionPoint())[1] + 1
+			y_cursor = int(round((float(line_cursor) / expando.NumberOfLines) * h_expando))
+			y_desired_visible = y_expando + y_cursor
+
+			y_view = self.ViewStart[1]
+			h_view = self.GetClientSizeTuple()[1]
+
+#			print "expando:", y_expando, "->", h_expando, ", lines:", expando.NumberOfLines
+#			print "cursor :", y_cursor, "at line", line_cursor, ", insertion point:", expando.GetInsertionPoint()
+#			print "wanted :", y_desired_visible
+#			print "view-y :", y_view
+#			print "scroll2:", h_view
+
+			# expando starts before view
+			if y_desired_visible < y_view:
+#				print "need to scroll up"
+				self.Scroll(0, y_desired_visible)
+
+			if y_desired_visible > h_view:
+#				print "need to scroll down"
+				self.Scroll(0, y_desired_visible)
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_soap(self):
@@ -1148,6 +1189,18 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 		#wx.EVT_KEY_DOWN (self, self.__on_key_down)
 		#wx.EVT_KEY_UP (self, self.__OnKeyUp)
 		wx.EVT_CHAR(self, self.__on_char)
+		wx.EVT_SET_FOCUS(self, self.__on_focus)
+	#--------------------------------------------------------
+	def __on_focus(self, evt):
+		evt.Skip()
+		wx.CallAfter(self._after_on_focus)
+	#--------------------------------------------------------
+	def _after_on_focus(self):
+		evt = wx.PyCommandEvent(wxexpando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
+		evt.SetEventObject(self)
+		evt.height = None
+		evt.numLines = None
+		self.GetEventHandler().ProcessEvent(evt)
 	#--------------------------------------------------------
 	def __on_char(self, evt):
 		char = unichr(evt.GetUnicodeKey())
@@ -1207,7 +1260,6 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 					caption = _('Selecting text macro'),
 					choices = candidates,
 					columns = [_('Keyword')],
-#					data = candidates,
 					single_selection = True,
 					can_return_empty = False
 				)
@@ -1277,7 +1329,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.23  2009-02-24 13:22:06  ncq
+# Revision 1.24  2009-03-02 18:57:52  ncq
+# - make expando soap editor scroll to cursor when needed
+#
+# Revision 1.23  2009/02/24 13:22:06  ncq
 # - fix saving edited progress notes
 #
 # Revision 1.22  2009/02/17 08:07:37  ncq
