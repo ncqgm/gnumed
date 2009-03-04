@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Gnumed 0.3\n"
-"POT-Creation-Date: 2009-01-28 12:08+CET\n"
-"PO-Revision-Date: 2009-02-20 11:53+0100\n"
+"POT-Creation-Date: 2009-03-04 14:50+CET\n"
+"PO-Revision-Date: 2009-03-04 14:53+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: pt-br <luz.rogerio@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -258,6 +258,9 @@ msgstr "Motivo da Consulta"
 msgid "AOE"
 msgstr "Resumo da Consulta"
 
+msgid " ... %s skipped ..."
+msgstr ""
+
 msgid "Documents: %s"
 msgstr "Documentos: %s"
 
@@ -297,17 +300,16 @@ msgstr "   Doc: %s"
 msgid "   MTA: %s"
 msgstr "   MTA: %s"
 
-msgid "abnormal"
-msgstr "anormal"
-
-msgid "normal"
-msgstr "normal"
-
-msgid "not relevant"
+#, fuzzy
+msgid "abnormal and relevant"
 msgstr "não relevante"
 
-msgid "relevant"
-msgstr "relevante"
+#, fuzzy
+msgid "normal but relevant"
+msgstr "não relevante"
+
+msgid "   unreviewed"
+msgstr ""
 
 msgid "The lab request already exists but belongs to a different patient."
 msgstr "O pedido de exames já existe, mas pertence a outro paciente. "
@@ -778,6 +780,11 @@ msgstr " - resolução de bugs e novas funcionalidades\n"
 
 msgid " - database upgrade required\n"
 msgstr " - atualização de banco de dados necessária\n"
+
+msgid ""
+"Note, however, that this version may not yet\n"
+"be available *pre-packaged* for your system."
+msgstr ""
 
 msgid ""
 "Version information loaded from:\n"
@@ -1875,6 +1882,157 @@ msgstr "Gênero"
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Ativar o paciente clicando duas vezes na sua linha."
 
+msgid "Schock index"
+msgstr ""
+
+msgid "<SI>"
+msgstr ""
+
+msgid "rhythmic"
+msgstr ""
+
+msgid "arrhythmic"
+msgstr ""
+
+msgid "°C"
+msgstr ""
+
+msgid "°F"
+msgstr ""
+
+msgid "<last height>"
+msgstr ""
+
+msgid "BMI"
+msgstr "IMC"
+
+msgid "<last weight>"
+msgstr ""
+
+#, fuzzy
+msgid "<BMI>"
+msgstr "IMC"
+
+msgid "<last waist>"
+msgstr ""
+
+msgid "RR measured on the left arm."
+msgstr ""
+
+msgid ""
+"SI = Pulse / RR (syst)\n"
+"\n"
+"  0.4-0.7 = normal\n"
+"  >1 = critical"
+msgstr ""
+
+msgid "RR measured on the right arm."
+msgstr ""
+
+msgid "Heart rate in beats per minute."
+msgstr ""
+
+msgid ""
+"The quality of the pulse.\n"
+"Let's not forget good old GP medicine !"
+msgstr ""
+
+msgid ""
+"Peripheral body temperature:\n"
+" axillar\n"
+" oral\n"
+" forehead\n"
+" tympanic"
+msgstr ""
+
+msgid ""
+"\"Core\" body temperature:\n"
+" rectal\n"
+" intravascular"
+msgstr ""
+
+#, fuzzy
+msgid "Respiration rate."
+msgstr "Tipo de Reação"
+
+#, fuzzy
+msgid "Current height in cm."
+msgstr "Atual altura/peso"
+
+msgid ""
+"Body Mass Index.\n"
+"\n"
+"BMI = weight / height²"
+msgstr ""
+
+msgid ""
+"Current weight in gram or kg.\n"
+"\n"
+"Cutoff is 500:\n"
+" <500: kg\n"
+" >500: g"
+msgstr ""
+
+msgid "Current waist circumference in cm."
+msgstr ""
+
+#, fuzzy
+msgid "Vitals"
+msgstr "Detalhes"
+
+#, fuzzy
+msgid "RR left"
+msgstr "esquerda"
+
+msgid "mmHg"
+msgstr ""
+
+#, fuzzy
+msgid "RR right"
+msgstr "direita"
+
+#, fuzzy
+msgid "Pulse"
+msgstr "Fechar"
+
+msgid "/min"
+msgstr ""
+
+#, fuzzy
+msgid "Temp"
+msgstr "Modelo"
+
+msgid "(axill./oral/...)"
+msgstr ""
+
+msgid "(rectal)"
+msgstr ""
+
+#, fuzzy
+msgid "Resp"
+msgstr "Reiniciar"
+
+msgid "Figure"
+msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "direita"
+
+msgid "cm"
+msgstr ""
+
+#, fuzzy
+msgid "Weight"
+msgstr "direita"
+
+msgid "g or kg"
+msgstr ""
+
+#, fuzzy
+msgid "Waist"
+msgstr "Sobrenome"
+
 msgid "Programmer must override this text."
 msgstr "Programmer must override this text."
 
@@ -2365,7 +2523,8 @@ msgstr "Ocorreu uma exceção com o GNUmed"
 msgid "Enter any additional data or commentary you wish to provide such as what you were about to do."
 msgstr "Entre aqui qualquer comentário você desejaria adicionar, como por exemplo o que estava fazendo."
 
-msgid "Please enter your email address so we can provide feedback directly to you. Otherwise, feedback will be given on the GNUmed mailing list (http://lists.gnu.org/mailman/listinfo/gnumed-devel)."
+#, fuzzy
+msgid "Please enter your email address so we can provide feedback directly to you. Otherwise, feedback will be given on the GNUmed mailing list (http://lists.gnu.org/mailman/listinfo/gnumed-bugs)."
 msgstr "Por favor entre seu e-mail para que possamos lhe retornar. Do contrário o resultado desse erro será dado para a lista de discussão do GNUmed  (http://lists.gnu.org/mailman/listinfo/gnumed-devel)."
 
 msgid "Find help on http://wiki.gnumed.de, too."
@@ -2380,10 +2539,11 @@ msgstr "Fechar essa janela E o cliente GNUmed."
 msgid "View the log file."
 msgstr "Veja o arquivo log"
 
+#, fuzzy
 msgid ""
 "Email a bug report to the GNUmed developers.\n"
 "\n"
-"Most questions will be answered on the mailing list so you are well advised to either subscribe or check its archive (http://lists.gnu.org/mailman/listinfo/gnumed-devel).\n"
+"Most questions will be answered on the mailing list so you are well advised to either subscribe or check its archive (http://lists.gnu.org/mailman/listinfo/gnumed-bugs).\n"
 "\n"
 "If you specify your address in the Sender field above the developers will be able to contact you directly for feedback."
 msgstr ""
@@ -2929,9 +3089,6 @@ msgstr "Altura (cm)"
 msgid "Mass (kg)"
 msgstr "Peso (kg)"
 
-msgid "BMI"
-msgstr "IMC"
-
 msgid "Adjusted Values"
 msgstr "Valores ajustados"
 
@@ -3213,6 +3370,17 @@ msgstr ""
 "paciente. "
 
 msgid "Removing address"
+msgstr "Removendo endereço "
+
+msgid ""
+"Cannot save address.\n"
+"\n"
+"Does the state [%s]\n"
+"exist in country [%s] ?"
+msgstr ""
+
+#, fuzzy
+msgid "Saving address"
 msgstr "Removendo endereço "
 
 msgid "Address details must be filled in completely or not at all."
@@ -3815,6 +3983,9 @@ msgstr "Não foi possível anexar o episódio[%s] a questão de saúde [%s] porq
 msgid "Select the health issues you are interested in ..."
 msgstr "Selecione as questões de saúde nas quais está interessado ..."
 
+msgid "relevant"
+msgstr "relevante"
+
 msgid "fatal"
 msgstr "fatal"
 
@@ -4002,9 +4173,10 @@ msgstr "Significante"
 msgid "Missing GNUmed module"
 msgstr "Fala o Módulo GNUmed"
 
+#, fuzzy
 msgid ""
 "GNUmed detected that parts of it are not\n"
-"properly insalled. The following message\n"
+"properly installed. The following message\n"
 "names the missing part:\n"
 "\n"
 " \"%s\"\n"
@@ -4033,12 +4205,13 @@ msgstr ""
 msgid "Sending bug report"
 msgstr "Enviando relatório de erro"
 
+#, fuzzy
 msgid ""
 "Edit the list of email addresses to send the\n"
 "bug report to (separate addresses by spaces).\n"
 "\n"
-"Note that <gnumed-devel@gnu.org> refers to\n"
-"the public (!) GNUmed mailing list."
+"Note that <gnumed-bugs@gnu.org> refers to\n"
+"the public (!) GNUmed bugs mailing list."
 msgstr ""
 "Edite a lista de e-mails para os quais\n"
 "enviar o relatório de erros (separados por espaços).\n"
@@ -4103,6 +4276,10 @@ msgid "<not supplied>"
 msgstr "<not supplied>"
 
 msgid "Bug report has been emailed."
+msgstr "Relatório de Erro foi enviado."
+
+#, fuzzy
+msgid "Bug report COULD NOT be emailed."
 msgstr "Relatório de Erro foi enviado."
 
 msgid "Printer Setup"
@@ -4246,6 +4423,10 @@ msgstr "Checando por atualizações do cliente"
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "Você está logado como %s%s.%s (%s). Conta BD <%s>. "
 
+#, fuzzy
+msgid "Plugins ..."
+msgstr "Console de Erros ..."
+
 msgid "Options ..."
 msgstr "Opções ... "
 
@@ -4287,12 +4468,6 @@ msgstr "O e-mail do usuário que será usado para mandar notícias de erro e etc
 
 msgid "User interface ..."
 msgstr "Interface do usuário ..."
-
-msgid "Choose the plugins to load per workplace."
-msgstr "Escolha os plugins para carregar por estação de trabalho."
-
-msgid "Workplaces"
-msgstr "Estações de trabalho"
 
 msgid "Document handling ..."
 msgstr "Administração de documentos ..."
@@ -4458,6 +4633,14 @@ msgstr "&Editar membros da equipe"
 
 msgid "Edit the list of staff"
 msgstr "Editar a lista de membros da equipe"
+
+#, fuzzy
+msgid "Manage the plugins to load per workplace."
+msgstr "Escolha os plugins para carregar por estação de trabalho."
+
+#, fuzzy
+msgid "Workplace profiles"
+msgstr "Estações de trabalho"
 
 msgid "&Document types"
 msgstr "&Tipos de documentos"
@@ -4740,6 +4923,9 @@ msgstr "Mostra informações sobre o banco de dados atual."
 
 msgid "About database"
 msgstr "Sobre Banco de Dados"
+
+msgid "Raise plugin [%s]."
+msgstr ""
 
 msgid "programmer forgot to specify status message"
 msgstr "programador se esqueceu de especificar mensagem de status"
@@ -6204,6 +6390,16 @@ msgid ""
 " \"%s\""
 msgstr ""
 
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+
+#, fuzzy
+msgid "Selecting text macro"
+msgstr "Selecionar questão de saúde"
+
 msgid "Refresh from database"
 msgstr ""
 
@@ -6407,6 +6603,10 @@ msgstr ""
 
 msgid "%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot add to waiting list. Missing essential input."
+msgstr "Não foi possível adicionar o endereço. Campos em branco."
 
 msgid "Zone"
 msgstr "Zona"
@@ -7575,6 +7775,10 @@ msgstr ""
 msgid "First Date"
 msgstr ""
 
+#~ msgid "abnormal"
+#~ msgstr "anormal"
+#~ msgid "normal"
+#~ msgstr "normal"
 #~ msgid "undisclosed allergic state"
 #~ msgstr "estado alérgico não informado"
 #~ msgid "no descriptions available"
