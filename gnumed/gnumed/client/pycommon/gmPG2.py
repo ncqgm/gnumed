@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.104 $"
+__version__ = "$Revision: 1.105 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -665,6 +665,7 @@ def get_text_expansion_keywords():
 #------------------------------------------------------------------------
 def expand_keyword(keyword = None):
 
+	# Easter Egg ;-)
 	if keyword == u'$$steffi':
 		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
@@ -1896,7 +1897,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.104  2009-02-24 10:19:21  ncq
+# Revision 1.105  2009-03-10 14:19:29  ncq
+# - improve comment
+#
+# Revision 1.104  2009/02/24 10:19:21  ncq
 # - improved TZ caster
 #
 # Revision 1.103  2009/02/20 15:42:51  ncq
