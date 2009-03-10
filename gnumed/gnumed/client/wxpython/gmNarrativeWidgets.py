@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.24 2009-03-02 18:57:52 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmNarrativeWidgets.py,v 1.25 2009-03-10 14:23:56 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -1228,7 +1228,7 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 		if (
 			(not explicit_expansion)
 				and
-			(word != u'$$steffi')
+			(word != u'$$steffi')			# Easter Egg ;-)
 				and
 			(word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ])
 		):
@@ -1329,7 +1329,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.24  2009-03-02 18:57:52  ncq
+# Revision 1.25  2009-03-10 14:23:56  ncq
+# - comment
+#
+# Revision 1.24  2009/03/02 18:57:52  ncq
 # - make expando soap editor scroll to cursor when needed
 #
 # Revision 1.23  2009/02/24 13:22:06  ncq

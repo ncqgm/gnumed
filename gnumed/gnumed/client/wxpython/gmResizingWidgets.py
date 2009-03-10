@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.54 2008-10-12 16:35:15 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmResizingWidgets.py,v 1.55 2009-03-10 14:24:15 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -500,8 +500,8 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	#------------------------------------------------
 	def replace_keyword_with_expansion(self, keyword=None, position=None):
 
-		if keyword == u'$$steffi':
-			expansion = u'Hai, play !  Versucht das !  :-)'
+		if keyword == u'$$steffi':			# Easter Egg ;-)
+			expansion = u'Hai, play! Versucht das!  (Keks dazu?)  :-)'
 		else:
 			expansion = gmPG2.expand_keyword(keyword = keyword)
 
@@ -684,7 +684,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 			line, caret_pos = self.GetCurLine()
 			word = self.__keyword_separators.split(line[:caret_pos])[-1]
-			if (word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ]) and (word != u'$$steffi'):
+			if (word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ]) and (word != u'$$steffi'):		# Easter Egg ;-)
 				evt.Skip()
 				return
 
@@ -1078,7 +1078,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.54  2008-10-12 16:35:15  ncq
+# Revision 1.55  2009-03-10 14:24:15  ncq
+# - comment
+#
+# Revision 1.54  2008/10/12 16:35:15  ncq
 # - comment out key handling code
 #
 # Revision 1.53  2008/08/15 15:58:47  ncq
