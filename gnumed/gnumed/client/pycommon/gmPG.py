@@ -22,7 +22,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -582,74 +582,12 @@ class ConnectionPool:
 #---------------------------------------------------
 # database helper functions
 #---------------------------------------------------
-def noop(*args, **kargs):
-	pass
-#---------------------------------------------------
-def descriptionIndex(cursordescription):
-	"""returns a dictionary of row atribute names and their row indices"""
-	i=0
-	dict={}
-	for d in cursordescription:
-		dict[d[0]] = i
-		i+=1
-	return dict
-#---------------------------------------------------
-def dictResult(cursor, fetched=None):
-	"returns the all rows fetchable by the cursor as dictionary (attribute:value)"
-	if fetched is None:
-		fetched = cursor.fetchall()
-	attr = fieldNames(cursor)
-	dictres = []
-	for f in fetched:
-		dict = {}
-		i=0
-		for a in attr:
-			dict[a]=f[i]
-			i+=1
-		dictres.append(dict)
-	return dictres
-#---------------------------------------------------
 def fieldNames(cursor):
 	"returns the attribute names of the fetched rows in natural sequence as a list"
 	names=[]
 	for d in cursor.description:
 		names.append(d[0])
 	return names
-#---------------------------------------------------
-def listDatabases(service='default'):
-	"""list all accessible databases on the database backend of the specified service"""
-	return run_ro_query(service, "select * from pg_database")
-#---------------------------------------------------
-def _import_listener_engine():
-	try:
-		import gmBackendListener
-	except ImportError:
-		_log.LogException('cannot import gmBackendListener')
-		return None
-	global _listener_api
-	_listener_api = gmBackendListener
-	return 1
-#---------------------------------------------------
-def __log_PG_settings(curs=None):
-	if _query_logging_verbosity < 1:
-		return 1
-	if curs is None:
-		_log.Log(gmLog.lErr, 'need cursor to log PG settings')
-		return None
-	# don't use any of the run_*()s since that might
-	# create a loop if we fail here
-	try:
-		curs.execute('show all')
-	except:
-		_log.LogException("cannot log PG settings (>>>show all<<< failed)", sys.exc_info(), verbose = 0)
-		return None
-	settings = curs.fetchall()
-	if settings is None:
-		_log.Log(gmLog.lErr, 'cannot log PG settings (>>>show all<<< did not return rows)')
-		return None
-	for setting in settings:
-		_log.Log(gmLog.lData, "PG option [%s]: %s" % (setting[0], setting[1]))
-	return 1
 #---------------------------------------------------
 def run_query(aCursor=None, verbosity=None, aQuery=None, *args):
 	# sanity checks
@@ -1205,34 +1143,7 @@ def get_col_indices(aCursor = None):
 		col_index += 1
 	return col_indices
 #---------------------------------------------------
-def get_col_defs(source='default', schema='public', table=None):
-	rows = run_ro_query(source, query_table_col_defs, None, (schema, table))
-	if rows is None:
-		_log.Log(gmLog.lErr, 'cannot get column definitions for table [%s.%s]' % (schema, table))
-		return None
-	col_names = []
-	col_type = {}
-	for row in rows:
-		col_names.append(row[0])
-		if row[1].startswith('_'):
-			col_type[row[0]] = row[1][1:] + '[]'
-		else:
-			col_type[row[0]] = row[1]
-	col_defs = []
-	col_defs.append(col_names)
-	col_defs.append(col_type)
-	return col_defs
 #---------------------------------------------------
-def get_col_names(source='default', schema='public', table=None):
-	"""Return column attributes of table"""
-	rows = run_ro_query(source, query_table_attributes, None, (schema, table))
-	if rows is None:
-		_log.Log(gmLog.lErr, 'cannot get columns for table [%s]' % aTable)
-		return None
-	cols = []
-	for row in rows:
-		cols.append(row[0])
-	return cols
 #---------------------------------------------------
 def get_pkey_name(aCursor = None, aTable = None):
 	# sanity checks
@@ -1296,47 +1207,8 @@ def get_fkey_defs(source, table):
 
 	return references
 #---------------------------------------------------
-def table_exists(source, schema, table):
-	"""Returns false, true or None on error.
-
-	source: cursor, connection or GnuMed service name
-	"""
-	cmd = """
-select exists (
-	select 1 from information_schema.tables
-	where
-		table_schema = %s and
-		table_name = %s and
-		table_type = 'BASE TABLE'
-)"""
-	rows = run_ro_query(source, cmd, None, (schema, table))
-	if rows is None:
-		_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
-		return None
-	return rows[0][0]
-	return col_defs
-#---------------------------------------------------
-def get_child_tables(source='default', schema='public', table=None):
-	"""Return child tables of <table>."""
-	rows = run_ro_query(source, query_child_tables, None, {'schema': schema, 'table': table})
-	if rows is None:
-		_log.Log(gmLog.lErr, 'cannot get children of table [%s]' % table)
-		return None
-	return rows
-#---------------------------------------------------
-def get_current_user():
-	cmd = 'select CURRENT_USER'
-	result = run_ro_query('default', cmd)
-	if result is None:
-		_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
-		return None
-	if len(result) == 0:
-		_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
-		return None
-	return result[0][0]
-#---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.88 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.89 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1353,10 +1225,6 @@ def add_housekeeping_todo(
 		_log.Log(gmLog.lErr, err)
 		return (None, err)
 	return (1, result[0][0])
-#---------------------------------------------------
-#---------------------------------------------------
-#---------------------------------------------------
-#===================================================
 #==================================================================
 def __run_notifications_debugger():
 	#-------------------------------
@@ -1473,7 +1341,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.88  2008-10-12 15:46:44  ncq
+# Revision 1.89  2009-03-10 14:26:51  ncq
+# - remove old code
+#
+# Revision 1.88  2008/10/12 15:46:44  ncq
 # - mark obsolete
 #
 # Revision 1.87  2007/12/26 18:34:02  ncq
