@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -36,13 +36,19 @@ known_placeholders = [
 	'soap_p'
 ]
 
-# those must satisfy '.+::.+' when used
+
+# those must satisfy the default_placeholder_regex when used
 known_variant_placeholders = [
 	'soap',
 	'progress_notes',
 	'date_of_birth'
 ]
 
+
+# pattern: "$name::args::optional length$"
+default_placeholder_regex = u'\$\<.+(::.+){0,2}\>\$'
+default_placeholder_start = u'$<'
+default_placeholder_end = u'>$'
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
 	"""Replaces placeholders in forms, fields, etc.
@@ -57,6 +63,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		self.pat = gmPerson.gmCurrentPatient()
 		self.debug = False
+
+		self.invalid_placeholder_template = _('invalid placeholder: %s')
 	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
@@ -66,24 +74,75 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		This is useful for replacing placeholders parsed out
 		of documents as strings.
 
-		Unknown placeholders still deliver a result but it will be
-		made glaringly obvious that the placeholder was unknown.
+		Unknown/invalid placeholders still deliver a result but
+		it will be glaringly obvious if debugging is enabled.
 		"""
-		# static placeholders
+		original_placeholder = placeholder
+
+		if not placeholder.startswith(default_placeholder_start):
+			if self.debug:
+				return self.invalid_placeholder_template % original_placeholder
+			return None
+		placeholder = placeholder[len(default_placeholder_start):]
+
+		if not placeholder.endswith(default_placeholder_end):
+			if self.debug:
+				return self.invalid_placeholder_template % original_placeholder
+			return None
+		placeholder = placeholder[:-len(default_placeholder_end)]
+
+		# simple static placeholder ?
 		if placeholder in known_placeholders:
 			return getattr(self, placeholder)
 
+		# extended static placeholder ?
+		parts = placeholder.split('::::', 1)
+		if len(parts) == 2:
+			name, lng = parts
+			try:
+				return getattr(self, name)[:int(lng)]
+			except:
+				_log.exception('placeholder handling error: %s', original_placeholder)
+				if self.debug:
+					return self.invalid_placeholder_template % original_placeholder
+				return None
+
 		# variable placeholders
-		parts = placeholder.split('::', 1)
+		parts = placeholder.split('::', 2)
 		if len(parts) == 2:
 			name, data = parts
-			handler = getattr(self, '_get_variant_%s' % name, None)
-			if handler is not None:
+			lng = None
+		elif len(parts) == 3:
+			name, data, lng = parts
+			try:
+				lng = int(lng)
+			except:
+				_log.exception('placeholder length definition error: %s, discarding length', original_placeholder)
+				lng = None
+		else:
+			_log.warning('invalid placeholder layout: %s', original_placeholder)
+			if self.debug:
+				return self.invalid_placeholder_template % original_placeholder
+			return None
+
+		handler = getattr(self, '_get_variant_%s' % name, None)
+		if handler is None:
+			_log.warning('no handler <_get_variant_%s> for placeholder %s', name, original_placeholder)
+			if self.debug:
+				return self.invalid_placeholder_template % original_placeholder
+			return None
+
+		try:
+			if lng is None:
 				return handler(data = data)
+			return handler(data = data)[:lng]
+		except:
+			_log.exception('placeholder handling error: %s', original_placeholder)
+			if self.debug:
+				return self.invalid_placeholder_template % original_placeholder
+			return None
 
-		if self.debug:
-			return _('unknown placeholder: <%s>') % placeholder
-
+		_log.error('something went wrong, should never get here')
 		return None
 	#--------------------------------------------------------
 	# properties actually handling placeholders
@@ -126,6 +185,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# property definitions
 	#--------------------------------------------------------
+	placeholder_regex = property(lambda x: default_placeholder_regex, _setter_noop)
+
+	# placeholders
 	lastname = property(_get_lastname, _setter_noop)
 	firstname = property(_get_firstname, _setter_noop)
 	title = property(_get_title, _setter_noop)
@@ -154,7 +216,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%x'):
-		return self.pat['dob'].strftime(data)
+		return self.pat['dob'].strftime(str(data))
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -216,7 +278,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.42 $" % self.__class__.__name__
+		return "%s $Revision: 1.43 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -419,6 +481,67 @@ if __name__ == '__main__':
 
 		ph = 'progress_notes::ap'
 		print '%s: %s' % (ph, handler[ph])
+	#--------------------------------------------------------
+	def test_new_variant_placeholders():
+
+		tests = [
+			# should work:
+			'$<lastname>$',
+			'$<lastname::::3>$',
+
+			# should fail:
+			'lastname',
+			'$<lastname',
+			'$<lastname::',
+			'$<lastname::>$',
+			'$<lastname::abc>$',
+			'$<lastname::abc::>$',
+			'$<lastname::abc::3>$',
+			'$<lastname::abc::xyz>$',
+			'$<lastname::::>$',
+			'$<lastname::::xyz>$',
+
+			'$<date_of_birth::%Y-%m-%d>$',
+			'$<date_of_birth::%Y-%m-%d::3>$',
+			'$<date_of_birth::%Y-%m-%d::>$'
+
+#			'firstname',
+#			'title',
+#			'date_of_birth',
+#			'progress_notes',
+#			'soap',
+#			'soap_s',
+#			'soap_o',
+#			'soap_a',
+#			'soap_p',
+
+#			'soap',
+#			'progress_notes',
+#			'date_of_birth'
+		]
+
+		pat = gmPerson.ask_for_patient()
+		if pat is None:
+			return
+
+		gmPerson.set_active_patient(patient = pat)
+
+		handler = gmPlaceholderHandler()
+		handler.debug = True
+
+		for placeholder in tests:
+			print placeholder, "=>", handler[placeholder]
+			print "--------------"
+			raw_input()
+
+#		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
+
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		for placeholder in known_placeholders:
+#			print placeholder, "=", handler[placeholder]
+
+#		ph = 'progress_notes::ap'
+#		print '%s: %s' % (ph, handler[ph])
 
 	#--------------------------------------------------------
 	def test_scripting():
@@ -454,12 +577,16 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 
 	if len(sys.argv) > 0 and sys.argv[1] == 'test':
-		test_placeholders()
+		#test_placeholders()
+		test_new_variant_placeholders()
 		#test_scripting()
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.42  2009-01-15 11:40:20  ncq
+# Revision 1.43  2009-03-10 14:23:32  ncq
+# - support new style placeholders and test
+#
+# Revision 1.42  2009/01/15 11:40:20  ncq
 # - better logging
 #
 # Revision 1.41  2008/03/20 15:30:37  ncq
