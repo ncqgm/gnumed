@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.61 2009-02-18 13:43:37 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmForms.py,v 1.62 2009-03-10 14:18:11 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -333,13 +333,13 @@ class cOOoLetter(object):
 		# connect to OOo
 		ooo_srv = gmOOoConnector()
 		# open doc in OOo
-		self.ooo_doc = ooo_srv.open_document(filename=self.template_file)
+		self.ooo_doc = ooo_srv.open_document(filename = self.template_file)
 		if self.ooo_doc is None:
 			return False
 		# listen for close events
 		pat = gmPerson.gmCurrentPatient()
 		pat.locked = True
-		listener = cOOoDocumentCloseListener(document=self)
+		listener = cOOoDocumentCloseListener(document = self)
 		self.ooo_doc.addCloseListener(listener)
 
 		return True
@@ -347,8 +347,23 @@ class cOOoLetter(object):
 	def show(self, visible=True):
 		self.ooo_doc.CurrentController.Frame.ContainerWindow.setVisible(visible)
 	#--------------------------------------------------------
-	def replace_placeholders(self, handler=None):
+	def replace_placeholders(self, handler=None, old_style_too = True):
 
+		# new style embedded, implicit placeholders
+		searcher = self.ooo_doc.createSearchDescriptor()
+		searcher.SearchCaseSensitive = False
+		searcher.SearchRegularExpression = True
+		searcher.SearchString = handler.placeholder_regex
+
+		placeholder_instance = self.ooo_doc.findFirst(searcher)
+		while placeholder_instance is not None:
+			placeholder_instance.String = handler[placeholder_instance.String]
+			placeholder_instance = self.ooo_doc.findNext(placeholder_instance.End, searcher)
+
+		if not old_style_too:
+			return
+
+		# old style "explicit" placeholders
 		text_fields = self.ooo_doc.getTextFields().createEnumeration()
 		while text_fields.hasMoreElements():
 			text_field = text_fields.nextElement()
@@ -816,7 +831,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.61  2009-02-18 13:43:37  ncq
+# Revision 1.62  2009-03-10 14:18:11  ncq
+# - support new-style simpler placeholders in OOo docs
+#
+# Revision 1.61  2009/02/18 13:43:37  ncq
 # - get_unique_filename API change
 #
 # Revision 1.60  2008/09/02 18:59:01  ncq
