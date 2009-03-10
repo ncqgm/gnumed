@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.101 2008-12-09 23:43:50 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmTopPanel.py,v 1.102 2009-03-10 14:24:53 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -268,17 +268,7 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__on_name_identity_change)
 	#----------------------------------------------
 	def __on_name_identity_change(self):
-		if self.curr_pat['dob'].strftime('%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
-			template = _('%s  %s (%s today !)')
-		else:
-			template = u'%s  %s (%s)'
-		age = template % (
-			gmPerson.map_gender2symbol[self.curr_pat['gender']],
-			self.curr_pat['dob'].strftime('%x'),
-			self.curr_pat['medical_age']
-		)
-		self.lbl_age.SetLabel(age)
-
+		self.__update_age_label()
 		self.Layout()
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
@@ -287,6 +277,20 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
+		self.__update_age_label()
+		self.__update_allergies()
+		self.Layout()
+	#-------------------------------------------------------
+	def __on_display_demographics(self, evt):
+		print "display patient demographic window now"
+	#-------------------------------------------------------
+	def _update_allergies(self, **kwargs):
+		wx.CallAfter(self.__update_allergies)
+	#-------------------------------------------------------
+	# internal API
+	#-------------------------------------------------------
+	def __update_age_label(self):
+
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		if self.curr_pat['dob'].strftime('%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
@@ -295,20 +299,17 @@ class cMainTopPanel(wx.Panel):
 			template = u'%s  %s (%s)'
 		age = template % (
 			gmPerson.map_gender2symbol[self.curr_pat['gender']],
-			self.curr_pat['dob'].strftime('%x'),
+			self.curr_pat['dob'].strftime('%x'),			# need to decode ?
 			self.curr_pat['medical_age']
 		)
+
+		# Easter Egg ;-)
+		if self.curr_pat['lastnames'] == u'Leibner':
+			if self.curr_pat['firstnames'] == u'Steffi':
+				if self.curr_pat['preferred'] == u'Wildfang':
+					age = u'%s %s' % (gmTools.u_black_heart, age)
+
 		self.lbl_age.SetLabel(age)
-
-		self.__update_allergies()
-
-		self.Layout()
-	#-------------------------------------------------------
-	def __on_display_demographics(self, evt):
-		print "display patient demographic window now"
-	#-------------------------------------------------------
-	def _update_allergies(self, **kwargs):
-		wx.CallAfter(self.__update_allergies)
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 
@@ -447,7 +448,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.101  2008-12-09 23:43:50  ncq
+# Revision 1.102  2009-03-10 14:24:53  ncq
+# - refactor age label calculation
+#
+# Revision 1.101  2008/12/09 23:43:50  ncq
 # - cleanup
 #
 # Revision 1.100  2008/10/22 12:22:26  ncq
