@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.75 2009-03-01 18:10:50 ncq Exp $
+# $Id: gmTools.py,v 1.76 2009-03-10 14:22:33 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.76 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -43,10 +43,13 @@ default_mail_server = u'mail.gmx.net'
 
 u_registered_trademark = u'\u00ae'
 u_plus_minus = u'\u00B1'
+u_one_quarter = u'\u00BC'
+u_one_half = u'\u00BD'
 u_ellipsis = u'\u2026'
 u_left_arrow = u'\u2190'
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
+u_black_heart = u'\u2665'
 u_checkmark_thin = u'\u2713'
 u_checkmark_thick = u'\u2714'
 u_writing_hand = u'\u270d'
@@ -1010,7 +1013,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.75  2009-03-01 18:10:50  ncq
+# Revision 1.76  2009-03-10 14:22:33  ncq
+# - add unicode code points
+#
+# Revision 1.75  2009/03/01 18:10:50  ncq
 # - improve update-avail message
 #
 # Revision 1.74  2009/02/18 13:45:25  ncq
