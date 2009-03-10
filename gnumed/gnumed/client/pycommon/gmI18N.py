@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.44 2008-08-01 10:46:14 ncq Exp $
+# $Id: gmI18N.py,v 1.45 2009-03-10 14:19:08 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -65,6 +65,8 @@ _log.info(__version__)
 system_locale = ''
 system_locale_level = {}
 
+
+_translate_original = lambda x:x
 
 # **********************************************************
 # == do not remove this line ===============================
@@ -196,6 +198,21 @@ def __log_locale_settings(message=None):
 	except:
 		_log.exception('this OS does not support nl_langinfo')
 #---------------------------------------------------------------------------
+def _translate_protected(term):
+	"""This wraps _().
+
+	It protects against translation errors such as different number of %s.
+	"""
+	translation = _translate_original(term)
+
+	if translation.count(u'%s') == term.count(u'%s'):
+		return translation
+
+	_log.error('mismatch in translation of [%s]' % term)
+	return term
+#---------------------------------------------------------------------------
+# external API
+#---------------------------------------------------------------------------
 def activate_locale():
 	"""Get system locale from environment."""
 	global system_locale
@@ -298,12 +315,17 @@ def install_domain(domain=None, language=None):
 		except:
 			_log.exception('installing text domain [%s] failed from [%s]' % (domain, candidate))
 			continue
+		global _
 		# does it translate ?
 		if _(__orig_tag__) == __orig_tag__:
 			_log.debug('does not translate: [%s] => [%s]', __orig_tag__, _(__orig_tag__))
 			continue
 		else:
 			_log.debug('found msg catalog: [%s] => [%s]', __orig_tag__, _(__orig_tag__))
+			import __builtin__
+			global _translate_original
+			_translate_original = __builtin__._
+			__builtin__._ = _translate_protected
 			return True
 
 	# 5) install a dummy translation class
@@ -376,7 +398,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.44  2008-08-01 10:46:14  ncq
+# Revision 1.45  2009-03-10 14:19:08  ncq
+# - protect against translation errors
+#
+# Revision 1.44  2008/08/01 10:46:14  ncq
 # - add URL
 #
 # Revision 1.43  2008/06/11 19:11:26  ncq
