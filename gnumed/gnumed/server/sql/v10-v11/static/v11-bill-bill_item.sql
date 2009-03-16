@@ -5,43 +5,43 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-bill-bill_item.sql,v 1.1 2009-03-10 14:29:05 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-bill-bill_item.sql,v 1.2 2009-03-16 15:13:38 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-create table bill_item (
+create table bill.bill_item (
 	pk serial primary key,
 	fk_provider integer
-		references dem.provider(pk)
+		references dem.staff(pk)
 		on update cascade
 		on delete restrict,
-	fk_encounter_inserted integer
+	fk_encounter integer
 		references clin.encounter(pk)
 		on update cascade
 		on delete restrict,
-	date_completed date
-		not null
-		default now(),
-	fk_encounter_completed integer
-		references clin.encounter(pk)
-		on update cascade
-		on delete restrict,
+	date_to_bill date,
+	code text,
+	system text,
 	description text,
-	disposition text,
-	amount_to_bill decimal,
+	receiver text,
+	amount_to_bill numeric,
 	currency text,
+	locale text,
 	status text
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-bill-bill_item.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-bill-bill_item.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-bill-bill_item.sql,v $
--- Revision 1.1  2009-03-10 14:29:05  ncq
+-- Revision 1.2  2009-03-16 15:13:38  ncq
+-- - columns adjusted
+--
+-- Revision 1.1  2009/03/10 14:29:05  ncq
 -- - new
 --
 --
