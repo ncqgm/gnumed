@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.105 $"
+__version__ = "$Revision: 1.106 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -114,7 +114,8 @@ map_schema_hash2version = {
 map_client_branch2required_db_version = {
 	u'CVS HEAD': u'devel',
 	u'0.3': u'v9',
-	u'0.4': u'v10'
+	u'0.4': u'v10',
+	u'0.5': u'v11'
 }
 
 # get columns and data types for a given table
@@ -226,15 +227,15 @@ where
 	conn.commit()
 	curs = conn.cursor()
 
+	result = timezone
 	try:
 		curs.execute(cmd, args)
 		rows = curs.fetchall()
 		if len(rows) > 0:
 			result = rows[0][0]
-		_log.debug(u'[%s] maps to [%s]', timezone, result)
+			_log.debug(u'[%s] maps to [%s]', timezone, result)
 	except:
 		_log.exception(u'cannot expand timezone abbreviation [%s]', timezone)
-		result = timezone
 
 	curs.close()
 	conn.rollback()
@@ -1897,7 +1898,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.105  2009-03-10 14:19:29  ncq
+# Revision 1.106  2009-03-18 14:28:49  ncq
+# - add 0.5 -> v11
+# - properly handle unfound timezone
+#
+# Revision 1.105  2009/03/10 14:19:29  ncq
 # - improve comment
 #
 # Revision 1.104  2009/02/24 10:19:21  ncq
