@@ -45,8 +45,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.151 2009-03-04 13:50:00 ncq Exp $
-__version__ = "$Revision: 1.151 $"
+# $Id: gnumed.py,v 1.152 2009-03-18 14:31:41 ncq Exp $
+__version__ = "$Revision: 1.152 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -75,11 +75,10 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'0.4-rc10'
+current_client_version = u'0.5-rc1'
 current_client_version = u'CVS HEAD'
-current_client_branch = u'0.4'
+current_client_branch = u'0.5'
 current_client_branch = u'CVS HEAD'
-
 
 _log = None
 _cfg = None
@@ -227,6 +226,14 @@ def setup_cli():
 		value = val
 	)
 
+	val = _cfg.get(option = '--local-import', source_order = [('cli', 'return')])
+	if val is None:
+		val = False
+	_cfg.set_option (
+		option = u'local-import',
+		value = val
+	)
+
 	_cfg.set_option (
 		option = u'client_version',
 		value = current_client_version
@@ -258,9 +265,10 @@ def setup_signal_handlers():
 #==========================================================
 def setup_locale():
 	gmI18N.activate_locale()
+
 	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])
 	l =  _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
-	gmI18N.install_domain(domain = td, language = l)
+	gmI18N.install_domain(domain = td, language = l, prefer_local_catalog = _cfg.get('local-import'))
 
 	# make sure we re-get the default encoding
 	# in case it changed
@@ -483,7 +491,11 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.151  2009-03-04 13:50:00  ncq
+# Revision 1.152  2009-03-18 14:31:41  ncq
+# - bump version
+# - --local-import -> local-import -> prefer_local_catalog in install_domain
+#
+# Revision 1.151  2009/03/04 13:50:00  ncq
 # - bump version
 #
 # Revision 1.150  2009/03/02 11:24:12  ncq
