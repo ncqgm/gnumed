@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.39 2009-03-01 18:15:55 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmMeasurementWidgets.py,v 1.40 2009-03-18 14:30:47 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -420,8 +420,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.__cell_tooltips[col][row] = _(
 					u'Measurement details of most recent result:               \n'
 					u' Date: %(clin_when)s\n'
-					u' Type: "%(name)s" (%(code)s)\n'
-					u' Result: %(val)s%(unit)s%(ind)s\n'
+					u' Type: "%(name)s" (%(code)s)  [#%(pk_type)s]\n'
+					u' Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n'
 					u' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
 					u' Reference group: %(ref_group)s\n'
 					u' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
@@ -440,7 +440,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					u' Responsible clinician: %(responsible_reviewer)s\n'
 					u'\n'
 					u'Test type details:\n'
-					u' Grouped under "%(name_unified)s" (%(code_unified)s)  \n'
+					u' Grouped under "%(name_unified)s" (%(code_unified)s)  [#%(pk_u_type)s]\n'
 					u' Type comment: %(comment_type)s\n'
 					u' Group comment: %(comment_type_unified)s\n'
 					u'\n'
@@ -449,9 +449,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 					'clin_when': result['clin_when'].strftime('%c').decode(gmI18N.get_encoding()),
 					'code': result['code_tt'],
 					'name': result['name_tt'],
+					'pk_type': result['pk_test_type'],
+					'pk_u_type': result['pk_test_type_unified'],
 					'val': result['unified_val'],
 					'unit': gmTools.coalesce(result['val_unit'], u'', u' %s'),
 					'ind': gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)'),
+					'pk_result': result['pk_test_result'],
 					'norm_min_max': normal_min_max,
 					'norm_range': gmTools.coalesce (
 						result['val_normal_range'],
@@ -1257,7 +1260,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.39  2009-03-01 18:15:55  ncq
+# Revision 1.40  2009-03-18 14:30:47  ncq
+# - improved result tooltip
+#
+# Revision 1.39  2009/03/01 18:15:55  ncq
 # - lots of missing u'', decode strftime results
 # - adjust word separators in test type match provider
 #
