@@ -2,11 +2,11 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_upgrade-gnumed_server.sh,v $
-# $Id: net_upgrade-gnumed_server.sh,v 1.6 2009-01-06 18:23:24 ncq Exp $
+# $Id: net_upgrade-gnumed_server.sh,v 1.7 2009-03-18 14:32:57 ncq Exp $
 # ============================================
 
-PREV_VER="8"
-NEXT_VER="9"
+PREV_VER="10"
+NEXT_VER="11"
 
 OTHER_UPGRADE_OPTS="$1"
 
@@ -58,7 +58,10 @@ su -c "./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}"
 
 # ============================================
 # $Log: net_upgrade-gnumed_server.sh,v $
-# Revision 1.6  2009-01-06 18:23:24  ncq
+# Revision 1.7  2009-03-18 14:32:57  ncq
+# - bump version
+#
+# Revision 1.6  2009/01/06 18:23:24  ncq
 # - sudo -> su
 #
 # Revision 1.5  2008/10/22 12:25:21  ncq
