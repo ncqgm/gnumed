@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.76 2009-03-10 14:22:33 ncq Exp $
+# $Id: gmTools.py,v 1.77 2009-03-18 14:29:45 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -45,6 +45,7 @@ u_registered_trademark = u'\u00ae'
 u_plus_minus = u'\u00B1'
 u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
+u_three_quarters = u'\u00BE'
 u_ellipsis = u'\u2026'
 u_left_arrow = u'\u2190'
 u_diameter = u'\u2300'
@@ -225,7 +226,7 @@ class gmPaths(gmBorg.cBorg):
 		else:
 			_log.info('app name passed in as [%s]', app_name)
 
-		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
+		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '.'))
 		self.working_dir = os.path.abspath(os.curdir)
 
 		try:
@@ -238,6 +239,7 @@ class gmPaths(gmBorg.cBorg):
 			self.system_config_dir = os.path.join('/etc', app_name)
 		except ValueError:
 			self.system_config_dir = self.local_base_dir
+
 		try:
 			self.system_app_data_dir = os.path.join(sys.prefix, 'share', app_name)
 		except ValueError:
@@ -250,7 +252,7 @@ class gmPaths(gmBorg.cBorg):
 
 		# retry with wxPython
 		std_paths = wx.StandardPaths.Get()
-		_log.info('wxPython app name set to [%s]', wx.GetApp().GetAppName())
+		_log.info('wxPython app name is [%s]', wx.GetApp().GetAppName())
 
 		try:
 			self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
@@ -271,7 +273,8 @@ class gmPaths(gmBorg.cBorg):
 			# sane values on Windows, so IFDEF it
 			if 'wxMSW' in wx.PlatformInfo:
 				_log.warning('this platform (wxMSW) returns a broken value for the system-wide application data dir')
-				self.system_app_data_dir = self.local_base_dir
+				#self.system_app_data_dir = self.local_base_dir
+				self.system_app_data_dir = self.system_config_dir
 			else:
 				self.system_app_data_dir = std_paths.GetDataDir()
 		except ValueError:
@@ -281,6 +284,7 @@ class gmPaths(gmBorg.cBorg):
 		return True
 	#--------------------------------------
 	def __log_paths(self):
+		_log.debug('sys.argv[0]: %s', sys.argv[0])
 		_log.debug('local application base dir: %s', self.local_base_dir)
 		_log.debug('current working dir: %s', self.working_dir)
 		_log.debug('user home dir: %s', os.path.expanduser('~'))
@@ -1002,18 +1006,22 @@ This is a test mail from the gmTools.py module.
 		#test_import_module()
 		#test_mkdir()
 		#test_send_mail()
-		#test_gmPaths()
+		test_gmPaths()
 		#test_none_if()
 		#test_bool2str()
 		#test_bool2subst()
 		#test_get_unique_filename()
 		#test_size2str()
 		#test_wrap()
-		test_input2decimal()
+		#test_input2decimal()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.76  2009-03-10 14:22:33  ncq
+# Revision 1.77  2009-03-18 14:29:45  ncq
+# - add unicode code point for 3/4
+# - better fallback for sys app data dir on Windows
+#
+# Revision 1.76  2009/03/10 14:22:33  ncq
 # - add unicode code points
 #
 # Revision 1.75  2009/03/01 18:10:50  ncq
