@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.75 2009-03-01 18:10:50 ncq Exp $
+# $Id: gmTools.py,v 1.75.2.1 2009-03-24 10:31:24 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.75.2.1 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -222,7 +222,7 @@ class gmPaths(gmBorg.cBorg):
 		else:
 			_log.info('app name passed in as [%s]', app_name)
 
-		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
+		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '.'))
 		self.working_dir = os.path.abspath(os.curdir)
 
 		try:
@@ -268,7 +268,8 @@ class gmPaths(gmBorg.cBorg):
 			# sane values on Windows, so IFDEF it
 			if 'wxMSW' in wx.PlatformInfo:
 				_log.warning('this platform (wxMSW) returns a broken value for the system-wide application data dir')
-				self.system_app_data_dir = self.local_base_dir
+				#self.system_app_data_dir = self.local_base_dir
+				self.system_app_data_dir = self.system_config_dir
 			else:
 				self.system_app_data_dir = std_paths.GetDataDir()
 		except ValueError:
@@ -1010,7 +1011,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.75  2009-03-01 18:10:50  ncq
+# Revision 1.75.2.1  2009-03-24 10:31:24  ncq
+# - improved app data dir on Windows
+#
+# Revision 1.75  2009/03/01 18:10:50  ncq
 # - improve update-avail message
 #
 # Revision 1.74  2009/02/18 13:45:25  ncq
