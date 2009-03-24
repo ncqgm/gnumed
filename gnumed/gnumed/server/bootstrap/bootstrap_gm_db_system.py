@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.97 $"
+__version__ = "$Revision: 1.97.2.1 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -415,7 +415,7 @@ class db_server:
 		# does this user already exist ?
 		name = cfg_get('user %s' % dbowner_alias, 'name')
 		if user_exists(cursor, name):
-			cmd = 'alter group "gm-logins" add user "%s"; alter group "gm-logins" add user "%s"; alter group "%s" add user "%s"' % (self.superuser.name, name, self.auth_group, name)
+			cmd = 'alter group "gm-logins" add user "%s"; alter group "gm-logins" add user "%s"; alter group "%s" add user "%s"; alter role "%s" createdb createrole;' % (self.superuser.name, name, self.auth_group, name, name)
 			try:
 				cursor.execute(cmd)
 			except:
@@ -425,11 +425,11 @@ class db_server:
 				return False
 			self.conn.commit()
 			cursor.close()
-			print_msg("")
-			print_msg("The database owner already exists.")
-			print_msg("Please provide the password previously used for it.")
-			print_msg("")
-			_dbowner = user(anAlias = dbowner_alias)
+#			print_msg("")
+#			print_msg("The database owner already exists.")
+#			print_msg("Please provide the password previously used for it.")
+#			print_msg("")
+			_dbowner = user(anAlias = dbowner_alias, aPassword = 'should not matter')
 			return True
 
 		print_msg ((
@@ -1403,7 +1403,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.97  2009-02-24 10:39:58  ncq
+# Revision 1.97.2.1  2009-03-24 10:38:21  ncq
+# - do not ask for gm-dbo pwd if not needed
+# - ensure gm-dbo has create role/db
+#
+# Revision 1.97  2009/02/24 10:39:58  ncq
 # - make PYTHONPATH link setting work both in local CVS tree
 #   and server tarball tree
 #
