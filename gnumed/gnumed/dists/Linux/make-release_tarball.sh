@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.66.2.2 2009-03-24 10:42:04 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.66.2.3 2009-03-27 10:36:07 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4.1"
@@ -218,7 +218,7 @@ echo "picking up GNUmed User Manual from the web"
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
 rm -vf PublishManual*
-wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/twiki/pub/Gnumed.zip
+wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/Gnumed.zip
 cd ./GNUmed-$CLIENTREV/client/doc/user-manual/
 unzip GNUmed-User-Manual.zip
 #tar -xvzf GNUmed-User-Manual.tgz
@@ -356,10 +356,12 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/static
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/superuser
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/fixups
 
 cp -R ../../server/sql/v9-v10/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/dynamic
 cp -R ../../server/sql/v9-v10/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/static
 cp -R ../../server/sql/v9-v10/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/superuser
+cp -R ../../server/sql/v9-v10/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/fixups
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -397,7 +399,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.66.2.2  2009-03-24 10:42:04  ncq
+# Revision 1.66.2.3  2009-03-27 10:36:07  ncq
+# - adjust manual download url
+# - include missing fixup scripts for v10.1
+#
+# Revision 1.66.2.2  2009/03/24 10:42:04  ncq
 # - bump version
 #
 # Revision 1.66.2.1  2009/03/04 14:12:35  ncq
