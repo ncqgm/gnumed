@@ -7,10 +7,10 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/net_install-gnumed_client.sh,v $
-# $Id: net_install-gnumed_client.sh,v 1.10.2.1 2009-03-24 10:40:35 ncq Exp $
+# $Id: net_install-gnumed_client.sh,v 1.10.2.2 2009-03-28 20:36:43 ncq Exp $
 # ===========================================================
 
-VER_LATEST="0.4.1"
+VER_LATEST="0.4.2"
 
 # ===========================================================
 VER_CLI="$1"
@@ -224,7 +224,10 @@ mc -e gm-from-cvs.conf
 
 # ============================================
 # $Log: net_install-gnumed_client.sh,v $
-# Revision 1.10.2.1  2009-03-24 10:40:35  ncq
+# Revision 1.10.2.2  2009-03-28 20:36:43  ncq
+# - bump version
+#
+# Revision 1.10.2.1  2009/03/24 10:40:35  ncq
 # - bump version
 #
 # Revision 1.10  2009/02/24 18:06:23  ncq
