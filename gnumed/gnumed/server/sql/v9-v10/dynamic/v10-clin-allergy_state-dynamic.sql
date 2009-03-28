@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-allergy_state-dynamic.sql,v 1.2 2008-12-09 23:15:02 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v10-clin-allergy_state-dynamic.sql,v 1.2.2.1 2009-03-28 13:55:27 ncq Exp $
+-- $Revision: 1.2.2.1 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -168,7 +168,8 @@ select
 			' (' || _('last confirmed') || to_char(a.last_confirmed, ' YYYY-MM-DD HH24:MI') || ')',
 			''
 		) || coalesce (
-			E'\n ' || a.comment
+			E'\n ' || a.comment,
+			''
 		) as narrative,
 	a.fk_encounter
 		as fk_encounter,
@@ -193,11 +194,14 @@ select i18n.i18n('unknown, unasked');
 select i18n.i18n('last confirmed');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-allergy_state-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-allergy_state-dynamic.sql,v $', '$Revision: 1.2.2.1 $');
 
 -- ==============================================================
 -- $Log: v10-clin-allergy_state-dynamic.sql,v $
--- Revision 1.2  2008-12-09 23:15:02  ncq
+-- Revision 1.2.2.1  2009-03-28 13:55:27  ncq
+-- - fix use of coalesce()
+--
+-- Revision 1.2  2008/12/09 23:15:02  ncq
 -- - cleanup
 -- - fix uniqueness check
 --
