@@ -5,11 +5,12 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_emr_journal-fixup.sql,v 1.1.2.1 2009-03-28 13:54:29 ncq Exp $
--- $Revision: 1.1.2.1 $
+-- $Id: v10-clin-v_emr_journal-fixup.sql,v 1.1.2.2 2009-03-28 14:04:46 ncq Exp $
+-- $Revision: 1.1.2.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- remember to handle dependant objects possibly dropped by CASCADE
@@ -66,11 +67,14 @@ comment on view clin.v_emr_journal is
 
 grant select on clin.v_emr_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-v_emr_journal-fixup.sql,v $', '$Revision: 1.1.2.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-v_emr_journal-fixup.sql,v $', '$Revision: 1.1.2.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-v_emr_journal-fixup.sql,v $
--- Revision 1.1.2.1  2009-03-28 13:54:29  ncq
+-- Revision 1.1.2.2  2009-03-28 14:04:46  ncq
+-- - comment out default parm tweaking
+--
+-- Revision 1.1.2.1  2009/03/28 13:54:29  ncq
 -- - fix use of coalesce()
 --
 --
