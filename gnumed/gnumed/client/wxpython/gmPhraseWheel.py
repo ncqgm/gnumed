@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.128 2009-03-01 18:18:50 ncq Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmPhraseWheel.py,v 1.129 2009-03-31 14:38:13 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -20,13 +20,14 @@ import string, types, time, sys, re as regex, os.path
 # 3rd party
 import wx
 import wx.lib.mixins.listctrl as listmixins
+import wx.lib.pubsub
 
 
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.wxpython import gmTimer, gmGuiHelpers
-from Gnumed.pycommon import gmTools, gmDispatcher
+from Gnumed.wxpython import gmTimer
+from Gnumed.pycommon import gmTools
 
 
 import logging
@@ -193,7 +194,6 @@ class cPhraseWheel(wx.TextCtrl):
 		self.capitalisation_mode = gmTools.CAPS_NONE
 		self.accepted_chars = None
 		self.final_regex = '.*'
-		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]')
 		self.phrase_separators = default_phrase_separators
 		self.navigate_after_selection = False
 		self.speller = None
@@ -516,7 +516,6 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _hide_picklist(self):
 		"""Hide the pick list."""
-#		if self.__picklist_dropdown.IsShown():
 		self.__picklist_dropdown.Hide()		# dismiss the dropdown list window
 	#--------------------------------------------------------
 	def __select_picklist_row(self, new_row_idx=None, old_row_idx=None):
@@ -662,6 +661,7 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _set_final_regex(self, final_regex='.*'):
 		self.__final_regex = regex.compile(final_regex)
+		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]') % final_regex
 	#------------
 	def _get_final_regex(self):
 		return self.__final_regex.pattern
@@ -686,10 +686,10 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__speller_word_separators = regex.compile('[\W\d_]+')
 		else:
 			self.__speller_word_separators = regex.compile(word_separators)
-	#------------
+
 	def _get_speller_word_separators(self):
 		return self.__speller_word_separators.pattern
-	#------------
+
 	speller_word_separators = property(_get_speller_word_separators, _set_speller_word_separators)
 	#--------------------------------------------------------
 	def __init_timer(self):
@@ -891,12 +891,18 @@ class cPhraseWheel(wx.TextCtrl):
 		# no exact match found
 		if self.data is None:
 			if self.selection_only:
-				gmDispatcher.send(signal='statustext', msg=self.selection_only_error_msg)
+				wx.lib.pubsub.Publisher().sendMessage (
+					topic = 'statustext',
+					data = {'msg': self.selection_only_error_msg}
+				)
 				self.display_as_valid(valid = False)
 
 		# check value against final_regex if any given
 		if not self.__final_regex.match(self.GetValue().strip()):
-			gmDispatcher.send(signal='statustext', msg=self.final_regex_error_msg % self.__final_regex.pattern)
+			wx.lib.pubsub.Publisher().sendMessage (
+				topic = 'statustext',
+				data = {'msg': self.final_regex_error_msg}
+			)
 			self.display_as_valid(valid = False)
 
 		# notify interested parties
@@ -1034,7 +1040,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.128  2009-03-01 18:18:50  ncq
+# Revision 1.129  2009-03-31 14:38:13  ncq
+# - rip out gmDispatcher and use wx.lib.pubsub
+#
+# Revision 1.128  2009/03/01 18:18:50  ncq
 # - factor out default phrase separators/spelling word separators
 #
 # Revision 1.127  2009/02/24 10:16:48  ncq
