@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.129 2009-03-31 14:38:13 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmPhraseWheel.py,v 1.130 2009-03-31 15:08:09 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -26,7 +26,6 @@ import wx.lib.pubsub
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.wxpython import gmTimer
 from Gnumed.pycommon import gmTools
 
 
@@ -46,6 +45,27 @@ ALPHANUMERIC = 'a-zA-Z0-9'
 EMAIL_CHARS = "a-zA-Z0-9\-_@\."
 WEB_CHARS = "a-zA-Z0-9\.\-_/:"
 
+
+_timers = []
+#============================================================
+def shutdown():
+	global _timers
+	_log.info('shutting down %s pending timers', len(_timers))
+	for timer in _timers:
+		_log.debug('timer [%s]', timer)
+		timer.Stop()
+	_timers = []
+#============================================================
+class _cPRWTimer(wx.Timer):
+
+	def __init__(self, *args, **kwargs):
+		wx.Timer.__init__(self, *args, **kwargs)
+		self.callback = lambda x:x
+		global _timers
+		_timers.append(self)
+
+	def Notify(self):
+		self.callback()
 #============================================================
 # FIXME: merge with gmListWidgets
 class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
@@ -693,14 +713,12 @@ class cPhraseWheel(wx.TextCtrl):
 	speller_word_separators = property(_get_speller_word_separators, _set_speller_word_separators)
 	#--------------------------------------------------------
 	def __init_timer(self):
-		self.__timer = gmTimer.cTimer (
-			callback = self._on_timer_fired,
-			delay = self.picklist_delay
-		)
+		self.__timer = _cPRWTimer()
+		self.__timer.callback = self._on_timer_fired
 		# initially stopped
 		self.__timer.Stop()
 	#--------------------------------------------------------
-	def _on_timer_fired(self, cookie):
+	def _on_timer_fired(self):
 		"""Callback for delayed match retrieval timer.
 
 		if we end up here:
@@ -1040,7 +1058,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.129  2009-03-31 14:38:13  ncq
+# Revision 1.130  2009-03-31 15:08:09  ncq
+# - removed gmTimer dependancy
+#
+# Revision 1.129  2009/03/31 14:38:13  ncq
 # - rip out gmDispatcher and use wx.lib.pubsub
 #
 # Revision 1.128  2009/03/01 18:18:50  ncq
