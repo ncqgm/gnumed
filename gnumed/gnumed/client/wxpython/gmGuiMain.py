@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.443 2009-02-17 11:49:45 ncq Exp $
-__version__ = "$Revision: 1.443 $"
+# $Id: gmGuiMain.py,v 1.444 2009-04-03 09:49:55 ncq Exp $
+__version__ = "$Revision: 1.444 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -34,6 +34,7 @@ if not hasattr(sys, 'frozen'):
 
 try:
 	import wx
+	import wx.lib.pubsub
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
 	print "GNUmed startup: Make sure wxPython is installed."
@@ -57,7 +58,7 @@ from Gnumed.exporters import gmPatientExporter
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
-from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets
+from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets, gmPhraseWheel
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -625,6 +626,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
+		# - manage hospital stays
+		item = menu_history.Append(-1, _('&Admissions'), _('Manage hospital stays.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
 
 		# - submenu EMR / Observations
 		menu_obs = wx.Menu()
@@ -816,6 +820,8 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
 
+		wx.lib.pubsub.Publisher().subscribe(listener = self._on_set_statustext_pubsub, topic = 'statustext')
+
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
 	def _on_plugin_loaded(self, name=None):
@@ -851,6 +857,14 @@ class gmTopLevelFrame(wx.Frame):
 			raise TypeError(u'callback [%s] not callable' % callback)
 
 		self.__pre_exit_callbacks.append(callback)
+	#-----------------------------------------------
+	def _on_set_statustext_pubsub(self, context=None):
+		wx.CallAfter(self.SetStatusText, context.data['msg'])
+		try:
+			if context.data['beep']:
+				wx.Bell()
+		except KeyError:
+			pass
 	#-----------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
 
@@ -1972,6 +1986,14 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
+	def __on_manage_hospital_stays(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage hospital stays. No active patient.'))
+			return False
+		gmEMRStructWidgets.manage_hospital_stays(parent = self)
+		evt.Skip()
+	#----------------------------------------------
 	def __on_edit_occupation(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2146,6 +2168,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.timer.Stop()
 		gmTimer.shutdown()
+		gmPhraseWheel.shutdown()
 
 		# run synchronous pre-exit callback
 		for call_back in self.__pre_exit_callbacks:
@@ -2762,7 +2785,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.443  2009-02-17 11:49:45  ncq
+# Revision 1.444  2009-04-03 09:49:55  ncq
+# - user level access to hospital stay handling
+# - pubsub based listening for statustext
+# - explicit phrasewheel shutdown (timers)
+#
+# Revision 1.443  2009/02/17 11:49:45  ncq
 # - manage workplaces under master data now
 #
 # Revision 1.442  2009/02/17 08:34:58  ncq
