@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -196,6 +196,45 @@ insert into gm.notifying_tables (
 	'narrative',
 	True
 );
+
+-- ----------------------------------------------
+-- sanity check trigger on
+-- clin.clin_root_item child tables
+-- ----------------------------------------------
+
+\unset ON_ERROR_STOP
+drop function clin.trf_sanity_check_enc_epi_insert() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_sanity_check_enc_epi_insert()
+	returns trigger
+	 language 'plpgsql'
+	as '
+declare
+	_identity_from_encounter integer;
+	_identity_from_episode integer;
+begin
+	select fk_patient into _identity_from_encounter from clin.encounter where pk = NEW.fk_encounter;
+
+	select fk_patient into _identity_from_episode from clin.encounter where pk = (
+		select fk_encounter from clin.episode where pk = NEW.fk_episode
+	);
+
+	if _identity_from_encounter <> _identity_from_episode then
+		raise exception ''INSERT into %.%: Sanity check failed. Encounter % patient = %. Episode % patient = %.'',
+			TG_TABLE_SCHEMA,
+			TG_TABLE_NAME,
+			NEW.fk_encounter,
+			_identity_from_encounter,
+			NEW.fk_episode,
+			_identity_from_episode
+		;
+		return NULL;
+	end if;
+
+	return NEW;
+end;
+';
 """
 
 trigger_narrative_mod_announce = """
@@ -210,6 +249,19 @@ create constraint trigger tr_narrative_mod
 	deferrable
 	for each row
 		execute procedure clin.trf_announce_narrative_mod();
+
+
+
+\unset ON_ERROR_STOP
+drop trigger tr_sanity_check_enc_epi_insert on %(schema)s.%(tbl)s cascade;
+\set ON_ERROR_STOP 1
+
+-- %(schema)s.%(tbl)s
+create trigger tr_sanity_check_enc_epi_insert
+	before insert
+	on %(schema)s.%(tbl)s
+	for each row
+		execute procedure clin.trf_sanity_check_enc_epi_insert();
 """
 
 
@@ -366,7 +418,11 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.35  2009-02-24 10:04:14  ncq
+# Revision 1.36  2009-04-03 09:55:46  ncq
+# - generate trigger to sanity check encounter.fk_patient vs
+#   episode.fk_patient on insert on any clin.clin_root_item child
+#
+# Revision 1.35  2009/02/24 10:04:14  ncq
 # - fix DROP TRIGGER SQL
 #
 # Revision 1.34  2009/02/24 09:49:18  ncq
