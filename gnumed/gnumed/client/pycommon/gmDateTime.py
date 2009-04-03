@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.25 2009-02-05 14:28:30 ncq Exp $
+# $Id: gmDateTime.py,v 1.26 2009-04-03 09:33:22 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -184,8 +184,24 @@ def init():
 		offset = (current_local_utc_offset_in_seconds / 60),
 		name = current_local_iso_numeric_timezone_string
 	)
-
 #===========================================================================
+def wxDate2py_dt(wxDate=None):
+	return pyDT.datetime (
+		year = wxDate.GetYear(),
+		month = wxDate.GetMonth() + 1,
+		day = wxDate.GetDay(),
+		tzinfo = gmCurrentLocalTimezone
+	)
+#---------------------------------------------------------------------------
+def py_dt2wxDate(py_dt=None, wx=None):
+	wxdt = wx.DateTime()
+	wxdt.SetYear(py_dt.year)
+	wxdt.SetMonth(py_dt.month-1)
+	wxdt.SetDay(py_dt.day)
+	return wxdt
+#===========================================================================
+# string 2 timestamp parsers
+#---------------------------------------------------------------------------
 def __explicit_offset(str2parse, offset_chars=None):
 	"""
 			Default is 'hdwm':
@@ -995,7 +1011,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.25  2009-02-05 14:28:30  ncq
+# Revision 1.26  2009-04-03 09:33:22  ncq
+# - conversions for wx.DateTime
+#
+# Revision 1.25  2009/02/05 14:28:30  ncq
 # - comment
 #
 # Revision 1.24  2008/11/17 23:11:38  ncq
