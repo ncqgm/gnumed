@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.106 $"
+__version__ = "$Revision: 1.107 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -304,7 +304,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v10]: ", 'gnumed_v10')
+		login.database = __prompted_input("database [gnumed_v11]: ", 'gnumed_v11')
 		login.user = __prompted_input("user name: ", '')
 		login.password = getpass.getpass("password (not shown): ")
 		login.port = __prompted_input("port [5432]: ", 5432)
@@ -1898,7 +1898,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.106  2009-03-18 14:28:49  ncq
+# Revision 1.107  2009-04-03 09:34:26  ncq
+# - bump DB version
+#
+# Revision 1.106  2009/03/18 14:28:49  ncq
 # - add 0.5 -> v11
 # - properly handle unfound timezone
 #
