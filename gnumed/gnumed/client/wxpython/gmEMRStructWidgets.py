@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.84 2009-01-02 11:39:48 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmEMRStructWidgets.py,v 1.85 2009-04-03 09:47:29 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -19,6 +19,7 @@ import sys, re, datetime as pydt, logging
 
 # 3rd party
 import wx
+import wx.lib.pubsub as wxps
 
 
 # GNUmed
@@ -36,6 +37,159 @@ from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+#================================================================
+# hospital stay related widgets/functions
+#----------------------------------------------------------------
+def manage_hospital_stays(parent=None):
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	def edit(stay=None):
+		return edit_hospital_stay(parent = parent, hospital_stay = stay)
+
+	def delete(stay=None):
+		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
+			return True
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Cannot delete hospital stay.'),
+			beep = True
+		)
+		return False
+
+	def refresh(lctrl):
+		stays = emr.get_hospital_stays()
+		items = [
+			[
+				s['admission'].strftime('%Y-%m-%d'),
+				gmTools.coalesce(s['discharge'], u''),
+				s['episode'],
+				gmTools.coalesce(s['hospital'], u'')
+			] for s in stays
+		]
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = stays)
+
+	stays = emr.get_hospital_stays()
+	items = [
+		[
+			s['admission'].strftime('%Y-%m-%d'),
+			gmTools.coalesce(s['discharge'], u''),
+			s['episode'],
+			gmTools.coalesce(s['hospital'], u'')
+		] for s in stays
+	]
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the hospital stay you want to edit !\n'),
+		caption = _('Editing hospital stays ...'),
+		columns = [_('Admission'), _('Discharge'), _('Reason'), _('Hospital')],
+		choices = items,
+		data = stays,
+		single_selection = True,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
+	)
+
+#----------------------------------------------------------------
+def edit_hospital_stay(parent=None, hospital_stay=None):
+	ea = cHospitalStayEditAreaPnl(parent = parent, id = -1)
+	ea.data = hospital_stay
+	ea.mode = gmTools.coalesce(hospital_stay, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlgSingle(parent = parent, id = -1, edit_area = ea)
+	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospital stay'), _('Editing a hospital stay')))
+	if dlg.ShowModal() == wx.ID_OK:
+		return True
+	return False
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgHospitalStayEditAreaPnl
+
+class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+		wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAreaPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		if not self._DP_admission.GetValue().IsValid():
+			self._DP_admission.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			wxps.Publisher().sendMessage (
+				topic = 'statustext',
+				data = {'msg': _('Missing admission data. Cannot save hospital stay.'), 'beep': True}
+			)
+			return False
+		else:
+			self._DP_admission.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+
+		if self._DP_discharge.GetValue().IsValid():
+			if not self._DP_discharge.GetValue().IsLaterThan(self._DP_admission.GetValue()):
+				self._DP_discharge.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+				wxps.Publisher().sendMessage (
+					topic = 'statustext',
+					data = {'msg': _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), 'beep': True}
+				)
+				return False
+
+		return True
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+
+		stay = gmEMRStructItems.create_hospital_stay (
+			encounter = emr.get_active_encounter()['pk_encounter'],
+			episode = self._PRW_episode.GetData(can_create = True)
+		)
+		stay['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
+		stay['admission'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_admission.GetValue())
+		if self._DP_discharge.GetValue().IsValid():
+			stay['discharge'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_discharge.GetValue())
+		stay.save_payload()
+
+		self.data = stay
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+
+		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
+		self.data['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
+		self.data['admission'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_admission.GetValue())
+		if self._DP_discharge.GetValue().IsValid():
+			self.data['discharge'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_discharge.GetValue())
+		self.data.save_payload()
+
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_hospital.SetText(value = u'')
+		self._PRW_episode.SetText(value = u'')
+		self._DP_admission.SetValue(dt = wx.DateTime.UNow())
+		#self._DP_discharge.SetValue(dt = None)
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		if self.data['hospital'] is not None:
+			self._PRW_hospital.SetText(value = self.data['hospital'])
+
+		if self.data['pk_episode'] is not None:
+			self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
+
+		self._DP_admission.SetValue(gmDateTime.py_dt2wxDate(py_dt = self.data['admission'], wx = wx))
+
+		if self.data['discharge'] is not None:
+			self._DP_discharge.SetValue(gmDateTime.py_dt2wxDate(py_dt = self.data['discharge'], wx = wx))
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		print "this was not expected to be used in this edit area"
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
@@ -510,7 +664,12 @@ class cEpisodeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		self.SetTitle(_('Select the episodes you are interested in ...'))
 		self._LCTRL_items.set_columns([_('Episode'), _('Status'), _('Health Issue')])
 		self._LCTRL_items.set_string_items (
-			items = [ [epi['description'], gmTools.bool2str(epi['episode_open'], _('ongoing'), u''), gmTools.coalesce(epi['health_issue'], u'')] for epi in episodes ]
+			items = [ 
+				[	epi['description'], 
+					gmTools.bool2str(epi['episode_open'], _('ongoing'), u''), 
+					gmTools.coalesce(epi['health_issue'], u'')
+				]
+				for epi in episodes ]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = episodes)
@@ -1333,7 +1492,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.84  2009-01-02 11:39:48  ncq
+# Revision 1.85  2009-04-03 09:47:29  ncq
+# - hospital stay widgets
+#
+# Revision 1.84  2009/01/02 11:39:48  ncq
 # - support custom message/buttons in encounter edit area/dlg
 #
 # Revision 1.83  2008/12/09 23:28:51  ncq
