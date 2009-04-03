@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-bill-bill_item-dynamic.sql,v 1.1 2009-03-16 15:13:03 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-bill-bill_item-dynamic.sql,v 1.2 2009-04-03 09:57:54 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -17,6 +17,8 @@ comment on schema bill is 'Holds everything related to billing.';
 -- --------------------------------------------------------------
 comment on table bill.bill_item is
 'Holds items ready for being billed.';
+
+select gm.add_table_for_notifies('bill', 'bill_item');
 
 
 
@@ -128,13 +130,22 @@ alter table bill.bill_item
 	alter column status
 		set default 'new';
 
+-- --------------------------------------------------------------
+grant select, insert, update, delete on
+	bill.bill_item
+	, bill.bill_item_pk_seq
+to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-bill-bill_item-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-bill-bill_item-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-bill-bill_item-dynamic.sql,v $
--- Revision 1.1  2009-03-16 15:13:03  ncq
+-- Revision 1.2  2009-04-03 09:57:54  ncq
+-- - add notify signal
+-- - add grants
+--
+-- Revision 1.1  2009/03/16 15:13:03  ncq
 -- - new
 --
 -- Revision 1.1  2009/03/10 14:29:05  ncq
