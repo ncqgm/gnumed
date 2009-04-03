@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.285 2009-04-03 10:38:59 ncq Exp $
-__version__ = "$Revision: 1.285 $"
+# $Id: gmClinicalRecord.py,v 1.286 2009-04-03 11:06:07 ncq Exp $
+__version__ = "$Revision: 1.286 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -179,12 +179,15 @@ select fk_encounter from
 	#--------------------------------------------------------
 	# API: hospital stays
 	#--------------------------------------------------------
-	def get_hospital_stays(self, episodes=None):
+	def get_hospital_stays(self, episodes=None, issues=None):
 
 		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient)
 
 		if episodes is not None:
 			stays = filter(lambda s: s['pk_episode'] in episodes, stays)
+
+		if issues is not None:
+			stays = filter(lambda s: s['pk_health_issue'] in issues, stays)
 
 		return stays
 	#--------------------------------------------------------
@@ -605,7 +608,8 @@ order by
 			u'select count(1) from clin.encounter where fk_patient = %(pat)s',
 			u'select count(1) from clin.v_pat_items where pk_patient = %(pat)s',
 			u'select count(1) from blobs.v_doc_med where pk_patient = %(pat)s',
-			u'select count(1) from clin.v_test_results where pk_patient = %(pat)s'
+			u'select count(1) from clin.v_test_results where pk_patient = %(pat)s',
+			u'select count(1) from clin.v_pat_hospital_stays where pk_patient = %(pat)s'
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
@@ -618,7 +622,8 @@ order by
 			encounters = rows[1][0],
 			items = rows[2][0],
 			documents = rows[3][0],
-			results = rows[4][0]
+			results = rows[4][0],
+			stays = rows[5][0]
 		)
 
 		return stats
@@ -629,7 +634,7 @@ Total encounters: %(encounters)s
 Total EMR entries: %(items)s
 Documents: %(documents)s
 Test results: %(results)s
-
+Hospital stays: %(stays)s
 """			) % self.get_statistics()
 	#--------------------------------------------------------
 	def format_summary(self):
@@ -638,6 +643,7 @@ Test results: %(results)s
 		first = self.get_first_encounter()
 		last = self.get_last_encounter()
 		probs = self.get_problems()
+		stays = self.get_hospital_stays()
 
 		txt = _('EMR Statistics\n\n')
 		if len(probs) > 0:
@@ -657,7 +663,8 @@ Test results: %(results)s
 			last['started'].strftime('%x')
 		)
 		txt += _(' %s documents\n') % stats['documents']
-		txt += _(' %s test results\n\n') % stats['results']
+		txt += _(' %s test results\n') % stats['results']
+		txt += _(' %s hospital stays\n\n') % stats['stays']
 
 		txt += _('Allergies and Intolerances\n\n')
 
@@ -1931,7 +1938,11 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.285  2009-04-03 10:38:59  ncq
+# Revision 1.286  2009-04-03 11:06:07  ncq
+# - filter stays by issue
+# - include stays in summary and statistics
+#
+# Revision 1.285  2009/04/03 10:38:59  ncq
 # - allow filtering by episode when getting hospital stays
 #
 # Revision 1.284  2009/04/03 09:24:42  ncq
