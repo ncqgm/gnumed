@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.40 2009-03-18 14:30:47 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmMeasurementWidgets.py,v 1.41 2009-04-03 09:50:21 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -39,6 +39,11 @@ def edit_measurement(parent=None, measurement=None):
 	return False
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
+
+# Taillenumfang: Mitte zwischen unterster Rippe und
+# hoechstem Teil des Beckenkamms
+# Maenner: maessig: 94-102, deutlich: > 102  .. erhoeht
+# Frauen:  maessig: 80-88,  deutlich: > 88   .. erhoeht
 
 #================================================================
 # display widgets
@@ -1260,7 +1265,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.40  2009-03-18 14:30:47  ncq
+# Revision 1.41  2009-04-03 09:50:21  ncq
+# - comment
+#
+# Revision 1.40  2009/03/18 14:30:47  ncq
 # - improved result tooltip
 #
 # Revision 1.39  2009/03/01 18:15:55  ncq
