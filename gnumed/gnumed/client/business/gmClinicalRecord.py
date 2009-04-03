@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.284 2009-04-03 09:24:42 ncq Exp $
-__version__ = "$Revision: 1.284 $"
+# $Id: gmClinicalRecord.py,v 1.285 2009-04-03 10:38:59 ncq Exp $
+__version__ = "$Revision: 1.285 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -179,8 +179,14 @@ select fk_encounter from
 	#--------------------------------------------------------
 	# API: hospital stays
 	#--------------------------------------------------------
-	def get_hospital_stays(self):
-		return gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient)
+	def get_hospital_stays(self, episodes=None):
+
+		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient)
+
+		if episodes is not None:
+			stays = filter(lambda s: s['pk_episode'] in episodes, stays)
+
+		return stays
 	#--------------------------------------------------------
 	# Narrative API
 	#--------------------------------------------------------
@@ -1925,7 +1931,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.284  2009-04-03 09:24:42  ncq
+# Revision 1.285  2009-04-03 10:38:59  ncq
+# - allow filtering by episode when getting hospital stays
+#
+# Revision 1.284  2009/04/03 09:24:42  ncq
 # - start hospital stay API
 #
 # Revision 1.283  2009/02/20 15:41:42  ncq
