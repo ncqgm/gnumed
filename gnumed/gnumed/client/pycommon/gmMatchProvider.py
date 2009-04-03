@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.31 2009-03-01 18:07:14 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmMatchProvider.py,v 1.32 2009-04-03 09:34:06 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -17,7 +17,7 @@ import string, types, time, sys, re as regex, logging
 
 
 # GNUmed
-import gmPG2, gmExceptions
+from Gnumed.pycommon import gmPG2
 
 
 _log = logging.getLogger('gm.ui')
@@ -180,7 +180,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		"""
 		if not type(aSeq) in [types.ListType, types.TupleType]:
 			_log.error('fixed list match provider argument must be a list or tuple of dicts')
-			raise gmExceptions.ConstructorError
+			raise TypeError('fixed list match provider argument must be a list or tuple of dicts')
 
 		self.__items = aSeq
 		cMatchProvider.__init__(self)
@@ -275,7 +275,8 @@ class cMatchProvider_Func(cMatchProvider):
 		"""get_candidates() must return a list of strings."""
 		if get_candidates is None:
 			_log.error('must define function to retrieve match candidates list')
-			raise gmException.ConstructorError, 'must define match candidates function'
+			raise ArgumentError('must define function to retrieve match candidates list')
+
 		self._get_candidates = get_candidates
 		cMatchProvider.__init__(self)
 	#--------------------------------------------------------
@@ -457,7 +458,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.31  2009-03-01 18:07:14  ncq
+# Revision 1.32  2009-04-03 09:34:06  ncq
+# - some exception cleanup
+#
+# Revision 1.31  2009/03/01 18:07:14  ncq
 # - factor out default ignored chars/word separators onto module level
 #
 # Revision 1.30  2009/01/21 22:34:09  ncq
