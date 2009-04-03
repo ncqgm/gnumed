@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.132 $"
+__version__ = "$Revision: 1.133 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -965,7 +965,7 @@ def delete_encounter_type(description=None):
 		raise
 
 	return True
-#============================================================		
+#============================================================
 class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
 
@@ -1015,6 +1015,62 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
 		return cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
+#============================================================
+class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = u"select * from clin.v_pat_hospital_stays where pk_hospital_stay = %s"
+	_cmds_store_payload = [
+		u"""update clin.hospital_stay set
+				clin_when = %(admission)s,
+				discharge = %(discharge)s,
+				narrative = %(hospital)s,
+				fk_episode = %(pk_episode)s,
+				fk_encounter = %(pk_encounter)s
+			where
+				pk = %(pk_hospital_stay)s and
+				xmin = %(xmin_hospital_stay)s""",
+		u"""select xmin_hospital_stay from clin.v_pat_hospital_stays where pk_hospital_stay = %(pk_hospital_stay)s"""
+	]
+	_updatable_fields = [
+		'admission',
+		'discharge',
+		'hospital',
+		'pk_episode',
+		'pk_encounter'
+	]
+#-----------------------------------------------------------
+def get_patient_hospital_stays(patient=None):
+
+	queries = [
+		{
+		'cmd': u'select * from clin.v_pat_hospital_stays where pk_patient = %(pat)s order by admission',
+		'args': {'pat': patient}
+		}
+	]
+
+	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+
+	return [ cHospitalStay(row = {'idx': idx, 'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]
+#-----------------------------------------------------------
+def create_hospital_stay(encounter=None, episode=None):
+
+	queries = [
+		{
+		 'cmd': u'insert into clin.hospital_stay (fk_encounter, fk_episode) values (%(enc)s, %(epi)s)',
+		 'args': {'enc': encounter, 'epi': episode}
+		},
+		{'cmd': u"select currval('clin.hospital_stay_pk_seq')"}
+	]
+
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
+
+	return cHospitalStay(aPK_obj = rows[0][0])
+#-----------------------------------------------------------
+def delete_hospital_stay(stay=None):
+	cmd = u'delete from clin.hospital_stay where pk = %(pk)s'
+	args = {'pk': stay}
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -1093,18 +1149,31 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', encounter[field]
 		print "updatable:", encounter.get_updatable_fields()
-
+	#--------------------------------------------------------
+	def test_hospital_stay():
+		stay = create_hospital_stay(encounter = 1, episode = 2)
+		stay['hospital'] = u'Starfleet Galaxy General Hospital'
+		stay.save_payload()
+		print stay
+		for s in get_patient_hospital_stays(12):
+			print s
+		delete_hospital_stay(stay['pk_hospital_stay'])
+		stay = create_hospital_stay(encounter = 1, episode = 4)
 	#--------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		# run them
 		#test_episode()
 		#test_problem()
 		#test_encounter()
-		test_health_issue()
+		#test_health_issue()
+		test_hospital_stay()
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.132  2009-02-27 12:38:03  ncq
+# Revision 1.133  2009-04-03 09:31:13  ncq
+# - add hospital stay API
+#
+# Revision 1.132  2009/02/27 12:38:03  ncq
 # - improved SOAP formatting
 #
 # Revision 1.131  2009/02/23 08:46:01  ncq
