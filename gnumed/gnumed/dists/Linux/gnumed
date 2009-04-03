@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.22 2009-02-20 15:43:56 ncq Exp $
+# $Id: gnumed,v 1.23 2009-04-03 09:52:59 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -37,6 +37,12 @@ if [ -r ${HOME}/.gnumed/scripts/gnumed-startup-local.sh ] ; then
 fi
 
 
+# packages which install the GNUmed python modules into a path not
+# already accessible for imports via sys.path (say, /usr/share/gnumed/)
+# may need to adjust PYTHONPATH appropriately here
+#export PYTHONPATH="${PYTHONPATH}:/usr/share/gnumed/"
+
+
 # now run the client
 python -m Gnumed.wxpython.gnumed ${OPTIONS}
 
@@ -45,7 +51,10 @@ sync
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.22  2009-02-20 15:43:56  ncq
+# Revision 1.23  2009-04-03 09:52:59  ncq
+# - add example on how to set PYTHONPATH
+#
+# Revision 1.22  2009/02/20 15:43:56  ncq
 # - cleanup
 #
 # Revision 1.21  2009/02/20 10:45:44  ncq
