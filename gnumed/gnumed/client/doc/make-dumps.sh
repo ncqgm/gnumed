@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-dumps.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
+
+DB=gnumed_v10
 
 SCHEMADUMP=~/gm-schemadocs/gm-schema-dump.sql
 DATADUMP=~/gm-schemadocs/gm-data-dump.sql
 GMDUMP=~/gm-schemadocs/gm-db-dump.tgz
-DB=gnumed_v9
 
 pg_dump -f $SCHEMADUMP -F p -C -s -U gm-dbo $DB
 pg_dump -f $DATADUMP -F p -a -D -U gm-dbo $DB
@@ -17,7 +18,10 @@ tar -cvzf $GMDUMP $SCHEMADUMP $DATADUMP
 
 #============================================
 # $Log: make-dumps.sh,v $
-# Revision 1.9  2008-08-01 10:08:49  ncq
+# Revision 1.10  2009-04-03 11:08:07  ncq
+# - bump db version
+#
+# Revision 1.9  2008/08/01 10:08:49  ncq
 # - /bin/sh -> /bin/bash
 #
 # Revision 1.8  2008/01/07 19:45:11  ncq
