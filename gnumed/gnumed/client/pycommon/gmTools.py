@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.77 2009-03-18 14:29:45 ncq Exp $
+# $Id: gmTools.py,v 1.78 2009-04-03 09:37:05 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -178,6 +178,27 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	return (True, msg)
 #===========================================================================
+# LOINC tools
+#===========================================================================
+def split_LOINCDBTXT(input_fname=None, data_fname='loinc_data.csv', license_fname='loinc_license.txt'):
+
+	delimiter = 'Clip Here for Data'
+
+	loinc_file = codecs.open(input_fname, 'rU', encoding = 'latin1', errors = 'replace')	# encoding is empirical
+	out_file = codecs.open(license_fname, 'w', encoding = 'utf8', errors = 'replace')
+
+	for line in loinc_file:
+
+		if delimiter in line:
+			out_file.write(line)
+			out_file.close()
+			out_file = codecs.open(data_fname, 'w', encoding = 'utf8', errors = 'replace')
+			continue
+
+		out_file.write(line)
+
+	out_file.close()
+#===========================================================================
 def utf_8_encoder(unicode_csv_data):
 	for line in unicode_csv_data:
 		yield line.encode('utf-8')
@@ -220,65 +241,75 @@ class gmPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def init_paths(self, app_name=None, wx=None):
 
+		if wx is None:
+			_log.debug('wxPython not available')
+		_log.debug('detecting paths directly')
+
 		if app_name is None:
 			app_name, ext = os.path.splitext(os.path.basename(sys.argv[0]))
 			_log.info('app name detected as [%s]', app_name)
 		else:
 			_log.info('app name passed in as [%s]', app_name)
 
+		# the user home, doesn't work in Wine so work around that
+		self.__home_dir = None
+
+		# where the main script (the "binary") is installed
 		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '.'))
+
+		# the current working dir at the OS
 		self.working_dir = os.path.abspath(os.curdir)
 
-		try:
-			self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
-		except ValueError:
-			mkdir(os.path.expanduser(os.path.join('~', '.%s' % app_name)))
-			self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
+		# user-specific config dir, usually below the home dir
+		#mkdir(os.path.expanduser(os.path.join('~', '.%s' % app_name)))
+		#self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
+		mkdir(os.path.join(self.home_dir, '.%s' % app_name))
+		self.user_config_dir = os.path.join(self.home_dir, '.%s' % app_name)
 
+		# system-wide config dir, usually below /etc/ under UN*X
 		try:
 			self.system_config_dir = os.path.join('/etc', app_name)
 		except ValueError:
-			self.system_config_dir = self.local_base_dir
+			#self.system_config_dir = self.local_base_dir
+			self.system_config_dir = self.user_config_dir
 
+		# system-wide application data dir
 		try:
 			self.system_app_data_dir = os.path.join(sys.prefix, 'share', app_name)
 		except ValueError:
 			self.system_app_data_dir = self.local_base_dir
 
+		self.__log_paths()
 		if wx is None:
-			_log.debug('wxPython not available')
-			self.__log_paths()
 			return True
 
 		# retry with wxPython
+		_log.debug('re-detecting paths with wxPython')
+
 		std_paths = wx.StandardPaths.Get()
 		_log.info('wxPython app name is [%s]', wx.GetApp().GetAppName())
 
-		try:
-			self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
-		except ValueError:
-			mkdir(os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name))
-			self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
+		# user-specific config dir, usually below the home dir
+		mkdir(os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name))
+		self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
 
+		# system-wide config dir, usually below /etc/ under UN*X
 		try:
 			tmp = std_paths.GetConfigDir()
 			if not tmp.endswith(app_name):
 				tmp = os.path.join(tmp, app_name)
 			self.system_config_dir = tmp
 		except ValueError:
+			# leave it at what it was from direct detection
 			pass
 
-		try:
-			# Robin attests that the following doesn't give
-			# sane values on Windows, so IFDEF it
-			if 'wxMSW' in wx.PlatformInfo:
-				_log.warning('this platform (wxMSW) returns a broken value for the system-wide application data dir')
-				#self.system_app_data_dir = self.local_base_dir
-				self.system_app_data_dir = self.system_config_dir
-			else:
-				self.system_app_data_dir = std_paths.GetDataDir()
-		except ValueError:
-			pass
+		# system-wide application data dir
+		# Robin attests that the following doesn't always
+		# give sane values on Windows, so IFDEF it
+		if 'wxMSW' in wx.PlatformInfo:
+			_log.warning('this platform (wxMSW) sometimes returns a broken value for the system-wide application data dir')
+		else:
+			self.system_app_data_dir = std_paths.GetDataDir()
 
 		self.__log_paths()
 		return True
@@ -287,7 +318,8 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('sys.argv[0]: %s', sys.argv[0])
 		_log.debug('local application base dir: %s', self.local_base_dir)
 		_log.debug('current working dir: %s', self.working_dir)
-		_log.debug('user home dir: %s', os.path.expanduser('~'))
+		#_log.debug('user home dir: %s', os.path.expanduser('~'))
+		_log.debug('user home dir: %s', self.home_dir)
 		_log.debug('user-specific config dir: %s', self.user_config_dir)
 		_log.debug('system-wide config dir: %s', self.system_config_dir)
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
@@ -329,6 +361,37 @@ class gmPaths(gmBorg.cBorg):
 		return self.__system_app_data_dir
 
 	system_app_data_dir = property(_get_system_app_data_dir, _set_system_app_data_dir)
+	#--------------------------------------
+	def _set_home_dir(self, path):
+		raise ArgumentError('invalid to set home dir')
+
+	def _get_home_dir(self):
+		if self.__home_dir is not None:
+			return self.__home_dir
+
+		tmp = os.path.expanduser('~')
+		if tmp == '~':
+			_log.error('this platform does not expand ~ properly')
+			try:
+				tmp = os.environ['USERPROFILE']
+			except KeyError:
+				_log.error('cannot access $USERPROFILE in environment')
+
+		if not (
+			os.access(tmp, os.R_OK)
+				and
+			os.access(tmp, os.X_OK)
+				and
+			os.access(tmp, os.W_OK)
+		):
+			msg = '[%s:home_dir]: invalid path [%s]' % (self.__class__.__name__, tmp)
+			_log.error(msg)
+			raise ValueError(msg)
+
+		self.__home_dir = tmp
+		return self.__home_dir
+
+	home_dir = property(_get_home_dir, _set_home_dir)
 #===========================================================================
 def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='latin1'):
 	"""Send an E-Mail.
@@ -980,6 +1043,16 @@ This is a test mail from the gmTools.py module.
 		print
 		print wrap(test, 7, u'   ', u' ')
 	#-----------------------------------------------------------------------
+	def test_loinc():
+
+		split_LOINCDBTXT(input_fname = sys.argv[2])
+
+		csv_file = codecs.open('loinc_data.csv', 'rU', 'utf8', 'replace')
+		loinc_reader = unicode_csv_reader(csv_file)
+		for loinc in loinc_reader:
+			print loinc
+		csv_file.close()
+	#-----------------------------------------------------------------------
 	def test_check_for_update():
 
 		test_data = [
@@ -1014,10 +1087,15 @@ This is a test mail from the gmTools.py module.
 		#test_size2str()
 		#test_wrap()
 		#test_input2decimal()
+		#test_loinc()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.77  2009-03-18 14:29:45  ncq
+# Revision 1.78  2009-04-03 09:37:05  ncq
+# - splitter for LOINCDB.TXT
+# - improved paths handling (~ doesn't expand under Wine)
+#
+# Revision 1.77  2009/03/18 14:29:45  ncq
 # - add unicode code point for 3/4
 # - better fallback for sys app data dir on Windows
 #
