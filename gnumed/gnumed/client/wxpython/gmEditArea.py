@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.122 2009-01-30 12:10:42 ncq Exp $
+# $Id: gmEditArea.py,v 1.123 2009-04-03 09:48:04 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.122 $"
+__version__ = "$Revision: 1.123 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -182,6 +182,7 @@ class cGenericEditAreaDlgSingle(cGenericEditAreaDlg2):
 		cGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 		self._BTN_forward.Enable(False)
 #====================================================================
+# DEPRECATED:
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 	"""Dialog for parenting edit area with save/clear/cancel"""
 
@@ -2188,7 +2189,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.122  2009-01-30 12:10:42  ncq
+# Revision 1.123  2009-04-03 09:48:04  ncq
+# - better docs
+#
+# Revision 1.122  2009/01/30 12:10:42  ncq
 # - improved docs
 # - new style edit area dlg w/o NEXT button
 #
