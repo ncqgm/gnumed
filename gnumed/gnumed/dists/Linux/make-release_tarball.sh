@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.67 2009-04-03 09:53:33 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.68 2009-04-03 11:08:48 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc10"
@@ -363,6 +363,16 @@ cp -R ../../server/sql/v9-v10/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v1
 cp -R ../../server/sql/v9-v10/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/static
 cp -R ../../server/sql/v9-v10/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/superuser
 
+
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
+
+cp -R ../../server/sql/v10-v11/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
+cp -R ../../server/sql/v10-v11/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
+cp -R ../../server/sql/v10-v11/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
+
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
@@ -399,7 +409,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.67  2009-04-03 09:53:33  ncq
+# Revision 1.68  2009-04-03 11:08:48  ncq
+# - include v11 upgrade scripts
+#
+# Revision 1.67  2009/04/03 09:53:33  ncq
 # - fix manual zip location
 #
 # Revision 1.66  2009/03/04 13:50:25  ncq
