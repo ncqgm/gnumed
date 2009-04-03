@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.283 2009-02-20 15:41:42 ncq Exp $
-__version__ = "$Revision: 1.283 $"
+# $Id: gmClinicalRecord.py,v 1.284 2009-04-03 09:24:42 ncq Exp $
+__version__ = "$Revision: 1.284 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -176,6 +176,11 @@ select fk_encounter from
 	#--------------------------------------------------------
 	def _clin_item_modified(self):
 		_log.debug('DB: clin_root_item modification')
+	#--------------------------------------------------------
+	# API: hospital stays
+	#--------------------------------------------------------
+	def get_hospital_stays(self):
+		return gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient)
 	#--------------------------------------------------------
 	# Narrative API
 	#--------------------------------------------------------
@@ -1920,7 +1925,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.283  2009-02-20 15:41:42  ncq
+# Revision 1.284  2009-04-03 09:24:42  ncq
+# - start hospital stay API
+#
+# Revision 1.283  2009/02/20 15:41:42  ncq
 # - fix remove_empty_encounters
 #
 # Revision 1.282  2009/01/02 11:34:35  ncq
