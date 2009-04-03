@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.66 2009-03-04 13:50:25 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.67 2009-04-03 09:53:33 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc10"
@@ -220,7 +220,7 @@ echo "picking up GNUmed User Manual from the web"
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
 rm -vf PublishManual*
-wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/twiki/pub/Gnumed.zip
+wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/Gnumed.zip
 cd ./GNUmed-$CLIENTREV/client/doc/user-manual/
 unzip GNUmed-User-Manual.zip
 #tar -xvzf GNUmed-User-Manual.tgz
@@ -399,7 +399,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.66  2009-03-04 13:50:25  ncq
+# Revision 1.67  2009-04-03 09:53:33  ncq
+# - fix manual zip location
+#
+# Revision 1.66  2009/03/04 13:50:25  ncq
 # - bump version
 #
 # Revision 1.65  2009/03/02 11:24:40  ncq
