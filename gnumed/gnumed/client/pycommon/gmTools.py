@@ -2,14 +2,15 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.79 2009-04-03 11:08:33 ncq Exp $
+# $Id: gmTools.py,v 1.80 2009-04-03 12:29:36 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.79 $"
+__version__ = "$Revision: 1.80 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging, codecs, urllib2 as wget, decimal
+import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging
+import codecs, urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
 
 
 # GNUmed libs
@@ -395,7 +396,79 @@ class gmPaths(gmBorg.cBorg):
 
 	home_dir = property(_get_home_dir, _set_home_dir)
 #===========================================================================
-def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='latin1'):
+def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='quoted-printable', attachments=None):
+
+	if message is None:
+		return False
+
+	message = message.lstrip().lstrip('\r\n').lstrip()
+
+	if sender is None:
+		sender = default_mail_sender
+
+	if receiver is None:
+		receiver = [default_mail_receiver]
+
+	if server is None:
+		server = default_mail_server
+
+	if subject is None:
+		subject = u'gmTools.py: send_mail() test'
+
+	msg = StringIO.StringIO()
+	writer = MimeWriter.MimeWriter(msg)
+	writer.addheader('To', u', '.join(receiver))
+	writer.addheader('From', sender)
+	writer.addheader('Subject', subject[:50].replace('\r', '/').replace('\n', '/'))
+	writer.addheader('MIME-Version', '1.0')
+
+	writer.startmultipartbody('mixed')
+
+	# start with a text/plain part
+	part = writer.nextpart()
+	body = part.startbody('text/plain')
+	part.flushheaders()
+	body.write(message.encode(encoding))
+
+	# now add the attachments
+	if attachments is not None:
+		for a in attachments:
+			filename = os.path.basename(a[0])
+			try:
+				mtype = a[1]
+				encoding = a[2]
+			except IndexError:
+				mtype, encoding = mimetypes.guess_type(a[0])
+				if mtype is None:
+					mtype = 'application/octet-stream'
+					encoding = 'base64'
+				elif mtype == 'text/plain':
+					encoding = 'quoted-printable'
+				else:
+					encoding = 'base64'
+
+			part = writer.nextpart()
+			part.addheader('Content-Transfer-Encoding', encoding)
+			body = part.startbody("%s; name=%s" % (mtype, filename))
+			mimetools.encode(open(a[0], 'rb'), body, encoding)
+
+	writer.lastpart()
+
+	import smtplib
+	session = smtplib.SMTP(server)
+	session.set_debuglevel(debug)
+	if auth is not None:
+		session.login(auth['user'], auth['password'])
+	refused = session.sendmail(sender, receiver, msg.getvalue())
+	session.quit()
+	msg.close()
+	if len(refused) != 0:
+		_log.error("refused recipients: %s" % refused)
+		return False
+
+	return True
+#-------------------------------------------------------------------------------
+def send_mail_old(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='latin1'):
 	"""Send an E-Mail.
 
 	<debug>: see smtplib.set_debuglevel()
@@ -945,8 +1018,9 @@ This is a test mail from the gmTools.py module.
 		print "mail sending succeeded:", send_mail (
 			receiver = [default_mail_receiver, u'karsten.hilbert@gmx.net'],
 			message = msg,
-			auth = {'user': default_mail_sender, 'password': u'gm/bugs/gmx'},
-			debug = True
+			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'}, # u'gm/bugs/gmx'
+			debug = True,
+			attachments = [sys.argv[0]]
 		)
 	#-----------------------------------------------------------------------
 	def test_gmPaths():
@@ -1080,8 +1154,8 @@ This is a test mail from the gmTools.py module.
 		#test_capitalize()
 		#test_import_module()
 		#test_mkdir()
-		#test_send_mail()
-		test_gmPaths()
+		test_send_mail()
+		#test_gmPaths()
 		#test_none_if()
 		#test_bool2str()
 		#test_bool2subst()
@@ -1093,7 +1167,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.79  2009-04-03 11:08:33  ncq
+# Revision 1.80  2009-04-03 12:29:36  ncq
+# - add attachment handling to send_mail
+#
+# Revision 1.79  2009/04/03 11:08:33  ncq
 # - add two more unicode code points
 #
 # Revision 1.78  2009/04/03 09:37:05  ncq
