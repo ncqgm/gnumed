@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.134 $"
+__version__ = "$Revision: 1.135 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -191,6 +191,7 @@ age (
 
 		emr = patient.get_emr()
 
+		# episodes
 		epis = emr.get_episodes(issues = [self._payload[self._idx['pk_health_issue']]])
 		if epis is None:
 			lines.append(_('Error retrieving episodes for this health issue.'))
@@ -212,6 +213,7 @@ age (
 
 		lines.append('')
 
+		# encounters
 		first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
 		last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
 
@@ -228,6 +230,30 @@ age (
 				last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 				last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
 			))
+
+		# hospital stays
+		stays = emr.get_hospital_stays (
+			issues = [ self._payload[self._idx['pk_health_issue']] ]
+		)
+
+		if len(stays) > 0:
+			lines.append('')
+			lines.append(_('Hospital stays: %s') % len(stays))
+
+		for s in stays:
+			if s['discharge'] is not None:
+				dis = s['discharge'].strftime('%x')
+			else:
+				dis = u'?'
+			lines.append (u' %s - %s (%s): %s%s%s' % (
+				s['admission'].strftime('%x'),
+				dis,
+				gmTools.coalesce(s['hospital'], u''),
+				gmTools.u_left_double_angle_quote,
+				s['episode'],
+				gmTools.u_right_double_angle_quote
+			))
+		del stays
 
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
@@ -1193,7 +1219,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.134  2009-04-03 10:39:40  ncq
+# Revision 1.135  2009-04-03 11:07:25  ncq
+# - include stays in issue formatting
+#
+# Revision 1.134  2009/04/03 10:39:40  ncq
 # - include hospital stays into episode formatting
 #
 # Revision 1.133  2009/04/03 09:31:13  ncq
