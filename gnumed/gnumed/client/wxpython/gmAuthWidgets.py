@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.36 2009-04-03 09:38:20 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmAuthWidgets.py,v 1.37 2009-04-03 10:40:17 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -35,9 +35,6 @@ try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
-
-
-current_db_name = 'gnumed_v11'
 
 
 msg_generic = _("""
@@ -110,6 +107,8 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	# force programmer to set a valid expected_version
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
 	client_version = _cfg.get(option = u'client_version')
+	global current_db_name
+	current_db_name = u'gnumed_%s' % expected_version
 
 	attempt = 0
 
@@ -708,7 +707,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.36  2009-04-03 09:38:20  ncq
+# Revision 1.37  2009-04-03 10:40:17  ncq
+# - calculate current db name from expected version
+#
+# Revision 1.36  2009/04/03 09:38:20  ncq
 # - bump db version
 #
 # Revision 1.35  2009/02/05 13:03:08  ncq
