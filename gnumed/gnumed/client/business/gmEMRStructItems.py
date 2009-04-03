@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.133 $"
+__version__ = "$Revision: 1.134 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -430,6 +430,7 @@ from (
 
 		lines = []
 
+		# episode details
 		lines.append(_('Episode %s%s%s (%s) [#%s]\n') % (
 			u'\u00BB',
 			self._payload[self._idx['description']],
@@ -438,6 +439,7 @@ from (
 			self._payload[self._idx['pk_episode']]
 		))
 
+		# encounters
 		emr = patient.get_emr()
 		encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
 		first_encounter = None
@@ -510,6 +512,27 @@ from (
 				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
 			))
 		del docs
+
+		# hospital stays
+		stays = emr.get_hospital_stays (
+			episodes = [ self._payload[self._idx['pk_episode']] ]
+		)
+
+		if len(stays) > 0:
+			lines.append('')
+			lines.append(_('Hospital stays: %s') % len(stays))
+
+		for s in stays:
+			if s['discharge'] is not None:
+				dis = s['discharge'].strftime('%x')
+			else:
+				dis = u'?'
+			lines.append (u' %s - %s: %s' % (
+				s['admission'].strftime('%x'),
+				dis,
+				gmTools.coalesce(s['hospital'], u'')
+			))
+		del stays
 
 		# spell out last encounter
 		if last_encounter is not None:
@@ -1170,7 +1193,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.133  2009-04-03 09:31:13  ncq
+# Revision 1.134  2009-04-03 10:39:40  ncq
+# - include hospital stays into episode formatting
+#
+# Revision 1.133  2009/04/03 09:31:13  ncq
 # - add hospital stay API
 #
 # Revision 1.132  2009/02/27 12:38:03  ncq
