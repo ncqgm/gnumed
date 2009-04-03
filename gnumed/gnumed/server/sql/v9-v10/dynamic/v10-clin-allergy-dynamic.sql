@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-allergy-dynamic.sql,v 1.1 2008-10-12 14:58:07 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v10-clin-allergy-dynamic.sql,v 1.2 2009-04-03 10:00:32 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -49,16 +49,18 @@ BEGIN
 	end if;
 
 	update clin.allergy_state
-		set has_allergy = _state
+		set
+			has_allergy = _state,
+			last_confirmed = coalesce(last_confirmed, now())
 		where fk_encounter in (
 			select pk from clin.encounter where fk_patient = _fk_patient
 		);
 
 	if not FOUND then
 		insert into clin.allergy_state
-			(fk_encounter, has_allergy)
+			(fk_encounter, has_allergy, last_confirmed)
 		values
-			(_fk_encounter, _state);
+			(_fk_encounter, _state, now());
 	end if;
 
 	return NEW;
@@ -75,11 +77,15 @@ create trigger tr_sync_allergic_state_on_allergies_modified
 
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-allergy-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-allergy-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-allergy-dynamic.sql,v $
--- Revision 1.1  2008-10-12 14:58:07  ncq
+-- Revision 1.2  2009-04-03 10:00:32  ncq
+-- - auto-insertion of allergy state from trigger must
+--   include last_confirmed on appropriate states
+--
+-- Revision 1.1  2008/10/12 14:58:07  ncq
 -- - new
 --
 --
