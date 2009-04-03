@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.10 2009-02-24 10:13:02 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.11 2009-04-03 12:30:16 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -292,8 +292,11 @@ sender email  : %s
 			_log2.error(comment)
 			_log2.warning('syncing log file for emailing')
 			gmLog2.flush()
-			for line in codecs.open(_logfile_name, 'rU', 'utf8', 'replace'):
-				msg = msg + line
+			attachments = [ [_logfile_name, 'text/plain', 'quoted-printable'] ]
+#			for line in codecs.open(_logfile_name, 'rU', 'utf8', 'replace'):
+#				msg = msg + line
+		else:
+			attachments = None
 
 		dlg.Destroy()
 
@@ -306,11 +309,12 @@ sender email  : %s
 				message = msg,
 				encoding = gmI18N.get_encoding(),
 				server = gmTools.default_mail_server,
-				auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+				auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
+				attachments = attachments
 			)
 			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
 		except StandardError:
-			_log.exception('cannot send bug report')
+			_log2.exception('cannot send bug report')
 			gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
 		wx.EndBusyCursor()
 
@@ -323,7 +327,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.10  2009-02-24 10:13:02  ncq
+# Revision 1.11  2009-04-03 12:30:16  ncq
+# - attach log rather than include
+#
+# Revision 1.10  2009/02/24 10:13:02  ncq
 # - -devel -> -bugs
 #
 # Revision 1.9  2009/02/20 15:43:05  ncq
