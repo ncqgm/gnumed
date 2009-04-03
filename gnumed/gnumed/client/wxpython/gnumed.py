@@ -45,8 +45,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.152 2009-03-18 14:31:41 ncq Exp $
-__version__ = "$Revision: 1.152 $"
+# $Id: gnumed.py,v 1.153 2009-04-03 09:52:28 ncq Exp $
+__version__ = "$Revision: 1.153 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -451,7 +451,11 @@ setup_logging()
 _log.info('Starting up as main module (%s).', __version__)
 _log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
 _log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
-# FIXME: log output of lsb_release
+try:
+	import lsb_release
+	_log.info('%s' % lsb_release.get_distro_information())
+except ImportError:
+	pass
 
 setup_console_exception_handler()
 setup_cli()
@@ -491,7 +495,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.152  2009-03-18 14:31:41  ncq
+# Revision 1.153  2009-04-03 09:52:28  ncq
+# - log lsb_release if available
+#
+# Revision 1.152  2009/03/18 14:31:41  ncq
 # - bump version
 # - --local-import -> local-import -> prefer_local_catalog in install_domain
 #
