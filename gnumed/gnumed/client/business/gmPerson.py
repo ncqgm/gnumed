@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.182 2009-02-25 21:05:36 ncq Exp $
-__version__ = "$Revision: 1.182 $"
+# $Id: gmPerson.py,v 1.183 2009-04-03 09:32:01 ncq Exp $
+__version__ = "$Revision: 1.183 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1273,7 +1273,7 @@ class cPatientSearcher_SQL:
 		normalized = normalized.replace(u'ph', u'***DUMMY***')	# now, this is *really* specific for German
 		normalized = normalized.replace(u'***DUMMY***', u'(v|f|ph)')
 
-		# silent characters
+		# silent characters (Thomas vs Tomas)
 		normalized = normalized.replace(u'Th',u'***DUMMY***')
 		normalized = normalized.replace(u'T', u'***DUMMY***')
 		normalized = normalized.replace(u'***DUMMY***', u'(Th|T)')
@@ -2302,7 +2302,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.182  2009-02-25 21:05:36  ncq
+# Revision 1.183  2009-04-03 09:32:01  ncq
+# - improved docs
+#
+# Revision 1.182  2009/02/25 21:05:36  ncq
 # - cleanup
 #
 # Revision 1.181  2009/02/25 09:49:49  ncq

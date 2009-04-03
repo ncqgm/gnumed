@@ -1,14 +1,17 @@
 # -*- coding: latin-1 -*-
-"""GNUmed German KVK objects.
+"""GNUmed German KVK/eGK objects.
 
-These objects handle German patient cards (KVK).
+These objects handle German patient cards (KVK and eGK).
+
+KVK: http://www.kbv.de/ita/register_G.html
+eGK: http://www.gematik.de/upload/gematik_Qop_eGK_Spezifikation_Teil1_V1_1_0_Kommentare_4_1652.pdf
 
 license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.20 2008-08-28 18:30:28 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmKVK.py,v 1.21 2009-04-03 09:31:37 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -480,7 +483,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.20  2008-08-28 18:30:28  ncq
+# Revision 1.21  2009-04-03 09:31:37  ncq
+# - improved docs
+#
+# Revision 1.20  2008/08/28 18:30:28  ncq
 # - region_code -> urb_region_code
 # - support eGK now that libchipcard can read it :-)
 # - improved testing
