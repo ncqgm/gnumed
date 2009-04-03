@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.78 2009-04-03 09:37:05 ncq Exp $
+# $Id: gmTools.py,v 1.79 2009-04-03 11:08:33 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.78 $"
+__version__ = "$Revision: 1.79 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -41,8 +41,10 @@ default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
 
+u_right_double_angle_quote = u'\u00AB'
 u_registered_trademark = u'\u00ae'
 u_plus_minus = u'\u00B1'
+u_left_double_angle_quote = u'\u00BB'
 u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
@@ -1091,7 +1093,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.78  2009-04-03 09:37:05  ncq
+# Revision 1.79  2009-04-03 11:08:33  ncq
+# - add two more unicode code points
+#
+# Revision 1.78  2009/04/03 09:37:05  ncq
 # - splitter for LOINCDB.TXT
 # - improved paths handling (~ doesn't expand under Wine)
 #
