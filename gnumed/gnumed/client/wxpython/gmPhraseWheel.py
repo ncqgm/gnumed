@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.130 2009-03-31 15:08:09 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmPhraseWheel.py,v 1.131 2009-04-03 09:52:10 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -49,13 +49,14 @@ WEB_CHARS = "a-zA-Z0-9\.\-_/:"
 _timers = []
 #============================================================
 def shutdown():
+	"""It can be useful to call this early from your shutdown code to avoid hangs on Notify()."""
 	global _timers
 	_log.info('shutting down %s pending timers', len(_timers))
 	for timer in _timers:
 		_log.debug('timer [%s]', timer)
 		timer.Stop()
 	_timers = []
-#============================================================
+#------------------------------------------------------------
 class _cPRWTimer(wx.Timer):
 
 	def __init__(self, *args, **kwargs):
@@ -331,12 +332,11 @@ class cPhraseWheel(wx.TextCtrl):
 		return True
 	#---------------------------------------------------------
 	def GetData(self):
-		"""
-		Retrieve the data associated with the displayed string.
+		"""Retrieve the data associated with the displayed string.
 		"""
 		return self.data
 	#---------------------------------------------------------
-	def SetText (self, value=u'', data=None, suppress_smarts=False):
+	def SetText(self, value=u'', data=None, suppress_smarts=False):
 
 		self.suppress_text_update_smarts = suppress_smarts
 
@@ -410,10 +410,10 @@ class cPhraseWheel(wx.TextCtrl):
 		szr_dropdown = None
 		try:
 			#raise NotImplementedError		# for testing
-			self.__use_fake_popup = False
 			self.__dropdown_needs_relative_position = False
 			self.__picklist_dropdown = wx.PopupWindow(parent)
 			list_parent = self.__picklist_dropdown
+			self.__use_fake_popup = False
 		except NotImplementedError:
 			self.__use_fake_popup = True
 
@@ -671,21 +671,21 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__accepted_chars = None
 		else:
 			self.__accepted_chars = regex.compile(accepted_chars)
-	#------------
+
 	def _get_accepted_chars(self):
 		if self.__accepted_chars is None:
 			return None
 		return self.__accepted_chars.pattern
-	#------------
+
 	accepted_chars = property(_get_accepted_chars, _set_accepted_chars)
 	#--------------------------------------------------------
 	def _set_final_regex(self, final_regex='.*'):
 		self.__final_regex = regex.compile(final_regex)
 		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]') % final_regex
-	#------------
+
 	def _get_final_regex(self):
 		return self.__final_regex.pattern
-	#------------
+
 	final_regex = property(_get_final_regex, _set_final_regex)
 	#--------------------------------------------------------
 	def _set_phrase_separators(self, phrase_separators):
@@ -693,12 +693,12 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__phrase_separators = None
 		else:
 			self.__phrase_separators = regex.compile(phrase_separators)
-	#------------
+
 	def _get_phrase_separators(self):
 		if self.__phrase_separators is None:
 			return None
 		return self.__phrase_separators.pattern
-	#------------
+
 	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
 	#--------------------------------------------------------
 	def _set_speller_word_separators(self, word_separators):
@@ -751,7 +751,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self._hide_picklist()
 		self.display_as_valid(valid = True)
 
-		data = self._picklist.GetSelectedItemData()	# just so that _picklist_selection2display_string could use it
+		data = self._picklist.GetSelectedItemData()	# just so that _picklist_selection2display_string can use it
 		if data is None:
 			return
 
@@ -829,7 +829,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.data = None
 		self.__current_matches = []
 
-		# if empty string then kill list dropdown window
+		# if empty string then hide list dropdown window
 		# we also don't need a timer event then
 		val = self.GetValue().strip()
 		ins_point = self.GetInsertionPoint()
@@ -1058,7 +1058,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.130  2009-03-31 15:08:09  ncq
+# Revision 1.131  2009-04-03 09:52:10  ncq
+# - add explicit shutdown for timers
+# - self-handle timers
+# - a bit of cleanup
+#
+# Revision 1.130  2009/03/31 15:08:09  ncq
 # - removed gmTimer dependancy
 #
 # Revision 1.129  2009/03/31 14:38:13  ncq
