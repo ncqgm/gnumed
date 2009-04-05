@@ -5,8 +5,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_emr_journal.sql,v 1.1 2009-04-01 15:55:40 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-v_emr_journal.sql,v 1.2 2009-04-05 18:08:01 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -24,7 +24,7 @@ create view clin.v_emr_journal as
 
 union all
 
-	select *, 0 as row_version from clin.v_health_issues_journal
+	select * from clin.v_health_issues_journal
 
 union all
 
@@ -69,11 +69,14 @@ comment on view clin.v_emr_journal is
 
 grant select on clin.v_emr_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_emr_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_emr_journal.sql,v $
--- Revision 1.1  2009-04-01 15:55:40  ncq
+-- Revision 1.2  2009-04-05 18:08:01  ncq
+-- - health issue view now truly supports row_version
+--
+-- Revision 1.1  2009/04/01 15:55:40  ncq
 -- - new
 --
 --
