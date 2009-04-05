@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.32 2009-04-03 09:34:06 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmMatchProvider.py,v 1.33 2009-04-05 17:58:27 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -359,19 +359,22 @@ class cMatchProvider_Func(cMatchProvider):
 class cMatchProvider_SQL2(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
+
+	queries:
+		- a list of unicode strings
+		- each string is a query
+		- each string must contain: "... where <column> %(fragment_condition)s ..."
+		- each string can contain in the where clause: "... %(<context_key>)s ..."
+
+	context definitions to be used in the queries
+	example: {'ctxt_country': {'where_part': 'and country = %(country)s', 'placeholder': 'country'}}
 	"""
 	def __init__(self, queries = None, context = None):
 		if type(queries) != types.ListType:
 			queries = [queries]
 
-		# queries: a list of unicode strings
-		# each string is a query
-		# each string must contain: "... where <column> %(fragment_condition)s ..."
-		# each string can contain in the where clause: "... %(<context_key>)s ..."
 		self._queries = queries
 
-		# context definitions to be used in the queries
-		# example: {'ctxt_country': {'where_part': 'and country=%(country)', 'placeholder': 'country'}}
 		if context is None:
 			self._context = {}
 		else:
@@ -458,7 +461,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.32  2009-04-03 09:34:06  ncq
+# Revision 1.33  2009-04-05 17:58:27  ncq
+# - improved docs
+#
+# Revision 1.32  2009/04/03 09:34:06  ncq
 # - some exception cleanup
 #
 # Revision 1.31  2009/03/01 18:07:14  ncq
