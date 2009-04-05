@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.135 $"
+__version__ = "$Revision: 1.136 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -29,6 +29,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description = %(description)s,
+				grouping = %(grouping)s,
 				age_noted = %(age_noted)s,
 				laterality = %(laterality)s,
 				is_active = %(is_active)s,
@@ -42,6 +43,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		'description',
+		'grouping',
 		'age_noted',
 		'laterality',
 		'is_active',
@@ -1219,7 +1221,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.135  2009-04-03 11:07:25  ncq
+# Revision 1.136  2009-04-05 17:48:52  ncq
+# - support grouping
+#
+# Revision 1.135  2009/04/03 11:07:25  ncq
 # - include stays in issue formatting
 #
 # Revision 1.134  2009/04/03 10:39:40  ncq
