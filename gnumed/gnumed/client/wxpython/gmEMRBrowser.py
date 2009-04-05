@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.100 2009-01-21 18:03:53 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmEMRBrowser.py,v 1.101 2009-04-05 18:04:46 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -594,13 +594,41 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				return -1
 			return 1
 
-		# issues: alpha
+		# issues: alpha by grouping, no grouping at the bottom
 		if isinstance(item1, gmEMRStructItems.cHealthIssue):
-			if item1['description'].lower() == item2['description'].lower():
+
+			# no grouping below grouping
+			if item1['grouping'] is None:
+				if item2['grouping'] is not None:
+					return 1
+
+			# grouping above no grouping
+			if item1['grouping'] is not None:
+				if item2['grouping'] is None:
+					return -1
+
+			# both no grouping: alpha on description
+			if (item1['grouping'] is None) and (item2['grouping'] is None):
+				if item1['description'].lower() < item2['description'].lower():
+					return -1
+				if item1['description'].lower() > item2['description'].lower():
+					return 1
 				return 0
+
+			# both with grouping: alpha on grouping, then alpha on description
+			if item1['grouping'] < item2['grouping']:
+				return -1
+
+			if item1['grouping'] > item2['grouping']:
+				return 1
+
+			if item1['description'].lower() < item2['description'].lower():
+				return -1
+
 			if item1['description'].lower() > item2['description'].lower():
 				return 1
-			return -1
+
+			return 0
 
 		# dummy health issue always on top
 		if isinstance(item1, type({})):
@@ -746,7 +774,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.100  2009-01-21 18:03:53  ncq
+# Revision 1.101  2009-04-05 18:04:46  ncq
+# - support and use grouping
+#
+# Revision 1.100  2009/01/21 18:03:53  ncq
 # - comment on tooltip handling
 #
 # Revision 1.99  2008/12/18 21:27:56  ncq

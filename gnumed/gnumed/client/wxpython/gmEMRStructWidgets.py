@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.85 2009-04-03 09:47:29 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmEMRStructWidgets.py,v 1.86 2009-04-05 18:04:46 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1089,6 +1089,44 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		mp.setThresholds(1, 3, 5)
 		self._PRW_condition.matcher = mp
 
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u"""
+select distinct on (grouping) grouping, grouping from (
+
+	select rank, grouping from ((
+
+		select
+			grouping,
+			1 as rank
+		from
+			clin.health_issue
+		where
+			grouping %%(fragment_condition)s
+				and
+			(select True from clin.encounter where fk_patient = %s and pk = clin.health_issue.fk_encounter)
+
+	) union (
+
+		select
+			grouping,
+			2 as rank
+		from
+			clin.health_issue
+		where
+			grouping %%(fragment_condition)s
+
+	)) as union_result
+
+	order by rank
+
+) as order_result
+
+limit 50""" % gmPerson.gmCurrentPatient().ID
+			]
+		)
+		mp.setThresholds(1, 3, 5)
+		self._PRW_grouping.matcher = mp
+
 		self._PRW_age_noted.add_callback_on_lose_focus(self._on_leave_age_noted)
 		self._PRW_year_noted.add_callback_on_lose_focus(self._on_leave_year_noted)
 
@@ -1213,6 +1251,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			self._PRW_condition.SetText()
 			self._ChBOX_left.SetValue(0)
 			self._ChBOX_right.SetValue(0)
+			self._PRW_grouping.SetText()
 			self._TCTRL_notes.SetValue('')
 			self._PRW_age_noted.SetText()
 			self._PRW_year_noted.SetText()
@@ -1236,6 +1275,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			self._ChBOX_right.SetValue(0)
 		else:
 			self._ChBOX_right.SetValue(1)
+		self._PRW_grouping.SetText(gmTools.coalesce(self.__issue['grouping'], u''))
 		self._TCTRL_notes.SetValue('')
 		if self.__issue['age_noted'] is None:
 			self._PRW_age_noted.SetText()
@@ -1302,6 +1342,8 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			side += 'd'
 		if side != '':
 			self.__issue['laterality'] = side
+
+		self.__issue['grouping'] = gmTools.none_if(self._PRW_grouping.GetValue().strip(), u'')
 
 		self.__issue['is_active'] = bool(self._ChBOX_active.GetValue())
 		self.__issue['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
@@ -1492,7 +1534,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.85  2009-04-03 09:47:29  ncq
+# Revision 1.86  2009-04-05 18:04:46  ncq
+# - support and use grouping
+#
+# Revision 1.85  2009/04/03 09:47:29  ncq
 # - hospital stay widgets
 #
 # Revision 1.84  2009/01/02 11:39:48  ncq
