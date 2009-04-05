@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.100 $"
+__version__ = "$Revision: 1.101 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -767,8 +767,7 @@ class database:
 		cursor = self.conn.cursor()
 		cursor.execute("select pg_size_pretty(pg_database_size('%s'))" % self.template_db)
 		size = cursor.fetchone()[0]
-		print_msg("==> creating new target database [%s] from source [%s] (%s) ..." % (self.name, self.template_db, size))
-#		print_msg("    (this can take a while if [%s] is large)" % self.template_db)
+		print_msg("==> creating target database [%s] from [%s] (%s) ..." % (self.name, self.template_db, size))
 		try:
 			cursor.execute(cmd)
 		except:
@@ -1410,7 +1409,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.100  2009-04-03 09:54:21  ncq
+# Revision 1.101  2009-04-05 18:07:06  ncq
+# - better output
+#
+# Revision 1.100  2009/04/03 09:54:21  ncq
 # - improved output: show source DB size
 #
 # Revision 1.99  2009/03/18 14:32:35  ncq
