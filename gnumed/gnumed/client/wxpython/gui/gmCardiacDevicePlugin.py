@@ -9,7 +9,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -18,7 +18,17 @@ import os.path, sys, logging
 import wx
 
 
-from Gnumed.wxpython import gmMedDocWidgets, gmPlugin, images_Archive_plugin
+from Gnumed.wxpython import gmMeasurementWidgets, gmPlugin
+
+if __name__ == '__main__':
+	# stdlib
+	import sys
+	sys.path.insert(0, '../../../')
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 
 
 _log = logging.getLogger('gm.ui')
@@ -33,7 +43,7 @@ class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 		return gmCardiacDevicePlugin.tab_name
 	#--------------------------------------------------------
 	def GetWidget (self, parent):
-		self._widget = gmMedDocWidgets.cSelectablySortedDocTreePnl(parent, -1)
+		self._widget = gmMeasurementWidgets.cCardiacDeviceMeasurementsPnl(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
@@ -72,10 +82,48 @@ class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	pass
+	# 3rd party
+	import wx
+
+	# GNUmed
+	from Gnumed.business import gmPerson
+	from Gnumed.wxpython import gmSOAPWidgets
+	
+	_log.info("starting Notebooked cardiac device input plugin...")
+
+	try:
+		# obtain patient
+		patient = gmPerson.ask_for_patient()
+		if patient is None:
+			print "None patient. Exiting gracefully..."
+			sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
+
+		# display standalone multisash progress notes input
+		application = wx.wx.PyWidgetTester(size = (800,600))
+		#multisash_notes = gmSOAPWidgets.cNotebookedProgressNoteInputPanel(application.frame, -1)
+
+		application.frame.Show(True)
+		application.MainLoop()
+
+		# clean up
+		if patient is not None:
+			try:
+				patient.cleanup()
+			except:
+				print "error cleaning up patient"
+	except StandardError:
+		_log.exception("unhandled exception caught !")
+		# but re-raise them
+		raise
+
+	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
 # $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.1  2009-04-09 11:37:37  shilbert
+# Revision 1.2  2009-04-12 20:22:12  shilbert
+# - make it run in pywidgettester
+#
+# Revision 1.1  2009/04/09 11:37:37  shilbert
 # - first iteration of cardiac device management plugin
 #
 # Revision 1.75  2008/07/10 08:37:44  ncq
