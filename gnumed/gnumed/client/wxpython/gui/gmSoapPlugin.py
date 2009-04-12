@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -61,6 +61,7 @@ if __name__ == "__main__":
 
 	# GNUmed
 	from Gnumed.business import gmPerson
+	from Gnumed.wxpython import gmSOAPWidgets
 
 	_log.info("starting Notebooked progress notes input plugin...")
 
@@ -93,7 +94,10 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmSoapPlugin.py,v $
-# Revision 1.2  2009-01-06 18:21:55  ncq
+# Revision 1.3  2009-04-12 20:12:23  shilbert
+# - import of gmSOAPWidgets was missing in standalone mode
+#
+# Revision 1.2  2009/01/06 18:21:55  ncq
 # - better tab name
 #
 # Revision 1.1  2008/11/20 20:30:49  ncq
