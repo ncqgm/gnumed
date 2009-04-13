@@ -2,14 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.2 2009-04-13 18:22:08 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmDeviceWidgets.py,v 1.3 2009-04-13 18:37:14 shilbert Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
 import sys, logging, datetime as pyDT, decimal
-
 
 import wx, wx.grid
 
@@ -141,7 +140,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.2  2009-04-13 18:22:08  ncq
+# Revision 1.3  2009-04-13 18:37:14  shilbert
+# - updated class/filename
+#
+# Revision 1.2  2009/04/13 18:22:08  ncq
 # - a tiny bit of cleanup
 #
 #
