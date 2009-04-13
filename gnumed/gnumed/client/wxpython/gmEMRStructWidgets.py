@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.86 2009-04-05 18:04:46 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmEMRStructWidgets.py,v 1.87 2009-04-13 10:54:06 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -192,6 +192,54 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		print "this was not expected to be used in this edit area"
 #================================================================
 # encounter related widgets/functions
+#----------------------------------------------------------------
+def show_encounter_list(parent=None, patient=None):
+
+	if patient is None:
+		patient = gmPerson.gmCurrentPatient()
+
+	emr = patient.get_emr()
+
+	#--------------------
+	def refresh(lctrl):
+		encs = [
+			[
+				e['started'].strftime('%x %H:%M'),
+				e['last_affirmed'].strftime('%x %H:%M'),
+				e['l10n_type'],
+				gmTools.coalesce(e['reason_for_encounter'], u''),
+				gmTools.coalesce(e['assessment_of_encounter'], u''),
+				e.has_clinical_data(),
+				e['pk_encounter']
+			] for e in emr.get_encounters()
+		]
+		lctrl.set_string_items(items = encs)
+	#--------------------
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	encs = [
+		[
+			e['started'].strftime('%x %H:%M'),
+			e['last_affirmed'].strftime('%x %H:%M'),
+			e['l10n_type'],
+			gmTools.coalesce(e['reason_for_encounter'], u''),
+			gmTools.coalesce(e['assessment_of_encounter'], u''),
+			e.has_clinical_data(),
+			e['pk_encounter']
+		] for e in emr.get_encounters()
+	]
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nBelow find all encounters of the patient.\n'),
+		caption = _('Showing encounters ...'),
+		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Emtpy'), '#'],
+		choices = encs,
+		single_selection = True,
+		refresh_callback = refresh
+	)
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
 
@@ -495,13 +543,8 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter['pk_type'] = self._PRW_encounter_type.GetData()
 		self.__encounter['started'] = self._PRW_start.GetData().get_pydt()
 		self.__encounter['last_affirmed'] = self._PRW_end.GetData().get_pydt()
-		rfe = self._TCTRL_rfe.GetValue().strip()
-		if len(rfe) != 0:
-			self.__encounter['reason_for_encounter'] = rfe
-		aoe = self._TCTRL_aoe.GetValue().strip()
-		if len(aoe) != 0:
-			self.__encounter['assessment_of_encounter'] = aoe
-
+		self.__encounter['reason_for_encounter'] = gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+		self.__encounter['assessment_of_encounter'] = gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u'')
 		self.__encounter.save_payload()			# FIXME: error checking
 
 		return True
@@ -1534,7 +1577,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.86  2009-04-05 18:04:46  ncq
+# Revision 1.87  2009-04-13 10:54:06  ncq
+# - show encounter list
+# - allow removing RFE/AOE from edit area
+#
+# Revision 1.86  2009/04/05 18:04:46  ncq
 # - support and use grouping
 #
 # Revision 1.85  2009/04/03 09:47:29  ncq
