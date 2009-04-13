@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.55 2009-02-18 13:44:32 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmBusinessDBObject.py,v 1.56 2009-04-13 10:37:41 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -326,6 +326,9 @@ class cBusinessDBObject(object):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
+	def same_payload(self, another_object=None):
+		raise NotImplementedError('comparison between [%s] and [%s] not implemented' % (self, another_object))
+	#--------------------------------------------------------
 	def is_modified(self):
 		return self._is_modified
 	#--------------------------------------------------------
@@ -367,6 +370,9 @@ class cBusinessDBObject(object):
 	#--------------------------------------------------------
 	def __noop(self):
 		pass
+	#--------------------------------------------------------
+	def save(self, conn=None):
+		return self.save_payload(conn = conn)
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
 		"""Store updated values (if any) in database.
@@ -456,7 +462,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.55  2009-02-18 13:44:32  ncq
+# Revision 1.56  2009-04-13 10:37:41  ncq
+# - support same_payload
+# - support save around save_payload
+#
+# Revision 1.55  2009/02/18 13:44:32  ncq
 # - streamline exception handling in __init__
 #
 # Revision 1.54  2009/01/02 11:37:09  ncq
