@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.25 2009-03-10 14:23:56 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmNarrativeWidgets.py,v 1.26 2009-04-13 10:56:21 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -621,9 +621,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		)
 		self._PRW_encounter_end.SetText(fts.format_accurately(), data=fts)
 
-		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], ''))
-
-		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], ''))
+		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], u''))
+		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], u''))
 	#--------------------------------------------------------
 	def __encounter_modified(self):
 		"""Assumes that the field data is valid."""
@@ -631,37 +630,24 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		emr = self.__pat.get_emr()
 		enc = emr.get_active_encounter()
 
-		if self._PRW_encounter_type.GetData() != enc['pk_type']:
-			print "pk type difference"
-			print "field:", self._PRW_encounter_type.GetData()
-			print "class:", enc['pk_type']
-			return True
+		data = {
+			'pk_type': self._PRW_encounter_type.GetData(),
+			'reason_for_encounter': gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u''),
+			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+			'pk_location': enc['pk_location']
+		}
 
 		if self._PRW_encounter_start.GetData() is None:
-			print "start time None"
-			return True
-
-		if self._PRW_encounter_start.GetData().get_pydt() != enc['started']:
-			print "start time difference"
-			return True
+			data['started'] = None
+		else:
+			data['started'] = self._PRW_encounter_start.GetData().get_pydt()
 
 		if self._PRW_encounter_end.GetData() is None:
-			print "end time None"
-			return True
+			data['last_affirmed'] = None
+		else:
+			data['last_affirmed'] = self._PRW_encounter_end.GetData().get_pydt()
 
-		if self._PRW_encounter_end.GetData().get_pydt() != enc['last_affirmed']:
-			print "end time difference"
-			return True
-
-		if self._TCTRL_rfe.GetValue().strip() != enc['reason_for_encounter']:
-			print "rfe difference"
-			return True
-
-		if self._TCTRL_aoe.GetValue().strip() != enc['assessment_of_encounter']:
-			print "aoe difference"
-			return True
-
-		return False
+		return enc.same_payload(another_object = data)
 	#--------------------------------------------------------
 	def __encounter_valid_for_save(self):
 
@@ -695,6 +681,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
+		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_modified)
 
 		# synchronous signals
 		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
@@ -1329,7 +1316,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.25  2009-03-10 14:23:56  ncq
+# Revision 1.26  2009-04-13 10:56:21  ncq
+# - use same_payload on encounter to detect changes
+# - detect when current encounter is switched, not just modified
+#
+# Revision 1.25  2009/03/10 14:23:56  ncq
 # - comment
 #
 # Revision 1.24  2009/03/02 18:57:52  ncq
