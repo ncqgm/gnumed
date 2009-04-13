@@ -9,7 +9,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -43,7 +43,7 @@ class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 		return gmCardiacDevicePlugin.tab_name
 	#--------------------------------------------------------
 	def GetWidget (self, parent):
-		self._widget = gmMeasurementWidgets.cCardiacDeviceMeasurementsPnl(parent, -1)
+		self._widget = gmMeasurementWidgets.cCardiacDevicePluginPnl(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
 		# display standalone multisash progress notes input
 		application = wx.wx.PyWidgetTester(size = (800,600))
-		#multisash_notes = gmSOAPWidgets.cNotebookedProgressNoteInputPanel(application.frame, -1)
+		multisash_notes = gmMeasurementWidgets.cCardiacDeviceMeasurementsPnl(application.frame, -1)
 
 		application.frame.Show(True)
 		application.MainLoop()
@@ -120,7 +120,10 @@ if __name__ == '__main__':
 	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
 # $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.2  2009-04-12 20:22:12  shilbert
+# Revision 1.3  2009-04-13 15:34:55  shilbert
+# - renamed class cCardiacDeviceMeasurmentPnl to cCardiacDevicePluginPnl
+#
+# Revision 1.2  2009/04/12 20:22:12  shilbert
 # - make it run in pywidgettester
 #
 # Revision 1.1  2009/04/09 11:37:37  shilbert
