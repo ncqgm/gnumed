@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.4 2009-04-13 19:06:25 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmDeviceWidgets.py,v 1.5 2009-04-13 19:10:06 shilbert Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -26,11 +26,8 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #================================================================
 class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPnl, gmRegetMixin.cRegetOnPaintMixin):
-
 	"""Panel holding a number of widgets to manage implanted cardiac devices. Used as notebook page."""
-
 	def __init__(self, *args, **kwargs):
-
 		wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__init_ui()
@@ -134,7 +131,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.4  2009-04-13 19:06:25  ncq
+# Revision 1.5  2009-04-13 19:10:06  shilbert
+# -
+#
+# Revision 1.4  2009/04/13 19:06:25  ncq
 # - add missing )
 #
 # Revision 1.3  2009/04/13 18:37:14  shilbert
