@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.136 $"
+__version__ = "$Revision: 1.137 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -625,7 +625,7 @@ def episode2problem(episode=None):
 #============================================================
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter."""
-	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter=%s"
+	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter = %s"
 	_cmds_store_payload = [
 		u"""update clin.encounter set
 				started=%(started)s,
@@ -635,8 +635,8 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				reason_for_encounter=%(reason_for_encounter)s,
 				assessment_of_encounter=%(assessment_of_encounter)s
 			where
-				pk=%(pk_encounter)s and
-				xmin=%(xmin_encounter)s""",
+				pk = %(pk_encounter)s and
+				xmin = %(xmin_encounter)s""",
 		u"""select xmin_encounter from clin.v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
 	_updatable_fields = [
@@ -695,6 +695,36 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			}
 		}])
 		self.refetch_payload()
+		return True
+	#--------------------------------------------------------
+	def same_payload(self, another_object=None):
+
+		relevant_fields = [
+			'pk_location',
+			'pk_type',
+			'reason_for_encounter',
+			'assessment_of_encounter'
+		]
+		for field in relevant_fields:
+			if self._payload[self._idx[field]] != another_object[field]:
+				return False
+
+		relevant_fields = [
+			'started',
+			'last_affirmed',
+		]
+		for field in relevant_fields:
+			if self._payload[self._idx[field]] is None:
+				if another_object[field] is None:
+					continue
+				return False
+
+			if another_object[field] is None:
+				return False
+
+			if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M:%S %Z') != another_object[field].strftime('%Y-%m-%d %H:%M:%S %Z'):
+				return False
+
 		return True
 	#--------------------------------------------------------
 	def has_clinical_data(self):
@@ -1221,7 +1251,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.136  2009-04-05 17:48:52  ncq
+# Revision 1.137  2009-04-13 10:52:14  ncq
+# - support same_payload on encounter
+#
+# Revision 1.136  2009/04/05 17:48:52  ncq
 # - support grouping
 #
 # Revision 1.135  2009/04/03 11:07:25  ncq
