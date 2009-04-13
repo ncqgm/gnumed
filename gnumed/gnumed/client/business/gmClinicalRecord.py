@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.286 2009-04-03 11:06:07 ncq Exp $
-__version__ = "$Revision: 1.286 $"
+# $Id: gmClinicalRecord.py,v 1.287 2009-04-13 11:00:08 ncq Exp $
+__version__ = "$Revision: 1.287 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -104,7 +104,7 @@ select fk_encounter from
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
-		gmAllergy.ensure_has_allergy_state(encounter = self.__encounter['pk_encounter'])
+		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -131,18 +131,13 @@ select fk_encounter from
 	#--------------------------------------------------------
 	def db_callback_encounter_mod_db(self, **kwds):
 		# get current encounter as extra instance
-		enc = gmEMRStructItems.cEncounter(aPK_obj = self.__encounter['pk_encounter'])
+		enc_db_state = gmEMRStructItems.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
 
-		# did another transaction commit a change ?
-		if enc['xmin_encounter'] == self.__encounter['xmin_encounter']:
-			# no, ignore the signal
+		# unmodified in database
+		if enc_db_state['xmin_encounter'] == self.current_encounter['xmin_encounter']:
 			return True
 
-		# yes, reload encounter ignoring any changes
-		self.__encounter.refetch_payload(ignore_changes=True)
-
-		gmDispatcher.send(signal = u'current_encounter_modified')
-
+		self.current_encounter = enc_db_state
 		return True
 	#--------------------------------------------------------
 	def db_callback_vaccs_modified(self, **kwds):
@@ -200,7 +195,7 @@ select fk_encounter from
 				narrative = note[1],
 				soap_cat = note[0],
 				episode_id = episode,
-				encounter_id = self.__encounter['pk_encounter']
+				encounter_id = self.current_encounter['pk_encounter']
 			)
 
 		return True
@@ -213,7 +208,7 @@ select fk_encounter from
 			narrative = note,
 			soap_cat = soap_cat,
 			episode_id = episode['pk_episode'],
-			encounter_id = self.__encounter['pk_encounter']
+			encounter_id = self.current_encounter['pk_encounter']
 		)
 		if not status:
 			_log.error(str(data))
@@ -736,7 +731,7 @@ Hospital stays: %(stays)s
 	#--------------------------------------------------------
 	def add_allergy(self, substance=None, allg_type=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
-			encounter_id = self.__encounter['pk_encounter']
+			encounter_id = self.current_encounter['pk_encounter']
 
 		if episode_id is None:
 			issue = self.add_health_issue(issue_name = _('allergies/intolerances'))
@@ -762,13 +757,13 @@ Hospital stays: %(stays)s
 		if state not in gmAllergy.allergy_states:
 			raise ValueError('[%s].__set_allergy_state(): <state> must be one of %s' % (self.__class__.__name__, gmAllergy.allergy_states))
 
-		allg_state = gmAllergy.ensure_has_allergy_state(encounter = self.__encounter['pk_encounter'])
+		allg_state = gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 		allg_state['has_allergy'] = state
 		allg_state.save_payload()
 		return True
 
 	def _get_allergy_state(self):
-		return gmAllergy.ensure_has_allergy_state(encounter = self.__encounter['pk_encounter'])
+		return gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 
 	allergy_state = property(_get_allergy_state, _set_allergy_state)
 	#--------------------------------------------------------
@@ -810,7 +805,7 @@ Hospital stays: %(stays)s
 					from clin.v_pat_items
 					where pk_encounter=%(enc)s and pk_patient=%(pat)s"""
 		args = {
-			'enc': gmTools.coalesce(pk_encounter, self.__encounter['pk_encounter']),
+			'enc': gmTools.coalesce(pk_encounter, self.current_encounter['pk_encounter']),
 			'pat': self.pk_patient
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -830,7 +825,7 @@ Hospital stays: %(stays)s
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
 			is_open = is_open,
-			encounter = self.__encounter['pk_encounter']
+			encounter = self.current_encounter['pk_encounter']
 		)
 		return episode
 	#--------------------------------------------------------
@@ -994,7 +989,7 @@ where
 		"""Adds patient health issue."""
 		success, issue = gmEMRStructItems.create_health_issue (
 			description = issue_name,
-			encounter = self.__encounter['pk_encounter']
+			encounter = self.current_encounter['pk_encounter']
 		)
 		if not success:
 			_log.error('cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
@@ -1247,12 +1242,47 @@ where
 		return gmVaccination.create_vaccination (
 			patient_id = self.pk_patient,
 			episode_id = episode['pk_episode'],
-			encounter_id = self.__encounter['pk_encounter'],
+			encounter_id = self.current_encounter['pk_encounter'],
 			staff_id = _me['pk_staff'],
 			vaccine = vaccine
 		)
 	#------------------------------------------------------------------
-	# encounter API
+	# API: encounters
+	#------------------------------------------------------------------
+	def _get_encounter(self):
+		return self.__encounter
+
+	def _set_encounter(self, encounter):
+
+		signal = None
+
+		# true change of encounter and not just first setting ?
+		if self.__encounter is not None:
+
+			# unsaved changes ?
+			if self.__encounter.is_modified():
+				# then fail
+				raise ValueError('cannot set current encounter, it has unsaved changes')
+
+			# same encounter ?
+			if encounter['pk_encounter'] == self.__encounter['pk_encounter']:
+				# without external changes ?
+				if encounter['xmin_encounter'] == self.__encounter['xmin_encounter']:
+					# then succeed (or rather, do nothing)
+					return True
+				# are they true changes, not just UPDATE cosmetic ?
+				if not encounter.same_payload(another_object = self.__encounter):
+					signal = u'current_encounter_modified'
+
+		self.__encounter = encounter
+		self.__encounter.set_active(staff_id = _me['pk_staff'])
+		if signal is not None:
+			gmDispatcher.send(signal)
+		gmDispatcher.send(u'current_encounter_switched')
+		return True
+
+	current_encounter = property(_get_encounter, _set_encounter)
+	active_encounter = property(_get_encounter, _set_encounter)
 	#------------------------------------------------------------------
 	def __initiate_active_encounter(self):
 		# 1) "very recent" encounter recorded ?
@@ -1291,8 +1321,7 @@ where
 			_log.debug('no <very recent> encounter (younger than [%s]) found' % min_ttl)
 			return False
 		# attach to existing
-		self.__encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
-		self.__encounter.set_active(staff_id = _me['pk_staff'])
+		self.current_encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		_log.debug('"very recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
@@ -1364,12 +1393,6 @@ where
 			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
 			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),
 		)
-#		msg = _(
-#			"This patient's chart was worked on only recently.\n"
-#			'\n'
-#			'Do you want to continue that consultation\n'
-#			'or do you want to start a new one ?\n'
-#		)
 		attach = False
 		try:
 			attach = _func_ask_user(msg = msg, caption = _('Starting patient encounter'), encounter = encounter)
@@ -1379,26 +1402,24 @@ where
 		if not attach:
 			return False
 		# attach to existing
-		self.__encounter = encounter
-		self.__encounter.set_active(staff_id = _me['pk_staff'])
+		self.current_encounter = encounter
 		_log.debug('"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
 		cfg_db = gmCfg.cCfgSQL()
+		# FIXME: look for MRU/MCU encounter type config here
 		enc_type = cfg_db.get2 (
 			option = u'encounter.default_type',
 			workplace = _here.active_workplace,
 			bias = u'user',
 			default = u'in surgery'
 		)
-		# FIXME: look for MRU/MCU encounter type config here
-		self.__encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
-		self.__encounter.set_active(staff_id = _me['pk_staff'])
-		_log.debug('new encounter [%s] initiated' % self.__encounter['pk_encounter'])
+		self.current_encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
+		_log.debug('new encounter [%s] initiated' % self.current_encounter['pk_encounter'])
 	#------------------------------------------------------------------
 	def get_active_encounter(self):
-		return self.__encounter
+		return self.current_encounter
 	#------------------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
 		"""Retrieves patient's encounters.
@@ -1573,7 +1594,7 @@ limit 2
 
 		if len(rows) == 1:
 			# previous
-			if rows[0]['pk_encounter'] == self.__encounter['pk_encounter']:
+			if rows[0]['pk_encounter'] == self.current_encounter['pk_encounter']:
 				return None
 			return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 
@@ -1697,7 +1718,7 @@ order by clin_when desc, pk_episode, unified_name"""
 			intended_reviewer = _me['pk_staff']
 
 		tr = gmPathLab.create_test_result (
-			encounter = self.__encounter['pk_encounter'],
+			encounter = self.current_encounter['pk_encounter'],
 			episode = epi,
 			type = type,
 			intended_reviewer = intended_reviewer,
@@ -1768,7 +1789,7 @@ order by clin_when desc, pk_episode, unified_name"""
 	#------------------------------------------------------------------
 	def add_lab_request(self, lab=None, req_id=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
-			encounter_id = self.__encounter['pk_encounter']
+			encounter_id = self.current_encounter['pk_encounter']
 		status, data = gmPathLab.create_lab_request(
 			lab=lab,
 			req_id=req_id,
@@ -1938,7 +1959,12 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.286  2009-04-03 11:06:07  ncq
+# Revision 1.287  2009-04-13 11:00:08  ncq
+# - proper property current_encounter/active_encounter and self-use it
+# - properly detect current encounter modification
+# - broadcast current encounter switching
+#
+# Revision 1.286  2009/04/03 11:06:07  ncq
 # - filter stays by issue
 # - include stays in summary and statistics
 #
