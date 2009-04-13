@@ -7,7 +7,7 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.2 2009-02-25 09:38:18 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.3 2009-04-13 11:01:40 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
@@ -238,13 +238,28 @@ chmod u+x "${LAUNCHER}"
 
 
 # edit config file
+echo "Editing configuration file ..."
 echo ""
-read -p "Editing configuration file (hit [ENTER]) ..."
+echo "You may want to adjust profiles and workplace name."
+read -p "hit [ENTER] to continue"
 mc -e gm-from-cvs.conf
+
+
+# edit startup script
+echo "Editing startup shell script ..."
+echo ""
+echo "You may want to remove the --debug and --override-schema-check options."
+read -p "hit [ENTER] to continue"
+mc -e gm-from-cvs.sh
+
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.2  2009-02-25 09:38:18  ncq
+# Revision 1.3  2009-04-13 11:01:40  ncq
+# - hint on what to edit in conf file
+# - offer to edit startup file with hint
+#
+# Revision 1.2  2009/02/25 09:38:18  ncq
 # - better wording
 #
 # Revision 1.1  2009/02/24 17:57:32  ncq
