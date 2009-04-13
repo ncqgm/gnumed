@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.45 2009-03-10 14:19:08 ncq Exp $
+# $Id: gmI18N.py,v 1.46 2009-04-13 10:34:17 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -251,7 +251,7 @@ def activate_locale():
 
 	return True
 #---------------------------------------------------------------------------
-def install_domain(domain=None, language=None):
+def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	"""Install a text domain suitable for the main script."""
 
 	# text domain directly specified ?
@@ -260,8 +260,8 @@ def install_domain(domain=None, language=None):
 		domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 	_log.info('text domain is [%s]' % domain)
 
-	_log.debug('searching message catalog file for system locale [%s]' % system_locale)
 	# http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap08.html
+	_log.debug('searching message catalog file for system locale [%s]' % system_locale)
 	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
 		tmp = os.getenv(env_var)
 		if env_var is None:
@@ -398,7 +398,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.45  2009-03-10 14:19:08  ncq
+# Revision 1.46  2009-04-13 10:34:17  ncq
+# - start preferring local catalogs when needed
+#
+# Revision 1.45  2009/03/10 14:19:08  ncq
 # - protect against translation errors
 #
 # Revision 1.44  2008/08/01 10:46:14  ncq
