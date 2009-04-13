@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.1 2009-04-13 17:38:50 shilbert Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDeviceWidgets.py,v 1.2 2009-04-13 18:22:08 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,11 +16,9 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson, gmPathLab
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N
+from Gnumed.business import gmPerson
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
-from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
-from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
 
 _log = logging.getLogger('gm.ui')
@@ -142,3 +140,8 @@ if __name__ == '__main__':
 		#test_primary_care_vitals_pnl()
 
 #================================================================
+# $Log: gmDeviceWidgets.py,v $
+# Revision 1.2  2009-04-13 18:22:08  ncq
+# - a tiny bit of cleanup
+#
+#
