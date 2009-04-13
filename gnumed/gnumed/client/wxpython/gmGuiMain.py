@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.444 2009-04-03 09:49:55 ncq Exp $
-__version__ = "$Revision: 1.444 $"
+# $Id: gmGuiMain.py,v 1.445 2009-04-13 10:54:37 ncq Exp $
+__version__ = "$Revision: 1.445 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -595,6 +595,9 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID, self.__on_start_new_encounter)
 
+		item = menu_emr.Append(-1, _('List encounters'), _('List all encounters including empty ones.'))
+		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
+
 		# - submenu EMR / History taking
 		menu_history = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('&History taking ...'), menu_history)
@@ -627,7 +630,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
 		# - manage hospital stays
-		item = menu_history.Append(-1, _('&Admissions'), _('Manage hospital stays.'))
+		item = menu_history.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
 
 		# - submenu EMR / Observations
@@ -1960,6 +1963,13 @@ class gmTopLevelFrame(wx.Frame):
 		emr.start_new_encounter()
 		gmDispatcher.send(signal = 'statustext', msg = _('Started a new encounter for the active patient.'))
 	#----------------------------------------------
+	def __on_list_encounters(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot start new encounter. No active patient.'))
+			return False
+		gmEMRStructWidgets.show_encounter_list()
+	#----------------------------------------------
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2785,7 +2795,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.444  2009-04-03 09:49:55  ncq
+# Revision 1.445  2009-04-13 10:54:37  ncq
+# - support listing encounters
+#
+# Revision 1.444  2009/04/03 09:49:55  ncq
 # - user level access to hospital stay handling
 # - pubsub based listening for statustext
 # - explicit phrasewheel shutdown (timers)
