@@ -7,10 +7,14 @@ import wx
 # begin wxGlade: extracode
 # end wxGlade
 
-
-
 class wxgCardiacDevicePluginPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
+
+	from Gnumed.wxpython.gmNarrativeWidgets import cSoapNoteInputNotebook
+        from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
+        from Gnumed.wxpython.gmEMRStructWidgets import cEncounterTypePhraseWheel
+        from Gnumed.wxpython import gmListWidgets
+
         # begin wxGlade: wxgCardiacDevicePluginPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
@@ -19,7 +23,7 @@ class wxgCardiacDevicePluginPnl(wx.ScrolledWindow):
         self._splitter_right = wx.SplitterWindow(self.__splitter_main_right_pnl, -1, style=wx.SP_3D|wx.SP_BORDER|wx.SP_PERMIT_UNSPLIT)
         self.__splitter_right_bottom_pnl = wx.ScrolledWindow(self._splitter_right, -1, style=wx.NO_BORDER)
         self.__splitter_right_top_pnl = wx.Panel(self._splitter_right, -1, style=wx.NO_BORDER)
-        self._NB_device_editors = cDeviceNoteInputNotebook(self.__splitter_right_top_pnl, -1, style=0)
+        self._NB_device_editors = cSoapNoteInputNotebook(self.__splitter_right_top_pnl, -1, style=0)
         self.__splitter_main_left_pnl = wx.Panel(self._splitter_main, -1, style=wx.NO_BORDER|wx.FULL_REPAINT_ON_RESIZE)
         self.__splitter_left_bottom_pnl = wx.Panel(self.__splitter_main_left_pnl, -1, style=wx.NO_BORDER)
         self.__splitter_left_middle_pnl = wx.Panel(self.__splitter_main_left_pnl, -1, style=wx.NO_BORDER)
