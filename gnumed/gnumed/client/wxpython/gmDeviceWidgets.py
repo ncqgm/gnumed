@@ -2,26 +2,28 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.3 2009-04-13 18:37:14 shilbert Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmDeviceWidgets.py,v 1.4 2009-04-13 19:06:25 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
 import sys, logging, datetime as pyDT, decimal
 
+
 import wx, wx.grid
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+
 from Gnumed.business import gmPerson
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__
+_log.info(__version__)
 #================================================================
 class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
@@ -39,8 +41,6 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	def __register_interests(self):
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
@@ -127,12 +127,6 @@ if __name__ == '__main__':
 		app.frame.Show()
 		app.MainLoop()
 	#------------------------------------------------------------
-#	def test_primary_care_vitals_pnl():
-#		app = wx.PyWidgetTester(size = (500, 300))
-#		pnl = wxgPrimaryCareVitalsInputPnl.wxgPrimaryCareVitalsInputPnl(parent = app.frame, id = -1)
-#		app.frame.Show()
-#		app.MainLoop()
-	#------------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		#test_grid()
 		test_test_ea_pnl()
@@ -140,7 +134,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.3  2009-04-13 18:37:14  shilbert
+# Revision 1.4  2009-04-13 19:06:25  ncq
+# - add missing )
+#
+# Revision 1.3  2009/04/13 18:37:14  shilbert
 # - updated class/filename
 #
 # Revision 1.2  2009/04/13 18:22:08  ncq
