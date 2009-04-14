@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.80 2009-04-03 12:29:36 ncq Exp $
+# $Id: gmTools.py,v 1.81 2009-04-14 17:54:48 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.80 $"
+__version__ = "$Revision: 1.81 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -1154,12 +1154,12 @@ This is a test mail from the gmTools.py module.
 		#test_capitalize()
 		#test_import_module()
 		#test_mkdir()
-		test_send_mail()
+		#test_send_mail()
 		#test_gmPaths()
 		#test_none_if()
 		#test_bool2str()
 		#test_bool2subst()
-		#test_get_unique_filename()
+		test_get_unique_filename()
 		#test_size2str()
 		#test_wrap()
 		#test_input2decimal()
@@ -1167,7 +1167,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.80  2009-04-03 12:29:36  ncq
+# Revision 1.81  2009-04-14 17:54:48  ncq
+# - test under Py2.6
+#
+# Revision 1.80  2009/04/03 12:29:36  ncq
 # - add attachment handling to send_mail
 #
 # Revision 1.79  2009/04/03 11:08:33  ncq
