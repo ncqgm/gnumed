@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.41 2009-04-03 09:50:21 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmMeasurementWidgets.py,v 1.42 2009-04-14 18:35:27 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -272,28 +272,20 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.BeginBatch()
 
+		# rows
 		self.AppendRows(numRows = len(test_type_labels))
-		self.AppendCols(numCols = len(test_date_labels) + 1)
-
-		# column labels:
-		self.SetColLabelValue(0, _("Test"))
-		for date_idx in range(len(test_date_labels)):
-			self.SetColLabelValue(date_idx + 1, test_date_labels[date_idx])
-
-		# row "labels" (= cell values in column 0)
 		for row_idx in range(len(test_type_labels)):
-			self.SetCellValue(row_idx, 0, test_type_labels[row_idx])
-			self.SetCellBackgroundColour(row_idx, 0, self.GetLabelBackgroundColour())
-#			font = self.GetCellFont(row_idx, 0)
-#			font.SetWeight(wx.FONTWEIGHT_BOLD)
-#			self.SetCellFont(row_idx, 0, font)
-#			self.__cell_tooltips[0] = {}
-#			self.__cell_tooltips[0][row_idx] = _('test type tooltip row %s') % row_idx
+			self.SetRowLabelValue(row_idx, test_type_labels[row_idx])
+
+		# columns
+		self.AppendCols(numCols = len(test_date_labels))
+		for date_idx in range(len(test_date_labels)):
+			self.SetColLabelValue(date_idx, test_date_labels[date_idx])
 
 		# cell values (list of test results)
 		for result in results:
 			row = test_type_labels.index(u'%s (%s)' % (result['unified_code'], result['unified_name']))
-			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format)) + 1
+			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
 
 			try:
 				self.__cell_data[col]
@@ -530,17 +522,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
 		self.EnableDragGridSize(0)
-		self.SetRowLabelSize(20)
+		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# 2.8.8
+		self.SetRowLabelSize(100)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
 	#------------------------------------------------------------
 	def __cells_to_data(self, cells=None, exclude_multi_cells=False):
 		"""List of <cells> must be in row / col order."""
 		data = []
 		for row, col in cells:
-			# weed out row labels in col 0
-			if col == 0:
-				continue
-
 			try:
 				# cell data is stored col / row
 				data_list = self.__cell_data[col][row]
@@ -592,9 +581,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def __on_cell_left_dclicked(self, evt):
 		col = evt.GetCol()
 		row = evt.GetRow()
-		if col == 0:
-			# FIXME: invoke (unified) test type editor
-			return
 
 		# empty cell, perhaps ?
 		try:
@@ -1265,7 +1251,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.41  2009-04-03 09:50:21  ncq
+# Revision 1.42  2009-04-14 18:35:27  ncq
+# - HCI screening revealed test types scroll off when
+#   moving horizontall so fix that
+#
+# Revision 1.41  2009/04/03 09:50:21  ncq
 # - comment
 #
 # Revision 1.40  2009/03/18 14:30:47  ncq
