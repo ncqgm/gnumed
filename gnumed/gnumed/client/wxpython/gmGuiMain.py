@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.445 2009-04-13 10:54:37 ncq Exp $
-__version__ = "$Revision: 1.445 $"
+# $Id: gmGuiMain.py,v 1.446 2009-04-14 18:37:30 ncq Exp $
+__version__ = "$Revision: 1.446 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2327,11 +2327,14 @@ class gmApp(wx.App):
 		self.__starting_up = True
 
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
+
+		_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
+
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
-#		self.SetVendor(u'The GNUmed Development Community.')
-		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
-		paths.init_paths(wx = wx, app_name = 'gnumed')
+		self.SetVendorName(u'The GNUmed Development Community.')
+		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
+		paths.init_paths(wx = wx, app_name = u'gnumed')
 
 		if not self.__setup_prefs_file():
 			return False
@@ -2359,7 +2362,9 @@ class gmApp(wx.App):
 
 		if _cfg.get(option = 'debug'):
 			self.RedirectStdio()
-			print "***** Redirecting STDOUT/STDERR to this log window *****"
+			# print this so people know what this window is for
+			# and don't get suprised when it pops up later
+			print '***** %s *****' % _('redirecting STDOUT/STDERR to this log window')
 
 		self.user_activity_detected = True
 		self.elapsed_inactivity_slices = 0
@@ -2449,6 +2454,12 @@ class gmApp(wx.App):
 		for key in kwargs.keys():
 			print '    [%s]: %s' % (key, kwargs[key])
 	#----------------------------------------------
+	def _signal_debugging_monitor_pubsub(self, msg):
+		print "wx.lib.pubsub message:"
+		print msg.topic
+		print msg.data
+		print msg
+	#----------------------------------------------
 	def _do_after_init(self):
 		self.__starting_up = False
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
@@ -2468,8 +2479,14 @@ class gmApp(wx.App):
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
 		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
 
-		if _cfg.get(option = 'debug'):
-			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
+#		if _cfg.get(option = 'debug'):
+#			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
+#			_log.debug('connected old signal monitor')
+#			wx.lib.pubsub.Publisher().subscribe (
+#				listener = self._signal_debugging_monitor_pubsub,
+#				topic = wx.lib.pubsub.getStrAllTopics()
+#			)
+#			_log.debug('connected wx.lib.pubsub based signal monitor for all topics: [%s]', wx.lib.pubsub.getStrAllTopics())
 	#----------------------------------------------
 	def __check_for_updates(self):
 
@@ -2772,13 +2789,43 @@ class gmApp(wx.App):
 
 		return True
 #==============================================================================
+def _signal_debugging_monitor(*args, **kwargs):
+	try:
+		kwargs['originated_in_database']
+		print '==> got notification from database "%s":' % kwargs['signal']
+	except KeyError:
+		print '==> received signal from client: "%s"' % kwargs['signal']
+
+	del kwargs['signal']
+	for key in kwargs.keys():
+		# careful because of possibly limited console output encoding
+		try: print '    [%s]: %s' % (key, kwargs[key])
+		except: print 'cannot print signal information'
+#------------------------------------------------------------------------------
+def _signal_debugging_monitor_pubsub(msg):
+	# careful because of possibly limited console output encoding
+	try:
+		print "wx.lib.pubsub message:"
+		print msg.topic
+		print msg.data
+		print msg
+	except: print 'problem printing pubsub message information'
+#==============================================================================
 def main():
+
+	if _cfg.get(option = 'debug'):
+		gmDispatcher.connect(receiver = _signal_debugging_monitor)
+		_log.debug('gmDispatcher signal monitor activated')
+		wx.lib.pubsub.Publisher().subscribe (
+			listener = _signal_debugging_monitor_pubsub,
+			topic = wx.lib.pubsub.getStrAllTopics()
+		)
+		_log.debug('wx.lib.pubsub signal monitor activated')
 
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered
 	app = gmApp(redirect = False, clearSigInt = False)
-	_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
 	app.MainLoop()
 #==============================================================================
 # Main
@@ -2789,13 +2836,17 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	# console is Good(tm)
 	_log.info('Starting up as main module.')
 	main()
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.445  2009-04-13 10:54:37  ncq
+# Revision 1.446  2009-04-14 18:37:30  ncq
+# - set vendor name
+# - add message monitor for pubsub
+# - move signal debugging monitors up to the module level
+#
+# Revision 1.445  2009/04/13 10:54:37  ncq
 # - support listing encounters
 #
 # Revision 1.444  2009/04/03 09:49:55  ncq
