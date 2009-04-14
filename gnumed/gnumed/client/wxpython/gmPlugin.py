@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.79 2009-02-05 21:12:28 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmPlugin.py,v 1.80 2009-04-14 18:34:25 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -64,7 +64,6 @@ class cLoadProgressBar (wx.ProgressDialog):
 					plugin))
 		self.prev_plugin = plugin
 		self.idx += 1
-			
 #==================================================================
 # This is for NOTEBOOK plugins. Please write other base
 # classes for other types of plugins.
@@ -244,48 +243,7 @@ class cPatientChange_PluginMixin:
 		print "%s._post_patient_selection() not implemented" % self.__class__.__name__
 		print "should usually be used to initialize state"
 #==================================================================
-class cNotebookPluginOld(cNotebookPlugin):
-	def __init__(self, set=None):
-		print "%s: class cNotebookPluginOld used, please convert" % self.__class__.__name__
-		cNotebookPlugin.__init__(self)
-		# make sure there's a raised_plugin entry
-		try:
-			tmp = self.gb['main.notebook.raised_plugin']
-		except KeyError:
-			self.gb['main.notebook.raised_plugin'] = 'none'
-	#-----------------------------------------------------
-	def populate_with_data(self):
-		_log.info('%s: outdated populate_with_data() missing' % self.__class__.__name__)
-	#-----------------------------------------------------
-	def receive_focus(self):
-		"""We *are* receiving focus now."""
-		self.gb['main.notebook.raised_plugin'] = self.__class__.__name__
-		self.populate_with_data()
-	#-----------------------------------------------------
-	def Raise(self):
-		"""Raise ourselves."""
-		# already raised ?
-		if self.gb['main.notebook.raised_plugin'] == self.__class__.__name__:
-			return True
-		cNotebookPlugin.Raise(self)
-		return True
-
-#==================================================================
 # some convenience functions
-#------------------------------------------------------------------
-def raise_notebook_plugin(plugin_name = None):
-	"""plugin_name is a plugin internal name"""
-	print "gmPlugin.raise_notebook_plugin() deprecated, use <display_widget> signal instead"
-	gb = gmGuiBroker.GuiBroker()
-	try:
-		plugin = gb['horstspace.notebook.gui'][plugin_name]
-	except KeyError:
-		_log.exception("cannot raise [%s], plugin not available" % plugin_name)
-		return None
-	if plugin.can_receive_focus():
-		plugin.Raise()
-		return True
-	return False
 #------------------------------------------------------------------
 def __gm_import(module_name):
 	"""Import a module.
@@ -437,7 +395,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.79  2009-02-05 21:12:28  ncq
+# Revision 1.80  2009-04-14 18:34:25  ncq
+# - minor cleanup
+#
+# Revision 1.79  2009/02/05 21:12:28  ncq
 # - support "plugin loaded" signal
 #
 # Revision 1.78  2008/07/10 20:54:52  ncq
