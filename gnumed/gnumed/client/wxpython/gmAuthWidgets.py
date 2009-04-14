@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.37 2009-04-03 10:40:17 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmAuthWidgets.py,v 1.38 2009-04-14 11:02:20 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -491,7 +491,6 @@ class cLoginPanel(wx.Panel):
 			_cfg.get(group = u'backend', option = u'profiles', source_order = src_order),
 			[]
 		)
-		# FIXME: make unique
 
 		# find data for active profiles
 		src_order = [
@@ -530,6 +529,16 @@ class cLoginPanel(wx.Panel):
 			label = u'%s (%s@%s)' % (profile_name, profile.database, profile.host)
 			profiles[label] = profile
 
+		# sort out profiles with incompatible database versions if not --debug
+		# NOTE: this essentially hardcodes the database name in production ...
+		if not (_cfg.get(option = 'debug') or current_db_name.endswith('_devel')):
+			profiles2remove = []
+			for label in profiles:
+				if profiles[label].database != current_db_name:
+					profiles2remove.append(label)
+			for label in profiles2remove:
+				del profiles[label]
+
 		if len(profiles) == 0:
 			host = u'salaam.homeunix.com'
 			label = u'public GNUmed database (%s@%s)' % (current_db_name, host)
@@ -541,6 +550,7 @@ class cLoginPanel(wx.Panel):
 			profiles[label].encoding = u'UTF8'
 			profiles[label].public_db = True
 			profiles[label].helpdesk = u'http://wiki.gnumed.de'
+
 		return profiles
 	#----------------------------------------------------------
 	def __load_state(self):
@@ -707,7 +717,12 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.37  2009-04-03 10:40:17  ncq
+# Revision 1.38  2009-04-14 11:02:20  ncq
+# - if not debugging and not in development sort out database
+#   profiles with incompatible names, this essentially hardcodes
+#   the database name for the first time
+#
+# Revision 1.37  2009/04/03 10:40:17  ncq
 # - calculate current db name from expected version
 #
 # Revision 1.36  2009/04/03 09:38:20  ncq
