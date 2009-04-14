@@ -1,6 +1,6 @@
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/testing/test-psycopg2-datetime-systematic.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 # =======================================================================
@@ -10,10 +10,10 @@ print "testing psycopg2 date/time parsing"
 import psycopg2
 print "psycopg2:", psycopg2.__version__
 
-#dsn = u'dbname=gnumed_v10 user=any-doc password=any-doc'
-dsn = u'dbname=xxx user=xxx password=xxx'
+dsn = u'dbname=template1 user=xxx password=xxx'
 dsn = u'you need to adjust this'
-print dsn
+#dsn = u'dbname=gnumed_v11 user=any-doc password=any-doc'
+print "DSN:", dsn
 
 conn = psycopg2.connect(dsn=dsn)
 
@@ -22,7 +22,7 @@ cmd = u"""
 select
 	name,
 	abbrev,
-	utc_offset::text,
+	utc_offset,
 	case when
 		is_dst then 'DST'
 		else 'non-DST'
@@ -42,8 +42,7 @@ for row in rows:
 	try:
 		curs.execute(cmd)
 	except StandardError, e:
-		print "cannot use time zone", row
-		#print " ", e
+		print "cannot SET time zone to", row
 		curs.close()
 		conn.rollback()
 		continue
@@ -52,8 +51,9 @@ for row in rows:
 	try:
 		curs.execute(cmd)
 		curs.fetchone()
+		print "%s (%s / %s / %s) works" % (tz, row[1], row[2], row[3])
 	except StandardError, e:
-		print "%s (%s / %s / %s) failed:" % (tz, row[1], row[2], row[3])
+		print "%s (%s / %s / %s) failed in SELECT" % (tz, row[1], row[2], row[3])
 		print " ", e
 
 	curs.close()
@@ -63,7 +63,10 @@ conn.close()
 
 # =======================================================================
 # $Log: test-psycopg2-datetime-systematic.py,v $
-# Revision 1.1  2009-02-10 18:45:32  ncq
+# Revision 1.2  2009-04-14 17:55:59  ncq
+# - impoved output
+#
+# Revision 1.1  2009/02/10 18:45:32  ncq
 # - psycopg2 cannot parse a bunch of settable time zones
 #
 # Revision 1.1  2009/02/10 13:57:03  ncq
