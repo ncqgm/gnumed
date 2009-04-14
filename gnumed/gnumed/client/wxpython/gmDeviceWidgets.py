@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.5 2009-04-13 19:10:06 shilbert Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmDeviceWidgets.py,v 1.6 2009-04-14 18:35:52 shilbert Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
 
@@ -131,7 +131,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.5  2009-04-13 19:10:06  shilbert
+# Revision 1.6  2009-04-14 18:35:52  shilbert
+# - cleanup
+#
+# Revision 1.5  2009/04/13 19:10:06  shilbert
 # -
 #
 # Revision 1.4  2009/04/13 19:06:25  ncq
