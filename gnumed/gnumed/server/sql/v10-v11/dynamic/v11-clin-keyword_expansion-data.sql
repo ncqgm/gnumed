@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-keyword_expansion-data.sql,v 1.1 2009-04-01 15:55:40 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-keyword_expansion-data.sql,v 1.2 2009-04-14 18:32:07 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -123,6 +123,125 @@ Summe 2: Cumarine (INR 2-3)
 ');
 
 -- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'Rauchen-Kurzintervention_AAAAA';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'Rauchen-Kurzintervention_AAAAA',
+'Kurzberatung Tabakentwöhnung
+----------------------------
+
+Ask: Abfragen des Rauchstatus
+
+	- bei jeder Konsultation
+	- "Haben Sie je versucht, aufzuhören ?"
+	- "Wären Sie eventuell daran interessiert, jetzt aufzuhören ?"
+
+Advise: Anraten des Rauchverzichts
+
+	- Empfehlung eines Rauchstops
+	- Beratung zu Vorteilen und Nachteilen
+	  - 80-90% der chron. Atemwegserkrankungen
+	  - 80-85% der Lungenkrebse
+	  - 25-40% der KHK
+	  - 10 Jahre eher Lebensende
+	  - jährlich 140.000 Todesfälle durch Rauchen
+	  - häufigste Ursache für vorzeitigen Tod
+
+	  - Rauchstop mit 40: 9 Jahre Leben dazu
+	  - rauchfrei 25.-34. Lebensjahr: normale Lebenserwartung
+
+Assess: Ansprechen der Motivation
+
+	- Heute Bereitschaft vorhanden, einen Termin zum Rauchstopp
+	  zu vereinbaren ?
+	- Nein -> 5 "R"s (Makro "Rauchen-Kurzintervention_ RRRRR")
+	- Ja -> Assist / Assistieren
+
+Assist: Assistieren beim Rauchverzicht
+
+	- aktive Unterstützung
+	- Festlegen des Ausstiegsdatums
+	- Erstellen eines Ausstiegsplans
+	- Einbeziehen des sozialen Umfeldes
+	- zusätzliche Hilfen wie Selbsthilfebroschüren
+
+Arrange: Arrangieren der Nachbetreuung
+
+	- Vereinbarung von Folgeterminen zur Rückfallprophylaxe
+');
+
+-- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'Rauchen-Kurzintervention_RRRRR';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'Rauchen-Kurzintervention_RRRRR',
+'Kurzberatung Tabakentwöhnung
+----------------------------
+
+Relevance: Relevanz aufzeigen
+
+	Knüpfen Sie die Motivation des Rauchers an seinen körperlichen Zustand,
+	seine familiäre und soziale Situation, an gesundheitliche Bedenken,
+	Alter, Geschlecht und andere Merkmale wie frühere Ausstiegsversuche.
+
+Risks: Risiken benennen
+
+	kurzfristig:
+	 Kurzatmigkeit und Verstärkung von Asthma,
+	 Impotenz und Unfruchtbarkeit,
+	 erhöhte CO-Konzentration im Serum,
+	 erhöhte Herzfrequenz und erhöhte Blutdruckwerte
+
+	langfristig:
+	 Erhöhte Infektanfälligkeit,
+	 Herzinfarkt und Schlaganfall,
+	 Lungenkrebs und andere Krebsarten (Kehlkopf, Mundhöhle, Rachen
+	 Speiseröhre, Bauchspeicheldrüse, Harnblase, Gebärmutter, Leukämie),
+	 Chronische obstruktive Atemwegserkrankungen
+	 (chronische Bronchitis und Emphysem)
+
+	Risiken für die Umgebung:
+	 beeinträchtigtes Wohlbefinden,
+	 Krankheiten der Atemwege,
+	 Herz-Kreislauf-Erkrankungen und Lungenkrebs.
+	 Erhöhung der Infektanfälligkeit für Bronchitis,
+	 Lungen- und Mittelohrentzündungen,
+	 Erhöhung des Risikos, am plötzlichen Säuglingstod zu sterben,
+	 Blutdruckerhöhungen.
+
+Rewards: Reize und Vorteile des Rauchstopps verdeutlichen
+
+	Fragen Sie den Patienten, welche Vorteile das Aufhören hat und
+	betonen Sie diejenigen, welche die höchste emotionale Bedeutsamkeit haben
+
+Roadblocks: Riegel (Hindernisse und Schwierigkeiten)
+
+	vor Rauchstopp ansprechen:
+	 Entzugssymptome,
+	 Angst zu scheitern,
+	 Gewichtszunahme,
+	 fehlende Unterstützung,
+	 Depression,
+	 Freude am Rauchen
+
+Repetition:
+
+	Raucher, die nicht ausstiegswillig waren, sollten bei
+	jedem Folgekontakt erneut mit diesen motivationsfördernden
+	Strategien angesprochen werden.
+');
+
+-- --------------------------------------------------------------
 delete from clin.keyword_expansion where keyword = 'score-Metabolisches_Syndrom';
 
 insert into clin.keyword_expansion (
@@ -190,11 +309,14 @@ ab 55	MF			Hausarzt	Beratung Darmkrebs, dazu
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-keyword_expansion-data.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-keyword_expansion-data.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-clin-keyword_expansion-data.sql,v $
--- Revision 1.1  2009-04-01 15:55:40  ncq
+-- Revision 1.2  2009-04-14 18:32:07  ncq
+-- - add more macros
+--
+-- Revision 1.1  2009/04/01 15:55:40  ncq
 -- - new
 --
 -- Revision 1.2  2009/02/25 09:38:49  ncq
