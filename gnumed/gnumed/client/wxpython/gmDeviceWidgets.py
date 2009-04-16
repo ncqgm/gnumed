@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.6 2009-04-14 18:35:52 shilbert Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmDeviceWidgets.py,v 1.7 2009-04-16 12:47:28 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -11,15 +11,15 @@ __license__ = "GPL"
 import sys, logging, datetime as pyDT, decimal
 
 
-import wx, wx.grid
+import wx	#, wx.grid
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N
-from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
+from Gnumed.pycommon import gmDispatcher, gmMatchProvider
+from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
 
 _log = logging.getLogger('gm.ui')
@@ -101,7 +101,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmLog2, gmDateTime, gmI18N
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -127,11 +127,13 @@ if __name__ == '__main__':
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		#test_grid()
 		test_test_ea_pnl()
-		#test_primary_care_vitals_pnl()
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.6  2009-04-14 18:35:52  shilbert
+# Revision 1.7  2009-04-16 12:47:28  ncq
+# - some cleanup
+#
+# Revision 1.6  2009/04/14 18:35:52  shilbert
 # - cleanup
 #
 # Revision 1.5  2009/04/13 19:10:06  shilbert
