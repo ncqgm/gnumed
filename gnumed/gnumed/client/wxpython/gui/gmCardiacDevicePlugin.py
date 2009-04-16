@@ -2,7 +2,7 @@
 This is a cardiac device interrogation management plugin 
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -11,7 +11,7 @@ import os.path, sys, logging
 import wx
 
 
-from Gnumed.wxpython import gmMeasurementWidgets, gmPlugin, gmNarrativeWidgets, gmDeviceWidgets
+from Gnumed.wxpython import gmPlugin, gmDeviceWidgets
 
 if __name__ == '__main__':
 	# stdlib
@@ -54,33 +54,14 @@ class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 		if kwds['sort_mode'] == 'review':
 			self._widget._on_sort_by_review_selected(None)
 		return True
-	#--------------------------------------------------------
-#	def populate_toolbar (self, tb, widget):
-#		wxID_TB_BTN_show_page = wx.NewId()
-#		tool1 = tb.AddTool(
-#			wxID_TB_BTN_show_page,
-#			images_Archive_plugin.getreportsBitmap(),
-#			shortHelpString=_("show document"),
-#			isToggle=False
-#		)
-#		wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, self._widget._doc_tree.display_selected_part)
-#		tb.AddControl(wx.StaticBitmap(
-#			tb,
-#			-1,
-#			images_Archive_plugin.getvertical_separator_thinBitmap(),
-#			wx.DefaultPosition,
-#			wx.DefaultSize
-#		))
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	# 3rd party
-	import wx
 
 	# GNUmed
 	from Gnumed.business import gmPerson
-	from Gnumed.wxpython import gmSOAPWidgets
+	from Gnumed.wxpython import gmMeasurementWidgets
 	
 	_log.info("starting Notebooked cardiac device input plugin...")
 
@@ -113,7 +94,10 @@ if __name__ == '__main__':
 	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
 # $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.4  2009-04-14 18:37:39  shilbert
+# Revision 1.5  2009-04-16 12:51:17  ncq
+# - cleanup
+#
+# Revision 1.4  2009/04/14 18:37:39  shilbert
 # - description updated
 #
 # Revision 1.3  2009/04/13 15:34:55  shilbert
