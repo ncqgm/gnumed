@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.446 2009-04-14 18:37:30 ncq Exp $
-__version__ = "$Revision: 1.446 $"
+# $Id: gmGuiMain.py,v 1.447 2009-04-16 12:49:05 ncq Exp $
+__version__ = "$Revision: 1.447 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2805,9 +2805,8 @@ def _signal_debugging_monitor(*args, **kwargs):
 def _signal_debugging_monitor_pubsub(msg):
 	# careful because of possibly limited console output encoding
 	try:
-		print "wx.lib.pubsub message:"
-		print msg.topic
-		print msg.data
+		print '==> received wx.lib.pubsub message: "%s"' % msg.topic
+		print '    data: %s' % msg.data
 		print msg
 	except: print 'problem printing pubsub message information'
 #==============================================================================
@@ -2841,7 +2840,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.446  2009-04-14 18:37:30  ncq
+# Revision 1.447  2009-04-16 12:49:05  ncq
+# - improved pubsub monitor output
+#
+# Revision 1.446  2009/04/14 18:37:30  ncq
 # - set vendor name
 # - add message monitor for pubsub
 # - move signal debugging monitors up to the module level
