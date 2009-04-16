@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.28 2009-01-17 23:07:29 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmListWidgets.py,v 1.29 2009-04-16 12:49:47 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -52,10 +52,10 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, style = wx.LC_SINGLE_SEL)
 	else:
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
+	dlg.refresh_callback = refresh_callback
 	dlg.edit_callback = edit_callback
 	dlg.new_callback = new_callback
 	dlg.delete_callback = delete_callback
-	dlg.refresh_callback = refresh_callback
 	dlg.set_columns(columns = columns)
 	dlg.set_string_items(items = choices)
 	if selections is not None:
@@ -92,10 +92,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		else:
 			self._LBL_message.SetLabel(msg)
 
-		self.__new_callback = None				# called when NEW button pressed, no argument passed in
+		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
+		self.new_callback = None				# called when NEW button pressed, no argument passed in
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
-		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
 
 		self.can_return_empty = False
 	#------------------------------------------------------------
@@ -167,14 +167,58 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
-	def _get_noop(self):
+	def _get_new_callback(self):
 		return self.__new_callback
 
 	def _set_new_callback(self, callback):
+		if callback is not None:
+			if self.refresh_callback is None:
+				raise ValueError('refresh callback must be set before new callback can be set')
+			if not callable(callback):
+				raise ValueError('<new> callback is not a callable: %s' % callback)
 		self.__new_callback = callback
 		self._BTN_new.Enable(callback is not None)
 
-	new_callback = property(_get_noop, _set_new_callback)
+	new_callback = property(_get_new_callback, _set_new_callback)
+	#------------------------------------------------------------
+	def _get_edit_callback(self):
+		return self.__edit_callback
+
+	def _set_edit_callback(self, callback):
+		if callback is not None:
+			if self.refresh_callback is None:
+				raise ValueError('refresh callback must be set before edit callback can be set')
+			if not callable(callback):
+				raise ValueError('<edit> callback is not a callable: %s' % callback)
+		self.__edit_callback = callback
+		self._BTN_edit.Enable(callback is not None)
+
+	edit_callback = property(_get_edit_callback, _set_edit_callback)
+	#------------------------------------------------------------
+	def _get_delete_callback(self):
+		return self.__delete_callback
+
+	def _set_delete_callback(self, callback):
+		if callback is not None:
+			if self.refresh_callback is None:
+				raise ValueError('refresh callback must be set before delete callback can be set')
+			if not callable(callback):
+				raise ValueError('<delete> callback is not a callable: %s' % callback)
+		self.__delete_callback = callback
+		self._BTN_delete.Enable(callback is not None)
+
+	delete_callback = property(_get_delete_callback, _set_delete_callback)
+	#------------------------------------------------------------
+	def _get_refresh_callback(self):
+		return self.__refresh_callback
+
+	def _set_refresh_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<refresh> callback is not a callable: %s' % callback)
+		self.__refresh_callback = callback
+
+	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
 #================================================================
 class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	"""A panel holding a generic multi-column list and action buttions."""
@@ -467,7 +511,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.28  2009-01-17 23:07:29  ncq
+# Revision 1.29  2009-04-16 12:49:47  ncq
+# - more sanity checks regarding action callbacks
+#
+# Revision 1.28  2009/01/17 23:07:29  ncq
 # - support remembering previous widths policy
 #
 # Revision 1.27  2009/01/15 11:39:59  ncq
