@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.287 2009-04-13 11:00:08 ncq Exp $
-__version__ = "$Revision: 1.287 $"
+# $Id: gmClinicalRecord.py,v 1.288 2009-04-16 12:47:00 ncq Exp $
+__version__ = "$Revision: 1.288 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1560,7 +1560,6 @@ where pk_patient = %(pat)s
 order by started desc
 limit 2
 """
-
 		else:
 			where_parts = []
 
@@ -1573,9 +1572,10 @@ limit 2
 				args['epi'] = episode_id
 
 			cmd = u"""
-select * from clin.v_pat_encounters
+select *
+from clin.v_pat_encounters
 where
-	pk_patient = %s
+	pk_patient = %%(pat)s
 		and
 	pk_encounter in (
 		select distinct pk_encounter
@@ -1585,20 +1585,27 @@ where
 	)
 order by started desc
 limit 2
-""" % (u'%(pat)s', u' and '.join(where_parts))
+""" % u' and '.join(where_parts)
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		if len(rows) == 0:
 			return None
 
+		# just one encounter within the above limits
 		if len(rows) == 1:
-			# previous
+			# is it the current encounter ?
 			if rows[0]['pk_encounter'] == self.current_encounter['pk_encounter']:
+				# yes
 				return None
+			# no
 			return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 
-		return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'idx': idx, 'pk_field': 'pk_encounter'})
+		# more than one encounter
+		if rows[0]['pk_encounter'] == self.current_encounter['pk_encounter']:
+			return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'idx': idx, 'pk_field': 'pk_encounter'})
+
+		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
 		cfg_db = gmCfg.cCfgSQL()
@@ -1959,7 +1966,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.287  2009-04-13 11:00:08  ncq
+# Revision 1.288  2009-04-16 12:47:00  ncq
+# - fix logic when getting last-but-one encounter
+#
+# Revision 1.287  2009/04/13 11:00:08  ncq
 # - proper property current_encounter/active_encounter and self-use it
 # - properly detect current encounter modification
 # - broadcast current encounter switching
