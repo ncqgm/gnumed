@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.26 2009-04-13 10:56:21 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmNarrativeWidgets.py,v 1.27 2009-04-16 12:51:02 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -26,7 +26,7 @@ _log.info(__version__)
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
-def edit_progress_notes(parent=None, encounters=None, episodes=None, patient=None):
+def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=None):
 
 	# sanity checks
 	if patient is None:
@@ -36,60 +36,116 @@ def edit_progress_notes(parent=None, encounters=None, episodes=None, patient=Non
 		gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit progress notes. No active patient.'))
 		return False
 
+	emr = patient.get_emr()
+
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	emr = patient.get_emr()
+	#--------------------------
+	def refresh(lctrl):
+		notes = emr.get_clin_narrative (
+			encounters = encounters,
+			episodes = episodes,
+			providers = [ gmPerson.gmCurrentProvider()['short_alias'] ]
+		)
+		lctrl.set_string_items(items = [
+			[	narr['date'].strftime('%x %H:%M'),
+				narr['provider'],
+				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				narr['narrative'].replace('\n', '/').replace('\r', '/')
+			] for narr in notes
+		])
+		lctrl.set_data(data = notes)
+	#--------------------------
+	def delete(item):
+		if item is None:
+			return False
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			parent,
+			-1,
+			caption = _('Deleting progress note'),
+			question = _(
+				'Are you positively sure you want to delete this\n'
+				'progress note from the medical record ?\n'
+				'\n'
+				'Note that even if you chose to delete the entry it will\n'
+				'still be (invisibly) kept in the audit trail to protect\n'
+				'you from litigation because physical deletion is known\n'
+				'to be illegal in some jurisdictions.\n'
+			),
+			button_defs = (
+				{'label': _('Delete'), 'tooltip': _('Yes, delete the progress note.'), 'default': False},
+				{'label': _('Cancel'), 'tooltip': _('No, do NOT delete the progress note.'), 'default': True}
+			)
+		)
+		decision = dlg.ShowModal()
+
+		if decision != wx.ID_YES:
+			return False
+
+		gmClinNarrative.delete_clin_narrative(narrative = item['pk_narrative'])
+		return True
+	#--------------------------
+	def edit(item):
+		if item is None:
+			return False
+
+		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+			parent,
+			-1,
+			title = _('Editing progress note'),
+			msg = _(
+				'This is the original progress note:\n'
+				'\n'
+				' %s'
+			) % item.format(left_margin = u' ', fancy = True),
+			text = item['narrative']
+		)
+		decision = dlg.ShowModal()
+
+		if decision != wx.ID_SAVE:
+			return False
+
+		val = dlg.value
+		dlg.Destroy()
+		if val.strip() == u'':
+			return False
+
+		item['narrative'] = val
+		item.save_payload()
+
+		return True
+	#--------------------------
+
 	notes = emr.get_clin_narrative (
 		encounters = encounters,
 		episodes = episodes,
 		providers = [ gmPerson.gmCurrentProvider()['short_alias'] ]
 	)
 
-	dlg = cNarrativeListSelectorDlg (
+	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		id = -1,
-		narrative = notes,
+		caption = _('Managing progress notes'),
+		single_selection = True,
+		can_return_empty = False,
+		edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh,
+		data = notes,
 		msg = _(
 			'\n'
 			' This list shows the progress notes by %s.\n'
-			'\n\n'
-			' Select the one you want to edit:\n'
-		) % gmPerson.gmCurrentProvider()['short_alias'],
-		style = wx.LC_SINGLE_SEL
-	)
-
-	btn_pressed = dlg.ShowModal()
-	selected_narr = dlg.get_selected_item_data(only_one = True)
-	dlg.Destroy()
-
-	if btn_pressed == wx.ID_CANCEL:
-		return
-
-	dlg = gmGuiHelpers.cMultilineTextEntryDlg (
-		parent,
-		-1,
-		title = _('Editing progress note'),
-		msg = _(
-			'This is the original progress note:\n'
 			'\n'
-			' %s'
-		) % selected_narr.format(left_margin = u' ', fancy = True),
-		text = selected_narr['narrative']
+		) % gmPerson.gmCurrentProvider()['short_alias'],
+		columns = [_('when'), _('who'), _('type'), _('entry')],
+		choices = [
+			[	narr['date'].strftime('%x %H:%M'),
+				narr['provider'],
+				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				narr['narrative'].replace('\n', '/').replace('\r', '/')
+			] for narr in notes
+		]
 	)
-	btn_pressed = dlg.ShowModal()
-
-	if btn_pressed != wx.ID_SAVE:
-		return
-
-	val = dlg.value
-	dlg.Destroy()
-	if val.strip() == u'':
-		return
-
-	selected_narr['narrative'] = val
-	selected_narr.save_payload()
-
 #------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
 
@@ -1316,7 +1372,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.26  2009-04-13 10:56:21  ncq
+# Revision 1.27  2009-04-16 12:51:02  ncq
+# - edit_* -> manage_progress_notes as it can delete now, too,
+#   after being converted to using get_choices_from_list
+#
+# Revision 1.26  2009/04/13 10:56:21  ncq
 # - use same_payload on encounter to detect changes
 # - detect when current encounter is switched, not just modified
 #
