@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.101 2009-04-05 18:04:46 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmEMRBrowser.py,v 1.102 2009-04-16 12:48:31 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -318,7 +318,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		node_parent = self.GetItemParent(self.__curr_node)
 		owning_episode = self.GetPyData(node_parent)
 
-		gmNarrativeWidgets.edit_progress_notes(parent = self, encounters = [encounter['pk_encounter']], episodes = [owning_episode['pk_episode']])
+		gmNarrativeWidgets.manage_progress_notes(parent = self, encounters = [encounter['pk_encounter']], episodes = [owning_episode['pk_episode']])
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, event):
 		node_data = self.GetPyData(self.__curr_node)
@@ -521,8 +521,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			event.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
 				data['started'].strftime('%x'),
 				data['l10n_type'],
-				data['started'].strftime('%H:%m'),
-				data['last_affirmed'].strftime('%H:%m'),
+				data['started'].strftime('%H:%M'),
+				data['last_affirmed'].strftime('%H:%M'),
 				gmTools.coalesce(data['reason_for_encounter'], u''),
 				gmTools.coalesce(data['assessment_of_encounter'], u'')
 			))
@@ -774,7 +774,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.101  2009-04-05 18:04:46  ncq
+# Revision 1.102  2009-04-16 12:48:31  ncq
+# - edit_progress_notes -> manage_*
+# - use proper formatter when displaying encounter tooltip
+#
+# Revision 1.101  2009/04/05 18:04:46  ncq
 # - support and use grouping
 #
 # Revision 1.100  2009/01/21 18:03:53  ncq
