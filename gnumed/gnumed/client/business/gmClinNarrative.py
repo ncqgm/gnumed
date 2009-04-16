@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -217,20 +217,6 @@ select *, xmin_clin_narrative from clin.v_pat_narrative where
 		narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0], 'idx': idx})
 		return (True, narrative)
 
-	# 3) do episode and encounter belong to the same patient ?
-	cmd = u"""
-select pk_patient from clin.v_pat_episodes where pk_episode = %(epi)s 
-	 union 
-select pk_patient from clin.v_pat_encounters where pk_encounter = %(enc)s
-"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-	if len(rows) == 0:
-		_log.error('error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
-		raise ValueError('internal error, check log')
-	if len(rows) > 1:
-		_log.error('episode [%s] and encounter [%s] belong to different patients !?!' % (episode_id, encounter_id))
-		raise ValueError('clinical narrative consistency error, check log')
-
 	# insert new narrative
 	queries = [
 		{'cmd': u"insert into clin.clin_narrative (fk_encounter, fk_episode, narrative, soap_cat) values (%s, %s, %s, lower(%s))",
@@ -292,7 +278,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.38  2009-01-15 11:31:00  ncq
+# Revision 1.39  2009-04-16 12:46:26  ncq
+# - episode/encounter patient consistency check now moved to database
+#
+# Revision 1.38  2009/01/15 11:31:00  ncq
 # - cleanup
 #
 # Revision 1.37  2008/12/27 15:49:21  ncq
