@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.139 $
+# $Revision: 1.140 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-03-04 14:49+CET\n"
-"PO-Revision-Date: 2009-03-04 14:53+0100\n"
+"POT-Creation-Date: 2009-04-16 14:51+CEST\n"
+"PO-Revision-Date: 2009-04-16 15:10+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -90,13 +90,14 @@ msgid ""
 "Total EMR entries: %(items)s\n"
 "Documents: %(documents)s\n"
 "Test results: %(results)s\n"
-"\n"
+"Hospital stays: %(stays)s\n"
 msgstr ""
 "Medizinische Probleme: %(problems)s\n"
 "Konsultationen: %(encounters)s\n"
 "Karteieinträge: %(items)s\n"
 "Dokumente: %(documents)s\n"
 "Testergebnisse: %(results)s\n"
+"Krankenhausaufenthalte: %(stays)s\n"
 "\n"
 
 msgid ""
@@ -124,12 +125,13 @@ msgstr " %s Konsultationen vom %s bis zum %s\n"
 msgid " %s documents\n"
 msgstr " %s Dokumente\n"
 
+msgid " %s test results\n"
+msgstr " %s Testergebnisse\n"
+
 msgid ""
-" %s test results\n"
+" %s hospital stays\n"
 "\n"
-msgstr ""
-" %s Testergebnisse\n"
-"\n"
+msgstr " %s Krankenhausaufenthalte\n"
 
 msgid ""
 "Allergies and Intolerances\n"
@@ -231,6 +233,9 @@ msgstr "Konsultationen: %s (%s - %s):"
 
 msgid " Most recent: %s - %s"
 msgstr " Zuletzt: %s - %s"
+
+msgid "Hospital stays: %s"
+msgstr "Krankenhausaufenthalte: %s"
 
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
@@ -1053,6 +1058,162 @@ msgstr "Setzen auf:"
 msgid "Comment:"
 msgstr "Kommentar:"
 
+msgid "Active Problems"
+msgstr "aktuelle Probleme"
+
+msgid "Most Recent Related Notes"
+msgstr "Letzte Karteieinträge zum Problem"
+
+msgid "New notes in current encounter"
+msgstr "Notizen der aktuellen Konsultation"
+
+msgid "Tips and Hints"
+msgstr "Tips und Hinweise"
+
+msgid "Active Device Settings"
+msgstr ""
+
+msgid ""
+"In this area GNUmed will place the status of all cardiac devices and device parts. There can be more than one device at a time\n"
+"\n"
+"It potentially looks like this\n"
+"----------------------------------------------------------------------------------------------------------------\n"
+"Device: SJM Atlas DR (active)     Battery: 2.4V (MOL)      Implanted:  Feb 09 2008\n"
+"\n"
+"RA: Medtronic Sprint fidelis (active, flaky, replacement)             Implanted: Feb 09 2008\n"
+"Sensing: 2 (1.5) mV    Threshold: 0.7/0.5 (1/0.4) V/ms       Impedance: 800 (900) Ohm\n"
+"\n"
+"RV: Medtronic Sprint fidelis (active, flaky, replacement)             Implanted: Feb 09 2008\n"
+"Sensing: 7 (15) mV    Threshold: 0.7/0.5 (1/0.4) V/ms       Impedance: 800 (900) Ohm\n"
+"\n"
+"LV: Medtronic Sprint fidelis (active, flaky, Y-connector)             Implanted: Feb 09 2008\n"
+"Sensing: 7 ( ?) mV    Threshold: 1/1.5 (1/1) V/ms       Impedance: 800 (900) Ohm\n"
+"----------------------------------------------------------------------------------------------------------------\n"
+"Device: Medtronic Relia SR (inactive)     Batttery 2.1V (EOL)   Implanted: Jan 23 2000\n"
+"\n"
+"Device: Medtronic Kappa SR (explanted)     Batttery 2.1V (EOL)   Explanted: Jan 23 2000 (Jan 23 1995)\n"
+"-----------------------------------------------------------------------------------------------------------------\n"
+"RA Lead: Medtronic ? (inactive, capped)             Implanted: Jan 23 2000\n"
+"RV Lead: Medtronic ? (explanted)                        Explanted: Feb 09 2008"
+msgstr ""
+
+msgid ""
+"In this area GNUmed will place the notes of the\n"
+"previous encounter as well as notes by other\n"
+"staff for the current encounter.\n"
+"\n"
+"Note that this may change depending on which\n"
+"active problem is selected in the editor below."
+msgstr ""
+
+msgid "New"
+msgstr "Neu"
+
+msgid "&All"
+msgstr "&Alles"
+
+msgid "&Encounter"
+msgstr "A&PK"
+
+msgid "&Note"
+msgstr "&Eintrag"
+
+msgid "&New"
+msgstr "&Neu"
+
+msgid "&Clear"
+msgstr "&Leeren"
+
+msgid "&Discard"
+msgstr "&Verwerfen"
+
+msgid ""
+"In this area GNUmed will place hints and tips\n"
+"related to the current interrogation note and patient.\n"
+"\n"
+"Those hints will be derived from a variety of\n"
+"sources such as classifications (ICD, ...), \n"
+"safety warnings, online resources (Google\n"
+"and friends), device databases, etc.\n"
+"\n"
+"Eventually, those hints will be active in that you\n"
+"can click on them and be taken to the relevant\n"
+"information/an appropriate action be performed."
+msgstr ""
+
+msgid "This shows the list of active problems, They include open episodes as well as active health issues."
+msgstr "Die Liste der aktiven Probleme. Diese umfassen die laufenden Episoden und die aktiven Grunderkrankungen."
+
+msgid "Select the type of encounter."
+msgstr "Wählen Sie die Art der Arzt-Patienten-Begegnung."
+
+msgid "Date and time when the current (!) encounter started."
+msgstr "Zeitpunkt, an dem der aktuelle (!) APK gestartet wurde."
+
+msgid "Date and time when the current (!) encounter ends."
+msgstr "Zeitpunkt, an dem der aktive APK beendet wird."
+
+msgid "Start a new encounter. If there are any changes to the current encounter you will be asked whether to save them."
+msgstr "Eine neue Konsultation anlegen. Falls Änderungen an der aktuellen Konsultation vorgenommen wurden, können Sie entscheiden, ob diese gespeichert werden sollen."
+
+msgid ""
+"This documents why the encounter takes place.\n"
+"\n"
+"It may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here.\n"
+"\n"
+"Also known as the Reason For Encounter/Visit (RFE)."
+msgstr ""
+"Dies beschreibt, warum der aktuelle APK zustande kam.\n"
+"\n"
+"Es kann sich um eine Anliegen des Patienten oder um andere Gründe handeln. Wird oft initial an der Rezeption abgefragt und in der Wartezimmerliste als Notiz abgelegt. Kann sich als Proxy-Anliegen dafür erweisen, warum der Patient wirklich hier ist.\n"
+"\n"
+"Auch bekannt als Beratungsanlaß (-ursache/RFE)."
+
+msgid "This summarizes the outcome/assessment of the consultation from the doctors point of view. Note that this summary spans all the problems discussed during this encounter."
+msgstr "Hier wird das Ergebnis des APK aus Sicht des Arztes zusammengefaßt. Diese Zusammenfassung bezieht sich auf alle Probleme, die in diesem APK angesprochen wurden !"
+
+msgid "Save encounter details and all progress notes."
+msgstr "Die Details zur Konsultation und alle Verlaufsnotizen speichern."
+
+msgid "Save the encounter details."
+msgstr "Details der Konsultation speichern."
+
+msgid "Save the currently displayed progress note."
+msgstr "Die selektierte Verlaufsnotiz speichern."
+
+msgid ""
+"Open a new progress note editor.\n"
+"\n"
+"There is a configuration item on whether to allow several new-episode editors at once."
+msgstr ""
+"Einen neuen Verlaufseditor öffnen.\n"
+"\n"
+"Sie können konfigurieren, ob Sie nebeneinander mehrere Verlaufseditoren für unzugeordnete Notizen zulassen wollen."
+
+msgid "Clear the editor for the displayed progress note."
+msgstr "Den aktiven Editor leeren."
+
+msgid "Discard the editor for the displayed progress note."
+msgstr "Den aktiven Editor verwerfen."
+
+msgid "until"
+msgstr "bis"
+
+msgid "Request"
+msgstr "Begehr"
+
+msgid "tab1"
+msgstr ""
+
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+msgid "Save:"
+msgstr "Speichern:"
+
+msgid "Editor:"
+msgstr "Editor:"
+
 msgid "Confidential"
 msgstr "vertraulich"
 
@@ -1252,14 +1413,8 @@ msgstr "Kommentar"
 msgid "edit encounter details"
 msgstr "Details der Konsultation ändern"
 
-msgid "Save the encounter details."
-msgstr "Details der Konsultation speichern."
-
 msgid "Edit the details for the encounter below:"
 msgstr "Ändern Sie die Details der Konsultation:"
-
-msgid "Select the type of encounter."
-msgstr "Wählen Sie die Art der Arzt-Patienten-Begegnung."
 
 msgid "Enter the Reason For Encounter here. This is the patient's initial request which led to the encounter."
 msgstr "Geben Sie den Beratungsanlaß ein. Hier handelt es sich um das zur Konsultation führende Anliegen des Patienten."
@@ -1278,12 +1433,6 @@ msgstr "Beginn"
 
 msgid "Ended"
 msgstr "Ende"
-
-msgid "Request"
-msgstr "Begehr"
-
-msgid "Summary"
-msgstr "Zusammenfassung"
 
 msgid "Required: The name for this encounter type in your local language."
 msgstr "Pflichtfeld: Der Konsultationstyp in der Landessprache."
@@ -1566,6 +1715,9 @@ msgstr "Setzen Sie ein Häkchen, wenn diese Grunderkrankung zum Tode des Patient
 msgid "Condition"
 msgstr "Erkrankung"
 
+msgid "Grouping"
+msgstr "Gruppe"
+
 msgid ""
 "Progress\n"
 "Note"
@@ -1581,6 +1733,18 @@ msgstr "Alter:"
 
 msgid "Or year:"
 msgstr "Oder Jahr:"
+
+msgid "Hospital"
+msgstr "Krankenhaus"
+
+msgid "Admitted"
+msgstr "Eingewiesen"
+
+msgid "Discharged"
+msgstr "Entlassen"
+
+msgid "Episode"
+msgstr "Episode"
 
 msgid "Please select a health issue:"
 msgstr "Bitte eine Grunderkrankung wählen:"
@@ -1900,19 +2064,19 @@ msgid "°F"
 msgstr ""
 
 msgid "<last height>"
-msgstr ""
+msgstr "<letzte Größe>"
 
 msgid "BMI"
 msgstr "BMI"
 
 msgid "<last weight>"
-msgstr ""
+msgstr "<letztes Gewicht>"
 
 msgid "<BMI>"
 msgstr ""
 
 msgid "<last waist>"
-msgstr ""
+msgstr "<letzte Taille>"
 
 msgid "RR measured on the left arm."
 msgstr "Blutdruck am linken Arm."
@@ -2141,9 +2305,6 @@ msgstr "Bewertung speichern."
 msgid "Cancel this review."
 msgstr "Bewertung abbrechen."
 
-msgid "Episode"
-msgstr "Episode"
-
 msgid "Reference"
 msgstr "Referenz"
 
@@ -2294,48 +2455,6 @@ msgstr "Sortiere Dokumente nach ihrem Typ."
 msgid "Sort documents by"
 msgstr "Sortiere Dokumente nach"
 
-msgid "Most Recent Related Notes"
-msgstr "Letzte Karteieinträge zum Problem"
-
-msgid "New notes in current encounter"
-msgstr "Notizen der aktuellen Konsultation"
-
-msgid "Tips and Hints"
-msgstr "Tips und Hinweise"
-
-msgid "Active Problems"
-msgstr "aktuelle Probleme"
-
-msgid ""
-"In this area GNUmed will place the notes of the\n"
-"previous encounter as well as notes by other\n"
-"staff for the current encounter.\n"
-"\n"
-"Note that this may change depending on which\n"
-"active problem is selected in the editor below."
-msgstr ""
-
-msgid "New"
-msgstr "Neu"
-
-msgid "&All"
-msgstr "&Alles"
-
-msgid "&Encounter"
-msgstr "A&PK"
-
-msgid "&Note"
-msgstr "&Eintrag"
-
-msgid "&New"
-msgstr "&Neu"
-
-msgid "&Clear"
-msgstr "&Leeren"
-
-msgid "&Discard"
-msgstr "&Verwerfen"
-
 msgid ""
 "In this area GNUmed will place hints and tips\n"
 "related to the current progress note and patient.\n"
@@ -2349,67 +2468,6 @@ msgid ""
 "can click on them and be taken to the relevant\n"
 "information/an appropriate action be performed."
 msgstr ""
-
-msgid "This shows the list of active problems, They include open episodes as well as active health issues."
-msgstr "Die Liste der aktiven Probleme. Diese umfassen die laufenden Episoden und die aktiven Grunderkrankungen."
-
-msgid "Date and time when the current (!) encounter started."
-msgstr "Zeitpunkt, an dem der aktuelle (!) APK gestartet wurde."
-
-msgid "Date and time when the current (!) encounter ends."
-msgstr "Zeitpunkt, an dem der aktive APK beendet wird."
-
-msgid "Start a new encounter. If there are any changes to the current encounter you will be asked whether to save them."
-msgstr "Eine neue Konsultation anlegen. Falls Änderungen an der aktuellen Konsultation vorgenommen wurden, können Sie entscheiden, ob diese gespeichert werden sollen."
-
-msgid ""
-"This documents why the encounter takes place.\n"
-"\n"
-"It may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here.\n"
-"\n"
-"Also known as the Reason For Encounter/Visit (RFE)."
-msgstr ""
-"Dies beschreibt, warum der aktuelle APK zustande kam.\n"
-"\n"
-"Es kann sich um eine Anliegen des Patienten oder um andere Gründe handeln. Wird oft initial an der Rezeption abgefragt und in der Wartezimmerliste als Notiz abgelegt. Kann sich als Proxy-Anliegen dafür erweisen, warum der Patient wirklich hier ist.\n"
-"\n"
-"Auch bekannt als Beratungsanlaß (-ursache/RFE)."
-
-msgid "This summarizes the outcome/assessment of the consultation from the doctors point of view. Note that this summary spans all the problems discussed during this encounter."
-msgstr "Hier wird das Ergebnis des APK aus Sicht des Arztes zusammengefaßt. Diese Zusammenfassung bezieht sich auf alle Probleme, die in diesem APK angesprochen wurden !"
-
-msgid "Save encounter details and all progress notes."
-msgstr "Die Details zur Konsultation und alle Verlaufsnotizen speichern."
-
-msgid "Save the currently displayed progress note."
-msgstr "Die selektierte Verlaufsnotiz speichern."
-
-msgid ""
-"Open a new progress note editor.\n"
-"\n"
-"There is a configuration item on whether to allow several new-episode editors at once."
-msgstr ""
-"Einen neuen Verlaufseditor öffnen.\n"
-"\n"
-"Sie können konfigurieren, ob Sie nebeneinander mehrere Verlaufseditoren für unzugeordnete Notizen zulassen wollen."
-
-msgid "Clear the editor for the displayed progress note."
-msgstr "Den aktiven Editor leeren."
-
-msgid "Discard the editor for the displayed progress note."
-msgstr "Den aktiven Editor verwerfen."
-
-msgid "until"
-msgstr "bis"
-
-msgid "tab1"
-msgstr ""
-
-msgid "Save:"
-msgstr "Speichern:"
-
-msgid "Editor:"
-msgstr "Editor:"
 
 msgid "Edit staff details"
 msgstr "Mitarbeiterdaten .ändern"
@@ -3877,6 +3935,59 @@ msgstr ""
 "\n"
 "Genaue Fehlerbeschreibung in der Logdatei."
 
+msgid "Cannot delete hospital stay."
+msgstr "Kann Krankenhausaufenthalt nicht löschen."
+
+msgid ""
+"\n"
+"Select the hospital stay you want to edit !\n"
+msgstr ""
+"\n"
+"Wählen Sie den Krankenhausaufenthalt, den Sie bearbeiten wollen !\n"
+
+msgid "Editing hospital stays ..."
+msgstr "Bearbeite Krankenhausaufenthalte ..."
+
+msgid "Admission"
+msgstr "Einweisung"
+
+msgid "Discharge"
+msgstr "Entlassung"
+
+msgid "Reason"
+msgstr "Grund"
+
+msgid "Adding a hospital stay"
+msgstr "Einen Krankenhausaufenthalt hinzufügen"
+
+msgid "Editing a hospital stay"
+msgstr "Einen Krankenhausaufenthalt bearbeiten"
+
+msgid "Missing admission data. Cannot save hospital stay."
+msgstr "Einweisungsdatum fehlt. Kann Einweisung nicht speichern."
+
+msgid "Discharge date must be empty or later than admission. Cannot save hospital stay."
+msgstr "Entlassungsdatum muß leer bleiben oder nach dem Einweisungsdatum liegen. Kann Einweisung nicht speichern."
+
+msgid ""
+"\n"
+"Below find all encounters of the patient.\n"
+msgstr ""
+"\n"
+"Untenstehend sind alle Kontakte dieses Patienten aufgelistet.\n"
+
+msgid "Showing encounters ..."
+msgstr "Zeige Kontakte ..."
+
+msgid "Assessment of Encounter"
+msgstr "Beratungsergebnis"
+
+msgid "Emtpy"
+msgstr "Leer"
+
+msgid "Reason for Encounter"
+msgstr "Beratungsanlaß"
+
 msgid "Continue"
 msgstr "Fortsetzen"
 
@@ -4746,6 +4857,12 @@ msgstr "Neuen Kontakt beginnen"
 msgid "Start a new encounter for the active patient right now."
 msgstr "Sofort einen neuen Kontakt für den aktiven Patienten beginnen."
 
+msgid "List all encounters including empty ones."
+msgstr "Alle Kontakte (einschließlich leere) auflisten."
+
+msgid "List encounters"
+msgstr "Kontakte auflisten"
+
 msgid "&History taking ..."
 msgstr "&Anamnese ..."
 
@@ -4772,6 +4889,12 @@ msgstr "&Beruf"
 
 msgid "Edit occupation details for the current patient."
 msgstr "Berufsangaben für den aktiven Patienten bearbeiten."
+
+msgid "&Hospital stays"
+msgstr "Krankenhausaufenthalte"
+
+msgid "Manage hospital stays."
+msgstr "Krankenhausaufenthalte verwalten."
 
 msgid "&Observations ..."
 msgstr "&Befunde ..."
@@ -5487,6 +5610,9 @@ msgstr "Kann Medikation nicht eintragen. Kein Patient aktiv."
 msgid "Cannot add allergy. No active patient."
 msgstr "Kann Allergie nicht eintragen. Kein Patient aktiv."
 
+msgid "Cannot manage hospital stays. No active patient."
+msgstr "Kann Krankenhausaufenthalte nicht verwalten. Kein Patient aktiv."
+
 msgid "Cannot edit occupation. No active patient."
 msgstr "Kann Beruf nicht ändern. Kein Patient aktiv."
 
@@ -5531,6 +5657,9 @@ msgstr "kein Patient"
 
 msgid "GNUmed client"
 msgstr "GNUmed: Hauptprogramm"
+
+msgid "redirecting STDOUT/STDERR to this log window"
+msgstr "STDOUT/STDERR werden in diesem Fenster angezeigt"
 
 msgid ""
 "The database account [%s] cannot be used as a\n"
@@ -5787,8 +5916,8 @@ msgstr "Keine Labordaten verfügbar."
 msgid "generic multi choice dialog"
 msgstr "allgemeine Mehrfachauswahl"
 
-msgid "unknown placeholder: <%s>"
-msgstr "unbekannter Platzhalter: <%s>"
+msgid "invalid placeholder: %s"
+msgstr "ungültiger Platzhalter: %s"
 
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
@@ -5901,8 +6030,8 @@ msgstr "bislang nicht"
 msgid ""
 "Measurement details of most recent result:               \n"
 " Date: %(clin_when)s\n"
-" Type: \"%(name)s\" (%(code)s)\n"
-" Result: %(val)s%(unit)s%(ind)s\n"
+" Type: \"%(name)s\" (%(code)s)  [#%(pk_type)s]\n"
+" Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 " Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
 " Reference group: %(ref_group)s\n"
 " Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
@@ -5921,7 +6050,7 @@ msgid ""
 " Responsible clinician: %(responsible_reviewer)s\n"
 "\n"
 "Test type details:\n"
-" Grouped under \"%(name_unified)s\" (%(code_unified)s)  \n"
+" Grouped under \"%(name_unified)s\" (%(code_unified)s)  [#%(pk_u_type)s]\n"
 " Type comment: %(comment_type)s\n"
 " Group comment: %(comment_type_unified)s\n"
 "\n"
@@ -5929,8 +6058,8 @@ msgid ""
 msgstr ""
 "Details zum jüngsten Meßwert:                                \n"
 " Datum: %(clin_when)s\n"
-" Messung: \"%(name)s\" (%(code)s)\n"
-" Ergebnis: %(val)s%(unit)s%(ind)s\n"
+" Messung: \"%(name)s\" (%(code)s)  [#%(pk_type)s]\n"
+" Ergebnis: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 " Normalbereich: %(norm_min_max)s%(norm_range)s  \n"
 " Referenzgruppe: %(ref_group)s\n"
 " Zielbereich: %(clin_min_max)s%(clin_range)s  \n"
@@ -5949,7 +6078,7 @@ msgstr ""
 " Verantwortlicher: %(responsible_reviewer)s\n"
 "\n"
 "Details zum Meßverfahren:\n"
-" Gruppiert unter \"%(name_unified)s\" (%(code_unified)s)  \n"
+" Gruppiert unter \"%(name_unified)s\" (%(code_unified)s)  [#%(pk_u_type)s]\n"
 " Verfahrenskommentar: %(comment_type)s\n"
 " Gruppenkommentar: %(comment_type_unified)s\n"
 "\n"
@@ -6527,18 +6656,31 @@ msgstr "Dokument löschen"
 msgid "Cannot edit progress notes. No active patient."
 msgstr "Kann Verlaufsnotizen nicht ändern. Kein Patient aktiv."
 
+msgid "Deleting progress note"
+msgstr "Lösche Verlaufsnotiz"
+
 msgid ""
+"Are you positively sure you want to delete this\n"
+"progress note from the medical record ?\n"
 "\n"
-" This list shows the progress notes by %s.\n"
-"\n"
-"\n"
-" Select the one you want to edit:\n"
+"Note that even if you chose to delete the entry it will\n"
+"still be (invisibly) kept in the audit trail to protect\n"
+"you from litigation because physical deletion is known\n"
+"to be illegal in some jurisdictions.\n"
 msgstr ""
+"Sind Sie absolut sicher, daß Sie diese Verlaufs-\n"
+"notiz aus der Karteikarte löschen möchten ?\n"
 "\n"
-" In dieser Liste stehen die Verlaufsnotizen von %s.\n"
-"\n"
-"\n"
-" Wählen Sie diejenige aus, die Sie bearbeiten möchten:\n"
+"Der Eintrag bleibt immer (unsichtbar) im Audit-System\n"
+"erhalten, auch wenn Sie sich für das Löschen entscheiden.\n"
+"Dies schützt Sie vor Rechtsproblemen, da vollständiges\n"
+"Löschen mancherorts nicht legal ist.\n"
+
+msgid "Yes, delete the progress note."
+msgstr "Ja, die Verlaufsnotiz löschen."
+
+msgid "No, do NOT delete the progress note."
+msgstr "Nein, die Verlaufsnotiz NICHT löschen."
 
 msgid "Editing progress note"
 msgstr "Bearbeite Verlaufsnotiz"
@@ -6551,6 +6693,21 @@ msgstr ""
 "Dies ist die ursprüngliche Verlaufsnotiz:\n"
 "\n"
 " %s"
+
+msgid "Managing progress notes"
+msgstr "Verlaufsnotizen verwalten"
+
+msgid ""
+"\n"
+" This list shows the progress notes by %s.\n"
+"\n"
+msgstr ""
+"\n"
+" In dieser Liste stehen die Verlaufsnotizen von %s.\n"
+"\n"
+
+msgid "entry"
+msgstr "Eintrag"
 
 msgid "Cannot search EMR. No active patient."
 msgstr "Kann Kartei nicht durchsuchen. Kein Patient aktiv."
@@ -6632,9 +6789,6 @@ msgstr ""
 
 msgid "Select the narrative you are interested in ..."
 msgstr "Wählen Sie die Karteieinträge, die von Interesse sind ..."
-
-msgid "entry"
-msgstr "Eintrag"
 
 msgid "There is no narrative for this episode in this encounter."
 msgstr "Keine Karteieingräge für diese Episode gefunden."
@@ -7537,7 +7691,7 @@ msgid "Cannot activate Allergy Manager. No active patient."
 msgstr "Kann Allergiemanager nicht aufrufen. Kein Patient aktiv."
 
 msgid "%s  %s (%s today !)"
-msgstr "%s \"%s\" (Heute %s alt !)"
+msgstr "%s  %s (Heute %s alt !)"
 
 msgid "never"
 msgstr "nie"
@@ -7653,6 +7807,12 @@ msgstr "Impfstand verwalten"
 
 msgid "Allergies"
 msgstr "Allergien"
+
+msgid "Cardiac Devices"
+msgstr ""
+
+msgid "Show &cardiac devices"
+msgstr ""
 
 msgid "Type of entered value is not compatible with type expected."
 msgstr "Typ des eingegebenen Werts ist nicht mit dem erwarteten Typ kompatibel."
@@ -7896,36 +8056,6 @@ msgstr "Kartei - Journal"
 msgid "chronological journal"
 msgstr "chronologisches Journal"
 
-msgid "EMR dump"
-msgstr "Kartei - roh"
-
-msgid "simple EMR text viewer"
-msgstr "einfache Karteianzeige"
-
-msgid "?button?"
-msgstr "?Knopf?"
-
-msgid "Load File"
-msgstr "Lade Datei"
-
-msgid "Back"
-msgstr "Zurück"
-
-msgid "Forward"
-msgstr "Vorwärts"
-
-msgid "View Source"
-msgstr "Quelltext ansehen"
-
-msgid "HTML Source"
-msgstr "HTML Quelltext"
-
-msgid "Guidelines"
-msgstr "Leitlinien"
-
-msgid "&Guidelines"
-msgstr "&Leitlinien"
-
 msgid "Appointments"
 msgstr "Termine"
 
@@ -7934,6 +8064,9 @@ msgstr "Laborbuch"
 
 msgid "Show &lab journal"
 msgstr "Zeige Laborbuch"
+
+msgid "HTML Source"
+msgstr "HTML Quelltext"
 
 msgid "Manual"
 msgstr "Handbuch"
@@ -7985,27 +8118,6 @@ msgstr "Sie müssen ein Formular und einen Typ wählen"
 
 msgid "&Request"
 msgstr "Anforderungen"
-
-msgid "Service"
-msgstr "Service"
-
-msgid "Query"
-msgstr "Anfrage"
-
-msgid "&Run query"
-msgstr "Ab&frage starten"
-
-msgid "&Clear query"
-msgstr "Abfage &löschen"
-
-msgid "Tables in database  /  Feedback"
-msgstr "Tabellen in Datenbank  /  Rückmeldung"
-
-msgid "SQL Search"
-msgstr "SQL-Suche"
-
-msgid "&SQL Search"
-msgstr "S&QL-Suche"
 
 msgid "Attach documents"
 msgstr "Dokumente hinzufügen"
@@ -8265,6 +8377,45 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#, fuzzy
+#~ msgid "&Admissions"
+#~ msgstr "&Verwaltung"
+#~ msgid "EMR dump"
+#~ msgstr "Kartei - roh"
+#~ msgid "simple EMR text viewer"
+#~ msgstr "einfache Karteianzeige"
+#~ msgid "?button?"
+#~ msgstr "?Knopf?"
+#~ msgid "Load File"
+#~ msgstr "Lade Datei"
+#~ msgid "Back"
+#~ msgstr "Zurück"
+#~ msgid "Forward"
+#~ msgstr "Vorwärts"
+#~ msgid "View Source"
+#~ msgstr "Quelltext ansehen"
+#~ msgid "Guidelines"
+#~ msgstr "Leitlinien"
+#~ msgid "&Guidelines"
+#~ msgstr "&Leitlinien"
+#~ msgid "Service"
+#~ msgstr "Service"
+#~ msgid "Query"
+#~ msgstr "Anfrage"
+#~ msgid "&Run query"
+#~ msgstr "Ab&frage starten"
+#~ msgid "&Clear query"
+#~ msgstr "Abfage &löschen"
+#~ msgid "Tables in database  /  Feedback"
+#~ msgstr "Tabellen in Datenbank  /  Rückmeldung"
+#~ msgid "SQL Search"
+#~ msgstr "SQL-Suche"
+#~ msgid "&SQL Search"
+#~ msgstr "S&QL-Suche"
+#~ msgid "this has 2 %s %s"
+#~ msgstr "die Übersetzung hat aber nur 1 %s"
+#~ msgid "unknown placeholder: <%s>"
+#~ msgstr "unbekannter Platzhalter: <%s>"
 #~ msgid "abnormal"
 #~ msgstr "außerhalb Normbereich"
 #~ msgid "normal"
@@ -8791,8 +8942,6 @@ msgstr "erstmals"
 #~ msgstr "Schließen"
 #~ msgid "Dismiss this dialog."
 #~ msgstr "Diesen Dialog schließen."
-#~ msgid "&Administration"
-#~ msgstr "&Verwaltung"
 #~ msgid ""
 #~ "A fairly recent encounter exists for patient:\n"
 #~ " %s\n"
@@ -8922,8 +9071,6 @@ msgstr "erstmals"
 #~ msgstr "Krankenkasse"
 #~ msgid "Add health issue (pHx item)"
 #~ msgstr "Grunderkrankung (EA) hinzufügen"
-#~ msgid "invalid gender: [%s]"
-#~ msgstr "ungültige Geschlechtsangabe: [%s]"
 #~ msgid ""
 #~ "Warning ! More than one timestamp possible for [%s]. Choosing first one."
 #~ msgstr "Achtung! [%s] kann mehrere Zeitpunkte darstellen. Wähle den ersten."
