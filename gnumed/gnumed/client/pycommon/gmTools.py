@@ -2,14 +2,14 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.81 2009-04-14 17:54:48 ncq Exp $
+# $Id: gmTools.py,v 1.82 2009-04-19 22:26:25 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.81 $"
+__version__ = "$Revision: 1.82 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging
+import re as regex, sys, os, os.path, csv, tempfile, logging
 import codecs, urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
 
 
@@ -181,34 +181,21 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	return (True, msg)
 #===========================================================================
-# LOINC tools
-#===========================================================================
-def split_LOINCDBTXT(input_fname=None, data_fname='loinc_data.csv', license_fname='loinc_license.txt'):
-
-	delimiter = 'Clip Here for Data'
-
-	loinc_file = codecs.open(input_fname, 'rU', encoding = 'latin1', errors = 'replace')	# encoding is empirical
-	out_file = codecs.open(license_fname, 'w', encoding = 'utf8', errors = 'replace')
-
-	for line in loinc_file:
-
-		if delimiter in line:
-			out_file.write(line)
-			out_file.close()
-			out_file = codecs.open(data_fname, 'w', encoding = 'utf8', errors = 'replace')
-			continue
-
-		out_file.write(line)
-
-	out_file.close()
-#===========================================================================
 def utf_8_encoder(unicode_csv_data):
 	for line in unicode_csv_data:
 		yield line.encode('utf-8')
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
 	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
-	csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+	try:
+		dict = kwargs['dict']
+		del kwargs['dict']
+		if dict is not True:
+			raise KeyError
+		csv_reader = csv.DictReader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+		print "DictReader requested"
+	except KeyError:
+		csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 
 	for row in csv_reader:
 		# decode UTF-8 back to Unicode, cell by cell:
@@ -580,96 +567,6 @@ def import_module_from_directory(module_path=None, module_name=None):
 
 	return module
 #===========================================================================
-# FIXME: should this not be in gmTime or some such?
-# close enough on average
-days_per_year = 365
-days_per_month = 30
-days_per_week = 7
-#---------------------------------------------------------------------------
-def str2interval(str_interval=None):
-
-	unit_keys = {
-		'year': _('yYaA_keys_year'),
-		'month': _('mM_keys_month'),
-		'week': _('wW_keys_week'),
-		'day': _('dD_keys_day'),
-		'hour': _('hH_keys_hour')
-	}
-
-	# "(~)35(yY)"	- at age 35 years
-	keys = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pydt.timedelta(days = (int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]) * days_per_year))
-
-	# "(~)12mM" - at age 12 months
-	keys = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		years, months = divmod (
-			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
-			12
-		)
-		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
-
-	# weeks
-	keys = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pydt.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# days
-	keys = '|'.join(list(unit_keys['day'].replace('_keys_day', u'')))
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pydt.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# hours
-	keys = '|'.join(list(unit_keys['hour'].replace('_keys_hour', u'')))
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pydt.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/12 - months
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*12(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		years, months = divmod (
-			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
-			12
-		)
-		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
-
-	# x/52 - weeks
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-#		return pydt.timedelta(days = (int(regex.findall('\d+', str_interval)[0]) * days_per_week))
-		return pydt.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/7 - days
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*7(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pydt.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/24 - hours
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*24(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pydt.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/60 - minutes
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*60(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pydt.timedelta(minutes = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# nYnM - years, months
-	keys_year = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
-	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+(\s|\t)*$' % (keys_year, keys_month), str_interval, flags = regex.LOCALE | regex.UNICODE):
-		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
-		years, months = divmod(int(parts[1]), 12)
-		years += int(parts[0])
-		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
-
-	# nMnW - months, weeks
-	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
-	keys_week = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
-	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+(\s|\t)*$' % (keys_month, keys_week), str_interval, flags = regex.LOCALE | regex.UNICODE):
-		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
-		months, weeks = divmod(int(parts[1]), 4)
-		months += int(parts[0])
-		return pydt.timedelta(days = ((months * days_per_month) + (weeks * days_per_week)))
-
-	return None
-#===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
 _kB = 1024
@@ -902,29 +799,6 @@ if __name__ == '__main__':
 				else:
 					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
 	#-----------------------------------------------------------------------
-	def test_str2interval():
-		print "testing str2interval()"
-		print "----------------------"
-
-		str_intervals = [
-			'7', '12', ' 12', '12 ', ' 12 ', '	12	', '0', '~12', '~ 12', ' ~ 12', '	~	12 ',
-			'12a', '12 a', '12	a', '12j', '12J', '12y', '12Y', '	~ 	12	a	 ', '~0a',
-			'12m', '17 m', '12	m', '17M', '	~ 	17	m	 ', ' ~ 3	/ 12	', '7/12', '0/12',
-			'12w', '17 w', '12	w', '17W', '	~ 	17	w	 ', ' ~ 15	/ 52', '2/52', '0/52',
-			'12d', '17 d', '12	t', '17D', '	~ 	17	T	 ', ' ~ 12	/ 7', '3/7', '0/7',
-			'12h', '17 h', '12	H', '17H', '	~ 	17	h	 ', ' ~ 36	/ 24', '7/24', '0/24',
-			' ~ 36	/ 60', '7/60', '190/60', '0/60',
-			'12a1m', '12 a 1  M', '12	a17m', '12j		12m', '12J7m', '12y7m', '12Y7M', '	~ 	12	a	 37 m	', '~0a0m',
-			'10m1w',
-			'invalid interval input'
-		]
-
-		for str_interval in str_intervals:
-			print "input: <%s>" % str_interval
-			print "  ==>", str2interval(str_interval=str_interval)
-
-		return True
-	#-----------------------------------------------------------------------
 	def test_coalesce():
 		print 'testing coalesce()'
 		print "------------------"
@@ -1119,16 +993,6 @@ This is a test mail from the gmTools.py module.
 		print
 		print wrap(test, 7, u'   ', u' ')
 	#-----------------------------------------------------------------------
-	def test_loinc():
-
-		split_LOINCDBTXT(input_fname = sys.argv[2])
-
-		csv_file = codecs.open('loinc_data.csv', 'rU', 'utf8', 'replace')
-		loinc_reader = unicode_csv_reader(csv_file)
-		for loinc in loinc_reader:
-			print loinc
-		csv_file.close()
-	#-----------------------------------------------------------------------
 	def test_check_for_update():
 
 		test_data = [
@@ -1149,7 +1013,6 @@ This is a test mail from the gmTools.py module.
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
 		#test_check_for_update()
-		#test_str2interval()
 		#test_coalesce()
 		#test_capitalize()
 		#test_import_module()
@@ -1159,15 +1022,18 @@ This is a test mail from the gmTools.py module.
 		#test_none_if()
 		#test_bool2str()
 		#test_bool2subst()
-		test_get_unique_filename()
+		#test_get_unique_filename()
 		#test_size2str()
-		#test_wrap()
+		test_wrap()
 		#test_input2decimal()
-		#test_loinc()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.81  2009-04-14 17:54:48  ncq
+# Revision 1.82  2009-04-19 22:26:25  ncq
+# - factor out LOINC handling
+# - factor out interval parsing
+#
+# Revision 1.81  2009/04/14 17:54:48  ncq
 # - test under Py2.6
 #
 # Revision 1.80  2009/04/03 12:29:36  ncq
