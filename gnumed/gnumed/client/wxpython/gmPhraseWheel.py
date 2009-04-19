@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.131 2009-04-03 09:52:10 ncq Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gmPhraseWheel.py,v 1.132 2009-04-19 22:27:36 ncq Exp $
+__version__ = "$Revision: 1.132 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -863,7 +863,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		self.__non_edit_font = self.GetFont()
 		edit_font = self.GetFont()
-		edit_font.SetPointSize(pointSize = self.__non_edit_font.GetPointSize() + 2)
+		edit_font.SetPointSize(pointSize = self.__non_edit_font.GetPointSize() + 1)
 		self.SetFont(edit_font)
 		self.Refresh()
 
@@ -1058,7 +1058,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.131  2009-04-03 09:52:10  ncq
+# Revision 1.132  2009-04-19 22:27:36  ncq
+# - enlarge edit font by 1 point only
+#
+# Revision 1.131  2009/04/03 09:52:10  ncq
 # - add explicit shutdown for timers
 # - self-handle timers
 # - a bit of cleanup
