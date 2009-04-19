@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.42 2009-04-14 18:35:27 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmMeasurementWidgets.py,v 1.43 2009-04-19 22:28:23 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -11,13 +11,13 @@ __license__ = "GPL"
 import sys, logging, datetime as pyDT, decimal
 
 
-import wx, wx.grid
+import wx, wx.grid, wx.lib.hyperlink
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson, gmPathLab
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N
+from Gnumed.business import gmPerson, gmPathLab, gmSurgery
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
@@ -525,6 +525,36 @@ class cMeasurementsGrid(wx.grid.Grid):
 		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# 2.8.8
 		self.SetRowLabelSize(100)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
+
+		# add link to left upper corner
+		corner_window = self.GetGridCornerLabelWindow()
+		_LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
+			corner_window,
+			-1,
+			label = _('Encyclopedia'),
+			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER | 
+		)
+		dbcfg = gmCfg.cCfgSQL()
+		url = dbcfg.get2 (
+			option = u'external.urls.measurements_encyclopedia',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user',
+			default = u'http://www.laborlexikon.de'
+		)
+		_LNK_lab.SetURL(url)
+		_LNK_lab.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		_LNK_lab.SetToolTipString(_(
+			'Navigate to an encyclopedia of measurement\n'
+			'and test methods on the web.\n'
+			'\n'
+			' <%s>'
+		) % url)
+		__szr_corner = wx.BoxSizer(wx.VERTICAL)
+		__szr_corner.Add(_LNK_lab, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 15)
+		corner_window.SetSizer(__szr_corner)
+		__szr_corner.Fit(corner_window)
+
+		self.Layout()
 	#------------------------------------------------------------
 	def __cells_to_data(self, cells=None, exclude_multi_cells=False):
 		"""List of <cells> must be in row / col order."""
@@ -1251,7 +1281,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.42  2009-04-14 18:35:27  ncq
+# Revision 1.43  2009-04-19 22:28:23  ncq
+# - put hyperlink in upper left corner of lab grid
+#
+# Revision 1.42  2009/04/14 18:35:27  ncq
 # - HCI screening revealed test types scroll off when
 #   moving horizontall so fix that
 #
