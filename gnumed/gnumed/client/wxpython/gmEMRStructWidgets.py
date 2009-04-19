@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.87 2009-04-13 10:54:06 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmEMRStructWidgets.py,v 1.88 2009-04-19 22:26:47 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1191,7 +1191,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
 			return True
 
-		age = gmTools.str2interval(str_interval = str_age)
+		age = gmDateTime.str2interval(str_interval = str_age)
 		pat = gmPerson.gmCurrentPatient()
 		max_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
 
@@ -1352,7 +1352,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		# FIXME: check age/year diagnosed
 		age_noted = self._PRW_age_noted.GetValue().strip()
 		if age_noted != '':
-			if gmTools.str2interval(str_interval=age_noted) is None:
+			if gmDateTime.str2interval(str_interval=age_noted) is None:
 				self._PRW_age_noted.SetBackgroundColour('pink')
 				self._PRW_age_noted.Refresh()
 				self._PRW_age_noted.SetFocus()
@@ -1577,7 +1577,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.87  2009-04-13 10:54:06  ncq
+# Revision 1.88  2009-04-19 22:26:47  ncq
+# - interval parsing moved
+#
+# Revision 1.87  2009/04/13 10:54:06  ncq
 # - show encounter list
 # - allow removing RFE/AOE from edit area
 #
