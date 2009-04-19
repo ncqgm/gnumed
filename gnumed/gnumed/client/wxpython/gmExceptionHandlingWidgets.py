@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.11 2009-04-03 12:30:16 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.12 2009-04-19 22:27:00 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -293,8 +293,6 @@ sender email  : %s
 			_log2.warning('syncing log file for emailing')
 			gmLog2.flush()
 			attachments = [ [_logfile_name, 'text/plain', 'quoted-printable'] ]
-#			for line in codecs.open(_logfile_name, 'rU', 'utf8', 'replace'):
-#				msg = msg + line
 		else:
 			attachments = None
 
@@ -327,7 +325,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.11  2009-04-03 12:30:16  ncq
+# Revision 1.12  2009-04-19 22:27:00  ncq
+# - cleanup
+#
+# Revision 1.11  2009/04/03 12:30:16  ncq
 # - attach log rather than include
 #
 # Revision 1.10  2009/02/24 10:13:02  ncq
