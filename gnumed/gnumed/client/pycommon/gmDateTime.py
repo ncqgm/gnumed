@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.26 2009-04-03 09:33:22 ncq Exp $
+# $Id: gmDateTime.py,v 1.27 2009-04-19 22:23:36 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -92,7 +92,7 @@ _accuracy_strings = {
 	7: 'subseconds'
 }
 
-month_length = {
+gregorian_month_length = {
 	1: 31,
 	2: 28,		# FIXME: make leap year aware
 	3: 31,
@@ -107,7 +107,13 @@ month_length = {
 	12: 31
 }
 
+avg_days_per_gregorian_year = 365
+avg_days_per_gregorian_month = 30
+days_per_week = 7
+
 #===========================================================================
+# module init
+#---------------------------------------------------------------------------
 def init():
 
 	_log.debug('mx.DateTime.now(): [%s]' % mxDT.now())
@@ -185,6 +191,8 @@ def init():
 		name = current_local_iso_numeric_timezone_string
 	)
 #===========================================================================
+# wxPython conversions
+#---------------------------------------------------------------------------
 def wxDate2py_dt(wxDate=None):
 	return pyDT.datetime (
 		year = wxDate.GetYear(),
@@ -200,7 +208,7 @@ def py_dt2wxDate(py_dt=None, wx=None):
 	wxdt.SetDay(py_dt.day)
 	return wxdt
 #===========================================================================
-# string 2 timestamp parsers
+# string -> timestamp parsers
 #---------------------------------------------------------------------------
 def __explicit_offset(str2parse, offset_chars=None):
 	"""
@@ -478,7 +486,7 @@ def __numbers_only(str2parse):
 		matches.append(tmp)
 
 	# day X of this month
-	if val <= month_length[now.month]:
+	if val <= gregorian_month_length[now.month]:
 		ts = now + mxDT.RelativeDateTime(day = val)
 		target_date = cFuzzyTimestamp (
 			timestamp = ts,
@@ -491,7 +499,7 @@ def __numbers_only(str2parse):
 		matches.append(tmp)
 
 	# day X of next month
-	if val <= month_length[(now + mxDT.RelativeDateTime(months = 1)).month]:
+	if val <= gregorian_month_length[(now + mxDT.RelativeDateTime(months = 1)).month]:
 		ts = now + mxDT.RelativeDateTime(months = 1, day = val)
 		target_date = cFuzzyTimestamp (
 			timestamp = ts,
@@ -504,7 +512,7 @@ def __numbers_only(str2parse):
 		matches.append(tmp)
 
 	# day X of last month
-	if val <= month_length[(now + mxDT.RelativeDateTime(months = -1)).month]:
+	if val <= gregorian_month_length[(now + mxDT.RelativeDateTime(months = -1)).month]:
 		ts = now + mxDT.RelativeDateTime(months = -1, day = val)
 		target_date = cFuzzyTimestamp (
 			timestamp = ts,
@@ -692,7 +700,7 @@ def __single_dot(str2parse):
 
 	# day X of this month
 	ts = now + mxDT.RelativeDateTime(day = val)
-	if val > 0 and val <= month_length[ts.month]:
+	if val > 0 and val <= gregorian_month_length[ts.month]:
 		matches.append ({
 			'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_days),
 			'label': '%s.%s.%s - a %s this month' % (ts.day, ts.month, ts.year, ts.strftime('%A').decode(enc))
@@ -700,7 +708,7 @@ def __single_dot(str2parse):
 
 	# day X of next month
 	ts = now + mxDT.RelativeDateTime(day = val, months = +1)
-	if val > 0 and val <= month_length[ts.month]:
+	if val > 0 and val <= gregorian_month_length[ts.month]:
 		matches.append ({
 			'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_days),
 			'label': '%s.%s.%s - a %s next month' % (ts.day, ts.month, ts.year, ts.strftime('%A').decode(enc))
@@ -708,7 +716,7 @@ def __single_dot(str2parse):
 
 	# day X of last month
 	ts = now + mxDT.RelativeDateTime(day = val, months = -1)
-	if val > 0 and val <= month_length[ts.month]:
+	if val > 0 and val <= gregorian_month_length[ts.month]:
 		matches.append ({
 			'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_days),
 			'label': '%s.%s.%s - a %s last month' % (ts.day, ts.month, ts.year, ts.strftime('%A').decode(enc))
@@ -793,8 +801,9 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 			continue
 
 	return matches
-
 #===========================================================================
+# fuzzy timestamp class
+#---------------------------------------------------------------------------
 class cFuzzyTimestamp:
 
 	# FIXME: add properties for year, month, ...
@@ -923,12 +932,120 @@ class cFuzzyTimestamp:
 			tzinfo = tz
 		)
 		return ts
+#===========================================================================
+# string -> interval parsers
+#---------------------------------------------------------------------------
+def str2interval(str_interval=None):
 
+	unit_keys = {
+		'year': _('yYaA_keys_year'),
+		'month': _('mM_keys_month'),
+		'week': _('wW_keys_week'),
+		'day': _('dD_keys_day'),
+		'hour': _('hH_keys_hour')
+	}
+
+	# "(~)35(yY)"	- at age 35 years
+	keys = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(days = (int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]) * avg_days_per_gregorian_year))
+
+	# "(~)12mM" - at age 12 months
+	keys = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		years, months = divmod (
+			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
+			12
+		)
+		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+
+	# weeks
+	keys = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# days
+	keys = '|'.join(list(unit_keys['day'].replace('_keys_day', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# hours
+	keys = '|'.join(list(unit_keys['hour'].replace('_keys_hour', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(%s)+(\s|\t)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/12 - months
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*12(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		years, months = divmod (
+			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
+			12
+		)
+		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+
+	# x/52 - weeks
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+#		return pyDT.timedelta(days = (int(regex.findall('\d+', str_interval)[0]) * days_per_week))
+		return pyDT.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/7 - days
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*7(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/24 - hours
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*24(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/60 - minutes
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*60(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(minutes = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# nYnM - years, months
+	keys_year = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
+	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+(\s|\t)*$' % (keys_year, keys_month), str_interval, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
+		years, months = divmod(int(parts[1]), 12)
+		years += int(parts[0])
+		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+
+	# nMnW - months, weeks
+	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	keys_week = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+(\s|\t)*$' % (keys_month, keys_week), str_interval, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
+		months, weeks = divmod(int(parts[1]), 4)
+		months += int(parts[0])
+		return pyDT.timedelta(days = ((months * avg_days_per_gregorian_month) + (weeks * days_per_week)))
+
+	return None
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 
+	#-----------------------------------------------------------------------
+	def test_str2interval():
+		print "testing str2interval()"
+		print "----------------------"
+
+		intervals_as_str = [
+			'7', '12', ' 12', '12 ', ' 12 ', '	12	', '0', '~12', '~ 12', ' ~ 12', '	~	12 ',
+			'12a', '12 a', '12	a', '12j', '12J', '12y', '12Y', '	~ 	12	a	 ', '~0a',
+			'12m', '17 m', '12	m', '17M', '	~ 	17	m	 ', ' ~ 3	/ 12	', '7/12', '0/12',
+			'12w', '17 w', '12	w', '17W', '	~ 	17	w	 ', ' ~ 15	/ 52', '2/52', '0/52',
+			'12d', '17 d', '12	t', '17D', '	~ 	17	T	 ', ' ~ 12	/ 7', '3/7', '0/7',
+			'12h', '17 h', '12	H', '17H', '	~ 	17	h	 ', ' ~ 36	/ 24', '7/24', '0/24',
+			' ~ 36	/ 60', '7/60', '190/60', '0/60',
+			'12a1m', '12 a 1  M', '12	a17m', '12j		12m', '12J7m', '12y7m', '12Y7M', '	~ 	12	a	 37 m	', '~0a0m',
+			'10m1w',
+			'invalid interval input'
+		]
+
+		for interval_as_str in intervals_as_str:
+			print "input: <%s>" % interval_as_str
+			print "  ==>", str2interval(str_interval=interval_as_str)
+
+		return True
 	#-------------------------------------------------
 	def test_date_time():
 		print "DST currently in effect:", dst_currently_in_effect
@@ -948,7 +1065,6 @@ if __name__ == '__main__':
 		print " DST adjustment:", gmCurrentLocalTimezone.dst(pyDT.datetime.now())
 		print " timezone name:", gmCurrentLocalTimezone.tzname(pyDT.datetime.now())
 		print ""
-
 	#-------------------------------------------------
 	def test_str2fuzzy_timestamp_matches():
 		print "testing function str2fuzzy_timestamp_matches"
@@ -1005,13 +1121,17 @@ if __name__ == '__main__':
 		init()
 
 		#test_date_time()
-		test_str2fuzzy_timestamp_matches()
+		#test_str2fuzzy_timestamp_matches()
 		#test_cFuzzyTimeStamp()
 		#test_get_pydt()
+		test_str2interval()
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.26  2009-04-03 09:33:22  ncq
+# Revision 1.27  2009-04-19 22:23:36  ncq
+# - move interval parsers here
+#
+# Revision 1.26  2009/04/03 09:33:22  ncq
 # - conversions for wx.DateTime
 #
 # Revision 1.25  2009/02/05 14:28:30  ncq
