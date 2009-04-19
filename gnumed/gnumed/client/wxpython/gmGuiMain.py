@@ -15,15 +15,15 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.447 2009-04-16 12:49:05 ncq Exp $
-__version__ = "$Revision: 1.447 $"
+# $Id: gmGuiMain.py,v 1.448 2009-04-19 22:29:15 ncq Exp $
+__version__ = "$Revision: 1.448 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2
 
 
 # 3rd party libs
@@ -401,6 +401,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_ext_tools.Append(ID, _('OOo startup time'), _('Set the time to wait for OpenOffice to settle after startup.'))
 		wx.EVT_MENU(self, ID, self.__on_set_ooo_settle_time)
+
+		item = menu_cfg_ext_tools.Append(-1, _('Measurements URL'), _('URL for measurements encyclopedia.'))
+		self.Bind(wx.EVT_MENU, self.__on_set_measurements_url, item)
 
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
@@ -1248,6 +1251,32 @@ class gmTopLevelFrame(wx.Frame):
 			option = 'external.ooo.startup_settle_time',
 			bias = 'workplace',
 			default_value = 2.0,
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_set_measurements_url(self, evt):
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, value
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return False, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access an encyclopedia of\n'
+				'measurement/lab methods from within the measurments grid.\n'
+				'\n'
+				'You can leave this empty but to set it to a specific\n'
+				'address the URL must be accessible now.'
+			),
+			option = 'external.urls.measurements_encyclopedia',
+			bias = 'user',
+			default_value = u'http://www.laborlexikon.de',
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -2840,7 +2869,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.447  2009-04-16 12:49:05  ncq
+# Revision 1.448  2009-04-19 22:29:15  ncq
+# - implement editing url for hyperlink in upper left corner of measurements grid
+#
+# Revision 1.447  2009/04/16 12:49:05  ncq
 # - improved pubsub monitor output
 #
 # Revision 1.446  2009/04/14 18:37:30  ncq
