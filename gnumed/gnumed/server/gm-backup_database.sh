@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.19 2009-01-08 16:43:18 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.19.2.1 2009-04-20 12:06:10 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -66,7 +66,6 @@ if test "${HAS_HIGHER_VER}" = "t" ; then
 	echo ""
 	echo "Make sure you really want to backup the old database !"
 fi ;
-exit 1
 
 
 # generate backup file name
@@ -143,7 +142,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.19  2009-01-08 16:43:18  ncq
+# Revision 1.19.2.1  2009-04-20 12:06:10  ncq
+# - remove faulty exit
+#
+# Revision 1.19  2009/01/08 16:43:18  ncq
 # - improve docstring
 #
 # Revision 1.18  2008/12/28 15:06:21  ncq
