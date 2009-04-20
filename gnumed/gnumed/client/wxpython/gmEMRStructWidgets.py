@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.84 2009-01-02 11:39:48 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmEMRStructWidgets.py,v 1.84.2.1 2009-04-20 12:05:37 ncq Exp $
+__version__ = "$Revision: 1.84.2.1 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -341,13 +341,8 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter['pk_type'] = self._PRW_encounter_type.GetData()
 		self.__encounter['started'] = self._PRW_start.GetData().get_pydt()
 		self.__encounter['last_affirmed'] = self._PRW_end.GetData().get_pydt()
-		rfe = self._TCTRL_rfe.GetValue().strip()
-		if len(rfe) != 0:
-			self.__encounter['reason_for_encounter'] = rfe
-		aoe = self._TCTRL_aoe.GetValue().strip()
-		if len(aoe) != 0:
-			self.__encounter['assessment_of_encounter'] = aoe
-
+		self.__encounter['reason_for_encounter'] = gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+		self.__encounter['assessment_of_encounter'] = gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u'')
 		self.__encounter.save_payload()			# FIXME: error checking
 
 		return True
@@ -1333,7 +1328,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.84  2009-01-02 11:39:48  ncq
+# Revision 1.84.2.1  2009-04-20 12:05:37  ncq
+# - enable removing RFE/AOE
+#
+# Revision 1.84  2009/01/02 11:39:48  ncq
 # - support custom message/buttons in encounter edit area/dlg
 #
 # Revision 1.83  2008/12/09 23:28:51  ncq
