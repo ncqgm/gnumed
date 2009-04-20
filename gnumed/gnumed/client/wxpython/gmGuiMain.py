@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.448 2009-04-19 22:29:15 ncq Exp $
-__version__ = "$Revision: 1.448 $"
+# $Id: gmGuiMain.py,v 1.449 2009-04-20 11:40:45 ncq Exp $
+__version__ = "$Revision: 1.449 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -398,6 +398,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ext_tools.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
 		wx.EVT_MENU(self, ID, self.__on_set_ifap_cmd)
 
+		item = menu_cfg_ext_tools.Append(-1, _('MI/stroke risk calc cmd'), _('Set the command to start the CV risk calculator.'))
+		self.Bind(wx.EVT_MENU, self.__on_set_acs_risk_calculator_cmd, item)
+
 		ID = wx.NewId()
 		menu_cfg_ext_tools.Append(ID, _('OOo startup time'), _('Set the time to wait for OpenOffice to settle after startup.'))
 		wx.EVT_MENU(self, ID, self.__on_set_ooo_settle_time)
@@ -662,12 +665,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
 
-		# menu "View" ---------------------------
-#		self.menu_view = wx.Menu()
-#		self.__gb['main.viewmenu'] = self.menu_view
-#		self.mainmenu.Append(self.menu_view, _("&View"));
-
-		# menu "Tools"
+		# menu "Tools" ---------------------------
 		self.menu_tools = wx.Menu()
 		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
@@ -695,6 +693,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		self.menu_tools.Append(ID, _('Snellen chart'), _('Display fullscreen snellen chart.'))
 		wx.EVT_MENU(self, ID, self.__on_snellen)
+
+		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
+		self.Bind(wx.EVT_MENU, self.__on_acs_risk_assessment, item)
 
 		self.menu_tools.AppendSeparator()
 
@@ -1280,6 +1281,35 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
+	def __on_set_acs_risk_calculator_cmd(self, event):
+
+		def is_valid(value):
+			found, binary = gmShellAPI.detect_external_binary(value)
+			if not found:
+				gmDispatcher.send (
+					signal = 'statustext',
+					msg = _('The command [%s] is not found. This may or may not be a problem.') % value,
+					beep = True
+				)
+				return False, value
+			return True, binary
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'Enter the shell command with which to start the\n'
+				'the ACS risk assessment calculator.\n'
+				'\n'
+				'GNUmed will try to verify the path which may,\n'
+				'however, fail if you are using an emulator such\n'
+				'as Wine. Nevertheless, starting the calculator\n'
+				'will work as long as the shell command is correct\n'
+				'despite the failing test.'
+			),
+			option = 'external.tools.acs_risk_calculator_cmd',
+			bias = 'user',
+			validator = is_valid
+		)
+	#----------------------------------------------
 	def __on_set_ifap_cmd(self, event):
 
 		def is_valid(value):
@@ -1782,6 +1812,23 @@ class gmTopLevelFrame(wx.Frame):
 				return
 
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
+	#----------------------------------------------
+	def __on_acs_risk_assessment(self, evt):
+
+		dbcfg = gmCfg.cCfgSQL()
+		cmd = dbcfg.get2 (
+			option = u'external.tools.acs_risk_calculator_cmd',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user'
+		)
+
+		if cmd is None:
+			gmDispatcher.send(signal = u'statustext', msg = _('ACS risk assessment calculator not configured.'), beep = True)
+			return
+
+		#found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
+		#if found:
+		gmShellAPI.run_command_in_shell(cmd, blocking = False)
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		dlg = gmSnellen.cSnellenCfgDlg()
@@ -2869,7 +2916,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.448  2009-04-19 22:29:15  ncq
+# Revision 1.449  2009-04-20 11:40:45  ncq
+# - add MI/stroke risk calculator access
+#
+# Revision 1.448  2009/04/19 22:29:15  ncq
 # - implement editing url for hyperlink in upper left corner of measurements grid
 #
 # Revision 1.447  2009/04/16 12:49:05  ncq
