@@ -2,11 +2,11 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_upgrade-gnumed_server.sh,v $
-# $Id: net_upgrade-gnumed_server.sh,v 1.6 2009-01-06 18:23:24 ncq Exp $
+# $Id: net_upgrade-gnumed_server.sh,v 1.6.2.1 2009-04-20 12:06:30 ncq Exp $
 # ============================================
 
-PREV_VER="8"
-NEXT_VER="9"
+PREV_VER="10"
+NEXT_VER="11"
 
 OTHER_UPGRADE_OPTS="$1"
 
@@ -45,7 +45,7 @@ BASEDIR=`ls -1 -d GNUmed-v?`
 mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
 
 # run bootstrapper
-cd ${BASEDIR}/server/bootstrap/
+cd ~/.gnumed/server-installation/${BASEDIR}/server/bootstrap/
 echo ""
 echo "The GNUmed server version \"${BASEDIR}\" has been"
 echo "prepared for installation in the directory"
@@ -58,7 +58,10 @@ su -c "./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}"
 
 # ============================================
 # $Log: net_upgrade-gnumed_server.sh,v $
-# Revision 1.6  2009-01-06 18:23:24  ncq
+# Revision 1.6.2.1  2009-04-20 12:06:30  ncq
+# - properly bump version
+#
+# Revision 1.6  2009/01/06 18:23:24  ncq
 # - sudo -> su
 #
 # Revision 1.5  2008/10/22 12:25:21  ncq
