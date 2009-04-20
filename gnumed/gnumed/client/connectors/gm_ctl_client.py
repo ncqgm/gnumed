@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.8 2008-02-25 17:32:01 ncq Exp $
-__version__ = '$Revision: 1.8 $'
+# $Id: gm_ctl_client.py,v 1.9 2009-04-20 11:38:13 ncq Exp $
+__version__ = '$Revision: 1.9 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -75,19 +75,6 @@ class cBaseConnector:
 			)
 			retry = (dlg.ShowModal() == wx.ID_YES)
 
-#			retry = gmGuiHelpers.gm_show_question (
-#				aMessage = _(
-#					'GNUmed has been started with the command:\n'
-#					'\n'
-#					' [%s]\n'
-#					'\n'
-#					'Please enter user name and password\n'
-#					'into the GNUmed login dialog.\n'
-#					'\n'
-#					'Has GNUmed started up successfully ?'
-#				) % startup_cmd,
-#				aTitle = _('GNUmed client controller')
-#			)
 			if not retry:
 				return False
 
@@ -195,7 +182,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.8  2008-02-25 17:32:01  ncq
+# Revision 1.9  2009-04-20 11:38:13  ncq
+# - cleanup
+#
+# Revision 1.8  2008/02/25 17:32:01  ncq
 # - cleanup
 #
 # Revision 1.7  2007/12/26 20:17:39  ncq
