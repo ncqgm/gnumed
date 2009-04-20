@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.9 2008-12-09 23:26:12 ncq Exp $
+# $Id: gmShellAPI.py,v 1.10 2009-04-20 11:39:41 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -39,20 +39,31 @@ def detect_external_binary(binary=None):
 		else:
 			_log.debug('[%s] not detected with "which"', binary)
 
-	# maybe we have wine installed ?
-	tmp = binary.lstrip('wine').strip().strip('"')
-	cmd = 'winepath -u "%s"' % tmp
-	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
-	result = pipe.readline()
-	ret_code = pipe.close()
-	if ret_code is not None:
-		_log.debug('winepath failed')
-	else:
-		result = result.strip('\r\n')
-		if os.access(result, os.X_OK):
+	tmp = binary.lstrip()
+	# to be run by wine ?
+	if tmp.startswith('wine'):
+
+		tmp = tmp[4:].strip().strip('"')
+
+		# "wine /standard/unix/path/to/binary" ?
+		if os.access(tmp, os.R_OK):
+			_log.debug('wine call with UNIX path')
 			return (True, binary)
+
+		# 'wine "drive:\a\windows\path\to\binary"' ?
+		cmd = 'winepath -u "%s"' % tmp
+		pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
+		result = pipe.readline()
+		ret_code = pipe.close()
+		if ret_code is not None:
+			_log.debug('winepath failed')
 		else:
-			_log.warning('"winepath %s" returned [%s] but the path is not verifiable', binary, result)
+			result = result.strip('\r\n')
+			if os.access(result, os.R_OK):
+				_log.debug('wine call with Windows path')
+				return (True, binary)
+			else:
+				_log.warning('"winepath -u %s" returned [%s] but the UNIX path is not verifiable', tmp, result)
 
 	return (False, None)
 #===========================================================================
@@ -146,7 +157,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.9  2008-12-09 23:26:12  ncq
+# Revision 1.10  2009-04-20 11:39:41  ncq
+# - properly detect binaries run by Wine
+#
+# Revision 1.9  2008/12/09 23:26:12  ncq
 # - improved logging
 #
 # Revision 1.8  2008/03/06 21:25:41  ncq
