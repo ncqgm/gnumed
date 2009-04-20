@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.100 2009-01-21 18:03:53 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmEMRBrowser.py,v 1.100.2.1 2009-04-20 12:05:03 ncq Exp $
+__version__ = "$Revision: 1.100.2.1 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -521,8 +521,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			event.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
 				data['started'].strftime('%x'),
 				data['l10n_type'],
-				data['started'].strftime('%H:%m'),
-				data['last_affirmed'].strftime('%H:%m'),
+				data['started'].strftime('%H:%M'),
+				data['last_affirmed'].strftime('%H:%M'),
 				gmTools.coalesce(data['reason_for_encounter'], u''),
 				gmTools.coalesce(data['assessment_of_encounter'], u'')
 			))
@@ -746,7 +746,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.100  2009-01-21 18:03:53  ncq
+# Revision 1.100.2.1  2009-04-20 12:05:03  ncq
+# - properly format encounter timeframe
+#
+# Revision 1.100  2009/01/21 18:03:53  ncq
 # - comment on tooltip handling
 #
 # Revision 1.99  2008/12/18 21:27:56  ncq
