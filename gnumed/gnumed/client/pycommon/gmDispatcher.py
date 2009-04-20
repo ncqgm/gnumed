@@ -27,6 +27,7 @@ known_signals = [
 	u'plugin_loaded',				# args: name=name of plugin
 	u'application_closing',
 	u'request_user_attention',
+	u'clin_item_updated',			# sent by SOAP importer
 	u'register_pre_exit_callback'	# args: callback = function to call
 ]
 
@@ -317,7 +318,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.22  2009-04-13 10:51:18  ncq
+# Revision 1.23  2009-04-20 11:39:07  ncq
+# - add signal clin_item_updated
+#
+# Revision 1.22  2009/04/13 10:51:18  ncq
 # - add "current encounter switched"
 #
 # Revision 1.21  2009/02/05 21:07:50  ncq
