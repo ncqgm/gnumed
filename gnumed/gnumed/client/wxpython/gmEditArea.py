@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.123 2009-04-03 09:48:04 ncq Exp $
+# $Id: gmEditArea.py,v 1.124 2009-04-21 16:59:59 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.123 $"
+__version__ = "$Revision: 1.124 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -32,15 +32,18 @@ class cGenericEditAreaMixin(object):
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return True/False
+		return True
+		return False
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		self.__data =
-		return True/False
+		self.data = 1
+		return True
+		return False
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.__data =
-		return True/False
+		self.data = 1
+		return True
+		return False
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 	#----------------------------------------------------------------
@@ -140,6 +143,13 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		ea = kwargs['edit_area']
 		del kwargs['edit_area']
 
+		single_entry = False
+		try:
+			single_entry = kwargs['single_entry']
+			del kwargs['single_entry']
+		except KeyError:
+			pass
+
 		if not isinstance(ea, cGenericEditAreaMixin):
 			raise TypeError('[%s]: edit area instance must be child of cGenericEditAreaMixin')
 
@@ -151,6 +161,10 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		ea.Reparent(self)
 		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
 		self._PNL_ea = ea
+
+		if single_entry:
+			self._BTN_forward.Enable(False)
+			self._BTN_forward.Hide()
 
 		# redraw layout
 		self.Layout()
@@ -174,13 +188,6 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		if self._PNL_ea.save():
 			self._PNL_ea.mode = 'new_from_existing'
 			self._PNL_ea.refresh()
-#====================================================================
-class cGenericEditAreaDlgSingle(cGenericEditAreaDlg2): 
-	"""Like the standard save/next/cancel but without the next button."""
-
-	def __init__(self, *args, **kwargs):
-		cGenericEditAreaDlg2.__init__(self, *args, **kwargs)
-		self._BTN_forward.Enable(False)
 #====================================================================
 # DEPRECATED:
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
@@ -2189,7 +2196,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.123  2009-04-03 09:48:04  ncq
+# Revision 1.124  2009-04-21 16:59:59  ncq
+# - edit area dlg now takes single_entry argument
+#
+# Revision 1.123  2009/04/03 09:48:04  ncq
 # - better docs
 #
 # Revision 1.122  2009/01/30 12:10:42  ncq

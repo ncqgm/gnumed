@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.122 2009-02-05 14:30:36 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gmPatSearchWidgets.py,v 1.123 2009-04-21 17:00:00 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -1228,7 +1228,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				pat = curr_pat
 
 		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = pat)
-		dlg = gmEditArea.cGenericEditAreaDlgSingle(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 		dlg.ShowModal()
 
 		self._PRW_search_patient.person = None
@@ -1239,7 +1239,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		ea = cWaitingListEntryEditAreaPnl(self, -1, entry = item)
-		dlg = gmEditArea.cGenericEditAreaDlgSingle(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 		dlg.ShowModal()
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
@@ -1390,7 +1390,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.122  2009-02-05 14:30:36  ncq
+# Revision 1.123  2009-04-21 17:00:00  ncq
+# - edit area dlg now takes single_entry argument
+#
+# Revision 1.122  2009/02/05 14:30:36  ncq
 # - only run new-patient-wizard if user explicitely said so
 # - do not try to set active patient if user cancelled new patient wizard
 #

@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.88 2009-04-19 22:26:47 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmEMRStructWidgets.py,v 1.89 2009-04-21 16:59:59 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -103,7 +103,7 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 	ea = cHospitalStayEditAreaPnl(parent = parent, id = -1)
 	ea.data = hospital_stay
 	ea.mode = gmTools.coalesce(hospital_stay, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlgSingle(parent = parent, id = -1, edit_area = ea)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent = parent, id = -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospital stay'), _('Editing a hospital stay')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -1577,7 +1577,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.88  2009-04-19 22:26:47  ncq
+# Revision 1.89  2009-04-21 16:59:59  ncq
+# - edit area dlg now takes single_entry argument
+#
+# Revision 1.88  2009/04/19 22:26:47  ncq
 # - interval parsing moved
 #
 # Revision 1.87  2009/04/13 10:54:06  ncq
