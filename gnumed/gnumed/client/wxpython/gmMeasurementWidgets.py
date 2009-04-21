@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.43 2009-04-19 22:28:23 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmMeasurementWidgets.py,v 1.44 2009-04-21 17:01:12 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -522,18 +522,15 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
 		self.EnableDragGridSize(0)
-		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# 2.8.8
+
+		# setting this screws up the labels: they are cut off and displaced
+		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
+
+		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
 		self.SetRowLabelSize(100)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
 
 		# add link to left upper corner
-		corner_window = self.GetGridCornerLabelWindow()
-		_LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
-			corner_window,
-			-1,
-			label = _('Encyclopedia'),
-			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER | 
-		)
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = u'external.urls.measurements_encyclopedia',
@@ -541,19 +538,31 @@ class cMeasurementsGrid(wx.grid.Grid):
 			bias = 'user',
 			default = u'http://www.laborlexikon.de'
 		)
-		_LNK_lab.SetURL(url)
-		_LNK_lab.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-		_LNK_lab.SetToolTipString(_(
-			'Navigate to an encyclopedia of measurement\n'
+
+		WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
+		LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
+			WIN_corner,
+			-1,
+			label = _('Encyclopedia'),
+			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
+		)
+		LNK_lab.SetURL(url)
+		LNK_lab.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		LNK_lab.SetToolTipString(_(
+			'Navigate to an encyclopedia of measurements\n'
 			'and test methods on the web.\n'
 			'\n'
 			' <%s>'
 		) % url)
-		__szr_corner = wx.BoxSizer(wx.VERTICAL)
-		__szr_corner.Add(_LNK_lab, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 15)
-		corner_window.SetSizer(__szr_corner)
-		__szr_corner.Fit(corner_window)
+		SZR_corner = wx.BoxSizer(wx.VERTICAL)
+		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
+		SZR_corner.Add(LNK_lab, 0, wx.EXPAND | wx.ALIGN_CENTER, 0)		#wx.ALIGN_CENTER_VERTICAL
+		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
+		#WIN_corner.SetSizer(SZR_corner)
+		#SZR_corner.Fit(WIN_corner)
 
+		# force Layout
+		WIN_corner.Layout()
 		self.Layout()
 	#------------------------------------------------------------
 	def __cells_to_data(self, cells=None, exclude_multi_cells=False):
@@ -1281,7 +1290,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.43  2009-04-19 22:28:23  ncq
+# Revision 1.44  2009-04-21 17:01:12  ncq
+# - try various other things to try to center the lab link
+#
+# Revision 1.43  2009/04/19 22:28:23  ncq
 # - put hyperlink in upper left corner of lab grid
 #
 # Revision 1.42  2009/04/14 18:35:27  ncq
