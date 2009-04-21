@@ -12,7 +12,7 @@ import wx
 class wxgNewPatientEAPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmDemographicsWidgets, gmDateTimeInput
+        from Gnumed.wxpython import gmDemographicsWidgets
 
         # begin wxGlade: wxgNewPatientEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -24,9 +24,9 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_nickname = gmDemographicsWidgets.cNicknamePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_title = gmDemographicsWidgets.cTitlePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_address_searcher = gmDemographicsWidgets.cAddressSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_address_searcher = gmDemographicsWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_zip = gmDemographicsWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_street = gmDemographics.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_street = gmDemographicsWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_number = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_urb = gmDemographicsWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_region = gmDemographicsWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -79,7 +79,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         __lbl_lastname.SetForegroundColour(wx.Colour(255, 0, 0))
         __fgsizer_details.Add(__lbl_lastname, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __fgsizer_details.Add(self._PRW_lastname, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_firstnames = wx.StaticText(self, -1, _("First names(s)"))
+        __lbl_firstnames = wx.StaticText(self, -1, _("First name(s)"))
         __lbl_firstnames.SetForegroundColour(wx.Colour(255, 0, 0))
         __fgsizer_details.Add(__lbl_firstnames, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __fgsizer_details.Add(self._PRW_firstnames, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
