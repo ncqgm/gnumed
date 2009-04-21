@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.183 2009-04-03 09:32:01 ncq Exp $
-__version__ = "$Revision: 1.183 $"
+# $Id: gmPerson.py,v 1.184 2009-04-21 16:54:04 ncq Exp $
+__version__ = "$Revision: 1.184 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -2008,15 +2008,19 @@ def map_gender2salutation(gender=None):
 	return __gender2salutation_map[gender]
 #------------------------------------------------------------
 def map_firstnames2gender(firstnames=None):
-	"""
-	Try getting the gender for the given first name.
-	"""
+	"""Try getting the gender for the given first name."""
+
+	if firstnames is None:
+		return None
+
 	rows, idx = gmPG2.run_ro_queries(queries = [{
 		'cmd': u"select gender from dem.name_gender_map where name ilike %(fn)s limit 1",
 		'args': {'fn': firstnames}
 	}])
+
 	if len(rows) == 0:
 		return None
+
 	return rows[0][0]
 #============================================================
 def get_staff_list(active_only=False):
@@ -2302,7 +2306,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.183  2009-04-03 09:32:01  ncq
+# Revision 1.184  2009-04-21 16:54:04  ncq
+# - cleanup
+#
+# Revision 1.183  2009/04/03 09:32:01  ncq
 # - improved docs
 #
 # Revision 1.182  2009/02/25 21:05:36  ncq
