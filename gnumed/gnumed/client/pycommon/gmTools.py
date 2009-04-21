@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.82 2009-04-19 22:26:25 ncq Exp $
+# $Id: gmTools.py,v 1.83 2009-04-21 16:54:34 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.82 $"
+__version__ = "$Revision: 1.83 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -193,7 +193,6 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
 		if dict is not True:
 			raise KeyError
 		csv_reader = csv.DictReader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
-		print "DictReader requested"
 	except KeyError:
 		csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 
@@ -299,7 +298,10 @@ class gmPaths(gmBorg.cBorg):
 		if 'wxMSW' in wx.PlatformInfo:
 			_log.warning('this platform (wxMSW) sometimes returns a broken value for the system-wide application data dir')
 		else:
-			self.system_app_data_dir = std_paths.GetDataDir()
+			try:
+				self.system_app_data_dir = std_paths.GetDataDir()
+			except ValueError:
+				pass
 
 		self.__log_paths()
 		return True
@@ -1029,7 +1031,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.82  2009-04-19 22:26:25  ncq
+# Revision 1.83  2009-04-21 16:54:34  ncq
+# - fix setting sys app data dir on non-Windows
+#
+# Revision 1.82  2009/04/19 22:26:25  ncq
 # - factor out LOINC handling
 # - factor out interval parsing
 #
