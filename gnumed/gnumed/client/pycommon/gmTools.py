@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.75.2.2 2009-04-20 12:04:13 ncq Exp $
+# $Id: gmTools.py,v 1.75.2.3 2009-04-21 17:04:23 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.75.2.2 $"
+__version__ = "$Revision: 1.75.2.3 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -268,7 +268,10 @@ class gmPaths(gmBorg.cBorg):
 		if 'wxMSW' in wx.PlatformInfo:
 			_log.warning('this platform (wxMSW) returns a broken value for the system-wide application data dir')
 		else:
-			self.system_app_data_dir = std_paths.GetDataDir()
+			try:
+				self.system_app_data_dir = std_paths.GetDataDir()
+			except ValueError:
+				pass
 
 		self.__log_paths()
 		return True
@@ -1006,7 +1009,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.75.2.2  2009-04-20 12:04:13  ncq
+# Revision 1.75.2.3  2009-04-21 17:04:23  ncq
+# - fix setting sys app data dir on non-Windows
+#
+# Revision 1.75.2.2  2009/04/20 12:04:13  ncq
 # - back to previous behaviour for app data dir on Windows
 #
 # Revision 1.75.2.1  2009/03/24 10:31:24  ncq
