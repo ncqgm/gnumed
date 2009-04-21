@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.159 2009-02-25 21:07:41 ncq Exp $
-__version__ = "$Revision: 1.159 $"
+# $Id: gmDemographicsWidgets.py,v 1.160 2009-04-21 16:58:48 ncq Exp $
+__version__ = "$Revision: 1.160 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -527,7 +527,8 @@ select * from (
 	(select
 		pk_address,
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '')
+		|| urb || coalesce(' (' || suburb || ')', '') || ', '
+		|| postcode
 		|| coalesce(', ' || notes_street, '')
 		|| coalesce(', ' || notes_subunit, '')
 		) as address
@@ -541,7 +542,8 @@ select * from (
 	select
 		pk_address,
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '')
+		|| urb || coalesce(' (' || suburb || ')', '') || ', '
+		|| postcode
 		|| coalesce(', ' || notes_street, '')
 		|| coalesce(', ' || notes_subunit, '')
 		) as address
@@ -555,7 +557,8 @@ select * from (
 	select
 		pk_address,
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '')
+		|| urb || coalesce(' (' || suburb || ')', '') || ', '
+		|| postcode
 		|| coalesce(', ' || notes_street, '')
 		|| coalesce(', ' || notes_subunit, '')
 		) as address
@@ -577,6 +580,26 @@ order by union_result.address limit 50"""
 		self.matcher = mp
 		self.SetToolTipString(_('Select an address by postcode or street name.'))
 		self.selection_only = True
+		self.__address = None
+		self.__old_pk = None
+	#--------------------------------------------------------
+	def get_address(self):
+
+		pk = self.GetData()
+
+		if pk is None:
+			self.__address = None
+			return None
+
+		if self.__address is None:
+			self.__old_pk = pk
+			self.__address = gmDemographicRecord.cAddress(aPK_obj = pk)
+		else:
+			if pk != self.__old_pk:
+				self.__old_pk = pk
+				self.__address = gmDemographicRecord.cAddress(aPK_obj = pk)
+
+		return self.__address
 #============================================================
 class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1737,13 +1760,187 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 
 	identity = property(_get_identity, _set_identity)
 #============================================================
+# new-patient widgets
+#============================================================
+def create_new_person(parent=None, activate=False):
+
+	ea = cNewPatientEAPnl(parent = parent, id = -1)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg.SetTitle(_('Adding new patient'))
+	result = dlg.ShowModal()
+	if result != wx.ID_OK:
+		dlg.Destroy()
+		return False
+
+	if activate:
+		gmPerson.set_active_patient(patient = ea.data)
+
+	dlg.Destroy()
+	return True
+#============================================================
+from Gnumed.wxGladeWidgets import wxgNewPatientEAPnl
+
+class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		wxgNewPatientEAPnl.wxgNewPatientEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = None
+		self._address = None
+
+		self.__init_ui()
+		self.__register_interests()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		self._PRW_address_searcher.selection_only = False
+	#----------------------------------------------------------------
+	def __register_interests(self):
+
+		# identity
+		self._PRW_firstnames.add_callback_on_lose_focus(self._on_leaving_firstname)
+
+		# address
+		self._PRW_address_searcher.add_callback_on_lose_focus(self._on_leaving_adress_searcher)
+
+		# invalidate address searcher when any field edited
+		self._PRW_street.add_callback_on_lose_focus(self._invalidate_address_searcher)
+		wx.EVT_KILL_FOCUS(self._TCTRL_number, self._invalidate_address_searcher)
+		self._PRW_urb.add_callback_on_lose_focus(self._invalidate_address_searcher)
+		self._PRW_region.add_callback_on_lose_focus(self._invalidate_address_searcher)
+
+		self._PRW_zip.add_callback_on_lose_focus(self._on_leaving_zip)
+		self._PRW_country.add_callback_on_lose_focus(self._on_leaving_country)
+	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
+	def _on_leaving_firstname(self):
+		"""Set the gender according to entered firstname.
+
+		Matches are fetched from existing records in backend.
+		"""
+		# only set if not already set so as to not
+		# overwrite a change by the user
+		if self._PRW_gender.GetData() is not None:
+			return True
+
+		firstname = self._PRW_firstnames.GetValue().strip()
+		if firstname == u'':
+			return True
+
+		gender = gmPerson.map_firstnames2gender(firstnames = firstname)
+		if gender is None:
+			return True
+
+		wx.CallAfter(self._PRW_gender.SetData, gender)
+		return True
+	#----------------------------------------------------------------
+	def _on_leaving_zip(self):
+		self.__invalidate_address_searcher(self._PRW_zip, 'postcode')
+
+		zip_code = gmTools.none_if(self._PRW_zip.GetValue().strip(), u'')
+		self._PRW_street.set_context(context = u'zip', val = zip_code)
+		self._PRW_urb.set_context(context = u'zip', val = zip_code)
+		self._PRW_region.set_context(context = u'zip', val = zip_code)
+		self._PRW_country.set_context(context = u'zip', val = zip_code)
+	#----------------------------------------------------------------
+	def _on_leaving_country(self):
+		self.__invalidate_address_searcher(self._PRW_country, 'l10n_country')
+
+		country = gmTools.none_if(self._PRW_country.GetValue().strip(), u'')
+		self._PRW_region.set_context(context = u'country', val = country)
+	#----------------------------------------------------------------
+	def _invalidate_address_searcher(self, *args, **kwargs):
+		# loop through fields and invalidate address searcher if different
+		mapping = [
+			(self._PRW_street, 'street'),
+			(self._TCTRL_number, 'number'),
+			(self._PRW_urb, 'urb'),
+			(self._PRW_region, 'l10n_state')
+		]
+
+		for ctrl, field in mapping:
+			if self.__invalidate_address_searcher(ctrl, field):
+				return True
+
+		return True
+	#----------------------------------------------------------------
+	def __invalidate_address_searcher(self, ctrl=None, field=None):
+
+		adr = self._PRW_address_searcher.get_address()
+		if adr is None:
+			return True
+
+		if ctrl.GetValue().strip() != adr[field]:
+			wx.CallAfter(self._PRW_address_searcher.SetText, value = u'', data = None)
+			return True
+
+		return False
+	#----------------------------------------------------------------
+	def _on_leaving_adress_searcher(self):
+		adr = self._PRW_address_searcher.get_address()
+		if adr is None:
+			return True
+
+		wx.CallAfter(self.__set_fields_from_address_searcher)
+	#----------------------------------------------------------------
+	def __set_fields_from_address_searcher(self):
+		adr = self._PRW_address_searcher.get_address()
+		if adr is None:
+			return True
+
+		self._PRW_zip.SetText(value = adr['postcode'], data = adr['postcode'])
+
+		self._PRW_street.SetText(value = adr['street'], data = adr['street'])
+		self._PRW_street.set_context(context = u'zip', val = adr['postcode'])
+
+		self._TCTRL_number.SetValue(adr['number'])
+
+		self._PRW_urb.SetText(value = adr['urb'], data = adr['urb'])
+		self._PRW_urb.set_context(context = u'zip', val = adr['postcode'])
+
+		self._PRW_region.SetText(value = adr['l10n_state'], data = adr['code_state'])
+		self._PRW_region.set_context(context = u'zip', val = adr['postcode'])
+
+		self._PRW_country.SetText(value = adr['l10n_country'], data = adr['code_country'])
+		self._PRW_country.set_context(context = u'zip', val = adr['postcode'])
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		print "should now test for validity and return True/False"
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		print "saving as new patient"
+		self.data = 1
+#		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		raise NotImplementedError('[%s]: not expected to be used' % self.__class__.__name__)
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		# default appearence is fine
+		return
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		# there is no forward so nothing to do here
+		return
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		raise NotImplementedError('[%s]: not expected to be used' % self.__class__.__name__)
+#============================================================
 # new-patient wizard classes
 #============================================================
 class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 	"""
 	Wizard page for entering patient's basic demographic information
 	"""
-	
+
 	form_fields = (
 			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title', 'occupation',
 			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone', 'comment'
@@ -2717,7 +2914,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.159  2009-02-25 21:07:41  ncq
+# Revision 1.160  2009-04-21 16:58:48  ncq
+# - address phrasewheel label improvement and get_address
+# - create_new_patient
+# - new-patient edit area
+#
+# Revision 1.159  2009/02/25 21:07:41  ncq
 # - catch exception when failing to save address
 #
 # Revision 1.158  2009/02/05 14:29:09  ncq
