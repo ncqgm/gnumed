@@ -7,11 +7,10 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.3 2009-04-13 11:01:40 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.4 2009-04-21 17:02:27 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
-DL_BASE_URL="http://www.gnumed.de/downloads/client/0.4"		# FIXME: derive from version
 
 # ===========================================================
 if test "$LOGNAME" == "root" ; then
@@ -47,6 +46,8 @@ if test -r ${ARG_ONE} ; then
 else
 	TARGET_VER=${ARG_ONE}
 	TGZ_NAME="GNUmed-client.${TARGET_VER}.tgz"
+	TARGET_BRANCH=`echo ${TARGET_VER} | -c 1-3`
+	DL_BASE_URL="http://www.gnumed.de/downloads/client/${TARGET_BRANCH}"
 fi
 LAUNCHER=~/"Desktop/GNUmed ${TARGET_VER}"
 SYS_TYPE="generic Un*x"
@@ -255,7 +256,10 @@ mc -e gm-from-cvs.sh
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.3  2009-04-13 11:01:40  ncq
+# Revision 1.4  2009-04-21 17:02:27  ncq
+# - calculate DL URL from version on command line
+#
+# Revision 1.3  2009/04/13 11:01:40  ncq
 # - hint on what to edit in conf file
 # - offer to edit startup file with hint
 #
