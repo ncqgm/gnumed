@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.449 2009-04-20 11:40:45 ncq Exp $
-__version__ = "$Revision: 1.449 $"
+# $Id: gmGuiMain.py,v 1.450 2009-04-21 17:00:41 ncq Exp $
+__version__ = "$Revision: 1.450 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -505,6 +505,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
+
+		item = menu_patient.Append(-1, _('Register new 2'), _("Register a new patient with this practice"))
+		self.Bind(wx.EVT_MENU, self.__on_create_new_patient, item)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
 		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create patient from an external source.'))
@@ -2191,6 +2194,9 @@ class gmTopLevelFrame(wx.Frame):
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
 	#----------------------------------------------
+	def __on_create_new_patient(self, evt):
+		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
+	#----------------------------------------------
 	def __on_create_patient(self, event):
 		"""Launch create patient wizard.
 		"""
@@ -2534,7 +2540,6 @@ class gmApp(wx.App):
 		print "wx.lib.pubsub message:"
 		print msg.topic
 		print msg.data
-		print msg
 	#----------------------------------------------
 	def _do_after_init(self):
 		self.__starting_up = False
@@ -2916,7 +2921,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.449  2009-04-20 11:40:45  ncq
+# Revision 1.450  2009-04-21 17:00:41  ncq
+# - give access to new new-pat EA
+#
+# Revision 1.449  2009/04/20 11:40:45  ncq
 # - add MI/stroke risk calculator access
 #
 # Revision 1.448  2009/04/19 22:29:15  ncq
