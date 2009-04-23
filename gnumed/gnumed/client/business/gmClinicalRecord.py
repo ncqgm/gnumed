@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.283.2.1 2009-04-20 12:02:48 ncq Exp $
-__version__ = "$Revision: 1.283.2.1 $"
+# $Id: gmClinicalRecord.py,v 1.283.2.2 2009-04-23 14:16:15 ncq Exp $
+__version__ = "$Revision: 1.283.2.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1560,7 +1560,7 @@ limit 2
 			return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 
 		# more than one encounter
-		if rows[0]['pk_encounter'] == self.current_encounter['pk_encounter']:
+		if rows[0]['pk_encounter'] == self.__encounter['pk_encounter']:
 			return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'idx': idx, 'pk_field': 'pk_encounter'})
 
 		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
@@ -1924,7 +1924,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.283.2.1  2009-04-20 12:02:48  ncq
+# Revision 1.283.2.2  2009-04-23 14:16:15  ncq
+# - current_encounter property not yet available...
+#
+# Revision 1.283.2.1  2009/04/20 12:02:48  ncq
 # - properly detect last-but-one encounter
 #
 # Revision 1.283  2009/02/20 15:41:42  ncq
