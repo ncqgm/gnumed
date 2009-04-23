@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# ===========================================================
+# Fetch and install ARRIBA.
+#
+# 	http://www.arriba-hausarzt.de
+#
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-install_arriba,v $
+# $Id: gm-install_arriba,v 1.1 2009-04-23 13:04:04 ncq Exp $
+# ===========================================================
+
+JAR_VER="1.0.2"
+
+# ===========================================================
+DL_URL="http://www.arriba-hausarzt.de/downloads"
+DL_DIR=/tmp
+APP_NAME="arriba"
+JAR_NAME="${APP_NAME}-${JAR_VER}.jar"
+INSTALL_BASE="/usr/bin"
+
+
+# get jar
+wget -c ${DL_URL}/${JAR_NAME} -P ${DL_DIR}/
+
+
+# install jar
+echo "You need to enter the root password now:"
+su -c "cp -v ${DL_DIR}/${JAR_NAME} ${INSTALL_BASE}/${JAR_NAME} && chmod +x ${INSTALL_BASE}/${JAR_NAME} && ln -f -s -v ${INSTALL_BASE}/${JAR_NAME} ${INSTALL_BASE}/${APP_NAME}.jar && ln -f -s -v ${INSTALL_BASE}/${JAR_NAME} ${INSTALL_BASE}/${APP_NAME}"
+
+# ===========================================================
+# $Log: gm-install_arriba,v $
+# Revision 1.1  2009-04-23 13:04:04  ncq
+# - new
+#
+#
