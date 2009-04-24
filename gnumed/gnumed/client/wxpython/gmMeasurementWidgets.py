@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.44 2009-04-21 17:01:12 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmMeasurementWidgets.py,v 1.45 2009-04-24 12:05:20 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -539,9 +539,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 			default = u'http://www.laborlexikon.de'
 		)
 
-		WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
+		self.__WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
+
 		LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
-			WIN_corner,
+			self.__WIN_corner,
 			-1,
 			label = _('Encyclopedia'),
 			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
@@ -554,16 +555,22 @@ class cMeasurementsGrid(wx.grid.Grid):
 			'\n'
 			' <%s>'
 		) % url)
+
+		SZR_inner = wx.BoxSizer(wx.HORIZONTAL)
+		SZR_inner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
+		SZR_inner.Add(LNK_lab, 0, wx.ALIGN_CENTER_VERTICAL, 0)		#wx.ALIGN_CENTER wx.EXPAND
+		SZR_inner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
+
 		SZR_corner = wx.BoxSizer(wx.VERTICAL)
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
-		SZR_corner.Add(LNK_lab, 0, wx.EXPAND | wx.ALIGN_CENTER, 0)		#wx.ALIGN_CENTER_VERTICAL
+		SZR_corner.AddWindow(SZR_inner, 0, wx.EXPAND)	# inner sizer with centered hyperlink
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
-		#WIN_corner.SetSizer(SZR_corner)
-		#SZR_corner.Fit(WIN_corner)
 
-		# force Layout
-		WIN_corner.Layout()
-		self.Layout()
+		self.__WIN_corner.SetSizer(SZR_corner)
+		SZR_corner.Fit(self.__WIN_corner)
+	#------------------------------------------------------------
+	def __resize_corner_window(self, evt):
+		self.__WIN_corner.Layout()
 	#------------------------------------------------------------
 	def __cells_to_data(self, cells=None, exclude_multi_cells=False):
 		"""List of <cells> must be in row / col order."""
@@ -615,6 +622,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
 		#self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
 
+		# sizing left upper corner window
+		self.Bind(wx.EVT_SIZE, self.__resize_corner_window)
+
+		# editing cells
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__on_cell_left_dclicked)
 	#------------------------------------------------------------
 	def __on_cell_left_dclicked(self, evt):
@@ -1290,7 +1301,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.44  2009-04-21 17:01:12  ncq
+# Revision 1.45  2009-04-24 12:05:20  ncq
+# - properly display lab link in grid corner
+#
+# Revision 1.44  2009/04/21 17:01:12  ncq
 # - try various other things to try to center the lab link
 #
 # Revision 1.43  2009/04/19 22:28:23  ncq
