@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.99 2009-04-21 16:53:42 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmDemographicRecord.py,v 1.100 2009-04-24 12:04:25 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -213,6 +213,9 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 #-------------------------------------------------------------------
 def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_channel_type=None, pk_identity=None):
 	"""Create a communications channel for a patient."""
+
+	if url is None:
+		return None
 
 	# FIXME: create comm type if necessary
 	args = {'pat': pk_identity, 'url': url, 'secret': is_confidential}
@@ -580,7 +583,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.99  2009-04-21 16:53:42  ncq
+# Revision 1.100  2009-04-24 12:04:25  ncq
+# - if url is None do not add comm channel
+#
+# Revision 1.99  2009/04/21 16:53:42  ncq
 # - cleanup
 #
 # Revision 1.98  2008/12/09 23:47:12  ncq
