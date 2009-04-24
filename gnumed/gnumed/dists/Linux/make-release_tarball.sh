@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.68 2009-04-03 11:08:48 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.69 2009-04-24 12:11:08 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc10"
@@ -119,6 +119,11 @@ echo "=> client <="
 echo "============"
 
 
+# external tools
+mkdir -p ./GNUmed-$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-install_arriba ./GNUmed-$CLIENTREV/external-tools/
+
+
 # client
 mkdir -p ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/client/
@@ -218,7 +223,7 @@ chmod -cR -x ./GNUmed-$CLIENTREV/client/wxpython/gui/*.*
 # pick up current User Manual
 echo "picking up GNUmed User Manual from the web"
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/user-manual/
-wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
+wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual		#http://wiki.gnumed.de/bin/publish/Gnumed
 rm -vf PublishManual*
 wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/Gnumed.zip
 cd ./GNUmed-$CLIENTREV/client/doc/user-manual/
@@ -368,10 +373,12 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
 
 cp -R ../../server/sql/v10-v11/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
 cp -R ../../server/sql/v10-v11/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
 cp -R ../../server/sql/v10-v11/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
+#cp -R ../../server/sql/v10-v11/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -392,7 +399,7 @@ find ./GNUmed-$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 cd GNUmed-$CLIENTREV
 ln -s client Gnumed
 cd ..
-tar -czf $CLIENTARCH ./GNUmed-$CLIENTREV/client/ ./GNUmed-$CLIENTREV/Gnumed
+tar -czf $CLIENTARCH ./GNUmed-$CLIENTREV/client/ ./GNUmed-$CLIENTREV/external-tools/ ./GNUmed-$CLIENTREV/Gnumed
 # - server
 mv GNUmed-$CLIENTREV GNUmed-v$SRVREV
 cd GNUmed-v$SRVREV
@@ -409,7 +416,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.68  2009-04-03 11:08:48  ncq
+# Revision 1.69  2009-04-24 12:11:08  ncq
+# - include ARRIBA installer
+#
+# Revision 1.68  2009/04/03 11:08:48  ncq
 # - include v11 upgrade scripts
 #
 # Revision 1.67  2009/04/03 09:53:33  ncq
