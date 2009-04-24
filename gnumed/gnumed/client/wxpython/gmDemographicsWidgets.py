@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.161 2009-04-24 12:08:42 ncq Exp $
-__version__ = "$Revision: 1.161 $"
+# $Id: gmDemographicsWidgets.py,v 1.162 2009-04-24 12:32:38 ncq Exp $
+__version__ = "$Revision: 1.162 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2050,7 +2050,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		name.save()
 
 		# address
-		identity.link_address (
+		new_identity.link_address (
 			number = self._TCTRL_number.GetValue().strip(),
 			street = self._PRW_street.GetValue().strip(),
 			postcode = self._PRW_zip.GetValue().strip(),
@@ -3066,7 +3066,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.161  2009-04-24 12:08:42  ncq
+# Revision 1.162  2009-04-24 12:32:38  ncq
+# - fix a typo
+#
+# Revision 1.161  2009/04/24 12:08:42  ncq
 # - factor out address match provider to eventually make it smarter
 # - apply final regex to first/lastnames PRW
 # - implement validity check/saving for new patient EA
