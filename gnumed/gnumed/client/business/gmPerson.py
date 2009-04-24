@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.184 2009-04-21 16:54:04 ncq Exp $
-__version__ = "$Revision: 1.184 $"
+# $Id: gmPerson.py,v 1.185 2009-04-24 12:04:44 ncq Exp $
+__version__ = "$Revision: 1.185 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -681,9 +681,11 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		"""
 		if (activities is None) and (occupation is None):
 			return True
+
 		occupation = occupation.strip()
 		if len(occupation) == 0:
 			return True
+
 		if activities is not None:
 			activities = activities.strip()
 
@@ -2306,7 +2308,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.184  2009-04-21 16:54:04  ncq
+# Revision 1.185  2009-04-24 12:04:44  ncq
+# - cleanup
+#
+# Revision 1.184  2009/04/21 16:54:04  ncq
 # - cleanup
 #
 # Revision 1.183  2009/04/03 09:32:01  ncq
