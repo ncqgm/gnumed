@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.162 2009-04-24 12:32:38 ncq Exp $
-__version__ = "$Revision: 1.162 $"
+# $Id: gmDemographicsWidgets.py,v 1.163 2009-04-24 13:01:13 ncq Exp $
+__version__ = "$Revision: 1.163 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2055,8 +2055,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			street = self._PRW_street.GetValue().strip(),
 			postcode = self._PRW_zip.GetValue().strip(),
 			urb = self._PRW_urb.GetValue().strip(),
-			state = self._PRW_region.GetValue().strip(),
-			country = self._PRW_country.GetValue().strip()
+			state = self._PRW_region.GetData(),
+			country = self._PRW_country.GetData()
 		)
 
 		# phone
@@ -3066,7 +3066,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.162  2009-04-24 12:32:38  ncq
+# Revision 1.163  2009-04-24 13:01:13  ncq
+# - need to use code on state/country
+#
+# Revision 1.162  2009/04/24 12:32:38  ncq
 # - fix a typo
 #
 # Revision 1.161  2009/04/24 12:08:42  ncq
