@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.160 2009-04-21 16:58:48 ncq Exp $
-__version__ = "$Revision: 1.160 $"
+# $Id: gmDemographicsWidgets.py,v 1.161 2009-04-24 12:08:42 ncq Exp $
+__version__ = "$Revision: 1.161 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -518,9 +518,9 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 
 		return True
 #============================================================
-class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
+class cAddressMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self):
 
 		query = u"""
 select * from (
@@ -569,15 +569,24 @@ select * from (
 	)
 ) as union_result
 order by union_result.address limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(2, 4, 6)
-#		mp.word_separators = u'[ \t]+'
+
+		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = query)
+
+		self.setThresholds(2, 4, 6)
+#		self.word_separators = u'[ \t]+'
+
+#============================================================
+class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		mp = cAddressMatchProvider()
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
-		self.matcher = mp
+		self.matcher = cAddressMatchProvider()
 		self.SetToolTipString(_('Select an address by postcode or street name.'))
 		self.selection_only = True
 		self.__address = None
@@ -1794,8 +1803,142 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self.__init_ui()
 		self.__register_interests()
 	#----------------------------------------------------------------
+	# internal helpers
+	#----------------------------------------------------------------
 	def __init_ui(self):
+		self._PRW_lastname.final_regex = '.+'
+		self._PRW_firstnames.final_regex = '.+'
 		self._PRW_address_searcher.selection_only = False
+	#----------------------------------------------------------------
+	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
+
+		adr = self._PRW_address_searcher.get_address()
+		if adr is None:
+			return True
+
+		if ctrl.GetValue().strip() != adr[field]:
+			wx.CallAfter(self._PRW_address_searcher.SetText, value = u'', data = None)
+			return True
+
+		return False
+	#----------------------------------------------------------------
+	def __set_fields_from_address_searcher(self):
+		adr = self._PRW_address_searcher.get_address()
+		if adr is None:
+			return True
+
+		self._PRW_zip.SetText(value = adr['postcode'], data = adr['postcode'])
+
+		self._PRW_street.SetText(value = adr['street'], data = adr['street'])
+		self._PRW_street.set_context(context = u'zip', val = adr['postcode'])
+
+		self._TCTRL_number.SetValue(adr['number'])
+
+		self._PRW_urb.SetText(value = adr['urb'], data = adr['urb'])
+		self._PRW_urb.set_context(context = u'zip', val = adr['postcode'])
+
+		self._PRW_region.SetText(value = adr['l10n_state'], data = adr['code_state'])
+		self._PRW_region.set_context(context = u'zip', val = adr['postcode'])
+
+		self._PRW_country.SetText(value = adr['l10n_country'], data = adr['code_country'])
+		self._PRW_country.set_context(context = u'zip', val = adr['postcode'])
+	#----------------------------------------------------------------
+	def __identity_valid_for_save(self):
+		error = False
+
+		# name fields
+		if self._PRW_lastname.GetValue().strip() == u'':
+			error = True
+			gmDispatcher.send(signal = 'statustext', msg = _('Must enter lastname.'))
+			self._PRW_lastname.display_as_valid(False)
+		else:
+			self._PRW_lastname.display_as_valid(True)
+
+		if self._PRW_firstnames.GetValue().strip() == '':
+			error = True
+			gmDispatcher.send(signal = 'statustext', msg = _('Must enter first name.'))
+			self._PRW_firstnames.display_as_valid(False)
+		else:
+			self._PRW_firstnames.display_as_valid(True)
+
+		# gender
+		if self._PRW_gender.GetData() is None:
+			error = True
+			gmDispatcher.send(signal = 'statustext', msg = _('Must select gender.'))
+			self._PRW_gender.display_as_valid(False)
+		else:
+			self._PRW_gender.display_as_valid(True)
+
+		# dob validation
+		dob = self._DP_dob.GetValue()
+		if not dob.IsValid():
+			error = True
+			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			self._DP_dob.Refresh()
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth.'))
+		elif dob.GetYear() < 1900:
+			error = True
+			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			self._DP_dob.Refresh()
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth < 1900.'))
+		else:
+			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			self._DP_dob.Refresh()
+
+		# TOB validation if non-empty
+#		if self._TCTRL_tob.GetValue().strip() != u'':
+
+		return (not error)
+	#----------------------------------------------------------------
+	def __address_valid_for_save(self):
+
+		# existing address ? if so set other fields
+		if self._PRW_address_searcher.GetData() is not None:
+			wx.CallAfter(self.__set_fields_from_address_searcher)
+			return True
+
+		error = False
+
+		# fields which can contain new items
+		is_any_field_filled = False
+		address_fields = (
+			self._TCTRL_number,
+			self._PRW_zip,
+			self._PRW_street,
+			self._PRW_urb
+		)
+		for field in address_fields:
+			if field.GetValue().strip() != u'':
+				is_any_field_filled = True
+				field.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			else:
+				if is_any_field_filled:
+					error = True
+					msg = _('To properly create an address, all the related fields must be filled in.')
+					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
+					field.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+					field.SetFocus()
+			field.Refresh()
+
+		# fields which must contain a selected item
+		address_fields = (
+			self._PRW_region,
+			self._PRW_country
+		)
+		for field in address_fields:
+			if field.GetData() is not None:
+				is_any_field_filled = True
+				field.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			else:
+				if is_any_field_filled:
+					error = True
+					msg = _('To properly create an address, all the related fields must be filled in.')
+					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
+					field.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+					field.SetFocus()
+			field.Refresh()
+
+		return (not error)
 	#----------------------------------------------------------------
 	def __register_interests(self):
 
@@ -1838,22 +1981,25 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		return True
 	#----------------------------------------------------------------
 	def _on_leaving_zip(self):
-		self.__invalidate_address_searcher(self._PRW_zip, 'postcode')
+		self.__perhaps_invalidate_address_searcher(self._PRW_zip, 'postcode')
 
 		zip_code = gmTools.none_if(self._PRW_zip.GetValue().strip(), u'')
 		self._PRW_street.set_context(context = u'zip', val = zip_code)
 		self._PRW_urb.set_context(context = u'zip', val = zip_code)
 		self._PRW_region.set_context(context = u'zip', val = zip_code)
 		self._PRW_country.set_context(context = u'zip', val = zip_code)
+
+		return True
 	#----------------------------------------------------------------
 	def _on_leaving_country(self):
-		self.__invalidate_address_searcher(self._PRW_country, 'l10n_country')
+		self.__perhaps_invalidate_address_searcher(self._PRW_country, 'l10n_country')
 
 		country = gmTools.none_if(self._PRW_country.GetValue().strip(), u'')
 		self._PRW_region.set_context(context = u'country', val = country)
+
+		return True
 	#----------------------------------------------------------------
 	def _invalidate_address_searcher(self, *args, **kwargs):
-		# loop through fields and invalidate address searcher if different
 		mapping = [
 			(self._PRW_street, 'street'),
 			(self._TCTRL_number, 'number'),
@@ -1861,23 +2007,12 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			(self._PRW_region, 'l10n_state')
 		]
 
+		# loop through fields and invalidate address searcher if different
 		for ctrl, field in mapping:
-			if self.__invalidate_address_searcher(ctrl, field):
+			if self.__perhaps_invalidate_address_searcher(ctrl, field):
 				return True
 
 		return True
-	#----------------------------------------------------------------
-	def __invalidate_address_searcher(self, ctrl=None, field=None):
-
-		adr = self._PRW_address_searcher.get_address()
-		if adr is None:
-			return True
-
-		if ctrl.GetValue().strip() != adr[field]:
-			wx.CallAfter(self._PRW_address_searcher.SetText, value = u'', data = None)
-			return True
-
-		return False
 	#----------------------------------------------------------------
 	def _on_leaving_adress_searcher(self):
 		adr = self._PRW_address_searcher.get_address()
@@ -1885,51 +2020,69 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			return True
 
 		wx.CallAfter(self.__set_fields_from_address_searcher)
-	#----------------------------------------------------------------
-	def __set_fields_from_address_searcher(self):
-		adr = self._PRW_address_searcher.get_address()
-		if adr is None:
-			return True
-
-		self._PRW_zip.SetText(value = adr['postcode'], data = adr['postcode'])
-
-		self._PRW_street.SetText(value = adr['street'], data = adr['street'])
-		self._PRW_street.set_context(context = u'zip', val = adr['postcode'])
-
-		self._TCTRL_number.SetValue(adr['number'])
-
-		self._PRW_urb.SetText(value = adr['urb'], data = adr['urb'])
-		self._PRW_urb.set_context(context = u'zip', val = adr['postcode'])
-
-		self._PRW_region.SetText(value = adr['l10n_state'], data = adr['code_state'])
-		self._PRW_region.set_context(context = u'zip', val = adr['postcode'])
-
-		self._PRW_country.SetText(value = adr['l10n_country'], data = adr['code_country'])
-		self._PRW_country.set_context(context = u'zip', val = adr['postcode'])
+		return True
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		print "should now test for validity and return True/False"
-		return True
-		return False
+		return self.__identity_valid_for_save() and self.__address_valid_for_save()
 	#----------------------------------------------------------------
 	def _save_as_new(self):
+
 		print "saving as new patient"
-		self.data = 1
-#		return True
-		return False
+
+		# identity
+		new_identity = gmPerson.create_identity (
+			gender = self._PRW_gender.GetData(),
+			dob = gmDateTime.wxDate2py_dt(self._DP_dob.GetValue()),
+			lastnames = self._PRW_lastname.GetValue().strip(),
+			firstnames = self._PRW_firstnames.GetValue().strip()
+		)
+		_log.debug('identity created: %s' % new_identity)
+
+		new_identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip())
+		new_identity.set_nickname(nickname = gmTools.none_if(self._PRW_nickname.GetValue().strip(), u''))
+		#TOB
+		new_identity.save()
+
+		name = new_identity.get_active_name()
+		name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		name.save()
+
+		# address
+		identity.link_address (
+			number = self._TCTRL_number.GetValue().strip(),
+			street = self._PRW_street.GetValue().strip(),
+			postcode = self._PRW_zip.GetValue().strip(),
+			urb = self._PRW_urb.GetValue().strip(),
+			state = self._PRW_region.GetValue().strip(),
+			country = self._PRW_country.GetValue().strip()
+		)
+
+		# phone
+		new_identity.link_comm_channel (
+			comm_medium = 'homephone',
+			url = gmTools.none_if(self._TCTRL_phone.GetValue().strip(), u''),
+			is_confidential = False
+		)
+
+		# occupation
+		new_identity.link_occupation (
+			occupation = gmTools.none_if(self._PRW_occupation.GetValue().strip(), u'')
+		)
+
+		self.data = new_identity
+		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		raise NotImplementedError('[%s]: not expected to be used' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		# default appearence is fine
+		# FIXME: button "empty out"
 		return
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		# there is no forward so nothing to do here
-		return
+		return		# there is no forward button so nothing to do here
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		raise NotImplementedError('[%s]: not expected to be used' % self.__class__.__name__)
@@ -1945,14 +2098,14 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title', 'occupation',
 			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone', 'comment'
 	)
-	
+
 	def __init__(self, parent, title):
 		"""
 		Creates a new instance of BasicPatDetailsPage
 		@param parent - The parent widget
 		@type parent - A wx.Window instance
 		@param tile - The title of the page
-		@type title - A StringType instance				
+		@type title - A StringType instance
 		"""
 		wx.wizard.WizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
 		self.__title = title
@@ -2225,7 +2378,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		"""
 		# initialize parent class
 		wx.PyValidator.__init__(self)
-		
 		# validator's storage object
 		self.form_DTD = dtd
 	#--------------------------------------------------------
@@ -2645,7 +2797,7 @@ def create_identity_from_dtd(dtd=None):
 			name = new_identity.get_active_name()
 			name['comment'] = dtd['comment']
 			name.save_payload()
-	
+
 	return new_identity
 #============================================================
 def update_identity_from_dtd(identity, dtd=None):
@@ -2914,7 +3066,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.160  2009-04-21 16:58:48  ncq
+# Revision 1.161  2009-04-24 12:08:42  ncq
+# - factor out address match provider to eventually make it smarter
+# - apply final regex to first/lastnames PRW
+# - implement validity check/saving for new patient EA
+#
+# Revision 1.160  2009/04/21 16:58:48  ncq
 # - address phrasewheel label improvement and get_address
 # - create_new_patient
 # - new-patient edit area
