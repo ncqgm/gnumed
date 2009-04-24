@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.132 2009-04-19 22:27:36 ncq Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gmPhraseWheel.py,v 1.133 2009-04-24 12:06:01 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -680,7 +680,7 @@ class cPhraseWheel(wx.TextCtrl):
 	accepted_chars = property(_get_accepted_chars, _set_accepted_chars)
 	#--------------------------------------------------------
 	def _set_final_regex(self, final_regex='.*'):
-		self.__final_regex = regex.compile(final_regex)
+		self.__final_regex = regex.compile(final_regex, flags = regex.LOCALE | regex.UNICODE)
 		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]') % final_regex
 
 	def _get_final_regex(self):
@@ -692,7 +692,7 @@ class cPhraseWheel(wx.TextCtrl):
 		if phrase_separators is None:
 			self.__phrase_separators = None
 		else:
-			self.__phrase_separators = regex.compile(phrase_separators)
+			self.__phrase_separators = regex.compile(phrase_separators, flags = regex.LOCALE | regex.UNICODE)
 
 	def _get_phrase_separators(self):
 		if self.__phrase_separators is None:
@@ -703,9 +703,9 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _set_speller_word_separators(self, word_separators):
 		if word_separators is None:
-			self.__speller_word_separators = regex.compile('[\W\d_]+')
+			self.__speller_word_separators = regex.compile('[\W\d_]+', flags = regex.LOCALE | regex.UNICODE)
 		else:
-			self.__speller_word_separators = regex.compile(word_separators)
+			self.__speller_word_separators = regex.compile(word_separators, flags = regex.LOCALE | regex.UNICODE)
 
 	def _get_speller_word_separators(self):
 		return self.__speller_word_separators.pattern
@@ -892,6 +892,8 @@ class cPhraseWheel(wx.TextCtrl):
 		self.SetFont(self.__non_edit_font)
 		self.Refresh()
 
+		is_valid = True
+
 		# the user may have typed a phrase that is an exact match,
 		# however, just typing it won't associate data from the
 		# picklist, so do that now
@@ -903,7 +905,6 @@ class cPhraseWheel(wx.TextCtrl):
 					if match['label'] == val:
 						self.data = match['data']
 						self.MarkDirty()
-						self.display_as_valid(valid = True)
 						break
 
 		# no exact match found
@@ -913,15 +914,17 @@ class cPhraseWheel(wx.TextCtrl):
 					topic = 'statustext',
 					data = {'msg': self.selection_only_error_msg}
 				)
-				self.display_as_valid(valid = False)
+				is_valid = False
 
 		# check value against final_regex if any given
-		if not self.__final_regex.match(self.GetValue().strip()):
+		if self.__final_regex.match(self.GetValue().strip()) is None:
 			wx.lib.pubsub.Publisher().sendMessage (
 				topic = 'statustext',
 				data = {'msg': self.final_regex_error_msg}
 			)
-			self.display_as_valid(valid = False)
+			is_valid = False
+
+		self.display_as_valid(valid = is_valid)
 
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
@@ -1058,7 +1061,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.132  2009-04-19 22:27:36  ncq
+# Revision 1.133  2009-04-24 12:06:01  ncq
+# - fix application of final regex: if it was compiled with LOCALE/UNICODE
+#   one *cannot* apply those flags again on matching !
+#
+# Revision 1.132  2009/04/19 22:27:36  ncq
 # - enlarge edit font by 1 point only
 #
 # Revision 1.131  2009/04/03 09:52:10  ncq
