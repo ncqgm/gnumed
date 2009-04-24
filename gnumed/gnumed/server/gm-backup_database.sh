@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.20 2009-04-14 18:32:40 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.21 2009-04-24 12:12:09 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -46,6 +46,23 @@ if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
 	echo "Cannot read configuration file ${CONF}. Aborting."
+	exit 1
+fi
+
+
+# switched off ? (database name empty)
+if [ "$GM_DATABASE" = "" ] ; then
+	exit 0
+fi
+
+# FIXME: check PORT/DBO/BACKUP_FILENAME too
+
+
+# sanity check
+if ! su postgres -c 'psql -t -l' | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+	echo "The configuration in ${CONF} is set to backup"
+	echo "the GNUmed database ${GM_DATABASE}. This"
+	echo "database does not exist, however. Aborting."
 	exit 1
 fi
 
@@ -142,7 +159,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.20  2009-04-14 18:32:40  ncq
+# Revision 1.21  2009-04-24 12:12:09  ncq
+# - more sanity checks pulled from Debian
+#
+# Revision 1.20  2009/04/14 18:32:40  ncq
 # - remove spurious exit left over from testing
 #
 # Revision 1.19  2009/01/08 16:43:18  ncq
