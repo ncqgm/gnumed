@@ -45,8 +45,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.151.2.4 2009-04-20 12:10:20 ncq Exp $
-__version__ = "$Revision: 1.151.2.4 $"
+# $Id: gnumed.py,v 1.151.2.5 2009-05-01 16:04:17 ncq Exp $
+__version__ = "$Revision: 1.151.2.5 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -75,7 +75,7 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'0.4.3'
+current_client_version = u'0.4.4'
 current_client_branch = u'0.4'
 
 
@@ -481,7 +481,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.151.2.4  2009-04-20 12:10:20  ncq
+# Revision 1.151.2.5  2009-05-01 16:04:17  ncq
+# - bump version
+#
+# Revision 1.151.2.4  2009/04/20 12:10:20  ncq
 # - bump version
 #
 # Revision 1.151.2.3  2009/03/28 20:36:07  ncq
