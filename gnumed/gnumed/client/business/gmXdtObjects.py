@@ -5,12 +5,12 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.32 2009-02-18 13:43:38 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmXdtObjects.py,v 1.33 2009-05-04 11:39:47 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
-import os.path, sys, md5, linecache, codecs, re as regex, time, datetime as pyDT, logging
+import os.path, sys, linecache, codecs, re as regex, time, datetime as pyDT, logging
 
 
 import mx.DateTime as mxDT
@@ -345,7 +345,7 @@ def split_xdt_file(aFile,patlst,cfg):
 				_log.debug("reading %s"%tmp )
 			hashes = check_for_previous_records(ID,name,patlst)
 			# is this new content ?
-			data_hash = md5.new()
+			data_hash = md5.new()			# FIXME: use hashlib
 			map(data_hash.update, content)
 			digest = data_hash.hexdigest()
 			if digest not in hashes:
@@ -436,7 +436,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.32  2009-02-18 13:43:38  ncq
+# Revision 1.33  2009-05-04 11:39:47  ncq
+# - md5 is gone
+#
+# Revision 1.32  2009/02/18 13:43:38  ncq
 # - get_unique_filename API change
 #
 # Revision 1.31  2009/02/05 21:16:59  ncq
