@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.69 2009-04-24 12:11:08 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.70 2009-05-04 11:41:01 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc10"
@@ -247,6 +247,7 @@ cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../server/gm-bootstrap_server ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-upgrade_server ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-fixup_server ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-adjust_db_settings.sh ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
@@ -416,7 +417,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.69  2009-04-24 12:11:08  ncq
+# Revision 1.70  2009-05-04 11:41:01  ncq
+# - include gm-fixup_server
+#
+# Revision 1.69  2009/04/24 12:11:08  ncq
 # - include ARRIBA installer
 #
 # Revision 1.68  2009/04/03 11:08:48  ncq
