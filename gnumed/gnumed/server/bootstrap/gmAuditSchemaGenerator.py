@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -230,6 +230,10 @@ def trigger_ddl(aCursor='default', schema='audit', audited_table=None):
 #------------------------------------------------------------------
 def create_audit_ddl(aCursor):
 	# get list of all marked tables
+	# we could also get the child tables for audit.audit_fields
+	# but we would have to potentially parse down several levels
+	# of interitance (such as with clin.clin_root_item) to find
+	# the actual leaf tables to audit
 	cmd = u"select schema, table_name from audit.audited_tables"
 	rows, idx = gmPG2.run_ro_queries(link_obj=aCursor, queries = [{'cmd': cmd}])
 	if len(rows) == 0:
@@ -281,7 +285,11 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.32  2008-01-27 21:23:22  ncq
+# Revision 1.33  2009-05-04 11:42:28  ncq
+# - document why detecting audit targets via inheritance from
+#   audit.audit_fields does not work
+#
+# Revision 1.32  2008/01/27 21:23:22  ncq
 # - check function bodies
 #
 # Revision 1.31  2008/01/07 14:15:43  ncq
