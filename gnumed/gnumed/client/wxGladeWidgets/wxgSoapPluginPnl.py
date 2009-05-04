@@ -68,7 +68,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgSoapPluginPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._LCTRL_active_problems.SetToolTipString(_("This shows the list of active problems, They include open episodes as well as active health issues."))
-        self._TCTRL_recent_notes.Enable(False)
+        self._TCTRL_recent_notes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DFACE))
         self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
         self._PRW_encounter_start.SetToolTipString(_("Date and time when the current (!) encounter started."))
         self._PRW_encounter_end.SetToolTipString(_("Date and time when the current (!) encounter ends."))
