@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
-$Id: README,v 1.8 2008-07-15 15:26:17 ncq Exp $
+$Id: README,v 1.9 2009-05-04 11:41:29 ncq Exp $
 --------------------------------------------------------------------------
 
 The files and scripts in the bootstrap/ directory are intended for
@@ -16,7 +16,12 @@ gnumed_v* DATABASES along the way.
 
 The upgrade-db.sh script upgrades an existing GNUmed database.
 The original database WILL NOT BE CHANGED in any way. This allows
-for SAFE UPGRADES from one database version to the next.
+for SAFE UPGRADES from one database version to the next. The
+upgrade procedure can be repeated.
+
+The fixup-db.sh script applies fixes to an existing GNUmed
+database. It can be run any number of times. It always
+applies all accumulated fixes for a given database version.
 
 Bootstrapping is a rather complicated affair. Here are some
 prerequisites that need to be matched:
