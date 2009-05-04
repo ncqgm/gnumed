@@ -84,6 +84,6 @@ fi
 
 for DB_VER in ${VERSIONS_TO_DROP} ; do
 	echo_msg "Dropping obsoleted staging database gnumed_v${DB_VER} ..."
-	echo_msg "(you may need to provide the password for ${USER})"
+	echo_msg " (you may need to provide the password for ${USER})"
 	su -c "dropdb ${PORT_DEF} gnumed_v${DB_VER}" postgres
 done
