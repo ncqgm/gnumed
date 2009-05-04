@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v11-clin-current_medication-static.sql,v 1.1 2009-05-04 11:39:26 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-current_medication-static.sql,v 1.2 2009-05-04 15:05:59 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -18,7 +18,7 @@ drop audit.log_clin_medication;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-create table clin.drug_brand (
+create table clin.substance_brand (
 	pk serial primary key,
 	description text,
 	preparation text,
@@ -26,10 +26,10 @@ create table clin.drug_brand (
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
-create table clin.drug_component (
+create table clin.substance_component (
 	pk serial primary key,
 	fk_brand integer
-		references clin.drug_brand(pk)
+		references clin.substance_brand(pk)
 			on update cascade
 			on delete restrict,
 	description text,
@@ -38,10 +38,10 @@ create table clin.drug_component (
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
-create table clin.current_medication (
+create table clin.substance_intake (
 	pk serial primary key,
 	fk_brand integer
-		references clin.drug_brand(pk)
+		references clin.substance_brand(pk)
 			on update cascade
 			on delete restrict,
 	schedule text,
@@ -59,17 +59,20 @@ create table clin.lnk_medication2episode (
 			on update cascade
 			on delete restrict,
 	fk_medication integer
-		references clin.current_medication(pk)
+		references clin.substance_intake(pk)
 			on update cascade
 			on delete restrict
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-current_medication-static.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-current_medication-static.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-clin-current_medication-static.sql,v $
--- Revision 1.1  2009-05-04 11:39:26  ncq
+-- Revision 1.2  2009-05-04 15:05:59  ncq
+-- - better naming
+--
+-- Revision 1.1  2009/05/04 11:39:26  ncq
 -- - new
 --
 --
