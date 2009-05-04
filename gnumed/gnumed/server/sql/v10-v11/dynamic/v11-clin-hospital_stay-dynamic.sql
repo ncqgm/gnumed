@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v11-clin-hospital_stay-dynamic.sql,v 1.1 2009-04-01 15:55:40 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-hospital_stay-dynamic.sql,v 1.2 2009-05-04 11:43:39 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -17,6 +17,7 @@ comment on table clin.hospital_stay is
 'collects data on hospitalisations of patients, reasons are linked via a link table';
 
 select gm.add_table_for_notifies('clin', 'hospital_stay');
+select audit.add_table_for_audit('clin', 'hospital_stay');
 
 
 
@@ -66,7 +67,7 @@ grant select, insert, update, delete on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-hospital_stay-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-hospital_stay-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 --
