@@ -7,7 +7,7 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.5 2009-05-05 08:37:25 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.6 2009-05-05 08:42:57 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
@@ -46,6 +46,7 @@ if test "${ARG_ONE}" == "update" ; then
 	echo ""
 	echo "The new version will be in $0.new."
 	wget http://www.gnumed.de/downloads/client/$0 -O $0.new
+	chmod +x $0.new
 	exit 0
 fi
 
@@ -56,7 +57,7 @@ if test -r ${ARG_ONE} ; then
 else
 	TARGET_VER=${ARG_ONE}
 	TGZ_NAME="GNUmed-client.${TARGET_VER}.tgz"
-	TARGET_BRANCH=`echo ${TARGET_VER} | -c 1-3`
+	TARGET_BRANCH=`echo ${TARGET_VER} | cut -c 1-3`
 	DL_BASE_URL="http://www.gnumed.de/downloads/client/${TARGET_BRANCH}"
 fi
 LAUNCHER=~/"Desktop/GNUmed ${TARGET_VER}"
@@ -266,7 +267,10 @@ mc -e gm-from-cvs.sh
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.5  2009-05-05 08:37:25  ncq
+# Revision 1.6  2009-05-05 08:42:57  ncq
+# - fix missing cut
+#
+# Revision 1.5  2009/05/05 08:37:25  ncq
 # - add option update
 #
 # Revision 1.4  2009/04/21 17:02:27  ncq
