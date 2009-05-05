@@ -7,7 +7,7 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.4 2009-04-21 17:02:27 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.5 2009-05-05 08:37:25 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
@@ -37,6 +37,16 @@ if test -z ${ARG_ONE} ; then
 	echo " Note: This does NOT run as root !"
 	echo "======================================================="
 	exit 1
+fi
+
+
+if test "${ARG_ONE}" == "update" ; then
+	echo ""
+	echo "Updating the installer itself."
+	echo ""
+	echo "The new version will be in $0.new."
+	wget http://www.gnumed.de/downloads/client/$0 -O $0.new
+	exit 0
 fi
 
 
@@ -256,7 +266,10 @@ mc -e gm-from-cvs.sh
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.4  2009-04-21 17:02:27  ncq
+# Revision 1.5  2009-05-05 08:37:25  ncq
+# - add option update
+#
+# Revision 1.4  2009/04/21 17:02:27  ncq
 # - calculate DL URL from version on command line
 #
 # Revision 1.3  2009/04/13 11:01:40  ncq
