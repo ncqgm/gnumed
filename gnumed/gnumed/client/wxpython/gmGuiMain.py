@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.450 2009-04-21 17:00:41 ncq Exp $
-__version__ = "$Revision: 1.450 $"
+# $Id: gmGuiMain.py,v 1.451 2009-05-08 08:00:32 ncq Exp $
+__version__ = "$Revision: 1.451 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2409,6 +2409,7 @@ class gmApp(wx.App):
 		self.__starting_up = True
 
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
+		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
 
 		_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
 
@@ -2422,7 +2423,6 @@ class gmApp(wx.App):
 			return False
 
 		gmExceptionHandlingWidgets.set_sender_email(gmSurgery.gmCurrentPractice().user_email)
-		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
 
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
@@ -2921,7 +2921,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.450  2009-04-21 17:00:41  ncq
+# Revision 1.451  2009-05-08 08:00:32  ncq
+# - set true client version in exception handling earlier
+#
+# Revision 1.450  2009/04/21 17:00:41  ncq
 # - give access to new new-pat EA
 #
 # Revision 1.449  2009/04/20 11:40:45  ncq
