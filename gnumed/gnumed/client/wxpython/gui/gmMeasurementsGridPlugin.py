@@ -3,7 +3,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -36,7 +36,6 @@ class gmMeasurementsGridPlugin(gmPlugin.cNotebookPlugin):
 		if not self._verify_patient_avail():
 			return None
 		return 1
-		    
 #======================================================================
 # main
 #----------------------------------------------------------------------
@@ -45,7 +44,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMeasurementsGridPlugin.py,v $
-# Revision 1.2  2008-06-24 14:01:02  ncq
+# Revision 1.3  2009-05-08 08:02:01  ncq
+# - cleanup
+#
+# Revision 1.2  2008/06/24 14:01:02  ncq
 # - improved menu item label
 #
 # Revision 1.1  2008/03/25 19:33:15  ncq
