@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.89 2009-04-21 16:59:59 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmEMRStructWidgets.py,v 1.90 2009-05-08 07:59:33 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -205,7 +205,7 @@ def show_encounter_list(parent=None, patient=None):
 		encs = [
 			[
 				e['started'].strftime('%x %H:%M'),
-				e['last_affirmed'].strftime('%x %H:%M'),
+				e['last_affirmed'].strftime('%H:%M'),
 				e['l10n_type'],
 				gmTools.coalesce(e['reason_for_encounter'], u''),
 				gmTools.coalesce(e['assessment_of_encounter'], u''),
@@ -222,7 +222,7 @@ def show_encounter_list(parent=None, patient=None):
 	encs = [
 		[
 			e['started'].strftime('%x %H:%M'),
-			e['last_affirmed'].strftime('%x %H:%M'),
+			e['last_affirmed'].strftime('%H:%M'),
 			e['l10n_type'],
 			gmTools.coalesce(e['reason_for_encounter'], u''),
 			gmTools.coalesce(e['assessment_of_encounter'], u''),
@@ -246,16 +246,6 @@ def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, paren
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-#	dlg = cEncounterEditAreaDlg (
-#		parent = parent,
-#		encounter = encounter,
-#		button_defs = [
-#			[_('Continue'), _('Continue this encounter saving any changes.')],
-#			[_('Start new'), _('Start a new encounter. The one shown here will be closed.')]
-#		],
-#		msg = msg
-#	)
-
 	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 		parent = None,
 		id = -1,
@@ -272,7 +262,6 @@ def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, paren
 	dlg.Destroy()
 
 	if result == wx.ID_YES:
-#	if result == wx.ID_OK:
 		return True
 
 	return False
@@ -1577,7 +1566,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.89  2009-04-21 16:59:59  ncq
+# Revision 1.90  2009-05-08 07:59:33  ncq
+# - cleanup, better display of encounter list
+#
+# Revision 1.89  2009/04/21 16:59:59  ncq
 # - edit area dlg now takes single_entry argument
 #
 # Revision 1.88  2009/04/19 22:26:47  ncq
