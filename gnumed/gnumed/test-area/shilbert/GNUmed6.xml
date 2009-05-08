@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- New document created with EditiX at Wed Apr 29 15:37:23 CEST 2009 -->
+
+<Devices>
+	<CardicacDevice class="ICD">
+		<DevicePart type="generator">
+			<vendor>St. Jude Medical</vendor>
+			<model>Atlas DR</model>
+			<devicestate>active</devicestate>
+			<dateofimplant format="DD.MM.YYYY">23.03.2002</dateofimplant>
+			<dateofexplant format="DD.MM.YYYY">23.03.2009</dateofexplant>
+			<isexplanted>yes</isexplanted>
+			<comment>battery depletion</comment>
+			<implantsite>subpectoral</implantsite>
+			<implantregion>right subclavian</implantregion>
+			<serial>34234324324324</serial>
+			<GeneratorPart type="Mainboard">
+				<manufacturer>St. Jude Medical</manufacturer>
+				<model>Atlas DR</model>
+				<softwareversion>2.123.4</softwareversion>
+				<Procedure type="software update">
+					<priorversion>2.112.3</priorversion>
+					<currentversion>2.123.4</currentversion>
+					<dateofupdate>23.03.2004</dateofupdate>
+					<comment>better battery calibration</comment>
+				</Procedure>
+			</GeneratorPart>
+			<GeneratorPart type="Battery">
+				<manufacturer></manufacturer>
+				<serial></serial>
+				<Procedure type="interrogation">
+					<interrogationdate format="DD.MM.YYYY">23.03.2004</interrogationdate>
+					<priorinterrogationdate format="DD.MM.YYYY">23.12.2003</priorinterrogationdate>
+					<nextinterrogationscheduled format="DD.MM.YYYY">23.09.2004</nextinterrogationscheduled>
+					<voltage>1.4 Volt</voltage>
+					<resistance>30 Ohm</resistance>
+					<current>200mA</current>
+					<status>BOL</status>
+				</Procedure>
+			</GeneratorPart>
+			<GeneratorPart type="generator">
+				<Procedure type="interrogation">
+					<interrogationdate format="DD.MM.YYYY">23.03.2004</interrogationdate>
+					<priorinterrogationdate format="DD.MM.YYYY">23.12.2003</priorinterrogationdate>
+					<nextinterrogationscheduled format="DD.MM.YYYY">23.09.2004</nextinterrogationscheduled>
+					<!-- generator settings such as pacing, schock program, output etc -->
+					<PacingProgram>
+						<pacingmode>DDDR</pacingmode>
+						<rateresponse>off</rateresponse>
+						<lowerpacingrate>40</lowerpacingrate>
+						<uppertrackingrate></uppertrackingrate>
+						<modeswitch>on</modeswitch>
+						<modeswitchdetectionrate>
+						</modeswitchdetectionrate>
+						<modeswitchpacingrate></modeswitchpacingrate>
+						<modeswitchmode></modeswitchmode>
+						<modeswitchrateresponse></modeswitchrateresponse>
+						<hysteresis>off</hysteresis>
+						<hysteresisrate>5</hysteresisrate>
+					</PacingProgram>
+					<TherapyDeliveryProgram>
+						<vtzone>
+							<vtdetectionrate>140</vtdetectionrate>
+							<vttherapy></vttherapy>
+							<vttherapy></vttherapy>
+							<vttherapy></vttherapy>
+						</vtzone>
+						<fvtzone>
+							<fvtdetectionrate>170</fvtdetectionrate>
+							<fvttherapy></fvttherapy>
+							<fvttherapy></fvttherapy>
+							<fvttherapy></fvttherapy>
+						</fvtzone>
+						<vfzone>
+							<vfdetectionrate>200</vfdetectionrate>
+							<vftherapy></vftherapy>
+							<vftherapy></vftherapy>
+							<vftherapy></vftherapy>
+						</vfzone>
+					</TherapyDeliveryProgram>
+				</Procedure>
+				<Procedure type ="changesettings">
+					<dateofchange format="DD.MM.YYYYY">24.03.2009</dateofchange>
+					<!-- changed settings for generator settings -->
+				</Procedure>
+			</GeneratorPart>
+			<GeneratorPart type="RAjack">
+				<Procedure type="interrogation">
+					<interrogationdate format="DD.MM.YYYY">23.03.2004</interrogationdate>
+					<priorinterrogationdate format="DD.MM.YYYY">23.12.2003</priorinterrogationdate>
+					<nextinterrogationscheduled format="DD.MM.YYYY">23.09.2004</nextinterrogationscheduled>
+					<activepolarity>unipolar</activepolarity>
+					<sensitivity unit="mV">0,3</sensitivity>
+					<outputvoltage unit="mV">7</outputvoltage>
+					<outputduration unit="ms">1,5</outputduration>
+				</Procedure>
+				<Procedure type ="changesettings">
+					<dateofchange format="DD.MM.YYYYY">24.03.2009</dateofchange>
+					<polarity>bipolar</polarity>
+					<sensitivity unit ="mV">0,3</sensitivity>
+					<outputvoltage unit="mV">8</outputvoltage>
+					<outputduration unit="ms">1,0</outputduration>
+				</Procedure>
+			</GeneratorPart>
+			<GeneratorPart type="RVjack">
+				<Procedure type="interrogation">
+					<interrogationdate format="DD.MM.YYYY">23.03.2004</interrogationdate>
+					<priorinterrogationdate format="DD.MM.YYYY">23.12.2003</priorinterrogationdate>
+					<nextinterrogationscheduled format="DD.MM.YYYY">23.09.2004</nextinterrogationscheduled>
+					<activepolarity>unipolar</activepolarity>
+					<sensitivity unit="mV">0,3</sensitivity>
+					<outputvoltage unit="mV">7</outputvoltage>
+					<outputduration unit="ms">1,5</outputduration>
+				</Procedure>
+				<Procedure type ="changesettings">
+					<dateofchange format="DD.MM.YYYYY">24.03.2009</dateofchange>
+					<polarity>bipolar</polarity>
+					<sensitivity unit ="mV">0,3</sensitivity>
+					<outputvoltage unit="mV">8</outputvoltage>
+					<outputduration unit="ms">1,0</outputduration>
+				</Procedure>
+			</GeneratorPart>
+			<GeneratorPart type="LVjack">
+				<Procedure type="interrogation">
+					<interrogationdate format="DD.MM.YYYY">23.03.2004</interrogationdate>
+					<priorinterrogationdate format="DD.MM.YYYY">23.12.2003</priorinterrogationdate>
+					<nextinterrogationscheduled format="DD.MM.YYYY">23.09.2004</nextinterrogationscheduled>
+					<activepolarity>unipolar</activepolarity>
+					<sensitivity unit="mV">0,3</sensitivity>
+					<outputvoltage unit="mV">7</outputvoltage>
+					<outputduration unit="ms">1,5</outputduration>
+				</Procedure>
+				<Procedure type ="changesettings">
+					<dateofchange format="DD.MM.YYYYY">24.03.2009</dateofchange>
+					<polarity>bipolar</polarity>
+					<sensitivity unit ="mV">0,3</sensitivity>
+					<outputvoltage unit="mV">8</outputvoltage>
+					<outputduration unit="ms">1,0</outputduration>
+				</Procedure>
+			</GeneratorPart>
+		</DevicePart>
+		<DevicePart type="lead">
+			<manufacturer></manufacturer>
+			<model></model>
+			<polarity></polarity>
+			<serial></serial>
+			<devicestate>inactive</devicestate>
+			<hasYconnector>yes</hasYconnector>
+			<dateofimplant></dateofimplant>
+			<dateofexplant></dateofexplant>
+			<isexplanted>	no</isexplanted>
+			<leadposition>RV</leadposition>
+			<leadslot>RA</leadslot>
+			<comment></comment> 
+			<connectedtodevice>aid</connectedtodevice>
+			<connectedtodevice>RVlead</connectedtodevice> 
+			<Procedure type="interrogation">
+				<interrogationdate format="DD.MM.YYYY">23.03.2004</interrogationdate>
+				<priorinterrogationdate format="DD.MM.YYYY">23.12.2003</priorinterrogationdate>
+				<nextinterrogationscheduled format="DD.MM.YYYY">23.09.2004</nextinterrogationscheduled>
+				<thresholdvoltage unit="mV">1.4</thresholdvoltage>
+				<energyduration unit="ms">1</energyduration>
+				<impedance untit="Ohm">300</impedance>
+				<sensing unit="mV">7</sensing>
+			</Procedure>
+		</DevicePart>
+		<DevicePart type="lead">
+			<manufacturer></manufacturer>
+			<model></model>
+			<polarity></polarity>
+			<serial></serial>
+			<devicestate>inactive</devicestate>
+			<hasYconnector>yes</hasYconnector>
+			<dateofimplant></dateofimplant>
+			<dateofexplant></dateofexplant>
+			<isexplanted>	no</isexplanted>
+			<leadposition>RV</leadposition>
+			<leadslot>RV</leadslot>
+			<comment></comment> 
+			<connectedtodevice>aid</connectedtodevice>
+			<connectedtodevice>RVlead</connectedtodevice> 
+			<Procedure type="interrogation">
+				<interrogationdate format="DD.MM.YYYY">23.03.2004</interrogationdate>
+				<priorinterrogationdate format="DD.MM.YYYY">23.12.2003</priorinterrogationdate>
+				<nextinterrogationscheduled format="DD.MM.YYYY">23.09.2004</nextinterrogationscheduled>
+				<thresholdvoltage unit="mV">1.4</thresholdvoltage>
+				<energyduration unit="ms">1</energyduration>
+				<impedance untit="Ohm">300</impedance>
+				<sensing unit="mV">7</sensing>
+			</Procedure>
+		</DevicePart>
+	</CardicacDevice>
+</Devices>
