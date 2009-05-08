@@ -20,11 +20,27 @@ including class and must return True if the UI was successfully
 repopulated with content.
 
 @copyright: authors
+
+Template for users:
+
+	#-----------------------------------------------------
+	# reget-on-paint mixin API
+	#-----------------------------------------------------
+	# remember to call
+	#	self._schedule_data_reget()
+	# whenever you learn of data changes from database listener
+	# threads, dispatcher signals etc.
+	def _populate_with_data(self):
+		# fill the UI with data
+		print "need to implement _populate_with_data"
+		return False
+		return True
+	#-----------------------------------------------------
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.29 2008-11-20 20:12:57 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmRegetMixin.py,v 1.30 2009-05-08 08:01:36 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -134,7 +150,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.29  2008-11-20 20:12:57  ncq
+# Revision 1.30  2009-05-08 08:01:36  ncq
+# - template for subclasses
+#
+# Revision 1.29  2008/11/20 20:12:57  ncq
 # - better docs
 #
 # Revision 1.28  2008/03/29 16:22:47  ncq
