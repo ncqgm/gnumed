@@ -7,10 +7,11 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.6 2009-05-05 08:42:57 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.7 2009-05-08 08:03:03 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
+DL_BASE="http://www.gnumed.de/downloads/client"
 
 # ===========================================================
 if test "$LOGNAME" == "root" ; then
@@ -27,12 +28,15 @@ fi
 ARG_ONE="$1"
 if test -z ${ARG_ONE} ; then
 	echo "======================================================="
-	echo "usage: $0 <version> | <tarball>"
+	echo "usage:"
+	echo ""
+	echo " $0 <version> | <tarball> | update"
 	echo ""
 	echo " <version>: the client version to install from the net"
 	echo " <tarball>: a downloaded client tarball"
+	echo " update:    update the installer itself from the net"
 	echo ""
-	echo " Download area: http://www.gnumed.de/downloads/client/"
+	echo " Download area: ${DL_BASE}/"
 	echo ""
 	echo " Note: This does NOT run as root !"
 	echo "======================================================="
@@ -58,7 +62,7 @@ else
 	TARGET_VER=${ARG_ONE}
 	TGZ_NAME="GNUmed-client.${TARGET_VER}.tgz"
 	TARGET_BRANCH=`echo ${TARGET_VER} | cut -c 1-3`
-	DL_BASE_URL="http://www.gnumed.de/downloads/client/${TARGET_BRANCH}"
+	DL_BASE_URL="${DL_BASE}/${TARGET_BRANCH}"
 fi
 LAUNCHER=~/"Desktop/GNUmed ${TARGET_VER}"
 SYS_TYPE="generic Un*x"
@@ -267,7 +271,10 @@ mc -e gm-from-cvs.sh
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.6  2009-05-05 08:42:57  ncq
+# Revision 1.7  2009-05-08 08:03:03  ncq
+# - add self-update
+#
+# Revision 1.6  2009/05/05 08:42:57  ncq
 # - fix missing cut
 #
 # Revision 1.5  2009/05/05 08:37:25  ncq
