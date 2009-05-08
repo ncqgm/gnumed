@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.12 2009-04-19 22:27:00 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.13 2009-05-08 07:59:55 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -119,7 +119,7 @@ def install_wx_exception_handler():
 	set_staff_name(_local_account)
 	set_is_public_database(False)
 	set_sender_email(None)
-	set_client_version(__version__)
+	set_client_version('gmExceptionHandlingWidgets.py %s' % __version__)
 
 	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
 
@@ -325,7 +325,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.12  2009-04-19 22:27:00  ncq
+# Revision 1.13  2009-05-08 07:59:55  ncq
+# - improved default version
+#
+# Revision 1.12  2009/04/19 22:27:00  ncq
 # - cleanup
 #
 # Revision 1.11  2009/04/03 12:30:16  ncq
