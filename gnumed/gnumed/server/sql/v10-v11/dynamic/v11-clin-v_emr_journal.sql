@@ -5,11 +5,12 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_emr_journal.sql,v 1.2 2009-04-05 18:08:01 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v11-clin-v_emr_journal.sql,v 1.3 2009-05-12 12:09:22 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- remember to handle dependant objects possibly dropped by CASCADE
@@ -58,6 +59,10 @@ union all
 
 	select *, 0 as row_version from blobs.v_doc_med_journal
 
+union all
+
+	select * from clin.v_pat_substance_intake_journal
+
 ;
 
 comment on view clin.v_emr_journal is
@@ -69,14 +74,11 @@ comment on view clin.v_emr_journal is
 
 grant select on clin.v_emr_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_emr_journal.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_emr_journal.sql,v $
--- Revision 1.2  2009-04-05 18:08:01  ncq
--- - health issue view now truly supports row_version
---
--- Revision 1.1  2009/04/01 15:55:40  ncq
--- - new
+-- Revision 1.3  2009-05-12 12:09:22  ncq
+-- - include meds in journal
 --
 --
