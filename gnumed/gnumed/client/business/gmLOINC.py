@@ -7,11 +7,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmLOINC.py,v $
-# $Id: gmLOINC.py,v 1.1 2009-04-19 22:25:33 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmLOINC.py,v 1.2 2009-05-12 12:05:21 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, codecs, logging, csv, logging
+import sys, codecs, logging, csv
 
 
 if __name__ == '__main__':
@@ -312,7 +312,7 @@ insert into ref.loinc (
 if __name__ == "__main__":
 
 	from Gnumed.pycommon import gmLog2
-	from Gnumed.pycommon import  gmI18N
+	from Gnumed.pycommon import gmI18N
 
 	gmI18N.activate_locale()
 #	gmDateTime.init()
@@ -339,7 +339,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmLOINC.py,v $
-# Revision 1.1  2009-04-19 22:25:33  ncq
+# Revision 1.2  2009-05-12 12:05:21  ncq
+# - some cleanup
+#
+# Revision 1.1  2009/04/19 22:25:33  ncq
 # - new
 #
 # Revision 1.21  2009/04/03 09:31:37  ncq
