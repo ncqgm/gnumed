@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.288 2009-04-16 12:47:00 ncq Exp $
-__version__ = "$Revision: 1.288 $"
+# $Id: gmClinicalRecord.py,v 1.289 2009-05-12 12:05:04 ncq Exp $
+__version__ = "$Revision: 1.289 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 	gmDateTime.init()
 from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools
-from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab
+from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab, gmMedication
 
 
 _log = logging.getLogger('gm.emr')
@@ -999,6 +999,14 @@ where
 	def health_issue2problem(self, issue=None):
 		return self.get_problems(issues = [issue['pk_health_issue']])
 	#--------------------------------------------------------
+	# API: substance intake
+	#--------------------------------------------------------
+	def get_current_substance_intake(self):
+		cmd = u"select * from clin.v_pat_substance_intake where pk_patient = %(pat)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
+
+		return [ gmMedication.cConsumedSubstance(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
+	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
 	def get_scheduled_vaccination_regimes(self, ID=None, indications=None):
@@ -1896,6 +1904,11 @@ if __name__ == "__main__":
 		print emr.get_last_encounter(issue_id=2)
 		print emr.get_last_but_one_encounter(issue_id=2)
 	#-----------------------------------------
+	def test_get_meds():
+		emr = cClinicalRecord(aPKey=12)
+		for med in emr.get_current_substance_intake():
+			print med
+	#-----------------------------------------
 	if (len(sys.argv) > 0) and (sys.argv[1] == 'test'):
 		#test_allergy_state()
 		#test_get_test_names()
@@ -1906,9 +1919,8 @@ if __name__ == "__main__":
 		#test_get_statistics()
 		#test_add_test_result()
 		#test_get_most_recent_episode()
-		test_get_almost_recent_encounter()
-
-	sys.exit(1)
+		#test_get_almost_recent_encounter()
+		test_get_meds()
 
 #	emr = cClinicalRecord(aPKey = 12)
 
@@ -1966,7 +1978,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.288  2009-04-16 12:47:00  ncq
+# Revision 1.289  2009-05-12 12:05:04  ncq
+# - start medication handling + test
+#
+# Revision 1.288  2009/04/16 12:47:00  ncq
 # - fix logic when getting last-but-one encounter
 #
 # Revision 1.287  2009/04/13 11:00:08  ncq
