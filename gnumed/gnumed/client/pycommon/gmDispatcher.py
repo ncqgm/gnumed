@@ -17,6 +17,7 @@ wx_core_PyDeadObjectError = None
 known_signals = [
 	u'current_encounter_modified',	# the current encounter was modified externally
 	u'current_encounter_switched',	# *another* encounter became the current one
+	u'encounter_mod_db',
 	u'pre_patient_selection',
 	u'post_patient_selection',
 	u'patient_locked',
@@ -318,7 +319,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.23  2009-04-20 11:39:07  ncq
+# Revision 1.24  2009-05-12 12:05:56  ncq
+# - add missing signal
+#
+# Revision 1.23  2009/04/20 11:39:07  ncq
 # - add signal clin_item_updated
 #
 # Revision 1.22  2009/04/13 10:51:18  ncq
