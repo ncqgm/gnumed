@@ -2,15 +2,15 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.83 2009-04-21 16:54:34 ncq Exp $
+# $Id: gmTools.py,v 1.84 2009-05-13 10:35:22 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging
-import codecs, urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
+import urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
 
 
 # GNUmed libs
@@ -1031,7 +1031,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.83  2009-04-21 16:54:34  ncq
+# Revision 1.84  2009-05-13 10:35:22  ncq
+# - some cleanup
+#
+# Revision 1.83  2009/04/21 16:54:34  ncq
 # - fix setting sys app data dir on non-Windows
 #
 # Revision 1.82  2009/04/19 22:26:25  ncq
