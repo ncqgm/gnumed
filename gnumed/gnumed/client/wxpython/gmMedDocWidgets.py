@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.175 2009-02-04 21:47:17 ncq Exp $
-__version__ = "$Revision: 1.175 $"
+# $Id: gmMedDocWidgets.py,v 1.176 2009-05-13 12:20:20 ncq Exp $
+__version__ = "$Revision: 1.176 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -107,7 +107,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
-		return
+		return None
 
 	emr = pat.get_emr()
 
@@ -126,7 +126,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 		if btn_pressed == wx.ID_CANCEL:
 			if unlock_patient:
 				pat.locked = False
-			return
+			return None
 
 	doc_type = gmMedDoc.create_document_type(document_type = document_type)
 
@@ -145,7 +145,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 
 	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].' % filename), beep = True)
 
-	return
+	return doc
 #----------------------
 gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
 #============================================================
@@ -1953,7 +1953,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.175  2009-02-04 21:47:17  ncq
+# Revision 1.176  2009-05-13 12:20:20  ncq
+# - some cleanup
+#
+# Revision 1.175  2009/02/04 21:47:17  ncq
 # - properly sort tree
 #
 # Revision 1.174  2009/01/30 12:11:02  ncq
