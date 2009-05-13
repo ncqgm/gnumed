@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.90 2009-05-08 07:59:33 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmEMRStructWidgets.py,v 1.91 2009-05-13 12:18:35 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -193,51 +193,62 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
-def show_encounter_list(parent=None, patient=None):
+def select_encounters(parent=None, patient=None, single_selection=True):
 
 	if patient is None:
 		patient = gmPerson.gmCurrentPatient()
+
+	if not patient.connected:
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot list encounters. No active patient.'))
+		return False
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
 
 	emr = patient.get_emr()
 
 	#--------------------
 	def refresh(lctrl):
-		encs = [
+		encs = emr.get_encounters()
+
+		items = [
 			[
 				e['started'].strftime('%x %H:%M'),
 				e['last_affirmed'].strftime('%H:%M'),
 				e['l10n_type'],
 				gmTools.coalesce(e['reason_for_encounter'], u''),
 				gmTools.coalesce(e['assessment_of_encounter'], u''),
-				e.has_clinical_data(),
+				gmTools.bool2subst(e.has_clinical_data(), u'', gmTools.u_checkmark_thin),
 				e['pk_encounter']
-			] for e in emr.get_encounters()
+			] for e in encs
 		]
-		lctrl.set_string_items(items = encs)
+
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = encs)
 	#--------------------
 
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	encs = [
+	encs = emr.get_encounters()
+	items = [
 		[
 			e['started'].strftime('%x %H:%M'),
 			e['last_affirmed'].strftime('%H:%M'),
 			e['l10n_type'],
 			gmTools.coalesce(e['reason_for_encounter'], u''),
 			gmTools.coalesce(e['assessment_of_encounter'], u''),
-			e.has_clinical_data(),
+			gmTools.bool2subst(e.has_clinical_data(), u'', gmTools.u_checkmark_thin),
 			e['pk_encounter']
-		] for e in emr.get_encounters()
+		] for e in encs
 	]
 
-	gmListWidgets.get_choices_from_list (
+	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nBelow find all encounters of the patient.\n'),
 		caption = _('Showing encounters ...'),
 		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Emtpy'), '#'],
-		choices = encs,
-		single_selection = True,
+		choices = items,
+		data = encs,
+		can_return_empty = True,
+		single_selection = single_selection,
 		refresh_callback = refresh
 	)
 #----------------------------------------------------------------
@@ -1566,7 +1577,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.90  2009-05-08 07:59:33  ncq
+# Revision 1.91  2009-05-13 12:18:35  ncq
+# - streamline managing encounters
+#
+# Revision 1.90  2009/05/08 07:59:33  ncq
 # - cleanup, better display of encounter list
 #
 # Revision 1.89  2009/04/21 16:59:59  ncq
