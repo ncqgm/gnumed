@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.1 2009-05-12 12:04:01 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMedicationWidgets.py,v 1.2 2009-05-13 12:20:59 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys
@@ -21,7 +21,6 @@ from Gnumed.business import gmPerson
 #, gmMedDoc, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin
 #, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
-#from Gnumed.wxGladeWidgets import wxg
 
 
 _log = logging.getLogger('gm.ui')
@@ -43,7 +42,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__patient = None
 		self.__group_mode = 'episode'
 		self.__col_labels = [
-			_('Drug'),
+			_('Substance'),
 			_('Dose'),
 			_('Schedule'),
 			_('Started'),
@@ -67,11 +66,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	def repopulate_grid(self):
 
 		self.empty_grid()
+
 		if self.__patient is None:
 			return
 
 		emr = self.__patient.get_emr()
 		meds = emr.get_current_substance_intake()
+		if not meds:
+			return
 
 		self.AppendRows(numRows = len(meds))
 
@@ -112,9 +114,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
 
 		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
-		self.SetRowLabelSize(1)
 		self.SetRowLabelSize(0)
-		#self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
+		self.SetRowLabelAlignment(horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 
 		# columns
 		self.AppendCols(numCols = len(self.__col_labels) - 1)
@@ -198,7 +199,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.1  2009-05-12 12:04:01  ncq
+# Revision 1.2  2009-05-13 12:20:59  ncq
+# - improve and streamline
+#
+# Revision 1.1  2009/05/12 12:04:01  ncq
 # - substance intake handling
 #
 #
