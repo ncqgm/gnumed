@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.27 2009-04-16 12:51:02 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmNarrativeWidgets.py,v 1.28 2009-05-13 12:22:05 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -26,6 +26,63 @@ _log.info(__version__)
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
+def move_progress_notes_to_another_encounter(parent=None, encounters=None, episodes=None, patient=None):
+
+	# sanity checks
+	if patient is None:
+		patient = gmPerson.gmCurrentPatient()
+
+	if not patient.connected:
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot move progress notes. No active patient.'))
+		return False
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	emr = patient.get_emr()
+
+	notes = emr.get_clin_narrative (
+		encounters = encounters,
+		episodes = episodes
+	)
+
+	# which narrative
+	selected_narr = gmListWidgets.get_choices_from_list (
+		parent = parent,
+		caption = _('Moving progress notes between encounters ...'),
+		single_selection = False,
+		can_return_empty = True,
+		data = notes,
+		msg = _('\n Select the progress notes to move from the list !\n\n'),
+		columns = [_('when'), _('who'), _('type'), _('entry')],
+		choices = [
+			[	narr['date'].strftime('%x %H:%M'),
+				narr['provider'],
+				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				narr['narrative'].replace('\n', '/').replace('\r', '/')
+			] for narr in notes
+		]
+	)
+
+	if not selected_narr:
+		return True
+
+	# which encounter to move to
+	enc2move2 = gmEMRStructWidgets.select_encounters (
+		parent = parent,
+		patient = patient,
+		single_selection = True
+	)
+
+	if not enc2move2:
+		return True
+
+	for narr in selected_narr:
+		narr['pk_encounter'] = enc2move2['pk_encounter']
+		narr.save()
+
+	return True
+#------------------------------------------------------------
 def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=None):
 
 	# sanity checks
@@ -36,10 +93,10 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit progress notes. No active patient.'))
 		return False
 
-	emr = patient.get_emr()
-
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
+	emr = patient.get_emr()
 
 	#--------------------------
 	def refresh(lctrl):
@@ -50,7 +107,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		)
 		lctrl.set_string_items(items = [
 			[	narr['date'].strftime('%x %H:%M'),
-				narr['provider'],
+				#narr['provider'],
 				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '/').replace('\r', '/')
 			] for narr in notes
@@ -71,7 +128,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 				'Note that even if you chose to delete the entry it will\n'
 				'still be (invisibly) kept in the audit trail to protect\n'
 				'you from litigation because physical deletion is known\n'
-				'to be illegal in some jurisdictions.\n'
+				'to be unlawful in some jurisdictions.\n'
 			),
 			button_defs = (
 				{'label': _('Delete'), 'tooltip': _('Yes, delete the progress note.'), 'default': False},
@@ -137,10 +194,11 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 			' This list shows the progress notes by %s.\n'
 			'\n'
 		) % gmPerson.gmCurrentProvider()['short_alias'],
-		columns = [_('when'), _('who'), _('type'), _('entry')],
+		#columns = [_('when'), _('who'), _('type'), _('entry')],
+		columns = [_('when'), _('type'), _('entry')],
 		choices = [
 			[	narr['date'].strftime('%x %H:%M'),
-				narr['provider'],
+				#narr['provider'],
 				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '/').replace('\r', '/')
 			] for narr in notes
@@ -1372,7 +1430,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.27  2009-04-16 12:51:02  ncq
+# Revision 1.28  2009-05-13 12:22:05  ncq
+# - move_progress_notes_to_another_encounter
+#
+# Revision 1.27  2009/04/16 12:51:02  ncq
 # - edit_* -> manage_progress_notes as it can delete now, too,
 #   after being converted to using get_choices_from_list
 #
