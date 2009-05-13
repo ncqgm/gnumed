@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.102 2009-04-16 12:48:31 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmEMRBrowser.py,v 1.103 2009-05-13 12:19:13 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -218,6 +218,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
 		self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
 
+		item = self.__enc_context_popup.Append(-1, _('Move progress notes'))
+		self.Bind(wx.EVT_MENU, self.__move_progress_notes, item)
+
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
 
@@ -313,12 +316,27 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 			return
 	#--------------------------------------------------------
+	def __move_progress_notes(self, evt):
+		encounter = self.GetPyData(self.__curr_node)
+		node_parent = self.GetItemParent(self.__curr_node)
+		episode = self.GetPyData(node_parent)
+
+		gmNarrativeWidgets.move_progress_notes_to_another_encounter (
+			parent = self,
+			encounters = [encounter['pk_encounter']],
+			episodes = [episode['pk_episode']]
+		)
+	#--------------------------------------------------------
 	def __edit_progress_notes(self, event):
 		encounter = self.GetPyData(self.__curr_node)
 		node_parent = self.GetItemParent(self.__curr_node)
-		owning_episode = self.GetPyData(node_parent)
+		episode = self.GetPyData(node_parent)
 
-		gmNarrativeWidgets.manage_progress_notes(parent = self, encounters = [encounter['pk_encounter']], episodes = [owning_episode['pk_episode']])
+		gmNarrativeWidgets.manage_progress_notes (
+			parent = self,
+			encounters = [encounter['pk_encounter']],
+			episodes = [episode['pk_episode']]
+		)
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, event):
 		node_data = self.GetPyData(self.__curr_node)
@@ -774,7 +792,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.102  2009-04-16 12:48:31  ncq
+# Revision 1.103  2009-05-13 12:19:13  ncq
+# - use improved encounter management
+# - add moving narrative between encounters
+#
+# Revision 1.102  2009/04/16 12:48:31  ncq
 # - edit_progress_notes -> manage_*
 # - use proper formatter when displaying encounter tooltip
 #
