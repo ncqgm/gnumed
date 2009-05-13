@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.451 2009-05-08 08:00:32 ncq Exp $
-__version__ = "$Revision: 1.451 $"
+# $Id: gmGuiMain.py,v 1.452 2009-05-13 12:19:58 ncq Exp $
+__version__ = "$Revision: 1.452 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -504,10 +504,10 @@ class gmTopLevelFrame(wx.Frame):
 
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new'), _("Register a new patient with this practice"))
-		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
+		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
-		item = menu_patient.Append(-1, _('Register new 2'), _("Register a new patient with this practice"))
-		self.Bind(wx.EVT_MENU, self.__on_create_new_patient, item)
+		item = menu_patient.Append(-1, _('Register new (old style)'), _("Register a new patient with this practice"))
+		self.Bind(wx.EVT_MENU, self.__on_create_patient, item)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
 		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create patient from an external source.'))
@@ -2047,7 +2047,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot start new encounter. No active patient.'))
 			return False
-		gmEMRStructWidgets.show_encounter_list()
+		gmEMRStructWidgets.select_encounters()
 	#----------------------------------------------
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -2921,7 +2921,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.451  2009-05-08 08:00:32  ncq
+# Revision 1.452  2009-05-13 12:19:58  ncq
+# - make moving narrative accessible from menu
+# - make new style new patient entry the default
+#
+# Revision 1.451  2009/05/08 08:00:32  ncq
 # - set true client version in exception handling earlier
 #
 # Revision 1.450  2009/04/21 17:00:41  ncq
