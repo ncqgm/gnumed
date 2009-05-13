@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.91 2009-05-13 12:18:35 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmEMRStructWidgets.py,v 1.92 2009-05-13 13:12:21 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -193,6 +193,14 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
+def edit_encounter(parent=None, encounter=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter)
+	dlg.ShowModal()
+#----------------------------------------------------------------
 def select_encounters(parent=None, patient=None, single_selection=True):
 
 	if patient is None:
@@ -226,6 +234,9 @@ def select_encounters(parent=None, patient=None, single_selection=True):
 		lctrl.set_string_items(items = items)
 		lctrl.set_data(data = encs)
 	#--------------------
+	def edit(enc = None):
+		return edit_encounter(parent = parent, encounter = enc)
+	#--------------------
 
 	encs = emr.get_encounters()
 	items = [
@@ -249,7 +260,8 @@ def select_encounters(parent=None, patient=None, single_selection=True):
 		data = encs,
 		can_return_empty = True,
 		single_selection = single_selection,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		edit_callback = edit
 	)
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
@@ -282,9 +294,10 @@ def manage_encounter_types(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	#--------------------
 	def edit(enc_type=None):
 		return edit_encounter_type(parent = parent, encounter_type = enc_type)
-
+	#--------------------
 	def delete(enc_type=None):
 		if gmEMRStructItems.delete_encounter_type(description = enc_type['description']):
 			return True
@@ -294,10 +307,11 @@ def manage_encounter_types(parent=None):
 			beep = True
 		)
 		return False
-
+	#--------------------
 	def refresh(lctrl):
 		enc_types = gmEMRStructItems.get_encounter_types()
 		lctrl.set_string_items(items = enc_types)
+	#--------------------
 
 	enc_types = gmEMRStructItems.get_encounter_types()
 
@@ -1577,7 +1591,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.91  2009-05-13 12:18:35  ncq
+# Revision 1.92  2009-05-13 13:12:21  ncq
+# - enable encounter editing right from the list
+#
+# Revision 1.91  2009/05/13 12:18:35  ncq
 # - streamline managing encounters
 #
 # Revision 1.90  2009/05/08 07:59:33  ncq
