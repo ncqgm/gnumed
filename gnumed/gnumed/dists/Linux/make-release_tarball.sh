@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.70 2009-05-04 11:41:01 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.71 2009-05-13 13:13:23 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc10"
@@ -101,7 +101,8 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/server/sql/gmCrossDB_FKs.sql "\
 "./GNUmed-$CLIENTREV/server/sql/gmCrossDB_FK-views.sql "\
 "./GNUmed-$CLIENTREV/server/sql/gmFormDefs.sql "\
-"./GNUmed-$CLIENTREV/server/sql/gmPhraseWheelTest.sql "
+"./GNUmed-$CLIENTREV/server/sql/gmPhraseWheelTest.sql "\
+"./GNUmed-$CLIENTREV/server/sql/test-data/BC-Excelleris-test_patients.sql "
 
 
 echo "cleaning up"
@@ -417,7 +418,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.70  2009-05-04 11:41:01  ncq
+# Revision 1.71  2009-05-13 13:13:23  ncq
+# - exclude some test data
+#
+# Revision 1.70  2009/05/04 11:41:01  ncq
 # - include gm-fixup_server
 #
 # Revision 1.69  2009/04/24 12:11:08  ncq
