@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.28 2009-05-13 12:22:05 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmNarrativeWidgets.py,v 1.29 2009-05-13 13:12:41 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -107,7 +107,6 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		)
 		lctrl.set_string_items(items = [
 			[	narr['date'].strftime('%x %H:%M'),
-				#narr['provider'],
 				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '/').replace('\r', '/')
 			] for narr in notes
@@ -194,11 +193,9 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 			' This list shows the progress notes by %s.\n'
 			'\n'
 		) % gmPerson.gmCurrentProvider()['short_alias'],
-		#columns = [_('when'), _('who'), _('type'), _('entry')],
 		columns = [_('when'), _('type'), _('entry')],
 		choices = [
 			[	narr['date'].strftime('%x %H:%M'),
-				#narr['provider'],
 				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '/').replace('\r', '/')
 			] for narr in notes
@@ -1430,7 +1427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.28  2009-05-13 12:22:05  ncq
+# Revision 1.29  2009-05-13 13:12:41  ncq
+# - cleanup
+#
+# Revision 1.28  2009/05/13 12:22:05  ncq
 # - move_progress_notes_to_another_encounter
 #
 # Revision 1.27  2009/04/16 12:51:02  ncq
