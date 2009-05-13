@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -106,9 +106,10 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%s"
 	_cmds_store_payload = [
 		u"""update clin.clin_narrative set
-				narrative=%(narrative)s,
-				clin_when=%(date)s,
-				soap_cat=lower(%(soap_cat)s)
+				narrative = %(narrative)s,
+				clin_when = %(date)s,
+				soap_cat = lower(%(soap_cat)s),
+				fk_encounter = %(pk_encounter)s
 			where
 				pk=%(pk_narrative)s and
 				xmin=%(xmin_clin_narrative)s""",
@@ -119,7 +120,8 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		'narrative',
 		'date',
 		'soap_cat',
-		'pk_episode'
+		'pk_episode',
+		'pk_encounter'
 	]
 
 	#xxxxxxxxxxxxxxxx
@@ -278,7 +280,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.39  2009-04-16 12:46:26  ncq
+# Revision 1.40  2009-05-13 12:17:43  ncq
+# - enable setting of fk_encounter
+#
+# Revision 1.39  2009/04/16 12:46:26  ncq
 # - episode/encounter patient consistency check now moved to database
 #
 # Revision 1.38  2009/01/15 11:31:00  ncq
