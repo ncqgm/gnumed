@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.112 2009-02-18 13:43:38 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmMedDoc.py,v 1.113 2009-05-13 13:10:31 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -97,23 +97,24 @@ class cDocumentFolder:
 			'ID': self.pk_patient,
 			'TYP': doc_type
 		}
-		# FIXME: might have to order by on modified_when, date is a string
 		if doc_type is None:
-			cmd = u"select pk_doc from blobs.v_doc_med where pk_patient = %(ID)s"
+			cmd = u"select pk_doc from blobs.v_doc_med where pk_patient = %(ID)s order by clin_when"
 		elif type(doc_type) == types.StringType:
 			cmd = u"""
 				select vdm.pk_doc
 				from blobs.v_doc_med vdm
 				where
 					vdm.pk_patient = %(ID)s and
-					vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)"""
+					vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)
+				order by vdm.clin_when"""
 		else:
 			cmd = u"""
 				select vdm.pk_doc
 				from blobs.v_doc_med vdm
 				where
 					vdm.pk_patient = %(ID)s and
-					vdm.pk_type = %(TYP)s"""
+					vdm.pk_type = %(TYP)s
+				order by vdm.clin_when"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		doc_ids = []
 		for row in rows:
@@ -710,7 +711,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.112  2009-02-18 13:43:38  ncq
+# Revision 1.113  2009-05-13 13:10:31  ncq
+# - sort doc retrieval by clin_when
+#
+# Revision 1.112  2009/02/18 13:43:38  ncq
 # - get_unique_filename API change
 #
 # Revision 1.111  2009/01/15 11:31:58  ncq
