@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.18.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -266,7 +266,7 @@ def parse_INI_stream(stream=None):
 		data[current_option_path] = value
 
 	if inside_list:
-		_log.panic('unclosed list $%s$ detected at end of config stream [%s]', current_option, stream)
+		_log.critical('unclosed list $%s$ detected at end of config stream [%s]', current_option, stream)
 		raise SyntaxError('end of config stream but still in list')
 
 	return data
@@ -512,7 +512,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.18  2008-09-09 20:15:42  ncq
+# Revision 1.18.2.1  2009-05-18 10:17:57  ncq
+# - fix syntax error when detecting end-of-file before end-of-list
+#
+# Revision 1.18  2008/09/09 20:15:42  ncq
 # - warn on same-file different-source
 #
 # Revision 1.17  2008/08/31 16:12:12  ncq
