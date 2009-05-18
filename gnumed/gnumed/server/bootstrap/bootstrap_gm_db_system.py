@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.101 $"
+__version__ = "$Revision: 1.102 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -220,7 +220,7 @@ def create_db_group(cursor=None, group=None):
 
 	return True
 #==================================================================
-def connect(host, port, db, user, passwd, superuser=0):
+def connect(host, port, db, user, passwd):
 	"""
 	This is a wrapper to the database connect function.
 	Will try to recover gracefully from connection errors where possible
@@ -1409,7 +1409,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.101  2009-04-05 18:07:06  ncq
+# Revision 1.102  2009-05-18 15:55:41  ncq
+# - cleanup
+#
+# Revision 1.101  2009/04/05 18:07:06  ncq
 # - better output
 #
 # Revision 1.100  2009/04/03 09:54:21  ncq
