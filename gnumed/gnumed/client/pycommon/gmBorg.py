@@ -1,8 +1,8 @@
 #===================================================
 # Thanks to Python Patterns !
 # ---------------------------
-# $Id: gmBorg.py,v 1.6 2008-05-21 13:57:57 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmBorg.py,v 1.6.4.1 2009-05-18 10:16:56 ncq Exp $
+__version__ = "$Revision: 1.6.4.1 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -19,7 +19,8 @@ class cBorg(object):
 	def __new__(cls, *args, **kargs):
 		# look up subclass instance cache
 		if cBorg._instances.get(cls) is None:
-			cBorg._instances[cls] = object.__new__(cls, *args, **kargs)
+#			cBorg._instances[cls] = object.__new__(cls, *args, **kargs)
+			cBorg._instances[cls] = object.__new__(cls)
 		return cBorg._instances[cls]
 #===================================================
 if __name__ == '__main__':
@@ -46,7 +47,10 @@ if __name__ == '__main__':
 
 #===================================================
 # $Log: gmBorg.py,v $
-# Revision 1.6  2008-05-21 13:57:57  ncq
+# Revision 1.6.4.1  2009-05-18 10:16:56  ncq
+# - args fix for Python 2.6
+#
+# Revision 1.6  2008/05/21 13:57:57  ncq
 # - remove old borg
 #
 # Revision 1.5  2007/10/23 21:23:30  ncq
