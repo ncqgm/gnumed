@@ -5,12 +5,12 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-dem-identity-dob_trigger-fixup.sql,v 1.1.2.1 2009-05-15 14:52:26 ncq Exp $
--- $Revision: 1.1.2.1 $
+-- $Id: v10-dem-identity-dob_trigger-fixup.sql,v 1.1.2.2 2009-05-18 10:20:07 ncq Exp $
+-- $Revision: 1.1.2.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- fix trigger
@@ -44,9 +44,9 @@ delete from cfg.report_query where label = 'patients whose date of birth may be 
 
 insert into cfg.report_query (label, cmd) values (
 	'patients whose date of birth may be wrong by one day due to a bug in version 0.4',
-'select *
+'select pk as pk_patient, *
 from
-	dem.v_basic_person
+	dem.identity
 where
 	modified_when between (
 		-- when was the faulty script imported
@@ -58,11 +58,14 @@ where
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-dem-identity-dob_trigger-fixup.sql,v $', '$Revision: 1.1.2.1 $');
+select gm.log_script_insertion('$RCSfile: v10-dem-identity-dob_trigger-fixup.sql,v $', '$Revision: 1.1.2.2 $');
 
 -- ==============================================================
 -- $Log: v10-dem-identity-dob_trigger-fixup.sql,v $
--- Revision 1.1.2.1  2009-05-15 14:52:26  ncq
+-- Revision 1.1.2.2  2009-05-18 10:20:07  ncq
+-- - improved query
+--
+-- Revision 1.1.2.1  2009/05/15 14:52:26  ncq
 -- - fix faulty DOB trigger logic
 --
 --
