@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.12 2009-02-04 12:28:44 ncq Exp $
+# $Id: gmSurgery.py,v 1.13 2009-05-18 15:30:45 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -15,6 +15,38 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2, gmTools, gmBorg, gmCfg2
 
 _cfg = gmCfg2.gmCfgData()
+#============================================================
+def delete_workplace(workplace=None, delete_config=False, conn=None):
+
+	args = {'wp': workplace}
+
+	# delete workplace itself (plugin load list, that is)
+	queries = [
+		{'cmd': u"""
+delete from cfg.cfg_item
+where
+	fk_template = (
+		select pk
+		from cfg.cfg_template
+		where name = 'horstspace.notebook.plugin_load_order'
+	)
+		and
+	workplace = %(wp)s""",
+		'args': args
+		}
+	]
+
+	# delete other config items associated with this workplace
+	if delete_config:
+		queries.append ({
+			'cmd': u"""
+delete from cfg.cfg_item
+where
+	workplace = %(wp)s""",
+			'args': args
+		})
+
+	gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 #============================================================
 class gmCurrentPractice(gmBorg.cBorg):
 
@@ -222,7 +254,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.12  2009-02-04 12:28:44  ncq
+# Revision 1.13  2009-05-18 15:30:45  ncq
+# - delete_workplace
+#
+# Revision 1.12  2009/02/04 12:28:44  ncq
 # - update in waiting list
 #
 # Revision 1.11  2009/01/22 11:15:55  ncq
