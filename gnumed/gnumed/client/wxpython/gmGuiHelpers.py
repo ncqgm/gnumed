@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.101 2009-02-24 11:19:54 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmGuiHelpers.py,v 1.102 2009-05-18 15:31:29 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -80,6 +80,9 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 				pass
 
 		self.Fit()
+	#--------------------------------------------------------
+	def checkbox_is_checked(self):
+		return self._CHBOX_dont_ask_again.IsChecked()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -518,7 +521,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.101  2009-02-24 11:19:54  ncq
+# Revision 1.102  2009-05-18 15:31:29  ncq
+# - checkbox_is_checked convenience wrapper
+#
+# Revision 1.101  2009/02/24 11:19:54  ncq
 # - cleanup
 #
 # Revision 1.100  2009/01/15 11:37:06  ncq
