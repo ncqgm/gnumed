@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.452 2009-05-13 12:19:58 ncq Exp $
-__version__ = "$Revision: 1.452 $"
+# $Id: gmGuiMain.py,v 1.453 2009-05-18 15:32:05 ncq Exp $
+__version__ = "$Revision: 1.453 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2302,6 +2302,12 @@ class gmTopLevelFrame(wx.Frame):
 			workplace = gmSurgery.gmCurrentPractice().active_workplace
 		)
 
+		if _cfg.get(option = 'debug'):
+			print '---=== GNUmed shutdown ===---'
+			print _('You have to manually close this window to finalize shutting down GNUmed.')
+			print _('This is so that you can inspect the console output at your leisure.')
+			print '---=== GNUmed shutdown ===---'
+
 		sys.stdin = sys.__stdin__
 		sys.stdout = sys.__stdout__
 		sys.stderr = sys.__stderr__
@@ -2446,7 +2452,9 @@ class gmApp(wx.App):
 			self.RedirectStdio()
 			# print this so people know what this window is for
 			# and don't get suprised when it pops up later
-			print '***** %s *****' % _('redirecting STDOUT/STDERR to this log window')
+			print '---=== GNUmed startup ===---'
+			print _('redirecting STDOUT/STDERR to this log window')
+			print '---=== GNUmed startup ===---'
 
 		self.user_activity_detected = True
 		self.elapsed_inactivity_slices = 0
@@ -2921,7 +2929,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.452  2009-05-13 12:19:58  ncq
+# Revision 1.453  2009-05-18 15:32:05  ncq
+# - improved stdio message
+#
+# Revision 1.452  2009/05/13 12:19:58  ncq
 # - make moving narrative accessible from menu
 # - make new style new patient entry the default
 #
