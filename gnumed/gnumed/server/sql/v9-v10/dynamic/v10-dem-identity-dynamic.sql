@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-dem-identity-dynamic.sql,v 1.2 2008-12-25 16:57:40 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v10-dem-identity-dynamic.sql,v 1.3 2009-05-18 15:57:54 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -35,8 +35,8 @@ BEGIN
 		return NEW;
 	end if;
 
-	NEW.dob = date_trunc(''day'', NEW.dob at time zone ''UTC'') +
-		''11 hours 11 minutes 11 seconds 111 milliseconds''::interval;
+
+	NEW.dob = date_trunc(''day'', NEW.dob) + ''11 hours 11 minutes 11 seconds 111 milliseconds''::interval;
 
 	return NEW;
 END;';
@@ -57,12 +57,33 @@ alter table dem.identity
 -- FIXME: need to somehow ensure patients do get a DOB !
 
 
+-- add analysis query
+delete from cfg.report_query where label = 'patients whose date of birth may be wrong by one day due to a bug in version 0.4';
+
+insert into cfg.report_query (label, cmd) values (
+	'patients whose date of birth may be wrong by one day due to a bug in version 0.4',
+'select pk as pk_patient, *
+from
+	dem.identity
+where
+	modified_when between (
+		-- when was the faulty script imported
+		select imported from gm_schema_revision where filename like ''%v10-dem-identity-dynamic.sql%''
+	) and (
+		-- when was this fixup script imported
+		select imported from gm_schema_revision where filename like ''%v10-dem-identity-dob_trigger-fixup.sql%''
+	)
+');
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-dem-identity-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v10-dem-identity-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v10-dem-identity-dynamic.sql,v $
--- Revision 1.2  2008-12-25 16:57:40  ncq
+-- Revision 1.3  2009-05-18 15:57:54  ncq
+-- - fix trigger and add query
+--
+-- Revision 1.2  2008/12/25 16:57:40  ncq
 -- - DOB normalize trigger must be BEFORE
 --
 -- Revision 1.1  2008/12/22 18:57:00  ncq
