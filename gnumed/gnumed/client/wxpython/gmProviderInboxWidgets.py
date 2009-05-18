@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.33 2009-02-18 13:47:43 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmProviderInboxWidgets.py,v 1.34 2009-05-18 15:32:42 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2, gmExceptions
 from Gnumed.business import gmPerson, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel, gmEditArea
+from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel, gmEditArea, gmAuthWidgets
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl, wxgTextExpansionEditAreaPnl
 
 
@@ -195,6 +195,47 @@ class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
 # FIXME: this should be moved elsewhere !
 def configure_workplace_plugins(parent=None):
 
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#-----------------------------------
+	def delete(workplace):
+
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			parent,
+			-1,
+			caption = _('Deleting workplace ...'),
+			question = _('Are you sure you want to delete this workplace ?\n\n "%s"\n') % workplace,
+			show_checkbox = True,
+			checkbox_msg = _('delete configuration, too'),
+			checkbox_tooltip = _(
+				'Check this if you want to delete all configuration items\n'
+				'for this workplace along with the workplace itself.'
+			),
+			button_defs = [
+				{'label': _('Delete'), 'tooltip': _('Yes, delete this workplace.'), 'default': True},
+				{'label': _('Do NOT delete'), 'tooltip': _('No, do NOT delete this workplace'), 'default': False}
+			]
+		)
+
+		decision = dlg.ShowModal()
+		if decision != wx.ID_YES:
+			dlg.Destroy()
+			return False
+
+		include_cfg = dlg.checkbox_is_checked()
+		dlg.Destroy()
+
+		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('delete workplace'))
+		if not dbo_conn:
+			return False
+
+		gmSurgery.delete_workplace(workplace = workplace, conn = dbo_conn, delete_config = include_cfg)
+		return True
+	#-----------------------------------
+	def refresh(lctrl):
+		workplaces = gmSurgery.gmCurrentPractice().workplaces
+		lctrl.set_string_items(workplaces)
 	#-----------------------------------
 	def edit(workplace=None):
 
@@ -259,8 +300,6 @@ def configure_workplace_plugins(parent=None):
 
 		return True
 	#-----------------------------------
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
 
 	curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
 	workplaces = gmSurgery.gmCurrentPractice().workplaces
@@ -281,8 +320,10 @@ def configure_workplace_plugins(parent=None):
 		selections = sels,
 		columns = [_('Workplace')],
 		single_selection = True,
+		refresh_callback = refresh,
 		edit_callback = edit,
-		new_callback = edit
+		new_callback = edit,
+		delete_callback = delete
 	)
 #============================================================
 class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):
@@ -503,7 +544,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.33  2009-02-18 13:47:43  ncq
+# Revision 1.34  2009-05-18 15:32:42  ncq
+# - add deleting workplaces
+#
+# Revision 1.33  2009/02/18 13:47:43  ncq
 # - do not throw exception in _goto_doc_review if patient
 #   does not exist, rather report error
 #
