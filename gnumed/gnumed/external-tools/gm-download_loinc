@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# ===========================================================
+# Fetch and unpack LOINC data.
+#
+# 	http://loinc.org
+#
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-download_loinc,v $
+# $Id: gm-download_loinc,v 1.1 2009-05-19 12:42:37 ncq Exp $
+# ===========================================================
+ARCH_NAME="loinctab.zip"
+DL_URL="http://www.gnumed.de/downloads/data/loinc/${ARCH_NAME}"
+DL_DIR="/tmp"
+
+
+wget -c ${DL_URL} -P ${DL_DIR}
+unzip -o ${DL_DIR}/${ARCH_NAME} -d ${DL_DIR}
+rm -v ${DL_DIR}/${ARCH_NAME}
+
+# ===========================================================
+# $Log: gm-download_loinc,v $
+# Revision 1.1  2009-05-19 12:42:37  ncq
+# - new
+#
+#
