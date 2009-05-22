@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.107 $"
+__version__ = "$Revision: 1.108 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -306,7 +306,8 @@ def __request_login_params_tui():
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
 		login.database = __prompted_input("database [gnumed_v11]: ", 'gnumed_v11')
 		login.user = __prompted_input("user name: ", '')
-		login.password = getpass.getpass("password (not shown): ")
+		tmp = "password for [%s] (not shown): " % login.user
+		login.password = getpass.getpass(tmp)
 		login.port = __prompted_input("port [5432]: ", 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
@@ -458,7 +459,7 @@ select
 	imported::text,
 	version,
 	filename
-from gm_schema_revision
+from gm.schema_revision
 order by imported
 """
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': cmd}])
@@ -1898,7 +1899,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.107  2009-04-03 09:34:26  ncq
+# Revision 1.108  2009-05-22 11:00:47  ncq
+# - gm_schema_revision -> gm.schema_revision
+#
+# Revision 1.107  2009/04/03 09:34:26  ncq
 # - bump DB version
 #
 # Revision 1.106  2009/03/18 14:28:49  ncq
