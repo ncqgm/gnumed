@@ -5,12 +5,12 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_test_results.sql,v 1.3 2009-01-28 11:29:30 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v10-clin-v_test_results.sql,v 1.4 2009-05-22 10:56:25 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -182,11 +182,14 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-v_test_results.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-v_test_results.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v10-clin-v_test_results.sql,v $
--- Revision 1.3  2009-01-28 11:29:30  ncq
+-- Revision 1.4  2009-05-22 10:56:25  ncq
+-- - comment out readonly cmd
+--
+-- Revision 1.3  2009/01/28 11:29:30  ncq
 -- - improved query speed as per list discussion with Tom Lane et al
 --
 -- Revision 1.2  2009/01/27 11:42:08  ncq
