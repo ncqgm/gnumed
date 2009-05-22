@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.13 2009-05-08 07:59:55 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.14 2009-05-22 11:01:23 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -311,7 +311,7 @@ sender email  : %s
 				attachments = attachments
 			)
 			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
-		except StandardError:
+		except:
 			_log2.exception('cannot send bug report')
 			gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
 		wx.EndBusyCursor()
@@ -325,7 +325,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.13  2009-05-08 07:59:55  ncq
+# Revision 1.14  2009-05-22 11:01:23  ncq
+# - better catch exceptions on mailing log
+#
+# Revision 1.13  2009/05/08 07:59:55  ncq
 # - improved default version
 #
 # Revision 1.12  2009/04/19 22:27:00  ncq
