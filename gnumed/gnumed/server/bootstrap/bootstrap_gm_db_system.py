@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.102 $"
+__version__ = "$Revision: 1.103 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -719,7 +719,7 @@ class database:
 
 		# check for target database
 		if self.__db_exists():
-			drop_existing = bool(cfg_get(self.section, 'drop target database'))
+			drop_existing = bool(int(cfg_get(self.section, 'drop target database')))
 			if drop_existing:
 				print_msg("==> dropping pre-existing *target* database [%s] ..." % self.name)
 				_log.info('trying to drop target database')
@@ -735,7 +735,7 @@ class database:
 				cursor.close()
 				self.conn.commit()
 			else:
-				use_existing = bool(cfg_get(self.section, 'use existing target database'))
+				use_existing = bool(int(cfg_get(self.section, 'use existing target database')))
 				if use_existing:
 					# FIXME: verify that database is owned by "gm-dbo"
 					print_msg("==> using pre-existing *target* database [%s] ..." % self.name)
@@ -1409,7 +1409,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.102  2009-05-18 15:55:41  ncq
+# Revision 1.103  2009-05-22 11:02:00  ncq
+# - need to cast test to int before casting to bool
+#
+# Revision 1.102  2009/05/18 15:55:41  ncq
 # - cleanup
 #
 # Revision 1.101  2009/04/05 18:07:06  ncq
