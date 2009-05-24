@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.108 $"
+__version__ = "$Revision: 1.109 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -306,7 +306,7 @@ def __request_login_params_tui():
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
 		login.database = __prompted_input("database [gnumed_v11]: ", 'gnumed_v11')
 		login.user = __prompted_input("user name: ", '')
-		tmp = "password for [%s] (not shown): " % login.user
+		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
 		login.port = __prompted_input("port [5432]: ", 5432)
 	except KeyboardInterrupt:
@@ -1899,7 +1899,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.108  2009-05-22 11:00:47  ncq
+# Revision 1.109  2009-05-24 16:28:06  ncq
+# - better output
+#
+# Revision 1.108  2009/05/22 11:00:47  ncq
 # - gm_schema_revision -> gm.schema_revision
 #
 # Revision 1.107  2009/04/03 09:34:26  ncq
