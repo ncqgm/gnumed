@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_test_results.sql,v 1.1 2009-05-22 10:57:50 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-v_test_results.sql,v 1.2 2009-05-24 16:33:43 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -143,7 +143,7 @@ select
 	tr.xmin as xmin_test_result,
 	-- v_unified_test_types
 	vutt.pk_test_org,
-	vutt.pk_test_type_unified,
+	vutt.pk_meta_test_type,
 	-- v_pat_episodes
 	epi.fk_health_issue
 		as pk_health_issue,
@@ -169,11 +169,14 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_test_results.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_test_results.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_test_results.sql,v $
--- Revision 1.1  2009-05-22 10:57:50  ncq
+-- Revision 1.2  2009-05-24 16:33:43  ncq
+-- - name now "meta" test type
+--
+-- Revision 1.1  2009/05/22 10:57:50  ncq
 -- - new
 --
 --
