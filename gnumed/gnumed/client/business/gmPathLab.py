@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.69 2009-03-18 14:27:28 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmPathLab.py,v 1.70 2009-05-24 16:27:34 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -28,30 +28,48 @@ _log.info(__version__)
 # FIXME: use UCUM from Regenstrief Institute
 
 #============================================================
+class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents one meta test type under which actual test types can be aggregated."""
+
+	_cmd_fetch_payload = u"""select * from clin.meta_test_type where pk = %s"""
+
+	_cmds_store_payload = []
+
+	_updatable_fields = []
+#------------------------------------------------------------
+def get_meta_test_types():
+	cmd = u'select * from clin.meta_test_type'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
+#============================================================
 class cTestType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
 
-	_cmd_fetch_payload = u"""select *, xmin from clin.test_type where pk = %s"""
+	_cmd_fetch_payload = u"""select * from clin.v_test_types where pk_test_type = %s"""
 
 	_cmds_store_payload = [
 		u"""update clin.test_type set
-				fk_test_org = %(fk_test_org)s,
+				abbrev = %(abbrev)s,
+				name = %(name)s,
+				loinc = %(loinc)s,
 				code = %(code)s,
 				coding_system = %(coding_system)s,
-				name = %(name)s,
-				comment = %(comment)s,
+				comment = %(comment_type)s,
 				conversion_unit = %(conversion_unit)s
-			where pk = %(pk)s""",
-		u"""select xmin from clin.test_type where pk = %(pk)"""
+				fk_test_org = %(pk_test_org)s
+			where pk = %(pk_test_type)s""",
+		u"""select xmin_test_type from clin.v_test_types where pk_test_type = %(pk_test_type)"""
 	]
 
 	_updatable_fields = [
-		'fk_test_org',
+		'abbrev',
+		'name',
+		'loinc',
 		'code',
 		'coding_system',
-		'name',
-		'comment',
-		'conversion_unit'
+		'comment_type',
+		'conversion_unit',
+		'pk_test_org'
 	]
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
@@ -68,6 +86,11 @@ class cTestType(gmBusinessDBObject.cBusinessDBObject):
 				value = rows[0][0]
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+#------------------------------------------------------------
+def get_measurement_types():
+	cmd = u'select * from clin.v_test_types'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cTestType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 #------------------------------------------------------------
 def find_test_type(lab=None, code=None, name=None):
 
@@ -110,22 +133,6 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	# found ?
 	if ttype is not None:
 		return ttype
-#		if name is None:
-#			return ttype
-#		db_lname = ttype['name']
-#		# yes but ambigous
-#		if name != db_lname:
-#			_log.error('test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.69 $'
-#			to = 'user'
-#			prob = _('The test type already exists but the long name is different. '
-#					'The test facility may have changed the descriptive name of this test.')
-#			sol = _('Verify with facility and change the old descriptive name to the new one.')
-#			ctxt = _('lab [%s], code [%s], expected long name [%s], existing long name [%s], unit [%s]') % (lab, code, name, db_lname, unit)
-#			cat = 'lab'
-#			status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
-#			return None
-#		return ttype
 
 	_log.debug('creating test type [%s:%s:%s:%s]', lab, code, name, unit)
 
@@ -693,7 +700,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.69 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.70 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -962,21 +969,37 @@ if __name__ == '__main__':
 			name = 'BZ (test 2)'
 		)
 	#--------------------------------------------------------
+	def test_meta_test_type():
+		mtt = cMetaTestType(aPK_obj = 1)
+		print mtt
+		print get_meta_test_types()
+	#--------------------------------------------------------
+	def test_test_type():
+		tt = cTestType(aPK_obj = 1)
+		print tt
+		print get_measurement_types()
+	#--------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 
 		#test_result()
 		#test_create_test_result()
-		test_delete_test_result()
+		#test_delete_test_result()
 		#test_create_test_type()
 		#test_lab_result()
 		#test_request()
 		#test_create_result()
 		#test_unreviewed()
 		#test_pending()
+		#test_meta_test_type()
+		test_test_type()
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.69  2009-03-18 14:27:28  ncq
+# Revision 1.70  2009-05-24 16:27:34  ncq
+# - support meta test types
+# - better support test types
+#
+# Revision 1.69  2009/03/18 14:27:28  ncq
 # - add comment
 #
 # Revision 1.68  2009/02/27 12:38:16  ncq
