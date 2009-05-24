@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.453 2009-05-18 15:32:05 ncq Exp $
-__version__ = "$Revision: 1.453 $"
+# $Id: gmGuiMain.py,v 1.454 2009-05-24 16:28:46 ncq Exp $
+__version__ = "$Revision: 1.454 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -494,6 +494,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_provinces, item)
+
+		item = menu_master_data.Append(-1, _('&Test types'), _('Show test/measurement types.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_test_types, item)
+
+		item = menu_master_data.Append(-1, _('&Meta test types'), _('Show meta test/measurement types.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_meta_test_types, item)
 
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
@@ -2247,6 +2253,12 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_provinces(self, evt):
 		gmDemographicsWidgets.manage_provinces(parent=self)
 	#----------------------------------------------
+	def __on_manage_test_types(self, evt):
+		gmMeasurementWidgets.manage_measurement_types(parent = self)
+	#----------------------------------------------
+	def __on_manage_meta_test_types(self, evt):
+		gmMeasurementWidgets.manage_meta_test_types(parent = self)
+	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
 
@@ -2929,7 +2941,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.453  2009-05-18 15:32:05  ncq
+# Revision 1.454  2009-05-24 16:28:46  ncq
+# - list (meta) test types
+#
+# Revision 1.453  2009/05/18 15:32:05  ncq
 # - improved stdio message
 #
 # Revision 1.452  2009/05/13 12:19:58  ncq
