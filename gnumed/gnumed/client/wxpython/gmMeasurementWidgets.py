@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.45 2009-04-24 12:05:20 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmMeasurementWidgets.py,v 1.46 2009-05-24 16:29:14 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1105,8 +1105,45 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_relevant.Enable(self._CHBOX_review.GetValue())
 		self._TCTRL_review_comment.Enable(self._CHBOX_review.GetValue())
 #================================================================
-# convenience widgets
+# measurement type handling
 #================================================================
+def manage_measurement_types(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	msg = _(
+		'\n'
+		'These are the measurement types currently defined in GNUmed.\n'
+		'\n'
+	)
+
+	mtypes = gmPathLab.get_measurement_types()
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing measurement types.'),
+		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Code'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
+		choices = [ [
+			m['abbrev'],
+			m['name'],
+			gmTools.coalesce(m['loinc'], u''),
+			gmTools.coalesce(m['code'], u'') + gmTools.coalesce(m['coding_system'], u'', u' (%s)'),
+			gmTools.coalesce(m['conversion_unit'], u''),
+			gmTools.coalesce(m['comment_type'], u''),
+			gmTools.coalesce(m['internal_name_org'], _('in-house')),
+			gmTools.coalesce(m['comment_org'], u''),
+			m['pk_test_type']
+		] for m in mtypes ],
+		data = mtypes,
+		single_selection = True,
+		#edit_callback = edit,
+		#new_callback = edit,
+		#delete_callback = delete,
+		#refresh_callback = refresh
+	)
+#----------------------------------------------------------------
 class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1261,6 +1298,45 @@ limit 25"""
 		self.SetToolTipString(_('Select an indicator for the level of abnormality.'))
 		self.selection_only = False
 #================================================================
+def manage_meta_test_types(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	msg = _(
+		'\n'
+		'These are the meta test types currently defined in GNUmed.\n'
+		'\n'
+		'Meta test types allow you to aggregate several actual test types used\n'
+		'by pathology labs into one logical type.\n'
+		'\n'
+		'This is useful for grouping together results of tests which come under\n'
+		'different names but really are the same thing. This often happens when\n'
+		'you switch labs or the lab starts using another test method.\n'
+	)
+
+	mtts = gmPathLab.get_meta_test_types()
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing meta test types.'),
+		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Comment'), u'#'],
+		choices = [ [
+			m['abbrev'],
+			m['name'],
+			gmTools.coalesce(m['loinc'], u''),
+			gmTools.coalesce(m['comment'], u''),
+			m['pk']
+		] for m in mtts ],
+		data = mtts,
+		single_selection = True,
+		#edit_callback = edit,
+		#new_callback = edit,
+		#delete_callback = delete,
+		#refresh_callback = refresh
+	)
+#================================================================
 # main
 #----------------------------------------------------------------
 if __name__ == '__main__':
@@ -1301,7 +1377,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.45  2009-04-24 12:05:20  ncq
+# Revision 1.46  2009-05-24 16:29:14  ncq
+# - support (meta) test types
+#
+# Revision 1.45  2009/04/24 12:05:20  ncq
 # - properly display lab link in grid corner
 #
 # Revision 1.44  2009/04/21 17:01:12  ncq
