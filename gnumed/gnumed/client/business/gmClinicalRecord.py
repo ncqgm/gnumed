@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.289 2009-05-12 12:05:04 ncq Exp $
-__version__ = "$Revision: 1.289 $"
+# $Id: gmClinicalRecord.py,v 1.290 2009-05-26 09:16:33 ncq Exp $
+__version__ = "$Revision: 1.290 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1656,6 +1656,7 @@ where
 	#------------------------------------------------------------------
 	# measurements API
 	#------------------------------------------------------------------
+	# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 	def get_test_types_for_results(self):
 		"""Retrieve data about test types for which this patient has results."""
 		cmd = u"""
@@ -1978,7 +1979,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.289  2009-05-12 12:05:04  ncq
+# Revision 1.290  2009-05-26 09:16:33  ncq
+# - comment on cursors
+#
+# Revision 1.289  2009/05/12 12:05:04  ncq
 # - start medication handling + test
 #
 # Revision 1.288  2009/04/16 12:47:00  ncq
