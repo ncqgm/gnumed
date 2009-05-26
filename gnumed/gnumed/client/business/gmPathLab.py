@@ -1,12 +1,10 @@
-"""GNUmed vaccination related business objects.
-
-license: GPL
-"""
+"""GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.70 2009-05-24 16:27:34 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmPathLab.py,v 1.71 2009-05-26 09:21:13 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL"
 
 
 import types, sys, logging
@@ -23,8 +21,6 @@ from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2, gmTools
 _log = logging.getLogger('gm.lab')
 _log.info(__version__)
 
-# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
-
 # FIXME: use UCUM from Regenstrief Institute
 
 #============================================================
@@ -37,12 +33,17 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 
 	_updatable_fields = []
 #------------------------------------------------------------
+def delete_meta_type(meta_type=None):
+	cmd = u'delete from clin.meta_test_type where pk = %(pk)s'
+	args = {'pk': meta_type}
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#------------------------------------------------------------
 def get_meta_test_types():
 	cmd = u'select * from clin.meta_test_type'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
 #============================================================
-class cTestType(gmBusinessDBObject.cBusinessDBObject):
+class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
 
 	_cmd_fetch_payload = u"""select * from clin.v_test_types where pk_test_type = %s"""
@@ -90,7 +91,7 @@ class cTestType(gmBusinessDBObject.cBusinessDBObject):
 def get_measurement_types():
 	cmd = u'select * from clin.v_test_types'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cTestType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
+	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 #------------------------------------------------------------
 def find_test_type(lab=None, code=None, name=None):
 
@@ -123,8 +124,13 @@ def find_test_type(lab=None, code=None, name=None):
 		if len(rows) == 0:
 			return None
 
-		tt = cTestType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
+		tt = cMeasurementType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
 		return tt
+#------------------------------------------------------------
+def delete_measurement_type(measurement_type=None):
+	cmd = u'delete from clin.test_type where pk = %(pk)s'
+	args = {'pk': measurement_type}
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
 def create_test_type(lab=None, code=None, unit=None, name=None):
 	"""Create or get test type."""
@@ -179,7 +185,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		{'cmd': u"select *, xmin from clin.test_type where pk = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
 	]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = True, return_data = True)
-	ttype = cTestType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
+	ttype = cMeasurementType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
 
 	return ttype
 #============================================================
@@ -700,7 +706,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.70 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.71 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -975,7 +981,7 @@ if __name__ == '__main__':
 		print get_meta_test_types()
 	#--------------------------------------------------------
 	def test_test_type():
-		tt = cTestType(aPK_obj = 1)
+		tt = cMeasurementType(aPK_obj = 1)
 		print tt
 		print get_measurement_types()
 	#--------------------------------------------------------
@@ -995,7 +1001,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.70  2009-05-24 16:27:34  ncq
+# Revision 1.71  2009-05-26 09:21:13  ncq
+# - delete_meta_type
+# - cTestType -> cMeasurementType
+# - delete_measurement_type
+#
+# Revision 1.70  2009/05/24 16:27:34  ncq
 # - support meta test types
 # - better support test types
 #
