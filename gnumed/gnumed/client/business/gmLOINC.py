@@ -7,11 +7,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmLOINC.py,v $
-# $Id: gmLOINC.py,v 1.2 2009-05-12 12:05:21 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmLOINC.py,v 1.3 2009-05-26 09:17:00 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, codecs, logging, csv
+import sys, codecs, logging, csv, urllib2
 
 
 if __name__ == '__main__':
@@ -22,7 +22,7 @@ from Gnumed.pycommon import gmPG2, gmTools
 _log = logging.getLogger('gm.loinc')
 _log.info(__version__)
 
-download_url = u'http://loinc.org'
+origin_url = u'http://loinc.org'
 file_encoding = 'latin1'			# encoding is empirical
 license_delimiter = u'Clip Here for Data'
 version_tag = u'LOINC(R) Database Version'
@@ -82,7 +82,7 @@ def loinc_import(data_fname='loinc_data.csv', license_fname='loinc_license.txt',
 	desc = in_file.read()
 	in_file.close()
 
-	args = {'ver': version, 'desc': desc, 'url': download_url, 'name_long': name_long, 'name_short': name_short}
+	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short}
 
 	# create data source record
 	queries = [{
@@ -104,6 +104,7 @@ insert into ref.data_source (name_long, name_short, version, description, source
 	}]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	data_src_pk = rows[0][0]
+	_log.debug('data source record created, pk is #%s', data_src_pk)
 
 	# import data
 	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
@@ -111,12 +112,15 @@ insert into ref.data_source (name_long, name_short, version, description, source
 
 	conn = gmPG2.get_connection(readonly = False)
 
+	# clean out staging area
 	curs = conn.cursor()
 	cmd = u"""delete from ref.loinc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
+	_log.debug('staging table emptied')
 
+	# from file into staging table
 	curs = conn.cursor()
 	cmd = u"""insert into ref.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
 	first = False
@@ -124,13 +128,15 @@ insert into ref.data_source (name_long, name_short, version, description, source
 		if not first:
 			first = True
 			continue
-		#loinc_line = [ gmTools.none_if(cell.strip(), u'') for cell in loinc_line ]
 		gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd, 'args': loinc_line}])
 	curs.close()
 	conn.commit()
-
 	csv_file.close()
+	_log.debug('staging table loaded')
 
+	# from staging table to real table
+	curs = conn.cursor()
+	args = {'src_pk': data_src_pk}
 	cmd = """
 insert into ref.loinc (
 	fk_data_source,
@@ -146,166 +152,127 @@ insert into ref.loinc (
 	scale_type,
 	method_type,
 	related_names_1_old,
-	grouping_class            | text     |
-	loinc_internal_source     | text     |
-	dt_last_change            | text     |
-	change_type               | text     |
-	answer_list               | text     |
-	code_status               | text     |
-	maps_to                   | text     |
-	scope                     | text     |
-	normal_range              | text     |
-	ipcc_units                | text     |
-	reference                 | text     |
-	exact_component_synonym   | text     |
-	molar_mass                | text     |
-	grouping_class_type       | smallint |
-	formula                   | text     |
-	species                   | text     |
-	example_answers           | text     |
-	acs_synonyms              | text     |
-	base_name                 | text     |
-	final                     | text     |
-	naa_ccr_id                | text     |
-	code_table                | text     |
-	is_set_root               | boolean  |
-	panel_elements            | text     |
-	survey_question_text      | text     |
-	survey_question_source    | text     |
-	units_required            | text     |
-	submitted_units           | text     |
-	related_names_2           | text     |
-	short_name                | text     |
-	order_obs                 | text     |
-	cdisc_common_tests        | text     |
-	hl7_field_subfield_id     | text     |
-	external_copyright_notice | text     |
+	grouping_class,
+	loinc_internal_source,
+	dt_last_change,
+	change_type,
+	answer_list,
+	code_status,
+	maps_to,
+	scope,
+	normal_range,
+	ipcc_units,
+	reference,
+	exact_component_synonym,
+	molar_mass,
+	grouping_class_type,
+	formula,
+	species,
+	example_answers,
+	acs_synonyms,
+	base_name,
+	final,
+	naa_ccr_id,
+	code_table,
+	is_set_root,
+	panel_elements,
+	survey_question_text,
+	survey_question_source,
+	units_required,
+	submitted_units,
+	related_names_2,
+	short_name,
+	order_obs,
+	cdisc_common_tests,
+	hl7_field_subfield_id,
+	external_copyright_notice,
 	example_units,
 	inpc_percentage,
 	long_common_name
-) values (
-	%s,
+)
+
+select
+
+	%(src_pk)s,
 
 	coalesce (
-		long_common_name, (
-			coalesce(component || ':', '') ||
-			coalesce(property || ':', '') ||
-			coalesce(time_aspect || ':', '') ||
-			coalesce(system || ':', '') ||
-			coalesce(scale_type || ':', '') ||
-			coalesce(method_type || ':', '')
+		nullif(long_common_name, ''),
+		(
+			coalesce(nullif(component, '') || ':', '') ||
+			coalesce(nullif(property, '') || ':', '') ||
+			coalesce(nullif(time_aspect, '') || ':', '') ||
+			coalesce(nullif(system, '') || ':', '') ||
+			coalesce(nullif(scale_type, '') || ':', '') ||
+			coalesce(nullif(method_type, '') || ':', '')
 		)
 	),
 
+	nullif(loinc_num, ''),
+	nullif(comments, ''),
+	nullif(component, ''),
+	nullif(property, ''),
+	nullif(time_aspect, ''),
+	nullif(system, ''),
+	nullif(scale_type, ''),
+	nullif(method_type, ''),
+	nullif(related_names_1_old, ''),
+	nullif(class, ''),
+	nullif(source, ''),
+	nullif(dt_last_change, ''),
+	nullif(change_type, ''),
+	nullif(answer_list, ''),
+	nullif(status, ''),
+	nullif(map_to, ''),
+	nullif(scope, ''),
+	nullif(normal_range, ''),
+	nullif(ipcc_units, ''),
+	nullif(reference, ''),
+	nullif(exact_component_synonym, ''),
+	nullif(molar_mass, ''),
+	nullif(class_type, '')::smallint,
+	nullif(formula, ''),
+	nullif(species, ''),
+	nullif(example_answers, ''),
+	nullif(acs_synonyms, ''),
+	nullif(base_name, ''),
+	nullif(final, ''),
+	nullif(naa_ccr_id, ''),
+	nullif(code_table, ''),
+	nullif(is_set_root, '')::boolean,
+	nullif(panel_elements, ''),
+	nullif(survey_question_text, ''),
+	nullif(survey_question_source, ''),
+	nullif(units_required, ''),
+	nullif(submitted_units, ''),
+	nullif(related_names_2, ''),
+	nullif(short_name, ''),
+	nullif(order_obs, ''),
+	nullif(cdisc_common_tests, ''),
+	nullif(hl7_field_subfield_id, ''),
+	nullif(external_copyright_notice, ''),
+	nullif(example_units, ''),
+	nullif(inpc_percentage, ''),
+	nullif(long_common_name, '')
 
-
-)""" % (
-	data_src_pk,
-
-)
-
-"""
- loinc_num                 | text |
- component                 | text |
- property                  | text |
- time_aspect               | text |
- system                    | text |
- scale_type                | text |
- method_type               | text |
- related_names_1_old       | text |
- class                     | text |
- source                    | text |
- dt_last_change            | text |
- change_type               | text |
- comments                  | text |
- answer_list               | text |
- status                    | text |
- map_to                    | text |
- scope                     | text |
- normal_range              | text |
- ipcc_units                | text |
- reference                 | text |
- exact_component_synonym   | text |
- molar_mass                | text |
- class_type                | text |
- formula                   | text |
- species                   | text |
- example_answers           | text |
- acs_synonyms              | text |
- base_name                 | text |
- final                     | text |
- naa_ccr_id                | text |
- code_table                | text |
- is_set_root               | text |
- panel_elements            | text |
- survey_question_text      | text |
- survey_question_source    | text |
- units_required            | text |
- submitted_units           | text |
- related_names_2           | text |
- short_name                | text |
- order_obs                 | text |
- cdisc_common_tests        | text |
- hl7_field_subfield_id     | text |
- external_copyright_notice | text |
- example_units             | text |
- inpc_percentage           | text |
- long_common_name          | text |
+from
+	ref.loinc_staging
 """
 
+	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd, 'args': args}])
 
-"""
- (
-	fk_data_source           ,
-	code                     ,
-	component                ,
-	property                 ,
-	time_aspect              ,
-	system                   ,
-	scale_type               ,
-	method_type              ,
-	related_names_1_old      ,
-	grouping_class           ,
-	loinc_internal_source    ,
-	dt_last_change           ,
-	change_type              ,
-	comment                  ,
-	answer_list              ,
-	code_status              ,
-	maps_to                  ,
-	scope                    ,
-	normal_range             ,
-	ipcc_units               ,
-	reference                ,
-	exact_component_synonym  ,
-	molar_mass               ,
-	grouping_class_type      ,
-	formula                  ,
-	species                  ,
-	example_answers          ,
-	acs_synonyms             ,
-	base_name                ,
-	final                    ,
-	naa_ccr_id               ,
-	code_table               ,
-	is_set_root              ,
-	panel_elements           ,
-	survey_question_text     ,
-	survey_question_source   ,
-	units_required           ,
-	submitted_units          ,
-	related_names_2          ,
-	short_name               ,
-	order_obs                ,
-	cdisc_common_tests       ,
-	hl7_field_subfield_id    ,
-	external_copyright_notice,
-	example_units            ,
-	inpc_percentage          ,
-	term
-)
-"""
+	curs.close()
+	conn.commit()
+	_log.debug('transfer from staging table to real table done')
 
+	# clean out staging area
+	curs = conn.cursor()
+	cmd = u"""delete from ref.loinc_staging"""
+	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
+	curs.close()
+	conn.commit()
+	_log.debug('staging table emptied')
+
+	return True
 #============================================================
 # main
 #------------------------------------------------------------
@@ -319,16 +286,7 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_loinc_split():
-
 		split_LOINCDBTXT(input_fname = sys.argv[2])
-
-#		csv_file = codecs.open('loinc_data.csv', 'rU', 'utf8', 'replace')
-#		loinc_reader = gmTools.unicode_csv_reader(csv_file)
-#		print dir(loinc_reader)
-#		for loinc in loinc_reader:
-#			print loinc['LOINC_NUM']
-#		csv_file.close()
-
 	#--------------------------------------------------------
 	def test_loinc_import():
 		loinc_import(version = '2.26')
@@ -339,7 +297,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmLOINC.py,v $
-# Revision 1.2  2009-05-12 12:05:21  ncq
+# Revision 1.3  2009-05-26 09:17:00  ncq
+# - finish up import
+#
+# Revision 1.2  2009/05/12 12:05:21  ncq
 # - some cleanup
 #
 # Revision 1.1  2009/04/19 22:25:33  ncq
