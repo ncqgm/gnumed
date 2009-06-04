@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.92 2009-05-13 13:12:21 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmEMRStructWidgets.py,v 1.93 2009-06-04 16:30:30 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea
+from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
 from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
@@ -1571,7 +1571,7 @@ if __name__ == '__main__':
 		if pat is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient=pat)
+		gmPatSearchWidgets.set_active_patient(patient=pat)
 
 #	try:
 		# lauch emr dialogs test application
@@ -1591,7 +1591,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.92  2009-05-13 13:12:21  ncq
+# Revision 1.93  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.92  2009/05/13 13:12:21  ncq
 # - enable encounter editing right from the list
 #
 # Revision 1.91  2009/05/13 12:18:35  ncq

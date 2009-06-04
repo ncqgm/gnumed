@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.109 2009-02-10 18:40:07 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmSOAPWidgets.py,v 1.110 2009-06-04 16:30:30 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import wx
 
 # GNUmed
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmExceptions, gmMatchProvider, gmTools, gmCfg
-from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea
+from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery
 
 _log = logging.getLogger('gm.ui')
@@ -1167,7 +1167,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+		gmPatSearchWidgets.set_active_patient(patient=patient)
 
 		#test_soap_notebook()
 		test_soap_notebook_panel()
@@ -1225,7 +1225,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.109  2009-02-10 18:40:07  ncq
+# Revision 1.110  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.109  2009/02/10 18:40:07  ncq
 # - allow one editor per issue regardless of opening order
 #
 # Revision 1.108  2008/12/12 16:36:36  ncq

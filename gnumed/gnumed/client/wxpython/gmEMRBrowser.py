@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.103 2009-05-13 12:19:13 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmEMRBrowser.py,v 1.104 2009-06-04 16:30:30 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import wx
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
-from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets, gmNarrativeWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets, gmNarrativeWidgets, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl, wxgSplittedEMRTreeBrowserPnl
 
 _log = logging.getLogger('gm.ui')
@@ -767,7 +767,7 @@ if __name__ == '__main__':
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient = patient)
+		gmPatSearchWidgets.set_active_patient(patient = patient)
 
 		# display standalone browser
 		application = wx.PyWidgetTester(size=(800,600))
@@ -792,7 +792,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.103  2009-05-13 12:19:13  ncq
+# Revision 1.104  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.103  2009/05/13 12:19:13  ncq
 # - use improved encounter management
 # - add moving narrative between encounters
 #

@@ -1,8 +1,8 @@
 """GNUmed allergy related widgets."""
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-# $Id: gmAllergyWidgets.py,v 1.34 2008-10-22 12:12:31 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmAllergyWidgets.py,v 1.35 2009-06-04 16:30:30 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -15,7 +15,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmDateTime, gmTools, gmMatchProvider
-from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
+from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin, gmPatSearchWidgets
 from Gnumed.business import gmPerson, gmAllergy
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
 
@@ -553,7 +553,7 @@ if __name__ == "__main__":
 		pat = gmPerson.ask_for_patient()
 		if pat is None:
 			sys.exit(0)
-		gmPerson.set_active_patient(pat)
+		gmPatSearchWidgets.set_active_patient(pat)
 
 		#test_allergy_edit_area_dlg()
 		test_allergy_manager_dlg()
@@ -563,7 +563,10 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.34  2008-10-22 12:12:31  ncq
+# Revision 1.35  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.34  2008/10/22 12:12:31  ncq
 # - rework allergy manager as per list
 #
 # Revision 1.33  2008/10/12 16:04:28  ncq

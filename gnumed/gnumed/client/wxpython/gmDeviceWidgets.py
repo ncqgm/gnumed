@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.7 2009-04-16 12:47:28 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmDeviceWidgets.py,v 1.8 2009-06-04 16:30:30 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
 from Gnumed.business import gmPerson
 from Gnumed.pycommon import gmDispatcher, gmMatchProvider
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
 
 _log = logging.getLogger('gm.ui')
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 	#------------------------------------------------------------
 	def test_test_ea_pnl():
 		pat = gmPerson.ask_for_patient()
-		gmPerson.set_active_patient(patient=pat)
+		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
 		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)
 		app.frame.Show()
@@ -130,7 +130,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.7  2009-04-16 12:47:28  ncq
+# Revision 1.8  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.7  2009/04/16 12:47:28  ncq
 # - some cleanup
 #
 # Revision 1.6  2009/04/14 18:35:52  shilbert

@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.34 2009-05-18 15:32:42 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmProviderInboxWidgets.py,v 1.35 2009-06-04 16:30:30 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2, gmExceptions
 from Gnumed.business import gmPerson, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel, gmEditArea, gmAuthWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel, gmEditArea, gmAuthWidgets, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl, wxgTextExpansionEditAreaPnl
 
 
@@ -491,7 +491,7 @@ Leaving message in inbox.""") % handler_key,
 			)
 			return False
 
-		success = gmPerson.set_active_patient(patient = pat)
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		wx.EndBusyCursor()
 
@@ -510,7 +510,7 @@ Leaving message in inbox.""") % handler_key,
 	#--------------------------------------------------------
 	def _goto_measurements_review(self, pk_context=None):
 		wx.BeginBusyCursor()
-		success = gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context))
+		success = gmPatSearchWidgets.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context))
 		wx.EndBusyCursor()
 		if not success:
 			gmGuiHelpers.gm_show_error (
@@ -544,7 +544,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.34  2009-05-18 15:32:42  ncq
+# Revision 1.35  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.34  2009/05/18 15:32:42  ncq
 # - add deleting workplaces
 #
 # Revision 1.33  2009/02/18 13:47:43  ncq

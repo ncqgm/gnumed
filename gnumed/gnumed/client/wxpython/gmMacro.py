@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -278,7 +278,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.43 $" % self.__class__.__name__
+		return "%s $Revision: 1.44 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -377,7 +377,7 @@ class cMacroPrimitives:
 		# FIXME: let user select patient
 		if len(idents) > 1:
 			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
-		if not gmPerson.set_active_patient(patient = idents[0]):
+		if not gmPatSearchWidgets.set_active_patient(patient = idents[0]):
 			return (0, _('cannot activate patient [%s] (%s/%s)') % (str(idents[0]), search_term, search_dict))
 		self.__pat.locked = True
 		self.__pat_lock_cookie = str(random.random())
@@ -471,7 +471,7 @@ if __name__ == '__main__':
 		if pat is None:
 			return
 
-		gmPerson.set_active_patient(patient = pat)
+		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
 
@@ -524,7 +524,7 @@ if __name__ == '__main__':
 		if pat is None:
 			return
 
-		gmPerson.set_active_patient(patient = pat)
+		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True
@@ -583,7 +583,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.43  2009-03-10 14:23:32  ncq
+# Revision 1.44  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.43  2009/03/10 14:23:32  ncq
 # - support new style placeholders and test
 #
 # Revision 1.42  2009/01/15 11:40:20  ncq

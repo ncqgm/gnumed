@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.9 2008-12-22 18:59:56 ncq Exp $
-__version__ = '$Revision: 1.9 $'
+# $Id: gmDataMiningWidgets.py,v 1.10 2009-06-04 16:30:30 ncq Exp $
+__version__ = '$Revision: 1.10 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -83,7 +83,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 				pat = dlg.get_selected_person()
 				dlg.Destroy()
 
-		gmPerson.set_active_patient(patient = pat)
+		gmPatSearchWidgets.set_active_patient(patient = pat)
 #================================================================
 class cPatientListingPnl(wxgPatientListingPnl.wxgPatientListingPnl):
 
@@ -200,7 +200,8 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			)
 			return
 		pat = gmPerson.cPatient(aPK_obj = pk_pat)
-		gmPerson.set_active_patient(patient = pat)
+		from Gnumed.wxpython import gmPatSearchWidgets
+		gmPatSearchWidgets.set_active_patient(patient = pat)
 	#--------------------------------------------------------
 	def _on_contribute_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
@@ -411,7 +412,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.9  2008-12-22 18:59:56  ncq
+# Revision 1.10  2009-06-04 16:30:30  ncq
+# - use set active patient from pat search widgets
+#
+# Revision 1.9  2008/12/22 18:59:56  ncq
 # - put \n before appended wrapper query because original query might have
 #   a line starting with "-- " as the last line ...
 #
