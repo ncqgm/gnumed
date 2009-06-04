@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -59,16 +59,16 @@ if __name__ == "__main__":
         if patient is None:
             print "None patient. Exiting gracefully..."
             sys.exit(0)
-        gmPerson.set_active_patient(patient=patient)
-                    
+        gmPatSearchWidgets.set_active_patient(patient=patient)
+
         # display standalone browser
         application = wx.wxPyWidgetTester(size=(800,600))
         emr_journal = gmEMRBrowser.cEMRJournalPanel(application.frame, -1)
         emr_journal.refresh_journal()
-        
+
         application.frame.Show(True)
         application.MainLoop()
-        
+
         # clean up
         if patient is not None:
             try:
@@ -84,7 +84,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.12  2008-03-06 18:32:30  ncq
+# Revision 1.13  2009-06-04 16:31:24  ncq
+# - use set-active-patient from pat-search-widgets
+#
+# Revision 1.12  2008/03/06 18:32:30  ncq
 # - standard lib logging only
 #
 # Revision 1.11  2008/01/27 21:21:59  ncq

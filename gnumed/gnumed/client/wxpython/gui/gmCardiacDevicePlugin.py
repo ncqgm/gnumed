@@ -2,7 +2,7 @@
 This is a cardiac device interrogation management plugin 
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 	# GNUmed
 	from Gnumed.business import gmPerson
 	from Gnumed.wxpython import gmMeasurementWidgets
-	
+
 	_log.info("starting Notebooked cardiac device input plugin...")
 
 	try:
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 		if patient is None:
 			print "None patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+		gmPatSearchWidgets.set_active_patient(patient=patient)
 
 		# display standalone multisash progress notes input
 		application = wx.wx.PyWidgetTester(size = (800,600))
@@ -94,7 +94,10 @@ if __name__ == '__main__':
 	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
 # $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.5  2009-04-16 12:51:17  ncq
+# Revision 1.6  2009-06-04 16:31:24  ncq
+# - use set-active-patient from pat-search-widgets
+#
+# Revision 1.5  2009/04/16 12:51:17  ncq
 # - cleanup
 #
 # Revision 1.4  2009/04/14 18:37:39  shilbert

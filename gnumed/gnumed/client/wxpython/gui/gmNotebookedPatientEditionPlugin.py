@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -71,15 +71,15 @@ if __name__ == "__main__":
 		if patient is None:
 			print "None patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
-					
+		gmPatSearchWidgets.set_active_patient(patient=patient)
+
 		# display standalone notebooked patient editor
 		application = wx.PyWidgetTester(size=(800,600))
 		application.SetWidget(gmDemographicsWidgets.cNotebookedPatEditionPanel, -1)
-		
+
 		application.frame.Show(True)
 		application.MainLoop()
-		
+
 		# clean up
 		if patient is not None:
 			try:
@@ -95,7 +95,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.11  2008-03-06 18:32:31  ncq
+# Revision 1.12  2009-06-04 16:31:24  ncq
+# - use set-active-patient from pat-search-widgets
+#
+# Revision 1.11  2008/03/06 18:32:31  ncq
 # - standard lib logging only
 #
 # Revision 1.10  2008/01/27 21:21:59  ncq

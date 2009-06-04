@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "None patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+		gmPatSearchWidgets.set_active_patient(patient=patient)
 
 		# display standalone multisash progress notes input
 		application = wx.wx.PyWidgetTester(size=(800,600))
@@ -93,7 +93,10 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.16  2008-07-10 08:45:14  ncq
+# Revision 1.17  2009-06-04 16:31:24  ncq
+# - use set-active-patient from pat-search-widgets
+#
+# Revision 1.16  2008/07/10 08:45:14  ncq
 # - fix spelling
 #
 # Revision 1.15  2008/06/24 14:01:02  ncq

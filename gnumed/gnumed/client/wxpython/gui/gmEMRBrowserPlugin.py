@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -64,16 +64,16 @@ if __name__ == "__main__":
         if patient is None:
             print "None patient. Exiting gracefully..."
             sys.exit(0)
-        gmPerson.set_active_patient(patient=patient)
-                    
+        gmPatSearchWidgets.set_active_patient(patient=patient)
+
         # display standalone browser
         application = wx.wxPyWidgetTester(size=(800,600))
         emr_browser = gmEMRBrowser.cEMRBrowserPanel(application.frame, -1)
         emr_browser.refresh_tree()
-        
+
         application.frame.Show(True)
         application.MainLoop()
-        
+
         # clean up
         if patient is not None:
             try:
@@ -89,7 +89,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.16  2008-03-06 18:32:30  ncq
+# Revision 1.17  2009-06-04 16:31:24  ncq
+# - use set-active-patient from pat-search-widgets
+#
+# Revision 1.16  2008/03/06 18:32:30  ncq
 # - standard lib logging only
 #
 # Revision 1.15  2008/01/27 21:21:59  ncq

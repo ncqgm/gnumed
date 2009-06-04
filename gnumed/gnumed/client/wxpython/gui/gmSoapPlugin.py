@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "None patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+		gmPatSearchWidgets.set_active_patient(patient=patient)
 
 		# display standalone multisash progress notes input
 		application = wx.wx.PyWidgetTester(size = (800,600))
@@ -94,7 +94,10 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmSoapPlugin.py,v $
-# Revision 1.3  2009-04-12 20:12:23  shilbert
+# Revision 1.4  2009-06-04 16:31:24  ncq
+# - use set-active-patient from pat-search-widgets
+#
+# Revision 1.3  2009/04/12 20:12:23  shilbert
 # - import of gmSOAPWidgets was missing in standalone mode
 #
 # Revision 1.2  2009/01/06 18:21:55  ncq
