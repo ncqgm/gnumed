@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.29 2009-04-16 12:49:47 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmListWidgets.py,v 1.30 2009-06-04 16:32:01 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -98,6 +98,9 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 
 		self.can_return_empty = False
+
+		if self.refresh_callback is not None:
+			self.refresh_callback(lctrl = self._LCTRL_items)
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -511,7 +514,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.29  2009-04-16 12:49:47  ncq
+# Revision 1.30  2009-06-04 16:32:01  ncq
+# - use refresh from init if available to simplify external setup code
+#
+# Revision 1.29  2009/04/16 12:49:47  ncq
 # - more sanity checks regarding action callbacks
 #
 # Revision 1.28  2009/01/17 23:07:29  ncq
