@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-bill-bill_item-dynamic.sql,v 1.2 2009-04-03 09:57:54 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v11-bill-bill_item-dynamic.sql,v 1.3 2009-06-04 16:36:46 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -41,7 +41,7 @@ alter table bill.bill_item
 
 
 comment on column bill.bill_item.date_to_bill is
-'the encounter during which the billable action for this item took place';
+'the date under which this item is to be billed';
 
 alter table bill.bill_item
 	alter column date_to_bill
@@ -137,11 +137,14 @@ grant select, insert, update, delete on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-bill-bill_item-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v11-bill-bill_item-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v11-bill-bill_item-dynamic.sql,v $
--- Revision 1.2  2009-04-03 09:57:54  ncq
+-- Revision 1.3  2009-06-04 16:36:46  ncq
+-- - fix comment
+--
+-- Revision 1.2  2009/04/03 09:57:54  ncq
 -- - add notify signal
 -- - add grants
 --
