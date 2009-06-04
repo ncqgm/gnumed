@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.64 2009-02-05 14:28:46 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmDateTimeInput.py,v 1.65 2009-06-04 14:52:54 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -163,6 +163,34 @@ class cTimeInput(wx.TextCtrl):
 			**kwargs
 		)
 #==================================================
+class cDateInputCtrl(wx.DatePickerCtrl):
+
+	def __init__(self, *args, **kwargs):
+
+		super(cDateInputCtrl, self).__init__(*args, **kwargs)
+		#self.Bind(wx.EVT_DATE_CHANGED, self.__on_date_changed, self)
+	#----------------------------------------------
+	# def convenience wrapper
+	#----------------------------------------------
+	def is_valid_timestamp(self):
+		valid = self.GetValue().IsValid()
+		if valid:
+			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+		else:
+			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+		self.Refresh()
+		return valid
+	#----------------------------------------------
+	def get_pydt(self):
+		val = self.GetValue()
+		if val.IsValid():
+			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			val = gmDateTime.wxDate2py_dt(val)
+			self.Refresh()
+		else:
+			val = None
+		return val
+#==================================================
 # main
 #--------------------------------------------------
 if __name__ == '__main__':
@@ -193,14 +221,26 @@ if __name__ == '__main__':
 			app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
 			app.MainLoop()
 		#--------------------------------------------------------
-		test_cli()
-#		test_gui()
+		def test_picker():
+			app = wx.PyWidgetTester(size = (200, 300))
+			app.SetWidget(cDateInputCtrl, id=-1, size=(180,20), pos=(10,20))
+			app.MainLoop()
+		#--------------------------------------------------------
+		#test_cli()
+		#test_gui()
+		test_picker()
 
 #==================================================
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.64  2009-02-05 14:28:46  ncq
+# Revision 1.65  2009-06-04 14:52:54  ncq
+# - re-import lost cDatePickerCtrl and test
+#
+# Revision 1.65  2009/05/28 10:49:55  ncq
+# - cDatePickerCtrl
+#
+# Revision 1.64  2009/02/05 14:28:46  ncq
 # - cleanup
 #
 # Revision 1.63  2008/06/22 17:31:50  ncq
