@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.163 2009-04-24 13:01:13 ncq Exp $
-__version__ = "$Revision: 1.163 $"
+# $Id: gmDemographicsWidgets.py,v 1.164 2009-06-04 15:22:35 ncq Exp $
+__version__ = "$Revision: 1.164 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,10 +17,13 @@ import wx.wizard
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea, gmAuthWidgets
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
-from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
+from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
+from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl
+from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
 
 
 # constant defs
@@ -1782,7 +1785,8 @@ def create_new_person(parent=None, activate=False):
 		return False
 
 	if activate:
-		gmPerson.set_active_patient(patient = ea.data)
+		from Gnumed.wxpython import gmPatSearchWidgets
+		gmPatSearchWidgets.set_active_patient(patient = ea.data)
 
 	dlg.Destroy()
 	return True
@@ -1809,6 +1813,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._PRW_lastname.final_regex = '.+'
 		self._PRW_firstnames.final_regex = '.+'
 		self._PRW_address_searcher.selection_only = False
+		low = wx.DateTimeFromDMY(1,0,1900)
+		hi = wx.DateTime()
+		self._DP_dob.SetRange(low, hi.SetToCurrent())
 	#----------------------------------------------------------------
 	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
 
@@ -1870,20 +1877,27 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_gender.display_as_valid(True)
 
 		# dob validation
-		dob = self._DP_dob.GetValue()
-		if not dob.IsValid():
-			error = True
-			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-			self._DP_dob.Refresh()
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth.'))
-		elif dob.GetYear() < 1900:
-			error = True
-			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-			self._DP_dob.Refresh()
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth < 1900.'))
-		else:
-			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-			self._DP_dob.Refresh()
+		if not self._DP_dob.is_valid_timestamp():
+
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth. Does it lie before 1900 ?'))
+
+			do_it_anyway = gmGuiHelpers.gm_show_question (
+				_(
+					'Are you sure you want to register this person\n'
+					'without a valid date of birth ?\n'
+					'\n'
+					'This can be useful for temporary staff members\n'
+					'but will provoke nag screens if this person\n'
+					'becomes a patient.\n'
+					'\n'
+					'Note that the date of birth cannot technically\n'
+					'be before 1900, either :-(\n'
+				),
+				_('Registering new person')
+			)
+
+			if not do_it_anyway:
+				error = True
 
 		# TOB validation if non-empty
 #		if self._TCTRL_tob.GetValue().strip() != u'':
@@ -2029,12 +2043,10 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
-		print "saving as new patient"
-
 		# identity
 		new_identity = gmPerson.create_identity (
 			gender = self._PRW_gender.GetData(),
-			dob = gmDateTime.wxDate2py_dt(self._DP_dob.GetValue()),
+			dob = self._DP_dob.get_pydt(),
 			lastnames = self._PRW_lastname.GetValue().strip(),
 			firstnames = self._PRW_firstnames.GetValue().strip()
 		)
@@ -2350,7 +2362,8 @@ class cNewPatientWizard(wx.wizard.Wizard):
 			break
 
 		if activate:
-			gmPerson.set_active_patient(patient = ident)
+			from Gnumed.wxpython import gmPatSearchWidgets
+			gmPatSearchWidgets.set_active_patient(patient = ident)
 
 		return ident
 	#--------------------------------------------------------
@@ -3023,7 +3036,8 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+		from Gnumed.wxpython import gmPatSearchWidgets
+		gmPatSearchWidgets.set_active_patient(patient=patient)
 		return patient
 	#--------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
@@ -3066,7 +3080,14 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.163  2009-04-24 13:01:13  ncq
+# Revision 1.164  2009-06-04 15:22:35  ncq
+# - re-import allowing saving person w/o DOB and
+#   use appropriate set_active_patient()
+#
+# Revision 1.164  2009/05/28 10:53:16  ncq
+# - allow saving person without DOB
+#
+# Revision 1.163  2009/04/24 13:01:13  ncq
 # - need to use code on state/country
 #
 # Revision 1.162  2009/04/24 12:32:38  ncq
