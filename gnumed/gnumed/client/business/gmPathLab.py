@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.71 2009-05-26 09:21:13 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmPathLab.py,v 1.72 2009-06-04 14:45:15 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -132,7 +132,7 @@ def delete_measurement_type(measurement_type=None):
 	args = {'pk': measurement_type}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
-def create_test_type(lab=None, code=None, unit=None, name=None):
+def create_measurement_type(lab=None, code=None, unit=None, name=None):
 	"""Create or get test type."""
 
 	ttype = find_test_type(lab = lab, code = code, name = name)
@@ -251,7 +251,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 		lines.append(u' %s %s (%s): %s %s%s' % (
 			self._payload[self._idx['clin_when']].strftime('%d.%m. %H:%M'),
-			self._payload[self._idx['unified_code']],
+			self._payload[self._idx['unified_abbrev']],
 			self._payload[self._idx['unified_name']],
 			self._payload[self._idx['unified_val']],
 			self._payload[self._idx['val_unit']],
@@ -706,7 +706,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.71 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.72 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -967,8 +967,8 @@ if __name__ == '__main__':
 		for result in data:
 			print result
 	#--------------------------------------------------------
-	def test_create_test_type():
-		print create_test_type (
+	def test_create_measurement_type():
+		print create_measurement_type (
 			lab = None,
 			code = u'tBZ2',
 			unit = u'mg%',
@@ -990,7 +990,7 @@ if __name__ == '__main__':
 		#test_result()
 		#test_create_test_result()
 		#test_delete_test_result()
-		#test_create_test_type()
+		#test_create_measurement_type()
 		#test_lab_result()
 		#test_request()
 		#test_create_result()
@@ -1001,7 +1001,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.71  2009-05-26 09:21:13  ncq
+# Revision 1.72  2009-06-04 14:45:15  ncq
+# - re-import lost adjustments
+#
+# Revision 1.72  2009/05/28 10:45:57  ncq
+# - adjust to test table changes
+#
+# Revision 1.71  2009/05/26 09:21:13  ncq
 # - delete_meta_type
 # - cTestType -> cMeasurementType
 # - delete_measurement_type
