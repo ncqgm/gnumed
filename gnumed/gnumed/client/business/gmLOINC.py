@@ -7,11 +7,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmLOINC.py,v $
-# $Id: gmLOINC.py,v 1.3 2009-05-26 09:17:00 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmLOINC.py,v 1.4 2009-06-04 16:23:02 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, codecs, logging, csv, urllib2
+import sys, codecs, logging, csv
 
 
 if __name__ == '__main__':
@@ -32,7 +32,17 @@ name_short = u'LOINC'
 loinc_fields = u"LOINC_NUM COMPONENT PROPERTY TIME_ASPCT SYSTEM SCALE_TYP METHOD_TYP RELAT_NMS CLASS SOURCE DT_LAST_CH CHNG_TYPE COMMENTS ANSWERLIST STATUS MAP_TO SCOPE NORM_RANGE IPCC_UNITS REFERENCE EXACT_CMP_SY MOLAR_MASS CLASSTYPE FORMULA SPECIES EXMPL_ANSWERS ACSSYM BASE_NAME FINAL NAACCR_ID CODE_TABLE SETROOT PANELELEMENTS SURVEY_QUEST_TEXT SURVEY_QUEST_SRC UNITSREQUIRED SUBMITTED_UNITS RELATEDNAMES2 SHORTNAME ORDER_OBS CDISC_COMMON_TESTS HL7_FIELD_SUBFIELD_ID EXTERNAL_COPYRIGHT_NOTICE EXAMPLE_UNITS INPC_PERCENTAGE LONG_COMMON_NAME".split()
 
 #============================================================
-def split_LOINCDBTXT(input_fname=None, data_fname='loinc_data.csv', license_fname='loinc_license.txt'):
+def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
+
+	_log.debug('splitting LOINC source file [%s]', input_fname)
+
+	if license_fname is None:
+		license_fname = gmTools.get_unique_filename(prefix = 'loinc_license', suffix = '.txt')
+	_log.debug('LOINC header: %s', license_fname)
+
+	if data_fname is None:
+		data_fname = gmTools.get_unique_filename(prefix = 'loinc_data', suffix = '.csv')
+	_log.debug('LOINC data: %s', data_fname)
 
 	loinc_file = codecs.open(input_fname, 'rU', encoding = file_encoding, errors = 'replace')
 	out_file = codecs.open(license_fname, 'w', encoding = 'utf8', errors = 'replace')
@@ -48,6 +58,8 @@ def split_LOINCDBTXT(input_fname=None, data_fname='loinc_data.csv', license_fnam
 		out_file.write(line)
 
 	out_file.close()
+
+	return data_fname, license_fname
 #============================================================
 def map_field_names(data_fname='loinc_data.csv'):
 
@@ -70,13 +82,15 @@ def get_version(license_fname='loinc_license.txt'):
 	in_file.close()
 	return version
 #============================================================
-def loinc_import(data_fname='loinc_data.csv', license_fname='loinc_license.txt', version=None):
+def loinc_import(data_fname=None, license_fname=None, version=None, conn=None):
 
 	if version is None:
 		version = get_version(license_fname = license_fname)
 
 	if version is None:
 		raise ValueError('cannot detect LOINC version')
+
+	_log.debug('importing LOINC version [%s]', version)
 
 	in_file = codecs.open(license_fname, 'rU', encoding = 'utf8', errors = 'replace')
 	desc = in_file.read()
@@ -110,7 +124,7 @@ insert into ref.data_source (name_long, name_short, version, description, source
 	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
 	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 
-	conn = gmPG2.get_connection(readonly = False)
+#	conn = gmPG2.get_connection(readonly = False)
 
 	# clean out staging area
 	curs = conn.cursor()
@@ -297,7 +311,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmLOINC.py,v $
-# Revision 1.3  2009-05-26 09:17:00  ncq
+# Revision 1.4  2009-06-04 16:23:02  ncq
+# - cleanup, better logging
+#
+# Revision 1.3  2009/05/26 09:17:00  ncq
 # - finish up import
 #
 # Revision 1.2  2009/05/12 12:05:21  ncq
