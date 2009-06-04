@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.27 2009-04-19 22:23:36 ncq Exp $
+# $Id: gmDateTime.py,v 1.28 2009-06-04 14:50:06 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -75,21 +75,23 @@ gmCurrentLocalTimezone = 'gmCurrentLocalTimezone not initialized'
 
 (	acc_years,
 	acc_months,
+	acc_weeks,
 	acc_days,
 	acc_hours,
 	acc_minutes,
 	acc_seconds,
 	acc_subseconds
-) = range(1,8)
+) = range(1,9)
 
 _accuracy_strings = {
 	1: 'years',
 	2: 'months',
-	3: 'days',
-	4: 'hours',
-	5: 'minutes',
-	6: 'seconds',
-	7: 'subseconds'
+	3: 'weeks',
+	4: 'days',
+	5: 'hours',
+	6: 'minutes',
+	7: 'seconds',
+	8: 'subseconds'
 }
 
 gregorian_month_length = {
@@ -109,6 +111,7 @@ gregorian_month_length = {
 
 avg_days_per_gregorian_year = 365
 avg_days_per_gregorian_month = 30
+avg_seconds_per_day = 24 * 60 * 60
 days_per_week = 7
 
 #===========================================================================
@@ -207,6 +210,104 @@ def py_dt2wxDate(py_dt=None, wx=None):
 	wxdt.SetMonth(py_dt.month-1)
 	wxdt.SetDay(py_dt.day)
 	return wxdt
+#===========================================================================
+# interval formatting
+#---------------------------------------------------------------------------
+def format_interval(interval=None, accuracy_wanted=acc_seconds):
+
+	years, days = divmod(interval.days, avg_days_per_gregorian_year)
+	months, days = divmod(days, avg_days_per_gregorian_month)
+	weeks, days = divmod(days, days_per_week)
+	days, secs = divmod((days * avg_seconds_per_day) + interval.seconds, avg_seconds_per_day)
+	hours, secs = divmod(secs, 3600)
+	mins, secs = divmod(secs, 60)
+
+	tmp = u''
+
+	if years > 0:
+		tmp += u'%s%s' % (int(years), _('interval_format_tag::years::y')[-1:])
+
+	if accuracy_wanted < acc_months:
+		return tmp.strip()
+
+	if months > 0:
+		tmp += u' %s%s' % (int(months), _('interval_format_tag::months::m')[-1:])
+
+	if accuracy_wanted < acc_weeks:
+		return tmp.strip()
+
+	if weeks > 0:
+		tmp += u' %s%s' % (int(weeks), _('interval_format_tag::weeks::w')[-1:])
+
+	if accuracy_wanted < acc_days:
+		return tmp.strip()
+
+	if days > 0:
+		tmp += u' %s%s' % (int(days), _('interval_format_tag::days::d')[-1:])
+
+	if accuracy_wanted < acc_hours:
+		return tmp.strip()
+
+	if hours > 0:
+		tmp += u' %s/24' % int(hours)
+
+	if accuracy_wanted < acc_minutes:
+		return tmp.strip()
+
+	if mins > 0:
+		tmp += u' %s/60' % int(mins)
+
+	if accuracy_wanted < acc_seconds:
+		return tmp.strip()
+
+	if secs > 0:
+		tmp += u' %s/60' % int(secs)
+
+	return tmp.strip()
+#---------------------------------------------------------------------------
+def format_interval_medically(interval=None):
+	"""Formats an interval.
+
+	This isn't mathematically correct but close enough for display.
+	"""
+	# years available ?
+	if interval.days > 364:
+		years, days = divmod(interval.days, 365)
+		months, day = divmod(days, 30)
+		if months == 0:
+			return "%sy" % int(years)
+		return "%sy %sm" % (int(years), int(months))
+
+	# months available ?
+	if interval.days > 30:
+		months, days = divmod(interval.days, 30)
+		weeks = days // 7
+		return "%sm %sw" % (int(months), int(weeks))
+
+	# weeks available ?
+	if interval.days > 7:
+		return "%sd" % interval.days
+
+	# days available ?
+	if interval.days > 1:
+		hours, seconds = divmod(interval.seconds, 3600)
+		return "%sd (%sh)" % (interval.days, int(hours))
+
+	# hours available ?
+	if interval.seconds > (3*3600):
+		return "%sh" % int(interval.seconds // 3600)
+	# hours + minutes
+	if interval.seconds > 3600:
+		hours, seconds = divmod(interval.seconds, 3600)
+		minutes = seconds // 60
+		return "%sh %sm" % (int(hours), int(minutes))
+	# minutes only
+	if interval.seconds > (5*60):
+		return "%sm" % (int(interval.seconds // 60))
+	# seconds
+	minutes, seconds = divmod(interval.seconds, 60)
+	return "%sm %ss" % (int(minutes), int(seconds))
+
 #===========================================================================
 # string -> timestamp parsers
 #---------------------------------------------------------------------------
@@ -846,7 +947,7 @@ class cFuzzyTimestamp:
 
 		self.timestamp = timestamp
 
-		if (accuracy < 1) or (accuracy > 7):
+		if (accuracy < 1) or (accuracy > 8):
 			raise ValueError, '%s.__init__(): <accuracy> must be between 1 and 7' % self.__class__.__name__
 		self.accuracy = accuracy
 
@@ -1023,23 +1124,28 @@ def str2interval(str_interval=None):
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 
+	intervals_as_str = [
+		'7', '12', ' 12', '12 ', ' 12 ', '	12	', '0', '~12', '~ 12', ' ~ 12', '	~	12 ',
+		'12a', '12 a', '12	a', '12j', '12J', '12y', '12Y', '	~ 	12	a	 ', '~0a',
+		'12m', '17 m', '12	m', '17M', '	~ 	17	m	 ', ' ~ 3	/ 12	', '7/12', '0/12',
+		'12w', '17 w', '12	w', '17W', '	~ 	17	w	 ', ' ~ 15	/ 52', '2/52', '0/52',
+		'12d', '17 d', '12	t', '17D', '	~ 	17	T	 ', ' ~ 12	/ 7', '3/7', '0/7',
+		'12h', '17 h', '12	H', '17H', '	~ 	17	h	 ', ' ~ 36	/ 24', '7/24', '0/24',
+		' ~ 36	/ 60', '7/60', '190/60', '0/60',
+		'12a1m', '12 a 1  M', '12	a17m', '12j		12m', '12J7m', '12y7m', '12Y7M', '	~ 	12	a	 37 m	', '~0a0m',
+		'10m1w',
+		'invalid interval input'
+	]
+	#-----------------------------------------------------------------------
+	def test_format_interval():
+		for tmp in intervals_as_str:
+			intv = str2interval(str_interval = tmp)
+			for acc in _accuracy_strings.keys():
+				print '[%s]: "%s" -> "%s"' % (acc, tmp, format_interval(intv, acc))
 	#-----------------------------------------------------------------------
 	def test_str2interval():
 		print "testing str2interval()"
 		print "----------------------"
-
-		intervals_as_str = [
-			'7', '12', ' 12', '12 ', ' 12 ', '	12	', '0', '~12', '~ 12', ' ~ 12', '	~	12 ',
-			'12a', '12 a', '12	a', '12j', '12J', '12y', '12Y', '	~ 	12	a	 ', '~0a',
-			'12m', '17 m', '12	m', '17M', '	~ 	17	m	 ', ' ~ 3	/ 12	', '7/12', '0/12',
-			'12w', '17 w', '12	w', '17W', '	~ 	17	w	 ', ' ~ 15	/ 52', '2/52', '0/52',
-			'12d', '17 d', '12	t', '17D', '	~ 	17	T	 ', ' ~ 12	/ 7', '3/7', '0/7',
-			'12h', '17 h', '12	H', '17H', '	~ 	17	h	 ', ' ~ 36	/ 24', '7/24', '0/24',
-			' ~ 36	/ 60', '7/60', '190/60', '0/60',
-			'12a1m', '12 a 1  M', '12	a17m', '12j		12m', '12J7m', '12y7m', '12Y7M', '	~ 	12	a	 37 m	', '~0a0m',
-			'10m1w',
-			'invalid interval input'
-		]
 
 		for interval_as_str in intervals_as_str:
 			print "input: <%s>" % interval_as_str
@@ -1124,11 +1230,18 @@ if __name__ == '__main__':
 		#test_str2fuzzy_timestamp_matches()
 		#test_cFuzzyTimeStamp()
 		#test_get_pydt()
-		test_str2interval()
+		#test_str2interval()
+		test_format_interval()
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.27  2009-04-19 22:23:36  ncq
+# Revision 1.28  2009-06-04 14:50:06  ncq
+# - re-import lost formatters
+#
+# Revision 1.28  2009/05/28 10:48:29  ncq
+# - format_interval(_medically)
+#
+# Revision 1.27  2009/04/19 22:23:36  ncq
 # - move interval parsers here
 #
 # Revision 1.26  2009/04/03 09:33:22  ncq
