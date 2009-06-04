@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.123 2009-04-21 17:00:00 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmPatSearchWidgets.py,v 1.124 2009-06-04 16:27:47 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -95,11 +95,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				patient2merge.ID,
 				patient2merge['description_gender'],
 				patient2merge['gender'],
-				patient2merge['dob'].strftime('%x'),
+				patient2merge.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
 				patient2keep.ID,
 				patient2keep['description_gender'],
 				patient2keep['gender'],
-				patient2keep['dob'].strftime('%x')
+				patient2keep.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding())
 			),
 			aTitle = _('Merging patients: confirmation'),
 			cancel_button = False
@@ -135,18 +135,18 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				patient2merge.ID,
 				patient2merge['description_gender'],
 				patient2merge['gender'],
-				patient2merge['dob'].strftime('%x'),
+				patient2merge.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
 				patient2keep.ID,
 				patient2keep['description_gender'],
 				patient2keep['gender'],
-				patient2keep['dob'].strftime('%x')
+				patient2keep.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding())
 			),
 			aTitle = _('Merging patients: success'),
 			cancel_button = False
 		)
 		if doit:
 			if not isinstance(patient2keep, gmPerson.gmCurrentPatient):
-				wx.CallAfter(gmPerson.set_active_patient, patient = patient2keep)
+				wx.CallAfter(set_active_patient, patient = patient2keep)
 
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
@@ -186,7 +186,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['lastnames'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person['firstnames'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['preferred'], ''))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person['dob'].strftime('%x').decode(gmI18N.get_encoding()))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(person['l10n_gender'], '?'))
 			enc = person.get_last_encounter()
 			if enc is None:
@@ -503,7 +503,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		if curr_pat.connected:
 			key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
 			names = curr_pat.get_active_name()
-			key_pat = names['firstnames'] + names['lastnames'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
+			key_pat = names['firstnames'] + names['lastnames'] + curr_pat.get_formatted_dob(format = '%Y-%m-%d') + curr_pat['gender']
 			_log.debug('current patient: %s' % key_pat)
 			_log.debug('dto patient    : %s' % key_dto)
 			if key_dto == key_pat:
@@ -552,7 +552,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		dlg.Destroy()
 
 	if activate_immediately:
-		if not gmPerson.set_active_patient(patient = ident):
+		if not set_active_patient(patient = ident):
 			gmGuiHelpers.gm_show_info (
 				_(
 				'Cannot activate patient:\n\n'
@@ -650,29 +650,6 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
 	#--------------------------------------------------------
-#	def _on_left_mousebutton_up(self, evt):
-#		"""upon left click release
-
-#		- select all text in the field so that the next
-#		  character typed will delete it
-
-#		- or set cursor to text position in case more left
-#		  clicks follow
-#		"""
-		# unclicked, not highlighted
-#		if self._lclick_count == 0:
-#			self.SetSelection (-1,-1)			# highlight entire text
-#			self._lclick_count = 1
-#			evt.Skip()
-#			return None
-
-		# has been clicked before - should be highlighted
-#		start, end = self.GetSelection()
-#		self.SetSelection(start, end)
-#		self._lclick_count = 0
-#		evt.Skip()
-#		return None
-	#--------------------------------------------------------
 	def _on_get_focus(self, evt):
 		"""upon tabbing in
 
@@ -691,14 +668,8 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		# however, this is the least ugly way of doing this due to
 		# certain vagaries of wxPython (see the Wiki)
 
-		# remember fragment
-#		curr_search_term = self.GetValue()
-#		if self.IsModified() and (curr_search_term.strip() != ''):
-#			self._prev_search_term = curr_search_term
-
 		# just for good measure
 		wx.CallAfter(self.SetSelection, 0, 0)
-#		self._lclick_count = 0
 
 		self._display_name()
 		self._remember_ident(self.person)
@@ -768,6 +739,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		evt.Skip()
 	#--------------------------------------------------------
 	def __on_enter(self, evt):
+		"""This is called from the ENTER handler."""
 
 		# ENTER but no search term ?
 		curr_search_term = self.GetValue().strip()
@@ -786,6 +758,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		self._on_enter(search_term = curr_search_term)
 	#--------------------------------------------------------
 	def _on_enter(self, search_term=None):
+		"""This can be overridden in child classes."""
 
 		wx.BeginBusyCursor()
 
@@ -856,6 +829,33 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		return None
 #============================================================
+def set_active_patient(patient=None, forced_reload=False):
+
+	# warn if DOB is missing
+	try:
+		patient['dob']
+		check_dob = True
+	except TypeError:
+		check_dob = False
+
+	if check_dob:
+		if patient['dob'] is None:
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Checking date of birth'),
+				aMessage = _(
+					'\n'
+					' %s\n'
+					'\n'
+					'The date of birth for this patient is not known !\n'
+					'\n'
+					'You can proceed to work on the patient but\n'
+					'GNUmed will be unable to assist you with\n'
+					'age-related decisions.\n'
+				) % patient['description_gender']
+			)
+
+	gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
+#------------------------------------------------------------
 class cActivePatientSelector(cPersonSearchCtrl):
 
 	def __init__ (self, *args, **kwargs):
@@ -883,7 +883,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		# get configuration
 		cfg = gmCfg.cCfgSQL()
 
-		self.__always_dismiss_after_search = bool ( 
+		self.__always_dismiss_on_search = bool ( 
 			cfg.get2 (
 				option = 'patient_search.always_dismiss_previous_patient',
 				workplace = gmSurgery.gmCurrentPractice().active_workplace,
@@ -917,7 +917,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		self.SetValue(name)
 	#--------------------------------------------------------
 	def _set_person_as_active_patient(self, pat):
-		if not gmPerson.set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
+		if not set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
 			_log.error('cannot change active patient')
 			return None
 
@@ -938,8 +938,8 @@ class cActivePatientSelector(cPersonSearchCtrl):
 				'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
 					'pat': pat.get_description_gender(),
 					'age': pat.get_medical_age().strip('y'),
-					'month': pat['dob'].strftime('%B').decode(enc),
-					'day': pat['dob'].strftime('%d'),
+					'month': pat.get_formatted_dob(format = '%B', encoding = enc),
+					'day': pat.get_formatted_dob(format = '%d', encoding = enc),
 					'month_now': now.strftime('%B').decode(enc),
 					'day_now': now.strftime('%d')
 				}
@@ -970,7 +970,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	#----------------------------------------------
 	def _on_enter(self, search_term = None):
 
-		if self.__always_dismiss_after_search:
+		if self.__always_dismiss_on_search:
 			_log.warning("dismissing patient before patient search")
 			self._set_person_as_active_patient(-1)
 
@@ -1152,7 +1152,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				p['urgency'],
 				p['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
-				p['dob'].strftime('%x'),
+				p['dob'].strftime('%x').decode(gmI18N.get_encoding()),
 				gmTools.coalesce(p['comment'], u'')
 			  ] for p in pats
 			]
@@ -1200,14 +1200,14 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
-		wx.CallAfter(gmPerson.set_active_patient, patient = pat)
+		wx.CallAfter(set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
 		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
-		wx.CallAfter(gmPerson.set_active_patient, patient = pat)
+		wx.CallAfter(set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activateplus_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
@@ -1215,7 +1215,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			return
 		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
-		wx.CallAfter(gmPerson.set_active_patient, patient = pat)
+		wx.CallAfter(set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_add_patient_button_pressed(self, evt):
 
@@ -1390,7 +1390,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.123  2009-04-21 17:00:00  ncq
+# Revision 1.124  2009-06-04 16:27:47  ncq
+# - add set active patient and use it
+# - adjust to dob-less persons
+#
+# Revision 1.123  2009/04/21 17:00:00  ncq
 # - edit area dlg now takes single_entry argument
 #
 # Revision 1.122  2009/02/05 14:30:36  ncq
