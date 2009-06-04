@@ -7,7 +7,7 @@
 -- license: GPL
 --
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Kirk_medication-dynamic.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 
 -- force terminate + exit(3) on errors if non-interactive
@@ -70,7 +70,8 @@ insert into clin.substance_intake (
 	narrative,
 	strength,
 	preparation,
-	duration
+	duration,
+	intake_is_approved_of
 ) values (
 	(select pk from clin.encounter
 	 where fk_patient = (
@@ -94,7 +95,8 @@ insert into clin.substance_intake (
 	'report pulse < 60',
 	'100mg',
 	'tablets',
-	'10 years'::interval
+	'10 years'::interval,
+	True
 );
 
 delete from clin.active_substance where description = 'HCT';
@@ -120,7 +122,8 @@ insert into clin.substance_intake (
 	narrative,
 	strength,
 	preparation,
-	duration
+	duration,
+	intake_is_approved_of
 ) values (
 	(select pk from clin.encounter
 	 where fk_patient = (
@@ -144,12 +147,13 @@ insert into clin.substance_intake (
 	'report increased nightly bladder activity',
 	'12.5mg',
 	'tablets',
-	'10 years'::interval
+	'10 years'::interval,
+	True
 );
 
 -- =============================================
 -- do simple schema revision tracking
-select gm.log_script_insertion('$RCSfile: test_data-Kirk_medication-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: test_data-Kirk_medication-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- comment out the "rollback" if you want to
 -- really store the above patient data
@@ -158,7 +162,10 @@ commit;
 
 -- =============================================
 -- $Log: test_data-Kirk_medication-dynamic.sql,v $
--- Revision 1.1  2009-05-12 12:00:18  ncq
+-- Revision 1.2  2009-06-04 16:36:15  ncq
+-- - use intake-is-approved-of
+--
+-- Revision 1.1  2009/05/12 12:00:18  ncq
 -- - Kirk medication entries
 --
 --
