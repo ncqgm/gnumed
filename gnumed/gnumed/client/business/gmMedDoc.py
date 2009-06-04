@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.113 2009-05-13 13:10:31 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmMedDoc.py,v 1.114 2009-06-04 16:23:40 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -551,7 +551,7 @@ def search_for_document(patient_id=None, type_id=None):
 	if type_id is None:
 		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s"
 	else:
-		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s and fk_type = %(type_id)s"
+		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s and pk_type = %(type_id)s"
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -711,7 +711,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.113  2009-05-13 13:10:31  ncq
+# Revision 1.114  2009-06-04 16:23:40  ncq
+# - fix fk_type that needs to be pk_type
+#
+# Revision 1.113  2009/05/13 13:10:31  ncq
 # - sort doc retrieval by clin_when
 #
 # Revision 1.112  2009/02/18 13:43:38  ncq
