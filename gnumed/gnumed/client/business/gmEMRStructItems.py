@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.137 $"
+__version__ = "$Revision: 1.138 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -139,6 +139,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		# seemingly silly but convinces PG to "nicely"
 		# format the interval for us
+		# FIXME: use gmDateTime.format_interval()
 		cmd = u"""select
 age (
 	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s,
@@ -1251,7 +1252,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.137  2009-04-13 10:52:14  ncq
+# Revision 1.138  2009-06-04 14:32:16  ncq
+# - reimport lost comment
+#
+# Revision 1.138  2009/05/28 10:45:33  ncq
+# - comment added
+#
+# Revision 1.137  2009/04/13 10:52:14  ncq
 # - support same_payload on encounter
 #
 # Revision 1.136  2009/04/05 17:48:52  ncq
