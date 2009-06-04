@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.134 2009-01-02 11:36:43 ncq Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gmPatientExporter.py,v 1.135 2009-06-04 16:24:35 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -847,7 +847,7 @@ class cEmrExport:
             cont += 1
         self.__target.write('    Gender: %s\n' % self.__patient['gender'])
         self.__target.write('    Title: %s\n' % self.__patient['title'])
-        self.__target.write('    Dob: %s\n' % self.__patient['dob'].strftime('%Y-%m-%d'))
+        self.__target.write('    Dob: %s\n' % self.__patient.get_formatted_dob(format = '%Y-%m-%d'))
         self.__target.write('    Medical age: %s\n' % gmPerson.dob2medical_age(self.__patient['dob']))
     #--------------------------------------------------------
     def dump_constraints(self):
@@ -916,7 +916,7 @@ class cEMRJournalExporter:
 				_('emr-journal'),
 				patient['lastnames'].replace(u' ', u'_'),
 				patient['firstnames'].replace(u' ', u'_'),
-				patient['dob'].strftime('%Y-%m-%d')
+				patient.get_formatted_dob(format = '%Y-%m-%d')
 			)
 			path = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR', patient['dirname'], filename))
 
@@ -945,7 +945,10 @@ class cEMRJournalExporter:
 		target.write(u'=' * (len(txt)-1))
 		target.write('\n')
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
-		target.write(_('Born   : %s, age: %s\n\n') % (patient['dob'].strftime('%x'), patient.get_medical_age()))
+		target.write(_('Born   : %s, age: %s\n\n') % (
+			patient.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+			patient.get_medical_age()
+		))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Happened'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
@@ -1045,7 +1048,7 @@ class cMedistarSOAPExporter:
 				time.strftime('%Y-%m-%d',time.localtime()),
 				self.__pat['lastnames'].replace(' ', '-'),
 				self.__pat['firstnames'].replace(' ', '_'),
-				self.__pat['dob'].strftime('%Y-%m-%d')
+				self.__pat.get_formatted_dob(format = '%Y-%m-%d')
 			)
 
 		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'cp437', errors='replace')
@@ -1173,7 +1176,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.134  2009-01-02 11:36:43  ncq
+# Revision 1.135  2009-06-04 16:24:35  ncq
+# - support dob-less persons
+#
+# Revision 1.134  2009/01/02 11:36:43  ncq
 # - cleanup
 #
 # Revision 1.133  2008/12/18 21:26:45  ncq
