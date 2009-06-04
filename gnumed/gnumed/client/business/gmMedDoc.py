@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.112 2009-02-18 13:43:38 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmMedDoc.py,v 1.112.2.1 2009-06-04 14:21:46 ncq Exp $
+__version__ = "$Revision: 1.112.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -550,7 +550,7 @@ def search_for_document(patient_id=None, type_id=None):
 	if type_id is None:
 		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s"
 	else:
-		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s and fk_type = %(type_id)s"
+		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s and pk_type = %(type_id)s"
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -710,7 +710,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.112  2009-02-18 13:43:38  ncq
+# Revision 1.112.2.1  2009-06-04 14:21:46  ncq
+# - fix an fk_type that needs to be pk_type
+#
+# Revision 1.112  2009/02/18 13:43:38  ncq
 # - get_unique_filename API change
 #
 # Revision 1.111  2009/01/15 11:31:58  ncq
