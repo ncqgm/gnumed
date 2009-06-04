@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.32 2007-12-26 14:35:02 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmLDTimporter.py,v 1.33 2009-06-04 16:25:50 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -761,7 +761,7 @@ class cLDTImporter:
 		except KeyError:
 			vunit = ''
 		# verify/create test type
-		status, ttype = gmPathLab.create_test_type(
+		status, ttype = gmPathLab.create_measurement_type (
 			lab=self.__lab_name,
 			code=vcode,
 			name=vname,
@@ -771,7 +771,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.32 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.33 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -926,7 +926,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.32 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.33 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -960,7 +960,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.32  2007-12-26 14:35:02  ncq
+# Revision 1.33  2009-06-04 16:25:50  ncq
+# - create_test_* -> *_measurement_type
+#
+# Revision 1.32  2007/12/26 14:35:02  ncq
 # - no more gmCLI
 #
 # Revision 1.31  2007/03/08 11:36:15  ncq
