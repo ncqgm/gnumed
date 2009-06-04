@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.29 2009-05-13 13:12:41 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmNarrativeWidgets.py,v 1.30 2009-06-04 16:33:13 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -17,7 +17,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime, gmPG2
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin, gmGuiHelpers
+from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg, wxgSoapNoteExpandoEditAreaPnl
 
 
@@ -295,7 +295,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encount
 		time.strftime('%Y-%m-%d',time.localtime()),
 		pat['lastnames'].replace(' ', '-'),
 		pat['firstnames'].replace(' ', '_'),
-		pat['dob'].strftime('%Y-%m-%d')
+		pat.get_formatted_dob(format = '%Y-%m-%d')
 	)
 	dlg = wx.FileDialog (
 		parent = parent,
@@ -1393,7 +1393,7 @@ if __name__ == '__main__':
 	#----------------------------------------
 	def test_select_narrative_from_episodes():
 		pat = gmPerson.ask_for_patient()
-		gmPerson.set_active_patient(patient = pat)
+		gmPatSearchWidgets.set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative_from_episodes()
 		print "selected:"
@@ -1412,7 +1412,7 @@ if __name__ == '__main__':
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			return
-		gmPerson.set_active_patient(patient=patient)
+		gmPatSearchWidgets.set_active_patient(patient=patient)
 
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cSoapPluginPnl(application.frame, -1)
@@ -1427,7 +1427,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.29  2009-05-13 13:12:41  ncq
+# Revision 1.30  2009-06-04 16:33:13  ncq
+# - adjust to dob-less person
+# - use set-active-patient from pat-search-widgets
+#
+# Revision 1.29  2009/05/13 13:12:41  ncq
 # - cleanup
 #
 # Revision 1.28  2009/05/13 12:22:05  ncq
