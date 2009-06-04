@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.24 2008-12-01 12:17:17 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmStaffWidgets.py,v 1.25 2009-06-04 16:33:51 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -16,7 +16,7 @@ import logging
 
 import wx
 
-from Gnumed.pycommon import gmPG2, gmTools
+from Gnumed.pycommon import gmPG2, gmTools, gmI18N
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers, gmAuthWidgets
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
@@ -193,7 +193,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		name = pat.get_active_name()
 		txt = _("""
   %s "%s" %s
-  born: %s""") % (name['firstnames'], name['preferred'], name['lastnames'], pat['dob'].strftime('%x'))
+  born: %s""") % (name['firstnames'], name['preferred'], name['lastnames'], pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()))
 		self._TXT_person.SetValue(txt)
 		txt = name['firstnames'][:2] + name['lastnames'][:2]
 		self._TXT_short_alias.SetValue(txt)
@@ -258,7 +258,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.24  2008-12-01 12:17:17  ncq
+# Revision 1.25  2009-06-04 16:33:51  ncq
+# - adjust to dob-less persons
+#
+# Revision 1.24  2008/12/01 12:17:17  ncq
 # - again
 #
 # Revision 1.23  2008/12/01 12:15:36  ncq
