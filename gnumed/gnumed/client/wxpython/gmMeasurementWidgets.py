@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.46 2009-05-24 16:29:14 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmMeasurementWidgets.py,v 1.47 2009-06-04 16:19:00 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,15 +16,54 @@ import wx, wx.grid, wx.lib.hyperlink
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson, gmPathLab, gmSurgery
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg
-from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
+from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC
+from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg, gmShellAPI
+from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets, gmAuthWidgets, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+#================================================================
+# LOINC related widgets
+#================================================================
+def update_loinc_reference_data():
+
+	wx.BeginBusyCursor()
+
+	gmDispatcher.send(signal = 'statustext', msg = _('Updating LOINC data can take quite a while...'), beep = True)
+
+	# download
+	downloaded = gmShellAPI.run_command_in_shell(command = 'gm-download_loinc', blocking = True)
+	if not downloaded:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Downloading LOINC'),
+			aMessage = _(
+				'Running <gm-download_loinc> to retrieve\n'
+				'the latest LOINC data failed.\n'
+			)
+		)
+		return False
+
+	# split and import
+	data_fname, license_fname = gmLOINC.split_LOINCDBTXT(input_fname = '/tmp/LOINCDB.TXT')
+
+	wx.EndBusyCursor()
+
+	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing LOINC reference data'))
+	if conn is None:
+		return False
+
+	wx.BeginBusyCursor()
+	if gmLOINC.loinc_import(data_fname = data_fname, license_fname = license_fname, conn = conn):
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported LOINC reference data.'))
+	else:
+		gmDispatcher.send(signal = 'statustext', msg = _('Importing LOINC reference data failed.'), beep = True)
+
+	wx.EndBusyCursor()
+	return True
 #================================================================
 # convenience functions
 #================================================================
@@ -95,7 +134,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			results = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 			txt = u'\n'.join([ u'%s %s (%s): %s %s%s' % (
 					r['clin_when'].strftime('%x %H:%M').decode(gmI18N.get_encoding()),
-					r['unified_code'],
+					r['unified_abbrev'],
 					r['unified_name'],
 					r['unified_val'],
 					r['val_unit'],
@@ -284,7 +323,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			row = test_type_labels.index(u'%s (%s)' % (result['unified_code'], result['unified_name']))
+			row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
 			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
 
 			try:
@@ -437,9 +476,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 					u' Responsible clinician: %(responsible_reviewer)s\n'
 					u'\n'
 					u'Test type details:\n'
-					u' Grouped under "%(name_unified)s" (%(code_unified)s)  [#%(pk_u_type)s]\n'
+					u' Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n'
 					u' Type comment: %(comment_type)s\n'
-					u' Group comment: %(comment_type_unified)s\n'
+					u' Group comment: %(comment_type_meta)s\n'
 					u'\n'
 					u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
 				) % ({
@@ -447,7 +486,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 					'code': result['code_tt'],
 					'name': result['name_tt'],
 					'pk_type': result['pk_test_type'],
-					'pk_u_type': result['pk_test_type_unified'],
+					'pk_u_type': result['pk_meta_test_type'],
 					'val': result['unified_val'],
 					'unit': gmTools.coalesce(result['val_unit'], u'', u' %s'),
 					'ind': gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)'),
@@ -488,9 +527,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 					'responsible_reviewer': gmTools.bool2subst(result['you_are_responsible'], _('you'), result['responsible_reviewer']),
 
 					'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split(u'\n')),
-					'name_unified': gmTools.coalesce(result['name_unified'], u''),
-					'code_unified': gmTools.coalesce(result['code_unified'], u''),
-					'comment_type_unified': u'\n Group comment: '.join(gmTools.coalesce(result['comment_unified'], u'').split(u'\n')),
+					'name_meta': gmTools.coalesce(result['name_meta'], u''),
+					'abbrev_meta': gmTools.coalesce(result['abbrev_meta'], u''),
+					'comment_type_meta': u'\n Group comment: '.join(gmTools.coalesce(result['comment_meta'], u'').split(u'\n')),
 
 					'mod_when': result['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
 					'mod_by': result['modified_by'],
@@ -608,7 +647,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'Please select the individual results you want to work on:'
 			),
 			caption = _('Selecting test results'),
-			choices = [ [d['clin_when'], d['unified_code'], d['unified_name'], d['unified_val']] for d in cell_data ],
+			choices = [ [d['clin_when'], d['unified_abbrev'], d['unified_name'], d['unified_val']] for d in cell_data ],
 			columns = [_('Date / Time'), _('Code'), _('Test'), _('Result')],
 			data = cell_data,
 			single_selection = single_selection
@@ -784,7 +823,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		else:
 			msg = ' // '.join (
 				[	u'%s: %s %s (%s)' % (
-						t['unified_code'],
+						t['unified_abbrev'],
 						t['unified_val'],
 						t['val_unit'],
 						t['clin_when'].strftime('%x').decode(gmI18N.get_encoding())
@@ -972,7 +1011,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		pk_type = self._PRW_test.GetData()
 		if pk_type is None:
-			tt = gmPathLab.create_test_type (
+			tt = gmPathLab.create_measurement_type (
 				lab = None,
 				code = self._PRW_test.GetValue().strip(),
 				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u''),
@@ -1034,7 +1073,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		pk_type = self._PRW_test.GetData()
 		if pk_type is None:
-			tt = gmPathLab.create_test_type (
+			tt = gmPathLab.create_measurement_type (
 				lab = None,
 				code = self._PRW_test.GetValue().strip(),
 				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u''),
@@ -1112,20 +1151,10 @@ def manage_measurement_types(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	msg = _(
-		'\n'
-		'These are the measurement types currently defined in GNUmed.\n'
-		'\n'
-	)
-
-	mtypes = gmPathLab.get_measurement_types()
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = _('Showing measurement types.'),
-		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Code'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
-		choices = [ [
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		mtypes = gmPathLab.get_measurement_types()
+		items = [ [
 			m['abbrev'],
 			m['name'],
 			gmTools.coalesce(m['loinc'], u''),
@@ -1135,13 +1164,32 @@ def manage_measurement_types(parent=None):
 			gmTools.coalesce(m['internal_name_org'], _('in-house')),
 			gmTools.coalesce(m['comment_org'], u''),
 			m['pk_test_type']
-		] for m in mtypes ],
+		] for m in mtypes ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(mtypes)
+	#------------------------------------------------------------
+	def delete(measurement_type):
+		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
+		return True
+	#------------------------------------------------------------
+	msg = _(
+		'\n'
+		'These are the measurement types currently defined in GNUmed.\n'
+		'\n'
+	)
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing measurement types.'),
+		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Code'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
+		choices = items,
 		data = mtypes,
 		single_selection = True,
+		refresh_callback = refresh,
 		#edit_callback = edit,
 		#new_callback = edit,
-		#delete_callback = delete,
-		#refresh_callback = refresh
+		delete_callback = delete
 	)
 #----------------------------------------------------------------
 class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1162,7 +1210,7 @@ select
 	as name
 from clin.v_unified_test_types vcutt
 where
-	name_unified %%(fragment_condition)s
+	name_meta %%(fragment_condition)s
 
 ) union (
 
@@ -1194,7 +1242,7 @@ select
 	as name
 from clin.v_unified_test_types vcutt
 where
-	code_unified %%(fragment_condition)s
+	abbrev_meta %%(fragment_condition)s
 
 ) union (
 
@@ -1249,7 +1297,7 @@ limit 25"""
 
 		ctxt = {
 			'ctxt_test_name': {
-				'where_part': u'and %(test)s in (name_tt, name_unified, code_tt, code_unified)',
+				'where_part': u'and %(test)s in (name_tt, name_meta, code_tt, abbrev_meta)',
 				'placeholder': u'test'
 			},
 			'ctxt_test_pk': {
@@ -1358,7 +1406,7 @@ if __name__ == '__main__':
 	#------------------------------------------------------------
 	def test_test_ea_pnl():
 		pat = gmPerson.ask_for_patient()
-		gmPerson.set_active_patient(patient=pat)
+		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
 		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)
 		app.frame.Show()
@@ -1377,7 +1425,15 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.46  2009-05-24 16:29:14  ncq
+# Revision 1.47  2009-06-04 16:19:00  ncq
+# - re-adjust to test table changes
+# - update loinc
+# - adjust to list widget changes (refresh)
+#
+# Revision 1.47  2009/05/28 10:53:40  ncq
+# - adjust to test tables changes
+#
+# Revision 1.46  2009/05/24 16:29:14  ncq
 # - support (meta) test types
 #
 # Revision 1.45  2009/04/24 12:05:20  ncq
