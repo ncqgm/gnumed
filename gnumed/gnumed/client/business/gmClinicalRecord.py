@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.290 2009-05-26 09:16:33 ncq Exp $
-__version__ = "$Revision: 1.290 $"
+# $Id: gmClinicalRecord.py,v 1.291 2009-06-04 14:29:18 ncq Exp $
+__version__ = "$Revision: 1.291 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1660,10 +1660,10 @@ where
 	def get_test_types_for_results(self):
 		"""Retrieve data about test types for which this patient has results."""
 		cmd = u"""
-select foo.unified_name, foo.unified_code from (
-	select distinct on (unified_name, unified_code)
+select foo.unified_name, foo.unified_abbrev from (
+	select distinct on (unified_name, unified_abbrev)
 		unified_name,
-		unified_code,
+		unified_abbrev,
 		clin_when,
 		pk_episode
 	from clin.v_test_results
@@ -1678,7 +1678,7 @@ order by foo.clin_when desc, foo.pk_episode, foo.unified_name"""
 		"""Retrieve details on tests grouped under unified names for this patient's results."""
 		cmd = u"""
 select * from clin.v_unified_test_types where pk_test_type in (
-	select distinct on (unified_name, unified_code) pk_test_type
+	select distinct on (unified_name, unified_abbrev) pk_test_type
 	from clin.v_test_results
 	where pk_patient = %(pat)s
 )
@@ -1933,7 +1933,7 @@ if __name__ == "__main__":
 #		#print a_regime
 #	vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
 #	#print vacc_regime
-		
+
 #	# vaccination regimes and vaccinations for regimes
 #	scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
 #	print 'Vaccinations for the regime:'
@@ -1960,7 +1960,7 @@ if __name__ == "__main__":
 #		lab_file.write(str(lab_result))
 #		lab_file.write('\n')
 #	lab_file.close()
-		
+
 	#dump = record.get_missing_vaccinations()
 	#f = open('vaccs.lst', 'wb')
 	#if dump is not None:
@@ -1979,7 +1979,13 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.290  2009-05-26 09:16:33  ncq
+# Revision 1.291  2009-06-04 14:29:18  ncq
+# - re-import lost adjustments
+#
+# Revision 1.291  2009/05/28 10:44:52  ncq
+# - adjust to test table changes
+#
+# Revision 1.290  2009/05/26 09:16:33  ncq
 # - comment on cursors
 #
 # Revision 1.289  2009/05/12 12:05:04  ncq
