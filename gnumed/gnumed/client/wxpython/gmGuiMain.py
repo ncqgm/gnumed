@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.454 2009-05-24 16:28:46 ncq Exp $
-__version__ = "$Revision: 1.454 $"
+# $Id: gmGuiMain.py,v 1.455 2009-06-04 16:13:11 ncq Exp $
+__version__ = "$Revision: 1.455 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -500,6 +500,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('&Meta test types'), _('Show meta test/measurement types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_meta_test_types, item)
+
+		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
+		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
 
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
@@ -1069,8 +1072,25 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_about_database(self, evt):
 		praxis = gmSurgery.gmCurrentPractice()
 		msg = praxis.db_logon_banner
-		if msg != u'':
-			gmGuiHelpers.gm_show_info(msg, _('About database'))
+
+		login = gmPG2.get_default_login()
+
+		auth = _(
+			'\n\n'
+			' workplace: %s\n'
+			' account: %s\n'
+			' database: %s\n'
+			' server:	%s\n'
+		) % (
+			praxis.active_workplace,
+			login.user,
+			login.database,
+			gmTools.coalesce(login.host, u'<localhost>')
+		)
+
+		msg += auth
+
+		gmGuiHelpers.gm_show_info(msg, _('About database and server'))
 	#----------------------------------------------
 	def __on_show_contributors(self, event):
 		from Gnumed.wxpython import gmAbout
@@ -2259,6 +2279,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_meta_test_types(self, evt):
 		gmMeasurementWidgets.manage_meta_test_types(parent = self)
 	#----------------------------------------------
+	def __on_update_loinc(self, evt):
+		gmMeasurementWidgets.update_loinc_reference_data()
+	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
 
@@ -2359,7 +2382,7 @@ class gmTopLevelFrame(wx.Frame):
 				title = ''
 			else:
 				title = title[:4] + '.'
-			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat['dob'].strftime('%x').decode(gmI18N.get_encoding()), pat['pk_identity'])
+			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()), pat['pk_identity'])
 		else:
 			pat_str = _('no patient')
 
@@ -2650,7 +2673,20 @@ class gmApp(wx.App):
 		surgery = gmSurgery.gmCurrentPractice()
 		msg = surgery.db_logon_banner
 		if msg != u'':
-			gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
+			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+				None,
+				-1,
+				caption = _('Verifying database'),
+				question = gmTools.wrap(msg, 60, initial_indent = u'  ', subsequent_indent = u'  '),
+				button_defs = [
+					{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
+					{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
+				]
+			)
+			go_on = dlg.ShowModal()
+			if go_on != wx.ID_YES:
+				_log.info('user decided to not connect to this database')
+				return False
 
 		# check database language settings
 		self.__check_db_lang()
@@ -2941,7 +2977,15 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.454  2009-05-24 16:28:46  ncq
+# Revision 1.455  2009-06-04 16:13:11  ncq
+# - re-adjust to dob-less person
+# - update LOINC
+# - better about database
+#
+# Revision 1.455  2009/05/28 10:55:47  ncq
+# - adjust to DOB less persons
+#
+# Revision 1.454  2009/05/24 16:28:46  ncq
 # - list (meta) test types
 #
 # Revision 1.453  2009/05/18 15:32:05  ncq
