@@ -12,14 +12,14 @@ import wx
 class wxgNewPatientEAPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmDemographicsWidgets
+        from Gnumed.wxpython import gmDemographicsWidgets, gmDateTimeInput
 
         # begin wxGlade: wxgNewPatientEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.Panel.__init__(self, *args, **kwds)
         self._PRW_lastname = gmDemographicsWidgets.cLastnamePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_firstnames = gmDemographicsWidgets.cFirstnamePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._DP_dob = wx.DatePickerCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
+        self._DP_dob = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
         self._TCTRL_tob = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_nickname = gmDemographicsWidgets.cNicknamePhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -44,7 +44,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_lastname.SetToolTipString(_("Required: lastname (family name)"))
         self._PRW_lastname.SetFocus()
         self._PRW_firstnames.SetToolTipString(_("Required: surname/first name/given name"))
-        self._DP_dob.SetToolTipString(_("Required: Date of birth. Your current time zone applies."))
+        self._DP_dob.SetToolTipString(_("Recommended: Date of birth. Your current time zone applies."))
         self._TCTRL_tob.SetToolTipString(_("Optional: the time of birth if known"))
         self._PRW_gender.SetToolTipString(_("Required: gender"))
         self._PRW_nickname.SetToolTipString(_("Optional: nickname (alias, preferred name, call name, warrior name, artist name, pseudonym)"))
@@ -66,9 +66,13 @@ class wxgNewPatientEAPnl(wx.Panel):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __fgsizer_details = wx.FlexGridSizer(19, 2, 3, 5)
         __szr_dob = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_message = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_message.Add((20, 20), 1, wx.EXPAND, 0)
         __lbl_message = wx.StaticText(self, -1, _("Basic demographics"), style=wx.ALIGN_CENTRE)
         __lbl_message.SetFont(wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
-        __szr_main.Add(__lbl_message, 0, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_message.Add(__lbl_message, 0, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_message.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_main.Add(__szr_message, 0, wx.EXPAND, 0)
         __HLINE_top = wx.StaticLine(self, -1)
         __szr_main.Add(__HLINE_top, 0, wx.ALL|wx.EXPAND, 3)
         __fgsizer_details.Add((20, 20), 0, wx.EXPAND, 0)
