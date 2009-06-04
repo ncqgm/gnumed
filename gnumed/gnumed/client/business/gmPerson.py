@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.185 2009-04-24 12:04:44 ncq Exp $
-__version__ = "$Revision: 1.185 $"
+# $Id: gmPerson.py,v 1.186 2009-06-04 16:24:13 ncq Exp $
+__version__ = "$Revision: 1.186 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -369,10 +369,11 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 			if value.tzinfo is None:
 				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
 			# compare DOB at seconds level
-			old_dob = self._payload[self._idx['dob']].strftime('%Y %m %d %H %M %S')
-			new_dob = value.strftime('%Y %m %d %H %M %S')
-			if new_dob == old_dob:
-				return
+			if self._payload[self._idx['dob']] is not None:
+				old_dob = self._payload[self._idx['dob']].strftime('%Y %m %d %H %M %S')
+				new_dob = value.strftime('%Y %m %d %H %M %S')
+				if new_dob == old_dob:
+					return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
 	def cleanup(self):
@@ -404,6 +405,17 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
+	#--------------------------------------------------------
+	def get_formatted_dob(self, format='%x', encoding=None):
+		if self._payload[self._idx['dob']] is None:
+			return _('** DOB unknown **')
+
+		tmp = self._payload[self._idx['dob']].strftime(format)
+
+		if encoding is None:
+			return tmp
+
+		return tmp.decode(encoding)
 	#--------------------------------------------------------
 	def get_description_gender(self):
 		return '%(sex)s%(title)s %(last)s, %(first)s%(nick)s' % {
@@ -1818,35 +1830,7 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 def dob2medical_age(dob):
 	"""Format patient age in a hopefully meaningful way."""
 	age = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone) - dob
-	return format_age_medically(age)
-#------------------------------------------------------------
-def format_age_medically(age=None):
-	if age.days > 364:
-		years, days = divmod(age.days, 365)
-		months, day = divmod(days, 30)
-		if months == 0:
-			return "%sy" % int(years)
-		else:
-			return "%sy %sm" % (int(years), int(months))
-	if age.days > 30:
-		months, days = divmod(age.days, 30)
-		weeks = days // 7
-		return "%sm %sw" % (int(months), int(weeks))
-	if age.days > 7:
-		return "%sd" % age.days
-	if age.days > 1:
-		hours, seconds = divmod(age.seconds, 3600)
-		return "%sd (%sh)" % (age.days, int(hours))
-	if age.seconds > (3*3600):
-		return "%sh" % int(age.seconds // 3600)
-	if age.seconds > 3600:
-		hours, seconds = divmod(age.seconds, 3600)
-		minutes = seconds // 60
-		return "%sh %sm" % (int(hours), int(minutes))
-	if age.seconds > (5*60):
-		return "%sm" % (int(age.seconds // 60))
-	minutes, seconds = divmod(age.seconds, 60)
-	return "%sm %ss" % (int(minutes), int(seconds))
+	return gmDateTime.format_interval_medically(age)
 #============================================================
 def create_name(pk_person, firstnames, lastnames, active=False):
 	queries = [{
@@ -1859,12 +1843,7 @@ def create_name(pk_person, firstnames, lastnames, active=False):
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
 
-	cmd1 = u"""
-insert into dem.identity (
-	gender, dob
-) values (
-	%s, coalesce(%s, CURRENT_TIMESTAMP)
-)"""
+	cmd1 = u"""insert into dem.identity (gender, dob) values (%s, %s)"""
 
 	cmd2 = u"""
 insert into dem.names (
@@ -1884,8 +1863,8 @@ insert into dem.names (
 	return cIdentity(aPK_obj=rows[0][0])
 #============================================================
 def create_dummy_identity():
-	cmd1 = u"insert into dem.identity(gender, dob) values('xxxDEFAULTxxx', CURRENT_TIMESTAMP)"
-	cmd2 = u"select currval('dem.identity_id_seq')"
+	cmd1 = u"insert into dem.identity(gender) values('xxxDEFAULTxxx')"
+	cmd2 = u"select currval('dem.identity_pk_seq')"
 
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
@@ -1914,7 +1893,7 @@ def set_active_patient(patient=None, forced_reload=False):
 
 	# attempt to switch
 	try:
-		gmCurrentPatient(patient=pat, forced_reload=forced_reload)
+		gmCurrentPatient(patient = pat, forced_reload = forced_reload)
 	except:
 		_log.exception('error changing active patient to [%s]' % patient)
 		return False
@@ -2308,7 +2287,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.185  2009-04-24 12:04:44  ncq
+# Revision 1.186  2009-06-04 16:24:13  ncq
+# - adjust to dob-less persons
+#
+# Revision 1.185  2009/04/24 12:04:44  ncq
 # - cleanup
 #
 # Revision 1.184  2009/04/21 16:54:04  ncq
