@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.109 $"
+__version__ = "$Revision: 1.110 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -401,12 +401,17 @@ def set_default_login(login=None):
 	if login is None:
 		return False
 
+	if login.host is not None:
+		if login.host.strip() == u'':
+			login.host = None
+
 	global _default_login
 	_default_login = login
 	_log.info('setting default login from [%s] to [%s]' % (_default_login, login))
 
-	global _default_dsn
 	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
+
+	global _default_dsn
 	_default_dsn = dsn
 	_log.info('setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 
@@ -1899,7 +1904,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.109  2009-05-24 16:28:06  ncq
+# Revision 1.110  2009-06-04 16:26:22  ncq
+# - normalize login.host
+#
+# Revision 1.109  2009/05/24 16:28:06  ncq
 # - better output
 #
 # Revision 1.108  2009/05/22 11:00:47  ncq
