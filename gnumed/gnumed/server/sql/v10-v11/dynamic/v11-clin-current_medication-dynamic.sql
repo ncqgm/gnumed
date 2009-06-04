@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v11-clin-current_medication-dynamic.sql,v 1.3 2009-05-12 12:08:50 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v11-clin-current_medication-dynamic.sql,v 1.4 2009-06-04 16:37:39 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -102,21 +102,6 @@ grant select, insert, update, delete on
 	clin.active_substance
 	, clin.active_substance_pk_seq
 to group "gm-doctors";
-
-
--- .fk_brand
---comment on column clin.active_substance.fk_brand is
--- 'Which brand this component belongs to.';
-
---alter table clin.active_substance
---	alter column fk_brand
---		set not null;
-
---\unset ON_ERROR_STOP
---drop index clin.idx_fk_brand_component cascade;
---\set ON_ERROR_STOP 1
-
---create index idx_fk_brand_component on clin.active_substance (fk_brand);
 
 
 -- .description
@@ -276,6 +261,15 @@ comment on column clin.substance_intake.fk_encounter is
 'The encounter use of this substance was documented under.';
 
 
+-- .intake_is_approved_of
+comment on column clin.substance_intake.intake_is_approved_of is
+'Whether or not intake of this substance is recommended/approved of by the provider';
+
+alter table clin.substance_intake
+	alter column intake_is_approved_of
+		set not null;
+
+
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view clin.v_pat_substance_intake cascade;
@@ -302,6 +296,7 @@ select
 
 	csi.clin_when
 		as started,
+	csi.intake_is_approved_of,
 	csi.schedule,
 	csi.duration,
 	csi.aim,
@@ -351,22 +346,41 @@ select
 	csi.soap_cat
 		as soap_cat,
 
-	_('substance intake') || ': '
-		|| cas.description									-- Metoprolol
-		|| coalesce(' [' || cas.atc_code || '] ', ' ')		-- [ATC]
-		|| csi.strength || ' '								-- 100mg
-		|| csi.preparation									-- tab
-		|| coalesce(' ' || csi.schedule, '')				-- 1-0-0
-		|| ', ' || to_char(csi.clin_when, 'YYYY-MM-DD')		-- 2009-03-01
-		|| coalesce(' -> ' || csi.duration, '')				-- -> 6 months
-		|| coalesce(', ' || csi.aim, '')					-- lower RR
-		|| coalesce(' (' || csi.narrative || ')', '')		-- report if unwell
+	_('substance intake') || ' '
+		|| (case
+				when intake_is_approved_of is true then _('(approved of)')
+				when intake_is_approved_of is false then _('(not approved of)')
+				else _('[of unknown approval]')
+			end)
+		|| E':\n'
+
+		|| ' ' || cas.description								-- Metoprolol
+		|| coalesce(' [' || cas.atc_code || '] ', ' ')			-- [ATC]
+		|| csi.strength || ' '									-- 100mg
+		|| csi.preparation										-- tab
+		|| coalesce(' ' || csi.schedule, '')					-- 1-0-0
+		|| ', ' || to_char(csi.clin_when, 'YYYY-MM-DD')			-- 2009-03-01
+		|| coalesce(' -> ' || csi.duration, '')					-- -> 6 months
+		|| E'\n'
+
+		|| coalesce (
+			nullif (
+				(coalesce(' ' || csi.aim, '')						-- lower RR
+				 || coalesce(' (' || csi.narrative || ')', '')		-- report if unwell
+				 || E'\n'
+				),
+				E'\n'
+			),
+			''
+		)
+
 		|| coalesce (' "'
 			|| csb.description || ' '
 			|| csb.preparation || ' '
 			|| '[' || csb.atc_code || ']'
 			|| '"',
-			'')												-- "MetoPharm tablets [ATC code]"
+			'')													-- "MetoPharm tablets [ATC code]"
+
 	as narrative,
 
 	csi.fk_encounter
@@ -390,11 +404,15 @@ from
 grant select on clin.v_pat_substance_intake_journal to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-current_medication-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-current_medication-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v11-clin-current_medication-dynamic.sql,v $
--- Revision 1.3  2009-05-12 12:08:50  ncq
+-- Revision 1.4  2009-06-04 16:37:39  ncq
+-- - .intake-is-approved-of
+-- - improved journal view
+--
+-- Revision 1.3  2009/05/12 12:08:50  ncq
 -- - fix table layout
 --
 -- Revision 1.2  2009/05/04 15:05:59  ncq
