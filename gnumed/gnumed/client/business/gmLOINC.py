@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmLOINC.py,v $
-# $Id: gmLOINC.py,v 1.4 2009-06-04 16:23:02 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmLOINC.py,v 1.5 2009-06-10 20:59:45 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv
@@ -82,7 +82,7 @@ def get_version(license_fname='loinc_license.txt'):
 	in_file.close()
 	return version
 #============================================================
-def loinc_import(data_fname=None, license_fname=None, version=None, conn=None):
+def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, lang='en_US'):
 
 	if version is None:
 		version = get_version(license_fname = license_fname)
@@ -96,7 +96,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None):
 	desc = in_file.read()
 	in_file.close()
 
-	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short}
+	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
 
 	# create data source record
 	queries = [{
@@ -104,11 +104,12 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None):
 		'args': args
 	}, {
 		'cmd': u"""
-insert into ref.data_source (name_long, name_short, version, description, source) values (
+insert into ref.data_source (name_long, name_short, version, description, lang, source) values (
 	%(name_long)s,
 	%(name_short)s,
 	%(ver)s,
 	%(desc)s,
+	%(lang)s,
 	%(url)s
 )""",
 		'args': args
@@ -151,7 +152,7 @@ insert into ref.data_source (name_long, name_short, version, description, source
 	# from staging table to real table
 	curs = conn.cursor()
 	args = {'src_pk': data_src_pk}
-	cmd = """
+	cmd = u"""
 insert into ref.loinc (
 	fk_data_source,
 
@@ -311,7 +312,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmLOINC.py,v $
-# Revision 1.4  2009-06-04 16:23:02  ncq
+# Revision 1.5  2009-06-10 20:59:45  ncq
+# - must specify language for import
+#
+# Revision 1.4  2009/06/04 16:23:02  ncq
 # - cleanup, better logging
 #
 # Revision 1.3  2009/05/26 09:17:00  ncq
