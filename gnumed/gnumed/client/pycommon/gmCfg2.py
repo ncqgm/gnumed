@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -329,6 +329,26 @@ class gmCfgData(gmBorg.cBorg):
 
 		return results
 	#--------------------------------------------------
+	def set_option(self, option=None, value=None, group=None, source=None):
+		"""Set a particular option to a particular value.
+
+		Note that this does NOT PERSIST the option anywhere !
+		"""
+		if None in [option, value]:
+			raise ValueError('neither <option> nor <value> can be None')
+		if source is None:
+			source = u'internal'
+			try:
+				self.__cfg_data[source]
+			except KeyError:
+				self.__cfg_data[source] = {}
+		if group is None:
+			group = source
+		option_path = u'%s::%s' % (group, option)
+		self.__cfg_data[source][option_path] = value
+	#--------------------------------------------------
+	# API: source related
+	#--------------------------------------------------
 	def add_stream_source(self, source=None, stream=None):
 
 		try:
@@ -371,6 +391,32 @@ class gmCfgData(gmBorg.cBorg):
 
 		self.source_files[source] = file
 	#--------------------------------------------------
+	def remove_source(self, source):
+		"""Remove a source from the instance."""
+
+		_log.info('removing source <%s>', source)
+
+		try:
+			del self.__cfg_data[source]
+		except KeyError:
+			_log.warning("source <%s> doesn't exist", source)
+
+		try:
+			del self.source_files[source]
+		except KeyError:
+			pass
+	#--------------------------------------------------
+	def reload_file_source(self, file=None, encoding='utf8'):
+		if file not in self.source_files.values():
+			return
+
+		for src, fname in self.source_files.iteritems():
+			if fname == file:
+				self.add_file_source(source = src, file = fname, encoding = encoding)
+				# don't break the loop because there could be other sources
+				# with the same file (not very reasonable, I know)
+				#break
+	#--------------------------------------------------
 	def add_cli(self, short_options=u'', long_options=None):
 		"""Add command line parameters to config data.
 
@@ -404,35 +450,6 @@ class gmCfgData(gmBorg.cBorg):
 				data[u'%s::%s' % (u'cli', opt)] = val
 
 		self.__cfg_data[u'cli'] = data
-	#--------------------------------------------------
-	def reload_file_source(self, file=None, encoding='utf8'):
-		if file not in self.source_files.values():
-			return
-
-		for src, fname in self.source_files.iteritems():
-			if fname == file:
-				self.add_file_source(source = src, file = fname, encoding = encoding)
-				# don't break the loop because there could be other sources
-				# with the same file (not very reasonable, I know)
-				#break
-	#--------------------------------------------------
-	def set_option(self, option=None, value=None, group=None, source=None):
-		"""Set a particular option to a particular value.
-
-		Note that this does NOT PERSIST the option anywhere !
-		"""
-		if None in [option, value]:
-			raise ValueError('neither <option> nor <value> can be None')
-		if source is None:
-			source = u'internal'
-			try:
-				self.__cfg_data[source]
-			except KeyError:
-				self.__cfg_data[source] = {}
-		if group is None:
-			group = source
-		option_path = u'%s::%s' % (group, option)
-		self.__cfg_data[source][option_path] = value
 #==================================================================
 # main
 #==================================================================
@@ -512,7 +529,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.19  2009-05-08 07:59:05  ncq
+# Revision 1.20  2009-06-10 21:00:01  ncq
+# - add remove-source
+#
+# Revision 1.19  2009/05/08 07:59:05  ncq
 # - .panic -> .critical
 #
 # Revision 1.18  2008/09/09 20:15:42  ncq
