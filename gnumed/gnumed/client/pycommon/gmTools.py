@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.84 2009-05-13 10:35:22 ncq Exp $
+# $Id: gmTools.py,v 1.85 2009-06-10 21:00:43 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -86,6 +86,8 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	latest_branch = cfg.get('latest branch', 'branch', source_order = [('gm-versions', 'return')])
 	latest_release_on_latest_branch = cfg.get('branch %s' % latest_branch, 'latest release', source_order = [('gm-versions', 'return')])
 	latest_release_on_current_branch = cfg.get('branch %s' % current_branch, 'latest release', source_order = [('gm-versions', 'return')])
+
+	cfg.remove_source('gm-versions')
 
 	_log.info('current release: %s', current_version)
 	_log.info('current branch: %s', current_branch)
@@ -1031,7 +1033,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.84  2009-05-13 10:35:22  ncq
+# Revision 1.85  2009-06-10 21:00:43  ncq
+# - remove "gm_versions" cfg source after use
+#
+# Revision 1.84  2009/05/13 10:35:22  ncq
 # - some cleanup
 #
 # Revision 1.83  2009/04/21 16:54:34  ncq
