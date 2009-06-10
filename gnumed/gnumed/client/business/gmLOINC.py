@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmLOINC.py,v $
-# $Id: gmLOINC.py,v 1.5 2009-06-10 20:59:45 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmLOINC.py,v 1.6 2009-06-10 21:07:38 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv
@@ -82,7 +82,7 @@ def get_version(license_fname='loinc_license.txt'):
 	in_file.close()
 	return version
 #============================================================
-def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, lang='en_US'):
+def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, lang='en_EN'):
 
 	if version is None:
 		version = get_version(license_fname = license_fname)
@@ -124,8 +124,6 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	# import data
 	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
 	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
-
-#	conn = gmPG2.get_connection(readonly = False)
 
 	# clean out staging area
 	curs = conn.cursor()
@@ -312,7 +310,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmLOINC.py,v $
-# Revision 1.5  2009-06-10 20:59:45  ncq
+# Revision 1.6  2009-06-10 21:07:38  ncq
+# - change default language to en_EN
+#
+# Revision 1.5  2009/06/10 20:59:45  ncq
 # - must specify language for import
 #
 # Revision 1.4  2009/06/04 16:23:02  ncq
