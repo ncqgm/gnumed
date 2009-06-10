@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.73 2009-06-04 16:35:03 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.74 2009-06-10 21:03:40 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc10"
@@ -124,6 +124,7 @@ echo "============"
 mkdir -p ./GNUmed-$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-install_arriba ./GNUmed-$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_loinc ./GNUmed-$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-download_atc ./GNUmed-$CLIENTREV/external-tools/
 
 
 # client
@@ -262,6 +263,7 @@ cp -R ../../server/gm-zip+sign_backups.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../external-tools/gm-download_loinc ./GNUmed-$CLIENTREV/server/
+cp -R ../../external-tools/gm-download_atc ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
 
@@ -423,7 +425,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.73  2009-06-04 16:35:03  ncq
+# Revision 1.74  2009-06-10 21:03:40  ncq
+# - include ATC downloader
+#
+# Revision 1.73  2009/06/04 16:35:03  ncq
 # - include gm-download_loinc
 #
 # Revision 1.72  2009/05/18 15:35:52  ncq
