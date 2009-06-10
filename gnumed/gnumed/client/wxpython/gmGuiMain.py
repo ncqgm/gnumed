@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.455 2009-06-04 16:13:11 ncq Exp $
-__version__ = "$Revision: 1.455 $"
+# $Id: gmGuiMain.py,v 1.456 2009-06-10 21:03:17 ncq Exp $
+__version__ = "$Revision: 1.456 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -58,7 +58,7 @@ from Gnumed.exporters import gmPatientExporter
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
-from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets, gmPhraseWheel
+from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -503,6 +503,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
+
+		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
+		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
 
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
@@ -2282,6 +2285,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_update_loinc(self, evt):
 		gmMeasurementWidgets.update_loinc_reference_data()
 	#----------------------------------------------
+	def __on_update_atc(self, evt):
+		gmMedicationWidgets.update_atc_reference_data()
+	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
 
@@ -2671,13 +2677,13 @@ class gmApp(wx.App):
 
 		# display database banner
 		surgery = gmSurgery.gmCurrentPractice()
-		msg = surgery.db_logon_banner
+		msg = u'\n\n' + surgery.db_logon_banner + u'\n\n'
 		if msg != u'':
 			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 				None,
 				-1,
 				caption = _('Verifying database'),
-				question = gmTools.wrap(msg, 60, initial_indent = u'  ', subsequent_indent = u'  '),
+				question = gmTools.wrap(msg, 50, initial_indent = u'    ', subsequent_indent = u'    '),
 				button_defs = [
 					{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
 					{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
@@ -2977,7 +2983,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.455  2009-06-04 16:13:11  ncq
+# Revision 1.456  2009-06-10 21:03:17  ncq
+# - add menu item for updating ATC
+#
+# Revision 1.455  2009/06/04 16:13:11  ncq
 # - re-adjust to dob-less person
 # - update LOINC
 # - better about database
