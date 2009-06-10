@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-ref-atc-dynamic.sql,v 1.1 2009-06-04 17:48:10 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-ref-atc-dynamic.sql,v 1.2 2009-06-10 21:05:28 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -48,10 +48,6 @@ select
 	a.pk as pk_atc,
 	a.code as atc,
 	a.term,
-	coalesce (
-		i18n.tx_or_null(a.code),
-		a.term
-	)	as l10n_term,
 	a.ddd,
 	a.unit,
 	a.administration_route,
@@ -64,6 +60,7 @@ select
 	rds.name_long,
 	rds.name_short,
 	rds.version,
+	rds.lang,
 
 	a.pk_coding_system,
 	a.fk_data_source
@@ -74,11 +71,21 @@ from
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-ref-atc-dynamic.sql,v $', '$Revision: 1.1 $');
+grant select on
+	ref.atc
+--	, ref.atc_pkey
+	, ref.v_atc
+to group "gm-doctors";
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('$RCSfile: v11-ref-atc-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-ref-atc-dynamic.sql,v $
--- Revision 1.1  2009-06-04 17:48:10  ncq
+-- Revision 1.2  2009-06-10 21:05:28  ncq
+-- - add grants
+--
+-- Revision 1.1  2009/06/04 17:48:10  ncq
 -- - first version
 --
 --
