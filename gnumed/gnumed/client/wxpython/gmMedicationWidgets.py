@@ -2,12 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.2 2009-05-13 12:20:59 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMedicationWidgets.py,v 1.3 2009-06-10 21:02:34 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import logging, sys
-# os.path
+import logging, sys, os.path
 
 
 import wx, wx.grid
@@ -17,15 +16,46 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher
 #gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDateTime, gmTools, gmShellAPI, gmHooks
-from Gnumed.business import gmPerson
-#, gmMedDoc, gmEMRStructItems, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin
-#, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
+from Gnumed.business import gmPerson, gmATC
+#, gmEMRStructItems, gmSurgery
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
+#============================================================
+def update_atc_reference_data():
+
+	dlg = wx.FileDialog (
+		parent = None,
+		message = _('Choose an ATC import config file'),
+		defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+		defaultFile = '',
+		wildcard = "%s (*.conf)|*.conf|%s (*)|*" % (_('config files'), _('all files')),
+		style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+	)
+
+	result = dlg.ShowModal()
+	if result == wx.ID_CANCEL:
+		return
+
+	cfg_file = dlg.GetPath()
+	dlg.Destroy()
+
+	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing ATC reference data'))
+	if conn is None:
+		return False
+
+	wx.BeginBusyCursor()
+
+	if gmATC.atc_import(cfg_fname = cfg_file, conn = conn):
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported ATC reference data.'))
+	else:
+		gmDispatcher.send(signal = 'statustext', msg = _('Importing ATC reference data failed.'), beep = True)
+
+	wx.EndBusyCursor()
+	return True
 #============================================================
 # current substances grid
 #------------------------------------------------------------
@@ -199,7 +229,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.2  2009-05-13 12:20:59  ncq
+# Revision 1.3  2009-06-10 21:02:34  ncq
+# - update-atc-reference-data
+#
+# Revision 1.2  2009/05/13 12:20:59  ncq
 # - improve and streamline
 #
 # Revision 1.1  2009/05/12 12:04:01  ncq
