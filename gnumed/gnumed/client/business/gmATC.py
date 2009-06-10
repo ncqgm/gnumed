@@ -7,11 +7,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.1 2009-06-04 16:42:54 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmATC.py,v 1.2 2009-06-10 20:59:12 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, codecs, logging, csv, re as regex
+import sys, codecs, logging, csv, re as regex, os.path
 
 
 if __name__ == '__main__':
@@ -23,23 +23,16 @@ _log = logging.getLogger('gm.atc')
 _log.info(__version__)
 
 _cfg = gmCfg2.gmCfgData()
-
-#origin_url = u'http://loinc.org'
-#file_encoding = 'latin1'			# encoding is empirical
-#license_delimiter = u'Clip Here for Data'
-#version_tag = u'LOINC(R) Database Version'
-#name_long = u'LOINC® (Logical Observation Identifiers Names and Codes)'
-#name_short = u'LOINC'
-
-#loinc_fields = u"LOINC_NUM COMPONENT PROPERTY TIME_ASPCT SYSTEM SCALE_TYP METHOD_TYP RELAT_NMS CLASS SOURCE DT_LAST_CH CHNG_TYPE COMMENTS ANSWERLIST STATUS MAP_TO SCOPE NORM_RANGE IPCC_UNITS REFERENCE EXACT_CMP_SY MOLAR_MASS CLASSTYPE FORMULA SPECIES EXMPL_ANSWERS ACSSYM BASE_NAME FINAL NAACCR_ID CODE_TABLE SETROOT PANELELEMENTS SURVEY_QUEST_TEXT SURVEY_QUEST_SRC UNITSREQUIRED SUBMITTED_UNITS RELATEDNAMES2 SHORTNAME ORDER_OBS CDISC_COMMON_TESTS HL7_FIELD_SUBFIELD_ID EXTERNAL_COPYRIGHT_NOTICE EXAMPLE_UNITS INPC_PERCENTAGE LONG_COMMON_NAME".split()
-
-
 #============================================================
 def atc_import(cfg_fname=None, conn=None):
 
+	# read meta data
 	_cfg.add_file_source(source = 'atc', file = cfg_fname, encoding = 'utf8')
 
-	data_fname = _cfg.get(group = 'atc', option = 'data file', source_order = [('atc', 'return')])
+	data_fname = os.path.join (
+		os.path.dirname(cfg_fname),
+		_cfg.get(group = 'atc', option = 'data file', source_order = [('atc', 'return')])
+	)			# must be in same dir as conf file
 	version = _cfg.get(group = 'atc', option = 'version', source_order = [('atc', 'return')])
 	lang = _cfg.get(group = 'atc', option = 'language', source_order = [('atc', 'return')])
 	desc = _cfg.get(group = 'atc', option = 'description', source_order = [('atc', 'return')])
@@ -47,9 +40,11 @@ def atc_import(cfg_fname=None, conn=None):
 	name_long = _cfg.get(group = 'atc', option = 'long name', source_order = [('atc', 'return')])
 	name_short = _cfg.get(group = 'atc', option = 'short name', source_order = [('atc', 'return')])
 
+	_cfg.remove_source(source = 'atc')
+
 	_log.debug('importing ATC version [%s] (%s) from [%s]', version, lang, data_fname)
 
-	args = {'ver': version, 'desc': desc, 'url': url, 'name_long': name_long, 'name_short': name_short}
+	args = {'ver': version, 'desc': desc, 'url': url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
 
 	# create data source record
 	queries = [
@@ -58,11 +53,12 @@ def atc_import(cfg_fname=None, conn=None):
 		'args': args
 		}, {
 		'cmd': u"""
-insert into ref.data_source (name_long, name_short, version, description, source) values (
+insert into ref.data_source (name_long, name_short, version, description, lang, source) values (
 	%(name_long)s,
 	%(name_short)s,
 	%(ver)s,
 	%(desc)s,
+	%(lang)s,
 	%(url)s
 )""",
 		'args': args
@@ -189,17 +185,18 @@ if __name__ == "__main__":
 #	gmDateTime.init()
 
 	#--------------------------------------------------------
-	#--------------------------------------------------------
 	def test_atc_import():
 		atc_import(cfg_fname = sys.argv[2], conn = gmPG2.get_connection(readonly = False))
 	#--------------------------------------------------------
 	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
-		#test_loinc_split()
 		test_atc_import()
 
 #============================================================
 # $Log: gmATC.py,v $
-# Revision 1.1  2009-06-04 16:42:54  ncq
+# Revision 1.2  2009-06-10 20:59:12  ncq
+# - data file must be in the same directory as conf file
+#
+# Revision 1.1  2009/06/04 16:42:54  ncq
 # - first version
 #
 #
