@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.176 2009-05-13 12:20:20 ncq Exp $
-__version__ = "$Revision: 1.176 $"
+# $Id: gmMedDocWidgets.py,v 1.177 2009-06-10 21:01:10 ncq Exp $
+__version__ = "$Revision: 1.177 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -832,7 +832,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	def _load_btn_pressed(self, evt):
 		# patient file chooser
-		dlg = wx.FileDialog(
+		dlg = wx.FileDialog (
 			parent = None,
 			message = _('Choose a file'),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
@@ -1953,7 +1953,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.176  2009-05-13 12:20:20  ncq
+# Revision 1.177  2009-06-10 21:01:10  ncq
+# - cleanup
+#
+# Revision 1.176  2009/05/13 12:20:20  ncq
 # - some cleanup
 #
 # Revision 1.175  2009/02/04 21:47:17  ncq
