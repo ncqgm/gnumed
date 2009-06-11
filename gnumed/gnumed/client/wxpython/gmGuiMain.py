@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.457 2009-06-11 11:08:47 ncq Exp $
-__version__ = "$Revision: 1.457 $"
+# $Id: gmGuiMain.py,v 1.458 2009-06-11 12:47:44 ncq Exp $
+__version__ = "$Revision: 1.458 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2348,10 +2348,9 @@ class gmTopLevelFrame(wx.Frame):
 			print _('You have to manually close this window to finalize shutting down GNUmed.')
 			print _('This is so that you can inspect the console output at your leisure.')
 			print '---=== GNUmed shutdown ===---'
-
-		sys.stdin = sys.__stdin__
-		sys.stdout = sys.__stdout__
-		sys.stderr = sys.__stderr__
+#			sys.stdin = sys.__stdin__
+#			sys.stdout = sys.__stdout__
+#			sys.stderr = sys.__stderr__
 
 		_log.debug('gmTopLevelFrame._clean_exit() end')
 	#----------------------------------------------
@@ -2491,6 +2490,7 @@ class gmApp(wx.App):
 
 		if _cfg.get(option = 'debug'):
 			self.RedirectStdio()
+			self.SetOutputWindowAttributes(title = _('GNUmed stdout/stderr window'))
 			# print this so people know what this window is for
 			# and don't get suprised when it pops up later
 			print '---=== GNUmed startup ===---'
@@ -2519,12 +2519,17 @@ class gmApp(wx.App):
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
 		"""
+		print "App OnExit"
 		_log.debug('gmApp.OnExit() start')
 		try:
 			self.user_activity_timer.Stop()
 		except:
 			pass
+		print "user activity timer stopped"
 		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
+		print "exception handler uninstalled"
+		if _cfg.get(option = 'debug'):
+			self.RestoreStdio()
 		_log.debug('gmApp.OnExit() end')
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -2983,7 +2988,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.457  2009-06-11 11:08:47  ncq
+# Revision 1.458  2009-06-11 12:47:44  ncq
+# - be more careful and more verbose about exiting
+#
+# Revision 1.457  2009/06/11 11:08:47  ncq
 # - better wrapping for database welcome message
 #
 # Revision 1.456  2009/06/10 21:03:17  ncq
