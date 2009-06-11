@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.110 $"
+__version__ = "$Revision: 1.111 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -96,7 +96,8 @@ known_schema_hashes = {
 	'v7': '6c9f6d3981483f8e9433df99d1947b27',
 	'v8': '89b13a7af83337c3aad153b717e52360',
 	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
-	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a'
+	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
+	'v11': '03042ae24f3f92877d986fb0a6184d76'
 }
 
 map_schema_hash2version = {
@@ -108,7 +109,8 @@ map_schema_hash2version = {
 	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
 	'89b13a7af83337c3aad153b717e52360': 'v8',
 	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
-	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10'
+	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
+	'03042ae24f3f92877d986fb0a6184d76': 'v11'
 }
 
 map_client_branch2required_db_version = {
@@ -1904,7 +1906,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.110  2009-06-04 16:26:22  ncq
+# Revision 1.111  2009-06-11 13:03:52  ncq
+# - add proper hash for v11
+#
+# Revision 1.110  2009/06/04 16:26:22  ncq
 # - normalize login.host
 #
 # Revision 1.109  2009/05/24 16:28:06  ncq
