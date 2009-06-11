@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.456 2009-06-10 21:03:17 ncq Exp $
-__version__ = "$Revision: 1.456 $"
+# $Id: gmGuiMain.py,v 1.457 2009-06-11 11:08:47 ncq Exp $
+__version__ = "$Revision: 1.457 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2683,7 +2683,7 @@ class gmApp(wx.App):
 				None,
 				-1,
 				caption = _('Verifying database'),
-				question = gmTools.wrap(msg, 50, initial_indent = u'    ', subsequent_indent = u'    '),
+				question = gmTools.wrap(msg, 55, initial_indent = u'    ', subsequent_indent = u'    '),
 				button_defs = [
 					{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
 					{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
@@ -2983,7 +2983,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.456  2009-06-10 21:03:17  ncq
+# Revision 1.457  2009-06-11 11:08:47  ncq
+# - better wrapping for database welcome message
+#
+# Revision 1.456  2009/06/10 21:03:17  ncq
 # - add menu item for updating ATC
 #
 # Revision 1.455  2009/06/04 16:13:11  ncq
