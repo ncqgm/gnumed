@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.38 2009-04-14 11:02:20 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmAuthWidgets.py,v 1.39 2009-06-11 11:07:57 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -172,7 +172,14 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		if not compatible:
 			connected_db_version = gmPG2.get_schema_version()
-			msg = msg_generic % (client_version, connected_db_version, expected_version, login.host, login.database, login.user)
+			msg = msg_generic % (
+				client_version,
+				connected_db_version,
+				expected_version,
+				gmTools.coalesce(login.host, '<localhost>'),
+				login.database,
+				login.user
+			)
 			if require_version:
 				gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
 				continue
@@ -717,7 +724,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.38  2009-04-14 11:02:20  ncq
+# Revision 1.39  2009-06-11 11:07:57  ncq
+# - properly display localhost
+#
+# Revision 1.38  2009/04/14 11:02:20  ncq
 # - if not debugging and not in development sort out database
 #   profiles with incompatible names, this essentially hardcodes
 #   the database name for the first time
