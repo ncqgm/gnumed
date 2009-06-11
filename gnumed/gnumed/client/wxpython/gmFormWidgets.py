@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.10 2008-10-12 16:20:11 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmFormWidgets.py,v 1.11 2009-06-11 12:37:25 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, logging
@@ -57,13 +57,13 @@ def let_user_select_form_template(parent=None):
 		lctrl.set_string_items(items = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ])
 		lctrl.set_data(data = templates)
 	#-------------------------
-	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
+	#templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
 	template = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Select letter or form template.'),
-		choices = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ],
 		columns = [_('Template'), _('Version'), _('Type')],
-		data = templates,
+		#choices = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ],
+		#data = templates,
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
@@ -317,7 +317,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.10  2008-10-12 16:20:11  ncq
+# Revision 1.11  2009-06-11 12:37:25  ncq
+# - much simplified initial setup of list ctrls
+#
+# Revision 1.10  2008/10/12 16:20:11  ncq
 # - add busy cursor around letter creation
 #
 # Revision 1.9  2008/03/05 22:30:14  ncq

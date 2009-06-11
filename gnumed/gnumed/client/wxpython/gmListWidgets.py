@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.30 2009-06-04 16:32:01 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmListWidgets.py,v 1.31 2009-06-11 12:37:25 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -57,11 +57,15 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 	dlg.new_callback = new_callback
 	dlg.delete_callback = delete_callback
 	dlg.set_columns(columns = columns)
-	dlg.set_string_items(items = choices)
+
+	if refresh_callback is None:
+		dlg.set_string_items(items = choices)		# list ctrl will refresh anyway if possible
+
+	if data is not None:
+		dlg.set_data(data=data)						# can override data set if refresh_callback is not None
+
 	if selections is not None:
 		dlg.set_selections(selections = selections)
-	if data is not None:
-		dlg.set_data(data=data)
 	dlg.can_return_empty = can_return_empty
 
 	btn_pressed = dlg.ShowModal()
@@ -331,6 +335,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
 
 		self.__widths = None
+		self.__data = None
 	#------------------------------------------------------------
 	# setters
 	#------------------------------------------------------------
@@ -514,7 +519,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.30  2009-06-04 16:32:01  ncq
+# Revision 1.31  2009-06-11 12:37:25  ncq
+# - much simplified initial setup of list ctrls
+#
+# Revision 1.30  2009/06/04 16:32:01  ncq
 # - use refresh from init if available to simplify external setup code
 #
 # Revision 1.29  2009/04/16 12:49:47  ncq

@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.93 2009-06-04 16:30:30 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmEMRStructWidgets.py,v 1.94 2009-06-11 12:37:25 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -47,10 +47,10 @@ def manage_hospital_stays(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-
+	#-----------------------------------------
 	def edit(stay=None):
 		return edit_hospital_stay(parent = parent, hospital_stay = stay)
-
+	#-----------------------------------------
 	def delete(stay=None):
 		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
 			return True
@@ -60,7 +60,7 @@ def manage_hospital_stays(parent=None):
 			beep = True
 		)
 		return False
-
+	#-----------------------------------------
 	def refresh(lctrl):
 		stays = emr.get_hospital_stays()
 		items = [
@@ -73,24 +73,12 @@ def manage_hospital_stays(parent=None):
 		]
 		lctrl.set_string_items(items = items)
 		lctrl.set_data(data = stays)
-
-	stays = emr.get_hospital_stays()
-	items = [
-		[
-			s['admission'].strftime('%Y-%m-%d'),
-			gmTools.coalesce(s['discharge'], u''),
-			s['episode'],
-			gmTools.coalesce(s['hospital'], u'')
-		] for s in stays
-	]
-
+	#-----------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nSelect the hospital stay you want to edit !\n'),
 		caption = _('Editing hospital stays ...'),
 		columns = [_('Admission'), _('Discharge'), _('Reason'), _('Hospital')],
-		choices = items,
-		data = stays,
 		single_selection = True,
 		edit_callback = edit,
 		new_callback = edit,
@@ -237,27 +225,11 @@ def select_encounters(parent=None, patient=None, single_selection=True):
 	def edit(enc = None):
 		return edit_encounter(parent = parent, encounter = enc)
 	#--------------------
-
-	encs = emr.get_encounters()
-	items = [
-		[
-			e['started'].strftime('%x %H:%M'),
-			e['last_affirmed'].strftime('%H:%M'),
-			e['l10n_type'],
-			gmTools.coalesce(e['reason_for_encounter'], u''),
-			gmTools.coalesce(e['assessment_of_encounter'], u''),
-			gmTools.bool2subst(e.has_clinical_data(), u'', gmTools.u_checkmark_thin),
-			e['pk_encounter']
-		] for e in encs
-	]
-
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nBelow find all encounters of the patient.\n'),
 		caption = _('Showing encounters ...'),
 		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Emtpy'), '#'],
-		choices = items,
-		data = encs,
 		can_return_empty = True,
 		single_selection = single_selection,
 		refresh_callback = refresh,
@@ -312,15 +284,10 @@ def manage_encounter_types(parent=None):
 		enc_types = gmEMRStructItems.get_encounter_types()
 		lctrl.set_string_items(items = enc_types)
 	#--------------------
-
-	enc_types = gmEMRStructItems.get_encounter_types()
-
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nSelect the encounter type you want to edit !\n'),
 		caption = _('Editing encounter types ...'),
-		choices = enc_types,
-		data = None,
 		columns = [_('Name'), _('System type')],
 		single_selection = True,
 		edit_callback = edit,
@@ -1591,7 +1558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.93  2009-06-04 16:30:30  ncq
+# Revision 1.94  2009-06-11 12:37:25  ncq
+# - much simplified initial setup of list ctrls
+#
+# Revision 1.93  2009/06/04 16:30:30  ncq
 # - use set active patient from pat search widgets
 #
 # Revision 1.92  2009/05/13 13:12:21  ncq

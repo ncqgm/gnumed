@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.30 2009-06-04 16:33:13 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmNarrativeWidgets.py,v 1.31 2009-06-11 12:37:25 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -97,21 +97,6 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		parent = wx.GetApp().GetTopWindow()
 
 	emr = patient.get_emr()
-
-	#--------------------------
-	def refresh(lctrl):
-		notes = emr.get_clin_narrative (
-			encounters = encounters,
-			episodes = episodes,
-			providers = [ gmPerson.gmCurrentProvider()['short_alias'] ]
-		)
-		lctrl.set_string_items(items = [
-			[	narr['date'].strftime('%x %H:%M'),
-				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
-				narr['narrative'].replace('\n', '/').replace('\r', '/')
-			] for narr in notes
-		])
-		lctrl.set_data(data = notes)
 	#--------------------------
 	def delete(item):
 		if item is None:
@@ -172,34 +157,35 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 
 		return True
 	#--------------------------
-
-	notes = emr.get_clin_narrative (
-		encounters = encounters,
-		episodes = episodes,
-		providers = [ gmPerson.gmCurrentProvider()['short_alias'] ]
-	)
+	def refresh(lctrl):
+		notes = emr.get_clin_narrative (
+			encounters = encounters,
+			episodes = episodes,
+			providers = [ gmPerson.gmCurrentProvider()['short_alias'] ]
+		)
+		lctrl.set_string_items(items = [
+			[	narr['date'].strftime('%x %H:%M'),
+				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				narr['narrative'].replace('\n', '/').replace('\r', '/')
+			] for narr in notes
+		])
+		lctrl.set_data(data = notes)
+	#--------------------------
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Managing progress notes'),
-		single_selection = True,
-		can_return_empty = False,
-		edit_callback = edit,
-		delete_callback = delete,
-		refresh_callback = refresh,
-		data = notes,
 		msg = _(
 			'\n'
 			' This list shows the progress notes by %s.\n'
 			'\n'
 		) % gmPerson.gmCurrentProvider()['short_alias'],
 		columns = [_('when'), _('type'), _('entry')],
-		choices = [
-			[	narr['date'].strftime('%x %H:%M'),
-				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
-				narr['narrative'].replace('\n', '/').replace('\r', '/')
-			] for narr in notes
-		]
+		single_selection = True,
+		can_return_empty = False,
+		edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
 	)
 #------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
@@ -1427,7 +1413,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.30  2009-06-04 16:33:13  ncq
+# Revision 1.31  2009-06-11 12:37:25  ncq
+# - much simplified initial setup of list ctrls
+#
+# Revision 1.30  2009/06/04 16:33:13  ncq
 # - adjust to dob-less person
 # - use set-active-patient from pat-search-widgets
 #

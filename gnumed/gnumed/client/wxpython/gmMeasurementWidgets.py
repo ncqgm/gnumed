@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.47 2009-06-04 16:19:00 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmMeasurementWidgets.py,v 1.48 2009-06-11 12:37:25 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1183,8 +1183,6 @@ def manage_measurement_types(parent=None):
 		msg = msg,
 		caption = _('Showing measurement types.'),
 		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Code'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
-		choices = items,
-		data = mtypes,
 		single_selection = True,
 		refresh_callback = refresh,
 		#edit_callback = edit,
@@ -1425,7 +1423,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.47  2009-06-04 16:19:00  ncq
+# Revision 1.48  2009-06-11 12:37:25  ncq
+# - much simplified initial setup of list ctrls
+#
+# Revision 1.47  2009/06/04 16:19:00  ncq
 # - re-adjust to test table changes
 # - update loinc
 # - adjust to list widget changes (refresh)

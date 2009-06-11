@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.35 2009-06-04 16:30:30 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmProviderInboxWidgets.py,v 1.36 2009-06-11 12:37:25 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -126,18 +126,6 @@ def configure_keyword_text_expansion(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	#----------------------
-	def refresh(lctrl=None):
-		kwds = [ [
-				r[0],
-				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
-				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
-				r[3]
-			] for r in gmPG2.get_text_expansion_keywords()
-		]
-		data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
-		lctrl.set_string_items(kwds)
-		lctrl.set_data(data)
-	#----------------------
 	def delete(keyword=None):
 		gmPG2.delete_text_expansion(keyword = keyword)
 		return True
@@ -154,21 +142,23 @@ def configure_keyword_text_expansion(parent=None):
 
 		return False
 	#----------------------
-	kwds = [ [
-			r[0],
-			gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
-			gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
-			r[3]
-		] for r in gmPG2.get_text_expansion_keywords()
-	]
-	data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
+	def refresh(lctrl=None):
+		kwds = [ [
+				r[0],
+				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
+				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
+				r[3]
+			] for r in gmPG2.get_text_expansion_keywords()
+		]
+		data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
+		lctrl.set_string_items(kwds)
+		lctrl.set_data(data)
+	#----------------------
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nSelect the keyword you want to edit !\n'),
 		caption = _('Editing keyword-based text expansions ...'),
-		choices = kwds,
-		data = data,
 		columns = [_('Keyword'), _('Public'), _('Private'), _('Owner')],
 		single_selection = True,
 		edit_callback = edit,
@@ -233,10 +223,6 @@ def configure_workplace_plugins(parent=None):
 		gmSurgery.delete_workplace(workplace = workplace, conn = dbo_conn, delete_config = include_cfg)
 		return True
 	#-----------------------------------
-	def refresh(lctrl):
-		workplaces = gmSurgery.gmCurrentPractice().workplaces
-		lctrl.set_string_items(workplaces)
-	#-----------------------------------
 	def edit(workplace=None):
 
 		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
@@ -300,14 +286,17 @@ def configure_workplace_plugins(parent=None):
 
 		return True
 	#-----------------------------------
+	def refresh(lctrl):
+		workplaces = gmSurgery.gmCurrentPractice().workplaces
+		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
+		try:
+			sels = [workplaces.index(curr_workplace)]
+		except ValueError:
+			sels = []
 
-	curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
-	workplaces = gmSurgery.gmCurrentPractice().workplaces
-	try:
-		sels = [workplaces.index(curr_workplace)]
-	except ValueError:
-		sels = []
-
+		lctrl.set_string_items(workplaces)
+		lctrl.set_selections(selections = sels)
+	#-----------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _(
@@ -316,8 +305,6 @@ def configure_workplace_plugins(parent=None):
 			'The currently active workplace is preselected.\n'
 		),
 		caption = _('Configuring GNUmed workplaces ...'),
-		choices = workplaces,
-		selections = sels,
 		columns = [_('Workplace')],
 		single_selection = True,
 		refresh_callback = refresh,
@@ -544,7 +531,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.35  2009-06-04 16:30:30  ncq
+# Revision 1.36  2009-06-11 12:37:25  ncq
+# - much simplified initial setup of list ctrls
+#
+# Revision 1.35  2009/06/04 16:30:30  ncq
 # - use set active patient from pat search widgets
 #
 # Revision 1.34  2009/05/18 15:32:42  ncq

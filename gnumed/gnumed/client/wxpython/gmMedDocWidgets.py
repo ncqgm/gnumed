@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.177 2009-06-10 21:01:10 ncq Exp $
-__version__ = "$Revision: 1.177 $"
+# $Id: gmMedDocWidgets.py,v 1.178 2009-06-11 12:37:25 ncq Exp $
+__version__ = "$Revision: 1.178 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -28,15 +28,6 @@ default_chunksize = 1 * 1024 * 1024		# 1 MB
 #============================================================
 def manage_document_descriptions(parent=None, document=None):
 
-	#-----------------------------------
-	def refresh_list(lctrl):
-		descriptions = document.get_descriptions()
-
-		lctrl.set_string_items(items = [
-			u'%s%s' % ( (u' '.join(regex.split('\r\n+|\r+|\n+|\t+', desc[1])))[:30], gmTools.u_ellipsis )
-			for desc in descriptions
-		])
-		lctrl.set_data(data = descriptions)
 	#-----------------------------------
 	def delete_item(item):
 		doit = gmGuiHelpers.gm_show_question (
@@ -80,16 +71,21 @@ def manage_document_descriptions(parent=None, document=None):
 		dlg.Destroy()
 		return True
 	#-----------------------------------
-	descriptions = document.get_descriptions()
+	def refresh_list(lctrl):
+		descriptions = document.get_descriptions()
+
+		lctrl.set_string_items(items = [
+			u'%s%s' % ( (u' '.join(regex.split('\r\n+|\r+|\n+|\t+', desc[1])))[:30], gmTools.u_ellipsis )
+			for desc in descriptions
+		])
+		lctrl.set_data(data = descriptions)
+	#-----------------------------------
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('Select the description you are interested in.\n'),
 		caption = _('Managing document descriptions'),
-		choices = [ u'%s%s' % ( (u' '.join(regex.split('\r\n+|\r+|\n+|\t+', desc[1])))[:30], gmTools.u_ellipsis ) for desc in descriptions ],
-		selections = None,
 		columns = [_('Description')],
-		data = descriptions,
 		edit_callback = edit_item,
 		new_callback = add_item,
 		delete_callback = delete_item,
@@ -1953,7 +1949,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.177  2009-06-10 21:01:10  ncq
+# Revision 1.178  2009-06-11 12:37:25  ncq
+# - much simplified initial setup of list ctrls
+#
+# Revision 1.177  2009/06/10 21:01:10  ncq
 # - cleanup
 #
 # Revision 1.176  2009/05/13 12:20:20  ncq
