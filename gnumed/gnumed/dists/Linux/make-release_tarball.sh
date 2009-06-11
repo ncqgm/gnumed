@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.74 2009-06-10 21:03:40 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.75 2009-06-11 13:04:35 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.4-rc10"
@@ -382,7 +382,7 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
 
 cp -R ../../server/sql/v10-v11/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
 cp -R ../../server/sql/v10-v11/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
@@ -425,7 +425,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.74  2009-06-10 21:03:40  ncq
+# Revision 1.75  2009-06-11 13:04:35  ncq
+# - cleanup
+#
+# Revision 1.74  2009/06/10 21:03:40  ncq
 # - include ATC downloader
 #
 # Revision 1.73  2009/06/04 16:35:03  ncq

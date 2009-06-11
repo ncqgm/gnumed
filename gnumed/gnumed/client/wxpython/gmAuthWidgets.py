@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.39 2009-06-11 11:07:57 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmAuthWidgets.py,v 1.40 2009-06-11 13:04:13 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -438,7 +438,7 @@ class cLoginPanel(wx.Panel):
 		self.button_gridsizer.Add (button_help,0,wx.EXPAND|wx.ALL,5)
 		self.button_gridsizer.Add (button_login_ok,0,wx.EXPAND|wx.ALL,5)
 		self.button_gridsizer.Add (button_cancel,0,wx.EXPAND|wx.ALL,5)
-		
+
 		self.paramsboxsizer.Add(self.pboxgrid, 1, wx.GROW|wx.ALL, 10)
 		self.topsizer.Add(self.paramsboxsizer, 1, wx.GROW|wx.ALL, 10)
 		self.topsizer.Add( self.button_gridsizer, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
@@ -724,7 +724,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.39  2009-06-11 11:07:57  ncq
+# Revision 1.40  2009-06-11 13:04:13  ncq
+# - cleanup
+#
+# Revision 1.39  2009/06/11 11:07:57  ncq
 # - properly display localhost
 #
 # Revision 1.38  2009/04/14 11:02:20  ncq
