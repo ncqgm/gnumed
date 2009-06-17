@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.186 2009-06-04 16:24:13 ncq Exp $
-__version__ = "$Revision: 1.186 $"
+# $Id: gmPerson.py,v 1.187 2009-06-17 20:42:25 ncq Exp $
+__version__ = "$Revision: 1.187 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -378,6 +378,25 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def cleanup(self):
 		pass
+	#--------------------------------------------------------
+	def _get_is_patient(self):
+		cmd = u"""
+select exists (
+	select 1
+	from clin.v_emr_journal
+	where
+		pk_patient = %(pat)s
+			and
+		soap_cat is not null
+)"""
+		args = {'pat': self._payload[self._idx['pk_identity']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return rows[0][0]
+
+	def _set_is_patient(self, value):
+		raise AttributeError('setting is_patient status of identity is not allowed')
+
+	is_patient = property(_get_is_patient, _set_is_patient)
 	#--------------------------------------------------------
 	# identity API
 	#--------------------------------------------------------
@@ -2287,7 +2306,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.186  2009-06-04 16:24:13  ncq
+# Revision 1.187  2009-06-17 20:42:25  ncq
+# - is_patient property
+#
+# Revision 1.186  2009/06/04 16:24:13  ncq
 # - adjust to dob-less persons
 #
 # Revision 1.185  2009/04/24 12:04:44  ncq
