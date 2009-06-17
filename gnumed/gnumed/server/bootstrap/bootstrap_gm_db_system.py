@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.103 $"
+__version__ = "$Revision: 1.104 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -908,8 +908,16 @@ class database:
 			_log.info('configured to not transfer users')
 			print_msg("    ... skipped (disabled)")
 			return True
+
 		cmd = u"select gm.transfer_users('%s'::text)" % self.template_db
-		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
+		try:
+			rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
+		except gmPG2.dbapi.ProgrammingError:
+			# maybe an old database
+			_log.info('problem running gm.transfer_users(), trying gm_transfer_users()')
+			cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
+			rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
+
 		if rows[0][0]:
 			_log.info('users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
 			return True
@@ -1409,7 +1417,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.103  2009-05-22 11:02:00  ncq
+# Revision 1.104  2009-06-17 09:50:47  ncq
+# - be careful about gm.transfer_users vs gm_transfer_users
+#
+# Revision 1.103  2009/05/22 11:02:00  ncq
 # - need to cast test to int before casting to bool
 #
 # Revision 1.102  2009/05/18 15:55:41  ncq
