@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.31 2009-06-11 12:37:25 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmNarrativeWidgets.py,v 1.32 2009-06-20 22:39:27 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -955,7 +955,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 
 		# determine label
 		if problem_to_add is None:
-			label = _('new episode')
+			label = _('new problem')
 		else:
 			# normalize problem type
 			if isinstance(problem_to_add, gmEMRStructItems.cEpisode):
@@ -1140,8 +1140,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 			dlg = wx.TextEntryDialog (
 				parent = self,
-				message = _('Enter a descriptive name for the new episode:'),
-				caption = _('Adding a new episode'),
+				message = _('Enter a short working name for this new problem:'),
+				caption = _('Adding a new problem (episode)'),
 				defaultValue = epi_name,
 				style = wx.OK | wx.CANCEL | wx.CENTRE
 			)
@@ -1151,7 +1151,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 			epi_name = dlg.GetValue().strip()
 			if epi_name == u'':
-				gmGuiHelpers.gm_show_error(_('Cannot save a new episode without a name.'), _('saving progress note'))
+				gmGuiHelpers.gm_show_error(_('Cannot save a new problem without a name.'), _('saving progress note'))
 				return False
 
 			# create episode
@@ -1413,7 +1413,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.31  2009-06-11 12:37:25  ncq
+# Revision 1.32  2009-06-20 22:39:27  ncq
+# - improved wording as per list discussion
+#
+# Revision 1.31  2009/06/11 12:37:25  ncq
 # - much simplified initial setup of list ctrls
 #
 # Revision 1.30  2009/06/04 16:33:13  ncq
