@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -34,7 +34,7 @@ _log.info(__version__)
 class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebooked patient edition window."""
 
-	tab_name = _('Patient details')
+	tab_name = _('Demographics')
 
 	def name (self):
 		return gmNotebookedPatientEditionPlugin.tab_name
@@ -95,7 +95,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.12  2009-06-04 16:31:24  ncq
+# Revision 1.13  2009-06-20 12:48:08  ncq
+# - rename to Demographics as per list
+#
+# Revision 1.12  2009/06/04 16:31:24  ncq
 # - use set-active-patient from pat-search-widgets
 #
 # Revision 1.11  2008/03/06 18:32:31  ncq
