@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.31 2009-06-11 12:37:25 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmListWidgets.py,v 1.32 2009-06-20 12:45:22 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -102,9 +102,6 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 
 		self.can_return_empty = False
-
-		if self.refresh_callback is not None:
-			self.refresh_callback(lctrl = self._LCTRL_items)
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -224,6 +221,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			if not callable(callback):
 				raise ValueError('<refresh> callback is not a callable: %s' % callback)
 		self.__refresh_callback = callback
+		if callback is not None:
+			wx.CallAfter(self.__refresh_callback, lctrl = self._LCTRL_items)
 
 	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
 #================================================================
@@ -502,13 +501,19 @@ if __name__ == '__main__':
 			print "editor called with:"
 			print argument
 
+		def refresh(lctrl):
+			choices = ['a', 'b', 'c']
+			lctrl.set_string_items(choices)
+
 		app = wx.PyWidgetTester(size = (200, 50))
 		chosen = get_choices_from_list (
 #			msg = 'select a health issue\nfrom the list below\n',
 			caption = 'select health issues',
-			choices = [['D.M.II', '4'], ['MS', '3'], ['Fraktur', '2']],
-			columns = ['issue', 'no of episodes'],
-			edit_callback = edit
+			#choices = [['D.M.II', '4'], ['MS', '3'], ['Fraktur', '2']],
+			#columns = ['issue', 'no of episodes']
+			columns = ['issue'],
+			refresh_callback = refresh
+			#, edit_callback = edit
 		)
 		print "chosen:"
 		print chosen
@@ -519,7 +524,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.31  2009-06-11 12:37:25  ncq
+# Revision 1.32  2009-06-20 12:45:22  ncq
+# - call refresh from refresh property setter if callable and not None
+#
+# Revision 1.31  2009/06/11 12:37:25  ncq
 # - much simplified initial setup of list ctrls
 #
 # Revision 1.30  2009/06/04 16:32:01  ncq
