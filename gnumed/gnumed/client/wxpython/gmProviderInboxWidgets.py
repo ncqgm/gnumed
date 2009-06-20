@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.36 2009-06-11 12:37:25 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmProviderInboxWidgets.py,v 1.37 2009-06-20 12:47:38 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -526,12 +526,15 @@ if __name__ == '__main__':
 		app.MainLoop()
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		#test_configure_wp_plugins()
-		test_provider_inbox()
+		test_configure_wp_plugins()
+		#test_provider_inbox()
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.36  2009-06-11 12:37:25  ncq
+# Revision 1.37  2009-06-20 12:47:38  ncq
+# - test
+#
+# Revision 1.36  2009/06/11 12:37:25  ncq
 # - much simplified initial setup of list ctrls
 #
 # Revision 1.35  2009/06/04 16:30:30  ncq
