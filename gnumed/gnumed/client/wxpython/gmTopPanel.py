@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.103 2009-06-04 16:33:51 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmTopPanel.py,v 1.104 2009-06-20 22:39:50 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -211,8 +211,8 @@ class cMainTopPanel(wx.Panel):
 		# events
 		wx.EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
 
-		tools_menu = self.__gb['main.toolsmenu']
-		main_frame = self.__gb['main.frame']
+#		tools_menu = self.__gb['main.toolsmenu']
+#		main_frame = self.__gb['main.frame']
 
 		# - BMI calculator
 #		wx.EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
@@ -225,9 +225,9 @@ class cMainTopPanel(wx.Panel):
 #		wx.EVT_MENU(main_frame, ID_PREGMENU, self._on_show_Preg_Calc)
 
 		# - lock button
-		wx.EVT_BUTTON(self, ID_LOCKBUTTON, self._on_lock)
-		tools_menu.Append(ID_LOCKMENU, _("lock client"), _("locks client and hides data"))
-		wx.EVT_MENU(main_frame, ID_LOCKMENU, self._on_lock)
+#		wx.EVT_BUTTON(self, ID_LOCKBUTTON, self._on_lock)
+#		tools_menu.Append(ID_LOCKMENU, _("lock client"), _("locks client and hides data"))
+#		wx.EVT_MENU(main_frame, ID_LOCKMENU, self._on_lock)
 
 		wx.EVT_LEFT_DCLICK(self.txt_allergies, self._on_allergies_dclicked)
 
@@ -238,10 +238,10 @@ class cMainTopPanel(wx.Panel):
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_name_identity_change)
 		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_name_identity_change)
 	#----------------------------------------------
-	def _on_lock(self, evt):
-		print "should be locking client now by obscuring data"
-		print "and popping up a modal dialog box asking for a"
-		print "password to reactivate"
+#	def _on_lock(self, evt):
+#		print "should be locking client now by obscuring data"
+#		print "and popping up a modal dialog box asking for a"
+#		print "password to reactivate"
 	#----------------------------------------------
 	def _on_allergies_dclicked(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -448,7 +448,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.103  2009-06-04 16:33:51  ncq
+# Revision 1.104  2009-06-20 22:39:50  ncq
+# - remove lock menu item
+#
+# Revision 1.103  2009/06/04 16:33:51  ncq
 # - adjust to dob-less persons
 #
 # Revision 1.102  2009/03/10 14:24:53  ncq
