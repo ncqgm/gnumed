@@ -38,7 +38,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         __lbl_patient = wx.StaticText(self, -1, _("Patient"))
         __gzsr_details.Add(__lbl_patient, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(self._TCTRL_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_issue = wx.StaticText(self, -1, _("Base issue"))
+        __lbl_issue = wx.StaticText(self, -1, _("Nest under"))
         __gzsr_details.Add(__lbl_issue, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(self._PRW_issue, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_description = wx.StaticText(self, -1, _("Description"))
@@ -50,10 +50,8 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         __gzsr_details.Add(__szr_status, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.AddGrowableCol(1)
         __szr_main.Add(__gzsr_details, 1, wx.EXPAND, 0)
-        self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
-        __szr_main.SetSizeHints(self)
         # end wxGlade
 
     def _on_standalone_chbox_checked(self, event): # wxGlade: wxgEpisodeEditAreaPnl.<event_handler>
