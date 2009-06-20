@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.3 2009-06-10 21:02:34 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMedicationWidgets.py,v 1.4 2009-06-20 12:46:04 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -14,16 +14,87 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher
-#gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDateTime, gmTools, gmShellAPI, gmHooks
-from Gnumed.business import gmPerson, gmATC
-#, gmEMRStructItems, gmSurgery
+from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI
+#, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDateTime, gmTools, gmHooks
+from Gnumed.business import gmPerson, gmATC, gmSurgery
+#, gmEMRStructItems
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
+#============================================================
+def jump_to_ifap(import_drugs=False):
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	ifap_cmd = dbcfg.get2 (
+		option = 'external.ifap-win.shell_command',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
+	)
+	found, binary = gmShellAPI.detect_external_binary(ifap_cmd)
+	if not found:
+		gmDispatcher.send('statustext', msg = _('Cannot call IFAP via [%s].') % ifap_cmd)
+		return False
+	ifap_cmd = binary
+
+	if import_drugs:
+		transfer_file = os.path.expanduser(dbcfg.get2 (
+			option = 'external.ifap-win.transfer_file',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace',
+			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
+		))
+		# file must exist for Ifap to write into it
+		try:
+			f = open(transfer_file, 'w+b').close()
+		except IOError:
+			_log.exception('Cannot create IFAP <-> GNUmed transfer file [%s]', transfer_file)
+			gmDispatcher.send('statustext', msg = _('Cannot create IFAP <-> GNUmed transfer file [%s].') % transfer_file)
+			return False
+
+	wx.BeginBusyCursor()
+	gmShellAPI.run_command_in_shell(command = ifap_cmd, blocking = import_drugs)
+	wx.EndBusyCursor()
+
+	if import_drugs:
+		# COMMENT: this file must exist PRIOR to invoking IFAP
+		# COMMENT: or else IFAP will not write data into it ...
+		try:
+			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
+		except:
+			_log.exception('cannot access [%s]', fname)
+			csv_file = None
+
+		if csv_file is not None:
+			import csv
+			csv_lines = csv.DictReader (
+				csv_file,
+				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgr\xf6\xdfe'.split(),
+				delimiter = ';'
+			)
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_emr()
+			# dummy episode for now
+			epi = emr.add_episode(episode_name = _('Current medication'))
+			for line in csv_lines:
+				narr = u'%sx %s %s %s (\u2258 %s %s) von %s (%s)' % (
+					line['Packungszahl'].strip(),
+					line['Handelsname'].strip(),
+					line['Form'].strip(),
+					line[u'Packungsgr\xf6\xdfe'].strip(),
+					line['Abpackungsmenge'].strip(),
+					line['Einheit'].strip(),
+					line['Hersteller'].strip(),
+					line['PZN'].strip()
+				)
+				emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
+			csv_file.close()
+
+	return True
 #============================================================
 def update_atc_reference_data():
 
@@ -229,7 +300,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.3  2009-06-10 21:02:34  ncq
+# Revision 1.4  2009-06-20 12:46:04  ncq
+# - move IFAP handling here
+#
+# Revision 1.3  2009/06/10 21:02:34  ncq
 # - update-atc-reference-data
 #
 # Revision 1.2  2009/05/13 12:20:59  ncq
