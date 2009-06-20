@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.48 2009-06-11 12:37:25 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmMeasurementWidgets.py,v 1.49 2009-06-20 22:38:05 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -100,13 +100,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 	# FIXME: dates DESC/ASC
 	# FIXME: mouse over column header: display date info
 	# FIXME: mouse over row header: display test info (unified, which tests are grouped, which panels they belong to
-	# FIXME: improve result tooltip: panel, request details
 	def __init__(self, *args, **kwargs):
 
 		wx.grid.Grid.__init__(self, *args, **kwargs)
 
 		self.__patient = None
-		self.__cell_tooltips = {}
 		self.__cell_data = {}
 		self.__prev_row = None
 		self.__prev_col = None
@@ -230,29 +228,44 @@ class cMeasurementsGrid(wx.grid.Grid):
 		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
 		sel_cols = self.GetSelectedCols()
 		sel_rows = self.GetSelectedRows()
-		sel_cells = self.GetSelectedCells()
 
 		selected_cells = []
 
-		for block_idx in range(len(sel_block_top_left)):
-			row_left = sel_block_bottom_right[block_idx][0] - sel_block_top_left[block_idx][0]
-			row_right = sel_block_bottom_right[block_idx][0]
-			col_top = sel_block_bottom_right[block_idx][1] - sel_block_top_left[block_idx][1]
-			col_bottom = sel_block_bottom_right[block_idx][1]
-			selected_cells.extend([ (r, c) for r in range(row_left, row_right+1) for c in range(col_top, col_bottom+1) ])
+		# individually selected cells (ctrl-click)
+		selected_cells += self.GetSelectedCells()
 
-		if len(sel_rows) > 0:
-			selected_cells.extend([ (r, c) for r in sel_rows for c in range(self.GetNumberCols()) ])
+		# selected rows
+#		if len(sel_rows) > 0:
+#			selected_cells.extend([ (r, c) for r in sel_rows for c in range(self.GetNumberCols()) ])
+		selected_cells += list (
+			(row, col)
+				for row in sel_rows
+				for col in xrange(self.GetNumberCols())
+		)
 
-		if len(sel_cols) > 0:
-			selected_cells.extend([ (r, c) for r in range(self.GetNumberRows()) for c in sel_cols ])
+		# selected columns
+#		if len(sel_cols) > 0:
+#			selected_cells.extend([ (r, c) for r in range(self.GetNumberRows()) for c in sel_cols ])
+		selected_cells += list (
+			(row, col)
+				for row in xrange(self.GetNumberRows())
+				for col in sel_cols
+		)
 
-		if len(sel_cells) > 0:
-			selected_cells.extend(sel_cells)
-
-#		if not ret:
-#			cell = (self.GetGridCursorRow(), self.GetGridCursorCol())
-#			ret = [(cell, cell)]
+		# selection blocks
+		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
+			selected_cells += [
+				(row, col)
+					for row in xrange(top_left[0], bottom_right[0] + 1)
+					for col in xrange(top_left[1], bottom_right[1] + 1)
+			]
+#		# iterate over top left corners of selection blocks
+#		for block_idx in range(len(sel_block_top_left)):
+#			row_left = sel_block_bottom_right[block_idx][0] - sel_block_top_left[block_idx][0]
+#			row_right = sel_block_bottom_right[block_idx][0]
+#			col_top = sel_block_bottom_right[block_idx][1] - sel_block_top_left[block_idx][1]
+#			col_bottom = sel_block_bottom_right[block_idx][1]
+#			selected_cells.extend([ (r, c) for r in range(row_left, row_right+1) for c in range(col_top, col_bottom+1) ])
 
 		return set(selected_cells)
 	#------------------------------------------------------------
@@ -332,15 +345,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.__cell_data[col] = {}
 
 			# the tooltip always shows the youngest sub result details
-			rebuild_tooltip = False
 			if self.__cell_data[col].has_key(row):
-				if result['clin_when'] < self.__cell_data[col][row][0]['clin_when']:
-					rebuild_tooltip = True
 				self.__cell_data[col][row].append(result)
 				self.__cell_data[col][row].sort(key = lambda x: x['clin_when'], reverse = True)
 			else:
 				self.__cell_data[col][row] = [result]
-				rebuild_tooltip = True
 
 			# rebuild cell display string
 			vals2display = []
@@ -424,123 +433,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.SetCellFont(row, col, font)
 #			self.SetCellFont(row, col, font)
 
-			# tooltip
-			if rebuild_tooltip:
-				has_normal_min_or_max = (result['val_normal_min'] is not None) or (result['val_normal_max'] is not None)
-				if has_normal_min_or_max:
-					normal_min_max = u'%s - %s' % (
-						gmTools.coalesce(result['val_normal_min'], u'?'),
-						gmTools.coalesce(result['val_normal_max'], u'?')
-					)
-				else:
-					normal_min_max = u''
-
-				has_clinical_min_or_max = (result['val_target_min'] is not None) or (result['val_target_max'] is not None)
-				if has_clinical_min_or_max:
-					clinical_min_max = u'%s - %s' % (
-						gmTools.coalesce(result['val_target_min'], u'?'),
-						gmTools.coalesce(result['val_target_max'], u'?')
-					)
-				else:
-					clinical_min_max = u''
-
-				if result['reviewed']:
-					review_status = result['last_reviewed'].strftime('%c').decode(gmI18N.get_encoding())
-				else:
-					review_status = _('not yet')
-
-				try:
-					self.__cell_tooltips[col]
-				except KeyError:
-					self.__cell_tooltips[col] = {}
-				self.__cell_tooltips[col][row] = _(
-					u'Measurement details of most recent result:               \n'
-					u' Date: %(clin_when)s\n'
-					u' Type: "%(name)s" (%(code)s)  [#%(pk_type)s]\n'
-					u' Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n'
-					u' Standard normal range: %(norm_min_max)s%(norm_range)s  \n'
-					u' Reference group: %(ref_group)s\n'
-					u' Clinical target range: %(clin_min_max)s%(clin_range)s  \n'
-					u' Doc: %(comment_doc)s\n'
-					u' Lab: %(comment_lab)s\n'	# note_test_org
-					u' Episode: %(epi)s\n'
-					u' Issue: %(issue)s\n'
-					u' Material: %(material)s\n'
-					u' Details: %(mat_detail)s\n'
-					u'\n'
-					u'Signed (%(sig_hand)s): %(reviewed)s\n'
-					u' Last reviewer: %(reviewer)s\n'
-					u'  Technically abnormal: %(abnormal)s\n'
-					u'  Clinically relevant: %(relevant)s\n'
-					u'  Comment: %(rev_comment)s\n'
-					u' Responsible clinician: %(responsible_reviewer)s\n'
-					u'\n'
-					u'Test type details:\n'
-					u' Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n'
-					u' Type comment: %(comment_type)s\n'
-					u' Group comment: %(comment_type_meta)s\n'
-					u'\n'
-					u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.'
-				) % ({
-					'clin_when': result['clin_when'].strftime('%c').decode(gmI18N.get_encoding()),
-					'code': result['code_tt'],
-					'name': result['name_tt'],
-					'pk_type': result['pk_test_type'],
-					'pk_u_type': result['pk_meta_test_type'],
-					'val': result['unified_val'],
-					'unit': gmTools.coalesce(result['val_unit'], u'', u' %s'),
-					'ind': gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)'),
-					'pk_result': result['pk_test_result'],
-					'norm_min_max': normal_min_max,
-					'norm_range': gmTools.coalesce (
-						result['val_normal_range'],
-						u'',
-						gmTools.bool2subst (
-							has_normal_min_or_max,
-							u' / %s',
-							u'%s'
-						)
-					),
-					'ref_group': gmTools.coalesce(result['norm_ref_group'], u''),
-					'clin_min_max': clinical_min_max,
-					'clin_range': gmTools.coalesce (
-						result['val_target_range'],
-						u'',
-						gmTools.bool2subst (
-							has_clinical_min_or_max,
-							u' / %s',
-							u'%s'
-						)
-					),
-					'comment_doc': u'\n Doc: '.join(gmTools.coalesce(result['comment'], u'').split(u'\n')),
-					'comment_lab': u'\n Lab: '.join(gmTools.coalesce(result['note_test_org'], u'').split(u'\n')),
-					'epi': result['episode'],
-					'issue': gmTools.coalesce(result['health_issue'], u''),
-					'material': gmTools.coalesce(result['material'], u''),
-					'mat_detail': gmTools.coalesce(result['material_detail'], u''),
-
-					'reviewed': review_status,
-					'reviewer': gmTools.bool2subst(result['review_by_you'], _('you'), gmTools.coalesce(result['last_reviewer'], u'')),
-					'abnormal': gmTools.bool2subst(result['is_technically_abnormal'], _('yes'), _('no'), u''),
-					'relevant': gmTools.bool2subst(result['is_clinically_relevant'], _('yes'), _('no'), u''),
-					'rev_comment': gmTools.coalesce(result['review_comment'], u''),
-					'responsible_reviewer': gmTools.bool2subst(result['you_are_responsible'], _('you'), result['responsible_reviewer']),
-
-					'comment_type': u'\n Type comment:'.join(gmTools.coalesce(result['comment_tt'], u'').split(u'\n')),
-					'name_meta': gmTools.coalesce(result['name_meta'], u''),
-					'abbrev_meta': gmTools.coalesce(result['abbrev_meta'], u''),
-					'comment_type_meta': u'\n Group comment: '.join(gmTools.coalesce(result['comment_meta'], u'').split(u'\n')),
-
-					'mod_when': result['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
-					'mod_by': result['modified_by'],
-					'row_ver': result['row_version'],
-
-					'sig_hand': gmTools.u_writing_hand
-				})
-
 		self.AutoSize()
-
 		self.EndBatch()
+		return
 	#------------------------------------------------------------
 	def empty_grid(self):
 		self.BeginBatch()
@@ -552,8 +447,226 @@ class cMeasurementsGrid(wx.grid.Grid):
 		if self.GetNumberCols() > 0:
 			self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
-		self.__cell_tooltips = {}
 		self.__cell_data = {}
+	#------------------------------------------------------------
+	def get_cell_tooltip(self, col=None, row=None):
+		# FIXME: panel, request details
+
+		try:
+			d = self.__cell_data[col][row]
+		except KeyError:
+			d = None
+
+		if d is None:
+			return u''
+
+		d = d[0]
+
+		print "creating cell tooltip"
+		#print d
+
+		has_normal_min_or_max = (d['val_normal_min'] is not None) or (d['val_normal_max'] is not None)
+		if has_normal_min_or_max:
+			normal_min_max = u'%s - %s' % (
+				gmTools.coalesce(d['val_normal_min'], u'?'),
+				gmTools.coalesce(d['val_normal_max'], u'?')
+			)
+		else:
+			normal_min_max = u''
+
+		has_clinical_min_or_max = (d['val_target_min'] is not None) or (d['val_target_max'] is not None)
+		if has_clinical_min_or_max:
+			clinical_min_max = u'%s - %s' % (
+				gmTools.coalesce(d['val_target_min'], u'?'),
+				gmTools.coalesce(d['val_target_max'], u'?')
+			)
+		else:
+			clinical_min_max = u''
+
+		# header
+		tt = _(u'Measurement details of most recent (topmost) result:               \n')
+
+		# basics
+		tt += u' ' + _(u'Date: %s\n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
+		tt += u' ' + _(u'Type: "%(name)s" (%(code)s)  [#%(pk_type)s]\n') % ({
+			'name': d['name_tt'],
+			'code': d['code_tt'],
+			'pk_type': d['pk_test_type']
+		})
+		tt += u' ' + _(u'Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
+			'val': d['unified_val'],
+			'unit': gmTools.coalesce(d['val_unit'], u'', u' %s'),
+			'ind': gmTools.coalesce(d['abnormality_indicator'], u'', u' (%s)'),
+			'pk_result': d['pk_test_result']
+		})
+
+		# clinical evaluation
+		norm_eval = None
+		if d['val_num'] is not None:
+			# 1) normal range
+			# lowered ?
+			if (d['val_normal_min'] is not None) and (d['val_num'] < d['val_normal_min']):
+				try:
+					percent = (d['val_num'] * 100) / d['val_normal_min']
+				except ZeroDivisionError:
+					percent = None
+				if percent is not None:
+					if percent < 6:
+						norm_eval = _(u'%.1f %% of the normal lower limit') % percent
+					else:
+						norm_eval = _(u'%.0f %% of the normal lower limit') % percent
+			# raised ?
+			if (d['val_normal_max'] is not None) and (d['val_num'] > d['val_normal_max']):
+				try:
+					x_times = d['val_num'] / d['val_normal_max']
+				except ZeroDivisionError:
+					x_times = None
+				if x_times is not None:
+					if x_times < 10:
+						norm_eval = _(u'%.1f times the normal upper limit') % x_times
+					else:
+						norm_eval = _(u'%.0f times the normal upper limit') % x_times
+			if norm_eval is not None:
+				tt += u'  (%s)\n' % norm_eval
+			# bandwidth of deviation
+			if None not in [d['val_normal_min'], d['val_normal_max']]:
+				normal_width = d['val_normal_max'] - d['val_normal_min']
+				deviation_from_normal_range = None
+				# below ?
+				if d['val_num'] < d['val_normal_min']:
+					deviation_from_normal_range = d['val_normal_min'] - d['val_num']
+				# above ?
+				elif d['val_num'] > d['val_normal_max']:
+					deviation_from_normal_range = d['val_num'] - d['val_normal_max']
+				if deviation_from_normal_range is None:
+					try:
+						times_deviation = deviation_from_normal_range / normal_width
+					except ZeroDivisionError:
+						times_deviation = None
+					if times_deviation is not None:
+						if times_deviation < 10:
+							tt += u'  (%s)\n' % _(u'deviates by %.1f times of the normal range') % times_deviation
+						else:
+							tt += u'  (%s)\n' % _(u'deviates by %.0f times of the normal range') % times_deviation
+
+			# 2) clinical target range
+			norm_eval = None
+			# lowered ?
+			if (d['val_target_min'] is not None) and (d['val_num'] < d['val_target_min']):
+				try:
+					percent = (d['val_num'] * 100) / d['val_target_min']
+				except ZeroDivisionError:
+					percent = None
+				if percent is not None:
+					if percent < 6:
+						norm_eval = _(u'%.1f %% of the target lower limit') % percent
+					else:
+						norm_eval = _(u'%.0f %% of the target lower limit') % percent
+			# raised ?
+			if (d['val_target_max'] is not None) and (d['val_num'] > d['val_target_max']):
+				try:
+					x_times = d['val_num'] / d['val_target_max']
+				except ZeroDivisionError:
+					x_times = None
+				if x_times is not None:
+					if x_times < 10:
+						norm_eval = _(u'%.1f times the target upper limit') % x_times
+					else:
+						norm_eval = _(u'%.0f times the target upper limit') % x_times
+			if norm_eval is not None:
+				tt += u' (%s)\n' % norm_eval
+			# bandwidth of deviation
+			if None not in [d['val_target_min'], d['val_target_max']]:
+				normal_width = d['val_target_max'] - d['val_target_min']
+				deviation_from_target_range = None
+				# below ?
+				if d['val_num'] < d['val_target_min']:
+					deviation_from_target_range = d['val_target_min'] - d['val_num']
+				# above ?
+				elif d['val_num'] > d['val_target_max']:
+					deviation_from_target_range = d['val_num'] - d['val_target_max']
+				if deviation_from_target_range is None:
+					try:
+						times_deviation = deviation_from_target_range / normal_width
+					except ZeroDivisionError:
+						times_deviation = None
+				if times_deviation is not None:
+					if times_deviation < 10:
+						tt += u'  (%s)\n' % _(u'deviates by %.1f times of the target range') % times_deviation
+					else:
+						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
+
+		# ranges
+		tt += u'\n'
+		tt += u' ' + _(u'Standard normal range: %(norm_min_max)s%(norm_range)s  \n') % ({
+			'norm_min_max': normal_min_max,
+			'norm_range': gmTools.coalesce (
+				d['val_normal_range'],
+				u'',
+				gmTools.bool2subst (
+					has_normal_min_or_max,
+					u' / %s',
+					u'%s'
+				)
+			)
+		})
+		tt += u' ' + _(u'Reference group: %(ref_group)s\n') % ({'ref_group': gmTools.coalesce(d['norm_ref_group'], u'')})
+		tt += u' ' + _(u'Clinical target range: %(clin_min_max)s%(clin_range)s  \n') % ({
+			'clin_min_max': clinical_min_max,
+			'clin_range': gmTools.coalesce (
+				d['val_target_range'],
+				u'',
+				gmTools.bool2subst (
+					has_clinical_min_or_max,
+					u' / %s',
+					u'%s'
+				)
+			)
+		})
+
+		# metadata
+		tt += u' ' + _(u'Doc: %s\n') % _(u'\n Doc: ').join(gmTools.coalesce(d['comment'], u'').split(u'\n'))
+		tt += u' ' + _(u'Lab: %s\n') % _(u'\n Lab: ').join(gmTools.coalesce(d['note_test_org'], u'').split(u'\n'))
+		tt += u' ' + _(u'Episode: %s\n') % d['episode']
+		tt += u' ' + _(u'Issue: %s\n') % gmTools.coalesce(d['health_issue'], u'')
+		tt += u' ' + _(u'Material: %s\n') % gmTools.coalesce(d['material'], u'')
+		tt += u' ' + _(u'Details: %s\n') % gmTools.coalesce(d['material_detail'], u'')
+		tt += u'\n'
+
+		# review
+		if d['reviewed']:
+			review = d['last_reviewed'].strftime('%c').decode(gmI18N.get_encoding())
+		else:
+			review = _('not yet')
+		tt += _(u'Signed (%(sig_hand)s): %(reviewed)s\n') % ({
+			'sig_hand': gmTools.u_writing_hand,
+			'reviewed': review
+		})
+		tt += u' ' + _(u'Last reviewer: %(reviewer)s\n') % ({'reviewer': gmTools.bool2subst(d['review_by_you'], _('you'), gmTools.coalesce(d['last_reviewer'], u''))})
+		tt += u' ' + _(u' Technically abnormal: %(abnormal)s\n') % ({'abnormal': gmTools.bool2subst(d['is_technically_abnormal'], _('yes'), _('no'), u'')})
+		tt += u' ' + _(u' Clinically relevant: %(relevant)s\n') % ({'relevant': gmTools.bool2subst(d['is_clinically_relevant'], _('yes'), _('no'), u'')})
+		tt += u' ' + _(u' Comment: %s\n') % gmTools.coalesce(d['review_comment'], u'')
+		tt += u' ' + _(u'Responsible clinician: %s\n') % gmTools.bool2subst(d['you_are_responsible'], _('you'), d['responsible_reviewer'])
+		tt += u'\n'
+
+		# type
+		tt += _(u'Test type details:\n')
+		tt += u' ' + _(u'Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
+			'name_meta': gmTools.coalesce(d['name_meta'], u''),
+			'abbrev_meta': gmTools.coalesce(d['abbrev_meta'], u''),
+			'pk_u_type': d['pk_meta_test_type']
+		})
+		tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(gmTools.coalesce(d['comment_tt'], u'').split(u'\n'))
+		tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(gmTools.coalesce(d['comment_meta'], u'').split(u'\n'))
+		tt += u'\n'
+
+		tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
+			'row_ver': d['row_version'],
+			'mod_when': d['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
+			'mod_by': d['modified_by']
+		})
+
+		return tt
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -707,15 +820,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 		# entire grid including what's offscreen
 		x, y = self.CalcUnscrolledPosition(evt.GetX(), evt.GetY())
 		row, col = self.XYToCell(x, y)
+
 		if (row == self.__prev_row) and (col == self.__prev_col):
 			return
+
 		self.__prev_row = row
 		self.__prev_col = col
-		try:
-			tt = self.__cell_tooltips[col][row]
-		except KeyError:
-			tt = u''
-		evt.GetEventObject().SetToolTipString(tt)
+
+		evt.GetEventObject().SetToolTipString(self.get_cell_tooltip(col=col, row=row))
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -1423,7 +1535,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.48  2009-06-11 12:37:25  ncq
+# Revision 1.49  2009-06-20 22:38:05  ncq
+# - factor out cell tooltip creation and only do it on mouse over
+#
+# Revision 1.48  2009/06/11 12:37:25  ncq
 # - much simplified initial setup of list ctrls
 #
 # Revision 1.47  2009/06/04 16:19:00  ncq
