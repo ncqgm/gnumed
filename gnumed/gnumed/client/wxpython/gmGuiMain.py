@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.458 2009-06-11 12:47:44 ncq Exp $
-__version__ = "$Revision: 1.458 $"
+# $Id: gmGuiMain.py,v 1.459 2009-06-20 22:36:08 ncq Exp $
+__version__ = "$Revision: 1.459 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -83,79 +83,6 @@ icon_serpent = \
 \xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec"""
-
-#==============================================================================
-# FIXME: this belongs elsewhere
-def jump_to_ifap(import_drugs=False):
-
-	dbcfg = gmCfg.cCfgSQL()
-
-	ifap_cmd = dbcfg.get2 (
-		option = 'external.ifap-win.shell_command',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
-		bias = 'workplace',
-		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
-	)
-	found, binary = gmShellAPI.detect_external_binary(ifap_cmd)
-	if not found:
-		gmDispatcher.send('statustext', msg = _('Cannot call IFAP via [%s].') % ifap_cmd)
-		return False
-	ifap_cmd = binary
-
-	if import_drugs:
-		transfer_file = os.path.expanduser(dbcfg.get2 (
-			option = 'external.ifap-win.transfer_file',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = 'workplace',
-			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
-		))
-		# file must exist for Ifap to write into it
-		try:
-			f = open(transfer_file, 'w+b').close()
-		except IOError:
-			_log.exception('Cannot create IFAP <-> GNUmed transfer file [%s]', transfer_file)
-			gmDispatcher.send('statustext', msg = _('Cannot create IFAP <-> GNUmed transfer file [%s].') % transfer_file)
-			return False
-
-	wx.BeginBusyCursor()
-	gmShellAPI.run_command_in_shell(command = ifap_cmd, blocking = import_drugs)
-	wx.EndBusyCursor()
-
-	if import_drugs:
-		# COMMENT: this file must exist PRIOR to invoking IFAP
-		# COMMENT: or else IFAP will not write data into it ...
-		try:
-			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
-		except:
-			_log.exception('cannot access [%s]', fname)
-			csv_file = None
-
-		if csv_file is not None:
-			import csv
-			csv_lines = csv.DictReader (
-				csv_file,
-				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgröße'.split(),
-				delimiter = ';'
-			)
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			# dummy episode for now
-			epi = emr.add_episode(episode_name = _('Current medication'))
-			for line in csv_lines:
-				narr = u'%sx %s %s %s (\u2258 %s %s) von %s (%s)' % (
-					line['Packungszahl'].strip(),
-					line['Handelsname'].strip(),
-					line['Form'].strip(),
-					line[u'Packungsgröße'].strip(),
-					line['Abpackungsmenge'].strip(),
-					line['Einheit'].strip(),
-					line['Hersteller'].strip(),
-					line['PZN'].strip()
-				)
-				emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
-			csv_file.close()
-
-	return True
 #==============================================================================
 # FIXME: this belongs elsewhere
 def check_for_updates():
@@ -184,7 +111,7 @@ def check_for_updates():
 	)
 
 	if found is False:
-		gmDispatcher.send(signal = 'statustext', msg = _('Your client is up to date.'))
+		gmDispatcher.send(signal = 'statustext', msg = _('Your client (%s) is up to date.') % _cfg.get(option = 'client_version'))
 		return
 
 	gmGuiHelpers.gm_show_info (
@@ -451,7 +378,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
 		wx.EVT_MENU(self, ID, self.__on_check_for_updates)
 
-		item = menu_gnumed.Append(-1, _('Announce maintenance'), _('Announce database maintenance downtime to all connected clients.'))
+		item = menu_gnumed.Append(-1, _('Announce downtime'), _('Announce database maintenance downtime to all connected clients.'))
 		self.Bind(wx.EVT_MENU, self.__on_announce_maintenance, item)
 
 		# --
@@ -510,42 +437,42 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
 
-		# -- menu "Patient" ---------------------------
+		# -- menu "Person" ---------------------------
 		menu_patient = wx.Menu()
 
 
 		ID_CREATE_PATIENT = wx.NewId()
-		menu_patient.Append(ID_CREATE_PATIENT, _('Register new'), _("Register a new patient with this practice"))
+		menu_patient.Append(ID_CREATE_PATIENT, _('Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
-		item = menu_patient.Append(-1, _('Register new (old style)'), _("Register a new patient with this practice"))
+		item = menu_patient.Append(-1, _('Register new (old style)'), _("Register a new person with this practice"))
 		self.Bind(wx.EVT_MENU, self.__on_create_patient, item)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create patient from an external source.'))
+		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create person from an external source.'))
 		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
 
 		ID_DEL_PAT = wx.NewId()
-		menu_patient.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) patient record in database.'))
+		menu_patient.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
-		item = menu_patient.Append(-1, _('&Merge patients'), _('Merge two patients into one.'))
+		item = menu_patient.Append(-1, _('&Merge patients'), _('Merge two persons into one.'))
 		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
 
 		menu_patient.AppendSeparator()
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
-		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as staff'), _('Enlist current patient as staff member'))
+		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as staff'), _('Enlist current person as staff member'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
 
 		# FIXME: temporary until external program framework is active
 		ID = wx.NewId()
-		menu_patient.Append(ID, _('Export to GDT'), _('Export demographics of current patient into GDT file.'))
+		menu_patient.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
 		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
 
 		menu_patient.AppendSeparator()
 
-		self.mainmenu.Append(menu_patient, '&Patient')
+		self.mainmenu.Append(menu_patient, '&Person')
 		self.__gb['main.patientmenu'] = menu_patient
 
 		# -- menu "EMR" ---------------------------
@@ -1126,7 +1053,7 @@ class gmTopLevelFrame(wx.Frame):
 			  '\n'
 			  'Do you want to send the notification ?\n'
 			),
-			_('Announcing database maintenance')
+			_('Announcing database maintenance downtime')
 		)
 		if not send:
 			return
@@ -1888,7 +1815,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_ifap(self, evt):
-		jump_to_ifap()
+		gmMedicationWidgets.jump_to_ifap()
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
 		webbrowser.open (
@@ -2092,7 +2019,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add medication. No active patient.'))
 			return False
 
-		jump_to_ifap(import_drugs = True)
+		gmMedicationWidgets.jump_to_ifap(import_drugs = True)
 
 		evt.Skip()
 	#----------------------------------------------
@@ -2682,13 +2609,21 @@ class gmApp(wx.App):
 
 		# display database banner
 		surgery = gmSurgery.gmCurrentPractice()
-		msg = u'\n\n' + surgery.db_logon_banner + u'\n\n'
-		if msg != u'':
+		msg = surgery.db_logon_banner
+		if msg.strip() != u'':
+
+			login = gmPG2.get_default_login()
+			auth = u'\n  "%s"\n\n' % (_('Database <%s> on <%s>') % (
+				login.database,
+				gmTools.coalesce(login.host, u'localhost')
+			))
+			msg = auth + msg + u'\n\n'
+
 			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 				None,
 				-1,
 				caption = _('Verifying database'),
-				question = gmTools.wrap(msg, 55, initial_indent = u'    ', subsequent_indent = u'    '),
+				question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),
 				button_defs = [
 					{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
 					{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
@@ -2988,7 +2923,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.458  2009-06-11 12:47:44  ncq
+# Revision 1.459  2009-06-20 22:36:08  ncq
+# - move IFAP handling to proper file
+# - better wording of uptodate client message
+# - improved menu item wording as per list discussion
+# - show backend details in startup welcome message
+#
+# Revision 1.458  2009/06/11 12:47:44  ncq
 # - be more careful and more verbose about exiting
 #
 # Revision 1.457  2009/06/11 11:08:47  ncq
