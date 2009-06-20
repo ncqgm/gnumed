@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.138 $"
+__version__ = "$Revision: 1.139 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -483,7 +483,7 @@ from (
 
 			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%x %H:%M'))
 
-			lines.append(_('1st and last 3 of %s (%s - %s) encounters:') % (
+			lines.append(_('1st and (up to 3) most recent (of %s) encounters (%s - %s):') % (
 				len(encs),
 				first_encounter['started'].strftime('%m/%Y'),
 				last_encounter['last_affirmed'].strftime('%m/%Y')
@@ -522,6 +522,18 @@ from (
 						u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
 					)
 				))
+			del encs
+
+		# spell out last encounter
+		if last_encounter is not None:
+			lines.append('')
+			lines.append(_('Progress notes in most recent encounter:'))
+			lines.extend(last_encounter.format_soap (
+				episodes = [ self._payload[self._idx['pk_episode']] ],
+				left_margin = left_margin,
+				soap_cats = 'soap',
+				emr = emr
+			))
 
 		# documents
 		doc_folder = patient.get_document_folder()
@@ -562,17 +574,6 @@ from (
 				gmTools.coalesce(s['hospital'], u'')
 			))
 		del stays
-
-		# spell out last encounter
-		if last_encounter is not None:
-			lines.append('')
-			lines.append(_('Progress notes in most recent encounter:'))
-			lines.extend(last_encounter.format_soap (
-				episodes = [ self._payload[self._idx['pk_episode']] ],
-				left_margin = left_margin,
-				soap_cats = 'soap',
-				emr = emr
-			))
 
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
@@ -1252,7 +1253,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.138  2009-06-04 14:32:16  ncq
+# Revision 1.139  2009-06-20 12:33:52  ncq
+# - improved episode formatting as per list
+#
+# Revision 1.138  2009/06/04 14:32:16  ncq
 # - reimport lost comment
 #
 # Revision 1.138  2009/05/28 10:45:33  ncq
