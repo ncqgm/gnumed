@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.165 2009-06-20 12:35:49 ncq Exp $
-__version__ = "$Revision: 1.165 $"
+# $Id: gmDemographicsWidgets.py,v 1.166 2009-06-20 22:33:32 ncq Exp $
+__version__ = "$Revision: 1.166 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -172,17 +172,24 @@ def disable_identity(identity=None):
 	# ask user for assurance
 	go_ahead = gmGuiHelpers.gm_show_question (
 		_('Are you sure you really, positively want\n'
-		  'to disable the following patient ?\n'
+		  'to disable the following person ?\n'
 		  '\n'
 		  ' %s %s %s\n'
 		  ' born %s\n'
+		  '\n'
+		  '%s\n'
 		) % (
 			identity['firstnames'],
 			identity['lastnames'],
 			identity['gender'],
-			identity['dob']
+			identity['dob'],
+			gmTools.bool2subst (
+				identity.is_patient,
+				_('This patient DID receive care.'),
+				_('This person did NOT receive care.')
+			)
 		),
-		_('Disabling patient')
+		_('Disabling person')
 	)
 	if not go_ahead:
 		return True
@@ -3079,7 +3086,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.165  2009-06-20 12:35:49  ncq
+# Revision 1.166  2009-06-20 22:33:32  ncq
+# - improved warning on disabling person
+#
+# Revision 1.165  2009/06/20 12:35:49  ncq
 # - switch Identity and Contacts page as per list discussion
 #
 # Revision 1.164  2009/06/04 15:22:35  ncq
