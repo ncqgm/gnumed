@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.164 2009-06-04 15:22:35 ncq Exp $
-__version__ = "$Revision: 1.164 $"
+# $Id: gmDemographicsWidgets.py,v 1.165 2009-06-20 12:35:49 ncq Exp $
+__version__ = "$Revision: 1.165 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2640,6 +2640,14 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""Build patient edition notebook pages."""
+		# contacts page
+		new_page = cPersonContactsManagerPnl(self, -1)
+		new_page.identity = self.__identity
+		self.AddPage (
+			page = new_page,
+			text = _('Contacts'),
+			select = True
+		)
 
 		# identity page
 		new_page = cPersonIdentityManagerPnl(self, -1)
@@ -2647,15 +2655,6 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		self.AddPage (
 			page = new_page,
 			text = _('Identity'),
-			select = True
-		)
-
-		# contacts page
-		new_page = cPersonContactsManagerPnl(self, -1)
-		new_page.identity = self.__identity
-		self.AddPage (
-			page = new_page,
-			text = _('Contacts'),
 			select = False
 		)
 	#--------------------------------------------------------
@@ -3080,7 +3079,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.164  2009-06-04 15:22:35  ncq
+# Revision 1.165  2009-06-20 12:35:49  ncq
+# - switch Identity and Contacts page as per list discussion
+#
+# Revision 1.164  2009/06/04 15:22:35  ncq
 # - re-import allowing saving person w/o DOB and
 #   use appropriate set_active_patient()
 #
