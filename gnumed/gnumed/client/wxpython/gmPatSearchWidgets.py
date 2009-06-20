@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.124 2009-06-04 16:27:47 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmPatSearchWidgets.py,v 1.125 2009-06-20 12:47:17 ncq Exp $
+__version__ = "$Revision: 1.125 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -188,11 +188,11 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['preferred'], ''))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(person['l10n_gender'], '?'))
-			enc = person.get_last_encounter()
-			if enc is None:
-				label = u''
-			else:
-				label = u'%s (%s)' % (enc['started'].strftime('%x').decode(gmI18N.get_encoding()), enc['l10n_type'])
+			label = u''
+			if person.is_patient:
+				enc = person.get_last_encounter()
+				if enc is not None:
+					label = u'%s (%s)' % (enc['started'].strftime('%x').decode(gmI18N.get_encoding()), enc['l10n_type'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
 			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
 			except:
@@ -1390,7 +1390,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.124  2009-06-04 16:27:47  ncq
+# Revision 1.125  2009-06-20 12:47:17  ncq
+# - only display last encounter in search results if
+#   patient has clinical data (that is, is a patient)
+#
+# Revision 1.124  2009/06/04 16:27:47  ncq
 # - add set active patient and use it
 # - adjust to dob-less persons
 #
