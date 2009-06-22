@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_health_issues_journal.sql,v 1.1 2009-04-05 17:48:20 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-v_health_issues_journal.sql,v 1.2 2009-06-22 09:30:33 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -35,12 +35,12 @@ select
 		(select short_alias from dem.staff where db_user = chi.modified_by),
 		'<' || chi.modified_by || '>'
 	) 	as modified_by,
-	null::text
+	'a'::text
 		as soap_cat,
-	_('Foundational Health Issue') || ': '
+	_('Health Issue') || ': '
 		|| chi.description
 		|| coalesce((' (' || chi.laterality || ')'), '') || E'\n '
-		|| _('noted at age') || ': ' || coalesce(chi.age_noted::text, '?') || E'\n '
+		|| coalesce(_('noted at age') || ': ' || chi.age_noted::text || E'\n ', '')
 		|| case when chi.is_active
 			then _('active')
 			else _('inactive')
@@ -77,11 +77,16 @@ from
 
 grant select on clin.v_health_issues_journal TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_health_issues_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_health_issues_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_health_issues_journal.sql,v $
--- Revision 1.1  2009-04-05 17:48:20  ncq
+-- Revision 1.2  2009-06-22 09:30:33  ncq
+-- - soAp category
+-- - better wording
+-- - noted at age only if known
+--
+-- Revision 1.1  2009/04/05 17:48:20  ncq
 -- - new
 --
 -- Revision 1.2  2008/09/02 19:02:24  ncq
