@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.37 2009-06-20 12:47:38 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmProviderInboxWidgets.py,v 1.38 2009-06-22 09:28:21 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -260,10 +260,12 @@ def configure_workplace_plugins(parent=None):
 		new_plugins = gmListWidgets.get_choices_from_list (
 			parent = parent,
 			msg = _(
-				'\nSelect the plugins to load for the workplace "%s".\n'
 				'\n'
-				'Note that he plugins currently associated with\n'
-				'this workplace are preselected.\n'
+				'Select the plugin(s) to be loaded the next time\n'
+				'the client is restarted under the workplace:\n'
+				'\n'
+				' [%s]'
+				'\n'
 			) % workplace,
 			caption = _('Configuring GNUmed workplaces ...'),
 			choices = choices,
@@ -531,7 +533,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.37  2009-06-20 12:47:38  ncq
+# Revision 1.38  2009-06-22 09:28:21  ncq
+# - improved wording as per list
+#
+# Revision 1.37  2009/06/20 12:47:38  ncq
 # - test
 #
 # Revision 1.36  2009/06/11 12:37:25  ncq

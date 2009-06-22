@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.32 2009-06-20 22:39:27 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmNarrativeWidgets.py,v 1.33 2009-06-22 09:28:20 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -1141,7 +1141,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			dlg = wx.TextEntryDialog (
 				parent = self,
 				message = _('Enter a short working name for this new problem:'),
-				caption = _('Adding a new problem (episode)'),
+				caption = _('Creating a problem (episode) to save the notelet under ...'),
 				defaultValue = epi_name,
 				style = wx.OK | wx.CANCEL | wx.CENTRE
 			)
@@ -1413,7 +1413,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.32  2009-06-20 22:39:27  ncq
+# Revision 1.33  2009-06-22 09:28:20  ncq
+# - improved wording as per list
+#
+# Revision 1.32  2009/06/20 22:39:27  ncq
 # - improved wording as per list discussion
 #
 # Revision 1.31  2009/06/11 12:37:25  ncq

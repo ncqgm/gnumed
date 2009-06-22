@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.111 2009-06-20 22:39:27 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmSOAPWidgets.py,v 1.112 2009-06-22 09:28:21 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -778,7 +778,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			dlg = wx.TextEntryDialog (
 				parent = self,
 				message = _('Enter a descriptive name for this new problem:'),
-				caption = _('Adding a new problem (episode)'),
+				caption = _('Creating a problem (episode) to save the notelet under ...'),
 				defaultValue = epi_name.replace('\r', '//').replace('\n', '//'),
 				style = wx.OK | wx.CANCEL | wx.CENTRE
 			)
@@ -1225,7 +1225,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.111  2009-06-20 22:39:27  ncq
+# Revision 1.112  2009-06-22 09:28:21  ncq
+# - improved wording as per list
+#
+# Revision 1.111  2009/06/20 22:39:27  ncq
 # - improved wording as per list discussion
 #
 # Revision 1.110  2009/06/04 16:30:30  ncq
