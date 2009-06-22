@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.291 2009-06-04 14:29:18 ncq Exp $
-__version__ = "$Revision: 1.291 $"
+# $Id: gmClinicalRecord.py,v 1.292 2009-06-22 09:20:43 ncq Exp $
+__version__ = "$Revision: 1.292 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -599,7 +599,15 @@ order by
 	#--------------------------------------------------------
 	def get_statistics(self):
 		union_query = u'\n	union all\n'.join ([
-			u'select count(1) from clin.v_problem_list where pk_patient = %(pat)s',
+			u"""
+select ((
+	-- active episodes w/o health issue
+	select count(1) from clin.v_problem_list where pk_health_issue is null
+) + (
+	-- relevant health issues w/o an active episode
+	select count(1) from clin.v_problem_list where pk_episode is null
+))""",
+			#u'select count(1) from (select distinct (pk_health_issue) from clin.v_problem_list where pk_patient = %(pat)s)',
 			u'select count(1) from clin.encounter where fk_patient = %(pat)s',
 			u'select count(1) from clin.v_pat_items where pk_patient = %(pat)s',
 			u'select count(1) from blobs.v_doc_med where pk_patient = %(pat)s',
@@ -1917,11 +1925,11 @@ if __name__ == "__main__":
 		#test_get_measurements()
 		#test_get_test_results_by_date()
 		#test_get_test_types_details()
-		#test_get_statistics()
+		test_get_statistics()
 		#test_add_test_result()
 		#test_get_most_recent_episode()
 		#test_get_almost_recent_encounter()
-		test_get_meds()
+		#test_get_meds()
 
 #	emr = cClinicalRecord(aPKey = 12)
 
@@ -1979,7 +1987,12 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.291  2009-06-04 14:29:18  ncq
+# Revision 1.292  2009-06-22 09:20:43  ncq
+# - problem statistics:
+# 	don't count open episode under active issue
+# 	again as per list discussion
+#
+# Revision 1.291  2009/06/04 14:29:18  ncq
 # - re-import lost adjustments
 #
 # Revision 1.291  2009/05/28 10:44:52  ncq
