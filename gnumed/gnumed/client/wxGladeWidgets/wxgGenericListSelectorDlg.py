@@ -33,7 +33,7 @@ class wxgGenericListSelectorDlg(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgGenericListSelectorDlg.__set_properties
         self.SetSize((516, 500))
-        self._LCTRL_items.SetToolTipString(_("Select the items you want to work on."))
+        self._LCTRL_items.SetToolTipString(_("Select the items you want to work on.\n\nA discontinuous selection may depend on your holding down a platform-dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-shift> or <ctrl-alt>) while clicking."))
         self._LCTRL_items.SetFocus()
         self._BTN_ok.SetToolTipString(_("Act on the items selected in the above list."))
         self._BTN_ok.Enable(False)
