@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.49 2009-06-20 22:38:05 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmMeasurementWidgets.py,v 1.50 2009-06-22 09:26:49 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -528,26 +528,30 @@ class cMeasurementsGrid(wx.grid.Grid):
 						norm_eval = _(u'%.0f times the normal upper limit') % x_times
 			if norm_eval is not None:
 				tt += u'  (%s)\n' % norm_eval
-			# bandwidth of deviation
-			if None not in [d['val_normal_min'], d['val_normal_max']]:
-				normal_width = d['val_normal_max'] - d['val_normal_min']
-				deviation_from_normal_range = None
-				# below ?
-				if d['val_num'] < d['val_normal_min']:
-					deviation_from_normal_range = d['val_normal_min'] - d['val_num']
-				# above ?
-				elif d['val_num'] > d['val_normal_max']:
-					deviation_from_normal_range = d['val_num'] - d['val_normal_max']
-				if deviation_from_normal_range is None:
-					try:
-						times_deviation = deviation_from_normal_range / normal_width
-					except ZeroDivisionError:
-						times_deviation = None
-					if times_deviation is not None:
-						if times_deviation < 10:
-							tt += u'  (%s)\n' % _(u'deviates by %.1f times of the normal range') % times_deviation
-						else:
-							tt += u'  (%s)\n' % _(u'deviates by %.0f times of the normal range') % times_deviation
+#			#-------------------------------------
+#			# this idea was shot down on the list
+#			#-------------------------------------
+#			# bandwidth of deviation
+#			if None not in [d['val_normal_min'], d['val_normal_max']]:
+#				normal_width = d['val_normal_max'] - d['val_normal_min']
+#				deviation_from_normal_range = None
+#				# below ?
+#				if d['val_num'] < d['val_normal_min']:
+#					deviation_from_normal_range = d['val_normal_min'] - d['val_num']
+#				# above ?
+#				elif d['val_num'] > d['val_normal_max']:
+#					deviation_from_normal_range = d['val_num'] - d['val_normal_max']
+#				if deviation_from_normal_range is None:
+#					try:
+#						times_deviation = deviation_from_normal_range / normal_width
+#					except ZeroDivisionError:
+#						times_deviation = None
+#					if times_deviation is not None:
+#						if times_deviation < 10:
+#							tt += u'  (%s)\n' % _(u'deviates by %.1f times of the normal range') % times_deviation
+#						else:
+#							tt += u'  (%s)\n' % _(u'deviates by %.0f times of the normal range') % times_deviation
+#			#-------------------------------------
 
 			# 2) clinical target range
 			norm_eval = None
@@ -575,26 +579,30 @@ class cMeasurementsGrid(wx.grid.Grid):
 						norm_eval = _(u'%.0f times the target upper limit') % x_times
 			if norm_eval is not None:
 				tt += u' (%s)\n' % norm_eval
-			# bandwidth of deviation
-			if None not in [d['val_target_min'], d['val_target_max']]:
-				normal_width = d['val_target_max'] - d['val_target_min']
-				deviation_from_target_range = None
-				# below ?
-				if d['val_num'] < d['val_target_min']:
-					deviation_from_target_range = d['val_target_min'] - d['val_num']
-				# above ?
-				elif d['val_num'] > d['val_target_max']:
-					deviation_from_target_range = d['val_num'] - d['val_target_max']
-				if deviation_from_target_range is None:
-					try:
-						times_deviation = deviation_from_target_range / normal_width
-					except ZeroDivisionError:
-						times_deviation = None
-				if times_deviation is not None:
-					if times_deviation < 10:
-						tt += u'  (%s)\n' % _(u'deviates by %.1f times of the target range') % times_deviation
-					else:
-						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
+#			#-------------------------------------
+#			# this idea was shot down on the list
+#			#-------------------------------------
+#			# bandwidth of deviation
+#			if None not in [d['val_target_min'], d['val_target_max']]:
+#				normal_width = d['val_target_max'] - d['val_target_min']
+#				deviation_from_target_range = None
+#				# below ?
+#				if d['val_num'] < d['val_target_min']:
+#					deviation_from_target_range = d['val_target_min'] - d['val_num']
+#				# above ?
+#				elif d['val_num'] > d['val_target_max']:
+#					deviation_from_target_range = d['val_num'] - d['val_target_max']
+#				if deviation_from_target_range is None:
+#					try:
+#						times_deviation = deviation_from_target_range / normal_width
+#					except ZeroDivisionError:
+#						times_deviation = None
+#				if times_deviation is not None:
+#					if times_deviation < 10:
+#						tt += u'  (%s)\n' % _(u'deviates by %.1f times of the target range') % times_deviation
+#					else:
+#						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
+#			#-------------------------------------
 
 		# ranges
 		tt += u'\n'
@@ -1535,7 +1543,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.49  2009-06-20 22:38:05  ncq
+# Revision 1.50  2009-06-22 09:26:49  ncq
+# - people didn't like the bandwidth calculation
+#
+# Revision 1.49  2009/06/20 22:38:05  ncq
 # - factor out cell tooltip creation and only do it on mouse over
 #
 # Revision 1.48  2009/06/11 12:37:25  ncq
