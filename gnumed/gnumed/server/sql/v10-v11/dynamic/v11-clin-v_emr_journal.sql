@@ -5,8 +5,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_emr_journal.sql,v 1.4 2009-05-22 10:55:45 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v11-clin-v_emr_journal.sql,v 1.5 2009-06-22 09:29:55 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -33,7 +33,7 @@ union all
 
 union all
 
-	select *, 0 as row_version from clin.v_pat_episodes_journal
+	select * from clin.v_pat_episodes_journal
 
 union all
 
@@ -74,11 +74,14 @@ comment on view clin.v_emr_journal is
 
 grant select on clin.v_emr_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_emr_journal.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_emr_journal.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_emr_journal.sql,v $
--- Revision 1.4  2009-05-22 10:55:45  ncq
+-- Revision 1.5  2009-06-22 09:29:55  ncq
+-- - episode journal view now has revisions
+--
+-- Revision 1.4  2009/05/22 10:55:45  ncq
 -- - test results now have row version
 --
 -- Revision 1.3  2009/05/12 12:09:22  ncq
