@@ -2,15 +2,15 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.76 2009-06-11 13:08:15 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.77 2009-06-22 12:40:01 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.5-rc1"
-CLIENTREV="CVS-HEAD"
+CLIENTREV="0.5-rc2"
+#CLIENTREV="CVS-HEAD"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 
-SRVREV="11-rc1"
-SRVREV="CVS-HEAD"
+SRVREV="11-rc2"
+#SRVREV="CVS-HEAD"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -283,6 +283,7 @@ mkdir -p ./GNUmed-$CLIENTREV/server/doc/
 cp -R ../../server/bootstrap/README ./GNUmed-$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-bootstrap_server.8 ./GNUmed-$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-upgrade_server.8 ./GNUmed-$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-fixup_server.8 ./GNUmed-$CLIENTREV/server/doc/
 
 
 # etc
@@ -425,7 +426,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.76  2009-06-11 13:08:15  ncq
+# Revision 1.77  2009-06-22 12:40:01  ncq
+# - bump versions
+#
+# Revision 1.76  2009/06/11 13:08:15  ncq
 # - bump version
 #
 # Revision 1.75  2009/06/11 13:04:35  ncq
