@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.292 2009-06-22 09:20:43 ncq Exp $
-__version__ = "$Revision: 1.292 $"
+# $Id: gmClinicalRecord.py,v 1.293 2009-06-29 14:58:29 ncq Exp $
+__version__ = "$Revision: 1.293 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -270,9 +270,11 @@ select fk_encounter from
 		return filtered_narrative
 	#--------------------------------------------------------
 	def search_narrative_simple(self, search_term=''):
+
 		search_term = search_term.strip()
 		if search_term == '':
-			return False
+			return []
+
 		cmd = u"""
 select
 	*,
@@ -602,10 +604,20 @@ order by
 			u"""
 select ((
 	-- active episodes w/o health issue
-	select count(1) from clin.v_problem_list where pk_health_issue is null
+	select count(1)
+	from clin.v_problem_list
+	where
+		pk_patient = %(pat)s
+			and
+		pk_health_issue is null
 ) + (
 	-- relevant health issues w/o an active episode
-	select count(1) from clin.v_problem_list where pk_episode is null
+	select count(1)
+	from clin.v_problem_list
+	where
+		pk_patient = %(pat)s
+			and
+		pk_episode is null
 ))""",
 			#u'select count(1) from (select distinct (pk_health_issue) from clin.v_problem_list where pk_patient = %(pat)s)',
 			u'select count(1) from clin.encounter where fk_patient = %(pat)s',
@@ -1987,7 +1999,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.292  2009-06-22 09:20:43  ncq
+# Revision 1.293  2009-06-29 14:58:29  ncq
+# - fix emr stats getter which returned stats over *all* patients :-)
+#
+# Revision 1.292  2009/06/22 09:20:43  ncq
 # - problem statistics:
 # 	don't count open episode under active issue
 # 	again as per list discussion
