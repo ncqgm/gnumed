@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.80 2009-04-14 18:34:25 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmPlugin.py,v 1.81 2009-06-29 15:10:21 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -116,7 +116,12 @@ class cNotebookPlugin:
 		self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__] = self
 		self.gb['horstspace.notebook.pages'].append(self)
 
-		gmDispatcher.send(signal = u'plugin_loaded', name = self.name())
+		# register with direct access menu
+		if menu_info is not None:
+			name_of_menu, menu_item_name = menu_info
+		else:
+			menu_item_name = self.name()
+		gmDispatcher.send(signal = u'plugin_loaded', name = menu_item_name)
 
 		return True
 	#-----------------------------------------------------
@@ -395,7 +400,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.80  2009-04-14 18:34:25  ncq
+# Revision 1.81  2009-06-29 15:10:21  ncq
+# - improved naming of plugins in GNUmed / Go to plugin menu
+#
+# Revision 1.80  2009/04/14 18:34:25  ncq
 # - minor cleanup
 #
 # Revision 1.79  2009/02/05 21:12:28  ncq
