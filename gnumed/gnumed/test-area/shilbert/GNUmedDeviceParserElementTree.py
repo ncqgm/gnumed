@@ -1,42 +1,40 @@
-import pprint
-#from elementtree.ElementTree import ElementTree
 from xml.etree.ElementTree import ElementTree
 
 DeviceList = []
 
 def extractDevices(Devices=None):
     for Device in Devices:
-	print('The file has the following devices: %s:' %Device)
-	DeviceList.append(Device)
-	#print DeviceList
+        print('The file has the following devices: %s:' %Device)
+        DeviceList.append(Device)
+        #print DeviceList
 
 def extractTagData(DevicePart=None,searchtag=None):
     for tag in DevicePart.getchildren():
-	if tag.tag==searchtag:
-	    return tag.text
+        if tag.tag==searchtag:
+            return tag.text
 
 def extractDeviceParts(Device=None):
     for DevicePart in Device:
-	print ('The device has the following parts: %s' %DevicePart)
-	# a subpart is like the CPU of a generator and so forth
-	for KeyAttribute in DevicePart.keys():
-	    if DevicePart.get(KeyAttribute)=='generator':
-		print 'hey we are dealing with a generator here:-)'
-		#vendor
-		vendor=extractTagData(DevicePart,'vendor')
-		#model
-		model=extractTagData(DevicePart,'model')
-		# devicestate
-		devicestate=extractTagData(DevicePart,'devicestate')
+        print ('The device has the following parts: %s' %DevicePart)
+        # a subpart is like the CPU of a generator and so forth
+        for KeyAttribute in DevicePart.keys():
+            if DevicePart.get(KeyAttribute)=='generator':
+                print 'hey we are dealing with a generator here:-)'
+                #vendor
+                vendor=extractTagData(DevicePart,'vendor')
+                #model
+                model=extractTagData(DevicePart,'model')
+                # devicestate
+                devicestate=extractTagData(DevicePart,'devicestate')
 
-		return(vendor,model,devicestate)
-		
-	    elif DevicePart.get(KeyAttribute)=='lead':
-		print 'hey we are dealing with a lead here'
-		
-	    else:
-		print 'hey we are dealing with an unkown device part here. Please provide the XML file to the GNUmed team.'
-		
+                return(vendor,model,devicestate)
+
+            elif DevicePart.get(KeyAttribute)=='lead':
+                print 'hey we are dealing with a lead here'
+
+            else:
+                print 'hey we are dealing with an unkown device part here. Please provide the XML file to the GNUmed team.'
+        
 def outputDeviceStatus(DeviceList=None):
     """ In this area GNUmed will place the status of all cardiac devices and device parts. 
     There can be more than one device at a time\n\n
@@ -59,13 +57,13 @@ def outputDeviceStatus(DeviceList=None):
     for Device in DeviceList:
         DeviceClass=Device.get("class")
         #parse the parts into a dictionary
-	parts=extractDeviceParts(Device)
-	print parts
+        parts=extractDeviceParts(Device)
+        print parts
         #DeviceManufacturer=
-	#construct output for active settings dialog
+        #construct output for active settings dialog
 
 if __name__ == '__main__':
-    filename = 'GNUmed5.xml'
+    #filename = 'GNUmed5.xml'
     tree = ElementTree(file='GNUmed6.xml')
     Devices = tree.getroot()
     extractDevices(Devices)
