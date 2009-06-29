@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.139 $"
+__version__ = "$Revision: 1.140 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -782,6 +782,42 @@ select exists (
 		)
 		return rows[0][0]
 	#--------------------------------------------------------
+	def get_latest_soap(self, soap_cat=None, episode=None):
+
+		if soap_cat is not None:
+			soap_cat = soap_cat.lower()
+
+		if episode is None:
+			epi_part = u'fk_episode is null'
+		else:
+			epi_part = u'fk_episode = %(epi)s'
+
+		cmd = u"""
+select narrative
+from clin.clin_narrative
+where
+	fk_encounter = %%(enc)s
+		and
+	soap_cat = %%(cat)s
+		and
+	%s
+order by clin_when desc
+limit 1
+		""" % epi_part
+
+		args = {'enc': self.pk_obj, 'cat': soap_cat, 'epi': episode}
+
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': cmd,
+				'args': args
+			}]
+		)
+		if len(rows) == 0:
+			return None
+
+		return rows[0][0]
+	#--------------------------------------------------------
 	def format_soap(self, episodes=None, left_margin=u'', soap_cats='soap', emr=None, issues=None):
 
 		lines = []
@@ -1253,7 +1289,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.139  2009-06-20 12:33:52  ncq
+# Revision 1.140  2009-06-29 14:59:18  ncq
+# - add get-latest-soap
+#
+# Revision 1.139  2009/06/20 12:33:52  ncq
 # - improved episode formatting as per list
 #
 # Revision 1.138  2009/06/04 14:32:16  ncq
