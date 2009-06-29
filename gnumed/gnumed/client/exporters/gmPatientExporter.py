@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.135 2009-06-04 16:24:35 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gmPatientExporter.py,v 1.136 2009-06-29 15:01:07 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -419,8 +419,18 @@ class cEmrExport:
             allergy - Allergy item to dump
             left_margin - Number of spaces on the left margin
         """
-        txt = left_margin*' ' + _('Allergy') + ': ' + allergy['descriptor'] + ', ' + \
-            gmTools.coalesce(allergy['reaction'], _('unknown reaction')) + '\n'
+        txt = _('%sAllergy: %s, %s (noted %s)\n') % (
+            left_margin * u' ',
+            allergy['descriptor'],
+            gmTools.coalesce(allergy['reaction'], _('unknown reaction')),
+            allergy['date'].strftime('%x')
+        )
+#        txt = left_margin * ' ' \
+#           + _('Allergy') + ': ' \
+#            + allergy['descriptor'] + u', ' \
+#            + gmTools.coalesce(allergy['reaction'], _('unknown reaction')) ' ' \
+#            + _('(noted %s)') % allergy['date'].strftime('%x') \
+#            + '\n'
         return txt
     #--------------------------------------------------------
     def get_vaccination_summary(self, vaccination, left_margin = 0):
@@ -516,7 +526,7 @@ class cEmrExport:
             for an_episode in episodes:
                 self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
             emr_tree.SortChildren(issue_node)
-    #--------------------------------------------------------             
+    #--------------------------------------------------------
     def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
         episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
         emr_tree.SetPyData(episode_node, an_episode)
@@ -535,10 +545,16 @@ class cEmrExport:
                 an_encounter['started'].strftime('%Y-%m-%d'),
                 gmTools.coalesce (
                     gmTools.coalesce (
-                        an_encounter['assessment_of_encounter'],
-                        an_encounter['reason_for_encounter']
+                        gmTools.coalesce (
+                            an_encounter.get_latest_soap (						# soAp
+                                soap_cat = 'a',
+                                episode = emr_tree.GetPyData(episode_node)['pk_episode']
+                            ),
+                            an_encounter['assessment_of_encounter']				# or AOE
+                        ),
+                        an_encounter['reason_for_encounter']					# or RFE
                     ),
-                    an_encounter['l10n_type']
+                    an_encounter['l10n_type']									# or type
                 )[:40]
             )
             encounter_node_id = emr_tree.AppendItem(episode_node, label)
@@ -1176,7 +1192,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.135  2009-06-04 16:24:35  ncq
+# Revision 1.136  2009-06-29 15:01:07  ncq
+# - use get-latest-soap in encounter formatting
+#
+# Revision 1.135  2009/06/04 16:24:35  ncq
 # - support dob-less persons
 #
 # Revision 1.134  2009/01/02 11:36:43  ncq
