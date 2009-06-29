@@ -17,7 +17,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgProviderInboxPnl.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._msg_welcome = wx.StaticText(self, -1, _("Programmer must override this text."), style=wx.ALIGN_CENTRE)
+        self._msg_welcome = wx.StaticText(self, -1, _("Programmer must override this text."))
         self._RBTN_all_patients = wx.RadioButton(self, -1, _("All"), style=wx.RB_GROUP)
         self._RBTN_active_patient = wx.RadioButton(self, -1, _("Active patient"))
         self._LCTRL_provider_inbox = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
@@ -49,7 +49,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgProviderInboxPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_filters = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._msg_welcome, 0, wx.ADJUST_MINSIZE, 0)
+        __szr_main.Add(self._msg_welcome, 0, 0, 0)
         __line_top = wx.StaticLine(self, -1)
         __szr_main.Add(__line_top, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
         __lbl_filters = wx.StaticText(self, -1, _("Patient-related messages:"))
@@ -57,8 +57,8 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         __szr_filters.Add(self._RBTN_all_patients, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 5)
         __szr_filters.Add(self._RBTN_active_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 5)
         __szr_main.Add(__szr_filters, 0, wx.BOTTOM|wx.EXPAND, 5)
-        __szr_main.Add(self._LCTRL_provider_inbox, 1, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
-        __szr_main.Add(self._TXT_inbox_item_comment, 0, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
+        __szr_main.Add(self._LCTRL_provider_inbox, 1, wx.EXPAND, 0)
+        __szr_main.Add(self._TXT_inbox_item_comment, 0, wx.EXPAND, 0)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
