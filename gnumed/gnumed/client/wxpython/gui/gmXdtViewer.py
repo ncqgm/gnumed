@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.38 2009-01-15 11:41:18 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmXdtViewer.py,v 1.39 2009-06-29 15:12:49 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs, logging
@@ -158,8 +158,9 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 	# plugin API
 	#--------------------------------------------------------------
 	def repopulate_ui(self):
-		if self.filename is None:
-			self.load_file()
+#		if self.filename is None:
+#			self.load_file()
+		return
 #=============================================================================
 class gmXdtViewerPanel(wx.Panel):
 	def __init__(self, parent, aFileName = None):
@@ -369,7 +370,7 @@ class gmXdtViewer(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo(self):
-		return ('tools', _('xDT viewer'))
+		return ('tools', _('&xDT viewer'))
 
 	def can_receive_focus(self):
 		return True
@@ -425,7 +426,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.38  2009-01-15 11:41:18  ncq
+# Revision 1.39  2009-06-29 15:12:49  ncq
+# - do not force loading of an xDT file on tab-in anymore
+#
+# Revision 1.38  2009/01/15 11:41:18  ncq
 # - improved list layout
 #
 # Revision 1.37  2008/03/06 18:32:31  ncq
