@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.459 2009-06-20 22:36:08 ncq Exp $
-__version__ = "$Revision: 1.459 $"
+# $Id: gmGuiMain.py,v 1.460 2009-06-29 15:16:27 ncq Exp $
+__version__ = "$Revision: 1.460 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -226,10 +226,20 @@ class gmTopLevelFrame(wx.Frame):
 		menu_gnumed = wx.Menu()
 
 		self.menu_plugins = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('Plugins ...'), self.menu_plugins)
+		menu_gnumed.AppendMenu(wx.NewId(), _('Go to &plugin ...'), self.menu_plugins)
+
+		ID = wx.NewId()
+		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
+		wx.EVT_MENU(self, ID, self.__on_check_for_updates)
+
+		item = menu_gnumed.Append(-1, _('Announce downtime'), _('Announce database maintenance downtime to all connected clients.'))
+		self.Bind(wx.EVT_MENU, self.__on_announce_maintenance, item)
+
+		# --
+		menu_gnumed.AppendSeparator()
 
 		menu_config = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('Options ...'), menu_config)
+		menu_gnumed.AppendMenu(wx.NewId(), _('Preferences ...'), menu_config)
 
 		# -- submenu gnumed-config-db
 		menu_cfg_db = wx.Menu()
@@ -371,38 +381,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_episode.Append(ID, _('Dormancy'), _('Maximum length of dormancy after which an episode will be considered closed.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_epi_ttl)
 
-		# --
-		menu_gnumed.AppendSeparator()
-
-		ID = wx.NewId()
-		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
-		wx.EVT_MENU(self, ID, self.__on_check_for_updates)
-
-		item = menu_gnumed.Append(-1, _('Announce downtime'), _('Announce database maintenance downtime to all connected clients.'))
-		self.Bind(wx.EVT_MENU, self.__on_announce_maintenance, item)
-
-		# --
-		menu_gnumed.AppendSeparator()
-
-		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client.'))
-		wx.EVT_MENU(self, wx.ID_EXIT, self.__on_exit_gnumed)
-
-		self.mainmenu.Append(menu_gnumed, '&GNUmed')
-
-		# -- menu "Office" --------------------
-		self.menu_office = wx.Menu()
-
+		# -- submenu gnumed / master data
 		menu_master_data = wx.Menu()
-		self.menu_office.AppendMenu(wx.NewId(), _('Manage &master data ...'), menu_master_data)
-
-		menu_staff = wx.Menu()
-		menu_master_data.AppendMenu(wx.NewId(), _('&Staff ...'), menu_staff)
-
-		item = menu_staff.Append(-1, _('&Add staff member'), _('Add a new staff member'))
-		self.Bind(wx.EVT_MENU, self.__on_add_new_staff, item)
-
-		item = menu_staff.Append(-1, _('&Edit staff list'), _('Edit the list of staff'))
-		self.Bind(wx.EVT_MENU, self.__on_edit_staff_list, item)
+		menu_gnumed.AppendMenu(wx.NewId(), _('&Master data ...'), menu_master_data)
 
 		item = menu_master_data.Append(-1, _('Workplace profiles'), _('Manage the plugins to load per workplace.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_workplace, item)
@@ -434,12 +415,26 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
 
-		self.__gb['main.officemenu'] = self.menu_office
-		self.mainmenu.Append(self.menu_office, _('&Office'))
+		# -- submenu gnumed / users
+		menu_users = wx.Menu()
+		menu_gnumed.AppendMenu(wx.NewId(), _('&Users ...'), menu_users)
+
+		item = menu_users.Append(-1, _('&Add user'), _('Add a new GNUmed user'))
+		self.Bind(wx.EVT_MENU, self.__on_add_new_staff, item)
+
+		item = menu_users.Append(-1, _('&Edit users'), _('Edit the list of GNUmed users'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_staff_list, item)
+
+		# --
+		menu_gnumed.AppendSeparator()
+
+		item = menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client.'))
+		self.Bind(wx.EVT_MENU(self, self.__on_exit_gnumed, item)
+
+		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
 		# -- menu "Person" ---------------------------
 		menu_patient = wx.Menu()
-
 
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register person'), _("Register a new person with GNUmed"))
@@ -480,7 +475,106 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
 
-		# - submenu "export as"
+#		# - summary
+#		ID_EMR_SUMMARY = wx.NewId()
+#		menu_emr.Append (
+#			ID_EMR_SUMMARY,
+#			_('Show Summary'),
+#			_('Show a summary of the EMR of the active patient')
+#		)
+#		wx.EVT_MENU(self, ID_EMR_SUMMARY, self.__on_show_emr_summary)
+
+		# - submenu "show as"
+		menu_emr_show = wx.Menu()
+		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
+		self.__gb['main.emr_showmenu'] = menu_emr_show
+
+		# - search
+		item = menu_emr.Append(-1, _('Search EMR'), _('Search for data in the EMR of the active patient'))
+		self.Bind(wx.EVT_MENU, self.__on_search_emr)
+
+		# -- submenu EMR / Add, Edit
+		menu_emr_edit = wx.Menu()
+		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
+
+		item = menu_emr_edit.Append(-1, _('&Past history (health issue / PMH)'), _('Add a past/previous medical history item (health issue) to the EMR of the active patient'))
+		self.Bind(wx.EVT_MENU, self.__on_add_health_issue, item)
+
+		item = menu_emr_edit.Append(-1, _('Current &medication'), _('Select current medication from drug database and save into progress notes.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_medication, item)
+
+		item = menu_emr_edit.Append(-1, _('&Allergies'), _('Manage documentation of allergies for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_allergies, item)
+
+		item = menu_emr_edit.Append(-1, _('&Occupation'), _('Edit occupation details for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_occupation, item)
+
+		item = menu_emr_edit.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
+
+		item = menu_emr_edit.Append(-1, _('Add &Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
+
+#		item = menu_emr_edit.Append(-1, )
+#		self.Bind(wx.EVT_MENU, , item)
+
+#		# - submenu EMR / History taking
+#		menu_history = wx.Menu()
+#		menu_emr.AppendMenu(wx.NewId(), _('&History taking ...'), menu_history)
+		# - add health issue
+#		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
+#		menu_history.Append (
+#			ID_ADD_HEALTH_ISSUE_TO_EMR,
+#			_('&Past history (health issue / PMH)'),
+#			_('Add a past/previous medical history item (health issue) to the EMR of the active patient')
+#		)
+#		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
+#		# - document current medication
+#		ID_ADD_DRUGS_TO_EMR = wx.NewId()
+#		menu_history.Append (
+#			ID_ADD_DRUGS_TO_EMR,
+#			_('Current &medication'),
+#			_('Select current medication from drug database and save into progress notes.')
+#		)
+#		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
+#		# - add allergy
+#		ID = wx.NewId()
+#		menu_history.Append (
+#			ID,
+#			_('&Allergies'),
+#			_('Manage documentation of allergies for the current patient.')
+#		)
+#		wx.EVT_MENU(self, ID, self.__on_manage_allergies)
+#		# - edit occupation
+#		ID = wx.NewId()
+#		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
+#		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
+#		# - manage hospital stays
+#		item = menu_history.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
+#		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
+
+#		# - submenu EMR / Observations
+#		menu_obs = wx.Menu()
+#		menu_emr.AppendMenu(wx.NewId(), _('&Observations ...'), menu_obs)
+
+#		# - add measurement
+#		ID = wx.NewId()
+#		menu_obs.Append(ID, _('Add &Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
+#		wx.EVT_MENU(self, ID, self.__on_add_measurement)
+
+		# -- EMR, again
+
+		# - start new encounter
+		item = menu_emr.Append(-1, _('Start new encounter'), _('Start a new encounter for the active patient right now.'))
+		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter)
+
+		# - list encounters
+		item = menu_emr.Append(-1, _('View encounter list'), _('List all encounters including empty ones.'))
+		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
+
+		# - submenu GNUmed / "export as"
+		menu_emr.AppendSeparator()
+
 		menu_emr_export = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('Export as ...'), menu_emr_export)
 		#   1) ASCII
@@ -507,88 +601,6 @@ class gmTopLevelFrame(wx.Frame):
 			_("GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file.")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
-
-		# - summary
-		ID_EMR_SUMMARY = wx.NewId()
-		menu_emr.Append (
-			ID_EMR_SUMMARY,
-			_('Show Summary'),
-			_('Show a summary of the EMR of the active patient')
-		)
-		wx.EVT_MENU(self, ID_EMR_SUMMARY, self.__on_show_emr_summary)
-
-		# - submenu "show as"
-		menu_emr_show = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
-		self.__gb['main.emr_showmenu'] = menu_emr_show
-
-		# - draw a line
-		menu_emr.AppendSeparator()
-
-		# - search
-		ID_SEARCH_EMR = wx.NewId()
-		menu_emr.Append (
-			ID_SEARCH_EMR,
-			_('Search'),
-			_('Search for data in the EMR of the active patient')
-		)
-		wx.EVT_MENU(self, ID_SEARCH_EMR, self.__on_search_emr)
-
-		# - start new encounter
-		ID = wx.NewId()
-		menu_emr.Append (
-			ID,
-			_('Start new encounter'),
-			_('Start a new encounter for the active patient right now.')
-		)
-		wx.EVT_MENU(self, ID, self.__on_start_new_encounter)
-
-		item = menu_emr.Append(-1, _('List encounters'), _('List all encounters including empty ones.'))
-		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
-
-		# - submenu EMR / History taking
-		menu_history = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('&History taking ...'), menu_history)
-		# - add health issue
-		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
-		menu_history.Append (
-			ID_ADD_HEALTH_ISSUE_TO_EMR,
-			_('&Past history (health issue / PMH)'),
-			_('Add a past/previous medical history item (health issue) to the EMR of the active patient')
-		)
-		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
-		# - document current medication
-		ID_ADD_DRUGS_TO_EMR = wx.NewId()
-		menu_history.Append (
-			ID_ADD_DRUGS_TO_EMR,
-			_('Current &medication'),
-			_('Select current medication from drug database and save into progress notes.')
-		)
-		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
-		# - add allergy
-		ID = wx.NewId()
-		menu_history.Append (
-			ID,
-			_('&Allergies'),
-			_('Manage documentation of allergies for the current patient.')
-		)
-		wx.EVT_MENU(self, ID, self.__on_manage_allergies)
-		# - edit occupation
-		ID = wx.NewId()
-		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
-		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
-		# - manage hospital stays
-		item = menu_history.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
-
-		# - submenu EMR / Observations
-		menu_obs = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('&Observations ...'), menu_obs)
-
-		# - add measurement
-		ID = wx.NewId()
-		menu_obs.Append(ID, _('Add &Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
-		wx.EVT_MENU(self, ID, self.__on_add_measurement)
 
 		# - draw a line
 		menu_emr.AppendSeparator()
@@ -664,6 +676,12 @@ class gmTopLevelFrame(wx.Frame):
 		ID_MEDICAL_LINKS = wx.NewId()
 		menu_knowledge.Append(ID_MEDICAL_LINKS, _('Medical links (www)'), _('Show a page of links to useful medical content.'))
 		wx.EVT_MENU(self, ID_MEDICAL_LINKS, self.__on_medical_links)
+
+		# -- menu "Office" --------------------
+		self.menu_office = wx.Menu()
+
+		self.__gb['main.officemenu'] = self.menu_office
+		self.mainmenu.Append(self.menu_office, _('&Office'))
 
 		# -- menu "Help" --------------
 		help_menu = wx.Menu()
@@ -755,8 +773,6 @@ class gmTopLevelFrame(wx.Frame):
 		"""register events we want to react to"""
 
 		wx.EVT_CLOSE(self, self.OnClose)
-		wx.EVT_ICONIZE(self, self.OnIconize)
-		wx.EVT_MAXIMIZE(self, self.OnMaximize)
 		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		wx.EVT_END_SESSION(self, self._on_end_session)
 
@@ -1977,6 +1993,8 @@ class gmTopLevelFrame(wx.Frame):
 		self._clean_exit()
 		self.Destroy()
 		_log.debug('gmTopLevelFrame.OnClose() end')
+
+		return True
 	#----------------------------------------------
 	def OnExportEMR(self, event):
 		"""
@@ -2055,22 +2073,22 @@ class gmTopLevelFrame(wx.Frame):
 		gmMeasurementWidgets.edit_measurement(parent = self, measurement = None)
 		evt.Skip()
 	#----------------------------------------------
-	def __on_show_emr_summary(self, event):
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show EMR summary. No active patient.'))
-			return False
-
-		emr = pat.get_emr()
-		dlg = wx.MessageDialog (
-			parent = self,
-			message = emr.format_statistics(),
-			caption = _('EMR Summary'),
-			style = wx.OK | wx.STAY_ON_TOP
-		)
-		dlg.ShowModal()
-		dlg.Destroy()
-		return True
+#	def __on_show_emr_summary(self, event):
+#		pat = gmPerson.gmCurrentPatient()
+#		if not pat.connected:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show EMR summary. No active patient.'))
+#			return False
+#
+#		emr = pat.get_emr()
+#		dlg = wx.MessageDialog (
+#			parent = self,
+#			message = emr.format_statistics(),
+#			caption = _('EMR Summary'),
+#			style = wx.OK | wx.STAY_ON_TOP
+#		)
+#		dlg.ShowModal()
+#		dlg.Destroy()
+#		return True
 	#----------------------------------------------
 	def __on_search_emr(self, event):
 		return gmNarrativeWidgets.search_narrative_in_emr(parent=self)
@@ -2280,21 +2298,6 @@ class gmTopLevelFrame(wx.Frame):
 #			sys.stderr = sys.__stderr__
 
 		_log.debug('gmTopLevelFrame._clean_exit() end')
-	#----------------------------------------------
-#	def OnIdle(self, event):
-#		"""Here we can process any background tasks
-#		"""
-#		pass
-	#----------------------------------------------
-	def OnIconize(self, event):
-		# FIXME: we should maximize the amount of title bar information here
-		#_log.info('OnIconify')
-		event.Skip()
-	#----------------------------------------------
-	def OnMaximize(self, event):
-		# FIXME: we should change the amount of title bar information here
-		#_log.info('OnMaximize')
-		event.Skip()
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
@@ -2613,7 +2616,7 @@ class gmApp(wx.App):
 		if msg.strip() != u'':
 
 			login = gmPG2.get_default_login()
-			auth = u'\n  "%s"\n\n' % (_('Database <%s> on <%s>') % (
+			auth = u'\n%s\n\n' % (_('Database <%s> on <%s>') % (
 				login.database,
 				gmTools.coalesce(login.host, u'localhost')
 			))
@@ -2923,7 +2926,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.459  2009-06-20 22:36:08  ncq
+# Revision 1.460  2009-06-29 15:16:27  ncq
+# - reorder menus as per list discussion
+#
+# Revision 1.459  2009/06/20 22:36:08  ncq
 # - move IFAP handling to proper file
 # - better wording of uptodate client message
 # - improved menu item wording as per list discussion
