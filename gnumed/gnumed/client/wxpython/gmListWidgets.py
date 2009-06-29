@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.32 2009-06-20 12:45:22 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmListWidgets.py,v 1.33 2009-06-29 15:07:58 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -257,7 +257,12 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def set_string_items(self, items = None):
 		self._LCTRL_items.set_string_items(items = items)
 		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.Select(0)
+
+		if (items is None) or (len(items) == 0):
+			self._BTN_edit.Enable(False)
+			self._BTN_remove.Enable(False)
+		else:
+			self._LCTRL_items.Select(0)
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
@@ -524,7 +529,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.32  2009-06-20 12:45:22  ncq
+# Revision 1.33  2009-06-29 15:07:58  ncq
+# - disable edit/delete buttons when setting items to None or []
+#
+# Revision 1.32  2009/06/20 12:45:22  ncq
 # - call refresh from refresh property setter if callable and not None
 #
 # Revision 1.31  2009/06/11 12:37:25  ncq
