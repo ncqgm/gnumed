@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.460 2009-06-29 15:16:27 ncq Exp $
-__version__ = "$Revision: 1.460 $"
+# $Id: gmGuiMain.py,v 1.461 2009-06-29 15:32:02 ncq Exp $
+__version__ = "$Revision: 1.461 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -429,7 +429,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_gnumed.AppendSeparator()
 
 		item = menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client.'))
-		self.Bind(wx.EVT_MENU(self, self.__on_exit_gnumed, item)
+		self.Bind(wx.EVT_MENU, self.__on_exit_gnumed, item)
 
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
@@ -1058,6 +1058,10 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug('gmTopLevelFrame.__on_exit_gnumed() start')
 		self.Close()	# -> calls wx.EVT_CLOSE handler
 		_log.debug('gmTopLevelFrame.__on_exit_gnumed() end')
+		import threading
+		print "%s active threads:" % threading.activeCount()
+		for t in threading.enumerate():
+			print t
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
 		check_for_updates()
@@ -2926,7 +2930,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.460  2009-06-29 15:16:27  ncq
+# Revision 1.461  2009-06-29 15:32:02  ncq
+# - fix typo
+#
+# Revision 1.460  2009/06/29 15:16:27  ncq
 # - reorder menus as per list discussion
 #
 # Revision 1.459  2009/06/20 22:36:08  ncq
