@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -27,7 +27,8 @@ soap_cat2l10n = {
 	'o': _('soap_O').replace(u'soap_', u''),
 	'a': _('soap_A').replace(u'soap_', u''),
 	'p': _('soap_P').replace(u'soap_', u''),
-	None: _('soap_ADMIN').replace(u'soap_', u'')
+	#None: _('soap_ADMIN').replace(u'soap_', u'')
+	None: gmTools.u_ellipsis
 }
 
 soap_cat2l10n_str = {
@@ -43,7 +44,8 @@ l10n2soap_cat = {
 	_('soap_O').replace(u'soap_', u''): 'o',
 	_('soap_A').replace(u'soap_', u''): 'a',
 	_('soap_P').replace(u'soap_', u''): 'p',
-	_('soap_ADMIN').replace(u'soap_', u''): None
+	#_('soap_ADMIN').replace(u'soap_', u''): None
+	gmTools.u_ellipsis: None
 }
 #============================================================
 class cDiag(gmBusinessDBObject.cBusinessDBObject):
@@ -280,7 +282,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.40  2009-05-13 12:17:43  ncq
+# Revision 1.41  2009-06-29 14:50:30  ncq
+# - use ellipsis for administrational soap rows
+#
+# Revision 1.40  2009/05/13 12:17:43  ncq
 # - enable setting of fk_encounter
 #
 # Revision 1.39  2009/04/16 12:46:26  ncq
