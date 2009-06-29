@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -37,7 +37,7 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#-------------------------------------------------
 	def MenuInfo(self):
-		return ('emr_show', _('tree view'))
+		return ('emr_show', _('EMR &tree'))
 	#-------------------------------------------------
 	def can_receive_focus(self):
 		# need patient
@@ -89,7 +89,11 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.17  2009-06-04 16:31:24  ncq
+# Revision 1.18  2009-06-29 15:13:25  ncq
+# - improved placement in menu hierarchy
+# - add active letters
+#
+# Revision 1.17  2009/06/04 16:31:24  ncq
 # - use set-active-patient from pat-search-widgets
 #
 # Revision 1.16  2008/03/06 18:32:30  ncq

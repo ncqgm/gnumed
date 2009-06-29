@@ -2,7 +2,7 @@
 # GNUmed scan and index plugin
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmScanIdxMedDocsPlugin.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -23,7 +23,7 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo(self):
-		return ('patient', _('Attach documents'))
+		return ('emr', _('&Attach documents'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -32,7 +32,11 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		return 1
 #======================================================================
 # $Log: gmScanIdxMedDocsPlugin.py,v $
-# Revision 1.7  2008-01-27 21:22:18  ncq
+# Revision 1.8  2009-06-29 15:13:25  ncq
+# - improved placement in menu hierarchy
+# - add active letters
+#
+# Revision 1.7  2008/01/27 21:22:18  ncq
 # -rename per Jim
 #
 # Revision 1.6  2008/01/22 12:26:24  ncq

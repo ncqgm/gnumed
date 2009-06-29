@@ -2,8 +2,8 @@
 # GNUmed KOrganizer link
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmKOrganizerPlugin.py,v $
-# $Id: gmKOrganizerPlugin.py,v 1.3 2008-01-14 20:46:20 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmKOrganizerPlugin.py,v 1.4 2009-06-29 15:13:25 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -34,13 +34,17 @@ class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo(self):
-		return ('office', _('Appointments'))
+		return ('office', _('&Appointments'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		return True
 #======================================================================
 # $Log: gmKOrganizerPlugin.py,v $
-# Revision 1.3  2008-01-14 20:46:20  ncq
+# Revision 1.4  2009-06-29 15:13:25  ncq
+# - improved placement in menu hierarchy
+# - add active letters
+#
+# Revision 1.3  2008/01/14 20:46:20  ncq
 # - use detect_external_binary()
 #
 # Revision 1.2  2007/10/12 07:28:25  ncq

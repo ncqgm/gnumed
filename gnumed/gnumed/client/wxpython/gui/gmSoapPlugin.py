@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,7 +44,8 @@ class gmSoapPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('Integrated &Progress notes'))
+		#return ('emr', _('Integrated &Progress notes'))
+		return None
 
 	def can_receive_focus(self):
 		# need patient
@@ -94,7 +95,11 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmSoapPlugin.py,v $
-# Revision 1.4  2009-06-04 16:31:24  ncq
+# Revision 1.5  2009-06-29 15:13:25  ncq
+# - improved placement in menu hierarchy
+# - add active letters
+#
+# Revision 1.4  2009/06/04 16:31:24  ncq
 # - use set-active-patient from pat-search-widgets
 #
 # Revision 1.3  2009/04/12 20:12:23  shilbert

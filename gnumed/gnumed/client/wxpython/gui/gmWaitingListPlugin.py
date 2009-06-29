@@ -3,8 +3,8 @@
 # later to evolve into a more complete "provider-centric hub"
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmWaitingListPlugin.py,v $
-# $Id: gmWaitingListPlugin.py,v 1.1 2009-01-17 23:00:00 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmWaitingListPlugin.py,v 1.2 2009-06-29 15:13:25 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -27,13 +27,17 @@ class gmWaitingListPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo(self):
-		return ('tools', _('waiting list'))
+		return ('office', _('&Waiting list'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		return True
 #======================================================================
 # $Log: gmWaitingListPlugin.py,v $
-# Revision 1.1  2009-01-17 23:00:00  ncq
+# Revision 1.2  2009-06-29 15:13:25  ncq
+# - improved placement in menu hierarchy
+# - add active letters
+#
+# Revision 1.1  2009/01/17 23:00:00  ncq
 # - a new plugin
 #
 # Revision 1.8  2007/10/12 07:28:25  ncq

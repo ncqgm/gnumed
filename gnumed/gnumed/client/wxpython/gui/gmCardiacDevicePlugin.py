@@ -2,7 +2,7 @@
 This is a cardiac device interrogation management plugin 
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -40,7 +40,7 @@ class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
-		return ('tools', _('Show &cardiac devices'))
+		return ('emr', _('Show &cardiac devices'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		# need patient
@@ -94,7 +94,11 @@ if __name__ == '__main__':
 	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
 # $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.6  2009-06-04 16:31:24  ncq
+# Revision 1.7  2009-06-29 15:13:25  ncq
+# - improved placement in menu hierarchy
+# - add active letters
+#
+# Revision 1.6  2009/06/04 16:31:24  ncq
 # - use set-active-patient from pat-search-widgets
 #
 # Revision 1.5  2009/04/16 12:51:17  ncq

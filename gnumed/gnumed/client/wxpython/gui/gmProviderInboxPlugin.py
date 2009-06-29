@@ -3,8 +3,8 @@
 # later to evolve into a more complete "provider-centric hub"
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmProviderInboxPlugin.py,v $
-# $Id: gmProviderInboxPlugin.py,v 1.8 2007-10-12 07:28:25 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmProviderInboxPlugin.py,v 1.9 2009-06-29 15:13:25 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -27,13 +27,17 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo(self):
-		return ('tools', _('provider inbox'))
+		return ('office', _('Provider &inbox'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		return True
 #======================================================================
 # $Log: gmProviderInboxPlugin.py,v $
-# Revision 1.8  2007-10-12 07:28:25  ncq
+# Revision 1.9  2009-06-29 15:13:25  ncq
+# - improved placement in menu hierarchy
+# - add active letters
+#
+# Revision 1.8  2007/10/12 07:28:25  ncq
 # - lots of import related cleanup
 #
 # Revision 1.7  2006/12/17 22:21:05  ncq
