@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.33 2009-02-20 15:41:24 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmAllergy.py,v 1.34 2009-06-29 14:49:42 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -85,7 +85,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['has_allergy']] == 0:
 			return _('no known allergies')
 		if self._payload[self._idx['has_allergy']] == 1:
-			return _('does have allergies')
+			return _('*does* have allergies')
 		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
 		return _('ERROR: unknown allergy state [%s]') % self._payload[self._idx['has_allergy']]
 
@@ -261,7 +261,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.33  2009-02-20 15:41:24  ncq
+# Revision 1.34  2009-06-29 14:49:42  ncq
+# - improved wording of allergy state
+#
+# Revision 1.33  2009/02/20 15:41:24  ncq
 # - fix ensure_has_allergy_state
 #
 # Revision 1.32  2008/10/22 12:03:46  ncq
