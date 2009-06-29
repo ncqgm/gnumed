@@ -18,7 +18,7 @@
 			<implantsite>subpectoral</implantsite>
 			<implantregion>right subclavian</implantregion>
 			<serial>34234324324324</serial>
-			<DevicePart type="Mainboard">
+			<DevicePart type="mainboard">
 				<manufacturer>St. Jude Medical</manufacturer>
 				<model>Atlas DR</model>
 				<softwareversion>2.123.4</softwareversion>
@@ -28,7 +28,7 @@
 					<comment>better battery calibration</comment>
 				</Procedure>
 			</DevicePart>
-			<DevicePart type="Battery">
+			<DevicePart type="battery">
 				<manufacturer>Sanyo</manufacturer>
 				<serial>234334343</serial>
 				<Procedure type="interrogation" dop="23.03.2004">
