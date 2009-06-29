@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.166 2009-06-20 22:33:32 ncq Exp $
-__version__ = "$Revision: 1.166 $"
+# $Id: gmDemographicsWidgets.py,v 1.167 2009-06-29 15:05:24 ncq Exp $
+__version__ = "$Revision: 1.167 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1786,16 +1786,20 @@ def create_new_person(parent=None, activate=False):
 	ea = cNewPatientEAPnl(parent = parent, id = -1)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(_('Adding new patient'))
+	ea._PRW_lastname.SetFocus()
 	result = dlg.ShowModal()
+	pat = ea.data
+	dlg.Destroy()
+
 	if result != wx.ID_OK:
-		dlg.Destroy()
 		return False
 
 	if activate:
 		from Gnumed.wxpython import gmPatSearchWidgets
-		gmPatSearchWidgets.set_active_patient(patient = ea.data)
+		gmPatSearchWidgets.set_active_patient(patient = pat)
 
-	dlg.Destroy()
+	gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+
 	return True
 #============================================================
 from Gnumed.wxGladeWidgets import wxgNewPatientEAPnl
@@ -1906,6 +1910,15 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			if not do_it_anyway:
 				error = True
 
+		if self._DP_dob.GetValue().GetYear() < 1900:
+			print dir(self._DP_dob)
+			error = True
+			gmDispatcher.send(signal = 'statustext', msg = _('The year of birth must lie after 1900.'), beep = True)
+			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+		else:
+			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+		self._DP_dob.Refresh()
+
 		# TOB validation if non-empty
 #		if self._TCTRL_tob.GetValue().strip() != u'':
 
@@ -1959,7 +1972,13 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					field.SetFocus()
 			field.Refresh()
 
-		return (not error)
+		if not is_any_field_filled:
+			return False
+
+		if error:
+			return False
+
+		return True
 	#----------------------------------------------------------------
 	def __register_interests(self):
 
@@ -2046,7 +2065,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return self.__identity_valid_for_save() and self.__address_valid_for_save()
+		return self.__identity_valid_for_save()
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -2069,18 +2088,19 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		name.save()
 
 		# address
-		new_identity.link_address (
-			number = self._TCTRL_number.GetValue().strip(),
-			street = self._PRW_street.GetValue().strip(),
-			postcode = self._PRW_zip.GetValue().strip(),
-			urb = self._PRW_urb.GetValue().strip(),
-			state = self._PRW_region.GetData(),
-			country = self._PRW_country.GetData()
-		)
+		if self.__address_valid_for_save():
+			new_identity.link_address (
+				number = self._TCTRL_number.GetValue().strip(),
+				street = self._PRW_street.GetValue().strip(),
+				postcode = self._PRW_zip.GetValue().strip(),
+				urb = self._PRW_urb.GetValue().strip(),
+				state = self._PRW_region.GetData(),
+				country = self._PRW_country.GetData()
+			)
 
 		# phone
 		new_identity.link_comm_channel (
-			comm_medium = 'homephone',
+			comm_medium = u'homephone',
 			url = gmTools.none_if(self._TCTRL_phone.GetValue().strip(), u''),
 			is_confidential = False
 		)
@@ -3086,7 +3106,14 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.166  2009-06-20 22:33:32  ncq
+# Revision 1.167  2009-06-29 15:05:24  ncq
+# - new person widget:
+#   - set focus to last name
+#   - raise demographics plugin after adding new person
+#   - improved DOB validation
+#   - improved address validation
+#
+# Revision 1.166  2009/06/20 22:33:32  ncq
 # - improved warning on disabling person
 #
 # Revision 1.165  2009/06/20 12:35:49  ncq
