@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.94 2009-06-11 12:37:25 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmEMRStructWidgets.py,v 1.95 2009-06-29 15:05:52 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -229,7 +229,7 @@ def select_encounters(parent=None, patient=None, single_selection=True):
 		parent = parent,
 		msg = _('\nBelow find all encounters of the patient.\n'),
 		caption = _('Showing encounters ...'),
-		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Emtpy'), '#'],
+		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Empty'), '#'],
 		can_return_empty = True,
 		single_selection = single_selection,
 		refresh_callback = refresh,
@@ -1558,7 +1558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.94  2009-06-11 12:37:25  ncq
+# Revision 1.95  2009-06-29 15:05:52  ncq
+# - fix typo
+#
+# Revision 1.94  2009/06/11 12:37:25  ncq
 # - much simplified initial setup of list ctrls
 #
 # Revision 1.93  2009/06/04 16:30:30  ncq
