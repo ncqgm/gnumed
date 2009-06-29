@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.33 2009-06-22 09:28:20 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmNarrativeWidgets.py,v 1.34 2009-06-29 15:09:45 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -216,6 +216,16 @@ def search_narrative_in_emr(parent=None, patient=None):
 		emr = patient.get_emr()
 		rows = emr.search_narrative_simple(val)
 		wx.EndBusyCursor()
+
+		if len(rows) == 0:
+			gmGuiHelpers.gm_show_info (
+				_(
+				'Nothing found for search term:\n'
+				' "%s"'
+				) % val,
+				_('search results')
+			)
+			return True
 
 		txt = u''
 		for row in rows:
@@ -627,15 +637,14 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return True
 	#--------------------------------------------------------
-	def __refresh_recent_notes(self):
-
-		emr = self.__pat.get_emr()
-		problem = self._NB_soap_editors.get_current_problem()
+	def __refresh_recent_notes(self, problem=None):
+		"""This refreshes the recent-notes part."""
 
 		if problem is None:
 			soap = u''
 
 		elif problem['type'] == u'issue':
+			emr = self.__pat.get_emr()
 			soap = u''
 
 			prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
@@ -659,6 +668,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				soap += u'\n'.join(tmp) + u'\n'
 
 		elif problem['type'] == u'episode':
+			emr = self.__pat.get_emr()
 			soap = u''
 
 			prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
@@ -698,6 +708,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._TCTRL_recent_notes.SetValue(soap)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
+
+		self._TCTRL_recent_notes.Refresh()
+#		self.Refresh()
+
+		return True
 	#--------------------------------------------------------
 	def __refresh_encounter(self):
 		"""Update encounter fields.
@@ -840,6 +855,18 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_current_encounter_modified(self):
 		wx.CallAfter(self.__refresh_encounter)
 	#--------------------------------------------------------
+	def _on_problem_focused(self, event):
+		"""Show related note at the bottom."""
+		pass
+	#--------------------------------------------------------
+	def _on_problem_selected(self, event):
+		"""Show related note at the bottom."""
+		emr = self.__pat.get_emr()
+		#problem = self._NB_soap_editors.get_current_problem()
+		self.__refresh_recent_notes (
+			problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
+		)
+	#--------------------------------------------------------
 	def _on_problem_activated(self, event):
 		"""Open progress note editor for this problem.
 		"""
@@ -848,7 +875,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			return True
 
 		if self._NB_soap_editors.add_editor(problem = problem):
-			self.__refresh_recent_notes()
 			return True
 
 		gmGuiHelpers.gm_show_error (
@@ -863,7 +889,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_discard_editor_button_pressed(self, event):
 		self._NB_soap_editors.close_current_editor()
-		self.__refresh_recent_notes()
+		#self.__refresh_recent_notes()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_editor_button_pressed(self, event):
@@ -892,7 +918,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			rfe = self._TCTRL_rfe.GetValue().strip(),
 			aoe = self._TCTRL_aoe.GetValue().strip()
 		)
-		self.__refresh_recent_notes()
+		#self.__refresh_recent_notes()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_encounter_button_pressed(self, event):
@@ -923,8 +949,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _populate_with_data(self):
 		self.__refresh_problem_list()
 		self.__refresh_encounter()
-		# don't ! only do on NB page change, add_editor etc
-		#self.__refresh_recent_notes()
 		return True
 #============================================================
 class cSoapNoteInputNotebook(wx.Notebook):
@@ -1413,7 +1437,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.33  2009-06-22 09:28:20  ncq
+# Revision 1.34  2009-06-29 15:09:45  ncq
+# - inform user when nothing is found during search
+# - refresh recent-notes on problem single-click selection
+#   but NOT anymore on editor changes
+#
+# Revision 1.33  2009/06/22 09:28:20  ncq
 # - improved wording as per list
 #
 # Revision 1.32  2009/06/20 22:39:27  ncq
