@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.111 $"
+__version__ = "$Revision: 1.112 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -288,7 +288,7 @@ def __detect_client_timezone(conn=None):
 		_default_client_timezone = gmDateTime.current_local_iso_numeric_timezone_string
 		_sql_set_timezone = u"set time zone interval %s hour to minute"
 
-	_log.info('client system time zone detected as [%s]', _default_client_timezone)
+	_log.info('client system time zone detected as equivalent to [%s]', _default_client_timezone)
 # =======================================================================
 # login API
 # =======================================================================
@@ -1906,7 +1906,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.111  2009-06-11 13:03:52  ncq
+# Revision 1.112  2009-06-29 15:01:33  ncq
+# - better wording re time zones
+#
+# Revision 1.111  2009/06/11 13:03:52  ncq
 # - add proper hash for v11
 #
 # Revision 1.110  2009/06/04 16:26:22  ncq
