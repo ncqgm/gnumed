@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.38 2009-06-22 09:28:21 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmProviderInboxWidgets.py,v 1.39 2009-06-29 15:10:58 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -191,6 +191,11 @@ def configure_workplace_plugins(parent=None):
 	#-----------------------------------
 	def delete(workplace):
 
+		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
+		if workplace == curr_workplace:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the active workplace.'), beep = True)
+			return False
+
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 			parent,
 			-1,
@@ -354,7 +359,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._LCTRL_provider_inbox.set_columns([u'', _('date'), _('category'), _('type'), _('message')])
 
 		msg = _("""
-		Welcome %(title)s %(lname)s !
+	Welcome %(title)s %(lname)s !
 
 	Below find the new messages in your Inbox.
 """) % {
@@ -533,7 +538,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.38  2009-06-22 09:28:21  ncq
+# Revision 1.39  2009-06-29 15:10:58  ncq
+# - prevent deletion of the active workplace
+#
+# Revision 1.38  2009/06/22 09:28:21  ncq
 # - improved wording as per list
 #
 # Revision 1.37  2009/06/20 12:47:38  ncq
