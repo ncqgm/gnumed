@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.39 2009-06-29 15:10:58 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmProviderInboxWidgets.py,v 1.40 2009-07-01 17:12:11 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -477,8 +477,8 @@ Leaving message in inbox.""") % handler_key,
 			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_context)
 			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed documents'
-				  'for patient [%s]. However, I cannot find'
+				_('Supposedly there are unreviewed documents\n'
+				  'for patient [%s]. However, I cannot find\n'
 				  'that patient in the GNUmed database.'
 				) % pk_context,
 				_('handling provider inbox item')
@@ -491,8 +491,8 @@ Leaving message in inbox.""") % handler_key,
 
 		if not success:
 			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed documents'
-				  'for patient [%s]. However, I cannot find'
+				_('Supposedly there are unreviewed documents\n'
+				  'for patient [%s]. However, I cannot find\n'
 				  'that patient in the GNUmed database.'
 				) % pk_context,
 				_('handling provider inbox item')
@@ -508,8 +508,8 @@ Leaving message in inbox.""") % handler_key,
 		wx.EndBusyCursor()
 		if not success:
 			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed results'
-				  'for patient [%s]. However, I cannot find'
+				_('Supposedly there are unreviewed results\n'
+				  'for patient [%s]. However, I cannot find\n'
 				  'that patient in the GNUmed database.'
 				) % pk_context,
 				_('handling provider inbox item')
@@ -538,7 +538,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.39  2009-06-29 15:10:58  ncq
+# Revision 1.40  2009-07-01 17:12:11  ncq
+# - better wording
+#
+# Revision 1.39  2009/06/29 15:10:58  ncq
 # - prevent deletion of the active workplace
 #
 # Revision 1.38  2009/06/22 09:28:21  ncq
