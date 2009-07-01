@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.81 2009-06-29 15:10:21 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmPlugin.py,v 1.82 2009-07-01 17:10:58 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -121,7 +121,7 @@ class cNotebookPlugin:
 			name_of_menu, menu_item_name = menu_info
 		else:
 			menu_item_name = self.name()
-		gmDispatcher.send(signal = u'plugin_loaded', name = menu_item_name)
+		gmDispatcher.send(signal = u'plugin_loaded', name = menu_item_name, class_name = self.__class__.__name__)
 
 		return True
 	#-----------------------------------------------------
@@ -400,7 +400,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.81  2009-06-29 15:10:21  ncq
+# Revision 1.82  2009-07-01 17:10:58  ncq
+# - send along class name when loading plugin
+#
+# Revision 1.81  2009/06/29 15:10:21  ncq
 # - improved naming of plugins in GNUmed / Go to plugin menu
 #
 # Revision 1.80  2009/04/14 18:34:25  ncq
