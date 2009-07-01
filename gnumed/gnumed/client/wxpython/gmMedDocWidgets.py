@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.178 2009-06-11 12:37:25 ncq Exp $
-__version__ = "$Revision: 1.178 $"
+# $Id: gmMedDocWidgets.py,v 1.179 2009-07-01 17:08:17 ncq Exp $
+__version__ = "$Revision: 1.179 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -711,12 +711,12 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 			return False
 
-		if self._PRW_doc_comment.GetValue().strip() == '':
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('No document comment supplied. Add a comment for this document.'),
-				aTitle = title
-			)
-			return False
+#		if self._PRW_doc_comment.GetValue().strip() == '':
+#			gmGuiHelpers.gm_show_error (
+#				aMessage = _('No document comment supplied. Add a comment for this document.'),
+#				aTitle = title
+#			)
+#			return False
 
 		if self._PhWheel_episode.GetValue().strip() == '':
 			gmGuiHelpers.gm_show_error (
@@ -956,7 +956,7 @@ from your computer.""") % page_fname,
 			new_doc['ext_ref'] = ref
 		# - comment
 		comment = self._PRW_doc_comment.GetLineText(0).strip()
-		if comment != '':
+		if comment != u'':
 			new_doc['comment'] = comment
 		# - save it
 		if not new_doc.save_payload():
@@ -1949,7 +1949,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.178  2009-06-11 12:37:25  ncq
+# Revision 1.179  2009-07-01 17:08:17  ncq
+# - make document comment field optional
+#
+# Revision 1.178  2009/06/11 12:37:25  ncq
 # - much simplified initial setup of list ctrls
 #
 # Revision 1.177  2009/06/10 21:01:10  ncq
