@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.461 2009-06-29 15:32:02 ncq Exp $
-__version__ = "$Revision: 1.461 $"
+# $Id: gmGuiMain.py,v 1.462 2009-07-01 17:16:06 ncq Exp $
+__version__ = "$Revision: 1.462 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -225,8 +225,9 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "GNUmed" -----------------
 		menu_gnumed = wx.Menu()
 
+		# keep this topmost so we don't need an active letter
 		self.menu_plugins = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('Go to &plugin ...'), self.menu_plugins)
+		menu_gnumed.AppendMenu(wx.NewId(), _('Go to plugin ...'), self.menu_plugins)
 
 		ID = wx.NewId()
 		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
@@ -475,15 +476,6 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
 
-#		# - summary
-#		ID_EMR_SUMMARY = wx.NewId()
-#		menu_emr.Append (
-#			ID_EMR_SUMMARY,
-#			_('Show Summary'),
-#			_('Show a summary of the EMR of the active patient')
-#		)
-#		wx.EVT_MENU(self, ID_EMR_SUMMARY, self.__on_show_emr_summary)
-
 		# - submenu "show as"
 		menu_emr_show = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
@@ -491,7 +483,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# - search
 		item = menu_emr.Append(-1, _('Search EMR'), _('Search for data in the EMR of the active patient'))
-		self.Bind(wx.EVT_MENU, self.__on_search_emr)
+		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
 
 		# -- submenu EMR / Add, Edit
 		menu_emr_edit = wx.Menu()
@@ -518,55 +510,11 @@ class gmTopLevelFrame(wx.Frame):
 #		item = menu_emr_edit.Append(-1, )
 #		self.Bind(wx.EVT_MENU, , item)
 
-#		# - submenu EMR / History taking
-#		menu_history = wx.Menu()
-#		menu_emr.AppendMenu(wx.NewId(), _('&History taking ...'), menu_history)
-		# - add health issue
-#		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
-#		menu_history.Append (
-#			ID_ADD_HEALTH_ISSUE_TO_EMR,
-#			_('&Past history (health issue / PMH)'),
-#			_('Add a past/previous medical history item (health issue) to the EMR of the active patient')
-#		)
-#		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
-#		# - document current medication
-#		ID_ADD_DRUGS_TO_EMR = wx.NewId()
-#		menu_history.Append (
-#			ID_ADD_DRUGS_TO_EMR,
-#			_('Current &medication'),
-#			_('Select current medication from drug database and save into progress notes.')
-#		)
-#		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
-#		# - add allergy
-#		ID = wx.NewId()
-#		menu_history.Append (
-#			ID,
-#			_('&Allergies'),
-#			_('Manage documentation of allergies for the current patient.')
-#		)
-#		wx.EVT_MENU(self, ID, self.__on_manage_allergies)
-#		# - edit occupation
-#		ID = wx.NewId()
-#		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
-#		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
-#		# - manage hospital stays
-#		item = menu_history.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
-#		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
-
-#		# - submenu EMR / Observations
-#		menu_obs = wx.Menu()
-#		menu_emr.AppendMenu(wx.NewId(), _('&Observations ...'), menu_obs)
-
-#		# - add measurement
-#		ID = wx.NewId()
-#		menu_obs.Append(ID, _('Add &Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
-#		wx.EVT_MENU(self, ID, self.__on_add_measurement)
-
 		# -- EMR, again
 
-		# - start new encounter
+#		# - start new encounter
 		item = menu_emr.Append(-1, _('Start new encounter'), _('Start a new encounter for the active patient right now.'))
-		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter)
+		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter, item)
 
 		# - list encounters
 		item = menu_emr.Append(-1, _('View encounter list'), _('List all encounters including empty ones.'))
@@ -607,12 +555,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "paperwork" ---------------------
 		menu_paperwork = wx.Menu()
-
-		# submenu "Documents"
-#		menu_docs = wx.Menu()
-#		item = menu_docs.Append(-1, _('&Show docs'), _('Switch to document collection'))
-#		self.Bind(wx.EVT_MENU, self__on_show_docs, item)
-#		item = menu_docs.Append(-1, _('&Add document'), _('Add a new document'))
 
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
@@ -789,10 +731,10 @@ class gmTopLevelFrame(wx.Frame):
 
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
-	def _on_plugin_loaded(self, name=None):
+	def _on_plugin_loaded(self, name, class_name):
 		item = self.menu_plugins.Append(-1, name, _('Raise plugin [%s].') % name)
 		self.Bind(wx.EVT_MENU, self.__on_raise_a_plugin, item)
-		self.menu_id2plugin[item.Id] = name
+		self.menu_id2plugin[item.Id] = class_name
 	#----------------------------------------------
 	def __on_raise_a_plugin(self, evt):
 		gmDispatcher.send (
@@ -1054,14 +996,10 @@ class gmTopLevelFrame(wx.Frame):
 	# GNUmed menu
 	#----------------------------------------------
 	def __on_exit_gnumed(self, event):
-		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
-		_log.debug('gmTopLevelFrame.__on_exit_gnumed() start')
-		self.Close()	# -> calls wx.EVT_CLOSE handler
-		_log.debug('gmTopLevelFrame.__on_exit_gnumed() end')
-		import threading
-		print "%s active threads:" % threading.activeCount()
-		for t in threading.enumerate():
-			print t
+		"""Invoked from Menu GNUmed / Exit (which calls this ID_EXIT handler)."""
+		_log.debug('gmTopLevelFrame._on_exit_gnumed() start')
+		self.Close(True)	# -> calls wx.EVT_CLOSE handler
+		_log.debug('gmTopLevelFrame._on_exit_gnumed() end')
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
 		check_for_updates()
@@ -1997,7 +1935,6 @@ class gmTopLevelFrame(wx.Frame):
 		self._clean_exit()
 		self.Destroy()
 		_log.debug('gmTopLevelFrame.OnClose() end')
-
 		return True
 	#----------------------------------------------
 	def OnExportEMR(self, event):
@@ -2023,7 +1960,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_list_encounters(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot start new encounter. No active patient.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot list encounters. No active patient.'))
 			return False
 		gmEMRStructWidgets.select_encounters()
 	#----------------------------------------------
@@ -2297,9 +2234,16 @@ class gmTopLevelFrame(wx.Frame):
 			print _('You have to manually close this window to finalize shutting down GNUmed.')
 			print _('This is so that you can inspect the console output at your leisure.')
 			print '---=== GNUmed shutdown ===---'
-#			sys.stdin = sys.__stdin__
-#			sys.stdout = sys.__stdout__
-#			sys.stderr = sys.__stderr__
+			sys.stdin = sys.__stdin__
+			sys.stdout = sys.__stdout__
+			sys.stderr = sys.__stderr__
+
+		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
+
+		import threading
+		_log.debug("%s active threads", threading.activeCount())
+		for t in threading.enumerate():
+			_log.debug('thread %s', t)
 
 		_log.debug('gmTopLevelFrame._clean_exit() end')
 	#----------------------------------------------
@@ -2460,10 +2404,11 @@ class gmApp(wx.App):
 		except:
 			pass
 		print "user activity timer stopped"
-		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
-		print "exception handler uninstalled"
 		if _cfg.get(option = 'debug'):
 			self.RestoreStdio()
+#			sys.stdin = sys.__stdin__
+#			sys.stdout = sys.__stdout__
+#			sys.stderr = sys.__stderr__
 		_log.debug('gmApp.OnExit() end')
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -2930,7 +2875,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.461  2009-06-29 15:32:02  ncq
+# Revision 1.462  2009-07-01 17:16:06  ncq
+# - somewhat improved menu layout as per list
+# - use improved plugin names on loading
+#
+# Revision 1.461  2009/06/29 15:32:02  ncq
 # - fix typo
 #
 # Revision 1.460  2009/06/29 15:16:27  ncq
