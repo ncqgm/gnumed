@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.125 2009-06-20 12:47:17 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmPatSearchWidgets.py,v 1.126 2009-07-01 17:10:35 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -854,7 +854,7 @@ def set_active_patient(patient=None, forced_reload=False):
 				) % patient['description_gender']
 			)
 
-	gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
+	return gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
 #------------------------------------------------------------
 class cActivePatientSelector(cPersonSearchCtrl):
 
@@ -1390,7 +1390,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.125  2009-06-20 12:47:17  ncq
+# Revision 1.126  2009-07-01 17:10:35  ncq
+# - need to return state from set_active_patient
+#
+# Revision 1.125  2009/06/20 12:47:17  ncq
 # - only display last encounter in search results if
 #   patient has clinical data (that is, is a patient)
 #
