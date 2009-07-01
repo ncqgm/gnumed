@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.95 2009-06-29 15:05:52 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmEMRStructWidgets.py,v 1.96 2009-07-01 17:07:16 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -770,7 +770,7 @@ select
 		description || _(' (closed)') || ' - ' || health_issue,
 		description || _(' (closed)')
 	) as description,
-	1 as rank
+	2 as rank
 from
 	clin.v_pat_episodes
 where
@@ -1558,7 +1558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.95  2009-06-29 15:05:52  ncq
+# Revision 1.96  2009-07-01 17:07:16  ncq
+# - in episode selector sort closed below unclosed episodes
+#
+# Revision 1.95  2009/06/29 15:05:52  ncq
 # - fix typo
 #
 # Revision 1.94  2009/06/11 12:37:25  ncq
