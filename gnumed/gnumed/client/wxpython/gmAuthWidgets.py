@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.40 2009-06-11 13:04:13 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmAuthWidgets.py,v 1.41 2009-07-01 17:06:33 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -156,7 +156,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			gmGuiHelpers.gm_show_error (_(
 					"Unable to connect to database:\n\n"
 					"%s\n\n"
-					"Please retry with another profile !\n"
+					"Please retry another backend / user / password combination !\n"
 				) % gmPG2.extract_msg_from_pg_exception(e),
 				_('Connecting to backend')
 			)
@@ -343,7 +343,7 @@ class cLoginPanel(wx.Panel):
 		self.pboxgrid.AddGrowableCol(1)
 
 		# PROFILE COMBO
-		label = wx.StaticText( self, -1, _('Backend'), wx.DefaultPosition, wx.DefaultSize, 0)
+		label = wx.StaticText( self, -1, _('Log into'), wx.DefaultPosition, wx.DefaultSize, 0)
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 		self.__backend_profiles = self.__get_backend_profiles()
@@ -724,7 +724,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.40  2009-06-11 13:04:13  ncq
+# Revision 1.41  2009-07-01 17:06:33  ncq
+# - improved wording
+#
+# Revision 1.40  2009/06/11 13:04:13  ncq
 # - cleanup
 #
 # Revision 1.39  2009/06/11 11:07:57  ncq
