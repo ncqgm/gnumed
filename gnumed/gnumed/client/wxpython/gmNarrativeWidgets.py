@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.34 2009-06-29 15:09:45 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmNarrativeWidgets.py,v 1.35 2009-07-01 17:09:06 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -710,7 +710,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
 
 		self._TCTRL_recent_notes.Refresh()
-#		self.Refresh()
 
 		return True
 	#--------------------------------------------------------
@@ -735,6 +734,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], u''))
 		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], u''))
+
+		self._PRW_encounter_type.Refresh()
+		self._PRW_encounter_start.Refresh()
+		self._PRW_encounter_end.Refresh()
+		self._TCTRL_rfe.Refresh()
+		self._TCTRL_aoe.Refresh()
 	#--------------------------------------------------------
 	def __encounter_modified(self):
 		"""Assumes that the field data is valid."""
@@ -889,7 +894,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_discard_editor_button_pressed(self, event):
 		self._NB_soap_editors.close_current_editor()
-		#self.__refresh_recent_notes()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_editor_button_pressed(self, event):
@@ -918,7 +922,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			rfe = self._TCTRL_rfe.GetValue().strip(),
 			aoe = self._TCTRL_aoe.GetValue().strip()
 		)
-		#self.__refresh_recent_notes()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_encounter_button_pressed(self, event):
@@ -1437,7 +1440,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.34  2009-06-29 15:09:45  ncq
+# Revision 1.35  2009-07-01 17:09:06  ncq
+# - refresh fields explicitly when active encounter is switched
+#
+# Revision 1.34  2009/06/29 15:09:45  ncq
 # - inform user when nothing is found during search
 # - refresh recent-notes on problem single-click selection
 #   but NOT anymore on editor changes
