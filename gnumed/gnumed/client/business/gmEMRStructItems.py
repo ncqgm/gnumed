@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.140 $"
+__version__ = "$Revision: 1.141 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -1003,6 +1003,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	queries.append({'cmd': cEncounter._cmd_fetch_payload % u"currval('clin.encounter_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True, get_col_idx=True)
 	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+
 	return encounter
 #-----------------------------------------------------------
 def update_encounter_type(description=None, l10n_description=None):
@@ -1289,7 +1290,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.140  2009-06-29 14:59:18  ncq
+# Revision 1.141  2009-07-01 17:05:56  ncq
+# - cleanup
+#
+# Revision 1.140  2009/06/29 14:59:18  ncq
 # - add get-latest-soap
 #
 # Revision 1.139  2009/06/20 12:33:52  ncq
