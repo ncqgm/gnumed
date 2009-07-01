@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.293 2009-06-29 14:58:29 ncq Exp $
-__version__ = "$Revision: 1.293 $"
+# $Id: gmClinicalRecord.py,v 1.294 2009-07-01 17:14:40 ncq Exp $
+__version__ = "$Revision: 1.294 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1306,6 +1306,7 @@ where
 		self.__encounter.set_active(staff_id = _me['pk_staff'])
 		if signal is not None:
 			gmDispatcher.send(signal)
+
 		gmDispatcher.send(u'current_encounter_switched')
 		return True
 
@@ -1999,7 +2000,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.293  2009-06-29 14:58:29  ncq
+# Revision 1.294  2009-07-01 17:14:40  ncq
+# - cleanup
+#
+# Revision 1.293  2009/06/29 14:58:29  ncq
 # - fix emr stats getter which returned stats over *all* patients :-)
 #
 # Revision 1.292  2009/06/22 09:20:43  ncq
