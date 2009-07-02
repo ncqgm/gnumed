@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.462 2009-07-01 17:16:06 ncq Exp $
-__version__ = "$Revision: 1.462 $"
+# $Id: gmGuiMain.py,v 1.463 2009-07-02 20:53:24 ncq Exp $
+__version__ = "$Revision: 1.463 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1934,7 +1934,9 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug('gmTopLevelFrame.OnClose() start')
 		self._clean_exit()
 		self.Destroy()
+		gmLog2.flush()
 		_log.debug('gmTopLevelFrame.OnClose() end')
+		#open('gm-from-cvs.bat').close()
 		return True
 	#----------------------------------------------
 	def OnExportEMR(self, event):
@@ -2185,7 +2187,22 @@ class gmTopLevelFrame(wx.Frame):
 		"""
 		_log.debug('gmTopLevelFrame._clean_exit() start')
 
-		self.timer.Stop()
+		# shut down backend notifications listener
+		listener = gmBackendListener.gmBackendListener()
+		try:
+			listener.shutdown()
+		except:
+			_log.exception('cannot stop backend notifications listener thread')
+
+		# shutdown application scripting listener
+		if _scripting_listener is not None:
+			try:
+				_scripting_listener.shutdown()
+			except:
+				_log.exception('cannot stop scripting listener thread')
+
+		# shutdown timers
+		self.clock_update_timer.Stop()
 		gmTimer.shutdown()
 		gmPhraseWheel.shutdown()
 
@@ -2198,21 +2215,11 @@ class gmTopLevelFrame(wx.Frame):
 				print call_back
 				_log.exception('callback [%s] failed', call_back)
 
-		# shut down backend notifications listener
-		listener = gmBackendListener.gmBackendListener()
-		listener.stop_thread()
-
-		# shutdown application scripting listener
-		if _scripting_listener is not None:
-			try:
-				_scripting_listener.shutdown()
-			except:
-				_log.exception('cannot stop scripting listener thread')
-
-		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
-
 		# signal imminent demise to plugins
 		gmDispatcher.send(u'application_closing')
+
+		# do not show status line messages anymore
+		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
 
 		# remember GUI size
 		curr_width, curr_height = self.GetClientSizeTuple()
@@ -2229,17 +2236,17 @@ class gmTopLevelFrame(wx.Frame):
 			workplace = gmSurgery.gmCurrentPractice().active_workplace
 		)
 
+		# restore stdout/stderr
 		if _cfg.get(option = 'debug'):
 			print '---=== GNUmed shutdown ===---'
 			print _('You have to manually close this window to finalize shutting down GNUmed.')
 			print _('This is so that you can inspect the console output at your leisure.')
 			print '---=== GNUmed shutdown ===---'
-			sys.stdin = sys.__stdin__
-			sys.stdout = sys.__stdout__
-			sys.stderr = sys.__stderr__
 
+		# shutdown GUI exception handling
 		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
 
+		# are we clean ?
 		import threading
 		_log.debug("%s active threads", threading.activeCount())
 		for t in threading.enumerate():
@@ -2282,11 +2289,11 @@ class gmTopLevelFrame(wx.Frame):
 	def SetupStatusBar(self):
 		sb = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
 		sb.SetStatusWidths([-1, 150])
-		#add time and date display to the right corner of the status bar
-		self.timer = wx.PyTimer(self._cb_update_clock)
+		# add time and date display to the right corner of the status bar
+		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
 		self._cb_update_clock()
-		#update every second
-		self.timer.Start(milliseconds=1000)
+		# update every second
+		self.clock_update_timer.Start(milliseconds = 1000)
 	#----------------------------------------------
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
@@ -2316,15 +2323,6 @@ class gmTopLevelFrame(wx.Frame):
 	#-----------------------------------------------
 	def OnPanelSize (self, event):
 		wx.LayoutAlgorithm().LayoutWindow (self.LayoutMgr, self.nb)
-	#------------------------------------------------
-#	def OnSashDrag (self, event):
-#		if event.GetDragStatus() == wx.SASH_STATUS_OUT_OF_RANGE:
-#			return
-#		self.leftbox.SetDefaultSize(wx.Size(event.GetDragRect().width, 1000))
-#		self.bar_width = event.GetDragRect().width
-#		wx.LayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
-#		self.nb.Refresh()
-
 #==============================================================================
 class gmApp(wx.App):
 
@@ -2406,9 +2404,9 @@ class gmApp(wx.App):
 		print "user activity timer stopped"
 		if _cfg.get(option = 'debug'):
 			self.RestoreStdio()
-#			sys.stdin = sys.__stdin__
-#			sys.stdout = sys.__stdout__
-#			sys.stderr = sys.__stderr__
+			sys.stdin = sys.__stdin__
+			sys.stdout = sys.__stdout__
+			sys.stderr = sys.__stderr__
 		_log.debug('gmApp.OnExit() end')
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -2875,7 +2873,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.462  2009-07-01 17:16:06  ncq
+# Revision 1.463  2009-07-02 20:53:24  ncq
+# - flush log during close
+# - slightly safer shutdown
+#
+# Revision 1.462  2009/07/01 17:16:06  ncq
 # - somewhat improved menu layout as per list
 # - use improved plugin names on loading
 #
