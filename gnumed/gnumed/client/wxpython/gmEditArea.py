@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.124 2009-04-21 16:59:59 ncq Exp $
+# $Id: gmEditArea.py,v 1.125 2009-07-02 20:51:00 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.124 $"
+__version__ = "$Revision: 1.125 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -159,7 +159,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		szr = self._PNL_ea.GetContainingSizer()
 		szr.Remove(self._PNL_ea)
 		ea.Reparent(self)
-		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
+		szr.Add(ea, 0, wx.EXPAND, 0)
 		self._PNL_ea = ea
 
 		if single_entry:
@@ -2196,7 +2196,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.124  2009-04-21 16:59:59  ncq
+# Revision 1.125  2009-07-02 20:51:00  ncq
+# - fine-tune layout of ea pnl
+#
+# Revision 1.124  2009/04/21 16:59:59  ncq
 # - edit area dlg now takes single_entry argument
 #
 # Revision 1.123  2009/04/03 09:48:04  ncq
