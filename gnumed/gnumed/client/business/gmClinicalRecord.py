@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.294 2009-07-01 17:14:40 ncq Exp $
-__version__ = "$Revision: 1.294 $"
+# $Id: gmClinicalRecord.py,v 1.295 2009-07-02 20:56:49 ncq Exp $
+__version__ = "$Revision: 1.295 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1430,8 +1430,10 @@ where
 			return False
 		if not attach:
 			return False
+
 		# attach to existing
 		self.current_encounter = encounter
+
 		_log.debug('"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
@@ -2000,7 +2002,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.294  2009-07-01 17:14:40  ncq
+# Revision 1.295  2009-07-02 20:56:49  ncq
+# - cleanup
+#
+# Revision 1.294  2009/07/01 17:14:40  ncq
 # - cleanup
 #
 # Revision 1.293  2009/06/29 14:58:29  ncq
