@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.112 $"
+__version__ = "$Revision: 1.113 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1132,7 +1132,7 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 	#--------------------------------------------------
 	def shutdown(self):
 		for conn_key in self._used.keys():
-			_log.debug('closing database connection [%s]', conn_key)
+			_log.debug('closing pooled database connection, pool key: %s, backend PID: %s', conn_key, self._used[conn_key].get_backend_pid())
 			self._used[conn_key].original_close()
 # -----------------------------------------------------------------------
 def get_raw_connection(dsn=None, verbose=False, readonly=True):
@@ -1169,6 +1169,8 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 			raise cAuthenticationError, (dsn, msg), tb
 
 		raise
+
+	_log.debug('new database connection, backend PID: %s, readonly: %s', conn.get_backend_pid(), readonly)
 
 	# do first-time stuff
 	global postgresql_version
@@ -1906,7 +1908,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.112  2009-06-29 15:01:33  ncq
+# Revision 1.113  2009-07-02 20:48:24  ncq
+# - log creation/closure of connections with PID
+#
+# Revision 1.112  2009/06/29 15:01:33  ncq
 # - better wording re time zones
 #
 # Revision 1.111  2009/06/11 13:03:52  ncq
