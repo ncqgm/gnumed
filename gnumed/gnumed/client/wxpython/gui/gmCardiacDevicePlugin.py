@@ -2,7 +2,7 @@
 This is a cardiac device interrogation management plugin 
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
 	# GNUmed
 	from Gnumed.business import gmPerson
-	from Gnumed.wxpython import gmMeasurementWidgets
+	from Gnumed.wxpython import gmMeasurementWidgets,gmPatSearchWidgets
 
 	_log.info("starting Notebooked cardiac device input plugin...")
 
@@ -94,7 +94,10 @@ if __name__ == '__main__':
 	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
 # $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.7  2009-06-29 15:13:25  ncq
+# Revision 1.8  2009-07-02 12:14:25  shilbert
+# - added missing import
+#
+# Revision 1.7  2009/06/29 15:13:25  ncq
 # - improved placement in menu hierarchy
 # - add active letters
 #
