@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.126 2009-07-01 17:10:35 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmPatSearchWidgets.py,v 1.127 2009-07-02 20:56:26 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -1228,7 +1228,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				pat = curr_pat
 
 		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = pat)
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.ShowModal()
 
 		self._PRW_search_patient.person = None
@@ -1239,7 +1239,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		ea = cWaitingListEntryEditAreaPnl(self, -1, entry = item)
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.ShowModal()
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
@@ -1390,7 +1390,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.126  2009-07-01 17:10:35  ncq
+# Revision 1.127  2009-07-02 20:56:26  ncq
+# - used edit area dlg2
+#
+# Revision 1.126  2009/07/01 17:10:35  ncq
 # - need to return state from set_active_patient
 #
 # Revision 1.125  2009/06/20 12:47:17  ncq
