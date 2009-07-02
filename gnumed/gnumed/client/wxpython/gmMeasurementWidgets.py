@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.50 2009-06-22 09:26:49 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmMeasurementWidgets.py,v 1.51 2009-07-02 20:54:05 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -462,9 +462,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		d = d[0]
 
-		print "creating cell tooltip"
-		#print d
-
 		has_normal_min_or_max = (d['val_normal_min'] is not None) or (d['val_normal_max'] is not None)
 		if has_normal_min_or_max:
 			normal_min_max = u'%s - %s' % (
@@ -860,9 +857,15 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._schedule_data_reget)
 		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		wx.CallAfter(self.__on_post_patient_selection)
+	#--------------------------------------------------------
+	def __on_post_patient_selection(self):
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
@@ -1543,7 +1546,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.50  2009-06-22 09:26:49  ncq
+# Revision 1.51  2009-07-02 20:54:05  ncq
+# - fix bug where second patient didn't show measurements on patient change
+#
+# Revision 1.50  2009/06/22 09:26:49  ncq
 # - people didn't like the bandwidth calculation
 #
 # Revision 1.49  2009/06/20 22:38:05  ncq
