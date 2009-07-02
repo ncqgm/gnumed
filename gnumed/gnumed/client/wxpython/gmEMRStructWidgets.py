@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.96 2009-07-01 17:07:16 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmEMRStructWidgets.py,v 1.97 2009-07-02 20:50:37 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -91,7 +91,7 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 	ea = cHospitalStayEditAreaPnl(parent = parent, id = -1)
 	ea.data = hospital_stay
 	ea.mode = gmTools.coalesce(hospital_stay, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospital stay'), _('Editing a hospital stay')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -1558,7 +1558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.96  2009-07-01 17:07:16  ncq
+# Revision 1.97  2009-07-02 20:50:37  ncq
+# - use generic EA dlg 2
+#
+# Revision 1.96  2009/07/01 17:07:16  ncq
 # - in episode selector sort closed below unclosed episodes
 #
 # Revision 1.95  2009/06/29 15:05:52  ncq
