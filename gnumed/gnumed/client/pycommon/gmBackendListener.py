@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -41,13 +41,15 @@ class gmBackendListener(gmBorg.cBorg):
 		# this lock, when it succeeds it will quit
 		self._quit_lock = threading.Lock()
 		# take the lock now so it cannot be taken by the worker
-		# thread until it is released in stop_thread()
+		# thread until it is released in shutdown()
 		if not self._quit_lock.acquire(0):
-			_log.error('cannot acquire thread quit lock !?! aborting')
-			raise gmExceptions.ConstructorError, "cannot acquire thread quit-lock"
+			_log.error('cannot acquire thread-quit lock ! aborting')
+			raise gmExceptions.ConstructorError, "cannot acquire thread-quit lock"
 
 		self._conn = conn
-		self._conn.set_isolation_level(0)
+		self.backend_pid = self._conn.get_backend_pid()
+		_log.debug('connection has backend PID [%s]', self.backend_pid)
+		self._conn.set_isolation_level(0)		# autocommit mode
 		self._cursor = self._conn.cursor()
 		self._conn_lock = threading.Lock()		# lock for access to connection object
 
@@ -66,8 +68,9 @@ class gmBackendListener(gmBorg.cBorg):
 	#-------------------------------
 	# public API
 	#-------------------------------
-	def stop_thread(self):
+	def shutdown(self):
 		if self._listener_thread is None:
+			self.__shutdown_connection()
 			return
 
 		_log.info('stopping backend notifications listener thread')
@@ -94,6 +97,8 @@ class gmBackendListener(gmBorg.cBorg):
 			self.__unregister_unspecific_notifications()
 		except:
 			_log.exception('unable to unregister unspecific notifications')
+
+		self.__shutdown_connection()
 
 		return
 	#-------------------------------
@@ -133,15 +138,6 @@ class gmBackendListener(gmBorg.cBorg):
 		_log.info('configured unspecific notifications:')
 		_log.info('%s' % self.unspecific_notifications)
 		gmDispatcher.known_signals.extend(self.unspecific_notifications)
-
-		# determine our backend PID
-		cmd = u'select pg_backend_pid()'
-		self._conn_lock.acquire(1)
-		self._cursor.execute(cmd)
-		self._conn_lock.release()
-		rows = self._cursor.fetchall()
-		self.backend_pid = rows[0][0]
-		_log.info('listener process PID: [%s]' % self.backend_pid)
 
 		# listen to patient changes inside the local client
 		# so we can re-register patient specific notifications
@@ -195,6 +191,13 @@ class gmBackendListener(gmBorg.cBorg):
 			self._conn_lock.acquire(1)
 			self._cursor.execute(cmd)
 			self._conn_lock.release()
+	#-------------------------------
+	def __shutdown_connection(self):
+		_log.debug('shutting down connection with backend PID [%s]', self.backend_pid)
+		self._conn_lock.acquire(1)
+		self._conn.rollback()
+		self._conn.close()
+		self._conn_lock.release()
 	#-------------------------------
 	def __start_thread(self):
 		if self._conn is None:
@@ -340,7 +343,7 @@ if __name__ == "__main__":
 		except KeyboardInterrupt:
 			print "cancelled by user"
 
-		listener.stop_thread()
+		listener.shutdown()
 		listener.unregister_callback('patient_changed', OnPatientModified)
 	#-------------------------------
 	def run_monitor():
@@ -378,7 +381,7 @@ if __name__ == "__main__":
 			raw_input()
 
 		print "cleanup"
-		listener.stop_thread()
+		listener.shutdown()
 
 		print "shutting down backend notifications monitor"
 	#-------------------------------
@@ -390,7 +393,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.21  2009-02-12 16:21:15  ncq
+# Revision 1.22  2009-07-02 20:47:34  ncq
+# - stop-thread -> shutdown
+# - properly shutdown connection
+#
+# Revision 1.21  2009/02/12 16:21:15  ncq
 # - be more careful about signal de-registration
 #
 # Revision 1.20  2009/01/21 18:53:04  ncq
