@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.141 $"
+__version__ = "$Revision: 1.142 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -96,6 +96,11 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
+	#--------------------------------------------------------
+	def get_episodes(self):
+		cmd = u"select * from clin.v_pat_episodes where pk_health_issue = %(pk)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = True)
+		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 	#--------------------------------------------------------
 	def close_expired_episode(self, ttl=180):
 		"""ttl in days"""
@@ -257,6 +262,25 @@ age (
 				gmTools.u_right_double_angle_quote
 			))
 		del stays
+
+		epis = self.get_episodes()
+		# documents
+		doc_folder = patient.get_document_folder()
+		docs = doc_folder.get_documents(episodes = [ e['pk_episode'] for e in epis ])
+
+		if len(docs) > 0:
+			lines.append('')
+			lines.append(_('Documents: %s') % len(docs))
+		del docs
+
+		# rest results
+		tests = emr.get_test_results_by_date(episodes = [ e['pk_episode'] for e in epis ])
+		if len(tests) > 0:
+			lines.append('')
+			lines.append(_('Measurements and Results: %s') % len(tests))
+		del tests
+
+		del epis
 
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
@@ -574,6 +598,17 @@ from (
 				gmTools.coalesce(s['hospital'], u'')
 			))
 		del stays
+
+		# test results
+		tests = emr.get_test_results_by_date(episodes = [ self._payload[self._idx['pk_episode']] ])
+
+		if len(tests) > 0:
+			lines.append('')
+			lines.append(_('Measurements and Results:'))
+
+		for t in tests:
+			lines.extend(t.format())
+		del tests
 
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
@@ -1290,7 +1325,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.141  2009-07-01 17:05:56  ncq
+# Revision 1.142  2009-07-02 20:46:17  ncq
+# - get-episodes in issue
+# - include docs/tests in issue/episode formatting
+#
+# Revision 1.141  2009/07/01 17:05:56  ncq
 # - cleanup
 #
 # Revision 1.140  2009/06/29 14:59:18  ncq
