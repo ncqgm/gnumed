@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.35 2009-07-01 17:09:06 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmNarrativeWidgets.py,v 1.36 2009-07-02 20:55:48 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -15,7 +15,7 @@ import wx.lib.expando as wxexpando
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime, gmPG2
-from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative
+from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg, wxgSoapNoteExpandoEditAreaPnl
@@ -867,7 +867,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_problem_selected(self, event):
 		"""Show related note at the bottom."""
 		emr = self.__pat.get_emr()
-		#problem = self._NB_soap_editors.get_current_problem()
 		self.__refresh_recent_notes (
 			problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
 		)
@@ -879,7 +878,14 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		if problem is None:
 			return True
 
-		if self._NB_soap_editors.add_editor(problem = problem):
+		dbcfg = gmCfg.cCfgSQL()
+		allow_duplicate_editors = bool(dbcfg.get2 (
+			option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user',
+			default = False
+		))
+		if self._NB_soap_editors.add_editor(problem = problem, allow_same_problem = allow_duplicate_editors):
 			return True
 
 		gmGuiHelpers.gm_show_error (
@@ -968,7 +974,6 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		kwargs['style'] = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER
 
 		wx.Notebook.__init__(self, *args, **kwargs)
-#		self.__register_interests()
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -999,7 +1004,8 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			if len(label) > 23:
 				label = label[:21] + gmTools.u_ellipsis
 
-		if allow_same_problem:
+		# new unassociated problem or dupes allowed
+		if (problem_to_add is None) or allow_same_problem:
 			new_page = cSoapNoteExpandoEditAreaPnl(parent = self, id = -1, problem = problem_to_add)
 			result = self.AddPage (
 				page = new_page,
@@ -1008,28 +1014,8 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			)
 			return result
 
-		# new unassociated problem
-		if problem_to_add is None:
-			# check for dupes
-			for page_idx in range(self.GetPageCount()):
-				page = self.GetPage(page_idx)
-				# found
-				if page.problem is None:
-					self.SetSelection(page_idx)
-					gmDispatcher.send(signal = u'statustext', msg = u'Raising existing editor.', beep = True)
-					return True
-				continue
-			# not found
-			new_page = cSoapNoteExpandoEditAreaPnl(parent = self, id = -1, problem = problem_to_add)
-			result = self.AddPage (
-				page = new_page,
-				text = label,
-				select = True
-			)
-			return result
-
-		# real problem
-		# - raise existing editor ?
+		# real problem, no dupes allowed
+		# - raise existing editor
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
 
@@ -1053,7 +1039,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 					return True
 				continue
 
-		# - add new editor
+		# - or add new editor
 		new_page = cSoapNoteExpandoEditAreaPnl(parent = self, id = -1, problem = problem_to_add)
 		result = self.AddPage (
 			page = new_page,
@@ -1440,7 +1426,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.35  2009-07-01 17:09:06  ncq
+# Revision 1.36  2009-07-02 20:55:48  ncq
+# - properly honor allow-same-problem on non-new editors only
+#
+# Revision 1.35  2009/07/01 17:09:06  ncq
 # - refresh fields explicitly when active encounter is switched
 #
 # Revision 1.34  2009/06/29 15:09:45  ncq
