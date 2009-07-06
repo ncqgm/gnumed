@@ -10,7 +10,7 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         from Gnumed.wxpython import gmListWidgets
 
         # begin wxGlade: wxgGenericListSelectorDlg.__init__
-        kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
+        kwds["style"] = wx.CAPTION|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
         self._LBL_message = wx.StaticText(self, -1, "")
         self._LCTRL_items = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.NO_BORDER)
