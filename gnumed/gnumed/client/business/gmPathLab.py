@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.72 2009-06-04 14:45:15 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmPathLab.py,v 1.73 2009-07-06 14:56:54 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -197,21 +197,21 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.test_result set
 				clin_when = %(clin_when)s,
-				narrative = %(comment)s,
+				narrative = nullif(trim(%(comment)s), ''),
 				val_num = %(val_num)s,
-				val_alpha = %(val_alpha)s,
-				val_unit = %(val_unit)s,
+				val_alpha = nullif(trim(%(val_alpha)s), ''),
+				val_unit = nullif(trim(%(val_unit)s), ''),
 				val_normal_min = %(val_normal_min)s,
 				val_normal_max = %(val_normal_max)s,
-				val_normal_range = %(val_normal_range)s,
+				val_normal_range = nullif(trim(%(val_normal_range)s), ''),
 				val_target_min = %(val_target_min)s,
 				val_target_max = %(val_target_max)s,
-				val_target_range = %(val_target_range)s,
-				abnormality_indicator = %(abnormality_indicator)s,
-				norm_ref_group = %(norm_ref_group)s,
-				note_test_org = %(note_test_org)s,
-				material = %(material)s,
-				material_detail = %(material_detail)s,
+				val_target_range = nullif(trim(%(val_target_range)s), ''),
+				abnormality_indicator = nullif(trim(%(abnormality_indicator)s), ''),
+				norm_ref_group = nullif(trim(%(norm_ref_group)s), ''),
+				note_test_org = nullif(trim(%(note_test_org)s), ''),
+				material = nullif(trim(%(material)s), ''),
+				material_detail = nullif(trim(%(material_detail)s), ''),
 				fk_intended_reviewer = %(pk_intended_reviewer)s,
 				fk_encounter = %(pk_encounter)s,
 				fk_episode = %(pk_episode)s,
@@ -245,35 +245,39 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'pk_test_type'
 	]
 	#--------------------------------------------------------
-	def format(self):
+	def format(self, with_review=True, with_comments=True, date_format='%Y-%m-%d %H:%M'):
 
 		lines = []
 
 		lines.append(u' %s %s (%s): %s %s%s' % (
-			self._payload[self._idx['clin_when']].strftime('%d.%m. %H:%M'),
+			self._payload[self._idx['clin_when']].strftime(date_format),
 			self._payload[self._idx['unified_abbrev']],
 			self._payload[self._idx['unified_name']],
 			self._payload[self._idx['unified_val']],
 			self._payload[self._idx['val_unit']],
 			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)')
 		))
-		if gmTools.coalesce(self._payload[self._idx['comment']], u'').strip() != u'':
-			lines.append(_('   Doc: %s') % self._payload[self._idx['comment']].strip())
-		if gmTools.coalesce(self._payload[self._idx['note_test_org']], u'').strip() != u'':
-			lines.append(_('   MTA: %s') % self._payload[self._idx['note_test_org']].strip())
-		if self._payload[self._idx['reviewed']]:
-			if self._payload[self._idx['is_clinically_relevant']]:
-				lines.append(u'   %s  %s: %s' % (
-					self._payload[self._idx['last_reviewer']],
-					self._payload[self._idx['last_reviewed']].strftime('%x %H:%M'),
-					gmTools.bool2subst (
-						self._payload[self._idx['is_technically_abnormal']],
-						_('abnormal and relevant'),
-						_('normal but relevant')
-					)
-				))
-		else:
-			lines.append(_('   unreviewed'))
+
+		if with_comments:
+			if gmTools.coalesce(self._payload[self._idx['comment']], u'').strip() != u'':
+				lines.append(_('   Doc: %s') % self._payload[self._idx['comment']].strip())
+			if gmTools.coalesce(self._payload[self._idx['note_test_org']], u'').strip() != u'':
+				lines.append(_('   MTA: %s') % self._payload[self._idx['note_test_org']].strip())
+
+		if with_review:
+			if self._payload[self._idx['reviewed']]:
+				if self._payload[self._idx['is_clinically_relevant']]:
+					lines.append(u'   %s  %s: %s' % (
+						self._payload[self._idx['last_reviewer']],
+						self._payload[self._idx['last_reviewed']].strftime('%Y-%m-%d %H:%M'),
+						gmTools.bool2subst (
+							self._payload[self._idx['is_technically_abnormal']],
+							_('abnormal and relevant'),
+							_('normal but relevant')
+						)
+					))
+			else:
+				lines.append(_('   unreviewed'))
 
 		return lines
 	#--------------------------------------------------------
@@ -706,7 +710,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.72 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.73 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -1001,7 +1005,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.72  2009-06-04 14:45:15  ncq
+# Revision 1.73  2009-07-06 14:56:54  ncq
+# - make update of test result more resilient re "" == null
+# - much improved test result formatting
+#
+# Revision 1.72  2009/06/04 14:45:15  ncq
 # - re-import lost adjustments
 #
 # Revision 1.72  2009/05/28 10:45:57  ncq
