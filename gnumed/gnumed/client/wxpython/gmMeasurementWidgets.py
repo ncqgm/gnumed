@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.51 2009-07-02 20:54:05 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmMeasurementWidgets.py,v 1.52 2009-07-06 17:15:45 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -314,7 +314,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		emr = self.__patient.get_emr()
 
-		test_type_labels = [ u'%s (%s)' % (test[1], test[0]) for test in emr.get_test_types_for_results() ]
+		#test_type_labels = [ u'%s (%s)' % (test[1], test[0]) for test in emr.get_test_types_for_results() ]
+		test_type_labels = [ u'%s' % test[0] for test in emr.get_test_types_for_results() ]
 		if len(test_type_labels) == 0:
 			return
 
@@ -336,7 +337,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
+			#row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
+			row = test_type_labels.index(u'%s' % result['unified_name'])
 			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
 
 			try:
@@ -395,29 +397,31 @@ class cMeasurementsGrid(wx.grid.Grid):
 					if sub_result['you_are_responsible'] and not sub_result['review_by_you']:
 						missing_review = True
 
-				# can we display the full sub_result information ?
+				# can we display the full sub_result length ?
+				if len(sub_result['unified_val']) > 8:
+					tmp = u'%.7s%s' % (sub_result['unified_val'][:7], gmTools.u_ellipsis)
+				else:
+					tmp = u'%.8s' % sub_result['unified_val'][:8]
+
+				# abnormal ?
+				tmp = u'%s%.6s' % (tmp, abnormality_indicator)
+
+				# is there a comment ?
 				has_sub_result_comment = gmTools.coalesce (
 					gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
 					u''
 				).strip() != u''
+				if has_sub_result_comment:
+					tmp = u'%s %s' % (tmp, gmTools.u_ellipsis)
 
-				# no - display ... and truncate to 7 chars
-				if (len(sub_result['unified_val']) > 8) or (has_sub_result_comment):
-					tmp = u'%.7s%s%.6s%.2s' % (
-						sub_result['unified_val'][:7],
-						gmTools.u_ellipsis,
-						abnormality_indicator,
-						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
-					)
-				# yes - display fully up to 8 chars
-				else:
-					tmp = u'%.8s%.6s%.2s' % (
-						sub_result['unified_val'][:8],
-						abnormality_indicator,
-						gmTools.bool2subst(missing_review, u' ' + gmTools.u_writing_hand, u'')
-					)
+				# lacking a review ?
+				if missing_review:
+					tmp = u'%s %s' % (tmp, gmTools.u_writing_hand)
+
+				# part of a multi-result cell ?
 				if len(self.__cell_data[col][row]) > 1:
 					tmp = u'%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
+
 				vals2display.append(tmp)
 
 			self.SetCellValue(row, col, u'\n'.join(vals2display))
@@ -450,7 +454,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__cell_data = {}
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
-		# FIXME: panel, request details
+		# FIXME: add panel/battery, request details
 
 		try:
 			d = self.__cell_data[col][row]
@@ -459,6 +463,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		if d is None:
 			return u''
+
+		is_multi_cell = False
+		if len(d) > 1:
+			is_multi_cell = True
 
 		d = d[0]
 
@@ -481,7 +489,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 			clinical_min_max = u''
 
 		# header
-		tt = _(u'Measurement details of most recent (topmost) result:               \n')
+		if is_multi_cell:
+			tt = _(u'Measurement details of most recent (topmost) result:               \n')
+		else:
+			tt = _(u'Measurement details:                                               \n')
 
 		# basics
 		tt += u' ' + _(u'Date: %s\n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
@@ -987,6 +998,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		self.__register_interests()
+
+		self.successful_save_msg = _('Successfully saved measurement.')
 	#--------------------------------------------------------
 	# generic edit area mixin API
 	#--------------------------------------------------------
@@ -1052,8 +1065,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	def _refresh_as_new_from_existing(self):
 		self._refresh_from_existing()
 
+		self._PRW_test.SetText(u'', None, True)
 		self._TCTRL_result.SetValue(u'')
+		self._PRW_units.SetText(u'', None, True)
 		self._PRW_abnormality_indicator.SetText(u'', None, True)
+		# self._DPRW_evaluated
 		self._TCTRL_note_test_org.SetValue(u'')
 		self._TCTRL_narrative.SetValue(u'')
 		self._CHBOX_review.SetValue(False)
@@ -1062,8 +1078,15 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_abnormal.Enable(False)
 		self._CHBOX_relevant.Enable(False)
 		self._TCTRL_review_comment.SetValue(u'')
+		self._TCTRL_normal_min.SetValue(u'')
+		self._TCTRL_normal_max.SetValue(u'')
+		self._TCTRL_normal_range.SetValue(u'')
+		self._TCTRL_target_min.SetValue(u'')
+		self._TCTRL_target_max.SetValue(u'')
+		self._TCTRL_target_range.SetValue(u'')
+		self._TCTRL_norm_ref_group.SetValue(u'')
 
-		self._TCTRL_result.SetFocus()
+		self._PRW_test.SetFocus()
 	#--------------------------------------------------------
 	def _valid_for_save(self):
 
@@ -1546,7 +1569,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.51  2009-07-02 20:54:05  ncq
+# Revision 1.52  2009-07-06 17:15:45  ncq
+# - row labels only test name until proper support for abbrev is there
+# - improved formatting of test result for display in cell
+# - only remind of display being most-recent only if cell actually is multi-result in cell tooltip
+# - use successful-save message on EA
+# - safer refresh after save-and-next-value
+#
+# Revision 1.51  2009/07/02 20:54:05  ncq
 # - fix bug where second patient didn't show measurements on patient change
 #
 # Revision 1.50  2009/06/22 09:26:49  ncq
