@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_test_results_journal.sql,v 1.1 2009-05-22 10:57:50 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-v_test_results_journal.sql,v 1.2 2009-07-06 17:16:53 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -41,8 +41,8 @@ select
 			|| coalesce(vtr.unified_target_max::text, '') || ' / '
 			|| coalesce(vtr.unified_target_range, '')
 			|| coalesce(' (' || vtr.norm_ref_group || ')', '') || E'\n'
-		|| coalesce(_('Doc: ') || vtr.comment || E'\n', '')
-		|| coalesce(_('MTA: ') || vtr.note_test_org || E'\n', '')
+		|| coalesce(_('Assessment: ') || vtr.comment || E'\n', '')
+		|| coalesce(_('Context: ') || vtr.note_test_org || E'\n', '')
 		|| coalesce (
 			_('Review by ')
 				|| vtr.last_reviewer || ' @ '
@@ -82,11 +82,14 @@ comment on view clin.v_test_results_journal is
 
 grant select on clin.v_test_results_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_test_results_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_test_results_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_test_results_journal.sql,v $
--- Revision 1.1  2009-05-22 10:57:50  ncq
+-- Revision 1.2  2009-07-06 17:16:53  ncq
+-- - better name comment headers
+--
+-- Revision 1.1  2009/05/22 10:57:50  ncq
 -- - new
 --
 --
