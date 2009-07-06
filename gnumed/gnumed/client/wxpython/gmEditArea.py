@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.125 2009-07-02 20:51:00 ncq Exp $
+# $Id: gmEditArea.py,v 1.126 2009-07-06 17:12:13 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.125 $"
+__version__ = "$Revision: 1.126 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -62,6 +62,7 @@ class cGenericEditAreaMixin(object):
 	def __init__(self):
 		self.__mode = 'new'
 		self.__data = None
+		self.successful_save_msg = None
 		self._refresh_as_new()
 		self.__tctrl_validity_colors = {
 			True: wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW),
@@ -111,7 +112,7 @@ class cGenericEditAreaMixin(object):
 			return False
 
 		elif self.__mode == 'edit':
-			return self._save_as_update()
+			return self._save_as_update():
 
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
@@ -186,6 +187,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	#--------------------------------------------------------
 	def _on_forward_button_pressed(self, evt):
 		if self._PNL_ea.save():
+			if self._PNL_ea.successful_save_msg is not None:
+				gmDispatcher.send(signal = 'statustext', msg = self._PNL_ea.successful_save_msg)
 			self._PNL_ea.mode = 'new_from_existing'
 			self._PNL_ea.refresh()
 #====================================================================
@@ -2196,7 +2199,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.125  2009-07-02 20:51:00  ncq
+# Revision 1.126  2009-07-06 17:12:13  ncq
+# - support a custom message on successful save from "Another" button
+#
+# Revision 1.125  2009/07/02 20:51:00  ncq
 # - fine-tune layout of ea pnl
 #
 # Revision 1.124  2009/04/21 16:59:59  ncq
