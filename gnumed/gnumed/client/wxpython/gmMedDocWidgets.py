@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.179 2009-07-01 17:08:17 ncq Exp $
-__version__ = "$Revision: 1.179 $"
+# $Id: gmMedDocWidgets.py,v 1.180 2009-07-06 17:16:09 ncq Exp $
+__version__ = "$Revision: 1.180 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -711,6 +711,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 			return False
 
+		# this should optional, actually
 #		if self._PRW_doc_comment.GetValue().strip() == '':
 #			gmGuiHelpers.gm_show_error (
 #				aMessage = _('No document comment supplied. Add a comment for this document.'),
@@ -1949,7 +1950,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.179  2009-07-01 17:08:17  ncq
+# Revision 1.180  2009-07-06 17:16:09  ncq
+# - comment
+#
+# Revision 1.179  2009/07/01 17:08:17  ncq
 # - make document comment field optional
 #
 # Revision 1.178  2009/06/11 12:37:25  ncq
