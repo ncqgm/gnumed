@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.142 $"
+__version__ = "$Revision: 1.143 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -571,7 +571,7 @@ from (
 
 		for d in docs:
 			lines.append(u' %s %s:%s%s' % (
-				d['clin_when'].strftime('%x'),
+				d['clin_when'].strftime('%Y-%m-%d'),
 				d['l10n_type'],
 				gmTools.coalesce(d['comment'], u'', u' "%s"'),
 				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
@@ -589,11 +589,11 @@ from (
 
 		for s in stays:
 			if s['discharge'] is not None:
-				dis = s['discharge'].strftime('%x')
+				dis = s['discharge'].strftime('%Y-%m-%d')
 			else:
 				dis = u'?'
 			lines.append (u' %s - %s: %s' % (
-				s['admission'].strftime('%x'),
+				s['admission'].strftime('%Y-%m-%d'),
 				dis,
 				gmTools.coalesce(s['hospital'], u'')
 			))
@@ -607,7 +607,11 @@ from (
 			lines.append(_('Measurements and Results:'))
 
 		for t in tests:
-			lines.extend(t.format())
+			lines.extend(t.format (
+				with_review = False,
+				with_comments = False,
+				date_format = '%Y-%m-%d'
+			))
 		del tests
 
 		eol_w_margin = u'\n%s' % left_margin
@@ -1325,7 +1329,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.142  2009-07-02 20:46:17  ncq
+# Revision 1.143  2009-07-06 14:56:04  ncq
+# - consolidate date formatting
+# - use improved test results formatting
+#
+# Revision 1.142  2009/07/02 20:46:17  ncq
 # - get-episodes in issue
 # - include docs/tests in issue/episode formatting
 #
