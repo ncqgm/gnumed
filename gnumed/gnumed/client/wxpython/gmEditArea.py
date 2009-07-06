@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.126 2009-07-06 17:12:13 ncq Exp $
+# $Id: gmEditArea.py,v 1.127 2009-07-06 21:17:57 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.126 $"
+__version__ = "$Revision: 1.127 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -112,7 +112,7 @@ class cGenericEditAreaMixin(object):
 			return False
 
 		elif self.__mode == 'edit':
-			return self._save_as_update():
+			return self._save_as_update()
 
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
@@ -2199,7 +2199,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.126  2009-07-06 17:12:13  ncq
+# Revision 1.127  2009-07-06 21:17:57  ncq
+# - faulty : removed
+#
+# Revision 1.126  2009/07/06 17:12:13  ncq
 # - support a custom message on successful save from "Another" button
 #
 # Revision 1.125  2009/07/02 20:51:00  ncq
