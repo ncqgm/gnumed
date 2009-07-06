@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.10 2009-06-04 16:30:30 ncq Exp $
-__version__ = '$Revision: 1.10 $'
+# $Id: gmDataMiningWidgets.py,v 1.11 2009-07-06 17:10:35 ncq Exp $
+__version__ = '$Revision: 1.11 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -83,6 +83,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 				pat = dlg.get_selected_person()
 				dlg.Destroy()
 
+		from Gnumed.wxpython import gmPatSearchWidgets
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 #================================================================
 class cPatientListingPnl(wxgPatientListingPnl.wxgPatientListingPnl):
@@ -206,9 +207,27 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	def _on_contribute_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
 		if report == u'':
+			gmDispatcher.send(signal = 'statustext', msg = _('Report must have a name for contribution.'), beep = False)
 			return
+
 		query = self._TCTRL_query.GetValue().strip()
 		if query == u'':
+			gmDispatcher.send(signal = 'statustext', msg = _('Report must have a query for contribution.'), beep = False)
+			return
+
+		do_it = gmGuiHelpers.gm_show_question (
+			_(	'Be careful that your contribution (the query itself) does\n'
+				'not contain any person-identifiable search parameters.\n'
+				'\n'
+				'Note, however, that no query result data whatsoever\n'
+				'is included in the contribution that will be sent.\n'
+				'\n'
+				'Are you sure you wish to send this query to\n'
+				'the gnumed community mailing list?\n'
+			),
+			_('Contributing custom report')
+		)
+		if not do_it:
 			return
 
 #		auth = {'user': gmTools.default_mail_sender, 'password': u'gm/bugs/gmx'}
@@ -227,16 +246,18 @@ The GNUmed client.
 """ % (report, query)
 
 		if not gmTools.send_mail (
-			message = msg,
-			auth = auth,
 			sender = u'GNUmed Report Generator <gnumed@gmx.net>',
 			receiver = [u'gnumed-devel@gnu.org'],
-			subject = u'user contributed report'
+			subject = u'user contributed report',
+			message = msg,
+			encoding = gmI18N.get_encoding(),
+			server = gmTools.default_mail_server,
+			auth = auth
 		):
 			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
 			return False
 
-		gmDispatcher.send(signal = 'statustext', msg = _('Thank you for your contribution to the GNUmed community !'), beep = False)
+		gmDispatcher.send(signal = 'statustext', msg = _('Thank you for your contribution to the GNUmed community!'), beep = False)
 		return True
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
@@ -412,7 +433,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.10  2009-06-04 16:30:30  ncq
+# Revision 1.11  2009-07-06 17:10:35  ncq
+# - signal errors in sanity check of query before contributing
+# - show warning before sending contribution
+# - fix encoding of contribution email
+#
+# Revision 1.10  2009/06/04 16:30:30  ncq
 # - use set active patient from pat search widgets
 #
 # Revision 1.9  2008/12/22 18:59:56  ncq
