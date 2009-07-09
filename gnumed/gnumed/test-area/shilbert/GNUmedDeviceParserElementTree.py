@@ -1,41 +1,86 @@
-from xml.etree.ElementTree import ElementTree
+from lxml import etree
 
-DeviceList = []
+# Devices holds a list of all cardiac devices in the xml
+# each list item holds a device context ( generator and one or more leads )
+##Devices = []
+# DeviceParts is the device context and holds one or more device parts. Each list item
+# is a device part such as lead , generator which in turn can consist of 
+# device parts such as mainboard or battery
+##DeviceParts = []
 
-def extractDevices(Devices=None):
-    for Device in Devices:
-        print('The file has the following devices: %s:' %Device)
-        DeviceList.append(Device)
-        #print DeviceList
+def extractDevices(DevicesTree=None):
+    Devices = []
+    # sort device list, first ICD, then pacemaker, then disconnected devices
+    for Device in DevicesTree:
+	Devices.append(Device)
+    return Devices
+    
+def sortDevicesByTypeAndStatus(Devices=None):
+    # todo: sort later, for now return like order gotten from XML 
+    """for Device in Devices:
+	# get class
+	DeviceClass=Device.get("class")
+	    print DeviceClass"""
+    return Devices
 
-def extractTagData(DevicePart=None,searchtag=None):
-    for tag in DevicePart.getchildren():
-        if tag.tag==searchtag:
-            return tag.text
-
-def extractDeviceParts(Device=None):
+def extractDeviceParts(Device=None,Type=None):
+    DeviceParts = []
     for DevicePart in Device:
-        print ('The device has the following parts: %s' %DevicePart)
+	if DevicePart.get("type") == Type:
+	    DeviceParts.append(DevicePart)
+    return DeviceParts
+    
+def sortLeadsByPosition(Leads=None):
+    #skips sorting for now
+    return Leads
+
+def extractProcedures(DevicePart=None,Type=None):
+    Procedures = []
+    # get a list of all procedures for this DevicePart
+    for tag in DevicePart.getchildren():
+	if tag.get("type") == Type:
+	    Procedures.append(tag)
+    return Procedures
+
+def extractTagData(XMLNode=None,SearchTag=None):
+    #tag = None
+    for tag in XMLNode.getchildren():
+        if tag.tag==SearchTag:
+            return tag.text
+            
+def extractTagAttribute(XMLNode=None,SearchTag=None,Attribute=None):
+    #tag = None
+    for tag in XMLNode.getchildren():
+        if tag.tag==SearchTag:
+            return tag.get(Attribute)
+
+#def extractDeviceSubParts(DevicePart=None):
+    #DeviceSubParts = []
+#    DeviceObject = Device
+    #for DevicePart in DeviceObject:
+    #    print ('The device has the following parts: %s' %DevicePart)
         # a subpart is like the CPU of a generator and so forth
-        for KeyAttribute in DevicePart.keys():
-            if DevicePart.get(KeyAttribute)=='generator':
-                print 'hey we are dealing with a generator here:-)'
-                #vendor
-                vendor=extractTagData(DevicePart,'vendor')
+    #    for KeyAttribute in DevicePart.keys():
+    #        if DevicePart.get(KeyAttribute)=='mainboard':
+    #            print 'hey we are dealing with a mainboard here:-)'
+                #manufacturer
+    #            manufacturer=extractTagData(DevicePart,'manufacturer')
                 #model
-                model=extractTagData(DevicePart,'model')
-                # devicestate
-                devicestate=extractTagData(DevicePart,'devicestate')
+    #            model=extractTagData(DevicePart,'model')
+                #return(manufacturer,model)
 
-                return(vendor,model,devicestate)
+    #        elif DevicePart.get(KeyAttribute)=='battery':
+    #            print 'hey we are dealing with a battery here'
 
-            elif DevicePart.get(KeyAttribute)=='lead':
-                print 'hey we are dealing with a lead here'
+    #        else:
+    #            print 'hey we are dealing with an unkown device part here. Please provide the XML file to the GNUmed team.'
 
-            else:
-                print 'hey we are dealing with an unkown device part here. Please provide the XML file to the GNUmed team.'
+
         
-def outputDeviceStatus(DeviceList=None):
+def outputDeviceStatus(tree=None):
+    DevicesDict = {}
+    DevicePartSpecsDict = {}
+    DevicesDisplayed = []
     """ In this area GNUmed will place the status of all cardiac devices and device parts. 
     There can be more than one device at a time\n\n
     It potentially looks like this\n
@@ -54,17 +99,69 @@ def outputDeviceStatus(DeviceList=None):
     RA Lead: Medtronic ? (inactive, capped)             Implanted: Jan 23 2000\n
     RV Lead: Medtronic ? (explanted)                        Explanted: Feb 09 2008
     """
-    for Device in DeviceList:
-        DeviceClass=Device.get("class")
-        #parse the parts into a dictionary
-        parts=extractDeviceParts(Device)
-        print parts
-        #DeviceManufacturer=
-        #construct output for active settings dialog
-
+    """
+    first search for devices, produce a list, 
+    sort in active devices first, ICD befor pacemaker before disconnted devices
+    per convention a single generator or lead which is not connected is a self contained device
+    there are virtual devices such as 'ICD' or 'pacemaker' which consist of parts such as leads and generator
+    there are true devices such as inactive leads or non-explanted generators
+    class will be 'lead' instead of type 'lead' for DeviceParts
+    """
+    DevicesTree = tree.getroot() 
+    Devices = extractDevices(DevicesTree)
+    DevicesSorted = sortDevicesByTypeAndStatus(Devices)
+    print 'Number of devices: %s' %len(Devices)
+    
+    for Device in DevicesSorted:
+	DevicesDisplayed.append('-------------------------------------------------------------')
+	# check for class
+	DeviceClass=Device.get("class")
+	if DeviceClass == 'ICD':
+	    # get generator xml node
+	    Generator = extractDeviceParts(Device=Device,Type='generator')[0]
+	    # get generator vendor, model, devicestate
+	    vendor = extractTagData(XMLNode=Generator,SearchTag='vendor')
+	    model = extractTagData(XMLNode=Generator,SearchTag='model')
+	    devicestate = extractTagData(XMLNode=Generator,SearchTag='devicestate')
+	    voltage = extractTagData(XMLNode=Generator,SearchTag='vendor')
+	    batterystatus = extractTagData(XMLNode=Generator,SearchTag='vendor')
+	    doi = extractTagData(XMLNode=Generator,SearchTag='doi')
+	    line = 'Device(%s):' %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')' + '   ' + 'Battery:'+ ' ' + voltage + ' ' + '('+ batterystatus + ')' + '  ' + 'Implanted:' + ' ' + doi
+	    # append each line to a list, later produce display string by parsing list
+	    DevicesDisplayed.append(line)
+	    DevicesDisplayed.append('\n')
+	    # now get the leads, RA then RV and last LV if they exist
+	    # todo: think about four leads : pace/sense but on another thought they both simply show up as RV leads
+	    Leads = extractDeviceParts(Device=Device,Type='lead')
+	    LeadsSorted = sortLeadsByPosition(Leads)
+	    for Lead in LeadsSorted:
+		leadposition = extractTagData(XMLNode=Lead,SearchTag='leadposition')
+		leadslot = extractTagData(XMLNode=Lead,SearchTag='leadslot')
+		vendor = extractTagData(XMLNode=Lead,SearchTag='manufacturer')
+		model = extractTagData(XMLNode=Lead,SearchTag='model')
+		devicestate = extractTagData(XMLNode=Lead,SearchTag='devicestate')
+		comment = extractTagData(XMLNode=Lead,SearchTag='comment')
+		doi = extractTagData(XMLNode=Lead,SearchTag='doi')
+	        line = '%s-lead in %s-position:' %(leadposition,leadslot) + ' ' + vendor + ' ' + model + ' ' + '(' + devicestate + ',' + comment + ')' + ' ' + 'Implanted:' + ' ' + doi
+		DevicesDisplayed.append(line)
+		#now get the newest interrogation
+		Procedure = extractProcedures(DevicePart=Lead,Type='interrogation')[0]
+		dop = extractTagData(XMLNode=Procedure,SearchTag='dop')
+		sensing = extractTagData(XMLNode=Procedure,SearchTag='sensing')
+		sensingunit = extractTagAttribute(XMLNode=Procedure,SearchTag='sensing',Attribute='unit')
+		threshold = extractTagData(XMLNode=Procedure,SearchTag='thresholdvoltage')
+		thresholdunit = extractTagAttribute(XMLNode=Procedure,SearchTag='thresholdvoltage',Attribute='unit')
+		print sensingunit
+		impedance = extractTagData(XMLNode=Procedure,SearchTag='impedance')
+		impedanceunit = extractTagAttribute(XMLNode=Procedure,SearchTag='impedance',Attribute='unit')
+		line = 'last check:'+' '+dop+' '+'Sensing:'+' '+sensing+sensingunit+' '+'Threshold'+' '+threshold+thresholdunit+' '+'Impedance:'+' '+impedance+' '+impedanceunit+'\n' 
+		DevicesDisplayed.append(line)
+	return DevicesDisplayed
+	    
 if __name__ == '__main__':
-    #filename = 'GNUmed5.xml'
-    tree = ElementTree(file='GNUmed6.xml')
-    Devices = tree.getroot()
-    extractDevices(Devices)
-    outputDeviceStatus(DeviceList)
+    # for now assume that the xml file provide the cardiac device context.
+    # that pretty much means logical connection of leads and generator is provided in the xml
+    tree = etree.parse('GNUmed10.xml')
+    DevicesDisplayed = outputDeviceStatus(tree)
+    for line in DevicesDisplayed:
+	print line
