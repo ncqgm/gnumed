@@ -118,7 +118,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         __gszr_encounter_details.Add(__lbl_rfe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(self._TCTRL_rfe, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.AddGrowableCol(1)
-        __szr_top_right.Add(__gszr_encounter_details, 0, wx.RIGHT|wx.EXPAND, 3)
+        __szr_top_right.Add(__gszr_encounter_details, 0, wx.RIGHT|wx.TOP|wx.EXPAND, 3)
         self._NB_soap_editors.AddPage(self.notebook_1_pane_1, _("tab1"))
         __szr_top_right.Add(self._NB_soap_editors, 1, wx.RIGHT|wx.TOP|wx.EXPAND, 3)
         __lbl_aoe = wx.StaticText(self.__splitter_right_top_pnl, -1, _("... summary"))
