@@ -3,14 +3,12 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 from lxml import etree
 import logging
-
-from Gnumed.pycommon import gmI18N
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
@@ -141,10 +139,10 @@ def outputDeviceStatus(tree=None):
 	    voltage = extractTagData(XMLNode=Generator,SearchTag='vendor')
 	    batterystatus = extractTagData(XMLNode=Generator,SearchTag='vendor')
 	    doi = extractTagData(XMLNode=Generator,SearchTag='doi')
-	    line = 'Device(%s):' %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')' + '   ' + 'Battery:'+ ' ' + voltage + ' ' + '('+ batterystatus + ')' + '  ' + 'Implanted:' + ' ' + doi
+	    line = _('Device(%s):') %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')' + '   ' + _('Battery:')+ ' ' + voltage + ' ' + '('+ batterystatus + ')' + '  ' + _('Implanted:') + ' ' + doi +'\n'
 	    # append each line to a list, later produce display string by parsing list
 	    DevicesDisplayed.append(line)
-	    DevicesDisplayed.append('\n')
+	    #DevicesDisplayed.append('\n')
 	    # now get the leads, RA then RV and last LV if they exist
 	    # todo: think about four leads : pace/sense but on another thought they both simply show up as RV leads
 	    Leads = extractDeviceParts(Device=Device,Type='lead')
@@ -168,11 +166,15 @@ def outputDeviceStatus(tree=None):
 		thresholdunit = extractTagAttribute(XMLNode=Procedure,SearchTag='thresholdvoltage',Attribute='unit')
 		impedance = extractTagData(XMLNode=Procedure,SearchTag='impedance')
 		impedanceunit = extractTagAttribute(XMLNode=Procedure,SearchTag='impedance',Attribute='unit')
-		line = 'last check:'+' '+dop+' '+'Sensing:'+' '+sensing+sensingunit+' '+'Threshold'+' '+threshold+thresholdunit+' '+'Impedance:'+' '+impedance+' '+impedanceunit+'\n' 
+		line = _('last check:')+' '+dop+' '+_('Sensing:')+' '+sensing+sensingunit+' '+_('Threshold')+' '+threshold+thresholdunit+' '+_('Impedance:')+' '+impedance+' '+impedanceunit+'\n' 
 		DevicesDisplayed.append(line)
 	return DevicesDisplayed
 	    
 if __name__ == '__main__':
+    from Gnumed.pycommon import gmI18N
+    gmI18N.activate_locale()
+    gmI18N.install_domain()
+
     # for now assume that the xml file provide the cardiac device context.
     # that pretty much means logical connection of leads and generator is provided in the xml
     tree = etree.parse('GNUmed6.xml')
