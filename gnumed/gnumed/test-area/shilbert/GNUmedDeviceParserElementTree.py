@@ -1,5 +1,20 @@
-from lxml import etree
+#======================================================================
+# GNUmed Device parser
+#
+# @copyright: author
+#======================================================================
+__version__ = "$Revision: 1.4 $"
+__author__ = "Sebastian Hilbert"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
+from lxml import etree
+import logging
+
+from Gnumed.pycommon import gmI18N
+
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
+#======================================================================
 # Devices holds a list of all cardiac devices in the xml
 # each list item holds a device context ( generator and one or more leads )
 ##Devices = []
@@ -110,7 +125,7 @@ def outputDeviceStatus(tree=None):
     DevicesTree = tree.getroot() 
     Devices = extractDevices(DevicesTree)
     DevicesSorted = sortDevicesByTypeAndStatus(Devices)
-    print 'Number of devices: %s' %len(Devices)
+    #print 'Number of devices: %s' %len(Devices)
     
     for Device in DevicesSorted:
 	DevicesDisplayed.append('-------------------------------------------------------------')
@@ -151,7 +166,6 @@ def outputDeviceStatus(tree=None):
 		sensingunit = extractTagAttribute(XMLNode=Procedure,SearchTag='sensing',Attribute='unit')
 		threshold = extractTagData(XMLNode=Procedure,SearchTag='thresholdvoltage')
 		thresholdunit = extractTagAttribute(XMLNode=Procedure,SearchTag='thresholdvoltage',Attribute='unit')
-		print sensingunit
 		impedance = extractTagData(XMLNode=Procedure,SearchTag='impedance')
 		impedanceunit = extractTagAttribute(XMLNode=Procedure,SearchTag='impedance',Attribute='unit')
 		line = 'last check:'+' '+dop+' '+'Sensing:'+' '+sensing+sensingunit+' '+'Threshold'+' '+threshold+thresholdunit+' '+'Impedance:'+' '+impedance+' '+impedanceunit+'\n' 
@@ -161,7 +175,7 @@ def outputDeviceStatus(tree=None):
 if __name__ == '__main__':
     # for now assume that the xml file provide the cardiac device context.
     # that pretty much means logical connection of leads and generator is provided in the xml
-    tree = etree.parse('GNUmed10.xml')
+    tree = etree.parse('GNUmed6.xml')
     DevicesDisplayed = outputDeviceStatus(tree)
     for line in DevicesDisplayed:
 	print line
