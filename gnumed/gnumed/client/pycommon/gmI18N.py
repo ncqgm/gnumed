@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.46 2009-04-13 10:34:17 ncq Exp $
+# $Id: gmI18N.py,v 1.47 2009-07-09 16:42:49 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -276,7 +276,21 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 
 	# search for message catalog
 	candidates = []
-	# 1) try standard places first
+	# - locally
+	if prefer_local_catalog:
+		_log.debug('preferring local message catalog')
+		# - one level above path to binary
+		#    last resort for inferior operating systems such as DOS/Windows
+		#    strip one directory level
+		#    this is a rather neat trick :-)
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
+		_log.debug('looking above binary install directory [%s]' % loc_dir)
+		candidates.append(loc_dir)
+		# - in path to binary
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
+		_log.debug('looking in binary install directory [%s]' % loc_dir)
+		candidates.append(loc_dir)
+	# - standard places
 	if os.name == 'posix':
 		_log.debug('system is POSIX, looking in standard locations (see Python Manual)')
 		# if this is reported to segfault/fail/except on some
@@ -284,7 +298,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		candidates.append(gettext.bindtextdomain(domain))
 	else:
 		_log.debug('No use looking in standard POSIX locations - not a POSIX system.')
-	# 2) $(<script-name>_DIR)/
+	# - $(<script-name>_DIR)/
 	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
 	_log.debug('looking at ${%s}' % env_key)
 	if os.environ.has_key(env_key):
@@ -293,17 +307,19 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		candidates.append(loc_dir)
 	else:
 		_log.info("${%s} not set" % env_key)
-	# 3) one level above path to binary
-	#    last resort for inferior operating systems such as DOS/Windows
-	#    strip one directory level
-	#    this is a rather neat trick :-)
-	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
-	_log.debug('looking above binary install directory [%s]' % loc_dir)
-	candidates.append(loc_dir)
-	# 4) in path to binary
-	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
-	_log.debug('looking in binary install directory [%s]' % loc_dir)
-	candidates.append(loc_dir)
+	# - locally
+	if not prefer_local_catalog:
+		# - one level above path to binary
+		#    last resort for inferior operating systems such as DOS/Windows
+		#    strip one directory level
+		#    this is a rather neat trick :-)
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
+		_log.debug('looking above binary install directory [%s]' % loc_dir)
+		candidates.append(loc_dir)
+		# - in path to binary
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
+		_log.debug('looking in binary install directory [%s]' % loc_dir)
+		candidates.append(loc_dir)
 
 	# now try to actually install it
 	for candidate in candidates:
@@ -398,7 +414,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.46  2009-04-13 10:34:17  ncq
+# Revision 1.47  2009-07-09 16:42:49  ncq
+# - honor prefer_local_catalog
+#
+# Revision 1.46  2009/04/13 10:34:17  ncq
 # - start preferring local catalogs when needed
 #
 # Revision 1.45  2009/03/10 14:19:08  ncq
