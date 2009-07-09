@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.463 2009-07-02 20:53:24 ncq Exp $
-__version__ = "$Revision: 1.463 $"
+# $Id: gmGuiMain.py,v 1.464 2009-07-09 16:47:10 ncq Exp $
+__version__ = "$Revision: 1.464 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -225,9 +225,8 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "GNUmed" -----------------
 		menu_gnumed = wx.Menu()
 
-		# keep this topmost so we don't need an active letter
 		self.menu_plugins = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('Go to plugin ...'), self.menu_plugins)
+		menu_gnumed.AppendMenu(wx.NewId(), _('&Go to plugin ...'), self.menu_plugins)
 
 		ID = wx.NewId()
 		menu_gnumed.Append(ID, _('Check for updates'), _('Check for new releases of the GNUmed client.'))
@@ -2711,10 +2710,11 @@ class gmApp(wx.App):
 			_log.warning("system locale is undefined (probably meaning 'C')")
 			return True
 
-		db_lang = None
 		# get current database locale
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u"select i18n.get_curr_lang() as lang"}])
-		if len(rows) == 0:
+		db_lang = rows[0]['lang']
+
+		if db_lang is None:
 			_log.debug("database locale currently not set")
 			msg = _(
 				"There is no language selected in the database for user [%s].\n"
@@ -2723,7 +2723,6 @@ class gmApp(wx.App):
 			)  % (_provider['db_user'], gmI18N.system_locale, gmI18N.system_locale)
 			checkbox_msg = _('Remember to ignore missing language')
 		else:
-			db_lang = rows[0]['lang']
 			_log.debug("current database locale: [%s]" % db_lang)
 			msg = _(
 				"The currently selected database language ('%s') does\n"
@@ -2873,7 +2872,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.463  2009-07-02 20:53:24  ncq
+# Revision 1.464  2009-07-09 16:47:10  ncq
+# - go to plugins now with active letter
+# - if not lang is set it returns none, not zero rows
+#
+# Revision 1.463  2009/07/02 20:53:24  ncq
 # - flush log during close
 # - slightly safer shutdown
 #
