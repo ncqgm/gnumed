@@ -7,17 +7,16 @@
 -- license: GPL
 --
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Kirk_medication-dynamic.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- =============================================
 
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
-begin;
+--begin;
 -- =============================================
--- (select pk_identity from dem.v_basic_person where firstnames = 'James Tiberius' and lastnames = 'Kirk' and date_trunc('day', dob) = '1931-3-21')
 
 -- delete Kirk's current medication
 delete from clin.substance_intake where
@@ -50,11 +49,9 @@ insert into clin.substance_brand (
 delete from clin.active_substance where description = 'Metoprolol';
 
 insert into clin.active_substance (
---	fk_brand,
 	description,
 	atc_code
 ) values (
---	(select pk from clin.substance_brand where description = 'MetoPharm comp.' and preparation = 'tablets'),
 	'Metoprolol',
 	'C07AB02'
 );
@@ -102,11 +99,9 @@ insert into clin.substance_intake (
 delete from clin.active_substance where description = 'HCT';
 
 insert into clin.active_substance (
---	fk_brand,
 	description,
 	atc_code
 ) values (
---	(select pk from clin.substance_brand where description = 'MetoPharm comp.' and preparation = 'tablets'),
 	'HCT',
 	'C03AA03'
 );
@@ -153,16 +148,19 @@ insert into clin.substance_intake (
 
 -- =============================================
 -- do simple schema revision tracking
-select gm.log_script_insertion('$RCSfile: test_data-Kirk_medication-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: test_data-Kirk_medication-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- comment out the "rollback" if you want to
 -- really store the above patient data
 --rollback;
-commit;
+--commit;
 
 -- =============================================
 -- $Log: test_data-Kirk_medication-dynamic.sql,v $
--- Revision 1.2  2009-06-04 16:36:15  ncq
+-- Revision 1.3  2009-07-09 16:50:41  ncq
+-- - cleanup
+--
+-- Revision 1.2  2009/06/04 16:36:15  ncq
 -- - use intake-is-approved-of
 --
 -- Revision 1.1  2009/05/12 12:00:18  ncq

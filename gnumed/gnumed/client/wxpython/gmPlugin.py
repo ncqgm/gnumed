@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.82 2009-07-01 17:10:58 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmPlugin.py,v 1.83 2009-07-09 16:47:22 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -217,7 +217,6 @@ class cNotebookPlugin:
 	#-----------------------------------------------------
 	def _on_raise_by_signal(self, **kwds):
 		# does this signal concern us ?
-		#if kwds['name'] != self.__class__.__name__:
 		if kwds['name'] not in [self.__class__.__name__, self.name()]:
 			return False
 		return self._on_raise_by_menu(None)
@@ -400,7 +399,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.82  2009-07-01 17:10:58  ncq
+# Revision 1.83  2009-07-09 16:47:22  ncq
+# - cleanup
+#
+# Revision 1.82  2009/07/01 17:10:58  ncq
 # - send along class name when loading plugin
 #
 # Revision 1.81  2009/06/29 15:10:21  ncq
