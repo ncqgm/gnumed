@@ -3,7 +3,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -43,23 +43,23 @@ def sortLeadsByPosition(Leads=None):
 	#skips sorting for now
 	return Leads
 
-def extractProcedures(DevicePart=None,Type=None):
-	Procedures = []
+def extractActions(DevicePart=None,Type=None):
+	Actions = []
 	# get a list of all procedures for this DevicePart
 	for tag in DevicePart.getchildren():
 		if tag.get("type") == Type:
-			Procedures.append(tag)
-	return Procedures
+			Actions.append(tag)
+	return Actions
 
-def extractTagData(XMLNode=None,SearchTag=None):
+def extractTagData(start_node=None,SearchTag=None):
 	#tag = None
-	for tag in XMLNode.getchildren():
+	for tag in start_node.getchildren():
 		if tag.tag==SearchTag:
 			return tag.text
 
-def extractTagAttribute(XMLNode=None,SearchTag=None,Attribute=None):
+def extractTagAttribute(start_node=None,SearchTag=None,Attribute=None):
 	#tag = None
-	for tag in XMLNode.getchildren():
+	for tag in start_node.getchildren():
 		if tag.tag==SearchTag:
 			return tag.get(Attribute)
 
@@ -127,12 +127,12 @@ def device_status_as_text(tree=None):
 			# get generator xml node
 			Generator = extractDeviceParts(Device=Device,Type='generator')[0]
 			# get generator vendor, model, devicestate
-			vendor = extractTagData(XMLNode=Generator,SearchTag='vendor')
-			model = extractTagData(XMLNode=Generator,SearchTag='model')
-			devicestate = extractTagData(XMLNode=Generator,SearchTag='devicestate')
-			voltage = extractTagData(XMLNode=Generator,SearchTag='vendor')
-			batterystatus = extractTagData(XMLNode=Generator,SearchTag='vendor')
-			doi = extractTagData(XMLNode=Generator,SearchTag='doi')
+			vendor = extractTagData(start_node=Generator,SearchTag='vendor')
+			model = extractTagData(start_node=Generator,SearchTag='model')
+			devicestate = extractTagData(start_node=Generator,SearchTag='devicestate')
+			voltage = extractTagData(start_node=Generator,SearchTag='vendor')
+			batterystatus = extractTagData(start_node=Generator,SearchTag='vendor')
+			doi = extractTagData(start_node=Generator,SearchTag='doi')
 			line = _('Device(%s):') %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')' + '   ' + _('Battery:')+ ' ' + voltage + ' ' + '('+ batterystatus + ')' + '  ' + _('Implanted:') + ' ' + doi +'\n'
 			# append each line to a list, later produce display string by parsing list
 			DevicesDisplayed.append(line)
@@ -142,25 +142,25 @@ def device_status_as_text(tree=None):
 			Leads = extractDeviceParts(Device=Device,Type='lead')
 			LeadsSorted = sortLeadsByPosition(Leads)
 			for Lead in LeadsSorted:
-				leadposition = extractTagData(XMLNode=Lead,SearchTag='leadposition')
-				leadslot = extractTagData(XMLNode=Lead,SearchTag='leadslot')
-				vendor = extractTagData(XMLNode=Lead,SearchTag='manufacturer')
-				model = extractTagData(XMLNode=Lead,SearchTag='model')
-				devicestate = extractTagData(XMLNode=Lead,SearchTag='devicestate')
-				comment = extractTagData(XMLNode=Lead,SearchTag='comment')
-				doi = extractTagData(XMLNode=Lead,SearchTag='doi')
-				line = '%s-lead in %s-position:' %(leadposition,leadslot) + ' ' + vendor + ' ' + model + ' ' + '(' + devicestate + ',' + comment + ')' + ' ' + 'Implanted:' + ' ' + doi
+				leadposition = extractTagData(start_node=Lead,SearchTag='leadposition')
+				leadslot = extractTagData(start_node=Lead,SearchTag='leadslot')
+				vendor = extractTagData(start_node=Lead,SearchTag='manufacturer')
+				model = extractTagData(start_node=Lead,SearchTag='model')
+				devicestate = extractTagData(start_node=Lead,SearchTag='devicestate')
+				comment = extractTagData(start_node=Lead,SearchTag='comment')
+				interrogation_date = extractTagData(start_node=Lead,SearchTag='doi')
+				line = '%s-lead in %s-position:' %(leadposition,leadslot) + ' ' + vendor + ' ' + model + ' ' + '(' + devicestate + ',' + comment + ')' + ' ' + 'Implanted:' + ' ' + interrogation_date
 				DevicesDisplayed.append(line)
 				#now get the newest interrogation
-				Procedure = extractProcedures(DevicePart=Lead,Type='interrogation')[0]
-				dop = extractTagData(XMLNode=Procedure,SearchTag='dop')
-				sensing = extractTagData(XMLNode=Procedure,SearchTag='sensing')
-				sensingunit = extractTagAttribute(XMLNode=Procedure,SearchTag='sensing',Attribute='unit')
-				threshold = extractTagData(XMLNode=Procedure,SearchTag='thresholdvoltage')
-				thresholdunit = extractTagAttribute(XMLNode=Procedure,SearchTag='thresholdvoltage',Attribute='unit')
-				impedance = extractTagData(XMLNode=Procedure,SearchTag='impedance')
-				impedanceunit = extractTagAttribute(XMLNode=Procedure,SearchTag='impedance',Attribute='unit')
-				line = _('last check:')+' '+dop+' '+_('Sensing:')+' '+sensing+sensingunit+' '+_('Threshold')+' '+threshold+thresholdunit+' '+_('Impedance:')+' '+impedance+' '+impedanceunit+'\n' 
+				action = extractActions(DevicePart=Lead,Type='interrogation')[0]
+				action_date = extractTagData(start_node=action,SearchTag='dop')
+				sensing = extractTagData(start_node=action,SearchTag='sensing')
+				sensingunit = extractTagAttribute(start_node=action,SearchTag='sensing',Attribute='unit')
+				threshold = extractTagData(start_node=action,SearchTag='thresholdvoltage')
+				thresholdunit = extractTagAttribute(start_node=action,SearchTag='thresholdvoltage',Attribute='unit')
+				impedance = extractTagData(start_node=action,SearchTag='impedance')
+				impedanceunit = extractTagAttribute(start_node=action,SearchTag='impedance',Attribute='unit')
+				line = _('last check:')+' '+action_date+' '+_('Sensing:')+' '+sensing+sensingunit+' '+_('Threshold')+' '+threshold+thresholdunit+' '+_('Impedance:')+' '+impedance+' '+impedanceunit+'\n' 
 				DevicesDisplayed.append(line)
 	return DevicesDisplayed
 
