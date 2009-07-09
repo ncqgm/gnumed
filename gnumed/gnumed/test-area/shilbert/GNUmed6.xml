@@ -6,8 +6,8 @@
 <!-- doe = date of procedure -->
 
 <Devices>
-	<CardicacDevice class="ICD">
-		<Device type="generator">
+	<Device class="ICD">
+		<DevicePart type="generator">
 			<vendor>St. Jude Medical</vendor>
 			<model>Atlas DR</model>
 			<devicestate>active</devicestate>
@@ -18,17 +18,18 @@
 			<implantsite>subpectoral</implantsite>
 			<implantregion>right subclavian</implantregion>
 			<serial>34234324324324</serial>
-			<DevicePart type="mainboard">
-				<manufacturer>St. Jude Medical</manufacturer>
+			<SubPart type="mainboard">
+				<manufacturer>St. Jude</manufacturer>
 				<model>Atlas DR</model>
 				<softwareversion>2.123.4</softwareversion>
-				<Procedure type="software update" dop="23.03.2004">
+				<Procedure type="software update"> 
+					<dop>23.03.2004</dop>
 					<priorversion>2.112.3</priorversion>
 					<currentversion>2.123.4</currentversion>
 					<comment>better battery calibration</comment>
 				</Procedure>
-			</DevicePart>
-			<DevicePart type="battery">
+			</SubPart>
+			<SubPart type="battery">
 				<manufacturer>Sanyo</manufacturer>
 				<serial>234334343</serial>
 				<Procedure type="interrogation" dop="23.03.2004">
@@ -38,77 +39,80 @@
 					<status>BOL</status>
 					<nextinterrogationscheduled >23.09.2004</nextinterrogationscheduled>
 				</Procedure>
-			</DevicePart>
-		</Device>
-		<Device type="lead">
+			</SubPart>
+		</DevicePart>
+		<DevicePart type="lead">
 			<manufacturer>Medtronic</manufacturer>
 			<model>Sprint XL</model>
 			<polarityoptions>bipolar</polarityoptions>
 			<serial>78678ddderte</serial>
 			<devicestate>active</devicestate>
 			<hasYconnector>no</hasYconnector>
-			<dateofimplant>23.04.2009</dateofimplant>
-			<dateofexplant>23.04.2009</dateofexplant>
-			<isexplanted>	no</isexplanted>
+			<doi>23.04.2009</doi>
+			<doe>23.04.2009</doe>
+			<isexplanted>no</isexplanted>
 			<leadposition>RA</leadposition>
 			<leadslot>RA</leadslot>
 			<comment>no comment on lead</comment> 
 			<connectedtodevice>ICDserialnumber</connectedtodevice> 
-			<Procedure type="interrogation" dop="23.04.2004">
+			<Procedure type="interrogation">
+				<dop>23.04.2004</dop>
 				<activepolarity>unipolar</activepolarity>
 				<thresholdvoltage unit="mV">1.4</thresholdvoltage>
 				<energyduration unit="ms">1</energyduration>
-				<impedance untit="Ohm">300</impedance>
+				<impedance unit="Ohm">300</impedance>
 				<sensing unit="mV">7</sensing>
 				<nextinterrogationscheduled>23.09.2004</nextinterrogationscheduled>
 			</Procedure>
-		</Device>
-		<Device type="lead">
+		</DevicePart>
+		<DevicePart type="lead">
 			<manufacturer>Medtronic</manufacturer>
 			<model>Sprint fidelis</model>
 			<polarityoptions>bipolar</polarityoptions>
 			<serial>78678e4eerte</serial>
 			<devicestate>inactive</devicestate>
 			<hasYconnector>yes</hasYconnector>
-			<dateofimplant>23.04.2009</dateofimplant>
-			<dateofexplant>23.04.2009</dateofexplant>
-			<isexplanted>	no</isexplanted>
+			<doi>23.04.2009</doi>
+			<doe>23.04.2009</doe>
+			<isexplanted>no</isexplanted>
 			<leadposition>RV</leadposition>
 			<leadslot>RV</leadslot>
 			<comment>no comment on lead</comment> 
 			<connectedtodevice>ICDserialnumber</connectedtodevice> 
-			<Procedure type="interrogation" dop="23.04.2009">
+			<Procedure type="interrogation">
+				<dop>23.04.2009"</dop>
 				<activepolarity>unipolar</activepolarity>
 				<thresholdvoltage unit="mV">1.4</thresholdvoltage>
 				<energyduration unit="ms">1</energyduration>
-				<impedance untit="Ohm">300</impedance>
+				<impedance unit="Ohm">300</impedance>
 				<sensing unit="mV">7</sensing>
 				<nextinterrogationscheduled>23.09.2004</nextinterrogationscheduled>
 			</Procedure>
-		</Device>
-		<Device type="lead">
+		</DevicePart>
+		<DevicePart type="lead">
 			<manufacturer>St. Jude</manufacturer>
 			<model>QuickSite XL</model>
 			<polarityoptions>bipolar</polarityoptions>
 			<serial>987erqrqw99</serial>
 			<devicestate>active</devicestate>
 			<hasYconnector>no</hasYconnector>
-			<dateofimplant>23.04.2009</dateofimplant>
-			<dateofexplant>23.04.2009</dateofexplant>
-			<isexplanted>	no</isexplanted>
+			<doi>23.04.2009</doi>
+			<doe>23.04.2009</doe>
+			<isexplanted>no</isexplanted>
 			<leadposition>LV</leadposition>
 			<leadslot>LV</leadslot>
 			<comment>no comment on LV lead</comment> 
 			<connectedtodevice>ICDserialnumber</connectedtodevice>
 			<connectedtodevice>RVlead,serial</connectedtodevice>
-			<Procedure type="interrogation" dop="23.03.2004">
+			<Procedure type="interrogation">
+				<dop>23.03.2004</dop>
 				<activepolarity>unipolar</activepolarity>
 				<thresholdvoltage unit="mV">1.4</thresholdvoltage>
 				<energyduration unit="ms">1</energyduration>
-				<impedance untit="Ohm">300</impedance>
+				<impedance unit="Ohm">300</impedance>
 				<sensing unit="mV">7</sensing>
 				<nextinterrogationscheduled>23.09.2004</nextinterrogationscheduled>
 			</Procedure>
-		</Device>
-	</CardicacDevice>
+		</DevicePart>
+	</Device>
 </Devices>
