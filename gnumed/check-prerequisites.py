@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.20 $
+# $Revision: 1.21 $
 
 import sys
 
@@ -42,7 +42,7 @@ except ImportError:
 	print "  ERROR: this is needed to access PostgreSQL"
 	print "  ERROR: psycopg2 is available from http://www.initd.org/"
 
-print " wxversion...",
+print " wx(version)...",
 if hasattr(sys, 'frozen'):
 	print "cannot check"
 	print "  INFO : py2exe or similar in use, cannot check wxPython version"
@@ -52,7 +52,6 @@ else:
 	try:
 		import wxversion
 		print "found"
-#		print "  installed versions:", wxversion.getInstalled()
 		print "  selecting unicode enabled version >= 2.8...",
 		wxversion.select(versions='2.8-unicode', optionsRequired=True)
 		print "success"
@@ -161,7 +160,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.20  2009-02-27 11:59:06  ncq
+# Revision 1.21  2009-07-09 16:40:47  ncq
+# - better output
+#
+# Revision 1.20  2009/02/27 11:59:06  ncq
 # - improved output
 #
 # Revision 1.19  2008/07/24 17:51:27  ncq
