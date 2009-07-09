@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.97 2009-07-02 20:50:37 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmEMRStructWidgets.py,v 1.98 2009-07-09 16:46:20 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -287,8 +287,8 @@ def manage_encounter_types(parent=None):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nSelect the encounter type you want to edit !\n'),
-		caption = _('Editing encounter types ...'),
-		columns = [_('Name'), _('System type')],
+		caption = _('Managing encounter types ...'),
+		columns = [_('Local name'), _('Encounter type')],
 		single_selection = True,
 		edit_callback = edit,
 		new_callback = edit,
@@ -301,7 +301,7 @@ def edit_encounter_type(parent=None, encounter_type=None):
 	ea.data = encounter_type
 	ea.mode = gmTools.coalesce(encounter_type, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
-	dlg.SetTitle(gmTools.coalesce(encounter_type, _('Adding new encounter type'), _('Editing encounter type')))
+	dlg.SetTitle(gmTools.coalesce(encounter_type, _('Adding new encounter type'), _('Editing local encounter name')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
 	return False
@@ -358,7 +358,7 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 		wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEditAreaPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		self.__register_interests()
+#		self.__register_interests()
 	#-------------------------------------------------------
 	# generic edit area API
 	#-------------------------------------------------------
@@ -433,8 +433,8 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 	#-------------------------------------------------------
 	# internal API
 	#-------------------------------------------------------
-	def __register_interests(self):
-		return
+#	def __register_interests(self):
+#		return
 #----------------------------------------------------------------
 class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
@@ -1558,7 +1558,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.97  2009-07-02 20:50:37  ncq
+# Revision 1.98  2009-07-09 16:46:20  ncq
+# - cleanup
+# - improved wording as per list
+#
+# Revision 1.97  2009/07/02 20:50:37  ncq
 # - use generic EA dlg 2
 #
 # Revision 1.96  2009/07/01 17:07:16  ncq
