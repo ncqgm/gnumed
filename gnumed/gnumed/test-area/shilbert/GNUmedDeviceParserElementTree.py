@@ -3,7 +3,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -84,7 +84,7 @@ def extractTagAttribute(XMLNode=None,SearchTag=None,Attribute=None):
     #        else:
     #            print 'hey we are dealing with an unkown device part here. Please provide the XML file to the GNUmed team.'
 
-def outputDeviceStatus(tree=None):
+def device_status_as_text(tree=None):
 	DevicesDict = {}
 	DevicePartSpecsDict = {}
 	DevicesDisplayed = []
@@ -172,6 +172,6 @@ if __name__ == '__main__':
 	# for now assume that the xml file provide the cardiac device context.
 	# that pretty much means logical connection of leads and generator is provided in the xml
 	tree = etree.parse('GNUmed6.xml')
-	DevicesDisplayed = outputDeviceStatus(tree)
+	DevicesDisplayed = device_status_as_text(tree)
 	for line in DevicesDisplayed:
 		print line
