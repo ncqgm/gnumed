@@ -32,10 +32,11 @@
 			<SubPart type="battery">
 				<manufacturer>Sanyo</manufacturer>
 				<serial>234334343</serial>
-				<Procedure type="interrogation" dop="23.03.2004">
-					<voltage>1.4 Volt</voltage>
-					<resistance>30 Ohm</resistance>
-					<current>200mA</current>
+				<Procedure type="interrogation"> 
+					<dop>23.03.2004</dop>
+					<voltage unit="Volt">1.4</voltage>
+					<resistance unit="Ohm">30</resistance>
+					<current unit="mA">200</current>
 					<status>BOL</status>
 					<nextinterrogationscheduled >23.09.2004</nextinterrogationscheduled>
 				</Procedure>
