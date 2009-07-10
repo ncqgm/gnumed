@@ -3,7 +3,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -130,10 +130,14 @@ def device_status_as_text(tree=None):
 			vendor = extractTagData(start_node=Generator,SearchTag='vendor')
 			model = extractTagData(start_node=Generator,SearchTag='model')
 			devicestate = extractTagData(start_node=Generator,SearchTag='devicestate')
-			voltage = extractTagData(start_node=Generator,SearchTag='vendor')
-			batterystatus = extractTagData(start_node=Generator,SearchTag='vendor')
-			doi = extractTagData(start_node=Generator,SearchTag='doi')
-			line = _('Device(%s):') %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')' + '   ' + _('Battery:')+ ' ' + voltage + ' ' + '('+ batterystatus + ')' + '  ' + _('Implanted:') + ' ' + doi +'\n'
+			# get subpart battery
+			battery = extractDeviceParts(Device=Generator,Type='battery')[0]
+			action = extractActions(DevicePart=battery,Type='interrogation')[0]
+			battery_voltage = extractTagData(start_node=action,SearchTag='voltage')
+			battery_voltage_unit = extractTagAttribute(start_node=action,SearchTag='voltage',Attribute='unit')
+			battery_status = extractTagData(start_node=action,SearchTag='status')
+			implantation_date= extractTagData(start_node=Generator,SearchTag='doi')
+			line = _('Device(%s):') %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')'+'   '+_('Battery:')+' '+battery_voltage+' '+battery_voltage_unit+'('+battery_status+')'+'  '+_('Implanted:')+' '+implantation_date+'\n'
 			# append each line to a list, later produce display string by parsing list
 			DevicesDisplayed.append(line)
 			#DevicesDisplayed.append('\n')
@@ -148,8 +152,8 @@ def device_status_as_text(tree=None):
 				model = extractTagData(start_node=Lead,SearchTag='model')
 				devicestate = extractTagData(start_node=Lead,SearchTag='devicestate')
 				comment = extractTagData(start_node=Lead,SearchTag='comment')
-				interrogation_date = extractTagData(start_node=Lead,SearchTag='doi')
-				line = '%s-lead in %s-position:' %(leadposition,leadslot) + ' ' + vendor + ' ' + model + ' ' + '(' + devicestate + ',' + comment + ')' + ' ' + 'Implanted:' + ' ' + interrogation_date
+				implantation_date = extractTagData(start_node=Lead,SearchTag='doi')
+				line = '%s-lead in %s-position:' %(leadposition,leadslot) + ' ' + vendor + ' ' + model + ' ' + '(' + devicestate + ',' + comment + ')' + ' ' + 'Implanted:' + ' ' + implantation_date
 				DevicesDisplayed.append(line)
 				#now get the newest interrogation
 				action = extractActions(DevicePart=Lead,Type='interrogation')[0]
