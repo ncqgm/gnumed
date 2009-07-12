@@ -5,8 +5,8 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.8 2008-03-06 18:32:30 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmAllergiesPlugin.py,v 1.9 2009-07-12 18:46:57 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -41,7 +41,7 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 	def GetWidget (self, parent):
 #		self._widget = gmAllergyWidgets.cAllergyPanel(parent, -1)
 #		return self._widget
-		pass
+		return wx.Panel(parent, -1)
 
 	def MenuInfo (self):
 		return ('view', '&Allergies')
@@ -60,7 +60,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergiesPlugin.py,v $
-# Revision 1.8  2008-03-06 18:32:30  ncq
+# Revision 1.9  2009-07-12 18:46:57  ncq
+# - return empty panel as wx 2.8.7.1 segfaults without it
+#
+# Revision 1.8  2008/03/06 18:32:30  ncq
 # - standard lib logging only
 #
 # Revision 1.7  2007/10/12 07:28:24  ncq
