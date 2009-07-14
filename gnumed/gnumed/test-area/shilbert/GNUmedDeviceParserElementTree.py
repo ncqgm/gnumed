@@ -3,7 +3,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -120,7 +120,7 @@ def device_status_as_text(tree=None):
 	#print 'Number of devices: %s' %len(Devices)
     
 	for Device in DevicesSorted:
-		DevicesDisplayed.append('-------------------------------------------------------------')
+		DevicesDisplayed.append('-------------------------------------------------------------\n')
 		# check for class
 		DeviceClass=Device.get("class")
 		if DeviceClass == 'ICD':
@@ -137,7 +137,7 @@ def device_status_as_text(tree=None):
 			battery_voltage_unit = extractTagAttribute(start_node=action,SearchTag='voltage',Attribute='unit')
 			battery_status = extractTagData(start_node=action,SearchTag='status')
 			implantation_date= extractTagData(start_node=Generator,SearchTag='doi')
-			line = _('Device(%s):') %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')'+'   '+_('Battery:')+' '+battery_voltage+' '+battery_voltage_unit+'('+battery_status+')'+'  '+_('Implanted:')+' '+implantation_date+'\n'
+			line = _('Device(%s):') %DeviceClass + ' ' + vendor + ' ' + model + ' ' + '('+ devicestate + ')'+'   '+_('Battery:')+' '+battery_voltage+' '+battery_voltage_unit+'('+battery_status+')'+'  '+_('Implanted:')+' '+implantation_date+'\n\n'
 			# append each line to a list, later produce display string by parsing list
 			DevicesDisplayed.append(line)
 			#DevicesDisplayed.append('\n')
@@ -153,7 +153,7 @@ def device_status_as_text(tree=None):
 				devicestate = extractTagData(start_node=Lead,SearchTag='devicestate')
 				comment = extractTagData(start_node=Lead,SearchTag='comment')
 				implantation_date = extractTagData(start_node=Lead,SearchTag='doi')
-				line = '%s-lead in %s-position:' %(leadposition,leadslot) + ' ' + vendor + ' ' + model + ' ' + '(' + devicestate + ',' + comment + ')' + ' ' + 'Implanted:' + ' ' + implantation_date
+				line = '%s-lead in %s-position:' %(leadposition,leadslot) + ' ' + vendor + ' ' + model + ' ' + '(' + devicestate + ',' + comment + ')' + ' ' + 'Implanted:' + ' ' + implantation_date +'\n'
 				DevicesDisplayed.append(line)
 				#now get the newest interrogation
 				action = extractActions(DevicePart=Lead,Type='interrogation')[0]
@@ -164,7 +164,7 @@ def device_status_as_text(tree=None):
 				thresholdunit = extractTagAttribute(start_node=action,SearchTag='thresholdvoltage',Attribute='unit')
 				impedance = extractTagData(start_node=action,SearchTag='impedance')
 				impedanceunit = extractTagAttribute(start_node=action,SearchTag='impedance',Attribute='unit')
-				line = _('last check:')+' '+action_date+' '+_('Sensing:')+' '+sensing+sensingunit+' '+_('Threshold')+' '+threshold+thresholdunit+' '+_('Impedance:')+' '+impedance+' '+impedanceunit+'\n' 
+				line = _('last check:')+' '+action_date+' '+_('Sensing:')+' '+sensing+sensingunit+' '+_('Threshold')+' '+threshold+thresholdunit+' '+_('Impedance:')+' '+impedance+' '+impedanceunit+'\n\n' 
 				DevicesDisplayed.append(line)
 	return DevicesDisplayed
 
