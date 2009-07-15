@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-dem-v_provider_inbox.sql,v 1.1 2009-05-24 16:25:43 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-dem-v_provider_inbox.sql,v 1.2 2009-07-15 12:27:22 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -55,9 +55,15 @@ select
 		as type,
 	_('review docs')
 		as l10n_type,
-	(select _('unreviewed documents for patient') || ' [' || vbp.lastnames || ', ' || vbp.firstnames || ']'
-	 from dem.v_basic_person vbp
-	 where vbp.pk_identity = vo4dnd.pk_patient)
+	(select _('unreviewed documents for patient') || ' ['
+		|| dn.lastnames || ', '
+		|| dn.firstnames || ']'
+	 from dem.names dn
+	 where
+	 	dn.id_identity = vo4dnd.pk_patient
+	 		and
+	 	dn.active is True
+	)
 	 	as comment,
 	vo4dnd.pk_patient
 		as pk_context,
@@ -91,10 +97,16 @@ select
 		as type,
 	_('review results')
 		as l10n_type,
-	(select _('unreviewed results for patient') || ' [' || vbp.lastnames || ', ' || vbp.firstnames || ']'
-	 from dem.v_basic_person vbp
-	 where vbp.pk_identity = vtr.pk_patient
-	)	as comment,
+	(select _('unreviewed results for patient') || ' ['
+		|| dn.lastnames || ', '
+		|| dn.firstnames || ']'
+	 from dem.names dn
+	 where
+	 	dn.id_identity = vtr.pk_patient
+	 		and
+	 	dn.active is True
+	)
+		as comment,
 	vtr.pk_patient
 		as pk_context,
 	NULL
@@ -123,11 +135,14 @@ Using UNION makes sure we get the right level of uniqueness.';
 grant select on dem.v_provider_inbox to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-dem-v_provider_inbox.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-dem-v_provider_inbox.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-dem-v_provider_inbox.sql,v $
--- Revision 1.1  2009-05-24 16:25:43  ncq
+-- Revision 1.2  2009-07-15 12:27:22  ncq
+-- - rewrite to not access v_basic_person
+--
+-- Revision 1.1  2009/05/24 16:25:43  ncq
 -- - new
 --
 --
