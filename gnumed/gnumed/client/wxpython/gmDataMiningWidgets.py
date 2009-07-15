@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.11 2009-07-06 17:10:35 ncq Exp $
-__version__ = '$Revision: 1.11 $'
+# $Id: gmDataMiningWidgets.py,v 1.12 2009-07-15 12:21:10 ncq Exp $
+__version__ = '$Revision: 1.12 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -153,6 +153,13 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		mp.setThresholds(2,3,5)
 		self._PRW_report_name.matcher = mp
 		self._PRW_report_name.add_callback_on_selection(callback = self._on_report_selected)
+		self._PRW_report_name.add_callback_on_lose_focus(callback = self._auto_load_report)
+	#--------------------------------------------------------
+	def _auto_load_report(self, *args, **kwargs):
+		if self._TCTRL_query.GetValue() == u'':
+			if self._PRW_report_name.GetData() is not None:
+				self._TCTRL_query.SetValue(self._PRW_report_name.GetData())
+				self._BTN_run.SetFocus()
 	#--------------------------------------------------------
 	def _on_report_selected(self, *args, **kwargs):
 		self._TCTRL_query.SetValue(self._PRW_report_name.GetData())
@@ -280,6 +287,8 @@ The GNUmed client.
 	def _on_clear_button_pressed(self, evt):
 		self._PRW_report_name.SetText()
 		self._TCTRL_query.SetValue(u'')
+		self._LCTRL_result.set_columns()
+		self._LCTRL_result.patient_key = None
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
@@ -333,10 +342,17 @@ The GNUmed client.
 
 		# FIXME: support debugging (debug=1) depending on --debug
 		gp = Gnuplot.Gnuplot(persist=1)
-		gp.title(_('GNUmed report results:'))
+		if self._PRW_report_name.GetValue().strip() != u'':
+			gp.title(_('GNUmed report: %s') % self._PRW_report_name.GetValue().strip()[:40])
+		else:
+			gp.title(_('GNUmed report results'))
 		gp.xlabel(x_col)
 		gp.ylabel(y_col)
-		gp.plot([ [r[x_col], r[y_col]] for r in self.query_results ])
+		try:
+			gp.plot([ [r[x_col], r[y_col]] for r in self.query_results ])
+		except StandardError:
+			_log.exception('unable to plot results from [%s:%s]' % (x_col, y_col))
+			gmDispatcher.send(signal = 'statustext', msg = _('Error plotting data.'), beep = True)
 
 		return
 	#--------------------------------------------------------
@@ -381,6 +397,8 @@ The GNUmed client.
 			self._LCTRL_result.set_column_widths()
 			gmDispatcher.send('statustext', msg = _('No data returned for this report.'), beep = True)
 			return True
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Found %s results.') % len(rows))
 
 		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
 		# set_columns() and sort them according to position-in-query
@@ -433,7 +451,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.11  2009-07-06 17:10:35  ncq
+# Revision 1.12  2009-07-15 12:21:10  ncq
+# - auto-load report from db if name exists and query empty and name loses focus
+# - clear results, too, on clear button
+# - improved plot title
+# - improved error handling around Gnuplot access
+# - display # of results found
+#
+# Revision 1.11  2009/07/06 17:10:35  ncq
 # - signal errors in sanity check of query before contributing
 # - show warning before sending contribution
 # - fix encoding of contribution email
