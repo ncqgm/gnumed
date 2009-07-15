@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.98 2009-07-09 16:46:20 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmEMRStructWidgets.py,v 1.99 2009-07-15 21:32:35 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -499,7 +499,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 	#--------------------------------------------------------
 	def __is_valid_for_save(self):
 
-		if self._PRW_encounter_type.GetData is None:
+		if self._PRW_encounter_type.GetData() is None:
 			self._PRW_encounter_type.SetBackgroundColour('pink')
 			self._PRW_encounter_type.Refresh()
 			self._PRW_encounter_type.SetFocus()
@@ -1558,7 +1558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.98  2009-07-09 16:46:20  ncq
+# Revision 1.99  2009-07-15 21:32:35  ncq
+# - add missing () thereby making changing enc type possible
+#
+# Revision 1.98  2009/07/09 16:46:20  ncq
 # - cleanup
 # - improved wording as per list
 #
