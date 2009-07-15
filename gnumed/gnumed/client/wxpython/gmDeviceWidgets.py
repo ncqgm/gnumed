@@ -2,14 +2,14 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.8 2009-06-04 16:30:30 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmDeviceWidgets.py,v 1.9 2009-07-15 20:13:37 shilbert Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
 import sys, logging, datetime as pyDT, decimal
-
+from lxml import etree
 
 import wx	#, wx.grid
 
@@ -17,7 +17,7 @@ import wx	#, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmDevices
 from Gnumed.pycommon import gmDispatcher, gmMatchProvider
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
@@ -87,11 +87,23 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		"""Populate fields in pages with data from model."""
+		text = ""
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
 			#self.data_grid.patient = pat
-			pass
+			# get all documents from database
+			pat = gmPerson.gmCurrentPatient()
+			doc_folder = pat.get_document_folder()
+			docs = doc_folder.get_documents()
+			_log.info(docs)
+			# for now assume that the xml file provide the cardiac device context.
+			# that pretty much means logical connection of leads and generator is provided in the xml
+			tree = etree.parse('GNUmed6.xml')
+			DevicesDisplayed = gmDevices.device_status_as_text(tree)
+			for line in DevicesDisplayed:
+			    text = text + line
+			self._TCTRL_current_status.Clear()
+			self._TCTRL_current_status.SetValue(text)
 		else:
 			#self.data_grid.patient = None
 			pass
@@ -130,7 +142,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.8  2009-06-04 16:30:30  ncq
+# Revision 1.9  2009-07-15 20:13:37  shilbert
+# - first step to getting xml from database
+#
+# Revision 1.8  2009/06/04 16:30:30  ncq
 # - use set active patient from pat search widgets
 #
 # Revision 1.7  2009/04/16 12:47:28  ncq
