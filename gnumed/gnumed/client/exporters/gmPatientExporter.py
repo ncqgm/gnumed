@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.136 2009-06-29 15:01:07 ncq Exp $
-__version__ = "$Revision: 1.136 $"
+# $Id: gmPatientExporter.py,v 1.137 2009-07-15 12:47:25 ncq Exp $
+__version__ = "$Revision: 1.137 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -864,7 +864,7 @@ class cEmrExport:
         self.__target.write('    Gender: %s\n' % self.__patient['gender'])
         self.__target.write('    Title: %s\n' % self.__patient['title'])
         self.__target.write('    Dob: %s\n' % self.__patient.get_formatted_dob(format = '%Y-%m-%d'))
-        self.__target.write('    Medical age: %s\n' % gmPerson.dob2medical_age(self.__patient['dob']))
+        self.__target.write('    Medical age: %s\n' % self.__patient.get_medical_age())
     #--------------------------------------------------------
     def dump_constraints(self):
         """
@@ -1192,7 +1192,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.136  2009-06-29 15:01:07  ncq
+# Revision 1.137  2009-07-15 12:47:25  ncq
+# - properly use patient age
+#
+# Revision 1.136  2009/06/29 15:01:07  ncq
 # - use get-latest-soap in encounter formatting
 #
 # Revision 1.135  2009/06/04 16:24:35  ncq
