@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -76,27 +76,6 @@ def extractTagAttribute(start_node=None,SearchTag=None,Attribute=None):
 	for tag in start_node.getchildren():
 		if tag.tag==SearchTag:
 			return tag.get(Attribute)
-
-#def extractDeviceSubParts(DevicePart=None):
-    #DeviceSubParts = []
-#    DeviceObject = Device
-    #for DevicePart in DeviceObject:
-    #    print ('The device has the following parts: %s' %DevicePart)
-        # a subpart is like the CPU of a generator and so forth
-    #    for KeyAttribute in DevicePart.keys():
-    #        if DevicePart.get(KeyAttribute)=='mainboard':
-    #            print 'hey we are dealing with a mainboard here:-)'
-                #manufacturer
-    #            manufacturer=extractTagData(DevicePart,'manufacturer')
-                #model
-    #            model=extractTagData(DevicePart,'model')
-                #return(manufacturer,model)
-
-    #        elif DevicePart.get(KeyAttribute)=='battery':
-    #            print 'hey we are dealing with a battery here'
-
-    #        else:
-    #            print 'hey we are dealing with an unkown device part here. Please provide the XML file to the GNUmed team.'
 
 def device_status_as_text(tree=None):
 	DevicesDict = {}
@@ -204,7 +183,10 @@ if __name__ == '__main__':
 
 #======================================================================
 # $Log: gmDevices.py,v $
-# Revision 1.2  2009-07-15 12:09:59  ncq
+# Revision 1.3  2009-07-15 18:07:25  shilbert
+# - cleanup
+#
+# Revision 1.2  2009/07/15 12:09:59  ncq
 # - some cleanup
 #
 #
