@@ -41,6 +41,8 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgDataMiningPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._PRW_report_name.SetToolTipString(_("If you want to save this query into the database for later use you must provide a descriptive label for it here."))
+        self._TCTRL_query.SetToolTipString(_("Enter the SQL commands to run here. It doesn't matter whether or not you enter a trailing \";\".\n\nNote that:\n- the query is run in a read-only transaction\n- the result list will be artificially limited to the first 1000 rows\n- you can include a column named \"pk_patient\" to make the result rows activate the corresponding patient on double-clicking"))
         self._BTN_run.SetToolTipString(_("Run the query and present the results below."))
         self._BTN_run.SetDefault()
         self._BTN_visualize.SetToolTipString(_("Visualize data from the result list below."))
