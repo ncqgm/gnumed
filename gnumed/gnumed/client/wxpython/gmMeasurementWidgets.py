@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.52 2009-07-06 17:15:45 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmMeasurementWidgets.py,v 1.53 2009-07-15 12:22:46 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1106,6 +1106,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		if self._PRW_problem.GetValue().strip() == u'':
 			self._PRW_problem.display_as_valid(False)
+			validity = False
 		else:
 			self._PRW_problem.display_as_valid(True)
 
@@ -1569,7 +1570,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.52  2009-07-06 17:15:45  ncq
+# Revision 1.53  2009-07-15 12:22:46  ncq
+# - fix incomplete validity check for new-result problem
+#
+# Revision 1.52  2009/07/06 17:15:45  ncq
 # - row labels only test name until proper support for abbrev is there
 # - improved formatting of test result for display in cell
 # - only remind of display being most-recent only if cell actually is multi-result in cell tooltip
