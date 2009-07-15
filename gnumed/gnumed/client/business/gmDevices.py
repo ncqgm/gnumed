@@ -1,18 +1,32 @@
+# -*- coding: utf8 -*-
 #======================================================================
-# GNUmed Device parser
+# GNUmed Device handling
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-from lxml import etree
-import logging
 
-_log = logging.getLogger('gm.ui')
+import sys, logging
+
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+
+_log = logging.getLogger('gm.dev')
 _log.info(__version__)
 #======================================================================
+# XML cardiac device description parsing
+#----------------------------------------------------------------------
+
+
+# since those methods appear in a top-level generic file (gmDevices.py)
+# they need more specific names because things like drivers for
+# urinalyzers, ecg, spiro, ... all conceptually belong into gmDevices.py
+
+
 # Devices holds a list of all cardiac devices in the xml
 # each list item holds a device context ( generator and one or more leads )
 ##Devices = []
@@ -27,7 +41,7 @@ def extractDevices(DevicesTree=None):
 	for Device in DevicesTree:
 		Devices.append(Device)
 	return Devices
-    
+
 def sortDevicesByTypeAndStatus(Devices=None):
 	# todo: sort later, for now return like order gotten from XML 
 	return Devices
@@ -38,7 +52,7 @@ def extractDeviceParts(Device=None,Type=None):
 		if DevicePart.get("type") == Type:
 			DeviceParts.append(DevicePart)
 	return DeviceParts
-    
+
 def sortLeadsByPosition(Leads=None):
 	#skips sorting for now
 	return Leads
@@ -166,9 +180,16 @@ def device_status_as_text(tree=None):
 				impedanceunit = extractTagAttribute(start_node=action,SearchTag='impedance',Attribute='unit')
 				line = _('last check:')+' '+action_date+' '+_('Sensing:')+' '+sensing+sensingunit+' '+_('Threshold')+' '+threshold+thresholdunit+' '+_('Impedance:')+' '+impedance+' '+impedanceunit+'\n\n' 
 				DevicesDisplayed.append(line)
+
 	return DevicesDisplayed
 
+#======================================================================
+# main - unit testing
+#----------------------------------------------------------------------
 if __name__ == '__main__':
+
+	from lxml import etree
+
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -179,3 +200,11 @@ if __name__ == '__main__':
 	DevicesDisplayed = device_status_as_text(tree)
 	for line in DevicesDisplayed:
 		print line
+
+
+#======================================================================
+# $Log: gmDevices.py,v $
+# Revision 1.2  2009-07-15 12:09:59  ncq
+# - some cleanup
+#
+#
