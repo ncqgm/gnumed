@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.114 2009-06-04 16:23:40 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmMedDoc.py,v 1.115 2009-07-15 12:15:04 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -505,7 +505,7 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
 				{'cmd': u'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
-				{'cmd': u'select i18n.upd_tx((select i18n.get_curr_lang(), %(orig)s, %(tx)s)',
+				{'cmd': u'select i18n.upd_tx((select i18n.get_curr_lang()), %(orig)s, %(tx)s)',
 				 'args': {
 				 	'orig': self._payload[self._idx['type']],
 					'tx': translation
@@ -711,7 +711,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.114  2009-06-04 16:23:40  ncq
+# Revision 1.115  2009-07-15 12:15:04  ncq
+# - add missing ) in setting trans for doc type
+#
+# Revision 1.114  2009/06/04 16:23:40  ncq
 # - fix fk_type that needs to be pk_type
 #
 # Revision 1.113  2009/05/13 13:10:31  ncq
