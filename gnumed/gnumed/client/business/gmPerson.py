@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.187 2009-06-17 20:42:25 ncq Exp $
-__version__ = "$Revision: 1.187 $"
+# $Id: gmPerson.py,v 1.188 2009-07-15 12:46:59 ncq Exp $
+__version__ = "$Revision: 1.188 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -338,7 +338,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 #		raise AttributeError
 #============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
+	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity = %s"
 	_cmds_store_payload = [
 		u"""update dem.identity set
 				title = %(title)s,
@@ -348,13 +348,14 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 				gender = %(gender)s,
 				fk_marital_status = %(pk_marital_status)s,
 				karyotype = %(karyotype)s,
-				pupic = %(pupic)s
+				pupic = %(pupic)s,
+				deceased = %(deceased)s
 			where
-				pk=%(pk_identity)s and
+				pk = %(pk_identity)s and
 				xmin = %(xmin_identity)s""",
-		u"""select xmin_identity from dem.v_basic_person where pk_identity=%(pk_identity)s"""
+		u"""select xmin_identity from dem.v_basic_person where pk_identity = %(pk_identity)s"""
 	]
-	_updatable_fields = ["title", "dob", "tob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
+	_updatable_fields = ["title", "dob", "tob", "cob", "gender", "pk_marital_status", "karyotype", "pupic", 'deceased']
 	#--------------------------------------------------------
 	def _get_ID(self):
 		return self._payload[self._idx['pk_identity']]
@@ -936,9 +937,20 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#----------------------------------------------------------------------
 	def get_medical_age(self):
 		dob = self['dob']
+
 		if dob is None:
-			return '??'
-		return dob2medical_age(dob)
+			return u'??'
+
+		if self['deceased'] is None:
+
+			return gmDateTime.format_interval_medically (
+				pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone) - dob
+			)
+
+		return u'%s%s' % (
+			gmTools.u_latin_cross,
+			gmDateTime.format_interval_medically(self['deceased'] - dob)
+		)
 	#----------------------------------------------------------------------
 	def dob_in_range(self, min_distance=u'1 week', max_distance=u'1 week'):
 		cmd = u'select dem.dob_is_in_range(%(dob)s, %(min)s, %(max)s)'
@@ -1846,11 +1858,6 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 #============================================================
 # convenience functions
 #============================================================
-def dob2medical_age(dob):
-	"""Format patient age in a hopefully meaningful way."""
-	age = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone) - dob
-	return gmDateTime.format_interval_medically(age)
-#============================================================
 def create_name(pk_person, firstnames, lastnames, active=False):
 	queries = [{
 		'cmd': u"select dem.add_name(%s, %s, %s, %s)",
@@ -2273,9 +2280,6 @@ if __name__ == '__main__':
 #		emr = myPatient.get_emr()
 #		print "EMR      ", emr
 	#--------------------------------------------------------
-	def test_dob2medical_age():
-		pass
-	#--------------------------------------------------------
 	def test_name():
 		for pk in range(1,16):
 			name = cPersonName(aPK_obj=pk)
@@ -2306,7 +2310,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.187  2009-06-17 20:42:25  ncq
+# Revision 1.188  2009-07-15 12:46:59  ncq
+# - support deceased
+#
+# Revision 1.187  2009/06/17 20:42:25  ncq
 # - is_patient property
 #
 # Revision 1.186  2009/06/04 16:24:13  ncq
