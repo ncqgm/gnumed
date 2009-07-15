@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.85 2009-06-10 21:00:43 ncq Exp $
+# $Id: gmTools.py,v 1.86 2009-07-15 12:17:14 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.86 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -60,6 +60,7 @@ u_writing_hand = u'\u270d'
 u_pencil_1 = u'\u270e'
 u_pencil_2 = u'\u270f'
 u_pencil_3 = u'\u2710'
+u_latin_cross = u'\u271d'
 
 #===========================================================================
 def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
@@ -80,7 +81,13 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	from Gnumed.pycommon import gmCfg2
 	cfg = gmCfg2.gmCfgData()
-	cfg.add_stream_source(source = 'gm-versions', stream = remote_file)
+	try:
+		cfg.add_stream_source(source = 'gm-versions', stream = remote_file)
+	except (UnicodeDecodeError):
+		remote_file.close()
+		_log.exception("cannot read version file from [%s]", url)
+		return (None, _('Cannot read version information from:\n\n%s') % url)
+
 	remote_file.close()
 
 	latest_branch = cfg.get('latest branch', 'branch', source_order = [('gm-versions', 'return')])
@@ -1033,7 +1040,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.85  2009-06-10 21:00:43  ncq
+# Revision 1.86  2009-07-15 12:17:14  ncq
+# - add latin cross unicode point
+# - better error handling on version checking
+#
+# Revision 1.85  2009/06/10 21:00:43  ncq
 # - remove "gm_versions" cfg source after use
 #
 # Revision 1.84  2009/05/13 10:35:22  ncq
