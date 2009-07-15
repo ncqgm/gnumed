@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.104 2009-06-20 22:39:50 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmTopPanel.py,v 1.105 2009-07-15 12:47:57 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -291,23 +291,36 @@ class cMainTopPanel(wx.Panel):
 	#-------------------------------------------------------
 	def __update_age_label(self):
 
-		# FIXME: if the age is below, say, 2 hours we should fire
-		# a timer here that updates the age in increments of 1 minute ... :-)
-		if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
-			template = _('%s  %s (%s today !)')
-		else:
-			template = u'%s  %s (%s)'
-		age = template % (
-			gmPerson.map_gender2symbol[self.curr_pat['gender']],
-			self.curr_pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
-			self.curr_pat['medical_age']
-		)
+		if self.curr_pat['deceased'] is None:
 
-		# Easter Egg ;-)
-		if self.curr_pat['lastnames'] == u'Leibner':
-			if self.curr_pat['firstnames'] == u'Steffi':
-				if self.curr_pat['preferred'] == u'Wildfang':
-					age = u'%s %s' % (gmTools.u_black_heart, age)
+			if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
+				template = _('%s  %s (%s today !)')
+			else:
+				template = u'%s  %s (%s)'
+
+			# FIXME: if the age is below, say, 2 hours we should fire
+			# a timer here that updates the age in increments of 1 minute ... :-)
+			age = template % (
+				gmPerson.map_gender2symbol[self.curr_pat['gender']],
+				self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+				self.curr_pat['medical_age']
+			)
+
+			# Easter Egg ;-)
+			if self.curr_pat['lastnames'] == u'Leibner':
+				if self.curr_pat['firstnames'] == u'Steffi':
+					if self.curr_pat['preferred'] == u'Wildfang':
+						age = u'%s %s' % (gmTools.u_black_heart, age)
+
+		else:
+
+			template = u'%s  %s - %s (%s)'
+			age = template % (
+				gmPerson.map_gender2symbol[self.curr_pat['gender']],
+				self.curr_pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
+				self.curr_pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding()),
+				self.curr_pat['medical_age']
+			)
 
 		self.lbl_age.SetLabel(age)
 	#-------------------------------------------------------
@@ -448,7 +461,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.104  2009-06-20 22:39:50  ncq
+# Revision 1.105  2009-07-15 12:47:57  ncq
+# - properly display age of dead people
+#
+# Revision 1.104  2009/06/20 22:39:50  ncq
 # - remove lock menu item
 #
 # Revision 1.103  2009/06/04 16:33:51  ncq
