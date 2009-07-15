@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.464 2009-07-09 16:47:10 ncq Exp $
-__version__ = "$Revision: 1.464 $"
+# $Id: gmGuiMain.py,v 1.465 2009-07-15 12:22:13 ncq Exp $
+__version__ = "$Revision: 1.465 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -149,7 +149,7 @@ class gmTopLevelFrame(wx.Frame):
 		_log.info('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
 
 		self.__setup_main_menu()
-		self.SetupStatusBar()
+		self.setup_statusbar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
 			gmTools.coalesce(_provider['title'], ''),
 			_provider['firstnames'][:1],
@@ -160,12 +160,14 @@ class gmTopLevelFrame(wx.Frame):
 
 		# set window title via template
 		if _cfg.get(option = 'slave'):
-			self.__title_template = u'%s:%s [%%s%%s.%%s@%%s] %%s' % (
+			tmp = _('Slave %s:%s') % (
 				_cfg.get(option = 'slave personality'),
 				_cfg.get(option = 'xml-rpc port')
 			)
 		else:
-			self.__title_template = 'GNUmed [%s%s.%s@%s] %s'
+			tmp = u'GNUmed'
+		self.__title_template = u'%s [%%s%%s.%%s@%%s] %%s' % tmp
+
 		self.updateTitle()
 
 		# set window icon
@@ -2285,9 +2287,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.SetTitle(title)
 	#----------------------------------------------
 	#----------------------------------------------
-	def SetupStatusBar(self):
+	def setup_statusbar(self):
 		sb = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
-		sb.SetStatusWidths([-1, 150])
+		sb.SetStatusWidths([-1, 225])
 		# add time and date display to the right corner of the status bar
 		self.clock_update_timer = wx.PyTimer(self._cb_update_clock)
 		self._cb_update_clock()
@@ -2872,7 +2874,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.464  2009-07-09 16:47:10  ncq
+# Revision 1.465  2009-07-15 12:22:13  ncq
+# - improved window title if running in slave mode
+# - some more room for the bottom-right time display
+#
+# Revision 1.464  2009/07/09 16:47:10  ncq
 # - go to plugins now with active letter
 # - if not lang is set it returns none, not zero rows
 #
