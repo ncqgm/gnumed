@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.10 2009-07-16 19:59:06 shilbert Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmDeviceWidgets.py,v 1.11 2009-07-16 20:25:08 shilbert Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import wx	#, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.business import gmPerson, gmDevices
+from Gnumed.business import gmPerson, gmDevices, gmMedDoc
 from Gnumed.pycommon import gmDispatcher, gmMatchProvider
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
@@ -32,7 +32,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		# check if report types exist in db, if not create them
 		dtype = gmMedDoc.create_document_type('cardiac device checkup report')
-		dtype.set_translation(_('cardiac device checkup report')
+		dtype.set_translation(_('cardiac device checkup report'))
 		self.__init_ui()
 		self.__register_interests()
 	#--------------------------------------------------------
@@ -91,6 +91,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	#--------------------------------------------------------
 	def _populate_with_data(self):
 		text = ""
+		selected_docs = []
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
 			# get all documents from database
@@ -153,7 +154,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.10  2009-07-16 19:59:06  shilbert
+# Revision 1.11  2009-07-16 20:25:08  shilbert
+# - fixed typos and syntax errors
+#
+# Revision 1.10  2009/07/16 19:59:06  shilbert
 # - xml should now be gotten from database
 #
 # Revision 1.9  2009/07/15 20:13:37  shilbert
