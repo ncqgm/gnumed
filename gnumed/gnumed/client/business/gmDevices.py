@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -72,15 +72,15 @@ def extractTagData(start_node=None,SearchTag=None):
 			return tag.text
 
 def extractTagAttribute(start_node=None,SearchTag=None,Attribute=None):
-	#tag = None
 	for tag in start_node.getchildren():
-		if tag.tag==SearchTag:
+		if tag.tag == SearchTag:
 			return tag.get(Attribute)
 
 def device_status_as_text(tree=None):
 	DevicesDict = {}
 	DevicePartSpecsDict = {}
 	DevicesDisplayed = []
+
 	""" In this area GNUmed will place the status of all cardiac devices and device parts. 
 	There can be more than one device at a time\n\n
 	It potentially looks like this\n
@@ -107,11 +107,12 @@ def device_status_as_text(tree=None):
 	there are true devices such as inactive leads or non-explanted generators
 	class will be 'lead' instead of type 'lead' for DeviceParts
 	"""
-	DevicesTree = tree.getroot() 
+
+	DevicesTree = tree.getroot()
 	Devices = extractDevices(DevicesTree)
 	DevicesSorted = sortDevicesByTypeAndStatus(Devices)
 	#print 'Number of devices: %s' %len(Devices)
-    
+
 	for Device in DevicesSorted:
 		DevicesDisplayed.append('-------------------------------------------------------------\n')
 		# check for class
@@ -173,17 +174,27 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	# for now assume that the xml file provide the cardiac device context.
-	# that pretty much means logical connection of leads and generator is provided in the xml
-	tree = etree.parse('GNUmed6.xml')
-	DevicesDisplayed = device_status_as_text(tree)
-	for line in DevicesDisplayed:
-		print line
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
+		#----------------------------------------------------
+		def test_parsing_cardio_dev_state():
+			# for now assume that the xml file provide the cardiac device context.
+			# that pretty much means logical connection of leads and generator is provided in the xml
+			print "parsing device status from XML file:", sys.argv[2]
+			xml_device_desc = etree.parse(sys.argv[2])
+			formatted_device_status = device_status_as_text(xml_device_desc)
+			for line in formatted_device_status:
+				print line
+		#----------------------------------------------------
+
+		test_parsing_cardio_dev_state()
 
 #======================================================================
 # $Log: gmDevices.py,v $
-# Revision 1.3  2009-07-15 18:07:25  shilbert
+# Revision 1.4  2009-07-16 09:51:16  ncq
+# - cleanup and better naming
+#
+# Revision 1.3  2009/07/15 18:07:25  shilbert
 # - cleanup
 #
 # Revision 1.2  2009/07/15 12:09:59  ncq
