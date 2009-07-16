@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.180 2009-07-06 17:16:09 ncq Exp $
-__version__ = "$Revision: 1.180 $"
+# $Id: gmMedDocWidgets.py,v 1.181 2009-07-16 11:31:20 ncq Exp $
+__version__ = "$Revision: 1.181 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -216,9 +216,10 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 
+		self._LCTRL_doc_type.DeleteAllItems()
+
 		doc_types = gmMedDoc.get_document_types()
 		pos = len(doc_types) + 1
-		self._LCTRL_doc_type.DeleteAllItems()
 
 		for doc_type in doc_types:
 			row_num = self._LCTRL_doc_type.InsertStringItem(pos, label = doc_type['type'])
@@ -271,7 +272,8 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	#--------------------------------------------------------
 	def _on_set_translation_button_pressed(self, event):
 		doc_type = self._LCTRL_doc_type.get_selected_item_data()
-		doc_type.set_translation(translation = self._TCTRL_l10n_type.GetValue().strip())
+		if doc_type.set_translation(translation = self._TCTRL_l10n_type.GetValue().strip()):
+			wx.CallAfter(self.repopulate_ui)
 
 		return
 	#--------------------------------------------------------
@@ -1950,7 +1952,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.180  2009-07-06 17:16:09  ncq
+# Revision 1.181  2009-07-16 11:31:20  ncq
+# - repopulate doc types list after setting tx
+#
+# Revision 1.180  2009/07/06 17:16:09  ncq
 # - comment
 #
 # Revision 1.179  2009/07/01 17:08:17  ncq
