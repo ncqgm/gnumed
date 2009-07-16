@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.143 $"
+__version__ = "$Revision: 1.144 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime, logging, time
@@ -1047,10 +1047,17 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 #-----------------------------------------------------------
 def update_encounter_type(description=None, l10n_description=None):
 
-	rows, idx = gmPG2.run_rw_queries(queries = [{
+	rows, idx = gmPG2.run_rw_queries(
+		queries = [{
 		'cmd': u"select i18n.upd_tx(%(desc)s, %(l10n_desc)s)",
 		'args': {'desc': description, 'l10n_desc': l10n_description}
-	}])
+		}],
+		return_data = True
+	)
+
+	success = rows[0][0]
+	if not success:
+		_log.warning('updating encounter type [%s] to [%s] failed', description, l10n_description)
 
 	return {'description': description, 'l10n_description': l10n_description}
 #-----------------------------------------------------------
@@ -1329,7 +1336,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.143  2009-07-06 14:56:04  ncq
+# Revision 1.144  2009-07-16 09:51:53  ncq
+# - properly update enc type and check success
+#
+# Revision 1.143  2009/07/06 14:56:04  ncq
 # - consolidate date formatting
 # - use improved test results formatting
 #
