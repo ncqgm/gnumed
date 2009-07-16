@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.99 2009-07-15 21:32:35 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmEMRStructWidgets.py,v 1.100 2009-07-16 09:52:15 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -301,7 +301,7 @@ def edit_encounter_type(parent=None, encounter_type=None):
 	ea.data = encounter_type
 	ea.mode = gmTools.coalesce(encounter_type, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
-	dlg.SetTitle(gmTools.coalesce(encounter_type, _('Adding new encounter type'), _('Editing local encounter name')))
+	dlg.SetTitle(gmTools.coalesce(encounter_type, _('Adding new encounter type'), _('Editing local encounter type name')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
 	return False
@@ -1558,7 +1558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.99  2009-07-15 21:32:35  ncq
+# Revision 1.100  2009-07-16 09:52:15  ncq
+# - improved labelling
+#
+# Revision 1.99  2009/07/15 21:32:35  ncq
 # - add missing () thereby making changing enc type possible
 #
 # Revision 1.98  2009/07/09 16:46:20  ncq
