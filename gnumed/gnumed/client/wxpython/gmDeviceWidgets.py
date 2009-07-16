@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.9 2009-07-15 20:13:37 shilbert Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmDeviceWidgets.py,v 1.10 2009-07-16 19:59:06 shilbert Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -30,6 +30,9 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	def __init__(self, *args, **kwargs):
 		wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		# check if report types exist in db, if not create them
+		dtype = gmMedDoc.create_document_type('cardiac device checkup report')
+		dtype.set_translation(_('cardiac device checkup report')
 		self.__init_ui()
 		self.__register_interests()
 	#--------------------------------------------------------
@@ -90,18 +93,26 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		text = ""
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-			#self.data_grid.patient = pat
 			# get all documents from database
 			pat = gmPerson.gmCurrentPatient()
 			doc_folder = pat.get_document_folder()
 			docs = doc_folder.get_documents()
 			_log.info(docs)
+			# get only documents of type 'routine device checkup'
+			for doc in docs:
+				if doc['type'] == 'cardiac device checkup report':
+				    selected_docs.append(doc)
+			if not len(selected_docs) == 0:
+			# since get_documents() is sorted I simply get the first one as the most recent one
 			# for now assume that the xml file provide the cardiac device context.
 			# that pretty much means logical connection of leads and generator is provided in the xml
-			tree = etree.parse('GNUmed6.xml')
-			DevicesDisplayed = gmDevices.device_status_as_text(tree)
-			for line in DevicesDisplayed:
-			    text = text + line
+				tree = etree.parse(selected_docs[0])
+				DevicesDisplayed = gmDevices.device_status_as_text(tree)
+				for line in DevicesDisplayed:
+					text = text + line
+			else:
+				_log.info('There are no device checkup reports in the database')
+				text = _('There are no device checkup reports in the database')
 			self._TCTRL_current_status.Clear()
 			self._TCTRL_current_status.SetValue(text)
 		else:
@@ -142,7 +153,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.9  2009-07-15 20:13:37  shilbert
+# Revision 1.10  2009-07-16 19:59:06  shilbert
+# - xml should now be gotten from database
+#
+# Revision 1.9  2009/07/15 20:13:37  shilbert
 # - first step to getting xml from database
 #
 # Revision 1.8  2009/06/04 16:30:30  ncq
