@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v11-clin-hospital_stay-dynamic.sql,v 1.2 2009-05-04 11:43:39 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v11-clin-hospital_stay-dynamic.sql,v 1.3 2009-07-16 09:53:19 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -63,11 +63,18 @@ alter table clin.hospital_stay
 -- --------------------------------------------------------------
 grant select, insert, update, delete on
 	clin.hospital_stay
-	, clin.hospital_stay_pk_seq
+to group "gm-doctors";
+
+grant select, usage, update on
+	clin.hospital_stay_pk_seq
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-hospital_stay-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-hospital_stay-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
+-- $Log: v11-clin-hospital_stay-dynamic.sql,v $
+-- Revision 1.3  2009-07-16 09:53:19  ncq
+-- - proper sequence grants
+--
 --
