@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.11 2009-07-16 20:25:08 shilbert Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmDeviceWidgets.py,v 1.12 2009-07-17 19:57:06 shilbert Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal
+import sys, logging, datetime as pyDT, decimal, StringIO
 from lxml import etree
 
 import wx	#, wx.grid
@@ -98,7 +98,6 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 			pat = gmPerson.gmCurrentPatient()
 			doc_folder = pat.get_document_folder()
 			docs = doc_folder.get_documents()
-			_log.info(docs)
 			# get only documents of type 'routine device checkup'
 			for doc in docs:
 				if doc['type'] == 'cardiac device checkup report':
@@ -107,7 +106,8 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 			# since get_documents() is sorted I simply get the first one as the most recent one
 			# for now assume that the xml file provide the cardiac device context.
 			# that pretty much means logical connection of leads and generator is provided in the xml
-				tree = etree.parse(selected_docs[0])
+				xml = selected_docs[0].get_parts()[0].export_to_file()
+				tree = etree.parse(xml)
 				DevicesDisplayed = gmDevices.device_status_as_text(tree)
 				for line in DevicesDisplayed:
 					text = text + line
@@ -154,7 +154,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.11  2009-07-16 20:25:08  shilbert
+# Revision 1.12  2009-07-17 19:57:06  shilbert
+# - now gets xml data from database
+#
+# Revision 1.11  2009/07/16 20:25:08  shilbert
 # - fixed typos and syntax errors
 #
 # Revision 1.10  2009/07/16 19:59:06  shilbert
