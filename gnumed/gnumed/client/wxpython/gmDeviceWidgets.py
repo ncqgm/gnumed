@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.13 2009-07-17 21:08:07 shilbert Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmDeviceWidgets.py,v 1.14 2009-07-17 22:18:45 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -30,11 +30,15 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	def __init__(self, *args, **kwargs):
 		wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
 		# check if report types exist in db, if not create them
 		dtype = gmMedDoc.create_document_type('cardiac device checkup report')
 		dtype.set_translation(_('cardiac device checkup report'))
+
 		self.__init_ui()
 		self.__register_interests()
+
+		self.__checkup_doc_type = u'cardiac device checkup report'
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -90,35 +94,29 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		text = ""
-		selected_docs = []
+
 		pat = gmPerson.gmCurrentPatient()
-		if pat.connected:
-			# get all documents from database
-			pat = gmPerson.gmCurrentPatient()
-			doc_folder = pat.get_document_folder()
-			docs = doc_folder.get_documents()
-			# get only documents of type 'routine device checkup'
-			for doc in docs:
-				if doc['type'] == 'cardiac device checkup report':
-					selected_docs.append(doc)
-			if not len(selected_docs) == 0:
+		if not pat.connected:
+			return True
+
+		# get all documents from database
+		pat = gmPerson.gmCurrentPatient()
+		doc_folder = pat.get_document_folder()
+		# get only documents of type 'routine device checkup'
+		checkups = doc_folder.get_documents(doc_type = self.__checkup_doc_type)
+
+		text = _('There are no device checkup reports in the database.')
+		if len(checkups) != 0:
 			# since get_documents() is sorted I simply get the first one as the most recent one
 			# for now assume that the xml file provide the cardiac device context.
 			# that pretty much means logical connection of leads and generator is provided in the xml
-				xml = selected_docs[0].get_parts()[0].export_to_file()
-				tree = etree.parse(xml)
-				DevicesDisplayed = gmDevices.device_status_as_text(tree)
-				for line in DevicesDisplayed:
-					text = text + line
-			else:
-				_log.info('There are no device checkup reports in the database')
-				text = _('There are no device checkup reports in the database')
-			self._TCTRL_current_status.Clear()
-			self._TCTRL_current_status.SetValue(text)
-		else:
-			#self.data_grid.patient = None
-			pass
+			xml_fname = checkups[0].get_parts()[0].export_to_file()
+			tree = etree.parse(xml_fname)
+			DevicesDisplayed = gmDevices.device_status_as_text(tree)
+			text = u''.join(DevicesDisplayed)
+
+		self._TCTRL_current_status.SetValue(text)
+
 		return True
 #================================================================
 # main
@@ -154,7 +152,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.13  2009-07-17 21:08:07  shilbert
+# Revision 1.14  2009-07-17 22:18:45  ncq
+# - a *bit* of cleanup ;-)
+#
+# Revision 1.13  2009/07/17 21:08:07  shilbert
 # - cleanup
 #
 # Revision 1.12  2009/07/17 19:57:06  shilbert
