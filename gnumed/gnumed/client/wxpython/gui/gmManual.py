@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.48 2008-07-10 21:09:31 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmManual.py,v 1.49 2009-07-17 09:27:38 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path, logging
@@ -135,7 +135,8 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		return gmManual.tab_name
 	#--------------------------------------------------------
 	def GetWidget (self, parent):
-		self._widget = ManualHtmlPanel (parent, self.gb['main.frame'])
+		#self._widget = ManualHtmlPanel (parent, ...)
+		self._widget = wx.Panel(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
@@ -243,7 +244,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		#wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.48  2008-07-10 21:09:31  ncq
+# Revision 1.49  2009-07-17 09:27:38  ncq
+# - cleanup
+#
+# Revision 1.48  2008/07/10 21:09:31  ncq
 # - call path detection with app name and wx
 #
 # Revision 1.47  2008/07/10 08:39:20  ncq

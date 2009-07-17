@@ -250,16 +250,6 @@ if __name__ == "__main__":
 			self.smap[text] = REWResizer(ctrl) # hold on so not garbage collected
 			szr.Add(szr2, 1, wx.GROW)
 			return szr
-			
-			
-			
-					
-
-
-	class REFrame(wx.Frame):
-		def __init__(self, parent, id, title):
-			wx.Frame.__init__(self,parent, id, title)
-			self.p = REPanel(self,-1)
 
 	class REApp(wx.App):
 
