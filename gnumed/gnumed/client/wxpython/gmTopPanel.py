@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.105 2009-07-15 12:47:57 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmTopPanel.py,v 1.106 2009-07-17 09:26:53 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -212,7 +212,6 @@ class cMainTopPanel(wx.Panel):
 		wx.EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
 
 #		tools_menu = self.__gb['main.toolsmenu']
-#		main_frame = self.__gb['main.frame']
 
 		# - BMI calculator
 #		wx.EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
@@ -461,7 +460,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.105  2009-07-15 12:47:57  ncq
+# Revision 1.106  2009-07-17 09:26:53  ncq
+# - no more main.frame in gui broker
+#
+# Revision 1.105  2009/07/15 12:47:57  ncq
 # - properly display age of dead people
 #
 # Revision 1.104  2009/06/20 22:39:50  ncq

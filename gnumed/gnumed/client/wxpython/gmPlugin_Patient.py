@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.11 2008-03-06 18:29:29 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPlugin_Patient.py,v 1.12 2009-07-17 09:26:53 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -146,7 +146,7 @@ class wxPatientPlugin (BasePlugin):
 		menu = self.gb['clinical.submenu']
 		self.menu_id = wx.NewId ()
 		menu.Append (self.menu_id, menuname)
-		wx.EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
+		#wx.EVT_MENU (..., self.menu_id, self.OnTool)
 	#-----------------------------------------------------
 	def OnTool (self, event):
 		self.ReceiveFocus()
@@ -176,7 +176,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.11  2008-03-06 18:29:29  ncq
+# Revision 1.12  2009-07-17 09:26:53  ncq
+# - no more main.frame in gui broker
+#
+# Revision 1.11  2008/03/06 18:29:29  ncq
 # - standard lib logging only
 #
 # Revision 1.10  2006/10/08 11:07:20  ncq
