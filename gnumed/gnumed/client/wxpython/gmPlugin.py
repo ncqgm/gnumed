@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.83 2009-07-09 16:47:22 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmPlugin.py,v 1.84 2009-07-17 09:28:08 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -102,26 +102,26 @@ class cNotebookPlugin:
 		# add ourselves to the main notebook
 		nb.AddPage(widget, self.name())
 
-		# and put ourselves into the menu structure if so
-		menu_info = self.MenuInfo()
-		if menu_info is not None:
-			name_of_menu, menu_item_name = menu_info
-			menu = self.gb['main.%smenu' % name_of_menu]
-			self.menu_id = wx.NewId()
-			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
-			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
-			wx.EVT_MENU (self.gb['main.frame'], self.menu_id, self._on_raise_by_menu)
-
 		# so notebook can find this widget
 		self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__] = self
 		self.gb['horstspace.notebook.pages'].append(self)
 
-		# register with direct access menu
-		if menu_info is not None:
-			name_of_menu, menu_item_name = menu_info
+		# and put ourselves into the menu structure
+		menu_info = self.MenuInfo()
+		if menu_info is None:
+			# register with direct access menu only
+			gmDispatcher.send(signal = u'plugin_loaded', plugin_name = self.name(), class_name = self.__class__.__name__)
 		else:
-			menu_item_name = self.name()
-		gmDispatcher.send(signal = u'plugin_loaded', name = menu_item_name, class_name = self.__class__.__name__)
+			name_of_menu, menu_item_name = menu_info
+			gmDispatcher.send (
+				signal = u'plugin_loaded',
+				plugin_name = menu_item_name,
+				class_name = self.__class__.__name__,
+				menu_name = name_of_menu,
+				menu_item_name = menu_item_name,
+				# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
+				menu_help_string = self.name()
+			)
 
 		return True
 	#-----------------------------------------------------
@@ -399,7 +399,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.83  2009-07-09 16:47:22  ncq
+# Revision 1.84  2009-07-17 09:28:08  ncq
+# - plugin menu placement now done by signal *only*
+#
+# Revision 1.83  2009/07/09 16:47:22  ncq
 # - cleanup
 #
 # Revision 1.82  2009/07/01 17:10:58  ncq
