@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.127 2009-07-02 20:56:26 ncq Exp $
-__version__ = "$Revision: 1.127 $"
+# $Id: gmPatSearchWidgets.py,v 1.128 2009-07-17 09:25:06 ncq Exp $
+__version__ = "$Revision: 1.128 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -1115,7 +1115,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	def __init_ui(self):
 		self._LCTRL_patients.set_columns ([
 			_('Zone'),
-			' ! ',
+			_('Urgency'),
+			#' ! ',
 			_('Waiting time'),
 			_('Patient'),
 			_('Born'),
@@ -1219,20 +1220,25 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	#--------------------------------------------------------
 	def _on_add_patient_button_pressed(self, evt):
 
-		pat = None
-		if self._PRW_search_patient.person is not None:
-			pat = self._PRW_search_patient.person
-		else:
-			curr_pat = gmPerson.gmCurrentPatient()
-			if curr_pat.connected:
-				pat = curr_pat
+#		pat = None
+#		if self._PRW_search_patient.person is not None:
+#			pat = self._PRW_search_patient.person
+#		else:
+#			curr_pat = gmPerson.gmCurrentPatient()
+#			if curr_pat.connected:
+#				pat = curr_pat
 
-		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = pat)
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add waiting list entry: No patient selected.'), beep = True)
+
+		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = curr_pat)
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.ShowModal()
+		dlg.Destroy()
 
-		self._PRW_search_patient.person = None
-		self._PRW_search_patient._display_name()
+		#self._PRW_search_patient.person = None
+		#self._PRW_search_patient._display_name()
 	#--------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
@@ -1241,6 +1247,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		ea = cWaitingListEntryEditAreaPnl(self, -1, entry = item)
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.ShowModal()
+		dlg.Destroy()
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
@@ -1390,7 +1397,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.127  2009-07-02 20:56:26  ncq
+# Revision 1.128  2009-07-17 09:25:06  ncq
+# - ! -> Urgency as per list
+# - adding acts on the current patient *only*
+# - add missing Destroy
+#
+# Revision 1.127  2009/07/02 20:56:26  ncq
 # - used edit area dlg2
 #
 # Revision 1.126  2009/07/01 17:10:35  ncq
