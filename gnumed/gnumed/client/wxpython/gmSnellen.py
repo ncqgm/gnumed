@@ -4,8 +4,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.4 2008-06-26 17:01:57 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmSnellen.py,v 1.5 2009-07-17 09:26:03 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -528,27 +528,6 @@ double-click ends""")), 0, wx.ALL, 15)
 #		self.EndModal(1)
 
 #============================================================================
-# FIXME needn't be a plugin, rewrite to not be one
-#class gmSnellen (gmPlugin.wx.BasePlugin):
-#	tab_name = _('Snellen Chart')
-
-#	def name (self):
-#		return gmSnellen.tab_name
-
-#	def register (self):
-#		menu = self.gb['main.toolsmenu']
-#		menu.Append (ID_SNELLENMENU, "Snellen", "Snellen Chart")
-#		wx.EVT_MENU (self.gb['main.frame'], ID_SNELLENMENU, self.OnSnellenTool)
-
-#	def unregister (self):
-#		menu = self.gb['main.toolsmenu']
-#		menu.Delete (ID_SNELLENMENU)
-		
-#	def OnSnellenTool (self, event):
-#		frame = cSnellenCfgDlg (self.gb['main.frame'])
-#		frame.Show (1)
-	
-#============================================================================
 # main
 #----------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -580,7 +559,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.4  2008-06-26 17:01:57  ncq
+# Revision 1.5  2009-07-17 09:26:03  ncq
+# - no more main.frame in guibroker
+#
+# Revision 1.4  2008/06/26 17:01:57  ncq
 # - be extra careful about returning distinct results from cfg
 #
 # Revision 1.3  2008/03/05 22:30:15  ncq
