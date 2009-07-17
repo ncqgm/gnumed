@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.465 2009-07-15 12:22:13 ncq Exp $
-__version__ = "$Revision: 1.465 $"
+# $Id: gmGuiMain.py,v 1.466 2009-07-17 09:29:14 ncq Exp $
+__version__ = "$Revision: 1.466 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -130,20 +130,11 @@ class gmTopLevelFrame(wx.Frame):
 	def __init__(self, parent, id, title, size=wx.DefaultSize):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
-		wx.Frame.__init__ (
-			self,
-			parent,
-			id,
-			title,
-			size,
-			style = wx.DEFAULT_FRAME_STYLE
-		)
+		wx.Frame.__init__(self, parent, id, title, size, style = wx.DEFAULT_FRAME_STYLE)
 
-		#initialize the gui broker
 		self.__gb = gmGuiBroker.GuiBroker()
-		self.__gb['main.frame'] = self
-		self.bar_width = -1
 		self.__pre_exit_callbacks = []
+		self.bar_width = -1
 		self.menu_id2plugin = {}
 
 		_log.info('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
@@ -158,23 +149,9 @@ class gmTopLevelFrame(wx.Frame):
 			_provider['db_user']
 		))
 
-		# set window title via template
-		if _cfg.get(option = 'slave'):
-			tmp = _('Slave %s:%s') % (
-				_cfg.get(option = 'slave personality'),
-				_cfg.get(option = 'xml-rpc port')
-			)
-		else:
-			tmp = u'GNUmed'
-		self.__title_template = u'%s [%%s%%s.%%s@%%s] %%s' % tmp
-
-		self.updateTitle()
-
-		# set window icon
-		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
-		icon = wx.EmptyIcon()
-		icon.CopyFromBitmap(icon_bmp_data)
-		self.SetIcon(icon)
+		self.__set_window_title_template()
+		self.__update_window_title()
+		self.__set_window_icon()
 
 		self.__register_events()
 
@@ -190,6 +167,23 @@ class gmTopLevelFrame(wx.Frame):
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
 		self.__set_GUI_size()
+	#----------------------------------------------
+	def __set_window_icon(self):
+		# set window icon
+		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
+		icon = wx.EmptyIcon()
+		icon.CopyFromBitmap(icon_bmp_data)
+		self.SetIcon(icon)
+	#----------------------------------------------
+	def __set_window_title_template(self):
+		if _cfg.get(option = 'slave'):
+			tmp = _('Slave %s:%s') % (
+				_cfg.get(option = 'slave personality'),
+				_cfg.get(option = 'xml-rpc port')
+			)
+		else:
+			tmp = u'GNUmed'
+		self.__title_template = u'%s [%%s%%s.%%s@%%s] %%s' % tmp
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
@@ -732,10 +726,27 @@ class gmTopLevelFrame(wx.Frame):
 
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
-	def _on_plugin_loaded(self, name, class_name):
-		item = self.menu_plugins.Append(-1, name, _('Raise plugin [%s].') % name)
+	def _on_plugin_loaded(self, plugin_name=None, class_name=None, menu_name=None, menu_item_name=None, menu_help_string=None):
+
+		_log.debug('registering plugin with menu system')
+		_log.debug(' generic name: %s', plugin_name)
+		_log.debug(' class name: %s', class_name)
+		_log.debug(' specific menu: %s', menu_name)
+		_log.debug(' menu item: %s', menu_item_name)
+
+		# add to generic "go to plugin" menu
+		item = self.menu_plugins.Append(-1, plugin_name, _('Raise plugin [%s].') % plugin_name)
 		self.Bind(wx.EVT_MENU, self.__on_raise_a_plugin, item)
 		self.menu_id2plugin[item.Id] = class_name
+
+		# add to specific menu if so requested
+		if menu_name is not None:
+			menu = self.__gb['main.%smenu' % menu_name]
+			item = menu.Append(-1, menu_item_name, menu_help_string)
+			self.Bind(wx.EVT_MENU, self.__on_raise_a_plugin, item)
+			self.menu_id2plugin[item.Id] = class_name
+
+		return True
 	#----------------------------------------------
 	def __on_raise_a_plugin(self, evt):
 		gmDispatcher.send (
@@ -852,13 +863,13 @@ class gmTopLevelFrame(wx.Frame):
 		wx.CallAfter(self.__on_pat_name_changed)
 	#-----------------------------------------------
 	def __on_pat_name_changed(self):
-		self.updateTitle()
+		self.__update_window_title()
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
-		self.updateTitle()
+		self.__update_window_title()
 		try:
 			gmHooks.run_hook_script(hook = u'post_patient_activation')
 		except:
@@ -1789,22 +1800,6 @@ class gmTopLevelFrame(wx.Frame):
 		wx.CallAfter(self.__save_screenshot)
 		evt.Skip()
 	#----------------------------------------------
-#	def __save_screenshot_old(self):
-#
-#		time.sleep(0.5)
-#
-#		w, h = self.GetSize()
-#		wdc = wx.WindowDC(self)
-#		mdc = wx.MemoryDC()
-#		img = wx.EmptyBitmap(w, h)
-#		mdc.SelectObject(img)
-#		mdc.Blit(0, 0, w, h, wdc, 0, 0)
-#
-#		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
-#		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-#		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
-#		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % fname)
-	#----------------------------------------------
 	def __save_screenshot(self):
 
 		time.sleep(0.5)
@@ -1848,7 +1843,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_display_bugtracker(self, evt):
 		webbrowser.open (
-			url = 'http://savannah.gnu.org/bugs/?group=gnumed',
+			url = 'https://bugs.launchpad.net/gnumed/',
+			#url = 'http://savannah.gnu.org/bugs/?group=gnumed',
 			new = False,
 			autoraise = True
 		)
@@ -1935,9 +1931,7 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug('gmTopLevelFrame.OnClose() start')
 		self._clean_exit()
 		self.Destroy()
-		gmLog2.flush()
 		_log.debug('gmTopLevelFrame.OnClose() end')
-		#open('gm-from-cvs.bat').close()
 		return True
 	#----------------------------------------------
 	def OnExportEMR(self, event):
@@ -2237,7 +2231,6 @@ class gmTopLevelFrame(wx.Frame):
 			workplace = gmSurgery.gmCurrentPractice().active_workplace
 		)
 
-		# restore stdout/stderr
 		if _cfg.get(option = 'debug'):
 			print '---=== GNUmed shutdown ===---'
 			print _('You have to manually close this window to finalize shutting down GNUmed.')
@@ -2257,7 +2250,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
-	def updateTitle(self):
+	def __update_window_title(self):
 		"""Update title of main window based on template.
 
 		This gives nice tooltips on iconified GNUmed instances.
@@ -2374,16 +2367,7 @@ class gmApp(wx.App):
 			print _('redirecting STDOUT/STDERR to this log window')
 			print '---=== GNUmed startup ===---'
 
-		self.user_activity_detected = True
-		self.elapsed_inactivity_slices = 0
-		# FIXME: make configurable
-		self.max_user_inactivity_slices = 15	# 15 * 2000ms == 30 seconds
-		self.user_activity_timer = gmTimer.cTimer (
-			callback = self._on_user_activity_timer_expired,
-			delay = 2000			# hence a minimum of 2 and max of 3.999... seconds after which inactivity is detected
-		)
-		self.user_activity_timer.Start(oneShot=True)
-
+		self.__setup_user_activity_timer()
 		self.__register_events()
 
 		wx.CallAfter(self._do_after_init)
@@ -2398,11 +2382,10 @@ class gmApp(wx.App):
 		"""
 		print "App OnExit"
 		_log.debug('gmApp.OnExit() start')
-		try:
-			self.user_activity_timer.Stop()
-		except:
-			pass
+
+		self.__shutdown_user_activity_timer(self)
 		print "user activity timer stopped"
+
 		if _cfg.get(option = 'debug'):
 			self.RestoreStdio()
 			sys.stdin = sys.__stdin__
@@ -2478,6 +2461,24 @@ class gmApp(wx.App):
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
 		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
 		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
+	#----------------------------------------------
+	def __setup_user_activity_timer(self):
+		self.user_activity_detected = True
+		self.elapsed_inactivity_slices = 0
+		# FIXME: make configurable
+		self.max_user_inactivity_slices = 15	# 15 * 2000ms == 30 seconds
+		self.user_activity_timer = gmTimer.cTimer (
+			callback = self._on_user_activity_timer_expired,
+			delay = 2000			# hence a minimum of 2 and max of 3.999... seconds after which inactivity is detected
+		)
+		self.user_activity_timer.Start(oneShot=True)
+	#----------------------------------------------
+	def __shutdown_user_activity_timer(self):
+		try:
+			self.user_activity_timer.Stop()
+			del self.user_activity_timer
+		except:
+			pass
 	#----------------------------------------------
 	def __register_events(self):
 		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
@@ -2581,6 +2582,7 @@ class gmApp(wx.App):
 				]
 			)
 			go_on = dlg.ShowModal()
+			dlg.Destroy()
 			if go_on != wx.ID_YES:
 				_log.info('user decided to not connect to this database')
 				return False
@@ -2874,7 +2876,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.465  2009-07-15 12:22:13  ncq
+# Revision 1.466  2009-07-17 09:29:14  ncq
+# - some cleanup
+# - Destroy dangling dialog from startup sequence which prevented
+#   proper closing
+# - improved plugin registration with menu system
+#
+# Revision 1.465  2009/07/15 12:22:13  ncq
 # - improved window title if running in slave mode
 # - some more room for the bottom-right time display
 #
