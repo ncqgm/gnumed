@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.116 2009-07-16 11:30:38 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmMedDoc.py,v 1.117 2009-07-18 14:06:14 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -93,28 +93,29 @@ class cDocumentFolder:
 	#--------------------------------------------------------
 	def get_doc_list(self, doc_type=None):
 		"""return flat list of document IDs"""
+
 		args = {
 			'ID': self.pk_patient,
 			'TYP': doc_type
 		}
+
+		cmd = u"""
+			select vdm.pk_doc
+			from blobs.v_doc_med vdm
+			where
+				vdm.pk_patient = %%(ID)s
+				%s
+			order by vdm.clin_when"""
+
 		if doc_type is None:
-			cmd = u"select pk_doc from blobs.v_doc_med where pk_patient = %(ID)s order by clin_when"
-		elif type(doc_type) == types.StringType:
-			cmd = u"""
-				select vdm.pk_doc
-				from blobs.v_doc_med vdm
-				where
-					vdm.pk_patient = %(ID)s and
-					vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)
-				order by vdm.clin_when"""
+			cmd = cmd % u''
 		else:
-			cmd = u"""
-				select vdm.pk_doc
-				from blobs.v_doc_med vdm
-				where
-					vdm.pk_patient = %(ID)s and
-					vdm.pk_type = %(TYP)s
-				order by vdm.clin_when"""
+			try:
+				int(doc_type)
+				cmd = cmd % u'and vdm.pk_type = %(TYP)s'
+			except (TypeError, ValueError):
+				cmd = cmd % u'and vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)'
+
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		doc_ids = []
 		for row in rows:
@@ -712,7 +713,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.116  2009-07-16 11:30:38  ncq
+# Revision 1.117  2009-07-18 14:06:14  ncq
+# - fix getting doc IDs list with doc type specified
+#
+# Revision 1.116  2009/07/16 11:30:38  ncq
 # - cleanup
 #
 # Revision 1.115  2009/07/15 12:15:04  ncq
