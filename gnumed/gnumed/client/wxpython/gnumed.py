@@ -45,8 +45,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.156 2009-07-09 16:48:07 ncq Exp $
-__version__ = "$Revision: 1.156 $"
+# $Id: gnumed.py,v 1.157 2009-07-18 12:15:24 ncq Exp $
+__version__ = "$Revision: 1.157 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -416,8 +416,8 @@ def shutdown_backend():
 #==========================================================
 def shutdown_logging():
 
-	if _cfg.get(option = u'debug'):
-		import types
+#	if _cfg.get(option = u'debug'):
+#		import types
 
 #		def get_refcounts():
 #			refcount = {}
@@ -495,7 +495,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.156  2009-07-09 16:48:07  ncq
+# Revision 1.157  2009-07-18 12:15:24  ncq
+# - 0.5.rc4
+#
+# Revision 1.156  2009/07/09 16:48:07  ncq
 # - bump version
 # - properly lookup "local import" cli option
 #
