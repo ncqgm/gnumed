@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.14 2009-07-17 22:18:45 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmDeviceWidgets.py,v 1.15 2009-07-18 14:33:02 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -32,13 +32,13 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		# check if report types exist in db, if not create them
-		dtype = gmMedDoc.create_document_type('cardiac device checkup report')
+		self.__checkup_doc_type = u'cardiac device checkup report'
+		dtype = gmMedDoc.create_document_type(self.__checkup_doc_type)
+		# cannot reuse self.__checkup_doc_type here or else it wouldn't get translated
 		dtype.set_translation(_('cardiac device checkup report'))
 
 		self.__init_ui()
 		self.__register_interests()
-
-		self.__checkup_doc_type = u'cardiac device checkup report'
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -71,9 +71,10 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
+		pass
 		#self.__action_button_popup = wx.Menu(title = _('Act on selected results'))
 
-		menu_id = wx.NewId()
+		#menu_id = wx.NewId()
 		#self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
 		#wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_sign_current_selection)
 
@@ -99,10 +100,9 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		if not pat.connected:
 			return True
 
-		# get all documents from database
+		# get documents of type self.__checkup_doc_type
 		pat = gmPerson.gmCurrentPatient()
 		doc_folder = pat.get_document_folder()
-		# get only documents of type 'routine device checkup'
 		checkups = doc_folder.get_documents(doc_type = self.__checkup_doc_type)
 
 		text = _('There are no device checkup reports in the database.')
@@ -152,7 +152,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.14  2009-07-17 22:18:45  ncq
+# Revision 1.15  2009-07-18 14:33:02  ncq
+# - some more cleanup
+#
+# Revision 1.14  2009/07/17 22:18:45  ncq
 # - a *bit* of cleanup ;-)
 #
 # Revision 1.13  2009/07/17 21:08:07  shilbert
