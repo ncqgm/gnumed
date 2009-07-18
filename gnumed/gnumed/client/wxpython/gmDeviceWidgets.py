@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.16 2009-07-18 17:48:24 shilbert Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmDeviceWidgets.py,v 1.17 2009-07-18 19:26:35 shilbert Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -53,9 +53,9 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		#self.data_grid.patient = None
 		pass
 	#--------------------------------------------------------
-	def __repopulate_ui():
+	def repopulate_ui(self):
 		_log.info('repopulate ui')
-		_populate_with_data()
+		self._populate_with_data()
 	#--------------------------------------------------------
 	#def _on_select_button_pressed(self, evt):
 	#	if self._RBTN_my_unsigned.GetValue() is True:
@@ -105,13 +105,14 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		pat = gmPerson.gmCurrentPatient()
 		doc_folder = pat.get_document_folder()
 		checkups = doc_folder.get_documents(doc_type = self.__checkup_doc_type)
+		_log.info(checkups)
 
 		text = _('There are no device checkup reports in the database.')
 		if len(checkups) != 0:
 			# since get_documents() is sorted I simply get the first one as the most recent one
 			# for now assume that the xml file provide the cardiac device context.
 			# that pretty much means logical connection of leads and generator is provided in the xml
-			xml_fname = checkups[0].get_parts()[0].export_to_file()
+			xml_fname = checkups[-1].get_parts()[0].export_to_file()
 			tree = etree.parse(xml_fname)
 			DevicesDisplayed = gmDevices.device_status_as_text(tree)
 			text = u''.join(DevicesDisplayed)
@@ -153,7 +154,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.16  2009-07-18 17:48:24  shilbert
+# Revision 1.17  2009-07-18 19:26:35  shilbert
+# - now actually returns the most recent interrogation
+#
+# Revision 1.16  2009/07/18 17:48:24  shilbert
 # - debugging repopulate_ui()
 #
 # Revision 1.15  2009/07/18 14:33:02  ncq
