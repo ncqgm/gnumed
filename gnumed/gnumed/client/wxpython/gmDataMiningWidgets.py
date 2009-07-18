@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.12 2009-07-15 12:21:10 ncq Exp $
-__version__ = '$Revision: 1.12 $'
+# $Id: gmDataMiningWidgets.py,v 1.13 2009-07-18 11:46:53 ncq Exp $
+__version__ = '$Revision: 1.13 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -193,6 +193,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def _on_list_item_activated(self, evt):
 		data = self._LCTRL_result.get_selected_item_data()
+
 		try:
 			pk_pat = data['pk_patient']
 		except KeyError:
@@ -204,10 +205,24 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 				'You may want to use the SQL "AS" column alias\n'
 				'syntax to make your query return such a column.\n'
 				),
-				_('activating patient from report result')
+				_('Activating patient from report result')
 			)
 			return
-		pat = gmPerson.cPatient(aPK_obj = pk_pat)
+
+		try:
+			pat = gmPerson.cPatient(aPK_obj = pk_pat)
+		except StandardError:
+			gmGuiHelpers.gm_show_warning (
+				_(
+				'Cannot activate patient.\n'
+				'\n'
+				'There does not seem to exist a patient\n'
+				'with an internal ID of [%s].\n'
+				) % pk_pat,
+				_('Activating patient from report result')
+			)
+			return
+
 		from Gnumed.wxpython import gmPatSearchWidgets
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 	#--------------------------------------------------------
@@ -451,7 +466,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.12  2009-07-15 12:21:10  ncq
+# Revision 1.13  2009-07-18 11:46:53  ncq
+# - be more robust in the face of non-existant patients being activated
+#
+# Revision 1.12  2009/07/15 12:21:10  ncq
 # - auto-load report from db if name exists and query empty and name loses focus
 # - clear results, too, on clear button
 # - improved plot title
