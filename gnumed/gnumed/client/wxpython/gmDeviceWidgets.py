@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.15 2009-07-18 14:33:02 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmDeviceWidgets.py,v 1.16 2009-07-18 17:48:24 shilbert Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -53,8 +53,9 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 		#self.data_grid.patient = None
 		pass
 	#--------------------------------------------------------
-	#def _on_review_button_pressed(self, evt):
-	#	self.PopupMenu(self.__action_button_popup)
+	def __repopulate_ui():
+		_log.info('repopulate ui')
+		_populate_with_data()
 	#--------------------------------------------------------
 	#def _on_select_button_pressed(self, evt):
 	#	if self._RBTN_my_unsigned.GetValue() is True:
@@ -152,7 +153,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDeviceWidgets.py,v $
-# Revision 1.15  2009-07-18 14:33:02  ncq
+# Revision 1.16  2009-07-18 17:48:24  shilbert
+# - debugging repopulate_ui()
+#
+# Revision 1.15  2009/07/18 14:33:02  ncq
 # - some more cleanup
 #
 # Revision 1.14  2009/07/17 22:18:45  ncq
