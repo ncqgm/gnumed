@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.53 2009-07-15 12:22:46 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmMeasurementWidgets.py,v 1.54 2009-07-20 20:33:35 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -74,7 +74,9 @@ def edit_measurement(parent=None, measurement=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
 	dlg.SetTitle(gmTools.coalesce(measurement, _('Adding new measurement'), _('Editing measurement')))
 	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
 		return True
+	dlg.Destroy()
 	return False
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
@@ -1299,13 +1301,25 @@ def manage_measurement_types(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	#------------------------------------------------------------
+	def edit(test_type=None):
+		ea = cMeasurementTypeEAPnl(parent = parent, id = -1, type = test_type)
+		dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+		dlg.SetTitle(gmTools.coalesce(test_type, _('Adding measurement type'), _('Editing measurement type')))
+
+		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
+			return True
+
+		dlg.Destroy()
+		return False
+	#------------------------------------------------------------
 	def refresh(lctrl):
 		mtypes = gmPathLab.get_measurement_types()
 		items = [ [
 			m['abbrev'],
 			m['name'],
 			gmTools.coalesce(m['loinc'], u''),
-			gmTools.coalesce(m['code'], u'') + gmTools.coalesce(m['coding_system'], u'', u' (%s)'),
+			#gmTools.coalesce(m['code'], u'') + gmTools.coalesce(m['coding_system'], u'', u' (%s)'),
 			gmTools.coalesce(m['conversion_unit'], u''),
 			gmTools.coalesce(m['comment_type'], u''),
 			gmTools.coalesce(m['internal_name_org'], _('in-house')),
@@ -1329,11 +1343,12 @@ def manage_measurement_types(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing measurement types.'),
-		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Code'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
+		#columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Code'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
+		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
 		single_selection = True,
 		refresh_callback = refresh,
-		#edit_callback = edit,
-		#new_callback = edit,
+		edit_callback = edit,
+		new_callback = edit,
 		delete_callback = delete
 	)
 #----------------------------------------------------------------
@@ -1420,6 +1435,86 @@ limit 50""" % {'in_house': _('in house lab')}
 		self.matcher = mp
 		self.SetToolTipString(_('Select the type of measurement.'))
 		self.selection_only = False
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgMeasurementTypeEAPnl
+
+class cMeasurementTypeEAPnl(wxgMeasurementTypeEAPnl.wxgMeasurementTypeEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['type']
+			del kwargs['type']
+		except KeyError:
+			data = None
+
+		wxgMeasurementTypeEAPnl.wxgMeasurementTypeEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__register_interests()
+
+		self.successful_save_msg = _('Successfully saved measurement type.')
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		self.data = 1
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data = 1
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_name.SetText(u'', None, True)
+		self._PRW_abbrev.SetText(u'', None, True)
+		self._PRW_conversion_unit.SetText(u'', None, True)
+		self._PRW_loinc.SetText(u'', None, True)
+		self._TCTRL_loinc_info.SetValue(u'')
+		self._TCTRL_comment_type.SetValue(u'')
+		self._PRW_test_org.SetText(u'', None, True)
+		self._TCTRL_comment_org.SetValue(u'')
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_name.SetText(self.data['name'], self.data['name'], True)
+		self._PRW_abbrev.SetText(self.data['abbrev'], self.data['abbrev'], True)
+		self._PRW_conversion_unit.SetText (
+			gmTools.coalesce(self.data['conversion_unit'], u''),
+			self.data['conversion_unit'],
+			True
+		)
+		self._PRW_loinc.SetText (
+			gmTools.coalesce(self.data['loinc'], u''),
+			self.data['loinc'],
+			True
+		)
+		self._TCTRL_loinc_info.SetValue(u'')			# FIXME: properly set
+		self._TCTRL_comment_type.SetValue(gmTools.coalesce(self.data['comment_type'], u''))
+		self._PRW_test_org.SetText (
+			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['internal_name_org']),
+			self.data['pk_test_org'],
+			True
+		)
+		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+		self._PRW_test_org.SetText (
+			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['internal_name_org']),
+			self.data['pk_test_org'],
+			True
+		)
+		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
 #================================================================
 class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1570,7 +1665,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.53  2009-07-15 12:22:46  ncq
+# Revision 1.54  2009-07-20 20:33:35  ncq
+# - start implementing test type management
+#
+# Revision 1.53  2009/07/15 12:22:46  ncq
 # - fix incomplete validity check for new-result problem
 #
 # Revision 1.52  2009/07/06 17:15:45  ncq
