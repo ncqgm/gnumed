@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-i18n-force_curr_lang.sql,v 1.1 2009-07-09 16:09:28 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-i18n-force_curr_lang.sql,v 1.2 2009-07-21 13:08:34 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -29,8 +29,8 @@ DECLARE
 	_db_user ALIAS FOR $2;
 BEGIN
     raise notice ''Forcing current language for [%] to [%] without checking for translations...'', _db_user, _lang;
-    delete from i18n.curr_lang where user = _db_user;
-    insert into i18n.curr_lang(db_user, lang) values (_db_user, _lang);
+    delete from i18n.curr_lang where db_user = _db_user;
+    select i18n.curr_lang(db_user, lang) values (_db_user, _lang);
     return True;
 END;
 ';
@@ -90,11 +90,14 @@ comment on function i18n.tx_or_null(text) is
 'will return either the translation into i18n.curr_lang.lang for the current user or null';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-i18n-force_curr_lang.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-i18n-force_curr_lang.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-i18n-force_curr_lang.sql,v $
--- Revision 1.1  2009-07-09 16:09:28  ncq
+-- Revision 1.2  2009-07-21 13:08:34  ncq
+-- - fix faulty column access
+--
+-- Revision 1.1  2009/07/09 16:09:28  ncq
 -- - force_curr_lang always set the user to gm-dbo rather than the intended one
 --
 --
