@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-i18n-force_curr_lang.sql,v 1.2 2009-07-21 13:08:34 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v11-i18n-force_curr_lang.sql,v 1.3 2009-07-21 13:15:26 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -30,7 +30,7 @@ DECLARE
 BEGIN
     raise notice ''Forcing current language for [%] to [%] without checking for translations...'', _db_user, _lang;
     delete from i18n.curr_lang where db_user = _db_user;
-    select i18n.curr_lang(db_user, lang) values (_db_user, _lang);
+    insert into i18n.curr_lang(db_user, lang) values (_db_user, _lang);
     return True;
 END;
 ';
@@ -90,11 +90,14 @@ comment on function i18n.tx_or_null(text) is
 'will return either the translation into i18n.curr_lang.lang for the current user or null';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-i18n-force_curr_lang.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v11-i18n-force_curr_lang.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v11-i18n-force_curr_lang.sql,v $
--- Revision 1.2  2009-07-21 13:08:34  ncq
+-- Revision 1.3  2009-07-21 13:15:26  ncq
+-- - fix faulty table INSERT
+--
+-- Revision 1.2  2009/07/21 13:08:34  ncq
 -- - fix faulty column access
 --
 -- Revision 1.1  2009/07/09 16:09:28  ncq
