@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.113 $"
+__version__ = "$Revision: 1.114 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -610,6 +610,11 @@ def get_translation_languages():
 		queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 	)
 	return [ r[0] for r in rows ]
+#------------------------------------------------------------------------
+def get_current_user_language():
+	cmd = u'select i18n.get_curr_lang()'
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
+	return rows[0][0]
 #------------------------------------------------------------------------
 def set_user_language(user=None, language=None):
 	"""Set the user language in the database.
@@ -1908,7 +1913,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.113  2009-07-02 20:48:24  ncq
+# Revision 1.114  2009-07-23 16:32:01  ncq
+# - get_current_user_language
+#
+# Revision 1.113  2009/07/02 20:48:24  ncq
 # - log creation/closure of connections with PID
 #
 # Revision 1.112  2009/06/29 15:01:33  ncq
