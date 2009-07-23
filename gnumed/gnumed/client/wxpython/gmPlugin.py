@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.84 2009-07-17 09:28:08 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmPlugin.py,v 1.85 2009-07-23 20:04:48 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -347,6 +347,9 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 
 	FIXME: NOT from files in directories (important for py2exe)
 	"""
+	if workplace == u'System Fallback':
+		return [u'gmProviderInboxPlugin', u'gmDataMiningPlugin']
+
 	if workplace is None:
 		workplace = gmSurgery.gmCurrentPractice().active_workplace
 
@@ -399,7 +402,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.84  2009-07-17 09:28:08  ncq
+# Revision 1.85  2009-07-23 20:04:48  ncq
+# - if workplace name is System-Fallback then return fixed list of plugins
+#
+# Revision 1.84  2009/07/17 09:28:08  ncq
 # - plugin menu placement now done by signal *only*
 #
 # Revision 1.83  2009/07/09 16:47:22  ncq
