@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.103 2009-07-06 17:12:34 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmGuiHelpers.py,v 1.104 2009-07-23 16:39:23 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,7 +23,7 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg, wxgMultilineTextEntryDlg
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg
 
 # ========================================================================
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
@@ -142,6 +142,9 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 		else:
 			self.Close()
 # ========================================================================
+from Gnumed.wxGladeWidgets import wxgMultilineTextEntryDlg
+
+
 class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 	"""Editor for a bit of text."""
 
@@ -170,15 +173,16 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		if title is not None:
 			self.SetTitle(title)
 
+		if self.original_text is not None:
+			self._TCTRL_text.SetValue(self.original_text)
+			self._BTN_restore.Enable(True)
+
 		if msg is None:
 			self._LBL_msg.Hide()
 		else:
 			self._LBL_msg.SetLabel(msg)
+			self.Layout()
 			self.Refresh()
-
-		if self.original_text is not None:
-			self._TCTRL_text.SetValue(self.original_text)
-			self._BTN_restore.Enable(True)
 	#--------------------------------------------------------
 	def _get_value(self):
 		return self._TCTRL_text.GetValue()
@@ -521,7 +525,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.103  2009-07-06 17:12:34  ncq
+# Revision 1.104  2009-07-23 16:39:23  ncq
+# - try to improve multiline text dialog
+#
+# Revision 1.103  2009/07/06 17:12:34  ncq
 # - cleanup
 #
 # Revision 1.102  2009/05/18 15:31:29  ncq
