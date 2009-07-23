@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_hx_family.sql,v 1.1 2009-07-15 12:13:35 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-clin-v_hx_family.sql,v 1.2 2009-07-23 16:44:42 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -88,14 +88,11 @@ from
 	clin.hx_family_item hxfi,
 	dem.identity as di,
 	dem.names as dn
---	dem.v_basic_person vbp
 where
 	hxfi.pk = chxf.fk_hx_family_item
 		and
 	hxfi.fk_narrative_condition is null
 		and
---	hxfi.fk_relative = vbp.pk_identity
---		and
 	hxfi.fk_relative = di.pk
 		and
 	hxfi.fk_relative = dn.id_identity
@@ -120,9 +117,7 @@ select
 	chxf.fk_hx_family_item as pk_hx_family_item,
 	hxfi.fk_narrative_condition as pk_narrative_condition,
 	hxfi.fk_relative as relative_identity,
---	vbp.firstnames || ' ' || vbp.lastnames as name_relative,
 	dn.firstnames || ' ' || dn.lastnames as name_relative,
---	vbp.dob as dob_relative,
 	di.dob as dob_relative,
 	(select clin.clin_narrative.narrative from clin.clin_narrative where pk = fk_narrative_condition) as condition,
 	hxfi.age_noted as age_noted,
@@ -133,13 +128,11 @@ from
 	clin.hx_family_item hxfi,
 	dem.identity as di,
 	dem.names as dn
---	dem.v_basic_person vbp
 where
 	hxfi.pk = chxf.fk_hx_family_item
 		and
 	hxfi.fk_relative is null
 		and
---	vbp.pk_identity = hxfi.fk_relative
 	hxfi.fk_relative = di.pk
 		and
 	hxfi.fk_relative = dn.id_identity
@@ -154,11 +147,14 @@ comment on view clin.v_hx_family is
 grant select on clin.v_hx_family to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_hx_family.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_hx_family.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_hx_family.sql,v $
--- Revision 1.1  2009-07-15 12:13:35  ncq
+-- Revision 1.2  2009-07-23 16:44:42  ncq
+-- - cleanup
+--
+-- Revision 1.1  2009/07/15 12:13:35  ncq
 -- - need to recreate after dem.v_basic_person
 --
 --

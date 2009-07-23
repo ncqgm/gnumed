@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.36 2009-07-02 20:55:48 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmNarrativeWidgets.py,v 1.37 2009-07-23 16:41:13 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -14,7 +14,7 @@ import wx.lib.expando as wxexpando
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime, gmPG2
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime, gmPG2, gmCfg
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
@@ -1426,7 +1426,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.36  2009-07-02 20:55:48  ncq
+# Revision 1.37  2009-07-23 16:41:13  ncq
+# - cleanup
+#
+# Revision 1.36  2009/07/02 20:55:48  ncq
 # - properly honor allow-same-problem on non-new editors only
 #
 # Revision 1.35  2009/07/01 17:09:06  ncq
