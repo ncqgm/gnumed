@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.13 2009-05-18 15:30:45 ncq Exp $
+# $Id: gmSurgery.py,v 1.14 2009-07-23 20:03:36 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -184,7 +184,7 @@ where
 					('system', 'return'),
 				]
 			),
-			u'GNUmed Default'
+			u'Local Default'
 		)
 
 		return self.__active_workplace
@@ -254,7 +254,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.13  2009-05-18 15:30:45  ncq
+# Revision 1.14  2009-07-23 20:03:36  ncq
+# - make "Local Default" the built-in default workplace
+#
+# Revision 1.13  2009/05/18 15:30:45  ncq
 # - delete_workplace
 #
 # Revision 1.12  2009/02/04 12:28:44  ncq
