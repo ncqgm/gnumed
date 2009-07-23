@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,7 +44,7 @@ class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('patient', _('Edit &demographics'))
+		return ('patient', _('&Demographics'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -95,7 +95,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.14  2009-06-29 15:13:25  ncq
+# Revision 1.15  2009-07-23 16:43:03  ncq
+# - better name
+#
+# Revision 1.14  2009/06/29 15:13:25  ncq
 # - improved placement in menu hierarchy
 # - add active letters
 #
