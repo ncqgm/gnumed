@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.25 2009-06-04 16:33:51 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmStaffWidgets.py,v 1.26 2009-07-23 16:42:38 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -114,7 +114,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	def _on_activate_button_pressed(self, evt):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
-		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Activating GNUmed staff member.'))
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Activating GNUmed user.'))
 		if conn is None:
 			return False
 
@@ -136,7 +136,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	def _on_deactivate_button_pressed(self, evt):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
-		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Deactivating GNUmed staff member.'))
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Deactivating GNUmed user.'))
 		if conn is None:
 			return False
 
@@ -160,7 +160,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	def _on_save_button_pressed(self, event):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
-		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Modifying GNUmed staff member.'))
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Modifying GNUmed user.'))
 		if conn is None:
 			return False
 
@@ -173,7 +173,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Failed to save changes to GNUmed database user.'),
-				aTitle = _('Modifying GNUmed staff member')
+				aTitle = _('Modifying GNUmed user')
 			)
 			return False
 
@@ -209,7 +209,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		if self._TXT_password.GetValue() != self._TXT_password_again.GetValue():
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Password entries do not match. Please type in the passwords again to rule out typos.'),
-				aTitle = _('Adding GNUmed staff member')
+				aTitle = _('Adding GNUmed user')
 			)
 			self._TXT_password.SetValue('')
 			self._TXT_password_again.SetValue('')
@@ -217,7 +217,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 
 		# connect as "gm-dbo"
 		conn = gmAuthWidgets.get_dbowner_connection (
-			procedure = _('Enlisting Patient as Staff.'),
+			procedure = _('Enlisting person as user.'),
 			dbo_password = gmTools.none_if(self._TXT_dbo_password.GetValue(), u'')
 		)
 		if conn is None:
@@ -241,13 +241,13 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			if e.pgcode == gmPG2.sql_error_codes.UNIQUE_VIOLATION:
 				gmGuiHelpers.gm_show_error (
 					aMessage = _(
-						'Cannot add GNUmed staff member.\n'
+						'Cannot add GNUmed user.\n'
 						'\n'
 						'The database account [%s] is already listed as a\n'
-						'staff member. There can only be one staff member\n'
+						'GNUmed user. There can only be one GNUmed user\n'
 						'for each database account.\n'
 					) % db_account,
-					aTitle = _('Adding GNUmed staff member')
+					aTitle = _('Adding GNUmed user')
 				)
 				return False
 			raise
@@ -258,7 +258,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.25  2009-06-04 16:33:51  ncq
+# Revision 1.26  2009-07-23 16:42:38  ncq
+# - staff -> user
+#
+# Revision 1.25  2009/06/04 16:33:51  ncq
 # - adjust to dob-less persons
 #
 # Revision 1.24  2008/12/01 12:17:17  ncq
