@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.466 2009-07-17 09:29:14 ncq Exp $
-__version__ = "$Revision: 1.466 $"
+# $Id: gmGuiMain.py,v 1.467 2009-07-23 16:40:55 ncq Exp $
+__version__ = "$Revision: 1.467 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -447,13 +447,13 @@ class gmTopLevelFrame(wx.Frame):
 		menu_patient.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
-		item = menu_patient.Append(-1, _('&Merge patients'), _('Merge two persons into one.'))
+		item = menu_patient.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
 		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
 
 		menu_patient.AppendSeparator()
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
-		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as staff'), _('Enlist current person as staff member'))
+		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
 
 		# FIXME: temporary until external program framework is active
@@ -1109,10 +1109,18 @@ class gmTopLevelFrame(wx.Frame):
 			if lang not in langs:
 				langs.append(lang)
 
+		selected_lang = gmPG2.get_current_user_language()
+		try:
+			selections = [langs.index(selected_lang)]
+		except ValueError:
+			selections = None
+
 		language = gmListWidgets.get_choices_from_list (
 			parent = self,
 			msg = _(
-				'Please select the database language from the list below.\n'
+				'Please select your database language from the list below.\n'
+				'\n'
+				'Your current setting is [%s].\n'
 				'\n'
 				'This setting will not affect the language the user interface\n'
 				'is displayed in but rather that of the metadata returned\n'
@@ -1121,9 +1129,10 @@ class gmTopLevelFrame(wx.Frame):
 				'\n'
 				'To switch back to the default English language unselect all\n'
 				'pre-selected languages from the list below.'
-			),
+			) % gmTools.coalesce(selected_lang, _('not configured')),
 			caption = _('Configuring database language'),
 			choices = langs,
+			selections = selections,
 			columns = [_('Language')],
 			data = langs,
 			single_selection = True,
@@ -2876,7 +2885,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.466  2009-07-17 09:29:14  ncq
+# Revision 1.467  2009-07-23 16:40:55  ncq
+# - patient -> person
+# - staff -> user
+# - improved database language selection: pre-select current language
+#
+# Revision 1.466  2009/07/17 09:29:14  ncq
 # - some cleanup
 # - Destroy dangling dialog from startup sequence which prevented
 #   proper closing
