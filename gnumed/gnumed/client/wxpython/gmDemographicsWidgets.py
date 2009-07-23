@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.167 2009-06-29 15:05:24 ncq Exp $
-__version__ = "$Revision: 1.167 $"
+# $Id: gmDemographicsWidgets.py,v 1.168 2009-07-23 16:38:33 ncq Exp $
+__version__ = "$Revision: 1.168 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1911,10 +1911,10 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 				error = True
 
 		if self._DP_dob.GetValue().GetYear() < 1900:
-			print dir(self._DP_dob)
 			error = True
 			gmDispatcher.send(signal = 'statustext', msg = _('The year of birth must lie after 1900.'), beep = True)
 			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			self._DP_dob.SetFocus()
 		else:
 			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
 		self._DP_dob.Refresh()
@@ -1924,58 +1924,68 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		return (not error)
 	#----------------------------------------------------------------
-	def __address_valid_for_save(self):
+	def __address_valid_for_save(self, empty_address_is_valid=False):
 
 		# existing address ? if so set other fields
 		if self._PRW_address_searcher.GetData() is not None:
 			wx.CallAfter(self.__set_fields_from_address_searcher)
 			return True
 
-		error = False
-
-		# fields which can contain new items
-		is_any_field_filled = False
-		address_fields = (
+		# must either all contain something or none of them
+		fields_to_fill = (
 			self._TCTRL_number,
 			self._PRW_zip,
 			self._PRW_street,
-			self._PRW_urb
-		)
-		for field in address_fields:
-			if field.GetValue().strip() != u'':
-				is_any_field_filled = True
-				field.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-			else:
-				if is_any_field_filled:
-					error = True
-					msg = _('To properly create an address, all the related fields must be filled in.')
-					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
-					field.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-					field.SetFocus()
-			field.Refresh()
-
-		# fields which must contain a selected item
-		address_fields = (
+			self._PRW_urb,
 			self._PRW_region,
 			self._PRW_country
 		)
-		for field in address_fields:
-			if field.GetData() is not None:
-				is_any_field_filled = True
+		no_of_filled_fields = 0
+
+		for field in fields_to_fill:
+			if field.GetValue().strip() != u'':
+				no_of_filled_fields += 1
 				field.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+				field.Refresh()
+
+		# empty address ?
+		if no_of_filled_fields == 0:
+			if empty_address_is_valid:
+				return True
 			else:
-				if is_any_field_filled:
-					error = True
-					msg = _('To properly create an address, all the related fields must be filled in.')
-					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
+				return None
+
+		# incompletely filled address ?
+		if no_of_filled_fields != len(fields_to_fill):
+			for field in fields_to_fill:
+				if field.GetValue().strip() == u'':
 					field.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 					field.SetFocus()
-			field.Refresh()
-
-		if not is_any_field_filled:
+					field.Refresh()
+			msg = _('To properly create an address, all the related fields must be filled in.')
+			gmGuiHelpers.gm_show_error(msg, _('Required fields'))
 			return False
 
+		# fields which must contain a selected item
+		# FIXME: they must also contain an *acceptable combination* which
+		# FIXME: can only be tested against the database itself ...
+		strict_fields = (
+			self._PRW_region,
+			self._PRW_country
+		)
+		error = False
+		for field in strict_fields:
+			if field.GetData() is None:
+				error = True
+				field.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+				field.SetFocus()
+			else:
+				field.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			field.Refresh()
+
 		if error:
+			msg = _('This field must contain an item selected from the dropdown list.')
+			gmGuiHelpers.gm_show_error(msg, _('Required fields'))
 			return False
 
 		return True
@@ -2065,7 +2075,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return self.__identity_valid_for_save()
+		return (self.__identity_valid_for_save() and self.__address_valid_for_save(empty_address_is_valid = True))
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -2088,15 +2098,46 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		name.save()
 
 		# address
-		if self.__address_valid_for_save():
-			new_identity.link_address (
-				number = self._TCTRL_number.GetValue().strip(),
-				street = self._PRW_street.GetValue().strip(),
-				postcode = self._PRW_zip.GetValue().strip(),
-				urb = self._PRW_urb.GetValue().strip(),
-				state = self._PRW_region.GetData(),
-				country = self._PRW_country.GetData()
+		is_valid = self.__address_valid_for_save(empty_address_is_valid = False)
+		if is_valid is True:
+			# because we currently only check for non-emptiness
+			# we must still deal with database errors
+			try:
+				new_identity.link_address (
+					number = self._TCTRL_number.GetValue().strip(),
+					street = self._PRW_street.GetValue().strip(),
+					postcode = self._PRW_zip.GetValue().strip(),
+					urb = self._PRW_urb.GetValue().strip(),
+					state = self._PRW_region.GetData(),
+					country = self._PRW_country.GetData()
+				)
+			except psycopg2.InternalError:
+			#except StandardError:
+				_log.debug('number: >>%s<<', self._TCTRL_number.GetValue().strip())
+				_log.debug('street: >>%s<<', self._PRW_street.GetValue().strip())
+				_log.debug('postcode: >>%s<<', self._PRW_zip.GetValue().strip())
+				_log.debug('urb: >>%s<<', self._PRW_urb.GetValue().strip())
+				_log.debug('state: >>%s<<', self._PRW_region.GetData().strip())
+				_log.debug('country: >>%s<<', self._PRW_country.GetData().strip())
+				_log.exception('cannot link address')
+				gmGuiHelpers.gm_show_error (
+					aTitle = _('Saving address'),
+					aMessage = _(
+						'Cannot save this address.\n'
+						'\n'
+						'You will have to add it via the Demographics plugin.\n'
+					)
+				)
+		elif is_valid is False:
+			gmGuiHelpers.gm_show_error (
+				aTitle = _('Saving address'),
+				aMessage = _(
+					'Address not saved.\n'
+					'\n'
+					'You will have to add it via the Demographics plugin.\n'
+				)
 			)
+		# else it is None which means empty address which we ignore
 
 		# phone
 		new_identity.link_comm_channel (
@@ -3106,7 +3147,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.167  2009-06-29 15:05:24  ncq
+# Revision 1.168  2009-07-23 16:38:33  ncq
+# - cleanup
+# - rewrite address valid for save and use it better
+# - catch link_address exceptions
+#
+# Revision 1.167  2009/06/29 15:05:24  ncq
 # - new person widget:
 #   - set focus to last name
 #   - raise demographics plugin after adding new person
