@@ -32,7 +32,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgMultilineTextEntryDlg.__set_properties
         self.SetTitle(_("Generic multi line text entry dialog"))
-        self.SetSize((600, 350))
+        self.SetSize((600, 641))
         self._BTN_restore.Enable(False)
         # end wxGlade
 
@@ -41,7 +41,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_main.Add(self._LBL_msg, 0, wx.ALL|wx.EXPAND, 5)
-        __szr_main.Add(self._TCTRL_text, 1, wx.ALL|wx.EXPAND, 5)
+        __szr_main.Add(self._TCTRL_text, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_clear, 0, wx.RIGHT|wx.EXPAND, 5)

@@ -36,7 +36,6 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         self._BTN_forward.SetToolTipString(_("Save data into database and clear fields for another value."))
         self._BTN_clear.SetToolTipString(_("Clear all fields or reset to database values."))
         self._BTN_cancel.SetToolTipString(_("Cancel editing the data and discard changes."))
-        self._BTN_cancel.SetDefault()
         # end wxGlade
 
     def __do_layout(self):
