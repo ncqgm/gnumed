@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.73 2009-07-06 14:56:54 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmPathLab.py,v 1.74 2009-07-23 16:30:45 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -93,7 +93,10 @@ def get_measurement_types():
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 #------------------------------------------------------------
-def find_test_type(lab=None, code=None, name=None):
+def find_measurement_type(lab=None, abbrev=None, name=None):
+
+		if (abbrev is None) and (name is None):
+			raise ArgumentError('must have <abbrev> and/or <name> set')
 
 		where_snippets = []
 
@@ -104,20 +107,17 @@ def find_test_type(lab=None, code=None, name=None):
 				int(lab)
 				where_snippets.append('fk_test_org = %(lab)s')
 			except (TypeError, ValueError):
-				where_snippets.append('fk_test_org = (select pk from clin.test_org where internal_name=%(lab)s)')
+				where_snippets.append('fk_test_org = (select pk from clin.test_org where internal_name = %(lab)s)')
 
-		if (code is None) and (name is None):
-			raise ArgumentError('must have <code> and/or <name> set')
-
-		if code is not None:
-			where_snippets.append('code = %(code)s')
+		if abbrev is not None:
+			where_snippets.append('abbrev = %(abbrev)s')
 
 		if name is not None:
 			where_snippets.append('name = %(name)s')
 
 		where_clause = u' and '.join(where_snippets)
-		cmd = u"select *, xmin from clin.test_type where %s" % where_clause
-		args = {'lab': lab, 'code': code, 'name': name}
+		cmd = u"select * from clin.v_test_types where %s" % where_clause
+		args = {'lab': lab, 'abbrev': abbrev, 'name': name}
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
@@ -132,19 +132,19 @@ def delete_measurement_type(measurement_type=None):
 	args = {'pk': measurement_type}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
-def create_measurement_type(lab=None, code=None, unit=None, name=None):
+def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 	"""Create or get test type."""
 
-	ttype = find_test_type(lab = lab, code = code, name = name)
+	ttype = find_measurement_type(lab = lab, abbrev = abbrev, name = name)
 	# found ?
 	if ttype is not None:
 		return ttype
 
-	_log.debug('creating test type [%s:%s:%s:%s]', lab, code, name, unit)
+	_log.debug('creating test type [%s:%s:%s:%s]', lab, abbrev, name, unit)
 
 	# not found, so create it
 	if unit is None:
-		_log.error('need <unit> to create test type: %s:%s:%s:%s' % (lab, code, name, unit))
+		_log.error('need <unit> to create test type: %s:%s:%s:%s' % (lab, abbrev, name, unit))
 		raise ValueError('need <unit> to create test type')
 
 	# make query
@@ -163,9 +163,9 @@ def create_measurement_type(lab=None, code=None, unit=None, name=None):
 			val_snippets.append('(select pk from clin.test_org where internal_name = %(lab)s)')
 
 	# code
-	cols.append('code')
-	val_snippets.append('%(code)s')
-	vals['code'] = code
+	cols.append('abbrev')
+	val_snippets.append('%(abbrev)s')
+	vals['abbrev'] = abbrev
 
 	# unit
 	cols.append('conversion_unit')
@@ -182,7 +182,7 @@ def create_measurement_type(lab=None, code=None, unit=None, name=None):
 	val_clause = u', '.join(val_snippets)
 	queries = [
 		{'cmd': u'insert into clin.test_type (%s) values (%s)' % (col_clause, val_clause), 'args': vals},
-		{'cmd': u"select *, xmin from clin.test_type where pk = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
+		{'cmd': u"select * from clin.v_test_types where pk_test_type = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
 	]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = True, return_data = True)
 	ttype = cMeasurementType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
@@ -710,7 +710,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.73 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.74 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -974,7 +974,7 @@ if __name__ == '__main__':
 	def test_create_measurement_type():
 		print create_measurement_type (
 			lab = None,
-			code = u'tBZ2',
+			abbrev = u'tBZ2',
 			unit = u'mg%',
 			name = 'BZ (test 2)'
 		)
@@ -1005,7 +1005,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.73  2009-07-06 14:56:54  ncq
+# Revision 1.74  2009-07-23 16:30:45  ncq
+# - test -> measurement
+# - code -> abbrev
+#
+# Revision 1.73  2009/07/06 14:56:54  ncq
 # - make update of test result more resilient re "" == null
 # - much improved test result formatting
 #
