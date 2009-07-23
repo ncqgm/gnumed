@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.133 2009-04-24 12:06:01 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gmPhraseWheel.py,v 1.134 2009-07-23 16:41:42 ncq Exp $
+__version__ = "$Revision: 1.134 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -215,6 +215,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.capitalisation_mode = gmTools.CAPS_NONE
 		self.accepted_chars = None
 		self.final_regex = '.*'
+		self.final_regex_error_msg = _('The content is invalid. It must match the regular expression: [%%s]. <%s>') % self.__class__.__name__
 		self.phrase_separators = default_phrase_separators
 		self.navigate_after_selection = False
 		self.speller = None
@@ -681,12 +682,19 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _set_final_regex(self, final_regex='.*'):
 		self.__final_regex = regex.compile(final_regex, flags = regex.LOCALE | regex.UNICODE)
-		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]') % final_regex
 
 	def _get_final_regex(self):
 		return self.__final_regex.pattern
 
 	final_regex = property(_get_final_regex, _set_final_regex)
+	#--------------------------------------------------------
+	def _set_final_regex_error_msg(self, msg):
+		self.__final_regex_error_msg = msg % self.final_regex
+
+	def _get_final_regex_error_msg(self):
+		return self.__final_regex_error_msg
+
+	final_regex_error_msg = property(_get_final_regex_error_msg, _set_final_regex_error_msg)
 	#--------------------------------------------------------
 	def _set_phrase_separators(self, phrase_separators):
 		if phrase_separators is None:
@@ -1061,7 +1069,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.133  2009-04-24 12:06:01  ncq
+# Revision 1.134  2009-07-23 16:41:42  ncq
+# - support custom error msg on final regex mismatch
+#
+# Revision 1.133  2009/04/24 12:06:01  ncq
 # - fix application of final regex: if it was compiled with LOCALE/UNICODE
 #   one *cannot* apply those flags again on matching !
 #
