@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.13 2009-07-18 11:46:53 ncq Exp $
-__version__ = '$Revision: 1.13 $'
+# $Id: gmDataMiningWidgets.py,v 1.14 2009-07-30 12:03:34 ncq Exp $
+__version__ = '$Revision: 1.14 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -252,19 +252,18 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if not do_it:
 			return
 
-#		auth = {'user': gmTools.default_mail_sender, 'password': u'gm/bugs/gmx'}
 		auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
-		msg = u"""This is a report definition contributed by a GNUmed user:
+		msg = u"""--- This is a report definition contributed by a GNUmed user:
 
-#--------------------------------------
+----------------------------------------
+
+--- %s
 
 %s
 
-%s
+----------------------------------------
 
-#--------------------------------------
-
-The GNUmed client.
+--- The GNUmed client.
 """ % (report, query)
 
 		if not gmTools.send_mail (
@@ -466,7 +465,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.13  2009-07-18 11:46:53  ncq
+# Revision 1.14  2009-07-30 12:03:34  ncq
+# - improved contribution email
+#
+# Revision 1.13  2009/07/18 11:46:53  ncq
 # - be more robust in the face of non-existant patients being activated
 #
 # Revision 1.12  2009/07/15 12:21:10  ncq
