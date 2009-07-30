@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.100 2009-07-16 09:52:15 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmEMRStructWidgets.py,v 1.101 2009-07-30 12:03:54 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1240,9 +1240,9 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._PRW_year_noted.Refresh()
 
 		pat = gmPerson.gmCurrentPatient()
-		age = year_noted - pat['dob']
-		str_age = gmPerson.format_age_medically(age)
-		wx.CallAfter(self._PRW_age_noted.SetText, str_age, age)
+		issue_age = year_noted - pat['dob']
+		str_age = gmDateTime.format_interval_medically(interval = issue_age)
+		wx.CallAfter(self._PRW_age_noted.SetText, str_age, issue_age)
 
 		return True
 	#--------------------------------------------------------
@@ -1558,7 +1558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.100  2009-07-16 09:52:15  ncq
+# Revision 1.101  2009-07-30 12:03:54  ncq
+# - fix editing age noted
+#
+# Revision 1.100  2009/07/16 09:52:15  ncq
 # - improved labelling
 #
 # Revision 1.99  2009/07/15 21:32:35  ncq
