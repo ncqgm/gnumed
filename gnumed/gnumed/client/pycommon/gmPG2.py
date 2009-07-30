@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.114 $"
+__version__ = "$Revision: 1.115 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -982,7 +982,10 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				_log.debug('cursor description: %s', str(curs.description))
 		except:
 			# FIXME: use .pgcode
-			curs_close()
+			try:
+				curs_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot close cursor')
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			_log.error('query failed: [%s]', curs.query)
 			_log.error('PG status message: %s', curs.statusmessage)
@@ -1085,7 +1088,10 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		try:
 			curs.execute(query['cmd'], args)
 		except:
-			curs_close()
+			try:
+				curs_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot close cursor')
 			conn_rollback()
 			conn_close()
 			raise
@@ -1096,7 +1102,10 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		try:
 			data = curs.fetchall()
 		except:
-			curs_close()
+			try:
+				curs_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot close cursor')
 			conn_rollback()
 			conn_close()
 			raise
@@ -1913,7 +1922,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.114  2009-07-23 16:32:01  ncq
+# Revision 1.115  2009-07-30 12:02:30  ncq
+# - better error handling
+#
+# Revision 1.114  2009/07/23 16:32:01  ncq
 # - get_current_user_language
 #
 # Revision 1.113  2009/07/02 20:48:24  ncq
