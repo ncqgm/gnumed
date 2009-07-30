@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.181 2009-07-16 11:31:20 ncq Exp $
-__version__ = "$Revision: 1.181 $"
+# $Id: gmMedDocWidgets.py,v 1.182 2009-07-30 12:04:35 ncq Exp $
+__version__ = "$Revision: 1.182 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1205,21 +1205,29 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__doc_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__review_curr_part)
 
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Export to disk'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__export_doc_to_disk)
+		self.__doc_context_menu.AppendSeparator()
 
 		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Print parts'))
+		self.__doc_context_menu.Append(ID, _('Print all parts'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__print_doc)
 
 		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Fax parts'))
+		self.__doc_context_menu.Append(ID, _('Fax all parts'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__fax_doc)
 
 		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Mail parts'))
+		self.__doc_context_menu.Append(ID, _('Mail all parts'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__mail_doc)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Export all parts'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__export_doc_to_disk)
+
+		self.__doc_context_menu.AppendSeparator()
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Delete document'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__delete_document)
 
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('Access external original'))
@@ -1229,9 +1237,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__doc_context_menu.Append(ID, _('Edit corresponding encounter'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__edit_encounter_details)
 
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Delete'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__delete_document)
 
 #		self.__doc_context_menu.AppendSeparator()
 
@@ -1659,6 +1664,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			part = part
 		)
 		dlg.ShowModal()
+		dlg.Destroy()
 	#--------------------------------------------------------
 	def __process_part(self, action=None, l10n_action=None):
 
@@ -1952,7 +1958,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.181  2009-07-16 11:31:20  ncq
+# Revision 1.182  2009-07-30 12:04:35  ncq
+# - better sort context menu on docs/parts
+#
+# Revision 1.181  2009/07/16 11:31:20  ncq
 # - repopulate doc types list after setting tx
 #
 # Revision 1.180  2009/07/06 17:16:09  ncq
