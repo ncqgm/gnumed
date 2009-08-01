@@ -82,7 +82,7 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         _fgszr_top.AddGrowableCol(1)
         __szr_splitter_bottom.Add(self._LCTRL_result, 1, wx.EXPAND, 0)
         self._splitter_bottom_panel.SetSizer(__szr_splitter_bottom)
-        self._splitter.SplitHorizontally(self.splitter_top_panel, self._splitter_bottom_panel)
+        self._splitter.SplitHorizontally(self.splitter_top_panel, self._splitter_bottom_panel, 150)
         _szr_main.Add(self._splitter, 1, wx.EXPAND, 0)
         self.SetSizer(_szr_main)
         _szr_main.Fit(self)
