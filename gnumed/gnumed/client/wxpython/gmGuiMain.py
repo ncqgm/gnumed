@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.467 2009-07-23 16:40:55 ncq Exp $
-__version__ = "$Revision: 1.467 $"
+# $Id: gmGuiMain.py,v 1.468 2009-08-03 20:48:29 ncq Exp $
+__version__ = "$Revision: 1.468 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -2389,17 +2389,16 @@ class gmApp(wx.App):
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
 		"""
-		print "App OnExit"
 		_log.debug('gmApp.OnExit() start')
 
-		self.__shutdown_user_activity_timer(self)
-		print "user activity timer stopped"
+		self.__shutdown_user_activity_timer()
 
 		if _cfg.get(option = 'debug'):
 			self.RestoreStdio()
 			sys.stdin = sys.__stdin__
 			sys.stdout = sys.__stdout__
 			sys.stderr = sys.__stderr__
+
 		_log.debug('gmApp.OnExit() end')
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -2885,7 +2884,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.467  2009-07-23 16:40:55  ncq
+# Revision 1.468  2009-08-03 20:48:29  ncq
+# - cleanup
+#
+# Revision 1.467  2009/07/23 16:40:55  ncq
 # - patient -> person
 # - staff -> user
 # - improved database language selection: pre-select current language
