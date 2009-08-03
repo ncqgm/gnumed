@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.54 2009-07-20 20:33:35 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmMeasurementWidgets.py,v 1.55 2009-08-03 20:50:48 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1162,9 +1162,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		if pk_type is None:
 			tt = gmPathLab.create_measurement_type (
 				lab = None,
-				code = self._PRW_test.GetValue().strip(),
-				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u''),
-				name = self._PRW_test.GetValue().strip()
+				abbrev = self._PRW_test.GetValue().strip(),
+				name = self._PRW_test.GetValue().strip(),
+				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
 			)
 			pk_type = tt['pk']
 
@@ -1224,9 +1224,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		if pk_type is None:
 			tt = gmPathLab.create_measurement_type (
 				lab = None,
-				code = self._PRW_test.GetValue().strip(),
-				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u''),
-				name = self._PRW_test.GetValue().strip()
+				abbrev = self._PRW_test.GetValue().strip(),
+				name = self._PRW_test.GetValue().strip(),
+				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
 			)
 			pk_type = tt['pk']
 
@@ -1303,7 +1303,12 @@ def manage_measurement_types(parent=None):
 	#------------------------------------------------------------
 	def edit(test_type=None):
 		ea = cMeasurementTypeEAPnl(parent = parent, id = -1, type = test_type)
-		dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2 (
+			parent = parent,
+			id = -1,
+			edit_area = ea,
+			single_entry = gmTools.bool2subst((test_type is None), False, True)
+		)
 		dlg.SetTitle(gmTools.coalesce(test_type, _('Adding measurement type'), _('Editing measurement type')))
 
 		if dlg.ShowModal() == wx.ID_OK:
@@ -1319,7 +1324,6 @@ def manage_measurement_types(parent=None):
 			m['abbrev'],
 			m['name'],
 			gmTools.coalesce(m['loinc'], u''),
-			#gmTools.coalesce(m['code'], u'') + gmTools.coalesce(m['coding_system'], u'', u' (%s)'),
 			gmTools.coalesce(m['conversion_unit'], u''),
 			gmTools.coalesce(m['comment_type'], u''),
 			gmTools.coalesce(m['internal_name_org'], _('in-house')),
@@ -1343,7 +1347,6 @@ def manage_measurement_types(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing measurement types.'),
-		#columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Code'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
 		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
 		single_selection = True,
 		refresh_callback = refresh,
@@ -1455,25 +1458,64 @@ class cMeasurementTypeEAPnl(wxgMeasurementTypeEAPnl.wxgMeasurementTypeEAPnl, gmE
 		if data is not None:
 			self.mode = 'edit'
 
-		#self.__register_interests()
-
 		self.successful_save_msg = _('Successfully saved measurement type.')
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return True
-		return False
+
+		has_errors = False
+		for field in [self._PRW_name, self._PRW_abbrev, self._PRW_conversion_unit]:
+			if field.GetValue().strip() in [u'', None]:
+				has_errors = True
+				field.display_as_valid(valid = False)
+			else:
+				field.display_as_valid(valid = True)
+			field.Refresh()
+
+		return (not has_errors)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		self.data = 1
+
+		pk_org = self._PRW_test_org.GetData()
+		if pk_org is None:
+			pk_org = gmPathLab.create_measurement_org (
+				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u''),
+				comment = gmTools.none_if(self._TCTRL_comment_org.GetValue().strip(), u'')
+			)
+
+		tt = gmPathLab.create_measurement_type (
+			lab = pk_org,
+			abbrev = self._PRW_abbrev.GetValue().strip(),
+			name = self._PRW_name.GetValue().strip(),
+			unit = gmTools.none_if(self._PRW_conversion_unit.GetValue().strip(), u'')
+		)
+		tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
+		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
+		tt.save()
+
+		self.data = tt
+
 		return True
-		return False
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data = 1
+
+		pk_org = self._PRW_test_org.GetData()
+		if pk_org is None:
+			pk_org = gmPathLab.create_measurement_org (
+				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u''),
+				comment = gmTools.none_if(self._TCTRL_comment_org.GetValue().strip(), u'')
+			)
+
+		self.data['pk_test_org'] = pk_org
+		self.data['abbrev'] = self._PRW_abbrev.GetValue().strip()
+		self.data['name'] = self._PRW_name.GetValue().strip()
+		self.data['conversion_unit'] = gmTools.none_if(self._PRW_conversion_unit.GetValue().strip(), u'')
+		self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
+		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
+		self.data.save()
+
 		return True
-		return False
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_name.SetText(u'', None, True)
@@ -1665,7 +1707,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.54  2009-07-20 20:33:35  ncq
+# Revision 1.55  2009-08-03 20:50:48  ncq
+# - properly support adding/editing measurement type
+#
+# Revision 1.54  2009/07/20 20:33:35  ncq
 # - start implementing test type management
 #
 # Revision 1.53  2009/07/15 12:22:46  ncq
