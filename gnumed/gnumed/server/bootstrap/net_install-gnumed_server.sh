@@ -2,7 +2,10 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.9 2009-01-06 18:23:24 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.10 2009-08-03 20:52:01 ncq Exp $
+#
+# This should be run as a normal user, not as root.
+#
 # ============================================
 
 # try to determine distribution of target system
@@ -82,7 +85,10 @@ su -c "./bootstrap-latest.sh"
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.9  2009-01-06 18:23:24  ncq
+# Revision 1.10  2009-08-03 20:52:01  ncq
+# - add comment on user
+#
+# Revision 1.9  2009/01/06 18:23:24  ncq
 # - sudo -> su
 #
 # Revision 1.8  2008/11/17 23:15:02  ncq
