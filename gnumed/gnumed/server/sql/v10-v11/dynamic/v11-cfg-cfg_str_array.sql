@@ -5,25 +5,25 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-cfg-cfg_str_array.sql,v 1.3 2009-07-23 20:05:31 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v11-cfg-cfg_str_array.sql,v 1.4 2009-08-03 20:52:57 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
---update cfg.cfg_str_array set
---	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmMeasurementsGridPlugin","gmCurrentSubstancesPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmKOrganizerPlugin","gmDataMiningPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmXdtViewer"}'
---where
---	fk_item in (
---		select pk_cfg_item
---		from cfg.v_cfg_options
---		where
---			workplace = 'GNUmed Default'
---			and option = 'horstspace.notebook.plugin_load_order'
---		)
---;
+update cfg.cfg_str_array set
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmMeasurementsGridPlugin","gmCurrentSubstancesPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmKOrganizerPlugin","gmDataMiningPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmXdtViewer"}'
+where
+	fk_item in (
+		select pk_cfg_item
+		from cfg.v_cfg_options
+		where
+			workplace = 'GNUmed Default'
+			and option = 'horstspace.notebook.plugin_load_order'
+		)
+;
 
 -- --------------------------------------------------------------
 delete from cfg.cfg_item
@@ -87,7 +87,7 @@ values (
 	 		and
 	 	option = 'horstspace.notebook.plugin_load_order'
 	),
-	'{"gmProviderInboxPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmMeasurementsGridPlugin","gmCurrentSubstancesPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmKOrganizerPlugin","gmDataMiningPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmXdtViewer"}'
+	'{"gmProviderInboxPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmMeasurementsGridPlugin","gmCurrentSubstancesPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmDataMiningPlugin","gmEMRJournalPlugin"}'
 );
 
 -- --------------------------------------------------------------
@@ -133,11 +133,14 @@ where
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-cfg-cfg_str_array.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v11-cfg-cfg_str_array.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v11-cfg-cfg_str_array.sql,v $
--- Revision 1.3  2009-07-23 20:05:31  ncq
+-- Revision 1.4  2009-08-03 20:52:57  ncq
+-- - set workplaces as per list discussion
+--
+-- Revision 1.3  2009/07/23 20:05:31  ncq
 -- - adjust workplaces as per list discussion
 --
 -- Revision 1.2  2009/07/15 12:26:39  ncq
