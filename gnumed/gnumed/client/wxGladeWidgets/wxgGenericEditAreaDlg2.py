@@ -32,6 +32,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         # begin wxGlade: wxgGenericEditAreaDlg2.__set_properties
         self.SetTitle(_("GNUmed generic EditArea dialog"))
         self.SetSize((450, 280))
+        self.SetMinSize((450, 280))
         self._BTN_save.SetToolTipString(_("Save the entered data into the database and close the dialog."))
         self._BTN_forward.SetToolTipString(_("Save data into database and clear fields for another value."))
         self._BTN_clear.SetToolTipString(_("Clear all fields or reset to database values."))
