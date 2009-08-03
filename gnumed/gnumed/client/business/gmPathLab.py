@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.74 2009-07-23 16:30:45 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmPathLab.py,v 1.75 2009-08-03 20:47:24 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -56,10 +56,10 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 				code = %(code)s,
 				coding_system = %(coding_system)s,
 				comment = %(comment_type)s,
-				conversion_unit = %(conversion_unit)s
+				conversion_unit = %(conversion_unit)s,
 				fk_test_org = %(pk_test_org)s
 			where pk = %(pk_test_type)s""",
-		u"""select xmin_test_type from clin.v_test_types where pk_test_type = %(pk_test_type)"""
+		u"""select xmin_test_type from clin.v_test_types where pk_test_type = %(pk_test_type)s"""
 	]
 
 	_updatable_fields = [
@@ -101,13 +101,13 @@ def find_measurement_type(lab=None, abbrev=None, name=None):
 		where_snippets = []
 
 		if lab is None:
-			where_snippets.append('fk_test_org is null')
+			where_snippets.append('pk_test_org is null')
 		else:
 			try:
 				int(lab)
-				where_snippets.append('fk_test_org = %(lab)s')
+				where_snippets.append('pk_test_org = %(lab)s')
 			except (TypeError, ValueError):
-				where_snippets.append('fk_test_org = (select pk from clin.test_org where internal_name = %(lab)s)')
+				where_snippets.append('pk_test_org = (select pk from clin.test_org where internal_name = %(lab)s)')
 
 		if abbrev is not None:
 			where_snippets.append('abbrev = %(abbrev)s')
@@ -124,7 +124,7 @@ def find_measurement_type(lab=None, abbrev=None, name=None):
 		if len(rows) == 0:
 			return None
 
-		tt = cMeasurementType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
+		tt = cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': rows[0], 'idx': idx})
 		return tt
 #------------------------------------------------------------
 def delete_measurement_type(measurement_type=None):
@@ -153,14 +153,16 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 	vals = {}
 
 	# lab
-	if lab is not None:
-		cols.append('fk_test_org')
-		try:
-			vals['lab'] = int(lab)
-			val_snippets.append('%(lab)s')
-		except:
-			vals['lab'] = lab
-			val_snippets.append('(select pk from clin.test_org where internal_name = %(lab)s)')
+	if lab is None:
+		lab = create_measurement_org()
+
+	cols.append('fk_test_org')
+	try:
+		vals['lab'] = int(lab)
+		val_snippets.append('%(lab)s')
+	except:
+		vals['lab'] = lab
+		val_snippets.append('(select pk from clin.test_org where internal_name = %(lab)s)')
 
 	# code
 	cols.append('abbrev')
@@ -185,9 +187,38 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 		{'cmd': u"select * from clin.v_test_types where pk_test_type = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
 	]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = True, return_data = True)
-	ttype = cMeasurementType(row = {'pk_field': 'pk', 'data': rows[0], 'idx': idx})
+	ttype = cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': rows[0], 'idx': idx})
 
 	return ttype
+#------------------------------------------------------------
+def create_measurement_org(name=None, comment=None):
+
+	if name is None:
+		name = _('inhouse lab')
+		comment = _('auto-generated')
+
+	cmd = u'select * from clin.test_org where internal_name = %(name)s'
+	if comment is not None:
+		comment = comment.strip()
+	args = {'name': name, 'cmt': comment}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	if len(rows) == 0:
+		queries = [
+			{'cmd': u'insert into clin.test_org (fk_org, internal_name, comment) values (null, %(name)s, %(cmt)s)', 'args': args},
+			{'cmd': u"select currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
+		]
+	else:
+		# use 1st result only, ignore if more than one
+		args['pk'] = rows[0]['pk']
+		queries = [
+			{'cmd': u'update clin.test_org set comment = %(cmt)s where pk = %(pk)s', 'args': args},
+			{'cmd': u'select %(pk)s as pk', 'args': args}
+		]
+
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
+
+	return rows[0]['pk']
 #============================================================
 class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result."""
@@ -710,7 +741,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.74 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.75 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -1005,7 +1036,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.74  2009-07-23 16:30:45  ncq
+# Revision 1.75  2009-08-03 20:47:24  ncq
+# - fix storing measurement type and test org
+#
+# Revision 1.74  2009/07/23 16:30:45  ncq
 # - test -> measurement
 # - code -> abbrev
 #
