@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.39 2009-03-01 18:15:55 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmMeasurementWidgets.py,v 1.39.2.1 2009-08-04 14:47:29 ncq Exp $
+__version__ = "$Revision: 1.39.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -181,6 +181,42 @@ class cMeasurementsGrid(wx.grid.Grid):
 		dlg.Destroy()
 	#------------------------------------------------------------
 	def get_selected_cells(self):
+
+		sel_block_top_left = self.GetSelectionBlockTopLeft()
+		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
+		sel_cols = self.GetSelectedCols()
+		sel_rows = self.GetSelectedRows()
+
+		selected_cells = []
+
+		# individually selected cells (ctrl-click)
+		selected_cells += self.GetSelectedCells()
+
+		# selected rows
+		selected_cells += list (
+			(row, col)
+				for row in sel_rows
+				for col in xrange(self.GetNumberCols())
+		)
+
+		# selected columns
+		selected_cells += list (
+			(row, col)
+				for row in xrange(self.GetNumberRows())
+				for col in sel_cols
+		)
+
+		# selection blocks
+		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
+			selected_cells += [
+				(row, col)
+					for row in xrange(top_left[0], bottom_right[0] + 1)
+					for col in xrange(top_left[1], bottom_right[1] + 1)
+			]
+
+		return set(selected_cells)
+	#------------------------------------------------------------
+	def get_selected_cells_faulty(self):
 
 		sel_block_top_left = self.GetSelectionBlockTopLeft()
 		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
@@ -877,6 +913,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		if self._PRW_problem.GetValue().strip() == u'':
 			self._PRW_problem.display_as_valid(False)
+			validity = False
 		else:
 			self._PRW_problem.display_as_valid(True)
 
@@ -1257,7 +1294,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.39  2009-03-01 18:15:55  ncq
+# Revision 1.39.2.1  2009-08-04 14:47:29  ncq
+# - fix faulty cell selection
+# - properly check for problem field when adding measurement type
+#
+# Revision 1.39  2009/03/01 18:15:55  ncq
 # - lots of missing u'', decode strftime results
 # - adjust word separators in test type match provider
 #
