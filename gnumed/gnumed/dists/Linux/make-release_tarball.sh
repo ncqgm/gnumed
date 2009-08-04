@@ -2,14 +2,14 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.79 2009-07-18 12:15:53 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.80 2009-08-04 13:03:19 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.5.rc4"
+CLIENTREV="0.5.rc5"
 #CLIENTREV="CVS-HEAD"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 
-SRVREV="11.rc4"
+SRVREV="11.rc5"
 #SRVREV="CVS-HEAD"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
 
@@ -79,6 +79,7 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmEMRTextDumpPlugin.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmGuidelines.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmLabJournal.py "\
+"./GNUmed-$CLIENTREV/client/wxpython/gui/gmManual.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmMultiSashedProgressNoteInputPlugin.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmOffice.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmPython.py "\
@@ -163,7 +164,7 @@ cp -R ../../client/connectors/gm_ctl_client.* ./GNUmed-$CLIENTREV/client/connect
 
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/
-cp -R ../../client/doc/gnumed.conf.example ./GNUmed-$CLIENTREV/client/doc/
+cp -R ../../client/gm-from-cvs.conf ./GNUmed-$CLIENTREV/client/doc/gnumed.conf.example
 cp -R ../../client/doc/hook_script_example.py ./GNUmed-$CLIENTREV/client/doc/hook_script_example.py
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
@@ -426,7 +427,12 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.79  2009-07-18 12:15:53  ncq
+# Revision 1.80  2009-08-04 13:03:19  ncq
+# - bump version
+# - remove gmManual.py
+# - copy client.conf.example from gm-from-cvs.conf
+#
+# Revision 1.79  2009/07/18 12:15:53  ncq
 # - (0.5/v11).rc4
 #
 # Revision 1.78  2009/07/06 19:52:54  ncq
