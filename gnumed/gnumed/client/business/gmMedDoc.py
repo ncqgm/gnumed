@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.112.2.1 2009-06-04 14:21:46 ncq Exp $
-__version__ = "$Revision: 1.112.2.1 $"
+# $Id: gmMedDoc.py,v 1.112.2.2 2009-08-04 14:43:44 ncq Exp $
+__version__ = "$Revision: 1.112.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -504,7 +504,7 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
 				{'cmd': u'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
-				{'cmd': u'select i18n.upd_tx((select i18n.get_curr_lang(), %(orig)s, %(tx)s)',
+				{'cmd': u'select i18n.upd_tx((select i18n.get_curr_lang()), %(orig)s, %(tx)s)',
 				 'args': {
 				 	'orig': self._payload[self._idx['type']],
 					'tx': translation
@@ -710,7 +710,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.112.2.1  2009-06-04 14:21:46  ncq
+# Revision 1.112.2.2  2009-08-04 14:43:44  ncq
+# - add missing )
+#
+# Revision 1.112.2.1  2009/06/04 14:21:46  ncq
 # - fix an fk_type that needs to be pk_type
 #
 # Revision 1.112  2009/02/18 13:43:38  ncq
