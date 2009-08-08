@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.146 $
+# $Revision: 1.147 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
@@ -7941,7 +7941,7 @@ msgid "You must select a value from the picklist or type an exact match."
 msgstr "Sie müssen entweder einen Wert aus der Liste wählen oder einen identischen Wert eintippen."
 
 msgid "The content is invalid. It must match the regular expression: [%%s]. <%s>"
-msgstr "Die Eingabe ist ungültig. Sie muß dem Suchmuster [%s] genügen. <%s>"
+msgstr "Die Eingabe ist ungültig. Sie muß dem Suchmuster [%%s] genügen. <%s>"
 
 msgid "GNUmed: configuring [%s] (%s plugins)"
 msgstr "GNUmed: konfiguriere [%s] (%s Module)"
