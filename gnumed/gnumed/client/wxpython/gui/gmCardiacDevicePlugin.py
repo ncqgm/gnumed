@@ -2,7 +2,7 @@
 This is a cardiac device interrogation management plugin 
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -51,8 +51,11 @@ class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 	def _on_raise_by_signal(self, **kwds):
 		if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
 			return False
-		if kwds['sort_mode'] == 'review':
-			self._widget._on_sort_by_review_selected(None)
+		try:
+			if kwds['sort_mode'] == 'review':
+				self._widget._on_sort_by_review_selected(None)
+		except KeyError:
+			pass
 		return True
 #================================================================
 # MAIN
@@ -94,7 +97,10 @@ if __name__ == '__main__':
 	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
 # $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.8  2009-07-02 12:14:25  shilbert
+# Revision 1.9  2009-08-08 21:12:17  ncq
+# - protect against missing keyword argument
+#
+# Revision 1.8  2009/07/02 12:14:25  shilbert
 # - added missing import
 #
 # Revision 1.7  2009/06/29 15:13:25  ncq

@@ -9,7 +9,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -48,8 +48,13 @@ class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 	def _on_raise_by_signal(self, **kwds):
 		if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
 			return False
-		if kwds['sort_mode'] == 'review':
-			self._widget._on_sort_by_review_selected(None)
+
+		try:
+			if kwds['sort_mode'] == 'review':
+				self._widget._on_sort_by_review_selected(None)
+		except KeyError:
+			pass
+
 		return True
 	#--------------------------------------------------------
 #	def populate_toolbar (self, tb, widget):
@@ -75,7 +80,10 @@ if __name__ == '__main__':
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.76  2009-06-29 15:13:25  ncq
+# Revision 1.77  2009-08-08 21:12:17  ncq
+# - protect against missing keyword argument
+#
+# Revision 1.76  2009/06/29 15:13:25  ncq
 # - improved placement in menu hierarchy
 # - add active letters
 #
