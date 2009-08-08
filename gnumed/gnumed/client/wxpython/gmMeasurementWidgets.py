@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.55 2009-08-03 20:50:48 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmMeasurementWidgets.py,v 1.56 2009-08-08 12:18:12 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1458,7 +1458,87 @@ class cMeasurementTypeEAPnl(wxgMeasurementTypeEAPnl.wxgMeasurementTypeEAPnl, gmE
 		if data is not None:
 			self.mode = 'edit'
 
-		self.successful_save_msg = _('Successfully saved measurement type.')
+		self.__init_ui()
+
+	#----------------------------------------------------------------
+	def __init_ui(self):
+
+		# name phraseweel
+		query = u"""
+select distinct on (name)
+	pk,
+	name
+from clin.test_type
+where
+	name %(fragment_condition)s
+order by name
+limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		self._PRW_name.matcher = mp
+		self._PRW_name.selection_only = False
+
+		# abbreviation
+		query = u"""
+select distinct on (abbrev)
+	pk,
+	abbrev
+from clin.test_type
+where
+	abbrev %(fragment_condition)s
+order by abbrev
+limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 3)
+		self._PRW_abbrev.matcher = mp
+		self._PRW_abbrev.selection_only = False
+
+		# unit
+		# FIXME: use units from test_result
+		query = u"""
+select distinct on (conversion_unit)
+	pk,
+	conversion_unit
+from clin.test_type
+where
+	conversion_unit %(fragment_condition)s
+order by conversion_unit
+limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 3)
+		self._PRW_conversion_unit.matcher = mp
+		self._PRW_conversion_unit.selection_only = False
+
+		# loinc
+		query = u"""
+select distinct on (loinc)
+	pk,
+	loinc
+from clin.test_type
+where
+	loinc %(fragment_condition)s
+order by loinc
+limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 3)
+		self._PRW_loinc.matcher = mp
+		self._PRW_loinc.selection_only = False
+
+		# test org
+		query = u"""
+select distinct on (internal_name)
+	pk,
+	internal_name
+from clin.test_org
+where
+	internal_name %(fragment_condition)s
+order by internal_name
+limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		self._PRW_test_org.matcher = mp
+		self._PRW_test_org.selection_only = False
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -1707,7 +1787,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.55  2009-08-03 20:50:48  ncq
+# Revision 1.56  2009-08-08 12:18:12  ncq
+# - setup phrasewheels in measurement type EA
+#
+# Revision 1.55  2009/08/03 20:50:48  ncq
 # - properly support adding/editing measurement type
 #
 # Revision 1.54  2009/07/20 20:33:35  ncq
