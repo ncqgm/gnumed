@@ -5,12 +5,13 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_test_results.sql,v 1.2 2009-05-24 16:33:43 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v11-clin-v_test_results.sql,v 1.3 2009-08-08 10:42:10 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
+
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -169,11 +170,14 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-v_test_results.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-v_test_results.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v11-clin-v_test_results.sql,v $
--- Revision 1.2  2009-05-24 16:33:43  ncq
+-- Revision 1.3  2009-08-08 10:42:10  ncq
+-- - cleanup
+--
+-- Revision 1.2  2009/05/24 16:33:43  ncq
 -- - name now "meta" test type
 --
 -- Revision 1.1  2009/05/22 10:57:50  ncq
