@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-keyword_expansion-data.sql,v 1.2 2009-04-14 18:32:07 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v11-clin-keyword_expansion-data.sql,v 1.3 2009-08-08 12:18:38 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -108,16 +108,16 @@ insert into clin.keyword_expansion (
 ) values (
 	null,
 	'score-CHADS-Antikoagulation',
-'CHADS2: ASS oder Cumarine bei VHF ?
------------------------------------
+'CHADS2: ASS oder Cumarine bei VHF im EKG ?
+-------------------------------------------
 
 +1: C-ardiale Dekompensation in letzten 3 Monaten
-+1: H-ypertension
++1: H-ypertension (derzeit oder behandelt)
 +1: A-lter > 75 Jahre
-+1: D-iabetes
++1: D-iabetes mellitus
 +2: S-chlaganfall/TIA anamnestisch
 
-Summe 0: allenfalls ASS 100-300mg/Tag
+Summe 0: allenfalls ASS 300mg/Tag
 Summe 1: Einzelfall abwägen
 Summe 2: Cumarine (INR 2-3)
 ');
@@ -309,11 +309,14 @@ ab 55	MF			Hausarzt	Beratung Darmkrebs, dazu
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-clin-keyword_expansion-data.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v11-clin-keyword_expansion-data.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v11-clin-keyword_expansion-data.sql,v $
--- Revision 1.2  2009-04-14 18:32:07  ncq
+-- Revision 1.3  2009-08-08 12:18:38  ncq
+-- - state of the art CHADS score
+--
+-- Revision 1.2  2009/04/14 18:32:07  ncq
 -- - add more macros
 --
 -- Revision 1.1  2009/04/01 15:55:40  ncq
