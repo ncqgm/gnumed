@@ -5,12 +5,23 @@
 -- Author: 
 --
 -- ==============================================================
--- $Id: v11-dem-v_staff.sql,v 1.1 2009-07-15 12:13:35 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v11-dem-v_staff.sql,v 1.2 2009-08-08 10:42:48 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+alter table dem.staff
+	drop constraint each_role_once_per_identity;
+\set ON_ERROR_STOP 1
+
+alter table dem.staff
+	add constraint each_role_once_per_identity
+		unique(fk_role, fk_identity);
+
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -67,11 +78,14 @@ revoke all on dem.v_staff from public;
 grant select on dem.v_staff to group "gm-public";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v11-dem-v_staff.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v11-dem-v_staff.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v11-dem-v_staff.sql,v $
--- Revision 1.1  2009-07-15 12:13:35  ncq
+-- Revision 1.2  2009-08-08 10:42:48  ncq
+-- - add constraint on role/identity
+--
+-- Revision 1.1  2009/07/15 12:13:35  ncq
 -- - need to recreate after dem.v_basic_person
 --
 --
