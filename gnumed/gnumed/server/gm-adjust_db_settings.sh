@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-adjust_db_settings.sh,v $
-# $Id: gm-adjust_db_settings.sh,v 1.3 2008-12-17 22:00:45 ncq Exp $
+# $Id: gm-adjust_db_settings.sh,v 1.4 2009-08-08 10:36:45 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -37,7 +37,7 @@ echo "=> Creating adjustment script ..."
 echo "    ${SQL_FILE}"
 
 echo "-- GNUmed database settings adjustment script" > $SQL_FILE
-echo "-- \$Id: gm-adjust_db_settings.sh,v 1.3 2008-12-17 22:00:45 ncq Exp $" >> $SQL_FILE
+echo "-- \$Id: gm-adjust_db_settings.sh,v 1.4 2009-08-08 10:36:45 ncq Exp $" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
 echo "" >> $SQL_FILE
@@ -64,7 +64,7 @@ echo "-- cannot be changed now (?):" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.3 $');" >> $SQL_FILE
+echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.4 $');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 
@@ -96,7 +96,10 @@ echo ""
 
 #==============================================================
 # $Log: gm-adjust_db_settings.sh,v $
-# Revision 1.3  2008-12-17 22:00:45  ncq
+# Revision 1.4  2009-08-08 10:36:45  ncq
+# - add a missing quote
+#
+# Revision 1.3  2008/12/17 22:00:45  ncq
 # - add log_connections/log_disconnections
 #
 # Revision 1.2  2008/11/03 11:19:28  ncq
