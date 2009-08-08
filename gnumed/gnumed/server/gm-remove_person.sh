@@ -2,15 +2,13 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/gm-remove_person.sh,v $
-# $Id: gm-remove_person.sh,v 1.1 2009-08-08 10:00:01 ncq Exp $
+# $Id: gm-remove_person.sh,v 1.2 2009-08-08 10:37:38 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
 #
-# This script can be used to try to adjust database settings
-# if the GNUmed client complains about them at startup.
-#
-# usage: ./gm-adjust_db_settings.sh <database name>
+# This script can be used to remove a person
+# from a GNUmed database.
 #
 #==============================================================
 
@@ -47,7 +45,7 @@ echo "" > $SQL_FILE
 (
 cat <<-EOF
 	-- GNUmed person removal script
-	-- \$Id: gm-remove_person.sh,v 1.1 2009-08-08 10:00:01 ncq Exp $
+	-- \$Id: gm-remove_person.sh,v 1.2 2009-08-08 10:37:38 ncq Exp $
 
 	\set ON_ERROR_STOP 1
 	set default_transaction_read_only to off;
@@ -103,7 +101,10 @@ rm ${SQL_FILE}
 
 #==============================================================
 # $Log: gm-remove_person.sh,v $
-# Revision 1.1  2009-08-08 10:00:01  ncq
+# Revision 1.2  2009-08-08 10:37:38  ncq
+# - better docs
+#
+# Revision 1.1  2009/08/08 10:00:01  ncq
 # - new
 #
 # Revision 1.3  2008/12/17 22:00:45  ncq
