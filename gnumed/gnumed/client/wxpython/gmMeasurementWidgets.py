@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.56 2009-08-08 12:18:12 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmMeasurementWidgets.py,v 1.57 2009-08-11 10:49:23 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -57,8 +57,14 @@ def update_loinc_reference_data():
 		return False
 
 	wx.BeginBusyCursor()
+
 	if gmLOINC.loinc_import(data_fname = data_fname, license_fname = license_fname, conn = conn):
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported LOINC reference data.'))
+		try:
+			os.remove(data_fname)
+			os.remove(license_fname)
+		except OSError:
+			_log.error('unable to remove [%s] or [%s]', data_fname, license_fname)
 	else:
 		gmDispatcher.send(signal = 'statustext', msg = _('Importing LOINC reference data failed.'), beep = True)
 
@@ -237,8 +243,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 		selected_cells += self.GetSelectedCells()
 
 		# selected rows
-#		if len(sel_rows) > 0:
-#			selected_cells.extend([ (r, c) for r in sel_rows for c in range(self.GetNumberCols()) ])
 		selected_cells += list (
 			(row, col)
 				for row in sel_rows
@@ -246,8 +250,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 		)
 
 		# selected columns
-#		if len(sel_cols) > 0:
-#			selected_cells.extend([ (r, c) for r in range(self.GetNumberRows()) for c in sel_cols ])
 		selected_cells += list (
 			(row, col)
 				for row in xrange(self.GetNumberRows())
@@ -261,13 +263,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 					for row in xrange(top_left[0], bottom_right[0] + 1)
 					for col in xrange(top_left[1], bottom_right[1] + 1)
 			]
-#		# iterate over top left corners of selection blocks
-#		for block_idx in range(len(sel_block_top_left)):
-#			row_left = sel_block_bottom_right[block_idx][0] - sel_block_top_left[block_idx][0]
-#			row_right = sel_block_bottom_right[block_idx][0]
-#			col_top = sel_block_bottom_right[block_idx][1] - sel_block_top_left[block_idx][1]
-#			col_bottom = sel_block_bottom_right[block_idx][1]
-#			selected_cells.extend([ (r, c) for r in range(row_left, row_right+1) for c in range(col_top, col_bottom+1) ])
 
 		return set(selected_cells)
 	#------------------------------------------------------------
@@ -316,8 +311,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		emr = self.__patient.get_emr()
 
-		#test_type_labels = [ u'%s (%s)' % (test[1], test[0]) for test in emr.get_test_types_for_results() ]
-		test_type_labels = [ u'%s' % test[0] for test in emr.get_test_types_for_results() ]
+		self.__row_label_data = emr.get_test_types_for_results()
+		test_type_labels = [ u'%s (%s)' % (test[1], test[0]) for test in self.__row_label_data ]
 		if len(test_type_labels) == 0:
 			return
 
@@ -339,8 +334,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			#row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
-			row = test_type_labels.index(u'%s' % result['unified_name'])
+			row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
 			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
 
 			try:
@@ -714,7 +708,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
 			self.__WIN_corner,
 			-1,
-			label = _('Encyclopedia'),
+			label = _('Reference'),
 			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
 		)
 		LNK_lab.SetURL(url)
@@ -791,6 +785,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		# dynamic tooltips: GridWindow, GridRowLabelWindow, GridColLabelWindow, GridCornerLabelWindow
 		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
 		#self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
+		#self.GetGridColLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_col_labels)
 
 		# sizing left upper corner window
 		self.Bind(wx.EVT_SIZE, self.__resize_corner_window)
@@ -831,6 +826,20 @@ class cMeasurementsGrid(wx.grid.Grid):
 		except KeyError:
 			tt = u''
 		evt.GetEventObject().SetToolTipString(tt)
+	#------------------------------------------------------------
+#     def OnMouseMotionColLabel(self, evt):
+#         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
+#         col = self.XToCol(x)
+#         label = self.table().GetColHelpValue(col)
+#         self.GetGridColLabelWindow().SetToolTipString(label or "")
+#         evt.Skip()
+#
+#     def OnMouseMotionRowLabel(self, evt):
+#         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
+#         row = self.YToRow(y)
+#         label = self.table().GetRowHelpValue(row)
+#         self.GetGridRowLabelWindow().SetToolTipString(label or "")
+#         evt.Skip()
 	#------------------------------------------------------------
 	def __on_mouse_over_cells(self, evt):
 		"""Calculate where the mouse is and set the tooltip dynamically."""
@@ -1497,7 +1506,7 @@ limit 50"""
 		# FIXME: use units from test_result
 		query = u"""
 select distinct on (conversion_unit)
-	pk,
+	conversion_unit,
 	conversion_unit
 from clin.test_type
 where
@@ -1511,18 +1520,61 @@ limit 50"""
 
 		# loinc
 		query = u"""
-select distinct on (loinc)
-	pk,
-	loinc
-from clin.test_type
-where
-	loinc %(fragment_condition)s
-order by loinc
+select distinct on (term)
+	loinc,
+	term
+from ((
+		select
+			loinc,
+			loinc as term
+		from clin.test_type
+		where loinc %(fragment_condition)s
+	) union all (
+		select
+			code as loinc,
+			(code || ': ' || term) as term
+		from ref.v_coded_terms
+		where
+			coding_system = 'LOINC'
+				and
+			lang = i18n.get_curr_lang()
+				and
+			(code %(fragment_condition)s
+				or
+			term %(fragment_condition)s)
+	) union all (
+		select
+			code as loinc,
+			(code || ': ' || term) as term
+		from ref.v_coded_terms
+		where
+			coding_system = 'LOINC'
+				and
+			lang = 'en_EN'
+				and
+			(code %(fragment_condition)s
+				or
+			term %(fragment_condition)s)
+	) union all (
+		select
+			code as loinc,
+			(code || ': ' || term) as term
+		from ref.v_coded_terms
+		where
+			coding_system = 'LOINC'
+				and
+			(code %(fragment_condition)s
+				or
+			term %(fragment_condition)s)
+	)
+) as all_known_loinc
+order by term
 limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 3)
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(1, 2, 4)
 		self._PRW_loinc.matcher = mp
 		self._PRW_loinc.selection_only = False
+		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
 
 		# test org
 		query = u"""
@@ -1538,7 +1590,20 @@ limit 50"""
 		mp.setThresholds(1, 2, 4)
 		self._PRW_test_org.matcher = mp
 		self._PRW_test_org.selection_only = False
+	#----------------------------------------------------------------
+	def _on_loinc_lost_focus(self):
+		loinc = self._PRW_loinc.GetData()
 
+		if loinc is None:
+			self._TCTRL_loinc_info.SetValue(u'')
+			return
+
+		info = gmLOINC.loinc2info(loinc = loinc)
+		if len(info) == 0:
+			self._TCTRL_loinc_info.SetValue(u'')
+			return
+
+		self._TCTRL_loinc_info.SetValue(info[0])
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -1787,7 +1852,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.56  2009-08-08 12:18:12  ncq
+# Revision 1.57  2009-08-11 10:49:23  ncq
+# - cleanup
+# - remove LOINC files after import
+# - row labels now "abbrev (desc)", again
+# - Encyclopedia -> Reference
+# - improved LOINC matcher and use loinc to set loinc info
+#
+# Revision 1.56  2009/08/08 12:18:12  ncq
 # - setup phrasewheels in measurement type EA
 #
 # Revision 1.55  2009/08/03 20:50:48  ncq
