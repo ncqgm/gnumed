@@ -1,6 +1,6 @@
 #!/bin/bash
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 echo "-------------------------------------------------------------"
 echo "This script will check your environment for applications"
@@ -30,7 +30,7 @@ echo "GNUmed database installed on another machine."
 echo ""
 echo "Process list:"
 echo "-------------------------------------------------------------------------"
-ps axww | grep post | grep -v "grep"
+ps axww | grep postgr | grep -v "grep"
 echo "-------------------------------------------------------------------------"
 echo ""
 
@@ -41,6 +41,8 @@ if [ "x${PYBIN}x" == "xx" ]; then
 	echo "ERROR: Python is available with your OS or from www.python.org"
 else
 	echo "=> found"
+	echo -n "   ${PYBIN}: "
+	python --version
 fi
 
 # make sure we can locally find the Python modules
@@ -156,7 +158,11 @@ fi
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.15  2009-04-13 10:36:22  ncq
+# Revision 1.16  2009-08-11 10:43:54  ncq
+# - better PG checking
+# - version and path of Python binary
+#
+# Revision 1.15  2009/04/13 10:36:22  ncq
 # - cleaner output
 #
 # Revision 1.14  2009/02/27 11:59:06  ncq
