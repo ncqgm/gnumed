@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmLOINC.py,v $
-# $Id: gmLOINC.py,v 1.6 2009-06-10 21:07:38 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmLOINC.py,v 1.7 2009-08-11 10:44:15 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv
@@ -31,6 +31,42 @@ name_short = u'LOINC'
 
 loinc_fields = u"LOINC_NUM COMPONENT PROPERTY TIME_ASPCT SYSTEM SCALE_TYP METHOD_TYP RELAT_NMS CLASS SOURCE DT_LAST_CH CHNG_TYPE COMMENTS ANSWERLIST STATUS MAP_TO SCOPE NORM_RANGE IPCC_UNITS REFERENCE EXACT_CMP_SY MOLAR_MASS CLASSTYPE FORMULA SPECIES EXMPL_ANSWERS ACSSYM BASE_NAME FINAL NAACCR_ID CODE_TABLE SETROOT PANELELEMENTS SURVEY_QUEST_TEXT SURVEY_QUEST_SRC UNITSREQUIRED SUBMITTED_UNITS RELATEDNAMES2 SHORTNAME ORDER_OBS CDISC_COMMON_TESTS HL7_FIELD_SUBFIELD_ID EXTERNAL_COPYRIGHT_NOTICE EXAMPLE_UNITS INPC_PERCENTAGE LONG_COMMON_NAME".split()
 
+#============================================================
+def loinc2info(loinc=None):
+
+	cmd = u"""
+select coalesce (
+	(select term
+	from ref.v_coded_terms
+	where
+		coding_system = 'LOINC'
+			and
+		code = %(loinc)s
+			and
+		lang = i18n.get_curr_lang()
+	),
+	(select term
+	from ref.v_coded_terms
+	where
+		coding_system = 'LOINC'
+			and
+		code = %(loinc)s
+			and
+		lang = 'en_EN'
+	),
+	(select term
+	from ref.v_coded_terms
+	where
+		coding_system = 'LOINC'
+			and
+		code = %(loinc)s
+	)
+)
+"""
+	args = {'loinc': loinc}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	return [ r[0] for r in rows ]
 #============================================================
 def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 
@@ -310,7 +346,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmLOINC.py,v $
-# Revision 1.6  2009-06-10 21:07:38  ncq
+# Revision 1.7  2009-08-11 10:44:15  ncq
+# - loinc2info
+#
+# Revision 1.6  2009/06/10 21:07:38  ncq
 # - change default language to en_EN
 #
 # Revision 1.5  2009/06/10 20:59:45  ncq
