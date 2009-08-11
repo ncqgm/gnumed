@@ -2,15 +2,15 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.80 2009-08-04 13:03:19 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.81 2009-08-11 11:04:28 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.5.rc5"
-#CLIENTREV="CVS-HEAD"
+CLIENTREV="0.5.rc6"
+CLIENTREV="CVS-HEAD"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 
-SRVREV="11.rc5"
-#SRVREV="CVS-HEAD"
+SRVREV="11.rc6"
+SRVREV="CVS-HEAD"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -127,7 +127,6 @@ cp -R ../../external-tools/gm-install_arriba ./GNUmed-$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_loinc ./GNUmed-$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_atc ./GNUmed-$CLIENTREV/external-tools/
 
-
 # client
 mkdir -p ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/client/
@@ -138,6 +137,7 @@ cp -R ./gnumed ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./GNUmed-$CLIENTREV/client/
 cp -R ./gm-read_chipcard.sh ./GNUmed-$CLIENTREV/client/
 cp -R ./gm-install_client_locally.sh ./GNUmed-$CLIENTREV/client/
+cp -R ../../server/gm-remove_person.sh ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./GNUmed-$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/client/
@@ -262,6 +262,8 @@ cp -R ../../server/gm-restore_data.sh ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../server/gm-zip+sign_backups.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
+
+cp -R ../../server/gm-remove_person.sh ./GNUmed-$CLIENTREV/server/
 
 cp -R ../../external-tools/gm-download_loinc ./GNUmed-$CLIENTREV/server/
 cp -R ../../external-tools/gm-download_atc ./GNUmed-$CLIENTREV/server/
@@ -427,7 +429,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.80  2009-08-04 13:03:19  ncq
+# Revision 1.81  2009-08-11 11:04:28  ncq
+# - version fix, prep for release
+#
+# Revision 1.80  2009/08/04 13:03:19  ncq
 # - bump version
 # - remove gmManual.py
 # - copy client.conf.example from gm-from-cvs.conf
