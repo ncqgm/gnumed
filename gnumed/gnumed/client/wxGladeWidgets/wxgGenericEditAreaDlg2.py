@@ -44,7 +44,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         _szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_pnl_ea = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_pnl_ea.Add(self._PNL_ea, 0, wx.EXPAND, 0)
+        __szr_pnl_ea.Add(self._PNL_ea, 1, wx.EXPAND, 0)
         _szr_main.Add(__szr_pnl_ea, 1, wx.ALL|wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_save, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_buttons.Add(self._BTN_forward, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)

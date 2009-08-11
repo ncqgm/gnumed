@@ -34,9 +34,11 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgMeasurementTypeEAPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._PRW_name.SetToolTipString(_("A descriptive name for this test type."))
+        self._PRW_name.SetFocus()
         self._PRW_abbrev.SetToolTipString(_("An abbreviation for the name of this test type."))
         self._PRW_conversion_unit.SetToolTipString(_("The base unit to convert results from different labs into when comparing time series."))
         self._PRW_loinc.SetToolTipString(_("The LOINC code corresponding to this test type."))
+        self._TCTRL_loinc_info.Enable(False)
         self._TCTRL_comment_type.SetToolTipString(_("A comment on this test type, e.g. pertaining to typical context information."))
         self._PRW_test_org.SetToolTipString(_("The path lab/diagnostic organisation reporting on this test."))
         self._TCTRL_comment_org.SetToolTipString(_("A comment on the organisation performing this measurement."))
@@ -72,7 +74,6 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(__lbl_comment_org, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_comment_org, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(_gszr_main)
-        _gszr_main.Fit(self)
         _gszr_main.AddGrowableCol(1)
         # end wxGlade
 
