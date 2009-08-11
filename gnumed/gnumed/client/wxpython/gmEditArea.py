@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.127 2009-07-06 21:17:57 ncq Exp $
+# $Id: gmEditArea.py,v 1.128 2009-08-11 10:47:41 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.127 $"
+__version__ = "$Revision: 1.128 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -157,11 +157,11 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
 		# replace dummy panel
-		szr = self._PNL_ea.GetContainingSizer()
-		szr.Remove(self._PNL_ea)
+		ea_pnl_szr = self._PNL_ea.GetContainingSizer()
+		ea_pnl_szr.Remove(self._PNL_ea)
 		ea.Reparent(self)
-		szr.Add(ea, 0, wx.EXPAND, 0)
 		self._PNL_ea = ea
+		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
 
 		if single_entry:
 			self._BTN_forward.Enable(False)
@@ -169,8 +169,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		# redraw layout
 		self.Layout()
-		szr = self.GetSizer()
-		szr.Fit(self)
+		main_szr = self.GetSizer()
+		main_szr.Fit(self)
 		self.Refresh()
 
 		self._PNL_ea.refresh()
@@ -2199,7 +2199,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.127  2009-07-06 21:17:57  ncq
+# Revision 1.128  2009-08-11 10:47:41  ncq
+# - improved EA re-parenting
+#
+# Revision 1.127  2009/07/06 21:17:57  ncq
 # - faulty : removed
 #
 # Revision 1.126  2009/07/06 17:12:13  ncq
