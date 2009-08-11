@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.147 $
+# $Revision: 1.148 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-08-04 14:16+CEST\n"
-"PO-Revision-Date: 2009-08-04 14:36+0100\n"
+"POT-Creation-Date: 2009-08-11 13:05+CEST\n"
+"PO-Revision-Date: 2009-08-11 13:08+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -6676,9 +6676,6 @@ msgstr "Gruppenkommentar: %s\n"
 msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
 msgstr "Revision: %(row_ver)s, zuletzt %(mod_when)s durch %(mod_by)s."
 
-msgid "Encyclopedia"
-msgstr "Lexikon"
-
 msgid ""
 "Navigate to an encyclopedia of measurements\n"
 "and test methods on the web.\n"
@@ -6770,9 +6767,6 @@ msgstr "praxisintern"
 
 msgid "Select the type of measurement."
 msgstr "Wählen Sie den Typ der Messung."
-
-msgid "Successfully saved measurement type."
-msgstr "Meßmethode erfolgreich gespeichert."
 
 msgid "Select the unit of the test result."
 msgstr "Wählen Sie die Einheiten für das Ergebnis."
@@ -9150,6 +9144,11 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Encyclopedia"
+#~ msgstr "Lexikon"
+#~ msgid "Successfully saved measurement type."
+#~ msgstr "Meßmethode erfolgreich gespeichert."
 
 #, fuzzy
 #~ msgid ""
