@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.86 2009-07-15 12:17:14 ncq Exp $
+# $Id: gmTools.py,v 1.87 2009-08-13 12:12:20 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.86 $"
+__version__ = "$Revision: 1.87 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -164,7 +164,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 			msg += _(' New version: "%s"') % latest_release_on_current_branch
 			msg += u'\n'
 			msg += _(' - bug fixes only\n')
-			msg += _(' - no database upgrade needed\n')
+			msg += _(' - database fixups may be needed\n')
 		if new_release_on_latest_branch_available:
 			if current_branch != latest_branch:
 				msg += u'\n'
@@ -177,7 +177,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		msg += _(' New version: "%s"') % latest_release_on_current_branch
 		msg += u'\n'
 		msg += _(' - bug fixes only\n')
-		msg += _(' - no database upgrade needed\n')
+		msg += _(' - database fixups may be needed\n')
 
 	msg += u'\n\n'
 	msg += _(
@@ -186,6 +186,8 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	)
 
 	msg += u'\n\n'
+	msg += _('Details are found on <http://wiki.gnumed.de>.\n')
+	msg += u'\n'
 	msg += _('Version information loaded from:\n\n %s') % url
 
 	return (True, msg)
@@ -1023,7 +1025,7 @@ This is a test mail from the gmTools.py module.
 	#-----------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-		#test_check_for_update()
+		test_check_for_update()
 		#test_coalesce()
 		#test_capitalize()
 		#test_import_module()
@@ -1035,12 +1037,15 @@ This is a test mail from the gmTools.py module.
 		#test_bool2subst()
 		#test_get_unique_filename()
 		#test_size2str()
-		test_wrap()
+		#test_wrap()
 		#test_input2decimal()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.86  2009-07-15 12:17:14  ncq
+# Revision 1.87  2009-08-13 12:12:20  ncq
+# - slightly better upgrade available message
+#
+# Revision 1.86  2009/07/15 12:17:14  ncq
 # - add latin cross unicode point
 # - better error handling on version checking
 #
