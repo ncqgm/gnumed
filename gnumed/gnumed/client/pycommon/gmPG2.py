@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.87.2.4 $"
+__version__ = "$Revision: 1.87.2.5 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -210,15 +210,15 @@ where
 	conn.commit()
 	curs = conn.cursor()
 
+	result = timezone
 	try:
 		curs.execute(cmd, args)
 		rows = curs.fetchall()
 		if len(rows) > 0:
 			result = rows[0][0]
-		_log.debug(u'[%s] maps to [%s]', timezone, result)
+			_log.debug(u'[%s] maps to [%s]', timezone, result)
 	except:
 		_log.exception(u'cannot expand timezone abbreviation [%s]', timezone)
-		result = timezone
 
 	curs.close()
 	conn.rollback()
@@ -1591,7 +1591,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.87.2.4  2008-11-20 18:25:05  ncq
+# Revision 1.87.2.5  2009-08-13 13:59:34  ncq
+# - more robust TZ detection
+#
+# Revision 1.87.2.4  2008/11/20 18:25:05  ncq
 # - fix spelling
 #
 # Revision 1.87.2.3  2008/11/11 21:01:42  ncq
