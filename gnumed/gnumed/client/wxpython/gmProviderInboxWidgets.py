@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.40 2009-07-01 17:12:11 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmProviderInboxWidgets.py,v 1.41 2009-08-24 20:11:27 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -348,9 +348,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'provider_inbox_mod_db', receiver = self._on_provider_inbox_mod_db)
+		gmDispatcher.connect(signal = u'message_inbox_generic_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for results insertion/deletion
-		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_provider_inbox_mod_db)
+		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for doc insertion/deletion
 		# FIXME: listen for doc reviews
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
@@ -373,20 +373,19 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._msg_welcome.SetLabel(msg)
 	#--------------------------------------------------------
 	def __populate_inbox(self):
+
 		"""Fill UI with data."""
 		self.__msgs = self.provider.inbox.messages
 
 		if self.filter_mode == 'active':
-			curr_pat = gmPerson.gmCurrentPatient()
-			self.__msgs = [
-				msg for msg in self.__msgs if (
-					('%s.%s' % (msg['category'], msg['type']) not in cProviderInboxPnl._patient_msg_types)
-						or
-					(msg['pk_context'] == curr_pat.ID)
-				)
-			]
+			curr_pat_id = gmPerson.gmCurrentPatient().ID
+			self.__msgs = [ m for m in self.__msgs if m['pk_patient'] in [curr_pat_id, None] ]
 
-		self._LCTRL_provider_inbox.set_string_items(items = [ [_indicator[m[0]], m[9].strftime('%x'), m[1], m[2], m[3]] for m in self.__msgs ])
+		items = [
+			[_indicator[m['importance']], m['received_when'].strftime('%Y-%m-%d'), m['l10n_category'], m['l10n_type'], m['comment']]
+			for m in self.__msgs
+		]
+		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
 	#--------------------------------------------------------
@@ -395,7 +394,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def _on_post_patient_selection(self):
 		wx.CallAfter(self._RBTN_active_patient.Enable)
 	#--------------------------------------------------------
-	def _on_provider_inbox_mod_db(self, *args, **kwargs):
+	def _on_message_inbox_mod_db(self, *args, **kwargs):
 		wx.CallAfter(self._schedule_data_reget)
 		gmDispatcher.send(signal = u'request_user_attention', msg = _('Please check your GNUmed Inbox !'))
 	#--------------------------------------------------------
@@ -404,7 +403,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if msg is None:
 			return
 
-		handler_key = '%s.%s' % (msg[4], msg[5])
+		handler_key = '%s.%s' % (msg['category'], msg['type'])
 		try:
 			handle_item = cProviderInboxPnl._item_handlers[handler_key]
 		except KeyError:
@@ -419,7 +418,7 @@ Leaving message in inbox.""") % handler_key,
 				_('handling provider inbox item')
 			)
 			return False
-		if not handle_item(pk_context = msg[6]):
+		if not handle_item(pk_context = msg['pk_context'], pk_patient = msg['pk_patient']):
 			_log.error('item handler returned "false"')
 			_log.error('handler key: [%s]', handler_key)
 			_log.error('message: %s', str(msg))
@@ -431,10 +430,10 @@ Leaving message in inbox.""") % handler_key,
 		if msg is None:
 			return
 
-		if msg[7] is None:
-			tmp = _('Message: %s') % msg[3]
+		if msg['data'] is None:
+			tmp = _('Message: %s') % msg['comment']
 		else:
-			tmp = _('Message: %s\nData: %s') % (msg[3], msg[7])
+			tmp = _('Message: %s\nData: %s') % (msg['comment'], msg['data'])
 		self._TXT_inbox_item_comment.SetValue(tmp)
 	#--------------------------------------------------------
 	def _lst_item_right_clicked(self, evt):
@@ -463,24 +462,24 @@ Leaving message in inbox.""") % handler_key,
 	# item handlers
 	#--------------------------------------------------------
 	def _on_delete_focussed_msg(self, evt):
-		if not self.provider.inbox.delete_message(self.__focussed_msg[8]):
+		if not self.provider.inbox.delete_message(self.__focussed_msg['pk_message_inbox']):
 			gmDispatcher.send(signal='statustext', msg=_('Cannot remove message from Inbox.'))
 			return False
 		return True
 	#--------------------------------------------------------
-	def _goto_doc_review(self, pk_context=None):
+	def _goto_doc_review(self, pk_context=None, pk_patient=None):
 		wx.BeginBusyCursor()
 
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = pk_context)
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
 		except gmExceptions.ConstructorError:
 			wx.EndBusyCursor()
-			_log.exception('patient [%s] not found', pk_context)
+			_log.exception('patient [%s] not found', pk_patient)
 			gmGuiHelpers.gm_show_error (
 				_('Supposedly there are unreviewed documents\n'
 				  'for patient [%s]. However, I cannot find\n'
 				  'that patient in the GNUmed database.'
-				) % pk_context,
+				) % pk_patient,
 				_('handling provider inbox item')
 			)
 			return False
@@ -494,7 +493,7 @@ Leaving message in inbox.""") % handler_key,
 				_('Supposedly there are unreviewed documents\n'
 				  'for patient [%s]. However, I cannot find\n'
 				  'that patient in the GNUmed database.'
-				) % pk_context,
+				) % pk_patient,
 				_('handling provider inbox item')
 			)
 			return False
@@ -502,16 +501,16 @@ Leaving message in inbox.""") % handler_key,
 		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
 	#--------------------------------------------------------
-	def _goto_measurements_review(self, pk_context=None):
+	def _goto_measurements_review(self, pk_context=None, pk_patient=None):
 		wx.BeginBusyCursor()
-		success = gmPatSearchWidgets.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context))
+		success = gmPatSearchWidgets.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_patient))
 		wx.EndBusyCursor()
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Supposedly there are unreviewed results\n'
 				  'for patient [%s]. However, I cannot find\n'
 				  'that patient in the GNUmed database.'
-				) % pk_context,
+				) % pk_patient,
 				_('handling provider inbox item')
 			)
 			return False
@@ -527,18 +526,31 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (400, 300))
 		configure_workplace_plugins()
 
-	def test_provider_inbox():
+	def test_message_inbox():
 		app = wx.PyWidgetTester(size = (800, 600))
 		app.SetWidget(cProviderInboxPnl, -1)
 		app.MainLoop()
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		test_configure_wp_plugins()
-		#test_provider_inbox()
+		#test_configure_wp_plugins()
+		test_message_inbox()
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.40  2009-07-01 17:12:11  ncq
+# Revision 1.41  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.40  2009/07/01 17:12:11  ncq
 # - better wording
 #
 # Revision 1.39  2009/06/29 15:10:58  ncq

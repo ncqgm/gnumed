@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.115 $"
+__version__ = "$Revision: 1.116 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -306,7 +306,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v11]: ", 'gnumed_v11')
+		login.database = __prompted_input("database [gnumed_v12]: ", 'gnumed_v12')
 		login.user = __prompted_input("user name: ", '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
@@ -1922,7 +1922,20 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.115  2009-07-30 12:02:30  ncq
+# Revision 1.116  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.115  2009/07/30 12:02:30  ncq
 # - better error handling
 #
 # Revision 1.114  2009/07/23 16:32:01  ncq

@@ -1,6 +1,6 @@
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/testing/test-psycopg2-datetime-systematic.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 # =======================================================================
@@ -12,7 +12,7 @@ print "psycopg2:", psycopg2.__version__
 
 dsn = u'dbname=template1 user=xxx password=xxx'
 dsn = u'you need to adjust this'
-#dsn = u'dbname=gnumed_v11 user=any-doc password=any-doc'
+#dsn = u'dbname=gnumed_v12 user=any-doc password=any-doc'
 print "DSN:", dsn
 
 conn = psycopg2.connect(dsn=dsn)
@@ -63,7 +63,20 @@ conn.close()
 
 # =======================================================================
 # $Log: test-psycopg2-datetime-systematic.py,v $
-# Revision 1.2  2009-04-14 17:55:59  ncq
+# Revision 1.3  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.2  2009/04/14 17:55:59  ncq
 # - impoved output
 #
 # Revision 1.1  2009/02/10 18:45:32  ncq

@@ -6,7 +6,7 @@
 # 	http://www.arriba-hausarzt.de
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-install_arriba,v $
-# $Id: gm-install_arriba,v 1.2 2009-04-23 13:05:16 ncq Exp $
+# $Id: gm-install_arriba,v 1.3 2009-08-24 20:11:27 ncq Exp $
 # ===========================================================
 
 JAR_VER="1.0.2"
@@ -16,7 +16,7 @@ DL_URL="http://www.arriba-hausarzt.de/downloads"
 DL_DIR="/tmp"
 APP_NAME="arriba"
 JAR_NAME="${APP_NAME}-${JAR_VER}.jar"
-INSTALL_BASE="/usr/bin"
+INSTALL_BASE="/usr/local/bin"
 
 
 # get jar
@@ -29,7 +29,20 @@ su -c "cp -v ${DL_DIR}/${JAR_NAME} ${INSTALL_BASE}/${JAR_NAME} && chmod +x ${INS
 
 # ===========================================================
 # $Log: gm-install_arriba,v $
-# Revision 1.2  2009-04-23 13:05:16  ncq
+# Revision 1.3  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.2  2009/04/23 13:05:16  ncq
 # - cleanup
 #
 # Revision 1.1  2009/04/23 13:04:04  ncq

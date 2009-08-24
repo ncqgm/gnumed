@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -139,8 +139,10 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 
 	# which columns to potentially audit
 	cols2potentially_audit = gmPG2.get_col_defs(link_obj = aCursor, schema = schema, table = table2audit)
+
 	# which to skip
 	cols2skip = gmPG2.get_col_names(link_obj = aCursor, schema = audit_schema, table = audit_fields_table)
+
 	# which ones to really audit
 	cols2really_audit = []
 	for col in cols2potentially_audit[0]:
@@ -153,6 +155,7 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 	if exists is None:
 		_log.error('cannot check existance of table [audit.%s]' % audit_trail_table)
 		return None
+
 	if exists:
 		_log.info('audit trail table [audit.%s] already exists' % audit_trail_table)
 		# sanity check table structure
@@ -168,13 +171,6 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 				_log.error('%s.%s:' % (audit_schema, audit_trail_table))
 				_log.error('%s' % ','.join(currently_audited_cols))
 				return None
-#			if len(currently_audited_cols) != len(cols2really_audit):
-#				_log.error('table structure incompatible:')
-#				_log.error('%s.%s:' % (schema, table2audit))
-#				_log.error(' %s' % ', '.join(cols2really_audit))
-#				_log.error('%s.%s:' % (audit_schema, audit_trail_table))
-#				_log.error(' %s' % ', '.join(currently_audited_cols))
-#				return None
 		return []
 
 	# must create audit trail table
@@ -239,11 +235,18 @@ def create_audit_ddl(aCursor):
 	if len(rows) == 0:
 		_log.info('no tables to audit')
 		return None
+	_log.debug('the following tables will be audited:')
 	_log.debug(rows)
 	# for each marked table
 	ddl = []
 	ddl.append('\set check_function_bodies 1\n\n')
 	for row in rows:
+
+		# sanity check: does table exist ?
+		if not gmPG2.table_exists(link_obj = aCursor, schema = row['schema'], table = row['table_name']):
+			_log.error('table to audit (%s) does not exist', row)
+			return None
+
 		audit_trail_ddl = audit_trail_table_ddl(aCursor=aCursor, schema=row['schema'], table2audit=row['table_name'])
 		if audit_trail_ddl is None:
 			_log.error('cannot generate audit trail DDL for audited table [%s]' % row['table_name'])
@@ -251,9 +254,10 @@ def create_audit_ddl(aCursor):
 		ddl.extend(audit_trail_ddl)
 		if len(audit_trail_ddl) != 0:
 			ddl.append('-- ----------------------------------------------')
-		# create corresponding triggers
+
 		ddl.extend(trigger_ddl(aCursor = aCursor, schema = row['schema'], audited_table = row['table_name']))
 		ddl.append('-- ----------------------------------------------')
+
 	return ddl
 #==================================================================
 # main
@@ -285,7 +289,20 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.33  2009-05-04 11:42:28  ncq
+# Revision 1.34  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.33  2009/05/04 11:42:28  ncq
 # - document why detecting audit targets via inheritance from
 #   audit.audit_fields does not work
 #

@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.81 2009-08-11 11:04:28 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.82 2009-08-24 20:11:27 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.5.rc6"
@@ -168,6 +168,7 @@ cp -R ../../client/gm-from-cvs.conf ./GNUmed-$CLIENTREV/client/doc/gnumed.conf.e
 cp -R ../../client/doc/hook_script_example.py ./GNUmed-$CLIENTREV/client/doc/hook_script_example.py
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
+cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./GNUmed-$CLIENTREV/client/doc/gm-install_arriba.8
 
 
 # etc
@@ -393,6 +394,19 @@ cp -R ../../server/sql/v10-v11/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v
 cp -R ../../server/sql/v10-v11/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
 #cp -R ../../server/sql/v10-v11/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
 
+
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/dynamic
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/superuser
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/fixups
+
+cp -R ../../server/sql/v11-v12/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/dynamic
+cp -R ../../server/sql/v11-v12/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/static
+cp -R ../../server/sql/v11-v12/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/superuser
+#cp -R ../../server/sql/v11-v12/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/fixups
+
+
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
@@ -429,7 +443,20 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.81  2009-08-11 11:04:28  ncq
+# Revision 1.82  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.81  2009/08/11 11:04:28  ncq
 # - version fix, prep for release
 #
 # Revision 1.80  2009/08/04 13:03:19  ncq

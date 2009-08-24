@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.104 $"
+__version__ = "$Revision: 1.105 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -945,7 +945,7 @@ class database:
 		if tmp is None:
 			return None
 		aud_gen.audit_trail_table_prefix = tmp
-		
+
 		tmp = cfg_get(self.section, 'audit fields table')
 		if tmp is None:
 			return None
@@ -1417,7 +1417,20 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.104  2009-06-17 09:50:47  ncq
+# Revision 1.105  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.104  2009/06/17 09:50:47  ncq
 # - be careful about gm.transfer_users vs gm_transfer_users
 #
 # Revision 1.103  2009/05/22 11:02:00  ncq

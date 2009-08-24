@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.57 2009-08-11 10:49:23 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmMeasurementWidgets.py,v 1.58 2009-08-24 20:11:27 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -843,9 +843,23 @@ class cMeasurementsGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def __on_mouse_over_cells(self, evt):
 		"""Calculate where the mouse is and set the tooltip dynamically."""
+
 		# Use CalcUnscrolledPosition() to get the mouse position within the
 		# entire grid including what's offscreen
 		x, y = self.CalcUnscrolledPosition(evt.GetX(), evt.GetY())
+
+		# use this logic to prevent tooltips outside the actual cells
+		# apply to GetRowSize, too
+#        tot = 0
+#        for col in xrange(self.NumberCols):
+#            tot += self.GetColSize(col)
+#            if xpos <= tot:
+#                self.tool_tip.Tip = 'Tool tip for Column %s' % (
+#                    self.GetColLabelValue(col))
+#                break
+#            else:  # mouse is in label area beyond the right-most column
+#            self.tool_tip.Tip = ''
+
 		row, col = self.XYToCell(x, y)
 
 		if (row == self.__prev_row) and (col == self.__prev_col):
@@ -1526,9 +1540,10 @@ select distinct on (term)
 from ((
 		select
 			loinc,
-			loinc as term
+			(loinc || ': ' || abbrev || ' (' || name || ')') as term
 		from clin.test_type
 		where loinc %(fragment_condition)s
+		limit 50
 	) union all (
 		select
 			code as loinc,
@@ -1542,6 +1557,7 @@ from ((
 			(code %(fragment_condition)s
 				or
 			term %(fragment_condition)s)
+		limit 50
 	) union all (
 		select
 			code as loinc,
@@ -1555,6 +1571,7 @@ from ((
 			(code %(fragment_condition)s
 				or
 			term %(fragment_condition)s)
+		limit 50
 	) union all (
 		select
 			code as loinc,
@@ -1566,6 +1583,7 @@ from ((
 			(code %(fragment_condition)s
 				or
 			term %(fragment_condition)s)
+		limit 50
 	)
 ) as all_known_loinc
 order by term
@@ -1852,7 +1870,20 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.57  2009-08-11 10:49:23  ncq
+# Revision 1.58  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.57  2009/08/11 10:49:23  ncq
 # - cleanup
 # - remove LOINC files after import
 # - row labels now "abbrev (desc)", again

@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -388,6 +388,13 @@ where
 		'sig': 'waiting_list_generic'
 	})
 
+	# explicitely append dem.message_inbox with generic non-patient signal
+	schema.append(trigger_ddl_without_pk % {
+		'schema': 'dem',
+		'tbl': 'message_inbox',
+		'sig': 'message_inbox_generic'
+	})
+
 	schema.append('-- ----------------------------------------------')
 
 	return schema
@@ -418,7 +425,20 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.36  2009-04-03 09:55:46  ncq
+# Revision 1.37  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.36  2009/04/03 09:55:46  ncq
 # - generate trigger to sanity check encounter.fk_patient vs
 #   episode.fk_patient on insert on any clin.clin_root_item child
 #

@@ -1,15 +1,15 @@
 #!/bin/bash
 
 #------------------------------------------------------------------
-# $Id: create-tag.sh,v 1.3 2008-01-30 13:28:20 ncq Exp $
+# $Id: create-tag.sh,v 1.4 2009-08-24 20:11:27 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/create-tag.sh,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 # License: GPL
 #------------------------------------------------------------------
 
 TAG=$1
 
-if ! [[ "${TAG}" =~ "rel-[0-9]-[0-9]-[0-9]((-rc[0-9])|(-[0-9]))?\$" ]] ; then
+if ! [[ "${TAG}" =~ "rel-[0-9]-[0-9]((-rc[0-9])|(-[0-9]))?\$" ]] ; then
 	echo ""
 	echo "usage: $0 <tag>"
 	echo ""
@@ -49,7 +49,20 @@ cvs tag -c ${TAG}
 
 #------------------------------------------------------------------
 # $Log: create-tag.sh,v $
-# Revision 1.3  2008-01-30 13:28:20  ncq
+# Revision 1.4  2009-08-24 20:11:27  ncq
+# - bump db version
+# - fix tag creation
+# - provider inbox:
+# 	enable filter-to-active-patient,
+# 	listen to new signal,
+# 	use cInboxMessage class
+# - properly constrain LOINC phrasewheel SQL
+# - include v12 scripts in release
+# - install arriba jar to /usr/local/bin/
+# - check for table existence in audit schema generator
+# - include dem.message inbox with additional generic signals
+#
+# Revision 1.3  2008/01/30 13:28:20  ncq
 # - properly use cvs
 #
 # Revision 1.2  2008/01/03 16:28:17  ncq
