@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.188 2009-07-15 12:46:59 ncq Exp $
-__version__ = "$Revision: 1.188 $"
+# $Id: gmPerson.py,v 1.189 2009-08-24 20:05:14 ncq Exp $
+__version__ = "$Revision: 1.189 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -971,6 +971,17 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			return rows[0]
 		else:
 			return None
+	#--------------------------------------------------------
+	def _get_messages(self):
+		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload[self._idx['pk_identity']])
+
+	def _set_messages(self, messages):
+		return
+
+	messages = property(_get_messages, _set_messages)
+	#--------------------------------------------------------
+	def delete_message(self, pk=None):
+		return gmProviderInbox.delete_inbox_message(pk = pk)
 	#----------------------------------------------------------------------
 	# convenience
 	#----------------------------------------------------------------------
@@ -2310,7 +2321,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.188  2009-07-15 12:46:59  ncq
+# Revision 1.189  2009-08-24 20:05:14  ncq
+# - use new cInboxMessage class
+#
+# Revision 1.188  2009/07/15 12:46:59  ncq
 # - support deceased
 #
 # Revision 1.187  2009/06/17 20:42:25  ncq
