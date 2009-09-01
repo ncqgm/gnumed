@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.102 2009-09-01 22:29:09 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmEMRStructWidgets.py,v 1.103 2009-09-01 23:05:20 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1459,9 +1459,9 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 
 		self.SetToolTipString(_(
-			"The diagnostic classification or grading of this episode.\n"
+			"The diagnostic classification or grading of this assessment.\n"
 			"\n"
-			"This documents how certain one is about this episode being a true diagnosis."
+			"This documents how certain one is about this being a true diagnosis."
 		))
 #================================================================
 # MAIN
@@ -1597,7 +1597,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.102  2009-09-01 22:29:09  ncq
+# Revision 1.103  2009-09-01 23:05:20  ncq
+# - improved tooltip for classification phrasewheel
+#
+# Revision 1.102  2009/09/01 22:29:09  ncq
 # - normalize issue/episode edit area handling, obsoleting their dialogs
 # - add edit_episode/edit_health_issue
 # - support diagnostic certainty
