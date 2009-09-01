@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.468 2009-08-03 20:48:29 ncq Exp $
-__version__ = "$Revision: 1.468 $"
+# $Id: gmGuiMain.py,v 1.469 2009-09-01 22:32:42 ncq Exp $
+__version__ = "$Revision: 1.469 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1975,8 +1975,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add health issue. No active patient.'))
 			return False
-		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
-		ea.ShowModal()
+		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)
 	#----------------------------------------------
 	def __on_add_medication(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -2884,7 +2883,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.468  2009-08-03 20:48:29  ncq
+# Revision 1.469  2009-09-01 22:32:42  ncq
+# - use edit-health-issue
+#
+# Revision 1.468  2009/08/03 20:48:29  ncq
 # - cleanup
 #
 # Revision 1.467  2009/07/23 16:40:55  ncq
