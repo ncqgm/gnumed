@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.37 2009-07-23 16:41:13 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmNarrativeWidgets.py,v 1.38 2009-09-01 22:36:59 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -948,10 +948,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 					return False
 
 		emr = self.__pat.get_emr()
-		emr.start_new_encounter()
-		gmDispatcher.send(signal = u'statustext', msg = _('Started new encounter for active patient.'))
+		gmDispatcher.send(signal = u'statustext', msg = _('Started new encounter for active patient.'), beep = True)
 
 		event.Skip()
+
+		wx.CallAfter(emr.start_new_encounter)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1426,7 +1427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.37  2009-07-23 16:41:13  ncq
+# Revision 1.38  2009-09-01 22:36:59  ncq
+# - wx-CallAfter on start-new-encounter
+#
+# Revision 1.37  2009/07/23 16:41:13  ncq
 # - cleanup
 #
 # Revision 1.36  2009/07/02 20:55:48  ncq
