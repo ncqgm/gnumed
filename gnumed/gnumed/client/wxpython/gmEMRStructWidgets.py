@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.101 2009-07-30 12:03:54 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmEMRStructWidgets.py,v 1.102 2009-09-01 22:29:09 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -29,10 +29,10 @@ from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDa
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
-from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
@@ -570,6 +570,16 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 #================================================================
 # episode related widgets/functions
 #----------------------------------------------------------------
+def edit_episode(parent=None, episode=None):
+	ea = cEpisodeEditAreaPnl(parent = parent, id = -1)
+	ea.data = episode
+	ea.mode = gmTools.coalesce(episode, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg.SetTitle(gmTools.coalesce(episode, _('Adding a new episode'), _('Editing an episode')))
+	if dlg.ShowModal() == wx.ID_OK:
+		return True
+	return False
+#----------------------------------------------------------------
 def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False):
 	"""Prepare changing health issue for an episode.
 
@@ -853,85 +863,130 @@ limit 30"""
 			self.set_context('pat', patient.ID)
 		return True
 #----------------------------------------------------------------
-class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
+class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):
-		try:
-			self.__episode = kwargs['episode']
-			del kwargs['episode']
-		except KeyError:
-			self.__episode = None
 
-		wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl.__init__(self, *args, **kwargs)
-
-		self.refresh()
-	#------------------------------------------------------------
-	def refresh(self, episode=None):
-		if episode is not None:
-			self.__episode = episode
-
-		if self.__episode is None:
-			return
-
-		ident = gmPerson.cIdentity(aPK_obj = self.__episode['pk_patient'])
-		self._TCTRL_patient.SetValue(ident.get_description_gender())
-
-		if self.__episode['pk_health_issue'] is not None:
-			self._PRW_issue.SetText(self.__episode['health_issue'], data=self.__episode['pk_health_issue'])
-
-		self._PRW_description.SetText(self.__episode['description'], data=self.__episode['description'])
-
-		self._CHBOX_closed.SetValue(not self.__episode['episode_open'])
-	#------------------------------------------------------------
-	def save(self):
-		self.__episode['episode_open'] = not self._CHBOX_closed.IsChecked()
-
-		issue_name = self._PRW_issue.GetValue().strip()
-		if len(issue_name) == 0:
-			self.__episode['pk_health_issue'] = None
-		else:
-			self.__episode['pk_health_issue'] = self._PRW_issue.GetData(can_create=True)
-			issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
-			if not move_episode_to_issue(episode = self.__episode, target_issue = issue, save_to_backend = False):
-				gmDispatcher.send(signal='statustext', msg=
-						_('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
-						self.__episode['description'],
-						issue['description']
-					)
-				)
-				return False
-
-		desc = self._PRW_description.GetValue().strip()
-		if len(desc) != 0:
-			self.__episode['description'] = desc
-
-		self.__episode.save_payload()
-		return True
-#----------------------------------------------------------------
-class cEpisodeEditAreaDlg(wxgEpisodeEditAreaDlg.wxgEpisodeEditAreaDlg):
-
-	def __init__(self, *args, **kwargs):
 		try:
 			episode = kwargs['episode']
 			del kwargs['episode']
 		except KeyError:
 			episode = None
 
-		wxgEpisodeEditAreaDlg.wxgEpisodeEditAreaDlg.__init__(self, *args, **kwargs)
+		wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		self._PNL_edit_area.refresh(episode=episode)
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		if self._PNL_edit_area.save():
-			if self.IsModal():
-				self.EndModal(wx.ID_OK)
-			else:
-				self.Close()
-	#--------------------------------------------------------
-	def _on_clear_button_pressed(self, evt):
-		self._PNL_edit_area.refresh()
+		self.data = episode
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		errors = False
+
+		if len(self._PRW_description.GetValue().strip()) == 0:
+			errors = True
+			self._PRW_description.display_as_valid(False)
+			self._PRW_description.SetFocus()
+		else:
+			self._PRW_description.display_as_valid(True)
+		self._PRW_description.Refresh()
+
+		return not errors
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+
+		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
+		epi['episode_open'] = not self._CHBOX_closed.IsChecked()
+		epi['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+
+		issue_name = self._PRW_issue.GetValue().strip()
+		if len(issue_name) != 0:
+			epi['pk_health_issue'] = self._PRW_issue.GetData(can_create = True)
+			issue = gmEMRStructItems.cHealthIssue(aPK_obj = epi['pk_health_issue'])
+
+			if not move_episode_to_issue(episode = epi, target_issue = issue, save_to_backend = False):
+				gmDispatcher.send (
+					signal = 'statustext',
+					msg = _('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
+						epi['description'],
+						issue['description']
+					)
+				)
+				gmEMRStructItems.delete_episode(episode = epi)
+				return False
+
+		epi.save()
+
+		self.data = epi
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+
+		self.data['description'] = self._PRW_description.GetValue().strip()
+		self.data['episode_open'] = not self._CHBOX_closed.IsChecked()
+		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+
+		issue_name = self._PRW_issue.GetValue().strip()
+		if len(issue_name) != 0:
+			self.data['pk_health_issue'] = self._PRW_issue.GetData(can_create = True)
+			issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.data['pk_health_issue'])
+
+			if not move_episode_to_issue(episode = self.data, target_issue = issue, save_to_backend = False):
+				gmDispatcher.send (
+					signal = 'statustext',
+					msg = _('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
+						self.data['description'],
+						issue['description']
+					)
+				)
+				return False
+
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		if self.data is None:
+			ident = gmPerson.gmCurrentPatient()
+		else:
+			ident = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+		self._TCTRL_patient.SetValue(ident.get_description_gender())
+		self._PRW_issue.SetText()
+		self._PRW_description.SetText()
+		self._PRW_classification.SetText()
+		self._CHBOX_closed.SetValue(False)
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		ident = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+		self._TCTRL_patient.SetValue(ident.get_description_gender())
+
+		if self.data['pk_health_issue'] is not None:
+			self._PRW_issue.SetText(self.data['health_issue'], data=self.data['pk_health_issue'])
+
+		self._PRW_description.SetText(self.data['description'], data=self.data['description'])
+
+		if self.data['diagnostic_certainty_classification'] is not None:
+			self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
+
+		self._CHBOX_closed.SetValue(not self.data['episode_open'])
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
 #================================================================
 # health issue related widgets/functions
+#----------------------------------------------------------------
+def edit_health_issue(parent=None, issue=None):
+	ea = cHealthIssueEditAreaPnl(parent = parent, id = -1)
+	ea.data = issue
+	ea.mode = gmTools.coalesce(issue, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
+	if dlg.ShowModal() == wx.ID_OK:
+		return True
+	return False
 #----------------------------------------------------------------
 class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
@@ -1095,16 +1150,19 @@ class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 			return False
 		return True
 #------------------------------------------------------------
-class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl):
+class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl):
 	"""Panel encapsulating health issue edit area functionality."""
 
 	def __init__(self, *args, **kwargs):
-		wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl.__init__(self, *args, **kwargs)
 
 		try:
-			self.__issue = kwargs['issue']
+			issue = kwargs['issue']
 		except KeyError:
-			self.__issue = None
+			 issue = None
+
+		wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl.__init__(self, *args, **kwargs)
+
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		# FIXME: include more sources: coding systems/other database columns
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -1157,7 +1215,132 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
 		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
 
-		self.refresh()
+		self.data = issue
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		if self._PRW_condition.GetValue().strip() == '':
+			self._PRW_condition.display_as_valid(False)
+			self._PRW_condition.SetFocus()
+			return False
+		self._PRW_condition.display_as_valid(True)
+		self._PRW_condition.Refresh()
+
+		# FIXME: sanity check age/year diagnosed
+		age_noted = self._PRW_age_noted.GetValue().strip()
+		if age_noted != '':
+			if gmDateTime.str2interval(str_interval = age_noted) is None:
+				self._PRW_age_noted.display_as_valid(False)
+				self._PRW_age_noted.SetFocus()
+				return False
+		self._PRW_age_noted.display_as_valid(True)
+
+		return True
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+		desc = self._PRW_condition.GetValue().strip()
+		issue = emr.add_health_issue(issue_name = desc)
+
+		self.data = issue
+
+		return self._save_as_update()
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+
+		self.data['description'] = self._PRW_condition.GetValue().strip()
+
+		side = u''
+		if self._ChBOX_left.GetValue():
+			side += u's'
+		if self._ChBOX_right.GetValue():
+			side += u'd'
+		self.data['laterality'] = side
+
+		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		self.data['grouping'] = self._PRW_grouping.GetValue().strip()
+		self.data['is_active'] = bool(self._ChBOX_active.GetValue())
+		self.data['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
+		self.data['is_confidential'] = bool(self._ChBOX_confidential.GetValue())
+		self.data['is_cause_of_death'] = bool(self._ChBOX_caused_death.GetValue())
+
+		age_noted = self._PRW_age_noted.GetData()
+		if age_noted is not None:
+			self.data['age_noted'] = age_noted
+
+		self.data.save()
+
+		narr = self._TCTRL_notes.GetValue().strip()
+		if narr != '':
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_emr()
+			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.__issue['pk_health_issue'])
+			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
+
+		# FIXME: handle is_operation
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_condition.SetText()
+		self._ChBOX_left.SetValue(0)
+		self._ChBOX_right.SetValue(0)
+		self._PRW_classification.SetText()
+		self._PRW_grouping.SetText()
+		self._TCTRL_notes.SetValue(u'')
+		self._PRW_age_noted.SetText()
+		self._PRW_year_noted.SetText()
+		self._ChBOX_active.SetValue(0)
+		self._ChBOX_relevant.SetValue(1)
+		self._ChBOX_is_operation.SetValue(0)
+		self._ChBOX_confidential.SetValue(0)
+		self._ChBOX_caused_death.SetValue(0)
+
+		return True
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_condition.SetText(self.data['description'])
+
+		lat = gmTools.coalesce(self.data['laterality'], '')
+		if lat.find('s') == -1:
+			self._ChBOX_left.SetValue(0)
+		else:
+			self._ChBOX_left.SetValue(1)
+		if lat.find('d') == -1:
+			self._ChBOX_right.SetValue(0)
+		else:
+			self._ChBOX_right.SetValue(1)
+
+		self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
+		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], u''))
+		self._TCTRL_notes.SetValue('')
+
+		if self.data['age_noted'] is None:
+			self._PRW_age_noted.SetText()
+		else:
+			self._PRW_age_noted.SetText (
+				value = '%sd' % self.data['age_noted'].days,
+				data = self.data['age_noted']
+			)
+
+		self._ChBOX_active.SetValue(self.data['is_active'])
+		self._ChBOX_relevant.SetValue(self.data['clinically_relevant'])
+		self._ChBOX_is_operation.SetValue(0)		# FIXME
+		self._ChBOX_confidential.SetValue(self.data['is_confidential'])
+		self._ChBOX_caused_death.SetValue(self.data['is_cause_of_death'])
+
+		# this dance should assure self._PRW_year_noted gets set -- but it doesn't ...
+#		self._PRW_age_noted.SetFocus()
+#		self._PRW_condition.SetFocus()
+
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		return self._refresh_as_new()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -1253,180 +1436,38 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 	def _on_modified_year_noted(self, *args, **kwargs):
 		wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
 		return True
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def clear(self):
-		self.__issue = None
-		return self.refresh()
-	#--------------------------------------------------------
-	def refresh(self, issue=None):
-
-		if issue is not None:
-			self.__issue = issue
-
-		self._PRW_condition.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_condition.Refresh()
-		self._PRW_condition.SetFocus()
-		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_age_noted.Refresh()
-
-		if self.__issue is None:
-			self._PRW_condition.SetText()
-			self._ChBOX_left.SetValue(0)
-			self._ChBOX_right.SetValue(0)
-			self._PRW_grouping.SetText()
-			self._TCTRL_notes.SetValue('')
-			self._PRW_age_noted.SetText()
-			self._PRW_year_noted.SetText()
-			self._ChBOX_active.SetValue(0)
-			self._ChBOX_relevant.SetValue(1)
-			self._ChBOX_is_operation.SetValue(0)
-			self._ChBOX_confidential.SetValue(0)
-			self._ChBOX_caused_death.SetValue(0)
-			return True
-
-		if not isinstance(self.__issue, gmEMRStructItems.cHealthIssue):
-			raise ValueError('[%s].refresh(): expected gmEMRStructItems.cHealthIssue instance, got [%s] instead' % (self.__class__.__name__, self.__issue))
-
-		self._PRW_condition.SetText(self.__issue['description'])
-		lat = gmTools.coalesce(self.__issue['laterality'], '')
-		if lat.find('s') == -1:
-			self._ChBOX_left.SetValue(0)
-		else:
-			self._ChBOX_left.SetValue(1)
-		if lat.find('d') == -1:
-			self._ChBOX_right.SetValue(0)
-		else:
-			self._ChBOX_right.SetValue(1)
-		self._PRW_grouping.SetText(gmTools.coalesce(self.__issue['grouping'], u''))
-		self._TCTRL_notes.SetValue('')
-		if self.__issue['age_noted'] is None:
-			self._PRW_age_noted.SetText()
-		else:
-			self._PRW_age_noted.SetText (
-				value = '%sd' % self.__issue['age_noted'].days,
-				data = self.__issue['age_noted']
-			)
-		self._ChBOX_active.SetValue(self.__issue['is_active'])
-		self._ChBOX_relevant.SetValue(self.__issue['clinically_relevant'])
-		self._ChBOX_is_operation.SetValue(0)		# FIXME
-		self._ChBOX_confidential.SetValue(self.__issue['is_confidential'])
-		self._ChBOX_caused_death.SetValue(self.__issue['is_cause_of_death'])
-
-		# this dance should assure self._PRW_year_noted gets set -- but it doesn't ...
-#		self._PRW_age_noted.SetFocus()
-#		self._PRW_condition.SetFocus()
-
-		return True
-	#--------------------------------------------------------
-	def __is_valid_for_save(self):
-
-		if self._PRW_condition.GetValue().strip() == '':
-			self._PRW_condition.SetBackgroundColour('pink')
-			self._PRW_condition.Refresh()
-			self._PRW_condition.SetFocus()
-			return False
-		self._PRW_condition.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_condition.Refresh()
-
-		# FIXME: check age/year diagnosed
-		age_noted = self._PRW_age_noted.GetValue().strip()
-		if age_noted != '':
-			if gmDateTime.str2interval(str_interval=age_noted) is None:
-				self._PRW_age_noted.SetBackgroundColour('pink')
-				self._PRW_age_noted.Refresh()
-				self._PRW_age_noted.SetFocus()
-				return False
-		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_age_noted.Refresh()
-
-		return True
-	#--------------------------------------------------------
-	def save(self, can_create=True):
-		if not self.__is_valid_for_save():
-			return False
-
-		desc = self._PRW_condition.GetValue().strip()
-
-		if self.__issue is None:
-			if not can_create:
-				gmDispatcher.send(signal='statustext', msg=_('Creating new health issue not allowed.'))
-				return False
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			self.__issue = emr.add_health_issue(issue_name = desc)
-		else:
-			self.__issue['description'] = desc
-
-		side = ''
-		if self._ChBOX_left.GetValue():
-			side += 's'
-		if self._ChBOX_right.GetValue():
-			side += 'd'
-		if side != '':
-			self.__issue['laterality'] = side
-
-		self.__issue['grouping'] = gmTools.none_if(self._PRW_grouping.GetValue().strip(), u'')
-
-		self.__issue['is_active'] = bool(self._ChBOX_active.GetValue())
-		self.__issue['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
-		self.__issue['is_confidential'] = bool(self._ChBOX_confidential.GetValue())
-		self.__issue['is_cause_of_death'] = bool(self._ChBOX_caused_death.GetValue())
-		age_noted = self._PRW_age_noted.GetData()
-		if age_noted is not None:
-			self.__issue['age_noted'] = age_noted
-
-		self.__issue.save_payload()			# FIXME: error checking
-
-		narr = self._TCTRL_notes.GetValue().strip()
-		if narr != '':
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.__issue['pk_health_issue'], is_open = None)
-			if epi is not None:
-				epi['episode_open'] = False
-				epi.save_payload()			# FIXME: error handling
-				emr.add_clin_narrative(note = narr, soap_cat='s', episode=epi)
-
-		# FIXME: handle is_operation
-
-		return True
-#------------------------------------------------------------
-class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDlg):
+#================================================================
+# diagnostic certainty related widgets/functions
+#----------------------------------------------------------------
+class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		try:
-			issue = kwargs['issue']
-			del kwargs['issue']
-		except KeyError:
-			issue = None
 
-		wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDlg.__init__(self, *args, **kwargs)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
-		if issue is None:
-			self._BTN_save.SetLabel(_('Save'))
-			self._BTN_clear.SetLabel(_('Clear'))
-		else:
-			self._BTN_save.SetLabel(_('Update'))
-			self._BTN_clear.SetLabel(_('Restore'))
+		self.selection_only = False			# can be NULL, too
 
-		self._PNL_edit_area.refresh(issue = issue)
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		if self._PNL_edit_area.save():
-			if self.IsModal():
-				self.EndModal(wx.ID_OK)
-			else:
-				self.Close()
-	#--------------------------------------------------------
-	def _on_clear_button_pressed(self, evt):
-		self._PNL_edit_area.refresh()
+		mp = gmMatchProvider.cMatchProvider_FixedList (
+			aSeq = [
+				{'data': u'A', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'A'], 'weight': 1},
+				{'data': u'B', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'B'], 'weight': 1},
+				{'data': u'C', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'C'], 'weight': 1},
+				{'data': u'D', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'D'], 'weight': 1}
+			]
+		)
+		mp.setThresholds(1, 2, 4)
+		self.matcher = mp
+
+		self.SetToolTipString(_(
+			"The diagnostic classification or grading of this episode.\n"
+			"\n"
+			"This documents how certain one is about this episode being a true diagnosis."
+		))
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	
+
 	#================================================================	
 	class testapp (wx.App):
 			"""
@@ -1451,9 +1492,9 @@ if __name__ == '__main__':
 				# Creating the menubar.	
 				menuBar = wx.MenuBar()
 				menuBar.Append(filemenu,"&File")
-	
+
 				frame.SetMenuBar(menuBar)
-	
+
 				txt = wx.StaticText( frame, -1, _("Select desired test option from the 'File' menu"),
 				wx.DefaultPosition, wx.DefaultSize, 0 )
 
@@ -1464,7 +1505,7 @@ if __name__ == '__main__':
 				self.__pat = gmPerson.gmCurrentPatient()
 
 				frame.Show(1)
-				return 1					
+				return 1
 			#--------------------------------------------------------
 			def OnCloseWindow (self, e):
 				"""
@@ -1507,8 +1548,7 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 300))
 		emr = pat.get_emr()
 		epi = emr.get_episodes()[0]
-		dlg = cEpisodeEditAreaDlg(parent=app.frame, id=-1, size = (400,400), episode=epi)
-		dlg.ShowModal()
+		edit_episode(parent=app.frame, episode=epi)
 	#----------------------------------------------------------------
 	def test_episode_selection_prw():
 		app = wx.PyWidgetTester(size = (400, 40))
@@ -1518,8 +1558,7 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_health_issue_edit_area_dlg():
 		app = wx.PyWidgetTester(size = (200, 300))
-		dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
-		dlg.ShowModal()
+		edit_health_issue(parent=app.frame, issue=None)
 	#----------------------------------------------------------------
 	def test_health_issue_edit_area_pnl():
 		app = wx.PyWidgetTester(size = (200, 300))
@@ -1558,7 +1597,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.101  2009-07-30 12:03:54  ncq
+# Revision 1.102  2009-09-01 22:29:09  ncq
+# - normalize issue/episode edit area handling, obsoleting their dialogs
+# - add edit_episode/edit_health_issue
+# - support diagnostic certainty
+#
+# Revision 1.101  2009/07/30 12:03:54  ncq
 # - fix editing age noted
 #
 # Revision 1.100  2009/07/16 09:52:15  ncq
