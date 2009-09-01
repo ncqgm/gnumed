@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.295 2009-07-02 20:56:49 ncq Exp $
-__version__ = "$Revision: 1.295 $"
+# $Id: gmClinicalRecord.py,v 1.296 2009-09-01 22:13:24 ncq Exp $
+__version__ = "$Revision: 1.296 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -840,7 +840,7 @@ Hospital stays: %(stays)s
 		"""Add episode 'episode_name' for a patient's health issue.
 
 		- silently returns if episode already exists
-		"""		
+		"""
 		episode = gmEMRStructItems.create_episode (
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
@@ -2002,7 +2002,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.295  2009-07-02 20:56:49  ncq
+# Revision 1.296  2009-09-01 22:13:24  ncq
+# - cleanup
+#
+# Revision 1.295  2009/07/02 20:56:49  ncq
 # - cleanup
 #
 # Revision 1.294  2009/07/01 17:14:40  ncq
