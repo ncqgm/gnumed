@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.145 $"
+__version__ = "$Revision: 1.146 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -28,7 +28,7 @@ except NameError: _ = lambda x:x
 diagnostic_certainty_classification2str = {
 	None: u'',
 	u'A': _('A: Sign'),
-	u'B': _('B: Group of signs'),
+	u'B': _('B: Cluster of signs'),
 	u'C': _('C: Syndromic diagnosis'),
 	u'D': _('D: Scientific diagnosis')
 }
@@ -1384,7 +1384,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.145  2009-09-01 22:14:15  ncq
+# Revision 1.146  2009-09-01 23:03:57  ncq
+# - better classification
+#
+# Revision 1.145  2009/09/01 22:14:15  ncq
 # - support diagnostic certainty on issues and episodes
 #
 # Revision 1.144  2009/07/16 09:51:53  ncq
