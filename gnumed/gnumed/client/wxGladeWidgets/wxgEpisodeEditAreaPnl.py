@@ -15,6 +15,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         self._TCTRL_patient = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_issue = gmEMRStructWidgets.cIssueSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_description = gmEMRStructWidgets.cEpisodeDescriptionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_classification = gmEMRStructWidgets.cDiagnosticCertaintyClassificationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_closed = wx.CheckBox(self, -1, _("Closed"))
 
         self.__set_properties()
@@ -27,13 +28,14 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         self._TCTRL_patient.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._PRW_issue.SetToolTipString(_("Select the health issue this episode belongs to."))
         self._PRW_description.SetToolTipString(_("Type or select the description for this episode. It should be a summary for the episode of illness."))
+        self._PRW_classification.SetToolTipString(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
         self._CHBOX_closed.SetToolTipString(_("If this box is checked the episode is over. If not it is currently ongoing."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgEpisodeEditAreaPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
-        __gzsr_details = wx.FlexGridSizer(4, 2, 0, 3)
+        __gzsr_details = wx.FlexGridSizer(4, 2, 3, 5)
         __szr_status = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_patient = wx.StaticText(self, -1, _("Patient"))
         __gzsr_details.Add(__lbl_patient, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -44,9 +46,10 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         __lbl_description = wx.StaticText(self, -1, _("Description"))
         __gzsr_details.Add(__lbl_description, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(self._PRW_description, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_status = wx.StaticText(self, -1, _("Status"))
-        __gzsr_details.Add(__lbl_status, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_status.Add(self._CHBOX_closed, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_certainty = wx.StaticText(self, -1, _("Certainty"))
+        __gzsr_details.Add(__lbl_certainty, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_status.Add(self._PRW_classification, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 15)
+        __szr_status.Add(self._CHBOX_closed, 1, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(__szr_status, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.AddGrowableCol(1)
         __szr_main.Add(__gzsr_details, 1, wx.EXPAND, 0)

@@ -12,7 +12,7 @@ import wx
 class wxgHealthIssueEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmPhraseWheel, gmDateTimeInput
+        from Gnumed.wxpython import gmPhraseWheel, gmDateTimeInput, gmEMRStructWidgets
 
         # begin wxGlade: wxgHealthIssueEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -20,6 +20,7 @@ class wxgHealthIssueEditAreaPnl(wx.ScrolledWindow):
         self._PRW_condition = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._ChBOX_left = wx.CheckBox(self, -1, _("left"))
         self._ChBOX_right = wx.CheckBox(self, -1, _("right"))
+        self._PRW_classification = gmEMRStructWidgets.cDiagnosticCertaintyClassificationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_grouping = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_notes = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_WORDWRAP|wx.NO_BORDER)
         self._PRW_age_noted = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -54,20 +55,23 @@ class wxgHealthIssueEditAreaPnl(wx.ScrolledWindow):
         __gszr_main = wx.FlexGridSizer(5, 2, 3, 10)
         __szr_options = wx.BoxSizer(wx.HORIZONTAL)
         __szr_diagnosed = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_certainty_grouping = wx.BoxSizer(wx.HORIZONTAL)
         __szr_condition = wx.BoxSizer(wx.HORIZONTAL)
-        _szr_laterality = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_condition = wx.StaticText(self, -1, _("Condition"))
         __lbl_condition.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         __gszr_main.Add(__lbl_condition, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_condition.Add(self._PRW_condition, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        _szr_laterality.Add(self._ChBOX_left, 0, wx.LEFT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        _szr_laterality.Add(self._ChBOX_right, 0, wx.LEFT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_condition.Add(_szr_laterality, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_condition.Add(self._PRW_condition, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_condition.Add(self._ChBOX_left, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_condition.Add(self._ChBOX_right, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __gszr_main.Add(__szr_condition, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_group = wx.StaticText(self, -1, _("Grouping"))
-        __gszr_main.Add(__lbl_group, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __gszr_main.Add(self._PRW_grouping, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_notes = wx.StaticText(self, -1, _("Progress\nNote"))
+        __lbl_certainty = wx.StaticText(self, -1, _("Certainty"))
+        __gszr_main.Add(__lbl_certainty, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_certainty_grouping.Add(self._PRW_classification, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __lbl_group = wx.StaticText(self, -1, _("Grouping:"))
+        __szr_certainty_grouping.Add(__lbl_group, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_certainty_grouping.Add(self._PRW_grouping, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __gszr_main.Add(__szr_certainty_grouping, 1, wx.EXPAND, 0)
+        __lbl_notes = wx.StaticText(self, -1, _("Additional\nNotes"))
         __gszr_main.Add(__lbl_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_main.Add(self._TCTRL_notes, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_noted = wx.StaticText(self, -1, _("When Noted"))
