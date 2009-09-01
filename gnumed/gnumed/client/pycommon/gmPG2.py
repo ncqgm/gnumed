@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.116 $"
+__version__ = "$Revision: 1.117 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1561,7 +1561,7 @@ if TIMESTAMPTZ_OID not in dbapi.DATETIME.values:
 	raise ImportError('TIMESTAMPTZ_OID <%s> not in psycopg2.DATETIME.values [%s]' % (TIMESTAMPTZ_OID, dbapi.DATETIME.values))
 
 DT_W_ODD_TZ = psycopg2.extensions.new_type((TIMESTAMPTZ_OID,), 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
-#psycopg2.extensions.register_type(DT_W_ODD_TZ)
+#psycopg2.extensions.register_type(DT_W_ODD_TZ)		# now done by psycopg2
 
 #=======================================================================
 #  main
@@ -1922,7 +1922,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.116  2009-08-24 20:11:27  ncq
+# Revision 1.117  2009-09-01 22:24:35  ncq
+# - better comment
+#
+# Revision 1.116  2009/08/24 20:11:27  ncq
 # - bump db version
 # - fix tag creation
 # - provider inbox:
