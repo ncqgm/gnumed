@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.117 2009-07-18 14:06:14 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmMedDoc.py,v 1.118 2009-09-01 22:14:44 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
@@ -151,10 +151,10 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"""select * from blobs.v_obj4doc_no_data where pk_obj=%s"""
 	_cmds_store_payload = [
 		u"""update blobs.doc_obj set
-				seq_idx=%(seq_idx)s,
-				comment=%(obj_comment)s,
-				fk_intended_reviewer=%(pk_intended_reviewer)s,
-				filename=%(filename)s
+				seq_idx = %(seq_idx)s,
+				comment = gm.nullify_empty_string(%(obj_comment)s),
+				filename = gm.nullify_empty_string(%(filename)s),
+				fk_intended_reviewer = %(pk_intended_reviewer)s
 			where
 				pk=%(pk_obj)s and
 				xmin=%(xmin_doc_obj)s""",
@@ -332,10 +332,10 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update blobs.doc_med set
 				fk_type = %(pk_type)s,
-				comment = %(comment)s,
+				fk_episode = %(pk_episode)s,
 				clin_when = %(clin_when)s,
-				ext_ref = %(ext_ref)s,
-				fk_episode = %(pk_episode)s
+				comment = gm.nullify_empty_string(%(comment)s),
+				ext_ref = gm.nullify_empty_string(%(ext_ref)s)
 			where
 				pk = %(pk_doc)s and
 				xmin = %(xmin_doc_med)s""",
@@ -713,7 +713,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.117  2009-07-18 14:06:14  ncq
+# Revision 1.118  2009-09-01 22:14:44  ncq
+# - nullify empty strings where useful
+#
+# Revision 1.117  2009/07/18 14:06:14  ncq
 # - fix getting doc IDs list with doc type specified
 #
 # Revision 1.116  2009/07/16 11:30:38  ncq
