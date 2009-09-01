@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.104 2009-06-04 16:30:30 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmEMRBrowser.py,v 1.105 2009-09-01 22:26:56 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -288,8 +288,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def __edit_episode(self, event):
-		dlg = gmEMRStructWidgets.cEpisodeEditAreaDlg(parent=self, episode=self.__curr_node_data)
-		dlg.ShowModal()
+		gmEMRStructWidgets.edit_episode(parent=self, episode=self.__curr_node_data)
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -364,9 +363,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			self.__populate_tree()
 	#--------------------------------------------------------
 	def __edit_issue(self, event):
-		dlg = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1, issue=self.__curr_node_data)
-		dlg.ShowModal()
-		dlg.Destroy()
+		gmEMRStructWidgets.edit_health_issue(parent = self, issue = self.__curr_node_data)
 	#--------------------------------------------------------
 	def __delete_issue(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -408,8 +405,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			epi, epi_cookie = self.GetNextChild(self.__curr_node, epi_cookie)
 	#--------------------------------------------------------
 	def __create_issue(self, event):
-		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
-		ea.ShowModal()
+		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)
 	#--------------------------------------------------------
 	def __document_allergy(self, event):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
@@ -792,7 +788,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.104  2009-06-04 16:30:30  ncq
+# Revision 1.105  2009-09-01 22:26:56  ncq
+# - use new edit_episode/edit_health_issue
+#
+# Revision 1.104  2009/06/04 16:30:30  ncq
 # - use set active patient from pat search widgets
 #
 # Revision 1.103  2009/05/13 12:19:13  ncq
