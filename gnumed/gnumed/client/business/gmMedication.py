@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.3 2009-08-24 18:36:20 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMedication.py,v 1.4 2009-09-01 22:16:35 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs
@@ -22,9 +22,8 @@ _log = logging.getLogger('gm.meds')
 _log.info(__version__)
 #============================================================
 # wishlist:
-# - --conf-file= for gl_win.exe
+# - --conf-file= for glwin.exe
 # - wirkstoff: Konzentration auch in Multiprodukten
-# - BDT-Interaktionscheck nur mittels PZN
 
 class cGelbeListeCSVFile(object):
 	"""Iterator over a Gelbe Liste/MMI v8.2 CSV file."""
@@ -72,7 +71,7 @@ class cGelbeListeCSVFile(object):
 		u'status_billigere_packung',
 		u'rezepttyp',
 		u'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
-		u't-rezept-pflicht',
+		u't-rezept-pflicht',				# Thalidomid-Rezept
 		u'erstattbares_medizinprodukt',
 		u'hilfsmittel'
 	]
@@ -144,11 +143,14 @@ class cGelbeListeInterface(cDrugDataSourceInterface):
 	bdt_line_base_length = 8
 	#--------------------------------------------------------
 	def __init__(self):
-		# use adjusted config.txt
+		# use adjusted config.dat
 		pass
 	#--------------------------------------------------------
 	def check_drug_interactions(self, filename=None, pzn_list=None):
 		"""For this to work the BDT interaction check must be configured in the MMI."""
+
+		if len(pzn_list) < 2:
+			return
 
 		bdt_file = codecs.open(filename = filename, mode = 'wb', encoding = cGelbeListeInterface.default_encoding)
 
@@ -158,6 +160,8 @@ class cGelbeListeInterface(cDrugDataSourceInterface):
 			bdt_file.write(cGelbeListeInterface.bdt_line_template % (lng, pzn))
 
 		bdt_file.close()
+
+		# FIXME: switch to IFAP
 #============================================================
 class cIfapInterface(cDrugDataSourceInterface):
 	"""empirical CSV interface"""
@@ -208,6 +212,7 @@ class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = u"select * from clin.v_pat_substance_intake where pk_substance_intake = %s"
 	_cmds_store_payload = [
+		# gm.nullify_empty_string()
 #		u"""update clin.allergy_state set
 #				last_confirmed = %(last_confirmed)s,
 #				has_allergy = %(has_allergy)s,
@@ -255,7 +260,9 @@ if __name__ == "__main__":
 		print mmi
 		print "interface definition:", mmi.version
 		# Metoprolol + Hct vs Citalopram
-		mmi.check_drug_interactions(filename = sys.argv[2], pzn_list = ['4675634', '1638549'])
+		diclofenac = '7587712'
+		phenprocoumon = '4421744'
+		mmi.check_drug_interactions(filename = sys.argv[2], pzn_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
@@ -264,7 +271,10 @@ if __name__ == "__main__":
 		test_interaction_check()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.3  2009-08-24 18:36:20  ncq
+# Revision 1.4  2009-09-01 22:16:35  ncq
+# - improved interaction check test
+#
+# Revision 1.3  2009/08/24 18:36:20  ncq
 # - add CSV file iterator
 # - add BDT interaction check
 #
