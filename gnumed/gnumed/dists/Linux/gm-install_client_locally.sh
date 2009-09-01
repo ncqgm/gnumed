@@ -7,7 +7,7 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.8 2009-06-20 12:48:57 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.9 2009-09-01 22:38:20 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
@@ -30,12 +30,13 @@ if test -z ${ARG_ONE} ; then
 	echo "======================================================="
 	echo "usage:"
 	echo ""
-	echo " $0 <version> | <tarball> | update | deps"
+	echo " $0 <version> | <tarball> | update | installdeps | showdeps"
 	echo ""
-	echo " <version>: the client version to install from the net"
-	echo " <tarball>: a downloaded client tarball"
-	echo " update:    update the installer itself from the net"
-	echo " deps:      install client dependencies (system-wide)"
+	echo " <version>:   the client version to install from the net"
+	echo " <tarball>:   a downloaded client tarball"
+	echo " update:      update the installer itself from the net"
+	echo " installdeps: install client dependencies (system-wide)"
+	echo " showdeps:    show client dependencies"
 	echo ""
 	echo " Download area: ${DL_BASE}/"
 	echo ""
@@ -92,8 +93,22 @@ if [ -f /etc/version ] ; then
 fi
 
 
+# show dependencies
+if test "${ARG_ONE}" == "showdeps" ; then
+	echo ""
+	echo "Client dependencies on ${SYS_TYPE} ..."
+	echo ""
+	for DEP in ${DEPS} ; do
+		echo " ${DEP}"
+	done
+	echo ""
+
+	exit 0
+fi
+
+
 # installation of dependencies
-if test "${ARG_ONE}" == "deps" ; then
+if test "${ARG_ONE}" == "installdeps" ; then
 	echo ""
 	echo "Installing dependencies on ${SYS_TYPE} ..."
 	echo ""
@@ -279,7 +294,11 @@ mc -e gm-from-cvs.sh
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.8  2009-06-20 12:48:57  ncq
+# Revision 1.9  2009-09-01 22:38:20  ncq
+# - add showdeps
+# - rename deps to installdeps
+#
+# Revision 1.8  2009/06/20 12:48:57  ncq
 # - support installing deps by "deps" argument
 #
 # Revision 1.7  2009/05/08 08:03:03  ncq
