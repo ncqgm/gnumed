@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.87 2009-08-13 12:12:20 ncq Exp $
+# $Id: gmTools.py,v 1.88 2009-09-01 22:25:02 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.87 $"
+__version__ = "$Revision: 1.88 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -625,15 +625,15 @@ def none_if(value=None, none_equivalent=None):
 		return None
 	return value
 #---------------------------------------------------------------------------
-def coalesce(initial=None, instead=None, template_initial=None, template_instead=None):
+def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None):
 	"""Modelled after the SQL coalesce function.
 
 	To be used to simplify constructs like:
 
-		if value is None:
-			real_value = some_other_value
+		if initial is None (or in none_equivalents):
+			real_value = (template_instead % instead) or instead
 		else:
-			real_value = some_template_with_%s_formatter % value
+			real_value = (template_initial % initial) or initial
 		print real_value
 
 	@param initial: the value to be tested for <None>
@@ -646,10 +646,12 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 	@type template_instead: string or None
 
 	Ideas:
-		- list of None-equivalents
 		- list of insteads: initial, [instead, template], [instead, template], [instead, template], template_initial, ...
 	"""
-	if initial is None:
+	if none_equivalents is None:
+		none_equivalents = [None]
+
+	if initial in none_equivalents:
 
 		if template_instead is None:
 			return instead
@@ -1025,8 +1027,8 @@ This is a test mail from the gmTools.py module.
 	#-----------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-		test_check_for_update()
-		#test_coalesce()
+		#test_check_for_update()
+		test_coalesce()
 		#test_capitalize()
 		#test_import_module()
 		#test_mkdir()
@@ -1042,7 +1044,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.87  2009-08-13 12:12:20  ncq
+# Revision 1.88  2009-09-01 22:25:02  ncq
+# - enhance coalesce with none_equivalents
+#
+# Revision 1.87  2009/08/13 12:12:20  ncq
 # - slightly better upgrade available message
 #
 # Revision 1.86  2009/07/15 12:17:14  ncq
