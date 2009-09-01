@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.149 $
+# $Revision: 1.150 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-08-13 13:19+CEST\n"
-"PO-Revision-Date: 2009-08-13 14:09+0100\n"
+"POT-Creation-Date: 2009-09-02 00:48+CEST\n"
+"PO-Revision-Date: 2009-09-02 01:02+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -204,8 +204,29 @@ msgstr "Grenzwert"
 msgid "last check:"
 msgstr "letzte Überprüfung:"
 
-msgid "Health Issue %s%s%s [#%s]"
-msgstr "Grunderkrankung %s%s%s [#%s]"
+msgid "A: Sign"
+msgstr "A: Symptom"
+
+msgid "B: Group of signs"
+msgstr "B: Symptomengruppe"
+
+msgid "C: Syndromic diagnosis"
+msgstr "C: Bild der Krankheit"
+
+msgid "D: Scientific diagnosis"
+msgstr "D: wissenschaftliche Diagnose"
+
+msgid "bilateral"
+msgstr "beidseits"
+
+msgid "left"
+msgstr "links"
+
+msgid "right"
+msgstr "rechts"
+
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr "Grunderkrankung %s%s%s%s   [#%s]"
 
 msgid " ***** CONFIDENTIAL *****"
 msgstr " ***** VERTRAULICH *****"
@@ -216,8 +237,8 @@ msgstr " trug zum Tode des Patienten bei"
 msgid " Noted at age: %s"
 msgstr " Bemerkt im Alter von: %s"
 
-msgid " Status: %s, %s"
-msgstr " Status: %s, %s"
+msgid " Status: %s, %s%s"
+msgstr " Status: %s, %s%s"
 
 msgid "not clinically relevant"
 msgstr "medizinisch nicht relevant"
@@ -264,8 +285,8 @@ msgstr "Messungen und Ergebnisse: %s"
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
 
-msgid "Episode %s%s%s (%s) [#%s]\n"
-msgstr "Episode %s%s%s (%s) [#%s]\n"
+msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+msgstr "Episode %s%s%s (%s%s)   [#%s]\n"
 
 msgid "finished"
 msgstr "beendet"
@@ -1562,9 +1583,6 @@ msgstr "Landessprachlich"
 msgid "Encounter type"
 msgstr "Typ des APK"
 
-msgid "edit episode details"
-msgstr "Details der Episode .ändern"
-
 msgid "Closed"
 msgstr "Beendet"
 
@@ -1573,6 +1591,15 @@ msgstr "Wählen Sie die Grunderkrankung, zu der diese Episode gehört."
 
 msgid "Type or select the description for this episode. It should be a summary for the episode of illness."
 msgstr "Tippen oder wählen Sie einen Titel für diese Episode. Es sollte eine Zusammenfassung der Episode darstellen."
+
+msgid ""
+"The diagnostic classification or grading of this episode.\n"
+"\n"
+"This documents how certain one is about this episode being a true diagnosis."
+msgstr ""
+"Die Klassifizierung der diagnostischen Sicherheit.\n"
+"\n"
+"Dies dokumentiert, wie sicher es sich um eine eigentliche Diagnose handelt."
 
 msgid "If this box is checked the episode is over. If not it is currently ongoing."
 msgstr "Wenn dieses Feld markiert ist, ist die Episode beendet. Ansonsten dauert sie an."
@@ -1586,8 +1613,8 @@ msgstr "Einordnen unter"
 msgid "Description"
 msgstr "Beschreibung"
 
-msgid "Status"
-msgstr "Status"
+msgid "Certainty"
+msgstr "Gewißheit"
 
 msgid "Enter the actual ID (number, identifier, ...) here."
 msgstr "Geben Sie hier die ID (Nummer, Aktenzeichen, ...) ein."
@@ -1651,6 +1678,9 @@ msgstr "Einstellungen"
 
 msgid "Processed by:"
 msgstr "Verarbeitet von:"
+
+msgid "Status"
+msgstr "Status"
 
 msgid "Last modified:"
 msgstr "Zuletzt geändert:"
@@ -1777,27 +1807,6 @@ msgstr ""
 "\n"
 "Eine leere Nachricht unterdrückt die Begrüßung."
 
-msgid "Save/Update"
-msgstr "Speichern"
-
-msgid "Clear/Restore"
-msgstr "Leeren/Zurücksetzen"
-
-msgid "add -- or edit selected -- past history item (Health Issue)"
-msgstr "Grunderkrankung (Eigenanamnese) hinzufügen bzw. ändern"
-
-msgid "Save or update the condition (past history item)."
-msgstr "Die neue Grunderkrankung bzw. die Änderungen abspeichern."
-
-msgid "Clear fields or restore them to the values in the database."
-msgstr "Felder leeren bzw. auf die Datenbankwerte zurücksetzen."
-
-msgid "left"
-msgstr "links"
-
-msgid "right"
-msgstr "rechts"
-
 msgid "Active"
 msgstr "aktiv"
 
@@ -1840,15 +1849,15 @@ msgstr "Setzen Sie ein Häkchen, wenn diese Grunderkrankung zum Tode des Patient
 msgid "Condition"
 msgstr "Erkrankung"
 
-msgid "Grouping"
-msgstr "Gruppe"
+msgid "Grouping:"
+msgstr "Gruppierung"
 
 msgid ""
-"Progress\n"
-"Note"
+"Additional\n"
+"Notes"
 msgstr ""
-"Verlaufs-\n"
-"notiz"
+"Zusätzliche\n"
+"Angaben"
 
 msgid "When Noted"
 msgstr "festgestellt"
@@ -2457,8 +2466,8 @@ msgstr "Taille"
 msgid "Programmer must override this text."
 msgstr "Programmierer muß diesen Text überschreiben"
 
-msgid "All"
-msgstr "Alle"
+msgid "All patients"
+msgstr "Alle patient"
 
 msgid "Active patient"
 msgstr "Aktiver Patient"
@@ -2472,8 +2481,8 @@ msgstr "Nur die für den aktiven Patienten zutreffenden patientenbezogenen Nachr
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr "Zeigt die eingegangene Nachricht komplett."
 
-msgid "Patient-related messages:"
-msgstr "Patientenbezogene Nachrichten:"
+msgid "Filter to:"
+msgstr "Filtern auf:"
 
 msgid "To"
 msgstr "An (To)"
@@ -2915,16 +2924,16 @@ msgid ""
 "\n"
 "Documentation to be found at <http://wiki.gnumed.de>."
 msgstr ""
-"GNUmed hat einen Fehler bemerkt, dessen Auftreten nicht einkalkuliert war.\n"
+"GNUmed hat einen Fehler bemerkt, dessen Auftreten nicht vorhersehbar war.\n"
 "\n"
 "Details zum Fehler finden Sie in der Logdatei. Eine Kopie davon wurde in\n"
 "Ihrem Heimatordner abgespeichert (siehe unten). Das Log kann eventuell\n"
-"sensible Daten beinhalten. Sie sollten die Logdatei daher durchsehen ehe\n"
-"Sie sie Ihrem Systembetreuer zur Fehlersuche herausgeben.\n"
+"sensible Daten beinhalten. Sie sollten die Logdatei daher durchsehen, ehe\n"
+"Sie diese Ihrem Systembetreuer zur Fehlersuche herausgeben.\n"
 "\n"
 "GNUmed wird weiterlaufen. Es ist jedoch dringlich zu empfehlen, das\n"
 "Programm baldigst zu beenden. Sie können versuchen, ungesicherte Daten\n"
-"zu speichern, aber Sie können sich nicht darauf verlassen.\n"
+"zu speichern, aber Sie können sich nicht darauf verlassen, daß das klappt.\n"
 "\n"
 "Sie können das Programm danach gefahrlos neu starten.\n"
 "\n"
@@ -3095,9 +3104,6 @@ msgstr "Anlegen einer neuen Allergie nicht vorgesehen."
 
 msgid "&Restore"
 msgstr "&Zurücksetzen"
-
-msgid "Certainty"
-msgstr "Gewißheit"
 
 msgid "<allergy state unasked>"
 msgstr "<Allergiestatus nicht erfragt>"
@@ -4408,6 +4414,12 @@ msgstr "Neuen Konsultationstype hinzufügen"
 msgid "Editing local encounter type name"
 msgstr "Bearbeite Lokalnamen des Konsultationstyps"
 
+msgid "Adding a new episode"
+msgstr "neue Episode hinzufügen"
+
+msgid "Editing an episode"
+msgstr "Episode bearbeiten"
+
 msgid "Closed episodes older than %s days on health issue [%s]"
 msgstr "Episoden älter als %s Tage für Grundkrankheit [%s] wurden beendet."
 
@@ -4472,6 +4484,12 @@ msgstr "Grunderkrankung"
 msgid "Cannot attach episode [%s] to health issue [%s] because it already has a running episode."
 msgstr "Kann Episode [%s] nicht der Grunderkrankung [%s] zuordnen, weil diese bereits eine laufende Episode hat."
 
+msgid "Adding a new health issue"
+msgstr "Eine Grunderkrankung hinzufügen"
+
+msgid "Editing a health issue"
+msgstr "Grunderkrankung bearbeiten"
+
 msgid "Select the health issues you are interested in ..."
 msgstr "Wählen Sie die Grunderkrankungen, die von Interesse sind ..."
 
@@ -4492,6 +4510,9 @@ msgstr ""
 msgid "Selecting health issue"
 msgstr "Grunderkrankung wählen"
 
+msgid "inception notes"
+msgstr "Anfangsnotizen"
+
 msgid "Cannot parse [%s] into valid interval."
 msgstr "Kann <%s> nicht in einen Zeitraum übersetzen."
 
@@ -4500,18 +4521,6 @@ msgstr "Grunderkrankung kann nicht im Alter von %s bemerkt worden sein. Der Pati
 
 msgid "Condition diagnosed in the future."
 msgstr "Diagnosestellung ist in der Zukunft."
-
-msgid "Creating new health issue not allowed."
-msgstr "Anlegen einer neuen Grunderkrankung nicht vorgesehen."
-
-msgid "inception notes"
-msgstr "Anfangsnotizen"
-
-msgid "Update"
-msgstr "Update"
-
-msgid "Restore"
-msgstr "Zurücksetzen"
 
 msgid "Select desired test option from the 'File' menu"
 msgstr ""
@@ -7491,7 +7500,7 @@ msgid "Select the narrative you are interested in ..."
 msgstr "Wählen Sie die Karteieinträge, die von Interesse sind ..."
 
 msgid "There is no narrative for this episode in this encounter."
-msgstr "Keine Karteieingräge für diese Episode gefunden."
+msgstr "Keine Karteieinträge für diese Episode gefunden."
 
 msgid "Must select episode to move narrative to first."
 msgstr "Sie müssen erst eine Episode zum Verschieben der Karteieinträge wählen."
@@ -9148,6 +9157,34 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "edit episode details"
+#~ msgstr "Details der Episode .ändern"
+#~ msgid "Save/Update"
+#~ msgstr "Speichern"
+#~ msgid "Clear/Restore"
+#~ msgstr "Leeren/Zurücksetzen"
+#~ msgid "add -- or edit selected -- past history item (Health Issue)"
+#~ msgstr "Grunderkrankung (Eigenanamnese) hinzufügen bzw. ändern"
+#~ msgid "Save or update the condition (past history item)."
+#~ msgstr "Die neue Grunderkrankung bzw. die Änderungen abspeichern."
+#~ msgid "Clear fields or restore them to the values in the database."
+#~ msgstr "Felder leeren bzw. auf die Datenbankwerte zurücksetzen."
+#~ msgid ""
+#~ "Progress\n"
+#~ "Note"
+#~ msgstr ""
+#~ "Verlaufs-\n"
+#~ "notiz"
+#~ msgid "All"
+#~ msgstr "Alle"
+#~ msgid "Patient-related messages:"
+#~ msgstr "Patientenbezogene Nachrichten:"
+#~ msgid "Creating new health issue not allowed."
+#~ msgstr "Anlegen einer neuen Grunderkrankung nicht vorgesehen."
+#~ msgid "Update"
+#~ msgstr "Update"
+#~ msgid "Restore"
+#~ msgstr "Zurücksetzen"
 #~ msgid "Encyclopedia"
 #~ msgstr "Lexikon"
 #~ msgid "Successfully saved measurement type."
@@ -9313,8 +9350,6 @@ msgstr "erstmals"
 #~ " Gruppenkommentar: %(comment_type_unified)s\n"
 #~ "\n"
 #~ "Änderungen: %(row_ver)s, zuletzt %(mod_when)s von %(mod_by)s."
-#~ msgid "Adding a new episode"
-#~ msgstr "neue Episode hinzufügen"
 #~ msgid ""
 #~ "\n"
 #~ "Select the plugins to load for the workplace \"%s\".\n"
@@ -9397,8 +9432,6 @@ msgstr "erstmals"
 #~ msgstr "xDT-Feld"
 #~ msgid "Today's Notes"
 #~ msgstr "Heutige Karteieinträge"
-#~ msgid "Edit notes"
-#~ msgstr "Verlaufsnotizen ändern"
 #~ msgid "Open a new progress note editor."
 #~ msgstr "Einen neuen Editor für eine Verlaufsnotiz öffnen."
 #~ msgid "Add editor for a new unassociated progress note."
@@ -9847,8 +9880,6 @@ msgstr "erstmals"
 #~ msgstr "Episode löschen"
 #~ msgid "edit consultation details"
 #~ msgstr "Details der Konsultation ändern"
-#~ msgid "edit health issue"
-#~ msgstr "Grunderkrankung bearbeiten"
 #~ msgid "0 bytes - data missing ?"
 #~ msgstr "0 Byte - fehlen die Daten ?"
 #~ msgid "Cannot export document part from database to file."
