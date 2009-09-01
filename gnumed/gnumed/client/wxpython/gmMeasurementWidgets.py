@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.58 2009-08-24 20:11:27 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmMeasurementWidgets.py,v 1.59 2009-09-01 22:33:25 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal
+import sys, logging, datetime as pyDT, decimal, os
 
 
 import wx, wx.grid, wx.lib.hyperlink
@@ -1342,7 +1342,7 @@ def manage_measurement_types(parent=None):
 		return False
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		mtypes = gmPathLab.get_measurement_types()
+		mtypes = gmPathLab.get_measurement_types(order_by = 'name, abbrev')
 		items = [ [
 			m['abbrev'],
 			m['name'],
@@ -1870,7 +1870,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.58  2009-08-24 20:11:27  ncq
+# Revision 1.59  2009-09-01 22:33:25  ncq
+# - order test types in list
+#
+# Revision 1.58  2009/08/24 20:11:27  ncq
 # - bump db version
 # - fix tag creation
 # - provider inbox:
