@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.76 2009-08-08 12:16:48 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmPathLab.py,v 1.77 2009-09-01 22:20:40 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -52,11 +52,11 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		u"""update clin.test_type set
 				abbrev = %(abbrev)s,
 				name = %(name)s,
-				loinc = %(loinc)s,
-				code = %(code)s,
-				coding_system = %(coding_system)s,
-				comment = %(comment_type)s,
-				conversion_unit = %(conversion_unit)s,
+				loinc = gm.nullify_empty_string(%(loinc)s),
+				code = gm.nullify_empty_string(%(code)s),
+				coding_system = gm.nullify_empty_string(%(coding_system)s),
+				comment = gm.nullify_empty_string(%(comment_type)s),
+				conversion_unit = gm.nullify_empty_string(%(conversion_unit)s),
 				fk_test_org = %(pk_test_org)s
 			where pk = %(pk_test_type)s""",
 		u"""select xmin_test_type from clin.v_test_types where pk_test_type = %(pk_test_type)s"""
@@ -88,8 +88,8 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 #------------------------------------------------------------
-def get_measurement_types():
-	cmd = u'select * from clin.v_test_types'
+def get_measurement_types(order_by=None):
+	cmd = u'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, u'', u'order by %s')
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 #------------------------------------------------------------
@@ -520,24 +520,24 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_cmds_store_payload = [
 		"""update test_result set
-				clin_when=%(val_when)s,
-				narrative=%(progress_note_result)s,
-				fk_type=%(pk_test_type)s,
-				val_num=%(val_num)s::numeric,
-				val_alpha=%(val_alpha)s,
-				val_unit=%(val_unit)s,
-				val_normal_min=%(val_normal_min)s,
-				val_normal_max=%(val_normal_max)s,
-				val_normal_range=%(val_normal_range)s,
-				val_target_min=%(val_target_min)s,
-				val_target_max=%(val_target_max)s,
-				val_target_range=%(val_target_range)s,
-				abnormality_indicator=%(abnormal)s,
-				norm_ref_group=%(ref_group)s,
-				note_provider=%(note_provider)s,
-				material=%(material)s,
-				material_detail=%(material_detail)s
-			where pk=%(pk_result)s""",
+				clin_when = %(val_when)s,
+				narrative = %(progress_note_result)s,
+				fk_type = %(pk_test_type)s,
+				val_num = %(val_num)s::numeric,
+				val_alpha = %(val_alpha)s,
+				val_unit = %(val_unit)s,
+				val_normal_min = %(val_normal_min)s,
+				val_normal_max = %(val_normal_max)s,
+				val_normal_range = %(val_normal_range)s,
+				val_target_min = %(val_target_min)s,
+				val_target_max = %(val_target_max)s,
+				val_target_range = %(val_target_range)s,
+				abnormality_indicator = %(abnormal)s,
+				norm_ref_group = %(ref_group)s,
+				note_provider = %(note_provider)s,
+				material = %(material)s,
+				material_detail = %(material_detail)s
+			where pk = %(pk_result)s""",
 		"""select xmin_test_result from v_results4lab_req where pk_result=%(pk_result)s"""
 		]
 
@@ -741,7 +741,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.76 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.77 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -1036,7 +1036,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.76  2009-08-08 12:16:48  ncq
+# Revision 1.77  2009-09-01 22:20:40  ncq
+# - nullify empty strings where appropriate
+# - support order_by on getting measurement types
+#
+# Revision 1.76  2009/08/08 12:16:48  ncq
 # - must us AS to supply pk
 #
 # Revision 1.75  2009/08/03 20:47:24  ncq
