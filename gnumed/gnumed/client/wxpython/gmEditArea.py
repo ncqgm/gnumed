@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.128 2009-08-11 10:47:41 ncq Exp $
+# $Id: gmEditArea.py,v 1.129 2009-09-01 22:30:33 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.128 $"
+__version__ = "$Revision: 1.129 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -36,12 +36,17 @@ class cGenericEditAreaMixin(object):
 		return False
 	#----------------------------------------------------------------
 	def _save_as_new(self):
+		# save the data as a new instance
 		self.data = 1
 		return True
 		return False
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data = 1
+		# update self.data and save the changes
+		self.data[''] = 
+		self.data[''] = 
+		self.data[''] = 
+		self.data.save()
 		return True
 		return False
 	#----------------------------------------------------------------
@@ -97,8 +102,11 @@ class cGenericEditAreaMixin(object):
 	def save(self):
 		"""Invoked from the generic edit area dialog.
 
-		Invokes _valid_for_save, _save_as_new/_save_as_update on
-		the implementing edit area.
+		Invokes
+			_valid_for_save,
+			_save_as_new,
+			_save_as_update
+		on the implementing edit area as needed.
 
 		_save_as_* must set self.__data and return True/False
 		"""
@@ -120,8 +128,11 @@ class cGenericEditAreaMixin(object):
 	def refresh(self):
 		"""Invoked from the generic edit area dialog.
 
-		Invokes _refresh_as_new/_refresh_from_existing/_refresh_as_new_from_existing 	
-		on the implementing edit area.
+		Invokes
+			_refresh_as_new
+			_refresh_from_existing
+			_refresh_as_new_from_existing
+		on the implementing edit area as needed.
 		"""
 		if self.__mode == 'new':
 			return self._refresh_as_new()
@@ -2199,7 +2210,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.128  2009-08-11 10:47:41  ncq
+# Revision 1.129  2009-09-01 22:30:33  ncq
+# - improved docs
+#
+# Revision 1.128  2009/08/11 10:47:41  ncq
 # - improved EA re-parenting
 #
 # Revision 1.127  2009/07/06 21:17:57  ncq
