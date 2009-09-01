@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.23 2008-12-01 12:12:37 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmMimeLib.py,v 1.24 2009-09-01 22:24:09 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -158,7 +158,7 @@ open_cmds = {
 	'gnome-open': 'gnome-open %s',			# GNOME
 	'exo-open': 'exo-open %s',
 	'op': 'op %s',
-	'open': 'open %s'						# MacOSX
+	'open': 'open %s'						# MacOSX: "open -a AppName file" (-a allows to override the default app for the file type)
 	#'run-mailcap'
 	#'explorer'
 }
@@ -267,7 +267,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.23  2008-12-01 12:12:37  ncq
+# Revision 1.24  2009-09-01 22:24:09  ncq
+# - document MacOSX open behaviour
+#
+# Revision 1.23  2008/12/01 12:12:37  ncq
 # - turn file-open candidates into list so we can influence detection order
 #
 # Revision 1.22  2008/07/22 13:54:25  ncq
