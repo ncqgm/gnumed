@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.189 2009-08-24 20:05:14 ncq Exp $
-__version__ = "$Revision: 1.189 $"
+# $Id: gmPerson.py,v 1.190 2009-09-01 22:21:31 ncq Exp $
+__version__ = "$Revision: 1.190 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -208,7 +208,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		u"""update dem.staff set
 				fk_role = %(pk_role)s,
 				short_alias = %(short_alias)s,
-				comment = %(comment)s,
+				comment = gm.nullify_empty_string(%(comment)s),
 				is_active = %(is_active)s,
 				db_user = %(db_user)s
 			where
@@ -341,14 +341,14 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity = %s"
 	_cmds_store_payload = [
 		u"""update dem.identity set
-				title = %(title)s,
+				gender = %(gender)s,
 				dob = %(dob)s,
 				tob = %(tob)s,
-				cob = %(cob)s,
-				gender = %(gender)s,
+				cob = gm.nullify_empty_string(%(cob)s),
+				title = gm.nullify_empty_string(%(title)s),
 				fk_marital_status = %(pk_marital_status)s,
-				karyotype = %(karyotype)s,
-				pupic = %(pupic)s,
+				karyotype = gm.nullify_empty_string(%(karyotype)s),
+				pupic = gm.nullify_empty_string(%(pupic)s),
 				deceased = %(deceased)s
 			where
 				pk = %(pk_identity)s and
@@ -2321,7 +2321,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.189  2009-08-24 20:05:14  ncq
+# Revision 1.190  2009-09-01 22:21:31  ncq
+# - nullify empty strings where appropriate
+#
+# Revision 1.189  2009/08/24 20:05:14  ncq
 # - use new cInboxMessage class
 #
 # Revision 1.188  2009/07/15 12:46:59  ncq
