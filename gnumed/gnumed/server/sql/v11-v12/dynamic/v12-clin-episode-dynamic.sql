@@ -5,15 +5,15 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-episode-dynamic.sql,v 1.1 2009-08-28 12:45:26 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-episode-dynamic.sql,v 1.2 2009-09-01 22:43:14 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-comment on column clin.episode.diagnostic_certainty is
+comment on column clin.episode.diagnostic_certainty_classification is
 'The certainty at which this problem is believed to be a diagnosis:
 
 A: sign (Symptom)
@@ -24,15 +24,18 @@ D: proven diagnosis (diagnostisch gesichert)'
 
 
 alter table clin.episode
-	add constraint valid_diagnostic_certainty
-		check (diagnostic_certainty in ('A', 'B', 'C', 'D', NULL));
+	add constraint valid_diagnostic_certainty_classification
+		check (diagnostic_certainty_classification in ('A', 'B', 'C', 'D', NULL));
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-episode-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-episode-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-episode-dynamic.sql,v $
--- Revision 1.1  2009-08-28 12:45:26  ncq
+-- Revision 1.2  2009-09-01 22:43:14  ncq
+-- - diagnostic-certainty -> *-classification
+--
+-- Revision 1.1  2009/08/28 12:45:26  ncq
 -- - add diagnostic certainty
 --
 --
