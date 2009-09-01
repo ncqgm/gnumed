@@ -2,13 +2,27 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_upgrade-gnumed_server.sh,v $
-# $Id: net_upgrade-gnumed_server.sh,v 1.8 2009-04-07 11:32:02 ncq Exp $
+# $Id: net_upgrade-gnumed_server.sh,v 1.9 2009-09-01 22:40:56 ncq Exp $
 # ============================================
 
 PREV_VER="10"
 NEXT_VER="11"
 
+INSTALL_BASE=~/".gnumed/server-installation"
+DL_BASE="http://www.gnumed.de/downloads/server"
+
 OTHER_UPGRADE_OPTS="$1"
+
+# upgrader update
+if test "${OTHER_UPGRADE_OPTS}" == "update" ; then
+	echo ""
+	echo "Updating the upgrader itself."
+	echo ""
+	echo "The new version will be in $0.new."
+	wget http://www.gnumed.de/downloads/server/$0 -O $0.new
+	chmod +x $0.new
+	exit 0
+fi
 
 # try to determine distribution of target system
 # FIXME: use lsb_release
@@ -33,13 +47,13 @@ echo "upgrade your existing \"gnumed_v${PREV_VER}\" database."
 echo "================================================"
 
 # prepare environment
-mkdir -p ~/.gnumed/server-installation/
-cd ~/.gnumed/server-installation/
+mkdir -p ${INSTALL_BASE}/
+cd ${INSTALL_BASE}/
 rm -r GNUmed-v*
 rm -f GNUmed-server.latest.tgz
 
 # get and unpack package
-wget -q http://www.gnumed.de/downloads/server/GNUmed-server.latest.tgz
+wget -q ${DL_BASE}/GNUmed-server.latest.tgz
 tar -xzf GNUmed-server.latest.tgz
 BASEDIR=`ls -1 -d GNUmed-v*`
 mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
@@ -58,7 +72,11 @@ su -c "./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}"
 
 # ============================================
 # $Log: net_upgrade-gnumed_server.sh,v $
-# Revision 1.8  2009-04-07 11:32:02  ncq
+# Revision 1.9  2009-09-01 22:40:56  ncq
+# - add self-upgrade
+# - cleanup
+#
+# Revision 1.8  2009/04/07 11:32:02  ncq
 # - deal with non-one-digit versions
 #
 # Revision 1.7  2009/03/18 14:32:57  ncq
