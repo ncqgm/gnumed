@@ -4,8 +4,8 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.144 $"
-__author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
+__version__ = "$Revision: 1.145 $"
+__author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
 
@@ -19,8 +19,32 @@ from Gnumed.business import gmClinNarrative
 _log = logging.getLogger('gm.emr')
 _log.info(__version__)
 
+
+try: _
+except NameError: _ = lambda x:x
+#============================================================
+# diagnostic certainty classification
+#============================================================
+diagnostic_certainty_classification2str = {
+	None: u'',
+	u'A': _('A: Sign'),
+	u'B': _('B: Group of signs'),
+	u'C': _('C: Syndromic diagnosis'),
+	u'D': _('D: Scientific diagnosis')
+}
+
 #============================================================
 # Health Issues API
+#============================================================
+laterality2str = {
+	None: u'?',
+	u'na': u'',
+	u'sd': _('bilateral'),
+	u'ds': _('bilateral'),
+	u's': _('left'),
+	u'd': _('right')
+}
+
 #============================================================
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue."""
@@ -29,9 +53,10 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description = %(description)s,
-				grouping = %(grouping)s,
 				age_noted = %(age_noted)s,
-				laterality = %(laterality)s,
+				laterality = gm.nullify_empty_string(%(laterality)s),
+				grouping = gm.nullify_empty_string(%(grouping)s),
+				diagnostic_certainty_classification = gm.nullify_empty_string(%(diagnostic_certainty_classification)s),
 				is_active = %(is_active)s,
 				clinically_relevant = %(clinically_relevant)s,
 				is_confidential = %(is_confidential)s,
@@ -49,7 +74,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		'is_active',
 		'clinically_relevant',
 		'is_confidential',
-		'is_cause_of_death'
+		'is_cause_of_death',
+		'diagnostic_certainty_classification'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, encounter=None, name='xxxDEFAULTxxx', row=None):
@@ -173,10 +199,16 @@ age (
 
 		lines = []
 
-		lines.append(_('Health Issue %s%s%s [#%s]') % (
+		lines.append(_('Health Issue %s%s%s%s   [#%s]') % (
 			u'\u00BB',
 			self._payload[self._idx['description']],
 			u'\u00AB',
+			gmTools.coalesce (
+				initial = laterality2str[self._payload[self._idx['laterality']]],
+				instead = u'',
+				template_initial = u' (%s)',
+				none_equivalents = [None, u'', u'?']
+			),
 			self._payload[self._idx['pk_health_issue']]
 		))
 
@@ -190,10 +222,18 @@ age (
 			lines.append(_(' contributed to death of patient'))
 			lines.append('')
 
-		lines.append(_(' Noted at age: %s') % self.age_noted_human_readable())
-		lines.append(_(' Status: %s, %s') % (
+		if self._payload[self._idx['age_noted']] is not None:
+			lines.append(_(' Noted at age: %s') % self.age_noted_human_readable())
+
+		lines.append(_(' Status: %s, %s%s') % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('active'), _('inactive')),
-			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant'))
+			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant')),
+			gmTools.coalesce (
+				initial = diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]],
+				instead = u'',
+				template_initial = u', %s',
+				none_equivalents = [None, u'']
+			),
 		))
 		lines.append('')
 
@@ -351,18 +391,20 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from clin.v_pat_episodes where pk_episode=%s"
 	_cmds_store_payload = [
 		u"""update clin.episode set
-				fk_health_issue=%(pk_health_issue)s,
-				is_open=%(episode_open)s::boolean,
-				description=%(description)s
+				fk_health_issue = %(pk_health_issue)s,
+				is_open = %(episode_open)s::boolean,
+				description = %(description)s,
+				diagnostic_certainty_classification = gm.nullify_empty_string(%(diagnostic_certainty_classification)s)
 			where
-				pk=%(pk_episode)s and
-				xmin=%(xmin_episode)s""",
-		u"""select xmin_episode from clin.v_pat_episodes where pk_episode=%(pk_episode)s"""
+				pk = %(pk_episode)s and
+				xmin = %(xmin_episode)s""",
+		u"""select xmin_episode from clin.v_pat_episodes where pk_episode = %(pk_episode)s"""
 	]
 	_updatable_fields = [
 		'pk_health_issue',
 		'episode_open',
-		'description'
+		'description',
+		'diagnostic_certainty_classification'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', health_issue=None, row=None, encounter=None):
@@ -484,10 +526,16 @@ from (
 		lines = []
 
 		# episode details
-		lines.append(_('Episode %s%s%s (%s) [#%s]\n') % (
+		lines.append(_('Episode %s%s%s (%s%s)   [#%s]\n') % (
 			u'\u00BB',
 			self._payload[self._idx['description']],
 			u'\u00AB',
+			gmTools.coalesce (
+				initial = diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]],
+				instead = u'',
+				template_initial = u'%s, ',
+				none_equivalents = [None, u'']
+			),
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
 			self._payload[self._idx['pk_episode']]
 		))
@@ -669,12 +717,12 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter = %s"
 	_cmds_store_payload = [
 		u"""update clin.encounter set
-				started=%(started)s,
-				last_affirmed=%(last_affirmed)s,
-				fk_location=%(pk_location)s,
-				fk_type=%(pk_type)s,
-				reason_for_encounter=%(reason_for_encounter)s,
-				assessment_of_encounter=%(assessment_of_encounter)s
+				started = %(started)s,
+				last_affirmed = %(last_affirmed)s,
+				fk_location = %(pk_location)s,
+				fk_type = %(pk_type)s,
+				reason_for_encounter = gm.nullify_empty_string(%(reason_for_encounter)s),
+				assessment_of_encounter = gm.nullify_empty_string(%(assessment_of_encounter)s)
 			where
 				pk = %(pk_encounter)s and
 				xmin = %(xmin_encounter)s""",
@@ -1189,7 +1237,7 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 		u"""update clin.hospital_stay set
 				clin_when = %(admission)s,
 				discharge = %(discharge)s,
-				narrative = %(hospital)s,
+				narrative = gm.nullify_empty_string(%(hospital)s),
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s
 			where
@@ -1336,7 +1384,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.144  2009-07-16 09:51:53  ncq
+# Revision 1.145  2009-09-01 22:14:15  ncq
+# - support diagnostic certainty on issues and episodes
+#
+# Revision 1.144  2009/07/16 09:51:53  ncq
 # - properly update enc type and check success
 #
 # Revision 1.143  2009/07/06 14:56:04  ncq
