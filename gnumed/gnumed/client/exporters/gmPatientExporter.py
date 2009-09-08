@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.137 2009-07-15 12:47:25 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gmPatientExporter.py,v 1.138 2009-09-08 17:14:55 ncq Exp $
+__version__ = "$Revision: 1.138 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -543,19 +543,22 @@ class cEmrExport:
 #            label = u'%s: %s' % (an_encounter['started'].strftime('%Y-%m-%d'), an_encounter['l10n_type'])
             label = u'%s: %s' % (
                 an_encounter['started'].strftime('%Y-%m-%d'),
-                gmTools.coalesce (
-                    gmTools.coalesce (
-                        gmTools.coalesce (
-                            an_encounter.get_latest_soap (						# soAp
-                                soap_cat = 'a',
-                                episode = emr_tree.GetPyData(episode_node)['pk_episode']
-                            ),
-                            an_encounter['assessment_of_encounter']				# or AOE
-                        ),
-                        an_encounter['reason_for_encounter']					# or RFE
-                    ),
-                    an_encounter['l10n_type']									# or type
-                )[:40]
+				gmTools.unwrap (
+                	gmTools.coalesce (
+                    	gmTools.coalesce (
+                    	    gmTools.coalesce (
+                    	        an_encounter.get_latest_soap (						# soAp
+                    	            soap_cat = 'a',
+                    	            episode = emr_tree.GetPyData(episode_node)['pk_episode']
+                    	        ),
+                    	        an_encounter['assessment_of_encounter']				# or AOE
+                    	    ),
+                    	    an_encounter['reason_for_encounter']					# or RFE
+                    	),
+                    	an_encounter['l10n_type']									# or type
+                	),
+                	max_length = 40
+                )
             )
             encounter_node_id = emr_tree.AppendItem(episode_node, label)
             emr_tree.SetPyData(encounter_node_id, an_encounter)
@@ -1192,7 +1195,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.137  2009-07-15 12:47:25  ncq
+# Revision 1.138  2009-09-08 17:14:55  ncq
+# - apply unwrap() to encounter node title
+#
+# Revision 1.137  2009/07/15 12:47:25  ncq
 # - properly use patient age
 #
 # Revision 1.136  2009/06/29 15:01:07  ncq
