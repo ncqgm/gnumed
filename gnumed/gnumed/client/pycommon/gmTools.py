@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.88 2009-09-01 22:25:02 ncq Exp $
+# $Id: gmTools.py,v 1.89 2009-09-08 17:15:13 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -531,7 +531,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 				or
 			not os.access(tmp_dir, os.X_OK | os.W_OK)
 		):
-			_log.info('cannot use temporary dir [%s]', tmp_dir)
+			_log.info('cannot find temporary dir [%s], using system default', tmp_dir)
 			tmp_dir = None
 
 	kwargs = {'dir': tmp_dir}
@@ -752,6 +752,31 @@ def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u
 		wrapped = wrapped.replace('\n', eol)
 
 	return wrapped
+#---------------------------------------------------------------------------
+def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines=True, line_separator = u' // '):
+
+	text = text.replace(u'\r', u'')
+	lines = text.split(u'\n')
+	text = u''
+	for line in lines:
+
+		if strip_whitespace:
+			line = line.strip().strip(u'\t').strip()
+
+		if remove_empty_lines:
+			if line == u'':
+				continue
+
+		text += (u'%s%s' % (line, line_separator))
+
+	text = text.rstrip(line_separator)
+
+	if max_length is not None:
+		text = text[:max_length]
+
+	text = text.rstrip(line_separator)
+
+	return text
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -974,6 +999,18 @@ This is a test mail from the gmTools.py module.
 		for test in tests:
 			print size2str(test)
 	#-----------------------------------------------------------------------
+	def test_unwrap():
+
+		test = """
+second line\n
+	3rd starts with tab  \n
+ 4th with a space	\n
+
+6th
+
+"""
+		print unwrap(text = test, max_length = 25)
+	#-----------------------------------------------------------------------
 	def test_wrap():
 		test = 'line 1\nline 2\nline 3'
 
@@ -1028,7 +1065,7 @@ This is a test mail from the gmTools.py module.
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
 		#test_check_for_update()
-		test_coalesce()
+		#test_coalesce()
 		#test_capitalize()
 		#test_import_module()
 		#test_mkdir()
@@ -1041,10 +1078,14 @@ This is a test mail from the gmTools.py module.
 		#test_size2str()
 		#test_wrap()
 		#test_input2decimal()
+		test_unwrap()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.88  2009-09-01 22:25:02  ncq
+# Revision 1.89  2009-09-08 17:15:13  ncq
+# - add unwrap() test
+#
+# Revision 1.88  2009/09/01 22:25:02  ncq
 # - enhance coalesce with none_equivalents
 #
 # Revision 1.87  2009/08/13 12:12:20  ncq
