@@ -4,9 +4,9 @@
 # - command line options:
 #   - "quiet"
 
-VER="11"
-PREV_VER="10"
-VERSIONS_TO_DROP="2 3 4 5 6 7 8 9"
+VER="12"
+PREV_VER="11"
+VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10"
 QUIET="$1"
 
 
@@ -57,7 +57,7 @@ if test "${TARGET_VER_EXISTS}" != "" -o  "${PREV_VER_EXISTS}" != "" ; then
 	echo "Note that during *bootstrapping* both"
 	echo "databases will be OVERWRITTEN !"
 	echo ""
-	echo "Did you really intend to bootstrap or did you"
+	echo "Do you really intend to bootstrap or did you"
 	echo "rather want to *upgrade* from v${PREV_VER} to v${VER} ?"
 	echo ""
 	echo "For upgrading you should run the"
