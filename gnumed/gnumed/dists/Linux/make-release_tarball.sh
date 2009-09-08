@@ -2,112 +2,112 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.82 2009-08-24 20:11:27 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.83 2009-09-08 17:17:55 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.5.rc6"
-CLIENTREV="CVS-HEAD"
-CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
+CLIENTREV="0.6.rc1"
+#CLIENTREV="CVS-HEAD"
+CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="11.rc6"
-SRVREV="CVS-HEAD"
-SRVARCH="GNUmed-server.v$SRVREV.tgz"
+SRVREV="12.rc1"
+#SRVREV="CVS-HEAD"
+SRVARCH="gnumed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
-"./GNUmed-$CLIENTREV/client/business/README "\
-"./GNUmed-$CLIENTREV/client/business/gmOrganization.py "\
-"./GNUmed-$CLIENTREV/client/business/gmXmlDocDesc.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmDrugObject.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmDrugView.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmSchemaRevisionCheck.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmSerialTools.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmTrace.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmdbf.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmCLI.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmPG.py "\
-"./GNUmed-$CLIENTREV/server/business/README "\
-"./GNUmed-$CLIENTREV/server/business/gmOrganization.py "\
-"./GNUmed-$CLIENTREV/server/business/gmXmlDocDesc.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmDrugObject.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmDrugView.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmSchemaRevisionCheck.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmSerialTools.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmTrace.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmdbf.py "\
-"./GNUmed-$CLIENTREV/server/pycommon/gmPG.py "\
-"./GNUmed-$CLIENTREV/server/bootstrap/README "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/README "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_AdminLoginV01.py "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_DBUserSetupV01.py "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffMgrPanel.py "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffV01.py "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgRequest.py "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgDoubleListSplitterPnl.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/StyledTextCtrl_1.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmDermTool.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmProgressNoteSTC.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/zz-gmNewFileTemplate.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmAU_VaccV01.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmBMIWidgets.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmCharacterValidator.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmCryptoText.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmFormPrinter.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmGP_ActiveProblems.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmGP_FamilyHistorySummary.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmGP_HabitsRiskFactors.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmGP_Inbox.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmGP_PatientPicture.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmGP_SocialHistory.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmLabWidgets.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmListCtrlMapper.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmMultiColumnList.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmMultiSash.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmPatientHolder.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmPlugin_Patient.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmPregWidgets.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmSelectPerson.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmShadow.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmSQLListControl.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmSQLSimpleSearch.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmAllergiesPlugin.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmAU_VaccV01Plugin.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmClinicalWindowManager.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmContacts.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmConfigRegistry.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmDemographicsEditor.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmDrugDisplay.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmEMRTextDumpPlugin.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmGuidelines.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmLabJournal.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmManual.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmMultiSashedProgressNoteInputPlugin.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmOffice.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmPython.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmRequest.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmShowLab.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmSQL.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmVaccinationsPlugin.py "\
-"./GNUmed-$CLIENTREV/server/bootstrap/xxx-upgrade-instructions.txt "\
-"./GNUmed-$CLIENTREV/server/bootstrap/amis-config.set "\
-"./GNUmed-$CLIENTREV/server/bootstrap/bootstrap-amis.conf "\
-"./GNUmed-$CLIENTREV/server/bootstrap/bootstrap-archive.conf "\
-"./GNUmed-$CLIENTREV/server/bootstrap/install_AMIS_data.sh "\
-"./GNUmed-$CLIENTREV/server/bootstrap/redo-max.sh "\
-"./GNUmed-$CLIENTREV/server/bootstrap/update_db-v1_v2.conf "\
-"./GNUmed-$CLIENTREV/server/bootstrap/update_db-v1_v2.sh "\
-"./GNUmed-$CLIENTREV/server/sql/gmappoint.sql "\
-"./GNUmed-$CLIENTREV/server/sql/gmmodule.sql "\
-"./GNUmed-$CLIENTREV/server/sql/gmrecalls.sql "\
-"./GNUmed-$CLIENTREV/server/sql/update_db-v1_v2.sql "\
-"./GNUmed-$CLIENTREV/server/sql/gmCrossDB_FKs.sql "\
-"./GNUmed-$CLIENTREV/server/sql/gmCrossDB_FK-views.sql "\
-"./GNUmed-$CLIENTREV/server/sql/gmFormDefs.sql "\
-"./GNUmed-$CLIENTREV/server/sql/gmPhraseWheelTest.sql "\
-"./GNUmed-$CLIENTREV/server/sql/test-data/BC-Excelleris-test_patients.sql "
+"./gnumed-client.$CLIENTREV/client/business/README "\
+"./gnumed-client.$CLIENTREV/client/business/gmOrganization.py "\
+"./gnumed-client.$CLIENTREV/client/business/gmXmlDocDesc.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmDrugObject.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmDrugView.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmSchemaRevisionCheck.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmSerialTools.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmTrace.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmdbf.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmCLI.py "\
+"./gnumed-client.$CLIENTREV/client/pycommon/gmPG.py "\
+"./gnumed-client.$CLIENTREV/server/business/README "\
+"./gnumed-client.$CLIENTREV/server/business/gmOrganization.py "\
+"./gnumed-client.$CLIENTREV/server/business/gmXmlDocDesc.py "\
+"./gnumed-client.$CLIENTREV/server/pycommon/gmDrugObject.py "\
+"./gnumed-client.$CLIENTREV/server/pycommon/gmDrugView.py "\
+"./gnumed-client.$CLIENTREV/server/pycommon/gmSchemaRevisionCheck.py "\
+"./gnumed-client.$CLIENTREV/server/pycommon/gmSerialTools.py "\
+"./gnumed-client.$CLIENTREV/server/pycommon/gmTrace.py "\
+"./gnumed-client.$CLIENTREV/server/pycommon/gmdbf.py "\
+"./gnumed-client.$CLIENTREV/server/pycommon/gmPG.py "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/README "\
+"./gnumed-client.$CLIENTREV/client/wxGladeWidgets/README "\
+"./gnumed-client.$CLIENTREV/client/wxGladeWidgets/wxgAU_AdminLoginV01.py "\
+"./gnumed-client.$CLIENTREV/client/wxGladeWidgets/wxgAU_DBUserSetupV01.py "\
+"./gnumed-client.$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffMgrPanel.py "\
+"./gnumed-client.$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffV01.py "\
+"./gnumed-client.$CLIENTREV/client/wxGladeWidgets/wxgRequest.py "\
+"./gnumed-client.$CLIENTREV/client/wxGladeWidgets/wxgDoubleListSplitterPnl.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/StyledTextCtrl_1.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmDermTool.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmProgressNoteSTC.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/zz-gmNewFileTemplate.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmAU_VaccV01.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmBMIWidgets.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmCharacterValidator.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmCryptoText.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmFormPrinter.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmGP_ActiveProblems.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmGP_FamilyHistorySummary.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmGP_HabitsRiskFactors.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmGP_Inbox.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmGP_PatientPicture.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmGP_SocialHistory.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmLabWidgets.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmListCtrlMapper.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmMultiColumnList.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmMultiSash.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmPatientHolder.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmPlugin_Patient.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmPregWidgets.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmSelectPerson.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmShadow.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmSQLListControl.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gmSQLSimpleSearch.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmAllergiesPlugin.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmAU_VaccV01Plugin.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmClinicalWindowManager.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmContacts.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmConfigRegistry.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmDemographicsEditor.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmDrugDisplay.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmEMRTextDumpPlugin.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmGuidelines.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmLabJournal.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmManual.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmMultiSashedProgressNoteInputPlugin.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmOffice.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmPython.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmRequest.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmShowLab.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmSQL.py "\
+"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmVaccinationsPlugin.py "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/xxx-upgrade-instructions.txt "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/amis-config.set "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/bootstrap-amis.conf "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/bootstrap-archive.conf "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/install_AMIS_data.sh "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/redo-max.sh "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/update_db-v1_v2.conf "\
+"./gnumed-client.$CLIENTREV/server/bootstrap/update_db-v1_v2.sh "\
+"./gnumed-client.$CLIENTREV/server/sql/gmappoint.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/gmmodule.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/gmrecalls.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/update_db-v1_v2.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/gmCrossDB_FKs.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/gmCrossDB_FK-views.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/gmFormDefs.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/gmPhraseWheelTest.sql "\
+"./gnumed-client.$CLIENTREV/server/sql/test-data/BC-Excelleris-test_patients.sql "
 
 
 echo "cleaning up"
-rm -R ./GNUmed-$CLIENTREV/
+rm -R ./gnumed-client.$CLIENTREV/
 rm -vf $CLIENTARCH
 rm -vf $SRVARCH
 cd ../../../
@@ -122,75 +122,76 @@ echo "============"
 
 
 # external tools
-mkdir -p ./GNUmed-$CLIENTREV/external-tools/
-cp -R ../../external-tools/gm-install_arriba ./GNUmed-$CLIENTREV/external-tools/
-cp -R ../../external-tools/gm-download_loinc ./GNUmed-$CLIENTREV/external-tools/
-cp -R ../../external-tools/gm-download_atc ./GNUmed-$CLIENTREV/external-tools/
+mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-download_loinc ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-read_chipcard.sh ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gnumed-client-init_script.sh ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/external-tools/
+
 
 # client
-mkdir -p ./GNUmed-$CLIENTREV/client/
-cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/client/
-cp -R ../../client/gm-from-cvs.conf ./GNUmed-$CLIENTREV/client/
-cp -R ../../client/gm-from-cvs.sh ./GNUmed-$CLIENTREV/client/
-cp -R ../../client/gm-from-cvs.bat ./GNUmed-$CLIENTREV/client/
-cp -R ./gnumed ./GNUmed-$CLIENTREV/client/
-cp -R ./gnumed-client.desktop ./GNUmed-$CLIENTREV/client/
-cp -R ./gm-read_chipcard.sh ./GNUmed-$CLIENTREV/client/
-cp -R ./gm-install_client_locally.sh ./GNUmed-$CLIENTREV/client/
-cp -R ../../server/gm-remove_person.sh ./GNUmed-$CLIENTREV/client/
-cp -R ../../client/sitecustomize.py ./GNUmed-$CLIENTREV/client/
-cp -R ../../../check-prerequisites.* ./GNUmed-$CLIENTREV/client/
-cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/client/
+mkdir -p ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/gm-from-cvs.conf ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/gm-from-cvs.sh ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/gm-from-cvs.bat ./gnumed-client.$CLIENTREV/client/
+cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
+cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
+cp -R ./gm-install_client_locally.sh ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../check-prerequisites.* ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
 
 
 # bitmaps
-mkdir -p ./GNUmed-$CLIENTREV/client/bitmaps/
-cp -R ./gnumed.xpm ./GNUmed-$CLIENTREV/client/bitmaps/
-cp -R ../../client/bitmaps/gnumedlogo.png ./GNUmed-$CLIENTREV/client/bitmaps/
-cp -R ../../client/bitmaps/empty-face-in-bust.png ./GNUmed-$CLIENTREV/client/bitmaps/
-cp -R ../../client/bitmaps/serpent.png ./GNUmed-$CLIENTREV/client/bitmaps/
-chmod -cR -x ./GNUmed-$CLIENTREV/client/bitmaps/*.*
+mkdir -p ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ./gnumed.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gnumedlogo.png ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/empty-face-in-bust.png ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/serpent.png ./gnumed-client.$CLIENTREV/client/bitmaps/
+chmod -cR -x ./gnumed-client.$CLIENTREV/client/bitmaps/*.*
 
 
 # business
-mkdir -p ./GNUmed-$CLIENTREV/client/business/
-cp -R ../../client/business/*.py ./GNUmed-$CLIENTREV/client/business/
+mkdir -p ./gnumed-client.$CLIENTREV/client/business/
+cp -R ../../client/business/*.py ./gnumed-client.$CLIENTREV/client/business/
 
 
 # connectors
-mkdir -p ./GNUmed-$CLIENTREV/client/connectors/
-cp -R ../../client/connectors/gm_ctl_client.* ./GNUmed-$CLIENTREV/client/connectors/
+mkdir -p ./gnumed-client.$CLIENTREV/client/connectors/
+cp -R ../../client/connectors/gm_ctl_client.* ./gnumed-client.$CLIENTREV/client/connectors/
 
 
 # doc
-mkdir -p ./GNUmed-$CLIENTREV/client/doc/
-cp -R ../../client/gm-from-cvs.conf ./GNUmed-$CLIENTREV/client/doc/gnumed.conf.example
-cp -R ../../client/doc/hook_script_example.py ./GNUmed-$CLIENTREV/client/doc/hook_script_example.py
-cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
-cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
-cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./GNUmed-$CLIENTREV/client/doc/gm-install_arriba.8
+mkdir -p ./gnumed-client.$CLIENTREV/client/doc/
+cp -R ../../client/gm-from-cvs.conf ./gnumed-client.$CLIENTREV/client/doc/gnumed.conf.example
+cp -R ../../client/doc/hook_script_example.py ./gnumed-client.$CLIENTREV/client/doc/hook_script_example.py
+cp -R ../../client/doc/man-pages/gnumed.1 ./gnumed-client.$CLIENTREV/client/doc/gnumed.1
+cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./gnumed-client.$CLIENTREV/client/doc/gm_ctl_client.1
+cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./gnumed-client.$CLIENTREV/client/doc/gm-install_arriba.8
 
 
 # etc
-mkdir -p ./GNUmed-$CLIENTREV/client/etc/gnumed/
-cp -R ../../client/etc/gnumed-client-init_script.sh ./GNUmed-$CLIENTREV/client/etc/
-cp -R ../../client/etc/gnumed/gnumed-client.conf.example ./GNUmed-$CLIENTREV/client/etc/gnumed/
-cp -R ../../client/etc/gnumed/mime_type2file_extension.conf.example ./GNUmed-$CLIENTREV/client/etc/gnumed/
-cp -R ../../client/etc/gnumed/egk+kvk-demon.conf.example ./GNUmed-$CLIENTREV/client/etc/gnumed/
+mkdir -p ./gnumed-client.$CLIENTREV/client/etc/gnumed/
+cp -R ../../client/gm-from-cvs.conf ./gnumed-client.$CLIENTREV/client/etc/gnumed/gnumed-client.conf.example
+cp -R ../../client/etc/gnumed/mime_type2file_extension.conf.example ./gnumed-client.$CLIENTREV/client/etc/gnumed/
+cp -R ../../client/etc/gnumed/egk+kvk-demon.conf.example ./gnumed-client.$CLIENTREV/client/etc/gnumed/
 
 
 # exporters
-mkdir -p ./GNUmed-$CLIENTREV/client/exporters/
-cp -R ../../client/exporters/__init__.py ./GNUmed-$CLIENTREV/client/exporters
-cp -R ../../client/exporters/gmPatientExporter.py ./GNUmed-$CLIENTREV/client/exporters
+mkdir -p ./gnumed-client.$CLIENTREV/client/exporters/
+cp -R ../../client/exporters/__init__.py ./gnumed-client.$CLIENTREV/client/exporters
+cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/client/exporters
 
 
 # locale
-mkdir -p ./GNUmed-$CLIENTREV/client/locale/
-cp -R ../../client/locale/de.po ./GNUmed-$CLIENTREV/client/locale
-cp -R ../../client/locale/es.po ./GNUmed-$CLIENTREV/client/locale
-cp -R ../../client/locale/fr.po ./GNUmed-$CLIENTREV/client/locale
-cp -R ../../client/locale/it.po ./GNUmed-$CLIENTREV/client/locale
+mkdir -p ./gnumed-client.$CLIENTREV/client/locale/
+cp -R ../../client/locale/de.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/es.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/fr.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/it.po ./gnumed-client.$CLIENTREV/client/locale
 
 cd ../../client/locale/
 ./create-gnumed_mo.sh de
@@ -199,39 +200,39 @@ cd ../../client/locale/
 ./create-gnumed_mo.sh it
 cd -
 
-cp -R ../../client/locale/de-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
-cp -R ../../client/locale/es-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
-cp -R ../../client/locale/fr-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
-cp -R ../../client/locale/it-gnumed.mo ./GNUmed-$CLIENTREV/client/locale
+cp -R ../../client/locale/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 
 
 # pycommon
-mkdir -p ./GNUmed-$CLIENTREV/client/pycommon/
-cp -R ../../client/pycommon/*.py ./GNUmed-$CLIENTREV/client/pycommon/
+mkdir -p ./gnumed-client.$CLIENTREV/client/pycommon/
+cp -R ../../client/pycommon/*.py ./gnumed-client.$CLIENTREV/client/pycommon/
 
 
 # wxGladeWidgets
-mkdir -p ./GNUmed-$CLIENTREV/client/wxGladeWidgets/
-cp -R ../../client/wxGladeWidgets/*.py ./GNUmed-$CLIENTREV/client/wxGladeWidgets/
-chmod -cR -x ./GNUmed-$CLIENTREV/client/wxGladeWidgets/*.*
+mkdir -p ./gnumed-client.$CLIENTREV/client/wxGladeWidgets/
+cp -R ../../client/wxGladeWidgets/*.py ./gnumed-client.$CLIENTREV/client/wxGladeWidgets/
+chmod -cR -x ./gnumed-client.$CLIENTREV/client/wxGladeWidgets/*.*
 
 
 # wxpython
-mkdir -p ./GNUmed-$CLIENTREV/client/wxpython/
-cp -R ../../client/wxpython/*.py ./GNUmed-$CLIENTREV/client/wxpython/
-mkdir -p ./GNUmed-$CLIENTREV/client/wxpython/gui/
-cp -R ../../client/wxpython/gui/*.py ./GNUmed-$CLIENTREV/client/wxpython/gui/
-chmod -cR -x ./GNUmed-$CLIENTREV/client/wxpython/*.*
-chmod -cR -x ./GNUmed-$CLIENTREV/client/wxpython/gui/*.*
+mkdir -p ./gnumed-client.$CLIENTREV/client/wxpython/
+cp -R ../../client/wxpython/*.py ./gnumed-client.$CLIENTREV/client/wxpython/
+mkdir -p ./gnumed-client.$CLIENTREV/client/wxpython/gui/
+cp -R ../../client/wxpython/gui/*.py ./gnumed-client.$CLIENTREV/client/wxpython/gui/
+chmod -cR -x ./gnumed-client.$CLIENTREV/client/wxpython/*.*
+chmod -cR -x ./gnumed-client.$CLIENTREV/client/wxpython/gui/*.*
 
 
 # pick up current User Manual
 echo "picking up GNUmed User Manual from the web"
-mkdir -p ./GNUmed-$CLIENTREV/client/doc/user-manual/
+mkdir -p ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual		#http://wiki.gnumed.de/bin/publish/Gnumed
 rm -vf PublishManual*
-wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/Gnumed.zip
-cd ./GNUmed-$CLIENTREV/client/doc/user-manual/
+wget -v -O ./gnumed-client.$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/Gnumed.zip
+cd ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 unzip GNUmed-User-Manual.zip
 #tar -xvzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
@@ -247,164 +248,161 @@ echo "============"
 
 
 # scripts
-mkdir -p ./GNUmed-$CLIENTREV/server
-cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
+mkdir -p ./gnumed-client.$CLIENTREV/server
+cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../server/gm-bootstrap_server ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/gm-upgrade_server ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/gm-fixup_server ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/gm-adjust_db_settings.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-bootstrap_server ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-upgrade_server ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-fixup_server ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-adjust_db_settings.sh ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/gm-restore_database.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-backup_database.sh ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-restore_database.sh ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../server/gm-backup_data.sh ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/gm-restore_data.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-backup_data.sh ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-restore_data.sh ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../server/gm-zip+sign_backups.sh ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-zip+sign_backups.sh ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-move_backups_offsite.sh ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../server/gm-remove_person.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../external-tools/gm-download_loinc ./GNUmed-$CLIENTREV/server/
-cp -R ../../external-tools/gm-download_atc ./GNUmed-$CLIENTREV/server/
-
-cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
+cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/server/
 
 
 # pycommon
-mkdir -p ./GNUmed-$CLIENTREV/server/pycommon
-cp -R ../../client/pycommon/*.py ./GNUmed-$CLIENTREV/server/pycommon/
+mkdir -p ./gnumed-client.$CLIENTREV/server/pycommon
+cp -R ../../client/pycommon/*.py ./gnumed-client.$CLIENTREV/server/pycommon/
 
 
 # bootstrap
-mkdir -p ./GNUmed-$CLIENTREV/server/bootstrap
-cp -R ../../server/bootstrap/* ./GNUmed-$CLIENTREV/server/bootstrap/
+mkdir -p ./gnumed-client.$CLIENTREV/server/bootstrap
+cp -R ../../server/bootstrap/* ./gnumed-client.$CLIENTREV/server/bootstrap/
 
 
 # doc
-mkdir -p ./GNUmed-$CLIENTREV/server/doc/
-cp -R ../../server/bootstrap/README ./GNUmed-$CLIENTREV/server/doc/
-cp -R ../../client/doc/man-pages/gm-bootstrap_server.8 ./GNUmed-$CLIENTREV/server/doc/
-cp -R ../../client/doc/man-pages/gm-upgrade_server.8 ./GNUmed-$CLIENTREV/server/doc/
-cp -R ../../client/doc/man-pages/gm-fixup_server.8 ./GNUmed-$CLIENTREV/server/doc/
+mkdir -p ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../server/bootstrap/README ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-bootstrap_server.8 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-upgrade_server.8 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-fixup_server.8 ./gnumed-client.$CLIENTREV/server/doc/
 
 
 # etc
-mkdir -p ./GNUmed-$CLIENTREV/server/etc/gnumed/
-cp -R ../../client/etc/gnumed/gnumed-backup.conf.example ./GNUmed-$CLIENTREV/server/etc/gnumed/
-cp -R ../../client/etc/gnumed/gnumed-restore.conf.example ./GNUmed-$CLIENTREV/server/etc/gnumed/
+mkdir -p ./gnumed-client.$CLIENTREV/server/etc/gnumed/
+cp -R ../../client/etc/gnumed/gnumed-backup.conf.example ./gnumed-client.$CLIENTREV/server/etc/gnumed/
+cp -R ../../client/etc/gnumed/gnumed-restore.conf.example ./gnumed-client.$CLIENTREV/server/etc/gnumed/
 
 
 # sql
-mkdir -p ./GNUmed-$CLIENTREV/server/sql
-cp -R ../../server/sql/*.sql ./GNUmed-$CLIENTREV/server/sql/
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/country.specific
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/country.specific/au
-cp -R ../../server/sql/country.specific/au/*.sql ./GNUmed-$CLIENTREV/server/sql/country.specific/au
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/country.specific/ca
-cp -R ../../server/sql/country.specific/ca/*.sql ./GNUmed-$CLIENTREV/server/sql/country.specific/ca
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/country.specific/de
-cp -R ../../server/sql/country.specific/de/*.sql ./GNUmed-$CLIENTREV/server/sql/country.specific/de
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/country.specific/es
-cp -R ../../server/sql/country.specific/es/*.sql ./GNUmed-$CLIENTREV/server/sql/country.specific/es
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/test-data
-cp -R ../../server/sql/test-data/*.sql ./GNUmed-$CLIENTREV/server/sql/test-data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql
+cp -R ../../server/sql/*.sql ./gnumed-client.$CLIENTREV/server/sql/
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/country.specific
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/country.specific/au
+cp -R ../../server/sql/country.specific/au/*.sql ./gnumed-client.$CLIENTREV/server/sql/country.specific/au
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/country.specific/ca
+cp -R ../../server/sql/country.specific/ca/*.sql ./gnumed-client.$CLIENTREV/server/sql/country.specific/ca
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/country.specific/de
+cp -R ../../server/sql/country.specific/de/*.sql ./gnumed-client.$CLIENTREV/server/sql/country.specific/de
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/country.specific/es
+cp -R ../../server/sql/country.specific/es/*.sql ./gnumed-client.$CLIENTREV/server/sql/country.specific/es
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/test-data
+cp -R ../../server/sql/test-data/*.sql ./gnumed-client.$CLIENTREV/server/sql/test-data
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v2-v3
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v2-v3/dynamic
-cp -R ../../server/sql/v2-v3/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v2-v3/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v2-v3/static
-cp -R ../../server/sql/v2-v3/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v2-v3/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v2-v3/superuser
-cp -R ../../server/sql/v2-v3/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v2-v3/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3/dynamic
+cp -R ../../server/sql/v2-v3/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v2-v3/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3/static
+cp -R ../../server/sql/v2-v3/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v2-v3/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3/superuser
+cp -R ../../server/sql/v2-v3/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v2-v3/superuser
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4/dynamic
-cp -R ../../server/sql/v3-v4/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v3-v4/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4/static
-cp -R ../../server/sql/v3-v4/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v3-v4/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4/superuser
-cp -R ../../server/sql/v3-v4/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v3-v4/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4/dynamic
+cp -R ../../server/sql/v3-v4/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v3-v4/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4/static
+cp -R ../../server/sql/v3-v4/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v3-v4/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4/superuser
+cp -R ../../server/sql/v3-v4/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v3-v4/superuser
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5/dynamic
-cp -R ../../server/sql/v4-v5/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5/static
-cp -R ../../server/sql/v4-v5/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5/superuser
-cp -R ../../server/sql/v4-v5/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v4-v5
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v4-v5/dynamic
+cp -R ../../server/sql/v4-v5/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v4-v5/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v4-v5/static
+cp -R ../../server/sql/v4-v5/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v4-v5/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v4-v5/superuser
+cp -R ../../server/sql/v4-v5/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v4-v5/superuser
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v5-v6
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v5-v6/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v5-v6/static
 
-cp -R ../../server/sql/v5-v6/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
-cp -R ../../server/sql/v5-v6/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
-
-
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/data
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/python
-
-cp -R ../../server/sql/v6-v7/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v6-v7/dynamic
-cp -R ../../server/sql/v6-v7/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v6-v7/static
-cp -R ../../server/sql/v6-v7/data/* ./GNUmed-$CLIENTREV/server/sql/v6-v7/data
-cp -R ../../server/sql/v6-v7/python/*.py ./GNUmed-$CLIENTREV/server/sql/v6-v7/python
+cp -R ../../server/sql/v5-v6/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v5-v6/dynamic
+cp -R ../../server/sql/v5-v6/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v5-v6/static
 
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7/python
 
-cp -R ../../server/sql/v7-v8/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
-cp -R ../../server/sql/v7-v8/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
-
-
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
-
-cp -R ../../server/sql/v8-v9/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
-cp -R ../../server/sql/v8-v9/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
+cp -R ../../server/sql/v6-v7/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v6-v7/dynamic
+cp -R ../../server/sql/v6-v7/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v6-v7/static
+cp -R ../../server/sql/v6-v7/data/* ./gnumed-client.$CLIENTREV/server/sql/v6-v7/data
+cp -R ../../server/sql/v6-v7/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v6-v7/python
 
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/superuser
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v9-v10/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v7-v8
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v7-v8/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v7-v8/static
 
-cp -R ../../server/sql/v9-v10/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/dynamic
-cp -R ../../server/sql/v9-v10/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/static
-cp -R ../../server/sql/v9-v10/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/superuser
-cp -R ../../server/sql/v9-v10/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v9-v10/fixups
+cp -R ../../server/sql/v7-v8/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v7-v8/dynamic
+cp -R ../../server/sql/v7-v8/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v7-v8/static
 
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v8-v9
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v8-v9/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v8-v9/static
 
-cp -R ../../server/sql/v10-v11/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
-cp -R ../../server/sql/v10-v11/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
-cp -R ../../server/sql/v10-v11/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
-#cp -R ../../server/sql/v10-v11/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
+cp -R ../../server/sql/v8-v9/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v8-v9/dynamic
+cp -R ../../server/sql/v8-v9/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v8-v9/static
 
 
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/dynamic
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/superuser
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v11-v12/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10/fixups
 
-cp -R ../../server/sql/v11-v12/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/dynamic
-cp -R ../../server/sql/v11-v12/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/static
-cp -R ../../server/sql/v11-v12/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/superuser
-#cp -R ../../server/sql/v11-v12/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v11-v12/fixups
+cp -R ../../server/sql/v9-v10/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v9-v10/dynamic
+cp -R ../../server/sql/v9-v10/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v9-v10/static
+cp -R ../../server/sql/v9-v10/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v9-v10/superuser
+cp -R ../../server/sql/v9-v10/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v9-v10/fixups
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/superuser
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/fixups
+
+cp -R ../../server/sql/v10-v11/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/dynamic
+cp -R ../../server/sql/v10-v11/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/static
+cp -R ../../server/sql/v10-v11/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/superuser
+#cp -R ../../server/sql/v10-v11/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/fixups
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/fixups
+
+cp -R ../../server/sql/v11-v12/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/dynamic
+cp -R ../../server/sql/v11-v12/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/static
+cp -R ../../server/sql/v11-v12/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
+#cp -R ../../server/sql/v11-v12/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/fixups
 
 
 #----------------------------------
@@ -417,33 +415,36 @@ done ;
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'
 find ./ -name '*.log' -exec rm -v '{}' ';'
-find ./GNUmed-$CLIENTREV/ -name 'CVS' -type d -exec rm -v -r '{}' ';'
-find ./GNUmed-$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
+find ./gnumed-client.$CLIENTREV/ -name 'CVS' -type d -exec rm -v -r '{}' ';'
+find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
 
 # now make tarballs
 # - client
-cd GNUmed-$CLIENTREV
+cd gnumed-client.$CLIENTREV
 ln -s client Gnumed
 cd ..
-tar -czf $CLIENTARCH ./GNUmed-$CLIENTREV/client/ ./GNUmed-$CLIENTREV/external-tools/ ./GNUmed-$CLIENTREV/Gnumed
+tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
 # - server
-mv GNUmed-$CLIENTREV GNUmed-v$SRVREV
-cd GNUmed-v$SRVREV
+mv gnumed-client.$CLIENTREV gnumed-server.$SRVREV
+cd gnumed-server.$SRVREV
 rm Gnumed
 ln -s server Gnumed
 cd ..
-tar -czf $SRVARCH ./GNUmed-v$SRVREV/server/ ./GNUmed-v$SRVREV/Gnumed
+tar -czf $SRVARCH ./gnumed-server.$SRVREV/server/ ./gnumed-server.$SRVREV/Gnumed
 
 
 # cleanup
-rm -R ./GNUmed-v$SRVREV/
+rm -R ./gnumed-server.$SRVREV/
 
 echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.82  2009-08-24 20:11:27  ncq
+# Revision 1.83  2009-09-08 17:17:55  ncq
+# - lowercase and adjust tarball names as per list discussion
+#
+# Revision 1.82  2009/08/24 20:11:27  ncq
 # - bump db version
 # - fix tag creation
 # - provider inbox:
