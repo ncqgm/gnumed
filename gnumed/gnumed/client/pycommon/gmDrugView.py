@@ -381,22 +381,15 @@ class DrugView:
 
 
 #========================================================
-def translateASCII2HTML(aString = None):
-	subst = aString
-	subst=re.sub('<',"&lt;",subst)
-	subst=re.sub('>',"&gt;",subst)
-	subst=re.sub("\xa7","<br>",subst)
-	subst=re.sub('ä','&aauml;',subst)
-	subst=re.sub('ö','&oauml;',subst)	
-	subst=re.sub('ü','&uauml;',subst)
-	return subst
- 
 if __name__ == "__main__":
 	print "please write unit test code"
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.12  2008-04-13 14:41:40  ncq
+# Revision 1.13  2009-09-13 18:27:54  ncq
+# - remove latin1 chars
+#
+# Revision 1.12  2008/04/13 14:41:40  ncq
 # - old style logging is out
 #
 # Revision 1.11  2007/10/07 12:29:12  ncq
