@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.56 2009-04-13 10:37:41 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmBusinessDBObject.py,v 1.57 2009-09-13 18:27:38 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -405,9 +405,14 @@ class cBusinessDBObject(object):
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append({'cmd': query, 'args': args})
-		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries=queries, return_data=True, get_col_idx=True)
+		rows, idx = gmPG2.run_rw_queries (
+			link_obj = conn,
+			queries = queries,
+			return_data = True,
+			get_col_idx = True
+		)
 
-		# update cached XMIN values
+		# update cached XMIN values (should be in first-and-only result row of last query)
 		row = rows[0]
 		for key in idx:
 			try:
@@ -462,7 +467,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.56  2009-04-13 10:37:41  ncq
+# Revision 1.57  2009-09-13 18:27:38  ncq
+# - cleanup
+#
+# Revision 1.56  2009/04/13 10:37:41  ncq
 # - support same_payload
 # - support save around save_payload
 #
