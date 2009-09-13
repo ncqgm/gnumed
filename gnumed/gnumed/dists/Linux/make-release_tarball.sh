@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.83 2009-09-08 17:17:55 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.84 2009-09-13 18:47:19 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.6.rc1"
@@ -129,6 +129,7 @@ cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-t
 cp -R ../../external-tools/gm-read_chipcard.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gnumed-client-init_script.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-install_client_locally.sh ./gnumed-client.$CLIENTREV/external-tools/
 
 
 # client
@@ -139,7 +140,6 @@ cp -R ../../client/gm-from-cvs.sh ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-cvs.bat ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
-cp -R ./gm-install_client_locally.sh ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
@@ -441,7 +441,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.83  2009-09-08 17:17:55  ncq
+# Revision 1.84  2009-09-13 18:47:19  ncq
+# - local client installer now in external tools
+#
+# Revision 1.83  2009/09/08 17:17:55  ncq
 # - lowercase and adjust tarball names as per list discussion
 #
 # Revision 1.82  2009/08/24 20:11:27  ncq
