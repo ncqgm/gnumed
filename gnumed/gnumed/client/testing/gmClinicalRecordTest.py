@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.15 2008-03-05 22:26:25 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmClinicalRecordTest.py,v 1.16 2009-09-13 18:38:44 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -89,10 +89,10 @@ class EMR_StructureTests(unittest.TestCase):
 	#--------------------------------------------------------
 	def testGetActiveEncounter(self):
 		"""Check that active encounter can be obtained"""
-		self.assertEqual(isinstance(self.emr.get_active_encounter(), gmEMRStructItems.cEncounter), True)
+		self.assertEqual(isinstance(self.emr.active_encounter, gmEMRStructItems.cEncounter), True)
 	#def testAttachToEncounter(self):
 		#"""Check that a concrete encounter can be attached to"""
-		#active_encounter = self.emr.get_active_encounter()
+		#active_encounter = self.emr.active_encounter
 		#print active_encounter
 		#status = self.emr.attach_to_encounter(anID = active_encounter['pk_encounter'])
 		#self.assertEqual(status, True)
@@ -124,7 +124,7 @@ class AllergyTests(unittest.TestCase):
 	def testZZzAddAllergy(self):
 		"""Check that a new allergy can be created"""
 		# create new allergy
-		pk_encounter = self.emr.get_active_encounter()['pk_encounter']
+		pk_encounter = self.emr.active_encounter['pk_encounter']
 		# FIXME: get_active_episode() is no more
 		#pk_episode = self.emr.get_active_episode()['pk_episode']
 		new_allergy = self.emr.add_allergy (
@@ -291,7 +291,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.15  2008-03-05 22:26:25  ncq
+# Revision 1.16  2009-09-13 18:38:44  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.15  2008/03/05 22:26:25  ncq
 # - new style logging
 #
 # Revision 1.14  2007/03/22 11:03:39  ncq
