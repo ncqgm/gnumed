@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.146 $"
+__version__ = "$Revision: 1.147 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -747,12 +747,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		staff_id - Provider's primary key
 		"""
 		self._payload[self._idx['last_affirmed']] = datetime.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-		success, data = self.save_payload()
-		if not success:
-			_log.error('cannot reaffirm encounter [%s]' % self.pk_obj)
-			_log.error(str(data))
-			return False
-		return True
+		self.save_payload()
 	#--------------------------------------------------------
 	def transfer_clinical_data(self, source_episode=None, target_episode=None):
 		"""
@@ -1384,7 +1379,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.146  2009-09-01 23:03:57  ncq
+# Revision 1.147  2009-09-13 18:22:55  ncq
+# - ignore return of save_payload() - it's a dummy
+#
+# Revision 1.146  2009/09/01 23:03:57  ncq
 # - better classification
 #
 # Revision 1.145  2009/09/01 22:14:15  ncq
