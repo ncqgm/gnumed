@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.103 2009-09-01 23:05:20 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmEMRStructWidgets.py,v 1.104 2009-09-13 18:45:25 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -135,7 +135,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		emr = pat.get_emr()
 
 		stay = gmEMRStructItems.create_hospital_stay (
-			encounter = emr.get_active_encounter()['pk_encounter'],
+			encounter = emr.active_encounter['pk_encounter'],
 			episode = self._PRW_episode.GetData(can_create = True)
 		)
 		stay['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
@@ -1516,7 +1516,7 @@ if __name__ == '__main__':
 	def test_encounter_edit_area_panel():
 		app = wx.PyWidgetTester(size = (200, 300))
 		emr = pat.get_emr()
-		enc = emr.get_active_encounter()
+		enc = emr.active_encounter
 		#enc = gmEMRStructItems.cEncounter(1)
 		pnl = cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
 		app.frame.Show(True)
@@ -1526,7 +1526,7 @@ if __name__ == '__main__':
 	def test_encounter_edit_area_dialog():
 		app = wx.PyWidgetTester(size = (200, 300))
 		emr = pat.get_emr()
-		enc = emr.get_active_encounter()
+		enc = emr.active_encounter
 		#enc = gmEMRStructItems.cEncounter(1)
 
 		dlg = cEncounterEditAreaDlg(parent=app.frame, id=-1, size = (400,400), encounter=enc)
@@ -1597,7 +1597,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.103  2009-09-01 23:05:20  ncq
+# Revision 1.104  2009-09-13 18:45:25  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.103  2009/09/01 23:05:20  ncq
 # - improved tooltip for classification phrasewheel
 #
 # Revision 1.102  2009/09/01 22:29:09  ncq

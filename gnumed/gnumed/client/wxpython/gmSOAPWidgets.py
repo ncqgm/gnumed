@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.112 2009-06-22 09:28:21 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmSOAPWidgets.py,v 1.113 2009-09-13 18:45:25 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -804,7 +804,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			epi_id = self.__problem['pk_episode']
 
 		# set up clinical context in progress note
-		encounter = emr.get_active_encounter()
+		encounter = emr.active_encounter
 		staff_id = gmPerson.gmCurrentProvider()['pk_staff']
 		clin_ctx = {
 			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: epi_id,
@@ -1225,7 +1225,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.112  2009-06-22 09:28:21  ncq
+# Revision 1.113  2009-09-13 18:45:25  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.112  2009/06/22 09:28:21  ncq
 # - improved wording as per list
 #
 # Revision 1.111  2009/06/20 22:39:27  ncq

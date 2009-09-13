@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.182 2009-07-30 12:04:35 ncq Exp $
-__version__ = "$Revision: 1.182 $"
+# $Id: gmMedDocWidgets.py,v 1.183 2009-09-13 18:45:25 ncq Exp $
+__version__ = "$Revision: 1.183 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -129,7 +129,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 	docs_folder = pat.get_document_folder()
 	doc = docs_folder.add_document (
 		document_type = doc_type['pk_doc_type'],
-		encounter = emr.get_active_encounter()['pk_encounter'],
+		encounter = emr.active_encounter['pk_encounter'],
 		episode = epi['pk_episode']
 	)
 	part = doc.add_part(file = filename)
@@ -939,7 +939,7 @@ from your computer.""") % page_fname,
 				return False
 			pk_episode = episode['pk_episode']
 
-		encounter = emr.get_active_encounter()['pk_encounter']
+		encounter = emr.active_encounter['pk_encounter']
 		document_type = self._PhWheel_doc_type.GetData()
 		new_doc = doc_folder.add_document(document_type, encounter, pk_episode)
 		if new_doc is None:
@@ -1940,7 +1940,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		if result is True:
 			curr_pat = gmPerson.gmCurrentPatient()
 			emr = curr_pat.get_emr()
-			enc = emr.get_active_encounter()
+			enc = emr.active_encounter
 			gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
 #============================================================
 # main
@@ -1958,7 +1958,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.182  2009-07-30 12:04:35  ncq
+# Revision 1.183  2009-09-13 18:45:25  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.182  2009/07/30 12:04:35  ncq
 # - better sort context menu on docs/parts
 #
 # Revision 1.181  2009/07/16 11:31:20  ncq

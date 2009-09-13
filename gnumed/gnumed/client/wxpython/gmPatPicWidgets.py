@@ -2,8 +2,8 @@
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.32 2008-12-09 23:40:50 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPatPicWidgets.py,v 1.33 2009-09-13 18:45:25 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -133,7 +133,7 @@ class cPatientPicture(wx.StaticBitmap):
 		if len(docs) == 0:
 			emr = self.__pat.get_emr()
 			epi = emr.add_episode(episode_name=_('Administration'))
-			enc = emr.get_active_encounter()
+			enc = emr.active_encounter
 			doc = gmMedDoc.create_document (
 				document_type = gmMedDoc.MUGSHOT,
 				episode = epi['pk_episode'],
@@ -187,7 +187,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.32  2008-12-09 23:40:50  ncq
+# Revision 1.33  2009-09-13 18:45:25  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.32  2008/12/09 23:40:50  ncq
 # - no more patient fk in doc_med
 #
 # Revision 1.31  2008/07/10 20:54:17  ncq

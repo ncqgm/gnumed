@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.38 2009-09-01 22:36:59 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmNarrativeWidgets.py,v 1.39 2009-09-13 18:45:25 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -276,7 +276,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encount
 		return False
 
 	if encounter is None:
-		encounter = pat.get_emr().get_active_encounter()
+		encounter = pat.get_emr().active_encounter
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -537,7 +537,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			return False
 
 		emr = self.__pat.get_emr()
-		enc = emr.get_active_encounter()
+		enc = emr.active_encounter
 
 		enc['pk_type'] = self._PRW_encounter_type.GetData()
 		enc['started'] = self._PRW_encounter_start.GetData().get_pydt()
@@ -658,7 +658,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 					fancy_header = False
 				)
 
-			tmp = emr.get_active_encounter().format_soap (
+			tmp = emr.active_encounter.format_soap (
 				soap_cats = 'soap',
 				emr = emr,
 				issues = [ problem['pk_health_issue'] ],
@@ -694,7 +694,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 					fancy_header = False
 				)
 
-			tmp = emr.get_active_encounter().format_soap (
+			tmp = emr.active_encounter.format_soap (
 				soap_cats = 'soap',
 				emr = emr,
 				issues = [ problem['pk_health_issue'] ],
@@ -717,7 +717,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		"""Update encounter fields.
 		"""
 		emr = self.__pat.get_emr()
-		enc = emr.get_active_encounter()
+		enc = emr.active_encounter
 		self._PRW_encounter_type.SetText(value = enc['l10n_type'], data = enc['pk_type'])
 
 		fts = gmDateTime.cFuzzyTimestamp (
@@ -745,7 +745,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		"""Assumes that the field data is valid."""
 
 		emr = self.__pat.get_emr()
-		enc = emr.get_active_encounter()
+		enc = emr.active_encounter
 
 		data = {
 			'pk_type': self._PRW_encounter_type.GetData(),
@@ -1099,7 +1099,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 
-		return (all_closed == True)
+		return (all_closed is True)
 	#--------------------------------------------------------
 	def clear_current_editor(self):
 		page_idx = self.GetSelection()
@@ -1427,7 +1427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.38  2009-09-01 22:36:59  ncq
+# Revision 1.39  2009-09-13 18:45:25  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.38  2009/09/01 22:36:59  ncq
 # - wx-CallAfter on start-new-encounter
 #
 # Revision 1.37  2009/07/23 16:41:13  ncq

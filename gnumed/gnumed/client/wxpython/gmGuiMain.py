@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.469 2009-09-01 22:32:42 ncq Exp $
-__version__ = "$Revision: 1.469 $"
+# $Id: gmGuiMain.py,v 1.470 2009-09-13 18:45:25 ncq Exp $
+__version__ = "$Revision: 1.470 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -894,7 +894,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-		enc = emr.get_active_encounter()
+		enc = emr.active_encounter
 
 		# did we add anything to the EMR ?
 		has_narr = enc.has_narrative()
@@ -2883,7 +2883,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.469  2009-09-01 22:32:42  ncq
+# Revision 1.470  2009-09-13 18:45:25  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.469  2009/09/01 22:32:42  ncq
 # - use edit-health-issue
 #
 # Revision 1.468  2009/08/03 20:48:29  ncq
