@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.22 2008-02-25 17:31:41 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmSOAPimporter.py,v 1.23 2009-09-13 18:25:54 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -105,7 +105,7 @@ class cSOAPImporter:
 		try:
 			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]
 		except KeyError:
-			enc = emr.get_active_encounter()
+			enc = emr.active_encounter
 			enc_id = enc['pk_encounter']
 
 		# create narrative row
@@ -124,7 +124,7 @@ class cSOAPImporter:
 	#-----------------------------------------------------------
 	def __verify_soap_entry(self, soap_entry):
 		"""Perform basic integrity check of a supplied SOAP entry.
-		
+
 		@param soap_entry: dictionary containing information related to one
 						   SOAP input
 		@type soap_entry: dictionary with keys 'soap', 'types', 'text'
@@ -231,7 +231,10 @@ if __name__ == '__main__':
 	_log.info("closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.22  2008-02-25 17:31:41  ncq
+# Revision 1.23  2009-09-13 18:25:54  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.22  2008/02/25 17:31:41  ncq
 # - logging cleanup
 #
 # Revision 1.21  2008/01/30 13:34:50  ncq

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.62 2009-03-10 14:18:11 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmForms.py,v 1.63 2009-09-13 18:25:54 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -468,7 +468,7 @@ class gmFormEngine:
 		if params is None:
 			params = {}
 		patient_clinical = self.patient.get_emr()
-		encounter = patient_clinical.get_active_encounter()['pk_encounter']
+		encounter = patient_clinical.active_encounter['pk_encounter']
 		# FIXME: get_active_episode is no more
 		#episode = patient_clinical.get_active_episode()['pk_episode']
 		# generate "forever unique" name
@@ -831,7 +831,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.62  2009-03-10 14:18:11  ncq
+# Revision 1.63  2009-09-13 18:25:54  ncq
+# - no more get-active-encounter()
+#
+# Revision 1.62  2009/03/10 14:18:11  ncq
 # - support new-style simpler placeholders in OOo docs
 #
 # Revision 1.61  2009/02/18 13:43:37  ncq
