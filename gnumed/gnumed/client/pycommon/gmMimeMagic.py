@@ -24,8 +24,8 @@ __version__ = '0.1'
 
 #=================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeMagic.py,v $
-# $Id: gmMimeMagic.py,v 1.1 2004-02-25 09:30:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMimeMagic.py,v 1.2 2009-09-13 18:31:57 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Jason Petrone <jp@demonseed.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -454,7 +454,7 @@ magic = [
 	[1L, 'string', '=', 'PC Research, Inc', 'group 3 fax data'],
 	[0L, 'beshort', '=', 65496L, 'image/jpeg'],
 	[0L, 'string', '=', 'hsi1', 'image/x-jpeg-proprietary'],
-	[0L, 'string', '=', 'BM', 'image/x-bmp'],
+	[0L, 'string', '=', 'BM', 'image/x-ms-bmp'],
 	[0L, 'string', '=', 'IC', 'image/x-ico'],
 	[0L, 'string', '=', 'PI', 'PC pointer image data'],
 	[0L, 'string', '=', 'CI', 'PC color icon data'],
@@ -1128,7 +1128,10 @@ if __name__ == '__main__':
 			print arg + ': unknown'
 #=================================================================
 # $Log: gmMimeMagic.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2009-09-13 18:31:57  ncq
+# - proper mimetype for bitmaps
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.3  2003/11/17 10:56:36  sjtan
