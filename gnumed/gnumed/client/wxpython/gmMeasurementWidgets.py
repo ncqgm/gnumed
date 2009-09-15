@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.57 2009-08-11 10:49:23 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmMeasurementWidgets.py,v 1.57.2.1 2009-09-15 16:44:21 ncq Exp $
+__version__ = "$Revision: 1.57.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal
+import sys, logging, datetime as pyDT, decimal, os
 
 
 import wx, wx.grid, wx.lib.hyperlink
@@ -1175,7 +1175,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				name = self._PRW_test.GetValue().strip(),
 				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
 			)
-			pk_type = tt['pk']
+			pk_type = tt['pk_test_type']
 
 		tr = emr.add_test_result (
 			episode = self._PRW_problem.GetData(can_create=True, is_open=False),
@@ -1237,7 +1237,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				name = self._PRW_test.GetValue().strip(),
 				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
 			)
-			pk_type = tt['pk']
+			pk_type = tt['pk_test_type']
 
 		tr = self.data
 
@@ -1343,7 +1343,11 @@ def manage_measurement_types(parent=None):
 		lctrl.set_data(mtypes)
 	#------------------------------------------------------------
 	def delete(measurement_type):
-		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
+		try:
+			gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
+		except StandardError:
+			gmDispatcher.send(signal = 'statustext', beep = True, msg = _('Cannot delete measurement type likely because it is in use.'))
+			return False
 		return True
 	#------------------------------------------------------------
 	msg = _(
@@ -1852,7 +1856,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.57  2009-08-11 10:49:23  ncq
+# Revision 1.57.2.1  2009-09-15 16:44:21  ncq
+# - more careful when deleting test types, could be in use
+# - test types have pk_test_type, not pk
+#
+# Revision 1.57  2009/08/11 10:49:23  ncq
 # - cleanup
 # - remove LOINC files after import
 # - row labels now "abbrev (desc)", again
