@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.104 2009-09-13 18:45:25 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmEMRStructWidgets.py,v 1.105 2009-09-15 15:24:21 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -37,6 +37,67 @@ from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+#================================================================
+# performed procedure related widgets/functions
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgProcedureEAPnl
+
+def edit_procedure(parent=None, procedure=None):
+	ea = cProcedureEAPnl(parent = parent, id = -1)
+	ea.data = procedure
+	ea.mode = gmTools.coalesce(procedure, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg.SetTitle(gmTools.coalesce(procedure, _('Adding a procedure'), _('Editing a procedure')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+#----------------------------------------------------------------
+class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+		wxgProcedureEAPnl.wxgProcedureEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# FIXME: hospital stay OR location and episode - clear on callbacks
+
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		self.data = 1
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+#		self.data[''] = 
+#		self.data[''] = 
+#		self.data[''] = 
+#		self.data.save()
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+#	Code using this mixin should set mode and data after
+#	instantiating the class:
+#		gmEditArea.cGenericEditAreaMixin.__init__(self)
+#		self.mode = 
+#		self.data =
 #================================================================
 # hospital stay related widgets/functions
 #----------------------------------------------------------------
@@ -94,8 +155,63 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospital stay'), _('Editing a hospital stay')))
 	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
 		return True
+	dlg.Destroy()
 	return False
+#----------------------------------------------------------------
+class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Phrasewheel to allow selection of a hospital stay.
+
+	"""
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+
+		ctxt = {'ctxt_pat': {'where_part': u'pk_patient = %(pat)s and', 'placeholder': u'pat'}}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [
+u"""
+select
+	pk_hospital_stay,
+	descr
+from (
+	select distinct on (pk_hospital_stay)
+		pk_hospital_stay,
+		descr
+	from
+		(select
+			pk_hospital_stay,
+			(
+				to_char(admission, 'YYYY-Mon-DD')
+				|| coalesce((' - ' || to_char(discharge, 'YYYY-Mon-DD')), '')
+				|| coalesce((' (' || hospital || '):'), ': ')
+				|| episode
+				|| coalesce((' (' || health_issue || ')'), '')
+			) as descr
+		 from
+		 	clin.v_pat_hospital_stays
+		 where
+			%(ctxt_pat)s
+
+			hospital %(fragment_condition)s
+				or
+			episode %(fragment_condition)s
+				or
+			health_issue %(fragment_condition)s
+		) as the_stays
+) as distinct_stays
+order by descr
+limit 25
+"""			],
+			context = ctxt
+		)
+		mp.setThresholds(3, 4, 6)
+		mp.set_context('pat', gmPerson.gmCurrentPatient().ID)
+
+		self.matcher = mp
+		self.selection_only = True
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgHospitalStayEditAreaPnl
 
@@ -1550,6 +1666,11 @@ if __name__ == '__main__':
 		epi = emr.get_episodes()[0]
 		edit_episode(parent=app.frame, episode=epi)
 	#----------------------------------------------------------------
+	def test_hospital_stay_prw():
+		app = wx.PyWidgetTester(size = (400, 40))
+		app.SetWidget(cHospitalStayPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+		app.MainLoop()
+	#----------------------------------------------------------------
 	def test_episode_selection_prw():
 		app = wx.PyWidgetTester(size = (400, 40))
 		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
@@ -1564,6 +1685,10 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 300))
 		app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
 		app.MainLoop()
+	#----------------------------------------------------------------
+	def test_edit_procedure():
+		app = wx.PyWidgetTester(size = (200, 300))
+		edit_procedure(parent=app.frame)
 	#================================================================
 
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
@@ -1593,11 +1718,17 @@ if __name__ == '__main__':
 		#test_epsiode_edit_area_pnl()
 		#test_episode_edit_area_dialog()
 		#test_health_issue_edit_area_dlg()
-		test_episode_selection_prw()
+		#test_episode_selection_prw()
+		#test_hospital_stay_prw()
+		test_edit_procedure()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.104  2009-09-13 18:45:25  ncq
+# Revision 1.105  2009-09-15 15:24:21  ncq
+# - start procedure EA
+# - phrasewheel for hospital stays
+#
+# Revision 1.104  2009/09/13 18:45:25  ncq
 # - no more get-active-encounter()
 #
 # Revision 1.103  2009/09/01 23:05:20  ncq
