@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-procedure-dynamic.sql,v 1.1 2009-09-13 18:17:28 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-procedure-dynamic.sql,v 1.2 2009-09-15 15:21:01 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -65,9 +65,9 @@ alter table clin.procedure drop constraint sane_location_definition cascade;
 alter table clin.procedure
 	add constraint single_location_definition
 		check ((
-			(fk_hospital_stay is null)
+			(fk_hospital_stay is not null)
 				and
-			(clin_where is null)
+			(clin_where is not null)
 		) is false )
 ;
 
@@ -129,11 +129,14 @@ TO GROUP "gm-doctors";
 -- search terms
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-procedure-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-procedure-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-procedure-dynamic.sql,v $
--- Revision 1.1  2009-09-13 18:17:28  ncq
+-- Revision 1.2  2009-09-15 15:21:01  ncq
+-- - fix proper check on stay vs clin_where
+--
+-- Revision 1.1  2009/09/13 18:17:28  ncq
 -- - new table
 --
 --
