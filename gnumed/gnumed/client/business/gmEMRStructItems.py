@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.147 $"
+__version__ = "$Revision: 1.148 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -289,18 +289,8 @@ age (
 			lines.append(_('Hospital stays: %s') % len(stays))
 
 		for s in stays:
-			if s['discharge'] is not None:
-				dis = s['discharge'].strftime('%x')
-			else:
-				dis = u'?'
-			lines.append (u' %s - %s (%s): %s%s%s' % (
-				s['admission'].strftime('%x'),
-				dis,
-				gmTools.coalesce(s['hospital'], u''),
-				gmTools.u_left_double_angle_quote,
-				s['episode'],
-				gmTools.u_right_double_angle_quote
-			))
+			lines.append(s.format(left_margin = (left_margin +1)))
+
 		del stays
 
 		epis = self.get_episodes()
@@ -636,15 +626,8 @@ from (
 			lines.append(_('Hospital stays: %s') % len(stays))
 
 		for s in stays:
-			if s['discharge'] is not None:
-				dis = s['discharge'].strftime('%Y-%m-%d')
-			else:
-				dis = u'?'
-			lines.append (u' %s - %s: %s' % (
-				s['admission'].strftime('%Y-%m-%d'),
-				dis,
-				gmTools.coalesce(s['hospital'], u'')
-			))
+			lines.append(s.format(left_margin = (left_margin +1)))
+
 		del stays
 
 		# test results
@@ -1247,6 +1230,27 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 		'pk_episode',
 		'pk_encounter'
 	]
+	#-------------------------------------------------------
+	def format(self, left_margin=0, include_procedures=False, include_docs=False):
+
+		if self._payload[self._idx['discharge']] is not None:
+			dis = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y-%b-%d')
+		else:
+			dis = u''
+
+		lines = []
+		lines.append (u'%s%s%s: %s%s%s' % (
+			self._payload[self._idx['admission']].strftime('%Y-%b-%d'),
+			dis,
+			gmTools.coalesce(self._payload[self._idx['hospital']], u'', u' (%s)'),
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['episode']],
+			gmTools.u_right_double_angle_quote
+		))
+
+		left_margin = u' ' * left_margin
+		eol_w_margin = u'\n%s' % left_margin
+		return u'%s%s\n' % (left_margin, eol_w_margin.join(lines))
 #-----------------------------------------------------------
 def get_patient_hospital_stays(patient=None):
 
@@ -1379,7 +1383,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.147  2009-09-13 18:22:55  ncq
+# Revision 1.148  2009-09-15 15:24:48  ncq
+# - add format() to hospital stays and use it
+#
+# Revision 1.147  2009/09/13 18:22:55  ncq
 # - ignore return of save_payload() - it's a dummy
 #
 # Revision 1.146  2009/09/01 23:03:57  ncq
