@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.37 2009-07-23 16:41:13 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmNarrativeWidgets.py,v 1.37.2.1 2009-09-15 16:45:56 ncq Exp $
+__version__ = "$Revision: 1.37.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -952,6 +952,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.send(signal = u'statustext', msg = _('Started new encounter for active patient.'))
 
 		event.Skip()
+
+		wx.CallAfter(self.__refresh_encounter)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1426,7 +1428,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.37  2009-07-23 16:41:13  ncq
+# Revision 1.37.2.1  2009-09-15 16:45:56  ncq
+# - force refresh of encounter late after start of new one
+#
+# Revision 1.37  2009/07/23 16:41:13  ncq
 # - cleanup
 #
 # Revision 1.36  2009/07/02 20:55:48  ncq
