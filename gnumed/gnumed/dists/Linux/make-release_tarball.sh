@@ -2,13 +2,13 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.81.2.1 2009-08-13 12:53:34 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.81.2.2 2009-09-15 17:55:30 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.5.0"
+CLIENTREV="0.5.1"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 
-SRVREV="11.0"
+SRVREV="11.1"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -384,12 +384,12 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
 
 cp -R ../../server/sql/v10-v11/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/dynamic
 cp -R ../../server/sql/v10-v11/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/static
 cp -R ../../server/sql/v10-v11/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/superuser
-#cp -R ../../server/sql/v10-v11/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
+cp -R ../../server/sql/v10-v11/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v10-v11/fixups
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -427,7 +427,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.81.2.1  2009-08-13 12:53:34  ncq
+# Revision 1.81.2.2  2009-09-15 17:55:30  ncq
+# - include v11 fixup scripts
+# - 0.5.1/11.1
+#
+# Revision 1.81.2.1  2009/08/13 12:53:34  ncq
 # - set proper versions
 #
 # Revision 1.81  2009/08/11 11:04:28  ncq
