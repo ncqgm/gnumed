@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.296 2009-09-01 22:13:24 ncq Exp $
-__version__ = "$Revision: 1.296 $"
+# $Id: gmClinicalRecord.py,v 1.297 2009-09-15 15:26:06 ncq Exp $
+__version__ = "$Revision: 1.297 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -130,14 +130,33 @@ select fk_encounter from
 		return True
 	#--------------------------------------------------------
 	def db_callback_encounter_mod_db(self, **kwds):
-		# get current encounter as extra instance
-		enc_db_state = gmEMRStructItems.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
+		# get the current encounter as an extra instance
+		# from the database to check for changes
+		curr_enc_in_db = gmEMRStructItems.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
 
-		# unmodified in database
-		if enc_db_state['xmin_encounter'] == self.current_encounter['xmin_encounter']:
+		# the encounter just retrieved and the active encounter
+		# have got the same transaction ID so there's no change
+		# in the database, there could be a local change in
+		# the active encounter but that doesn't matter
+		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
 			return True
 
-		self.current_encounter = enc_db_state
+		# there must have been a change to the active encounter
+		# committed to the database from elsewhere,
+		# we must fail propagating the change, however, if
+		# there are local changes
+		if self.current_encounter.is_modified():
+			_log.debug('unsaved changes in active encounter, cannot switch to another one')
+			raise ValueError('unsaved changes in active encounter, cannot switch to another one')
+
+		# there was a change in the database from elsewhere,
+		# locally, however, we don't have any changes, therefore
+		# we can propagate the remote change locally without
+		# losing anything
+		_log.debug('active encounter modified remotely, reloading and announcing the modification')
+		self.current_encounter.refetch_payload()
+		gmDispatcher.send(u'current_encounter_modified')
+
 		return True
 	#--------------------------------------------------------
 	def db_callback_vaccs_modified(self, **kwds):
@@ -925,7 +944,7 @@ where
 			problem = gmEMRStructItems.cProblem(aPK_obj=pk_args)
 			self.__db_cache['problems'].append(problem)
 
-		# now filter					
+		# now filter
 		if episodes is None and issues is None:
 			return self.__db_cache['problems']
 		# ok, let's filter problem list
@@ -957,7 +976,7 @@ where
 		"""
 		Retrieve the cIssue instance equivalent to the given problem.
 		The problem's type attribute must be 'issue'.
-		
+
 		@param problem: The problem to retrieve the corresponding issue for
 		@type problem: A gmEMRStructItems.cProblem instance
 		"""
@@ -1033,7 +1052,7 @@ where
 		"""Retrieves vaccination regimes the patient is on.
 
 			optional:
-			* ID - PK of the vaccination regime				
+			* ID - PK of the vaccination regime	
 			* indications - indications we want to retrieve vaccination
 				regimes for, must be primary language, not l10n_indication
 		"""
@@ -1282,32 +1301,23 @@ where
 
 	def _set_encounter(self, encounter):
 
-		signal = None
-
-		# true change of encounter and not just first setting ?
-		if self.__encounter is not None:
-
-			# unsaved changes ?
+		# first ever setting ?
+		if self.__encounter is None:
+			_log.debug('first setting of active encounter in this clinical record instance')
+		else:
+			_log.debug('switching of active encounter')
+			# fail if the currently active encounter has unsaved changes
 			if self.__encounter.is_modified():
-				# then fail
-				raise ValueError('cannot set current encounter, it has unsaved changes')
+				_log.debug('unsaved changes in active encounter, cannot switch to another one')
+				raise ValueError('unsaved changes in active encounter, cannot switch to another one')
 
-			# same encounter ?
-			if encounter['pk_encounter'] == self.__encounter['pk_encounter']:
-				# without external changes ?
-				if encounter['xmin_encounter'] == self.__encounter['xmin_encounter']:
-					# then succeed (or rather, do nothing)
-					return True
-				# are they true changes, not just UPDATE cosmetic ?
-				if not encounter.same_payload(another_object = self.__encounter):
-					signal = u'current_encounter_modified'
-
+		# set the currently active encounter and announce that change
 		self.__encounter = encounter
-		self.__encounter.set_active(staff_id = _me['pk_staff'])
-		if signal is not None:
-			gmDispatcher.send(signal)
-
 		gmDispatcher.send(u'current_encounter_switched')
+
+		# this will trigger another signal "encounter_mod_db"
+		self.__encounter.set_active(staff_id = _me['pk_staff'])
+
 		return True
 
 	current_encounter = property(_get_encounter, _set_encounter)
@@ -1448,9 +1458,6 @@ where
 		)
 		self.current_encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
 		_log.debug('new encounter [%s] initiated' % self.current_encounter['pk_encounter'])
-	#------------------------------------------------------------------
-	def get_active_encounter(self):
-		return self.current_encounter
 	#------------------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
 		"""Retrieves patient's encounters.
@@ -2002,7 +2009,12 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.296  2009-09-01 22:13:24  ncq
+# Revision 1.297  2009-09-15 15:26:06  ncq
+# - rework handling of setting active encounter and listening
+#   to encounter changes in the DB
+# - no more get-active-encounter()
+#
+# Revision 1.296  2009/09/01 22:13:24  ncq
 # - cleanup
 #
 # Revision 1.295  2009/07/02 20:56:49  ncq
