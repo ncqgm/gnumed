@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.149 $
+# $Revision: 1.149.2.1 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-08-13 13:19+CEST\n"
-"PO-Revision-Date: 2009-08-13 14:09+0100\n"
+"POT-Creation-Date: 2009-09-15 18:48+CEST\n"
+"PO-Revision-Date: 2009-09-15 18:51+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1386,30 +1386,6 @@ msgstr ""
 "\n"
 "Befehl\n"
 "(SQL)"
-
-msgid "right list"
-msgstr "rechte Liste"
-
-msgid "left list"
-msgstr "linke Liste"
-
-msgid "Do something with the two lists below."
-msgstr "Tue etwas mit den zwei Listen unten."
-
-msgid "Refresh"
-msgstr "Auffrischen"
-
-msgid "= selected =>"
-msgstr "= markierte =>"
-
-msgid "= all =>"
-msgstr "= alle =>"
-
-msgid "<= all ="
-msgstr "<= alle ="
-
-msgid "<= selected ="
-msgstr "<= markierte ="
 
 msgid "Edit Document Types"
 msgstr "Dokumententypen editieren"
@@ -6744,6 +6720,9 @@ msgstr "Meßmethode bearbeiten"
 msgid "in-house"
 msgstr "praxisintern"
 
+msgid "Cannot delete measurement type likely because it is in use."
+msgstr "Kann Meßmethode nicht löschen, wahrscheinlich weil sie in Benutzung ist."
+
 msgid ""
 "\n"
 "These are the measurement types currently defined in GNUmed.\n"
@@ -8016,27 +7995,6 @@ msgstr "Woche"
 msgid "weeks"
 msgstr "Wochen"
 
-msgid "Hx"
-msgstr "Ana"
-
-msgid "History Taken"
-msgstr "Anamnese"
-
-msgid "Obj"
-msgstr "Bef"
-
-msgid "Findings"
-msgstr "Befund"
-
-msgid "A"
-msgstr "D"
-
-msgid "P"
-msgstr "T"
-
-msgid "xxxSOAPxxx"
-msgstr "xxxABDTxxx"
-
 msgid "Cannot save text expansion without keyword."
 msgstr "Kann Textmakro ohne Schlüsselwort nicht speichern."
 
@@ -8315,6 +8273,12 @@ msgstr "Fehler beim Speichern der eingebetteten Daten."
 
 msgid "Patient Request"
 msgstr "Beratungsanlaß"
+
+msgid "History Taken"
+msgstr "Anamnese"
+
+msgid "Findings"
+msgstr "Befund"
 
 msgid "save"
 msgstr "speichern"
@@ -9148,6 +9112,32 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "right list"
+#~ msgstr "rechte Liste"
+#~ msgid "left list"
+#~ msgstr "linke Liste"
+#~ msgid "Do something with the two lists below."
+#~ msgstr "Tue etwas mit den zwei Listen unten."
+#~ msgid "Refresh"
+#~ msgstr "Auffrischen"
+#~ msgid "= selected =>"
+#~ msgstr "= markierte =>"
+#~ msgid "= all =>"
+#~ msgstr "= alle =>"
+#~ msgid "<= all ="
+#~ msgstr "<= alle ="
+#~ msgid "<= selected ="
+#~ msgstr "<= markierte ="
+#~ msgid "Hx"
+#~ msgstr "Ana"
+#~ msgid "Obj"
+#~ msgstr "Bef"
+#~ msgid "A"
+#~ msgstr "D"
+#~ msgid "P"
+#~ msgstr "T"
+#~ msgid "xxxSOAPxxx"
+#~ msgstr "xxxABDTxxx"
 #~ msgid "Encyclopedia"
 #~ msgstr "Lexikon"
 #~ msgid "Successfully saved measurement type."
