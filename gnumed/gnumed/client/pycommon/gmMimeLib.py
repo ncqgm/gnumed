@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.24 2009-09-01 22:24:09 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmMimeLib.py,v 1.25 2009-09-17 21:52:40 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -238,7 +238,7 @@ def call_viewer_on_file(aFile = None, block=None):
 	try:
 		os.startfile(file_to_display)
 	except:
-		_log.LogException('os.startfile(%s) failed' % file_to_display)
+		_log.exception('os.startfile(%s) failed', file_to_display)
 		msg = _("Unable to display the file:\n\n"
 				" [%s]\n\n"
 				"Your system does not seem to have a (working)\n"
@@ -267,7 +267,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.24  2009-09-01 22:24:09  ncq
+# Revision 1.25  2009-09-17 21:52:40  ncq
+# - properly log exceptions
+#
+# Revision 1.24  2009/09/01 22:24:09  ncq
 # - document MacOSX open behaviour
 #
 # Revision 1.23  2008/12/01 12:12:37  ncq
