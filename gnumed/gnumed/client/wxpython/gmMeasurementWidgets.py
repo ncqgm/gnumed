@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.59 2009-09-01 22:33:25 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmMeasurementWidgets.py,v 1.60 2009-09-17 21:54:55 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1189,7 +1189,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				name = self._PRW_test.GetValue().strip(),
 				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
 			)
-			pk_type = tt['pk']
+			pk_type = tt['pk_test_type']
 
 		tr = emr.add_test_result (
 			episode = self._PRW_problem.GetData(can_create=True, is_open=False),
@@ -1251,7 +1251,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				name = self._PRW_test.GetValue().strip(),
 				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
 			)
-			pk_type = tt['pk']
+			pk_type = tt['pk_test_type']
 
 		tr = self.data
 
@@ -1357,6 +1357,13 @@ def manage_measurement_types(parent=None):
 		lctrl.set_data(mtypes)
 	#------------------------------------------------------------
 	def delete(measurement_type):
+		if measurement_type.in_use:
+			gmDispatcher.send (
+				signal = 'statustext',
+				beep = True,
+				msg = _('Cannot delete measurement type [%s (%s)] because it is in use.') % (measurement_type['name'], measurement_type['abbrev'])
+			)
+			return False
 		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
 		return True
 	#------------------------------------------------------------
@@ -1870,7 +1877,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.59  2009-09-01 22:33:25  ncq
+# Revision 1.60  2009-09-17 21:54:55  ncq
+# - properly access test type pk
+# - check for use before deleting test type
+#
+# Revision 1.59  2009/09/01 22:33:25  ncq
 # - order test types in list
 #
 # Revision 1.58  2009/08/24 20:11:27  ncq
