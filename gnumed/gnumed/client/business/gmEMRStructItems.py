@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.148 $"
+__version__ = "$Revision: 1.149 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -12,7 +12,7 @@ import types, sys, string, datetime, logging, time
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools
+from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools, gmI18N
 from Gnumed.business import gmClinNarrative
 
 
@@ -1234,13 +1234,13 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, include_procedures=False, include_docs=False):
 
 		if self._payload[self._idx['discharge']] is not None:
-			dis = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y-%b-%d')
+			dis = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y-%b-%d').decode(gmI18N.get_encoding())
 		else:
 			dis = u''
 
 		lines = []
 		lines.append (u'%s%s%s: %s%s%s' % (
-			self._payload[self._idx['admission']].strftime('%Y-%b-%d'),
+			self._payload[self._idx['admission']].strftime('%Y-%b-%d').decode(gmI18N.get_encoding()),
 			dis,
 			gmTools.coalesce(self._payload[self._idx['hospital']], u'', u' (%s)'),
 			gmTools.u_left_double_angle_quote,
@@ -1284,6 +1284,69 @@ def delete_hospital_stay(stay=None):
 	args = {'pk': stay}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+#============================================================
+class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = u"select * from clin.v_pat_procedures where pk_procedure = %s"
+	_cmds_store_payload = [
+#		u"""update clin.hospital_stay set
+#				clin_when = %(admission)s,
+#				discharge = %(discharge)s,
+#				narrative = gm.nullify_empty_string(%(hospital)s),
+#				fk_episode = %(pk_episode)s,
+#				fk_encounter = %(pk_encounter)s
+#			where
+#				pk = %(pk_hospital_stay)s and
+#				xmin = %(xmin_hospital_stay)s""",
+#		u"""select xmin_hospital_stay from clin.v_pat_hospital_stays where pk_hospital_stay = %(pk_hospital_stay)s"""
+		u"""select xmin_procedure from clin.v_pat_procedures where pk_procedure = %(pk_procedure)s"""
+	]
+	_updatable_fields = [
+		'clin_when',
+		'performed_procedure',
+		'pk_hospital_stay',
+		'pk_episode',
+		'pk_encounter'
+	]
+	#-------------------------------------------------------
+	def format(self, left_margin=0, include_procedures=False, include_docs=False):
+
+		return u''
+
+		if self._payload[self._idx['discharge']] is not None:
+			dis = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y-%b-%d')
+		else:
+			dis = u''
+
+		lines = []
+		lines.append (u'%s%s%s: %s%s%s' % (
+			self._payload[self._idx['admission']].strftime('%Y-%b-%d'),
+			dis,
+			gmTools.coalesce(self._payload[self._idx['hospital']], u'', u' (%s)'),
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['episode']],
+			gmTools.u_right_double_angle_quote
+		))
+
+		left_margin = u' ' * left_margin
+		eol_w_margin = u'\n%s' % left_margin
+		return u'%s%s\n' % (left_margin, eol_w_margin.join(lines))
+#-----------------------------------------------------------
+def get_performed_procedures(patient=None):
+
+	queries = [
+		{
+		'cmd': u'select * from clin.v_pat_procedures where pk_patient = %(pat)s order by clin_when',
+		'args': {'pat': patient}
+		}
+	]
+
+	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+
+	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
+#-----------------------------------------------------------
+
+
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -1363,6 +1426,11 @@ if __name__ == '__main__':
 			print field, ':', encounter[field]
 		print "updatable:", encounter.get_updatable_fields()
 	#--------------------------------------------------------
+	def test_performed_procedure():
+		procs = get_performed_procedures(patient = 12)
+		for proc in procs:
+			print proc
+	#--------------------------------------------------------
 	def test_hospital_stay():
 		stay = create_hospital_stay(encounter = 1, episode = 2)
 		stay['hospital'] = u'Starfleet Galaxy General Hospital'
@@ -1379,11 +1447,14 @@ if __name__ == '__main__':
 		#test_problem()
 		#test_encounter()
 		#test_health_issue()
-		test_hospital_stay()
-
+		#test_hospital_stay()
+		test_performed_procedure()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.148  2009-09-15 15:24:48  ncq
+# Revision 1.149  2009-09-17 21:51:27  ncq
+# - add performed procedures support
+#
+# Revision 1.148  2009/09/15 15:24:48  ncq
 # - add format() to hospital stays and use it
 #
 # Revision 1.147  2009/09/13 18:22:55  ncq

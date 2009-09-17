@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.297 2009-09-15 15:26:06 ncq Exp $
-__version__ = "$Revision: 1.297 $"
+# $Id: gmClinicalRecord.py,v 1.298 2009-09-17 21:51:26 ncq Exp $
+__version__ = "$Revision: 1.298 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -190,6 +190,20 @@ select fk_encounter from
 	#--------------------------------------------------------
 	def _clin_item_modified(self):
 		_log.debug('DB: clin_root_item modification')
+	#--------------------------------------------------------
+	# API: performed procedures
+	#--------------------------------------------------------
+	def get_performed_procedures(self, episodes=None, issues=None):
+
+		procs = gmEMRStructItems.get_performed_procedures(patient = self.pk_patient)
+
+		if episodes is not None:
+			procs = filter(lambda p: p['pk_episode'] in episodes, procs)
+
+		if issues is not None:
+			procs = filter(lambda p: p['pk_health_issue'] in issues, procs)
+
+		return procs
 	#--------------------------------------------------------
 	# API: hospital stays
 	#--------------------------------------------------------
@@ -2009,7 +2023,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.297  2009-09-15 15:26:06  ncq
+# Revision 1.298  2009-09-17 21:51:26  ncq
+# - add performed procedures support
+#
+# Revision 1.297  2009/09/15 15:26:06  ncq
 # - rework handling of setting active encounter and listening
 #   to encounter changes in the DB
 # - no more get-active-encounter()
