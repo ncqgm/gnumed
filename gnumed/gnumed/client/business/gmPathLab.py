@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.77 2009-09-01 22:20:40 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmPathLab.py,v 1.78 2009-09-17 21:52:13 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -87,6 +87,14 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 				value = rows[0][0]
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+	#--------------------------------------------------------
+	def _get_in_use(self):
+		cmd = u'select exists(select 1 from clin.test_result where fk_type = %(pk_type)s)'
+		args = {'pk_type': self._payload[self._idx['pk_test_type']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return rows[0][0]
+
+	in_use = property(_get_in_use, lambda x:x)
 #------------------------------------------------------------
 def get_measurement_types(order_by=None):
 	cmd = u'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, u'', u'order by %s')
@@ -741,7 +749,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.77 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.78 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -1036,7 +1044,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.77  2009-09-01 22:20:40  ncq
+# Revision 1.78  2009-09-17 21:52:13  ncq
+# - add .in_use property to test types
+#
+# Revision 1.77  2009/09/01 22:20:40  ncq
 # - nullify empty strings where appropriate
 # - support order_by on getting measurement types
 #
