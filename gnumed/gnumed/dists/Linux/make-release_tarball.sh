@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.84 2009-09-13 18:47:19 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.85 2009-09-17 21:57:58 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.6.rc1"
@@ -237,7 +237,8 @@ unzip GNUmed-User-Manual.zip
 #tar -xvzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
 ln -s GnumedManual.html index.html
-rm -vf GNUmed-User-Manual.tgz
+#rm -vf GNUmed-User-Manual.tgz
+rm -vf GNUmed-User-Manual.zip
 cd -
 
 #----------------------------------
@@ -385,12 +386,12 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/superuser
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/fixups
 
 cp -R ../../server/sql/v10-v11/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/dynamic
 cp -R ../../server/sql/v10-v11/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/static
 cp -R ../../server/sql/v10-v11/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/superuser
-#cp -R ../../server/sql/v10-v11/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/fixups
+cp -R ../../server/sql/v10-v11/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/fixups
 
 
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12
@@ -441,7 +442,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.84  2009-09-13 18:47:19  ncq
+# Revision 1.85  2009-09-17 21:57:58  ncq
+# - cleanup manual zip file
+# - include v11 fixups
+#
+# Revision 1.84  2009/09/13 18:47:19  ncq
 # - local client installer now in external tools
 #
 # Revision 1.83  2009/09/08 17:17:55  ncq
