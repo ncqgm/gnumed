@@ -2,14 +2,14 @@
 
 	This module contains widgets to create and edit EMR structural
 	elements (issues, enconters, episodes).
-	
+
 	This is based on initial work and ideas by Syan <kittylitter@swiftdsl.com.au>
 	and Karsten <Karsten.Hilbert@gmx.net>.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.105 2009-09-15 15:24:21 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmEMRStructWidgets.py,v 1.106 2009-09-17 21:53:41 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -39,6 +39,57 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #================================================================
 # performed procedure related widgets/functions
+#----------------------------------------------------------------
+def manage_performed_procedures(parent=None):
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#-----------------------------------------
+	def edit(procedure=None):
+		return edit_procedure(parent = parent, procedure = procedure)
+	#-----------------------------------------
+	def delete(stay=None):
+		return False
+
+		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
+			return True
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Cannot delete hospital stay.'),
+			beep = True
+		)
+		return False
+	#-----------------------------------------
+	def refresh(lctrl):
+		procs = emr.get_performed_procedures()
+
+		items = [
+			[
+				p['clin_when'].strftime('%Y-%m-%d'),
+				p['clin_where'],
+				p['episode'],
+				p['performed_procedure']
+			] for p in procs
+		]
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = procs)
+	#-----------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the procedure you want to edit !\n'),
+		caption = _('Editing performed procedures ...'),
+		columns = [_('When'), _('Where'), _('Episode'), _('Procedure')],
+		single_selection = True,
+		#edit_callback = edit,
+		edit_callback = None,
+		new_callback = edit,
+		#delete_callback = delete,
+		delete_callback = None,
+		refresh_callback = refresh
+	)
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgProcedureEAPnl
 
@@ -1724,7 +1775,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.105  2009-09-15 15:24:21  ncq
+# Revision 1.106  2009-09-17 21:53:41  ncq
+# - start support for managing performed procedures
+#
+# Revision 1.105  2009/09/15 15:24:21  ncq
 # - start procedure EA
 # - phrasewheel for hospital stays
 #

@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.470 2009-09-13 18:45:25 ncq Exp $
-__version__ = "$Revision: 1.470 $"
+# $Id: gmGuiMain.py,v 1.471 2009-09-17 21:53:41 ncq Exp $
+__version__ = "$Revision: 1.471 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -498,6 +498,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_emr_edit.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
+
+		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_performed_procedures, item)
 
 		item = menu_emr_edit.Append(-1, _('Add &Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
@@ -1995,6 +1998,14 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
+	def __on_manage_performed_procedures(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage performed procedures. No active patient.'))
+			return False
+		gmEMRStructWidgets.manage_performed_procedures(parent = self)
+		evt.Skip()
+	#----------------------------------------------
 	def __on_manage_hospital_stays(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2883,7 +2894,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.470  2009-09-13 18:45:25  ncq
+# Revision 1.471  2009-09-17 21:53:41  ncq
+# - start support for managing performed procedures
+#
+# Revision 1.470  2009/09/13 18:45:25  ncq
 # - no more get-active-encounter()
 #
 # Revision 1.469  2009/09/01 22:32:42  ncq
