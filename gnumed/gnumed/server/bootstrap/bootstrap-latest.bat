@@ -81,6 +81,16 @@ call upgrade-db.bat 8 9
 dropdb -U gm-dbo gnumed_v8
 
 REM v9 -> v10
-COLOR 0F
+COLOR 07
 call upgrade-db.bat 9 10
 dropdb -U gm-dbo gnumed_v9
+
+REM v10 -> v11
+COLOR F9
+call upgrade-db.bat 10 11
+dropdb -U gm-dbo gnumed_v10
+
+REM v11 -> v12
+COLOR 0E
+call upgrade-db.bat 11 12
+dropdb -U gm-dbo gnumed_v11
