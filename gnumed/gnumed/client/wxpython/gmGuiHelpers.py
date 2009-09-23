@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.104 2009-07-23 16:39:23 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmGuiHelpers.py,v 1.105 2009-09-23 14:42:28 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -416,116 +416,15 @@ def makePageTitle(wizPg, title):
 	title.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
 	sizer.Add(title, 0, wx.ALIGN_CENTRE|wx.ALL, 2)
 	sizer.Add(wx.StaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
-	return sizer	
+	return sizer
 #============================================================
-import string			# remove !
-
-class cTextWidgetValidator(wx.PyValidator):
-	"""
-	This validator is used to ensure that the user has entered any value
-	into the input object (wx.TextControl, gmPhraseWheel, gmDateInput,
-	wx.Combo). Any wx.Window control with a GetValue method returning
-	a StringType.
-	"""
-	#--------------------------------------------------------
-	def __init__(self, message=None, non_empty=True, only_digits=False):
-		"""
-		Standard constructor, defining the behaviour of the validator.
-		@param non_empty - When true, the input text control must be filled
-		@type non_empty - BooleanType
-		
-		@param only_digits - When true, only digits are valid entries
-		@type only_digits - BooleanType
-		"""
-		wx.PyValidator.__init__(self)
-
-		self.__non_empty = non_empty
-		self.__only_digits = only_digits
-		if message is None:
-			if self.__only_digits:
-				self.__msg = _('This field can only contain digits.')
-			else:
-				self.__msg = _('This field cannot be empty.')
-		else:
-			self.__msg = message
-
-		if self.__only_digits:
-			wx.EVT_CHAR(self, self.OnChar)
-	#--------------------------------------------------------
-	def Clone(self):
-		"""
-		Standard cloner.
-		Note that every validator must implement the Clone() method.
-		"""
-		return cTextWidgetValidator(self.__non_empty, self.__only_digits)
-	#--------------------------------------------------------
-	def Validate(self, parent = None):
-		"""Validate the contents of the given text control."""
-		ctrl = self.GetWindow()
-		val = ctrl.GetValue()
-
-		if self.__non_empty and val.strip() == '':
-			print self.__msg
-			ctrl.SetBackgroundColour('pink')
-			ctrl.SetFocus()
-			ctrl.Refresh()
-			return False
-		elif self.__only_digits:
-			for char in val:
-				if not char in string.digits:
-					print self.__msg
-					ctrl.SetBackgroundColour('pink')
-					ctrl.SetFocus()
-					ctrl.Refresh()					
-					return False
-		else:
-			ctrl.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			ctrl.Refresh()
-			return True
-	#--------------------------------------------------------
-	def TransferToWindow(self):
-		""" Transfer data from validator to window.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		return True # Prevent wxDialog from complaining.	
-	#--------------------------------------------------------
-	def TransferFromWindow(self):
-		""" Transfer data from window to validator.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		# FIXME: workaround for Validate to be called when clicking a wizard's
-		# Finish button
-		return self.Validate()
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def OnChar(self, event):
-		"""
-		Callback function invoked on key press.
-
-		@param event - The event object containing context information
-		@type event - wx.Event
-		"""
-		key = event.GetKeyCode()
-		if key < wx.WXK_SPACE or key == wx.WXK_DELETE or key > 255:
-			event.Skip()
-			return
-		if self.__only_digits and chr(key) in string.digits:
-			event.Skip()
-			return
-
-		if not wx.Validator_IsSilent():
-			wx.Bell()
-
-		# Returning without calling event.Skip eats the event
-		# before it gets to the text control
-		return
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.104  2009-07-23 16:39:23  ncq
+# Revision 1.105  2009-09-23 14:42:28  ncq
+# - remove dead code
+#
+# Revision 1.104  2009/07/23 16:39:23  ncq
 # - try to improve multiline text dialog
 #
 # Revision 1.103  2009/07/06 17:12:34  ncq
