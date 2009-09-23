@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.29 2009-07-09 16:42:06 ncq Exp $
+# $Id: gmDateTime.py,v 1.30 2009-09-23 14:32:05 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -193,6 +193,10 @@ def init():
 		offset = (current_local_utc_offset_in_seconds / 60),
 		name = current_local_iso_numeric_timezone_string
 	)
+#===========================================================================
+def pydt_now_here():
+	"""Returns NOW @ HERE (IOW, in the local timezone."""
+	return pyDT.datetime.now(gmCurrentLocalTimezone)
 #===========================================================================
 # wxPython conversions
 #---------------------------------------------------------------------------
@@ -1171,6 +1175,8 @@ if __name__ == '__main__':
 		print " DST adjustment:", gmCurrentLocalTimezone.dst(pyDT.datetime.now())
 		print " timezone name:", gmCurrentLocalTimezone.tzname(pyDT.datetime.now())
 		print ""
+		print "now here:", pydt_now_here()
+		print ""
 	#-------------------------------------------------
 	def test_str2fuzzy_timestamp_matches():
 		print "testing function str2fuzzy_timestamp_matches"
@@ -1226,16 +1232,19 @@ if __name__ == '__main__':
 
 		init()
 
-		#test_date_time()
+		test_date_time()
 		#test_str2fuzzy_timestamp_matches()
 		#test_cFuzzyTimeStamp()
 		#test_get_pydt()
 		#test_str2interval()
-		test_format_interval()
+		#test_format_interval()
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.29  2009-07-09 16:42:06  ncq
+# Revision 1.30  2009-09-23 14:32:05  ncq
+# - pydt-now-here()
+#
+# Revision 1.29  2009/07/09 16:42:06  ncq
 # - ISO date formatting
 #
 # Revision 1.28  2009/06/04 14:50:06  ncq
