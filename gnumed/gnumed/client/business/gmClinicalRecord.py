@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.298 2009-09-17 21:51:26 ncq Exp $
-__version__ = "$Revision: 1.298 $"
+# $Id: gmClinicalRecord.py,v 1.299 2009-09-23 14:28:13 ncq Exp $
+__version__ = "$Revision: 1.299 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -657,7 +657,8 @@ select ((
 			u'select count(1) from clin.v_pat_items where pk_patient = %(pat)s',
 			u'select count(1) from blobs.v_doc_med where pk_patient = %(pat)s',
 			u'select count(1) from clin.v_test_results where pk_patient = %(pat)s',
-			u'select count(1) from clin.v_pat_hospital_stays where pk_patient = %(pat)s'
+			u'select count(1) from clin.v_pat_hospital_stays where pk_patient = %(pat)s',
+			u'select count(1) from clin.v_pat_procedures where pk_patient = %(pat)s'
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
@@ -671,7 +672,8 @@ select ((
 			items = rows[2][0],
 			documents = rows[3][0],
 			results = rows[4][0],
-			stays = rows[5][0]
+			stays = rows[5][0],
+			procedures = rows[6][0]
 		)
 
 		return stats
@@ -683,6 +685,7 @@ Total EMR entries: %(items)s
 Documents: %(documents)s
 Test results: %(results)s
 Hospital stays: %(stays)s
+Procedures: %(procedures)s
 """			) % self.get_statistics()
 	#--------------------------------------------------------
 	def format_summary(self):
@@ -691,7 +694,6 @@ Hospital stays: %(stays)s
 		first = self.get_first_encounter()
 		last = self.get_last_encounter()
 		probs = self.get_problems()
-		stays = self.get_hospital_stays()
 
 		txt = _('EMR Statistics\n\n')
 		if len(probs) > 0:
@@ -712,7 +714,8 @@ Hospital stays: %(stays)s
 		)
 		txt += _(' %s documents\n') % stats['documents']
 		txt += _(' %s test results\n') % stats['results']
-		txt += _(' %s hospital stays\n\n') % stats['stays']
+		txt += _(' %s hospital stays\n') % stats['stays']
+		txt += _(' %s performed procedures\n\n' % stats['procedures'])
 
 		txt += _('Allergies and Intolerances\n\n')
 
@@ -1040,14 +1043,11 @@ where
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue."""
-		success, issue = gmEMRStructItems.create_health_issue (
+		return gmEMRStructItems.create_health_issue (
 			description = issue_name,
-			encounter = self.current_encounter['pk_encounter']
+			encounter = self.current_encounter['pk_encounter'],
+			patient = self.pk_patient
 		)
-		if not success:
-			_log.error('cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
-			return None
-		return issue
 	#--------------------------------------------------------
 	def health_issue2problem(self, issue=None):
 		return self.get_problems(issues = [issue['pk_health_issue']])
@@ -2023,7 +2023,11 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.298  2009-09-17 21:51:26  ncq
+# Revision 1.299  2009-09-23 14:28:13  ncq
+# - support procedures
+# - create-health-issue can now take advantage of patient pk again
+#
+# Revision 1.298  2009/09/17 21:51:26  ncq
 # - add performed procedures support
 #
 # Revision 1.297  2009/09/15 15:26:06  ncq
