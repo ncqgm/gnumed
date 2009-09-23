@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.106 2009-09-17 21:53:41 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmEMRStructWidgets.py,v 1.107 2009-09-23 14:42:04 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -25,7 +25,7 @@ import wx.lib.pubsub as wxps
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg
+from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg, gmExceptions
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
@@ -51,14 +51,13 @@ def manage_performed_procedures(parent=None):
 	def edit(procedure=None):
 		return edit_procedure(parent = parent, procedure = procedure)
 	#-----------------------------------------
-	def delete(stay=None):
-		return False
-
-		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
+	def delete(procedure=None):
+		if gmEMRStructItems.delete_performed_procedure(procedure = procedure['pk_procedure']):
 			return True
+
 		gmDispatcher.send (
 			signal = u'statustext',
-			msg = _('Cannot delete hospital stay.'),
+			msg = _('Cannot delete performed procedure.'),
 			beep = True
 		)
 		return False
@@ -83,11 +82,9 @@ def manage_performed_procedures(parent=None):
 		caption = _('Editing performed procedures ...'),
 		columns = [_('When'), _('Where'), _('Episode'), _('Procedure')],
 		single_selection = True,
-		#edit_callback = edit,
-		edit_callback = None,
+		edit_callback = edit,
 		new_callback = edit,
-		#delete_callback = delete,
-		delete_callback = None,
+		delete_callback = delete,
 		refresh_callback = refresh
 	)
 #----------------------------------------------------------------
@@ -117,8 +114,46 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return True
-		return False
+
+		has_errors = False
+
+		if not self._DP_date.GetValue().IsValid():
+			self._DP_admission.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			has_errors = True
+		else:
+			self._DP_date.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+
+		if self._PRW_episode.GetData() is None:
+			self._PRW_episode.display_as_valid(False)
+			has_errors = True
+		else:
+			self._PRW_episode.display_as_valid(True)
+
+		if (self._PRW_procedure.GetValue() is None) or (self._PRW_procedure.GetValue().strip() == u''):
+			self._PRW_procedure.display_as_valid(False)
+			has_errors = True
+		else:
+			self._PRW_procedure.display_as_valid(True)
+
+		invalid_location = (
+			(self._PRW_hospital_stay.GetData() is None) and (self._PRW_location.GetValue().strip() == u'')
+				or
+			(self._PRW_hospital_stay.GetData() is not None) and (self._PRW_location.GetValue().strip() != u'')
+		)
+		if invalid_location:
+			self._PRW_hospital_stay.display_as_valid(False)
+			self._PRW_location.display_as_valid(False)
+			has_errors = True
+		else:
+			self._PRW_hospital_stay.display_as_valid(True)
+			self._PRW_location.display_as_valid(True)
+
+		wxps.Publisher().sendMessage (
+			topic = 'statustext',
+			data = {'msg': _('Cannot save procedure.'), 'beep': True}
+		)
+
+		return (has_errors is False)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
@@ -136,19 +171,43 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		return False
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		pass
+		self._DPRW_date.SetText()
+		self._PRW_hospital_stay.SetText()
+		self._PRW_location.SetText()
+		self._PRW_episode.SetText()
+		self._PRW_procedure.SetText()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		pass
+		self._DPRW_date.SetData(data = self.data['clin_when'])
+		self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
+		self._PRW_procedure.SetText(value = self.data['performed_procedure'], data = self.data['performed_procedure'])
+
+		if self.data['pk_hospital_stay'] is None:
+			self._PRW_hospital_stay.SetText()
+			self._PRW_location.SetText(value = self.data['clin_where'], data = self.data['clin_where'])
+		else:
+			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
+			self._PRW_location.SetText()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		pass
+		self._refresh_as_new()
+		self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
+		if self.data['pk_hospital_stay'] is None:
+			self._PRW_hospital_stay.SetText()
+			self._PRW_location.SetText(value = self.data['clin_where'], data = self.data['clin_where'])
+		else:
+			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
+			self._PRW_location.SetText()
 	#----------------------------------------------------------------
 #	Code using this mixin should set mode and data after
 #	instantiating the class:
 #		gmEditArea.cGenericEditAreaMixin.__init__(self)
 #		self.mode = 
 #		self.data =
+	#----------------------------------------------------------------
+	def _on_add_hospital_stay_button_pressed(self, evt):
+		edit_hospital_stay(parent = self.GetParent())
+		evt.Skip()
 #================================================================
 # hospital stay related widgets/functions
 #----------------------------------------------------------------
@@ -213,7 +272,6 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 #----------------------------------------------------------------
 class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of a hospital stay.
-
 	"""
 	def __init__(self, *args, **kwargs):
 
@@ -236,7 +294,6 @@ from (
 			pk_hospital_stay,
 			(
 				to_char(admission, 'YYYY-Mon-DD')
-				|| coalesce((' - ' || to_char(discharge, 'YYYY-Mon-DD')), '')
 				|| coalesce((' (' || hospital || '):'), ': ')
 				|| episode
 				|| coalesce((' (' || health_issue || ')'), '')
@@ -746,6 +803,76 @@ def edit_episode(parent=None, episode=None):
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
 	return False
+#----------------------------------------------------------------
+def promote_episode_to_issue(parent=None, episode=None, emr=None):
+
+	created_new_issue = False
+
+	try:
+		issue = gmEMRStructItems(name = episode['description'], patient = episode['pk_patient'])
+	except gmExceptions.NoSuchBusinessObjectError:
+		issue = None
+
+	if issue is None:
+		issue = emr.add_health_issue(issue_name = episode['description'])
+		created_new_issue = True
+	else:
+		# issue exists already, so ask user
+		dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+			parent,
+			-1,
+			caption = _('Promoting episode to health issue'),
+			question = _(
+				'There already is a health issue\n'
+				'\n'
+				' %s\n'
+				'\n'
+				'What do you want to do ?'
+			) % issue['description'],
+			button_defs = [
+				{'label': _('Use existing'), 'tooltip': _('Move episode into existing health issue'), 'default': False},
+				{'label': _('Create new'), 'tooltip': _('Create a new health issue with another name'), 'default': True}
+			]
+		)
+		use_existing = dlg.ShowModal()
+		dlg.Destroy()
+
+		if use_existing == wx.ID_CANCEL:
+			return
+
+		# user wants to create new issue with alternate name
+		if use_existing == wx.ID_NO:
+			# loop until name modified but non-empty or cancelled
+			issue_name = episode['description']
+			while issue_name == episode['description']:
+				dlg = wx.TextEntryDialog (
+					parent = parent,
+					message = _('Enter a short descriptive name for the new health issue:'),
+					caption = _('Creating a new health issue ...'),
+					defaultValue = issue_name,
+					style = wx.OK | wx.CANCEL | wx.CENTRE
+				)
+				decision = dlg.ShowModal()
+				if decision != wx.ID_OK:
+					dlg.Destroy()
+					return
+				issue_name = dlg.GetValue().strip()
+				dlg.Destroy()
+				if issue_name == u'':
+					issue_name = episode['description']
+
+			issue = emr.add_health_issue(issue_name = issue_name)
+			created_new_issue = True
+
+	# eventually move the episode to the issue
+	if not move_episode_to_issue(episode = episode, target_issue = issue, save_to_backend = True):
+		# user cancelled the move so delete just-created issue
+		if created_new_issue:
+			# shouldn't fail as it is completely new
+			gmEMRStructItems.delete_health_issue(health_issue = issue)
+		return
+
+	return
 #----------------------------------------------------------------
 def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False):
 	"""Prepare changing health issue for an episode.
@@ -1775,7 +1902,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.106  2009-09-17 21:53:41  ncq
+# Revision 1.107  2009-09-23 14:42:04  ncq
+# - implement procedure management
+# - implement promote-episode-to-issue
+#
+# Revision 1.106  2009/09/17 21:53:41  ncq
 # - start support for managing performed procedures
 #
 # Revision 1.105  2009/09/15 15:24:21  ncq
