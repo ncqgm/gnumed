@@ -33,12 +33,12 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.105 $"
+__version__ = "$Revision: 1.106 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # standard library
-import sys, string, os.path, fileinput, os, time, getpass, glob, re, tempfile, logging
+import sys, string, os.path, fileinput, os, time, getpass, glob, re as regex, tempfile, logging
 
 
 # adjust Python path
@@ -852,6 +852,61 @@ class database:
 
 		return True
 	#--------------------------------------------------------------
+	def check_holy_auth_line(self):
+
+		holy_pattern = 'local.*samegroup.*\+gm-logins'
+
+		conn = connect (
+			self.server.name,
+			self.server.port,
+			self.name,
+			self.server.superuser.name,
+			self.server.superuser.password
+		)
+		conn.cookie = 'holy auth check connection'
+
+		cmd = u"select setting from pg_settings where name = 'hba_file'"
+		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}])
+		conn.close()
+		if len(rows) == 0:
+			_log.info('cannot check pg_hba.conf for authentication information - not detectable in pg_settings')
+			return
+
+		hba_file = rows[0][0]
+		_log.info('hba file: %s', hba_file)
+
+		found_holy_line = False
+		for line in fileinput.input(hba_file):
+			if regex.match(holy_pattern, line) is not None:
+				found_holy_line = True
+				_log.info('found standard GNUmed authentication directive in pg_hba.conf')
+				_log.info('[%s]', line)
+				_log.info('it may still be in the wrong place, though, so double-check if clients cannot connect')
+				break
+
+		if not found_holy_line:
+			_log.info('did not find standard GNUmed authentication directive in pg_hba.conf')
+			_log.info('regex: %s' % holy_pattern)
+			print_msg('==> sanity checking PostgreSQL authentication settings ...')
+			print_msg('')
+			print_msg('Note that even after successfully bootstrapping the GNUmed ')
+			print_msg('database PostgreSQL may still need to be configured to')
+			print_msg('allow GNUmed clients to connect to it.')
+			print_msg('')
+			print_msg('In many standard PostgreSQL installations this amounts to')
+			print_msg('adding the authentication directive:')
+			print_msg('')
+			print_msg('  "local   samegroup   +gm-logins   md5"')
+			print_msg('')
+			print_msg('in the proper place of the file:')
+			print_msg('')
+			print_msg('  %s' % hba_file)
+			print_msg('')
+			print_msg('For details refer to the GNUmed documentation at:')
+			print_msg('')
+			print_msg('  http://wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL')
+			print_msg('')
+	#--------------------------------------------------------------
 	def import_data(self):
 		print_msg("==> upgrading reference data sets ...")
 
@@ -1356,6 +1411,8 @@ def main():
 	if not db.import_data():
 		exit_with_msg("Bootstrapping failed: unable to import data")
 
+	db.check_holy_auth_line()
+
 	for conn in conn_ref_count:
 		if conn.closed == 0:
 			_log.warning('open connection detected: %s', conn.cookie)
@@ -1417,7 +1474,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.105  2009-08-24 20:11:27  ncq
+# Revision 1.106  2009-09-23 14:46:28  ncq
+# - include check for holy authentication line if possible as per list discussion
+#
+# Revision 1.105  2009/08/24 20:11:27  ncq
 # - bump db version
 # - fix tag creation
 # - provider inbox:
