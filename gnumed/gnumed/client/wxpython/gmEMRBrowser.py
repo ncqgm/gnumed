@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.105 2009-09-01 22:26:56 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmEMRBrowser.py,v 1.106 2009-09-23 14:34:21 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -202,7 +202,12 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		menu_id = wx.NewId()
 		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
-		# attach all encounters to another episode
+
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Promote')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__promote_episode_to_issue)
+
+		# FIXME: add attach all encounters to another episode
 
 		# - encounters
 		self.__enc_context_popup = wx.Menu(title = _('Encounter Menu'))
@@ -288,7 +293,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def __edit_episode(self, event):
-		gmEMRStructWidgets.edit_episode(parent=self, episode=self.__curr_node_data)
+		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__curr_node_data)
+	#--------------------------------------------------------
+	def __promote_episode_to_issue(self, evt):
+		gmEMRStructWidgets.promote_episode_to_issue(parent=self, episode = self.__curr_node_data)
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -788,7 +796,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.105  2009-09-01 22:26:56  ncq
+# Revision 1.106  2009-09-23 14:34:21  ncq
+# - add promoting episode to issue
+#
+# Revision 1.105  2009/09/01 22:26:56  ncq
 # - use new edit_episode/edit_health_issue
 #
 # Revision 1.104  2009/06/04 16:30:30  ncq
