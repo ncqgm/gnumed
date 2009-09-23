@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.89 2009-09-08 17:15:13 ncq Exp $
+# $Id: gmTools.py,v 1.90 2009-09-23 14:32:30 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -51,6 +51,7 @@ u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
 u_ellipsis = u'\u2026'
 u_left_arrow = u'\u2190'
+u_corresponds_to = u'\u2258'
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
 u_black_heart = u'\u2665'
@@ -1082,7 +1083,10 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.89  2009-09-08 17:15:13  ncq
+# Revision 1.90  2009-09-23 14:32:30  ncq
+# - u-corresponds-to
+#
+# Revision 1.89  2009/09/08 17:15:13  ncq
 # - add unwrap() test
 #
 # Revision 1.88  2009/09/01 22:25:02  ncq
