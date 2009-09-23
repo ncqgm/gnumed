@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-procedure-dynamic.sql,v 1.3 2009-09-17 22:01:58 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v12-clin-procedure-dynamic.sql,v 1.4 2009-09-23 14:47:15 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -48,6 +48,17 @@ alter table clin.procedure
 
 
 \unset ON_ERROR_STOP
+alter table clin.procedure drop constraint sane_procedure cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.procedure
+	add constraint sane_procedure
+		check (gm.is_null_or_blank_string(narrative) is false)
+;
+
+
+
+\unset ON_ERROR_STOP
 alter table clin.procedure drop constraint sane_location cascade;
 \set ON_ERROR_STOP 1
 
@@ -59,7 +70,7 @@ alter table clin.procedure
 
 
 \unset ON_ERROR_STOP
-alter table clin.procedure drop constraint sane_location_definition cascade;
+alter table clin.procedure drop constraint single_location_definition cascade;
 \set ON_ERROR_STOP 1
 
 alter table clin.procedure
@@ -184,11 +195,14 @@ TO GROUP "gm-doctors";
 -- emr journal
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-procedure-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-procedure-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v12-clin-procedure-dynamic.sql,v $
--- Revision 1.3  2009-09-17 22:01:58  ncq
+-- Revision 1.4  2009-09-23 14:47:15  ncq
+-- - sane-procedure constraint
+--
+-- Revision 1.3  2009/09/17 22:01:58  ncq
 -- - fix single_location check
 -- - v-pat-procedures
 --
