@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -16,13 +16,14 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
 
 _log = logging.getLogger('gm.scripting')
 
 
+#=====================================================================
 known_placeholders = [
 	'lastname',
 	'firstname',
@@ -39,9 +40,14 @@ known_placeholders = [
 
 # those must satisfy the default_placeholder_regex when used
 known_variant_placeholders = [
-	'soap',
-	'progress_notes',
-	'date_of_birth'
+	u'soap',
+	u'progress_notes',
+	u'date_of_birth',
+	u'adr_street',
+	u'adr_number',
+	u'adr_location',
+	u'adr_postcode',
+	u'gender_mapper'			# "data" holds: value for male // value for female
 ]
 
 
@@ -58,6 +64,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	Note that this cannot be called from a non-gui thread unless
 	wrapped in wx.CallAfter.
+
+	There are currently three types of placeholders:
+
+	simple static placeholders
+		- those are listed in known_placeholders
+		- they are used as-is
+
+	extended static placeholders
+		- those are like the static ones but have "::::<NUMBER>" appended
+		  where <NUMBER> is the maximum length
+
+	variant placeholders
+		- those are listed in known_variant_placeholders
+		- they are parsed into placeholder, data, and maximum length
+		- the length is optional
+		- data is passed to the handler
 	"""
 	def __init__(self, *args, **kwargs):
 
@@ -183,7 +205,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_soap_admin(self):
 		return self._get_variant_soap(soap_cats = None)
 	#--------------------------------------------------------
-	# property definitions
+	# property definitions for static placeholders
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, _setter_noop)
 
@@ -217,6 +239,52 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%x'):
 		return self.pat['dob'].strftime(str(data))
+	#--------------------------------------------------------
+	# FIXME: extend to all supported genders
+	def _get_variant_gender_mapper(self, data='male//female//other'):
+		values = data.split('//', 2)
+
+		if len(values) == 2:
+			male_value, female_value = values
+			other_value = u'<unkown gender>'
+		elif len(values) == 3:
+			male_value, female_value, other_value = values
+		else:
+			return _('invalid gender mapping layout: [%s]') % data
+
+		if self.pat['gender'] == u'm':
+			return male_value
+
+		if self.pat['gender'] == u'f':
+			return female_value
+
+		return other_value
+	#--------------------------------------------------------
+	def _get_variant_adr_street(self, data=u'?'):
+#		if data == u'?':
+#			types = xxxxxxxxxxx
+		adrs = self.pat.get_addresses(address_type=data)
+		if len(adrs) == 0:
+			return _('no street for address type [%s]') % data
+		return adrs[0]['street']
+	#--------------------------------------------------------
+	def _get_variant_adr_number(self, data=u'?'):
+		adrs = self.pat.get_addresses(address_type=data)
+		if len(adrs) == 0:
+			return _('no number for address type [%s]') % data
+		return adrs[0]['number']
+	#--------------------------------------------------------
+	def _get_variant_adr_location(self, data=u'?'):
+		adrs = self.pat.get_addresses(address_type=data)
+		if len(adrs) == 0:
+			return _('no location for address type [%s]') % data
+		return adrs[0]['urb']
+	#--------------------------------------------------------
+	def _get_variant_adr_postcode(self, data=u'?'):
+		adrs = self.pat.get_addresses(address_type=data)
+		if len(adrs) == 0:
+			return _('no postcode for address type [%s]') % data
+		return adrs[0]['postcode']
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -278,7 +346,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.44 $" % self.__class__.__name__
+		return "%s $Revision: 1.45 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -503,7 +571,10 @@ if __name__ == '__main__':
 
 			'$<date_of_birth::%Y-%m-%d>$',
 			'$<date_of_birth::%Y-%m-%d::3>$',
-			'$<date_of_birth::%Y-%m-%d::>$'
+			'$<date_of_birth::%Y-%m-%d::>$',
+
+			'$<adr_location::home::35>$',
+			'$<gender_mapper::male//female//other::5>$'
 
 #			'firstname',
 #			'title',
@@ -576,14 +647,18 @@ if __name__ == '__main__':
 		listener.shutdown()
 	#--------------------------------------------------------
 
-	if len(sys.argv) > 0 and sys.argv[1] == 'test':
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		#test_placeholders()
 		test_new_variant_placeholders()
 		#test_scripting()
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.44  2009-06-04 16:30:30  ncq
+# Revision 1.45  2009-09-29 13:18:28  ncq
+# - implement address placeholders
+# - implement gender mapper placeholder
+#
+# Revision 1.44  2009/06/04 16:30:30  ncq
 # - use set active patient from pat search widgets
 #
 # Revision 1.43  2009/03/10 14:23:32  ncq
