@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.4 2009-09-01 22:16:35 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmMedication.py,v 1.5 2009-09-29 13:14:25 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs
@@ -20,6 +20,7 @@ from Gnumed.pycommon import gmBusinessDBObject
 
 _log = logging.getLogger('gm.meds')
 _log.info(__version__)
+
 #============================================================
 # wishlist:
 # - --conf-file= for glwin.exe
@@ -207,6 +208,10 @@ class cIfapInterface(cDrugDataSourceInterface):
 #					line['PZN'].strip()
 #				)
 #============================================================
+drug_data_source_interfaces = {
+	'Gelbe Liste/MMI': cGelbeListeInterface
+}
+#============================================================
 class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by the patient."""
 
@@ -271,7 +276,10 @@ if __name__ == "__main__":
 		test_interaction_check()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.4  2009-09-01 22:16:35  ncq
+# Revision 1.5  2009-09-29 13:14:25  ncq
+# - faulty ordering of definitions
+#
+# Revision 1.4  2009/09/01 22:16:35  ncq
 # - improved interaction check test
 #
 # Revision 1.3  2009/08/24 18:36:20  ncq
