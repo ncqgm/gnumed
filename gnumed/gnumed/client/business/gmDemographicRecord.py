@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.100 2009-04-24 12:04:25 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmDemographicRecord.py,v 1.101 2009-09-29 13:13:41 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -180,6 +180,11 @@ def delete_address(address=None):
 	cmd = u"delete from dem.address where id=%s"
 	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': [address['pk_address']]}])
 	return True
+#------------------------------------------------------------
+def get_address_types(identity=None):
+	cmd = u'select id as pk, name, _(name) as l10n_name from dem.address_type'
+	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd}])
+	return rows
 #===================================================================
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
@@ -583,7 +588,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.100  2009-04-24 12:04:25  ncq
+# Revision 1.101  2009-09-29 13:13:41  ncq
+# - get-address-types
+#
+# Revision 1.100  2009/04/24 12:04:25  ncq
 # - if url is None do not add comm channel
 #
 # Revision 1.99  2009/04/21 16:53:42  ncq
