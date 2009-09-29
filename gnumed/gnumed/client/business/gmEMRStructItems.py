@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.150 $"
+__version__ = "$Revision: 1.151 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -335,7 +335,7 @@ age (
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 #============================================================
-def create_health_issue(description=None, encounter=None, patient=patient):
+def create_health_issue(description=None, encounter=None, patient=None):
 	"""Creates a new health issue for a given patient.
 
 	description - health issue name
@@ -1483,7 +1483,10 @@ if __name__ == '__main__':
 		test_performed_procedure()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.150  2009-09-23 14:31:25  ncq
+# Revision 1.151  2009-09-29 13:14:06  ncq
+# - fix faulty param in create_health_issue
+#
+# Revision 1.150  2009/09/23 14:31:25  ncq
 # - better ABCD long desc
 # - health issue
 # 	- teach init/create-* to take advantage of patient pk
