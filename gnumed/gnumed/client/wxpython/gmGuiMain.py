@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.471 2009-09-17 21:53:41 ncq Exp $
-__version__ = "$Revision: 1.471 $"
+# $Id: gmGuiMain.py,v 1.472 2009-09-29 13:16:03 ncq Exp $
+__version__ = "$Revision: 1.472 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -234,36 +234,38 @@ class gmTopLevelFrame(wx.Frame):
 		# --
 		menu_gnumed.AppendSeparator()
 
+		# GNUmed / Preferences
 		menu_config = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('Preferences ...'), menu_config)
 
-		# -- submenu gnumed-config-db
+		# GNUmed / Preferences / Database
 		menu_cfg_db = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('Database ...'), menu_cfg_db)
 
 		ID = wx.NewId()
 		menu_cfg_db.Append(ID, _('Language'), _('Configure the database language'))
-		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
+		wx.EVT_MENU(self, ID, self.__on_configure_db_lang)
 
 		ID = wx.NewId()
 		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message (all users).'))
-		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
+		wx.EVT_MENU(self, ID, self.__on_configure_db_welcome)
 
+		# GNUmed / Preferences / Client
 		menu_cfg_client = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('Client parameters ...'), menu_cfg_client)
 
 		ID = wx.NewId()
 		menu_cfg_client.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
-		wx.EVT_MENU(self, ID, self.__on_set_export_chunk_size)
+		wx.EVT_MENU(self, ID, self.__on_configure_export_chunk_size)
 
 		ID = wx.NewId()
 		menu_cfg_client.Append(ID, _('Temporary directory'), _('Configure the directory to use as scratch space for temporary files.'))
-		wx.EVT_MENU(self, ID, self.__on_set_temp_dir)
+		wx.EVT_MENU(self, ID, self.__on_configure_temp_dir)
 
 		item = menu_cfg_client.Append(-1, _('Email address'), _('The email address of the user for sending bug reports, etc.'))
-		self.Bind(wx.EVT_MENU, self.__on_set_user_email, item)
+		self.Bind(wx.EVT_MENU, self.__on_configure_user_email, item)
 
-		# -- submenu gnumed / config / ui
+		# GNUmed / Preferences / User Interface
 		menu_cfg_ui = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
 
@@ -305,15 +307,15 @@ class gmTopLevelFrame(wx.Frame):
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Birthday reminder'), _('Configure birthday reminder proximity interval.'))
-		wx.EVT_MENU(self, ID, self.__on_set_dob_reminder_proximity)
+		wx.EVT_MENU(self, ID, self.__on_configure_dob_reminder_proximity)
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Immediate source activation'), _('Configure immediate activation of single external patient.'))
-		wx.EVT_MENU(self, ID, self.__on_set_quick_pat_search)
+		wx.EVT_MENU(self, ID, self.__on_configure_quick_pat_search)
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after patient activation.'))
-		wx.EVT_MENU(self, ID, self.__on_set_initial_pat_plugin)
+		wx.EVT_MENU(self, ID, self.__on_configure_initial_pat_plugin)
 
 		# -- submenu gnumed / config / ui / soap handling
 		menu_cfg_soap_editing = wx.Menu()
@@ -323,23 +325,26 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_soap_editing.Append(ID, _('Multiple new episodes'), _('Configure opening multiple new episodes on a patient at once.'))
 		wx.EVT_MENU(self, ID, self.__on_allow_multiple_new_episodes)
 
-		# -- submenu gnumed / config / external tools
+		# GNUmed / Preferences / External tools
 		menu_cfg_ext_tools = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
 
 		ID = wx.NewId()
 		menu_cfg_ext_tools.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
-		wx.EVT_MENU(self, ID, self.__on_set_ifap_cmd)
+		wx.EVT_MENU(self, ID, self.__on_configure_ifap_cmd)
 
 		item = menu_cfg_ext_tools.Append(-1, _('MI/stroke risk calc cmd'), _('Set the command to start the CV risk calculator.'))
-		self.Bind(wx.EVT_MENU, self.__on_set_acs_risk_calculator_cmd, item)
+		self.Bind(wx.EVT_MENU, self.__on_configure_acs_risk_calculator_cmd, item)
 
 		ID = wx.NewId()
 		menu_cfg_ext_tools.Append(ID, _('OOo startup time'), _('Set the time to wait for OpenOffice to settle after startup.'))
-		wx.EVT_MENU(self, ID, self.__on_set_ooo_settle_time)
+		wx.EVT_MENU(self, ID, self.__on_configure_ooo_settle_time)
 
 		item = menu_cfg_ext_tools.Append(-1, _('Measurements URL'), _('URL for measurements encyclopedia.'))
-		self.Bind(wx.EVT_MENU, self.__on_set_measurements_url, item)
+		self.Bind(wx.EVT_MENU, self.__on_configure_measurements_url, item)
+
+		item = menu_cfg_ext_tools.Append(-1, _('Drug data souce'), _('Select the drug data source.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_drug_data_source, item)
 
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
@@ -1034,7 +1039,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# submenu GNUmed / options / client
 	#----------------------------------------------
-	def __on_set_temp_dir(self, evt):
+	def __on_configure_temp_dir(self, evt):
 
 		cfg = gmCfg.cCfgSQL()
 
@@ -1066,7 +1071,7 @@ class gmTopLevelFrame(wx.Frame):
 			value = tmp_dir
 		)
 	#----------------------------------------------
-	def __on_set_export_chunk_size(self, evt):
+	def __on_configure_export_chunk_size(self, evt):
 
 		def is_valid(value):
 			try:
@@ -1100,7 +1105,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# submenu GNUmed / database
 	#----------------------------------------------
-	def __on_set_db_lang(self, event):
+	def __on_configure_db_lang(self, event):
 
 		langs = gmPG2.get_translation_languages()
 
@@ -1168,13 +1173,13 @@ class gmTopLevelFrame(wx.Frame):
 
 		gmPG2.force_user_language(language = language)
 	#----------------------------------------------
-	def __on_set_db_welcome(self, event):
+	def __on_configure_db_welcome(self, event):
 		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
 		dlg.ShowModal()
 	#----------------------------------------------
 	# submenu GNUmed - config - external tools
 	#----------------------------------------------
-	def __on_set_ooo_settle_time(self, event):
+	def __on_configure_ooo_settle_time(self, event):
 
 		def is_valid(value):
 			try:
@@ -1195,8 +1200,12 @@ class gmTopLevelFrame(wx.Frame):
 			default_value = 2.0,
 			validator = is_valid
 		)
+
 	#----------------------------------------------
-	def __on_set_measurements_url(self, evt):
+	def __on_configure_drug_data_source(self, evt):
+		xxxxxxxx
+	#----------------------------------------------
+	def __on_configure_measurements_url(self, evt):
 
 		def is_valid(value):
 			value = value.strip()
@@ -1222,7 +1231,7 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
-	def __on_set_acs_risk_calculator_cmd(self, event):
+	def __on_configure_acs_risk_calculator_cmd(self, event):
 
 		def is_valid(value):
 			found, binary = gmShellAPI.detect_external_binary(value)
@@ -1251,7 +1260,7 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
-	def __on_set_ifap_cmd(self, event):
+	def __on_configure_ifap_cmd(self, event):
 
 		def is_valid(value):
 			found, binary = gmShellAPI.detect_external_binary(value)
@@ -1283,7 +1292,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# submenu GNUmed / config / ui
 	#----------------------------------------------
-	def __on_set_startup_plugin(self, evt):
+	def __on_configure_startup_plugin(self, evt):
 
 		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
@@ -1334,7 +1343,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# submenu GNUmed / config / ui / patient search
 	#----------------------------------------------
-	def __on_set_quick_pat_search(self, evt):
+	def __on_configure_quick_pat_search(self, evt):
 		gmCfgWidgets.configure_boolean_option (
 			parent = self,
 			question = _(
@@ -1351,7 +1360,7 @@ class gmTopLevelFrame(wx.Frame):
 			]
 		)
 	#----------------------------------------------
-	def __on_set_dob_reminder_proximity(self, evt):
+	def __on_configure_dob_reminder_proximity(self, evt):
 
 		def is_valid(value):
 			return gmPG2.is_pg_interval(candidate=value), value
@@ -1392,7 +1401,7 @@ class gmTopLevelFrame(wx.Frame):
 			]
 		)
 	#----------------------------------------------
-	def __on_set_initial_pat_plugin(self, evt):
+	def __on_configure_initial_pat_plugin(self, evt):
 
 		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
@@ -1566,7 +1575,7 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
-	def __on_set_user_email(self, evt):
+	def __on_configure_user_email(self, evt):
 		email = gmSurgery.gmCurrentPractice().user_email
 
 		dlg = wx.TextEntryDialog (
@@ -2894,7 +2903,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.471  2009-09-17 21:53:41  ncq
+# Revision 1.472  2009-09-29 13:16:03  ncq
+# - cleanup of code layout
+# - _set_ -> _configure_
+# - start drug data source selection
+#
+# Revision 1.471  2009/09/17 21:53:41  ncq
 # - start support for managing performed procedures
 #
 # Revision 1.470  2009/09/13 18:45:25  ncq
