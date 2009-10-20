@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.472 2009-09-29 13:16:03 ncq Exp $
-__version__ = "$Revision: 1.472 $"
+# $Id: gmGuiMain.py,v 1.473 2009-10-20 10:26:50 ncq Exp $
+__version__ = "$Revision: 1.473 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -343,7 +343,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('Measurements URL'), _('URL for measurements encyclopedia.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_measurements_url, item)
 
-		item = menu_cfg_ext_tools.Append(-1, _('Drug data souce'), _('Select the drug data source.'))
+		item = menu_cfg_ext_tools.Append(-1, _('Drug data source'), _('Select the drug data source.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_drug_data_source, item)
 
 		# -- submenu gnumed / config / emr
@@ -1200,10 +1200,9 @@ class gmTopLevelFrame(wx.Frame):
 			default_value = 2.0,
 			validator = is_valid
 		)
-
 	#----------------------------------------------
 	def __on_configure_drug_data_source(self, evt):
-		xxxxxxxx
+		gmMedicationWidgets.configure_drug_data_source(parent = self)
 	#----------------------------------------------
 	def __on_configure_measurements_url(self, evt):
 
@@ -2903,7 +2902,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.472  2009-09-29 13:16:03  ncq
+# Revision 1.473  2009-10-20 10:26:50  ncq
+# - support drug data source configuration
+#
+# Revision 1.472  2009/09/29 13:16:03  ncq
 # - cleanup of code layout
 # - _set_ -> _configure_
 # - start drug data source selection
