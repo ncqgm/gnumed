@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.106 2009-09-23 14:34:21 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmEMRBrowser.py,v 1.107 2009-10-20 10:26:21 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -548,6 +548,39 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				gmTools.coalesce(data['reason_for_encounter'], u''),
 				gmTools.coalesce(data['assessment_of_encounter'], u'')
 			))
+
+		elif isinstance(data, gmEMRStructItems.cEpisode):
+			tt = u''
+			tt += gmTools.bool2subst (
+				(data['diagnostic_certainty_classification'] is not None),
+				data.diagnostic_certainty_description + u'\n',
+				u''
+			)
+			tt += u'\n' + gmTools.bool2subst (
+				data['episode_open'],
+				_('ongoing episode'),
+				_('closed episode'),
+				'error: episode state is None'
+			)
+			event.SetToolTip(tt)
+
+		elif isinstance(data, gmEMRStructItems.cHealthIssue):
+			tt = u''
+			tt += gmTools.bool2subst(data['is_confidential'], _('*** CONFIDENTIAL ***\n'), u'')
+			tt += gmTools.bool2subst (
+				(data['diagnostic_certainty_classification'] is not None),
+				u'\n' + data.diagnostic_certainty_description + u'\n',
+				u''
+			)
+			if data['laterality'] not in [None, 'na']:
+				tt += u'\n' + data.laterality_description
+			# noted_at_age is too costly
+			tt += gmTools.bool2subst(data['is_active'], u'\n' + _('active'), u'')
+			tt += gmTools.bool2subst(data['clinically_relevant'], u'\n' + _('clinically relevant'), u'')
+			tt += gmTools.bool2subst(data['is_cause_of_death'], u'\n' + _('contributed to death'), u'')
+			tt += gmTools.coalesce(data['grouping'], u'', u'\n' + _('Grouping: %s'))
+			event.SetToolTip(tt)
+
 		else:
 			event.SetToolTip(u' ')
 			#self.SetToolTipString(u'')
@@ -796,7 +829,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.106  2009-09-23 14:34:21  ncq
+# Revision 1.107  2009-10-20 10:26:21  ncq
+# - tooltips on issue/episode in EMR tree
+#
+# Revision 1.106  2009/09/23 14:34:21  ncq
 # - add promoting episode to issue
 #
 # Revision 1.105  2009/09/01 22:26:56  ncq
