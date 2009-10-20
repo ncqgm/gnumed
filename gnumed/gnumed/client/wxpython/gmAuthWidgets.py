@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.43 2009-09-23 14:33:14 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmAuthWidgets.py,v 1.44 2009-10-20 10:25:10 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -138,6 +138,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		try:
 			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True, readonly = True)
 			connected = True
+
 		except gmPG2.cAuthenticationError, e:
 			attempt += 1
 			_log.error(u"login attempt failed: %s", e)
@@ -155,7 +156,9 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 					) % e,
 					_('Connecting to backend')
 				)
+			del e
 			continue
+
 		except gmPG2.dbapi.OperationalError, e:
 			_log.error(u"login attempt failed: %s", e)
 			gmGuiHelpers.gm_show_error (_(
@@ -165,6 +168,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				) % gmPG2.extract_msg_from_pg_exception(e),
 				_('Connecting to backend')
 			)
+			del e
 			continue
 
 		# connect was successful
@@ -729,7 +733,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.43  2009-09-23 14:33:14  ncq
+# Revision 1.44  2009-10-20 10:25:10  ncq
+# - try not to log previous exception instances
+#
+# Revision 1.43  2009/09/23 14:33:14  ncq
 # - improved failed-auth message
 #
 # Revision 1.42  2009/07/02 20:50:04  ncq
