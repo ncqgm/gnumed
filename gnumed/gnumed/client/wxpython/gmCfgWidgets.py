@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmCfgWidgets.py,v $
-# $Id: gmCfgWidgets.py,v 1.1 2008-01-16 19:25:18 ncq Exp $
-__version__ = '$Revision: 1.1 $'
+# $Id: gmCfgWidgets.py,v 1.2 2009-10-20 10:25:43 ncq Exp $
+__version__ = '$Revision: 1.2 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -27,7 +27,7 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
 #================================================================
-def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value=u'', choices=None, columns=None, data=None):
+def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value=u'', choices=None, columns=None, data=None, caption=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 
@@ -41,19 +41,33 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	if caption is None:
+		caption = _('Configuration')
+
+	selections = None
+	if current_value is not None:
+		try:
+			selections = [choices.index(current_value)]
+		except ValueError:
+			pass
+
 	choice = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = message,
-		caption = _('Configuration'),
+		caption = caption,
 		choices = choices,
 		columns = columns,
 		data = data,
-		single_selection = True
+		selections = selections,
+		single_selection = True,
+		can_return_empty = False
 	)
 
+	# aborted
 	if choice is None:
 		return
 
+	# same value selected again
 	if choice == current_value:
 		return
 
@@ -164,7 +178,10 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 
 #================================================================
 # $Log: gmCfgWidgets.py,v $
-# Revision 1.1  2008-01-16 19:25:18  ncq
+# Revision 1.2  2009-10-20 10:25:43  ncq
+# - support pre-selections in configure-string-from-list
+#
+# Revision 1.1  2008/01/16 19:25:18  ncq
 # - new file, factored out from gmGuiHelpers
 #
 #
