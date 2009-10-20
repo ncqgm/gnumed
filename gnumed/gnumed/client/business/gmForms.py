@@ -7,17 +7,18 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.63 2009-09-13 18:25:54 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmForms.py,v 1.64 2009-10-20 10:24:19 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging
+import os, sys, time, os.path, logging, libxml2, libxslt
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher, gmBusinessDBObject, gmCfg
+from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmDispatcher
+from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI
 from Gnumed.business import gmPerson, gmSurgery
 
 
@@ -27,7 +28,8 @@ _log.info(__version__)
 engine_ooo = 'O'
 engine_names = {
 	u'O': 'OpenOffice',
-	u'L': 'LaTeX'
+	u'L': 'LaTeX',
+	u'X': 'XSLT'
 }
 
 #============================================================
@@ -125,9 +127,25 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	_suffix4engine = {
 		u'O': u'.ott',
 		u'L': u'.tex',
-		u'T': u'.txt'
+		u'T': u'.txt',
+		u'X': u'.xslt'
 	}
 
+	#--------------------------------------------------------
+	def _get_template_data(self):
+		"""The template itself better not be arbitrarily large unless you can handle that.
+
+		Note that the data type returned will be a buffer."""
+
+		cmd = u'SELECT data FROM ref.paperwork_templates WHERE pk = %(pk)s'
+		rows, idx = gmPG2.run_ro_queries (queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = False)
+
+		if len(rows) == 0:
+			raise gmExceptions.NoSuchBusinessObjectError('cannot retrieve data for template pk = %s' % self.pk_obj)
+
+		return rows[0][0]
+
+	template_data = property(_get_template_data, lambda x:x)
 	#--------------------------------------------------------
 	def export_to_file(self, filename=None, chunksize=0):
 		"""Export form template from database into file."""
@@ -417,7 +435,7 @@ class cOOoLetter(object):
 	#--------------------------------------------------------
 
 #============================================================
-class gmFormEngine:
+class cFormEngine:
 	"""Ancestor for forms.
 
 	No real functionality as yet
@@ -505,6 +523,88 @@ class gmFormEngine:
 		return status
 
 
+#================================================================
+# define a class for HTML forms (for printing)
+#================================================================
+class cXSLTFormEngine(cFormEngine):
+	"""This class can create XML document from requested data,
+	then process it with XSLT template and display results
+	"""
+
+	# FIXME: make this configurable ?
+	_preview_program = u'oowriter '	#this program must be in the system PATH
+
+	def __init__ (self, template=None):
+
+		if template is None:
+			raise ValueError(u'%s: cannot create form instance without a template' % __name__)
+
+		cFormEngine.__init__(self, template = template)
+
+		self._FormData = None
+
+		# here we know/can assume that the template was stored as a utf-8 encoded
+		# string so use that conversion to create unicode:
+		#self._XSLTData = unicode(str(template.template_data), 'UTF-8')
+		# but in fact, unicode() knows how to handle buffers, so simply:
+		self._XSLTData = unicode(self.template.template_data, 'UTF-8', 'strict')
+
+		# we must still devise a method of extracting the SQL query:
+		# - either by retrieving it from a particular tag in the XSLT or
+		# - by making the stored template actually be a dict which, unpickled,
+		#	has the keys "xslt" and "sql"
+		self._SQL_query = self.template['sql_query']	#this sql query must output valid xml
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def process(self, sql_parameters):
+		"""get data from backend and process it with XSLT template to produce readable output"""
+
+		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': self._SQL_query, 'args': sql_parameters}], get_col_idx=True)
+
+		__header = '<?xml version="1.0" encoding="UTF-8"?>\n'
+		__body = rows[0][0]
+
+		# removed explicit encoding, the __body seems to be already in utf-8, and while encoding it was treated as ascii
+		#self._XMLData =__header.encode('utf-8') + __body.encode('utf-8')
+		self._XMLData =__header + __body
+
+		# process XML data according to supplied XSLT, producing HTML
+		styledoc = libxml2.parseDoc(self._XSLTData)
+		style = libxslt.parseStylesheetDoc(styledoc)
+		doc = libxml2.parseDoc(self._XMLData)
+		html = style.applyStylesheet(doc, None)
+		self._FormData = html.serialize()
+
+		style.freeStylesheet()
+		doc.freeDoc()
+		html.freeDoc()
+	#--------------------------------------------------------
+	def preview(self):
+		if self._FormData is None:
+			raise ValueError, u'Preview request for empty form. Make sure the form is properly initialized and process() was performed'
+
+		fname = gmTools.get_unique_filename(prefix = u'gm_XSLT_form-', suffix = u'.html')
+		html_file = os.open(fname, 'wb')
+		html_file.write(self._FormData.encode('UTF-8'))
+		html_file.close()
+
+		cmd = u'%s %s' % (self.__class__._preview_program, fname)
+
+		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = False):
+			_log.error('%s: cannot launch report preview program' % __name__)
+			return False
+
+		#os.unlink(self.filename) #delete file
+		#FIXME: under Windows the temp file is deleted before preview program gets it (under Linux it works OK) 
+
+		return True
+	#--------------------------------------------------------
+	def print_directly(self):
+		#not so fast, look at it first
+		self.preview()
+
+#=====================================================
 #class LaTeXFilter(Cheetah.Filters.Filter):
 class LaTeXFilter:
 	def filter (self, item, table_sep= " \\\\\n", **kwds):
@@ -548,7 +648,7 @@ class LaTeXFilter:
 
 
 #=====================================================
-class LaTeXForm (gmFormEngine):
+class cLaTeXForm (cFormEngine):
 	"""A forms engine wrapping LaTeX.
 	"""
 
@@ -610,7 +710,7 @@ class LaTeXForm (gmFormEngine):
 		os.rmdir (self.tmp)
 
 #===========================================================
-class HL7Form (gmFormEngine):
+class cHL7Form (cFormEngine):
 	pass
 
 #============================================================
@@ -831,7 +931,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.63  2009-09-13 18:25:54  ncq
+# Revision 1.64  2009-10-20 10:24:19  ncq
+# - inject Jerzys form code
+#
+# Revision 1.63  2009/09/13 18:25:54  ncq
 # - no more get-active-encounter()
 #
 # Revision 1.62  2009/03/10 14:18:11  ncq
