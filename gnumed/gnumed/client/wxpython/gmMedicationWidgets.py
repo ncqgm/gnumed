@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.5 2009-09-01 22:36:08 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMedicationWidgets.py,v 1.6 2009-10-20 10:27:35 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -14,16 +14,29 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI
-#, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDateTime, gmTools, gmHooks
-from Gnumed.business import gmPerson, gmATC, gmSurgery
-#, gmEMRStructItems
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets
+from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools
+#, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDateTime, gmHooks
+from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmCfgWidgets
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
+#============================================================
+def configure_drug_data_source(parent=None):
+
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _('\nPlease select the default drug data source from the list below.\n'),
+		option = 'external.drug_data.default_source',
+		bias = 'user',
+		default_value = None,
+		choices = gmMedication.drug_data_source_interfaces.keys(),
+		columns = [_('Drug data source')],
+		data = gmMedication.drug_data_source_interfaces.keys(),
+		caption = _('Configuring default drug data source')
+	)
 #============================================================
 def jump_to_mmi(import_drugs=False):
 
@@ -371,7 +384,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.5  2009-09-01 22:36:08  ncq
+# Revision 1.6  2009-10-20 10:27:35  ncq
+# - implement configuration of drug data source
+#
+# Revision 1.5  2009/09/01 22:36:08  ncq
 # - add jump-to-mmi
 #
 # Revision 1.4  2009/06/20 12:46:04  ncq
