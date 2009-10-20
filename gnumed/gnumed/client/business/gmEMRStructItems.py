@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.151 $"
+__version__ = "$Revision: 1.152 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -195,6 +195,16 @@ age (
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
+	#--------------------------------------------------------
+	def _get_laterality_description(self):
+		return laterality2str[self._payload[self._idx['laterality']]]
+
+	laterality_description = property(_get_laterality_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_diagnostic_certainty_description(self):
+		return diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]]
+
+	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
@@ -519,6 +529,11 @@ from (
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
+	#--------------------------------------------------------
+	def _get_diagnostic_certainty_description(self):
+		return diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]]
+
+	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
@@ -1483,7 +1498,10 @@ if __name__ == '__main__':
 		test_performed_procedure()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.151  2009-09-29 13:14:06  ncq
+# Revision 1.152  2009-10-20 10:24:03  ncq
+# - laterality/certainty properties
+#
+# Revision 1.151  2009/09/29 13:14:06  ncq
 # - fix faulty param in create_health_issue
 #
 # Revision 1.150  2009/09/23 14:31:25  ncq
