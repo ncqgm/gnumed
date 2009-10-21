@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.474 2009-10-21 08:56:40 ncq Exp $
-__version__ = "$Revision: 1.474 $"
+# $Id: gmGuiMain.py,v 1.475 2009-10-21 21:42:56 ncq Exp $
+__version__ = "$Revision: 1.475 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -404,7 +404,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_provinces, item)
 
-		item = menu_master_data.Append(-1, _('Substances'), _('Manage substances in use ...).'))
+		item = menu_master_data.Append(-1, _('Substances'), _('Manage substances in use.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_substances, item)
 
 		item = menu_master_data.Append(-1, _('&Test types'), _('Show test/measurement types.'))
@@ -2914,7 +2914,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.474  2009-10-21 08:56:40  ncq
+# Revision 1.475  2009-10-21 21:42:56  ncq
+# - fix faulty GUI string
+#
+# Revision 1.474  2009/10/21 08:56:40  ncq
 # - manage substances
 # - jump to drug db
 #
