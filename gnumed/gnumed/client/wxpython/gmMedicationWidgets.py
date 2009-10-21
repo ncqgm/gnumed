@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.7 2009-10-21 09:21:13 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmMedicationWidgets.py,v 1.8 2009-10-21 20:41:53 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -30,9 +30,26 @@ def manage_substances_in_use(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
 	def new():
-		# FIXME: make configurable
-		drug_db = gmMedication.cGelbeListeInterface()
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		# FIXME: this should actually be indirect via an EA
+		default_db = dbcfg.get2 (
+			option = 'external.drug_data.default_source',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace'
+		)
+
+		if default_db is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('There is no default drug database configured.'),
+				aTitle = _('Jumping to drug database')
+			)
+			return False
+
+		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 		drug_db.import_drugs_as_substances()
+
 		return True
 	#------------------------------------------------------------
 	def refresh(lctrl):
@@ -440,7 +457,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.7  2009-10-21 09:21:13  ncq
+# Revision 1.8  2009-10-21 20:41:53  ncq
+# - access MMI from substance management via NEW button
+#
+# Revision 1.7  2009/10/21 09:21:13  ncq
 # - manage substances
 # - jump to drug database
 #
