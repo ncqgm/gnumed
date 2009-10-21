@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.90 2009-09-23 14:32:30 ncq Exp $
+# $Id: gmTools.py,v 1.91 2009-10-21 20:39:18 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.90 $"
+__version__ = "$Revision: 1.91 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -193,24 +193,36 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	return (True, msg)
 #===========================================================================
-def utf_8_encoder(unicode_csv_data):
+def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 	for line in unicode_csv_data:
-		yield line.encode('utf-8')
+		yield line.encode(encoding)
 
-def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
+#def utf_8_encoder(unicode_csv_data):
+#	for line in unicode_csv_data:
+#		yield line.encode('utf-8')
+
+def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
 	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
 	try:
-		dict = kwargs['dict']
+		is_dict_reader = kwargs['dict']
 		del kwargs['dict']
-		if dict is not True:
+		if is_dict_reader is not True:
 			raise KeyError
-		csv_reader = csv.DictReader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+		csv_reader = csv.DictReader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+		#csv_reader = csv.DictReader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 	except KeyError:
-		csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+		csv_reader = csv.reader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+		#csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 
 	for row in csv_reader:
-		# decode UTF-8 back to Unicode, cell by cell:
-		yield [unicode(cell, 'utf-8') for cell in row]
+		# decode ENCODING back to Unicode, cell by cell:
+		if is_dict_reader:
+			for key in row.keys():
+				row[key] = unicode(row[key], encoding)
+			yield row
+		else:
+			yield [ unicode(cell, encoding) for cell in row ]
+			#yield [unicode(cell, 'utf-8') for cell in row]
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
@@ -1083,7 +1095,11 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.90  2009-09-23 14:32:30  ncq
+# Revision 1.91  2009-10-21 20:39:18  ncq
+# - make unicode csv *dict* reader actually work
+# - make intermediate encoding of unicode csv reader configurable
+#
+# Revision 1.90  2009/09/23 14:32:30  ncq
 # - u-corresponds-to
 #
 # Revision 1.89  2009/09/08 17:15:13  ncq
