@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.2 2009-06-10 20:59:12 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmATC.py,v 1.3 2009-10-21 20:32:45 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv, re as regex, os.path
@@ -73,7 +73,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 
 	# import data
 	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
-	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = ",", quotechar = '"')
+	atc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = ",", quotechar = '"')
 
 	# clean out staging area
 	curs = conn.cursor()
@@ -87,7 +87,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	curs = conn.cursor()
 	cmd = u"""insert into ref.atc_staging values (%s, %s, %s, %s, %s, %s)"""
 	first = False
-	for loinc_line in loinc_reader:
+	for loinc_line in atc_reader:
 		# skip first
 		if not first:
 			first = True
@@ -193,7 +193,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmATC.py,v $
-# Revision 1.2  2009-06-10 20:59:12  ncq
+# Revision 1.3  2009-10-21 20:32:45  ncq
+# - cleanup
+#
+# Revision 1.2  2009/06/10 20:59:12  ncq
 # - data file must be in the same directory as conf file
 #
 # Revision 1.1  2009/06/04 16:42:54  ncq
