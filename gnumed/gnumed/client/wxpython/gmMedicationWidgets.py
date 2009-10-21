@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.6 2009-10-20 10:27:35 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMedicationWidgets.py,v 1.7 2009-10-21 09:21:13 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -17,12 +17,48 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools
 #, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDateTime, gmHooks
 from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmCfgWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmCfgWidgets, gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
+#============================================================
+def manage_substances_in_use(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def new():
+		# FIXME: make configurable
+		drug_db = gmMedication.cGelbeListeInterface()
+		drug_db.import_drugs_as_substances()
+		return True
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		substs = gmMedication.get_substances_in_use()
+		items = [ [
+			gmTools.coalesce(s['atc_code'], u''),
+			s['description'],
+			s['pk']
+		] for s in substs ]
+		lctrl.set_string_items(items)
+		#lctrl.set_data(substs)
+	#------------------------------------------------------------
+	msg = _('\nThese are the substances currently consumed across all patients.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing consumed substances.'),
+		columns = [_('ATC'), _('Name'), u'#'],
+		single_selection = True,
+		refresh_callback = refresh,
+		#edit_callback = edit,
+		#new_callback = edit,
+		#delete_callback = delete
+		new_callback = new
+	)
 #============================================================
 def configure_drug_data_source(parent=None):
 
@@ -37,6 +73,26 @@ def configure_drug_data_source(parent=None):
 		data = gmMedication.drug_data_source_interfaces.keys(),
 		caption = _('Configuring default drug data source')
 	)
+#============================================================
+def jump_to_drug_database():
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	default_db = dbcfg.get2 (
+		option = 'external.drug_data.default_source',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace'
+	)
+
+	if default_db is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('There is no default drug database configured.'),
+			aTitle = _('Jumping to drug database')
+		)
+		return
+
+	drug_db = gmMedication.drug_data_source_interfaces[default_db]()
+	drug_db.switch_to_frontend(blocking = False)
 #============================================================
 def jump_to_mmi(import_drugs=False):
 
@@ -384,7 +440,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.6  2009-10-20 10:27:35  ncq
+# Revision 1.7  2009-10-21 09:21:13  ncq
+# - manage substances
+# - jump to drug database
+#
+# Revision 1.6  2009/10/20 10:27:35  ncq
 # - implement configuration of drug data source
 #
 # Revision 1.5  2009/09/01 22:36:08  ncq
