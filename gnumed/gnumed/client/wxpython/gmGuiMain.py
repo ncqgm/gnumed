@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.473 2009-10-20 10:26:50 ncq Exp $
-__version__ = "$Revision: 1.473 $"
+# $Id: gmGuiMain.py,v 1.474 2009-10-21 08:56:40 ncq Exp $
+__version__ = "$Revision: 1.474 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -404,6 +404,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_provinces, item)
 
+		item = menu_master_data.Append(-1, _('Substances'), _('Manage substances in use ...).'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_substances, item)
+
 		item = menu_master_data.Append(-1, _('&Test types'), _('Show test/measurement types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_test_types, item)
 
@@ -605,6 +608,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		menu_drug_dbs = wx.Menu()
 		menu_knowledge.AppendMenu(wx.NewId(), _('&Drug Resources'), menu_drug_dbs)
+
+		item = menu_drug_dbs.Append(-1, _('&Database'), _('Jump to the drug database configured as the default.'))
+		self.Bind(wx.EVT_MENU, self.__on_jump_to_drug_db, item)
 
 		# - IFAP drug DB
 		ID_IFAP = wx.NewId()
@@ -1804,6 +1810,9 @@ class gmTopLevelFrame(wx.Frame):
 			autoraise = True
 		)
 	#----------------------------------------------
+	def __on_jump_to_drug_db(self, evt):
+		gmMedicationWidgets.jump_to_drug_database()
+	#----------------------------------------------
 	def __on_ifap(self, evt):
 		gmMedicationWidgets.jump_to_ifap()
 	#----------------------------------------------
@@ -2185,6 +2194,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_provinces(self, evt):
 		gmDemographicsWidgets.manage_provinces(parent=self)
+	#----------------------------------------------
+	def __on_manage_substances(self, evt):
+		gmMedicationWidgets.manage_substances_in_use(parent = self)
 	#----------------------------------------------
 	def __on_manage_test_types(self, evt):
 		gmMeasurementWidgets.manage_measurement_types(parent = self)
@@ -2902,7 +2914,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.473  2009-10-20 10:26:50  ncq
+# Revision 1.474  2009-10-21 08:56:40  ncq
+# - manage substances
+# - jump to drug db
+#
+# Revision 1.473  2009/10/20 10:26:50  ncq
 # - support drug data source configuration
 #
 # Revision 1.472  2009/09/29 13:16:03  ncq
