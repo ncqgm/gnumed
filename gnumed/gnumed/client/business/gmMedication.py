@@ -5,17 +5,16 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.6 2009-10-21 09:15:50 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMedication.py,v 1.7 2009-10-21 20:37:18 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, logging, csv, codecs
+import sys, logging, csv, codecs, os
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI
-# gmTools
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools
 
 
 _log = logging.getLogger('gm.meds')
@@ -25,13 +24,16 @@ _log.info(__version__)
 # wishlist:
 # - --conf-file= for glwin.exe
 # - wirkstoff: Konzentration auch in Multiprodukten
+# - wirkstoff: ATC auch in Multiprodukten
+# - Suche nach ATC per CLI
 
 class cGelbeListeCSVFile(object):
 	"""Iterator over a Gelbe Liste/MMI v8.2 CSV file."""
 
 	version = u'Gelbe Liste/MMI v8.2 CSV file interface'
-	default_transfer_file_windows = "c:\\rezept.txt"
-	default_encoding = 'cp1252'
+	default_transfer_file_windows = r"c:\rezept.txt"
+	#default_encoding = 'cp1252'
+	default_encoding = 'cp1250'
 	csv_fieldnames = [
 		u'name',
 		u'packungsgroesse',					# obsolete, use "packungsmenge"
@@ -107,11 +109,12 @@ class cGelbeListeCSVFile(object):
 
 		self.csv_file = codecs.open(filename = filename, mode = 'rUb', encoding = cGelbeListeCSVFile.default_encoding)
 
-		self.csv_lines = csv.DictReader (
+		self.csv_lines = gmTools.unicode_csv_reader (
 			self.csv_file,
 			fieldnames = cGelbeListeCSVFile.csv_fieldnames,
 			delimiter = ';',
-			quotechar = '"'
+			quotechar = '"',
+			dict = True
 		)
 	#--------------------------------------------------------
 	def __iter__(self):
@@ -121,16 +124,20 @@ class cGelbeListeCSVFile(object):
 		line = self.csv_lines.next()
 
 		for field in cGelbeListeCSVFile.boolean_fields:
-			line[field] = (line[field].strip() == 'T')
+			line[field] = (line[field].strip() == u'T')
 
 		# split field "Wirkstoff" by ";"
-		line['wirkstoffe'] = [ wirkstoff.strip() for wirkstoff in line['wirkstoffe'].split(';') ]
+		line['wirkstoffe'] = [ wirkstoff.strip() for wirkstoff in line['wirkstoffe'].split(u';') ]
 
 		return line
 	#--------------------------------------------------------
-	def close(self):
+	def close(self, truncate=True):
 		try: self.csv_file.close()
 		except: pass
+
+		if truncate:
+			try: os.open(self.filename, 'wb').close
+			except: pass
 #============================================================
 class cDrugDataSourceInterface(object):
 
@@ -146,52 +153,62 @@ class cDrugDataSourceInterface(object):
 	def check_drug_interactions(self):
 		raise NotImplementedError
 #============================================================
-class cGelbeListeInterface(cDrugDataSourceInterface):
+class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
 
 	version = u'Gelbe Liste/MMI v8.2 interface'
-	default_encoding = 'cp1252'
+	default_encoding = 'cp1250'
 	bdt_line_template = u'%03d6210#%s\r\n'		# Medikament verordnet auf Kassenrezept
 	bdt_line_base_length = 8
-	startup_cmd = 'wine "C:\Programme\MMI PHARMINDEX\glwin.exe" "-KEEPBACKGROUND -CLOSETOTRAY -PRESCRIPTIONFILE %s"'
-	default_csv_filename_wine = 'C:\\mmi2gm.csv'
-	default_csv_filename_local = '~/.wine/drive_c/mmi2gm.csv'
 	#--------------------------------------------------------
 	def __init__(self):
+		_log.info(u'%s (native Windows)', cGelbeListeWindowsInterface.version)
+
+		self.startup_cmd = 'C:\Programme\MMI PHARMINDEX\glwin.exe -KEEPBACKGROUND -PRESCRIPTIONFILE %s -CLOSETOTRAY'
+
+		paths = gmTools.gmPaths()
+
+		self.default_csv_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'rezept.txt')
+		self.default_csv_filename_arg = os.path.join(paths.home_dir, '.gnumed', 'tmp')
+		self.interactions_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2mmi.bdt')
+
 		# use adjusted config.dat
-		pass
 	#--------------------------------------------------------
-	def switch_to_frontend(self, csv_file=None, blocking=False):
-		if csv_file is None:
-			csv_file = cGelbeListeInterface.default_csv_filename_wine
+	def switch_to_frontend(self, blocking=False):
 
 		# must make sure csv file exists
-		# also better to clean up interactions file
-		#open(csv_file, 'wb').close()
+		open(self.default_csv_filename, 'wb').close()
 
-		cmd = cGelbeListeInterface.startup_cmd % csv_file
+		cmd = self.startup_cmd % self.default_csv_filename_arg
 
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the MMI drug database')
-			return False
+#			return False
 
 		return True
 	#--------------------------------------------------------
-	def select_drugs(self):
+	def select_drugs(self, filename=None):
+
+		# better to clean up interactions file
+		open(self.interactions_filename, 'wb').close()
+
 		if not self.switch_to_frontend(blocking = True):
 			return None
 
-		return cGelbeListeCSVFile(filename = cGelbeListeInterface.default_csv_filename_local)
+		return cGelbeListeCSVFile(filename = self.default_csv_filename)
 	#--------------------------------------------------------
 	def import_drugs_as_substances(self):
+
 		selected_drugs = self.select_drugs()
 		if selected_drugs is None:
 			return False
 
 		for drug in selected_drugs:
+			atc = None							# hopefully MMI eventually supports atc-per-substance in a drug...
+			if len(drug['wirkstoffe']) == 1:
+				atc = drug['atc']
 			for wirkstoff in drug['wirkstoffe']:
-				# hopefully MMI eventually supports atc-per-substance in a drug :-(
-				create_used_substance(substance = wirkstoff, atc = None)
+				create_used_substance(substance = wirkstoff, atc = atc)
 
 		selected_drugs.close()
 	#--------------------------------------------------------
@@ -201,16 +218,32 @@ class cGelbeListeInterface(cDrugDataSourceInterface):
 		if len(pzn_list) < 2:
 			return
 
-		bdt_file = codecs.open(filename = filename, mode = 'wb', encoding = cGelbeListeInterface.default_encoding)
+		bdt_file = codecs.open(filename = self.interactions_filename, mode = 'wb', encoding = cGelbeListeWindowsInterface.default_encoding)
 
 		for pzn in pzn_list:
 			pzn = pzn.strip()
-			lng = cGelbeListeInterface.bdt_line_base_length + len(pzn)
-			bdt_file.write(cGelbeListeInterface.bdt_line_template % (lng, pzn))
+			lng = cGelbeListeWindowsInterface.bdt_line_base_length + len(pzn)
+			bdt_file.write(cGelbeListeWindowsInterface.bdt_line_template % (lng, pzn))
 
 		bdt_file.close()
 
-		# FIXME: switch to IFAP
+		self.switch_to_frontend(blocking = False)
+#============================================================
+class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
+
+	def __init__(self):
+		cGelbeListeWindowsInterface.__init__(self)
+
+		_log.info(u'%s (WINE)', cGelbeListeWindowsInterface.version)
+
+		# FIXME: if -CLOSETOTRAY is used GNUmed cannot detect the end of MMI
+		self.startup_cmd = r'wine "C:\Programme\MMI PHARMINDEX\glwin.exe" "-PRESCRIPTIONFILE %s -KEEPBACKGROUND"'
+
+		paths = gmTools.gmPaths()
+
+		self.default_csv_filename = os.path.join(paths.home_dir, '.wine', 'drive_c', 'windows', 'temp', 'mmi2gm.csv')
+		self.default_csv_filename_arg = r'c:\windows\temp\mmi2gm.csv'
+		self.interactions_filename = os.path.join(paths.home_dir, '.wine', 'drive_c', 'windows', 'temp', 'gm2mmi.bdt')
 #============================================================
 class cIfapInterface(cDrugDataSourceInterface):
 	"""empirical CSV interface"""
@@ -257,7 +290,8 @@ class cIfapInterface(cDrugDataSourceInterface):
 #				)
 #============================================================
 drug_data_source_interfaces = {
-	'Gelbe Liste/MMI': cGelbeListeInterface
+	'Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
+	'Gelbe Liste/MMI (WINE)': cGelbeListeWineInterface
 }
 #============================================================
 # substances in use across all patients
@@ -359,11 +393,11 @@ if __name__ == "__main__":
 		mmi_file.close()
 	#--------------------------------------------------------
 	def test_mmi_switch_to():
-		mmi = cGelbeListeInterface()
+		mmi = cGelbeListeWineInterface()
 		mmi.switch_to_frontend(blocking = False)
 	#--------------------------------------------------------
 	def test_mmi_select_drugs():
-		mmi = cGelbeListeInterface()
+		mmi = cGelbeListeWineInterface()
 		mmi_file = mmi.select_drugs()
 		for drug in mmi_file:
 			print "-------------"
@@ -374,7 +408,7 @@ if __name__ == "__main__":
 		mmi_file.close()
 	#--------------------------------------------------------
 	def test_mmi_import_substances():
-		mmi = cGelbeListeInterface()
+		mmi = cGelbeListeWineInterface()
 		mmi.import_drugs_as_substances()
 	#--------------------------------------------------------
 	def test_mmi_interaction_check():
@@ -407,7 +441,13 @@ if __name__ == "__main__":
 		#test_create_patient_consumed_substance()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.6  2009-10-21 09:15:50  ncq
+# Revision 1.7  2009-10-21 20:37:18  ncq
+# - MMI uses cp1250, rather than cp1252, (at least under WINE) contrary to direct communication ...
+# - use unicode csv reader
+# - add a bunch of file cleanup
+# - split MMI interface into WINE vs native Windows version
+#
+# Revision 1.6  2009/10/21 09:15:50  ncq
 # - much improved MMI frontend
 #
 # Revision 1.5  2009/09/29 13:14:25  ncq
