@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.106 $"
+__version__ = "$Revision: 1.107 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -721,7 +721,7 @@ class database:
 		if self.__db_exists():
 			drop_existing = bool(int(cfg_get(self.section, 'drop target database')))
 			if drop_existing:
-				print_msg("==> dropping pre-existing *target* database [%s] ..." % self.name)
+				print_msg("==> dropping pre-existing target database [%s] ..." % self.name)
 				_log.info('trying to drop target database')
 				cmd = 'drop database "%s"' % self.name
 				self.conn.set_isolation_level(0)
@@ -767,7 +767,7 @@ class database:
 		cursor = self.conn.cursor()
 		cursor.execute("select pg_size_pretty(pg_database_size('%s'))" % self.template_db)
 		size = cursor.fetchone()[0]
-		print_msg("==> creating target database [%s] from [%s] (%s) ..." % (self.name, self.template_db, size))
+		print_msg("==> cloning [%s] (%s) into target database [%s] ..." % (self.template_db, size, self.name))
 		try:
 			cursor.execute(cmd)
 		except:
@@ -1474,7 +1474,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.106  2009-09-23 14:46:28  ncq
+# Revision 1.107  2009-10-21 09:24:45  ncq
+# - make console output just a bit tidier
+#
+# Revision 1.106  2009/09/23 14:46:28  ncq
 # - include check for holy authentication line if possible as per list discussion
 #
 # Revision 1.105  2009/08/24 20:11:27  ncq
