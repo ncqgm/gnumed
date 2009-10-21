@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 
 from Gnumed.pycommon import gmExceptions, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
@@ -1209,19 +1209,19 @@ def get_comm_channels_data_for_org_ids( idList):
 		m[id_org].append( (id_type, url) )
 
 	return m # is a Map[id_org] = list of comm_channel data 	
-		
+
 def get_address_data_for_org_ids( idList):
 	"""gets addresses for a list of valid id values for orgs.
 	returns a map keyed by org_id with the address data
 	"""
-	
+
 	ids = ", ".join( [ str(x) for x in idList]) 
 	cmd = """select l.id_org, number, street, city, postcode, state, country 
 			from dem.v_basic_address v , dem.lnk_org2address l 
 				where v.addr_id = l.id_address and
 				l.id_org in ( select id from dem.org where id in (%s) ) """ % ids 
 	result = gmPG.run_ro_query( "personalia", cmd)
-	
+
 	if result == None:
 		_log.error("failure in org address load" )
 		return None
@@ -1233,7 +1233,7 @@ def get_address_data_for_org_ids( idList):
 def get_org_data_for_org_ids(idList):
 	""" for a given list of org id values , 
 		returns a map of id_org vs. org attributes: description, id_category"""
-	
+
 	ids = ", ".join( [ str(x) for x in idList]) 
 	cmd = """select id, description, id_category  from dem.org 
 			where id in ( select id from dem.org where id in( %s) )""" % ids 
@@ -2020,7 +2020,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.39  2008-01-30 13:34:50  ncq
+# Revision 1.40  2009-10-21 08:55:41  ncq
+# - cleanup
+#
+# Revision 1.39  2008/01/30 13:34:50  ncq
 # - switch to std lib logging
 #
 # Revision 1.38  2008/01/11 16:08:07  ncq
