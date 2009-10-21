@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.5 2009-09-29 13:14:25 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMedication.py,v 1.6 2009-10-21 09:15:50 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs
@@ -14,8 +14,8 @@ import sys, logging, csv, codecs
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmBusinessDBObject
-# gmPG2, gmTools
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI
+# gmTools
 
 
 _log = logging.getLogger('gm.meds')
@@ -133,7 +133,18 @@ class cGelbeListeCSVFile(object):
 		except: pass
 #============================================================
 class cDrugDataSourceInterface(object):
-	pass
+
+	def switch_to_frontend(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
+	def select_drugs(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
+	def import_drugs_as_substances(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
+	def check_drug_interactions(self):
+		raise NotImplementedError
 #============================================================
 class cGelbeListeInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
@@ -142,10 +153,47 @@ class cGelbeListeInterface(cDrugDataSourceInterface):
 	default_encoding = 'cp1252'
 	bdt_line_template = u'%03d6210#%s\r\n'		# Medikament verordnet auf Kassenrezept
 	bdt_line_base_length = 8
+	startup_cmd = 'wine "C:\Programme\MMI PHARMINDEX\glwin.exe" "-KEEPBACKGROUND -CLOSETOTRAY -PRESCRIPTIONFILE %s"'
+	default_csv_filename_wine = 'C:\\mmi2gm.csv'
+	default_csv_filename_local = '~/.wine/drive_c/mmi2gm.csv'
 	#--------------------------------------------------------
 	def __init__(self):
 		# use adjusted config.dat
 		pass
+	#--------------------------------------------------------
+	def switch_to_frontend(self, csv_file=None, blocking=False):
+		if csv_file is None:
+			csv_file = cGelbeListeInterface.default_csv_filename_wine
+
+		# must make sure csv file exists
+		# also better to clean up interactions file
+		#open(csv_file, 'wb').close()
+
+		cmd = cGelbeListeInterface.startup_cmd % csv_file
+
+		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
+			_log.error('problem switching to the MMI drug database')
+			return False
+
+		return True
+	#--------------------------------------------------------
+	def select_drugs(self):
+		if not self.switch_to_frontend(blocking = True):
+			return None
+
+		return cGelbeListeCSVFile(filename = cGelbeListeInterface.default_csv_filename_local)
+	#--------------------------------------------------------
+	def import_drugs_as_substances(self):
+		selected_drugs = self.select_drugs()
+		if selected_drugs is None:
+			return False
+
+		for drug in selected_drugs:
+			for wirkstoff in drug['wirkstoffe']:
+				# hopefully MMI eventually supports atc-per-substance in a drug :-(
+				create_used_substance(substance = wirkstoff, atc = None)
+
+		selected_drugs.close()
 	#--------------------------------------------------------
 	def check_drug_interactions(self, filename=None, pzn_list=None):
 		"""For this to work the BDT interaction check must be configured in the MMI."""
@@ -212,6 +260,21 @@ drug_data_source_interfaces = {
 	'Gelbe Liste/MMI': cGelbeListeInterface
 }
 #============================================================
+# substances in use across all patients
+#------------------------------------------------------------
+def create_used_substance(substance=None, atc=None):
+
+	args = {'desc': substance, 'atc': atc}
+
+	cmd = u'select pk from clin.consumed_substance where description = %(desc)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	if len(rows) == 0:
+		cmd = u'insert into clin.consumed_substance (description, atc_code) values (%(desc)s, gm.nullify_empty_string(%(atc)s)) returning pk'
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+
+	return rows[0][0]
+#============================================================
 class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by the patient."""
 
@@ -232,6 +295,41 @@ class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 #		'has_allergy',			# verified against allergy_states (see above)
 #		'comment'				# u'' maps to None / NULL
 	]
+#------------------------------------------------------------
+def create_patient_consumed_substance(substance=None, atc=None, encounter=None, episode=None, preparation=None):
+
+	args = {
+		'desc': substance,
+		'atc': atc,
+		'enc': encounter,
+		'epi': episode,
+		'prep': preparation,
+		'subst': create_used_substance(substance = substance, atc = atc)
+	}
+
+	cmd = u"""
+insert into clin.substance_intake (
+	fk_encounter,
+	fk_episode,
+	fk_substance,
+	preparation,
+	intake_is_approved_of
+) values (
+	%(enc)s,
+	%(epi)s,
+	%(subst)s,
+	gm.nullify_empty_string(%(prep)s),
+	False
+)
+returning pk
+"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	return cConsumedSubstance(aPK_obj = rows[0][0])
+#============================================================
+def get_substances_in_use():
+	cmd = u'select * from clin.consumed_substance order by description'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return rows
 #============================================================
 # main
 #------------------------------------------------------------
@@ -260,7 +358,26 @@ if __name__ == "__main__":
 			print drug
 		mmi_file.close()
 	#--------------------------------------------------------
-	def test_interaction_check():
+	def test_mmi_switch_to():
+		mmi = cGelbeListeInterface()
+		mmi.switch_to_frontend(blocking = False)
+	#--------------------------------------------------------
+	def test_mmi_select_drugs():
+		mmi = cGelbeListeInterface()
+		mmi_file = mmi.select_drugs()
+		for drug in mmi_file:
+			print "-------------"
+			print '"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn'])
+			for stoff in drug['wirkstoffe']:
+				print " Wirkstoff:", stoff
+			print drug
+		mmi_file.close()
+	#--------------------------------------------------------
+	def test_mmi_import_substances():
+		mmi = cGelbeListeInterface()
+		mmi.import_drugs_as_substances()
+	#--------------------------------------------------------
+	def test_mmi_interaction_check():
 		mmi = cGelbeListeInterface()
 		print mmi
 		print "interface definition:", mmi.version
@@ -270,13 +387,30 @@ if __name__ == "__main__":
 		mmi.check_drug_interactions(filename = sys.argv[2], pzn_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
 	#--------------------------------------------------------
+	def test_create_patient_consumed_substance():
+		drug = create_patient_consumed_substance (
+			substance = u'Whiskey',
+			atc = u'no ATC available',
+			encounter = 1,
+			episode = 1,
+			preparation = 'a nice glass'
+		)
+		print drug
+	#--------------------------------------------------------
 	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
 		#test_MMI_interface()
 		#test_MMI_file()
-		test_interaction_check()
+		#test_mmi_switch_to()
+		test_mmi_select_drugs()
+		#test_mmi_import_substances()
+		#test_interaction_check()
+		#test_create_patient_consumed_substance()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.5  2009-09-29 13:14:25  ncq
+# Revision 1.6  2009-10-21 09:15:50  ncq
+# - much improved MMI frontend
+#
+# Revision 1.5  2009/09/29 13:14:25  ncq
 # - faulty ordering of definitions
 #
 # Revision 1.4  2009/09/01 22:16:35  ncq
