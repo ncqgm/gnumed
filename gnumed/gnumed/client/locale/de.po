@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.150 $
+# $Revision: 1.151 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-09-02 00:48+CEST\n"
-"PO-Revision-Date: 2009-09-02 01:02+0100\n"
+"POT-Creation-Date: 2009-10-21 22:51+CEST\n"
+"PO-Revision-Date: 2009-10-21 23:37+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -88,6 +88,7 @@ msgid ""
 "Documents: %(documents)s\n"
 "Test results: %(results)s\n"
 "Hospital stays: %(stays)s\n"
+"Procedures: %(procedures)s\n"
 msgstr ""
 "Medizinische Probleme: %(problems)s\n"
 "Konsultationen: %(encounters)s\n"
@@ -95,7 +96,7 @@ msgstr ""
 "Dokumente: %(documents)s\n"
 "Testergebnisse: %(results)s\n"
 "Krankenhausaufenthalte: %(stays)s\n"
-"\n"
+"Maßnahmen: %(procedures)s\n"
 
 msgid ""
 "EMR Statistics\n"
@@ -125,10 +126,8 @@ msgstr " %s Dokumente\n"
 msgid " %s test results\n"
 msgstr " %s Testergebnisse\n"
 
-msgid ""
-" %s hospital stays\n"
-"\n"
-msgstr " %s Krankenhausaufenthalte\n"
+msgid " %s hospital stays\n"
+msgstr " %s Krankenhausaufenthalt(e)\n"
 
 msgid ""
 "Allergies and Intolerances\n"
@@ -204,17 +203,17 @@ msgstr "Grenzwert"
 msgid "last check:"
 msgstr "letzte Überprüfung:"
 
-msgid "A: Sign"
-msgstr "A: Symptom"
+msgid "A %s Sign"
+msgstr "A %s Symptom"
 
-msgid "B: Group of signs"
-msgstr "B: Symptomengruppe"
+msgid "B %s Cluster of signs"
+msgstr "B %s Symptomengruppe"
 
-msgid "C: Syndromic diagnosis"
-msgstr "C: Bild der Krankheit"
+msgid "C %s Syndromic diagnosis"
+msgstr "C %s Bild der Krankheit"
 
-msgid "D: Scientific diagnosis"
-msgstr "D: wissenschaftliche Diagnose"
+msgid "D %s Scientific diagnosis"
+msgstr "D %s wissenschaftliche Diagnose"
 
 msgid "bilateral"
 msgstr "beidseits"
@@ -275,6 +274,9 @@ msgstr " Zuletzt: %s - %s"
 
 msgid "Hospital stays: %s"
 msgstr "Krankenhausaufenthalte: %s"
+
+msgid "Procedures performed: %s"
+msgstr "Durchgeführte Prozeduren: %s"
 
 msgid "Documents: %s"
 msgstr "Dokumente: %s"
@@ -1740,7 +1742,7 @@ msgid "Cancel editing the data and discard changes."
 msgstr "Abbrechen und Änderungen verwerfen."
 
 msgid "&Another..."
-msgstr "Weitere ..."
+msgstr "&Weitere ..."
 
 msgid "GNUmed generic EditArea dialog"
 msgstr "allgemeiner Bearbeitungsdialog"
@@ -2462,6 +2464,51 @@ msgstr "g oder kg"
 
 msgid "Waist"
 msgstr "Taille"
+
+msgid "+"
+msgstr ""
+
+msgid "When did this procedure take place ?"
+msgstr "Wann fand diese Maßnahme statt ?"
+
+msgid "During which hospital stay was this procedure performed."
+msgstr "Während welches Krankenhausaufenthaltes diese Maßnahme stattfand."
+
+msgid "Add a hospital stay."
+msgstr "Einen Krankenhausaufenthalt hinzufügen."
+
+msgid ""
+"The location (praxis, clinic, ...) this procedure was performed at.\n"
+"\n"
+"Mutually exclusive with \"Hospital stay\". Requires \"Episode\"."
+msgstr ""
+"Der Ort (Praxis, Klinik, ...), wo diese Maßnahme durchgeführt wurde.\n"
+"\n"
+"Schließt sich aus mit \"Krankenhausaufenthalt\". Erfordert \"Episode\"."
+
+msgid ""
+"The episode this procedure was performed under.\n"
+"\n"
+"Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
+msgstr ""
+"Die Episode, innerhalb welcher diese Maßnahme durchgeführt wurde.\n"
+"\n"
+"Schließt sich aus mit \"Krankenhausaufenthalt\". Erfordert \"Ort\"."
+
+msgid "The actual procedure performed on the patient."
+msgstr "Die eigentliche Maßnahme, die beim Patienten durchgeführt wurde."
+
+msgid "Hospital stay ..."
+msgstr "Krankenhausaufenthalt ..."
+
+msgid "or Location ..."
+msgstr "oder Ort ..."
+
+msgid "... and Episode"
+msgstr "... und Episode"
+
+msgid "Procedure"
+msgstr "Maßnahme"
 
 msgid "Programmer must override this text."
 msgstr "Programmierer muß diesen Text überschreiben"
@@ -3260,15 +3307,14 @@ msgid ""
 "\n"
 "%s\n"
 "\n"
-"Please retry with proper\n"
-"credentials or cancel !"
+"Please retry with proper credentials or cancel\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 msgstr ""
-"Anmeldung bei Datenbank fehlgeschlagen:\n"
-"\n"
-"%s\n"
-"\n"
-"Bitte versuchen Sie es mit den richtigen\n"
-"Anmeldedaten erneut oder brechen Sie ab."
 
 msgid "Connecting to backend"
 msgstr "Verbinde mit Datenbank"
@@ -4218,6 +4264,9 @@ msgstr "Menü \"Episode\""
 msgid "Edit details"
 msgstr "Details ändern"
 
+msgid "Promote"
+msgstr "Qualifizieren"
+
 msgid "Encounter Menu"
 msgstr "Menü \"APK\""
 
@@ -4311,6 +4360,21 @@ msgstr ""
 msgid "Cannot delete health issue. There is still clinical data recorded for it."
 msgstr "Kann die Grunderkrankung nicht löschen. Sie enthält noch Karteieinträge."
 
+msgid "ongoing episode"
+msgstr "offene Episode"
+
+msgid "closed episode"
+msgstr "beendete Episode"
+
+msgid "*** CONFIDENTIAL ***\n"
+msgstr "*** VERTRAULICH ***\n"
+
+msgid "contributed to death"
+msgstr "trug zum Tod bei"
+
+msgid "Grouping: %s"
+msgstr "Gruppierung: %s"
+
 msgid "No EMR data loaded."
 msgstr "Keine Karteieinträge geladen."
 
@@ -4324,6 +4388,34 @@ msgstr ""
 "aktiven Patienten ist ein Fehler aufgetreten.\n"
 "\n"
 "Genaue Fehlerbeschreibung in der Logdatei."
+
+msgid "Cannot delete performed procedure."
+msgstr "Kann die Maßnahme nicht löschen."
+
+msgid ""
+"\n"
+"Select the procedure you want to edit !\n"
+msgstr ""
+"\n"
+"Wählen Sie die Maßnahme, welche Sie bearbeiten wollen !\n"
+
+msgid "Editing performed procedures ..."
+msgstr "Bearbeite Maßnahmen ..."
+
+msgid "When"
+msgstr "Wann"
+
+msgid "Where"
+msgstr "Wo"
+
+msgid "Adding a procedure"
+msgstr "Maßnahme hinzufügen"
+
+msgid "Editing a procedure"
+msgstr "Maßnahme bearbeiten"
+
+msgid "Cannot save procedure."
+msgstr "Kann Maßnahme nicht speichern."
 
 msgid "Cannot delete hospital stay."
 msgstr "Kann Krankenhausaufenthalt nicht löschen."
@@ -4419,6 +4511,40 @@ msgstr "neue Episode hinzufügen"
 
 msgid "Editing an episode"
 msgstr "Episode bearbeiten"
+
+msgid "Promoting episode to health issue"
+msgstr "Wandele Episode in Grunderkrankung um"
+
+msgid ""
+"There already is a health issue\n"
+"\n"
+" %s\n"
+"\n"
+"What do you want to do ?"
+msgstr ""
+"Es gibt bereits eine Grunderkrankung\n"
+"\n"
+" %s\n"
+"\n"
+"Was wollen Sie tun ?"
+
+msgid "Move episode into existing health issue"
+msgstr "Verschiebe Episode unter existierende Grunderkrankung"
+
+msgid "Use existing"
+msgstr "Alte verwenden"
+
+msgid "Create a new health issue with another name"
+msgstr "Anlegen einer neuen Grunderkrankung mit anderem Namen."
+
+msgid "Create new"
+msgstr "Neu anlegen"
+
+msgid "Enter a short descriptive name for the new health issue:"
+msgstr "Geben Sie der neuen Grunderkrankung einen aussagekräftigen Namen:"
+
+msgid "Creating a new health issue ..."
+msgstr "Eine neue Grunderkrankung anlegen ..."
 
 msgid "Closed episodes older than %s days on health issue [%s]"
 msgstr "Episoden älter als %s Tage für Grundkrankheit [%s] wurden beendet."
@@ -4521,6 +4647,15 @@ msgstr "Grunderkrankung kann nicht im Alter von %s bemerkt worden sein. Der Pati
 
 msgid "Condition diagnosed in the future."
 msgstr "Diagnosestellung ist in der Zukunft."
+
+msgid ""
+"The diagnostic classification or grading of this assessment.\n"
+"\n"
+"This documents how certain one is about this being a true diagnosis."
+msgstr ""
+"Die Klassifizierung der diagnostischen Sicherheit.\n"
+"\n"
+"Dies dokumentiert, wie sicher es sich um eine eigentliche Diagnose handelt."
 
 msgid "Select desired test option from the 'File' menu"
 msgstr ""
@@ -4899,12 +5034,6 @@ msgstr "Programmierer hat vergessen, Warnung anzugeben."
 msgid "generic warning message"
 msgstr "allgemeine Warnmeldung"
 
-msgid "This field can only contain digits."
-msgstr "Dieses Feld darf nur Ziffern enthalten."
-
-msgid "This field cannot be empty."
-msgstr "Dieses Feld darf nicht leer sein."
-
 msgid "Your client (%s) is up to date."
 msgstr "Ihre Installation (%s) ist auf dem neuesten Stand."
 
@@ -5070,6 +5199,12 @@ msgstr "Meßmethoden-URL"
 msgid "URL for measurements encyclopedia."
 msgstr "URL zum Lexikon mit Meßmethoden."
 
+msgid "Select the drug data source."
+msgstr "Wählen Sie die Medikamentenquelle."
+
+msgid "Drug data source"
+msgstr "Medikamentenquelle"
+
 msgid "EMR ..."
 msgstr "Karteikarte ..."
 
@@ -5153,6 +5288,12 @@ msgstr "&Bundesländer"
 
 msgid "Manage provinces (counties, territories, ...)."
 msgstr "Bundeländer verwalten (Provinzen, Staaten, ...)."
+
+msgid "Manage substances in use ...)."
+msgstr "Substanzen (Wirkstoffe) verwalten."
+
+msgid "Substances"
+msgstr "Substanzen"
 
 msgid "&Test types"
 msgstr "&Meßmethoden"
@@ -5286,6 +5427,12 @@ msgstr "Krankenhausaufenthalte"
 msgid "Manage hospital stays."
 msgstr "Krankenhausaufenthalte verwalten."
 
+msgid "&Procedures"
+msgstr "&Maßnahmen"
+
+msgid "Manage procedures performed on the patient."
+msgstr "Verwalten der Maßnahmen für diesen Patienten."
+
 msgid "Add &Measurement(s)"
 msgstr "&Meßwert(e) eingeben"
 
@@ -5363,6 +5510,12 @@ msgstr "&Wissen"
 
 msgid "&Drug Resources"
 msgstr "&Medikamentenquellen"
+
+msgid "&Database"
+msgstr "&Datenbank"
+
+msgid "Jump to the drug database configured as the default."
+msgstr "Die als Default eingestellte Medikamentendatenbank aufrufen."
 
 msgid "Start \"ifap index PRAXIS\" %s drug browser (Windows/Wine, Germany)"
 msgstr "Starte \"ifap index PRAXIS\" %s (Windows/Wine, Deutschland)."
@@ -6095,6 +6248,9 @@ msgstr "Kann Medikation nicht eintragen. Kein Patient aktiv."
 msgid "Cannot add allergy. No active patient."
 msgstr "Kann Allergie nicht eintragen. Kein Patient aktiv."
 
+msgid "Cannot manage performed procedures. No active patient."
+msgstr "Kann Maßnahmen nicht verwalten. Kein Patient aktiv."
+
 msgid "Cannot manage hospital stays. No active patient."
 msgstr "Kann Krankenhausaufenthalte nicht verwalten. Kein Patient aktiv."
 
@@ -6421,6 +6577,21 @@ msgstr "allgemeine Mehrfachauswahl"
 
 msgid "invalid placeholder: %s"
 msgstr "ungültiger Platzhalter: %s"
+
+msgid "invalid gender mapping layout: [%s]"
+msgstr "ungültiges Format für geschlechtsabhängiges Mapping: [%s]"
+
+msgid "no street for address type [%s]"
+msgstr "keine Straße für Adresstyp [%s]"
+
+msgid "no number for address type [%s]"
+msgstr "keine Nummer für Adresstyp [%s]"
+
+msgid "no location for address type [%s]"
+msgstr "kein Ort für Adresstyp [%s]"
+
+msgid "no postcode for address type [%s]"
+msgstr "keine PLZ für Adresstyp [%s]"
 
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
@@ -6752,6 +6923,9 @@ msgstr "Meßmethode bearbeiten"
 
 msgid "in-house"
 msgstr "praxisintern"
+
+msgid "Cannot delete measurement type [%s (%s)] because it is in use."
+msgstr "Kann die Meßmethode [%s (%s)] nicht löschen, da sie in Benutzung ist."
 
 msgid ""
 "\n"
@@ -7307,6 +7481,35 @@ msgstr "Sind Sie sicher, daß das Dokument gelöscht werden soll ?"
 msgid "Deleting document"
 msgstr "Dokument löschen"
 
+msgid "There is no default drug database configured."
+msgstr "Es ist keine Medikamentendatenbank eingestellt."
+
+msgid "Jumping to drug database"
+msgstr "Medikamentendatenbank aufrufen"
+
+msgid ""
+"\n"
+"These are the substances currently consumed across all patients.\n"
+msgstr ""
+"\n"
+"Diese Substanzen (Wirkstoffe) werden momentan von Patienten eingenommen.\n"
+
+msgid "Showing consumed substances."
+msgstr "Zeige Substanzen (Wirkstoffe)."
+
+msgid "ATC"
+msgstr ""
+
+msgid ""
+"\n"
+"Please select the default drug data source from the list below.\n"
+msgstr ""
+"\n"
+"Wählen Sie die gewünschte Medikamentenquelle aus der Liste.\n"
+
+msgid "Configuring default drug data source"
+msgstr "Einstellen der Medikamentenquelle"
+
 msgid "Cannot call IFAP via [%s]."
 msgstr "Kann IFAP nicht mittels [%s] starten."
 
@@ -7850,9 +8053,6 @@ msgstr "Zurück"
 
 msgid "Go back and search again."
 msgstr "Wieder zurück zur Suche."
-
-msgid "Create new"
-msgstr "Neu anlegen"
 
 msgid "Create new patient."
 msgstr "Neuen Patienten anlegen."
@@ -8755,9 +8955,6 @@ msgstr ""
 msgid "Pre-formatted reports"
 msgstr "Vorgefertigte Auswertungen"
 
-msgid "Substances"
-msgstr "Substanzen"
-
 msgid "Current &medications"
 msgstr "Derzeitige &Medikation"
 
@@ -9157,6 +9354,24 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please retry with proper\n"
+#~ "credentials or cancel !"
+#~ msgstr ""
+#~ "Anmeldung bei Datenbank fehlgeschlagen:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Bitte versuchen Sie es mit den richtigen\n"
+#~ "Anmeldedaten erneut oder brechen Sie ab."
+#~ msgid "This field can only contain digits."
+#~ msgstr "Dieses Feld darf nur Ziffern enthalten."
+#~ msgid "This field cannot be empty."
+#~ msgstr "Dieses Feld darf nicht leer sein."
 #~ msgid "edit episode details"
 #~ msgstr "Details der Episode .ändern"
 #~ msgid "Save/Update"
@@ -9179,8 +9394,6 @@ msgstr "erstmals"
 #~ msgstr "Alle"
 #~ msgid "Patient-related messages:"
 #~ msgstr "Patientenbezogene Nachrichten:"
-#~ msgid "Creating new health issue not allowed."
-#~ msgstr "Anlegen einer neuen Grunderkrankung nicht vorgesehen."
 #~ msgid "Update"
 #~ msgstr "Update"
 #~ msgid "Restore"
@@ -9486,20 +9699,6 @@ msgstr "erstmals"
 #~ msgstr "medizinisch relevant: nein\n"
 #~ msgid "health issue caused death of patient\n"
 #~ msgstr "Grunderkrankung war Todesursache des Patienten\n"
-#~ msgid ""
-#~ "\n"
-#~ "***** CONFIDENTIAL *****\n"
-#~ "\n"
-#~ msgstr ""
-#~ "\n"
-#~ "***** VERTRAULICH *****\n"
-#~ "\n"
-#~ msgid ""
-#~ "Error retrieving episodes for health issue\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Fehler beim Laden der Episoden für Grunderkrankung\n"
-#~ "%s"
 #~ msgid "There are no episodes for this health issue.\n"
 #~ msgstr "Keine Episoden für diese Grunderkrankung gefunden.\n"
 #~ msgid ""
@@ -9889,9 +10088,6 @@ msgstr "erstmals"
 #~ "ungültiger Datentyp für Geburtsdatum (muß datetime.datetime sein): %s [%s]"
 #~ msgid "unknown"
 #~ msgstr "unbekannt"
-#~ msgid "Please select the database language from the list below."
-#~ msgstr ""
-#~ "Wählen Sie die gewünschte Spracheinstellung der Datenbank aus der Liste."
 #~ msgid "Page could not be acquired from source."
 #~ msgstr "Seite kann nicht von der Quelle geholt werden."
 #~ msgid "ManualHtmlWindow: No more items in history!\n"
@@ -10102,8 +10298,6 @@ msgstr "erstmals"
 #~ "\n"
 #~ "Wollen Sie die Episode [%(epi)s] vor der Neu-\n"
 #~ "zuordnung zu einer Grunderkrankung schließen ?\n"
-#~ msgid "Moving episode"
-#~ msgstr "Episode verschieben"
 #~ msgid ""
 #~ "Cannot move episode\n"
 #~ " [%(epi)s]\n"
