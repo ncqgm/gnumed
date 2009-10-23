@@ -7,7 +7,7 @@
 -- license: GPL
 --
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Kirk-procedure-dynamic.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 
 -- force terminate + exit(3) on errors if non-interactive
@@ -17,6 +17,8 @@
 
 --begin;
 -- =============================================
+\unset ON_ERROR_STOP
+
 insert into clin.procedure (
 	clin_when,
 	fk_encounter,
@@ -47,9 +49,11 @@ insert into clin.procedure (
 	 health_issue like '%peritonitis%'
 	 limit 1
 	),
+
 	'laparoscopic lavage of abdominal cavity',
 	'p',
 	null,
+
 	(select pk from clin.hospital_stay
 	 where
 		fk_encounter = (
@@ -72,12 +76,14 @@ insert into clin.procedure (
 			limit 1
 		)
 	)
+
 );
 
+\set ON_ERROR_STOP 1
 
 -- =============================================
 -- do simple schema revision tracking
-select gm.log_script_insertion('$RCSfile: test_data-Kirk-procedure-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: test_data-Kirk-procedure-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- comment out the "rollback" if you want to
 -- really store the above patient data
@@ -86,7 +92,10 @@ select gm.log_script_insertion('$RCSfile: test_data-Kirk-procedure-dynamic.sql,v
 
 -- =============================================
 -- $Log: test_data-Kirk-procedure-dynamic.sql,v $
--- Revision 1.1  2009-09-17 21:50:29  ncq
+-- Revision 1.2  2009-10-23 09:43:38  ncq
+-- - make optional
+--
+-- Revision 1.1  2009/09/17 21:50:29  ncq
 -- - add a procedure
 --
 -- Revision 1.1  2009/09/01 22:11:26  ncq
