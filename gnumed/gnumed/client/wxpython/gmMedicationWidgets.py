@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.8 2009-10-21 20:41:53 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmMedicationWidgets.py,v 1.9 2009-10-26 22:30:58 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -29,6 +29,10 @@ def manage_substances_in_use(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
+	def delete(substance):
+		gmMedication.delete_consumed_substance(substance = substance['pk'])
+		return True
+	#------------------------------------------------------------
 	def new():
 
 		dbcfg = gmCfg.cCfgSQL()
@@ -41,11 +45,20 @@ def manage_substances_in_use(parent=None):
 		)
 
 		if default_db is None:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('There is no default drug database configured.'),
-				aTitle = _('Jumping to drug database')
+			gmDispatcher.send('statustext', msg = _('No default drug database configured.'), beep = True)
+			print "starting configuration"
+			configure_drug_data_source(parent = parent)
+			default_db = dbcfg.get2 (
+				option = 'external.drug_data.default_source',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'workplace'
 			)
-			return False
+			if default_db is None:
+				gmGuiHelpers.gm_show_error (
+					aMessage = _('There is no default drug database configured.'),
+					aTitle = _('Jumping to drug database')
+				)
+				return False
 
 		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 		drug_db.import_drugs_as_substances()
@@ -55,12 +68,12 @@ def manage_substances_in_use(parent=None):
 	def refresh(lctrl):
 		substs = gmMedication.get_substances_in_use()
 		items = [ [
-			gmTools.coalesce(s['atc_code'], u''),
 			s['description'],
+			gmTools.coalesce(s['atc_code'], u''),
 			s['pk']
 		] for s in substs ]
 		lctrl.set_string_items(items)
-		#lctrl.set_data(substs)
+		lctrl.set_data(substs)
 	#------------------------------------------------------------
 	msg = _('\nThese are the substances currently consumed across all patients.\n')
 
@@ -68,12 +81,12 @@ def manage_substances_in_use(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing consumed substances.'),
-		columns = [_('ATC'), _('Name'), u'#'],
+		columns = [_('Name'), _('ATC'), u'#'],
 		single_selection = True,
 		refresh_callback = refresh,
 		#edit_callback = edit,
 		#new_callback = edit,
-		#delete_callback = delete
+		delete_callback = delete,
 		new_callback = new
 	)
 #============================================================
@@ -110,77 +123,6 @@ def jump_to_drug_database():
 
 	drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 	drug_db.switch_to_frontend(blocking = False)
-#============================================================
-def jump_to_mmi(import_drugs=False):
-
-	dbcfg = gmCfg.cCfgSQL()
-
-	mmi_cmd = dbcfg.get2 (
-		option = 'external.ifap-win.shell_command',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
-		bias = 'workplace',
-		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
-	)
-	found, binary = gmShellAPI.detect_external_binary(ifap_cmd)
-	if not found:
-		gmDispatcher.send('statustext', msg = _('Cannot call IFAP via [%s].') % ifap_cmd)
-		return False
-	ifap_cmd = binary
-
-	if import_drugs:
-		transfer_file = os.path.expanduser(dbcfg.get2 (
-			option = 'external.ifap-win.transfer_file',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = 'workplace',
-			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
-		))
-		# file must exist for Ifap to write into it
-		try:
-			f = open(transfer_file, 'w+b').close()
-		except IOError:
-			_log.exception('Cannot create IFAP <-> GNUmed transfer file [%s]', transfer_file)
-			gmDispatcher.send('statustext', msg = _('Cannot create IFAP <-> GNUmed transfer file [%s].') % transfer_file)
-			return False
-
-	wx.BeginBusyCursor()
-	gmShellAPI.run_command_in_shell(command = ifap_cmd, blocking = import_drugs)
-	wx.EndBusyCursor()
-
-	if import_drugs:
-		# COMMENT: this file must exist PRIOR to invoking IFAP
-		# COMMENT: or else IFAP will not write data into it ...
-		try:
-			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
-		except:
-			_log.exception('cannot access [%s]', fname)
-			csv_file = None
-
-		if csv_file is not None:
-			import csv
-			csv_lines = csv.DictReader (
-				csv_file,
-				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgr\xf6\xdfe'.split(),
-				delimiter = ';'
-			)
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			# dummy episode for now
-			epi = emr.add_episode(episode_name = _('Current medication'))
-			for line in csv_lines:
-				narr = u'%sx %s %s %s (\u2258 %s %s) von %s (%s)' % (
-					line['Packungszahl'].strip(),
-					line['Handelsname'].strip(),
-					line['Form'].strip(),
-					line[u'Packungsgr\xf6\xdfe'].strip(),
-					line['Abpackungsmenge'].strip(),
-					line['Einheit'].strip(),
-					line['Hersteller'].strip(),
-					line['PZN'].strip()
-				)
-				emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
-			csv_file.close()
-
-	return True
 #============================================================
 def jump_to_ifap(import_drugs=False):
 
@@ -457,7 +399,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.8  2009-10-21 20:41:53  ncq
+# Revision 1.9  2009-10-26 22:30:58  ncq
+# - implement deletion of INN
+#
+# Revision 1.8  2009/10/21 20:41:53  ncq
 # - access MMI from substance management via NEW button
 #
 # Revision 1.7  2009/10/21 09:21:13  ncq
