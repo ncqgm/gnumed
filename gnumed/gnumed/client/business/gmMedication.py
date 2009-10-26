@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.7 2009-10-21 20:37:18 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmMedication.py,v 1.8 2009-10-26 22:29:05 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os
@@ -164,7 +164,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	def __init__(self):
 		_log.info(u'%s (native Windows)', cGelbeListeWindowsInterface.version)
 
-		self.startup_cmd = 'C:\Programme\MMI PHARMINDEX\glwin.exe -KEEPBACKGROUND -PRESCRIPTIONFILE %s -CLOSETOTRAY'
+		self.path_to_binary = r'C:\Programme\MMI PHARMINDEX\glwin.exe'
+		self.args = r'-KEEPBACKGROUND -PRESCRIPTIONFILE %s -CLOSETOTRAY'
 
 		paths = gmTools.gmPaths()
 
@@ -179,10 +180,12 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		# must make sure csv file exists
 		open(self.default_csv_filename, 'wb').close()
 
-		cmd = self.startup_cmd % self.default_csv_filename_arg
+		cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
 
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the MMI drug database')
+			# apparently on the first call MMI does not
+			# consistently return 0 on success
 #			return False
 
 		return True
@@ -234,10 +237,11 @@ class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
 	def __init__(self):
 		cGelbeListeWindowsInterface.__init__(self)
 
-		_log.info(u'%s (WINE)', cGelbeListeWindowsInterface.version)
+		_log.info(u'%s (WINE extension)', cGelbeListeWindowsInterface.version)
 
 		# FIXME: if -CLOSETOTRAY is used GNUmed cannot detect the end of MMI
-		self.startup_cmd = r'wine "C:\Programme\MMI PHARMINDEX\glwin.exe" "-PRESCRIPTIONFILE %s -KEEPBACKGROUND"'
+		self.path_to_binary = r'wine "C:\Programme\MMI PHARMINDEX\glwin.exe"'
+		self.args = r'"-PRESCRIPTIONFILE %s -KEEPBACKGROUND"'
 
 		paths = gmTools.gmPaths()
 
@@ -300,14 +304,37 @@ def create_used_substance(substance=None, atc=None):
 
 	args = {'desc': substance, 'atc': atc}
 
-	cmd = u'select pk from clin.consumed_substance where description = %(desc)s'
+	cmd = u'select pk, atc_code from clin.consumed_substance where description = %(desc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
-		cmd = u'insert into clin.consumed_substance (description, atc_code) values (%(desc)s, gm.nullify_empty_string(%(atc)s)) returning pk'
+		cmd = u'insert into clin.consumed_substance (description, atc_code) values (%(desc)s, gm.nullify_empty_string(%(atc)s)) returning pk, atc_code'
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
+	row = rows[0]
+
+	# update ATC if we now know the ATC code where previously we didn't
+	if atc is not None:
+		if row['atc_code'] is None:
+			args['pk'] = row['pk']
+			cmd = u'update clin.consumed_substance set atc_code = gm.nullify_empty_string(%(atc)s) where pk = %(pk)s'
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		else:
+			if row['atc_code'].strip() != atc.strip():
+				_log.error('ATC conflict for "%s". Database: [%s], argument: [%s]', substance, row['atc_code'], atc)
+
 	return rows[0][0]
+#============================================================
+def delete_consumed_substance(substance=None):
+	args = {'pk': substance}
+	cmd = u"""
+delete from clin.consumed_substance
+where
+	pk = %(pk)s and not exists (
+		select 1 from clin.substance_intake
+		where fk_substance = %(pk)s
+	)"""
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
 class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by the patient."""
@@ -441,7 +468,12 @@ if __name__ == "__main__":
 		#test_create_patient_consumed_substance()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.7  2009-10-21 20:37:18  ncq
+# Revision 1.8  2009-10-26 22:29:05  ncq
+# - better factorization of paths in MMI interface
+# - update ATC on INN if now known
+# - delete-consumed-substance
+#
+# Revision 1.7  2009/10/21 20:37:18  ncq
 # - MMI uses cp1250, rather than cp1252, (at least under WINE) contrary to direct communication ...
 # - use unicode csv reader
 # - add a bunch of file cleanup
