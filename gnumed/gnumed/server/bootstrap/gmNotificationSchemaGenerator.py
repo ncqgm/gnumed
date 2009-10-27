@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -381,7 +381,8 @@ where
 	# explicitely append dem.identity
 	schema.append(trigger_identity_mod_announce)
 
-	# explicitely append clin.waiting_list with generic non-patient signal
+	# explicitely append clin.waiting_list
+	# it does have an identity accessor but we want a generic non-patient signal, too
 	schema.append(trigger_ddl_without_pk % {
 		'schema': 'clin',
 		'tbl': 'waiting_list',
@@ -389,6 +390,8 @@ where
 	})
 
 	# explicitely append dem.message_inbox with generic non-patient signal
+	# it does have an identity accessor but we want a generic non-patient signal, too
+	# this only works starting with v12
 	schema.append(trigger_ddl_without_pk % {
 		'schema': 'dem',
 		'tbl': 'message_inbox',
@@ -425,7 +428,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.37  2009-08-24 20:11:27  ncq
+# Revision 1.38  2009-10-27 11:00:20  ncq
+# - better comments
+#
+# Revision 1.37  2009/08/24 20:11:27  ncq
 # - bump db version
 # - fix tag creation
 # - provider inbox:
