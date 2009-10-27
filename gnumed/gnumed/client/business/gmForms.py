@@ -7,12 +7,12 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.64 2009-10-20 10:24:19 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmForms.py,v 1.65 2009-10-27 11:46:10 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, libxml2, libxslt
+import os, sys, time, os.path, logging, libxml2, libxslt, codecs
 
 
 if __name__ == '__main__':
@@ -531,7 +531,7 @@ class cXSLTFormEngine(cFormEngine):
 	then process it with XSLT template and display results
 	"""
 
-	# FIXME: make this configurable ?
+	# FIXME: make the path configurable ?
 	_preview_program = u'oowriter '	#this program must be in the system PATH
 
 	def __init__ (self, template=None):
@@ -543,8 +543,8 @@ class cXSLTFormEngine(cFormEngine):
 
 		self._FormData = None
 
-		# here we know/can assume that the template was stored as a utf-8 encoded
-		# string so use that conversion to create unicode:
+		# here we know/can assume that the template was stored as a utf-8
+		# encoded string so use that conversion to create unicode:
 		#self._XSLTData = unicode(str(template.template_data), 'UTF-8')
 		# but in fact, unicode() knows how to handle buffers, so simply:
 		self._XSLTData = unicode(self.template.template_data, 'UTF-8', 'strict')
@@ -553,31 +553,36 @@ class cXSLTFormEngine(cFormEngine):
 		# - either by retrieving it from a particular tag in the XSLT or
 		# - by making the stored template actually be a dict which, unpickled,
 		#	has the keys "xslt" and "sql"
-		self._SQL_query = self.template['sql_query']	#this sql query must output valid xml
+		self._SQL_query = u'select 1'			#this sql query must output valid xml
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def process(self, sql_parameters):
 		"""get data from backend and process it with XSLT template to produce readable output"""
 
-		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': self._SQL_query, 'args': sql_parameters}], get_col_idx=True)
+		# extract SQL (this is wrong but displays what is intended)
+		xslt = libxml2.parseDoc(self._XSLTData)
+		root = xslt.children
+		for child in root:
+			if child.type == 'element':
+				self._SQL_query = child.content
+				break
+
+		# retrieve data from backend
+		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': self._SQL_query, 'args': sql_parameters}], get_col_idx = False)
 
 		__header = '<?xml version="1.0" encoding="UTF-8"?>\n'
 		__body = rows[0][0]
 
-		# removed explicit encoding, the __body seems to be already in utf-8, and while encoding it was treated as ascii
-		#self._XMLData =__header.encode('utf-8') + __body.encode('utf-8')
-		self._XMLData =__header + __body
-
 		# process XML data according to supplied XSLT, producing HTML
-		styledoc = libxml2.parseDoc(self._XSLTData)
-		style = libxslt.parseStylesheetDoc(styledoc)
-		doc = libxml2.parseDoc(self._XMLData)
-		html = style.applyStylesheet(doc, None)
+		self._XMLData =__header + __body
+		style = libxslt.parseStylesheetDoc(xslt)
+		xml = libxml2.parseDoc(self._XMLData)
+		html = style.applyStylesheet(xml, None)
 		self._FormData = html.serialize()
 
 		style.freeStylesheet()
-		doc.freeDoc()
+		xml.freeDoc()
 		html.freeDoc()
 	#--------------------------------------------------------
 	def preview(self):
@@ -585,8 +590,10 @@ class cXSLTFormEngine(cFormEngine):
 			raise ValueError, u'Preview request for empty form. Make sure the form is properly initialized and process() was performed'
 
 		fname = gmTools.get_unique_filename(prefix = u'gm_XSLT_form-', suffix = u'.html')
-		html_file = os.open(fname, 'wb')
-		html_file.write(self._FormData.encode('UTF-8'))
+		#html_file = os.open(fname, 'wb')
+		#html_file.write(self._FormData.encode('UTF-8'))
+		html_file = codecs.open(fname, 'wb', 'utf8', 'strict')		# or 'replace' ?
+		html_file.write(self._FormData)
 		html_file.close()
 
 		cmd = u'%s %s' % (self.__class__._preview_program, fname)
@@ -655,7 +662,7 @@ class cLaTeXForm (cFormEngine):
 	def __init__ (self, id, template):
 		self.id = id
 		self.template = template
-		
+
 	def process (self,params={}):
 		try:
 			latex = Cheetah.Template.Template (self.template, filter=LaTeXFilter, searchList=[params])
@@ -931,7 +938,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.64  2009-10-20 10:24:19  ncq
+# Revision 1.65  2009-10-27 11:46:10  ncq
+# - crawl towards extracting SQL from XSLT
+#
+# Revision 1.64  2009/10/20 10:24:19  ncq
 # - inject Jerzys form code
 #
 # Revision 1.63  2009/09/13 18:25:54  ncq
