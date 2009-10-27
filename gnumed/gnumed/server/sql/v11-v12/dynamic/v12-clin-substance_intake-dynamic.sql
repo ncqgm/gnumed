@@ -5,15 +5,15 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_intake-dynamic.sql,v 1.1 2009-10-21 08:54:32 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-substance_intake-dynamic.sql,v 1.2 2009-10-27 11:03:37 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
--- drop old foreign key
+-- drop foreign key on brand
 \unset ON_ERROR_STOP
 alter table clin.substance_intake drop constraint substance_intake_fk_brand_fkey cascade;
 \set ON_ERROR_STOP 1
@@ -180,11 +180,14 @@ from
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_intake-dynamic.sql,v $
--- Revision 1.1  2009-10-21 08:54:32  ncq
+-- Revision 1.2  2009-10-27 11:03:37  ncq
+-- - better comment
+--
+-- Revision 1.1  2009/10/21 08:54:32  ncq
 -- - foreign key to consumed_substances
 -- - rework views
 --
