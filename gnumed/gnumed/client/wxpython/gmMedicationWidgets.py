@@ -2,11 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.9 2009-10-26 22:30:58 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmMedicationWidgets.py,v 1.10 2009-10-28 16:43:42 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import logging, sys, os.path
+import logging, sys, os.path, datetime as pydt
 
 
 import wx, wx.grid
@@ -14,10 +14,10 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools
-#, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDateTime, gmHooks
+from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
+#, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmHooks
 from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmCfgWidgets, gmListWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmCfgWidgets, gmListWidgets, gmEditArea
 
 
 _log = logging.getLogger('gm.ui')
@@ -226,6 +226,124 @@ def update_atc_reference_data():
 
 	wx.EndBusyCursor()
 	return True
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgCurrentMedicationEAPnl
+
+class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['substance']
+			del kwargs['substance']
+		except KeyError:
+			data = None
+
+		wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+#		self.__init_ui()
+
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		# adjust phrasewheels
+		pass
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		self.data = 1
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+#		self.data[''] = 
+#		self.data[''] = 
+#		self.data[''] = 
+		#self.data.save()
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_substance.SetText(u'', None)
+		self._PRW_strength.SetText(u'', None)
+		self._PRW_preparation.SetText(u'', None)
+		self._PRW_schedule.SetText(u'', None)
+		self._PRW_duration.SetText(u'', None)
+		self._PRW_aim.SetText(u'', None)
+		self._PRW_notes.SetText(u'', None)
+
+		self._PRW_episode.SetData(None)
+
+		self._CHBOX_perpetual.SetValue(False)
+		self._CHBOX_approved.SetValue(True)
+
+		self._DP_started.SetValue(dt = wx.DateTime.UNow())
+
+		self._PRW_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+
+		self._PRW_substance.SetText(self.data['substance'], self.data['pk_substance'])
+		self._PRW_strength.SetText(gmTools.coalesce(self.data['strength'], u''), self.data['strength'])
+		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
+		if self.data['duration'] is None:
+			self._PRW_duration.SetText(u'', None)
+			self._CHBOX_perpetual.SetValue(False)
+		else:
+			if self.data['duration'] > pydt.timedelta(days = (365 * 200)):
+				self._CHBOX_perpetual.SetValue(True)
+				self._PRW_duration.SetText(gmTools.u_infinity, None)
+				# maybe need to disable PRW_duration
+			else:
+				self._CHBOX_perpetual.SetValue(False)
+				# maybe need to enable PRW_duration
+				self._PRW_duration.SetText(gmDateTime.format_interval(self.data['duration'], gmDateTime.acc_days), self.data['duration'])
+		self._PRW_aim.SetText(gmTools.coalesce(self.data['aim'], u''), self.data['aim'])
+		self._PRW_notes.SetText(gmTools.coalesce(self.data['notes'], u''), self.data['notes'])
+		self._PRW_episode.SetData(self.data['pk_episode'])
+		self._PRW_schedule.SetText(gmTools.coalesce(self.data['schedule'], u''), self.data['schedule'])
+
+		self._CHBOX_approved.SetValue(self.data['intake_is_approved_of'])
+
+		self._DP_started.SetValue(gmDateTime.py_dt2wxDate(py_dt = self.data['started'], wx = wx))
+
+		self._PRW_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
+	def _on_database_button_pressed(self, event):
+		add_substances_from_drug_source(parent = self)
+	#----------------------------------------------------------------
+	def _on_chbox_perpetual_checked(self, event):
+		if self._CHBOX_perpetual.GetValue() is True:
+			self._PRW_duration.Enable(False)
+		else:
+			self._PRW_duration.Enable(True)
+#============================================================
+def edit_current_substance(parent = None, substance=None):
+	ea = cCurrentMedicationEAPnl(parent = parent, id = -1, substance = substance)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (substance is not None))
+	dlg.SetTitle(gmTools.coalesce(substance, _('Adding substance intake'), _('Editing substance intake')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
 #============================================================
 # current substances grid
 #------------------------------------------------------------
@@ -249,19 +367,53 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			_('Duration'),
 			_('Episode')
 		]
+		self.__row_data = {}
 #		self.__cell_tooltips = {}
-#		self.__cell_data = {}
 #		self.__prev_row = None
 #		self.__prev_col = None
 #		self.__date_format = str((_('lab_grid_date_format::%Y\n%b %d')).lstrip('lab_grid_date_format::'))
 
 		self.__init_ui()
-		#self.__register_events()
+		self.__register_events()
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
+	def get_selected_cells(self):
 
+		sel_block_top_left = self.GetSelectionBlockTopLeft()
+		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
+		sel_cols = self.GetSelectedCols()
+		sel_rows = self.GetSelectedRows()
 
+		selected_cells = []
+
+		# individually selected cells (ctrl-click)
+		selected_cells += self.GetSelectedCells()
+
+		# selected rows
+		selected_cells += list (
+			(row, col)
+				for row in sel_rows
+				for col in xrange(self.GetNumberCols())
+		)
+
+		# selected columns
+		selected_cells += list (
+			(row, col)
+				for row in xrange(self.GetNumberRows())
+				for col in sel_cols
+		)
+
+		# selection blocks
+		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
+			selected_cells += [
+				(row, col)
+					for row in xrange(top_left[0], bottom_right[0] + 1)
+					for col in xrange(top_left[1], bottom_right[1] + 1)
+			]
+
+		return set(selected_cells)
+	#------------------------------------------------------------
 	#------------------------------------------------------------
 	def repopulate_grid(self):
 
@@ -279,12 +431,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		for row_idx in range(len(meds)):
 			med = meds[row_idx]
+			self.__row_data[row_idx] = med
 			# FIXME: check for None
 			self.SetCellValue(row_idx, 0, med['substance'])
 			self.SetCellValue(row_idx, 1, med['strength'])
 			self.SetCellValue(row_idx, 2, med['schedule'])
 			self.SetCellValue(row_idx, 3, med['started'].strftime('%x'))
-			self.SetCellValue(row_idx, 4, unicode(med['duration']))
+			self.SetCellValue(row_idx, 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
 			#self.SetCellValue(row_idx, 0, med[''])
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
@@ -293,7 +446,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	def empty_grid(self):
 		self.BeginBatch()
 		self.ClearGrid()
-		# Windows cannot do nothing, it rather decides to assert()
+		# Windows cannot do "nothing", it rather decides to assert()
 		# on thinking it is supposed to do nothing
 		if self.GetNumberRows() > 0:
 			self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
@@ -301,14 +454,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		#	self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
 		#self.__cell_tooltips = {}
-		#self.__cell_data = {}
+		self.__row_data = {}
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
 	def __init_ui(self):
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
-		self.EnableDragGridSize(0)
+		self.EnableDragGridSize(1)
+		self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 
 		# setting this screws up the labels: they are cut off and displaced
 		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
@@ -334,6 +488,27 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	patient = property(_get_patient, _set_patient)
 	#------------------------------------------------------------
 	# group_mode
+	#------------------------------------------------------------
+	# event handling
+	#------------------------------------------------------------
+	def __register_events(self):
+		# dynamic tooltips: GridWindow, GridRowLabelWindow, GridColLabelWindow, GridCornerLabelWindow
+#		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
+		#self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
+		#self.GetGridColLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_col_labels)
+
+		# editing cells
+		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__on_cell_left_dclicked)
+	#------------------------------------------------------------
+	def __on_cell_left_dclicked(self, evt):
+		col = evt.GetCol()
+		row = evt.GetRow()
+
+		data = self.__row_data[row]
+		print "editing row", data
+
+		edit_current_substance(parent = self, substance = data)
+	#------------------------------------------------------------
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentSubstancesPnl
@@ -399,7 +574,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.9  2009-10-26 22:30:58  ncq
+# Revision 1.10  2009-10-28 16:43:42  ncq
+# - start implementing substances edit area
+# - enhance grid to allow actual substances management
+#
+# Revision 1.9  2009/10/26 22:30:58  ncq
 # - implement deletion of INN
 #
 # Revision 1.8  2009/10/21 20:41:53  ncq
