@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_intake-dynamic.sql,v 1.3 2009-10-28 16:45:32 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v12-clin-substance_intake-dynamic.sql,v 1.4 2009-10-28 21:49:27 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -80,6 +80,8 @@ select
 	csi.schedule,
 	csi.duration,
 	csi.aim,
+	cep.description
+		as episode,
 	csi.narrative
 		as notes,
 	csb.is_fake
@@ -101,6 +103,7 @@ from
 	clin.substance_intake csi
 		left join clin.substance_brand csb on (csi.fk_brand = csb.pk)
 			left join clin.consumed_substance ccs on (csi.fk_substance = ccs.pk)
+				left join clin.episode cep on (csi.fk_episode = cep.pk)
 ;
 
 grant select on clin.v_pat_substance_intake to group "gm-doctors";
@@ -180,11 +183,14 @@ from
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_intake-dynamic.sql,v $
--- Revision 1.3  2009-10-28 16:45:32  ncq
+-- Revision 1.4  2009-10-28 21:49:27  ncq
+-- - need episode name in view, too :-)
+--
+-- Revision 1.3  2009/10/28 16:45:32  ncq
 -- - slightly better comment
 --
 -- Revision 1.2  2009/10/27 11:03:37  ncq
