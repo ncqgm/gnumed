@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_intake-dynamic.sql,v 1.2 2009-10-27 11:03:37 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v12-clin-substance_intake-dynamic.sql,v 1.3 2009-10-28 16:45:32 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -23,7 +23,7 @@ alter table clin.substance_intake
 		drop not null;
 
 -- --------------------------------------------------------------
--- drop old foreign key
+-- drop old foreign key on consumed substance
 \unset ON_ERROR_STOP
 alter table clin.substance_intake drop constraint substance_intake_fk_substance_fkey cascade;
 \set ON_ERROR_STOP 1
@@ -180,11 +180,14 @@ from
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_intake-dynamic.sql,v $
--- Revision 1.2  2009-10-27 11:03:37  ncq
+-- Revision 1.3  2009-10-28 16:45:32  ncq
+-- - slightly better comment
+--
+-- Revision 1.2  2009/10/27 11:03:37  ncq
 -- - better comment
 --
 -- Revision 1.1  2009/10/21 08:54:32  ncq
