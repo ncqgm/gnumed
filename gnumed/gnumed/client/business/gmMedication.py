@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.8 2009-10-26 22:29:05 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmMedication.py,v 1.9 2009-10-28 16:40:12 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os
@@ -356,6 +356,20 @@ class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 #		'has_allergy',			# verified against allergy_states (see above)
 #		'comment'				# u'' maps to None / NULL
 	]
+	#--------------------------------------------------------
+	def _get_parsed_schedule(self):
+		tests = [
+			# lead, trail
+			'	1-1-1-1 ',
+			# leading dose
+			'1-1-1-1',
+			'22-1-1-1',
+			'1/3-1-1-1',
+			'/4-1-1-1'
+		]
+		pattern = "^(\d\d|/\d|\d/\d|\d)[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}$"
+		for test in tests:
+			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
 def create_patient_consumed_substance(substance=None, atc=None, encounter=None, episode=None, preparation=None):
 
@@ -468,7 +482,10 @@ if __name__ == "__main__":
 		#test_create_patient_consumed_substance()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.8  2009-10-26 22:29:05  ncq
+# Revision 1.9  2009-10-28 16:40:12  ncq
+# - add some docs about schedule parsing
+#
+# Revision 1.8  2009/10/26 22:29:05  ncq
 # - better factorization of paths in MMI interface
 # - update ATC on INN if now known
 # - delete-consumed-substance
