@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.151 $
+# $Revision: 1.152 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-10-21 22:51+CEST\n"
-"PO-Revision-Date: 2009-10-21 23:37+0100\n"
+"POT-Creation-Date: 2009-10-28 23:07+CET\n"
+"PO-Revision-Date: 2009-10-28 23:22+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1313,8 +1313,77 @@ msgstr "Wert"
 msgid "Address"
 msgstr "Adresse"
 
+msgid "+"
+msgstr ""
+
+msgid "Approved of"
+msgstr "Gebilligt"
+
+msgid "Perpetual"
+msgstr "Dauermedikation."
+
+msgid "The substance / INN the patient is taking."
+msgstr "Die Substanz / INN, die vom Patienten eingenommen wird."
+
+msgid "Get substances from an external drug database."
+msgstr "Substanzen aus externer Datenbank holen."
+
+msgid "The amount of substance per dose."
+msgstr "Die Menge Wirkstoff pro Dosis."
+
+msgid "The preparation the substance comes in."
+msgstr "Die Darreichungsform der Substanz."
+
+msgid "Whether this substance is taken by advice."
+msgstr "Ob die Einnahme dieser Substanz gebilligt (bzw sogar empfohlen) wird."
+
+msgid "When was this substance started to be consumed."
+msgstr "Seit wann wird diese Substanz konsumiert."
+
+msgid "The schedule for taking this substance."
+msgstr "Der Einnahmeplan für diese Substanz."
+
+msgid "Whether this substance is to be taken for the rest of the patient's life."
+msgstr "Ob es sich um ein Dauermedikament handelt."
+
+msgid "How long is this substance supposed to be taken."
+msgstr "Wie lange soll diese Substanz genommen werden."
+
+msgid "The aim of consuming this substance."
+msgstr "Das Ziel des Gebrauchs dieser Substanz."
+
+msgid "The episode this substance is taken under."
+msgstr "Die Episode, im Rahmen welcher diese Substanz eingenommen wird."
+
+msgid "Additional clinical notes on this substance intake."
+msgstr "Zusätzliche Angaben zur Einnahme dieser Substanz."
+
+msgid "Substance"
+msgstr "Stoff"
+
+msgid "Strength"
+msgstr "Stärke"
+
+msgid "Preparation"
+msgstr "Darreichungsform"
+
+msgid "Started"
+msgstr "Beginn"
+
+msgid "Schedule"
+msgstr "Plan"
+
+msgid "Duration"
+msgstr "Dauer"
+
+msgid "Aim"
+msgstr "Ziel"
+
 msgid "Episode"
 msgstr "Episode"
+
+msgid "Notes"
+msgstr "Karteieintrag"
 
 msgid "Brand"
 msgstr "Handelsname"
@@ -1324,6 +1393,15 @@ msgstr "Wirkstoffe nach Problemen gruppieren, wegen welcher sie eingenommen werd
 
 msgid "Group substances by brand. Thus each component will only appear once unless it is really taken in more than one substance."
 msgstr "Substanzen nach Arzneimitteln gruppieren. Dadurch erscheint jeder Wirkstoff nur einmal, außer er wird tatsächlich in Form mehrerer Medikamente eingenommen."
+
+msgid "Add a substance."
+msgstr "Eine Substanz hinzufügen."
+
+msgid "Remove a substance from the list."
+msgstr "Eine Substanz aus der Liste löschen."
+
+msgid "Print the medication list."
+msgstr "Medikamentenliste drucken."
 
 msgid "Group by"
 msgstr "Gruppieren nach"
@@ -1560,9 +1638,6 @@ msgstr "Patient:"
 
 msgid "Type"
 msgstr "Typ"
-
-msgid "Started"
-msgstr "Beginn"
 
 msgid "Ended"
 msgstr "Ende"
@@ -2465,9 +2540,6 @@ msgstr "g oder kg"
 msgid "Waist"
 msgstr "Taille"
 
-msgid "+"
-msgstr ""
-
 msgid "When did this procedure take place ?"
 msgstr "Wann fand diese Maßnahme statt ?"
 
@@ -3178,9 +3250,6 @@ msgstr "Allergien/Überempfindlichkeiten - Zusammenfassung"
 
 msgid "ATC/Class"
 msgstr "ATC/Klasse"
-
-msgid "Substance"
-msgstr "Stoff"
 
 msgid "Class notes"
 msgstr "Notiz zur Stoffklasse"
@@ -4744,9 +4813,6 @@ msgstr "nächste Erkrankung"
 msgid "Laterality"
 msgstr "Lokalisierung"
 
-msgid "Notes"
-msgstr "Karteieintrag"
-
 msgid "Progress Note"
 msgstr "Verlaufsnotiz"
 
@@ -5289,7 +5355,7 @@ msgstr "&Bundesländer"
 msgid "Manage provinces (counties, territories, ...)."
 msgstr "Bundeländer verwalten (Provinzen, Staaten, ...)."
 
-msgid "Manage substances in use ...)."
+msgid "Manage substances in use."
 msgstr "Substanzen (Wirkstoffe) verwalten."
 
 msgid "Substances"
@@ -7481,6 +7547,9 @@ msgstr "Sind Sie sicher, daß das Dokument gelöscht werden soll ?"
 msgid "Deleting document"
 msgstr "Dokument löschen"
 
+msgid "No default drug database configured."
+msgstr "Es ist keine Medikamentendatenbank voreingestellt."
+
 msgid "There is no default drug database configured."
 msgstr "Es ist keine Medikamentendatenbank eingestellt."
 
@@ -7498,7 +7567,7 @@ msgid "Showing consumed substances."
 msgstr "Zeige Substanzen (Wirkstoffe)."
 
 msgid "ATC"
-msgstr ""
+msgstr "ATC"
 
 msgid ""
 "\n"
@@ -7534,14 +7603,17 @@ msgstr "ATC-Referenzdaten erfolgreich importiert."
 msgid "Importing ATC reference data failed."
 msgstr "Import von ATC-Referenzdaten schlug fehl."
 
+msgid "Adding substance intake"
+msgstr "Substanzeinnahme dokumentieren"
+
+msgid "Editing substance intake"
+msgstr "Substanzeinnahme bearbeiten"
+
 msgid "Dose"
 msgstr "Dosis"
 
-msgid "Schedule"
-msgstr "Plan"
-
-msgid "Duration"
-msgstr "Dauer"
+msgid "%s (fake)"
+msgstr "% (unecht)"
 
 msgid "Cannot move progress notes. No active patient."
 msgstr "Kann Verlaufsnotizen nicht verschieben. Kein Patient aktiv."
@@ -9222,9 +9294,6 @@ msgstr "heutige Verordnungen"
 msgid "Drug"
 msgstr "Medikament"
 
-msgid "Strength"
-msgstr "Stärke"
-
 msgid "For"
 msgstr "Für"
 
@@ -9490,8 +9559,6 @@ msgstr "erstmals"
 #~ msgstr "Zusammenfassung der Kartei"
 #~ msgid "No document comment supplied. Add a comment for this document."
 #~ msgstr "Sie müssen einen Kommentar für das Dokument eingeben."
-#~ msgid "Current medications"
-#~ msgstr "Derzeitige Medikation"
 #~ msgid "tree view"
 #~ msgstr "Baumansicht"
 #~ msgid "Integrated &Progress notes"
