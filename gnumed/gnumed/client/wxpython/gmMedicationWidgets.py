@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.10 2009-10-28 16:43:42 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmMedicationWidgets.py,v 1.11 2009-10-28 21:48:55 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path, datetime as pydt
@@ -365,13 +365,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			_('Schedule'),
 			_('Started'),
 			_('Duration'),
-			_('Episode')
+			_('Episode'),
+			_('Brand')
 		]
 		self.__row_data = {}
 #		self.__cell_tooltips = {}
 #		self.__prev_row = None
 #		self.__prev_col = None
-#		self.__date_format = str((_('lab_grid_date_format::%Y\n%b %d')).lstrip('lab_grid_date_format::'))
 
 		self.__init_ui()
 		self.__register_events()
@@ -434,14 +434,28 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			self.__row_data[row_idx] = med
 			# FIXME: check for None
 			self.SetCellValue(row_idx, 0, med['substance'])
-			self.SetCellValue(row_idx, 1, med['strength'])
-			self.SetCellValue(row_idx, 2, med['schedule'])
+			self.SetCellValue(row_idx, 1, gmTools.coalesce(med['strength'], u''))
+			self.SetCellValue(row_idx, 2, gmTools.coalesce(med['schedule'], u''))
 			self.SetCellValue(row_idx, 3, med['started'].strftime('%x'))
-			self.SetCellValue(row_idx, 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-			#self.SetCellValue(row_idx, 0, med[''])
+			if med['duration'] is None:
+				self.SetCellValue(row_idx, 4, u'')
+			elif med['duration'] > pydt.timedelta(days = (365 * 200)):
+				self.SetCellValue(row_idx, 4, gmTools.u_infinity)
+			else:
+				self.SetCellValue(row_idx, 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+			if med['pk_episode'] is None:
+				self.SetCellValue(row_idx, 5, u'')
+			else:
+				self.SetCellValue(row_idx, 5, gmTools.coalesce(med['episode'], u''))
+			if med['pk_brand'] is None:
+				self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+			else:
+				if med['fake_brand']:
+					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+				else:
+					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
-
 	#------------------------------------------------------------
 	def empty_grid(self):
 		self.BeginBatch()
@@ -450,8 +464,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		# on thinking it is supposed to do nothing
 		if self.GetNumberRows() > 0:
 			self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
-		#if self.GetNumberCols() > 0:
-		#	self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
 		#self.__cell_tooltips = {}
 		self.__row_data = {}
@@ -466,6 +478,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		# setting this screws up the labels: they are cut off and displaced
 		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
+		self.SetColLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTER)
 
 		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
 		self.SetRowLabelSize(0)
@@ -501,12 +514,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__on_cell_left_dclicked)
 	#------------------------------------------------------------
 	def __on_cell_left_dclicked(self, evt):
-		col = evt.GetCol()
 		row = evt.GetRow()
-
 		data = self.__row_data[row]
-		print "editing row", data
-
 		edit_current_substance(parent = self, substance = data)
 	#------------------------------------------------------------
 
@@ -574,7 +583,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.10  2009-10-28 16:43:42  ncq
+# Revision 1.11  2009-10-28 21:48:55  ncq
+# - further improved substances grid
+#
+# Revision 1.10  2009/10/28 16:43:42  ncq
 # - start implementing substances edit area
 # - enhance grid to allow actual substances management
 #
