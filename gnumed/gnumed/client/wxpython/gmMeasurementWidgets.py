@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.60 2009-09-17 21:54:55 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmMeasurementWidgets.py,v 1.61 2009-10-28 16:42:53 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -685,7 +685,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def __init_ui(self):
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
-		self.EnableDragGridSize(0)
+		self.EnableDragGridSize(1)
 
 		# setting this screws up the labels: they are cut off and displaced
 		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
@@ -1877,7 +1877,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.60  2009-09-17 21:54:55  ncq
+# Revision 1.61  2009-10-28 16:42:53  ncq
+# - make grid draggable
+#
+# Revision 1.60  2009/09/17 21:54:55  ncq
 # - properly access test type pk
 # - check for use before deleting test type
 #
