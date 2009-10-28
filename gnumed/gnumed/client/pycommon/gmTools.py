@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.91 2009-10-21 20:39:18 ncq Exp $
+# $Id: gmTools.py,v 1.92 2009-10-28 16:40:32 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.91 $"
+__version__ = "$Revision: 1.92 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,6 +52,7 @@ u_three_quarters = u'\u00BE'
 u_ellipsis = u'\u2026'
 u_left_arrow = u'\u2190'
 u_corresponds_to = u'\u2258'
+u_infinity = u'\u221E'
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
 u_black_heart = u'\u2665'
@@ -1095,7 +1096,10 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.91  2009-10-21 20:39:18  ncq
+# Revision 1.92  2009-10-28 16:40:32  ncq
+# - add infinity symbol
+#
+# Revision 1.91  2009/10/21 20:39:18  ncq
 # - make unicode csv *dict* reader actually work
 # - make intermediate encoding of unicode csv reader configurable
 #
