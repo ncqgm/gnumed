@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-bootstrap_server,v $
-# $Id: gm-bootstrap_server,v 1.1 2009-01-05 12:13:53 ncq Exp $
+# $Id: gm-bootstrap_server,v 1.2 2009-10-28 16:44:13 ncq Exp $
 #
 # author: Andreas Tille, Karsten Hilbert
 # license: GPL v2
@@ -26,7 +26,7 @@ set -e
 if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" postgres | grep -q -e C -e UTF-8 ; then
 	echo "Your PostgreSQL installation seems not to have lc_ctype UTF-8 or C."
 	echo "This will most probably lead to failures of the GNUmed server installation."
-	exit -1
+	#exit -1
 fi
 
 cd ${GM_SERVER_DIR}
@@ -34,7 +34,10 @@ cd ${GM_SERVER_DIR}
 
 #==============================================================
 # $Log: gm-bootstrap_server,v $
-# Revision 1.1  2009-01-05 12:13:53  ncq
+# Revision 1.2  2009-10-28 16:44:13  ncq
+# - make the UTF-8 check a warning only
+#
+# Revision 1.1  2009/01/05 12:13:53  ncq
 # - new, as per discussion on list for Debian
 #
 #
