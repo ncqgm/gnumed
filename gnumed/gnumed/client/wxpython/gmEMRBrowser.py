@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.107 2009-10-20 10:26:21 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmEMRBrowser.py,v 1.108 2009-10-29 17:21:14 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -553,10 +553,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt = u''
 			tt += gmTools.bool2subst (
 				(data['diagnostic_certainty_classification'] is not None),
-				data.diagnostic_certainty_description + u'\n',
+				data.diagnostic_certainty_description + u'\n\n',
 				u''
 			)
-			tt += u'\n' + gmTools.bool2subst (
+			tt += gmTools.bool2subst (
 				data['episode_open'],
 				_('ongoing episode'),
 				_('closed episode'),
@@ -566,10 +566,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		elif isinstance(data, gmEMRStructItems.cHealthIssue):
 			tt = u''
-			tt += gmTools.bool2subst(data['is_confidential'], _('*** CONFIDENTIAL ***\n'), u'')
+			tt += gmTools.bool2subst(data['is_confidential'], _('*** CONFIDENTIAL ***\n\n'), u'')
 			tt += gmTools.bool2subst (
 				(data['diagnostic_certainty_classification'] is not None),
-				u'\n' + data.diagnostic_certainty_description + u'\n',
+				data.diagnostic_certainty_description + u'\n',
 				u''
 			)
 			if data['laterality'] not in [None, 'na']:
@@ -829,7 +829,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.107  2009-10-20 10:26:21  ncq
+# Revision 1.108  2009-10-29 17:21:14  ncq
+# - improved tooltips
+#
+# Revision 1.107  2009/10/20 10:26:21  ncq
 # - tooltips on issue/episode in EMR tree
 #
 # Revision 1.106  2009/09/23 14:34:21  ncq
