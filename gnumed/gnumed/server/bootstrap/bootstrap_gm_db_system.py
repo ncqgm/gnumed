@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.107 $"
+__version__ = "$Revision: 1.108 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -875,6 +875,13 @@ class database:
 		hba_file = rows[0][0]
 		_log.info('hba file: %s', hba_file)
 
+		try:
+			f = open(hba_file, 'r')
+			f.close()
+		except StandardError:
+			_log.exception('cannot check pg_hba.conf for authentication information - not readable')
+			return
+
 		found_holy_line = False
 		for line in fileinput.input(hba_file):
 			if regex.match(holy_pattern, line) is not None:
@@ -1474,7 +1481,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.107  2009-10-21 09:24:45  ncq
+# Revision 1.108  2009-10-29 18:46:51  ncq
+# - even if we know the path of pg_hba.conf we may not
+#   be able to read it so be careful with that
+#
+# Revision 1.107  2009/10/21 09:24:45  ncq
 # - make console output just a bit tidier
 #
 # Revision 1.106  2009/09/23 14:46:28  ncq
