@@ -2,11 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.11 2009-10-28 21:48:55 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmMedicationWidgets.py,v 1.12 2009-10-29 17:23:24 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import logging, sys, os.path, datetime as pydt
+import logging, sys, os.path
 
 
 import wx, wx.grid
@@ -30,37 +30,18 @@ def manage_substances_in_use(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
 	def delete(substance):
-		gmMedication.delete_consumed_substance(substance = substance['pk'])
+		gmMedication.delete_used_substance(substance = substance['pk'])
 		return True
 	#------------------------------------------------------------
 	def new():
 
 		dbcfg = gmCfg.cCfgSQL()
 
-		# FIXME: this should actually be indirect via an EA
-		default_db = dbcfg.get2 (
-			option = 'external.drug_data.default_source',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = 'workplace'
-		)
+		drug_db = get_drug_database(parent = parent)
 
-		if default_db is None:
-			gmDispatcher.send('statustext', msg = _('No default drug database configured.'), beep = True)
-			print "starting configuration"
-			configure_drug_data_source(parent = parent)
-			default_db = dbcfg.get2 (
-				option = 'external.drug_data.default_source',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			)
-			if default_db is None:
-				gmGuiHelpers.gm_show_error (
-					aMessage = _('There is no default drug database configured.'),
-					aTitle = _('Jumping to drug database')
-				)
-				return False
+		if drug_db is None:
+			return False
 
-		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 		drug_db.import_drugs_as_substances()
 
 		return True
@@ -90,11 +71,17 @@ def manage_substances_in_use(parent=None):
 		new_callback = new
 	)
 #============================================================
+# generic drug database access
+#============================================================
 def configure_drug_data_source(parent=None):
-
 	gmCfgWidgets.configure_string_from_list_option (
 		parent = parent,
-		message = _('\nPlease select the default drug data source from the list below.\n'),
+		message = _(
+			'\n'
+			'Please select the default drug data source from the list below.\n'
+			'\n'
+			'Note that to actually use it you need to have the database installed, too.'
+		),
 		option = 'external.drug_data.default_source',
 		bias = 'user',
 		default_value = None,
@@ -104,8 +91,7 @@ def configure_drug_data_source(parent=None):
 		caption = _('Configuring default drug data source')
 	)
 #============================================================
-def jump_to_drug_database():
-
+def get_drug_database(parent = None):
 	dbcfg = gmCfg.cCfgSQL()
 
 	default_db = dbcfg.get2 (
@@ -115,13 +101,31 @@ def jump_to_drug_database():
 	)
 
 	if default_db is None:
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('There is no default drug database configured.'),
-			aTitle = _('Jumping to drug database')
+		gmDispatcher.send('statustext', msg = _('No default drug database configured.'), beep = True)
+		configure_drug_data_source(parent = parent)
+		default_db = dbcfg.get2 (
+			option = 'external.drug_data.default_source',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace'
 		)
-		return
+		if default_db is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('There is no default drug database configured.'),
+				aTitle = _('Jumping to drug database')
+			)
+			return None
 
-	drug_db = gmMedication.drug_data_source_interfaces[default_db]()
+	try:
+		return gmMedication.drug_data_source_interfaces[default_db]()
+	except KeyError:
+		_log.error('faulty default drug data source configuration: %s', default_db)
+		return None
+#============================================================
+def jump_to_drug_database():
+	dbcfg = gmCfg.cCfgSQL()
+	drug_db = get_drug_database()
+	if drug_db is None:
+		return
 	drug_db.switch_to_frontend(blocking = False)
 #============================================================
 def jump_to_ifap(import_drugs=False):
@@ -247,8 +251,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		if data is not None:
 			self.mode = 'edit'
 
-#		self.__init_ui()
-
+		self.__init_ui()
 	#----------------------------------------------------------------
 	def __init_ui(self):
 		# adjust phrasewheels
@@ -257,23 +260,71 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return True
-		return False
+
+		validity = True
+
+		if self._PRW_substance.GetValue().strip() == u'':
+			self._PRW_substance.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_substance.display_as_valid(True)
+
+		if self._PRW_preparation.GetValue().strip() == u'':
+			self._PRW_preparation.display_as_valid(False)
+			validity = False
+		else:
+			self._PRW_preparation.display_as_valid(True)
+
+		if self._CHBOX_approved.GetValue() is True:
+			if self._PRW_episode.GetValue().strip() == u'':
+				self._PRW_episode.display_as_valid(False)
+				validity = False
+			else:
+				self._PRW_episode.display_as_valid(True)
+
+		if self._CHBOX_approved.GetValue() is True:
+			self._PRW_duration.display_as_valid(True)
+		else:
+			if self._PRW_duration.GetValue().strip() == u'':
+				self._PRW_duration.display_as_valid(True)
+			else:
+				if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
+					self._PRW_duration.display_as_valid(False)
+					validity = False
+				else:
+					self._PRW_duration.display_as_valid(True)
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance intake. Invalid or missing essential input.'))
+
+		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
 		self.data = 1
-		return True
 		return False
+		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		# update self.data and save the changes
-#		self.data[''] = 
-#		self.data[''] = 
-#		self.data[''] = 
-		#self.data.save()
+
+		self.data['started'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_started.GetValue())
+		self.data['preparation'] = self._PRW_preparation.GetValue()
+		self.data['strength'] = self._PRW_strength.GetValue()
+		self.data['schedule'] = self._PRW_schedule.GetValue()
+		self.data['aim'] = self._PRW_aim.GetValue()
+		self.data['notes'] = self._PRW_notes.GetValue()
+		self.data['is_long_term'] = self._CHBOX_long_term.GetValue()
+		self.data['intake_is_approved_of'] = self._CHBOX_approved.GetValue()
+		self.data['pk_substance'] = self._PRW_substance.GetData()
+		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
+
+		if self._PRW_duration.GetValue().strip() == u'':
+			self.data['duration'] = None
+		else:
+			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+
+		self.data.save()
 		return True
-		return False
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_substance.SetText(u'', None)
@@ -286,7 +337,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self._PRW_episode.SetData(None)
 
-		self._CHBOX_perpetual.SetValue(False)
+		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
 
 		self._DP_started.SetValue(dt = wx.DateTime.UNow())
@@ -298,17 +349,16 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_substance.SetText(self.data['substance'], self.data['pk_substance'])
 		self._PRW_strength.SetText(gmTools.coalesce(self.data['strength'], u''), self.data['strength'])
 		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
-		if self.data['duration'] is None:
-			self._PRW_duration.SetText(u'', None)
-			self._CHBOX_perpetual.SetValue(False)
+		if self.data['is_long_term']:
+			# maybe need to disable PRW_duration
+			self._CHBOX_long_term.SetValue(True)
+			self._PRW_duration.SetText(gmTools.u_infinity, None)
 		else:
-			if self.data['duration'] > pydt.timedelta(days = (365 * 200)):
-				self._CHBOX_perpetual.SetValue(True)
-				self._PRW_duration.SetText(gmTools.u_infinity, None)
-				# maybe need to disable PRW_duration
+			# maybe need to enable PRW_duration
+			self._CHBOX_long_term.SetValue(False)
+			if self.data['duration'] is None:
+				self._PRW_duration.SetText(u'', None)
 			else:
-				self._CHBOX_perpetual.SetValue(False)
-				# maybe need to enable PRW_duration
 				self._PRW_duration.SetText(gmDateTime.format_interval(self.data['duration'], gmDateTime.acc_days), self.data['duration'])
 		self._PRW_aim.SetText(gmTools.coalesce(self.data['aim'], u''), self.data['aim'])
 		self._PRW_notes.SetText(gmTools.coalesce(self.data['notes'], u''), self.data['notes'])
@@ -322,20 +372,32 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		pass
+		self._refresh_as_new()
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
 	def _on_database_button_pressed(self, event):
-		add_substances_from_drug_source(parent = self)
+		drug_db = get_drug_database()
+		if drug_db is None:
+			return
+		new_substances = drug_db.import_drugs_as_substances()
+		if new_substances is None:
+			return
+		if len(new_substances) == 0:
+			return
+		# FIXME: could usefully
+		# FIXME: a) ask which
+		# FIXME: b) remember the others for post-processing
+		first = new_substances[0]
+		self._PRW_substance.SetText(first['description'], first['pk'])
 	#----------------------------------------------------------------
-	def _on_chbox_perpetual_checked(self, event):
-		if self._CHBOX_perpetual.GetValue() is True:
+	def _on_chbox_long_term_checked(self, event):
+		if self._CHBOX_long_term.GetValue() is True:
 			self._PRW_duration.Enable(False)
 		else:
 			self._PRW_duration.Enable(True)
 #============================================================
-def edit_current_substance(parent = None, substance=None):
+def edit_intake_of_substance(parent = None, substance=None):
 	ea = cCurrentMedicationEAPnl(parent = parent, id = -1, substance = substance)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (substance is not None))
 	dlg.SetTitle(gmTools.coalesce(substance, _('Adding substance intake'), _('Editing substance intake')))
@@ -432,17 +494,20 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		for row_idx in range(len(meds)):
 			med = meds[row_idx]
 			self.__row_data[row_idx] = med
-			# FIXME: check for None
+
 			self.SetCellValue(row_idx, 0, med['substance'])
 			self.SetCellValue(row_idx, 1, gmTools.coalesce(med['strength'], u''))
 			self.SetCellValue(row_idx, 2, gmTools.coalesce(med['schedule'], u''))
 			self.SetCellValue(row_idx, 3, med['started'].strftime('%x'))
-			if med['duration'] is None:
-				self.SetCellValue(row_idx, 4, u'')
-			elif med['duration'] > pydt.timedelta(days = (365 * 200)):
+
+			if med['is_long_term']:
 				self.SetCellValue(row_idx, 4, gmTools.u_infinity)
 			else:
-				self.SetCellValue(row_idx, 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+				if med['duration'] is None:
+					self.SetCellValue(row_idx, 4, u'')
+				else:
+					self.SetCellValue(row_idx, 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+
 			if med['pk_episode'] is None:
 				self.SetCellValue(row_idx, 5, u'')
 			else:
@@ -516,7 +581,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	def __on_cell_left_dclicked(self, evt):
 		row = evt.GetRow()
 		data = self.__row_data[row]
-		edit_current_substance(parent = self, substance = data)
+		edit_intake_of_substance(parent = self, substance = data)
 	#------------------------------------------------------------
 
 #============================================================
@@ -565,6 +630,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def __on_pre_patient_selection(self):
 		self._grid_substances.patient = None
+	#--------------------------------------------------------
+	def _on_add_button_pressed(self, event):
+		edit_intake_of_substance(parent = self, substance = None)
 #============================================================
 # main
 #------------------------------------------------------------
@@ -583,7 +651,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.11  2009-10-28 21:48:55  ncq
+# Revision 1.12  2009-10-29 17:23:24  ncq
+# - consolidate get-drug-database
+# - much improved substance intake EA
+# - better naming and adjust to such
+#
+# Revision 1.11  2009/10/28 21:48:55  ncq
 # - further improved substances grid
 #
 # Revision 1.10  2009/10/28 16:43:42  ncq
