@@ -20,6 +20,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._RBTN_episode = wx.RadioButton(self, -1, _("Episode"))
         self._RBTN_brand = wx.RadioButton(self, -1, _("Brand"))
+        self._CHBOX_show_all = wx.CheckBox(self, -1, _("Show unapproved"))
         self._grid_substances = gmMedicationWidgets.cCurrentSubstancesGrid(self, -1, size=(1, 1))
         self._BTN_add = wx.Button(self, wx.ID_ADD, "")
         self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
@@ -28,8 +29,9 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_RADIOBUTTON, self.__on_episode_grouping_selected, self._RBTN_episode)
-        self.Bind(wx.EVT_RADIOBUTTON, self.__on_brand_grouping_selected, self._RBTN_brand)
+        self.Bind(wx.EVT_RADIOBUTTON, self._on_episode_grouping_selected, self._RBTN_episode)
+        self.Bind(wx.EVT_RADIOBUTTON, self._on_brand_grouping_selected, self._RBTN_brand)
+        self.Bind(wx.EVT_CHECKBOX, self._on_show_all_checked, self._CHBOX_show_all)
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
         self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
@@ -41,6 +43,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._RBTN_episode.SetToolTipString(_("Group substances by episode for which they are taken."))
         self._RBTN_episode.SetValue(1)
         self._RBTN_brand.SetToolTipString(_("Group substances by brand. Thus each component will only appear once unless it is really taken in more than one substance."))
+        self._CHBOX_show_all.SetToolTipString(_("Whether to show all substances or only those the intake of which is approved of."))
         self._BTN_add.SetToolTipString(_("Add a substance."))
         self._BTN_delete.SetToolTipString(_("Remove a substance from the list."))
         self._BTN_print.SetToolTipString(_("Print the medication list."))
@@ -54,7 +57,10 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __lbl_group = wx.StaticText(self, -1, _("Group by"))
         __szr_grouping.Add(__lbl_group, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_grouping.Add(self._RBTN_episode, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_grouping.Add(self._RBTN_brand, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_grouping.Add(self._RBTN_brand, 0, wx.ALIGN_CENTER_VERTICAL, 10)
+        __SLINE_grouping = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        __szr_grouping.Add(__SLINE_grouping, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
+        __szr_grouping.Add(self._CHBOX_show_all, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_grouping.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_grouping, 0, wx.EXPAND, 0)
         __szr_main.Add(self._grid_substances, 1, wx.TOP|wx.EXPAND, 5)
@@ -69,14 +75,6 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_main.Fit(self)
         # end wxGlade
 
-    def __on_episode_grouping_selected(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-        print "Event handler `__on_episode_grouping_selected' not implemented!"
-        event.Skip()
-
-    def __on_brand_grouping_selected(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-        print "Event handler `__on_brand_grouping_selected' not implemented!"
-        event.Skip()
-
     def _on_add_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
         print "Event handler `_on_add_button_pressed' not implemented"
         event.Skip()
@@ -87,6 +85,18 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
     def _on_print_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
         print "Event handler `_on_print_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_episode_grouping_selected(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_episode_grouping_selected' not implemented"
+        event.Skip()
+
+    def _on_brand_grouping_selected(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_brand_grouping_selected' not implemented"
+        event.Skip()
+
+    def _on_show_all_checked(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_show_all_checked' not implemented"
         event.Skip()
 
 # end of class wxgCurrentSubstancesPnl

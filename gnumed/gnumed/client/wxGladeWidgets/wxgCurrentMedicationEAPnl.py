@@ -25,8 +25,8 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._CHBOX_approved = wx.CheckBox(self, -1, _("Approved of"))
         self._DP_started = wx.DatePickerCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_SHOWCENTURY)
         self._PRW_schedule = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._CHBOX_perpetual = wx.CheckBox(self, -1, _("Perpetual"))
         self._PRW_duration = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._CHBOX_long_term = wx.CheckBox(self, -1, _("Long-term"))
         self._PRW_aim = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_notes = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -35,7 +35,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_database_button_pressed, self._BTN_database)
-        self.Bind(wx.EVT_CHECKBOX, self._on_chbox_perpetual_checked, self._CHBOX_perpetual)
+        self.Bind(wx.EVT_CHECKBOX, self._on_chbox_long_term_checked, self._CHBOX_long_term)
         # end wxGlade
 
     def __set_properties(self):
@@ -49,8 +49,8 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._CHBOX_approved.SetValue(1)
         self._DP_started.SetToolTipString(_("When was this substance started to be consumed."))
         self._PRW_schedule.SetToolTipString(_("The schedule for taking this substance."))
-        self._CHBOX_perpetual.SetToolTipString(_("Whether this substance is to be taken for the rest of the patient's life."))
         self._PRW_duration.SetToolTipString(_("How long is this substance supposed to be taken."))
+        self._CHBOX_long_term.SetToolTipString(_("Whether this substance is to be taken for the rest of the patient's life."))
         self._PRW_aim.SetToolTipString(_("The aim of consuming this substance."))
         self._PRW_episode.SetToolTipString(_("The episode this substance is taken under."))
         self._PRW_notes.SetToolTipString(_("Additional clinical notes on this substance intake."))
@@ -83,8 +83,8 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(self._PRW_schedule, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_duration = wx.StaticText(self, -1, _("Duration"))
         _gszr_main.Add(__lbl_duration, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_duration.Add(self._CHBOX_perpetual, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
-        __szr_duration.Add(self._PRW_duration, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_duration.Add(self._PRW_duration, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_duration.Add(self._CHBOX_long_term, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 2)
         _gszr_main.Add(__szr_duration, 1, wx.EXPAND, 0)
         __lbl_aim = wx.StaticText(self, -1, _("Aim"))
         _gszr_main.Add(__lbl_aim, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -100,20 +100,12 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         _gszr_main.AddGrowableCol(1)
         # end wxGlade
 
-    def __on_database_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
-        print "Event handler `__on_database_button_pressed' not implemented!"
-        event.Skip()
-
-    def __on_chbox_perpetual_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
-        print "Event handler `__on_chbox_perpetual_checked' not implemented"
-        event.Skip()
-
     def _on_database_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
         print "Event handler `_on_database_button_pressed' not implemented"
         event.Skip()
 
-    def _on_chbox_perpetual_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
-        print "Event handler `_on_chbox_perpetual_checked' not implemented"
+    def _on_chbox_long_term_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
+        print "Event handler `_on_chbox_long_term_checked' not implemented"
         event.Skip()
 
 # end of class wxgCurrentMedicationEAPnl
