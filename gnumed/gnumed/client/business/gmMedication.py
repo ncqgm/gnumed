@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.9 2009-10-28 16:40:12 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmMedication.py,v 1.10 2009-10-29 17:16:59 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os
@@ -204,16 +204,20 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		selected_drugs = self.select_drugs()
 		if selected_drugs is None:
-			return False
+			return None
+
+		new_substances = []
 
 		for drug in selected_drugs:
 			atc = None							# hopefully MMI eventually supports atc-per-substance in a drug...
 			if len(drug['wirkstoffe']) == 1:
 				atc = drug['atc']
 			for wirkstoff in drug['wirkstoffe']:
-				create_used_substance(substance = wirkstoff, atc = atc)
+				new_substances.append(create_used_substance(substance = wirkstoff, atc = atc))
 
 		selected_drugs.close()
+
+		return new_substances
 	#--------------------------------------------------------
 	def check_drug_interactions(self, filename=None, pzn_list=None):
 		"""For this to work the BDT interaction check must be configured in the MMI."""
@@ -304,11 +308,11 @@ def create_used_substance(substance=None, atc=None):
 
 	args = {'desc': substance, 'atc': atc}
 
-	cmd = u'select pk, atc_code from clin.consumed_substance where description = %(desc)s'
+	cmd = u'select pk, atc_code, description from clin.consumed_substance where description = %(desc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
-		cmd = u'insert into clin.consumed_substance (description, atc_code) values (%(desc)s, gm.nullify_empty_string(%(atc)s)) returning pk, atc_code'
+		cmd = u'insert into clin.consumed_substance (description, atc_code) values (%(desc)s, gm.nullify_empty_string(%(atc)s)) returning pk, atc_code, description'
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	row = rows[0]
@@ -323,9 +327,9 @@ def create_used_substance(substance=None, atc=None):
 			if row['atc_code'].strip() != atc.strip():
 				_log.error('ATC conflict for "%s". Database: [%s], argument: [%s]', substance, row['atc_code'], atc)
 
-	return rows[0][0]
+	return row
 #============================================================
-def delete_consumed_substance(substance=None):
+def delete_used_substance(substance=None):
 	args = {'pk': substance}
 	cmd = u"""
 delete from clin.consumed_substance
@@ -337,25 +341,67 @@ where
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
 class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents a substance currently taken by the patient."""
+	"""Represents a substance currently taken by a patient."""
 
 	_cmd_fetch_payload = u"select * from clin.v_pat_substance_intake where pk_substance_intake = %s"
 	_cmds_store_payload = [
-		# gm.nullify_empty_string()
-#		u"""update clin.allergy_state set
-#				last_confirmed = %(last_confirmed)s,
-#				has_allergy = %(has_allergy)s,
-#				comment = %(comment)s
-#			where
-#				pk = %(pk_allergy_state)s and
-#				xmin = %(xmin_allergy_state)s""",
-#		u"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
+		u"""update clin.substance_intake set
+				clin_when = %(started)s,
+				strength = gm.nullify_empty_string(%(strength)s),
+				preparation = %(preparation)s,
+				schedule = gm.nullify_empty_string(%(schedule)s),
+				aim = gm.nullify_empty_string(%(aim)s),
+				narrative = gm.nullify_empty_string(%(notes)s),
+				intake_is_approved_of = %(intake_is_approved_of)s,
+
+				-- is_long_term = %(is_long_term)s,
+				is_long_term = (
+					case
+						when (
+							(%(is_long_term)s is False)
+								and
+							(gm.is_null_or_blank_string(%(duration)s) is True)
+						) is True then null
+						else %(is_long_term)s
+					end
+				)::boolean,
+				duration = (
+					case
+						when %(is_long_term)s is True then null
+						else gm.nullify_empty_string(%(duration)s)
+					end
+				)::interval,
+
+				fk_brand = %(pk_brand)s,
+				fk_substance = %(pk_substance)s,
+				fk_episode = %(pk_episode)s
+			where
+				pk = %(pk_substance_intake)s and
+				xmin = %(xmin_substance_intake)s
+			returning
+				xmin as xmin_substance_intake
+		"""
 	]
 	_updatable_fields = [
-#		'last_confirmed',		# special value u'now' will set to datetime.datetime.now() in the local time zone
-#		'has_allergy',			# verified against allergy_states (see above)
-#		'comment'				# u'' maps to None / NULL
+		u'started',
+		u'preparation',
+		u'strength',
+		u'intake_is_approved_of',
+		u'schedule',
+		u'duration',
+		u'aim',
+		u'is_long_term',
+		u'notes',
+		u'pk_brand',
+		u'pk_substance',
+		u'pk_episode'
 	]
+	#--------------------------------------------------------
+#	def save_payload(self, conn=None):
+#		if self._payload[self._idx['is_long_term']]:
+#			self._payload[self._idx['duration']] = None
+#
+#		gmBusinessDBObject.cBusinessDBObject.save_payload(self, conn=conn)
 	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
 		tests = [
@@ -379,7 +425,7 @@ def create_patient_consumed_substance(substance=None, atc=None, encounter=None, 
 		'enc': encounter,
 		'epi': episode,
 		'prep': preparation,
-		'subst': create_used_substance(substance = substance, atc = atc)
+		'subst': create_used_substance(substance = substance, atc = atc)['pk']
 	}
 
 	cmd = u"""
@@ -482,7 +528,12 @@ if __name__ == "__main__":
 		#test_create_patient_consumed_substance()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.9  2009-10-28 16:40:12  ncq
+# Revision 1.10  2009-10-29 17:16:59  ncq
+# - return newly created substances from creator func and substance importer method
+# - better naming
+# - finish up cConsumedSubstance
+#
+# Revision 1.9  2009/10/28 16:40:12  ncq
 # - add some docs about schedule parsing
 #
 # Revision 1.8  2009/10/26 22:29:05  ncq
