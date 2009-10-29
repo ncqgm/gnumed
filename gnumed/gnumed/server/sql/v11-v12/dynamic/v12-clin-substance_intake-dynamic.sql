@@ -5,14 +5,93 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_intake-dynamic.sql,v 1.4 2009-10-28 21:49:27 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v12-clin-substance_intake-dynamic.sql,v 1.5 2009-10-29 17:27:56 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
+
+set check_function_bodies to 1;
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- .is_long_term
+comment on column clin.substance_intake.is_long_term is
+	'whether this is expected to be a regular/ongoing/chronic/long-term/repeat/permament/perpetual/life-long substance intake';
+
+
+alter table clin.substance_intake
+	alter column is_long_term
+		set default null;
+
+-- --------------------------------------------------------------
+-- .fk_episode
+alter table clin.substance_intake
+	alter column fk_episode
+		drop not null;
+
+
+
+\unset ON_ERROR_STOP
+drop function clin.trf_sanity_check_substance_episode() cascade;
+\set ON_ERROR_STOP 1
+
+
+create or replace function clin.trf_sanity_check_substance_episode()
+	returns trigger
+	language plpgsql
+	as '
+declare
+	_identity_from_encounter integer;
+	_identity_from_episode integer;
+begin
+	-- episode can only be NULL if intake is not approved of,
+	-- IOW, if clinician approves of intake she better know why
+	if NEW.intake_is_approved_of is True then
+		if NEW.fk_episode is NULL then
+			raise exception ''clin.trf_sanity_check_substance_episode(): substance intake is approved of but .fk_episode is NULL'';
+			return NULL;
+		end if;
+	end if;
+
+	-- .fk_episode can be NULL (except in the above case)
+	if NEW.fk_episode is NULL then
+		return NEW;
+	end if;
+
+	-- .fk_episode must belong to the same patient as .fk_encounter
+	select fk_patient into _identity_from_encounter from clin.encounter where pk = NEW.fk_encounter;
+
+	select fk_patient into _identity_from_episode from clin.encounter where pk = (
+		select fk_encounter from clin.episode where pk = NEW.fk_episode
+	);
+
+	if _identity_from_encounter <> _identity_from_episode then
+		raise exception ''INSERT/UPDATE into %.%: Sanity check failed. Encounter % patient = %. Episode % patient = %.'',
+			TG_TABLE_SCHEMA,
+			TG_TABLE_NAME,
+			NEW.fk_encounter,
+			_identity_from_encounter,
+			NEW.fk_episode,
+			_identity_from_episode
+		;
+		return NULL;
+	end if;
+
+	return NEW;
+
+end;';
+
+
+create trigger tr_sanity_check_substance_episode
+	before insert or update
+	on clin.substance_intake
+	for each row
+		execute procedure clin.trf_sanity_check_substance_episode();
+
+-- --------------------------------------------------------------
+-- .fk_brand
+
 -- drop foreign key on brand
 \unset ON_ERROR_STOP
 alter table clin.substance_intake drop constraint substance_intake_fk_brand_fkey cascade;
@@ -23,6 +102,8 @@ alter table clin.substance_intake
 		drop not null;
 
 -- --------------------------------------------------------------
+-- .fk_substance
+
 -- drop old foreign key on consumed substance
 \unset ON_ERROR_STOP
 alter table clin.substance_intake drop constraint substance_intake_fk_substance_fkey cascade;
@@ -79,6 +160,7 @@ select
 	csi.intake_is_approved_of,
 	csi.schedule,
 	csi.duration,
+	csi.is_long_term,
 	csi.aim,
 	cep.description
 		as episode,
@@ -129,11 +211,16 @@ select
 	csi.soap_cat
 		as soap_cat,
 
-	_('substance intake') || ' '
+	(case
+		when is_long_term is true then _('long-term') || ' '
+		else ''
+	 end
+	)
+		|| _('substance intake') || ' '
 		|| (case
 				when intake_is_approved_of is true then _('(approved of)')
 				when intake_is_approved_of is false then _('(not approved of)')
-				else _('[of unknown approval]')
+				else _('(of unknown approval)')
 			end)
 		|| E':\n'
 
@@ -183,11 +270,16 @@ from
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_intake-dynamic.sql,v $
--- Revision 1.4  2009-10-28 21:49:27  ncq
+-- Revision 1.5  2009-10-29 17:27:56  ncq
+-- - .is_long_term
+-- - sanity check on fk_episode
+-- - view adjusted
+--
+-- Revision 1.4  2009/10/28 21:49:27  ncq
 -- - need episode name in view, too :-)
 --
 -- Revision 1.3  2009/10/28 16:45:32  ncq
