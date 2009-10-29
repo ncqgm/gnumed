@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -214,6 +214,12 @@ declare
 	_identity_from_encounter integer;
 	_identity_from_episode integer;
 begin
+	-- sometimes .fk_episode can actually be NULL (eg. clin.substance_intake)
+	-- in which case we do not need to run the sanity check
+	if NEW.fk_episode is NULL then
+		return NEW;
+	end if;
+
 	select fk_patient into _identity_from_encounter from clin.encounter where pk = NEW.fk_encounter;
 
 	select fk_patient into _identity_from_episode from clin.encounter where pk = (
@@ -428,7 +434,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.38  2009-10-27 11:00:20  ncq
+# Revision 1.39  2009-10-29 17:24:29  ncq
+# - consider case of when .fk_episode can actually be NULL in enc/epi sanity check
+#
+# Revision 1.38  2009/10/27 11:00:20  ncq
 # - better comments
 #
 # Revision 1.37  2009/08/24 20:11:27  ncq
