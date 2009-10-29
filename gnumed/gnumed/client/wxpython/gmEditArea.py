@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.129 2009-09-01 22:30:33 ncq Exp $
+# $Id: gmEditArea.py,v 1.130 2009-10-29 17:21:45 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.129 $"
+__version__ = "$Revision: 1.130 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -32,14 +32,14 @@ class cGenericEditAreaMixin(object):
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return True
 		return False
+		return True
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
 		self.data = 1
-		return True
 		return False
+		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		# update self.data and save the changes
@@ -2210,7 +2210,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.129  2009-09-01 22:30:33  ncq
+# Revision 1.130  2009-10-29 17:21:45  ncq
+# - safer copy/paste boilerplate
+#
+# Revision 1.129  2009/09/01 22:30:33  ncq
 # - improved docs
 #
 # Revision 1.128  2009/08/11 10:47:41  ncq
