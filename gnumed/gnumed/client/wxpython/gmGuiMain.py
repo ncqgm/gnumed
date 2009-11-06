@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.475 2009-10-21 21:42:56 ncq Exp $
-__version__ = "$Revision: 1.475 $"
+# $Id: gmGuiMain.py,v 1.476 2009-11-06 15:18:27 ncq Exp $
+__version__ = "$Revision: 1.476 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -483,6 +483,10 @@ class gmTopLevelFrame(wx.Frame):
 		menu_emr_show = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
 		self.__gb['main.emr_showmenu'] = menu_emr_show
+
+		# - summary
+		item = menu_emr_show.Append(-1, _('Summary'), _('Show a high-level summary of the EMR.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
 
 		# - search
 		item = menu_emr.Append(-1, _('Search EMR'), _('Search for data in the EMR of the active patient'))
@@ -2047,22 +2051,22 @@ class gmTopLevelFrame(wx.Frame):
 		gmMeasurementWidgets.edit_measurement(parent = self, measurement = None)
 		evt.Skip()
 	#----------------------------------------------
-#	def __on_show_emr_summary(self, event):
-#		pat = gmPerson.gmCurrentPatient()
-#		if not pat.connected:
-#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show EMR summary. No active patient.'))
-#			return False
-#
-#		emr = pat.get_emr()
-#		dlg = wx.MessageDialog (
-#			parent = self,
-#			message = emr.format_statistics(),
-#			caption = _('EMR Summary'),
-#			style = wx.OK | wx.STAY_ON_TOP
-#		)
-#		dlg.ShowModal()
-#		dlg.Destroy()
-#		return True
+	def __on_show_emr_summary(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show EMR summary. No active patient.'))
+			return False
+
+		emr = pat.get_emr()
+		dlg = wx.MessageDialog (
+			parent = self,
+			message = emr.format_statistics(),
+			caption = _('EMR Summary'),
+			style = wx.OK | wx.STAY_ON_TOP
+		)
+		dlg.ShowModal()
+		dlg.Destroy()
+		return True
 	#----------------------------------------------
 	def __on_search_emr(self, event):
 		return gmNarrativeWidgets.search_narrative_in_emr(parent=self)
@@ -2914,7 +2918,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.475  2009-10-21 21:42:56  ncq
+# Revision 1.476  2009-11-06 15:18:27  ncq
+# - reanimate emr summary under show as ...
+#
+# Revision 1.475  2009/10/21 21:42:56  ncq
 # - fix faulty GUI string
 #
 # Revision 1.474  2009/10/21 08:56:40  ncq
