@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.108 $"
+__version__ = "$Revision: 1.109 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -664,6 +664,8 @@ class database:
 		curs.execute("alter database %s set sql_inheritance to on" % self.name)
 		# we want READ ONLY default transactions for maximum patient data safety
 		curs.execute("alter database %s set default_transaction_read_only to on" % self.name)
+		# we want checking of function bodies
+		curs.execute("alter database %s set check_function_bodies to on" % self.name)
 		curs.close()
 
 		self.conn.commit()
@@ -1481,7 +1483,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.108  2009-10-29 18:46:51  ncq
+# Revision 1.109  2009-11-06 15:32:37  ncq
+# - we do want checking of func bods
+#
+# Revision 1.108  2009/10/29 18:46:51  ncq
 # - even if we know the path of pg_hba.conf we may not
 #   be able to read it so be careful with that
 #
