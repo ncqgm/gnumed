@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.117 $"
+__version__ = "$Revision: 1.118 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1381,6 +1381,7 @@ def sanity_check_database_settings():
 	settings = {
 		# setting: [expected value, risk, fatal?]
 		u'allow_system_table_mods': [u'off', u'system breakage', False],
+		u'check_function_bodies': [u'on', u'suboptimal error detection', False],
 		u'default_transaction_read_only': [u'on', u'accidental database writes', False],
 		u'fsync': [u'on', u'data loss/corruption', True],
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
@@ -1922,7 +1923,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.117  2009-09-01 22:24:35  ncq
+# Revision 1.118  2009-11-06 15:08:13  ncq
+# - expect check-function-bodies to be on
+#
+# Revision 1.117  2009/09/01 22:24:35  ncq
 # - better comment
 #
 # Revision 1.116  2009/08/24 20:11:27  ncq
