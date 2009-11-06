@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-episode-dynamic.sql,v 1.3 2009-10-29 17:25:51 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v12-clin-episode-dynamic.sql,v 1.4 2009-11-06 15:34:01 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
@@ -51,7 +51,9 @@ begin
 
 	-- .fk_episode must belong to the same patient as .fk_encounter
 	select fk_patient into _identity_from_encounter from clin.encounter where pk = NEW.fk_encounter;
-	select fk_patient into _identity_from_issue from clin.health_issue where pk = NEW.fk_health_issue;
+	select fk_patient into _identity_from_issue     from clin.encounter where pk = (
+		select fk_encounter from clin.health_issue where pk = NEW.fk_health_issue
+	);
 
 	if _identity_from_encounter <> _identity_from_issue then
 		raise exception ''INSERT/UPDATE into %.%: Sanity check failed. Encounter % patient = %. Issue % patient = %.'',
@@ -77,11 +79,14 @@ create trigger tr_sanity_check_enc_vs_issue_on_epi
 		execute procedure clin.trf_sanity_check_enc_vs_issue_on_epi();
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-episode-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-episode-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v12-clin-episode-dynamic.sql,v $
--- Revision 1.3  2009-10-29 17:25:51  ncq
+-- Revision 1.4  2009-11-06 15:34:01  ncq
+-- - better formatting
+--
+-- Revision 1.3  2009/10/29 17:25:51  ncq
 -- - trigger to sanity check patient behind issue vs encounter
 --
 -- Revision 1.2  2009/09/01 22:43:14  ncq
