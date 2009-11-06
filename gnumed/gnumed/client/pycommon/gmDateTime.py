@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.31 2009-10-29 17:14:11 ncq Exp $
+# $Id: gmDateTime.py,v 1.32 2009-11-06 15:07:40 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -215,7 +215,7 @@ def py_dt2wxDate(py_dt=None, wx=None):
 	wxdt.SetDay(py_dt.day)
 	return wxdt
 #===========================================================================
-# interval formatting
+# interval related
 #---------------------------------------------------------------------------
 def format_interval(interval=None, accuracy_wanted=acc_seconds):
 
@@ -311,6 +311,92 @@ def format_interval_medically(interval=None):
 	# seconds
 	minutes, seconds = divmod(interval.seconds, 60)
 	return "%sm %ss" % (int(minutes), int(seconds))
+#---------------------------------------------------------------------------
+def str2interval(str_interval=None):
+
+	unit_keys = {
+		'year': _('yYaA_keys_year'),
+		'month': _('mM_keys_month'),
+		'week': _('wW_keys_week'),
+		'day': _('dD_keys_day'),
+		'hour': _('hH_keys_hour')
+	}
+
+	str_interval = str_interval.strip()
+
+	# "(~)35(yY)"	- at age 35 years
+	keys = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
+	if regex.match(u'^~*(\s|\t)*\d+(%s)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(days = (int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]) * avg_days_per_gregorian_year))
+
+	# "(~)12mM" - at age 12 months
+	keys = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		years, months = divmod (
+			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
+			12
+		)
+		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+
+	# weeks
+	keys = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# days
+	keys = '|'.join(list(unit_keys['day'].replace('_keys_day', u'')))
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# hours
+	keys = '|'.join(list(unit_keys['hour'].replace('_keys_hour', u'')))
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/12 - months
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*12$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		years, months = divmod (
+			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
+			12
+		)
+		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+
+	# x/52 - weeks
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+#		return pyDT.timedelta(days = (int(regex.findall('\d+', str_interval)[0]) * days_per_week))
+		return pyDT.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/7 - days
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*7$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/24 - hours
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*24$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# x/60 - minutes
+	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*60$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pyDT.timedelta(minutes = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
+
+	# nYnM - years, months
+	keys_year = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
+	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	if regex.match(u'^~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+$' % (keys_year, keys_month), str_interval, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
+		years, months = divmod(int(parts[1]), 12)
+		years += int(parts[0])
+		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+
+	# nMnW - months, weeks
+	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
+	keys_week = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
+	if regex.match(u'^~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+$' % (keys_month, keys_week), str_interval, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
+		months, weeks = divmod(int(parts[1]), 4)
+		months += int(parts[0])
+		return pyDT.timedelta(days = ((months * avg_days_per_gregorian_month) + (weeks * days_per_week)))
+
+	return None
 
 #===========================================================================
 # string -> timestamp parsers
@@ -1038,94 +1124,6 @@ class cFuzzyTimestamp:
 		)
 		return ts
 #===========================================================================
-# string -> interval parsers
-#---------------------------------------------------------------------------
-def str2interval(str_interval=None):
-
-	unit_keys = {
-		'year': _('yYaA_keys_year'),
-		'month': _('mM_keys_month'),
-		'week': _('wW_keys_week'),
-		'day': _('dD_keys_day'),
-		'hour': _('hH_keys_hour')
-	}
-
-	str_interval = str_interval.strip()
-
-	# "(~)35(yY)"	- at age 35 years
-	keys = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
-	if regex.match(u'^~*(\s|\t)*\d+(%s)*$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pyDT.timedelta(days = (int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]) * avg_days_per_gregorian_year))
-
-	# "(~)12mM" - at age 12 months
-	keys = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		years, months = divmod (
-			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
-			12
-		)
-		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
-
-	# weeks
-	keys = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pyDT.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# days
-	keys = '|'.join(list(unit_keys['day'].replace('_keys_day', u'')))
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pyDT.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# hours
-	keys = '|'.join(list(unit_keys['hour'].replace('_keys_hour', u'')))
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*(%s)+$' % keys, str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pyDT.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/12 - months
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*12$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		years, months = divmod (
-			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
-			12
-		)
-		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
-
-	# x/52 - weeks
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-#		return pyDT.timedelta(days = (int(regex.findall('\d+', str_interval)[0]) * days_per_week))
-		return pyDT.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/7 - days
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*7$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pyDT.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/24 - hours
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*24$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pyDT.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# x/60 - minutes
-	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*60$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-		return pyDT.timedelta(minutes = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
-
-	# nYnM - years, months
-	keys_year = '|'.join(list(unit_keys['year'].replace('_keys_year', u'')))
-	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
-	if regex.match(u'^~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+$' % (keys_year, keys_month), str_interval, flags = regex.LOCALE | regex.UNICODE):
-		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
-		years, months = divmod(int(parts[1]), 12)
-		years += int(parts[0])
-		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
-
-	# nMnW - months, weeks
-	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', u'')))
-	keys_week = '|'.join(list(unit_keys['week'].replace('_keys_week', u'')))
-	if regex.match(u'^~*(\s|\t)*\d+(%s|\s|\t)+\d+(\s|\t)*(%s)+$' % (keys_month, keys_week), str_interval, flags = regex.LOCALE | regex.UNICODE):
-		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
-		months, weeks = divmod(int(parts[1]), 4)
-		months += int(parts[0])
-		return pyDT.timedelta(days = ((months * avg_days_per_gregorian_month) + (weeks * days_per_week)))
-
-	return None
-#===========================================================================
 # main
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -1243,7 +1241,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.31  2009-10-29 17:14:11  ncq
+# Revision 1.32  2009-11-06 15:07:40  ncq
+# - re-formatting for clarity
+# - simplify str2interval regexes
+#
+# Revision 1.31  2009/10/29 17:14:11  ncq
 # - improve (simplify) str2interval
 #
 # Revision 1.30  2009/09/23 14:32:05  ncq
