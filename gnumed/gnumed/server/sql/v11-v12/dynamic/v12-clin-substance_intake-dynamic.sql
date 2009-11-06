@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_intake-dynamic.sql,v 1.5 2009-10-29 17:27:56 ncq Exp $
--- $Revision: 1.5 $
+-- $Id: v12-clin-substance_intake-dynamic.sql,v 1.6 2009-11-06 15:34:44 ncq Exp $
+-- $Revision: 1.6 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -169,6 +169,20 @@ select
 	csb.is_fake
 		as fake_brand,
 
+	case
+		when csi.clin_when is null then false
+		-- from here on csi.clin_when cannot be null
+		when (csi.clin_when > current_timestamp) is true then false
+		-- from here on csi.clin_when must be < current_timestamp and not null
+		when is_long_term is true then true
+		-- from here on csi.is_long_term must be false or null
+		when (csi.clin_when + csi.duration > current_timestamp) is true then true
+		when (csi.clin_when + csi.duration < current_timestamp) is true then false
+		-- from here on csi.duration must be null
+		else null
+	end::boolean
+		as is_currently_active,
+
 	csi.fk_brand
 		as pk_brand,
 	ccs.pk
@@ -177,6 +191,8 @@ select
 		as pk_encounter,
 	csi.fk_episode
 		as pk_episode,
+	cep.fk_health_issue
+		as pk_health_issue,
 	csi.modified_when,
 	csi.modified_by,
 	csi.xmin
@@ -270,11 +286,14 @@ from
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.5 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.6 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_intake-dynamic.sql,v $
--- Revision 1.5  2009-10-29 17:27:56  ncq
+-- Revision 1.6  2009-11-06 15:34:44  ncq
+-- - .is_currently_active and .pk_health_issue in view
+--
+-- Revision 1.5  2009/10/29 17:27:56  ncq
 -- - .is_long_term
 -- - sanity check on fk_episode
 -- - view adjusted
