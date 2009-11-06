@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_brand-dynamic.sql,v 1.1 2009-10-21 08:52:57 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-substance_brand-dynamic.sql,v 1.2 2009-11-06 15:36:51 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -30,11 +30,29 @@ alter table clin.substance_brand
 create index idx_subst_brand_ext_code on clin.substance_brand (external_code);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_brand-dynamic.sql,v $', '$Revision: 1.1 $');
+delete from audit.audited_tables aat
+where
+	aat.schema = 'clin'
+		and 
+	aat.table_name = 'clin_medication'
+;
+
+delete from gm.notifying_tables gnt
+where
+	gnt.schema_name = 'clin'
+		and 
+	gnt.table_name = 'clin_medication'
+;
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_brand-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_brand-dynamic.sql,v $
--- Revision 1.1  2009-10-21 08:52:57  ncq
+-- Revision 1.2  2009-11-06 15:36:51  ncq
+-- - drop old clin.medication
+--
+-- Revision 1.1  2009/10/21 08:52:57  ncq
 -- - .external_code
 --
 --
