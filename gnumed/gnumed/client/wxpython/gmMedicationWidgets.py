@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.12 2009-10-29 17:23:24 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmMedicationWidgets.py,v 1.13 2009-11-06 15:19:25 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -300,9 +300,28 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		self.data = 1
-		return False
+		emr = gmPerson.gmCurrentPatient().get_emr()
+
+		self.data = emr.add_substance_intake (
+			substance = self._PRW_substance.GetValue().strip(),
+			episode = self._PRW_episode.GetData(),
+			preparation = self._PRW_preparation.GetValue()
+		)
+		self.data['started'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_started.GetValue())
+		self.data['strength'] = self._PRW_strength.GetValue()
+		self.data['schedule'] = self._PRW_schedule.GetValue()
+		self.data['aim'] = self._PRW_aim.GetValue()
+		self.data['notes'] = self._PRW_notes.GetValue()
+		self.data['is_long_term'] = self._CHBOX_long_term.GetValue()
+		self.data['intake_is_approved_of'] = self._CHBOX_approved.GetValue()
+
+		if self._PRW_duration.GetValue().strip() == u'':
+			self.data['duration'] = None
+		else:
+			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+
+		self.data.save()
+
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
@@ -340,7 +359,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
 
-		self._DP_started.SetValue(dt = wx.DateTime.UNow())
+		self._DP_started.SetValue(dt = gmDateTime.py_dt2wxDate(py_dt = gmDateTime.pydt_now_here(), wx = wx))
 
 		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
@@ -397,6 +416,13 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		else:
 			self._PRW_duration.Enable(True)
 #============================================================
+def delete_substance_intake(parent=None, substance=None):
+	# reconfirm telling user that it may be prudent to
+	# edit the details first
+
+	# delete
+	pass
+#------------------------------------------------------------
 def edit_intake_of_substance(parent = None, substance=None):
 	ea = cCurrentMedicationEAPnl(parent = parent, id = -1, substance = substance)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (substance is not None))
@@ -633,6 +659,10 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		edit_intake_of_substance(parent = self, substance = None)
+	#--------------------------------------------------------
+	def _on_delete_button_pressed(self, event):
+		substs = self._grid_substances.get_selected_rows().get_data_from_selection()
+		delete_substance_intake(parent=self, substance = 1)
 #============================================================
 # main
 #------------------------------------------------------------
@@ -651,7 +681,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.12  2009-10-29 17:23:24  ncq
+# Revision 1.13  2009-11-06 15:19:25  ncq
+# - implement saving as new substance intake
+#
+# Revision 1.12  2009/10/29 17:23:24  ncq
 # - consolidate get-drug-database
 # - much improved substance intake EA
 # - better naming and adjust to such
