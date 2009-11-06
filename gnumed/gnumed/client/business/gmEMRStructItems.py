@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.152 $"
+__version__ = "$Revision: 1.153 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -177,24 +177,25 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['age_noted']] is None:
 			return u'<???>'
 
-		# seemingly silly but convinces PG to "nicely"
-		# format the interval for us
-		# FIXME: use gmDateTime.format_interval()
-		cmd = u"""select
-age (
-	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s,
-	(select dob from dem.identity where pk = %(pat)s)
-)::text
-|| ' (' || age (
-	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s
-)::text || ' ago)'
-"""
-		args = {
-			'pat': self._payload[self._idx['pk_patient']],
-			'issue_age': self._payload[self._idx['age_noted']]
-		}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return rows[0][0]
+		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
+
+#		# seemingly silly but convinces PG to "nicely"
+#		# format the interval for us
+#		cmd = u"""select
+#age (
+#	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s,
+#	(select dob from dem.identity where pk = %(pat)s)
+#)::text
+#|| ' (' || age (
+#	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s
+#)::text || ' ago)'
+#"""
+#		args = {
+#			'pat': self._payload[self._idx['pk_patient']],
+#			'issue_age': self._payload[self._idx['age_noted']]
+#		}
+#		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+#		return rows[0][0]
 	#--------------------------------------------------------
 	def _get_laterality_description(self):
 		return laterality2str[self._payload[self._idx['laterality']]]
@@ -265,12 +266,14 @@ age (
 		elif len(epis) == 0:
 			lines.append(_('There are no episodes for this health issue.'))
 		else:
-			lines.append(_('Episodes: %s') % len(epis))
-			lines.append(_(' Most recent: %s%s%s') % (
-				u'\u00BB',
-				emr.get_most_recent_episode(issue = self._payload[self._idx['pk_health_issue']])['description'],
-				u'\u00AB'
-			))
+			lines.append (
+				_('Episodes: %s (most recent: %s%s%s)') % (
+					len(epis),
+					gmTools.u_left_double_angle_quote,
+					emr.get_most_recent_episode(issue = self._payload[self._idx['pk_health_issue']])['description'],
+					gmTools.u_right_double_angle_quote
+				)
+			)
 			lines.append('')
 			for epi in epis:
 				lines.append(u' \u00BB%s\u00AB (%s)' % (
@@ -297,6 +300,19 @@ age (
 				last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 				last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
 			))
+
+		# medications
+		meds = emr.get_current_substance_intake (
+			issues = [ self._payload[self._idx['pk_health_issue']] ],
+			order_by = u'is_currently_active, started, substance'
+		)
+
+		if len(meds) > 0:
+			lines.append(u'')
+			lines.append(_('Active medications: %s') % len(meds))
+		for m in meds:
+			lines.append(m.format(left_margin = (left_margin + 1)))
+		del meds
 
 		# hospital stays
 		stays = emr.get_hospital_stays (
@@ -1498,7 +1514,11 @@ if __name__ == '__main__':
 		test_performed_procedure()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.152  2009-10-20 10:24:03  ncq
+# Revision 1.153  2009-11-06 15:03:15  ncq
+# - better known-since formatting for health issue
+# - include meds in class formatting
+#
+# Revision 1.152  2009/10/20 10:24:03  ncq
 # - laterality/certainty properties
 #
 # Revision 1.151  2009/09/29 13:14:06  ncq
