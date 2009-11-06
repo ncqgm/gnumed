@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.108 2009-10-29 17:21:14 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmEMRBrowser.py,v 1.109 2009-11-06 15:17:07 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -296,7 +296,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__curr_node_data)
 	#--------------------------------------------------------
 	def __promote_episode_to_issue(self, evt):
-		gmEMRStructWidgets.promote_episode_to_issue(parent=self, episode = self.__curr_node_data)
+		pat = gmPerson.gmCurrentPatient()
+		gmEMRStructWidgets.promote_episode_to_issue(parent=self, episode = self.__curr_node_data, emr = pat.get_emr())
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -572,13 +573,16 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				data.diagnostic_certainty_description + u'\n',
 				u''
 			)
-			if data['laterality'] not in [None, 'na']:
-				tt += u'\n' + data.laterality_description
+			tt += gmTools.bool2subst (
+				(data['laterality'] not in [None, u'na']),
+				data.laterality_description + u'\n',
+				u''
+			)
 			# noted_at_age is too costly
-			tt += gmTools.bool2subst(data['is_active'], u'\n' + _('active'), u'')
-			tt += gmTools.bool2subst(data['clinically_relevant'], u'\n' + _('clinically relevant'), u'')
-			tt += gmTools.bool2subst(data['is_cause_of_death'], u'\n' + _('contributed to death'), u'')
-			tt += gmTools.coalesce(data['grouping'], u'', u'\n' + _('Grouping: %s'))
+			tt += gmTools.bool2subst(data['is_active'], _('active') + u'\n', u'')
+			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
+			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
+			tt += gmTools.coalesce(data['grouping'], u'', _('Grouping: %s'))
 			event.SetToolTip(tt)
 
 		else:
@@ -829,7 +833,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.108  2009-10-29 17:21:14  ncq
+# Revision 1.109  2009-11-06 15:17:07  ncq
+# - properly promote episode to issue
+# - better tooltips
+#
+# Revision 1.108  2009/10/29 17:21:14  ncq
 # - improved tooltips
 #
 # Revision 1.107  2009/10/20 10:26:21  ncq
