@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.299 2009-09-23 14:28:13 ncq Exp $
-__version__ = "$Revision: 1.299 $"
+# $Id: gmClinicalRecord.py,v 1.300 2009-11-06 15:00:50 ncq Exp $
+__version__ = "$Revision: 1.300 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -652,13 +652,20 @@ select ((
 			and
 		pk_episode is null
 ))""",
-			#u'select count(1) from (select distinct (pk_health_issue) from clin.v_problem_list where pk_patient = %(pat)s)',
 			u'select count(1) from clin.encounter where fk_patient = %(pat)s',
 			u'select count(1) from clin.v_pat_items where pk_patient = %(pat)s',
 			u'select count(1) from blobs.v_doc_med where pk_patient = %(pat)s',
 			u'select count(1) from clin.v_test_results where pk_patient = %(pat)s',
 			u'select count(1) from clin.v_pat_hospital_stays where pk_patient = %(pat)s',
-			u'select count(1) from clin.v_pat_procedures where pk_patient = %(pat)s'
+			u'select count(1) from clin.v_pat_procedures where pk_patient = %(pat)s',
+			# active and approved substances == medication
+			u"""
+select count(1)
+from clin.v_pat_substance_intake
+where
+	pk_patient = %(pat)s
+	and is_currently_active in (null, true)
+	and intake_is_approved_of in (null, true)"""
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
@@ -673,7 +680,8 @@ select ((
 			documents = rows[3][0],
 			results = rows[4][0],
 			stays = rows[5][0],
-			procedures = rows[6][0]
+			procedures = rows[6][0],
+			active_drugs = rows[7][0]
 		)
 
 		return stats
@@ -682,6 +690,7 @@ select ((
 		return _("""Medical problems: %(problems)s
 Total encounters: %(encounters)s
 Total EMR entries: %(items)s
+Active medications: %(active_drugs)s
 Documents: %(documents)s
 Test results: %(results)s
 Hospital stays: %(stays)s
@@ -712,10 +721,11 @@ Procedures: %(procedures)s
 			first['started'].strftime('%x'),
 			last['started'].strftime('%x')
 		)
+		txt += _(' %s active medications\n') % stats['active_drugs']
 		txt += _(' %s documents\n') % stats['documents']
 		txt += _(' %s test results\n') % stats['results']
 		txt += _(' %s hospital stays\n') % stats['stays']
-		txt += _(' %s performed procedures\n\n' % stats['procedures'])
+		txt += _(' %s performed procedures\n\n') % stats['procedures']
 
 		txt += _('Allergies and Intolerances\n\n')
 
@@ -1054,11 +1064,46 @@ where
 	#--------------------------------------------------------
 	# API: substance intake
 	#--------------------------------------------------------
-	def get_current_substance_intake(self):
-		cmd = u"select * from clin.v_pat_substance_intake where pk_patient = %(pat)s"
+	def get_current_substance_intake(self, include_inactive=True, include_unapproved=False, order_by=None, episodes=None, issues=None):
+
+		where_parts = [u'pk_patient = %(pat)s']
+
+		if not include_inactive:
+			where_parts.append(u'is_currently_active in (true, null)')
+
+		if not include_unapproved:
+			where_parts.append(u'intake_is_approved_of in (true, null)')
+
+		if order_by is None:
+			order_by = u''
+		else:
+			order_by = u'order by %s' % order_by
+
+		cmd = u"select * from clin.v_pat_substance_intake where %s %s" % (
+			u'\nand '.join(where_parts),
+			order_by
+		)
+
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
 
-		return [ gmMedication.cConsumedSubstance(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
+		meds = [ gmMedication.cConsumedSubstance(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
+
+		if episodes is not None:
+			meds = filter(lambda s: s['pk_episode'] in episodes, meds)
+
+		if issues is not None:
+			meds = filter(lambda s: s['pk_health_issue'] in issues, meds)
+
+		return meds
+	#--------------------------------------------------------
+	def add_consumed_substance(substance=None, atc=None, episode=None, preparation=None):
+		return gmMedication.create_patient_consumed_substance (
+			substance = substance,
+			atc = atc,
+			encounter = self.current_encounter['pk_encounter'],
+			episode = episode,
+			preparation = preparation
+		)
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
@@ -2023,7 +2068,12 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.299  2009-09-23 14:28:13  ncq
+# Revision 1.300  2009-11-06 15:00:50  ncq
+# - add substances to stats
+# - enhance get-current-substance-intake
+# - add-consumed-substance
+#
+# Revision 1.299  2009/09/23 14:28:13  ncq
 # - support procedures
 # - create-health-issue can now take advantage of patient pk again
 #
