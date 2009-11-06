@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-adjust_db_settings.sh,v $
-# $Id: gm-adjust_db_settings.sh,v 1.5 2009-09-23 14:45:37 ncq Exp $
+# $Id: gm-adjust_db_settings.sh,v 1.6 2009-11-06 15:20:50 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -37,9 +37,10 @@ echo "=> Creating adjustment script ..."
 echo "    ${SQL_FILE}"
 
 echo "-- GNUmed database settings adjustment script" > $SQL_FILE
-echo "-- \$Id: gm-adjust_db_settings.sh,v 1.5 2009-09-23 14:45:37 ncq Exp $" >> $SQL_FILE
+echo "-- \$Id: gm-adjust_db_settings.sh,v 1.6 2009-11-06 15:20:50 ncq Exp $" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
+echo "\set ECHO queries" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "set default_transaction_read_only to 'off';" >> $SQL_FILE
 echo "" >> $SQL_FILE
@@ -51,6 +52,7 @@ echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
+echo "alter database ${TARGET_DB} set check_function_bodies to 'on';" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
 echo "-- cannot be set after server start:" >> $SQL_FILE
@@ -64,12 +66,17 @@ echo "-- cannot be changed now (?):" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.5 $');" >> $SQL_FILE
+echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.6 $');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
+
+echo "" >> $SQL_FILE
+echo "-- cannot be changed without an initdb (pg_dropcluster):" >> $SQL_FILE
+echo "select name, setting from pg_settings where name in ('lc_ctype', 'server_encoding');" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
 echo "-- should be checked in pg_hba.conf in case of client connection problems:" >> $SQL_FILE
 echo "--local   samegroup   +gm-logins   md5" >> $SQL_FILE
+
 
 
 echo ""
@@ -100,7 +107,12 @@ echo ""
 
 #==============================================================
 # $Log: gm-adjust_db_settings.sh,v $
-# Revision 1.5  2009-09-23 14:45:37  ncq
+# Revision 1.6  2009-11-06 15:20:50  ncq
+# - adjust check-func-bodies, too
+# - improve SQL file by echoing queries
+# - document encoding/lc_ctype settings of database
+#
+# Revision 1.5  2009/09/23 14:45:37  ncq
 # - better docs
 # - include hint on authentication line
 #
