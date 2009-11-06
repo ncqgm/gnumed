@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.107 2009-09-23 14:42:04 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmEMRStructWidgets.py,v 1.108 2009-11-06 15:17:46 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -410,6 +410,7 @@ def edit_encounter(parent=None, encounter=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	# FIXME: use generic dialog 2
 	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter)
 	dlg.ShowModal()
 #----------------------------------------------------------------
@@ -754,6 +755,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
 		return True
 #----------------------------------------------------------------
+# FIXME: use generic dialog 2
 class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -773,6 +775,8 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 			msg = None
 
 		wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg.__init__(self, *args, **kwargs)
+		self.SetSize((450, 280))
+		self.SetMinSize((450, 280))
 
 		if button_defs is not None:
 			self._BTN_save.SetLabel(button_defs[0][0])
@@ -809,7 +813,7 @@ def promote_episode_to_issue(parent=None, episode=None, emr=None):
 	created_new_issue = False
 
 	try:
-		issue = gmEMRStructItems(name = episode['description'], patient = episode['pk_patient'])
+		issue = gmEMRStructItems.cHealthIssue(name = episode['description'], patient = episode['pk_patient'])
 	except gmExceptions.NoSuchBusinessObjectError:
 		issue = None
 
@@ -1902,7 +1906,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.107  2009-09-23 14:42:04  ncq
+# Revision 1.108  2009-11-06 15:17:46  ncq
+# - set better size on encounter EA
+#
+# Revision 1.107  2009/09/23 14:42:04  ncq
 # - implement procedure management
 # - implement promote-episode-to-issue
 #
