@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.44 2009-10-20 10:25:10 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmAuthWidgets.py,v 1.45 2009-11-06 15:16:21 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -146,7 +146,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				gmGuiHelpers.gm_show_error (_(
 					"Unable to connect to database:\n\n"
 					"%s\n\n"
-					"Please retry with proper credentials or cancel\n"
+					"Please retry with proper credentials or cancel.\n"
 					"\n"
 					'You may also need to check the PostgreSQL client\n'
 					'authentication configuration in pg_hba.conf. For\n'
@@ -733,7 +733,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.44  2009-10-20 10:25:10  ncq
+# Revision 1.45  2009-11-06 15:16:21  ncq
+# - add missing dot
+#
+# Revision 1.44  2009/10/20 10:25:10  ncq
 # - try not to log previous exception instances
 #
 # Revision 1.43  2009/09/23 14:33:14  ncq
