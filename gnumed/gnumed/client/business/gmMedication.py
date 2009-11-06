@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.10 2009-10-29 17:16:59 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmMedication.py,v 1.11 2009-11-06 15:05:07 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os
@@ -14,7 +14,7 @@ import sys, logging, csv, codecs, os
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools, gmDateTime
 
 
 _log = logging.getLogger('gm.meds')
@@ -304,6 +304,11 @@ drug_data_source_interfaces = {
 #============================================================
 # substances in use across all patients
 #------------------------------------------------------------
+def get_substances_in_use():
+	cmd = u'select * from clin.consumed_substance order by description'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return rows
+#------------------------------------------------------------
 def create_used_substance(substance=None, atc=None):
 
 	args = {'desc': substance, 'atc': atc}
@@ -328,7 +333,7 @@ def create_used_substance(substance=None, atc=None):
 				_log.error('ATC conflict for "%s". Database: [%s], argument: [%s]', substance, row['atc_code'], atc)
 
 	return row
-#============================================================
+#------------------------------------------------------------
 def delete_used_substance(substance=None):
 	args = {'pk': substance}
 	cmd = u"""
@@ -397,11 +402,33 @@ class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_episode'
 	]
 	#--------------------------------------------------------
-#	def save_payload(self, conn=None):
-#		if self._payload[self._idx['is_long_term']]:
-#			self._payload[self._idx['duration']] = None
-#
-#		gmBusinessDBObject.cBusinessDBObject.save_payload(self, conn=conn)
+	def format(self, left_margin=0, date_format='%Y-%m-%d'):
+
+		if self._payload[self._idx['duration']] is None:
+			duration = gmTools.bool2subst (
+				self._payload[self._idx['is_long_term']],
+				_('long-term'),
+				_('short-term'),
+				_('?short-term')
+			)
+		else:
+			duration = gmDateTime.format_interval (
+				self._payload[self._idx['duration']],
+				accuracy_wanted = gmDateTime.acc_days
+			)
+
+		line = u'%s%s (%s %s): %s %s %s (%s)' % (
+			u' ' * left_margin,
+			self._payload[self._idx['started']].strftime(date_format),
+			gmTools.u_right_arrow,
+			duration,
+			self._payload[self._idx['substance']],
+			self._payload[self._idx['strength']],
+			self._payload[self._idx['preparation']],
+			gmTools.bool2subst(self._payload[self._idx['is_currently_active']], _('ongoing'), _('inactive'), _('?ongoing'))
+		)
+
+		return line
 	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
 		tests = [
@@ -446,11 +473,10 @@ returning pk
 """
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cConsumedSubstance(aPK_obj = rows[0][0])
-#============================================================
-def get_substances_in_use():
-	cmd = u'select * from clin.consumed_substance order by description'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	return rows
+#------------------------------------------------------------
+def delete_patient_consumed_substance(substance=None):
+	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -528,7 +554,12 @@ if __name__ == "__main__":
 		#test_create_patient_consumed_substance()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.10  2009-10-29 17:16:59  ncq
+# Revision 1.11  2009-11-06 15:05:07  ncq
+# - get-substances-in-use
+# - meds formatting
+# - delete-patient-consumed-substance
+#
+# Revision 1.10  2009/10/29 17:16:59  ncq
 # - return newly created substances from creator func and substance importer method
 # - better naming
 # - finish up cConsumedSubstance
