@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.39 2009-09-13 18:45:25 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmNarrativeWidgets.py,v 1.40 2009-11-08 20:49:49 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -188,6 +188,49 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		refresh_callback = refresh
 	)
 #------------------------------------------------------------
+def search_narrative_across_emrs(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	searcher = wx.TextEntryDialog (
+		parent = parent,
+		message = _('Enter (regex) term to search for across all EMRs:'),
+		caption = _('Text search across all EMRs'),
+		style = wx.OK | wx.CANCEL | wx.CENTRE
+	)
+	result = searcher.ShowModal()
+
+	if result != wx.ID_OK:
+		return
+
+	wx.BeginBusyCursor()
+	term = searcher.GetValue()
+	searcher.Destroy()
+	results = gmClinNarrative.search_text_across_emrs(search_term = term)
+	wx.EndBusyCursor()
+
+	if len(results) == 0:
+		gmGuiHelpers.gm_show_info (
+			_(
+			'Nothing found for search term:\n'
+			' "%s"'
+			) % term,
+			_('Search results')
+		)
+		return
+
+	lines = [ u'%s: %s (%s)' % (r['pk_patient'], r['narrative'], r['src_table'] ) for r in results ]
+
+	dlg = wx.MessageDialog (
+		parent = parent,
+		message = u' \n'.join(lines),
+		caption = _('Search results for %s') % term,
+		style = wx.OK | wx.STAY_ON_TOP
+	)
+	dlg.ShowModal()
+	dlg.Destroy()
+#------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
 
 	# sanity checks
@@ -209,63 +252,66 @@ def search_narrative_in_emr(parent=None, patient=None):
 	)
 	result = searcher.ShowModal()
 
-	if result == wx.ID_OK:
+	if result != wx.ID_OK:
+		searcher.Destroy()
+		return False
 
-		wx.BeginBusyCursor()
-		val = searcher.GetValue()
-		emr = patient.get_emr()
-		rows = emr.search_narrative_simple(val)
-		wx.EndBusyCursor()
+	wx.BeginBusyCursor()
+	val = searcher.GetValue()
+	searcher.Destroy()
+	emr = patient.get_emr()
+	rows = emr.search_narrative_simple(val)
+	wx.EndBusyCursor()
 
-		if len(rows) == 0:
-			gmGuiHelpers.gm_show_info (
-				_(
-				'Nothing found for search term:\n'
-				' "%s"'
-				) % val,
-				_('search results')
-			)
-			return True
+	if len(rows) == 0:
+		gmGuiHelpers.gm_show_info (
+			_(
+			'Nothing found for search term:\n'
+			' "%s"'
+			) % val,
+			_('Search results')
+		)
+		return True
 
-		txt = u''
-		for row in rows:
-			txt += u'%s: %s\n' % (
-				row['soap_cat'],
-				row['narrative']
-			)
-
-			txt += u' %s: %s - %s %s\n' % (
-				_('Encounter'),
-				row['encounter_started'].strftime('%x %H:%M'),
-				row['encounter_ended'].strftime('%H:%M'),
-				row['encounter_type']
-			)
-			txt += u' %s: %s\n' % (
-				_('Episode'),
-				row['episode']
-			)
-			txt += u' %s: %s\n\n' % (
-				_('Health issue'),
-				row['health_issue']
-			)
-
-		msg = _(
-			'Search term was: "%s"\n'
-			'\n'
-			'Search results:\n\n'
-			'%s\n'
-		) % (val, txt)
-
-		dlg = wx.MessageDialog (
-			parent = parent,
-			message = msg,
-			caption = _('search results'),
-			style = wx.OK | wx.STAY_ON_TOP
+	txt = u''
+	for row in rows:
+		txt += u'%s: %s\n' % (
+			row['soap_cat'],
+			row['narrative']
 		)
 
-		dlg.ShowModal()
-		dlg.Destroy()
-		return True
+		txt += u' %s: %s - %s %s\n' % (
+			_('Encounter'),
+			row['encounter_started'].strftime('%x %H:%M'),
+			row['encounter_ended'].strftime('%H:%M'),
+			row['encounter_type']
+		)
+		txt += u' %s: %s\n' % (
+			_('Episode'),
+			row['episode']
+		)
+		txt += u' %s: %s\n\n' % (
+			_('Health issue'),
+			row['health_issue']
+		)
+
+	msg = _(
+		'Search term was: "%s"\n'
+		'\n'
+		'Search results:\n\n'
+		'%s\n'
+	) % (val, txt)
+
+	dlg = wx.MessageDialog (
+		parent = parent,
+		message = msg,
+		caption = _('Search results for %s') % val,
+		style = wx.OK | wx.STAY_ON_TOP
+	)
+	dlg.ShowModal()
+	dlg.Destroy()
+
+	return True
 #------------------------------------------------------------
 def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encounter=None):
 
@@ -1427,7 +1473,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.39  2009-09-13 18:45:25  ncq
+# Revision 1.40  2009-11-08 20:49:49  ncq
+# - implement search across all EMRs
+#
+# Revision 1.39  2009/09/13 18:45:25  ncq
 # - no more get-active-encounter()
 #
 # Revision 1.38  2009/09/01 22:36:59  ncq
