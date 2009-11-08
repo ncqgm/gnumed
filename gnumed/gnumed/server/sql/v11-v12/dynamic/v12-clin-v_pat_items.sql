@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-v_pat_items.sql,v 1.1 2009-09-01 22:12:47 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-v_pat_items.sql,v 1.2 2009-11-08 20:52:17 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -33,12 +33,12 @@ select
 	cepi.fk_health_issue as pk_health_issue,
 	cri.soap_cat as soap_cat,
 	cri.narrative as narrative,
-	pgc.relname as src_table
+	pgn.nspname || '.' || pgc.relname as src_table
 from
 	clin.clin_root_item cri,
 	clin.encounter cenc,
 	clin.episode cepi,
-	pg_class pgc
+	pg_class pgc left join pg_namespace pgn on (pgc.relnamespace = pgn.oid)
 where
 	cri.fk_encounter = cenc.pk
 		and
@@ -50,11 +50,14 @@ where
 
 grant select on clin.v_pat_items TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-v_pat_items.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-v_pat_items.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-v_pat_items.sql,v $
--- Revision 1.1  2009-09-01 22:12:47  ncq
+-- Revision 1.2  2009-11-08 20:52:17  ncq
+-- - incluce schema in src_table
+--
+-- Revision 1.1  2009/09/01 22:12:47  ncq
 -- - new
 --
 --
