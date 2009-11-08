@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -183,6 +183,19 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 # convenience functions
 #============================================================
+def search_text_across_emrs(search_term=None):
+
+	if search_term is None:
+		return []
+
+	if search_term.strip() == u'':
+		return []
+
+	cmd = u'select * from clin.v_narrative4search where narrative ~* %(term)s order by pk_patient'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
+
+	return rows
+#============================================================
 def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encounter_id=None):
 	"""Creates a new clinical narrative entry
 
@@ -272,17 +285,28 @@ if __name__ == '__main__':
 		#print "adding code..."
 		#narrative.add_code('Test code', 'Test coding system')
 		#print "codes:", diagnose.get_codes()
-	
+
 		#print "creating narrative..."
 		#status, new_narrative = create_clin_narrative(narrative = 'Test narrative', soap_cat = 'a', episode_id=1, encounter_id=2)
 		#print new_narrative
 
+	#-----------------------------------------
+	def test_search_text_across_emrs():
+		results = search_text_across_emrs('cut')
+		for r in results:
+			print r
+	#-----------------------------------------
+
+	#test_search_text_across_emrs()
 	test_diag()
 	test_narrative()
-	
+
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.41  2009-06-29 14:50:30  ncq
+# Revision 1.42  2009-11-08 20:42:00  ncq
+# - search across EMRs
+#
+# Revision 1.41  2009/06/29 14:50:30  ncq
 # - use ellipsis for administrational soap rows
 #
 # Revision 1.40  2009/05/13 12:17:43  ncq
