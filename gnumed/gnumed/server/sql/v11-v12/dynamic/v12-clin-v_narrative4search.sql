@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-v_narrative4search.sql,v 1.1 2009-09-13 18:18:40 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-v_narrative4search.sql,v 1.2 2009-11-08 20:51:52 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -30,8 +30,32 @@ select
 from
 	clin.v_pat_items vpi
 where
-	src_table not in ('allergy', 'test_result', 'procedure') and
+	src_table not in ('allergy', 'test_result', 'procedure', 'substance_intake') and
 	trim(coalesce(vpi.narrative, '')) != ''
+
+
+union all
+select		-- clin.substance_intake
+	(select fk_patient from clin.encounter where pk = csi.fk_encounter)
+		as pk_patient,
+	csi.soap_cat
+		as soap_cat,
+	coalesce(csi.narrative, '')
+		|| coalesce(' ' || csi.schedule, '')
+		|| coalesce(' ' || csi.aim, '')
+		as narrative,
+	csi.fk_encounter
+		as pk_encounter,
+	csi.fk_episode
+		as pk_episode,
+	(select fk_health_issue from clin.episode where pk = csi.fk_episode)
+		as pk_health_issue,
+	csi.pk
+		as src_pk,
+	'clin.substance_intake'
+		as src_table
+from
+	clin.substance_intake csi
 
 
 union all
@@ -325,11 +349,14 @@ comment on view clin.v_narrative4search is
 grant select on clin.v_narrative4search to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-v_narrative4search.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-v_narrative4search.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-v_narrative4search.sql,v $
--- Revision 1.1  2009-09-13 18:18:40  ncq
+-- Revision 1.2  2009-11-08 20:51:52  ncq
+-- - add substance intake
+--
+-- Revision 1.1  2009/09/13 18:18:40  ncq
 -- - cleanup
 --
 --
