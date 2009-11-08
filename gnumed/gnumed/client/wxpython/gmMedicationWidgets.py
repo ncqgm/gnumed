@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.13 2009-11-06 15:19:25 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmMedicationWidgets.py,v 1.14 2009-11-08 20:49:20 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -417,11 +417,19 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 			self._PRW_duration.Enable(True)
 #============================================================
 def delete_substance_intake(parent=None, substance=None):
-	# reconfirm telling user that it may be prudent to
-	# edit the details first
+	delete_it = gmGuiHelpers.gm_show_question (
+		aMessage = _(
+			'Do you really want to remove this substance intake ?\n'
+			'\n'
+			'It may be prudent to edit the details first so as to\n'
+			'leave behind some indication of why it was deleted.\n'
+		),
+		aTitle = _('Deleting medication / substance intake')
+	)
+	if not delete_it:
+		return
 
-	# delete
-	pass
+	gmMedication.delete_patient_consumed_substance(substance = substance)
 #------------------------------------------------------------
 def edit_intake_of_substance(parent = None, substance=None):
 	ea = cCurrentMedicationEAPnl(parent = parent, id = -1, substance = substance)
@@ -446,7 +454,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		wx.grid.Grid.__init__(self, *args, **kwargs)
 
 		self.__patient = None
-		self.__group_mode = 'episode'
 		self.__col_labels = [
 			_('Substance'),
 			_('Dose'),
@@ -457,51 +464,22 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			_('Brand')
 		]
 		self.__row_data = {}
-#		self.__cell_tooltips = {}
-#		self.__prev_row = None
-#		self.__prev_col = None
+		self.__row_tooltips = {}
+		self.__prev_row = None
+		self.__grouping_mode = u'episode'
+
+		self.__grouping_order_by_clauses = {
+			u'episode': u'episode, substance',
+			u'brand': u'brand, substance'
+		}
 
 		self.__init_ui()
 		self.__register_events()
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
-	def get_selected_cells(self):
-
-		sel_block_top_left = self.GetSelectionBlockTopLeft()
-		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
-		sel_cols = self.GetSelectedCols()
-		sel_rows = self.GetSelectedRows()
-
-		selected_cells = []
-
-		# individually selected cells (ctrl-click)
-		selected_cells += self.GetSelectedCells()
-
-		# selected rows
-		selected_cells += list (
-			(row, col)
-				for row in sel_rows
-				for col in xrange(self.GetNumberCols())
-		)
-
-		# selected columns
-		selected_cells += list (
-			(row, col)
-				for row in xrange(self.GetNumberRows())
-				for col in sel_cols
-		)
-
-		# selection blocks
-		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
-			selected_cells += [
-				(row, col)
-					for row in xrange(top_left[0], bottom_right[0] + 1)
-					for col in xrange(top_left[1], bottom_right[1] + 1)
-			]
-
-		return set(selected_cells)
-	#------------------------------------------------------------
+	def get_selected_data(self):
+		return [ self.__row_data[row] for row in self.GetSelectedRows() ]
 	#------------------------------------------------------------
 	def repopulate_grid(self):
 
@@ -511,7 +489,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		emr = self.__patient.get_emr()
-		meds = emr.get_current_substance_intake()
+		meds = emr.get_current_substance_intake(order_by = self.__grouping_order_by_clauses[self.__grouping_mode])
 		if not meds:
 			return
 
@@ -568,7 +546,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 
 		# setting this screws up the labels: they are cut off and displaced
-		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
 		self.SetColLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTER)
 
 		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
@@ -591,7 +568,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 	patient = property(_get_patient, _set_patient)
 	#------------------------------------------------------------
-	# group_mode
+	def _get_grouping_mode(self):
+		return self.__grouping_mode
+
+	def _set_grouping_mode(self, mode):
+		self.__grouping_mode = mode
+		self.repopulate_grid()
+
+	grouping_mode = property(_get_grouping_mode, _set_grouping_mode)
 	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------
@@ -608,7 +592,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		row = evt.GetRow()
 		data = self.__row_data[row]
 		edit_intake_of_substance(parent = self, substance = data)
-	#------------------------------------------------------------
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentSubstancesPnl
@@ -627,10 +610,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------
-	# remember to call
-	#	self._schedule_data_reget()
-	# whenever you learn of data changes from database listener
-	# threads, dispatcher signals etc.
 	def _populate_with_data(self):
 		"""Populate cells with data from model."""
 		pat = gmPerson.gmCurrentPatient()
@@ -639,8 +618,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		else:
 			self._grid_substances.patient = None
 		return True
-	#-----------------------------------------------------
-
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -661,8 +638,21 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		edit_intake_of_substance(parent = self, substance = None)
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
-		substs = self._grid_substances.get_selected_rows().get_data_from_selection()
-		delete_substance_intake(parent=self, substance = 1)
+		substs = self._grid_substances.get_selected_data()
+		if len(substs) > 1:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete more than one substance at once.'), beep = True)
+			return
+		delete_substance_intake(parent = self, substance = substs[0]['pk_substance_intake'])
+	#--------------------------------------------------------
+	def _on_episode_grouping_selected(self, event):
+		self._grid_substances.grouping_mode = 'episode'
+	#--------------------------------------------------------
+	def _on_brand_grouping_selected(self, event):
+		self._grid_substances.grouping_mode = 'brand'
+	#--------------------------------------------------------
+	def _on_show_all_checked(self, event):
+		#self._grid_substances.filter_mode = 'all'
+		pass
 #============================================================
 # main
 #------------------------------------------------------------
@@ -681,7 +671,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.13  2009-11-06 15:19:25  ncq
+# Revision 1.14  2009-11-08 20:49:20  ncq
+# - implement deletion
+# - start grouping/filtering/ row tooltips
+#
+# Revision 1.13  2009/11/06 15:19:25  ncq
 # - implement saving as new substance intake
 #
 # Revision 1.12  2009/10/29 17:23:24  ncq
