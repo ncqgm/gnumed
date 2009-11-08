@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.476 2009-11-06 15:18:27 ncq Exp $
-__version__ = "$Revision: 1.476 $"
+# $Id: gmGuiMain.py,v 1.477 2009-11-08 20:43:50 ncq Exp $
+__version__ = "$Revision: 1.477 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -491,6 +491,9 @@ class gmTopLevelFrame(wx.Frame):
 		# - search
 		item = menu_emr.Append(-1, _('Search EMR'), _('Search for data in the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
+
+		item = menu_emr.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
+		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
 
 		# -- submenu EMR / Add, Edit
 		menu_emr_edit = wx.Menu()
@@ -2071,6 +2074,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_search_emr(self, event):
 		return gmNarrativeWidgets.search_narrative_in_emr(parent=self)
 	#----------------------------------------------
+	def __on_search_across_emrs(self, event):
+		gmNarrativeWidgets.search_narrative_across_emrs(parent=self)
+	#----------------------------------------------
 	def __on_export_emr_as_journal(self, event):
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
@@ -2918,7 +2924,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.476  2009-11-06 15:18:27  ncq
+# Revision 1.477  2009-11-08 20:43:50  ncq
+# - search across all EMRs
+#
+# Revision 1.476  2009/11/06 15:18:27  ncq
 # - reanimate emr summary under show as ...
 #
 # Revision 1.475  2009/10/21 21:42:56  ncq
