@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.32 2009-11-06 15:07:40 ncq Exp $
+# $Id: gmDateTime.py,v 1.33 2009-11-08 20:43:04 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -274,43 +274,61 @@ def format_interval_medically(interval=None):
 
 	This isn't mathematically correct but close enough for display.
 	"""
-	# years available ?
-	if interval.days > 364:
-		years, days = divmod(interval.days, 365)
+	# FIXME: i18n for abbrevs
+
+	# more than 1 year ?
+	if interval.days > 360:
+		years, days = divmod(interval.days, 360)
 		months, day = divmod(days, 30)
 		if months == 0:
 			return "%sy" % int(years)
-		return "%sy %sm" % (int(years), int(months))
+		return "%sy %smo" % (int(years), int(months))
 
-	# months available ?
+	# more than 30 days / 1 month ?
 	if interval.days > 30:
 		months, days = divmod(interval.days, 30)
-		weeks = days // 7
-		return "%sm %sw" % (int(months), int(weeks))
+		weeks, days = divmod(days, 7)
+		result = '%smo' % int(months)
+		if weeks != 0:
+			result += ' %sw' % int(weeks)
+		if days != 0:
+			result += ' %sd' % int(days)
+		return result
 
-	# weeks available ?
+	# between 7 and 30 days ?
 	if interval.days > 7:
 		return "%sd" % interval.days
 
-	# days available ?
-	if interval.days > 1:
+	# between 1 and 7 days ?
+	if interval.days > 0:
 		hours, seconds = divmod(interval.seconds, 3600)
+		if hours == 0:
+			return '%sd' % interval.days
 		return "%sd (%sh)" % (interval.days, int(hours))
 
-	# hours available ?
-	if interval.seconds > (3*3600):
+	# between 5 hours and 1 day
+	if interval.seconds > (5*3600):
 		return "%sh" % int(interval.seconds // 3600)
-	# hours + minutes
+
+	# between 1 and 5 hours
 	if interval.seconds > 3600:
 		hours, seconds = divmod(interval.seconds, 3600)
 		minutes = seconds // 60
-		return "%sh %sm" % (int(hours), int(minutes))
+		if minutes == 0:
+			return '%sh' % int(hours)
+		return "%sh %smi" % (int(hours), int(minutes))
+
 	# minutes only
 	if interval.seconds > (5*60):
-		return "%sm" % (int(interval.seconds // 60))
+		return "%smi" % (int(interval.seconds // 60))
+
 	# seconds
 	minutes, seconds = divmod(interval.seconds, 60)
-	return "%sm %ss" % (int(minutes), int(seconds))
+	if minutes == 0:
+		return '%ss' % int(seconds)
+	if seconds == 0:
+		return '%smi' % int(minutes)
+	return "%smi %ss" % (int(minutes), int(seconds))
 #---------------------------------------------------------------------------
 def str2interval(str_interval=None):
 
@@ -1147,6 +1165,72 @@ if __name__ == '__main__':
 			for acc in _accuracy_strings.keys():
 				print '[%s]: "%s" -> "%s"' % (acc, tmp, format_interval(intv, acc))
 	#-----------------------------------------------------------------------
+	def test_format_interval_medically():
+
+		intervals = [
+			pyDT.timedelta(seconds = 1),
+			pyDT.timedelta(seconds = 5),
+			pyDT.timedelta(seconds = 30),
+			pyDT.timedelta(seconds = 60),
+			pyDT.timedelta(seconds = 94),
+			pyDT.timedelta(seconds = 120),
+			pyDT.timedelta(minutes = 5),
+			pyDT.timedelta(minutes = 30),
+			pyDT.timedelta(minutes = 60),
+			pyDT.timedelta(minutes = 90),
+			pyDT.timedelta(minutes = 120),
+			pyDT.timedelta(minutes = 200),
+			pyDT.timedelta(minutes = 400),
+			pyDT.timedelta(minutes = 600),
+			pyDT.timedelta(minutes = 800),
+			pyDT.timedelta(minutes = 1100),
+			pyDT.timedelta(minutes = 2000),
+			pyDT.timedelta(minutes = 3500),
+			pyDT.timedelta(minutes = 4000),
+			pyDT.timedelta(hours = 1),
+			pyDT.timedelta(hours = 2),
+			pyDT.timedelta(hours = 4),
+			pyDT.timedelta(hours = 8),
+			pyDT.timedelta(hours = 12),
+			pyDT.timedelta(hours = 20),
+			pyDT.timedelta(hours = 23),
+			pyDT.timedelta(hours = 24),
+			pyDT.timedelta(hours = 25),
+			pyDT.timedelta(hours = 30),
+			pyDT.timedelta(hours = 48),
+			pyDT.timedelta(hours = 98),
+			pyDT.timedelta(hours = 120),
+			pyDT.timedelta(days = 1),
+			pyDT.timedelta(days = 2),
+			pyDT.timedelta(days = 4),
+			pyDT.timedelta(days = 16),
+			pyDT.timedelta(days = 29),
+			pyDT.timedelta(days = 30),
+			pyDT.timedelta(days = 31),
+			pyDT.timedelta(days = 37),
+			pyDT.timedelta(days = 40),
+			pyDT.timedelta(days = 47),
+			pyDT.timedelta(days = 126),
+			pyDT.timedelta(days = 127),
+			pyDT.timedelta(days = 128),
+			pyDT.timedelta(days = 300),
+			pyDT.timedelta(days = 359),
+			pyDT.timedelta(days = 360),
+			pyDT.timedelta(days = 361),
+			pyDT.timedelta(days = 362),
+			pyDT.timedelta(days = 363),
+			pyDT.timedelta(days = 364),
+			pyDT.timedelta(days = 365),
+			pyDT.timedelta(days = 366),
+			pyDT.timedelta(days = 367),
+			pyDT.timedelta(days = 400)
+		]
+
+		idx = 1
+		for intv in intervals:
+			print '%s) %s -> %s' % (idx, intv, format_interval_medically(intv))
+			idx += 1
+	#-----------------------------------------------------------------------
 	def test_str2interval():
 		print "testing str2interval()"
 		print "----------------------"
@@ -1236,12 +1320,16 @@ if __name__ == '__main__':
 		#test_str2fuzzy_timestamp_matches()
 		#test_cFuzzyTimeStamp()
 		#test_get_pydt()
-		test_str2interval()
+		#test_str2interval()
 		#test_format_interval()
+		test_format_interval_medically()
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.32  2009-11-06 15:07:40  ncq
+# Revision 1.33  2009-11-08 20:43:04  ncq
+# - improved format-interval-medically plus tests
+#
+# Revision 1.32  2009/11/06 15:07:40  ncq
 # - re-formatting for clarity
 # - simplify str2interval regexes
 #
