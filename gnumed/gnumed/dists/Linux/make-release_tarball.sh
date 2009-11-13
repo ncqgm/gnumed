@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.85 2009-09-17 21:57:58 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.86 2009-11-13 21:08:55 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.6.rc1"
@@ -192,18 +192,21 @@ cp -R ../../client/locale/de.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/es.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/fr.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/it.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/pl.po ./gnumed-client.$CLIENTREV/client/locale
 
 cd ../../client/locale/
 ./create-gnumed_mo.sh de
 ./create-gnumed_mo.sh es
 ./create-gnumed_mo.sh fr
 ./create-gnumed_mo.sh it
+./create-gnumed_mo.sh pl
 cd -
 
 cp -R ../../client/locale/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 
 
 # pycommon
@@ -442,7 +445,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.85  2009-09-17 21:57:58  ncq
+# Revision 1.86  2009-11-13 21:08:55  ncq
+# - include Polish
+#
+# Revision 1.85  2009/09/17 21:57:58  ncq
 # - cleanup manual zip file
 # - include v11 fixups
 #
