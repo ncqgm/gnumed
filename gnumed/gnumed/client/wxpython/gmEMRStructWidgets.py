@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.108 2009-11-06 15:17:46 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmEMRStructWidgets.py,v 1.109 2009-11-13 21:07:20 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -108,8 +108,58 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		wxgProcedureEAPnl.wxgProcedureEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		# FIXME: hospital stay OR location and episode - clear on callbacks
+		self.mode = 'new'
+		self.data = None
 
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		self._PRW_hospital_stay.add_callback_on_lose_focus(callback = self._on_hospital_stay_lost_focus)
+		self._PRW_location.add_callback_on_lose_focus(callback = self._on_location_lost_focus)
+
+		# location
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [
+u"""
+select distinct on (clin_where) clin_where, clin_where
+from clin.procedure
+where clin_where %(fragment_condition)s
+order by clin_where
+limit 25
+"""			]
+		)
+		mp.setThresholds(2, 4, 6)
+		self._PRW_location.matcher = mp
+
+		# procedure
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [
+u"""
+select distinct on (narrative) narrative, narrative
+from clin.procedure
+where narrative %(fragment_condition)s
+order by narrative
+limit 25
+"""			]
+		)
+		mp.setThresholds(2, 4, 6)
+		self._PRW_procedure.matcher = mp
+	#----------------------------------------------------------------
+	def _on_hospital_stay_lost_focus(self):
+		if self._PRW_hospital_stay.GetData() is None:
+			self._PRW_hospital_stay.SetText()
+			self._PRW_episode.Enable(True)
+		else:
+			self._PRW_location.SetText()
+			self._PRW_episode.SetText()
+			self._PRW_episode.Enable(False)
+	#----------------------------------------------------------------
+	def _on_location_lost_focus(self):
+		if self._PRW_location.GetValue().strip() == u'':
+			return
+
+		self._PRW_hospital_stay.SetText()
+		self._PRW_episode.Enable(True)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -117,15 +167,18 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 
 		has_errors = False
 
-		if not self._DP_date.GetValue().IsValid():
-			self._DP_admission.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+		if not self._DPRW_date.is_valid_timestamp():
+			self._DPRW_date.display_as_valid(False)
 			has_errors = True
 		else:
-			self._DP_date.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			self._DPRW_date.display_as_valid(True)
 
-		if self._PRW_episode.GetData() is None:
-			self._PRW_episode.display_as_valid(False)
-			has_errors = True
+		if self._PRW_hospital_stay.GetData() is None:
+			if self._PRW_episode.GetData() is None:
+				self._PRW_episode.display_as_valid(False)
+				has_errors = True
+			else:
+				self._PRW_episode.display_as_valid(True)
 		else:
 			self._PRW_episode.display_as_valid(True)
 
@@ -156,19 +209,46 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		return (has_errors is False)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		self.data = 1
+
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+
+		if self._PRW_hospital_stay.GetData() is None:
+			epi = self._PRW_episode.GetData()
+		else:
+			stay = gmEMRStructItems.cHospitalStay(aPK_obj = self._PRW_hospital_stay.GetData())
+			epi = stay['pk_episode']
+
+		proc = emr.add_performed_procedure (
+			episode = epi,
+			location = self._PRW_location.GetValue().strip(),
+			hospital_stay = self._PRW_hospital_stay.GetData(),
+			procedure = self._PRW_procedure.GetValue().strip()
+		)
+		proc['clin_when'] = self._DPRW_date.data.get_pydt()
+		proc.save()
+
+		self.data = proc
+
 		return True
-		return False
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		# update self.data and save the changes
-#		self.data[''] = 
-#		self.data[''] = 
-#		self.data[''] = 
-#		self.data.save()
+		self.data['clin_when'] = self._DPRW_date.data.get_pydt()
+
+		if self._PRW_hospital_stay.GetData() is None:
+			self.data['pk_hospital_stay'] = None
+			self.data['clin_where'] = self._PRW_location.GetValue().strip()
+			self.data['pk_episode'] = self._PRW_episode.GetData()
+		else:
+			self.data['pk_hospital_stay'] = self._PRW_hospital_stay.GetData()
+			self.data['clin_where'] = None
+			stay = gmEMRStructItems.cHospitalStay(aPK_obj = self._PRW_hospital_stay.GetData())
+			self.data['pk_episode'] = stay['pk_episode']
+
+		self.data['performed_procedure'] = self._PRW_procedure.GetValue().strip()
+
+		self.data.save()
 		return True
-		return False
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._DPRW_date.SetText()
@@ -176,6 +256,8 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
+
+		self._DPRW_date.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._DPRW_date.SetData(data = self.data['clin_when'])
@@ -188,6 +270,8 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		else:
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
 			self._PRW_location.SetText()
+
+		self._DPRW_date.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -198,12 +282,8 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		else:
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
 			self._PRW_location.SetText()
-	#----------------------------------------------------------------
-#	Code using this mixin should set mode and data after
-#	instantiating the class:
-#		gmEditArea.cGenericEditAreaMixin.__init__(self)
-#		self.mode = 
-#		self.data =
+
+		self._DPRW_date.SetFocus()
 	#----------------------------------------------------------------
 	def _on_add_hospital_stay_button_pressed(self, evt):
 		edit_hospital_stay(parent = self.GetParent())
@@ -1906,7 +1986,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.108  2009-11-06 15:17:46  ncq
+# Revision 1.109  2009-11-13 21:07:20  ncq
+# - fully implement procedure EA
+#
+# Revision 1.108  2009/11/06 15:17:46  ncq
 # - set better size on encounter EA
 #
 # Revision 1.107  2009/09/23 14:42:04  ncq
