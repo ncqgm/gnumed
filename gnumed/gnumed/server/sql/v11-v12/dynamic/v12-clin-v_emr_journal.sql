@@ -5,8 +5,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v12-clin-v_emr_journal.sql,v 1.1 2009-09-01 22:12:47 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-v_emr_journal.sql,v 1.2 2009-11-13 21:11:14 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -63,6 +63,9 @@ union all
 
 	select * from clin.v_pat_substance_intake_journal
 
+union all
+
+	select * from clin.v_pat_procedures_journal
 ;
 
 comment on view clin.v_emr_journal is
@@ -74,11 +77,14 @@ comment on view clin.v_emr_journal is
 
 grant select on clin.v_emr_journal to group "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-v_emr_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-v_emr_journal.sql,v $
--- Revision 1.1  2009-09-01 22:12:47  ncq
+-- Revision 1.2  2009-11-13 21:11:14  ncq
+-- - add procedures
+--
+-- Revision 1.1  2009/09/01 22:12:47  ncq
 -- - new
 --
 --
