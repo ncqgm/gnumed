@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -191,7 +191,7 @@ def search_text_across_emrs(search_term=None):
 	if search_term.strip() == u'':
 		return []
 
-	cmd = u'select * from clin.v_narrative4search where narrative ~* %(term)s order by pk_patient'
+	cmd = u'select * from clin.v_narrative4search where narrative ~* %(term)s order by pk_patient limit 1000'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
 
 	return rows
@@ -303,7 +303,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.42  2009-11-08 20:42:00  ncq
+# Revision 1.43  2009-11-13 20:46:49  ncq
+# - limit EMR search to 1000 results to remain sane
+#
+# Revision 1.42  2009/11/08 20:42:00  ncq
 # - search across EMRs
 #
 # Revision 1.41  2009/06/29 14:50:30  ncq
