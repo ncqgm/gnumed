@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.153 $"
+__version__ = "$Revision: 1.154 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -1403,7 +1403,30 @@ def get_performed_procedures(patient=None):
 
 	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
 #-----------------------------------------------------------
+def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure=None):
 
+	queries = [{
+		'cmd': u"""
+insert into clin.procedure (
+	fk_encounter,
+	fk_episode,
+	clin_where,
+	fk_hospital_stay,
+	narrative
+) values (
+	%(enc)s,
+	%(epi)s,
+	gm.nullify_empty_string(%(loc)s),
+	%(stay)s,
+	%(proc)s
+)
+returning pk""",
+		'args': {'enc': encounter, 'epi': episode, 'loc': location, 'stay': hospital_stay, 'proc': procedure}
+	}]
+
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
+
+	return cPerformedProcedure(aPK_obj = rows[0][0])
 #-----------------------------------------------------------
 def delete_performed_procedure(procedure=None):
 	cmd = u'delete from clin.procedure where pk = %(pk)s'
@@ -1514,7 +1537,10 @@ if __name__ == '__main__':
 		test_performed_procedure()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.153  2009-11-06 15:03:15  ncq
+# Revision 1.154  2009-11-13 21:01:45  ncq
+# - create-performed-proc
+#
+# Revision 1.153  2009/11/06 15:03:15  ncq
 # - better known-since formatting for health issue
 # - include meds in class formatting
 #
