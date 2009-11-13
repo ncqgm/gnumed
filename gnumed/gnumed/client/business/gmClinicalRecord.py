@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.300 2009-11-06 15:00:50 ncq Exp $
-__version__ = "$Revision: 1.300 $"
+# $Id: gmClinicalRecord.py,v 1.301 2009-11-13 20:47:16 ncq Exp $
+__version__ = "$Revision: 1.301 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -204,6 +204,15 @@ select fk_encounter from
 			procs = filter(lambda p: p['pk_health_issue'] in issues, procs)
 
 		return procs
+	#--------------------------------------------------------
+	def add_performed_procedure(self, episode=None, location=None, hospital_stay=None, procedure=None):
+		return gmEMRStructItems.create_performed_procedure (
+			encounter = self.current_encounter['pk_encounter'],
+			episode = episode,
+			location = location,
+			hospital_stay = hospital_stay,
+			procedure = procedure
+		)
 	#--------------------------------------------------------
 	# API: hospital stays
 	#--------------------------------------------------------
@@ -2006,11 +2015,11 @@ if __name__ == "__main__":
 		#test_get_measurements()
 		#test_get_test_results_by_date()
 		#test_get_test_types_details()
-		test_get_statistics()
+		#test_get_statistics()
 		#test_add_test_result()
 		#test_get_most_recent_episode()
 		#test_get_almost_recent_encounter()
-		#test_get_meds()
+		test_get_meds()
 
 #	emr = cClinicalRecord(aPKey = 12)
 
@@ -2068,7 +2077,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.300  2009-11-06 15:00:50  ncq
+# Revision 1.301  2009-11-13 20:47:16  ncq
+# - add-performed-procedure
+#
+# Revision 1.300  2009/11/06 15:00:50  ncq
 # - add substances to stats
 # - enhance get-current-substance-intake
 # - add-consumed-substance
