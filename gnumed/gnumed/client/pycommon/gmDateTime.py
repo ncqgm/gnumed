@@ -34,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.33 2009-11-08 20:43:04 ncq Exp $
+# $Id: gmDateTime.py,v 1.34 2009-11-13 21:04:45 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -282,13 +282,16 @@ def format_interval_medically(interval=None):
 		months, day = divmod(days, 30)
 		if months == 0:
 			return "%sy" % int(years)
-		return "%sy %smo" % (int(years), int(months))
+		return "%sy %sm" % (int(years), int(months))
 
 	# more than 30 days / 1 month ?
 	if interval.days > 30:
 		months, days = divmod(interval.days, 30)
 		weeks, days = divmod(days, 7)
-		result = '%smo' % int(months)
+		if (weeks + days) == 0:
+			result = '%smo' % int(months)
+		else:
+			result = '%sm' % int(months)
 		if weeks != 0:
 			result += ' %sw' % int(weeks)
 		if days != 0:
@@ -316,7 +319,7 @@ def format_interval_medically(interval=None):
 		minutes = seconds // 60
 		if minutes == 0:
 			return '%sh' % int(hours)
-		return "%sh %smi" % (int(hours), int(minutes))
+		return "%sh %sm" % (int(hours), int(minutes))
 
 	# minutes only
 	if interval.seconds > (5*60):
@@ -328,7 +331,7 @@ def format_interval_medically(interval=None):
 		return '%ss' % int(seconds)
 	if seconds == 0:
 		return '%smi' % int(minutes)
-	return "%smi %ss" % (int(minutes), int(seconds))
+	return "%sm %ss" % (int(minutes), int(seconds))
 #---------------------------------------------------------------------------
 def str2interval(str_interval=None):
 
@@ -1326,7 +1329,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.33  2009-11-08 20:43:04  ncq
+# Revision 1.34  2009-11-13 21:04:45  ncq
+# - improved medical interval formatting
+#
+# Revision 1.33  2009/11/08 20:43:04  ncq
 # - improved format-interval-medically plus tests
 #
 # Revision 1.32  2009/11/06 15:07:40  ncq
