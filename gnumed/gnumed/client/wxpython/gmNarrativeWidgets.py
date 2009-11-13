@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.40 2009-11-08 20:49:49 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmNarrativeWidgets.py,v 1.41 2009-11-13 21:08:24 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -220,16 +220,22 @@ def search_narrative_across_emrs(parent=None):
 		)
 		return
 
-	lines = [ u'%s: %s (%s)' % (r['pk_patient'], r['narrative'], r['src_table'] ) for r in results ]
+	items = [ [gmPerson.cIdentity(aPK_obj = r['pk_patient'])['description_gender'], r['narrative'], r['src_table']] for r in results ]
 
-	dlg = wx.MessageDialog (
+	selected_patient = gmListWidgets.get_choices_from_list (
 		parent = parent,
-		message = u' \n'.join(lines),
 		caption = _('Search results for %s') % term,
-		style = wx.OK | wx.STAY_ON_TOP
+		choices = items,
+		columns = [_('Patient'), _('Match'), _('Match location')],
+		data = [ r['pk_patient'] for r in results ],
+		single_selection = True,
+		can_return_empty = False
 	)
-	dlg.ShowModal()
-	dlg.Destroy()
+
+	if selected_patient is None:
+		return
+
+	wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = gmPerson.cIdentity(aPK_obj = selected_patient))
 #------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
 
@@ -1473,7 +1479,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.40  2009-11-08 20:49:49  ncq
+# Revision 1.41  2009-11-13 21:08:24  ncq
+# - enable cross-EMR narrative search to activate matching
+#   patient from result list
+#
+# Revision 1.40  2009/11/08 20:49:49  ncq
 # - implement search across all EMRs
 #
 # Revision 1.39  2009/09/13 18:45:25  ncq
