@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.190 2009-09-01 22:21:31 ncq Exp $
-__version__ = "$Revision: 1.190 $"
+# $Id: gmPerson.py,v 1.191 2009-11-13 21:04:12 ncq Exp $
+__version__ = "$Revision: 1.191 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -2057,6 +2057,9 @@ def get_staff_list(active_only=False):
 		staff_list.append(cStaff(row=obj_row))
 	return staff_list
 #============================================================
+def get_persons_from_pks(pks=None):
+	return [ cIdentity(aPK_obj = pk) for pk in pks ]
+#============================================================
 def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	from Gnumed.business import gmXdtObjects
 	return gmXdtObjects.read_person_from_xdt(filename=filename, encoding=encoding, dob_format=dob_format)
@@ -2152,13 +2155,13 @@ if __name__ == '__main__':
 		print '\n\nCreating identity...'
 		new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
 		print 'Identity created: %s' % new_identity
-	
+
 		print '\nSetting title and gender...'
 		new_identity['title'] = 'test title';
 		new_identity['gender'] = 'f';
 		new_identity.save_payload()
 		print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
-	
+
 		print '\nGetting all names...'
 		for a_name in new_identity.get_names():
 			print a_name
@@ -2169,12 +2172,12 @@ if __name__ == '__main__':
 		for a_name in new_identity.get_names():
 			print a_name
 		print 'Active name: %s' % (new_identity.get_active_name())		
-	 
+
 		print '\nIdentity occupations: %s' % new_identity['occupations']
 		print 'Creating identity occupation...'
 		new_identity.link_occupation('test occupation')
 		print 'Identity occupations: %s' % new_identity['occupations']
-	
+
 		print '\nIdentity addresses: %s' % new_identity.get_addresses()
 		print 'Creating identity address...'
 		# make sure the state exists in the backend
@@ -2321,7 +2324,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.190  2009-09-01 22:21:31  ncq
+# Revision 1.191  2009-11-13 21:04:12  ncq
+# - get-persons-from-pks
+#
+# Revision 1.190  2009/09/01 22:21:31  ncq
 # - nullify empty strings where appropriate
 #
 # Revision 1.189  2009/08/24 20:05:14  ncq
