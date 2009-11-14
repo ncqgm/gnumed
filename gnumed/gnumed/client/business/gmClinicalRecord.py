@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.301 2009-11-13 20:47:16 ncq Exp $
-__version__ = "$Revision: 1.301 $"
+# $Id: gmClinicalRecord.py,v 1.302 2009-11-14 22:46:31 ncq Exp $
+__version__ = "$Revision: 1.302 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1364,10 +1364,10 @@ where
 	#------------------------------------------------------------------
 	# API: encounters
 	#------------------------------------------------------------------
-	def _get_encounter(self):
+	def _get_current_encounter(self):
 		return self.__encounter
 
-	def _set_encounter(self, encounter):
+	def _set_current_encounter(self, encounter):
 
 		# first ever setting ?
 		if self.__encounter is None:
@@ -1388,8 +1388,8 @@ where
 
 		return True
 
-	current_encounter = property(_get_encounter, _set_encounter)
-	active_encounter = property(_get_encounter, _set_encounter)
+	current_encounter = property(_get_current_encounter, _set_current_encounter)
+	active_encounter = property(_get_current_encounter, _set_current_encounter)
 	#------------------------------------------------------------------
 	def __initiate_active_encounter(self):
 		# 1) "very recent" encounter recorded ?
@@ -2077,7 +2077,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.301  2009-11-13 20:47:16  ncq
+# Revision 1.302  2009-11-14 22:46:31  ncq
+# - better naming
+#
+# Revision 1.301  2009/11/13 20:47:16  ncq
 # - add-performed-procedure
 #
 # Revision 1.300  2009/11/06 15:00:50  ncq
