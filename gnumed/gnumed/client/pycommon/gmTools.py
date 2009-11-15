@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.93 2009-11-06 15:12:57 ncq Exp $
+# $Id: gmTools.py,v 1.94 2009-11-15 01:04:30 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.93 $"
+__version__ = "$Revision: 1.94 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -56,6 +56,8 @@ u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
+u_frowning_face = u'\u2639'
+u_smiling_face = u'\u263a'
 u_black_heart = u'\u2665'
 u_checkmark_thin = u'\u2713'
 u_checkmark_thick = u'\u2714'
@@ -1097,7 +1099,10 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.93  2009-11-06 15:12:57  ncq
+# Revision 1.94  2009-11-15 01:04:30  ncq
+# - add smiling/frowning face
+#
+# Revision 1.93  2009/11/06 15:12:57  ncq
 # - add right arrow
 #
 # Revision 1.92  2009/10/28 16:40:32  ncq
