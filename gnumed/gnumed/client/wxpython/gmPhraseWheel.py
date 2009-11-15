@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.134 2009-07-23 16:41:42 ncq Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gmPhraseWheel.py,v 1.135 2009-11-15 01:10:53 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -372,7 +372,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		return True
 	#--------------------------------------------------------
-	def set_context (self, context=None, val=None):
+	def set_context(self, context=None, val=None):
 		if self.matcher is not None:
 			self.matcher.set_context(context=context, val=val)
 	#---------------------------------------------------------
@@ -1069,7 +1069,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.134  2009-07-23 16:41:42  ncq
+# Revision 1.135  2009-11-15 01:10:53  ncq
+# - cleanup
+#
+# Revision 1.134  2009/07/23 16:41:42  ncq
 # - support custom error msg on final regex mismatch
 #
 # Revision 1.133  2009/04/24 12:06:01  ncq

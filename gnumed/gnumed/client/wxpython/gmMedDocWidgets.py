@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.183 2009-09-13 18:45:25 ncq Exp $
-__version__ = "$Revision: 1.183 $"
+# $Id: gmMedDocWidgets.py,v 1.184 2009-11-15 01:07:11 ncq Exp $
+__version__ = "$Revision: 1.184 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1262,6 +1262,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __populate_tree(self):
 
 		wx.BeginBusyCursor()
+
 		# clean old tree
 		if self.root is not None:
 			self.DeleteAllItems()
@@ -1958,7 +1959,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.183  2009-09-13 18:45:25  ncq
+# Revision 1.184  2009-11-15 01:07:11  ncq
+# - cleanup
+#
+# Revision 1.183  2009/09/13 18:45:25  ncq
 # - no more get-active-encounter()
 #
 # Revision 1.182  2009/07/30 12:04:35  ncq

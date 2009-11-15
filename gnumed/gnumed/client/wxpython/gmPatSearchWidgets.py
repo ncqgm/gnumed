@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.128 2009-07-17 09:25:06 ncq Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmPatSearchWidgets.py,v 1.129 2009-11-15 01:10:34 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -988,6 +988,8 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		if success:
 			self._set_person_as_active_patient(self.person)
 #============================================================
+# waiting list widgets
+#============================================================
 class cWaitingZonePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1397,7 +1399,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.128  2009-07-17 09:25:06  ncq
+# Revision 1.129  2009-11-15 01:10:34  ncq
+# - cleanup
+#
+# Revision 1.128  2009/07/17 09:25:06  ncq
 # - ! -> Urgency as per list
 # - adding acts on the current patient *only*
 # - add missing Destroy
