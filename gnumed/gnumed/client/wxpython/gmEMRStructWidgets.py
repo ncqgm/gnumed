@@ -8,13 +8,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.109 2009-11-13 21:07:20 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmEMRStructWidgets.py,v 1.110 2009-11-15 01:05:44 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
 # stdlib
-import sys, re, datetime as pydt, logging
+import sys, re, datetime as pydt, logging, time
 
 
 # 3rd party
@@ -485,6 +485,15 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
+def start_new_encounter(emr=None):
+	emr.start_new_encounter()
+	gmDispatcher.send(signal = 'statustext', msg = _('Started a new encounter for the active patient.'), beep = True)
+	time.sleep(0.5)
+	gmGuiHelpers.gm_show_info (
+		_('\nA new encounter was started for the active patient.\n'),
+		_('Start of new encounter')
+	)
+#----------------------------------------------------------------
 def edit_encounter(parent=None, encounter=None):
 
 	if parent is None:
@@ -494,7 +503,7 @@ def edit_encounter(parent=None, encounter=None):
 	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter)
 	dlg.ShowModal()
 #----------------------------------------------------------------
-def select_encounters(parent=None, patient=None, single_selection=True):
+def select_encounters(parent=None, patient=None, single_selection=True, encounters=None):
 
 	if patient is None:
 		patient = gmPerson.gmCurrentPatient()
@@ -510,7 +519,10 @@ def select_encounters(parent=None, patient=None, single_selection=True):
 
 	#--------------------
 	def refresh(lctrl):
-		encs = emr.get_encounters()
+		if encounters is not None:
+			encs = encounters
+		else:
+			encs = emr.get_encounters()
 
 		items = [
 			[
@@ -532,7 +544,7 @@ def select_encounters(parent=None, patient=None, single_selection=True):
 	#--------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nBelow find all encounters of the patient.\n'),
+		msg = _('\nBelow find the relevant encounters of the patient.\n'),
 		caption = _('Showing encounters ...'),
 		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Empty'), '#'],
 		can_return_empty = True,
@@ -1986,7 +1998,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.109  2009-11-13 21:07:20  ncq
+# Revision 1.110  2009-11-15 01:05:44  ncq
+# - start-new-encounter
+# - enhance select-encounters
+#
+# Revision 1.109  2009/11/13 21:07:20  ncq
 # - fully implement procedure EA
 #
 # Revision 1.108  2009/11/06 15:17:46  ncq
