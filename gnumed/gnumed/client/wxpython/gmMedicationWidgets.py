@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.14 2009-11-08 20:49:20 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmMedicationWidgets.py,v 1.15 2009-11-15 01:09:07 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -302,7 +302,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	def _save_as_new(self):
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
-		self.data = emr.add_substance_intake (
+		self.data = emr.add_consumed_substance (
 			substance = self._PRW_substance.GetValue().strip(),
 			episode = self._PRW_episode.GetData(),
 			preparation = self._PRW_preparation.GetValue()
@@ -455,6 +455,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		self.__patient = None
 		self.__col_labels = [
+			u'',					# not used if not showing unapproved
 			_('Substance'),
 			_('Dose'),
 			_('Schedule'),
@@ -467,6 +468,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__row_tooltips = {}
 		self.__prev_row = None
 		self.__grouping_mode = u'episode'
+		self.__filter_show_unapproved = False
 
 		self.__grouping_order_by_clauses = {
 			u'episode': u'episode, substance',
@@ -479,6 +481,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	# external API
 	#------------------------------------------------------------
 	def get_selected_data(self):
+		print "FIXME: get_selected_data (rows)"
 		return [ self.__row_data[row] for row in self.GetSelectedRows() ]
 	#------------------------------------------------------------
 	def repopulate_grid(self):
@@ -489,9 +492,21 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		emr = self.__patient.get_emr()
-		meds = emr.get_current_substance_intake(order_by = self.__grouping_order_by_clauses[self.__grouping_mode])
+		meds = emr.get_current_substance_intake (
+			order_by = self.__grouping_order_by_clauses[self.__grouping_mode],
+			include_unapproved = self.__filter_show_unapproved
+		)
 		if not meds:
 			return
+
+		# columns
+		if self.__filter_show_unapproved:
+			labels = self.__col_labels
+		else:
+			labels = self.__col_labels[1:]
+		self.AppendCols(numCols = len(labels))
+		for col_idx in range(len(labels)):
+			self.SetColLabelValue(col_idx, labels[col_idx])
 
 		self.AppendRows(numRows = len(meds))
 
@@ -499,30 +514,40 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			med = meds[row_idx]
 			self.__row_data[row_idx] = med
 
-			self.SetCellValue(row_idx, 0, med['substance'])
-			self.SetCellValue(row_idx, 1, gmTools.coalesce(med['strength'], u''))
-			self.SetCellValue(row_idx, 2, gmTools.coalesce(med['schedule'], u''))
-			self.SetCellValue(row_idx, 3, med['started'].strftime('%x'))
+			col_offset = 0
+			if self.__filter_show_unapproved:
+				self.SetCellValue (
+					row_idx,
+					col_offset + 0,
+					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, u'', u'?')
+				)
+				self.SetColSize(0, 15)
+				col_offset = 1
+
+			self.SetCellValue(row_idx, col_offset + 0, med['substance'])
+			self.SetCellValue(row_idx, col_offset + 1, gmTools.coalesce(med['strength'], u''))
+			self.SetCellValue(row_idx, col_offset + 2, gmTools.coalesce(med['schedule'], u''))
+			self.SetCellValue(row_idx, col_offset + 3, med['started'].strftime('%x'))
 
 			if med['is_long_term']:
-				self.SetCellValue(row_idx, 4, gmTools.u_infinity)
+				self.SetCellValue(row_idx, col_offset + 4, gmTools.u_infinity)
 			else:
 				if med['duration'] is None:
-					self.SetCellValue(row_idx, 4, u'')
+					self.SetCellValue(row_idx, col_offset + 4, u'')
 				else:
-					self.SetCellValue(row_idx, 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+					self.SetCellValue(row_idx, col_offset + 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
 
 			if med['pk_episode'] is None:
-				self.SetCellValue(row_idx, 5, u'')
+				self.SetCellValue(row_idx, col_offset + 5, u'')
 			else:
-				self.SetCellValue(row_idx, 5, gmTools.coalesce(med['episode'], u''))
+				self.SetCellValue(row_idx, col_offset + 5, gmTools.coalesce(med['episode'], u''))
 			if med['pk_brand'] is None:
-				self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+				self.SetCellValue(row_idx, col_offset + 6, gmTools.coalesce(med['brand'], u''))
 			else:
 				if med['fake_brand']:
-					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+					self.SetCellValue(row_idx, col_offset + 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
 				else:
-					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+					self.SetCellValue(row_idx, col_offset + 6, gmTools.coalesce(med['brand'], u''))
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 	#------------------------------------------------------------
@@ -533,6 +558,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		# on thinking it is supposed to do nothing
 		if self.GetNumberRows() > 0:
 			self.DeleteRows(pos = 0, numRows = self.GetNumberRows())
+		if self.GetNumberCols() > 0:
+			self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
 		#self.__cell_tooltips = {}
 		self.__row_data = {}
@@ -551,11 +578,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
 		self.SetRowLabelSize(0)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
-
-		# columns
-		self.AppendCols(numCols = len(self.__col_labels) - 1)
-		for col_idx in range(len(self.__col_labels)):
-			self.SetColLabelValue(col_idx, self.__col_labels[col_idx])
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -576,6 +598,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.repopulate_grid()
 
 	grouping_mode = property(_get_grouping_mode, _set_grouping_mode)
+	#------------------------------------------------------------
+	def _get_filter_show_unapproved(self):
+		return self.__filter_show_unapproved
+
+	def _set_filter_show_unapproved(self, val):
+		self.__filter_show_unapproved = val
+		self.repopulate_grid()
+
+	filter_show_unapproved = property(_get_filter_show_unapproved, _set_filter_show_unapproved)
 	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------
@@ -639,9 +670,14 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		substs = self._grid_substances.get_selected_data()
+
+		if len(substs) == 0:
+			return
+
 		if len(substs) > 1:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete more than one substance at once.'), beep = True)
 			return
+
 		delete_substance_intake(parent = self, substance = substs[0]['pk_substance_intake'])
 	#--------------------------------------------------------
 	def _on_episode_grouping_selected(self, event):
@@ -651,8 +687,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		self._grid_substances.grouping_mode = 'brand'
 	#--------------------------------------------------------
 	def _on_show_all_checked(self, event):
-		#self._grid_substances.filter_mode = 'all'
-		pass
+		self._grid_substances.filter_show_unapproved = self._CHBOX_show_all.GetValue()
 #============================================================
 # main
 #------------------------------------------------------------
@@ -671,7 +706,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.14  2009-11-08 20:49:20  ncq
+# Revision 1.15  2009-11-15 01:09:07  ncq
+# - implement grouping/filtering
+# - mark unapproved vs approved if showing all substances
+#
+# Revision 1.14  2009/11/08 20:49:20  ncq
 # - implement deletion
 # - start grouping/filtering/ row tooltips
 #
