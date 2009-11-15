@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.41 2009-11-13 21:08:24 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmNarrativeWidgets.py,v 1.42 2009-11-15 01:10:09 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -26,7 +26,7 @@ _log.info(__version__)
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
-def move_progress_notes_to_another_encounter(parent=None, encounters=None, episodes=None, patient=None):
+def move_progress_notes_to_another_encounter(parent=None, encounters=None, episodes=None, patient=None, move_all=False):
 
 	# sanity checks
 	if patient is None:
@@ -41,28 +41,40 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 
 	emr = patient.get_emr()
 
+	if encounters is None:
+		encs = emr.get_encounters(episodes = episodes)
+		encounters = gmEMRStructWidgets.select_encounters (
+			parent = parent,
+			patient = patient,
+			single_selection = False,
+			encounters = encs
+		)
+
 	notes = emr.get_clin_narrative (
 		encounters = encounters,
 		episodes = episodes
 	)
 
 	# which narrative
-	selected_narr = gmListWidgets.get_choices_from_list (
-		parent = parent,
-		caption = _('Moving progress notes between encounters ...'),
-		single_selection = False,
-		can_return_empty = True,
-		data = notes,
-		msg = _('\n Select the progress notes to move from the list !\n\n'),
-		columns = [_('when'), _('who'), _('type'), _('entry')],
-		choices = [
-			[	narr['date'].strftime('%x %H:%M'),
-				narr['provider'],
-				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
-				narr['narrative'].replace('\n', '/').replace('\r', '/')
-			] for narr in notes
-		]
-	)
+	if move_all:
+		selected_narr = notes
+	else:
+		selected_narr = gmListWidgets.get_choices_from_list (
+			parent = parent,
+			caption = _('Moving progress notes between encounters ...'),
+			single_selection = False,
+			can_return_empty = True,
+			data = notes,
+			msg = _('\n Select the progress notes to move from the list !\n\n'),
+			columns = [_('when'), _('who'), _('type'), _('entry')],
+			choices = [
+				[	narr['date'].strftime('%x %H:%M'),
+					narr['provider'],
+					gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+					narr['narrative'].replace('\n', '/').replace('\r', '/')
+				] for narr in notes
+			]
+		)
 
 	if not selected_narr:
 		return True
@@ -1004,7 +1016,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		event.Skip()
 
-		wx.CallAfter(emr.start_new_encounter)
+		wx.CallAfter(gmEMRStructWidgets.start_new_encounter, emr = emr)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1479,7 +1491,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.41  2009-11-13 21:08:24  ncq
+# Revision 1.42  2009-11-15 01:10:09  ncq
+# - enhance move-progress-notes-to-another-encounter
+# - use enhanced new encounter start
+#
+# Revision 1.41  2009/11/13 21:08:24  ncq
 # - enable cross-EMR narrative search to activate matching
 #   patient from result list
 #
