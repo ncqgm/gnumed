@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.302 2009-11-14 22:46:31 ncq Exp $
-__version__ = "$Revision: 1.302 $"
+# $Id: gmClinicalRecord.py,v 1.303 2009-11-15 01:04:08 ncq Exp $
+__version__ = "$Revision: 1.303 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1105,7 +1105,7 @@ where
 
 		return meds
 	#--------------------------------------------------------
-	def add_consumed_substance(substance=None, atc=None, episode=None, preparation=None):
+	def add_consumed_substance(self, substance=None, atc=None, episode=None, preparation=None):
 		return gmMedication.create_patient_consumed_substance (
 			substance = substance,
 			atc = atc,
@@ -2077,7 +2077,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.302  2009-11-14 22:46:31  ncq
+# Revision 1.303  2009-11-15 01:04:08  ncq
+# - add missing self
+#
+# Revision 1.302  2009/11/14 22:46:31  ncq
 # - better naming
 #
 # Revision 1.301  2009/11/13 20:47:16  ncq
