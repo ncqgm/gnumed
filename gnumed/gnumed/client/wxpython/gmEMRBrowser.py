@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.109 2009-11-06 15:17:07 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmEMRBrowser.py,v 1.110 2009-11-15 01:05:02 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -207,7 +207,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Promote')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__promote_episode_to_issue)
 
-		# FIXME: add attach all encounters to another episode
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Move encounters')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__move_encounters)
 
 		# - encounters
 		self.__enc_context_popup = wx.Menu(title = _('Encounter Menu'))
@@ -291,6 +293,16 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __handle_encounter_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__enc_context_popup, pos)
 	#--------------------------------------------------------
+	# episode level
+	#--------------------------------------------------------
+	def __move_encounters(self, event):
+		episode = self.GetPyData(self.__curr_node)
+
+		gmNarrativeWidgets.move_progress_notes_to_another_encounter (
+			parent = self,
+			episodes = [episode['pk_episode']],
+			move_all = True
+		)
 	#--------------------------------------------------------
 	def __edit_episode(self, event):
 		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__curr_node_data)
@@ -323,6 +335,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		except gmExceptions.DatabaseObjectInUseError:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 			return
+	#--------------------------------------------------------
+	# encounter level
 	#--------------------------------------------------------
 	def __move_progress_notes(self, evt):
 		encounter = self.GetPyData(self.__curr_node)
@@ -833,7 +847,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.109  2009-11-06 15:17:07  ncq
+# Revision 1.110  2009-11-15 01:05:02  ncq
+# - enable moving SOAP of a list of encounters of an episode
+#
+# Revision 1.109  2009/11/06 15:17:07  ncq
 # - properly promote episode to issue
 # - better tooltips
 #
