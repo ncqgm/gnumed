@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.477 2009-11-08 20:43:50 ncq Exp $
-__version__ = "$Revision: 1.477 $"
+# $Id: gmGuiMain.py,v 1.478 2009-11-15 01:06:49 ncq Exp $
+__version__ = "$Revision: 1.478 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1987,8 +1987,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot start new encounter. No active patient.'))
 			return False
 		emr = pat.get_emr()
-		emr.start_new_encounter()
-		gmDispatcher.send(signal = 'statustext', msg = _('Started a new encounter for the active patient.'))
+		gmEMRStructWidgets.start_new_encounter(emr = emr)
 	#----------------------------------------------
 	def __on_list_encounters(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -2924,7 +2923,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.477  2009-11-08 20:43:50  ncq
+# Revision 1.478  2009-11-15 01:06:49  ncq
+# - better start of new encounter
+#
+# Revision 1.477  2009/11/08 20:43:50  ncq
 # - search across all EMRs
 #
 # Revision 1.476  2009/11/06 15:18:27  ncq
