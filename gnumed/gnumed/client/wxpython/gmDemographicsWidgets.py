@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.168 2009-07-23 16:38:33 ncq Exp $
-__version__ = "$Revision: 1.168 $"
+# $Id: gmDemographicsWidgets.py,v 1.169 2009-11-17 19:42:12 ncq Exp $
+__version__ = "$Revision: 1.169 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -36,31 +36,228 @@ except NameError:
 	_ = lambda x:x
 
 #============================================================
+# province related widgets / functions
+#============================================================
+def edit_province(parent=None, province=None):
+	ea = cProvinceEAPnl(parent = parent, id = -1, province = province)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (province is not None))
+	dlg.SetTitle(gmTools.coalesce(province, _('Adding province'), _('Editing province')))
+	result = dlg.ShowModal()
+	dlg.Destroy()
+	return (result == wx.ID_OK)
+#============================================================
+def delete_province(parent=None, province=None):
+
+	msg = _(
+		'Are you sure you want to delete this province ?\n'
+		'\n'
+		'Deletion will only work if this province is not\n'
+		'yet in use in any patient addresses.'
+	)
+
+	tt = _(
+		'Also delete any towns/cities/villages known\n'
+		'to be situated in this state as long as\n'
+		'no patients are recorded to live there.'
+	)
+
+	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+		parent,
+		-1,
+		caption = _('Deleting province'),
+		question = msg,
+		show_checkbox = True,
+		checkbox_msg = _('delete related townships'),
+		checkbox_tooltip = tt,
+		button_defs = [
+			{'label': _('Yes, delete'), 'tooltip': _('Delete province and possibly related townships.'), 'default': False},
+			{'label': _('No'), 'tooltip': _('No, do NOT delete anything.'), 'default': True}
+		]
+	)
+
+	decision = dlg.ShowModal()
+	if decsion != wx.ID_YES:
+		dlg.Destroy()
+		return False
+
+	include_urbs = dlg.checkbox_is_checked()
+	dlg.Destroy()
+
+	return gmDemographicRecord.delete_province(province = province, delete_urbs = include_urbs)
+#============================================================
 def manage_provinces(parent=None):
 
-	provinces = gmDemographicRecord.get_provinces()
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def delete(province=None):
+		return delete_province(parent = parent, province = province['pk_state'])
+	#------------------------------------------------------------
+	def edit(province=None):
+		return edit_province(parent = parent, province = province)
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		provinces = gmDemographicRecord.get_provinces()
+		lctrl.set_string_items(provinces)
+		lctrl.set_data(provinces)
+	#------------------------------------------------------------
+	msg = _(
+		'\n'
+		'This list shows the provinces known to GNUmed.\n'
+		'\n'
+		'In your jurisdiction "province" may correspond to either of "state",\n'
+		'"county", "region", "territory", or some such term.\n'
+		'\n'
+		'Select the province you want to edit !\n'
+	)
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _(
-			'\n'
-			'This list shows the provinces known to GNUmed.\n'
-			'\n'
-			'In your jurisdiction "province" may correspond to either of "state",\n'
-			'"county", "region", "territory", or some such term.\n'
-			'\n'
-			'Select the province you want to edit !\n'
-		),
+		msg = msg,
 		caption = _('Editing provinces ...'),
-		choices = provinces,
 		columns = [_('Province'), _('Country')],
-		single_selection = True
-#		,
-#		edit_callback = edit,
-#		new_callback = edit,
-#		delete_callback = delete,
-#		refresh_callback = refresh
+		single_selection = True,
+		new_callback = edit,
+		edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
 	)
+#============================================================
+class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		context = {
+			u'ctxt_country_name': {
+				u'where_part': u'and l10n_country ilike %(country_name)s or country ilike %(country_name)s',
+				u'placeholder': u'country_name'
+			},
+			u'ctxt_zip': {
+				u'where_part': u'and zip ilike %(zip)s',
+				u'placeholder': u'zip'
+			},
+			u'ctxt_country_code': {
+				u'where_part': u'and country in (select code from dem.country where _(name) ilike %(country_name)s or name ilike %(country_name)s)',
+				u'placeholder': u'country_name'
+			}
+		}
+
+		query = u"""
+select code, name from (
+	select distinct on (name) code, name, rank from (
+			-- 1: find states based on name, context: zip and country name
+			select
+				code_state as code, state as name, 1 as rank
+			from dem.v_zip2data
+			where
+				state %(fragment_condition)s
+				%(ctxt_country_name)s
+				%(ctxt_zip)s
+
+		union all
+
+			-- 2: find states based on code, context: zip and country name
+			select
+				code_state as code, state as name, 2 as rank
+			from dem.v_zip2data
+			where
+				code_state %(fragment_condition)s
+				%(ctxt_country_name)s
+				%(ctxt_zip)s
+
+		union all
+
+			-- 3: find states based on name, context: country
+			select
+				code as code, name as name, 3 as rank
+			from dem.state
+			where
+				name %(fragment_condition)s
+				%(ctxt_country_code)s
+
+		union all
+
+			-- 4: find states based on code, context: country
+			select
+				code as code, name as name, 3 as rank
+			from dem.state
+			where
+				code %(fragment_condition)s
+				%(ctxt_country_code)s
+
+	) as q2
+) as q1 order by rank, name limit 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
+		mp.setThresholds(2, 5, 6)
+		mp.word_separators = u'[ \t]+'
+		self.matcher = mp
+
+		self.unset_context(context = u'zip')
+		self.unset_context(context = u'country_name')
+		self.SetToolTipString(_('Type or select a state/region/province/territory.'))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.selection_only = True
+#====================================================================
+from Gnumed.wxGladeWidgets import wxgProvinceEAPnl
+
+class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['province']
+			del kwargs['province']
+		except KeyError:
+			data = None
+
+		wxgProvinceEAPnl.wxgProvinceEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		self._PRW_province.selection_only = False
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		#self.data = 
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+		#self.data[''] = 
+		#self.data[''] = 
+		#self.data[''] = 
+		#self.data.save()
+		return True
+		return False
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+#============================================================
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 
@@ -656,87 +853,6 @@ order by
 #				self.data = gmMedDoc.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
 #		return self.data
 #============================================================
-class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		context = {
-			u'ctxt_country_name': {
-				u'where_part': u'and l10n_country ilike %(country_name)s or country ilike %(country_name)s',
-				u'placeholder': u'country_name'
-			},
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
-			},
-			u'ctxt_country_code': {
-				u'where_part': u'and country in (select code from dem.country where _(name) ilike %(country_name)s or name ilike %(country_name)s)',
-				u'placeholder': u'country_name'
-			}
-		}
-
-		query = u"""
-select code, name from (
-	select distinct on (name) code, name, rank from (
-			-- 1: find states based on name, context: zip and country name
-			select
-				code_state as code, state as name, 1 as rank
-			from dem.v_zip2data
-			where
-				state %(fragment_condition)s
-				%(ctxt_country_name)s
-				%(ctxt_zip)s
-
-		union all
-
-			-- 2: find states based on code, context: zip and country name
-			select
-				code_state as code, state as name, 2 as rank
-			from dem.v_zip2data
-			where
-				code_state %(fragment_condition)s
-				%(ctxt_country_name)s
-				%(ctxt_zip)s
-
-		union all
-
-			-- 3: find states based on name, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
-				name %(fragment_condition)s
-				%(ctxt_country_code)s
-
-		union all
-
-			-- 4: find states based on code, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
-				code %(fragment_condition)s
-				%(ctxt_country_code)s
-
-	) as q2
-) as q1 order by rank, name limit 50"""
-
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
-		mp.setThresholds(2, 5, 6)
-		mp.word_separators = u'[ \t]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.unset_context(context = u'zip')
-		self.unset_context(context = u'country_name')
-
-		self.matcher = mp
-		self.SetToolTipString(_("Select a state/region/province/territory."))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.selection_only = True
-#============================================================
 class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -869,8 +985,10 @@ limit 50
 class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	# FIXME: default in config
-
 	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
 		context = {
 			u'ctxt_zip': {
 				u'where_part': u'and zip ilike %(zip)s',
@@ -879,7 +997,7 @@ class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		}
 		query = u"""
 select code, name from (
-	select distinct on (code, name) code, name, rank from (
+	select distinct on (code, name) code, (name || ' (' || code || ')') as name, rank from (
 
 		-- localized to user
 
@@ -921,17 +1039,12 @@ select code, name from (
 ) as q1 order by rank, name limit 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 9)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.unset_context(context = u'zip')
+		self.matcher = mp
 
+		self.unset_context(context = u'zip')
 		self.SetToolTipString(_('Type or select a country.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
-		self.matcher = mp
 #============================================================
 # communications channel related widgets
 #============================================================
@@ -3147,7 +3260,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.168  2009-07-23 16:38:33  ncq
+# Revision 1.169  2009-11-17 19:42:12  ncq
+# - further implement province management
+#
+# Revision 1.168  2009/07/23 16:38:33  ncq
 # - cleanup
 # - rewrite address valid for save and use it better
 # - catch link_address exceptions
