@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.101 2009-09-29 13:13:41 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmDemographicRecord.py,v 1.102 2009-11-17 19:40:40 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -30,6 +30,36 @@ _log = logging.getLogger('gm.business')
 _log.info(__version__)
 
 #============================================================
+def delete_province(province=None, delete_urbs=False):
+
+	args = {'prov': province}
+
+	queries = []
+	if delete_urbs:
+		queries.append ({
+			'cmd': u"""
+				delete from dem.urb du
+				where
+					du.id_state = %(prov)s
+						and
+					not exists (select 1 from dem.street ds where ds.id_urb = du.id)""",
+			'args': args
+		})
+
+	queries.append ({
+		'cmd': u"""
+			delete from dem.state ds
+			where
+				ds.id = %(prov)s
+					and
+				not exists (select 1 from dem.urb du where du.id_state = ds.id)""",
+		'args': args
+	})
+
+	gmPG2.run_rw_queries(queries = queries)
+
+	return True
+#------------------------------------------------------------
 def get_provinces():
 	cmd = u"""
 select
@@ -588,7 +618,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.101  2009-09-29 13:13:41  ncq
+# Revision 1.102  2009-11-17 19:40:40  ncq
+# - delete-province()
+#
+# Revision 1.101  2009/09/29 13:13:41  ncq
 # - get-address-types
 #
 # Revision 1.100  2009/04/24 12:04:25  ncq
