@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.130 2009-10-29 17:21:45 ncq Exp $
+# $Id: gmEditArea.py,v 1.131 2009-11-17 19:42:54 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.130 $"
+__version__ = "$Revision: 1.131 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -26,8 +26,35 @@ edit_area_modes = ['new', 'edit', 'new_from_existing']
 class cGenericEditAreaMixin(object):
 	"""Mixin for edit area panels providing generic functionality.
 
-	Implementors must provide:
+#====================================================================
+# Class definition:
 
+from Gnumed.wxGladeWidgets import wxgXxxEAPnl
+
+class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['xxx']
+			del kwargs['xxx']
+		except KeyError:
+			data = None
+
+		wxgXxxEAPnl.wxgXxxPatientEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -37,7 +64,7 @@ class cGenericEditAreaMixin(object):
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
-		self.data = 1
+		self.data = 
 		return False
 		return True
 	#----------------------------------------------------------------
@@ -48,21 +75,17 @@ class cGenericEditAreaMixin(object):
 		self.data[''] = 
 		self.data.save()
 		return True
-		return False
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
+		pass
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
+		pass
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
+		pass
 	#----------------------------------------------------------------
 
-	Code using this mixin should set mode and data after
-	instantiating the class:
-
-		gmEditArea.cGenericEditAreaMixin.__init__(self)
-		self.mode = 
-		self.data =
 	"""
 	def __init__(self):
 		self.__mode = 'new'
@@ -248,87 +271,15 @@ from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 _gb = gmGuiBroker.GuiBroker()
 
-ID_PROGRESSNOTES = wx.NewId()
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
 gmSECTION_CLINICALNOTES = 3
 gmSECTION_FAMILYHISTORY = 4
 gmSECTION_PASTHISTORY = 5
 gmSECTION_SCRIPT = 8
-
-#--------------------------------------------
 gmSECTION_REQUESTS = 9
-ID_REQUEST_TYPE = wx.NewId()
-ID_REQUEST_COMPANY  = wx.NewId()
-ID_REQUEST_STREET  = wx.NewId()
-ID_REQUEST_SUBURB  = wx.NewId()
-ID_REQUEST_PHONE  = wx.NewId()
-ID_REQUEST_REQUESTS  = wx.NewId()
-ID_REQUEST_FORMNOTES = wx.NewId()
-ID_REQUEST_MEDICATIONS = wx.NewId()
-ID_REQUEST_INCLUDEALLMEDICATIONS  = wx.NewId()
-ID_REQUEST_COPYTO = wx.NewId()
-ID_REQUEST_BILL_BB = wx.NewId()
-ID_REQUEST_BILL_PRIVATE = wx.NewId()
-ID_REQUEST_BILL_wcover = wx.NewId()
-ID_REQUEST_BILL_REBATE  = wx.NewId()
-#---------------------------------------------
 gmSECTION_REFERRALS = 11
-ID_REFERRAL_CATEGORY        = wx.NewId()
-ID_REFERRAL_NAME        = wx.NewId()
-ID_REFERRAL_USEFIRSTNAME        = wx.NewId()
-ID_REFERRAL_ORGANISATION        = wx.NewId()
-ID_REFERRAL_HEADOFFICE        = wx.NewId()
-ID_REFERRAL_STREET1       = wx.NewId()
-ID_REFERRAL_STREET2        = wx.NewId()
-ID_REFERRAL_STREET3       = wx.NewId()
-ID_REFERRAL_SUBURB        = wx.NewId()
-ID_REFERRAL_POSTCODE        = wx.NewId()
-ID_REFERRAL_FOR        = wx.NewId()
-ID_REFERRAL_WPHONE        = wx.NewId()
-ID_REFERRAL_WFAX        = wx.NewId()
-ID_REFERRAL_WEMAIL        = wx.NewId()
-ID_REFERRAL_INCLUDE_MEDICATIONS        = wx.NewId()
-ID_REFERRAL_INCLUDE_SOCIALHISTORY       = wx.NewId()
-ID_REFERRAL_INCLUDE_FAMILYHISTORY        = wx.NewId()
-ID_REFERRAL_INCLUDE_PASTPROBLEMS        = wx.NewId()
-ID_REFERRAL_ACTIVEPROBLEMS       = wx.NewId()
-ID_REFERRAL_HABITS        = wx.NewId()
-ID_REFERRAL_INCLUDEALL        = wx.NewId()
-ID_BTN_PREVIEW = wx.NewId()
-ID_REFERRAL_COPYTO = wx.NewId()
-#----------------------------------------
 gmSECTION_RECALLS = 12
-ID_RECALLS_TOSEE  = wx.NewId()
-ID_RECALLS_TXT_FOR  = wx.NewId()
-ID_RECALLS_TXT_DATEDUE  = wx.NewId()
-ID_RECALLS_CONTACTMETHOD = wx.NewId()
-ID_RECALLS_APPNTLENGTH = wx.NewId()
-ID_RECALLS_TXT_ADDTEXT  = wx.NewId()
-ID_RECALLS_TXT_INCLUDEFORMS = wx.NewId()
-ID_RECALLS_TOSEE  = wx.NewId()
-ID_RECALLS_TXT_FOR  = wx.NewId()
-ID_RECALLS_TXT_DATEDUE  = wx.NewId()
-ID_RECALLS_CONTACTMETHOD = wx.NewId()
-ID_RECALLS_APPNTLENGTH = wx.NewId()
-ID_RECALLS_TXT_ADDTEXT  = wx.NewId()
-ID_RECALLS_TXT_INCLUDEFORMS = wx.NewId()
-
-
-
-PHX_CONDITION=wx.NewId()
-PHX_NOTES=wx.NewId()
-PHX_NOTES2=wx.NewId()
-PHX_LEFT=wx.NewId()
-PHX_RIGHT=wx.NewId()
-PHX_BOTH=wx.NewId()
-PHX_AGE=wx.NewId()
-PHX_YEAR=wx.NewId()
-PHX_ACTIVE=wx.NewId()
-PHX_OPERATION=wx.NewId()
-PHX_CONFIDENTIAL=wx.NewId()
-PHX_SIGNIFICANT=wx.NewId()
-PHX_PROGRESSNOTES=wx.NewId()
 
 richards_blue = wx.Colour(0,0,131)
 richards_aqua = wx.Colour(0,194,197)
@@ -2210,7 +2161,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.130  2009-10-29 17:21:45  ncq
+# Revision 1.131  2009-11-17 19:42:54  ncq
+# - much improved cut-n-paste boilerplate
+#
+# Revision 1.130  2009/10/29 17:21:45  ncq
 # - safer copy/paste boilerplate
 #
 # Revision 1.129  2009/09/01 22:30:33  ncq
