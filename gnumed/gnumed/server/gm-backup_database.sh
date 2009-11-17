@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.21 2009-04-24 12:12:09 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.22 2009-11-17 19:43:19 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -116,7 +116,7 @@ if test -z ${GM_HOST} ; then
 	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- "`psql -A -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
-	pg_dump -C -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql 2> /dev/null
+	pg_dump -C -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 else
 	# remotely
 	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
@@ -131,7 +131,7 @@ else
 		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- "`psql -A -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
-		pg_dump -C -v -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql 2> /dev/null
+		pg_dump -C -v -h ${GM_HOST} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 	else
 		echo "Cannot ping database host ${GM_HOST}."
 		exit 1
@@ -159,7 +159,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.21  2009-04-24 12:12:09  ncq
+# Revision 1.22  2009-11-17 19:43:19  ncq
+# - no more -d with pg_dump
+#
+# Revision 1.21  2009/04/24 12:12:09  ncq
 # - more sanity checks pulled from Debian
 #
 # Revision 1.20  2009/04/14 18:32:40  ncq
