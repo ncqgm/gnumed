@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.102 2009-11-17 19:40:40 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmDemographicRecord.py,v 1.103 2009-11-18 16:10:02 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -60,14 +60,31 @@ def delete_province(province=None, delete_urbs=False):
 
 	return True
 #------------------------------------------------------------
+def create_province(name=None, code=None, country=None):
+
+	args = {'code': code, 'country': country, 'name': name}
+
+	cmd = u"""SELECT EXISTS (SELECT 1 FROM dem.state WHERE name = %(name)s)"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if rows[0][0]:
+		return
+
+	cmd = u"""
+		INSERT INTO dem.state (
+			code, country, name
+		) VALUES (
+			%(code)s, %(country)s, %(name)s
+		)"""
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#------------------------------------------------------------
 def get_provinces():
 	cmd = u"""
-select
-	l10n_state, l10n_country, state, code_state, code_country, pk_state, country_deprecated
-from dem.v_state
-order by l10n_country, l10n_state"""
+		select
+			l10n_state, l10n_country, state, code_state, code_country, pk_state, country_deprecated
+		from dem.v_state
+		order by l10n_country, l10n_state"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	# FIXME: add caching
 	return rows
 #============================================================
 # address related classes
@@ -618,7 +635,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.102  2009-11-17 19:40:40  ncq
+# Revision 1.103  2009-11-18 16:10:02  ncq
+# - more provinces handling
+#
+# Revision 1.102  2009/11/17 19:40:40  ncq
 # - delete-province()
 #
 # Revision 1.101  2009/09/29 13:13:41  ncq
