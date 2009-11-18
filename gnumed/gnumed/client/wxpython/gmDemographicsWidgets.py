@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.169 2009-11-17 19:42:12 ncq Exp $
-__version__ = "$Revision: 1.169 $"
+# $Id: gmDemographicsWidgets.py,v 1.170 2009-11-18 16:10:58 ncq Exp $
+__version__ = "$Revision: 1.170 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -76,7 +76,7 @@ def delete_province(parent=None, province=None):
 	)
 
 	decision = dlg.ShowModal()
-	if decsion != wx.ID_YES:
+	if decision != wx.ID_YES:
 		dlg.Destroy()
 		return False
 
@@ -98,9 +98,11 @@ def manage_provinces(parent=None):
 		return edit_province(parent = parent, province = province)
 	#------------------------------------------------------------
 	def refresh(lctrl):
+		wx.BeginBusyCursor()
 		provinces = gmDemographicRecord.get_provinces()
 		lctrl.set_string_items(provinces)
 		lctrl.set_data(provinces)
+		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	msg = _(
 		'\n'
@@ -119,7 +121,7 @@ def manage_provinces(parent=None):
 		columns = [_('Province'), _('Country')],
 		single_selection = True,
 		new_callback = edit,
-		edit_callback = edit,
+		#edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh
 	)
@@ -230,13 +232,47 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		return False
-		return True
+
+		validity = True
+
+		if self._PRW_province.GetData() is None:
+			if self._PRW_province.GetValue().strip() == u'':
+				validity = False
+				self._PRW_province.display_as_valid(False)
+			else:
+				self._PRW_province.display_as_valid(True)
+		else:
+			self._PRW_province.display_as_valid(True)
+
+		if self._PRW_province.GetData() is None:
+			if self._TCTRL_code.GetValue().strip() == u'':
+				validity = False
+				self._TCTRL_code.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+			else:
+				self._TCTRL_code.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+
+		if self._PRW_country.GetData() is None:
+			validity = False
+			self._PRW_country.display_as_valid(False)
+		else:
+			self._PRW_country.display_as_valid(True)
+
+		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		#self.data = 
-		return False
+		gmDemographicRecord.create_province (
+			name = self._PRW_province.GetValue().strip(),
+			code = self._TCTRL_code.GetValue().strip(),
+			country = self._PRW_country.GetData()
+		)
+
+		# EA is refreshed automatically after save, so need this ...
+		self.data = {
+			'l10n_state' : self._PRW_province.GetValue().strip(),
+			'code_state' : self._TCTRL_code.GetValue().strip(),
+			'l10n_country' : self._PRW_country.GetValue().strip()
+		}
+
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
@@ -245,18 +281,30 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 		#self.data[''] = 
 		#self.data[''] = 
 		#self.data.save()
+
+		# do nothing for now (IOW, don't support updates)
 		return True
-		return False
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		pass
+		self._PRW_province.SetText()
+		self._TCTRL_code.SetValue(u'')
+		self._PRW_country.SetText()
+
+		self._PRW_province.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		pass
+		self._PRW_province.SetText(self.data['l10n_state'], self.data['code_state'])
+		self._TCTRL_code.SetValue(self.data['code_state'])
+		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
+
+		self._PRW_province.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		pass
-	#----------------------------------------------------------------
+		self._PRW_province.SetText()
+		self._TCTRL_code.SetValue(u'')
+		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
+
+		self._PRW_province.SetFocus()
 #============================================================
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
@@ -3260,7 +3308,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.169  2009-11-17 19:42:12  ncq
+# Revision 1.170  2009-11-18 16:10:58  ncq
+# - sufficiently complete provinces management
+#
+# Revision 1.169  2009/11/17 19:42:12  ncq
 # - further implement province management
 #
 # Revision 1.168  2009/07/23 16:38:33  ncq
