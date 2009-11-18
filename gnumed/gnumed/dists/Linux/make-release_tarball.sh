@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.86 2009-11-13 21:08:55 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.87 2009-11-18 16:12:24 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.6.rc1"
@@ -229,7 +229,7 @@ chmod -cR -x ./gnumed-client.$CLIENTREV/client/wxpython/*.*
 chmod -cR -x ./gnumed-client.$CLIENTREV/client/wxpython/gui/*.*
 
 
-# pick up current User Manual
+# current User Manual
 echo "picking up GNUmed User Manual from the web"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual		#http://wiki.gnumed.de/bin/publish/Gnumed
@@ -243,6 +243,24 @@ ln -s GnumedManual.html index.html
 #rm -vf GNUmed-User-Manual.tgz
 rm -vf GNUmed-User-Manual.zip
 cd -
+
+
+# current API documentation
+echo "downloading the API documentation"
+mkdir -p ./gnumed-client.$CLIENTREV/client/doc/api/
+cd ./gnumed-client.$CLIENTREV/client/doc/api/
+wget -v -r -k -np -nd http://salaam.homeunix.com/~ncq/gnumed/api/
+cd -
+
+
+# current schema documentation
+echo "downloading SQL schema documentation"
+mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
+cd ./gnumed-client.$CLIENTREV/client/doc/schema/
+wget -v -r -k -np -nd http://salaam.homeunix.com/~ncq/gnumed/schema/release/gnumed-schema.html
+wget -v -r -k -np -nd http://salaam.homeunix.com/~ncq/gnumed/schema/release/gnumed-schema-no_audit.dot
+cd -
+
 
 #----------------------------------
 # create server package
@@ -285,11 +303,12 @@ cp -R ../../server/bootstrap/* ./gnumed-client.$CLIENTREV/server/bootstrap/
 
 
 # doc
-mkdir -p ./gnumed-client.$CLIENTREV/server/doc/
+mkdir -p ./gnumed-client.$CLIENTREV/server/doc/schema
 cp -R ../../server/bootstrap/README ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-bootstrap_server.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-upgrade_server.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-fixup_server.8 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/server/doc/
 
 
 # etc
@@ -445,7 +464,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.86  2009-11-13 21:08:55  ncq
+# Revision 1.87  2009-11-18 16:12:24  ncq
+# - add API/schema docs to tarball as per David Merz' suggestion
+#
+# Revision 1.86  2009/11/13 21:08:55  ncq
 # - include Polish
 #
 # Revision 1.85  2009/09/17 21:57:58  ncq
