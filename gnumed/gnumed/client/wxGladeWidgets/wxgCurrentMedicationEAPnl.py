@@ -116,10 +116,6 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         _gszr_main.AddGrowableCol(1)
         # end wxGlade
 
-    def _on_database_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
-        print "Event handler `_on_database_button_pressed' not implemented"
-        event.Skip()
-
     def _on_chbox_long_term_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
         print "Event handler `_on_chbox_long_term_checked' not implemented"
         event.Skip()
