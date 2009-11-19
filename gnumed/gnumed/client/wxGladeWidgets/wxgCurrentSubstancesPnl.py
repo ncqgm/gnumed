@@ -20,10 +20,12 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._RBTN_episode = wx.RadioButton(self, -1, _("Episode"))
         self._RBTN_brand = wx.RadioButton(self, -1, _("Brand"))
-        self._CHBOX_show_all = wx.CheckBox(self, -1, _("Show unapproved"))
+        self._CHBOX_show_inactive = wx.CheckBox(self, -1, _("Inactive"))
+        self._CHBOX_show_unapproved = wx.CheckBox(self, -1, _("Unapproved"))
         self._grid_substances = gmMedicationWidgets.cCurrentSubstancesGrid(self, -1, size=(1, 1))
         self._BTN_add = wx.Button(self, wx.ID_ADD, "")
         self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
+        self._BTN_interactions = wx.Button(self, -1, _("&Interactions?"))
         self._BTN_print = wx.Button(self, wx.ID_PRINT, "")
 
         self.__set_properties()
@@ -31,21 +33,25 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
         self.Bind(wx.EVT_RADIOBUTTON, self._on_episode_grouping_selected, self._RBTN_episode)
         self.Bind(wx.EVT_RADIOBUTTON, self._on_brand_grouping_selected, self._RBTN_brand)
-        self.Bind(wx.EVT_CHECKBOX, self._on_show_all_checked, self._CHBOX_show_all)
+        self.Bind(wx.EVT_CHECKBOX, self._on_show_inactive_checked, self._CHBOX_show_inactive)
+        self.Bind(wx.EVT_CHECKBOX, self._on_show_unapproved_checked, self._CHBOX_show_unapproved)
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
+        self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
         self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgCurrentSubstancesPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._RBTN_episode.SetToolTipString(_("Group substances by episode for which they are taken."))
+        self._RBTN_episode.SetToolTipString(_("Sort entries by \"health issue\" and \"episode\" for which they are taken, then \"substance\", then \"started\"."))
         self._RBTN_episode.SetValue(1)
-        self._RBTN_brand.SetToolTipString(_("Group substances by brand. Thus each component will only appear once unless it is really taken in more than one substance."))
-        self._CHBOX_show_all.SetToolTipString(_("Whether to show all substances or only those the intake of which is approved of."))
+        self._RBTN_brand.SetToolTipString(_("Sort entries by \"brand\", then \"substance\", then \"started\".\n\nThus each substance will only appear once unless it is really taken in more than one preparation."))
+        self._CHBOX_show_inactive.SetToolTipString(_("Whether to show inactive substances, too, or only those which are assumed to currently be active."))
+        self._CHBOX_show_unapproved.SetToolTipString(_("Whether to show all substances or only those the intake of which is approved of."))
         self._BTN_add.SetToolTipString(_("Add a substance."))
         self._BTN_delete.SetToolTipString(_("Remove a substance from the list."))
+        self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
         self._BTN_print.SetToolTipString(_("Print the medication list."))
         # end wxGlade
 
@@ -54,13 +60,16 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_grouping = wx.BoxSizer(wx.HORIZONTAL)
-        __lbl_group = wx.StaticText(self, -1, _("Group by"))
+        __lbl_group = wx.StaticText(self, -1, _("Sort by:"))
         __szr_grouping.Add(__lbl_group, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_grouping.Add(self._RBTN_episode, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_grouping.Add(self._RBTN_brand, 0, wx.ALIGN_CENTER_VERTICAL, 10)
         __SLINE_grouping = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
         __szr_grouping.Add(__SLINE_grouping, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
-        __szr_grouping.Add(self._CHBOX_show_all, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_filter = wx.StaticText(self, -1, _("Include:"))
+        __szr_grouping.Add(__lbl_filter, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_grouping.Add(self._CHBOX_show_inactive, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_grouping.Add(self._CHBOX_show_unapproved, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_grouping.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_grouping, 0, wx.EXPAND, 0)
         __szr_main.Add(self._grid_substances, 1, wx.TOP|wx.EXPAND, 5)
@@ -68,6 +77,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_buttons.Add(self._BTN_add, 0, wx.RIGHT, 5)
         __szr_buttons.Add(self._BTN_delete, 0, 0, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_interactions, 0, wx.RIGHT, 5)
         __szr_buttons.Add(self._BTN_print, 0, 0, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 5)
@@ -95,8 +105,16 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         print "Event handler `_on_brand_grouping_selected' not implemented"
         event.Skip()
 
-    def _on_show_all_checked(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-        print "Event handler `_on_show_all_checked' not implemented"
+    def _on_show_unapproved_checked(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_show_unapproved_checked' not implemented"
+        event.Skip()
+
+    def _on_show_inactive_checked(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_show_inactive_checked' not implemented"
+        event.Skip()
+
+    def _on_interactions_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_interactions_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgCurrentSubstancesPnl
