@@ -2,11 +2,11 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-net_upgrade_server.sh,v $
-# $Id: gm-net_upgrade_server.sh,v 1.1 2009-09-08 17:25:40 ncq Exp $
+# $Id: gm-net_upgrade_server.sh,v 1.2 2009-11-19 15:07:53 ncq Exp $
 # ============================================
 
-PREV_VER="10"
-NEXT_VER="11"
+PREV_VER="11"
+NEXT_VER="12"
 
 INSTALL_BASE=~/".gnumed/server-installation"
 DL_BASE="http://www.gnumed.de/downloads/server"
@@ -79,7 +79,10 @@ su -c "./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}"
 
 # ============================================
 # $Log: gm-net_upgrade_server.sh,v $
-# Revision 1.1  2009-09-08 17:25:40  ncq
+# Revision 1.2  2009-11-19 15:07:53  ncq
+# - bump db version
+#
+# Revision 1.1  2009/09/08 17:25:40  ncq
 # - relocated
 # - renamed to be more consistent
 # - adjusted to tarball name
