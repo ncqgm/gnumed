@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.15 2009-11-15 01:09:07 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmMedicationWidgets.py,v 1.16 2009-11-19 14:44:25 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -285,7 +285,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		if self._CHBOX_approved.GetValue() is True:
 			self._PRW_duration.display_as_valid(True)
 		else:
-			if self._PRW_duration.GetValue().strip() == u'':
+			if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 				self._PRW_duration.display_as_valid(True)
 			else:
 				if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
@@ -315,7 +315,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self.data['is_long_term'] = self._CHBOX_long_term.GetValue()
 		self.data['intake_is_approved_of'] = self._CHBOX_approved.GetValue()
 
-		if self._PRW_duration.GetValue().strip() == u'':
+		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			self.data['duration'] = None
 		else:
 			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
@@ -337,7 +337,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self.data['pk_substance'] = self._PRW_substance.GetData()
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
 
-		if self._PRW_duration.GetValue().strip() == u'':
+		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			self.data['duration'] = None
 		else:
 			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
@@ -395,7 +395,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
-	def _on_database_button_pressed(self, event):
+	def _on_get_substance_button_pressed(self, event):
 		drug_db = get_drug_database()
 		if drug_db is None:
 			return
@@ -454,25 +454,38 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		wx.grid.Grid.__init__(self, *args, **kwargs)
 
 		self.__patient = None
-		self.__col_labels = [
-			u'',					# not used if not showing unapproved
-			_('Substance'),
-			_('Dose'),
-			_('Schedule'),
-			_('Started'),
-			_('Duration'),
-			_('Episode'),
-			_('Brand')
-		]
 		self.__row_data = {}
 		self.__row_tooltips = {}
 		self.__prev_row = None
+		self.__prev_cell_0 = None
 		self.__grouping_mode = u'episode'
 		self.__filter_show_unapproved = False
+		self.__filter_show_inactive = False
 
-		self.__grouping_order_by_clauses = {
-			u'episode': u'episode, substance',
-			u'brand': u'brand, substance'
+		self.__map_grouping2col_labels = {
+			u'episode': [
+				_('Episode'),
+				_('Substance'),
+				_('Dose'),
+				_('Schedule'),
+				_('Started'),
+				_('Duration'),
+				_('Brand')
+			],
+			u'brand': [
+				_('Brand'),
+				_('Substance'),
+				_('Dose'),
+				_('Schedule'),
+				_('Started'),
+				_('Duration'),
+				_('Episode')
+			]
+		}
+
+		self.__map_grouping2order_by_clauses = {
+			u'episode': u'pk_health_issue, episode, substance, started',
+			u'brand': u'brand, substance, started'
 		}
 
 		self.__init_ui()
@@ -493,61 +506,106 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		emr = self.__patient.get_emr()
 		meds = emr.get_current_substance_intake (
-			order_by = self.__grouping_order_by_clauses[self.__grouping_mode],
-			include_unapproved = self.__filter_show_unapproved
+			order_by = self.__map_grouping2order_by_clauses[self.__grouping_mode],
+			include_unapproved = self.__filter_show_unapproved,
+			include_inactive = self.__filter_show_inactive
 		)
 		if not meds:
 			return
 
 		# columns
+		labels = self.__map_grouping2col_labels[self.__grouping_mode]
 		if self.__filter_show_unapproved:
-			labels = self.__col_labels
+			self.AppendCols(numCols = len(labels) + 1)
 		else:
-			labels = self.__col_labels[1:]
-		self.AppendCols(numCols = len(labels))
+			self.AppendCols(numCols = len(labels))
 		for col_idx in range(len(labels)):
 			self.SetColLabelValue(col_idx, labels[col_idx])
+		if self.__filter_show_unapproved:
+			self.SetColLabelValue(len(labels), u'OK ?')
 
 		self.AppendRows(numRows = len(meds))
 
+		# loop over data
 		for row_idx in range(len(meds)):
 			med = meds[row_idx]
 			self.__row_data[row_idx] = med
 
-			col_offset = 0
+			if med['is_currently_active'] is not True:
+				attr = self.GetOrCreateCellAttr(row_idx, 0)
+				attr.SetTextColour('grey')
+				self.SetRowAttr(row_idx, attr)
+
+			if self.__grouping_mode == u'episode':
+				if med['pk_episode'] is None:
+					self.__prev_cell_0 = None
+					self.SetCellValue(row_idx, 0, gmTools.u_diameter)
+				else:
+					if self.__prev_cell_0 != med['episode']:
+						self.__prev_cell_0 = med['episode']
+						self.SetCellValue(row_idx, 0, gmTools.coalesce(med['episode'], u''))
+				self.SetCellValue(row_idx, 1, med['substance'])
+				self.SetCellValue(row_idx, 2, gmTools.coalesce(med['strength'], u''))
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+
+				if med['is_long_term']:
+					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
+				else:
+					if med['duration'] is None:
+						self.SetCellValue(row_idx, 5, u'')
+					else:
+						self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+
+				if med['pk_brand'] is None:
+					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+				else:
+					if med['fake_brand']:
+						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+					else:
+						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+
+			elif self.__grouping_mode == u'brand':
+				if med['pk_brand'] is None:
+					self.__prev_cell_0 = None
+					self.SetCellValue(row_idx, 0, gmTools.u_diameter)
+				else:
+					if self.__prev_cell_0 != med['brand']:
+						self.__prev_cell_0 = med['brand']
+						if med['fake_brand']:
+							self.SetCellValue(row_idx, 0, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+						else:
+							self.SetCellValue(row_idx, 0, gmTools.coalesce(med['brand'], u''))
+
+				self.SetCellValue(row_idx, 1, med['substance'])
+				self.SetCellValue(row_idx, 2, gmTools.coalesce(med['strength'], u''))
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+
+				if med['is_long_term']:
+					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
+				else:
+					if med['duration'] is None:
+						self.SetCellValue(row_idx, 5, u'')
+					else:
+						self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+
+				if med['pk_episode'] is None:
+					self.SetCellValue(row_idx, 6, u'')
+				else:
+					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['episode'], u''))
+
+			else:
+				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
+
 			if self.__filter_show_unapproved:
+				col_idx = len(labels)
 				self.SetCellValue (
 					row_idx,
-					col_offset + 0,
+					col_idx,
 					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, u'', u'?')
 				)
-				self.SetColSize(0, 15)
-				col_offset = 1
-
-			self.SetCellValue(row_idx, col_offset + 0, med['substance'])
-			self.SetCellValue(row_idx, col_offset + 1, gmTools.coalesce(med['strength'], u''))
-			self.SetCellValue(row_idx, col_offset + 2, gmTools.coalesce(med['schedule'], u''))
-			self.SetCellValue(row_idx, col_offset + 3, med['started'].strftime('%x'))
-
-			if med['is_long_term']:
-				self.SetCellValue(row_idx, col_offset + 4, gmTools.u_infinity)
-			else:
-				if med['duration'] is None:
-					self.SetCellValue(row_idx, col_offset + 4, u'')
-				else:
-					self.SetCellValue(row_idx, col_offset + 4, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-
-			if med['pk_episode'] is None:
-				self.SetCellValue(row_idx, col_offset + 5, u'')
-			else:
-				self.SetCellValue(row_idx, col_offset + 5, gmTools.coalesce(med['episode'], u''))
-			if med['pk_brand'] is None:
-				self.SetCellValue(row_idx, col_offset + 6, gmTools.coalesce(med['brand'], u''))
-			else:
-				if med['fake_brand']:
-					self.SetCellValue(row_idx, col_offset + 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
-				else:
-					self.SetCellValue(row_idx, col_offset + 6, gmTools.coalesce(med['brand'], u''))
+				self.SetColSize(col_idx, 15)
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 	#------------------------------------------------------------
@@ -563,6 +621,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.EndBatch()
 		#self.__cell_tooltips = {}
 		self.__row_data = {}
+		self.__prev_cell_0 = None
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -608,6 +667,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 	filter_show_unapproved = property(_get_filter_show_unapproved, _set_filter_show_unapproved)
 	#------------------------------------------------------------
+	def _get_filter_show_inactive(self):
+		return self.__filter_show_inactive
+
+	def _set_filter_show_inactive(self, val):
+		self.__filter_show_inactive = val
+		self.repopulate_grid()
+
+	filter_show_inactive = property(_get_filter_show_inactive, _set_filter_show_inactive)
+	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------
 	def __register_events(self):
@@ -636,7 +704,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-#		self.__init_ui()
 		self.__register_interests()
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
@@ -680,14 +747,20 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 		delete_substance_intake(parent = self, substance = substs[0]['pk_substance_intake'])
 	#--------------------------------------------------------
+	def _on_interactions_button_pressed(self, event):
+		print "checking interactions"
+	#--------------------------------------------------------
 	def _on_episode_grouping_selected(self, event):
 		self._grid_substances.grouping_mode = 'episode'
 	#--------------------------------------------------------
 	def _on_brand_grouping_selected(self, event):
 		self._grid_substances.grouping_mode = 'brand'
 	#--------------------------------------------------------
-	def _on_show_all_checked(self, event):
-		self._grid_substances.filter_show_unapproved = self._CHBOX_show_all.GetValue()
+	def _on_show_unapproved_checked(self, event):
+		self._grid_substances.filter_show_unapproved = self._CHBOX_show_unapproved.GetValue()
+	#--------------------------------------------------------
+	def _on_show_inactive_checked(self, event):
+		self._grid_substances.filter_show_inactive = self._CHBOX_show_inactive.GetValue()
 #============================================================
 # main
 #------------------------------------------------------------
@@ -706,7 +779,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.15  2009-11-15 01:09:07  ncq
+# Revision 1.16  2009-11-19 14:44:25  ncq
+# - improved plugin
+#
+# Revision 1.15  2009/11/15 01:09:07  ncq
 # - implement grouping/filtering
 # - mark unapproved vs approved if showing all substances
 #
