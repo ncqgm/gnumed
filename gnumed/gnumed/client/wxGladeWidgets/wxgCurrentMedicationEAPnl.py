@@ -18,8 +18,11 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
+        self._PRW_brand = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._BTN_database_brand = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
+        self._TCTRL_brand_ingredients = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._PRW_substance = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._BTN_database = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
+        self._BTN_database_substance = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._PRW_strength = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_preparation = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_approved = wx.CheckBox(self, -1, _("Approved of"))
@@ -34,15 +37,20 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_BUTTON, self._on_database_button_pressed, self._BTN_database)
+        self.Bind(wx.EVT_BUTTON, self._on_get_brand_button_pressed, self._BTN_database_brand)
+        self.Bind(wx.EVT_BUTTON, self._on_get_substance_button_pressed, self._BTN_database_substance)
         self.Bind(wx.EVT_CHECKBOX, self._on_chbox_long_term_checked, self._CHBOX_long_term)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._PRW_brand.SetToolTipString(_("The brand name of the drug the patient is taking."))
+        self._BTN_database_brand.SetToolTipString(_("Get brand(s) from an external drug database.\n\nNote that if you select more than one only the first will be available for further editing right away."))
+        self._TCTRL_brand_ingredients.SetToolTipString(_("The active ingredients of this brand."))
+        self._TCTRL_brand_ingredients.Enable(False)
         self._PRW_substance.SetToolTipString(_("The substance / INN the patient is taking."))
-        self._BTN_database.SetToolTipString(_("Get substances from an external drug database."))
+        self._BTN_database_substance.SetToolTipString(_("Get substances from an external drug database.\n\nNote that if you select more than one substance only the first one will be available for further editing right away."))
         self._PRW_strength.SetToolTipString(_("The amount of substance per dose."))
         self._PRW_preparation.SetToolTipString(_("The preparation the substance comes in."))
         self._CHBOX_approved.SetToolTipString(_("Whether this substance is taken by advice."))
@@ -58,14 +66,22 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(8, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(10, 2, 1, 3)
         __szr_duration = wx.BoxSizer(wx.HORIZONTAL)
         __szr_specs = wx.BoxSizer(wx.HORIZONTAL)
         __szr_substance = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_brand = wx.BoxSizer(wx.HORIZONTAL)
+        __lbl_brand = wx.StaticText(self, -1, _("Brand"))
+        _gszr_main.Add(__lbl_brand, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_brand.Add(self._PRW_brand, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_brand.Add(self._BTN_database_brand, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(__szr_brand, 1, wx.EXPAND, 0)
+        _gszr_main.Add((20, 20), 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._TCTRL_brand_ingredients, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_substance = wx.StaticText(self, -1, _("Substance"))
         _gszr_main.Add(__lbl_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_substance.Add(self._PRW_substance, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_substance.Add(self._BTN_database, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_substance.Add(self._BTN_database_substance, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(__szr_substance, 1, wx.EXPAND, 0)
         __lbl_specs = wx.StaticText(self, -1, _("Strength"))
         _gszr_main.Add(__lbl_specs, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -106,6 +122,14 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def _on_chbox_long_term_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
         print "Event handler `_on_chbox_long_term_checked' not implemented"
+        event.Skip()
+
+    def _on_get_brand_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
+        print "Event handler `_on_get_brand_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_get_substance_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
+        print "Event handler `_on_get_substance_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgCurrentMedicationEAPnl
