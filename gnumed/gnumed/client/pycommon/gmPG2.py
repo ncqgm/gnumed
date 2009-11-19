@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.118 $"
+__version__ = "$Revision: 1.119 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -97,7 +97,8 @@ known_schema_hashes = {
 	'v8': '89b13a7af83337c3aad153b717e52360',
 	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
 	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
-	'v11': '03042ae24f3f92877d986fb0a6184d76'
+	'v11': '03042ae24f3f92877d986fb0a6184d76',
+	'v12': 'fd3be29e746bf2e34817fc6731dad3a4'
 }
 
 map_schema_hash2version = {
@@ -110,14 +111,16 @@ map_schema_hash2version = {
 	'89b13a7af83337c3aad153b717e52360': 'v8',
 	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
 	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
-	'03042ae24f3f92877d986fb0a6184d76': 'v11'
+	'03042ae24f3f92877d986fb0a6184d76': 'v11',
+	'fd3be29e746bf2e34817fc6731dad3a4': 'v12'
 }
 
 map_client_branch2required_db_version = {
 	u'CVS HEAD': u'devel',
 	u'0.3': u'v9',
 	u'0.4': u'v10',
-	u'0.5': u'v11'
+	u'0.5': u'v11',
+	u'0.6': u'v12'
 }
 
 # get columns and data types for a given table
@@ -1923,7 +1926,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.118  2009-11-06 15:08:13  ncq
+# Revision 1.119  2009-11-19 15:06:50  ncq
+# - add 0.6/v12 client/server mapping and database hash
+#
+# Revision 1.118  2009/11/06 15:08:13  ncq
 # - expect check-function-bodies to be on
 #
 # Revision 1.117  2009/09/01 22:24:35  ncq
