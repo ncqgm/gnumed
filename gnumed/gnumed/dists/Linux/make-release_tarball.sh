@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.87 2009-11-18 16:12:24 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.88 2009-11-24 21:04:19 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.6.rc1"
@@ -287,7 +287,7 @@ cp -R ../../server/gm-restore_data.sh ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-zip+sign_backups.sh ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../server/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
+cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/server/
 
@@ -464,7 +464,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.87  2009-11-18 16:12:24  ncq
+# Revision 1.88  2009-11-24 21:04:19  ncq
+# - remove person now in external tools
+#
+# Revision 1.87  2009/11/18 16:12:24  ncq
 # - add API/schema docs to tarball as per David Merz' suggestion
 #
 # Revision 1.86  2009/11/13 21:08:55  ncq
