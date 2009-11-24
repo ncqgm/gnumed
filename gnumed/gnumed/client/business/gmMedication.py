@@ -5,11 +5,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.11 2009-11-06 15:05:07 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmMedication.py,v 1.12 2009-11-24 19:57:22 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, logging, csv, codecs, os
+import sys, logging, csv, codecs, os, re as regex
 
 
 if __name__ == '__main__':
@@ -141,13 +141,20 @@ class cGelbeListeCSVFile(object):
 #============================================================
 class cDrugDataSourceInterface(object):
 
+	#--------------------------------------------------------
+	def get_data_source_version(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
+	def create_data_source_entry(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
 	def switch_to_frontend(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def select_drugs(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def import_drugs_as_substances(self):
+	def import_drugs(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def check_drug_interactions(self):
@@ -172,8 +179,65 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		self.default_csv_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'rezept.txt')
 		self.default_csv_filename_arg = os.path.join(paths.home_dir, '.gnumed', 'tmp')
 		self.interactions_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2mmi.bdt')
+		self.data_date_filename = r'C:\Programme\MMI PHARMINDEX\datadate.txt'
+
+		self.data_date = None
+		self.online_update_date = None
 
 		# use adjusted config.dat
+	#--------------------------------------------------------
+	def get_data_source_version(self):
+
+		open(self.data_date_filename, 'wb').close()
+
+		cmd = u'%s -DATADATE' % self.path_to_binary
+		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+			_log.error('problem querying the MMI drug database for version information')
+			return {
+				'data': u'?',
+				'online_update': u'?'
+			}
+
+		version_file = open(self.data_date_filename, 'rU')
+		versions = {
+			'data': version_file.readline()[:10],
+			'online_update': version_file.readline()[:10]
+		}
+		version_file.close()
+
+		return versions
+	#--------------------------------------------------------
+	def create_data_source_entry(self):
+		versions = self.get_data_source_version()
+
+		args = {
+			'lname': u'Medikamentendatenbank "mmi PHARMINDEX" (Gelbe Liste)',
+			'sname': u'GL/MMI',
+			'ver': u'Daten: %s, Preise (Onlineupdate): %s' % (versions['data'], versions['online_update']),
+			'src': u'Medizinische Medien Informations GmbH, Am Forsthaus Gravenbruch 7, 63263 Neu-Isenburg',
+			'lang': u'de'
+		}
+
+		cmd = u"""select pk from ref.data_source where name_long = %(lname)s and name_short = %(sname)s and version = %(ver)s"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if len(rows) > 0:
+			return rows[0]['pk']
+
+		cmd = u"""
+			INSERT INTO ref.data_source (name_long, name_short, version, source, lang)
+			VALUES (
+				%(lname)s,
+				%(sname)s,
+				%(ver)s,
+				%(src)s,
+				%(lang)s
+			)
+			returning pk
+			"""
+
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+
+		return rows[0]['pk']
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False):
 
@@ -219,10 +283,65 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		return new_substances
 	#--------------------------------------------------------
-	def check_drug_interactions(self, filename=None, pzn_list=None):
+	def import_drugs(self):
+
+		selected_drugs = self.select_drugs()
+		if selected_drugs is None:
+			return None
+
+		data_src_pk = self.create_data_source_entry()
+
+		new_drugs = []
+		new_substances = []
+
+		for entry in selected_drugs:
+
+			# create branded drug (or get it if it already exists)
+			drug = create_branded_drug(brand_name = entry['name'], preparation = entry['darreichungsform'])
+			if drug is None:
+				drug = get_drug_by_brand(brand_name = entry['name'], preparation = entry['darreichungsform'])
+			new_drugs.append(drug)
+
+			# update fields
+			drug['is_fake'] = False
+			drug['atc_code'] = entry['atc']
+			drug['external_code'] = u'%s::%s' % ('DE-PZN', entry['pzn'])
+			drug['fk_data_source'] = data_src_pk
+			drug.save()
+
+			# add components to brand
+			atc = None							# hopefully MMI eventually supports atc-per-substance in a drug...
+			if len(entry['wirkstoffe']) == 1:
+				atc = entry['atc']
+			for wirkstoff in entry['wirkstoffe']:
+				drug.add_component(substance = wirkstoff, atc = atc)
+
+			# create as consumable substances, too
+			atc = None							# hopefully MMI eventually supports atc-per-substance in a drug...
+			if len(entry['wirkstoffe']) == 1:
+				atc = entry['atc']
+			for wirkstoff in entry['wirkstoffe']:
+				new_substances.append(create_used_substance(substance = wirkstoff, atc = atc))
+
+		return new_drugs, new_substances
+	#--------------------------------------------------------
+	def check_drug_interactions(self, pzn_list=None, substances=None):
 		"""For this to work the BDT interaction check must be configured in the MMI."""
 
-		if len(pzn_list) < 2:
+		if pzn_list is None:
+			if substances is None:
+				return
+			if len(substances) < 2:
+				return
+			pzn_list = [ s.external_code for s in substances ]
+			pzn_list = [ pzn for pzn in pzn_list if pzn is not None ]
+			pzn_list = [ code_value for code_type, code_value in pzn_list if code_type == u'DE-PZN']
+
+		else:
+			if len(pzn_list) < 2:
+				return
+
+		if pzn_list < 2:
 			return
 
 		bdt_file = codecs.open(filename = self.interactions_filename, mode = 'wb', encoding = cGelbeListeWindowsInterface.default_encoding)
@@ -252,6 +371,7 @@ class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
 		self.default_csv_filename = os.path.join(paths.home_dir, '.wine', 'drive_c', 'windows', 'temp', 'mmi2gm.csv')
 		self.default_csv_filename_arg = r'c:\windows\temp\mmi2gm.csv'
 		self.interactions_filename = os.path.join(paths.home_dir, '.wine', 'drive_c', 'windows', 'temp', 'gm2mmi.bdt')
+		self.data_date_filename = os.path.join(paths.home_dir, '.wine', 'drive_c', 'Programme', 'MMI PHARMINDEX', 'datadate.txt')
 #============================================================
 class cIfapInterface(cDrugDataSourceInterface):
 	"""empirical CSV interface"""
@@ -345,7 +465,7 @@ where
 	)"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
-class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
+class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by a patient."""
 
 	_cmd_fetch_payload = u"select * from clin.v_pat_substance_intake where pk_substance_intake = %s"
@@ -430,6 +550,24 @@ class cConsumedSubstance(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 	#--------------------------------------------------------
+	def _get_external_code(self):
+		drug = self.containing_drug
+
+		if drug is None:
+			return None
+
+		return drug.external_code
+
+	external_code = property(_get_external_code, lambda x:x)
+	#--------------------------------------------------------
+	def _get_branded_drug(self):
+		if self._payload[self._idx['pk_brand']] is None:
+			return None
+
+		return cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
+
+	containing_drug = property(_get_branded_drug, lambda x:x)
+	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
 		tests = [
 			# lead, trail
@@ -472,11 +610,87 @@ insert into clin.substance_intake (
 returning pk
 """
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	return cConsumedSubstance(aPK_obj = rows[0][0])
+	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
 #------------------------------------------------------------
 def delete_patient_consumed_substance(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
+#============================================================
+class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents a drug as marketed by a manufacturer."""
+
+	_cmd_fetch_payload = u"select *, xmin from ref.branded_drug where pk = %s"
+	_cmds_store_payload = [
+		u"""update ref.branded_drug set
+				description = %(description)s,
+				preparation = %(preparation)s,
+				atc_code = %(atc_code)s,
+				is_fake = %(is_fake)s,
+				external_code = %(external_code)s,
+				fk_data_source = %(fk_data_source)s
+			where
+				pk = %(pk)s and
+				xmin = %(xmin)s
+			returning
+				xmin
+		"""
+	]
+	_updatable_fields = [
+		u'description',
+		u'preparation',
+		u'atc_code',
+		u'is_fake',
+		u'external_code',
+		u'fk_data_source'
+	]
+	#--------------------------------------------------------
+	def _get_external_code(self):
+		if self._payload[self._idx['external_code']] is None:
+			return None
+
+		if regex.match(u'.+::.+', self._payload[self._idx['external_code']], regex.UNICODE) is None:
+			# FIXME: maybe evaluate fk_data_source
+			return None
+
+		return regex.split(u'::', self._payload[self._idx['external_code']], 1)
+
+	external_code = property(_get_external_code, lambda x:x)
+	#--------------------------------------------------------
+	def add_component(self, substance=None, atc=None):
+
+		args = {
+			'brand': self.pk_obj,
+			'desc': substance,
+			'atc': atc
+		}
+
+		cmd = u"""
+			INSERT INTO ref.substance_in_brand (fk_brand, description, atc_code)
+			VALUES (%(brand)s, %(desc)s, %(atc)s)"""
+
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#------------------------------------------------------------
+def get_drug_by_brand(brand_name=None, preparation=None):
+	args = {'brand': brand_name, 'prep': preparation}
+
+	cmd = u'select pk from ref.branded_drug where description = %(brand)s and preparation = %(prep)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if len(rows) == 0:
+		return None
+
+	return cBrandedDrug(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def create_branded_drug(brand_name=None, preparation=None):
+
+	if get_drug_by_brand(brand_name = brand_name, preparation = preparation) is not None:
+		return None
+
+	cmd = u'insert into ref.branded_drug (description, preparation) values (%(brand)s, %(prep)s) returning pk'
+	args = {'brand': brand_name, 'prep': preparation}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cBrandedDrug(aPK_obj = rows[0]['pk'])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -489,11 +703,10 @@ if __name__ == "__main__":
 #	gmDateTime.init()
 	#--------------------------------------------------------
 	def test_MMI_interface():
-		mmi = cGelbeListeInterface()
+		mmi = cGelbeListeWineInterface()
 		print mmi
-		print "drug data source    :", sys.argv[2]
 		print "interface definition:", mmi.version
-		mmi.print_transfer_file(filename = sys.argv[2])
+		print "database versions:   ", mmi.get_data_source_version()
 	#--------------------------------------------------------
 	def test_MMI_file():
 		mmi_file = cGelbeListeCSVFile(filename = sys.argv[2])
@@ -520,9 +733,9 @@ if __name__ == "__main__":
 			print drug
 		mmi_file.close()
 	#--------------------------------------------------------
-	def test_mmi_import_substances():
+	def test_mmi_import_drugs():
 		mmi = cGelbeListeWineInterface()
-		mmi.import_drugs_as_substances()
+		mmi.import_drugs()
 	#--------------------------------------------------------
 	def test_mmi_interaction_check():
 		mmi = cGelbeListeInterface()
@@ -531,7 +744,7 @@ if __name__ == "__main__":
 		# Metoprolol + Hct vs Citalopram
 		diclofenac = '7587712'
 		phenprocoumon = '4421744'
-		mmi.check_drug_interactions(filename = sys.argv[2], pzn_list = [diclofenac, phenprocoumon])
+		mmi.check_drug_interactions(pzn_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def test_create_patient_consumed_substance():
@@ -545,16 +758,26 @@ if __name__ == "__main__":
 		print drug
 	#--------------------------------------------------------
 	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
-		#test_MMI_interface()
+		test_MMI_interface()
 		#test_MMI_file()
 		#test_mmi_switch_to()
-		test_mmi_select_drugs()
+		#test_mmi_select_drugs()
 		#test_mmi_import_substances()
+		test_mmi_import_drugs()
 		#test_interaction_check()
 		#test_create_patient_consumed_substance()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.11  2009-11-06 15:05:07  ncq
+# Revision 1.12  2009-11-24 19:57:22  ncq
+# - implement getting/creating data souce entry for MMI
+# - implement version retrieval for MMI
+# - import-drugs()
+# - check-drug-interactions()
+# - cConsumedSubstance -> cSubstanceIntakeEntry + .external_code
+# - cBrandedDrug
+# - tests
+#
+# Revision 1.11  2009/11/06 15:05:07  ncq
 # - get-substances-in-use
 # - meds formatting
 # - delete-patient-consumed-substance
