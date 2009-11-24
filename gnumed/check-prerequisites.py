@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 
 import sys
 
@@ -114,6 +114,26 @@ except ImportError:
 	print "  INFO : GNUmed will work but you will be unable"
 	print "  INFO : to visualize search results and lab data"
 
+print " libxml2...",
+try:
+	import libxml2
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: libxml2 not installed"
+	print "  INFO : this is needed to work with XML forms"
+
+print " libxslt...",
+try:
+	import libxslt
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: libxslt not installed"
+	print "  INFO : this is needed to work with XML forms"
+
 print " GNUmed Python modules...",
 try:
 	from Gnumed.pycommon import gmNull
@@ -160,7 +180,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.21  2009-07-09 16:40:47  ncq
+# Revision 1.22  2009-11-24 19:51:59  ncq
+# - add libxml2/libxslt
+#
+# Revision 1.21  2009/07/09 16:40:47  ncq
 # - better output
 #
 # Revision 1.20  2009/02/27 11:59:06  ncq
