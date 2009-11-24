@@ -7,12 +7,13 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.65 2009-10-27 11:46:10 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmForms.py,v 1.66 2009-11-24 19:55:25 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, libxml2, libxslt, codecs
+import os, sys, time, os.path, logging, codecs
+#, libxml2, libxslt
 
 
 if __name__ == '__main__':
@@ -938,7 +939,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.65  2009-10-27 11:46:10  ncq
+# Revision 1.66  2009-11-24 19:55:25  ncq
+# - comment out libxml2/libxslt for now
+#
+# Revision 1.65  2009/10/27 11:46:10  ncq
 # - crawl towards extracting SQL from XSLT
 #
 # Revision 1.64  2009/10/20 10:24:19  ncq
