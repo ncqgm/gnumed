@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.16 2009-11-19 14:44:25 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmMedicationWidgets.py,v 1.17 2009-11-24 20:59:59 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -42,7 +42,7 @@ def manage_substances_in_use(parent=None):
 		if drug_db is None:
 			return False
 
-		drug_db.import_drugs_as_substances()
+		drug_db.import_drugs()
 
 		return True
 	#------------------------------------------------------------
@@ -399,13 +399,15 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		drug_db = get_drug_database()
 		if drug_db is None:
 			return
-		new_substances = drug_db.import_drugs_as_substances()
-		if new_substances is None:
+		new_drugs, new_substances 
+		result = drug_db.import_drugs()
+		if result is None:
 			return
+		new_drugs, new_substances = result
 		if len(new_substances) == 0:
 			return
 		# FIXME: could usefully
-		# FIXME: a) ask which
+		# FIXME: a) ask which to post-process
 		# FIXME: b) remember the others for post-processing
 		first = new_substances[0]
 		self._PRW_substance.SetText(first['description'], first['pk'])
@@ -465,12 +467,12 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__map_grouping2col_labels = {
 			u'episode': [
 				_('Episode'),
+				_('Brand'),
 				_('Substance'),
 				_('Dose'),
 				_('Schedule'),
 				_('Started'),
-				_('Duration'),
-				_('Brand')
+				_('Duration')
 			],
 			u'brand': [
 				_('Brand'),
@@ -484,8 +486,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		}
 
 		self.__map_grouping2order_by_clauses = {
-			u'episode': u'pk_health_issue, episode, substance, started',
-			u'brand': u'brand, substance, started'
+			u'episode': u'pk_health_issue nulls first, episode, substance, started',
+			u'brand': u'brand nulls last, substance, started'
 		}
 
 		self.__init_ui()
@@ -493,9 +495,52 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
+	def get_selected_cells(self):
+
+		sel_block_top_left = self.GetSelectionBlockTopLeft()
+		sel_block_bottom_right = self.GetSelectionBlockBottomRight()
+		sel_cols = self.GetSelectedCols()
+		sel_rows = self.GetSelectedRows()
+
+		selected_cells = []
+
+		# individually selected cells (ctrl-click)
+		selected_cells += self.GetSelectedCells()
+
+		# selected rows
+		selected_cells += list (
+			(row, col)
+				for row in sel_rows
+				for col in xrange(self.GetNumberCols())
+		)
+
+		# selected columns
+		selected_cells += list (
+			(row, col)
+				for row in xrange(self.GetNumberRows())
+				for col in sel_cols
+		)
+
+		# selection blocks
+		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
+			selected_cells += [
+				(row, col)
+					for row in xrange(top_left[0], bottom_right[0] + 1)
+					for col in xrange(top_left[1], bottom_right[1] + 1)
+			]
+
+		return set(selected_cells)
+	#------------------------------------------------------------
+	def get_selected_rows(self):
+		rows = {}
+
+		for row, col in self.get_selected_cells():
+			rows[row] = True
+
+		return rows.keys()
+	#------------------------------------------------------------
 	def get_selected_data(self):
-		print "FIXME: get_selected_data (rows)"
-		return [ self.__row_data[row] for row in self.GetSelectedRows() ]
+		return [ self.__row_data[row] for row in self.get_selected_rows() ]
 	#------------------------------------------------------------
 	def repopulate_grid(self):
 
@@ -522,7 +567,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		for col_idx in range(len(labels)):
 			self.SetColLabelValue(col_idx, labels[col_idx])
 		if self.__filter_show_unapproved:
-			self.SetColLabelValue(len(labels), u'OK ?')
+			self.SetColLabelValue(len(labels), u'OK?')
+			self.SetColSize(len(labels), 40)
 
 		self.AppendRows(numRows = len(meds))
 
@@ -544,26 +590,27 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					if self.__prev_cell_0 != med['episode']:
 						self.__prev_cell_0 = med['episode']
 						self.SetCellValue(row_idx, 0, gmTools.coalesce(med['episode'], u''))
-				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, gmTools.coalesce(med['strength'], u''))
-				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
-
-				if med['is_long_term']:
-					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
-				else:
-					if med['duration'] is None:
-						self.SetCellValue(row_idx, 5, u'')
-					else:
-						self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
 
 				if med['pk_brand'] is None:
-					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+					self.SetCellValue(row_idx, 1, gmTools.coalesce(med['brand'], u''))
 				else:
 					if med['fake_brand']:
-						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+						self.SetCellValue(row_idx, 1, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
 					else:
-						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+						self.SetCellValue(row_idx, 1, gmTools.coalesce(med['brand'], u''))
+
+				self.SetCellValue(row_idx, 2, med['substance'])
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['strength'], u''))
+				self.SetCellValue(row_idx, 4, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 5, med['started'].strftime('%Y-%m-%d'))
+
+				if med['is_long_term']:
+					self.SetCellValue(row_idx, 6, gmTools.u_infinity)
+				else:
+					if med['duration'] is None:
+						self.SetCellValue(row_idx, 6, u'')
+					else:
+						self.SetCellValue(row_idx, 6, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
 
 			elif self.__grouping_mode == u'brand':
 				if med['pk_brand'] is None:
@@ -599,13 +646,11 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
 
 			if self.__filter_show_unapproved:
-				col_idx = len(labels)
 				self.SetCellValue (
 					row_idx,
-					col_idx,
+					len(labels),
 					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, u'', u'?')
 				)
-				self.SetColSize(col_idx, 15)
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 	#------------------------------------------------------------
@@ -623,6 +668,52 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__row_data = {}
 		self.__prev_cell_0 = None
 	#------------------------------------------------------------
+	def check_interactions(self):
+
+		if len(self.__row_data) == 0:
+			return
+
+		drug_db = get_drug_database()
+		if drug_db is None:
+			return
+
+		if len(self.get_selected_rows()) > 1:
+			drug_db.check_drug_interactions(substances = self.get_selected_data())
+		else:
+			drug_db.check_drug_interactions(substances = self.__row_data.values())
+	#------------------------------------------------------------
+	def add_substance(self):
+		edit_intake_of_substance(parent = self, substance = None)
+	#------------------------------------------------------------
+	def edit_substance(self):
+
+		rows = self.get_selected_rows()
+
+		if len(rows) == 0:
+			return
+
+		if len(rows) > 1:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit more than one substance at once.'), beep = True)
+			return
+
+		subst = self._grid_substances.get_selected_data()[0]
+		edit_intake_of_substance(parent = self, substance = subst)
+	#------------------------------------------------------------
+	def delete_substance(self):
+
+		rows = self.get_selected_rows()
+
+		if len(rows) == 0:
+			return
+
+		if len(rows) > 1:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete more than one substance at once.'), beep = True)
+			return
+
+		subst = self.get_selected_data()[0]
+
+		delete_substance_intake(parent = self, substance = subst['pk_substance_intake'])
+	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
 	def __init_ui(self):
@@ -631,10 +722,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.EnableDragGridSize(1)
 		self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
 
-		# setting this screws up the labels: they are cut off and displaced
 		self.SetColLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTER)
 
-		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
 		self.SetRowLabelSize(0)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 	#------------------------------------------------------------
@@ -691,7 +780,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		row = evt.GetRow()
 		data = self.__row_data[row]
 		edit_intake_of_substance(parent = self, substance = data)
-
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentSubstancesPnl
 
@@ -733,22 +821,16 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		self._grid_substances.patient = None
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
-		edit_intake_of_substance(parent = self, substance = None)
+		self._grid_substances.add_substance()
+	#--------------------------------------------------------
+	def _on_edit_button_pressed(self, event):
+		self._grid_substances.edit_substance()
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
-		substs = self._grid_substances.get_selected_data()
-
-		if len(substs) == 0:
-			return
-
-		if len(substs) > 1:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete more than one substance at once.'), beep = True)
-			return
-
-		delete_substance_intake(parent = self, substance = substs[0]['pk_substance_intake'])
+		self._grid_substances.delete_substance()
 	#--------------------------------------------------------
 	def _on_interactions_button_pressed(self, event):
-		print "checking interactions"
+		self._grid_substances.check_interactions()
 	#--------------------------------------------------------
 	def _on_episode_grouping_selected(self, event):
 		self._grid_substances.grouping_mode = 'episode'
@@ -779,7 +861,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.16  2009-11-19 14:44:25  ncq
+# Revision 1.17  2009-11-24 20:59:59  ncq
+# - use import-drugs rather than import-drugs-as-substances
+# - improved grid layout as per list
+# - fix get-selected-data
+# - make grid wrapper do less
+#
+# Revision 1.16  2009/11/19 14:44:25  ncq
 # - improved plugin
 #
 # Revision 1.15  2009/11/15 01:09:07  ncq
