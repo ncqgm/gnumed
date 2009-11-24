@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.110 $"
+__version__ = "$Revision: 1.111 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1261,6 +1261,7 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:
 		print aMsg
+	print ''
 	print "Please check the log file for details:"
 	print ''
 	print ' ', gmLog2._logfile_name
@@ -1486,7 +1487,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.110  2009-11-08 20:51:25  ncq
+# Revision 1.111  2009-11-24 21:05:39  ncq
+# - better output
+#
+# Revision 1.110  2009/11/08 20:51:25  ncq
 # - display log file name on failure
 #
 # Revision 1.109  2009/11/06 15:32:37  ncq
