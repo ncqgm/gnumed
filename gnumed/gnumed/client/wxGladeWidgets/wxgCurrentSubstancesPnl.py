@@ -24,6 +24,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._CHBOX_show_unapproved = wx.CheckBox(self, -1, _("Unapproved"))
         self._grid_substances = gmMedicationWidgets.cCurrentSubstancesGrid(self, -1, size=(1, 1))
         self._BTN_add = wx.Button(self, wx.ID_ADD, "")
+        self._BTN_edit = wx.Button(self, -1, _("&Edit"))
         self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
         self._BTN_interactions = wx.Button(self, -1, _("&Interactions?"))
         self._BTN_print = wx.Button(self, wx.ID_PRINT, "")
@@ -36,6 +37,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_CHECKBOX, self._on_show_inactive_checked, self._CHBOX_show_inactive)
         self.Bind(wx.EVT_CHECKBOX, self._on_show_unapproved_checked, self._CHBOX_show_unapproved)
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
+        self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
         self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
         self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
@@ -50,6 +52,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._CHBOX_show_inactive.SetToolTipString(_("Whether to show inactive substances, too, or only those which are assumed to currently be active."))
         self._CHBOX_show_unapproved.SetToolTipString(_("Whether to show all substances or only those the intake of which is approved of."))
         self._BTN_add.SetToolTipString(_("Add a substance."))
+        self._BTN_edit.SetToolTipString(_("Edit the selected substance intake entry."))
         self._BTN_delete.SetToolTipString(_("Remove a substance from the list."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
         self._BTN_print.SetToolTipString(_("Print the medication list."))
@@ -75,6 +78,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_main.Add(self._grid_substances, 1, wx.TOP|wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add(self._BTN_add, 0, wx.RIGHT, 5)
+        __szr_buttons.Add(self._BTN_edit, 0, wx.RIGHT, 5)
         __szr_buttons.Add(self._BTN_delete, 0, 0, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add(self._BTN_interactions, 0, wx.RIGHT, 5)
@@ -115,6 +119,10 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
     def _on_interactions_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
         print "Event handler `_on_interactions_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_edit_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_edit_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgCurrentSubstancesPnl

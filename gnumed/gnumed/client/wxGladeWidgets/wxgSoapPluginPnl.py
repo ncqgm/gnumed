@@ -30,10 +30,12 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._splitter_left = wx.SplitterWindow(self.__splitter_main_left_pnl, -1, style=wx.SP_3D|wx.SP_BORDER|wx.SP_PERMIT_UNSPLIT)
         self.__splitter_left_bottom_pnl = wx.Panel(self._splitter_left, -1, style=wx.NO_BORDER)
         self.__splitter_left_top_pnl = wx.Panel(self._splitter_left, -1, style=wx.NO_BORDER)
-        self.__szr_bottom_left_staticbox = wx.StaticBox(self.__splitter_left_bottom_pnl, -1, _("Most recent notes on above problem"))
+        self._SZR_recent_notes_staticbox = wx.StaticBox(self.__splitter_left_bottom_pnl, -1, _("Most recent notes on above problem"))
         self.__szr_top_right_staticbox = wx.StaticBox(self.__splitter_right_top_pnl, -1, _("New notelets in current encounter"))
         self.__szr_bottom_right_staticbox = wx.StaticBox(self.__splitter_right_bottom_pnl, -1, _("Tips and hints"))
         self.__szr_top_left_staticbox = wx.StaticBox(self.__splitter_left_top_pnl, -1, _("Active problems"))
+        self._CHBOX_show_closed_episodes = wx.CheckBox(self.__splitter_left_top_pnl, -1, _("Closed episodes"))
+        self._CHBOX_irrelevant_issues = wx.CheckBox(self.__splitter_left_top_pnl, -1, _("Non-relevant issues"))
         self._LCTRL_active_problems = gmListWidgets.cReportListCtrl(self.__splitter_left_top_pnl, -1, style=wx.LC_REPORT|wx.NO_BORDER)
         self._TCTRL_recent_notes = wx.TextCtrl(self.__splitter_left_bottom_pnl, -1, _("In this area GNUmed will place the notes of the\nprevious encounter as well as notes by other\nstaff for the current encounter.\n\nNote that this may change depending on which\nactive problem is selected in the editor below."), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_WORDWRAP|wx.NO_BORDER)
         self._PRW_encounter_type = cEncounterTypePhraseWheel(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
@@ -54,6 +56,8 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_CHECKBOX, self._on_show_closed_episodes_checked, self._CHBOX_show_closed_episodes)
+        self.Bind(wx.EVT_CHECKBOX, self._on_irrelevant_issues_checked, self._CHBOX_irrelevant_issues)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_problem_selected, self._LCTRL_active_problems)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_problem_activated, self._LCTRL_active_problems)
         self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self._on_problem_focused, self._LCTRL_active_problems)
@@ -69,6 +73,8 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgSoapPluginPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._CHBOX_show_closed_episodes.SetToolTipString(_("Show closed episodes as pseudo-problems ?"))
+        self._CHBOX_irrelevant_issues.SetToolTipString(_("Show issues marked clinically NOT relevant."))
         self._LCTRL_active_problems.SetToolTipString(_("This shows the list of active problems, They include open episodes as well as active health issues."))
         self._TCTRL_recent_notes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DFACE))
         self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
@@ -97,12 +103,19 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         __gszr_encounter_details = wx.FlexGridSizer(2, 2, 2, 5)
         __szr_encounter_details = wx.BoxSizer(wx.HORIZONTAL)
         __szr_left = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_bottom_left = wx.StaticBoxSizer(self.__szr_bottom_left_staticbox, wx.VERTICAL)
+        _SZR_recent_notes = wx.StaticBoxSizer(self._SZR_recent_notes_staticbox, wx.VERTICAL)
         __szr_top_left = wx.StaticBoxSizer(self.__szr_top_left_staticbox, wx.VERTICAL)
+        __szr_problem_filter = wx.BoxSizer(wx.HORIZONTAL)
+        __lbl_problem_filter = wx.StaticText(self.__splitter_left_top_pnl, -1, _("Include:"))
+        __szr_problem_filter.Add(__lbl_problem_filter, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_problem_filter.Add(self._CHBOX_show_closed_episodes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_problem_filter.Add(self._CHBOX_irrelevant_issues, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_problem_filter.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_top_left.Add(__szr_problem_filter, 0, wx.EXPAND, 0)
         __szr_top_left.Add(self._LCTRL_active_problems, 1, wx.EXPAND, 0)
         self.__splitter_left_top_pnl.SetSizer(__szr_top_left)
-        __szr_bottom_left.Add(self._TCTRL_recent_notes, 1, wx.EXPAND, 0)
-        self.__splitter_left_bottom_pnl.SetSizer(__szr_bottom_left)
+        _SZR_recent_notes.Add(self._TCTRL_recent_notes, 1, wx.EXPAND, 0)
+        self.__splitter_left_bottom_pnl.SetSizer(_SZR_recent_notes)
         self._splitter_left.SplitHorizontally(self.__splitter_left_top_pnl, self.__splitter_left_bottom_pnl)
         __szr_left.Add(self._splitter_left, 1, wx.EXPAND, 0)
         self.__splitter_main_left_pnl.SetSizer(__szr_left)
@@ -189,6 +202,14 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
 
     def _on_problem_focused(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>
         print "Event handler `_on_problem_focused' not implemented"
+        event.Skip()
+
+    def _on_show_closed_episodes_checked(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>
+        print "Event handler `_on_show_closed_episodes_checked' not implemented"
+        event.Skip()
+
+    def _on_irrelevant_issues_checked(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>
+        print "Event handler `_on_irrelevant_issues_checked' not implemented"
         event.Skip()
 
 # end of class wxgSoapPluginPnl
