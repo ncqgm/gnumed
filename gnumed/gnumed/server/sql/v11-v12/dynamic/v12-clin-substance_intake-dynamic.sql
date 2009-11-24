@@ -5,14 +5,28 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_intake-dynamic.sql,v 1.6 2009-11-06 15:34:44 ncq Exp $
--- $Revision: 1.6 $
+-- $Id: v12-clin-substance_intake-dynamic.sql,v 1.7 2009-11-24 21:08:49 ncq Exp $
+-- $Revision: 1.7 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 set check_function_bodies to 1;
 --set default_transaction_read_only to off;
+
+-- --------------------------------------------------------------
+-- .soap_cat
+alter table clin.substance_intake
+	alter column soap_cat
+		set default 'p';
+
+\unset ON_ERROR_STOP
+alter table clin.substance_intake drop constraint medication_is_plan cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.substance_intake
+	add constraint medication_is_plan
+		check (soap_cat='p');
 
 -- --------------------------------------------------------------
 -- .is_long_term
@@ -91,12 +105,6 @@ create trigger tr_sanity_check_substance_episode
 
 -- --------------------------------------------------------------
 -- .fk_brand
-
--- drop foreign key on brand
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint substance_intake_fk_brand_fkey cascade;
-\set ON_ERROR_STOP 1
-
 alter table clin.substance_intake
 	alter column fk_brand
 		drop not null;
@@ -141,12 +149,12 @@ select
 	(select fk_patient from clin.encounter where pk = csi.fk_encounter)
 		as pk_patient,
 	csi.soap_cat,
-	csb.description
+	rbd.description
 		as brand,
 	csi.preparation,
-	csb.atc_code
+	rbd.atc_code
 		as atc_brand,
-	csb.external_code
+	rbd.external_code
 		as external_code_brand,
 
 	ccs.description
@@ -166,7 +174,7 @@ select
 		as episode,
 	csi.narrative
 		as notes,
-	csb.is_fake
+	rbd.is_fake
 		as fake_brand,
 
 	case
@@ -199,7 +207,7 @@ select
 		as xmin_substance_intake
 from
 	clin.substance_intake csi
-		left join clin.substance_brand csb on (csi.fk_brand = csb.pk)
+		left join ref.branded_drug rbd on (csi.fk_brand = rbd.pk)
 			left join clin.consumed_substance ccs on (csi.fk_substance = ccs.pk)
 				left join clin.episode cep on (csi.fk_episode = cep.pk)
 ;
@@ -260,9 +268,9 @@ select
 			''
 		)
 
-		|| coalesce (' "' || csb.description || ' ' || csb.preparation || '"'		-- "MetoPharm tablets"
-			|| coalesce(' [' || csb.atc_code || ']', '')							-- [ATC code]
-			|| coalesce(' (' || csb.external_code || ')', ''),						-- (external code)
+		|| coalesce (' "' || rbd.description || ' ' || rbd.preparation || '"'		-- "MetoPharm tablets"
+			|| coalesce(' [' || rbd.atc_code || ']', '')							-- [ATC code]
+			|| coalesce(' (' || rbd.external_code || ')', ''),						-- (external code)
 			'')
 
 	as narrative,
@@ -281,16 +289,19 @@ select
 		as row_version
 from
 	clin.substance_intake csi
-		left join clin.substance_brand csb on (csi.fk_brand = csb.pk)
+		left join ref.branded_drug rbd on (csi.fk_brand = rbd.pk)
 			left join clin.consumed_substance ccs on (csi.fk_substance = ccs.pk)
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.6 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.7 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_intake-dynamic.sql,v $
--- Revision 1.6  2009-11-06 15:34:44  ncq
+-- Revision 1.7  2009-11-24 21:08:49  ncq
+-- - adjust to new drug tables
+--
+-- Revision 1.6  2009/11/06 15:34:44  ncq
 -- - .is_currently_active and .pk_health_issue in view
 --
 -- Revision 1.5  2009/10/29 17:27:56  ncq
