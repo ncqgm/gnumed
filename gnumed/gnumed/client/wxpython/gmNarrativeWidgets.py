@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.42 2009-11-15 01:10:09 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmNarrativeWidgets.py,v 1.43 2009-11-24 21:03:41 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -660,9 +660,15 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __refresh_problem_list(self):
 		"""Update health problems list.
 		"""
+
 		self._LCTRL_active_problems.set_string_items()
+
 		emr = self.__pat.get_emr()
-		problems = emr.get_problems()
+		problems = emr.get_problems (
+			include_closed_episodes = self._CHBOX_show_closed_episodes.IsChecked(),
+			include_irrelevant_issues = self._CHBOX_irrelevant_issues.IsChecked()
+		)
+
 		list_items = []
 		active_problems = []
 		for problem in problems:
@@ -706,10 +712,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		if problem is None:
 			soap = u''
+			caption = u'<?>'
 
 		elif problem['type'] == u'issue':
 			emr = self.__pat.get_emr()
 			soap = u''
+			caption = problem['problem'][:35]
 
 			prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
 			if prev_enc is not None:
@@ -734,6 +742,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		elif problem['type'] == u'episode':
 			emr = self.__pat.get_emr()
 			soap = u''
+			caption = problem['problem'][:35]
 
 			prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
 			if prev_enc is None:
@@ -769,9 +778,15 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		else:
 			soap = u''
+			caption = u'<?>'
 
 		self._TCTRL_recent_notes.SetValue(soap)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
+		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent notes on %s%s%s') % (
+			gmTools.u_left_double_angle_quote,
+			caption,
+			gmTools.u_right_double_angle_quote
+		))
 
 		self._TCTRL_recent_notes.Refresh()
 
@@ -1017,6 +1032,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		event.Skip()
 
 		wx.CallAfter(gmEMRStructWidgets.start_new_encounter, emr = emr)
+	#--------------------------------------------------------
+	def _on_show_closed_episodes_checked(self, event):
+		self.__refresh_problem_list()
+	#--------------------------------------------------------
+	def _on_irrelevant_issues_checked(self, event):
+		self.__refresh_problem_list()
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1491,7 +1512,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.42  2009-11-15 01:10:09  ncq
+# Revision 1.43  2009-11-24 21:03:41  ncq
+# - display problems based on checkbox selection
+# - set recent notes label based on problem selection
+#
+# Revision 1.42  2009/11/15 01:10:09  ncq
 # - enhance move-progress-notes-to-another-encounter
 # - use enhanced new encounter start
 #
