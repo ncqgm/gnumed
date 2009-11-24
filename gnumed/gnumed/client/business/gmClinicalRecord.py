@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.303 2009-11-15 01:04:08 ncq Exp $
-__version__ = "$Revision: 1.303 $"
+# $Id: gmClinicalRecord.py,v 1.304 2009-11-24 19:55:03 ncq Exp $
+__version__ = "$Revision: 1.304 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -171,10 +171,6 @@ select fk_encounter from
 			del self.__db_cache['health issues']
 		except KeyError:
 			pass
-		try:
-			del self.__db_cache['problems']
-		except KeyError:
-			pass
 		return 1
 	#--------------------------------------------------------
 	def _db_callback_episodes_modified(self):
@@ -182,10 +178,6 @@ select fk_encounter from
 #			del self.__db_cache['episodes']
 #		except KeyError:
 #			pass
-		try:
-			del self.__db_cache['problems']
-		except KeyError:
-			pass
 		return 1
 	#--------------------------------------------------------
 	def _clin_item_modified(self):
@@ -961,35 +953,84 @@ where
 	#--------------------------------------------------------
 	# problems API
 	#--------------------------------------------------------
-	def get_problems(self, episodes = None, issues = None):
-		"""
-		Retrieve patient's problems: problems are the sum of issues w/o episodes,
-		issues w/ episodes and episodes w/o issues
+	def get_problems(self, episodes=None, issues=None, include_closed_episodes=False, include_irrelevant_issues=False):
+		"""Retrieve a patient's problems.
 
-		episodes - Episodes' PKs to filter problems by
-		issues - Health issues' PKs to filter problems by
+		"Problems" are the UNION of:
+
+			- issues which are .clinically_relevant
+			- episodes which are .is_open
+
+		Therefore, both an issue and the open episode
+		thereof can each be listed as a problem.
+
+		include_closed_episodes/include_irrelevant_issues will
+		include	those -- which departs from the definition of
+		the problem list being "active" items only ...
+
+		episodes - episodes' PKs to filter problems by
+		issues - health issues' PKs to filter problems by
 		"""
-		cmd = u"""select pk_health_issue, pk_episode from clin.v_problem_list where pk_patient=%s"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
-		self.__db_cache['problems'] = []
+		args = {'pat': self.pk_patient}
+
+		cmd = u"""select pk_health_issue, pk_episode from clin.v_problem_list where pk_patient = %(pat)s"""
+		all_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+		if include_closed_episodes:
+			cmd = u"""
+				SELECT
+					cep.fk_health_issue AS pk_health_issue,
+					cep.pk AS pk_episode
+				FROM clin.episode cep
+				WHERE
+					cep.is_open IS FALSE
+						AND
+					cep.fk_encounter IN (
+						SELECT pk
+						FROM clin.encounter
+						WHERE fk_patient = %(pat)s
+					)"""
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			all_rows.extend(rows)
+
+		if include_irrelevant_issues:
+			cmd = u"""
+				SELECT
+					chi.pk AS pk_health_issue,
+					null::INTEGER AS pk_episode
+				FROM clin.health_issue chi
+				WHERE
+					chi.clinically_relevant IS FALSE
+						AND
+					chi.fk_encounter IN (
+						SELECT pk
+						FROM clin.encounter
+						WHERE fk_patient = %(pat)s
+					)"""
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			all_rows.extend(rows)
+
 		# Instantiate problem items
-		pk_args = {}
-		for row in rows:
-			pk_args['pk_health_issue'] = row[idx['pk_health_issue']]
-			pk_args['pk_episode'] = row[idx['pk_episode']]
-			problem = gmEMRStructItems.cProblem(aPK_obj=pk_args)
-			self.__db_cache['problems'].append(problem)
+		problems = []
+		for row in all_rows:
+			pk_args = {
+				u'pk_health_issue': row['pk_health_issue'],
+				u'pk_episode': row['pk_episode']
+			}
+			problems.append(gmEMRStructItems.cProblem(aPK_obj = pk_args))
 
-		# now filter
-		if episodes is None and issues is None:
-			return self.__db_cache['problems']
-		# ok, let's filter problem list
+		# filter ?
+		if (episodes is None) and (issues is None):
+			return problems
+
+		# filter
 		filtered_problems = []
-		filtered_problems.extend(self.__db_cache['problems'])
+		filtered_problems.extend(problems)
 		if issues is not None:
 			filtered_problems = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_problems)
 		if episodes is not None:
 			filtered_problems = filter(lambda epi: epi['pk_episode'] in episodes, filtered_problems)
+
 		return filtered_problems
 	#--------------------------------------------------------
 	def problem2episode(self, problem=None):
@@ -1095,7 +1136,7 @@ where
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
 
-		meds = [ gmMedication.cConsumedSubstance(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
+		meds = [ gmMedication.cSubstanceIntakeEntry(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
 
 		if episodes is not None:
 			meds = filter(lambda s: s['pk_episode'] in episodes, meds)
@@ -2077,7 +2118,11 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.303  2009-11-15 01:04:08  ncq
+# Revision 1.304  2009-11-24 19:55:03  ncq
+# - cleanup
+# - much enhanced get-problems() but not done yet
+#
+# Revision 1.303  2009/11/15 01:04:08  ncq
 # - add missing self
 #
 # Revision 1.302  2009/11/14 22:46:31  ncq
