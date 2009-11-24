@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.131 2009-11-17 19:42:54 ncq Exp $
+# $Id: gmEditArea.py,v 1.132 2009-11-24 20:55:13 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.131 $"
+__version__ = "$Revision: 1.132 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -197,9 +197,12 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		self._PNL_ea = ea
 		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
 
+		# adjust buttons
 		if single_entry:
 			self._BTN_forward.Enable(False)
 			self._BTN_forward.Hide()
+
+		self._adjust_clear_revert_buttons()
 
 		# redraw layout
 		self.Layout()
@@ -209,12 +212,27 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		self._PNL_ea.refresh()
 	#--------------------------------------------------------
+	def _adjust_clear_revert_buttons(self):
+		if self._PNL_ea.data is None:
+			self._BTN_clear.Enable(True)
+			self._BTN_clear.Show()
+			self._BTN_revert.Enable(False)
+			self._BTN_revert.Hide()
+		else:
+			self._BTN_clear.Enable(False)
+			self._BTN_clear.Hide()
+			self._BTN_revert.Enable(True)
+			self._BTN_revert.Show()
+	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_ea.save():
 			if self.IsModal():
 				self.EndModal(wx.ID_OK)
 			else:
 				self.Close()
+	#--------------------------------------------------------
+	def _on_revert_button_pressed(self, evt):
+		self._PNL_ea.refresh()
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
 		self._PNL_ea.refresh()
@@ -224,6 +242,14 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			if self._PNL_ea.successful_save_msg is not None:
 				gmDispatcher.send(signal = 'statustext', msg = self._PNL_ea.successful_save_msg)
 			self._PNL_ea.mode = 'new_from_existing'
+
+			self._adjust_clear_revert_buttons()
+
+			self.Layout()
+			main_szr = self.GetSizer()
+			main_szr.Fit(self)
+			self.Refresh()
+
 			self._PNL_ea.refresh()
 #====================================================================
 # DEPRECATED:
@@ -2161,7 +2187,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.131  2009-11-17 19:42:54  ncq
+# Revision 1.132  2009-11-24 20:55:13  ncq
+# - adjust clear/revert button
+#
+# Revision 1.131  2009/11/17 19:42:54  ncq
 # - much improved cut-n-paste boilerplate
 #
 # Revision 1.130  2009/10/29 17:21:45  ncq
