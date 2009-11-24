@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.25 2009-09-17 21:52:40 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmMimeLib.py,v 1.26 2009-11-24 20:48:15 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -153,12 +153,12 @@ def guess_ext_for_file(aFile=None):
 _system_startfile_cmd = None
 
 open_cmds = {
-	'xdg-open': 'xdg-open %s',				# nascent standard on Linux
-	'kfmclient': 'kfmclient exec %s',		# KDE
-	'gnome-open': 'gnome-open %s',			# GNOME
-	'exo-open': 'exo-open %s',
-	'op': 'op %s',
-	'open': 'open %s'						# MacOSX: "open -a AppName file" (-a allows to override the default app for the file type)
+	'xdg-open': 'xdg-open "%s"',			# nascent standard on Linux
+	'kfmclient': 'kfmclient exec "%s"',		# KDE
+	'gnome-open': 'gnome-open "%s"',		# GNOME
+	'exo-open': 'exo-open "%s"',
+	'op': 'op "%s"',
+	'open': 'open "%s"'						# MacOSX: "open -a AppName file" (-a allows to override the default app for the file type)
 	#'run-mailcap'
 	#'explorer'
 }
@@ -267,7 +267,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.25  2009-09-17 21:52:40  ncq
+# Revision 1.26  2009-11-24 20:48:15  ncq
+# - quote open command arg
+#
+# Revision 1.25  2009/09/17 21:52:40  ncq
 # - properly log exceptions
 #
 # Revision 1.24  2009/09/01 22:24:09  ncq
