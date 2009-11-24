@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.184 $
+-- $Revision: 1.185 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -401,17 +401,16 @@ alter table clin.clin_medication add constraint prescribed_after_started
 alter table clin.clin_medication add constraint discontinued_after_prescribed
 	check (discontinued >= last_prescribed);
 
--- ===================================================================
--- following tables not yet converted to EMR structure ...
--- -------------------------------------------------------------------
-
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.184 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.185 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.184  2006-06-26 21:38:57  ncq
+-- Revision 1.185  2009-11-24 21:07:30  ncq
+-- - cleanup
+--
+-- Revision 1.184  2006/06/26 21:38:57  ncq
 -- - add FIXME comment
 --
 -- Revision 1.183  2006/04/29 18:14:42  ncq
