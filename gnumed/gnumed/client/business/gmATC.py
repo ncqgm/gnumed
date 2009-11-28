@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.3 2009-10-21 20:32:45 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmATC.py,v 1.4 2009-11-28 18:12:02 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv, re as regex, os.path
@@ -23,6 +23,43 @@ _log = logging.getLogger('gm.atc')
 _log.info(__version__)
 
 _cfg = gmCfg2.gmCfgData()
+#============================================================
+def text2atc(text=None, fuzzy=False):
+
+	if fuzzy:
+		args = {'term': u'%%%s%%' % text}
+		cmd = u"""
+			SELECT DISTINCT ON (atc_code) *
+			FROM (
+				SELECT atc as atc_code, is_group_code, pk_data_source FROM ref.v_atc WHERE term ilike %(term)s
+					UNION
+				SELECT atc_code, null, null FROM ref.substance_in_brand WHERE description ilike %(term)s
+					UNION
+				SELECT atc_code, null, null FROM ref.branded_drug WHERE description ilike %(term)s
+					UNION
+				SELECT atc_code, null, null FROM clin.consumed_substance WHERE description ilike %(term)s
+			) as tmp
+			ORDER BY atc_code
+		"""
+	else:
+		args = {'term': text.lower()}
+		cmd = u"""
+			SELECT DISTINCT ON (atc_code) *
+			FROM (
+				SELECT atc as atc_code, is_group_code, pk_data_source FROM ref.v_atc WHERE lower(term) = %(term)s
+					UNION
+				SELECT atc_code, null, null FROM ref.substance_in_brand WHERE lower(description) = %(term)s
+					UNION
+				SELECT atc_code, null, null FROM ref.branded_drug WHERE lower(description) = %(term)s
+					UNION
+				SELECT atc_code, null, null FROM clin.consumed_substance WHERE lower(description) = %(term)s
+			) as tmp
+			ORDER BY atc_code
+		"""
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	return rows
 #============================================================
 def atc_import(cfg_fname=None, conn=None):
 
@@ -188,12 +225,21 @@ if __name__ == "__main__":
 	def test_atc_import():
 		atc_import(cfg_fname = sys.argv[2], conn = gmPG2.get_connection(readonly = False))
 	#--------------------------------------------------------
+	def test_text2atc():
+		print 'searching ATC code for:', sys.argv[2]
+		print ' ', text2atc(sys.argv[2])
+		print ' ', text2atc(sys.argv[2], True)
+	#--------------------------------------------------------
 	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
-		test_atc_import()
+		#test_atc_import()
+		test_text2atc()
 
 #============================================================
 # $Log: gmATC.py,v $
-# Revision 1.3  2009-10-21 20:32:45  ncq
+# Revision 1.4  2009-11-28 18:12:02  ncq
+# - text2atc() and test
+#
+# Revision 1.3  2009/10/21 20:32:45  ncq
 # - cleanup
 #
 # Revision 1.2  2009/06/10 20:59:12  ncq
