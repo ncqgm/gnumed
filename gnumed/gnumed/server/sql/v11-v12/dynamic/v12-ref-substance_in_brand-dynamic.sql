@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-ref-substance_in_brand-dynamic.sql,v 1.1 2009-11-24 21:11:39 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-ref-substance_in_brand-dynamic.sql,v 1.2 2009-11-28 18:33:39 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -74,11 +74,53 @@ grant select, insert, update, delete on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-ref-substance_in_brand-dynamic.sql,v $', '$Revision: 1.1 $');
+\unset ON_ERROR_STOP
+drop view ref.v_substance_in_brand cascade;
+\set ON_ERROR_STOP 1
+
+create view ref.v_substance_in_brand as
+
+select
+	rsib.pk
+		as pk_substance_in_brand,
+	rsib.description
+		as substance,
+	rsib.atc_code
+		as atc_substance,
+	rbd.description
+		as brand,
+	rbd.preparation
+		as preparation,
+	rbd.atc_code
+		as atc_brand,
+	rbd.external_code
+		as external_code_brand,
+	rbd.is_fake
+		as is_fake_brand,
+
+	rbd.fk_data_source
+		as pk_data_source,
+	rsib.fk_brand
+		as pk_brand
+from
+	ref.substance_in_brand rsib
+		left join ref.branded_drug rbd on (rsib.fk_brand = rbd.pk)
+;
+
+
+grant select on
+	ref.v_substance_in_brand
+to group "gm-doctors";
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('$RCSfile: v12-ref-substance_in_brand-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-ref-substance_in_brand-dynamic.sql,v $
--- Revision 1.1  2009-11-24 21:11:39  ncq
+-- Revision 1.2  2009-11-28 18:33:39  ncq
+-- - ref.v_substance_in_brand
+--
+-- Revision 1.1  2009/11/24 21:11:39  ncq
 -- - new drug tables
 --
 --
