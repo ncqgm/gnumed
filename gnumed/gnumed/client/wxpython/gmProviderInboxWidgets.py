@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.41 2009-08-24 20:11:27 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmProviderInboxWidgets.py,v 1.42 2009-11-28 20:07:08 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -349,6 +349,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal = u'message_inbox_generic_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for results insertion/deletion
 		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for doc insertion/deletion
@@ -378,12 +379,20 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self.__msgs = self.provider.inbox.messages
 
 		if self.filter_mode == 'active':
-			curr_pat_id = gmPerson.gmCurrentPatient().ID
-			self.__msgs = [ m for m in self.__msgs if m['pk_patient'] in [curr_pat_id, None] ]
+			if gmPerson.gmCurrentPatient().connected:
+				curr_pat_id = gmPerson.gmCurrentPatient().ID
+				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] in [curr_pat_id, None] ]
+			else:
+				self.__msgs = []
 
 		items = [
-			[_indicator[m['importance']], m['received_when'].strftime('%Y-%m-%d'), m['l10n_category'], m['l10n_type'], m['comment']]
-			for m in self.__msgs
+			[
+				_indicator[m['importance']],
+				m['received_when'].strftime('%Y-%m-%d'),
+				m['l10n_category'],
+				m['l10n_type'],
+				m['comment']
+			] for m in self.__msgs
 		]
 		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
@@ -418,14 +427,19 @@ Leaving message in inbox.""") % handler_key,
 				_('handling provider inbox item')
 			)
 			return False
+
 		if not handle_item(pk_context = msg['pk_context'], pk_patient = msg['pk_patient']):
 			_log.error('item handler returned "false"')
 			_log.error('handler key: [%s]', handler_key)
 			_log.error('message: %s', str(msg))
 			return False
+
 		return True
 	#--------------------------------------------------------
 	def _lst_item_focused(self, evt):
+		pass
+	#--------------------------------------------------------
+	def _lst_item_selected(self, evt):
 		msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
 		if msg is None:
 			return
@@ -434,6 +448,7 @@ Leaving message in inbox.""") % handler_key,
 			tmp = _('Message: %s') % msg['comment']
 		else:
 			tmp = _('Message: %s\nData: %s') % (msg['comment'], msg['data'])
+
 		self._TXT_inbox_item_comment.SetValue(tmp)
 	#--------------------------------------------------------
 	def _lst_item_right_clicked(self, evt):
@@ -453,10 +468,12 @@ Leaving message in inbox.""") % handler_key,
 	#--------------------------------------------------------
 	def _on_all_patients_radiobutton_selected(self, event):
 		self.filter_mode = 'all'
+		self._TXT_inbox_item_comment.SetValue(u'')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	def _on_active_patient_radiobutton_selected(self, event):
 		self.filter_mode = 'active'
+		self._TXT_inbox_item_comment.SetValue(u'')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	# item handlers
@@ -537,7 +554,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.41  2009-08-24 20:11:27  ncq
+# Revision 1.42  2009-11-28 20:07:08  ncq
+# - fix message detail display
+#
+# Revision 1.41  2009/08/24 20:11:27  ncq
 # - bump db version
 # - fix tag creation
 # - provider inbox:

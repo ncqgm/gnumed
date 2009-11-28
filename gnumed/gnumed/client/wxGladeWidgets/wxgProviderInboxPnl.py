@@ -28,6 +28,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 
         self.Bind(wx.EVT_RADIOBUTTON, self._on_all_patients_radiobutton_selected, self._RBTN_all_patients)
         self.Bind(wx.EVT_RADIOBUTTON, self._on_active_patient_radiobutton_selected, self._RBTN_active_patient)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._lst_item_selected, self._LCTRL_provider_inbox)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._lst_item_activated, self._LCTRL_provider_inbox)
         self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self._lst_item_focused, self._LCTRL_provider_inbox)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._lst_item_right_clicked, self._LCTRL_provider_inbox)
@@ -80,6 +81,10 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 
     def _lst_item_right_clicked(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
         print "Event handler `_lst_item_right_clicked' not implemented!"
+        event.Skip()
+
+    def _lst_item_selected(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
+        print "Event handler `_lst_item_selected' not implemented"
         event.Skip()
 
 # end of class wxgProviderInboxPnl
