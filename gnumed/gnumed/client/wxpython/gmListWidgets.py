@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.33 2009-06-29 15:07:58 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmListWidgets.py,v 1.34 2009-11-28 18:30:07 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -181,7 +181,13 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			if not callable(callback):
 				raise ValueError('<new> callback is not a callable: %s' % callback)
 		self.__new_callback = callback
-		self._BTN_new.Enable(callback is not None)
+
+		if callback is None:
+			self._BTN_new.Enable(False)
+			self._BTN_new.Hide()
+		else:
+			self._BTN_new.Enable(True)
+			self._BTN_new.Show()
 
 	new_callback = property(_get_new_callback, _set_new_callback)
 	#------------------------------------------------------------
@@ -195,7 +201,13 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			if not callable(callback):
 				raise ValueError('<edit> callback is not a callable: %s' % callback)
 		self.__edit_callback = callback
-		self._BTN_edit.Enable(callback is not None)
+
+		if callback is None:
+			self._BTN_edit.Enable(False)
+			self._BTN_edit.Hide()
+		else:
+			self._BTN_edit.Enable(True)
+			self._BTN_edit.Show()
 
 	edit_callback = property(_get_edit_callback, _set_edit_callback)
 	#------------------------------------------------------------
@@ -209,7 +221,13 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			if not callable(callback):
 				raise ValueError('<delete> callback is not a callable: %s' % callback)
 		self.__delete_callback = callback
-		self._BTN_delete.Enable(callback is not None)
+
+		if callback is None:
+			self._BTN_delete.Enable(False)
+			self._BTN_delete.Hide()
+		else:
+			self._BTN_delete.Enable(True)
+			self._BTN_delete.Show()
 
 	delete_callback = property(_get_delete_callback, _set_delete_callback)
 	#------------------------------------------------------------
@@ -529,7 +547,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.33  2009-06-29 15:07:58  ncq
+# Revision 1.34  2009-11-28 18:30:07  ncq
+# - hide disabled buttons/show enabled ones
+#
+# Revision 1.33  2009/06/29 15:07:58  ncq
 # - disable edit/delete buttons when setting items to None or []
 #
 # Revision 1.32  2009/06/20 12:45:22  ncq
