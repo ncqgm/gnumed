@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.57 2009-09-13 18:27:38 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmBusinessDBObject.py,v 1.58 2009-11-28 18:27:50 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -240,10 +240,12 @@ class cBusinessDBObject(object):
 		except:
 			_log.exception('faulty <row> argument structure: %s' % row)
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
+
 		if len(self._idx.keys()) != len(self._payload):
 			_log.critical('field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
 			_log.critical('faulty <row> argument structure: %s' % row)
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
+
 		self.original_payload = {}
 		for field in self._idx.keys():
 			self.original_payload[field] = self._payload[self._idx[field]]
@@ -467,7 +469,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.57  2009-09-13 18:27:38  ncq
+# Revision 1.58  2009-11-28 18:27:50  ncq
+# - cleanup
+#
+# Revision 1.57  2009/09/13 18:27:38  ncq
 # - cleanup
 #
 # Revision 1.56  2009/04/13 10:37:41  ncq
