@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.305 2009-11-28 18:14:36 ncq Exp $
-__version__ = "$Revision: 1.305 $"
+# $Id: gmClinicalRecord.py,v 1.306 2009-11-28 18:21:51 ncq Exp $
+__version__ = "$Revision: 1.306 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -948,7 +948,7 @@ WHERE
 		return None
 	#--------------------------------------------------------
 	def episode2problem(self, episode=None):
-		return self.get_problems(episodes = [episode['pk_episode']])
+		return gmEMRStructItems.episode2problem(episode=episode)
 	#--------------------------------------------------------
 	# problems API
 	#--------------------------------------------------------
@@ -1097,7 +1097,7 @@ WHERE
 		)
 	#--------------------------------------------------------
 	def health_issue2problem(self, issue=None):
-		return self.get_problems(issues = [issue['pk_health_issue']])
+		return gmEMRStructItems.health_issue2problem(issue = issue)
 	#--------------------------------------------------------
 	# API: substance intake
 	#--------------------------------------------------------
@@ -2131,7 +2131,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.305  2009-11-28 18:14:36  ncq
+# Revision 1.306  2009-11-28 18:21:51  ncq
+# - normalize turning things into problems
+#
+# Revision 1.305  2009/11/28 18:14:36  ncq
 # - lotsa SQL writ cleanup as suggested by David Merz
 # - fix statistics
 # - get-problems enhancement
