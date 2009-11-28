@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.154 $"
+__version__ = "$Revision: 1.155 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -407,16 +407,20 @@ def get_dummy_health_issue():
 		'is_active': True,
 		'clinically_relevant': True,
 		'is_confidential': None,
-		'is_cause_of_death': False
+		'is_cause_of_death': False,
+		'is_dummy': True
 	}
 	return issue
 #-----------------------------------------------------------
-def health_issue2problem(health_issue=None):
-	return cProblem(aPK_obj = {
-		'pk_patient': health_issue['pk_patient'],
-		'pk_health_issue': episode['pk_health_issue'],
-		'pk_episode': None
-	})
+def health_issue2problem(health_issue=None, allow_irrelevant=False):
+	return cProblem (
+		aPK_obj = {
+			'pk_patient': health_issue['pk_patient'],
+			'pk_health_issue': health_issue['pk_health_issue'],
+			'pk_episode': None
+		},
+		try_potential_problems = allow_irrelevant
+	)
 #============================================================
 # episodes API
 #============================================================
@@ -746,12 +750,15 @@ def delete_episode(episode=None):
 		_log.exception('cannot delete episode')
 		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
 #-----------------------------------------------------------
-def episode2problem(episode=None):
-	return cProblem(aPK_obj = {
-		'pk_patient': episode['pk_patient'],
-		'pk_episode': episode['pk_episode'],
-		'pk_health_issue': episode['pk_health_issue']
-	})
+def episode2problem(episode=None, allow_closed=False):
+	return cProblem (
+		aPK_obj = {
+			'pk_patient': episode['pk_patient'],
+			'pk_episode': episode['pk_episode'],
+			'pk_health_issue': episode['pk_health_issue']
+		},
+		try_potential_problems = allow_closed
+	)
 #============================================================
 # encounter API
 #============================================================
@@ -1220,16 +1227,15 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
 
 	problems are the aggregation of
-		issues w/o episodes,
-		issues w/ episodes and
-		episodes w/o issues
+		.clinically_relevant=True issues and
+		.is_open=True episodes
 	"""
 	_cmd_fetch_payload = u''					# will get programmatically defined in __init__
 	_cmds_store_payload = [u"select 1"]
 	_updatable_fields = []
 
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None):
+	def __init__(self, aPK_obj=None, try_potential_problems=False):
 		"""Initialize.
 
 		aPK_obj must contain the keys
@@ -1239,6 +1245,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		if aPK_obj is None:
 			raise gmExceptions.ConstructorError, 'cannot instatiate cProblem for PK: [%s]' % (aPK_obj)
+
 		# As problems are rows from a view of different emr struct items,
 		# the PK can't be a single field and, as some of the values of the
 		# composed PK may be None, they must be queried using 'is null',
@@ -1248,12 +1255,30 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		for col_name in aPK_obj.keys():
 			val = aPK_obj[col_name]
 			if val is None:
-				where_parts.append('%s is null' % col_name)
+				where_parts.append('%s IS NULL' % col_name)
 			else:
-				where_parts.append('%s=%%(%s)s' % (col_name, col_name))
+				where_parts.append('%s = %%(%s)s' % (col_name, col_name))
 				pk[col_name] = val
-		cProblem._cmd_fetch_payload = u"select * from clin.v_problem_list where " + ' and '.join(where_parts)
-		# instantiate class
+
+		# try to instantiate from true problem view
+		cProblem._cmd_fetch_payload = u"""
+			SELECT *, False as is_potential_problem
+			FROM clin.v_problem_list
+			WHERE %s""" % u' AND '.join(where_parts)
+
+		try:
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
+			return
+		except gmExceptions.ConstructorError:
+			_log.exception('problem not found, trying potential problems')
+			if try_potential_problems is False:
+				raise
+
+		# try to instantiate from non-problem view
+		cProblem._cmd_fetch_payload = u"""
+			SELECT *, True as is_potential_problem
+			FROM clin.v_potential_problem_list
+			WHERE %s""" % u' AND '.join(where_parts)
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_as_episode(self):
@@ -1537,7 +1562,12 @@ if __name__ == '__main__':
 		test_performed_procedure()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.154  2009-11-13 21:01:45  ncq
+# Revision 1.155  2009-11-28 18:35:23  ncq
+# - fix health_issue2problem/episode2problem
+# - add is_dummy to dummy health issue
+# - enhance cProblem to allow for potential problems, too
+#
+# Revision 1.154  2009/11/13 21:01:45  ncq
 # - create-performed-proc
 #
 # Revision 1.153  2009/11/06 15:03:15  ncq
