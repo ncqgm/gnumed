@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.43 2009-11-24 21:03:41 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmNarrativeWidgets.py,v 1.44 2009-11-28 18:32:50 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -673,7 +673,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		active_problems = []
 		for problem in problems:
 			if not problem['problem_active']:
-				continue
+				if not problem['is_potential_problem']:
+					continue
 
 			active_problems.append(problem)
 
@@ -704,6 +705,16 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._LCTRL_active_problems.set_string_items(items = list_items)
 		self._LCTRL_active_problems.set_column_widths()
 		self._LCTRL_active_problems.set_data(data = active_problems)
+
+		showing_potential_problems = (
+			self._CHBOX_show_closed_episodes.IsChecked()
+				or
+			self._CHBOX_irrelevant_issues.IsChecked()
+		)
+		if showing_potential_problems:
+			self._SZR_problem_list_staticbox.SetLabel(_('%s (active+potential) problems') % len(list_items))
+		else:
+			self._SZR_problem_list_staticbox.SetLabel(_('%s active problems') % len(list_items))
 
 		return True
 	#--------------------------------------------------------
@@ -1512,7 +1523,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.43  2009-11-24 21:03:41  ncq
+# Revision 1.44  2009-11-28 18:32:50  ncq
+# - finalize showing potential problems in problem list, too, and adjust box label
+#
+# Revision 1.43  2009/11/24 21:03:41  ncq
 # - display problems based on checkbox selection
 # - set recent notes label based on problem selection
 #
