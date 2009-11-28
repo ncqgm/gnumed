@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.17 2009-11-24 20:59:59 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmMedicationWidgets.py,v 1.18 2009-11-28 18:31:30 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -22,7 +22,86 @@ from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmCfgWidg
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+#============================================================
+def manage_substances_in_brands(parent=None):
 
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		substs = gmMedication.get_substances_in_brands()
+		items = [ [
+			u'%s%s' % (s['brand'], gmTools.coalesce(s['atc_brand'], u'', u' (%s)')),
+			u'%s%s' % (s['substance'], gmTools.coalesce(s['atc_substance'], u'', u' (%s)')),
+			s['preparation'],
+			gmTools.coalesce(s['external_code_brand'], u''),
+			s['pk_substance_in_brand']
+		] for s in substs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(substs)
+	#------------------------------------------------------------
+	msg = _('\nThese are the substances in the drug brands known to GNUmed.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing drug brand components (substances).'),
+		columns = [_('Brand'), _('Substance'), _('Preparation'), _('Code'), u'#'],
+		single_selection = True,
+		#new_callback = new,
+		#edit_callback = edit,
+		#delete_callback = delete
+		refresh_callback = refresh
+	)
+
+#============================================================
+def manage_branded_drugs(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def delete(brand):
+		gmMedication.delete_branded_drug(brand = brand['pk'])
+		return True
+	#------------------------------------------------------------
+	def new():
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		drug_db = get_drug_database(parent = parent)
+
+		if drug_db is None:
+			return False
+
+		drug_db.import_drugs()
+
+		return True
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		drugs = gmMedication.get_branded_drugs()
+		items = [ [
+			d['description'],
+			d['preparation'],
+			gmTools.coalesce(d['atc_code'], u''),
+			gmTools.coalesce(d['external_code'], u''),
+			d['pk']
+		] for d in drugs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(drugs)
+	#------------------------------------------------------------
+	msg = _('\nThese are the drug brands known to GNUmed.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing branded drugs.'),
+		columns = [_('Name'), _('Preparation'), _('ATC'), _('Code'), u'#'],
+		single_selection = True,
+		refresh_callback = refresh,
+		new_callback = new,
+		#edit_callback = edit,
+		delete_callback = delete
+	)
 #============================================================
 def manage_substances_in_use(parent=None):
 
@@ -56,7 +135,7 @@ def manage_substances_in_use(parent=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(substs)
 	#------------------------------------------------------------
-	msg = _('\nThese are the substances currently consumed across all patients.\n')
+	msg = _('\nThese are the substances currently or previously\nconsumed across all patients.\n')
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -65,10 +144,9 @@ def manage_substances_in_use(parent=None):
 		columns = [_('Name'), _('ATC'), u'#'],
 		single_selection = True,
 		refresh_callback = refresh,
+		new_callback = new,
 		#edit_callback = edit,
-		#new_callback = edit,
-		delete_callback = delete,
-		new_callback = new
+		delete_callback = delete
 	)
 #============================================================
 # generic drug database access
@@ -231,6 +309,8 @@ def update_atc_reference_data():
 	wx.EndBusyCursor()
 	return True
 
+#============================================================
+# current medication widgets
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentMedicationEAPnl
 
@@ -431,7 +511,7 @@ def delete_substance_intake(parent=None, substance=None):
 	if not delete_it:
 		return
 
-	gmMedication.delete_patient_consumed_substance(substance = substance)
+	gmMedication.delete_substance_intake(substance = substance)
 #------------------------------------------------------------
 def edit_intake_of_substance(parent = None, substance=None):
 	ea = cCurrentMedicationEAPnl(parent = parent, id = -1, substance = substance)
@@ -861,7 +941,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.17  2009-11-24 20:59:59  ncq
+# Revision 1.18  2009-11-28 18:31:30  ncq
+# - implement drug brand management
+# - implement drug brand component management
+#
+# Revision 1.17  2009/11/24 20:59:59  ncq
 # - use import-drugs rather than import-drugs-as-substances
 # - improved grid layout as per list
 # - fix get-selected-data
