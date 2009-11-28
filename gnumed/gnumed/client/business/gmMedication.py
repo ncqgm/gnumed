@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.12 2009-11-24 19:57:22 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmMedication.py,v 1.13 2009-11-28 18:27:30 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -15,6 +15,7 @@ import sys, logging, csv, codecs, os, re as regex
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools, gmDateTime
+from Gnumed.business import gmATC
 
 
 _log = logging.getLogger('gm.meds')
@@ -431,7 +432,10 @@ def get_substances_in_use():
 #------------------------------------------------------------
 def create_used_substance(substance=None, atc=None):
 
-	args = {'desc': substance, 'atc': atc}
+	if atc is not None:
+		atc = atc.strip()
+
+	args = {'desc': substance.strip(), 'atc': atc}
 
 	cmd = u'select pk, atc_code, description from clin.consumed_substance where description = %(desc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -442,16 +446,32 @@ def create_used_substance(substance=None, atc=None):
 
 	row = rows[0]
 
-	# update ATC if we now know the ATC code where previously we didn't
-	if atc is not None:
-		if row['atc_code'] is None:
-			args['pk'] = row['pk']
-			cmd = u'update clin.consumed_substance set atc_code = gm.nullify_empty_string(%(atc)s) where pk = %(pk)s'
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		else:
+	# if ATC already known for substance, fine
+	if row['atc_code'] is not None:
+		if atc is not None:
 			if row['atc_code'].strip() != atc.strip():
 				_log.error('ATC conflict for "%s". Database: [%s], argument: [%s]', substance, row['atc_code'], atc)
+		return row
 
+	# normalize empty ATC into None
+	if atc is not None:
+		if atc == u'':
+			atc = None
+
+	args = {u'pk': row['pk'], u'atc': atc}
+
+	# if there's no ATC code given go find one
+	if atc is None:
+		candidates = gmATC.text2atc(text = substance.strip())
+		if len(candidates) != 1:
+			return row
+		args['atc'] = candidates[0]['atc_code']
+
+	# update ATC if we now know the ATC code where previously we didn't
+	cmd = u'update clin.consumed_substance set atc_code = gm.nullify_empty_string(%(atc)s) where pk = %(pk)s'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	row['atc_code'] = args['atc']
 	return row
 #------------------------------------------------------------
 def delete_used_substance(substance=None):
@@ -560,13 +580,13 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 	external_code = property(_get_external_code, lambda x:x)
 	#--------------------------------------------------------
-	def _get_branded_drug(self):
+	def _get_containing_drug(self):
 		if self._payload[self._idx['pk_brand']] is None:
 			return None
 
 		return cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
 
-	containing_drug = property(_get_branded_drug, lambda x:x)
+	containing_drug = property(_get_containing_drug, lambda x:x)
 	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
 		tests = [
@@ -582,7 +602,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
-def create_patient_consumed_substance(substance=None, atc=None, encounter=None, episode=None, preparation=None):
+def create_substance_intake(substance=None, atc=None, encounter=None, episode=None, preparation=None):
 
 	args = {
 		'desc': substance,
@@ -612,7 +632,7 @@ returning pk
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
 #------------------------------------------------------------
-def delete_patient_consumed_substance(substance=None):
+def delete_substance_intake(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
 #============================================================
@@ -664,16 +684,30 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			'atc': atc
 		}
 
+		# FIXME: try to retrieve ATC code
+
 		cmd = u"""
 			INSERT INTO ref.substance_in_brand (fk_brand, description, atc_code)
 			VALUES (%(brand)s, %(desc)s, %(atc)s)"""
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
+def get_substances_in_brands():
+	cmd = u'SELECT * FROM ref.v_substance_in_brand ORDER BY brand, substance'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	return rows
+#------------------------------------------------------------
+def get_branded_drugs():
+
+	cmd = u'SELECT pk FROM ref.branded_drug ORDER BY description'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+
+	return [ cBrandedDrug(aPK_obj = r['pk']) for r in rows ]
+#------------------------------------------------------------
 def get_drug_by_brand(brand_name=None, preparation=None):
 	args = {'brand': brand_name, 'prep': preparation}
 
-	cmd = u'select pk from ref.branded_drug where description = %(brand)s and preparation = %(prep)s'
+	cmd = u'SELECT pk FROM ref.branded_drug WHERE description = %(brand)s AND preparation = %(prep)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	if len(rows) == 0:
@@ -691,6 +725,10 @@ def create_branded_drug(brand_name=None, preparation=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	return cBrandedDrug(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_branded_drug(brand=None):
+	cmd = u'delete from ref.branded_drug where pk = %(pk)s'
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': brand}}])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -747,8 +785,8 @@ if __name__ == "__main__":
 		mmi.check_drug_interactions(pzn_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
 	#--------------------------------------------------------
-	def test_create_patient_consumed_substance():
-		drug = create_patient_consumed_substance (
+	def test_create_substance_intake():
+		drug = create_substance_intake (
 			substance = u'Whiskey',
 			atc = u'no ATC available',
 			encounter = 1,
@@ -765,10 +803,17 @@ if __name__ == "__main__":
 		#test_mmi_import_substances()
 		test_mmi_import_drugs()
 		#test_interaction_check()
-		#test_create_patient_consumed_substance()
+		#test_create_substance_intake()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.12  2009-11-24 19:57:22  ncq
+# Revision 1.13  2009-11-28 18:27:30  ncq
+# - much improved ATC detection on substance creation
+# - create-patient-consumed-substance -> create-substance-intake
+# - get-branded-drugs
+# - get-substances-in-brands
+# - delete-branded-drugs
+#
+# Revision 1.12  2009/11/24 19:57:22  ncq
 # - implement getting/creating data souce entry for MMI
 # - implement version retrieval for MMI
 # - import-drugs()
