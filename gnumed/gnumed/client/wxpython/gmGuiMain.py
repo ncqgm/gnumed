@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.478 2009-11-15 01:06:49 ncq Exp $
-__version__ = "$Revision: 1.478 $"
+# $Id: gmGuiMain.py,v 1.479 2009-11-28 18:29:33 ncq Exp $
+__version__ = "$Revision: 1.479 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -406,6 +406,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('Substances'), _('Manage substances in use.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_substances, item)
+
+		item = menu_master_data.Append(-1, _('Drugs'), _('Manage branded drugs.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_branded_drugs, item)
+
+		item = menu_master_data.Append(-1, _('Drug components'), _('View components of branded drugs.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_substances_in_brands, item)
 
 		item = menu_master_data.Append(-1, _('&Test types'), _('Show test/measurement types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_test_types, item)
@@ -2207,6 +2213,12 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_substances(self, evt):
 		gmMedicationWidgets.manage_substances_in_use(parent = self)
 	#----------------------------------------------
+	def __on_manage_branded_drugs(self, evt):
+		gmMedicationWidgets.manage_branded_drugs(parent = self)
+	#----------------------------------------------
+	def __on_manage_substances_in_brands(self, evt):
+		gmMedicationWidgets.manage_substances_in_brands(parent = self)
+	#----------------------------------------------
 	def __on_manage_test_types(self, evt):
 		gmMeasurementWidgets.manage_measurement_types(parent = self)
 	#----------------------------------------------
@@ -2923,7 +2935,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.478  2009-11-15 01:06:49  ncq
+# Revision 1.479  2009-11-28 18:29:33  ncq
+# - more master data management: drug brands and components thereof
+#
+# Revision 1.478  2009/11/15 01:06:49  ncq
 # - better start of new encounter
 #
 # Revision 1.477  2009/11/08 20:43:50  ncq
