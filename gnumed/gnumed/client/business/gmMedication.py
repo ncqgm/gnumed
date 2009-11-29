@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.13 2009-11-28 18:27:30 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmMedication.py,v 1.14 2009-11-29 15:57:27 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -471,7 +471,9 @@ def create_used_substance(substance=None, atc=None):
 	cmd = u'update clin.consumed_substance set atc_code = gm.nullify_empty_string(%(atc)s) where pk = %(pk)s'
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
-	row['atc_code'] = args['atc']
+	# unfortunately not a real dict so no setting stuff by keyword
+	#row['atc_code'] = args['atc']
+	row[1] = args['atc']
 	return row
 #------------------------------------------------------------
 def delete_used_substance(substance=None):
@@ -806,7 +808,11 @@ if __name__ == "__main__":
 		#test_create_substance_intake()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.13  2009-11-28 18:27:30  ncq
+# Revision 1.14  2009-11-29 15:57:27  ncq
+# - while SQL results are dicts as far as *retrieval* is concerned,
+#   they are NOT for inserting data into them, so use list access
+#
+# Revision 1.13  2009/11/28 18:27:30  ncq
 # - much improved ATC detection on substance creation
 # - create-patient-consumed-substance -> create-substance-intake
 # - get-branded-drugs
