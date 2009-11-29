@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.170 2009-11-18 16:10:58 ncq Exp $
-__version__ = "$Revision: 1.170 $"
+# $Id: gmDemographicsWidgets.py,v 1.171 2009-11-29 15:58:18 ncq Exp $
+__version__ = "$Revision: 1.171 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2794,16 +2794,16 @@ class cFormDTD:
 	{}.fromkeys([key, key, ...], default) when it becomes clear that
 	we really don't need the added potential of a full-fledged class.
 	"""
-	def __init__(self, fields):		
+	def __init__(self, fields):
 		"""
 		Initialize the DTD with the supplied field names.
 		@param fields The names of the fields.
 		@type fields A TupleType instance.
 		"""
-		self.data = {}		
+		self.data = {}
 		for a_field in fields:
 			self.data[a_field] = ''
-		
+
 	def __getitem__(self, attribute):
 		"""
 		Retrieve the value of the given attribute (key)
@@ -3308,7 +3308,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.170  2009-11-18 16:10:58  ncq
+# Revision 1.171  2009-11-29 15:58:18  ncq
+# - cleanup
+#
+# Revision 1.170  2009/11/18 16:10:58  ncq
 # - sufficiently complete provinces management
 #
 # Revision 1.169  2009/11/17 19:42:12  ncq
