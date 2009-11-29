@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.19 2009-11-29 16:05:41 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmMedicationWidgets.py,v 1.20 2009-11-29 20:01:46 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -14,10 +14,10 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
-#, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmHooks
+from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime, gmMatchProvider
 from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmCfgWidgets, gmListWidgets, gmEditArea
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea
+from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel
 
 
 _log = logging.getLogger('gm.ui')
@@ -311,6 +311,30 @@ def update_atc_reference_data():
 
 #============================================================
 # current medication widgets
+#============================================================
+class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+(
+	SELECT pk, (coalesce(atc_code || ': ', '') || description) as subst
+	FROM clin.consumed_substance
+	WHERE description %(fragment_condition)s
+) union (
+	SELECT NULL, (coalesce(atc_code || ': ', '') || description) as subst
+	FROM ref.substance_in_brand
+	WHERE description %(fragment_condition)s
+)
+order by subst
+limit 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(1, 2, 4)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('The INN / substance the patient is taking.'))
+		self.matcher = mp
+		self.selection_only = False
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentMedicationEAPnl
 
@@ -941,7 +965,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.19  2009-11-29 16:05:41  ncq
+# Revision 1.20  2009-11-29 20:01:46  ncq
+# - substance phrasewheel
+#
+# Revision 1.19  2009/11/29 16:05:41  ncq
 # - must set self.data *late* in _save-as-new or else !
 # - properly enable/disable duration PRW
 # - grid business logic moved into grid so no need to access self._grid_substances anymore
