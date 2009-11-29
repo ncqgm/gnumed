@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.14 2009-11-29 15:57:27 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmMedication.py,v 1.15 2009-11-29 19:59:31 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -432,10 +432,12 @@ def get_substances_in_use():
 #------------------------------------------------------------
 def create_used_substance(substance=None, atc=None):
 
+	substance = substance.strip()
+
 	if atc is not None:
 		atc = atc.strip()
 
-	args = {'desc': substance.strip(), 'atc': atc}
+	args = {'desc': substance, 'atc': atc}
 
 	cmd = u'select pk, atc_code, description from clin.consumed_substance where description = %(desc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -444,33 +446,9 @@ def create_used_substance(substance=None, atc=None):
 		cmd = u'insert into clin.consumed_substance (description, atc_code) values (%(desc)s, gm.nullify_empty_string(%(atc)s)) returning pk, atc_code, description'
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
+	gmATC.propagate_atc(substance = substance, atc = atc)
+
 	row = rows[0]
-
-	# if ATC already known for substance, fine
-	if row['atc_code'] is not None:
-		if atc is not None:
-			if row['atc_code'].strip() != atc.strip():
-				_log.error('ATC conflict for "%s". Database: [%s], argument: [%s]', substance, row['atc_code'], atc)
-		return row
-
-	# normalize empty ATC into None
-	if atc is not None:
-		if atc == u'':
-			atc = None
-
-	args = {u'pk': row['pk'], u'atc': atc}
-
-	# if there's no ATC code given go find one
-	if atc is None:
-		candidates = gmATC.text2atc(text = substance.strip())
-		if len(candidates) != 1:
-			return row
-		args['atc'] = candidates[0]['atc_code']
-
-	# update ATC if we now know the ATC code where previously we didn't
-	cmd = u'update clin.consumed_substance set atc_code = gm.nullify_empty_string(%(atc)s) where pk = %(pk)s'
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-
 	# unfortunately not a real dict so no setting stuff by keyword
 	#row['atc_code'] = args['atc']
 	row[1] = args['atc']
@@ -680,19 +658,31 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_component(self, substance=None, atc=None):
 
+		# normalize atc
+		if atc is not None:
+			if atc.strip() == u'':
+				atc = None
+
 		args = {
 			'brand': self.pk_obj,
 			'desc': substance,
 			'atc': atc
 		}
 
-		# FIXME: try to retrieve ATC code
+		# already exists ?
+		cmd = u"SELECT pk FROM ref.substance_in_brand WHERE description = %(desc)s AND fk_brand = %(brand)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) > 0:
+			gmATC.propagate_atc(substance = substance, atc = atc)
+			return
 
+		# create it
 		cmd = u"""
 			INSERT INTO ref.substance_in_brand (fk_brand, description, atc_code)
-			VALUES (%(brand)s, %(desc)s, %(atc)s)"""
-
+			VALUES (%(brand)s, %(desc)s, %(atc)s)
+		"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmATC.propagate_atc(substance = substance, atc = atc)
 #------------------------------------------------------------
 def get_substances_in_brands():
 	cmd = u'SELECT * FROM ref.v_substance_in_brand ORDER BY brand, substance'
@@ -808,7 +798,10 @@ if __name__ == "__main__":
 		#test_create_substance_intake()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.14  2009-11-29 15:57:27  ncq
+# Revision 1.15  2009-11-29 19:59:31  ncq
+# - improve substance/component creation with propagate-atc
+#
+# Revision 1.14  2009/11/29 15:57:27  ncq
 # - while SQL results are dicts as far as *retrieval* is concerned,
 #   they are NOT for inserting data into them, so use list access
 #
