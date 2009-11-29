@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.4 2009-11-28 18:12:02 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmATC.py,v 1.5 2009-11-29 19:58:36 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv, re as regex, os.path
@@ -23,6 +23,34 @@ _log = logging.getLogger('gm.atc')
 _log.info(__version__)
 
 _cfg = gmCfg2.gmCfgData()
+#============================================================
+def propagate_atc(substance=None, atc=None):
+
+	substance = substance.strip()
+
+	_log.debug('%s: %s', substance, atc)
+
+	if atc is not None:
+		if atc.strip() == u'':
+			atc = None
+
+	if atc is None:
+		atc = text2atc(text = substance, fuzzy = False)[0]
+		_log.debug('found ATC: %s', atc)
+
+	if atc is None:
+		return
+
+	args = {'atc': atc, 'term': substance}
+	queries = [
+		{'cmd': u"UPDATE ref.substance_in_brand SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		 'args': args},
+		{'cmd': u"UPDATE clin.consumed_substance SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		 'args': args},
+		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		 'args': args}
+	]
+	gmPG2.run_rw_queries(queries = queries)
 #============================================================
 def text2atc(text=None, fuzzy=False):
 
@@ -236,7 +264,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmATC.py,v $
-# Revision 1.4  2009-11-28 18:12:02  ncq
+# Revision 1.5  2009-11-29 19:58:36  ncq
+# - propagate-atc
+#
+# Revision 1.4  2009/11/28 18:12:02  ncq
 # - text2atc() and test
 #
 # Revision 1.3  2009/10/21 20:32:45  ncq
