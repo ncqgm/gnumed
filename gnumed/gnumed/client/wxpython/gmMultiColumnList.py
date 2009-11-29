@@ -122,9 +122,9 @@ class MultiColumnList( wx.Grid):
 		
 		if rows <> []:
 			cols.append(rows)
-		
+
 		table = self.GetTable()
-		
+
 		self.BeginBatch()
 		table.DeleteCols( 0, table.GetNumberCols())	
 		#table.DeleteRows( 1, table.GetNumberRows() )	
@@ -152,15 +152,12 @@ class MultiColumnList( wx.Grid):
 		for id, m in items:
 			map[id] = m
 		self.data = map
-		
+
 	def GetData(self):
 		return self.data
-		
 
 
 
-			
-	
 
 if __name__ == "__main__":
 	 app = wxPyWidgetTester(size = (400, 100))
