@@ -14,6 +14,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
         from Gnumed.wxpython import gmPhraseWheel
         from Gnumed.wxpython import gmEMRStructWidgets
+        from Gnumed.wxpython import gmMedicationWidgets
 
         # begin wxGlade: wxgCurrentMedicationEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -21,7 +22,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._PRW_brand = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_brand = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._TCTRL_brand_ingredients = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
-        self._PRW_substance = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_substance = gmMedicationWidgets.cSubstancePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_substance = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._PRW_strength = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_preparation = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -49,7 +50,6 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._BTN_database_brand.SetToolTipString(_("Get brand(s) from an external drug database.\n\nNote that if you select more than one only the first will be available for further editing right away."))
         self._TCTRL_brand_ingredients.SetToolTipString(_("The active ingredients of this brand."))
         self._TCTRL_brand_ingredients.Enable(False)
-        self._PRW_substance.SetToolTipString(_("The substance / INN the patient is taking."))
         self._BTN_database_substance.SetToolTipString(_("Get substances from an external drug database.\n\nNote that if you select more than one substance only the first one will be available for further editing right away."))
         self._PRW_strength.SetToolTipString(_("The amount of substance per dose."))
         self._PRW_preparation.SetToolTipString(_("The preparation the substance comes in."))
