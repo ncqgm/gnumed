@@ -18,15 +18,15 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         kwds["style"] = wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._msg_welcome = wx.StaticText(self, -1, _("Programmer must override this text."))
-        self._RBTN_all_patients = wx.RadioButton(self, -1, _("All patients"), style=wx.RB_GROUP)
-        self._RBTN_active_patient = wx.RadioButton(self, -1, _("Active patient"))
+        self._RBTN_all_messages = wx.RadioButton(self, -1, _("All"), style=wx.RB_GROUP)
+        self._RBTN_active_patient = wx.RadioButton(self, -1, _("Active patient's"))
         self._LCTRL_provider_inbox = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
         self._TXT_inbox_item_comment = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.TE_LINEWRAP|wx.TE_WORDWRAP)
 
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_RADIOBUTTON, self._on_all_patients_radiobutton_selected, self._RBTN_all_patients)
+        self.Bind(wx.EVT_RADIOBUTTON, self._on_all_messages_radiobutton_selected, self._RBTN_all_messages)
         self.Bind(wx.EVT_RADIOBUTTON, self._on_active_patient_radiobutton_selected, self._RBTN_active_patient)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._lst_item_selected, self._LCTRL_provider_inbox)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._lst_item_activated, self._LCTRL_provider_inbox)
@@ -37,9 +37,9 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgProviderInboxPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._RBTN_all_patients.SetToolTipString(_("Show ALL patient related messages."))
-        self._RBTN_all_patients.SetValue(1)
-        self._RBTN_active_patient.SetToolTipString(_("Among patient related messages show only those for the active patient."))
+        self._RBTN_all_messages.SetToolTipString(_("Show all your messages."))
+        self._RBTN_all_messages.SetValue(1)
+        self._RBTN_active_patient.SetToolTipString(_("Show your messages related to either the active or no patient at all only."))
         self._LCTRL_provider_inbox.SetFocus()
         self._TXT_inbox_item_comment.SetToolTipString(_("This shows the entirety of the selected message in your Inbox."))
         self._TXT_inbox_item_comment.Enable(False)
@@ -52,9 +52,9 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         __szr_main.Add(self._msg_welcome, 0, 0, 0)
         __line_top = wx.StaticLine(self, -1)
         __szr_main.Add(__line_top, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
-        __lbl_filters = wx.StaticText(self, -1, _("Filter to:"))
+        __lbl_filters = wx.StaticText(self, -1, _("Show messages:"))
         __szr_filters.Add(__lbl_filters, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_filters.Add(self._RBTN_all_patients, 0, wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL, 5)
+        __szr_filters.Add(self._RBTN_all_messages, 0, wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL, 5)
         __szr_filters.Add(self._RBTN_active_patient, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
         __szr_main.Add(__szr_filters, 0, wx.BOTTOM|wx.EXPAND, 5)
         __szr_main.Add(self._LCTRL_provider_inbox, 1, wx.EXPAND, 0)
@@ -62,10 +62,6 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
-
-    def _on_all_patients_radiobutton_selected(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
-        print "Event handler `_on_all_patients_radiobutton_selected' not implemented!"
-        event.Skip()
 
     def _on_active_patient_radiobutton_selected(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
         print "Event handler `_on_active_patient_radiobutton_selected' not implemented!"
@@ -85,6 +81,10 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 
     def _lst_item_selected(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
         print "Event handler `_lst_item_selected' not implemented"
+        event.Skip()
+
+    def _on_all_messages_radiobutton_selected(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
+        print "Event handler `_on_all_messages_radiobutton_selected' not implemented"
         event.Skip()
 
 # end of class wxgProviderInboxPnl
