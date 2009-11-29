@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.132 2009-11-24 20:55:13 ncq Exp $
+# $Id: gmEditArea.py,v 1.133 2009-11-29 15:59:31 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.132 $"
+__version__ = "$Revision: 1.133 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -64,7 +64,14 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
-		self.data = 
+		data = 
+
+		data[''] = 
+		data[''] = 
+
+		data.save()
+
+		self.data = data
 		return False
 		return True
 	#----------------------------------------------------------------
@@ -1175,19 +1182,18 @@ class gmEditArea(cEditArea):
 		self.setDataId(id)
 		#self.monitoring_dirty = 1
 		self.set_old_data(self.getInputFieldValues())
-	
+
 	def getDataId(self):
 		return self.data 
 
 	def setDataId(self, id):
 		self.data = id
-	
 
 	def _getInputFieldValues(self):
 		values = {}
 		for k,v  in self.input_fields.items():
 			values[k] = v.GetValue()
-		return values	
+		return values
 
 	def getInputFieldValues(self, fields = None):
 		if fields == None:
@@ -1198,7 +1204,7 @@ class gmEditArea(cEditArea):
 				values[f] = self.input_fields[f].GetValue()
 			except:
 				pass
-		return values		
+		return values
 #====================================================================
 class gmFamilyHxEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -1475,7 +1481,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 #====================================================================
 class gmReferralEditArea(gmEditArea):
-		
+
 	def __init__(self, parent, id): 
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'referral')
@@ -2187,7 +2193,13 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.132  2009-11-24 20:55:13  ncq
+# Revision 1.133  2009-11-29 15:59:31  ncq
+# - improved boilerplate so people don't fall into the trap of
+#   self.data being a *property* and thus needing to be set *after*
+#   all updates to it in _save-as-new ...
+# - cleanup
+#
+# Revision 1.132  2009/11/24 20:55:13  ncq
 # - adjust clear/revert button
 #
 # Revision 1.131  2009/11/17 19:42:54  ncq
