@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.42 2009-11-28 20:07:08 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmProviderInboxWidgets.py,v 1.43 2009-11-29 13:07:15 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -362,7 +362,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		msg = _("""
 	Welcome %(title)s %(lname)s !
 
-	Below find the new messages in your Inbox.
+	Below find the messages in your inbox.
 """) % {
 			'title': gmTools.coalesce (
 				self.provider['title'],
@@ -383,7 +383,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				curr_pat_id = gmPerson.gmCurrentPatient().ID
 				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] in [curr_pat_id, None] ]
 			else:
-				self.__msgs = []
+				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] is None ]
 
 		items = [
 			[
@@ -466,7 +466,7 @@ Leaving message in inbox.""") % handler_key,
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
 	#--------------------------------------------------------
-	def _on_all_patients_radiobutton_selected(self, event):
+	def _on_all_messages_radiobutton_selected(self, event):
 		self.filter_mode = 'all'
 		self._TXT_inbox_item_comment.SetValue(u'')
 		self.__populate_inbox()
@@ -554,7 +554,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.42  2009-11-28 20:07:08  ncq
+# Revision 1.43  2009-11-29 13:07:15  ncq
+# - properly map messages to check boxes as per list
+#
+# Revision 1.42  2009/11/28 20:07:08  ncq
 # - fix message detail display
 #
 # Revision 1.41  2009/08/24 20:11:27  ncq
