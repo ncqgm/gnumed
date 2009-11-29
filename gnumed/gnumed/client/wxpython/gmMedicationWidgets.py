@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.18 2009-11-28 18:31:30 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmMedicationWidgets.py,v 1.19 2009-11-29 16:05:41 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -355,14 +355,14 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		else:
 			self._PRW_preparation.display_as_valid(True)
 
-		if self._CHBOX_approved.GetValue() is True:
+		if self._CHBOX_approved.IsChecked() is True:
 			if self._PRW_episode.GetValue().strip() == u'':
 				self._PRW_episode.display_as_valid(False)
 				validity = False
 			else:
 				self._PRW_episode.display_as_valid(True)
 
-		if self._CHBOX_approved.GetValue() is True:
+		if self._CHBOX_approved.IsChecked() is True:
 			self._PRW_duration.display_as_valid(True)
 		else:
 			if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
@@ -382,25 +382,27 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	def _save_as_new(self):
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
-		self.data = emr.add_consumed_substance (
+		data = emr.add_consumed_substance (
 			substance = self._PRW_substance.GetValue().strip(),
 			episode = self._PRW_episode.GetData(),
 			preparation = self._PRW_preparation.GetValue()
 		)
-		self.data['started'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_started.GetValue())
-		self.data['strength'] = self._PRW_strength.GetValue()
-		self.data['schedule'] = self._PRW_schedule.GetValue()
-		self.data['aim'] = self._PRW_aim.GetValue()
-		self.data['notes'] = self._PRW_notes.GetValue()
-		self.data['is_long_term'] = self._CHBOX_long_term.GetValue()
-		self.data['intake_is_approved_of'] = self._CHBOX_approved.GetValue()
+
+		data['started'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_started.GetValue())
+		data['strength'] = self._PRW_strength.GetValue()
+		data['schedule'] = self._PRW_schedule.GetValue()
+		data['aim'] = self._PRW_aim.GetValue()
+		data['notes'] = self._PRW_notes.GetValue()
+		data['is_long_term'] = self._CHBOX_long_term.IsChecked()
+		data['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
 
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
-			self.data['duration'] = None
+			data['duration'] = None
 		else:
-			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+			data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
 
-		self.data.save()
+		data.save()
+		self.data = data
 
 		return True
 	#----------------------------------------------------------------
@@ -412,8 +414,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self.data['schedule'] = self._PRW_schedule.GetValue()
 		self.data['aim'] = self._PRW_aim.GetValue()
 		self.data['notes'] = self._PRW_notes.GetValue()
-		self.data['is_long_term'] = self._CHBOX_long_term.GetValue()
-		self.data['intake_is_approved_of'] = self._CHBOX_approved.GetValue()
+		self.data['is_long_term'] = self._CHBOX_long_term.IsChecked()
+		self.data['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
 		self.data['pk_substance'] = self._PRW_substance.GetData()
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
 
@@ -449,12 +451,12 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_strength.SetText(gmTools.coalesce(self.data['strength'], u''), self.data['strength'])
 		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
 		if self.data['is_long_term']:
-			# maybe need to disable PRW_duration
 			self._CHBOX_long_term.SetValue(True)
+			self._PRW_duration.Enable(False)
 			self._PRW_duration.SetText(gmTools.u_infinity, None)
 		else:
-			# maybe need to enable PRW_duration
 			self._CHBOX_long_term.SetValue(False)
+			self._PRW_duration.Enable(True)
 			if self.data['duration'] is None:
 				self._PRW_duration.SetText(u'', None)
 			else:
@@ -479,7 +481,6 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		drug_db = get_drug_database()
 		if drug_db is None:
 			return
-		new_drugs, new_substances 
 		result = drug_db.import_drugs()
 		if result is None:
 			return
@@ -493,7 +494,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_substance.SetText(first['description'], first['pk'])
 	#----------------------------------------------------------------
 	def _on_chbox_long_term_checked(self, event):
-		if self._CHBOX_long_term.GetValue() is True:
+		if self._CHBOX_long_term.IsChecked() is True:
 			self._PRW_duration.Enable(False)
 		else:
 			self._PRW_duration.Enable(True)
@@ -776,7 +777,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit more than one substance at once.'), beep = True)
 			return
 
-		subst = self._grid_substances.get_selected_data()[0]
+		subst = self.get_selected_data()[0]
 		edit_intake_of_substance(parent = self, substance = subst)
 	#------------------------------------------------------------
 	def delete_substance(self):
@@ -791,7 +792,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		subst = self.get_selected_data()[0]
-
 		delete_substance_intake(parent = self, substance = subst['pk_substance_intake'])
 	#------------------------------------------------------------
 	# internal helpers
@@ -941,7 +941,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.18  2009-11-28 18:31:30  ncq
+# Revision 1.19  2009-11-29 16:05:41  ncq
+# - must set self.data *late* in _save-as-new or else !
+# - properly enable/disable duration PRW
+# - grid business logic moved into grid so no need to access self._grid_substances anymore
+#
+# Revision 1.18  2009/11/28 18:31:30  ncq
 # - implement drug brand management
 # - implement drug brand component management
 #
