@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.94 2009-11-15 01:04:30 ncq Exp $
+# $Id: gmTools.py,v 1.95 2009-11-29 15:57:51 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.94 $"
+__version__ = "$Revision: 1.95 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -213,10 +213,9 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 		if is_dict_reader is not True:
 			raise KeyError
 		csv_reader = csv.DictReader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
-		#csv_reader = csv.DictReader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 	except KeyError:
+		is_dict_reader = False
 		csv_reader = csv.reader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
-		#csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 
 	for row in csv_reader:
 		# decode ENCODING back to Unicode, cell by cell:
@@ -1099,7 +1098,10 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.94  2009-11-15 01:04:30  ncq
+# Revision 1.95  2009-11-29 15:57:51  ncq
+# - must properly initialize is_dict_reader
+#
+# Revision 1.94  2009/11/15 01:04:30  ncq
 # - add smiling/frowning face
 #
 # Revision 1.93  2009/11/06 15:12:57  ncq
