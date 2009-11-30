@@ -5,9 +5,9 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.12 2009-08-24 20:03:59 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.13 2009-11-30 22:24:36 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -78,7 +78,11 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 		where_parts.append(u'pk_patient = %(pat)s')
 		args['pat'] = pk_patient
 
-	cmd = u"select * from dem.v_message_inbox where %s" % u' and '.join(where_parts)
+	cmd = u"""
+		SELET *
+		FROM dem.v_message_inbox
+		WHERE %s
+		ORDER BY importance desc, received_when desc""" % u' AND '.join(where_parts)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cInboxMessage(row = {'pk_field': 'pk_message_inbox', 'idx': idx, 'data': r})  for r in rows ]
@@ -166,7 +170,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.12  2009-08-24 20:03:59  ncq
+# Revision 1.13  2009-11-30 22:24:36  ncq
+# - add order by
+#
+# Revision 1.12  2009/08/24 20:03:59  ncq
 # - proper cInboxMessage and use it
 #
 # Revision 1.11  2008/09/04 12:52:51  ncq
