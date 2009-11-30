@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.15 2009-11-29 19:59:31 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmMedication.py,v 1.16 2009-11-30 15:06:27 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -128,7 +128,10 @@ class cGelbeListeCSVFile(object):
 			line[field] = (line[field].strip() == u'T')
 
 		# split field "Wirkstoff" by ";"
-		line['wirkstoffe'] = [ wirkstoff.strip() for wirkstoff in line['wirkstoffe'].split(u';') ]
+		if line['wirkstoffe'].strip() == u'':
+			line['wirkstoffe'] = []
+		else:
+			line['wirkstoffe'] = [ wirkstoff.strip() for wirkstoff in line['wirkstoffe'].split(u';') ]
 
 		return line
 	#--------------------------------------------------------
@@ -296,6 +299,12 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		new_substances = []
 
 		for entry in selected_drugs:
+
+			if entry[u'hilfsmittel']:
+				continue
+
+			if entry[u'erstattbares_medizinprodukt']:
+				continue
 
 			# create branded drug (or get it if it already exists)
 			drug = create_branded_drug(brand_name = entry['name'], preparation = entry['darreichungsform'])
@@ -624,9 +633,9 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		u"""update ref.branded_drug set
 				description = %(description)s,
 				preparation = %(preparation)s,
-				atc_code = %(atc_code)s,
+				atc_code = gm.nullify_empty_string(%(atc_code)s),
+				external_code = gm.nullify_empty_string(%(external_code)s),
 				is_fake = %(is_fake)s,
-				external_code = %(external_code)s,
 				fk_data_source = %(fk_data_source)s
 			where
 				pk = %(pk)s and
@@ -708,6 +717,12 @@ def get_drug_by_brand(brand_name=None, preparation=None):
 	return cBrandedDrug(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
 def create_branded_drug(brand_name=None, preparation=None):
+
+	if preparation is None:
+		preparation = _('units')
+
+	if preparation.strip() == u'':
+		preparation = _('units')
 
 	if get_drug_by_brand(brand_name = brand_name, preparation = preparation) is not None:
 		return None
@@ -798,7 +813,11 @@ if __name__ == "__main__":
 		#test_create_substance_intake()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.15  2009-11-29 19:59:31  ncq
+# Revision 1.16  2009-11-30 15:06:27  ncq
+# - handle a bunch of possibilities of dirty records retrieved from GLI/MMI
+# - default preparation to i18n(units)
+#
+# Revision 1.15  2009/11/29 19:59:31  ncq
 # - improve substance/component creation with propagate-atc
 #
 # Revision 1.14  2009/11/29 15:57:27  ncq
