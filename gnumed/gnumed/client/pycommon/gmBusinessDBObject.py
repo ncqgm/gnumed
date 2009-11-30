@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.58 2009-11-28 18:27:50 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmBusinessDBObject.py,v 1.59 2009-11-30 15:06:50 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -260,7 +260,11 @@ class cBusinessDBObject(object):
 	def __str__(self):
 		tmp = []
 		try:
-			[ tmp.append('%s: %s' % (attr, self._payload[self._idx[attr]])) for attr in self._idx.keys() ]
+			for attr in self._idx.keys():
+				if self._payload[self._idx[attr]] is None:
+					tmp.append(u'%s: NULL' % attr)
+				else:
+					tmp.append('%s: >>%s<<' % (attr, self._payload[self._idx[attr]]))
 			return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
 		except:
 			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
@@ -469,7 +473,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.58  2009-11-28 18:27:50  ncq
+# Revision 1.59  2009-11-30 15:06:50  ncq
+# - slightly improved __str__
+#
+# Revision 1.58  2009/11/28 18:27:50  ncq
 # - cleanup
 #
 # Revision 1.57  2009/09/13 18:27:38  ncq
