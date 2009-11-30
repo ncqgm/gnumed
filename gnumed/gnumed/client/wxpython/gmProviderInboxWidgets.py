@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.44 2009-11-30 13:16:27 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmProviderInboxWidgets.py,v 1.45 2009-11-30 22:27:57 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -380,9 +380,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if self.filter_mode == 'active':
 			if gmPerson.gmCurrentPatient().connected:
 				curr_pat_id = gmPerson.gmCurrentPatient().ID
-				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] in [curr_pat_id, None] ]
+				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] == curr_pat_id ]
 			else:
-				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] is None ]
+				self.__msgs = []
 
 		items = [
 			[
@@ -561,7 +561,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.44  2009-11-30 13:16:27  ncq
+# Revision 1.45  2009-11-30 22:27:57  ncq
+# - adjust provider inbox filters
+#
+# Revision 1.44  2009/11/30 13:16:27  ncq
 # - no deletion of .is_virtual messages
 # - data update after patient activation
 # - enabling active-patient filter on init, too
