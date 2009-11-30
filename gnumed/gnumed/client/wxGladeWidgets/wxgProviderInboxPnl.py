@@ -39,7 +39,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._RBTN_all_messages.SetToolTipString(_("Show all your messages."))
         self._RBTN_all_messages.SetValue(1)
-        self._RBTN_active_patient.SetToolTipString(_("Show only those of your messages related to either the active patient or no patient at all."))
+        self._RBTN_active_patient.SetToolTipString(_("Show those of your messages which are related to the active patient."))
         self._RBTN_active_patient.Enable(False)
         self._LCTRL_provider_inbox.SetFocus()
         self._TXT_inbox_item_comment.SetToolTipString(_("This shows the entirety of the selected message in your Inbox."))
