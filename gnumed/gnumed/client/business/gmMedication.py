@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.16 2009-11-30 15:06:27 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmMedication.py,v 1.17 2009-11-30 21:56:36 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -665,6 +665,14 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 	external_code = property(_get_external_code, lambda x:x)
 	#--------------------------------------------------------
+	def _get_components(self):
+		cmd = u'select * from ref.substance_in_brand where fk_brand = %(brand)s'
+		args = {'brand': self._payload[self._idx['pk']]}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+
+	components = property(_get_components, lambda x:x)
+	#--------------------------------------------------------
 	def add_component(self, substance=None, atc=None):
 
 		# normalize atc
@@ -813,7 +821,10 @@ if __name__ == "__main__":
 		#test_create_substance_intake()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.16  2009-11-30 15:06:27  ncq
+# Revision 1.17  2009-11-30 21:56:36  ncq
+# - components property on branded drug
+#
+# Revision 1.16  2009/11/30 15:06:27  ncq
 # - handle a bunch of possibilities of dirty records retrieved from GLI/MMI
 # - default preparation to i18n(units)
 #
