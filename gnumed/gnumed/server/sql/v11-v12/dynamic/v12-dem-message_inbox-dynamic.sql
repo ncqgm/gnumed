@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-dem-message_inbox-dynamic.sql,v 1.2 2009-11-30 13:20:52 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v12-dem-message_inbox-dynamic.sql,v 1.3 2009-11-30 22:30:41 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -193,7 +193,7 @@ select
 		as type,
 	_('review results')
 		as l10n_type,
-	(select _('unreviewed results for patient') || ' ['
+	(select _('unreviewed (normal) results for patient') || ' ['
 		|| dn.lastnames || ', '
 		|| dn.firstnames || ']'
 	 from dem.names dn
@@ -222,6 +222,55 @@ from
 	clin.v_test_results vtr
 where
 	reviewed is False
+		and
+	is_technically_abnormal is False
+
+union
+
+select
+	now() as received_when,
+	(select short_alias from dem.staff where dem.staff.pk = vtr.pk_intended_reviewer)
+		as provider,
+	1	as importance,
+	'clinical'
+		as category,
+	_('clinical')
+		as l10n_category,
+	'review results'
+		as type,
+	_('review results')
+		as l10n_type,
+	(select _('unreviewed (abnormal) results for patient') || ' ['
+		|| dn.lastnames || ', '
+		|| dn.firstnames || ']'
+	 from dem.names dn
+	 where
+	 	dn.id_identity = vtr.pk_patient
+	 		and
+	 	dn.active is True
+	)
+		as comment,
+	NULL
+		as pk_context,
+	NULL
+		as data,
+	NULL
+		as pk_message_inbox,
+	vtr.pk_intended_reviewer
+		as pk_staff,
+	(select pk_category from dem.v_inbox_item_type where type = 'review results')
+		as pk_category,
+	(select pk_type from dem.v_inbox_item_type where type = 'review results')
+		as pk_type,
+	vtr.pk_patient as pk_patient,
+	true
+		as is_virtual
+from
+	clin.v_test_results vtr
+where
+	reviewed is False
+		and
+	is_technically_abnormal is True
 
 ;
 
@@ -233,13 +282,19 @@ Using UNION makes sure we get the right level of uniqueness.';
 
 grant select on dem.v_message_inbox to group "gm-doctors";
 
+-- --------------------------------------------------------------
+select i18n.upd_tx('de_DE', 'unreviewed (normal) results for patient', 'neue (normale) Testergebnisse beim Patienten');
+select i18n.upd_tx('de_DE', 'unreviewed (abnormal) results for patient', 'neue (pathologische) Testergebnisse beim Patienten');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-dem-message_inbox-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v12-dem-message_inbox-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v12-dem-message_inbox-dynamic.sql,v $
--- Revision 1.2  2009-11-30 13:20:52  ncq
+-- Revision 1.3  2009-11-30 22:30:41  ncq
+-- - add filter on is_technically_abnormal
+--
+-- Revision 1.2  2009/11/30 13:20:52  ncq
 -- - add .is_virtual
 --
 -- Revision 1.1  2009/08/28 12:47:29  ncq
