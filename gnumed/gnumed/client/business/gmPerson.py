@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.191 2009-11-13 21:04:12 ncq Exp $
-__version__ = "$Revision: 1.191 $"
+# $Id: gmPerson.py,v 1.192 2009-11-30 22:24:16 ncq Exp $
+__version__ = "$Revision: 1.192 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime, gmLog2
+from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools, gmPG2, gmMatchProvider, gmDateTime, gmLog2
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 
@@ -2324,7 +2324,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.191  2009-11-13 21:04:12  ncq
+# Revision 1.192  2009-11-30 22:24:16  ncq
+# - cleanup
+#
+# Revision 1.191  2009/11/13 21:04:12  ncq
 # - get-persons-from-pks
 #
 # Revision 1.190  2009/09/01 22:21:31  ncq
