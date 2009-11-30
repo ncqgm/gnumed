@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-dem-message_inbox-dynamic.sql,v 1.1 2009-08-28 12:47:29 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-dem-message_inbox-dynamic.sql,v 1.2 2009-11-30 13:20:52 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -102,21 +102,31 @@ drop view dem.v_message_inbox cascade;
 create view dem.v_message_inbox as
 
 select
-	mi.modified_when as received_when,
-	(select short_alias from dem.staff where dem.staff.pk = mi.fk_staff) as provider,
+	mi.modified_when
+		as received_when,
+	(select short_alias from dem.staff where dem.staff.pk = mi.fk_staff)
+		as provider,
 	mi.importance,
 	vit.category,
 	vit.l10n_category,
 	vit.type,
 	vit.l10n_type,
 	mi.comment,
-	mi.ufk_context as pk_context,
-	mi.data as data,
-	mi.pk as pk_message_inbox,
-	mi.fk_staff as pk_staff,
+	mi.ufk_context
+		as pk_context,
+	mi.data
+		as data,
+	mi.pk
+		as pk_message_inbox,
+	mi.fk_staff
+		as pk_staff,
 	vit.pk_category,
-	mi.fk_inbox_item_type as pk_type,
-	mi.fk_patient as pk_patient
+	mi.fk_inbox_item_type
+		as pk_type,
+	mi.fk_patient
+		as pk_patient,
+	false
+		as is_virtual
 from
 	dem.message_inbox mi,
 	dem.v_inbox_item_type vit
@@ -160,7 +170,9 @@ select
 		as pk_category,
 	(select pk_type from dem.v_inbox_item_type where type = 'review docs')
 		as pk_type,
-	vo4dnd.pk_patient as pk_patient
+	vo4dnd.pk_patient as pk_patient,
+	true
+		as is_virtual
 from
 	blobs.v_obj4doc_no_data vo4dnd
 where
@@ -203,7 +215,9 @@ select
 		as pk_category,
 	(select pk_type from dem.v_inbox_item_type where type = 'review results')
 		as pk_type,
-	vtr.pk_patient as pk_patient
+	vtr.pk_patient as pk_patient,
+	true
+		as is_virtual
 from
 	clin.v_test_results vtr
 where
@@ -221,11 +235,14 @@ grant select on dem.v_message_inbox to group "gm-doctors";
 
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-dem-message_inbox-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-dem-message_inbox-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-dem-message_inbox-dynamic.sql,v $
--- Revision 1.1  2009-08-28 12:47:29  ncq
+-- Revision 1.2  2009-11-30 13:20:52  ncq
+-- - add .is_virtual
+--
+-- Revision 1.1  2009/08/28 12:47:29  ncq
 -- - adjust to renaming
 -- - allow fk_provider nullable provider fk_patient isn't null
 --
