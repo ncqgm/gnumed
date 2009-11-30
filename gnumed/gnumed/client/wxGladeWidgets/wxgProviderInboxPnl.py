@@ -19,7 +19,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._msg_welcome = wx.StaticText(self, -1, _("Programmer must override this text."))
         self._RBTN_all_messages = wx.RadioButton(self, -1, _("All"), style=wx.RB_GROUP)
-        self._RBTN_active_patient = wx.RadioButton(self, -1, _("Active patient's"))
+        self._RBTN_active_patient = wx.RadioButton(self, -1, _("Active-patient related"))
         self._LCTRL_provider_inbox = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
         self._TXT_inbox_item_comment = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.TE_LINEWRAP|wx.TE_WORDWRAP)
 
@@ -39,7 +39,8 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._RBTN_all_messages.SetToolTipString(_("Show all your messages."))
         self._RBTN_all_messages.SetValue(1)
-        self._RBTN_active_patient.SetToolTipString(_("Show your messages related to either the active or no patient at all only."))
+        self._RBTN_active_patient.SetToolTipString(_("Show only those of your messages related to either the active patient or no patient at all."))
+        self._RBTN_active_patient.Enable(False)
         self._LCTRL_provider_inbox.SetFocus()
         self._TXT_inbox_item_comment.SetToolTipString(_("This shows the entirety of the selected message in your Inbox."))
         self._TXT_inbox_item_comment.Enable(False)
