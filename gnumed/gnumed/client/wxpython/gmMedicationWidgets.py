@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.20 2009-11-29 20:01:46 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmMedicationWidgets.py,v 1.21 2009-11-30 13:15:20 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -569,28 +569,28 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__filter_show_unapproved = False
 		self.__filter_show_inactive = False
 
-		self.__map_grouping2col_labels = {
+		self.__grouping2col_labels = {
 			u'episode': [
 				_('Episode'),
-				_('Brand'),
 				_('Substance'),
-				_('Dose'),
+				_('Strength'),
 				_('Schedule'),
 				_('Started'),
-				_('Duration')
+				_('Duration'),
+				_('Brand')
 			],
 			u'brand': [
 				_('Brand'),
-				_('Substance'),
-				_('Dose'),
 				_('Schedule'),
+				_('Substance'),
+				_('Strength'),
 				_('Started'),
 				_('Duration'),
 				_('Episode')
 			]
 		}
 
-		self.__map_grouping2order_by_clauses = {
+		self.__grouping2order_by_clauses = {
 			u'episode': u'pk_health_issue nulls first, episode, substance, started',
 			u'brand': u'brand nulls last, substance, started'
 		}
@@ -656,7 +656,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		emr = self.__patient.get_emr()
 		meds = emr.get_current_substance_intake (
-			order_by = self.__map_grouping2order_by_clauses[self.__grouping_mode],
+			order_by = self.__grouping2order_by_clauses[self.__grouping_mode],
 			include_unapproved = self.__filter_show_unapproved,
 			include_inactive = self.__filter_show_inactive
 		)
@@ -664,7 +664,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		# columns
-		labels = self.__map_grouping2col_labels[self.__grouping_mode]
+		labels = self.__grouping2col_labels[self.__grouping_mode]
 		if self.__filter_show_unapproved:
 			self.AppendCols(numCols = len(labels) + 1)
 		else:
@@ -696,28 +696,29 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						self.__prev_cell_0 = med['episode']
 						self.SetCellValue(row_idx, 0, gmTools.coalesce(med['episode'], u''))
 
-				if med['pk_brand'] is None:
-					self.SetCellValue(row_idx, 1, gmTools.coalesce(med['brand'], u''))
-				else:
-					if med['fake_brand']:
-						self.SetCellValue(row_idx, 1, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
-					else:
-						self.SetCellValue(row_idx, 1, gmTools.coalesce(med['brand'], u''))
-
-				self.SetCellValue(row_idx, 2, med['substance'])
-				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['strength'], u''))
-				self.SetCellValue(row_idx, 4, gmTools.coalesce(med['schedule'], u''))
-				self.SetCellValue(row_idx, 5, med['started'].strftime('%Y-%m-%d'))
+				self.SetCellValue(row_idx, 1, med['substance'])
+				self.SetCellValue(row_idx, 2, gmTools.coalesce(med['strength'], u''))
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 
 				if med['is_long_term']:
-					self.SetCellValue(row_idx, 6, gmTools.u_infinity)
+					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
 				else:
 					if med['duration'] is None:
-						self.SetCellValue(row_idx, 6, u'')
+						self.SetCellValue(row_idx, 5, u'')
 					else:
-						self.SetCellValue(row_idx, 6, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+						self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+
+				if med['pk_brand'] is None:
+					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+				else:
+					if med['fake_brand']:
+						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+					else:
+						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
 
 			elif self.__grouping_mode == u'brand':
+
 				if med['pk_brand'] is None:
 					self.__prev_cell_0 = None
 					self.SetCellValue(row_idx, 0, gmTools.u_diameter)
@@ -729,9 +730,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						else:
 							self.SetCellValue(row_idx, 0, gmTools.coalesce(med['brand'], u''))
 
-				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, gmTools.coalesce(med['strength'], u''))
-				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 2, med['substance'])
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['strength'], u''))
 				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 
 				if med['is_long_term']:
@@ -965,7 +966,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.20  2009-11-29 20:01:46  ncq
+# Revision 1.21  2009-11-30 13:15:20  ncq
+# - better meds grid column ordering as per list
+#
+# Revision 1.20  2009/11/29 20:01:46  ncq
 # - substance phrasewheel
 #
 # Revision 1.19  2009/11/29 16:05:41  ncq
