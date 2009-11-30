@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.43 2009-11-29 13:07:15 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmProviderInboxWidgets.py,v 1.44 2009-11-30 13:16:27 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -359,11 +359,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.set_columns([u'', _('date'), _('category'), _('type'), _('message')])
 
-		msg = _("""
-	Welcome %(title)s %(lname)s !
-
-	Below find the messages in your inbox.
-""") % {
+		msg = _('\n	Inbox of %(title)s %(lname)s.\n') % {
 			'title': gmTools.coalesce (
 				self.provider['title'],
 				gmPerson.map_gender2salutation(self.provider['gender'])
@@ -372,6 +368,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		}
 
 		self._msg_welcome.SetLabel(msg)
+
+		if gmPerson.gmCurrentPatient().connected:
+			self._RBTN_active_patient.Enable()
 	#--------------------------------------------------------
 	def __populate_inbox(self):
 
@@ -401,6 +400,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	# event handlers
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
+		wx.CallAfter(self._schedule_data_reget)
 		wx.CallAfter(self._RBTN_active_patient.Enable)
 	#--------------------------------------------------------
 	def _on_message_inbox_mod_db(self, *args, **kwargs):
@@ -418,12 +418,12 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		except KeyError:
 			gmGuiHelpers.gm_show_warning (
 				_(
-"""Unknown message type:
+"""No double-click action pre-programmed into
+GNUmed for message category and type:
 
  [%s]
-
-Don't know what to do with it.
-Leaving message in inbox.""") % handler_key,
+"""
+) % handler_key,
 				_('handling provider inbox item')
 			)
 			return False
@@ -456,12 +456,15 @@ Leaving message in inbox.""") % handler_key,
 		if tmp is None:
 			return
 		self.__focussed_msg = tmp
+
 		# build menu
 		menu = wx.Menu(title = _('Inbox Message menu'))
 		# - delete message
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('delete message')))
-		wx.EVT_MENU(menu, ID, self._on_delete_focussed_msg)
+		if not self.__focussed_msg['is_virtual']:
+			ID = wx.NewId()
+			menu.AppendItem(wx.MenuItem(menu, ID, _('delete message')))
+			wx.EVT_MENU(menu, ID, self._on_delete_focussed_msg)
+
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
@@ -479,8 +482,12 @@ Leaving message in inbox.""") % handler_key,
 	# item handlers
 	#--------------------------------------------------------
 	def _on_delete_focussed_msg(self, evt):
+		if self.__focussed_msg['is_virtual']:
+			gmDispatcher.send(signal = 'statustext', msg = _('You must deal with the reason for this message to remove it from your inbox.'), beep = True)
+			return False
+
 		if not self.provider.inbox.delete_message(self.__focussed_msg['pk_message_inbox']):
-			gmDispatcher.send(signal='statustext', msg=_('Cannot remove message from Inbox.'))
+			gmDispatcher.send(signal='statustext', msg=_('Problem removing message from Inbox.'))
 			return False
 		return True
 	#--------------------------------------------------------
@@ -554,7 +561,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.43  2009-11-29 13:07:15  ncq
+# Revision 1.44  2009-11-30 13:16:27  ncq
+# - no deletion of .is_virtual messages
+# - data update after patient activation
+# - enabling active-patient filter on init, too
+#
+# Revision 1.43  2009/11/29 13:07:15  ncq
 # - properly map messages to check boxes as per list
 #
 # Revision 1.42  2009/11/28 20:07:08  ncq
