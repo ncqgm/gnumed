@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -127,7 +127,20 @@ END;'"""
 tmpl_create_audit_trail_table = """
 create table audit.%s (
 %s
-) inherits (%s);"""
+) inherits (%s);
+
+comment on column audit.%s.orig_version is
+	'the .row_version in the original row before the audited action took place, should be equal to .row_version';
+
+comment on column audit.%s.orig_when is
+	'the .modified_when in the original row before the audited action took place, should be equal to .modified_when';
+
+comment on column audit.%s.orig_by is
+	'the .modified_by in the original row before the audited action took place, should be equal to .modified_by';
+
+comment on column audit.%s.orig_tableoid is
+	'the TG_RELID when the audit trigger was run';
+"""
 
 #grant insert on %s.%s to group "gm-public"
 
@@ -153,7 +166,7 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 	# does the audit trail target table exist ?
 	exists = gmPG2.table_exists(aCursor, 'audit', audit_trail_table)
 	if exists is None:
-		_log.error('cannot check existance of table [audit.%s]' % audit_trail_table)
+		_log.error('cannot check existence of table [audit.%s]' % audit_trail_table)
 		return None
 
 	if exists:
@@ -182,7 +195,11 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 	table_def = tmpl_create_audit_trail_table % (
 		audit_trail_table,
 		attributes,
-		audit_trail_parent_table			# FIXME: use audit_schema
+		audit_trail_parent_table,			# FIXME: use audit_schema
+		audit_trail_table,
+		audit_trail_table,
+		audit_trail_table,
+		audit_trail_table
 	)
 	return [table_def, '']
 #------------------------------------------------------------------
@@ -289,7 +306,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.34  2009-08-24 20:11:27  ncq
+# Revision 1.35  2009-12-01 21:56:27  ncq
+# - add comment orig_* columns
+#
+# Revision 1.34  2009/08/24 20:11:27  ncq
 # - bump db version
 # - fix tag creation
 # - provider inbox:
