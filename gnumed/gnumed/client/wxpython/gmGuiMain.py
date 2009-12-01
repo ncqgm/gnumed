@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.479 2009-11-28 18:29:33 ncq Exp $
-__version__ = "$Revision: 1.479 $"
+# $Id: gmGuiMain.py,v 1.480 2009-12-01 21:52:40 ncq Exp $
+__version__ = "$Revision: 1.480 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -495,7 +495,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
 
 		# - search
-		item = menu_emr.Append(-1, _('Search EMR'), _('Search for data in the EMR of the active patient'))
+		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
 
 		item = menu_emr.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
@@ -508,8 +508,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Past history (health issue / PMH)'), _('Add a past/previous medical history item (health issue) to the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_add_health_issue, item)
 
-		item = menu_emr_edit.Append(-1, _('Current &medication'), _('Select current medication from drug database and save into progress notes.'))
-		self.Bind(wx.EVT_MENU, self.__on_add_medication, item)
+#		item = menu_emr_edit.Append(-1, _('Current &medication'), _('Select current medication from drug database and save into progress notes.'))
+#		self.Bind(wx.EVT_MENU, self.__on_add_medication, item)
 
 		item = menu_emr_edit.Append(-1, _('&Allergies'), _('Manage documentation of allergies for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_allergies, item)
@@ -523,7 +523,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_performed_procedures, item)
 
-		item = menu_emr_edit.Append(-1, _('Add &Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
+		item = menu_emr_edit.Append(-1, _('&Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
 
 #		item = menu_emr_edit.Append(-1, )
@@ -2935,7 +2935,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.479  2009-11-28 18:29:33  ncq
+# Revision 1.480  2009-12-01 21:52:40  ncq
+# - improved menu items
+# - remove current medication menu item
+#
+# Revision 1.479  2009/11/28 18:29:33  ncq
 # - more master data management: drug brands and components thereof
 #
 # Revision 1.478  2009/11/15 01:06:49  ncq
