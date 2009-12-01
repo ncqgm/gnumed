@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.21 2009-11-30 13:15:20 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmMedicationWidgets.py,v 1.22 2009-12-01 21:55:24 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -336,6 +336,25 @@ limit 50"""
 		self.matcher = mp
 		self.selection_only = False
 #============================================================
+class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+			SELECT pk, (coalesce(atc_code || ': ', '') || description || ' (' || preparation || ')') as brand
+			FROM ref.branded_drug
+			WHERE description %(fragment_condition)s
+			ORDER BY brand
+			LIMIT 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(2, 3, 4)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('The brand name of the drug the patient is taking.'))
+		self.matcher = mp
+		self.selection_only = False
+
+#============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentMedicationEAPnl
 
 class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl, gmEditArea.cGenericEditAreaMixin):
@@ -358,8 +377,11 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self.__init_ui()
 	#----------------------------------------------------------------
 	def __init_ui(self):
+
 		# adjust phrasewheels
-		pass
+
+		self._PRW_brand.add_callback_on_lose_focus(callback = self._on_leave_brand)
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -404,33 +426,81 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
+
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
-		data = emr.add_consumed_substance (
-			substance = self._PRW_substance.GetValue().strip(),
-			episode = self._PRW_episode.GetData(),
+		# 1) create substance intake entry
+		if self._PRW_substance.GetData() is None:
+			subst = self._PRW_substance.GetValue().strip()
+		else:
+			# normalize, do not simply re-use name from phrasewheel
+			subst = gmMedication.get_substance_by_pk(pk = self._PRW_substance.GetData())['description']
+
+		intake = emr.add_substance_intake (
+			substance = subst,
+			episode = self._PRW_episode.GetData(can_create = True),
 			preparation = self._PRW_preparation.GetValue()
 		)
 
-		data['started'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_started.GetValue())
-		data['strength'] = self._PRW_strength.GetValue()
-		data['schedule'] = self._PRW_schedule.GetValue()
-		data['aim'] = self._PRW_aim.GetValue()
-		data['notes'] = self._PRW_notes.GetValue()
-		data['is_long_term'] = self._CHBOX_long_term.IsChecked()
-		data['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
+		intake['strength'] = self._PRW_strength.GetValue()
+		intake['started'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_started.GetValue())
+		intake['schedule'] = self._PRW_schedule.GetValue()
+		intake['aim'] = self._PRW_aim.GetValue()
+		intake['notes'] = self._PRW_notes.GetValue()
+		intake['is_long_term'] = self._CHBOX_long_term.IsChecked()
+		intake['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
 
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
-			data['duration'] = None
+			intake['duration'] = None
 		else:
-			data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+			intake['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
 
-		data.save()
-		self.data = data
+		# 2) create or retrieve brand
+		brand = None
+		pk_brand = self._PRW_brand.GetData()
 
+		# brand pre-selected ?
+		if pk_brand is None:
+			# no, so ...
+			desc = self._PRW_brand.GetValue().strip()
+			if desc != u'':
+				# ... create or get it
+				brand = gmMedication.create_branded_drug (
+					brand_name = desc,
+					preparation = self._PRW_preparation.GetValue().strip(),
+					return_existing = True
+				)
+				pk_brand = brand['pk']
+		else:
+			# yes, so get it
+			brand = gmMedication.cBrandedDrug(aPK_obj = pk_brand)
+
+		# 3) link brand, if available
+		intake['pk_brand'] = pk_brand
+		intake.save()
+
+		# brand neither creatable nor pre-selected
+		if brand is None:
+			self.data = intake
+			return True
+
+		# 4) add substance to brand as component (because
+		#    that's effectively what we are saying here)
+		# FIXME: we may want to ask the user here
+		# FIXME: or only do it if there are no components yet
+		brand.add_component(substance = self._PRW_substance.GetValue().strip())
+
+		self.data = intake
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
+
+		if self._PRW_substance.GetData() is None:
+			self.data['pk_substance'] = gmMedication.create_used_substance (
+				substance = self._PRW_substance.GetValue().strip()
+			)['pk']
+		else:
+			self.data['pk_substance'] = self._PRW_substance.GetData()
 
 		self.data['started'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_started.GetValue())
 		self.data['preparation'] = self._PRW_preparation.GetValue()
@@ -440,13 +510,24 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self.data['notes'] = self._PRW_notes.GetValue()
 		self.data['is_long_term'] = self._CHBOX_long_term.IsChecked()
 		self.data['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
-		self.data['pk_substance'] = self._PRW_substance.GetData()
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
 
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			self.data['duration'] = None
 		else:
 			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+
+		if self._PRW_brand.GetData() is None:
+			desc = self._PRW_brand.GetValue().strip()
+			if desc != u'':
+				# create or get brand
+				self.data['pk_brand'] = gmMedication.create_branded_drug (
+					brand_name = desc,
+					preparation = self._PRW_preparation.GetValue().strip(),
+					return_existing = True
+				)['pk']
+		else:
+			self.data['pk_brand'] = self._PRW_brand.GetData()
 
 		self.data.save()
 		return True
@@ -459,13 +540,15 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_duration.SetText(u'', None)
 		self._PRW_aim.SetText(u'', None)
 		self._PRW_notes.SetText(u'', None)
-
 		self._PRW_episode.SetData(None)
 
 		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
 
 		self._DP_started.SetValue(dt = gmDateTime.py_dt2wxDate(py_dt = gmDateTime.pydt_now_here(), wx = wx))
+
+		self._PRW_brand.SetText(u'', None)
+		self._TCTRL_brand_ingredients.SetValue(u'')
 
 		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
@@ -475,7 +558,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_strength.SetText(gmTools.coalesce(self.data['strength'], u''), self.data['strength'])
 		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
 		if self.data['is_long_term']:
-			self._CHBOX_long_term.SetValue(True)
+	 		self._CHBOX_long_term.SetValue(True)
 			self._PRW_duration.Enable(False)
 			self._PRW_duration.SetText(gmTools.u_infinity, None)
 		else:
@@ -492,14 +575,48 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self._CHBOX_approved.SetValue(self.data['intake_is_approved_of'])
 
+		print self.data['started']
+		print gmDateTime.py_dt2wxDate(py_dt = self.data['started'], wx = wx)
 		self._DP_started.SetValue(gmDateTime.py_dt2wxDate(py_dt = self.data['started'], wx = wx))
+
+		self._PRW_brand.SetText(u'', None)
+		self._TCTRL_brand_ingredients.SetValue(u'')
+		if self.data['pk_brand'] is not None:
+			brand = gmMedication.cBrandedDrug(aPK_obj = self.data['pk_brand'])
+			self._PRW_brand.SetText(brand['description'], self.data['pk_brand'])
+			comps = brand.components
+			if comps is not None:
+				comps = u' / '.join([ u'%s%s' % (c['description'], gmTools.coalesce(c['atc_code'], u'', u' (%s)')) for c in comps ])
+				self._TCTRL_brand_ingredients.SetValue(comps)
 
 		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
+		self._PRW_substance.SetText(u'', None)
+		self._PRW_strength.SetText(u'', None)
+		self._PRW_notes.SetText(u'', None)
+
+		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
 	# event handlers
+	#----------------------------------------------------------------
+	def _on_leave_brand(self):
+		self._TCTRL_brand_ingredients.SetValue(u'')
+
+		pk_brand = self._PRW_brand.GetData()
+		if pk_brand is None:
+			return
+
+		brand = gmMedication.cBrandedDrug(aPK_obj = pk_brand)
+		self._PRW_preparation.SetText(brand['preparation'], None)
+
+		comps = brand.components
+		if comps is None:
+			return
+		comps = u' / '.join([ u'%s%s' % (c['description'], gmTools.coalesce(c['atc_code'], u'', u' (%s)')) for c in comps ])
+		self._TCTRL_brand_ingredients.SetValue(comps)
 	#----------------------------------------------------------------
 	def _on_get_substance_button_pressed(self, event):
 		drug_db = get_drug_database()
@@ -516,6 +633,22 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		# FIXME: b) remember the others for post-processing
 		first = new_substances[0]
 		self._PRW_substance.SetText(first['description'], first['pk'])
+	#----------------------------------------------------------------
+	def _on_get_brand_button_pressed(self, event):
+		drug_db = get_drug_database()
+		if drug_db is None:
+			return
+		result = drug_db.import_drugs()
+		if result is None:
+			return
+		new_drugs, new_substances = result
+		if len(new_drugs) == 0:
+			return
+		# FIXME: could usefully
+		# FIXME: a) ask which to post-process
+		# FIXME: b) remember the others for post-processing
+		first = new_drugs[0]
+		self._PRW_brand.SetText(first['description'], first['pk'])
 	#----------------------------------------------------------------
 	def _on_chbox_long_term_checked(self, event):
 		if self._CHBOX_long_term.IsChecked() is True:
@@ -573,7 +706,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			u'episode': [
 				_('Episode'),
 				_('Substance'),
-				_('Strength'),
+				_('Dose'),
 				_('Schedule'),
 				_('Started'),
 				_('Duration'),
@@ -583,7 +716,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Brand'),
 				_('Schedule'),
 				_('Substance'),
-				_('Strength'),
+				_('Dose'),
 				_('Started'),
 				_('Duration'),
 				_('Episode')
@@ -966,7 +1099,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.21  2009-11-30 13:15:20  ncq
+# Revision 1.22  2009-12-01 21:55:24  ncq
+# - branded drug phrasewheel
+# - much improved substance intake EA implementation
+#
+# Revision 1.21  2009/11/30 13:15:20  ncq
 # - better meds grid column ordering as per list
 #
 # Revision 1.20  2009/11/29 20:01:46  ncq
