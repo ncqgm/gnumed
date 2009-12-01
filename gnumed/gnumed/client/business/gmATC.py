@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.5 2009-11-29 19:58:36 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmATC.py,v 1.6 2009-12-01 21:47:02 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv, re as regex, os.path
@@ -26,22 +26,23 @@ _cfg = gmCfg2.gmCfgData()
 #============================================================
 def propagate_atc(substance=None, atc=None):
 
-	substance = substance.strip()
-
-	_log.debug('%s: %s', substance, atc)
+	_log.debug('substance <%s>, ATC <%s>', substance, atc)
 
 	if atc is not None:
 		if atc.strip() == u'':
 			atc = None
 
 	if atc is None:
-		atc = text2atc(text = substance, fuzzy = False)[0]
-		_log.debug('found ATC: %s', atc)
+		atcs = text2atc(text = substance, fuzzy = False)
+		if len(atcs) == 0:
+			_log.debug(u'no ATC found, aborting')
+			return atc
+		if len(atcs) > 1:
+			_log.debug(u'non-unique ATC mapping, aborting')
+			return atc
+		atc = atcs[0][0].strip()
 
-	if atc is None:
-		return
-
-	args = {'atc': atc, 'term': substance}
+	args = {'atc': atc, 'term': substance.strip()}
 	queries = [
 		{'cmd': u"UPDATE ref.substance_in_brand SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
 		 'args': args},
@@ -51,21 +52,33 @@ def propagate_atc(substance=None, atc=None):
 		 'args': args}
 	]
 	gmPG2.run_rw_queries(queries = queries)
+
+	return atc
 #============================================================
 def text2atc(text=None, fuzzy=False):
+
+	text = text.strip()
 
 	if fuzzy:
 		args = {'term': u'%%%s%%' % text}
 		cmd = u"""
 			SELECT DISTINCT ON (atc_code) *
 			FROM (
-				SELECT atc as atc_code, is_group_code, pk_data_source FROM ref.v_atc WHERE term ilike %(term)s
+				SELECT atc as atc_code, is_group_code, pk_data_source
+				FROM ref.v_atc
+				WHERE term ilike %(term)s AND atc IS NOT NULL
 					UNION
-				SELECT atc_code, null, null FROM ref.substance_in_brand WHERE description ilike %(term)s
+				SELECT atc_code, null, null
+				FROM ref.substance_in_brand
+				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 					UNION
-				SELECT atc_code, null, null FROM ref.branded_drug WHERE description ilike %(term)s
+				SELECT atc_code, null, null
+				FROM ref.branded_drug
+				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 					UNION
-				SELECT atc_code, null, null FROM clin.consumed_substance WHERE description ilike %(term)s
+				SELECT atc_code, null, null
+				FROM clin.consumed_substance
+				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
 		"""
@@ -74,18 +87,28 @@ def text2atc(text=None, fuzzy=False):
 		cmd = u"""
 			SELECT DISTINCT ON (atc_code) *
 			FROM (
-				SELECT atc as atc_code, is_group_code, pk_data_source FROM ref.v_atc WHERE lower(term) = %(term)s
+				SELECT atc as atc_code, is_group_code, pk_data_source
+				FROM ref.v_atc
+				WHERE lower(term) = %(term)s AND atc IS NOT NULL
 					UNION
-				SELECT atc_code, null, null FROM ref.substance_in_brand WHERE lower(description) = %(term)s
+				SELECT atc_code, null, null
+				FROM ref.substance_in_brand
+				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
 					UNION
-				SELECT atc_code, null, null FROM ref.branded_drug WHERE lower(description) = %(term)s
+				SELECT atc_code, null, null
+				FROM ref.branded_drug
+				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
 					UNION
-				SELECT atc_code, null, null FROM clin.consumed_substance WHERE lower(description) = %(term)s
+				SELECT atc_code, null, null
+				FROM clin.consumed_substance
+				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
 		"""
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	_log.debug(u'term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
 	return rows
 #============================================================
@@ -264,7 +287,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmATC.py,v $
-# Revision 1.5  2009-11-29 19:58:36  ncq
+# Revision 1.6  2009-12-01 21:47:02  ncq
+# - make ATC propatation smarter
+#
+# Revision 1.5  2009/11/29 19:58:36  ncq
 # - propagate-atc
 #
 # Revision 1.4  2009/11/28 18:12:02  ncq
