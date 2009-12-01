@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.61 2009-10-28 16:42:53 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmMeasurementWidgets.py,v 1.62 2009-12-01 21:54:04 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1260,11 +1260,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		tr['pk_intended_reviewer'] = self._PRW_intended_reviewer.GetData()
 		tr['val_num'] = v_num
 		tr['val_alpha'] = v_al
-		tr['val_unit'] = self._PRW_units.GetValue()
+		tr['val_unit'] = self._PRW_units.GetValue().strip()
 		tr['clin_when'] = self._DPRW_evaluated.GetData().get_pydt()
+		tr['abnormality_indicator'] = self._PRW_abnormality_indicator.strip()
 
 		ctrls = [
-			('abnormality_indicator', self._PRW_abnormality_indicator),
 			('note_test_org', self._TCTRL_note_test_org),
 			('comment', self._TCTRL_narrative),
 			('val_normal_min', self._TCTRL_normal_min),
@@ -1877,7 +1877,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.61  2009-10-28 16:42:53  ncq
+# Revision 1.62  2009-12-01 21:54:04  ncq
+# - cleanup
+#
+# Revision 1.61  2009/10/28 16:42:53  ncq
 # - make grid draggable
 #
 # Revision 1.60  2009/09/17 21:54:55  ncq
