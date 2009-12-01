@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.17 2009-11-30 21:56:36 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmMedication.py,v 1.18 2009-12-01 21:48:09 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -439,6 +439,13 @@ def get_substances_in_use():
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 #------------------------------------------------------------
+def get_substance_by_pk(pk=None):
+	cmd = u'select * from clin.consumed_substance WHERE pk = %(pk)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
+	if len(rows) == 0:
+		return None
+	return rows[0]
+#------------------------------------------------------------
 def create_used_substance(substance=None, atc=None):
 
 	substance = substance.strip()
@@ -594,8 +601,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 def create_substance_intake(substance=None, atc=None, encounter=None, episode=None, preparation=None):
 
 	args = {
-		'desc': substance,
-		'atc': atc,
 		'enc': encounter,
 		'epi': episode,
 		'prep': preparation,
@@ -668,7 +673,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	def _get_components(self):
 		cmd = u'select * from ref.substance_in_brand where fk_brand = %(brand)s'
 		args = {'brand': self._payload[self._idx['pk']]}
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 
 	components = property(_get_components, lambda x:x)
@@ -676,9 +681,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	def add_component(self, substance=None, atc=None):
 
 		# normalize atc
-		if atc is not None:
-			if atc.strip() == u'':
-				atc = None
+		atc = gmATC.propagate_atc(substance = substance, atc = atc)
 
 		args = {
 			'brand': self.pk_obj,
@@ -687,10 +690,16 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 		# already exists ?
-		cmd = u"SELECT pk FROM ref.substance_in_brand WHERE description = %(desc)s AND fk_brand = %(brand)s"
+		cmd = u"""
+			SELECT pk
+			FROM ref.substance_in_brand
+			WHERE
+				fk_brand = %(brand)s
+					AND
+				((description = %(desc)s) OR ((atc_code = %(atc)s) IS TRUE))
+			"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		if len(rows) > 0:
-			gmATC.propagate_atc(substance = substance, atc = atc)
 			return
 
 		# create it
@@ -699,7 +708,6 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			VALUES (%(brand)s, %(desc)s, %(atc)s)
 		"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		gmATC.propagate_atc(substance = substance, atc = atc)
 #------------------------------------------------------------
 def get_substances_in_brands():
 	cmd = u'SELECT * FROM ref.v_substance_in_brand ORDER BY brand, substance'
@@ -724,7 +732,7 @@ def get_drug_by_brand(brand_name=None, preparation=None):
 
 	return cBrandedDrug(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
-def create_branded_drug(brand_name=None, preparation=None):
+def create_branded_drug(brand_name=None, preparation=None, return_existing=False):
 
 	if preparation is None:
 		preparation = _('units')
@@ -732,7 +740,11 @@ def create_branded_drug(brand_name=None, preparation=None):
 	if preparation.strip() == u'':
 		preparation = _('units')
 
-	if get_drug_by_brand(brand_name = brand_name, preparation = preparation) is not None:
+	drug = get_drug_by_brand(brand_name = brand_name, preparation = preparation)
+
+	if drug is not None:
+		if return_existing:
+			return drug
 		return None
 
 	cmd = u'insert into ref.branded_drug (description, preparation) values (%(brand)s, %(prep)s) returning pk'
@@ -799,7 +811,6 @@ if __name__ == "__main__":
 		phenprocoumon = '4421744'
 		mmi.check_drug_interactions(pzn_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
-	#--------------------------------------------------------
 	def test_create_substance_intake():
 		drug = create_substance_intake (
 			substance = u'Whiskey',
@@ -810,18 +821,27 @@ if __name__ == "__main__":
 		)
 		print drug
 	#--------------------------------------------------------
+	def test_show_components():
+		drug = cBrandedDrug(aPK_obj = sys.argv[2])
+		print drug
+		print drug.components
+	#--------------------------------------------------------
 	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
-		test_MMI_interface()
+		#test_MMI_interface()
 		#test_MMI_file()
 		#test_mmi_switch_to()
 		#test_mmi_select_drugs()
 		#test_mmi_import_substances()
-		test_mmi_import_drugs()
+		#test_mmi_import_drugs()
 		#test_interaction_check()
 		#test_create_substance_intake()
+		test_show_components()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.17  2009-11-30 21:56:36  ncq
+# Revision 1.18  2009-12-01 21:48:09  ncq
+# - get-substance-by-pk
+#
+# Revision 1.17  2009/11/30 21:56:36  ncq
 # - components property on branded drug
 #
 # Revision 1.16  2009/11/30 15:06:27  ncq
