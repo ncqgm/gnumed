@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.110 2009-11-15 01:05:44 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmEMRStructWidgets.py,v 1.111 2009-12-01 10:50:44 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1630,15 +1630,39 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		return True
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-		desc = self._PRW_condition.GetValue().strip()
-		issue = emr.add_health_issue(issue_name = desc)
+
+		issue = emr.add_health_issue(issue_name = self._PRW_condition.GetValue().strip())
+
+		side = u''
+		if self._ChBOX_left.GetValue():
+			side += u's'
+		if self._ChBOX_right.GetValue():
+			side += u'd'
+		issue['laterality'] = side
+
+		issue['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		issue['grouping'] = self._PRW_grouping.GetValue().strip()
+		issue['is_active'] = self._ChBOX_active.GetValue()
+		issue['clinically_relevant'] = self._ChBOX_relevant.GetValue()
+		issue['is_confidential'] = self._ChBOX_confidential.GetValue()
+		issue['is_cause_of_death'] = self._ChBOX_caused_death.GetValue()
+
+		age_noted = self._PRW_age_noted.GetData()
+		if age_noted is not None:
+			issue['age_noted'] = age_noted
+
+		issue.save()
+
+		narr = self._TCTRL_notes.GetValue().strip()
+		if narr != u'':
+			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.__issue['pk_health_issue'])
+			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
 
 		self.data = issue
 
-		return self._save_as_update()
+		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		# update self.data and save the changes
@@ -1998,7 +2022,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.110  2009-11-15 01:05:44  ncq
+# Revision 1.111  2009-12-01 10:50:44  ncq
+# - fix issue creation
+#
+# Revision 1.110  2009/11/15 01:05:44  ncq
 # - start-new-encounter
 # - enhance select-encounters
 #
