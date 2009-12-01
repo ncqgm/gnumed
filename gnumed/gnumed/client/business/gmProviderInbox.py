@@ -5,9 +5,9 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.13 2009-11-30 22:24:36 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.14 2009-12-01 21:48:42 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -79,7 +79,7 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 		args['pat'] = pk_patient
 
 	cmd = u"""
-		SELET *
+		SELECT *
 		FROM dem.v_message_inbox
 		WHERE %s
 		ORDER BY importance desc, received_when desc""" % u' AND '.join(where_parts)
@@ -170,7 +170,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.13  2009-11-30 22:24:36  ncq
+# Revision 1.14  2009-12-01 21:48:42  ncq
+# - fix typo
+#
+# Revision 1.13  2009/11/30 22:24:36  ncq
 # - add order by
 #
 # Revision 1.12  2009/08/24 20:03:59  ncq
