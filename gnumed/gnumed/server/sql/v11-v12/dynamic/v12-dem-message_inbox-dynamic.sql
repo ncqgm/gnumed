@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-dem-message_inbox-dynamic.sql,v 1.3 2009-11-30 22:30:41 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: v12-dem-message_inbox-dynamic.sql,v 1.4 2009-12-01 21:57:27 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -221,9 +221,13 @@ select
 from
 	clin.v_test_results vtr
 where
-	reviewed is False
+	reviewed is false
 		and
-	is_technically_abnormal is False
+	(
+		(is_technically_abnormal is false)
+			or
+		((is_technically_abnormal is null) and (abnormality_indicator is null))
+	)
 
 union
 
@@ -268,9 +272,13 @@ select
 from
 	clin.v_test_results vtr
 where
-	reviewed is False
+	reviewed is false
 		and
-	is_technically_abnormal is True
+	(
+		(is_technically_abnormal is true)
+			or
+		((is_technically_abnormal is null) and (abnormality_indicator is not null))
+	)
 
 ;
 
@@ -287,11 +295,14 @@ select i18n.upd_tx('de_DE', 'unreviewed (normal) results for patient', 'neue (no
 select i18n.upd_tx('de_DE', 'unreviewed (abnormal) results for patient', 'neue (pathologische) Testergebnisse beim Patienten');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-dem-message_inbox-dynamic.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: v12-dem-message_inbox-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: v12-dem-message_inbox-dynamic.sql,v $
--- Revision 1.3  2009-11-30 22:30:41  ncq
+-- Revision 1.4  2009-12-01 21:57:27  ncq
+-- - separate virtual messages for normal/abnormal test results
+--
+-- Revision 1.3  2009/11/30 22:30:41  ncq
 -- - add filter on is_technically_abnormal
 --
 -- Revision 1.2  2009/11/30 13:20:52  ncq
