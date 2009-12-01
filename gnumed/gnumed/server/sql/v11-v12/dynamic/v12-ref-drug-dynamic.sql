@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-ref-drug-dynamic.sql,v 1.1 2009-11-24 21:11:39 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-ref-drug-dynamic.sql,v 1.2 2009-12-01 21:58:21 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -55,6 +55,12 @@ alter table ref.branded_drug
 -- .atc_code
 comment on column ref.branded_drug.atc_code is
 	'the Anatomic Therapeutic Chemical code for this drug, used to compute possible substitutes';
+
+
+-- .is_fake
+alter table ref.branded_drug
+	alter column is_fake
+		set default False;
 
 
 -- .external_code
@@ -117,11 +123,14 @@ drop function audit.ft_del_substance_brand() cascade;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-ref-drug-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-ref-drug-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-ref-drug-dynamic.sql,v $
--- Revision 1.1  2009-11-24 21:11:39  ncq
+-- Revision 1.2  2009-12-01 21:58:21  ncq
+-- - .is_fake better default to False rather than True
+--
+-- Revision 1.1  2009/11/24 21:11:39  ncq
 -- - new drug tables
 --
 --
