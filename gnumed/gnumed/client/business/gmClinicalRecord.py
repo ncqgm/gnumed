@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.306 2009-11-28 18:21:51 ncq Exp $
-__version__ = "$Revision: 1.306 $"
+# $Id: gmClinicalRecord.py,v 1.307 2009-12-01 21:47:52 ncq Exp $
+__version__ = "$Revision: 1.307 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1133,7 +1133,7 @@ WHERE
 
 		return meds
 	#--------------------------------------------------------
-	def add_consumed_substance(self, substance=None, atc=None, episode=None, preparation=None):
+	def add_substance_intake(self, substance=None, atc=None, episode=None, preparation=None):
 		return gmMedication.create_substance_intake (
 			substance = substance,
 			atc = atc,
@@ -2131,7 +2131,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.306  2009-11-28 18:21:51  ncq
+# Revision 1.307  2009-12-01 21:47:52  ncq
+# - improved naming
+#
+# Revision 1.306  2009/11/28 18:21:51  ncq
 # - normalize turning things into problems
 #
 # Revision 1.305  2009/11/28 18:14:36  ncq
