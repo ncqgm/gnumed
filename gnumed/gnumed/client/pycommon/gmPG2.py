@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.119 $"
+__version__ = "$Revision: 1.120 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -98,7 +98,7 @@ known_schema_hashes = {
 	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
 	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
 	'v11': '03042ae24f3f92877d986fb0a6184d76',
-	'v12': 'fd3be29e746bf2e34817fc6731dad3a4'
+	'v12': '06183a6616db62257e22814007a8ed07'
 }
 
 map_schema_hash2version = {
@@ -112,7 +112,7 @@ map_schema_hash2version = {
 	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
 	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
 	'03042ae24f3f92877d986fb0a6184d76': 'v11',
-	'fd3be29e746bf2e34817fc6731dad3a4': 'v12'
+	'06183a6616db62257e22814007a8ed07': 'v12'
 }
 
 map_client_branch2required_db_version = {
@@ -1926,7 +1926,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.119  2009-11-19 15:06:50  ncq
+# Revision 1.120  2009-12-01 22:06:22  ncq
+# - adjust v12 hash
+#
+# Revision 1.119  2009/11/19 15:06:50  ncq
 # - add 0.6/v12 client/server mapping and database hash
 #
 # Revision 1.118  2009/11/06 15:08:13  ncq
