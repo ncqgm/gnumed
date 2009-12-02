@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.18 2009-12-01 21:48:09 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmMedication.py,v 1.19 2009-12-02 16:48:58 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -708,6 +708,9 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			VALUES (%(brand)s, %(desc)s, %(atc)s)
 		"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#------------------------------------------------------------
+	def remove_component(substance=None):
+		delete_component_from_branded_drug(brand = self.pk_obj, component = substance)
 #------------------------------------------------------------
 def get_substances_in_brands():
 	cmd = u'SELECT * FROM ref.v_substance_in_brand ORDER BY brand, substance'
@@ -756,6 +759,10 @@ def create_branded_drug(brand_name=None, preparation=None, return_existing=False
 def delete_branded_drug(brand=None):
 	cmd = u'delete from ref.branded_drug where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': brand}}])
+#------------------------------------------------------------
+def delete_component_from_branded_drug(brand=None, component=None):
+	cmd = u'delete from ref.substance_in_brand where fk_brand = %(brand)s and pk = %(comp)s'
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'brand': brand, 'comp': component}}])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -838,7 +845,10 @@ if __name__ == "__main__":
 		test_show_components()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.18  2009-12-01 21:48:09  ncq
+# Revision 1.19  2009-12-02 16:48:58  ncq
+# - add infrastructure for removing component from brand
+#
+# Revision 1.18  2009/12/01 21:48:09  ncq
 # - get-substance-by-pk
 #
 # Revision 1.17  2009/11/30 21:56:36  ncq
