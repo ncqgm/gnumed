@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.22 2009-12-01 21:55:24 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmMedicationWidgets.py,v 1.23 2009-12-02 16:50:44 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -27,6 +27,14 @@ def manage_substances_in_brands(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def delete(component):
+		gmMedication.delete_component_from_branded_drug (
+			brand = component['pk_brand'],
+			component = component['pk_substance_in_brand']
+		)
+		return True
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		substs = gmMedication.get_substances_in_brands()
@@ -50,10 +58,9 @@ def manage_substances_in_brands(parent=None):
 		single_selection = True,
 		#new_callback = new,
 		#edit_callback = edit,
-		#delete_callback = delete
+		delete_callback = delete,
 		refresh_callback = refresh
 	)
-
 #============================================================
 def manage_branded_drugs(parent=None):
 
@@ -488,7 +495,13 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		#    that's effectively what we are saying here)
 		# FIXME: we may want to ask the user here
 		# FIXME: or only do it if there are no components yet
-		brand.add_component(substance = self._PRW_substance.GetValue().strip())
+		if self._PRW_substance.GetData() is None:
+			brand.add_component(substance = self._PRW_substance.GetValue().strip())
+		else:
+			# normalize substance name
+			subst = gmMedication.get_substance_by_pk(pk = self._PRW_substance.GetData())
+			if subst is not None:
+				brand.add_component(substance = subst['description'])
 
 		self.data = intake
 		return True
@@ -1099,7 +1112,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.22  2009-12-01 21:55:24  ncq
+# Revision 1.23  2009-12-02 16:50:44  ncq
+# - enable brand component deletion
+# - normalize substance name before adding as component
+#
+# Revision 1.22  2009/12/01 21:55:24  ncq
 # - branded drug phrasewheel
 # - much improved substance intake EA implementation
 #
