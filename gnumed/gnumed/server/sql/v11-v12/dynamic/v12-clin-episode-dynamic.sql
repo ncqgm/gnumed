@@ -5,11 +5,27 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-episode-dynamic.sql,v 1.4 2009-11-06 15:34:01 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: v12-clin-episode-dynamic.sql,v 1.5 2009-12-03 17:52:12 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 --set default_transaction_read_only to off;
+\set ON_ERROR_STOP 1
+
+-- --------------------------------------------------------------
+-- .description
+\unset ON_ERROR_STOP
+alter table clin.episode drop constraint sane_description cascade;
+\set ON_ERROR_STOP 1
+
+
+alter table clin.episode
+	add constraint sane_description
+		check(gm.is_null_or_blank_string(description) is False);
+
+
+\unset ON_ERROR_STOP
+alter table clin.episode drop constraint episode_description_check cascade;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
@@ -79,11 +95,14 @@ create trigger tr_sanity_check_enc_vs_issue_on_epi
 		execute procedure clin.trf_sanity_check_enc_vs_issue_on_epi();
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-episode-dynamic.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-episode-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: v12-clin-episode-dynamic.sql,v $
--- Revision 1.4  2009-11-06 15:34:01  ncq
+-- Revision 1.5  2009-12-03 17:52:12  ncq
+-- - improved constraints
+--
+-- Revision 1.4  2009/11/06 15:34:01  ncq
 -- - better formatting
 --
 -- Revision 1.3  2009/10/29 17:25:51  ncq

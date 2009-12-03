@@ -5,8 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v12-clin-substance_intake-dynamic.sql,v 1.7 2009-11-24 21:08:49 ncq Exp $
--- $Revision: 1.7 $
+-- $Id: v12-clin-substance_intake-dynamic.sql,v 1.8 2009-12-03 17:52:12 ncq Exp $
+-- $Revision: 1.8 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -44,6 +44,19 @@ alter table clin.substance_intake
 	alter column fk_episode
 		drop not null;
 
+
+\unset ON_ERROR_STOP
+alter table clin.substance_intake drop constraint sane_fk_episode cascade;
+\set ON_ERROR_STOP 1
+
+
+alter table clin.substance_intake
+	add constraint sane_fk_episode
+		check (
+			(intake_is_approved_of is False)
+				OR
+			((intake_is_approved_of is TRUE) AND (fk_episode is not NULL))
+		);
 
 
 \unset ON_ERROR_STOP
@@ -294,11 +307,14 @@ from
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.7 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-substance_intake-dynamic.sql,v $', '$Revision: 1.8 $');
 
 -- ==============================================================
 -- $Log: v12-clin-substance_intake-dynamic.sql,v $
--- Revision 1.7  2009-11-24 21:08:49  ncq
+-- Revision 1.8  2009-12-03 17:52:12  ncq
+-- - improved constraints
+--
+-- Revision 1.7  2009/11/24 21:08:49  ncq
 -- - adjust to new drug tables
 --
 -- Revision 1.6  2009/11/06 15:34:44  ncq
