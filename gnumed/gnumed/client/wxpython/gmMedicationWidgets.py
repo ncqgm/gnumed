@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.23 2009-12-02 16:50:44 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmMedicationWidgets.py,v 1.24 2009-12-03 17:51:11 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -40,7 +40,8 @@ def manage_substances_in_brands(parent=None):
 		substs = gmMedication.get_substances_in_brands()
 		items = [ [
 			u'%s%s' % (s['brand'], gmTools.coalesce(s['atc_brand'], u'', u' (%s)')),
-			u'%s%s' % (s['substance'], gmTools.coalesce(s['atc_substance'], u'', u' (%s)')),
+			s['substance'],
+			gmTools.coalesce(s['atc_substance'], u''),
 			s['preparation'],
 			gmTools.coalesce(s['external_code_brand'], u''),
 			s['pk_substance_in_brand']
@@ -54,7 +55,7 @@ def manage_substances_in_brands(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing drug brand components (substances).'),
-		columns = [_('Brand'), _('Substance'), _('Preparation'), _('Code'), u'#'],
+		columns = [_('Brand'), _('Substance'), u'ATC', _('Preparation'), _('Code'), u'#'],
 		single_selection = True,
 		#new_callback = new,
 		#edit_callback = edit,
@@ -408,7 +409,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		else:
 			self._PRW_preparation.display_as_valid(True)
 
-		if self._CHBOX_approved.IsChecked() is True:
+		if self._CHBOX_approved.IsChecked():
 			if self._PRW_episode.GetValue().strip() == u'':
 				self._PRW_episode.display_as_valid(False)
 				validity = False
@@ -809,6 +810,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if not meds:
 			return
 
+		self.BeginBatch()
+
 		# columns
 		labels = self.__grouping2col_labels[self.__grouping_mode]
 		if self.__filter_show_unapproved:
@@ -905,6 +908,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				)
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
+
+		self.EndBatch()
 	#------------------------------------------------------------
 	def empty_grid(self):
 		self.BeginBatch()
@@ -1112,7 +1117,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.23  2009-12-02 16:50:44  ncq
+# Revision 1.24  2009-12-03 17:51:11  ncq
+# - explicit ATC col in brand component list
+#
+# Revision 1.23  2009/12/02 16:50:44  ncq
 # - enable brand component deletion
 # - normalize substance name before adding as component
 #
