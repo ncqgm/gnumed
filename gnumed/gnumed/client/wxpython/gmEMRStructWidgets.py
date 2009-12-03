@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.111 2009-12-01 10:50:44 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmEMRStructWidgets.py,v 1.112 2009-12-03 17:48:15 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1223,18 +1223,21 @@ limit 30"""
 		if self.data is None:
 			if can_create:
 				epi_name = self.GetValue().strip()
-
-				if self.use_current_patient:
-					pat = gmPerson.gmCurrentPatient()
+				if epi_name == u'':
+					gmDispatcher.send(signal = u'statustext',	msg = _('Cannot create episode without name.'),	beep = True)
+					_log.debug('cannot create episode without name')
 				else:
-					pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
-				emr = pat.get_emr()
+					if self.use_current_patient:
+						pat = gmPerson.gmCurrentPatient()
+					else:
+						pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
 
-				epi = emr.add_episode(episode_name=epi_name, is_open=is_open)
-				if epi is None:
-					self.data = None
-				else:
-					self.data = epi['pk_episode']
+					emr = pat.get_emr()
+					epi = emr.add_episode(episode_name = epi_name, is_open = is_open)
+					if epi is None:
+						self.data = None
+					else:
+						self.data = epi['pk_episode']
 
 		return gmPhraseWheel.cPhraseWheel.GetData(self)
 	#--------------------------------------------------------
@@ -2022,7 +2025,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.111  2009-12-01 10:50:44  ncq
+# Revision 1.112  2009-12-03 17:48:15  ncq
+# - only create episode in GetData if there's a name available
+#
+# Revision 1.111  2009/12/01 10:50:44  ncq
 # - fix issue creation
 #
 # Revision 1.110  2009/11/15 01:05:44  ncq
