@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.307 2009-12-01 21:47:52 ncq Exp $
-__version__ = "$Revision: 1.307 $"
+# $Id: gmClinicalRecord.py,v 1.308 2009-12-03 17:44:18 ncq Exp $
+__version__ = "$Revision: 1.308 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1785,20 +1785,18 @@ WHERE
 	# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 	def get_test_types_for_results(self):
 		"""Retrieve data about test types for which this patient has results."""
+
 		cmd = u"""
-SELECT foo.unified_name, foo.unified_abbrev FROM (
-	SELECT distinct on (unified_name, unified_abbrev)
-		unified_name,
-		unified_abbrev,
-		clin_when,
-		pk_episode
-	from clin.v_test_results
-	WHERE pk_patient = %(pat)s
-) as foo
-order by foo.clin_when desc, foo.pk_episode, foo.unified_name"""
+		SELECT * FROM (
+			SELECT DISTINCT ON (pk_test_type) pk_test_type, clin_when, unified_name
+			FROM clin.v_test_results
+			WHERE pk_patient = %(pat)s
+		) AS foo
+		ORDER BY clin_when desc, unified_name
+		"""
 		args = {'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+		return [ gmPathLab.cUnifiedTestType(aPK_obj = row['pk_test_type']) for row in rows ]
 	#------------------------------------------------------------------
 	def get_test_types_details(self):
 		"""Retrieve details on tests grouped under unified names for this patient's results."""
@@ -2063,13 +2061,13 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	if (len(sys.argv) > 0) and (sys.argv[1] == 'test'):
 		#test_allergy_state()
-		#test_get_test_names()
+		test_get_test_names()
 		#test_get_dates_for_results()
 		#test_get_measurements()
 		#test_get_test_results_by_date()
 		#test_get_test_types_details()
 		#test_get_statistics()
-		test_get_problems()
+		#test_get_problems()
 		#test_add_test_result()
 		#test_get_most_recent_episode()
 		#test_get_almost_recent_encounter()
@@ -2131,7 +2129,10 @@ if __name__ == "__main__":
 	#f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.307  2009-12-01 21:47:52  ncq
+# Revision 1.308  2009-12-03 17:44:18  ncq
+# - rewrite get-test-types-for-results
+#
+# Revision 1.307  2009/12/01 21:47:52  ncq
 # - improved naming
 #
 # Revision 1.306  2009/11/28 18:21:51  ncq
