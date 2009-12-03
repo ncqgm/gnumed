@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.62 2009-12-01 21:54:04 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmMeasurementWidgets.py,v 1.63 2009-12-03 17:50:20 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -105,17 +105,19 @@ class cMeasurementsGrid(wx.grid.Grid):
 	# FIXME: filter-by-battery
 	# FIXME: filter out empty
 	# FIXME: filter by tests of a selected date
-	# FIXME: dates DESC/ASC
+	# FIXME: dates DESC/ASC by cfg
 	# FIXME: mouse over column header: display date info
-	# FIXME: mouse over row header: display test info (unified, which tests are grouped, which panels they belong to
 	def __init__(self, *args, **kwargs):
 
 		wx.grid.Grid.__init__(self, *args, **kwargs)
 
 		self.__patient = None
 		self.__cell_data = {}
+		self.__row_label_data = []
+
 		self.__prev_row = None
 		self.__prev_col = None
+		self.__prev_label_row = None
 		self.__date_format = str((_('lab_grid_date_format::%Y\n%b %d')).lstrip('lab_grid_date_format::'))
 
 		self.__init_ui()
@@ -312,11 +314,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 		emr = self.__patient.get_emr()
 
 		self.__row_label_data = emr.get_test_types_for_results()
-		test_type_labels = [ u'%s (%s)' % (test[1], test[0]) for test in self.__row_label_data ]
+		test_type_labels = [ u'%s (%s)' % (test['unified_abbrev'], test['unified_name']) for test in self.__row_label_data ]
 		if len(test_type_labels) == 0:
 			return
 
-#		test_details, td_idx = emr.get_test_types_details()
 		test_date_labels = [ date[0].strftime(self.__date_format) for date in emr.get_dates_for_results() ]
 		results = emr.get_test_results_by_date()
 
@@ -448,6 +449,40 @@ class cMeasurementsGrid(wx.grid.Grid):
 			self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
 		self.__cell_data = {}
+		self.__row_label_data = []
+	#------------------------------------------------------------
+	def get_row_tooltip(self, row=None):
+		# display test info (unified, which tests are grouped, which panels they belong to
+		# include details about test types included,
+		# most recent value in this row, etc
+#		test_details, td_idx = emr.get_test_types_details()
+
+		tt = self.__row_label_data[row]
+		tip = u''
+		tip += _('Details about %s (%s)%s\n') % (tt['unified_name'], tt['unified_abbrev'], gmTools.coalesce(tt['unified_loinc'], u'', u' [%s]'))
+		tip += u'\n'
+		tip += _('Meta type:\n')
+		tip += _(' Name: %s (%s)%s #%s\n') % (tt['name_meta'], tt['abbrev_meta'], gmTools.coalesce(tt['loinc_meta'], u'', u' [%s]'), tt['pk_meta_test_type'])
+		tip += gmTools.coalesce(tt['conversion_unit'], u'', _(' Conversion unit: %s\n'))
+		tip += gmTools.coalesce(tt['comment_meta'], u'', _(' Comment: %s\n'))
+		tip += u'\n'
+		tip += _('Test type:\n')
+		tip += _(' Name: %s (%s)%s #%s\n') % (tt['name_tt'], tt['abbrev_tt'], gmTools.coalesce(tt['loinc_tt'], u'', u' [%s]'), tt['pk_test_type'])
+		tip += gmTools.coalesce(tt['comment_tt'], u'', _(' Comment: %s\n'))
+		tip += gmTools.coalesce(tt['code_tt'], u'', _(' Code: %s\n'))
+		tip += gmTools.coalesce(tt['coding_system_tt'], u'', _(' Code: %s\n'))
+		result = tt.get_most_recent_result(pk_patient = self.__patient.ID)
+		if result is not None:
+			tip += u'\n'
+			tip += _('Most recent result:\n')
+			tip += _(' %s: %s%s%s') % (
+				result['clin_when'].strftime('%Y-%m-%d'),
+				result['unified_val'],
+				gmTools.coalesce(result['val_unit'], u'', u' %s'),
+				gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
+			)
+
+		return tip
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
 		# FIXME: add panel/battery, request details
@@ -455,6 +490,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		try:
 			d = self.__cell_data[col][row]
 		except KeyError:
+			# FIXME: maybe display the most recent or when the most recent was ?
 			d = None
 
 		if d is None:
@@ -691,7 +727,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
 
 		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
-		self.SetRowLabelSize(100)
+		self.SetRowLabelSize(150)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
 
 		# add link to left upper corner
@@ -784,7 +820,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def __register_events(self):
 		# dynamic tooltips: GridWindow, GridRowLabelWindow, GridColLabelWindow, GridCornerLabelWindow
 		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
-		#self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
+		self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
 		#self.GetGridColLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_col_labels)
 
 		# sizing left upper corner window
@@ -815,30 +851,32 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		edit_measurement(parent = self, measurement = data)
 	#------------------------------------------------------------
+#     def OnMouseMotionRowLabel(self, evt):
+#         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
+#         row = self.YToRow(y)
+#         label = self.table().GetRowHelpValue(row)
+#         self.GetGridRowLabelWindow().SetToolTipString(label or "")
+#         evt.Skip()
 	def __on_mouse_over_row_labels(self, evt):
+
+		# Use CalcUnscrolledPosition() to get the mouse position within the
+		# entire grid including what's offscreen
 		x, y = self.CalcUnscrolledPosition(evt.GetX(), evt.GetY())
-		label_row = self.YToRow(y)
-		if self.__prev_label_row == label_row:
+
+		row = self.YToRow(y)
+
+		if self.__prev_label_row == row:
 			return
-		self.__prev_label_row == label_row
-		try:
-			tt = self.__row_tooltips[col][row]
-		except KeyError:
-			tt = u''
-		evt.GetEventObject().SetToolTipString(tt)
+
+		self.__prev_label_row == row
+
+		evt.GetEventObject().SetToolTipString(self.get_row_tooltip(row = row))
 	#------------------------------------------------------------
 #     def OnMouseMotionColLabel(self, evt):
 #         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
 #         col = self.XToCol(x)
 #         label = self.table().GetColHelpValue(col)
 #         self.GetGridColLabelWindow().SetToolTipString(label or "")
-#         evt.Skip()
-#
-#     def OnMouseMotionRowLabel(self, evt):
-#         x, y = self.CalcUnscrolledPosition(evt.GetPosition())
-#         row = self.YToRow(y)
-#         label = self.table().GetRowHelpValue(row)
-#         self.GetGridRowLabelWindow().SetToolTipString(label or "")
 #         evt.Skip()
 	#------------------------------------------------------------
 	def __on_mouse_over_cells(self, evt):
@@ -1877,7 +1915,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.62  2009-12-01 21:54:04  ncq
+# Revision 1.63  2009-12-03 17:50:20  ncq
+# - row label tooltips
+#
+# Revision 1.62  2009/12/01 21:54:04  ncq
 # - cleanup
 #
 # Revision 1.61  2009/10/28 16:42:53  ncq
