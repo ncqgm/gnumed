@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.78 2009-09-17 21:52:13 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmPathLab.py,v 1.79 2009-12-03 17:45:29 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -42,6 +42,30 @@ def get_meta_test_types():
 	cmd = u'select * from clin.meta_test_type'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
+#============================================================
+class cUnifiedTestType(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents one unified test type."""
+
+	# FIXME: if we ever want to write we need to include XMIN in the view
+	_cmd_fetch_payload = u"""select * from clin.v_unified_test_types where pk_test_type = %s"""
+
+	_cmds_store_payload = []
+
+	_updatable_fields = []
+	#--------------------------------------------------------
+	def get_most_recent_result(self, pk_patient=None):
+		cmd = u"""
+			SELECT pk_test_result, clin_when
+			FROM clin.v_test_results
+			WHERE pk_patient = %(pat)s
+			ORDER BY clin_when DESC
+			limit 1
+		"""
+		args = {'pat': pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 0:
+			return None
+		return cTestResult(aPK_obj = rows[0]['pk_test_result'])
 #============================================================
 class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
@@ -749,7 +773,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.78 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.79 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -1044,7 +1068,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.78  2009-09-17 21:52:13  ncq
+# Revision 1.79  2009-12-03 17:45:29  ncq
+# - implement cUnifiedTestType
+#
+# Revision 1.78  2009/09/17 21:52:13  ncq
 # - add .in_use property to test types
 #
 # Revision 1.77  2009/09/01 22:20:40  ncq
