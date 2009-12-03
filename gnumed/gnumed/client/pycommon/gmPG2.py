@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.120 $"
+__version__ = "$Revision: 1.121 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1091,12 +1091,15 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		try:
 			curs.execute(query['cmd'], args)
 		except:
+			_log.exception('error running RW query')
+			_log.log_stack_trace()
 			try:
 				curs_close()
+				conn_rollback()
+				conn_close()
 			except dbapi.InterfaceError:
-				_log.exception('cannot close cursor')
-			conn_rollback()
-			conn_close()
+				_log.exception('cannot cleanup')
+				raise
 			raise
 
 	data = None
@@ -1105,12 +1108,15 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		try:
 			data = curs.fetchall()
 		except:
+			_log.exception('error fetching data from RW query')
+			_log.log_stack_trace()
 			try:
 				curs_close()
+				conn_rollback()
+				conn_close()
 			except dbapi.InterfaceError:
-				_log.exception('cannot close cursor')
-			conn_rollback()
-			conn_close()
+				_log.exception('cannot cleanup')
+				raise
 			raise
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
@@ -1926,7 +1932,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.120  2009-12-01 22:06:22  ncq
+# Revision 1.121  2009-12-03 17:46:37  ncq
+# - somewhat better logging in run_rw_queries
+#
+# Revision 1.120  2009/12/01 22:06:22  ncq
 # - adjust v12 hash
 #
 # Revision 1.119  2009/11/19 15:06:50  ncq
