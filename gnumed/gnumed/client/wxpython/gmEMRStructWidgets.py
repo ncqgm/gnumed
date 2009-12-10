@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.101 2009-07-30 12:03:54 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmEMRStructWidgets.py,v 1.101.2.1 2009-12-10 10:01:57 ncq Exp $
+__version__ = "$Revision: 1.101.2.1 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -549,6 +549,8 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 			msg = None
 
 		wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg.__init__(self, *args, **kwargs)
+		self.SetSize((450, 280))
+		self.SetMinSize((450, 280))
 
 		if button_defs is not None:
 			self._BTN_save.SetLabel(button_defs[0][0])
@@ -1558,7 +1560,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.101  2009-07-30 12:03:54  ncq
+# Revision 1.101.2.1  2009-12-10 10:01:57  ncq
+# - better encounter details EA default size
+#
+# Revision 1.101  2009/07/30 12:03:54  ncq
 # - fix editing age noted
 #
 # Revision 1.100  2009/07/16 09:52:15  ncq
