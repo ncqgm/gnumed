@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.133 2009-11-29 15:59:31 ncq Exp $
+# $Id: gmEditArea.py,v 1.134 2009-12-21 15:05:53 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.133 $"
+__version__ = "$Revision: 1.134 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -71,6 +71,9 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 		data.save()
 
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
 		self.data = data
 		return False
 		return True
@@ -2193,7 +2196,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.133  2009-11-29 15:59:31  ncq
+# Revision 1.134  2009-12-21 15:05:53  ncq
+# - add comment
+#
+# Revision 1.133  2009/11/29 15:59:31  ncq
 # - improved boilerplate so people don't fall into the trap of
 #   self.data being a *property* and thus needing to be set *after*
 #   all updates to it in _save-as-new ...
