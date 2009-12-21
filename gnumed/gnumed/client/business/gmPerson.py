@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.192 2009-11-30 22:24:16 ncq Exp $
-__version__ = "$Revision: 1.192 $"
+# $Id: gmPerson.py,v 1.193 2009-12-21 14:59:17 ncq Exp $
+__version__ = "$Revision: 1.193 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1086,9 +1086,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 			_log.error('patient [%s] is locked, cannot change to [%s]' % (self.patient['pk_identity'], patient))
 			return None
 
-		# user wants to explicitely unset current patient
+		# user wants to explicitly unset current patient
 		if patient == -1:
-			_log.debug('explicitely unsetting current patient')
+			_log.debug('explicitly unsetting current patient')
 			self.__run_pre_selection_callbacks()
 			self.__send_pre_selection_notification()
 			self.patient.cleanup()
@@ -2014,9 +2014,9 @@ def map_gender2salutation(gender=None):
 		__gender2salutation_map = {
 			'm': _('Mr'),
 			'f': _('Mrs'),
-			'tf': '',
-			'tm': '',
-			'h': ''
+			'tf': u'',
+			'tm': u'',
+			'h': u''
 		}
 		for g in genders:
 			__gender2salutation_map[g[idx['l10n_tag']]] = __gender2salutation_map[g[idx['tag']]]
@@ -2324,7 +2324,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.192  2009-11-30 22:24:16  ncq
+# Revision 1.193  2009-12-21 14:59:17  ncq
+# - typo
+#
+# Revision 1.192  2009/11/30 22:24:16  ncq
 # - cleanup
 #
 # Revision 1.191  2009/11/13 21:04:12  ncq

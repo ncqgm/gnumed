@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.22 $
+# $Revision: 1.23 $
 
 import sys
 
@@ -83,7 +83,7 @@ except ImportError:
 	print ""
 	import os
 	if os.getenv('DISPLAY') is None:
-		print "  INFO : you may have to explicitely set $DISPLAY"
+		print "  INFO : you may have to explicitly set $DISPLAY"
 	print "  ERROR: wxPython not installed"
 	print "  ERROR: this is needed to show the GNUmed GUI"
 	print "  INFO : wxPython is available from http://www.wxpython.org"
@@ -180,7 +180,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.22  2009-11-24 19:51:59  ncq
+# Revision 1.23  2009-12-21 14:54:41  ncq
+# - typo
+#
+# Revision 1.22  2009/11/24 19:51:59  ncq
 # - add libxml2/libxslt
 #
 # Revision 1.21  2009/07/09 16:40:47  ncq

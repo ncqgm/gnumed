@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.23 2009-09-13 18:25:54 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmSOAPimporter.py,v 1.24 2009-12-21 14:59:31 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -93,7 +93,7 @@ class cSOAPImporter:
 						   to one SOAP input line
 		@type soap_entry: dictionary with keys 'soap', 'types', 'text'
 
-		FIXME: Later we may want to allow for explicitely setting a staff ID to be
+		FIXME: Later we may want to allow for explicitly setting a staff ID to be
 		FIXME: used for import. This would allow to import data "on behalf of" someone.
 		"""
 		if not self.__verify_soap_entry(soap_entry=soap_entry):
@@ -231,7 +231,10 @@ if __name__ == '__main__':
 	_log.info("closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.23  2009-09-13 18:25:54  ncq
+# Revision 1.24  2009-12-21 14:59:31  ncq
+# - typo
+#
+# Revision 1.23  2009/09/13 18:25:54  ncq
 # - no more get-active-encounter()
 #
 # Revision 1.22  2008/02/25 17:31:41  ncq
