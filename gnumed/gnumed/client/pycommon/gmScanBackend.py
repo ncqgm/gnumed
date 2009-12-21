@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.55 2009-02-18 13:45:25 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmScanBackend.py,v 1.56 2009-12-21 15:02:51 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -44,6 +44,8 @@ def _twain_import_module():
 		_log.info("TWAIN version: %s" % _twain_module.Version())
 #=======================================================
 class cTwainScanner:
+
+	# FIXME: we need to handle this exception in the right place: <class 'twain.excTWCC_SUCCESS'>
 
 	def __init__(self, calling_window=None):
 		_twain_import_module()
@@ -502,7 +504,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.55  2009-02-18 13:45:25  ncq
+# Revision 1.56  2009-12-21 15:02:51  ncq
+# - cleanup
+#
+# Revision 1.55  2009/02/18 13:45:25  ncq
 # - get_unique_filename API change
 #
 # Revision 1.54  2008/07/10 11:20:03  ncq

@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.95 2009-11-29 15:57:51 ncq Exp $
+# $Id: gmTools.py,v 1.96 2009-12-21 15:02:51 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.95 $"
+__version__ = "$Revision: 1.96 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -43,7 +43,7 @@ default_mail_server = u'mail.gmx.net'
 
 
 u_right_double_angle_quote = u'\u00AB'
-u_registered_trademark = u'\u00ae'
+u_registered_trademark = u'\u00AE'
 u_plus_minus = u'\u00B1'
 u_left_double_angle_quote = u'\u00BB'
 u_one_quarter = u'\u00BC'
@@ -1098,7 +1098,10 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.95  2009-11-29 15:57:51  ncq
+# Revision 1.96  2009-12-21 15:02:51  ncq
+# - cleanup
+#
+# Revision 1.95  2009/11/29 15:57:51  ncq
 # - must properly initialize is_dict_reader
 #
 # Revision 1.94  2009/11/15 01:04:30  ncq
