@@ -13,7 +13,7 @@ from it.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -384,10 +384,10 @@ where
 				'sig': notifying_def['signal']
 			})
 
-	# explicitely append dem.identity
+	# explicitly append dem.identity
 	schema.append(trigger_identity_mod_announce)
 
-	# explicitely append clin.waiting_list
+	# explicitly append clin.waiting_list
 	# it does have an identity accessor but we want a generic non-patient signal, too
 	schema.append(trigger_ddl_without_pk % {
 		'schema': 'clin',
@@ -395,7 +395,7 @@ where
 		'sig': 'waiting_list_generic'
 	})
 
-	# explicitely append dem.message_inbox with generic non-patient signal
+	# explicitly append dem.message_inbox with generic non-patient signal
 	# it does have an identity accessor but we want a generic non-patient signal, too
 	# this only works starting with v12
 	schema.append(trigger_ddl_without_pk % {
@@ -434,7 +434,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.39  2009-10-29 17:24:29  ncq
+# Revision 1.40  2009-12-21 15:14:27  ncq
+# - fix typo
+#
+# Revision 1.39  2009/10/29 17:24:29  ncq
 # - consider case of when .fk_episode can actually be NULL in enc/epi sanity check
 #
 # Revision 1.38  2009/10/27 11:00:20  ncq
