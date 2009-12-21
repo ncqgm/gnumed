@@ -30,12 +30,15 @@ care of all the pre- and post-GUI runtime environment setup.
  Use configuration file <file> instead of searching for it in
  standard locations.
 --lang-gettext=<language>
- Explicitely set the language to use in gettext translation. The very
+ Explicitly set the language to use in gettext translation. The very
  same effect can be achieved by setting the environment variable $LANG
  from a launcher script.
 --override-schema-check
  Continue loading the client even if the database schema version
  and the client software version cannot be verified to be compatible.
+--skip-update-check
+ Skip checking for client updates. This is useful during development
+ and when the update check URL is unavailable (down).
 --local-import
  Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
 --version, -V
@@ -45,8 +48,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.162 2009-12-01 22:06:38 ncq Exp $
-__version__ = "$Revision: 1.162 $"
+# $Id: gnumed.py,v 1.163 2009-12-21 15:13:16 ncq Exp $
+__version__ = "$Revision: 1.163 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -87,6 +90,7 @@ _known_short_options = u'h?V'
 _known_long_options = [
 	u'debug',
 	u'slave',
+	u'skip-update-check',
 	u'profile=',
 	u'text-domain=',
 	u'log-file=',
@@ -127,7 +131,7 @@ missing_cli_config_file = u"""
 GNUmed startup: Missing configuration file.
 -------------------------------------------
 
-You explicitely specified a configuration file
+You explicitly specified a configuration file
 on the command line:
 
 	--conf-file=%s
@@ -215,6 +219,14 @@ def setup_cli():
 		val = False
 	_cfg.set_option (
 		option = u'slave',
+		value = val
+	)
+
+	val = _cfg.get(option = '--skip-update-check', source_order = [('cli', 'return')])
+	if val is None:
+		val = False
+	_cfg.set_option (
+		option = u'skip-update-check',
 		value = val
 	)
 
@@ -495,7 +507,11 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.162  2009-12-01 22:06:38  ncq
+# Revision 1.163  2009-12-21 15:13:16  ncq
+# - fix typo
+# - --skip-update-check
+#
+# Revision 1.162  2009/12/01 22:06:38  ncq
 # - bump version
 #
 # Revision 1.161  2009/11/19 15:07:14  ncq
