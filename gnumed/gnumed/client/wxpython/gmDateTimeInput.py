@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.65 2009-06-04 14:52:54 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmDateTimeInput.py,v 1.66 2009-12-21 15:04:57 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -167,8 +167,36 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 
 	def __init__(self, *args, **kwargs):
 
-		super(cDateInputCtrl, self).__init__(*args, **kwargs)
+		wx.DatePickerCtrl.__init__(self,*args,**kwargs)
+		#super(cDateInputCtrl, self).__init__(*args, **kwargs)
 		#self.Bind(wx.EVT_DATE_CHANGED, self.__on_date_changed, self)
+	#----------------------------------------------
+	def SetValue(self, value):
+		"""Set either datetime.datetime or wx.DateTime"""
+
+		if isinstance(value, (pyDT.date, pyDT.datetime)):
+			wxvalue = wx.DateTime()
+			wxvalue.Set(year = value.year, month = value.month-1, day = value.day)
+			value = wxvalue
+
+		elif value is None:
+			value = wx.DateTime()
+
+		wx.DatePickerCtrl.SetValue(self, value)
+	#----------------------------------------------
+	def GetValue(self, as_pydt=False):
+		"""Returns datetime.datetime values"""
+
+		value = wx.DatePickerCtrl.GetValue(self)
+
+		# manage null dates (useful when wx.DP_ALLOWNONE is set)
+		if not value.IsValid():
+			return None
+
+		if not as_pydt:
+			return value
+
+		return pyDT.datetime(value.GetYear(), value.GetMonth() + 1, value.GetDay())
 	#----------------------------------------------
 	# def convenience wrapper
 	#----------------------------------------------
@@ -234,7 +262,12 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.65  2009-06-04 14:52:54  ncq
+# Revision 1.66  2009-12-21 15:04:57  ncq
+# - cDatePickerCtrl
+# 	- SetValue now takes datetime, too
+# 	- GetValue can return datetime
+#
+# Revision 1.65  2009/06/04 14:52:54  ncq
 # - re-import lost cDatePickerCtrl and test
 #
 # Revision 1.65  2009/05/28 10:49:55  ncq
