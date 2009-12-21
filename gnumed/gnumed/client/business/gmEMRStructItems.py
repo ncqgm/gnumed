@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.155 $"
+__version__ = "$Revision: 1.156 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -241,6 +241,14 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			lines.append('')
 			lines.append(_(' contributed to death of patient'))
 			lines.append('')
+
+		enc = cEncounter(aPK_obj = self._payload[self._idx['pk_encounter']])
+		lines.append (_(' Created during encounter: %s (%s - %s)   [#%s]') % (
+			enc['l10n_type'],
+			enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+			enc['last_affirmed_original_tz'].strftime('%H:%M'),
+			self._payload[self._idx['pk_encounter']]
+		))
 
 		if self._payload[self._idx['age_noted']] is not None:
 			lines.append(_(' Noted at age: %s') % self.age_noted_human_readable())
@@ -568,10 +576,10 @@ from (
 		lines = []
 
 		# episode details
-		lines.append(_('Episode %s%s%s (%s%s)   [#%s]\n') % (
-			u'\u00BB',
+		lines.append (_('Episode %s%s%s (%s%s)   [#%s]\n') % (
+			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['description']],
-			u'\u00AB',
+			gmTools.u_right_double_angle_quote,
 			gmTools.coalesce (
 				initial = diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]],
 				instead = u'',
@@ -580,6 +588,14 @@ from (
 			),
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
 			self._payload[self._idx['pk_episode']]
+		))
+
+		enc = cEncounter(aPK_obj = self._payload[self._idx['pk_encounter']])
+		lines.append (_('Created during encounter: %s (%s - %s)   [#%s]\n') % (
+			enc['l10n_type'],
+			enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+			enc['last_affirmed_original_tz'].strftime('%H:%M'),
+			self._payload[self._idx['pk_encounter']]
 		))
 
 		# encounters
@@ -595,7 +611,7 @@ from (
 			first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
 			last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
 
-			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%x %H:%M'))
+			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
 
 			lines.append(_('1st and (up to 3) most recent (of %s) encounters (%s - %s):') % (
 				len(encs),
@@ -604,7 +620,7 @@ from (
 			))
 
 			lines.append(u' %s - %s (%s):%s' % (
-				first_encounter['started_original_tz'].strftime('%x %H:%M'),
+				first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 				first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
 				first_encounter['l10n_type'],
 				gmTools.coalesce (
@@ -623,7 +639,7 @@ from (
 
 			for enc in encs[1:][-3:]:
 				lines.append(u' %s - %s (%s):%s' % (
-					enc['started_original_tz'].strftime('%x %H:%M'),
+					enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 					enc['last_affirmed_original_tz'].strftime('%H:%M'),
 					enc['l10n_type'],
 					gmTools.coalesce (
@@ -971,7 +987,7 @@ limit 1
 					text = u'%s\n (%.8s %s)' % (
 						soap_entry['narrative'],
 						soap_entry['provider'],
-						soap_entry['date'].strftime('%x %H:%M')
+						soap_entry['date'].strftime('%Y-%m-%d %H:%M')
 					),
 					width = 75,
 					initial_indent = u'',
@@ -990,7 +1006,7 @@ limit 1
 			lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
 				u' ' * left_margin,
 				self._payload[self._idx['l10n_type']],
-				self._payload[self._idx['started_original_tz']].strftime('%x %H:%M'),
+				self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
 				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 				self._payload[self._idx['source_time_zone']],
 				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
@@ -998,7 +1014,7 @@ limit 1
 			))
 
 			lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
-				self._payload[self._idx['started']].strftime('%x %H:%M'),
+				self._payload[self._idx['started']].strftime('%Y-%m-%d %H:%M'),
 				self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
 				gmDateTime.current_local_iso_numeric_timezone_string,
 				gmTools.bool2subst (
@@ -1022,7 +1038,7 @@ limit 1
 			lines.append(u'%s%s: %s - %s%s' % (
 				u' ' * left_margin,
 				self._payload[self._idx['l10n_type']],
-				self._payload[self._idx['started_original_tz']].strftime('%x %H:%M'),
+				self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
 				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
 			))
@@ -1076,7 +1092,7 @@ limit 1
 
 			for d in docs:
 				lines.append(u' %s %s:%s%s' % (
-					d['clin_when'].strftime('%x'),
+					d['clin_when'].strftime('%Y-%m-%d'),
 					d['l10n_type'],
 					gmTools.coalesce(d['comment'], u'', u' "%s"'),
 					gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
@@ -1562,7 +1578,11 @@ if __name__ == '__main__':
 		test_performed_procedure()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.155  2009-11-28 18:35:23  ncq
+# Revision 1.156  2009-12-21 14:58:19  ncq
+# - for issue/episode show creation encounter
+# - %x -> %Y-%m-%d timestamp formatting
+#
+# Revision 1.155  2009/11/28 18:35:23  ncq
 # - fix health_issue2problem/episode2problem
 # - add is_dummy to dummy health issue
 # - enhance cProblem to allow for potential problems, too
