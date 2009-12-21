@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.15 2009-07-30 12:04:06 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.16 2009-12-21 15:06:05 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -195,7 +195,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 				parent = self
 			)
 			if comment.strip() == u'':
-				comment = u'user did not comment on bug report'
+				comment = u'<user did not comment on bug report>'
 
 		receivers = regex.findall (
 			'[\S]+@[\S]+',
@@ -332,7 +332,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.15  2009-07-30 12:04:06  ncq
+# Revision 1.16  2009-12-21 15:06:05  ncq
+# - better layout
+#
+# Revision 1.15  2009/07/30 12:04:06  ncq
 # - better handle Ctrl-C
 #
 # Revision 1.14  2009/05/22 11:01:23  ncq

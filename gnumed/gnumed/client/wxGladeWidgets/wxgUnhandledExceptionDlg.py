@@ -12,7 +12,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         self.__szr_middle_staticbox = wx.StaticBox(self, -1, _("Details"))
         self.__pnl_top_message = wx.Panel(self, -1, style=wx.NO_BORDER)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "")
-        self._TCTRL_sender = wx.TextCtrl(self, -1, _("Please supply your email address here !"))
+        self._TCTRL_sender = wx.TextCtrl(self, -1, _("<Please supply your email address here !>"))
         self._TCTRL_helpdesk = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_logfile = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_exc_type = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
