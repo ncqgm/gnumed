@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmCfgWidgets.py,v $
-# $Id: gmCfgWidgets.py,v 1.2 2009-10-20 10:25:43 ncq Exp $
-__version__ = '$Revision: 1.2 $'
+# $Id: gmCfgWidgets.py,v 1.3 2009-12-21 15:03:34 ncq Exp $
+__version__ = '$Revision: 1.3 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,7 +18,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmCfg, gmDispatcher
+from Gnumed.pycommon import gmCfg, gmDispatcher, gmTools
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 
@@ -26,6 +26,41 @@ from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
+#==============================================================================
+def check_for_updates():
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	url = dbcfg.get2 (
+		option = u'horstspace.update.url',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = u'http://www.gnumed.de/downloads/gnumed-versions.txt'
+	)
+
+	consider_latest_branch = bool(dbcfg.get2 (
+		option = u'horstspace.update.consider_latest_branch',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = True
+	))
+
+	found, msg = gmTools.check_for_update (
+		url = url,
+		current_branch = _cfg.get(option = 'client_branch'),
+		current_version = _cfg.get(option = 'client_version'),
+		consider_latest_branch = consider_latest_branch
+	)
+
+	if found is False:
+		gmDispatcher.send(signal = 'statustext', msg = _('Your client (%s) is up to date.') % _cfg.get(option = 'client_version'))
+		return
+
+	gmGuiHelpers.gm_show_info (
+		msg,
+		_('Checking for client updates')
+	)
+#================================================================
 #================================================================
 def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value=u'', choices=None, columns=None, data=None, caption=None):
 
@@ -178,7 +213,10 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 
 #================================================================
 # $Log: gmCfgWidgets.py,v $
-# Revision 1.2  2009-10-20 10:25:43  ncq
+# Revision 1.3  2009-12-21 15:03:34  ncq
+# - check_for_updates should be here
+#
+# Revision 1.2  2009/10/20 10:25:43  ncq
 # - support pre-selections in configure-string-from-list
 #
 # Revision 1.1  2008/01/16 19:25:18  ncq
