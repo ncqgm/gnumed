@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -15,13 +15,13 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
+from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools, gmCfg2, gmDateTime
 from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
 
 _log = logging.getLogger('gm.scripting')
-
+_cfg = gmCfg2.gmCfgData()
 
 #=====================================================================
 known_placeholders = [
@@ -34,25 +34,28 @@ known_placeholders = [
 	'soap_s',
 	'soap_o',
 	'soap_a',
-	'soap_p'
+	'soap_p',
+	u'client_version',
+	u'current_provider'
 ]
 
 
-# those must satisfy the default_placeholder_regex when used
+# those must satisfy the pattern "$name::args::optional length$" when used
 known_variant_placeholders = [
 	u'soap',
 	u'progress_notes',
 	u'date_of_birth',
-	u'adr_street',
+	u'adr_street',				# "data" holds: type of address
 	u'adr_number',
 	u'adr_location',
 	u'adr_postcode',
-	u'gender_mapper'			# "data" holds: value for male // value for female
+	u'gender_mapper',			# "data" holds: value for male // value for female
+	u'current_meds',			# "data" holds: line template
+	u'today'					# "data" holds: strftime format
 ]
 
-
-# pattern: "$name::args::optional length$"
-default_placeholder_regex = u'\$\<.+(::.+){0,2}\>\$'
+#default_placeholder_regex = r'$<.+(::.+){0,2}>$'
+default_placeholder_regex = r'\$<.+?>\$'
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
 #=====================================================================
@@ -86,7 +89,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.pat = gmPerson.gmCurrentPatient()
 		self.debug = False
 
-		self.invalid_placeholder_template = _('invalid placeholder: %s')
+		self.invalid_placeholder_template = _('invalid placeholder [%s]')
 	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
@@ -99,19 +102,19 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		Unknown/invalid placeholders still deliver a result but
 		it will be glaringly obvious if debugging is enabled.
 		"""
+		_log.debug('replacing [%s]', placeholder)
+
 		original_placeholder = placeholder
 
-		if not placeholder.startswith(default_placeholder_start):
-			if self.debug:
-				return self.invalid_placeholder_template % original_placeholder
-			return None
-		placeholder = placeholder[len(default_placeholder_start):]
-
-		if not placeholder.endswith(default_placeholder_end):
-			if self.debug:
-				return self.invalid_placeholder_template % original_placeholder
-			return None
-		placeholder = placeholder[:-len(default_placeholder_end)]
+		if placeholder.startswith(default_placeholder_start):
+			placeholder = placeholder[len(default_placeholder_start):]
+			if placeholder.endswith(default_placeholder_end):
+				placeholder = placeholder[:-len(default_placeholder_end)]
+			else:
+				_log.debug('placeholder must either start with [%s] and end with [%s] or neither of both', default_placeholder_start, default_placeholder_end)
+				if self.debug:
+					return self.invalid_placeholder_template % original_placeholder
+				return None
 
 		# simple static placeholder ?
 		if placeholder in known_placeholders:
@@ -205,6 +208,28 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_soap_admin(self):
 		return self._get_variant_soap(soap_cats = None)
 	#--------------------------------------------------------
+	def _get_client_version(self):
+		return gmTools.coalesce (
+			_cfg.get(option = u'client_version'),
+			u'%s $Revision: 1.46 $' % self.__class__.__name__
+		)
+	#--------------------------------------------------------
+	def _get_current_provider(self):
+		prov = gmPerson.gmCurrentProvider()
+
+		title = gmTools.coalesce (
+			prov['title'],
+			gmPerson.map_gender2salutation(prov['gender'])
+		)
+
+		tmp = u'%s %s. %s' % (
+			title,
+			prov['firstnames'][:1],
+			prov['lastnames']
+		)
+
+		return tmp
+	#--------------------------------------------------------
 	# property definitions for static placeholders
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, _setter_noop)
@@ -222,6 +247,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	soap_a = property(_get_soap_a, _setter_noop)
 	soap_p = property(_get_soap_p, _setter_noop)
 	soap_admin = property(_get_soap_admin, _setter_noop)
+
+	client_version = property(_get_client_version, _setter_noop)
+
+	current_provider = property(_get_current_provider, _setter_noop)
 	#--------------------------------------------------------
 	# variant handlers
 	#--------------------------------------------------------
@@ -238,7 +267,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%x'):
-		return self.pat['dob'].strftime(str(data))
+		return self.pat['dob'].strftime(str(data)).decode(gmI18N.get_encoding())
 	#--------------------------------------------------------
 	# FIXME: extend to all supported genders
 	def _get_variant_gender_mapper(self, data='male//female//other'):
@@ -285,6 +314,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(adrs) == 0:
 			return _('no postcode for address type [%s]') % data
 		return adrs[0]['postcode']
+	#--------------------------------------------------------
+	def _get_variant_current_meds(self, data=None):
+
+		if data is None:
+			return [_('template is missing')]
+
+		emr = self.pat.get_emr()
+		current_meds = emr.get_current_substance_intake (
+			include_inactive = False,
+			include_unapproved = False,
+			order_by = u'brand, substance'
+		)
+
+		return u'\n'.join([ data % m for m in current_meds ])
+	#--------------------------------------------------------
+	def _get_variant_today(self, data='%x'):
+		return gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding())
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -346,7 +392,8 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.45 $" % self.__class__.__name__
+		ver = _cfg.get(option = u'client_version')
+		return "GNUmed %s, %s $Revision: 1.46 $" % (ver, self.__class__.__name__)
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -573,8 +620,10 @@ if __name__ == '__main__':
 			'$<date_of_birth::%Y-%m-%d::3>$',
 			'$<date_of_birth::%Y-%m-%d::>$',
 
+			# should work:
 			'$<adr_location::home::35>$',
-			'$<gender_mapper::male//female//other::5>$'
+			'$<gender_mapper::male//female//other::5>$',
+			'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) <==\n::50>$'
 
 #			'firstname',
 #			'title',
@@ -654,7 +703,13 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.45  2009-09-29 13:18:28  ncq
+# Revision 1.46  2009-12-21 15:11:30  ncq
+# - client_version, current_provider, today, current_meds
+# - placeholder regex must be non-greedy to support several per line
+# - improved logging
+# - don't throw exceptions on placeholder substitution, rather return hint
+#
+# Revision 1.45  2009/09/29 13:18:28  ncq
 # - implement address placeholders
 # - implement gender mapper placeholder
 #
