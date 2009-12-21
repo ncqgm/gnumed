@@ -74,7 +74,7 @@ Use configuration file FILE instead of searching for it in
 standard locations.
 .TP
 .B \--lang-gettext=LANGUAGE
-Explicitely set the language to use in gettext translation. The very
+Explicitly set the language to use in gettext translation. The very
 same effect can be achieved by setting the environment variable $LANG
 from a launcher script.
 .TP
@@ -82,6 +82,10 @@ from a launcher script.
 Continue loading the client even if the database schema
 version and the client software version cannot be verified
 to be compatible.
+.TP
+.B \--skip-update-check
+Skip checking for client updates. This is useful during
+development or when the update check URL is unavailable.
 .TP
 .B \--local-import
 At startup adjust the PYTHONPATH such that the GNUmed client is
@@ -146,11 +150,15 @@ Use at your own risk. You have been warned. Take proper backups !
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.22 2009-01-07 12:30:13 ncq Exp $
+$Id: gnumed.1,v 1.23 2009-12-21 15:00:39 ncq Exp $
 
 .\" ========================================================
 .\" $Log: gnumed.1,v $
-.\" Revision 1.22  2009-01-07 12:30:13  ncq
+.\" Revision 1.23  2009-12-21 15:00:39  ncq
+.\" - typo fix
+.\" - --skip-update-check
+.\"
+.\" Revision 1.22  2009/01/07 12:30:13  ncq
 .\" - added CVS keywords
 .\"
 .\"
