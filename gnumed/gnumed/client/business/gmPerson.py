@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.193 2009-12-21 14:59:17 ncq Exp $
-__version__ = "$Revision: 1.193 $"
+# $Id: gmPerson.py,v 1.194 2009-12-21 20:26:40 ncq Exp $
+__version__ = "$Revision: 1.194 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -279,6 +279,9 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 
 	inbox = property(_get_inbox, _set_inbox)
 #============================================================
+def set_current_provider_to_logged_on_user():
+	gmCurrentProvider(provider = cStaff())
+#============================================================
 class gmCurrentProvider(gmBorg.cBorg):
 	"""Staff member Borg to hold currently logged on provider.
 
@@ -288,7 +291,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""Change or get currently logged on provider.
 
 		provider:
-		* None: get currently logged on provider
+		* None: get copy of current instance
 		* cStaff instance: change logged on provider (role)
 		"""
 		# make sure we do have a provider pointer
@@ -2324,7 +2327,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.193  2009-12-21 14:59:17  ncq
+# Revision 1.194  2009-12-21 20:26:40  ncq
+# - some cleanup
+#
+# Revision 1.193  2009/12/21 14:59:17  ncq
 # - typo
 #
 # Revision 1.192  2009/11/30 22:24:16  ncq
