@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.63 2009-12-03 17:50:20 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmMeasurementWidgets.py,v 1.64 2009-12-21 15:12:29 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1345,7 +1345,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			self._PRW_units.set_context(context = u'pk_type', val = pk_type)
 	#--------------------------------------------------------
 	def _on_leave_indicator_prw(self):
-		# if the user hasn't explicitely enabled reviewing
+		# if the user hasn't explicitly enabled reviewing
 		if not self._CHBOX_review.GetValue():
 			self._CHBOX_abnormal.SetValue(self._PRW_abnormality_indicator.GetValue().strip() != u'')
 	#--------------------------------------------------------
@@ -1915,7 +1915,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.63  2009-12-03 17:50:20  ncq
+# Revision 1.64  2009-12-21 15:12:29  ncq
+# - cleanup
+# - fix typo
+# - missing return
+#
+# Revision 1.63  2009/12/03 17:50:20  ncq
 # - row label tooltips
 #
 # Revision 1.62  2009/12/01 21:54:04  ncq

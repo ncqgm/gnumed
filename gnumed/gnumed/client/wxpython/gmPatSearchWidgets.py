@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.129 2009-11-15 01:10:34 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmPatSearchWidgets.py,v 1.130 2009-12-21 15:12:29 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -578,7 +578,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		except KeyError:
 			kwargs['style'] = wx.TE_PROCESS_ENTER
 
-		# need to explicitely process ENTER events to avoid
+		# need to explicitly process ENTER events to avoid
 		# them being handed over to the next control
 		wx.TextCtrl.__init__(self, *args, **kwargs)
 
@@ -1222,25 +1222,15 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	#--------------------------------------------------------
 	def _on_add_patient_button_pressed(self, evt):
 
-#		pat = None
-#		if self._PRW_search_patient.person is not None:
-#			pat = self._PRW_search_patient.person
-#		else:
-#			curr_pat = gmPerson.gmCurrentPatient()
-#			if curr_pat.connected:
-#				pat = curr_pat
-
 		curr_pat = gmPerson.gmCurrentPatient()
 		if not curr_pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add waiting list entry: No patient selected.'), beep = True)
+			return
 
 		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = curr_pat)
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.ShowModal()
 		dlg.Destroy()
-
-		#self._PRW_search_patient.person = None
-		#self._PRW_search_patient._display_name()
 	#--------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
@@ -1399,7 +1389,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.129  2009-11-15 01:10:34  ncq
+# Revision 1.130  2009-12-21 15:12:29  ncq
+# - cleanup
+# - fix typo
+# - missing return
+#
+# Revision 1.129  2009/11/15 01:10:34  ncq
 # - cleanup
 #
 # Revision 1.128  2009/07/17 09:25:06  ncq
