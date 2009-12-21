@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.480 2009-12-01 21:52:40 ncq Exp $
-__version__ = "$Revision: 1.480 $"
+# $Id: gmGuiMain.py,v 1.481 2009-12-21 15:06:45 ncq Exp $
+__version__ = "$Revision: 1.481 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -74,7 +74,6 @@ _log.info(__version__)
 _log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 
 #==============================================================================
-
 icon_serpent = \
 """x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
 \xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
@@ -83,42 +82,6 @@ icon_serpent = \
 \xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec"""
-#==============================================================================
-# FIXME: this belongs elsewhere
-def check_for_updates():
-
-	dbcfg = gmCfg.cCfgSQL()
-
-	url = dbcfg.get2 (
-		option = u'horstspace.update.url',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
-		bias = 'workplace',
-		default = u'http://www.gnumed.de/downloads/gnumed-versions.txt'
-	)
-
-	consider_latest_branch = bool(dbcfg.get2 (
-		option = u'horstspace.update.consider_latest_branch',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
-		bias = 'workplace',
-		default = True
-	))
-
-	found, msg = gmTools.check_for_update (
-		url = url,
-		current_branch = _cfg.get(option = 'client_branch'),
-		current_version = _cfg.get(option = 'client_version'),
-		consider_latest_branch = consider_latest_branch
-	)
-
-	if found is False:
-		gmDispatcher.send(signal = 'statustext', msg = _('Your client (%s) is up to date.') % _cfg.get(option = 'client_version'))
-		return
-
-	gmGuiHelpers.gm_show_info (
-		msg,
-		_('Checking for client updates')
-	)
-
 #==============================================================================
 class gmTopLevelFrame(wx.Frame):
 	"""GNUmed client's main windows frame.
@@ -1041,7 +1004,7 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug('gmTopLevelFrame._on_exit_gnumed() end')
 	#----------------------------------------------
 	def __on_check_for_updates(self, evt):
-		check_for_updates()
+		gmCfgWidgets.check_for_updates()
 	#----------------------------------------------
 	def __on_announce_maintenance(self, evt):
 		send = gmGuiHelpers.gm_show_question (
@@ -2406,7 +2369,8 @@ class gmApp(wx.App):
 		if not self.__establish_backend_connection():
 			return False
 
-		self.__check_for_updates()
+		if not _cfg.get(option = 'skip-update-check'):
+			self.__check_for_updates()
 
 		if _cfg.get(option = 'slave'):
 			if not self.__setup_scripting_listener():
@@ -2935,7 +2899,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.480  2009-12-01 21:52:40  ncq
+# Revision 1.481  2009-12-21 15:06:45  ncq
+# - factor out check-for-updates
+# - support --skip-update-check
+#
+# Revision 1.480  2009/12/01 21:52:40  ncq
 # - improved menu items
 # - remove current medication menu item
 #
