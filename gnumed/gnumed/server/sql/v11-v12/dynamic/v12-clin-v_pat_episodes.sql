@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-v_pat_episodes.sql,v 1.1 2009-09-01 22:12:47 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v12-clin-v_pat_episodes.sql,v 1.2 2009-12-21 15:15:13 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -26,6 +26,7 @@ select
 	null as issue_active,
 	null as issue_clinically_relevant,
 	cep.pk as pk_episode,
+	cep.fk_encounter as pk_encounter,
 	null as pk_health_issue,
 	cep.modified_when as episode_modified_when,
 	cep.modified_by as episode_modified_by,
@@ -46,6 +47,7 @@ select
 	chi.is_active as issue_active,
 	chi.clinically_relevant as issue_clinically_relevant,
 	cep.pk as pk_episode,
+	cep.fk_encounter as pk_encounter,
 	cep.fk_health_issue as pk_health_issue,
 	cep.modified_when as episode_modified_when,
 	cep.modified_by as episode_modified_by,
@@ -61,11 +63,14 @@ where
 
 grant select on clin.v_pat_episodes TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-v_pat_episodes.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-v_pat_episodes.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v12-clin-v_pat_episodes.sql,v $
--- Revision 1.1  2009-09-01 22:12:47  ncq
+-- Revision 1.2  2009-12-21 15:15:13  ncq
+-- - add .fk_encounter
+--
+-- Revision 1.1  2009/09/01 22:12:47  ncq
 -- - new
 --
 --
