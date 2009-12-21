@@ -22,7 +22,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -634,7 +634,7 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_ve
 		- if <link_obj> is a service name the transaction is
 		  always finalized regardless of what <end_tx> says
 		- if link_obj is a connection then <end_tx> will
-		  default to False unless it is explicitely set to
+		  default to False unless it is explicitly set to
 		  True which is taken to mean "yes, you do have full
 		  control over the transaction" in which case the
 		  transaction is properly finalized
@@ -1208,7 +1208,7 @@ def get_fkey_defs(source, table):
 	return references
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.89 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.90 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1341,7 +1341,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.89  2009-03-10 14:26:51  ncq
+# Revision 1.90  2009-12-21 15:02:17  ncq
+# - fix typo
+#
+# Revision 1.89  2009/03/10 14:26:51  ncq
 # - remove old code
 #
 # Revision 1.88  2008/10/12 15:46:44  ncq

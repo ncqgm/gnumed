@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.33 2009-04-05 17:58:27 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmMatchProvider.py,v 1.34 2009-12-21 15:02:17 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -59,7 +59,7 @@ class cMatchProvider(object):
 		if aFragment is None:
 			raise ValueError, 'Cannot find matches without a fragment.'
 
-		# user explicitely wants all matches
+		# user explicitly wants all matches
 		if aFragment == u'*':
 			return self.getAllMatches()
 
@@ -461,7 +461,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.33  2009-04-05 17:58:27  ncq
+# Revision 1.34  2009-12-21 15:02:17  ncq
+# - fix typo
+#
+# Revision 1.33  2009/04/05 17:58:27  ncq
 # - improved docs
 #
 # Revision 1.32  2009/04/03 09:34:06  ncq

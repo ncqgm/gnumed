@@ -37,7 +37,7 @@ The field names correspond to the respective column names
 in the "main" source relation. Accessing non-existant field
 names will raise an error, so does trying to set fields not
 listed in self.__class__._updatable_fields. To actually
-store updated values in the database one must explicitely
+store updated values in the database one must explicitly
 call save_payload().
 
 The class will in many cases be enhanced by accessors to
@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.59 2009-11-30 15:06:50 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmBusinessDBObject.py,v 1.60 2009-12-21 15:02:17 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -473,7 +473,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.59  2009-11-30 15:06:50  ncq
+# Revision 1.60  2009-12-21 15:02:17  ncq
+# - fix typo
+#
+# Revision 1.59  2009/11/30 15:06:50  ncq
 # - slightly improved __str__
 #
 # Revision 1.58  2009/11/28 18:27:50  ncq

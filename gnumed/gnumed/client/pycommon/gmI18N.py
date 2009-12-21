@@ -18,13 +18,13 @@ need to make sure, however, that gmI18N is imported in your
 main module before any of the modules using it. In order to
 resolve circular references involving modules that
 absolutely _have_ to be imported before this module you can
-explicitely import gmI18N into them at the very beginning.
+explicitly import gmI18N into them at the very beginning.
 
 The text domain (i.e. the name of the message catalog file)
 is derived from the name of the main executing script unless
-explicitely passed to install_domain(). The language you
+explicitly passed to install_domain(). The language you
 want to translate to is derived from environment variables
-by the locale system unless explicitely passed to
+by the locale system unless explicitly passed to
 install_domain().
 
 This module searches for message catalog files in 3 main locations:
@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.47 2009-07-09 16:42:49 ncq Exp $
+# $Id: gmI18N.py,v 1.48 2009-12-21 15:02:17 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -414,7 +414,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.47  2009-07-09 16:42:49  ncq
+# Revision 1.48  2009-12-21 15:02:17  ncq
+# - fix typo
+#
+# Revision 1.47  2009/07/09 16:42:49  ncq
 # - honor prefer_local_catalog
 #
 # Revision 1.46  2009/04/13 10:34:17  ncq

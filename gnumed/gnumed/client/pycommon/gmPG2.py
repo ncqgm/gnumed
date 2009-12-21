@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.121 $"
+__version__ = "$Revision: 1.122 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1029,7 +1029,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		  call to run_rw_queries() to be part of a framing
 		  transaction
 		- if link_obj is a connection then <end_tx> will
-		  default to False unless it is explicitely set to
+		  default to False unless it is explicitly set to
 		  True which is taken to mean "yes, you do have full
 		  control over the transaction" in which case the
 		  transaction is properly finalized
@@ -1932,7 +1932,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.121  2009-12-03 17:46:37  ncq
+# Revision 1.122  2009-12-21 15:02:18  ncq
+# - fix typo
+#
+# Revision 1.121  2009/12/03 17:46:37  ncq
 # - somewhat better logging in run_rw_queries
 #
 # Revision 1.120  2009/12/01 22:06:22  ncq
