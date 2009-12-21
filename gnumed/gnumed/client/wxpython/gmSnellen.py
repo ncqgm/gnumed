@@ -4,8 +4,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.5 2009-07-17 09:26:03 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmSnellen.py,v 1.6 2009-12-21 15:12:53 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -287,11 +287,11 @@ class cSnellenChart(wx.Frame):
 		self.dc = None
 
 	def OnKeyUp (self, key):
-		if key.GetKeyCode() == wx.K_UP and self.distance < len (self.standard_patient_chart_distances)-1:
+		if key.GetKeyCode() == wx.WXK_UP and self.distance < len (self.standard_patient_chart_distances)-1:
 			self.set_distance (self.distance+1)
-		if key.GetKeyCode() == wx.K_DOWN and self.distance > 0:
+		if key.GetKeyCode() == wx.WXK_DOWN and self.distance > 0:
 			self.set_distance (self.distance-1)
-		if key.GetKeyCode() == wx.K_ESCAPE:
+		if key.GetKeyCode() == wx.WXK_ESCAPE:
 			self.Destroy ()
 
 	def OnLeftDown (self, key):
@@ -559,7 +559,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.5  2009-07-17 09:26:03  ncq
+# Revision 1.6  2009-12-21 15:12:53  ncq
+# - fix wx keycode access
+#
+# Revision 1.5  2009/07/17 09:26:03  ncq
 # - no more main.frame in guibroker
 #
 # Revision 1.4  2008/06/26 17:01:57  ncq
