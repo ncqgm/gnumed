@@ -23,14 +23,14 @@ but that approach may not be fool-proof.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/sitecustomize.py,v $
-# $Id: sitecustomize.py,v 1.7 2007-05-08 11:14:11 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: sitecustomize.py,v 1.8 2009-12-21 14:56:39 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys
 
-# flip this flag if you need to set the encoding explicitely
+# flip this flag if you need to set the encoding explicitly
 do_set_encoding = False
 
 # - most European countries but shouldn't
@@ -62,7 +62,10 @@ if do_set_encoding:
 
 #==============================================================
 # $Log: sitecustomize.py,v $
-# Revision 1.7  2007-05-08 11:14:11  ncq
+# Revision 1.8  2009-12-21 14:56:39  ncq
+# - typo fix
+#
+# Revision 1.7  2007/05/08 11:14:11  ncq
 # - make utf8
 # - some cleanup
 #
