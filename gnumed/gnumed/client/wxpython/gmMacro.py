@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -211,7 +211,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_client_version(self):
 		return gmTools.coalesce (
 			_cfg.get(option = u'client_version'),
-			u'%s $Revision: 1.46 $' % self.__class__.__name__
+			u'%s $Revision: 1.47 $' % self.__class__.__name__
 		)
 	#--------------------------------------------------------
 	def _get_current_provider(self):
@@ -315,6 +315,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return _('no postcode for address type [%s]') % data
 		return adrs[0]['postcode']
 	#--------------------------------------------------------
+	def _get_variant_allergies(self, data=None):
+
+		if data is None:
+			return [_('template is missing')]
+
+		emr = self.pat.get_emr()
+		return u'\n'.join([ data % a for a in emr.get_allergies() ])
+	#--------------------------------------------------------
 	def _get_variant_current_meds(self, data=None):
 
 		if data is None:
@@ -393,7 +401,7 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def version(self):
 		ver = _cfg.get(option = u'client_version')
-		return "GNUmed %s, %s $Revision: 1.46 $" % (ver, self.__class__.__name__)
+		return "GNUmed %s, %s $Revision: 1.47 $" % (ver, self.__class__.__name__)
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -703,7 +711,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.46  2009-12-21 15:11:30  ncq
+# Revision 1.47  2009-12-21 20:28:02  ncq
+# - allergies placeholder
+#
+# Revision 1.46  2009/12/21 15:11:30  ncq
 # - client_version, current_provider, today, current_meds
 # - placeholder regex must be non-greedy to support several per line
 # - improved logging
