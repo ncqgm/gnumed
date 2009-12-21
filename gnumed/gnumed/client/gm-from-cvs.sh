@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/gm-from-cvs.sh,v $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 # maybe force some locale setting here
 #export LANGUAGE=fr
@@ -24,9 +24,14 @@ if [ -r ${HOME}/.gnumed/scripts/gnumed-startup-local.sh ] ; then
 fi
 
 
-# run
-PSYCOPG_DEBUG="on"		# should actually be done within gnumed.py based on --debug
-LOG="gm-from-cvs.log"
-python wxpython/gnumed.py --log-file=$LOG --conf-file=gm-from-cvs.conf --override-schema-check --debug --local-import $@
+# set options
+LOG="--log-file=gm-from-cvs.log"
+CONF="--conf-file=gm-from-cvs.conf"
+DEV_OPTS="--override-schema-check --skip-update-check --local-import --debug"
 # --hipaa
 # --profile=gm-from-cvs.prof
+PSYCOPG_DEBUG="on"		# should actually be done within gnumed.py based on --debug
+
+
+# eventually run it
+python wxpython/gnumed.py ${LOG} ${CONF} ${DEV_OPTS} $@
