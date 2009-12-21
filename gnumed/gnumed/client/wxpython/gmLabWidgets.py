@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 import os.path, sys, os, re as regex, random, logging
@@ -568,7 +568,7 @@ class cLabJournalNB(wx.Notebook):
 			#self.__on_down_arrow(key)
 			return
 		# user moved up
-		if key.GetKeyCode() == WXK_UP:
+		if key.GetKeyCode() == wx.WXK_UP:
 			key.Skip()
 			#self.__on_up_arrow(key)
 			return
@@ -855,7 +855,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.32  2008-03-17 14:54:22  ncq
+# Revision 1.33  2009-12-21 15:07:11  ncq
+# - fix wx keycode access
+#
+# Revision 1.32  2008/03/17 14:54:22  ncq
 # - a bit of cleanup
 #
 # Revision 1.31  2008/03/06 18:29:29  ncq
