@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.157 $
+# $Revision: 1.158 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-12-02 17:17+CET\n"
-"PO-Revision-Date: 2009-12-02 17:44+0100\n"
+"POT-Creation-Date: 2009-12-22 13:05+CET\n"
+"PO-Revision-Date: 2009-12-22 13:09+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -245,6 +245,9 @@ msgstr " ***** VERTRAULICH *****"
 msgid " contributed to death of patient"
 msgstr " trug zum Tode des Patienten bei"
 
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Angelegt während Konsultation: %s (%s - %s)   [#%s]"
+
 msgid " Noted at age: %s"
 msgstr " Bemerkt im Alter von: %s"
 
@@ -304,6 +307,9 @@ msgstr "Episode %s%s%s (%s%s)   [#%s]\n"
 
 msgid "finished"
 msgstr "beendet"
+
+msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Fehler beim Laden der APK für diese Episode."
@@ -3081,8 +3087,8 @@ msgstr "Gültigkeit"
 msgid "Details"
 msgstr "Details"
 
-msgid "Please supply your email address here !"
-msgstr "Bitte geben Sie Ihre E-Mail-Adresse ein !"
+msgid "<Please supply your email address here !>"
+msgstr "<bitte geben Sie Ihre E-Mail-Adresse ein>"
 
 msgid "Keep running"
 msgstr "Weiterlaufen"
@@ -3678,6 +3684,12 @@ msgstr "BMI-Rechner"
 
 msgid "&Reset"
 msgstr "&Zurücksetzen"
+
+msgid "Your client (%s) is up to date."
+msgstr "Ihre Installation (%s) ist auf dem neuesten Stand."
+
+msgid "Checking for client updates"
+msgstr "Updates suchen"
 
 msgid "Configuration"
 msgstr "Konfiguration"
@@ -4847,6 +4859,9 @@ msgstr "Wählen Sie die Episoden, die von Interesse sind ..."
 msgid "Health Issue"
 msgstr "Grunderkrankung"
 
+msgid "Cannot create episode without name."
+msgstr "Kann keine Episode ohne Bezeichnung anlegen."
+
 msgid "Cannot attach episode [%s] to health issue [%s] because it already has a running episode."
 msgstr "Kann Episode [%s] nicht der Grunderkrankung [%s] zuordnen, weil diese bereits eine laufende Episode hat."
 
@@ -5273,12 +5288,6 @@ msgstr "Programmierer hat vergessen, Warnung anzugeben."
 
 msgid "generic warning message"
 msgstr "allgemeine Warnmeldung"
-
-msgid "Your client (%s) is up to date."
-msgstr "Ihre Installation (%s) ist auf dem neuesten Stand."
-
-msgid "Checking for client updates"
-msgstr "Updates suchen"
 
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "Sie sind als %s%s.%s (%s) angemeldet. Datenbankkonto <%s>."
@@ -6833,8 +6842,8 @@ msgstr "Keine Labordaten verfügbar."
 msgid "generic multi choice dialog"
 msgstr "allgemeine Mehrfachauswahl"
 
-msgid "invalid placeholder: %s"
-msgstr "ungültiger Platzhalter: %s"
+msgid "invalid placeholder [%s]"
+msgstr "ungültiger Platzhalter [%s]"
 
 msgid "invalid gender mapping layout: [%s]"
 msgstr "ungültiges Format für geschlechtsabhängiges Mapping: [%s]"
@@ -6850,6 +6859,9 @@ msgstr "kein Ort für Adresstyp [%s]"
 
 msgid "no postcode for address type [%s]"
 msgstr "keine PLZ für Adresstyp [%s]"
+
+msgid "template is missing"
+msgstr "Vorlage fehlt"
 
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
@@ -6978,6 +6990,33 @@ msgstr "Nein, keine Meßwerte löschen."
 msgid "Cannot sign results. No results selected."
 msgstr "Kann Ergebnisse nicht abzeichen. Nichts ausgewählt."
 
+msgid "Details about %s (%s)%s\n"
+msgstr "Details zu %s (%s)%s\n"
+
+msgid "Meta type:\n"
+msgstr "Meta-Meßmethode:\n"
+
+msgid " Name: %s (%s)%s #%s\n"
+msgstr " Name: %s (%s)%s #%s\n"
+
+msgid " Conversion unit: %s\n"
+msgstr " Konversionseinheit: %s\n"
+
+msgid " Comment: %s\n"
+msgstr " Kommentar: %s\n"
+
+msgid "Test type:\n"
+msgstr "Meßmethode:\n"
+
+msgid " Code: %s\n"
+msgstr " Code: %s\n"
+
+msgid "Most recent result:\n"
+msgstr "Letztes Ergebnis:\n"
+
+msgid " %s: %s%s%s"
+msgstr " %s: %s%s%s"
+
 msgid "Measurement details of most recent (topmost) result:               \n"
 msgstr "Details zum jüngsten Meßwert (zuoberst stehend):                       \n"
 
@@ -7081,9 +7120,6 @@ msgstr "ja"
 
 msgid " Clinically relevant: %(relevant)s\n"
 msgstr " Medizinisch relevant: %(relevant)s\n"
-
-msgid " Comment: %s\n"
-msgstr " Kommentar: %s\n"
 
 msgid "Responsible clinician: %s\n"
 msgstr "Verantwortlicher: %s\n"
@@ -10432,8 +10468,6 @@ msgstr "erstmals"
 #~ msgstr "Kann neuestes Patientenbild nicht aus der Datenbank laden."
 #~ msgid "&Load "
 #~ msgstr "&Laden"
-#~ msgid "template in use"
-#~ msgstr "Vorlage aktiv"
 #~ msgid "The revision of this form template."
 #~ msgstr "Die Version der Vorlage."
 #~ msgid "Checked if the original template was modified."
