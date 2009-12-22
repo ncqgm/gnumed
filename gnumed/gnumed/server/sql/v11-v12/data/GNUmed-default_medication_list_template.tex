@@ -5,8 +5,8 @@
 % Author: Karsten Hilbert
 % License: GPL
 %
-% $Id: GNUmed-default_medication_list_template.tex,v 1.1 2009-12-22 10:11:06 ncq Exp $
-% $Revision: 1.1 $
+% $Id: GNUmed-default_medication_list_template.tex,v 1.2 2009-12-22 12:05:02 ncq Exp $
+% $Revision: 1.2 $
 %------------------------------------------------------------------
 
 \documentclass[english]{article}
@@ -30,7 +30,7 @@
 
 \begin{document}
 
-\footnotetext{GNUmed EMR ($<client_version>$): Current medication list template}
+\footnotetext{GNUmed $<client_version>$: GNUmed-default\_medication\_list\_template.tex \$Revision: 1.2 $ }
 
 \noindent \begin{center}
 {\LARGE Current Medication List}%
@@ -96,7 +96,10 @@ $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabu
 
 %------------------------------------------------------------------
 % $Log: GNUmed-default_medication_list_template.tex,v $
-% Revision 1.1  2009-12-22 10:11:06  ncq
+% Revision 1.2  2009-12-22 12:05:02  ncq
+% - properly escape version strings
+%
+% Revision 1.1  2009/12/22 10:11:06  ncq
 % - new
 %
 %
