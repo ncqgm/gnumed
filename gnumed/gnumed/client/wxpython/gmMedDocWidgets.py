@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.184 2009-11-15 01:07:11 ncq Exp $
-__version__ = "$Revision: 1.184 $"
+# $Id: gmMedDocWidgets.py,v 1.185 2009-12-22 12:02:40 ncq Exp $
+__version__ = "$Revision: 1.185 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1674,11 +1674,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.BeginBusyCursor()
 
 		# detect wrapper
-		found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.sh' % action)
+		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc.sh' % action)
 		if not found:
-			found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.bat' % action)
+			found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc.bat' % action)
 		if not found:
-			_log.error('neither of gm_%s_doc.sh or gm_%s_doc.bat found', action, action)
+			_log.error('neither of gm-%s_doc.sh or gm-%s_doc.bat found', action, action)
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
 				_('Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n'
@@ -1763,11 +1763,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.BeginBusyCursor()
 
 		# detect wrapper
-		found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.sh' % action)
+		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc.sh' % action)
 		if not found:
-			found, external_cmd = gmShellAPI.detect_external_binary(u'gm_%s_doc.bat' % action)
+			found, external_cmd = gmShellAPI.detect_external_binary(u'gm-%s_doc.bat' % action)
 		if not found:
-			_log.error('neither of gm_%s_doc.sh or gm_%s_doc.bat found', action, action)
+			_log.error('neither of gm-%s_doc.sh or gm-%s_doc.bat found', action, action)
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
 				_('Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n'
@@ -1959,7 +1959,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.184  2009-11-15 01:07:11  ncq
+# Revision 1.185  2009-12-22 12:02:40  ncq
+# - gm_%_* -> gm-%_*
+#
+# Revision 1.184  2009/11/15 01:07:11  ncq
 # - cleanup
 #
 # Revision 1.183  2009/09/13 18:45:25  ncq
