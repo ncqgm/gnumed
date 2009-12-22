@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.24 2009-12-03 17:51:11 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmMedicationWidgets.py,v 1.25 2009-12-22 12:02:57 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -589,8 +589,6 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self._CHBOX_approved.SetValue(self.data['intake_is_approved_of'])
 
-		print self.data['started']
-		print gmDateTime.py_dt2wxDate(py_dt = self.data['started'], wx = wx)
 		self._DP_started.SetValue(gmDateTime.py_dt2wxDate(py_dt = self.data['started'], wx = wx))
 
 		self._PRW_brand.SetText(u'', None)
@@ -1117,7 +1115,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.24  2009-12-03 17:51:11  ncq
+# Revision 1.25  2009-12-22 12:02:57  ncq
+# - cleanup
+#
+# Revision 1.24  2009/12/03 17:51:11  ncq
 # - explicit ATC col in brand component list
 #
 # Revision 1.23  2009/12/02 16:50:44  ncq
