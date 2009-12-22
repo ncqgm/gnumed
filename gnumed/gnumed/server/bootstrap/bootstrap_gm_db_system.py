@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.111 $"
+__version__ = "$Revision: 1.112 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -769,7 +769,7 @@ class database:
 		cursor = self.conn.cursor()
 		cursor.execute("select pg_size_pretty(pg_database_size('%s'))" % self.template_db)
 		size = cursor.fetchone()[0]
-		print_msg("==> cloning [%s] (%s) into target database [%s] ..." % (self.template_db, size, self.name))
+		print_msg("==> cloning [%s] (%s) as target database [%s] ..." % (self.template_db, size, self.name))
 		try:
 			cursor.execute(cmd)
 		except:
@@ -1487,7 +1487,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.111  2009-11-24 21:05:39  ncq
+# Revision 1.112  2009-12-22 12:03:54  ncq
+# - slightly better wording
+#
+# Revision 1.111  2009/11/24 21:05:39  ncq
 # - better output
 #
 # Revision 1.110  2009/11/08 20:51:25  ncq
