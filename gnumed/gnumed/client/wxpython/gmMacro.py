@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -211,7 +211,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_client_version(self):
 		return gmTools.coalesce (
 			_cfg.get(option = u'client_version'),
-			u'%s $Revision: 1.47 $' % self.__class__.__name__
+			u'%s \$Revision: 1.48 $' % self.__class__.__name__
 		)
 	#--------------------------------------------------------
 	def _get_current_provider(self):
@@ -401,7 +401,7 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def version(self):
 		ver = _cfg.get(option = u'client_version')
-		return "GNUmed %s, %s $Revision: 1.47 $" % (ver, self.__class__.__name__)
+		return "GNUmed %s, %s $Revision: 1.48 $" % (ver, self.__class__.__name__)
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -711,7 +711,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.47  2009-12-21 20:28:02  ncq
+# Revision 1.48  2009-12-22 12:01:58  ncq
+# - escape dollar signs as they frequently mean something
+#
+# Revision 1.47  2009/12/21 20:28:02  ncq
 # - allergies placeholder
 #
 # Revision 1.46  2009/12/21 15:11:30  ncq
