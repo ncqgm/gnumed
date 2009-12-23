@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# ===========================================================
+# Print documents via system tools.
+#
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-print_doc,v $
+# $Id: gm-print_doc,v 1.1 2009-12-23 13:08:08 ncq Exp $
+# ===========================================================
+
+TYPE="$1"
+shift 1
+FILES="$@"
+
+if [ "${TYPE}" = "medication_list" ]; then
+	kprinter -c ${FILES}
+	rm -f ${FILES}
+	exit 0
+fi
+
+
+exit 0
+# ===========================================================
+# $Log: gm-print_doc,v $
+# Revision 1.1  2009-12-23 13:08:08  ncq
+# - renamed to please Debian
+#
+# Revision 1.1  2009/12/21 23:04:26  ncq
+# - default print script
+#
+#
