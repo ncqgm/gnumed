@@ -1,0 +1,63 @@
+.\" ========================================================
+.\" license: GPL
+.\" ========================================================
+
+.TH GM-PRINT_DOC 1 "2009 December 23rd" "Print documents from GNUmed"
+
+
+.SH NAME
+.B gm-print_doc
+- prints documents from within GNUmed
+
+
+.SH SYNOPSIS
+.B gm-print_doc
+.RB DOCUMENT_TYPE
+.RB FILE(S)
+.RB ...
+
+
+.SH DESCRIPTION
+.B gm-print_doc
+is a helper script which GNUmed uses to print documents.
+
+.SH OPTIONS
+.PP
+.TP
+.B DOCUMENT_TYPE
+The type of document to print. GNUmed will use this option
+to indicate that the documents to print are of a certain
+logical type. This script can use this tag to decide what
+to do about a particular print job.
+
+Example: medication_list
+.TP
+.B FILE(S)
+Those are the files which GNUmed wants printed. Note that
+they can be of any mimetype as long as the target printing
+system knows how to deal with them.
+
+Typically, though, they will be PDF files.
+
+
+.SH SEE ALSO
+http://www.gnumed.de
+
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert <karsten.hilbert@gmx.net>
+for the Debian GNU/Linux system (but may be used by others).
+
+
+.SH REVISION
+
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gm-print_doc.1,v $
+
+$Id: gm-print_doc.1,v 1.1 2009-12-23 13:23:26 ncq Exp $
+
+.\" ========================================================
+.\" $Log: gm-print_doc.1,v $
+.\" Revision 1.1  2009-12-23 13:23:26  ncq
+.\" - new
+.\"
+.\"
