@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.25 2009-12-22 12:02:57 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmMedicationWidgets.py,v 1.26 2009-12-25 22:07:17 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -14,10 +14,11 @@ import wx, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime, gmMatchProvider
-from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea
-from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel
+from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
+from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting
+from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea, gmMacro
+from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -73,9 +74,6 @@ def manage_branded_drugs(parent=None):
 		return True
 	#------------------------------------------------------------
 	def new():
-
-		dbcfg = gmCfg.cCfgSQL()
-
 		drug_db = get_drug_database(parent = parent)
 
 		if drug_db is None:
@@ -121,9 +119,6 @@ def manage_substances_in_use(parent=None):
 		return True
 	#------------------------------------------------------------
 	def new():
-
-		dbcfg = gmCfg.cCfgSQL()
-
 		drug_db = get_drug_database(parent = parent)
 
 		if drug_db is None:
@@ -695,6 +690,79 @@ def edit_intake_of_substance(parent = None, substance=None):
 #============================================================
 # current substances grid
 #------------------------------------------------------------
+def configure_medication_list_template(parent = None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	template = gmFormWidgets.manage_form_templates(parent = parent)
+	option = u'form_templates.medication_list'
+
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
+		return None
+
+	dbcfg = gmCfg.cCfgSQL()
+	dbcfg.set (
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		option = option,
+		value = u'%s - %s' % (template['name_long'], template['external_version'])
+	)
+
+	return template
+#------------------------------------------------------------
+def print_medication_list(parent = None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# 1) get template
+	dbcfg = gmCfg.cCfgSQL()
+	option = u'form_templates.medication_list'
+
+	template = dbcfg.get2 (
+		option = option,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user'
+	)
+
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
+		template = configure_medication_list_template(parent = parent)
+		if template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('There is no medication list template configured.'),
+				aTitle = _('Printing medication list')
+			)
+			return False
+	else:
+		try:
+			name, ver = template.split(u' - ')
+		except:
+			_log.exception('problem splitting medication list template name [%s]', template)
+			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading medication list template.'), beep = True)
+			return False
+		template = gmForms.get_form_template(name_long = name, external_version = ver)
+
+	# 2) process template
+	meds_list = template.instantiate()
+	ph = gmMacro.gmPlaceholderHandler()
+	#ph.debug = True
+	meds_list.substitute_placeholders(data_source = ph)
+	pdf_name = meds_list.generate_output(cleanup = True)
+	meds_list.cleanup()
+
+	# 3) print template
+	printed = gmPrinting.print_file_by_shellscript(filename = pdf_name, jobtype = 'medication_list')
+	if not printed:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error printing the medication list.'),
+			aTitle = _('Printing medication list')
+		)
+		return False
+
+	return True
+#------------------------------------------------------------
 class cCurrentSubstancesGrid(wx.grid.Grid):
 	"""A grid class for displaying current substance intake.
 
@@ -709,6 +777,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__row_data = {}
 		self.__row_tooltips = {}
 		self.__prev_row = None
+		self.__prev_tooltip_row = None
 		self.__prev_cell_0 = None
 		self.__grouping_mode = u'episode'
 		self.__filter_show_unapproved = False
@@ -919,9 +988,23 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if self.GetNumberCols() > 0:
 			self.DeleteCols(pos = 0, numCols = self.GetNumberCols())
 		self.EndBatch()
-		#self.__cell_tooltips = {}
 		self.__row_data = {}
 		self.__prev_cell_0 = None
+	#------------------------------------------------------------
+	def show_info_on_entry(self):
+
+		if len(self.__row_data) == 0:
+			return
+
+		sel_rows = self.get_selected_rows()
+		if len(sel_rows) != 1:
+			return
+
+		drug_db = get_drug_database()
+		if drug_db is None:
+			return
+
+		drug_db.show_info_on_substance(substance = self.get_selected_data()[0])
 	#------------------------------------------------------------
 	def check_interactions(self):
 
@@ -967,6 +1050,69 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		subst = self.get_selected_data()[0]
 		delete_substance_intake(parent = self, substance = subst['pk_substance_intake'])
+	#------------------------------------------------------------
+	def print_medication_list(self):
+		# there could be some filtering/user interaction going on here
+		print_medication_list(parent = self)
+	#------------------------------------------------------------
+	def get_row_tooltip(self, row=None):
+
+		entry = self.__row_data[row]
+
+		tt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
+			gmTools.bool2subst(entry['is_currently_active'], _('active'), _('inactive')),
+			gmTools.bool2subst(entry['intake_is_approved_of'], _('approved'), _('unapproved')),
+			entry['pk_substance_intake']
+		)
+
+		tt += u' ' + _('Substance name: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
+		tt += u' ' + _('Preparation: %s\n') % entry['preparation']
+		tt += gmTools.coalesce(entry['strength'], u'', _(' Amount per dose: %s\n'))
+		tt += gmTools.coalesce(entry['atc_substance'], u'', _(' ATC (substance): %s\n'))
+
+		tt += u'\n'
+
+		tt += gmTools.coalesce (
+			entry['brand'],
+			u'',
+			_(' Brand name: %%s   [#%s]\n') % entry['pk_brand']
+		)
+		tt += gmTools.coalesce(entry['atc_brand'], u'', _(' ATC (brand): %s\n'))
+
+		tt += u'\n'
+
+		tt += gmTools.coalesce(entry['schedule'], u'', _(' Regimen: %s\n'))
+
+		if entry['is_long_term']:
+			duration = u' %s %s' % (gmTools.u_right_arrow, gmTools.u_infinity)
+		else:
+			if entry['duration'] is None:
+				duration = u''
+			else:
+				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(entry['duration'], gmDateTime.acc_days))
+
+		tt += _(' Started %s%s%s\n') % (
+			entry['started'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
+			duration,
+			gmTools.bool2subst(entry['is_long_term'], _(' (long-term)'), _(' (short-term)'), u'')
+		)
+
+		tt += u'\n'
+
+		tt += gmTools.coalesce(entry['aim'], u'', _(' Aim: %s\n'))
+		tt += gmTools.coalesce(entry['episode'], u'', _(' Episode: %s\n'))
+		tt += gmTools.coalesce(entry['notes'], u'', _(' Notes: %s\n'))
+
+		tt += u'\n'
+
+#		tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
+		tt += _(u'Revisions: Last modified %(mod_when)s by %(mod_by)s.') % ({
+			#'row_ver': entry['row_version'],
+			'mod_when': entry['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
+			'mod_by': entry['modified_by']
+		})
+
+		return tt
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -1023,12 +1169,43 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def __register_events(self):
 		# dynamic tooltips: GridWindow, GridRowLabelWindow, GridColLabelWindow, GridCornerLabelWindow
-#		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
+		self.GetGridWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_cells)
 		#self.GetGridRowLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_row_labels)
 		#self.GetGridColLabelWindow().Bind(wx.EVT_MOTION, self.__on_mouse_over_col_labels)
 
 		# editing cells
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__on_cell_left_dclicked)
+	#------------------------------------------------------------
+	def __on_mouse_over_cells(self, evt):
+		"""Calculate where the mouse is and set the tooltip dynamically."""
+
+		# Use CalcUnscrolledPosition() to get the mouse position within the
+		# entire grid including what's offscreen
+		x, y = self.CalcUnscrolledPosition(evt.GetX(), evt.GetY())
+
+		# use this logic to prevent tooltips outside the actual cells
+		# apply to GetRowSize, too
+#        tot = 0
+#        for col in xrange(self.NumberCols):
+#            tot += self.GetColSize(col)
+#            if xpos <= tot:
+#                self.tool_tip.Tip = 'Tool tip for Column %s' % (
+#                    self.GetColLabelValue(col))
+#                break
+#            else:  # mouse is in label area beyond the right-most column
+#            self.tool_tip.Tip = ''
+
+		row, col = self.XYToCell(x, y)
+
+		if row == self.__prev_tooltip_row:
+			return
+
+		self.__prev_tooltip_row = row
+
+		try:
+			evt.GetEventObject().SetToolTipString(self.get_row_tooltip(row = row))
+		except KeyError:
+			pass
 	#------------------------------------------------------------
 	def __on_cell_left_dclicked(self, evt):
 		row = evt.GetRow()
@@ -1083,6 +1260,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	def _on_delete_button_pressed(self, event):
 		self._grid_substances.delete_substance()
 	#--------------------------------------------------------
+	def _on_info_button_pressed(self, event):
+		self._grid_substances.show_info_on_entry()
+	#--------------------------------------------------------
 	def _on_interactions_button_pressed(self, event):
 		self._grid_substances.check_interactions()
 	#--------------------------------------------------------
@@ -1097,6 +1277,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_show_inactive_checked(self, event):
 		self._grid_substances.filter_show_inactive = self._CHBOX_show_inactive.GetValue()
+	#--------------------------------------------------------
+	def _on_print_button_pressed(self, event):
+		self._grid_substances.print_medication_list()
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1115,7 +1298,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.25  2009-12-22 12:02:57  ncq
+# Revision 1.26  2009-12-25 22:07:17  ncq
+# - cleanup
+# - configure-medication-list-template
+# - print-medication-list
+# - show-info-on-entry
+# - tooltips on substance entry rows
+#
+# Revision 1.25  2009/12/22 12:02:57  ncq
 # - cleanup
 #
 # Revision 1.24  2009/12/03 17:51:11  ncq
