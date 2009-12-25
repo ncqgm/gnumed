@@ -3,7 +3,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,7 +20,7 @@ _log.info(__version__)
 class gmCurrentSubstancesPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient current medication list."""
 
-	tab_name = _('Substances')
+	tab_name = _('Medication')
 
 	def name (self):
 		return gmCurrentSubstancesPlugin.tab_name
@@ -30,7 +30,7 @@ class gmCurrentSubstancesPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('Current &medications'))
+		return ('emr', _('Current &medication'))
 
 	def can_receive_focus(self):
 		if not self._verify_patient_avail():
@@ -44,7 +44,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmCurrentSubstancesPlugin.py,v $
-# Revision 1.2  2009-06-29 15:13:25  ncq
+# Revision 1.3  2009-12-25 22:08:24  ncq
+# - rename to "Medication"
+#
+# Revision 1.2  2009/06/29 15:13:25  ncq
 # - improved placement in menu hierarchy
 # - add active letters
 #
