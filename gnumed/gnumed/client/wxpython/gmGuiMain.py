@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.481 2009-12-21 15:06:45 ncq Exp $
-__version__ = "$Revision: 1.481 $"
+# $Id: gmGuiMain.py,v 1.482 2009-12-25 21:45:28 ncq Exp $
+__version__ = "$Revision: 1.482 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -313,6 +313,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_emr = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('EMR ...'), menu_cfg_emr)
 
+		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
+
 		# -- submenu gnumed / config / emr / encounter
 		menu_cfg_encounter = wx.Menu()
 		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
@@ -359,7 +362,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
 
 		item = menu_master_data.Append(-1, _('&Form templates'), _('Manage templates for forms and letters.'))
-		self.Bind(wx.EVT_MENU, self.__on_edit_templates, item)
+		self.Bind(wx.EVT_MENU, self.__on_manage_form_templates, item)
 
 		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
@@ -939,8 +942,8 @@ class gmTopLevelFrame(wx.Frame):
 			return True
 		gmFormWidgets.create_new_letter(parent = self)
 	#----------------------------------------------
-	def __on_edit_templates(self, evt):
-		gmFormWidgets.let_user_select_form_template(parent = self)
+	def __on_manage_form_templates(self, evt):
+		gmFormWidgets.manage_form_templates(parent = self)
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------
@@ -1429,6 +1432,9 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	# submenu GNUmed / config / encounter
+	#----------------------------------------------
+	def __on_cfg_medication_list_template(self, evt):
+		gmMedicationWidgets.configure_medication_list_template(parent = self)
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
@@ -2899,7 +2905,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.481  2009-12-21 15:06:45  ncq
+# Revision 1.482  2009-12-25 21:45:28  ncq
+# - configure meds list template
+# - manage form templates
+#
+# Revision 1.481  2009/12/21 15:06:45  ncq
 # - factor out check-for-updates
 # - support --skip-update-check
 #
