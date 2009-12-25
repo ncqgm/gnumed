@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.19 2009-12-02 16:48:58 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmMedication.py,v 1.20 2009-12-25 21:38:50 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -77,7 +77,9 @@ class cGelbeListeCSVFile(object):
 		u'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
 		u't-rezept-pflicht',				# Thalidomid-Rezept
 		u'erstattbares_medizinprodukt',
-		u'hilfsmittel'
+		u'hilfsmittel',
+		u'hzv_rabattkennung',
+		u'hzv_preis'
 	]
 	boolean_fields = [
 		u'status_rezeptpflicht',
@@ -163,6 +165,9 @@ class cDrugDataSourceInterface(object):
 	#--------------------------------------------------------
 	def check_drug_interactions(self):
 		raise NotImplementedError
+	#--------------------------------------------------------
+	def show_info_on_drug(self, drug=None):
+		raise NotImplementedError
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
@@ -243,12 +248,13 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		return rows[0]['pk']
 	#--------------------------------------------------------
-	def switch_to_frontend(self, blocking=False):
+	def switch_to_frontend(self, blocking=False, cmd=None):
 
 		# must make sure csv file exists
 		open(self.default_csv_filename, 'wb').close()
 
-		cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
+		if cmd is None:
+			cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
 
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the MMI drug database')
@@ -300,10 +306,14 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		for entry in selected_drugs:
 
+			_log.debug('importing drug: %s %s', entry['name'], entry['darreichungsform'])
+
 			if entry[u'hilfsmittel']:
+				_log.debug('skipping Hilfsmittel')
 				continue
 
 			if entry[u'erstattbares_medizinprodukt']:
+				_log.debug('skipping sonstiges Medizinprodukt')
 				continue
 
 			# create branded drug (or get it if it already exists)
@@ -364,6 +374,27 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		bdt_file.close()
 
 		self.switch_to_frontend(blocking = False)
+	#--------------------------------------------------------
+	def show_info_on_substance(self, substance=None):
+
+		cmd = None
+
+		if substance.external_code is not None:
+			code_type, pzn = substance.external_code
+			if code_type == u'DE-PZN':
+				cmd = u'%s -PZN %s' % (self.path_to_binary, pzn)
+
+		if cmd is None:
+			name = gmTools.coalesce (
+				substance['brand'],
+				substance['substance']
+			)
+			cmd = u'%s -NAME %s' % (self.path_to_binary, name)
+
+		# better to clean up interactions file
+		open(self.interactions_filename, 'wb').close()
+
+		self.switch_to_frontend(cmd = cmd)
 #============================================================
 class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
 
@@ -845,7 +876,12 @@ if __name__ == "__main__":
 		test_show_components()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.19  2009-12-02 16:48:58  ncq
+# Revision 1.20  2009-12-25 21:38:50  ncq
+# - add 2 new fields to MMI CSV file
+# - show-info-on-drug
+# - enhance switch-to-frontend to allow custom startup cmd
+#
+# Revision 1.19  2009/12/02 16:48:58  ncq
 # - add infrastructure for removing component from brand
 #
 # Revision 1.18  2009/12/01 21:48:09  ncq
