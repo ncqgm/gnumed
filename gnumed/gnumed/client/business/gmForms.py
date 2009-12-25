@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.67 2009-12-21 20:26:05 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmForms.py,v 1.68 2009-12-25 21:37:01 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -27,13 +27,17 @@ from Gnumed.business import gmPerson, gmSurgery
 _log = logging.getLogger('gm.forms')
 _log.info(__version__)
 
-engine_ooo = 'O'
+#============================================================
+# this order is also used in choice boxes for the engine
+form_engine_abbrevs = [u'O', u'L']
 
-engine_names = {
+form_engine_names = {
 	u'O': 'OpenOffice',
-	u'L': 'LaTeX',
-	u'X': 'XSLT'
+	u'L': 'LaTeX'
 }
+
+# is filled in further below after each engine is defined
+form_engines = {}
 
 #============================================================
 # match providers
@@ -184,17 +188,38 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def instantiate(self):
 		fname = self.export_to_file()
-		return engine[self._payload[self._idx['engine']]](template_file = fname)
+		engine = form_engines[self._payload[self._idx['engine']]]
+		return engine(template_file = fname)
 #============================================================
+def get_form_template(name_long=None, external_version=None):
+	cmd = u'select pk from ref.paperwork_templates where name_long = %(lname)s and external_version = %(ver)s'
+	args = {'lname': name_long, 'ver': external_version}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if len(rows) == 0:
+		return None
+
+	return cFormTemplate(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
 def get_form_templates(engine=None, active_only=False):
 	"""Load form templates."""
+
+	args = {'eng': engine, 'in_use': active_only}
+
+	where_parts = []
+	if engine is not None:
+		where_parts.append(u'engine = %(eng)s')
+
 	if active_only:
-		query = u"select * from ref.v_paperwork_templates where engine = %(eng)s and in_use is True"
+		where_parts.append(u'in_use is True')
+
+	if len(where_parts) == 0:
+		cmd = u"select * from ref.v_paperwork_templates order by in_use desc, name_long"
 	else:
-		query = u"select * from ref.v_paperwork_templates where engine = %(eng)s order by in_use desc"
+		cmd = u"select * from ref.v_paperwork_templates where %s order by in_use desc, name_long" % u'and'.join(where_parts)
 
 	rows, idx = gmPG2.run_ro_queries (
-		queries = [{'cmd': query, 'args': {'eng': engine, 'in_use': active_only}}],
+		queries = [{'cmd': cmd, 'args': args}],
 		get_col_idx = True
 	)
 	templates = [ cFormTemplate(row = {'pk_field': 'pk_paperwork_template', 'data': r, 'idx': idx}) for r in rows ]
@@ -601,6 +626,7 @@ class cLaTeXForm(cFormEngine):
 		os.chdir(old_cwd)
 		pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
 		shutil.move(pdf_name, os.path.split(self.instance_filename)[0])
+		pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
 
 		# cleanup LaTeX sandbox ?
 		if cleanup:
@@ -609,6 +635,12 @@ class cLaTeXForm(cFormEngine):
 			os.rmdir(sandbox_dir)
 
 		return pdf_name
+	#--------------------------------------------------------
+	def cleanup(self):
+		try:
+			os.remove(self.template_filename)
+		except:
+			_log.debug(u'cannot remove template file [%s]', self.template_filename)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -628,6 +660,9 @@ class cLaTeXForm(cFormEngine):
 		text = text.replace('~','\\verb#~#')
 
 		return text
+#------------------------------------------------------------
+form_engines[u'L'] = cLaTeXForm
+#------------------------------------------------------------
 #------------------------------------------------------------
 class cIanLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX.
@@ -1068,7 +1103,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.67  2009-12-21 20:26:05  ncq
+# Revision 1.68  2009-12-25 21:37:01  ncq
+# - properly make forms engine access generic
+#
+# Revision 1.67  2009/12/21 20:26:05  ncq
 # - instantiate() on templates
 # - cleanup
 # - improve form engine base class
