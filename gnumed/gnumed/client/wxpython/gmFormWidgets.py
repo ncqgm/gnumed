@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.11 2009-06-11 12:37:25 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmFormWidgets.py,v 1.12 2009-12-25 21:44:43 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, logging
@@ -26,7 +26,10 @@ _log.info(__version__)
 #============================================================
 # convenience functions
 #============================================================
-def let_user_select_form_template(parent=None):
+def manage_form_templates(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
 
 	#-------------------------
 	def edit(template=None):
@@ -53,17 +56,14 @@ def let_user_select_form_template(parent=None):
 		return False
 	#-------------------------
 	def refresh(lctrl):
-		templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
-		lctrl.set_string_items(items = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ])
+		templates = gmForms.get_form_templates(active_only = False)
+		lctrl.set_string_items(items = [ [t['name_long'], t['external_version'], gmForms.form_engine_names[t['engine']]] for t in templates ])
 		lctrl.set_data(data = templates)
 	#-------------------------
-	#templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
 	template = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Select letter or form template.'),
 		columns = [_('Template'), _('Version'), _('Type')],
-		#choices = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ],
-		#data = templates,
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
@@ -76,7 +76,7 @@ def let_user_select_form_template(parent=None):
 def create_new_letter(parent=None):
 
 	# 1) have user select template
-	template = let_user_select_form_template(parent = parent)
+	template = manage_form_templates(parent = parent)
 	if template is None:
 		return
 
@@ -167,9 +167,9 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._PRW_template_type.SetText(u'')
 			self._PRW_instance_type.SetText(u'')
 			self._TCTRL_filename.SetValue(u'')
-			# FIXME: add engine handling
+			self._CH_engine.SetSelection(0)
 			self._CHBOX_active.SetValue(True)
-			
+
 			self._TCTRL_date_modified.SetValue(u'')
 			self._TCTRL_modified_by.SetValue(u'')
 
@@ -180,9 +180,9 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._PRW_template_type.SetText(self.__template['l10n_template_type'], data = self.__template['pk_template_type'])
 			self._PRW_instance_type.SetText(self.__template['l10n_instance_type'], data = self.__template['instance_type'])
 			self._TCTRL_filename.SetValue(self.__template['filename'])
-			# FIXME: add engine handling
+			self._CH_engine.SetSelection(gmForms.form_engine_abbrevs.index(self.__template['engine']))
 			self._CHBOX_active.SetValue(self.__template['in_use'])
-			
+
 			self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%x'))
 			self._TCTRL_modified_by.SetValue(self.__template['modified_by'])
 
@@ -255,8 +255,9 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self.__template['instance_type'] = tmp
 		self.__template['filename'] = self._TCTRL_filename.GetValue()
 		self.__template['in_use'] = self._CHBOX_active.GetValue()
+		self.__template['engine'] = gmForms.form_engine_abbrevs[self._CH_engine.GetSelection()]
 
-		self.__template.save_payload()
+		self.__template.save()
 		return True
 	#--------------------------------------------------------
 	# event handlers
@@ -317,7 +318,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.11  2009-06-11 12:37:25  ncq
+# Revision 1.12  2009-12-25 21:44:43  ncq
+# - let-user-select-form-template -> manage-form-templates
+# - handle setting engine type in form template EA
+#
+# Revision 1.11  2009/06/11 12:37:25  ncq
 # - much simplified initial setup of list ctrls
 #
 # Revision 1.10  2008/10/12 16:20:11  ncq
