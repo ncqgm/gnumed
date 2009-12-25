@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.89 2009-12-01 22:07:00 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.90 2009-12-25 22:10:52 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.6.rc2"
@@ -126,6 +126,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_loinc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-print_doc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-read_chipcard.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gnumed-client-init_script.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/external-tools/
@@ -169,6 +170,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/gm-from-cvs.conf ./gnumed-client.$CLIENTREV/client/doc/gnumed.conf.example
 cp -R ../../client/doc/hook_script_example.py ./gnumed-client.$CLIENTREV/client/doc/hook_script_example.py
 cp -R ../../client/doc/man-pages/gnumed.1 ./gnumed-client.$CLIENTREV/client/doc/gnumed.1
+cp -R ../../client/doc/man-pages/gm-print_doc.1 ./gnumed-client.$CLIENTREV/client/doc/gm-print_doc.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./gnumed-client.$CLIENTREV/client/doc/gm_ctl_client.1
 cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./gnumed-client.$CLIENTREV/client/doc/gm-install_arriba.8
 
@@ -464,7 +466,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.89  2009-12-01 22:07:00  ncq
+# Revision 1.90  2009-12-25 22:10:52  ncq
+# - include man page for new gm-print_doc
+#
+# Revision 1.89  2009/12/01 22:07:00  ncq
 # - bump version
 #
 # Revision 1.88  2009/11/24 21:04:19  ncq
