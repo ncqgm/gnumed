@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.158 $
+# $Revision: 1.159 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-12-22 13:05+CET\n"
-"PO-Revision-Date: 2009-12-22 13:09+0100\n"
+"POT-Creation-Date: 2009-12-25 23:11+CET\n"
+"PO-Revision-Date: 2009-12-25 23:32+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1440,13 +1440,16 @@ msgid "Comment"
 msgstr "Kommentar"
 
 msgid "Inactive"
-msgstr "Inaktiv"
+msgstr "Inaktive"
 
 msgid "Unapproved"
 msgstr "Ungebilligte"
 
 msgid "&Edit"
 msgstr "Bea&rbeiten"
+
+msgid "Info"
+msgstr "Info"
 
 msgid "&Interactions?"
 msgstr "&Interaktionen ?"
@@ -1477,6 +1480,9 @@ msgstr "Den markierten Eintrag bearbeiten."
 
 msgid "Remove a substance from the list."
 msgstr "Eine Substanz aus der Liste löschen."
+
+msgid "Show in-depth information on the selected substance if available."
+msgstr "Fachinformationen zur markierten Substanz anzeigen, sofern verfügbar."
 
 msgid ""
 "Check for interactions between selected drugs.\n"
@@ -5457,6 +5463,12 @@ msgstr "Medikamentenquelle"
 msgid "EMR ..."
 msgstr "Karteikarte ..."
 
+msgid "Medication list template"
+msgstr "Vorlage für Medikamentenliste"
+
+msgid "Select the template for printing a medication list."
+msgstr "Wählen Sie die Druckvorlage für die Medikamentenliste."
+
 msgid "Encounter ..."
 msgstr "Konsultation ..."
 
@@ -7880,6 +7892,21 @@ msgstr "Substanzeinnahme dokumentieren"
 msgid "Editing substance intake"
 msgstr "Substanzeinnahme bearbeiten"
 
+msgid "No medication list template configured."
+msgstr "Keine Druckvorlage für die Medikamentenliste voreingestellt."
+
+msgid "There is no medication list template configured."
+msgstr "Es ist keine Druckvorlagen für die Medikamentenliste eingestellt."
+
+msgid "Printing medication list"
+msgstr "Drucken der Medikamentenliste"
+
+msgid "Problem loading medication list template."
+msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
+
+msgid "Error printing the medication list."
+msgstr "Fehler beim Drucken der Medikamentenliste."
+
 msgid "Dose"
 msgstr "Dosis"
 
@@ -7891,6 +7918,57 @@ msgstr "Kann nicht mehrere Substanzen gleichzeitig bearbeiten."
 
 msgid "Cannot delete more than one substance at once."
 msgstr "Kann nicht mehrere Substanzen gleichzeitig entfernen."
+
+msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
+msgstr "Substanzgebrauch (%s, %s)   [#%s]                     \n"
+
+msgid "approved"
+msgstr "gebilligt"
+
+msgid "unapproved"
+msgstr "ungebilligt"
+
+msgid "Substance name: %s   [#%s]\n"
+msgstr "Substanzname: %s   [#%s]\n"
+
+msgid "Preparation: %s\n"
+msgstr "Darreichungsform: %s\n"
+
+msgid " Amount per dose: %s\n"
+msgstr " Menge pro Dosis: %s\n"
+
+msgid " ATC (substance): %s\n"
+msgstr " ATC (Wirkstoff): %s\n"
+
+msgid " Brand name: %%s   [#%s]\n"
+msgstr " Handelsname: %%s   [#%s]\n"
+
+msgid " ATC (brand): %s\n"
+msgstr " ATC (Handelsname): %s\n"
+
+msgid " Regimen: %s\n"
+msgstr " Einnahmeplan: %s\n"
+
+msgid " Started %s%s%s\n"
+msgstr " Begonnen %s%s%s\n"
+
+msgid " (long-term)"
+msgstr " (langfristig)"
+
+msgid " (short-term)"
+msgstr " (kurzzeitig)"
+
+msgid " Aim: %s\n"
+msgstr " Ziel: %s\n"
+
+msgid " Episode: %s\n"
+msgstr " Episode: %s\n"
+
+msgid " Notes: %s\n"
+msgstr " Notizen: %s\n"
+
+msgid "Revisions: Last modified %(mod_when)s by %(mod_by)s."
+msgstr "Revision: Zuletzt geändert %(mod_when)s durch %(mod_by)s."
 
 msgid "Cannot move progress notes. No active patient."
 msgstr "Kann Verlaufsnotizen nicht verschieben. Kein Patient aktiv."
@@ -9323,8 +9401,11 @@ msgstr ""
 msgid "Pre-formatted reports"
 msgstr "Vorgefertigte Auswertungen"
 
-msgid "Current &medications"
-msgstr "Derzeitige &Medikation"
+msgid "Medication"
+msgstr "Medikamente"
+
+msgid "Current &medication"
+msgstr "Derzeitige Medikation"
 
 msgid "Reports"
 msgstr "Analysen"
@@ -9722,14 +9803,14 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Current &medications"
+#~ msgstr "Derzeitige &Medikation"
 #~ msgid "&Another..."
 #~ msgstr "&Weitere ..."
 #~ msgid "All patients"
 #~ msgstr "Alle patient"
 #~ msgid "Filter to:"
 #~ msgstr "Filtern auf:"
-#~ msgid "Current &medication"
-#~ msgstr "Derzeitige Medikation"
 #~ msgid ""
 #~ "Select current medication from drug database and save into progress notes."
 #~ msgstr ""
@@ -10418,8 +10499,6 @@ msgstr "erstmals"
 #~ msgstr "Übw an"
 #~ msgid "Company"
 #~ msgstr "Firma"
-#~ msgid "Medications"
-#~ msgstr "Medikamente"
 #~ msgid "Copy To"
 #~ msgstr "Nachrichtlich"
 #~ msgid "add tests"
