@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -204,7 +204,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 		episode_id - episodes's primary key
 		encounter_id - encounter's primary key
 	"""
-	# any of the args being None should fail the SQL code
+	# any of the args being None (except soap_cat) should fail the SQL code
 
 	# sanity checks:
 
@@ -303,7 +303,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.43  2009-11-13 20:46:49  ncq
+# Revision 1.44  2009-12-26 19:05:08  ncq
+# - improved comment
+#
+# Revision 1.43  2009/11/13 20:46:49  ncq
 # - limit EMR search to 1000 results to remain sane
 #
 # Revision 1.42  2009/11/08 20:42:00  ncq
