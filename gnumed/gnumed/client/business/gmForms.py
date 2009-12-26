@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.69 2009-12-26 19:05:58 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmForms.py,v 1.70 2009-12-26 19:55:12 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -637,7 +637,7 @@ class cLaTeXForm(cFormEngine):
 		cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
 		for run in [1, 2, 3]:
 			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
-				gmDispatcher.send(msg = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
+				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 				return False
 
 		os.chdir(old_cwd)
@@ -1120,7 +1120,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.69  2009-12-26 19:05:58  ncq
+# Revision 1.70  2009-12-26 19:55:12  ncq
+# - wrong keyword
+#
+# Revision 1.69  2009/12/26 19:05:58  ncq
 # - start OOo wrapper
 # - check pdflatex return code
 #
