@@ -1,6 +1,6 @@
 #!/bin/bash
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 echo "-------------------------------------------------------------"
 echo "This script will check your environment for applications"
@@ -155,10 +155,32 @@ else
 	echo "found"
 fi
 
+echo -n " 'pdflatex' command... "
+BIN=`which pdflatex`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'pdflatex' command installed."
+	echo "  INFO : It is used to turn form templates into printable PDFs."
+else
+	echo "found"
+fi
+
+echo -n " 'kprinter' command... "
+BIN=`which kprinter`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'kprinter' command installed."
+	echo "  INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "found"
+fi
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.16  2009-08-11 10:43:54  ncq
+# Revision 1.17  2009-12-26 19:04:24  ncq
+# - check for kprinter and pdflatex
+#
+# Revision 1.16  2009/08/11 10:43:54  ncq
 # - better PG checking
 # - version and path of Python binary
 #
