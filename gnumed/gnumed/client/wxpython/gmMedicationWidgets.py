@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.26 2009-12-25 22:07:17 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmMedicationWidgets.py,v 1.27 2009-12-26 19:08:38 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -761,6 +761,15 @@ def print_medication_list(parent = None):
 		)
 		return False
 
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+	epi = emr.add_episode(episode_name = 'administration', is_open = False)
+	emr.add_clin_narrative (
+		soap_cat = None,
+		note = _('medication list printed from template [%s - %s]') % (template['name_long'], template['external_version']),
+		episode = epi
+	)
+
 	return True
 #------------------------------------------------------------
 class cCurrentSubstancesGrid(wx.grid.Grid):
@@ -1298,7 +1307,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.26  2009-12-25 22:07:17  ncq
+# Revision 1.27  2009-12-26 19:08:38  ncq
+# - document printing of medication list in EMR
+#
+# Revision 1.26  2009/12/25 22:07:17  ncq
 # - cleanup
 # - configure-medication-list-template
 # - print-medication-list
