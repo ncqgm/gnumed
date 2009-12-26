@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.68 2009-12-25 21:37:01 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmForms.py,v 1.69 2009-12-26 19:05:58 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -548,8 +548,23 @@ class cFormEngine(object):
 		return status
 
 #================================================================
-# LaTeX template forms
+# OOo template forms
+#----------------------------------------------------------------
+class cOOoForm(cFormEngine):
+	"""A forms engine wrapping OOo."""
+
+	def __init__ (self, template_file=None):
+		super(self.__class__, self).__init__(template_file = template_file)
+
+
+		path, ext = os.path.splitext(self.template_filename)
+		if ext in [r'', r'.']:
+			ext = r'.tex'
+		self.instance_filename = r'%s-instance%s' % (path, ext)
+
 #================================================================
+# LaTeX template forms
+#----------------------------------------------------------------
 class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX."""
 
@@ -621,7 +636,9 @@ class cLaTeXForm(cFormEngine):
 		# LaTeX can need up to three runs to get cross-references et al right
 		cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
 		for run in [1, 2, 3]:
-			gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
+			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+				gmDispatcher.send(msg = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
+				return False
 
 		os.chdir(old_cwd)
 		pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
@@ -1103,7 +1120,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.68  2009-12-25 21:37:01  ncq
+# Revision 1.69  2009-12-26 19:05:58  ncq
+# - start OOo wrapper
+# - check pdflatex return code
+#
+# Revision 1.68  2009/12/25 21:37:01  ncq
 # - properly make forms engine access generic
 #
 # Revision 1.67  2009/12/21 20:26:05  ncq
