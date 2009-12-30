@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmCfgWidgets.py,v $
-# $Id: gmCfgWidgets.py,v 1.3 2009-12-21 15:03:34 ncq Exp $
-__version__ = '$Revision: 1.3 $'
+# $Id: gmCfgWidgets.py,v 1.4 2009-12-30 18:47:01 ncq Exp $
+__version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import logging
+import logging, sys
 
 
 # 3rd party
@@ -18,7 +18,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmCfg, gmDispatcher, gmTools
+from Gnumed.pycommon import gmCfg, gmDispatcher, gmTools, gmCfg2
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 
@@ -44,6 +44,8 @@ def check_for_updates():
 		bias = 'workplace',
 		default = True
 	))
+
+	_cfg = gmCfg2.gmCfgData()
 
 	found, msg = gmTools.check_for_update (
 		url = url,
@@ -210,10 +212,22 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 
 	return
 #================================================================
+if __name__ == '__main__':
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+	if (len(sys.argv) > 1):
+		if sys.argv[1] == 'test':
+			check_for_updates()
 
 #================================================================
 # $Log: gmCfgWidgets.py,v $
-# Revision 1.3  2009-12-21 15:03:34  ncq
+# Revision 1.4  2009-12-30 18:47:01  ncq
+# - fix strange case of missing gmCfg2 import
+#
+# Revision 1.3  2009/12/21 15:03:34  ncq
 # - check_for_updates should be here
 #
 # Revision 1.2  2009/10/20 10:25:43  ncq
