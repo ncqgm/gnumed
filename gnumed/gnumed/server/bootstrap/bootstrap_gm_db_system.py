@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.112 $"
+__version__ = "$Revision: 1.113 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -46,17 +46,22 @@ local_python_base_dir = os.path.dirname (
 	os.path.abspath(os.path.join(sys.argv[0], '..', '..'))
 )
 
-# does the path exist at all, physically ?
+# does the GNUmed import path exist at all, physically ?
 # (*broken* links are reported as False)
 if not os.path.exists(os.path.join(local_python_base_dir, 'Gnumed')):
-	orig = os.path.join(local_python_base_dir, 'server')
-	if not os.path.exists(orig):
-		orig = os.path.join(local_python_base_dir, 'client')			# CVS tree
-	lnk = os.path.join(local_python_base_dir, 'Gnumed')
+	real_dir = os.path.join(local_python_base_dir, 'server')
+	is_useful_import_dir = (
+		os.path.exists(os.path.join(real_dir, 'pycommon'))
+			and
+		os.path.exists(os.path.join(real_dir, '__init__.py'))
+	)
+	if not is_useful_import_dir:
+		real_dir = os.path.join(local_python_base_dir, 'client')			# CVS tree
+	link_name = os.path.join(local_python_base_dir, 'Gnumed')
 	print "Creating module import symlink ..."
-	print ' original:', orig
-	print '     link:', lnk
-	os.symlink(orig, lnk)
+	print ' real dir:', real_dir
+	print '     link:', link_name
+	os.symlink(real_dir, link_name)
 
 print "Adjusting PYTHONPATH ..."
 sys.path.insert(0, local_python_base_dir)
@@ -1487,7 +1492,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.112  2009-12-22 12:03:54  ncq
+# Revision 1.113  2010-01-01 21:25:20  ncq
+# - much improved import link checking
+#
+# Revision 1.112  2009/12/22 12:03:54  ncq
 # - slightly better wording
 #
 # Revision 1.111  2009/11/24 21:05:39  ncq
