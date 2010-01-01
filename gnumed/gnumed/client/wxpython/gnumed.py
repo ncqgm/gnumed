@@ -48,13 +48,13 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.164 2009-12-26 11:54:06 ncq Exp $
-__version__ = "$Revision: 1.164 $"
+# $Id: gnumed.py,v 1.165 2010-01-01 21:23:15 ncq Exp $
+__version__ = "$Revision: 1.165 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # standard library
-import sys, os, os.path, signal, logging
+import sys, os, os.path, signal, logging, platform
 
 
 # do not run as module
@@ -168,13 +168,13 @@ def setup_python_path():
 
 	# does the path exist at all, physically ?
 	# (*broken* links are reported as False)
-	lnk = os.path.join(local_python_base_dir, 'Gnumed')
-	if not os.path.exists(lnk):
-		orig = os.path.join(local_python_base_dir, 'client')
+	link_name = os.path.join(local_python_base_dir, 'Gnumed')
+	if not os.path.exists(link_name):
+		real_dir = os.path.join(local_python_base_dir, 'client')
 		print "Creating module import symlink ..."
-		print ' original:', orig
-		print '     link:', lnk
-		os.symlink(orig, lnk)
+		print ' real dir:', real_dir
+		print '     link:', link_name
+		os.symlink(real_dir, link_name)
 
 	print "Adjusting PYTHONPATH ..."
 	sys.path.insert(0, local_python_base_dir)
@@ -461,8 +461,9 @@ setup_python_path()
 setup_logging()
 
 _log.info('Starting up as main module (%s).', __version__)
-_log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
 _log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
+_log.info('Platform: %s', platform.uname())
+_log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
 try:
 	import lsb_release
 	_log.info('%s' % lsb_release.get_distro_information())
@@ -507,7 +508,11 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.164  2009-12-26 11:54:06  ncq
+# Revision 1.165  2010-01-01 21:23:15  ncq
+# - improve checking of import link
+# - better logging
+#
+# Revision 1.164  2009/12/26 11:54:06  ncq
 # - bump version
 #
 # Revision 1.163  2009/12/21 15:13:16  ncq
