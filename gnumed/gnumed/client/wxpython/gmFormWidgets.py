@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.12 2009-12-25 21:44:43 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmFormWidgets.py,v 1.13 2010-01-01 21:50:54 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, logging
@@ -14,8 +14,8 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmTools, gmDispatcher
-from Gnumed.business import gmForms
+from Gnumed.pycommon import gmI18N, gmTools, gmDispatcher, gmPrinting
+from Gnumed.business import gmForms, gmPerson
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmMacro
 from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl, wxgFormTemplateEditAreaDlg
 
@@ -26,6 +26,127 @@ _log.info(__version__)
 #============================================================
 # convenience functions
 #============================================================
+def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# 1) get template
+	template = manage_form_templates(parent = parent)
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'))
+		return None
+
+	if template['engine'] == u'O':
+		return print_doc_from_ooo_template(template = template)
+
+	wx.BeginBusyCursor()
+
+	# 2) process template
+	doc = template.instantiate()
+	ph = gmMacro.gmPlaceholderHandler()
+	#ph.debug = True
+	doc.substitute_placeholders(data_source = ph)
+	printable_file = doc.generate_output(cleanup = True)
+	doc.cleanup()
+	if printable_file is None:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error creating printable document.'),
+			aTitle = _('Printing document')
+		)
+		return False
+
+	# 3) print template
+	if jobtype is None:
+		jobtype = 'generic_document'
+
+	printed = gmPrinting.print_file_by_shellscript(filename = printable_file, jobtype = jobtype)
+	if not printed:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error printing document (%s).') % jobtype,
+			aTitle = _('Printing document')
+		)
+		return False
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+	if episode is None:
+		episode = emr.add_episode(episode_name = 'administration', is_open = False)
+	emr.add_clin_narrative (
+		soap_cat = None,
+		note = _('%s printed from template [%s - %s]') % (jobtype, template['name_long'], template['external_version']),
+		episode = episode
+	)
+
+	# 4) keep a copy
+	if keep_a_copy:
+		# tell UI to import the file
+		gmDispatcher.send (
+			signal = u'import_document_from_file',
+			filename = printable_file,
+			document_type = template['instance_type'],
+			unlock_patient = True
+		)
+
+	wx.EndBusyCursor()
+
+	return True
+#------------------------------------------------------------
+# eventually this should become superfluous when there's a
+# standard engine wrapper around OOo
+def print_doc_from_ooo_template(template=None):
+
+	# export template to file
+	filename = template.export_to_file()
+	if filename is None:
+		gmGuiHelpers.gm_show_error (
+			_(	'Error exporting form template\n'
+				'\n'
+				' "%s" (%s)'
+			) % (template['name_long'], template['external_version']),
+			_('Letter template export')
+		)
+		return False
+
+	try:
+		doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
+	except ImportError:
+		gmGuiHelpers.gm_show_error (
+			_('Cannot connect to OpenOffice.\n\n'
+			  'The UNO bridge module for Python\n'
+			  'is not installed.'
+			),
+			_('Letter writer')
+		)
+		return False
+
+	if not doc.open_in_ooo():
+		gmGuiHelpers.gm_show_error (
+			_('Cannot connect to OpenOffice.\n'
+			  '\n'
+			  'You may want to increase the option\n'
+			  '\n'
+			  ' <%s>'
+			) % _('OOo startup time'),
+			_('Letter writer')
+		)
+		try: os.remove(filename)
+		except: pass
+		return False
+
+	doc.show(False)
+	ph_handler = gmMacro.gmPlaceholderHandler()
+	doc.replace_placeholders(handler = ph_handler)
+
+	filename = filename.replace('.ott', '.odt').replace('-FormTemplate-', '-FormInstance-')
+	doc.save_in_ooo(filename = filename)
+
+	doc.show(True)
+
+	return True
+#------------------------------------------------------------
 def manage_form_templates(parent=None):
 
 	if parent is None:
@@ -318,7 +439,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.12  2009-12-25 21:44:43  ncq
+# Revision 1.13  2010-01-01 21:50:54  ncq
+# - generic print-doc-from-template
+#
+# Revision 1.12  2009/12/25 21:44:43  ncq
 # - let-user-select-form-template -> manage-form-templates
 # - handle setting engine type in form template EA
 #
