@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.27 2009-12-26 19:08:38 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmMedicationWidgets.py,v 1.28 2010-01-01 21:48:15 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -727,7 +727,6 @@ def print_medication_list(parent = None):
 	)
 
 	if template is None:
-		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		template = configure_medication_list_template(parent = parent)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
@@ -1307,7 +1306,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.27  2009-12-26 19:08:38  ncq
+# Revision 1.28  2010-01-01 21:48:15  ncq
+# - remove confusing status message
+#
+# Revision 1.27  2009/12/26 19:08:38  ncq
 # - document printing of medication list in EMR
 #
 # Revision 1.26  2009/12/25 22:07:17  ncq
