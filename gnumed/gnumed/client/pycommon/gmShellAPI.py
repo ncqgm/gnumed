@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.10 2009-04-20 11:39:41 ncq Exp $
+# $Id: gmShellAPI.py,v 1.11 2010-01-01 21:20:01 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -76,8 +76,8 @@ def run_command_in_shell(command=None, blocking=False):
 		This will make the code *block* until the shell command exits.
 		It will likely only work on UNIX shells where "cmd &" makes sense.
 	"""
-	_log.debug('shell command >>>%s<<<' % command)
-	_log.debug('blocking: %s' % blocking)
+	_log.debug('shell command >>>%s<<<', command)
+	_log.debug('blocking: %s', blocking)
 
 	# FIXME: command should be checked for shell exploits
 
@@ -108,20 +108,21 @@ def run_command_in_shell(command=None, blocking=False):
 		if command[-2:] != ' &':
 			command += ' &'
 
-	_log.info('running shell command >>>%s<<<' % command)
+	_log.info('running shell command >>>%s<<<', command)
 	ret_val = os.system(command.encode(sys.getfilesystemencoding()))
-	_log.debug('os.system() returned: [%s]' % ret_val)
+	_log.debug('os.system() returned: [%s]', ret_val)
 
 	exited_normally = False
-	_log.debug('exited via exit(): %s' % os.WIFEXITED(ret_val))
+	_log.debug('exited via exit(): %s', os.WIFEXITED(ret_val))
 	if os.WIFEXITED(ret_val):
-		_log.debug('exit code: [%s]' % os.WEXITSTATUS(ret_val))
+		_log.debug('exit code: [%s]', os.WEXITSTATUS(ret_val))
 		exited_normally = (os.WEXITSTATUS(ret_val) == 0)
-	_log.debug('dumped core: %s' % os.WCOREDUMP(ret_val))
-	_log.debug('stopped by signal: %s' % os.WIFSIGNALED(ret_val))
+		_log.debug('normal exit: %s', exited_normally)
+	_log.debug('dumped core: %s', os.WCOREDUMP(ret_val))
+	_log.debug('stopped by signal: %s', os.WIFSIGNALED(ret_val))
 	if os.WIFSIGNALED(ret_val):
-		_log.debug('STOP signal was: [%s]' % os.STOPSIG(ret_val))
-		_log.debug('TERM signal was: [%s]' % os.TERMSIG(ret_val))
+		_log.debug('STOP signal was: [%s]', os.STOPSIG(ret_val))
+		_log.debug('TERM signal was: [%s]', os.TERMSIG(ret_val))
 
 	return exited_normally
 #===========================================================================
@@ -157,7 +158,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.10  2009-04-20 11:39:41  ncq
+# Revision 1.11  2010-01-01 21:20:01  ncq
+# - much better logging
+#
+# Revision 1.10  2009/04/20 11:39:41  ncq
 # - properly detect binaries run by Wine
 #
 # Revision 1.9  2008/12/09 23:26:12  ncq
