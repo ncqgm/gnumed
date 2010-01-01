@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.482 2009-12-25 21:45:28 ncq Exp $
-__version__ = "$Revision: 1.482 $"
+# $Id: gmGuiMain.py,v 1.483 2010-01-01 21:21:24 ncq Exp $
+__version__ = "$Revision: 1.483 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -137,16 +137,6 @@ class gmTopLevelFrame(wx.Frame):
 		icon = wx.EmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
-	#----------------------------------------------
-	def __set_window_title_template(self):
-		if _cfg.get(option = 'slave'):
-			tmp = _('Slave %s:%s') % (
-				_cfg.get(option = 'slave personality'),
-				_cfg.get(option = 'xml-rpc port')
-			)
-		else:
-			tmp = u'GNUmed'
-		self.__title_template = u'%s [%%s%%s.%%s@%%s] %%s' % tmp
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
@@ -940,7 +930,8 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
-		gmFormWidgets.create_new_letter(parent = self)
+		#gmFormWidgets.create_new_letter(parent = self)
+		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy=True)
 	#----------------------------------------------
 	def __on_manage_form_templates(self, evt):
 		gmFormWidgets.manage_form_templates(parent = self)
@@ -2279,6 +2270,16 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
+	def __set_window_title_template(self):
+
+		if _cfg.get(option = 'slave'):
+			self.__title_template = u'GMdS: %%(pat)s [%%(prov)s@%%(wp)s] (%s:%s)' % (
+				_cfg.get(option = 'slave personality'),
+				_cfg.get(option = 'xml-rpc port')
+			)
+		else:
+			self.__title_template = u'GMd: %(pat)s [%(prov)s@%(wp)s]'
+	#----------------------------------------------
 	def __update_window_title(self):
 		"""Update title of main window based on template.
 
@@ -2288,25 +2289,36 @@ class gmTopLevelFrame(wx.Frame):
 		the date of birth, not the age, so please stick to this
 		convention.
 		"""
+		args = {}
+
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-			title = pat['title']
-			if title is None:
-				title = ''
-			else:
-				title = title[:4] + '.'
-			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()), pat['pk_identity'])
-		else:
-			pat_str = _('no patient')
+#			title = pat['title']
+#			if title is None:
+#				title = ''
+#			else:
+#				title = title[:4]
 
-		title = self.__title_template % (
-			gmTools.coalesce(_provider['title'], ''),
+			args['pat'] = u'%s %s %s (%s) #%d' % (
+				gmTools.coalesce(pat['title'], u'', u'%.4s'),
+				#title,
+				pat['firstnames'],
+				pat['lastnames'],
+				pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+				pat['pk_identity']
+			)
+		else:
+			args['pat'] = _('no patient')
+
+		args['prov'] = u'%s%s.%s' % (
+			gmTools.coalesce(_provider['title'], u'', u'%s '),
 			_provider['firstnames'][:1],
-			_provider['lastnames'],
-			gmSurgery.gmCurrentPractice().active_workplace,
-			pat_str
+			_provider['lastnames']
 		)
-		self.SetTitle(title)
+
+		args['wp'] = gmSurgery.gmCurrentPractice().active_workplace
+
+		self.SetTitle(self.__title_template % args)
 	#----------------------------------------------
 	#----------------------------------------------
 	def setup_statusbar(self):
@@ -2905,7 +2917,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.482  2009-12-25 21:45:28  ncq
+# Revision 1.483  2010-01-01 21:21:24  ncq
+# - improved window title as per list
+# - make writing letters generic so LaTeX templates can be used, too
+#
+# Revision 1.482  2009/12/25 21:45:28  ncq
 # - configure meds list template
 # - manage form templates
 #
