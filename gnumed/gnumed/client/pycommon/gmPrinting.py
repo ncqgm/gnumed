@@ -1,8 +1,8 @@
 """GNUmed printing."""
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPrinting.py,v $
-# $Id: gmPrinting.py,v 1.2 2009-12-25 21:42:52 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPrinting.py,v 1.3 2010-01-01 21:19:20 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -23,10 +23,21 @@ from Gnumed.pycommon import gmShellAPI
 
 _log = logging.getLogger('gm.printing')
 _log.info(__version__)
+
+
+known_printjob_types = [
+	u'medication_list',
+	u'generic_document'
+]
+
 # =======================================================================
 def print_file_by_shellscript(filename=None, jobtype=None):
 
 	_log.debug('printing "%s": [%s]', jobtype, filename)
+
+	if jobtype not in known_printjob_types:
+		print "unregistered print job type <%s>" % jobtype
+		_log.warning('print job type "%s" not registered')
 
 	# 1) find gm-print_doc
 	found, external_cmd = gmShellAPI.detect_external_binary(u'gm-print_doc')
@@ -61,7 +72,10 @@ if __name__ == '__main__':
 
 # =======================================================================
 # $Log: gmPrinting.py,v $
-# Revision 1.2  2009-12-25 21:42:52  ncq
+# Revision 1.3  2010-01-01 21:19:20  ncq
+# - print job types registry
+#
+# Revision 1.2  2009/12/25 21:42:52  ncq
 # - gm_print* -> gm-print*
 # - no more .sh
 # - proper argument order for shell script
