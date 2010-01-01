@@ -3,25 +3,58 @@
 # ===========================================================
 # Print documents via system tools.
 #
+# The GNUmed client expects to be able to run this command
+# in a systemwide way, ie. it needs to be accessible in the
+# executable $PATH (such that "which gm-print_doc" gives a
+# useful answer). There can be several copies per system in
+# which way users can override a system default script with
+# their own.
+#
+# Typical locations for this script would be
+#
+#	/usr/bin/
+#	/usr/local/bin/
+#	~/bin/
+#
+# See
+#
+#	client/pycommon/gmPrinting.py::known_printjob_types
+#
+# for a list of print job type tags.
+#
+# ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-print_doc,v $
-# $Id: gm-print_doc,v 1.1 2009-12-23 13:08:08 ncq Exp $
+# $Id: gm-print_doc,v 1.2 2010-01-01 21:24:19 ncq Exp $
 # ===========================================================
 
-TYPE="$1"
+TYPE="$1"			# this is a tag as to what type of print job this is
 shift 1
-FILES="$@"
+FILES="$@"			# this is / those are the file(s) to print
+
+
+if [ "${TYPE}" = "generic_document" ]; then
+	kprinter -c ${FILES}
+	exit $?
+fi
+
 
 if [ "${TYPE}" = "medication_list" ]; then
 	kprinter -c ${FILES}
+	EXIT_CODE=$?
 	rm -f ${FILES}
-	exit 0
+	exit ${EXIT_CODE}
 fi
 
 
 exit 0
 # ===========================================================
 # $Log: gm-print_doc,v $
-# Revision 1.1  2009-12-23 13:08:08  ncq
+# Revision 1.2  2010-01-01 21:24:19  ncq
+# - documentation
+# - improved exit code use
+# - generic_document
+#
+# Revision 1.1  2009/12/23 13:08:08  ncq
 # - renamed to please Debian
 #
 # Revision 1.1  2009/12/21 23:04:26  ncq
