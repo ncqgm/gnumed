@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.70 2009-12-26 19:55:12 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmForms.py,v 1.71 2010-01-03 18:17:30 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmDispatcher
-from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI
+from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI, gmMimeLib
 from Gnumed.business import gmPerson, gmSurgery
 
 
@@ -477,7 +477,12 @@ class cFormEngine(object):
 		"""Parse the template into an instance and replace placeholders with values."""
 		raise NotImplementedError
 	#--------------------------------------------------------
+	def edit(self):
+		"""Allow editing the instance of the template."""
+		raise NotImplementedError
+	#--------------------------------------------------------
 	def generate_output(self, format=None):
+		"""Generate output suitable for further processing outside this class, e.g. printing."""
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def process (self, data_source=None):
@@ -603,6 +608,22 @@ class cLaTeXForm(cFormEngine):
 		template_file.close()
 
 		return
+	#--------------------------------------------------------
+	def edit(self):
+
+		mimetypes = [
+			u'application/x-latex',
+			u'application/x-tex',
+			u'text/plain'
+		]
+
+		for mimetype in mimetypes:
+			editor_cmd = gmMimeLib.get_editor_cmd(mimetype, self.instance_filename)
+
+		if editor_cmd is None:
+			editor_cmd = u'sensible-editor %s' % self.instance_filename
+
+		return gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 	#--------------------------------------------------------
 	def generate_output(self, instance_file = None, format=None, cleanup=True):
 
@@ -1120,7 +1141,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.70  2009-12-26 19:55:12  ncq
+# Revision 1.71  2010-01-03 18:17:30  ncq
+# - implement edit() on LaTeX forms
+#
+# Revision 1.70  2009/12/26 19:55:12  ncq
 # - wrong keyword
 #
 # Revision 1.69  2009/12/26 19:05:58  ncq
