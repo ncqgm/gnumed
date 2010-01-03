@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.26 2009-11-24 20:48:15 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmMimeLib.py,v 1.27 2010-01-03 18:15:17 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -105,6 +105,23 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 	_log.debug("<%s> viewer: [%s]" % (aMimeType, viewer))
 
 	return viewer
+#-----------------------------------------------------------------------------------
+def get_editor_cmd(mimetype=None, filename=None):
+
+	if filename is None:
+		_log.error("You should specify a file name for the replacement of %s.")
+		# last resort: if no file name given replace %s in original with literal '%s'
+		# and hope for the best - we certainly don't want the module default "/dev/null"
+		filename = """%s"""
+
+	mailcaps = mailcap.getcaps()
+	(editor, junk) = mailcap.findmatch(mailcaps, mimetype, key = 'edit', filename = '%s' % filename)
+
+	# FIXME: we should check for "x-token" flags
+
+	_log.debug("<%s> editor: [%s]" % (mimetype, editor))
+
+	return editor
 #-----------------------------------------------------------------------------------
 def guess_ext_by_mimetype(mimetype=''):
 	"""Return file extension based on what the OS thinks a file of this mimetype should end in."""
@@ -267,7 +284,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.26  2009-11-24 20:48:15  ncq
+# Revision 1.27  2010-01-03 18:15:17  ncq
+# - get-editor-cmd
+#
+# Revision 1.26  2009/11/24 20:48:15  ncq
 # - quote open command arg
 #
 # Revision 1.25  2009/09/17 21:52:40  ncq
