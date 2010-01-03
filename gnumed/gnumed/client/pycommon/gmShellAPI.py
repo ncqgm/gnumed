@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.11 2010-01-01 21:20:01 ncq Exp $
+# $Id: gmShellAPI.py,v 1.12 2010-01-03 18:16:11 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -67,6 +67,18 @@ def detect_external_binary(binary=None):
 
 	return (False, None)
 #===========================================================================
+def find_first_binary(binaries=None):
+
+	found = False
+	binary = None
+
+	for cmd in binaries:
+		found, binary = detect_external_binary(binary = cmd)
+		if found:
+			break
+
+	return (found, binary)
+#===========================================================================
 def run_command_in_shell(command=None, blocking=False):
 	"""Runs a command in a subshell via standard-C system().
 
@@ -80,7 +92,6 @@ def run_command_in_shell(command=None, blocking=False):
 	_log.debug('blocking: %s', blocking)
 
 	# FIXME: command should be checked for shell exploits
-
 	command = command.strip()
 
 	# what the following hack does is this: the user indicated
@@ -126,6 +137,19 @@ def run_command_in_shell(command=None, blocking=False):
 
 	return exited_normally
 #===========================================================================
+def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_last_one_anyway=False):
+
+	found, binary = find_first_binary(binaries = binaries)
+
+	if not found:
+		if run_last_one_anyway:
+			binary = binaries[-1]
+		else:
+			_log.warning('cannot find any of: %s', binaries)
+			return False
+
+	return run_command_in_shell(command = '%s %s' % (binary, args), blocking=False)
+#===========================================================================
 # main
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -158,7 +182,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.11  2010-01-01 21:20:01  ncq
+# Revision 1.12  2010-01-03 18:16:11  ncq
+# - find-first-binary
+# - run-first-available-in-shell
+#
+# Revision 1.11  2010/01/01 21:20:01  ncq
 # - much better logging
 #
 # Revision 1.10  2009/04/20 11:39:41  ncq
