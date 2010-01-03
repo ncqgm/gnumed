@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.13 2010-01-01 21:50:54 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmFormWidgets.py,v 1.14 2010-01-03 18:18:05 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, logging
@@ -47,6 +47,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
 	doc.substitute_placeholders(data_source = ph)
+	doc.edit()
 	printable_file = doc.generate_output(cleanup = True)
 	doc.cleanup()
 	if printable_file is None:
@@ -439,7 +440,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.13  2010-01-01 21:50:54  ncq
+# Revision 1.14  2010-01-03 18:18:05  ncq
+# - run edit before generating printout data on generic letters
+#
+# Revision 1.13  2010/01/01 21:50:54  ncq
 # - generic print-doc-from-template
 #
 # Revision 1.12  2009/12/25 21:44:43  ncq
