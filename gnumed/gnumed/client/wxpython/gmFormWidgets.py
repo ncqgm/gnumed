@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.14 2010-01-03 18:18:05 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmFormWidgets.py,v 1.15 2010-01-06 14:39:05 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, logging
@@ -26,7 +26,7 @@ _log.info(__version__)
 #============================================================
 # convenience functions
 #============================================================
-def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None):
+def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None, cleanup=True):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -48,8 +48,9 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 	#ph.debug = True
 	doc.substitute_placeholders(data_source = ph)
 	doc.edit()
-	printable_file = doc.generate_output(cleanup = True)
-	doc.cleanup()
+	printable_file = doc.generate_output(cleanup = cleanup)
+	if cleanup:
+		doc.cleanup()
 	if printable_file is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -440,7 +441,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.14  2010-01-03 18:18:05  ncq
+# Revision 1.15  2010-01-06 14:39:05  ncq
+# - make cleanup configurable
+#
+# Revision 1.14  2010/01/03 18:18:05  ncq
 # - run edit before generating printout data on generic letters
 #
 # Revision 1.13  2010/01/01 21:50:54  ncq
