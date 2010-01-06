@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.45 2009-11-30 22:27:57 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmProviderInboxWidgets.py,v 1.46 2010-01-06 14:43:55 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -359,7 +359,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.set_columns([u'', _('date'), _('category'), _('type'), _('message')])
 
-		msg = _('\n	Inbox of %(title)s %(lname)s.\n') % {
+		msg = _('\n Inbox of %(title)s %(lname)s.\n') % {
 			'title': gmTools.coalesce (
 				self.provider['title'],
 				gmPerson.map_gender2salutation(self.provider['gender'])
@@ -561,7 +561,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.45  2009-11-30 22:27:57  ncq
+# Revision 1.46  2010-01-06 14:43:55  ncq
+# - inbox title flush left
+#
+# Revision 1.45  2009/11/30 22:27:57  ncq
 # - adjust provider inbox filters
 #
 # Revision 1.44  2009/11/30 13:16:27  ncq
