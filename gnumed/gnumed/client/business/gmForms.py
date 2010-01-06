@@ -7,12 +7,12 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.71 2010-01-03 18:17:30 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmForms.py,v 1.72 2010-01-06 14:30:23 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, codecs, re as regex, shutil
+import os, sys, time, os.path, logging, codecs, re as regex, shutil, random
 #, libxml2, libxslt
 
 
@@ -312,9 +312,12 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		init_ooo()
 
-		self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=2002;urp;"'
+		#self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=2002;urp;"'
+		pipe_name = "uno%s" % str(random.random())[2:]
+		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
 		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
-		self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
+		#self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
+		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
 		self.desktop_uri = "com.sun.star.frame.Desktop"
 
 		self.local_context = uno.getComponentContext()
@@ -635,7 +638,7 @@ class cLaTeXForm(cFormEngine):
 		except:
 			_log.exception('cannot access form instance file [%s]', instance_file)
 			_log.log_stack_trace()
-			return False
+			return None
 
 		self.instance_filename = instance_file
 
@@ -659,7 +662,7 @@ class cLaTeXForm(cFormEngine):
 		for run in [1, 2, 3]:
 			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
-				return False
+				return None
 
 		os.chdir(old_cwd)
 		pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
@@ -672,7 +675,14 @@ class cLaTeXForm(cFormEngine):
 				os.remove(os.path.join(sandbox_dir, fname))
 			os.rmdir(sandbox_dir)
 
-		return pdf_name
+		try:
+			open(pdf_name, 'r').close()
+			return pdf_name
+		except IOError:
+			_log.exception('cannot open target PDF: %s', pdf_name)
+
+		gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
+		return None
 	#--------------------------------------------------------
 	def cleanup(self):
 		try:
@@ -1141,7 +1151,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.71  2010-01-03 18:17:30  ncq
+# Revision 1.72  2010-01-06 14:30:23  ncq
+# - start going from sockets to named pipes on OOo connection
+# - improved problem detection no PDF generation
+#
+# Revision 1.71  2010/01/03 18:17:30  ncq
 # - implement edit() on LaTeX forms
 #
 # Revision 1.70  2009/12/26 19:55:12  ncq
