@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.28 2010-01-01 21:48:15 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmMedicationWidgets.py,v 1.29 2010-01-06 14:42:20 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -15,7 +15,7 @@ import wx, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
-from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting
+from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2
 from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea, gmMacro
 from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWidgets
@@ -690,7 +690,7 @@ def edit_intake_of_substance(parent = None, substance=None):
 #============================================================
 # current substances grid
 #------------------------------------------------------------
-def configure_medication_list_template(parent = None):
+def configure_medication_list_template(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -711,7 +711,7 @@ def configure_medication_list_template(parent = None):
 
 	return template
 #------------------------------------------------------------
-def print_medication_list(parent = None):
+def print_medication_list(parent=None, cleanup=True):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -748,8 +748,15 @@ def print_medication_list(parent = None):
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
 	meds_list.substitute_placeholders(data_source = ph)
-	pdf_name = meds_list.generate_output(cleanup = True)
-	meds_list.cleanup()
+	pdf_name = meds_list.generate_output(cleanup = cleanup)
+	if cleanup:
+		meds_list.cleanup()
+	if pdf_name is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error generating the medication list.'),
+			aTitle = _('Printing medication list')
+		)
+		return False
 
 	# 3) print template
 	printed = gmPrinting.print_file_by_shellscript(filename = pdf_name, jobtype = 'medication_list')
@@ -1061,7 +1068,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def print_medication_list(self):
 		# there could be some filtering/user interaction going on here
-		print_medication_list(parent = self)
+		_cfg = gmCfg2.gmCfgData()
+		print_medication_list(parent = self, cleanup = _cfg.get(option = 'debug'))
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
 
@@ -1306,7 +1314,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.28  2010-01-01 21:48:15  ncq
+# Revision 1.29  2010-01-06 14:42:20  ncq
+# - medication list printing:
+# 	- tie cleanup to --debug
+# 	- better error detection
+#
+# Revision 1.28  2010/01/01 21:48:15  ncq
 # - remove confusing status message
 #
 # Revision 1.27  2009/12/26 19:08:38  ncq
