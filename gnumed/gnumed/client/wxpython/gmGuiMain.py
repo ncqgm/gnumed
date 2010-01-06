@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.483 2010-01-01 21:21:24 ncq Exp $
-__version__ = "$Revision: 1.483 $"
+# $Id: gmGuiMain.py,v 1.484 2010-01-06 14:40:51 ncq Exp $
+__version__ = "$Revision: 1.484 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -931,7 +931,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 		#gmFormWidgets.create_new_letter(parent = self)
-		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy=True)
+		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True, cleanup = _cfg.get(option = 'debug'))
 	#----------------------------------------------
 	def __on_manage_form_templates(self, evt):
 		gmFormWidgets.manage_form_templates(parent = self)
@@ -2917,7 +2917,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.483  2010-01-01 21:21:24  ncq
+# Revision 1.484  2010-01-06 14:40:51  ncq
+# - tie docs printing cleanup to --debug
+#
+# Revision 1.483  2010/01/01 21:21:24  ncq
 # - improved window title as per list
 # - make writing letters generic so LaTeX templates can be used, too
 #
