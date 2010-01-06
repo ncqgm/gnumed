@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.122 $"
+__version__ = "$Revision: 1.123 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1207,6 +1207,11 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		)
 		postgresql_version = curs.fetchone()['version']
 		_log.info('PostgreSQL version (numeric): %s' % postgresql_version)
+		try:
+			curs.execute("select pg_size_pretty(pg_database_size(current_database()))")
+			_log.info('database size: %s', curs.fetchone()[0])
+		except:
+			pass
 		if verbose:
 			__log_PG_settings(curs=curs)
 		curs.close()
@@ -1932,7 +1937,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.122  2009-12-21 15:02:18  ncq
+# Revision 1.123  2010-01-06 14:38:17  ncq
+# - log database size
+#
+# Revision 1.122  2009/12/21 15:02:18  ncq
 # - fix typo
 #
 # Revision 1.121  2009/12/03 17:46:37  ncq
