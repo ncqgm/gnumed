@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.195 2010-01-08 13:50:45 ncq Exp $
-__version__ = "$Revision: 1.195 $"
+# $Id: gmPerson.py,v 1.196 2010-01-08 14:38:06 ncq Exp $
+__version__ = "$Revision: 1.196 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -367,17 +367,23 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	ID = property(_get_ID, _set_ID)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
+
 		if attribute == 'dob':
-			if not isinstance(value, pyDT.datetime):
-				raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime' % (self.__class__.__name__, type(value), value)
-			if value.tzinfo is None:
-				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
-			# compare DOB at seconds level
-			if self._payload[self._idx['dob']] is not None:
-				old_dob = self._payload[self._idx['dob']].strftime('%Y %m %d %H %M %S')
-				new_dob = value.strftime('%Y %m %d %H %M %S')
-				if new_dob == old_dob:
-					return
+			if value is not None:
+
+				if isinstance(value, pyDT.datetime):
+					if value.tzinfo is None:
+						raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
+				else:
+					raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value)
+
+				# compare DOB at seconds level
+				if self._payload[self._idx['dob']] is not None:
+					old_dob = self._payload[self._idx['dob']].strftime('%Y %m %d %H %M %S')
+					new_dob = value.strftime('%Y %m %d %H %M %S')
+					if new_dob == old_dob:
+						return
+
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
 	def cleanup(self):
@@ -2355,7 +2361,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.195  2010-01-08 13:50:45  ncq
+# Revision 1.196  2010-01-08 14:38:06  ncq
+# - support NULLing the dob
+#
+# Revision 1.195  2010/01/08 13:50:45  ncq
 # - enhance add-external-id() with pk-type
 #
 # Revision 1.194  2009/12/21 20:26:40  ncq

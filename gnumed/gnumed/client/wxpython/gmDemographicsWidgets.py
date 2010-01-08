@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.172 2010-01-08 13:54:19 ncq Exp $
-__version__ = "$Revision: 1.172 $"
+# $Id: gmDemographicsWidgets.py,v 1.173 2010-01-08 14:39:44 ncq Exp $
+__version__ = "$Revision: 1.173 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1603,7 +1603,10 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 			return False
 
 		self.__identity['gender'] = self._PRW_gender.GetData()
-		self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
+		if self._PRW_dob.GetValue().strip() == u'':
+			self.__identity['dob'] = None
+		else:
+			self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
 		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
 		self.__identity.save_payload()
 
@@ -3316,7 +3319,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.172  2010-01-08 13:54:19  ncq
+# Revision 1.173  2010-01-08 14:39:44  ncq
+# - support NULLing the dob
+#
+# Revision 1.172  2010/01/08 13:54:19  ncq
 # - support external ID in new-patient widget
 #
 # Revision 1.171  2009/11/29 15:58:18  ncq
