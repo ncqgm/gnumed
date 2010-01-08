@@ -32,6 +32,8 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_region = gmDemographicsWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_country = gmDemographicsWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_phone = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_external_id_type = gmDemographicsWidgets.cExternalIDTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._TCTRL_external_id_value = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_occupation = gmDemographicsWidgets.cOccupationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
@@ -57,6 +59,8 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_region.SetToolTipString(_("Primary address: state/province/county/..."))
         self._PRW_country.SetToolTipString(_("Primary address: country of residence"))
         self._TCTRL_phone.SetToolTipString(_("Primary phone number."))
+        self._PRW_external_id_type.SetToolTipString(_("The type of the external ID (selection only)."))
+        self._TCTRL_external_id_value.SetToolTipString(_("The value of the external ID."))
         self._PRW_occupation.SetToolTipString(_("The current occupation."))
         self._TCTRL_comment.SetToolTipString(_("A comment on this person."))
         # end wxGlade
@@ -64,7 +68,8 @@ class wxgNewPatientEAPnl(wx.Panel):
     def __do_layout(self):
         # begin wxGlade: wxgNewPatientEAPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
-        __fgsizer_details = wx.FlexGridSizer(19, 2, 3, 5)
+        __fgsizer_details = wx.FlexGridSizer(20, 2, 3, 5)
+        __szr_external_id_details = wx.BoxSizer(wx.HORIZONTAL)
         __szr_other = wx.BoxSizer(wx.HORIZONTAL)
         __szr_address = wx.BoxSizer(wx.HORIZONTAL)
         __szr_dob = wx.BoxSizer(wx.HORIZONTAL)
@@ -156,6 +161,11 @@ class wxgNewPatientEAPnl(wx.Panel):
         __lbl_phone = wx.StaticText(self, -1, _("Phone"))
         __fgsizer_details.Add(__lbl_phone, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __fgsizer_details.Add(self._TCTRL_phone, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_ext_id = wx.StaticText(self, -1, _("External ID"))
+        __fgsizer_details.Add(__lbl_ext_id, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_external_id_details.Add(self._PRW_external_id_type, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_external_id_details.Add(self._TCTRL_external_id_value, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __fgsizer_details.Add(__szr_external_id_details, 1, wx.EXPAND, 0)
         __lbl_occupation = wx.StaticText(self, -1, _("Occupation"))
         __fgsizer_details.Add(__lbl_occupation, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __fgsizer_details.Add(self._PRW_occupation, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
