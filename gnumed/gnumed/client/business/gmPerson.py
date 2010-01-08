@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.194 2009-12-21 20:26:40 ncq Exp $
-__version__ = "$Revision: 1.194 $"
+# $Id: gmPerson.py,v 1.195 2010-01-08 13:50:45 ncq Exp $
+__version__ = "$Revision: 1.195 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -497,44 +497,72 @@ select exists (
 	# and are not reused (like addresses), so they are
 	# truly added/deleted, not just linked/unlinked
 	#--------------------------------------------------------
-	def add_external_id(self, id_type=None, id_value=None, issuer=None, comment=None, context=u'p'):
+	def add_external_id(self, type_name=None, value=None, issuer=None, comment=None, context=u'p', pk_type=None):
 		"""Adds an external ID to the patient.
 
 		creates ID type if necessary
 		context hardcoded to 'p' for now
 		"""
-		# check for existing ID by type/value/issuer
-		cmd = u"""
-select * from dem.v_external_ids4identity where
-	pk_identity = %(pat)s and
-	name = %(name)s and
-	value = %(val)s and
-	issuer = %(issuer)s
-"""
+
+		# check for existing ID
+		if pk_type is not None:
+			cmd = u"""
+				select * from dem.v_external_ids4identity where
+				pk_identity = %(pat)s and
+				pk_type = %(pk_type)s and
+				value = %(val)s"""
+		else:
+			# by type/value/issuer
+			if issuer is None:
+				cmd = u"""
+					select * from dem.v_external_ids4identity where
+					pk_identity = %(pat)s and
+					name = %(name)s and
+					value = %(val)s"""
+			else:
+				cmd = u"""
+					select * from dem.v_external_ids4identity where
+						pk_identity = %(pat)s and
+						name = %(name)s and
+						value = %(val)s and
+						issuer = %(issuer)s"""
 		args = {
 			'pat': self.ID,
-			'name': id_type,
-			'val': id_value,
-			'issuer': issuer
+			'name': type_name,
+			'val': value,
+			'issuer': issuer,
+			'pk_type': pk_type
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# create new ID if not found
 		if len(rows) == 0:
-			cmd = u"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values (
-				%(id_val)s,
-				(select dem.add_external_id_type(%(id_type)s, %(issuer)s, %(ctxt)s)),
-				%(comment)s,
-				%(pat)s
-			)"""
+
 			args = {
 				'pat': self.ID,
-				'id_val': id_value,
-				'id_type': id_type,
+				'val': value,
+				'type_name': type_name,
+				'pk_type': pk_type,
 				'issuer': issuer,
 				'ctxt': context,
 				'comment': comment
 			}
+
+			if pk_type is None:
+				cmd = u"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values (
+					%(val)s,
+					(select dem.add_external_id_type(%(type_name)s, %(issuer)s, %(ctxt)s)),
+					%(comment)s,
+					%(pat)s
+				)"""
+			else:
+				cmd = u"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values (
+					%(val)s,
+					%(pk_type)s,
+					%(comment)s,
+					%(pat)s
+				)"""
+
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# or update comment of existing ID
@@ -646,8 +674,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
 
 		self.add_external_id (
-			id_type = u'merged GNUmed identity primary key',
-			id_value = u'GNUmed::pk::%s' % other_identity.ID,
+			type_name = u'merged GNUmed identity primary key',
+			value = u'GNUmed::pk::%s' % other_identity.ID,
 			issuer = u'GNUmed'
 		)
 
@@ -2327,7 +2355,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.194  2009-12-21 20:26:40  ncq
+# Revision 1.195  2010-01-08 13:50:45  ncq
+# - enhance add-external-id() with pk-type
+#
+# Revision 1.194  2009/12/21 20:26:40  ncq
 # - some cleanup
 #
 # Revision 1.193  2009/12/21 14:59:17  ncq
