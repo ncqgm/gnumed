@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.29 2010-01-06 14:42:20 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmMedicationWidgets.py,v 1.30 2010-01-08 12:21:04 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -742,6 +742,12 @@ def print_medication_list(parent=None, cleanup=True):
 			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading medication list template.'), beep = True)
 			return False
 		template = gmForms.get_form_template(name_long = name, external_version = ver)
+		if template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot load medication list template [%s - %s]') % (name, ver),
+				aTitle = _('Printing medication list')
+			)
+			return False
 
 	# 2) process template
 	meds_list = template.instantiate()
@@ -1314,7 +1320,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.29  2010-01-06 14:42:20  ncq
+# Revision 1.30  2010-01-08 12:21:04  ncq
+# - even better error detection on forms template loading
+#
+# Revision 1.29  2010/01/06 14:42:20  ncq
 # - medication list printing:
 # 	- tie cleanup to --debug
 # 	- better error detection
