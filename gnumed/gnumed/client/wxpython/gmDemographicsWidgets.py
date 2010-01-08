@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.171 2009-11-29 15:58:18 ncq Exp $
-__version__ = "$Revision: 1.171 $"
+# $Id: gmDemographicsWidgets.py,v 1.172 2010-01-08 13:54:19 ncq Exp $
+__version__ = "$Revision: 1.172 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1497,8 +1497,8 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 		# add new external ID
 		if self.ext_id is None:
 			self.identity.add_external_id (
-				id_type = type,
-				id_value = self._TCTRL_value.GetValue().strip(),
+				type_name = type,
+				value = self._TCTRL_value.GetValue().strip(),
 				issuer = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u''),
 				comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 			)
@@ -1988,6 +1988,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		low = wx.DateTimeFromDMY(1,0,1900)
 		hi = wx.DateTime()
 		self._DP_dob.SetRange(low, hi.SetToCurrent())
+		# only if we would support None on selection_only's
+		#self._PRW_external_id_type.selection_only = True
 	#----------------------------------------------------------------
 	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
 
@@ -2306,6 +2308,12 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			url = gmTools.none_if(self._TCTRL_phone.GetValue().strip(), u''),
 			is_confidential = False
 		)
+
+		# external ID
+		pk_type = self._PRW_external_id_type.GetData()
+		id_value = self._TCTRL_external_id_value.GetValue().strip()
+		if (pk_type is not None) and (id_value != u''):
+			new_identity.add_external_id(value = id_value, pk_type = pk_type)
 
 		# occupation
 		new_identity.link_occupation (
@@ -3308,7 +3316,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.171  2009-11-29 15:58:18  ncq
+# Revision 1.172  2010-01-08 13:54:19  ncq
+# - support external ID in new-patient widget
+#
+# Revision 1.171  2009/11/29 15:58:18  ncq
 # - cleanup
 #
 # Revision 1.170  2009/11/18 16:10:58  ncq
