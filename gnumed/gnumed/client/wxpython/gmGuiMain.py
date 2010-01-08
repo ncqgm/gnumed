@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.484 2010-01-06 14:40:51 ncq Exp $
-__version__ = "$Revision: 1.484 $"
+# $Id: gmGuiMain.py,v 1.485 2010-01-08 13:54:50 ncq Exp $
+__version__ = "$Revision: 1.485 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -406,8 +406,8 @@ class gmTopLevelFrame(wx.Frame):
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
-		item = menu_patient.Append(-1, _('Register new (old style)'), _("Register a new person with this practice"))
-		self.Bind(wx.EVT_MENU, self.__on_create_patient, item)
+#		item = menu_patient.Append(-1, _('Register new (old style)'), _("Register a new person with this practice"))
+#		self.Bind(wx.EVT_MENU, self.__on_create_patient, item)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
 		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create person from an external source.'))
@@ -2917,7 +2917,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.484  2010-01-06 14:40:51  ncq
+# Revision 1.485  2010-01-08 13:54:50  ncq
+# - retire old-style new-patient
+#
+# Revision 1.484  2010/01/06 14:40:51  ncq
 # - tie docs printing cleanup to --debug
 #
 # Revision 1.483  2010/01/01 21:21:24  ncq
