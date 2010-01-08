@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.72 2010-01-06 14:30:23 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmForms.py,v 1.73 2010-01-08 13:49:14 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -197,6 +197,7 @@ def get_form_template(name_long=None, external_version=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	if len(rows) == 0:
+		_log.error('cannot load form template [%s - %s]', name_long, external_version)
 		return None
 
 	return cFormTemplate(aPK_obj = rows[0]['pk'])
@@ -1151,7 +1152,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.72  2010-01-06 14:30:23  ncq
+# Revision 1.73  2010-01-08 13:49:14  ncq
+# - better logging
+#
+# Revision 1.72  2010/01/06 14:30:23  ncq
 # - start going from sockets to named pipes on OOo connection
 # - improved problem detection no PDF generation
 #
