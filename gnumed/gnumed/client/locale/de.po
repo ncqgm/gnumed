@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.159 $
+# $Revision: 1.160 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2009-12-25 23:11+CET\n"
-"PO-Revision-Date: 2009-12-25 23:32+0100\n"
+"POT-Creation-Date: 2010-01-08 15:37+CET\n"
+"PO-Revision-Date: 2010-01-08 16:08+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -346,6 +346,12 @@ msgstr "Sommerzeit aktiv"
 
 msgid "Documents:"
 msgstr "Dokumente:"
+
+msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
+msgstr "Fehler mit pdflatex. Kann LaTeX template nicht in PDF umwandeln."
+
+msgid "PDF output file cannot be opened."
+msgstr "PDF-Datei kann nicht geöffnet werden."
 
 msgid "part"
 msgstr "Teil"
@@ -1436,8 +1442,8 @@ msgstr "Ziel"
 msgid "Episode"
 msgstr "Episode"
 
-msgid "Comment"
-msgstr "Kommentar"
+msgid "Directions"
+msgstr "Anweisungen"
 
 msgid "Inactive"
 msgstr "Inaktive"
@@ -1714,6 +1720,9 @@ msgstr "Diesen Dialog schließen."
 msgid "Name"
 msgstr "Name"
 
+msgid "Comment"
+msgstr "Kommentar"
+
 msgid "edit encounter details"
 msgstr "Details der Konsultation ändern"
 
@@ -1878,9 +1887,6 @@ msgstr "Postleitzahl"
 
 msgid "Street"
 msgstr "Straße"
-
-msgid "Directions"
-msgstr "Anweisungen"
 
 msgid "Number"
 msgstr "Nummer"
@@ -2427,6 +2433,12 @@ msgstr "Hauptwohnsitz: Land/Staat"
 msgid "Primary phone number."
 msgstr "Primäre Telefonnummer."
 
+msgid "The type of the external ID (selection only)."
+msgstr "Typ der externen ID (nur existierende)."
+
+msgid "The value of the external ID."
+msgstr "Wert der externen ID."
+
 msgid "The current occupation."
 msgstr "Jetziger Beruf."
 
@@ -2465,6 +2477,9 @@ msgstr "Andere"
 
 msgid "Phone"
 msgstr "Telefon"
+
+msgid "External ID"
+msgstr "Externe ID"
 
 msgid "Occupation"
 msgstr "Beruf"
@@ -5183,36 +5198,20 @@ msgstr "Druckerkonfiguration"
 msgid "Calibration"
 msgstr "Kalibrierung"
 
-msgid "Deleting form template."
-msgstr "Briefvorlage löschen."
+msgid "No document template selected."
+msgstr "Keine Druckvorlage ausgewählt."
 
-msgid ""
-"Are you sure you want to delete\n"
-"the following form template ?\n"
-"\n"
-" \"%s (%s)\"\n"
-"\n"
-"You can only delete templates which\n"
-"have not yet been used to generate\n"
-"any forms from."
-msgstr ""
-"Sind Sie sicher, daß Sie die folgende\n"
-"Dokumentenvorlage löschen wollen ?\n"
-"\n"
-" \"%s (%s)\"\n"
-"\n"
-"Sie können nur die Vorlagen löscchen, die noch\n"
-"nicht zum Erzeugen eines Formulars oder Briefs\n"
-"eingesetzt wurden."
+msgid "Error creating printable document."
+msgstr "Fehler beim Erzeugen der Druckausgabe."
 
-msgid "Select letter or form template."
-msgstr "Die Brief- oder Formularvorlage wählen."
+msgid "Printing document"
+msgstr "Dokument drucken"
 
-msgid "Template"
-msgstr "Vorlage"
+msgid "Error printing document (%s)."
+msgstr "Fehler beim Drucken eines Dokuments (%s)."
 
-msgid "Version"
-msgstr "Version"
+msgid "%s printed from template [%s - %s]"
+msgstr "%s gedruckt mittels Template [%s - %]"
 
 msgid ""
 "Error exporting form template\n"
@@ -5256,6 +5255,37 @@ msgstr ""
 msgid "OOo startup time"
 msgstr "OOo-Aufrufzeit"
 
+msgid "Deleting form template."
+msgstr "Briefvorlage löschen."
+
+msgid ""
+"Are you sure you want to delete\n"
+"the following form template ?\n"
+"\n"
+" \"%s (%s)\"\n"
+"\n"
+"You can only delete templates which\n"
+"have not yet been used to generate\n"
+"any forms from."
+msgstr ""
+"Sind Sie sicher, daß Sie die folgende\n"
+"Dokumentenvorlage löschen wollen ?\n"
+"\n"
+" \"%s (%s)\"\n"
+"\n"
+"Sie können nur die Vorlagen löscchen, die noch\n"
+"nicht zum Erzeugen eines Formulars oder Briefs\n"
+"eingesetzt wurden."
+
+msgid "Select letter or form template."
+msgstr "Die Brief- oder Formularvorlage wählen."
+
+msgid "Template"
+msgstr "Vorlage"
+
+msgid "Version"
+msgstr "Version"
+
 msgid "You must select a template file before saving."
 msgstr "Vor dem Speichern müssen Sie eine Vorlagedatei geladen haben."
 
@@ -5297,9 +5327,6 @@ msgstr "allgemeine Warnmeldung"
 
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "Sie sind als %s%s.%s (%s) angemeldet. Datenbankkonto <%s>."
-
-msgid "Slave %s:%s"
-msgstr "Sklave %s:%s"
 
 msgid "&Go to plugin ..."
 msgstr "&Gehe zu Modul ..."
@@ -5618,12 +5645,6 @@ msgstr "Neue Person in GNUmed anlegen"
 
 msgid "Register person"
 msgstr "Neue Person anlegen"
-
-msgid "Register a new person with this practice"
-msgstr "Neuen Person in dieser Praxis registrieren"
-
-msgid "Register new (old style)"
-msgstr "Neue Person anlegen (alte Variante)"
 
 msgid "Load and possibly create person from an external source."
 msgstr "Aus einer externen Quelle laden und ggf. anlegen."
@@ -7904,8 +7925,17 @@ msgstr "Drucken der Medikamentenliste"
 msgid "Problem loading medication list template."
 msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
 
+msgid "Cannot load medication list template [%s - %s]"
+msgstr "Kann Vorlage [%s - %s] für Medikamentenliste nicht laden"
+
+msgid "Error generating the medication list."
+msgstr "Fehler beim Erzeugen der Medikamentenliste."
+
 msgid "Error printing the medication list."
 msgstr "Fehler beim Drucken der Medikamentenliste."
+
+msgid "medication list printed from template [%s - %s]"
+msgstr "Medikamentenliste nach Vorlage [%s - %s] gedruckt"
 
 msgid "Dose"
 msgstr "Dosis"
@@ -8815,10 +8845,10 @@ msgstr "Nachricht"
 
 msgid ""
 "\n"
-"\tInbox of %(title)s %(lname)s.\n"
+" Inbox of %(title)s %(lname)s.\n"
 msgstr ""
 "\n"
-"\tPosteingang von %(title)s %(lname)s.\n"
+" Posteingang von %(title)s %(lname)s.\n"
 
 msgid "Please check your GNUmed Inbox !"
 msgstr "Bitte den Posteingang in GNUmed durchsehen."
@@ -9803,6 +9833,12 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Register a new person with this practice"
+#~ msgstr "Neuen Person in dieser Praxis registrieren"
+#~ msgid "Register new (old style)"
+#~ msgstr "Neue Person anlegen (alte Variante)"
+#~ msgid "Slave %s:%s"
+#~ msgstr "Sklave %s:%s"
 #~ msgid "Current &medications"
 #~ msgstr "Derzeitige &Medikation"
 #~ msgid "&Another..."
