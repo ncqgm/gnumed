@@ -10,8 +10,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.21 2009-04-03 09:31:37 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmKVK.py,v 1.22 2010-01-08 13:49:43 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -152,8 +152,8 @@ select pk_identity from dem.v_external_ids4identity where
 	def import_extra_data(self, identity=None, *args, **kwargs):
 		# Versicherungsnummer
 		identity.add_external_id (
-			id_type = insurance_number_external_id_type_egk,
-			id_value = self.insuree_number,
+			type_name = insurance_number_external_id_type_egk,
+			value = self.insuree_number,
 			issuer = issuer_template % (self.insurance_company, self.insurance_number),
 			comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse',
 			context = u'p'
@@ -287,8 +287,8 @@ select pk_identity from dem.v_external_ids4identity where
 	def import_extra_data(self, identity=None, *args, **kwargs):
 		# Versicherungsnummer
 		identity.add_external_id (
-			id_type = insurance_number_external_id_type,
-			id_value = self.insuree_number,
+			type_name = insurance_number_external_id_type,
+			value = self.insuree_number,
 			issuer = issuer_template % (self.insurance_company, self.insurance_number),
 			comment = u'Nummer des Versicherten bei der Krankenkasse',
 			context = u'p'
@@ -483,7 +483,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.21  2009-04-03 09:31:37  ncq
+# Revision 1.22  2010-01-08 13:49:43  ncq
+# - adjust to add-external-id() changes
+#
+# Revision 1.21  2009/04/03 09:31:37  ncq
 # - improved docs
 #
 # Revision 1.20  2008/08/28 18:30:28  ncq
