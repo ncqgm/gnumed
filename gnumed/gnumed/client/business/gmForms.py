@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.73 2010-01-08 13:49:14 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmForms.py,v 1.74 2010-01-09 18:28:49 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -314,11 +314,17 @@ class gmOOoConnector(gmBorg.cBorg):
 		init_ooo()
 
 		#self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=2002;urp;"'
-		pipe_name = "uno%s" % str(random.random())[2:]
-		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
-		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
 		#self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
+
+		pipe_name = "uno-gm2ooo-%s" % str(random.random())[2:]
+		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
 		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
+
+		_log.debug('pipe name: %s', pipe_name)
+		_log.debug('startup command: %s', self.ooo_start_cmd)
+		_log.debug('remote context URI: %s', self.remote_context_uri)
+
+		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
 		self.desktop_uri = "com.sun.star.frame.Desktop"
 
 		self.local_context = uno.getComponentContext()
@@ -326,51 +332,70 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		self.__desktop = None
 	#--------------------------------------------------------
+	def cleanup(self, force=True):
+		if self.__desktop is None:
+			_log.debug('no desktop, no cleanup')
+			return
+
+		try:
+			self.__desktop.terminate()
+		except:
+			_log.exception('cannot terminate OOo desktop')
+	#--------------------------------------------------------
 	def open_document(self, filename=None):
 		"""<filename> must be absolute"""
-		# make sure we have a desktop
+
 		if self.desktop is None:
+			_log.error('cannot access OOo desktop')
 			return None
 
-		document_uri = uno.systemPathToFileUrl(os.path.abspath(os.path.expanduser(filename)))
+		filename = os.path.expanduser(filename)
+		filename = os.path.abspath(filename)
+		document_uri = uno.systemPathToFileUrl(filename)
+
+		_log.debug('%s -> %s', filename, document_uri)
 
 		doc = self.desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
 		return doc
 	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __get_startup_settle_time(self):
+		# later factor this out !
+		dbcfg = gmCfg.cCfgSQL()
+		self.ooo_startup_settle_time = dbcfg.get2 (
+			option = u'external.ooo.startup_settle_time',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'workplace',
+			default = 3.0
+		)
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_desktop(self):
-		opt_name = 'external.ooo.startup_settle_time'
-		if self.__desktop is None:
+		if self.__desktop is not None:
+			return self.__desktop
+
+		try:
+			self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
+		except oooNoConnectException:
+			_log.exception('cannot connect to OOo server')
+			_log.info('trying to start OOo server')
+			os.system(self.ooo_start_cmd)
+			self.__get_startup_settle_time()
+			_log.debug('waiting %s seconds for OOo to start up', self.ooo_startup_settle_time)
+			time.sleep(self.ooo_startup_settle_time)	# OOo sometimes needs a bit
 			try:
-				self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
+				self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
 			except oooNoConnectException:
-				_log.exception('Cannot connect to OOo server.')
-				_log.error('Trying to start OOo server with: [%s]' % self.ooo_start_cmd)
-				os.system(self.ooo_start_cmd)
-				dbcfg = gmCfg.cCfgSQL()
-				ooo_wait_time = dbcfg.get2 (
-					option = opt_name,
-					workplace = gmSurgery.gmCurrentPractice().active_workplace,
-					bias = 'workplace',
-					default = 2.0
-				)
-				_log.debug('waiting %s seconds for OOo to start up' % ooo_wait_time)
-				time.sleep(ooo_wait_time)	# OOo sometimes needs a bit
-				try:
-					self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
-				except oooNoConnectException:
-					_log.exception('Cannot start (or connect to started) OOo server. You may need to increase <%s>.' % opt_name)
-					return None
+				_log.exception('cannot start (or connect to started) OOo server')
+				return None
 
-			self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
-
+		self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
+		_log.debug('connection seems established')
 		return self.__desktop
 
-	def _set_desktop(self, desktop):
-		pass
-
-	desktop = property(_get_desktop, _set_desktop)
+	desktop = property(_get_desktop, lambda x:x)
 #------------------------------------------------------------
 class cOOoLetter(object):
 
@@ -379,17 +404,19 @@ class cOOoLetter(object):
 		self.template_file = template_file
 		self.instance_type = instance_type
 		self.ooo_doc = None
-
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def open_in_ooo(self):
 		# connect to OOo
 		ooo_srv = gmOOoConnector()
+
 		# open doc in OOo
 		self.ooo_doc = ooo_srv.open_document(filename = self.template_file)
 		if self.ooo_doc is None:
+			_log.error('cannot open document in OOo')
 			return False
+
 		# listen for close events
 		pat = gmPerson.gmCurrentPatient()
 		pat.locked = True
@@ -1068,6 +1095,30 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	#--------------------------------------------------------
+	# OOo
+	#--------------------------------------------------------
+	def test_ooo_connect():
+		srv = gmOOoConnector()
+		print srv
+		print srv.desktop
+	#--------------------------------------------------------
+	def test_open_ooo_doc_from_srv():
+		srv = gmOOoConnector()
+		doc = srv.open_document(filename = sys.argv[2])
+		print "document:", doc
+	#--------------------------------------------------------
+	def test_open_ooo_doc_from_letter():
+		doc = cOOoLetter(template_file = sys.argv[2])
+		doc.open_in_ooo()
+		print "document:", doc
+		raw_input('press <ENTER> to continue')
+		doc.show()
+		#doc.replace_placeholders()
+		#doc.save_in_ooo('~/test_cOOoLetter.odt')
+#		doc = None
+#		doc.close_in_ooo()
+		raw_input('press <ENTER> to continue')
+	#--------------------------------------------------------
 	def play_with_ooo():
 		try:
 			doc = open_uri_in_ooo(filename=sys.argv[1])
@@ -1105,13 +1156,17 @@ if __name__ == '__main__':
 			return
 		gmPerson.set_active_patient(patient = pat)
 
-		doc = cOOoLetter(template_file = sys.argv[1])
+		doc = cOOoLetter(template_file = sys.argv[2])
 		doc.open_in_ooo()
-		doc.replace_placeholders()
-		doc.save_in_ooo('~/test_cOOoLetter.odt')
+		print doc
+		doc.show()
+		#doc.replace_placeholders()
+		#doc.save_in_ooo('~/test_cOOoLetter.odt')
 		doc = None
 #		doc.close_in_ooo()
 		raw_input('press <ENTER> to continue')
+	#--------------------------------------------------------
+	# other
 	#--------------------------------------------------------
 	def test_cFormTemplate():
 		template = cFormTemplate(aPK_obj = sys.argv[2])
@@ -1139,20 +1194,32 @@ if __name__ == '__main__':
 		instance_file = form.substitute_placeholders(data_source = ph)
 		pdf_name = form.generate_output(instance_file = instance_file, cleanup = False)
 		print "final PDF file is:", pdf_name
+
+	#--------------------------------------------------------
 	#--------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		# now run the tests
 		#test_au()
 		#test_de()
+
+		# OOo
+		#test_ooo_connect()
+		#test_open_ooo_doc_from_srv()
+		test_open_ooo_doc_from_letter()
 		#play_with_ooo()
 		#test_cOOoLetter()
+
 		#test_cFormTemplate()
 		#set_template_from_file()
-		test_latex_form()
+		#test_latex_form()
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.73  2010-01-08 13:49:14  ncq
+# Revision 1.74  2010-01-09 18:28:49  ncq
+# - switch OOo access to named pipes
+# - better logging
+#
+# Revision 1.73  2010/01/08 13:49:14  ncq
 # - better logging
 #
 # Revision 1.72  2010/01/06 14:30:23  ncq
