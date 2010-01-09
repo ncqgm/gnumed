@@ -108,7 +108,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         __lbl_episode = wx.StaticText(self, -1, _("Episode"))
         _gszr_main.Add(__lbl_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_episode, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_notes = wx.StaticText(self, -1, _("Directions"))
+        __lbl_notes = wx.StaticText(self, -1, _("Advice"))
         _gszr_main.Add(__lbl_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_notes, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(_gszr_main)
