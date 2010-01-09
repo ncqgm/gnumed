@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #------------------------------------------------------------------
-# $Id: create-tag.sh,v 1.5 2010-01-09 19:54:13 ncq Exp $
+# $Id: create-tag.sh,v 1.6 2010-01-09 20:50:31 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/create-tag.sh,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 # License: GPL
 #------------------------------------------------------------------
 
@@ -38,7 +38,10 @@ echo "want to tag the CVS tree as"
 echo ""
 echo "   \"${TAG}\" ?"
 echo ""
-echo "(you must have checked in all changes)"
+echo "Note that:"
+echo ""
+echo " - you must have checked in all local changes or tagging will fail"
+echo " - tagging is not reversible !"
 echo ""
 read -e -p "Tag CVS tree ? [yes/no]: "
 
@@ -57,7 +60,10 @@ cvs tag -c ${TAG}
 
 #------------------------------------------------------------------
 # $Log: create-tag.sh,v $
-# Revision 1.5  2010-01-09 19:54:13  ncq
+# Revision 1.6  2010-01-09 20:50:31  ncq
+# - fix
+#
+# Revision 1.5  2010/01/09 19:54:13  ncq
 # - fix it, eventually :-)
 #
 # Revision 1.4  2009/08/24 20:11:27  ncq
