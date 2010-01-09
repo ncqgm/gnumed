@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.15 2010-01-06 14:39:05 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmFormWidgets.py,v 1.16 2010-01-09 18:30:10 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, logging
@@ -391,7 +391,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			message = _('Choose a form template file'),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
-			wildcard = "%s (*.ott)|*.ott|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('all files'), _('all files (Win)')),
+			wildcard = "%s (*.ott)|*.ott|%s (*.tex)|*.tex|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('LaTeX templates'), _('all files'), _('all files (Win)')),
 			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
 		)
 		result = dlg.ShowModal()
@@ -441,7 +441,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.15  2010-01-06 14:39:05  ncq
+# Revision 1.16  2010-01-09 18:30:10  ncq
+# - include LaTeX template shell glob pattern to template picker
+#
+# Revision 1.15  2010/01/06 14:39:05  ncq
 # - make cleanup configurable
 #
 # Revision 1.14  2010/01/03 18:18:05  ncq
