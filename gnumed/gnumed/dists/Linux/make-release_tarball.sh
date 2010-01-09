@@ -2,14 +2,14 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.91 2009-12-26 11:54:40 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.92 2010-01-09 19:35:25 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.6.rc3"
+CLIENTREV="0.6.rc4"
 #CLIENTREV="CVS-HEAD"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="12.rc3"
+SRVREV="12.rc4"
 #SRVREV="CVS-HEAD"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
@@ -422,11 +422,15 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/python
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/fixups
 
 cp -R ../../server/sql/v11-v12/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/dynamic
 cp -R ../../server/sql/v11-v12/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/static
 cp -R ../../server/sql/v11-v12/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
+cp -R ../../server/sql/v11-v12/data/* ./gnumed-client.$CLIENTREV/server/sql/v11-v12/data
+cp -R ../../server/sql/v11-v12/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v11-v12/python
 #cp -R ../../server/sql/v11-v12/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/fixups
 
 
@@ -466,7 +470,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.91  2009-12-26 11:54:40  ncq
+# Revision 1.92  2010-01-09 19:35:25  ncq
+# - bump version
+# - include v12 data/python
+#
+# Revision 1.91  2009/12/26 11:54:40  ncq
 # - bump version
 #
 # Revision 1.90  2009/12/25 22:10:52  ncq
