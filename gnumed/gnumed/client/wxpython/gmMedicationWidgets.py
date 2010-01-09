@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.30 2010-01-08 12:21:04 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmMedicationWidgets.py,v 1.31 2010-01-09 20:15:06 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -1123,7 +1123,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += gmTools.coalesce(entry['aim'], u'', _(' Aim: %s\n'))
 		tt += gmTools.coalesce(entry['episode'], u'', _(' Episode: %s\n'))
-		tt += gmTools.coalesce(entry['notes'], u'', _(' Notes: %s\n'))
+		tt += gmTools.coalesce(entry['notes'], u'', _(' Advice: %s\n'))
 
 		tt += u'\n'
 
@@ -1320,7 +1320,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.30  2010-01-08 12:21:04  ncq
+# Revision 1.31  2010-01-09 20:15:06  ncq
+# - use Advice
+#
+# Revision 1.30  2010/01/08 12:21:04  ncq
 # - even better error detection on forms template loading
 #
 # Revision 1.29  2010/01/06 14:42:20  ncq
