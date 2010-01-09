@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.160 $
+# $Revision: 1.161 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2010-01-08 15:37+CET\n"
-"PO-Revision-Date: 2010-01-08 16:08+0100\n"
+"POT-Creation-Date: 2010-01-09 20:07+CET\n"
+"PO-Revision-Date: 2010-01-09 20:33+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1813,6 +1813,9 @@ msgstr "Details der Vorlage ändern"
 msgid "&Template"
 msgstr "&Vorlage"
 
+msgid "LaTeX"
+msgstr "LaTeX"
+
 msgid "OpenOffice"
 msgstr "OpenOffice"
 
@@ -1836,6 +1839,9 @@ msgstr "Beispielgebender Dateiname. Hauptsächlich zum Ableiten einer passenden 
 
 msgid "Load template data from a file."
 msgstr "Vorlage aus einer Datei laden."
+
+msgid "The form engine this template must be processed with."
+msgstr "Der Formularprozessor für diese Vorlage."
 
 msgid "Mark this checkbox if you want this template to be active in GNUmed."
 msgstr "Hier ankreuzen, wenn diese Vorlage in GNUmed aktiv sein soll."
@@ -5291,6 +5297,9 @@ msgstr "Vor dem Speichern müssen Sie eine Vorlagedatei geladen haben."
 
 msgid "Choose a form template file"
 msgstr "Wählen Sie eine Datei als Schriftstück-Vorlage."
+
+msgid "LaTeX templates"
+msgstr "LaTeX-Vorlagen"
 
 msgid "OOo templates"
 msgstr "OOo-Vorlagen"
