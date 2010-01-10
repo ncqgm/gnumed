@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.485 2010-01-08 13:54:50 ncq Exp $
-__version__ = "$Revision: 1.485 $"
+# $Id: gmGuiMain.py,v 1.486 2010-01-10 17:27:16 ncq Exp $
+__version__ = "$Revision: 1.486 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,9 +52,14 @@ if (version < 28) or ('unicode' not in wx.PlatformInfo):
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2, gmLog2
+from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N
+from Gnumed.pycommon import gmExceptions, gmShellAPI, gmTools, gmDateTime
+from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2
+
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
+
 from Gnumed.exporters import gmPatientExporter
+
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
@@ -2557,7 +2562,7 @@ class gmApp(wx.App):
 		if not do_check:
 			return
 
-		check_for_updates()
+		gmCfgWidgets.check_for_updates()
 	#----------------------------------------------
 	def __establish_backend_connection(self):
 		"""Handle all the database related tasks necessary for startup."""
@@ -2917,7 +2922,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.485  2010-01-08 13:54:50  ncq
+# Revision 1.486  2010-01-10 17:27:16  ncq
+# - check-for-updates now in cfg widgets
+#
+# Revision 1.485  2010/01/08 13:54:50  ncq
 # - retire old-style new-patient
 #
 # Revision 1.484  2010/01/06 14:40:51  ncq
