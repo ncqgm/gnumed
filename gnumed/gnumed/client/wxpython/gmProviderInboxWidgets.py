@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.46 2010-01-06 14:43:55 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmProviderInboxWidgets.py,v 1.47 2010-01-10 17:29:26 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -522,7 +522,7 @@ GNUmed for message category and type:
 			)
 			return False
 
-		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
 	#--------------------------------------------------------
 	def _goto_measurements_review(self, pk_context=None, pk_patient=None):
@@ -538,7 +538,8 @@ GNUmed for message category and type:
 				_('handling provider inbox item')
 			)
 			return False
-		gmDispatcher.send(signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
+
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
 		return True	
 #============================================================
 if __name__ == '__main__':
@@ -561,7 +562,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.46  2010-01-06 14:43:55  ncq
+# Revision 1.47  2010-01-10 17:29:26  ncq
+# - slightly postpone plugin raising after message double-clicking
+#   to avoid async problems with patient activation plugin raising
+#
+# Revision 1.46  2010/01/06 14:43:55  ncq
 # - inbox title flush left
 #
 # Revision 1.45  2009/11/30 22:27:57  ncq
