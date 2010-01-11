@@ -7,12 +7,12 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.75 2010-01-11 22:02:18 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmForms.py,v 1.76 2010-01-11 22:49:29 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, codecs, re as regex, shutil, random
+import os, sys, time, os.path, logging, codecs, re as regex, shutil, random, platform
 #, libxml2, libxslt
 
 
@@ -685,7 +685,10 @@ class cLaTeXForm(cFormEngine):
 		shutil.move(self.instance_filename, sandboxed_instance_filename)
 
 		# LaTeX can need up to three runs to get cross-references et al right
-		cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
+		if platform.system() == 'Windows':
+			cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
+		else:
+			cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
 		for run in [1, 2, 3]:
 			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
@@ -1214,7 +1217,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.75  2010-01-11 22:02:18  ncq
+# Revision 1.76  2010-01-11 22:49:29  ncq
+# - Windows likely has pdflatex.exe
+#
+# Revision 1.75  2010/01/11 22:02:18  ncq
 # - properly log stack trace
 #
 # Revision 1.74  2010/01/09 18:28:49  ncq
