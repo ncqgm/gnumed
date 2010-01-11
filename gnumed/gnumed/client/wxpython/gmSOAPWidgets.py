@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.113 2009-09-13 18:45:25 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmSOAPWidgets.py,v 1.114 2010-01-11 19:59:13 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -239,6 +239,21 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 	#--------------------------------------------------------
+	def warn_on_unsaved_soap(self):
+
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx)
+			if page.editor_empty():
+				continue
+
+			gmGuiHelpers.gm_show_warning (
+				_('There are unsaved progress notes !\n'),
+				_('Unsaved progress notes')
+			)
+			return False
+
+		return True
+	#--------------------------------------------------------
 	def save_unsaved_soap(self):
 		save_all = False
 		dlg = None
@@ -309,9 +324,9 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	def _pre_selection_callback(self):
 		"""Another patient is about to be activated.
 
-		Patient change will not proceed before this returns.
+		Patient change will not proceed before this returns True.
 		"""
-		self.save_unsaved_soap()
+		return self.warn_on_unsaved_soap()
 	#--------------------------------------------------------
 	def _pre_exit_callback(self):
 		"""The client is about to be shut down.
@@ -1078,7 +1093,7 @@ if __name__ == "__main__":
 		Retrieve the soap editor input lines definitions built from
 		all the narratives for the given issue along a specific
 		encounter.
-		
+
 		@param pk_health_issue The id of the health issue to obtain the narratives for.
 		@param pk_health_issue An integer instance
 
@@ -1090,7 +1105,6 @@ if __name__ == "__main__":
 		@type default_labels: A dictionary instance which keys are
 		soap categories.
 		"""
-		
 		# custom labels
 		if default_labels is None:
 			default_labels = {
@@ -1098,8 +1112,8 @@ if __name__ == "__main__":
 				'o': _('Findings'),
 				'a': _('Assessment'),
 				'p': _('Plan')
-		}		
-		
+		}
+
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
 		soap_lines = []
@@ -1178,7 +1192,7 @@ if __name__ == "__main__":
 #		soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
 #		application.frame.Show(True)
 #		application.MainLoop()
-				
+
 #		# soap widget displaying all narratives for an issue along an encounter
 #		print 'testing soap editor for encounter narratives...'
 #		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
@@ -1189,29 +1203,29 @@ if __name__ == "__main__":
 #		app.SetWidget(cResizingSoapPanel, episode, narrative)
 #		app.MainLoop()
 #		del app
-		
+
 #		# soap progress note for episode
 #		print 'testing soap editor for episode...'
 #		app = wx.PyWidgetTester(size=(300,300))
 #		app.SetWidget(cResizingSoapPanel, episode)
 #		app.MainLoop()
 #		del app
-		
+
 #		# soap progress note for problem
 #		print 'testing soap editor for problem...'
 #		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
 #		app = wx.PyWidgetTester(size=(300,300))
 #		app.SetWidget(cResizingSoapPanel, problem)
 #		app.MainLoop()
-#		del app		
-		
+#		del app
+
 #		# unassociated soap progress note
 #		print 'testing unassociated soap editor...'
 #		app = wx.PyWidgetTester(size=(300,300))
 #		app.SetWidget(cResizingSoapPanel, None)
 #		app.MainLoop()
-#		del app		
-		
+#		del app
+
 #		# unstructured progress note
 #		print 'testing unstructured progress note...'
 #		app = wx.PyWidgetTester(size=(600,600))
@@ -1225,7 +1239,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.113  2009-09-13 18:45:25  ncq
+# Revision 1.114  2010-01-11 19:59:13  ncq
+# - cleanup
+# - warn-on-unsaved-soap and use it
+#
+# Revision 1.113  2009/09/13 18:45:25  ncq
 # - no more get-active-encounter()
 #
 # Revision 1.112  2009/06/22 09:28:21  ncq
