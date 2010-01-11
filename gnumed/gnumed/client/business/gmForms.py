@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.74 2010-01-09 18:28:49 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmForms.py,v 1.75 2010-01-11 22:02:18 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -18,9 +18,8 @@ import os, sys, time, os.path, logging, codecs, re as regex, shutil, random
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmDispatcher
-from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI, gmMimeLib
+from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI, gmMimeLib, gmLog2
 from Gnumed.business import gmPerson, gmSurgery
 
 
@@ -665,7 +664,7 @@ class cLaTeXForm(cFormEngine):
 			open(instance_file, 'r').close()
 		except:
 			_log.exception('cannot access form instance file [%s]', instance_file)
-			_log.log_stack_trace()
+			gmLog2.log_stack_trace()
 			return None
 
 		self.instance_filename = instance_file
@@ -1215,7 +1214,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.74  2010-01-09 18:28:49  ncq
+# Revision 1.75  2010-01-11 22:02:18  ncq
+# - properly log stack trace
+#
+# Revision 1.74  2010/01/09 18:28:49  ncq
 # - switch OOo access to named pipes
 # - better logging
 #
