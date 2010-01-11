@@ -1,6 +1,6 @@
 #!/bin/bash
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 echo "-------------------------------------------------------------"
 echo "This script will check your environment for applications"
@@ -155,6 +155,16 @@ else
 	echo "found"
 fi
 
+echo -n " 'gm-print_doc' command... "
+BIN=`which gm-print_doc`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-print_doc' command installed."
+	echo "  INFO : It is used to print files from GNUmed."
+else
+	echo "found"
+fi
+
 echo -n " 'pdflatex' command... "
 BIN=`which pdflatex`
 if [ "x${BIN}x" == "xx" ]; then
@@ -170,14 +180,30 @@ BIN=`which kprinter`
 if [ "x${BIN}x" == "xx" ]; then
 	echo ""
 	echo "  INFO : You don't seem to have the 'kprinter' command installed."
-	echo "  INFO : It is available with your OS. On Windows it is not needed."
+	echo "  INFO : It is used to print files from KDE."
+	echo "  INFO : On Windows it is not needed."
 else
 	echo "found"
 fi
 
+echo -n " 'gtklp' command... "
+BIN=`which gtklp`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gktlp' command installed."
+	echo "  INFO : It is used to print files from GNOME."
+	echo "  INFO : On Windows it is not needed."
+else
+	echo "found"
+fi
+
+
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.17  2009-12-26 19:04:24  ncq
+# Revision 1.18  2010-01-11 19:41:23  ncq
+# - add checks for gktlp and gm-print_doc
+#
+# Revision 1.17  2009/12/26 19:04:24  ncq
 # - check for kprinter and pdflatex
 #
 # Revision 1.16  2009/08/11 10:43:54  ncq
