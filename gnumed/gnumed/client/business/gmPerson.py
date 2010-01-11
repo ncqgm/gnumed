@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.196 2010-01-08 14:38:06 ncq Exp $
-__version__ = "$Revision: 1.196 $"
+# $Id: gmPerson.py,v 1.197 2010-01-11 19:43:05 ncq Exp $
+__version__ = "$Revision: 1.197 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1126,7 +1126,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# user wants to explicitly unset current patient
 		if patient == -1:
 			_log.debug('explicitly unsetting current patient')
-			self.__run_pre_selection_callbacks()
+			if not self.__run_pre_selection_callbacks():
+				_log.debug('not unsetting current patient')
+				return None
 			self.__send_pre_selection_notification()
 			self.patient.cleanup()
 			self.patient = gmNull.cNull()
@@ -1146,7 +1148,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		_log.debug('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
 
 		# everything seems swell
-		self.__run_pre_selection_callbacks()
+		if not self.__run_pre_selection_callbacks():
+			_log.debug('not changing current patient')
+			return None
 		self.__send_pre_selection_notification()
 		self.patient.cleanup()
 		self.patient = patient
@@ -1205,15 +1209,23 @@ class gmCurrentPatient(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def __run_pre_selection_callbacks(self):
 		if isinstance(self.patient, gmNull.cNull):
-			return
+			return True
+
 		for call_back in self.__pre_selection_callbacks:
 			try:
-				call_back()
+				successful = call_back()
 			except:
+				_log.exception('callback [%s] failed', call_back)
 				print "*** pre-selection callback failed ***"
 				print type(call_back)
 				print call_back
-				_log.exception('callback [%s] failed', call_back)
+				return False
+
+			if not successful:
+				_log.debug('callback [%s] returned False', call_back)
+				return False
+
+		return True
 	#--------------------------------------------------------
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active.
@@ -1224,7 +1236,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 			'signal': u'pre_patient_selection',
 			'sender': id(self.__class__),
 			'pk_identity': self.patient['pk_identity']
-#			'patient': self.patient['pk_identity']
 		}
 		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
@@ -1971,6 +1982,7 @@ def set_active_patient(patient=None, forced_reload=False):
 	except:
 		_log.exception('error changing active patient to [%s]' % patient)
 		return False
+
 	return True
 #------------------------------------------------------------
 def prompted_input(prompt, default=None):
@@ -2361,7 +2373,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.196  2010-01-08 14:38:06  ncq
+# Revision 1.197  2010-01-11 19:43:05  ncq
+# - do not change the patient if any of the
+#   synchronous pre-selection callbacks fails
+#
+# Revision 1.196  2010/01/08 14:38:06  ncq
 # - support NULLing the dob
 #
 # Revision 1.195  2010/01/08 13:50:45  ncq
