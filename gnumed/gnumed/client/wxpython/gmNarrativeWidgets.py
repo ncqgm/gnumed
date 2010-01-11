@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.44 2009-11-28 18:32:50 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmNarrativeWidgets.py,v 1.45 2010-01-11 19:51:09 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -897,16 +897,13 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _pre_selection_callback(self):
 		"""Another patient is about to be activated.
 
-		Patient change will not proceed before this returns.
+		Patient change will not proceed before this returns True.
 		"""
 		# don't worry about the encounter here - it will be offered
 		# for editing higher up if anything was saved to the EMR
 		if not self.__pat.connected:
 			return True
-		emr = self.__pat.get_emr()
-		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
-			gmDispatcher.send(signal = 'statustext', msg = _('Could not save all editors.'), beep = True)
-		return True
+		return self._NB_soap_editors.warn_on_unsaved_soap()
 	#--------------------------------------------------------
 	def _pre_exit_callback(self):
 		"""The client is about to be shut down.
@@ -1180,6 +1177,20 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		# always keep one unassociated editor open
 		if self.GetPageCount() == 0:
 			self.add_editor()
+	#--------------------------------------------------------
+	def warn_on_unsaved_soap(self):
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx)
+			if page.empty:
+				continue
+
+			gmGuiHelpers.gm_show_warning (
+				_('There are unsaved progress notes !\n'),
+				_('Unsaved progress notes')
+			)
+			return False
+
+		return True
 	#--------------------------------------------------------
 	def save_all_editors(self, emr=None, rfe=None, aoe=None):
 
@@ -1523,7 +1534,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.44  2009-11-28 18:32:50  ncq
+# Revision 1.45  2010-01-11 19:51:09  ncq
+# - cleanup
+# - warn-on-unsaved-soap and use in syn pre-selection callback
+#
+# Revision 1.44  2009/11/28 18:32:50  ncq
 # - finalize showing potential problems in problem list, too, and adjust box label
 #
 # Revision 1.43  2009/11/24 21:03:41  ncq
