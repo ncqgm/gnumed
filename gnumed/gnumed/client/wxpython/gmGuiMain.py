@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.486 2010-01-10 17:27:16 ncq Exp $
-__version__ = "$Revision: 1.486 $"
+# $Id: gmGuiMain.py,v 1.487 2010-01-11 19:46:19 ncq Exp $
+__version__ = "$Revision: 1.487 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -865,7 +865,7 @@ class gmTopLevelFrame(wx.Frame):
 			raise
 	#----------------------------------------------
 	def _pre_selection_callback(self):
-		self.__sanity_check_encounter()
+		return self.__sanity_check_encounter()
 	#----------------------------------------------
 	def __sanity_check_encounter(self):
 
@@ -920,7 +920,7 @@ class gmTopLevelFrame(wx.Frame):
 					enc_summary += '%s; ' % epi['description']
 				enc['assessment_of_encounter'] = enc_summary
 
-		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
+		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent = self, encounter = enc)
 		dlg.ShowModal()
 
 		return True
@@ -2922,7 +2922,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.486  2010-01-10 17:27:16  ncq
+# Revision 1.487  2010-01-11 19:46:19  ncq
+# - cleanup
+#
+# Revision 1.486  2010/01/10 17:27:16  ncq
 # - check-for-updates now in cfg widgets
 #
 # Revision 1.485  2010/01/08 13:54:50  ncq

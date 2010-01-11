@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.110 2009-11-15 01:05:02 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmEMRBrowser.py,v 1.111 2010-01-11 19:44:39 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -831,7 +831,7 @@ if __name__ == '__main__':
 
 		application.frame.Show(True)
 		application.MainLoop()
-		
+
 		# clean up
 		if patient is not None:
 			try:
@@ -847,7 +847,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.110  2009-11-15 01:05:02  ncq
+# Revision 1.111  2010-01-11 19:44:39  ncq
+# - cleanup
+#
+# Revision 1.110  2009/11/15 01:05:02  ncq
 # - enable moving SOAP of a list of encounters of an episode
 #
 # Revision 1.109  2009/11/06 15:17:07  ncq
