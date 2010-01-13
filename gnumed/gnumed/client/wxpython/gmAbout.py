@@ -3,8 +3,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.32 2009-01-15 11:35:06 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmAbout.py,v 1.33 2010-01-13 21:51:00 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -35,21 +35,22 @@ class ScrollTxtWin (wx.Window):
 		u'Dr Hilmar Berger',
 		u'Michael Bonert',
 		u'Dr Elizabeth Dodd',
-		u'Engelbert Gruber',
 		u'Dr David Guest',
 		u'Ian Haywood',
 		u'Dr Tony Lembke',
-		u'Thierry Michel',
 		u'Dr Richard Terry',
 		u'Syan J Tan',
 		u'Andreas Tille',
-		u'Dr Carlos Moro'
+		u'Dr Carlos Moro',
+		u'Dr James Busser',
+		u'Dr Rogerio Luz',
+		u'Dr Sebastian Hilbert'
 	]
 
 	# initializations
-	__scroll_ctr=+230
-	__name_ctr=1
-	__delay_ctr=1
+	__scroll_ctr = +230
+	__name_ctr = 1
+	__delay_ctr = 1
 
 	def __init__ (self, parent):
 		wx.Window.__init__(self, parent, -1, size=(230,20), style=wx.SUNKEN_BORDER)
@@ -209,6 +210,11 @@ Steffi Leibner, Leipzig
  - Testen, Fehlerberichte
  - Dokumentenvorlage
 
+Rogerio Luz, Brasil
+
+ - testing, bug reporting
+ - SOAP handling discussion
+
 == N ===========================================
 
 Clemens Nietfeld, Oldenburg
@@ -272,7 +278,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.32  2009-01-15 11:35:06  ncq
+# Revision 1.33  2010-01-13 21:51:00  ncq
+# - adjust supporters
+#
+# Revision 1.32  2009/01/15 11:35:06  ncq
 # - cleanup
 #
 # Revision 1.31  2008/09/09 20:18:06  ncq
