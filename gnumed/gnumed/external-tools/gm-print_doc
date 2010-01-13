@@ -24,7 +24,7 @@
 #
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-print_doc,v $
-# $Id: gm-print_doc,v 1.3 2010-01-11 22:04:50 ncq Exp $
+# $Id: gm-print_doc,v 1.4 2010-01-13 21:52:23 ncq Exp $
 # ===========================================================
 
 TYPE="$1"			# this is a tag as to what type of print job this is
@@ -63,8 +63,27 @@ fi
 
 exit 0
 # ===========================================================
+# MacOSX:
+#
+# alternate Mac methods to open the PDF in Preview
+# (uncomment one of the following)
+# open -a Preview <filename> or
+# osascript -e 'tell application "Preview" to open ((POSIX file "fullySpecifiedFilenameInQuotes") as text)' 
+#
+# Figured I may as well also capture a link to the following
+# method, in case we should in future (on Macs) pass
+# parameters into an AppleScript:
+#
+# 	http://developer.apple.com/mac/library/qa/qa2001/qa1111.html
+#
+#	http://forums.macosxhints.com/showthread.php?s=&threadid=19736
+#
+# ===========================================================
 # $Log: gm-print_doc,v $
-# Revision 1.3  2010-01-11 22:04:50  ncq
+# Revision 1.4  2010-01-13 21:52:23  ncq
+# - document how Mac might work
+#
+# Revision 1.3  2010/01/11 22:04:50  ncq
 # - support either of kprinter / gtklp
 #
 # Revision 1.2  2010/01/01 21:24:19  ncq
