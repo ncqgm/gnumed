@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.31 2010-01-09 20:15:06 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmMedicationWidgets.py,v 1.32 2010-01-13 21:52:04 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -314,6 +314,48 @@ def update_atc_reference_data():
 
 #============================================================
 # current medication widgets
+#============================================================
+class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+SELECT schedule as sched, schedule
+FROM clin.substance_intake
+where schedule %(fragment_condition)s
+ORDER BY sched
+LIMIT 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(1, 2, 4)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('The schedule for taking this substance.'))
+		self.matcher = mp
+		self.selection_only = False
+#============================================================
+class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+(
+	SELECT preparation as prep, preparation
+	FROM ref.branded_drug
+	where preparation %(fragment_condition)s
+) union (
+	SELECT preparation as prep, preparation
+	FROM clin.substance_intake
+	where preparation %(fragment_condition)s
+)
+order by prep
+limit 30"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(1, 2, 4)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('The preparation (form) of the substance the patient is taking.'))
+		self.matcher = mp
+		self.selection_only = False
 #============================================================
 class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1320,7 +1362,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.31  2010-01-09 20:15:06  ncq
+# Revision 1.32  2010-01-13 21:52:04  ncq
+# - implement phrase wheel on schedule and preparation
+#
+# Revision 1.31  2010/01/09 20:15:06  ncq
 # - use Advice
 #
 # Revision 1.30  2010/01/08 12:21:04  ncq
