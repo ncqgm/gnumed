@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.76 2010-01-11 22:49:29 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmForms.py,v 1.77 2010-01-15 12:42:18 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -629,9 +629,14 @@ class cLaTeXForm(cFormEngine):
 				try:
 					val = data_source[placeholder]
 				except:
-					val = _('error with placeholder [%s]' % placeholder)
 					_log.exception(val)
+					val = _('error with placeholder [%s]' % placeholder)
+
+				if val is None:
+					val = _('error with placeholder [%s]' % placeholder)
+
 				line = line.replace(placeholder, val)
+
 			instance_file.write(line)
 
 		instance_file.close()
@@ -722,22 +727,7 @@ class cLaTeXForm(cFormEngine):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def _texify_string(self, text=None):
-		"""check for special latex-characters and transform them"""
 
-		text = text.replace(u'\\', u'$\\backslash$')
-		text = text.replace(u'{', u'\\{')
-		text = text.replace(u'}', u'\\}')
-		text = text.replace(u'%', u'\\%')
-		text = text.replace(u'&', u'\\&')
-		text = text.replace(u'#', u'\\#')
-		text = text.replace(u'$', u'\\$')
-		text = text.replace(u'_', u'\\_')
-
-		text = text.replace(u'^', u'\\verb#^#')
-		text = text.replace('~','\\verb#~#')
-
-		return text
 #------------------------------------------------------------
 form_engines[u'L'] = cLaTeXForm
 #------------------------------------------------------------
@@ -1207,17 +1197,21 @@ if __name__ == '__main__':
 		# OOo
 		#test_ooo_connect()
 		#test_open_ooo_doc_from_srv()
-		test_open_ooo_doc_from_letter()
+		#test_open_ooo_doc_from_letter()
 		#play_with_ooo()
 		#test_cOOoLetter()
 
 		#test_cFormTemplate()
 		#set_template_from_file()
-		#test_latex_form()
+		test_latex_form()
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.76  2010-01-11 22:49:29  ncq
+# Revision 1.77  2010-01-15 12:42:18  ncq
+# - factor out texify_string into gmTools
+# - handle None-return on placeholders in LaTeX engine
+#
+# Revision 1.76  2010/01/11 22:49:29  ncq
 # - Windows likely has pdflatex.exe
 #
 # Revision 1.75  2010/01/11 22:02:18  ncq
