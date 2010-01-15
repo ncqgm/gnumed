@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.96 2009-12-21 15:02:51 ncq Exp $
+# $Id: gmTools.py,v 1.97 2010-01-15 12:42:46 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.96 $"
+__version__ = "$Revision: 1.97 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -793,6 +793,23 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 	text = text.rstrip(line_separator)
 
 	return text
+#---------------------------------------------------------------------------
+def tex_escape_string(text=None):
+	"""check for special latex-characters and transform them"""
+
+	text = text.replace(u'\\', u'$\\backslash$')
+	text = text.replace(u'{', u'\\{')
+	text = text.replace(u'}', u'\\}')
+	text = text.replace(u'%', u'\\%')
+	text = text.replace(u'&', u'\\&')
+	text = text.replace(u'#', u'\\#')
+	text = text.replace(u'$', u'\\$')
+	text = text.replace(u'_', u'\\_')
+
+	text = text.replace(u'^', u'\\verb#^#')
+	text = text.replace('~','\\verb#~#')
+
+	return text
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -1098,7 +1115,10 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.96  2009-12-21 15:02:51  ncq
+# Revision 1.97  2010-01-15 12:42:46  ncq
+# - tex-escape-string
+#
+# Revision 1.96  2009/12/21 15:02:51  ncq
 # - cleanup
 #
 # Revision 1.95  2009/11/29 15:57:51  ncq
