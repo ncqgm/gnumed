@@ -24,7 +24,7 @@
 #
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-print_doc,v $
-# $Id: gm-print_doc,v 1.4 2010-01-13 21:52:23 ncq Exp $
+# $Id: gm-print_doc,v 1.5 2010-01-15 12:44:10 ncq Exp $
 # ===========================================================
 
 TYPE="$1"			# this is a tag as to what type of print job this is
@@ -78,9 +78,23 @@ exit 0
 #
 #	http://forums.macosxhints.com/showthread.php?s=&threadid=19736
 #
+#
+# Windows:
+#
+# - can support lpr command
+# - configure both the Windows box and the required lpr line
+#   (for more info, web search on "microsoft xp lpr syntax") also
+#
+#	http://bsdpants.blogspot.com/2008/01/printing-from-windows-to-cups.html
+#
+# - freeware 'PrintFile" (as at 2009) supports batch command piping
+#
 # ===========================================================
 # $Log: gm-print_doc,v $
-# Revision 1.4  2010-01-13 21:52:23  ncq
+# Revision 1.5  2010-01-15 12:44:10  ncq
+# - add docs on possible Windows handling
+#
+# Revision 1.4  2010/01/13 21:52:23  ncq
 # - document how Mac might work
 #
 # Revision 1.3  2010/01/11 22:04:50  ncq
