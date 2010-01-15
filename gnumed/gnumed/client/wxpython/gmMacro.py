@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -15,7 +15,8 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools, gmCfg2, gmDateTime
+from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
+from Gnumed.pycommon import gmCfg2, gmDateTime
 from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
@@ -51,7 +52,8 @@ known_variant_placeholders = [
 	u'adr_postcode',
 	u'gender_mapper',			# "data" holds: value for male // value for female
 	u'current_meds',			# "data" holds: line template
-	u'today'					# "data" holds: strftime format
+	u'today',					# "data" holds: strftime format
+	u'tex_escape'				# "data" holds: string to escape
 ]
 
 #default_placeholder_regex = r'$<.+(::.+){0,2}>$'
@@ -211,7 +213,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_client_version(self):
 		return gmTools.coalesce (
 			_cfg.get(option = u'client_version'),
-			u'%s \$Revision: 1.48 $' % self.__class__.__name__
+			u'%s' % self.__class__.__name__
 		)
 	#--------------------------------------------------------
 	def _get_current_provider(self):
@@ -340,6 +342,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_today(self, data='%x'):
 		return gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding())
 	#--------------------------------------------------------
+	def _get_variant_tex_escape(self, data=None):
+		return gmTools.tex_escape_string(text = data)
+	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 
@@ -401,7 +406,7 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def version(self):
 		ver = _cfg.get(option = u'client_version')
-		return "GNUmed %s, %s $Revision: 1.48 $" % (ver, self.__class__.__name__)
+		return "GNUmed %s, %s $Revision: 1.49 $" % (ver, self.__class__.__name__)
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -711,7 +716,11 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.48  2009-12-22 12:01:58  ncq
+# Revision 1.49  2010-01-15 12:43:46  ncq
+# - tex-escape placeholder
+# - return safe substitute if real client version unavailable
+#
+# Revision 1.48  2009/12/22 12:01:58  ncq
 # - escape dollar signs as they frequently mean something
 #
 # Revision 1.47  2009/12/21 20:28:02  ncq
