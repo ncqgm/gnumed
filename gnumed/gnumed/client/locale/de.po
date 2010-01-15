@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.162 $
+# $Revision: 1.163 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2010-01-09 21:20+CET\n"
-"PO-Revision-Date: 2010-01-09 21:42+0100\n"
+"POT-Creation-Date: 2010-01-15 13:46+CET\n"
+"PO-Revision-Date: 2010-01-15 14:17+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1645,7 +1645,7 @@ msgid "Delete selected document type. Note that you can only delete document typ
 msgstr "Den markierten Dokumententyp löschen. Sie können nur solche Typen löschen, die nicht in Benutzung sind."
 
 msgid "Change the type of all documents currently having the selected document type."
-msgstr "Allen Dokumenten des markierten Typs einen anderen Dokumententyp zuordnen."
+msgstr "Alle Dokumente des markierten Typs einem anderen Dokumententyp zuordnen."
 
 msgid "Type (English)"
 msgstr "Typ (Englisch)"
@@ -7899,6 +7899,9 @@ msgstr "ATC-Referenzdaten erfolgreich importiert."
 msgid "Importing ATC reference data failed."
 msgstr "Import von ATC-Referenzdaten schlug fehl."
 
+msgid "The preparation (form) of the substance the patient is taking."
+msgstr "Die Darreichungs-/Zubereitungsform der Substanz, die vom Patienten eingenommen wird."
+
 msgid "The INN / substance the patient is taking."
 msgstr "Die Substanz / INN, die vom Patienten eingenommen wird."
 
@@ -8216,9 +8219,6 @@ msgstr "Kann Konsultation nicht speichern: Beginn fehlt."
 msgid "Cannot save encounter: missing end time."
 msgstr "Kann Konsultation nicht speichern: Ende fehlt."
 
-msgid "Could not save all editors."
-msgstr "Kann nicht alle Karteieinträge speichern."
-
 msgid "Cannot save all editors. Some were kept open."
 msgstr "Kann nicht alle Karteieinträge speichern. Einige Editoren bleiben geöffnet."
 
@@ -8267,6 +8267,12 @@ msgstr ""
 
 msgid "Discarding progress note"
 msgstr "Verwerfe Verlaufsnotiz"
+
+msgid "There are unsaved progress notes !\n"
+msgstr "Einige Verlaufsnotizen wurden noch nicht gespeichert !\n"
+
+msgid "Unsaved progress notes"
+msgstr "Ungespeicherte Verlaufsnotizen"
 
 msgid "Enter a short working name for this new problem:"
 msgstr "Geben Sie dem neuen Problem einen kurzen, aussagekräftigen Namen:"
@@ -9845,6 +9851,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Could not save all editors."
+#~ msgstr "Kann nicht alle Karteieinträge speichern."
 #~ msgid " Notes: %s\n"
 #~ msgstr " Notizen: %s\n"
 #~ msgid "Register a new person with this practice"
