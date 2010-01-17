@@ -24,7 +24,7 @@
 #
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-print_doc,v $
-# $Id: gm-print_doc,v 1.5 2010-01-15 12:44:10 ncq Exp $
+# $Id: gm-print_doc,v 1.6 2010-01-17 22:43:04 ncq Exp $
 # ===========================================================
 
 TYPE="$1"			# this is a tag as to what type of print job this is
@@ -33,16 +33,49 @@ FILES="$@"			# this is / those are the file(s) to print
 
 
 # detect printer manager
-A=`which kprinter`
-if [ $? = 0 ]; then
-	CALL_PRINTER_MANAGER="kprinter -c ${FILES}"
-else
+CALL_PRINTER_MANAGER=""
+
+# kprinter ?
+if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
+	A=`which kprinter`
+	if [ $? = 0 ]; then
+		CALL_PRINTER_MANAGER="kprinter -c ${FILES}"
+	fi
+fi
+
+# gtklp ?
+if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
 	A=`which gtklp`
 	if [ $? = 0 ]; then
 		CALL_PRINTER_MANAGER="gtklp -i ${FILES}"
-	else
-		exit ${EXIT_CODE}
 	fi
+fi
+
+# Darwin/MacOSX ?
+if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
+	SYSTEM=`uname -s`
+	if [ ${SYSTEM} = "MacOSX" ]; then
+		CALL_PRINTER_MANAGER="open -a Preview ${FILES}"
+		#CALL_PRINTER_MANAGER="open ${FILES}"
+	fi
+fi
+
+# generic badness ?
+if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
+	A=`which acroread`
+	if [ $? = 0 ]; then
+		CALL_PRINTER_MANAGER="acroread ${FILES}"
+	fi
+fi
+
+# nothing found ?
+if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
+	echo ""
+	echo "Cannot find any of kprinter, gtklp, MacOSX, or acroread."
+	echo ""
+	echo "Cannot print document."
+	echo ""
+	exit 127
 fi
 
 
@@ -81,17 +114,16 @@ exit 0
 #
 # Windows:
 #
-# - can support lpr command
-# - configure both the Windows box and the required lpr line
-#   (for more info, web search on "microsoft xp lpr syntax") also
-#
-#	http://bsdpants.blogspot.com/2008/01/printing-from-windows-to-cups.html
-#
 # - freeware 'PrintFile" (as at 2009) supports batch command piping
+# - use "AcroRd32.exe /s /o /h /p $FILES" (requires Acrobat Reader to be installed)
+# - refer to http://www.robvanderwoude.com/printfiles.php#PrintPDF
 #
 # ===========================================================
 # $Log: gm-print_doc,v $
-# Revision 1.5  2010-01-15 12:44:10  ncq
+# Revision 1.6  2010-01-17 22:43:04  ncq
+# - much improve printer interface detection
+#
+# Revision 1.5  2010/01/15 12:44:10  ncq
 # - add docs on possible Windows handling
 #
 # Revision 1.4  2010/01/13 21:52:23  ncq
