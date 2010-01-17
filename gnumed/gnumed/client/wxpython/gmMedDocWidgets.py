@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.186 2009-12-25 22:03:56 ncq Exp $
-__version__ = "$Revision: 1.186 $"
+# $Id: gmMedDocWidgets.py,v 1.187 2010-01-17 19:48:20 ncq Exp $
+__version__ = "$Revision: 1.187 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -187,6 +187,8 @@ limit 25"""],
 
 		self.matcher = mp
 		self.picklist_delay = 50
+
+		self.SetToolTipString(_('Enter a comment on the document.'))
 #============================================================
 class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 	"""A dialog showing a cEditDocumentTypesPnl."""
@@ -359,6 +361,8 @@ u"""select * from ((
 
 		self.matcher = mp
 		self.picklist_delay = 50
+
+		self.SetToolTipString(_('Select the document type.'))
 	#--------------------------------------------------------
 	def GetData(self, can_create=False):
 		if self.data is None:
@@ -1300,14 +1304,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			cmt = gmTools.coalesce(doc['comment'], _('no comment available'))
 			page_num = len(parts)
-			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = _('no reference ID'), template_initial = u'\u00BB%s\u00AB')
+			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = u'', template_initial = u', \u00BB%s\u00AB')
 
 			if doc.has_unreviewed_parts():
-				review = u'\u270D'
+				review = gmTools.u_writing_hand
 			else:
 				review = u''
 
-			label = _('%s%7s %s: %s (%s part(s), %s)') % (
+			label = _('%s%7s %s: %s (%s part(s)%s)') % (
 				review,
 				doc['clin_when'].strftime('%m/%Y'),
 				doc['l10n_type'][:26],
@@ -1320,18 +1324,20 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			if self.__sort_mode == 'episode':
 				if not intermediate_nodes.has_key(doc['episode']):
 					intermediate_nodes[doc['episode']] = self.AppendItem(parent = self.root, text = doc['episode'])
+					self.SetItemBold(intermediate_nodes[doc['episode']], bold = True)
 					self.SetPyData(intermediate_nodes[doc['episode']], None)
 				parent = intermediate_nodes[doc['episode']]
 			elif self.__sort_mode == 'type':
 				if not intermediate_nodes.has_key(doc['l10n_type']):
 					intermediate_nodes[doc['l10n_type']] = self.AppendItem(parent = self.root, text = doc['l10n_type'])
+					self.SetItemBold(intermediate_nodes[doc['l10n_type']], bold = True)
 					self.SetPyData(intermediate_nodes[doc['l10n_type']], None)
 				parent = intermediate_nodes[doc['l10n_type']]
 			else:
 				parent = self.root
 
 			doc_node = self.AppendItem(parent = parent, text = label)
-			self.SetItemBold(doc_node, bold=True)
+			#self.SetItemBold(doc_node, bold = True)
 			self.SetPyData(doc_node, doc)
 			if len(parts) > 0:
 				self.SetItemHasChildren(doc_node, True)
@@ -1340,12 +1346,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			for part in parts:
 
 				pg = _('part %2s') % part['seq_idx']
-				cmt = gmTools.coalesce(part['obj_comment'], _("no comment available"))
+				cmt = gmTools.coalesce(part['obj_comment'], u'', u': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote))
 				sz = gmTools.size2str(part['size'])
 				rev = gmTools.bool2str (
 					boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
 					true_str = u'',
-					false_str = u' \u270D'
+					false_str = gmTools.u_writing_hand
 				)
 
 #				if part['clinically_relevant']:
@@ -1353,7 +1359,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 #				else:
 #					rel = ''
 
-				label = '%s%s: "%s" (%s)' % (pg, rev, cmt, sz)
+				label = '%s%s (%s)%s' % (rev, pg, sz, cmt)
 
 				part_node = self.AppendItem(parent = doc_node, text = label)
 				self.SetPyData(part_node, part)
@@ -1959,7 +1965,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.186  2009-12-25 22:03:56  ncq
+# Revision 1.187  2010-01-17 19:48:20  ncq
+# - add tooltips on phrasewheels
+# - cleaner layout for document tree
+#
+# Revision 1.186  2009/12/25 22:03:56  ncq
 # - it is now gm-%s* rather than gm_%s*
 #
 # Revision 1.185  2009/12/22 12:02:40  ncq
