@@ -24,7 +24,7 @@
 #
 # ===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-print_doc,v $
-# $Id: gm-print_doc,v 1.6 2010-01-17 22:43:04 ncq Exp $
+# $Id: gm-print_doc,v 1.7 2010-01-19 15:49:07 ncq Exp $
 # ===========================================================
 
 TYPE="$1"			# this is a tag as to what type of print job this is
@@ -54,7 +54,7 @@ fi
 # Darwin/MacOSX ?
 if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
 	SYSTEM=`uname -s`
-	if [ ${SYSTEM} = "MacOSX" ]; then
+	if [ ${SYSTEM} = "Darwin" ]; then
 		CALL_PRINTER_MANAGER="open -a Preview ${FILES}"
 		#CALL_PRINTER_MANAGER="open ${FILES}"
 	fi
@@ -71,9 +71,8 @@ fi
 # nothing found ?
 if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
 	echo ""
-	echo "Cannot find any of kprinter, gtklp, MacOSX, or acroread."
-	echo ""
-	echo "Cannot print document."
+	echo "Cannot find any of kprinter, gtklp, MacOSX/Darwin, or acroread."
+	echo "Cannot print document(s)."
 	echo ""
 	exit 127
 fi
@@ -94,7 +93,11 @@ if [ "${TYPE}" = "medication_list" ]; then
 fi
 
 
-exit 0
+echo ""
+echo "Unknown print job type <${TYPE}>. Cannot print document(s)."
+echo ""
+
+exit 127
 # ===========================================================
 # MacOSX:
 #
@@ -120,7 +123,11 @@ exit 0
 #
 # ===========================================================
 # $Log: gm-print_doc,v $
-# Revision 1.6  2010-01-17 22:43:04  ncq
+# Revision 1.7  2010-01-19 15:49:07  ncq
+# - properly detect Darwin
+# - error message on unknown job type
+#
+# Revision 1.6  2010/01/17 22:43:04  ncq
 # - much improve printer interface detection
 #
 # Revision 1.5  2010/01/15 12:44:10  ncq
