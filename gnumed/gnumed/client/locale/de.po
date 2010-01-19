@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.163 $
+# $Revision: 1.164 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2010-01-15 13:46+CET\n"
-"PO-Revision-Date: 2010-01-15 14:17+0100\n"
+"POT-Creation-Date: 2010-01-19 16:49+CET\n"
+"PO-Revision-Date: 2010-01-19 16:51+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -2771,7 +2771,7 @@ msgstr "außerhalb Normbereich"
 msgid "take over responsibility"
 msgstr "die Verantwortung auf mich übertragen"
 
-msgid "sign all parts"
+msgid "sign all pages"
 msgstr "alle Teile abzeichnen"
 
 msgid "Edit document properties"
@@ -2779,6 +2779,24 @@ msgstr "Eigenschaften des Dokuments editieren"
 
 msgid "Shows the episode associated with this document. Select another one or type in a new episode name to associate a different one."
 msgstr "Zeigt die Episode, zu der dieses Dokument gehört. Sie können eine andere auswählen oder einen Namen für eine neue Episode eintippen, um die Zuordnung zu .ändern."
+
+msgid "Enter the date of creation of the document."
+msgstr "Geben Sie das Datum der Erstellung des Dokuments ein."
+
+msgid "Enter the ID by which this document is referenced externally."
+msgstr "Geben Sie die ID ein, unter welcher das Dokument extern referenziert ist."
+
+msgid ""
+"An example file name for this document type.\n"
+"\n"
+"Mainly used to derive a file name extension during export for operating systems which need that to guesstimate the viewer."
+msgstr ""
+"Ein beispielhafter Dateiname für diesen Dokumententyp.\n"
+"\n"
+"Dieser dient hauptsächlich dazu, während des Exports eine Erweiterung für den Dateinamen abzuleiten, da manche Betriebssysteme daraus das Anzeigeprogramm ermitteln."
+
+msgid "The sequence index or page number. If invoked from a document instead of a page always applies to the first page."
+msgstr "Die \"Seiten\"nummer. Falls von einem Dokument und nicht von einer Seite aus aufgerufen wurde, dann bezieht sich die Angabe immer auf die erste Seite."
 
 msgid ""
 "Lists previous reviews for this document part.\n"
@@ -2798,8 +2816,14 @@ msgstr ""
 msgid "Check this if you want to edit your review."
 msgstr "Hier ankreuzen, um Ihre Bewertung zu .ändern."
 
+msgid "Does this document inform on a state of the patient's health that is technically abnormal ?"
+msgstr "Enthält diese Dokument Angaben zu bedeutsamen pathologischen Zuständen beim Patienten ?"
+
 msgid "Check this if you intend to take over responsibility for this document and not just review it."
 msgstr "Hier ankreuzen, um die Verantwortlichkeit für den Empfang dieses Dokuments zu übernehmen, anstelle es lediglich zu bewerten."
+
+msgid "Is this document clinically relevant."
+msgstr "Ist dieses Dokument medizinisch relevant ?"
 
 msgid "Apply review to entire document rather than just this part or page."
 msgstr "Bewertung auf das gesamte Dokument ausdehnen, nicht nur auf diesen Teil (diese Seite)."
@@ -2818,9 +2842,6 @@ msgstr "Der ursprüngliche Dateiname (so zutreffend)."
 
 msgid "Seq #"
 msgstr "Seite"
-
-msgid "The sequence index or page number. If invoked from a document instead of a page always applies to the first page."
-msgstr "Die \"Seiten\"nummer. Falls von einem Dokument und nicht von einer Seite aus aufgerufen wurde, dann bezieht sich die Angabe immer auf die erste Seite."
 
 msgid "Document Properties"
 msgstr "Eigenschaften des Dokuments"
@@ -7345,6 +7366,9 @@ msgstr "Dokumente"
 msgid "Select the episode under which to file the document ..."
 msgstr "Wählen Sie die Episode, der das Dokument zugeordnet werden soll ..."
 
+msgid "Enter a comment on the document."
+msgstr "Geben Sie einen Kommentar zu diesem Dokument ein."
+
 msgid "In use"
 msgstr "In Verwendung"
 
@@ -7393,6 +7417,9 @@ msgstr ""
 
 msgid "Reassigning document type"
 msgstr "Dokumente anders klassifizieren"
+
+msgid "Select the document type."
+msgstr "Wählen Sie den Dokumententyp."
 
 msgid "who"
 msgstr "wer"
@@ -7677,11 +7704,8 @@ msgstr "Dokumentenliste laden"
 msgid "no comment available"
 msgstr "kein Kommentar verfügbar"
 
-msgid "no reference ID"
-msgstr "keine Referenznummer"
-
-msgid "%s%7s %s: %s (%s part(s), %s)"
-msgstr "%s%7s %s: %s (%s Teil(e), %s)"
+msgid "%s%7s %s: %s (%s part(s)%s)"
+msgstr "%s%7s %s: %s (%s Teil(e)%s)"
 
 msgid "part %2s"
 msgstr "Teil %2s"
@@ -9851,6 +9875,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "no reference ID"
+#~ msgstr "keine Referenznummer"
 #~ msgid "Could not save all editors."
 #~ msgstr "Kann nicht alle Karteieinträge speichern."
 #~ msgid " Notes: %s\n"
