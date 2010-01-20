@@ -1,0 +1,81 @@
+%% GNUmed Referral Letter LaTeX template 
+%% Copyright (c)2010 by Rogerio Luz Coelho,MD - Brasil - dr.rogerioluz@gmail.com
+%% This document is an integral part of the GNUmed project, find us at <wiki.gnumed.de>
+%------------------------------------------------------------------
+% License: GPL
+%
+% $Id: GNUmed-default_referral_letter_template.tex,v 1.1 2010-01-20 11:53:01 ncq Exp $
+% $Revision: 1.1 $
+%------------------------------------------------------------------
+
+\documentclass[11pt,a4paper,american]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{verbose,lmargin=2.54cm}
+
+\pagestyle{empty}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\usepackage{babel}
+
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+\begin{document}
+\title {Referral Letter of: \\ \emph {($<title>$) ($<lastname>$), ($<firstname>$)}}
+%\footnote{ -- Referral Letter --\emph http://wiki.gnumed.de/bin/view/Gnumed}
+
+\author{From ($<current_provider>$) in:}
+\maketitle 
+
+\footnotetext {$<tex_escape::$Id: GNUmed-default_referral_letter_template.tex,v 1.1 2010-01-20 11:53:01 ncq Exp $>$}
+\footnotetext {GNUmed Electronic Medical Record ($<client_version>$) -- www.gnumed.org}
+
+\paragraph* {To whom this may concern, the above patient born in \emph {($<date_of_birth::%Y %B %d>$)}
+is at this time in my care and after his expressed consent I disclose of the following:}
+
+\begin{enumerate}
+
+	\item This patient's allergy state: $<allergy_state>$ ($<allergy_list::%(descriptor)s, >$)
+
+	\item This patient has the following active health issues:
+
+	%\begin{description}
+		%\item [{($<active_health_issues::*list_or_csv*>$)}]~
+	%\end{description}
+
+	\item The above patient is currently using: 
+	\begin{description}
+		$<current_meds:: \item[%(substance)s {\footnotesize (%(brand)s)} %(preparation)s %(strength)s: %(schedule)s] >$
+		%\item [{($<current_meds>$)}]~
+	\end{description}
+
+\end{enumerate}
+
+\paragraph* {Lastly, we have discussed the following Plan for the future which the
+patient may or may not have chosen to follow at this time:}
+
+%\begin{description}
+%\item [($<soap_p>$)]~
+%\end{description}
+
+\begin{tabular}[b]{c}
+\rule{0pt}{10ex} \today {} ($<current_provider>$)\\
+\rule{0pt}{4ex} Practice Stamp , Signature:\\
+\hline
+{\tiny Any information below this point can not be assumed
+valid and the above physician will not be held responsible.
+Any non-printed information above this point should be
+countersigned or needs to be reconfirmed by other means.}
+\end{tabular}
+\end{document}
+
+%------------------------------------------------------------------
+% $Log: GNUmed-default_referral_letter_template.tex,v $
+% Revision 1.1  2010-01-20 11:53:01  ncq
+% - referral letter template contributed by Rogerio Luz
+%
+%
+
