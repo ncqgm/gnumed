@@ -7,19 +7,20 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.78 2010-01-21 08:40:38 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmForms.py,v 1.74 2010-01-09 18:28:49 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, codecs, re as regex, shutil, random, platform
+import os, sys, time, os.path, logging, codecs, re as regex, shutil, random
 #, libxml2, libxslt
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmDispatcher
-from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI, gmMimeLib, gmLog2
+from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI, gmMimeLib
 from Gnumed.business import gmPerson, gmSurgery
 
 
@@ -629,14 +630,9 @@ class cLaTeXForm(cFormEngine):
 				try:
 					val = data_source[placeholder]
 				except:
+					val = _('error with placeholder [%s]' % placeholder)
 					_log.exception(val)
-					val = _('error with placeholder [%s]' % placeholder)
-
-				if val is None:
-					val = _('error with placeholder [%s]' % placeholder)
-
 				line = line.replace(placeholder, val)
-
 			instance_file.write(line)
 
 		instance_file.close()
@@ -669,7 +665,7 @@ class cLaTeXForm(cFormEngine):
 			open(instance_file, 'r').close()
 		except:
 			_log.exception('cannot access form instance file [%s]', instance_file)
-			gmLog2.log_stack_trace()
+			_log.log_stack_trace()
 			return None
 
 		self.instance_filename = instance_file
@@ -690,13 +686,9 @@ class cLaTeXForm(cFormEngine):
 		shutil.move(self.instance_filename, sandboxed_instance_filename)
 
 		# LaTeX can need up to three runs to get cross-references et al right
-		if platform.system() == 'Windows':
-			cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
-		else:
-			cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
+		cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
 		for run in [1, 2, 3]:
 			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
-				_log.error('problem running pdflatex, cannot generate form output')
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 				return None
 
@@ -728,7 +720,22 @@ class cLaTeXForm(cFormEngine):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
+	def _texify_string(self, text=None):
+		"""check for special latex-characters and transform them"""
 
+		text = text.replace(u'\\', u'$\\backslash$')
+		text = text.replace(u'{', u'\\{')
+		text = text.replace(u'}', u'\\}')
+		text = text.replace(u'%', u'\\%')
+		text = text.replace(u'&', u'\\&')
+		text = text.replace(u'#', u'\\#')
+		text = text.replace(u'$', u'\\$')
+		text = text.replace(u'_', u'\\_')
+
+		text = text.replace(u'^', u'\\verb#^#')
+		text = text.replace('~','\\verb#~#')
+
+		return text
 #------------------------------------------------------------
 form_engines[u'L'] = cLaTeXForm
 #------------------------------------------------------------
@@ -1060,6 +1067,7 @@ def test_au2 ():
 	print os.getcwd ()
 	form.xdvi ()
 	form.cleanup ()
+	
 #------------------------------------------------------------
 def test_de():
 		template = open('../../test-area/ian/Formularkopf-DE.tex')
@@ -1197,30 +1205,17 @@ if __name__ == '__main__':
 		# OOo
 		#test_ooo_connect()
 		#test_open_ooo_doc_from_srv()
-		#test_open_ooo_doc_from_letter()
+		test_open_ooo_doc_from_letter()
 		#play_with_ooo()
 		#test_cOOoLetter()
 
 		#test_cFormTemplate()
 		#set_template_from_file()
-		test_latex_form()
+		#test_latex_form()
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.78  2010-01-21 08:40:38  ncq
-# - better logging, again
-#
-# Revision 1.77  2010/01/15 12:42:18  ncq
-# - factor out texify_string into gmTools
-# - handle None-return on placeholders in LaTeX engine
-#
-# Revision 1.76  2010/01/11 22:49:29  ncq
-# - Windows likely has pdflatex.exe
-#
-# Revision 1.75  2010/01/11 22:02:18  ncq
-# - properly log stack trace
-#
-# Revision 1.74  2010/01/09 18:28:49  ncq
+# Revision 1.74  2010-01-09 18:28:49  ncq
 # - switch OOo access to named pipes
 # - better logging
 #

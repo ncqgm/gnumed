@@ -2,14 +2,14 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.95 2010-01-21 09:01:20 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.92 2010-01-09 19:35:25 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.6.rc6"
+CLIENTREV="0.6.rc4"
 #CLIENTREV="CVS-HEAD"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="12.rc6"
+SRVREV="12.rc4"
 #SRVREV="CVS-HEAD"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
@@ -194,30 +194,21 @@ cp -R ../../client/locale/de.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/es.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/fr.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/it.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nb.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nl.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/pl.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/ru.po ./gnumed-client.$CLIENTREV/client/locale
 
 cd ../../client/locale/
 ./create-gnumed_mo.sh de
 ./create-gnumed_mo.sh es
 ./create-gnumed_mo.sh fr
 ./create-gnumed_mo.sh it
-./create-gnumed_mo.sh nb
-./create-gnumed_mo.sh nl
 ./create-gnumed_mo.sh pl
-./create-gnumed_mo.sh ru
 cd -
 
 cp -R ../../client/locale/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 
 
 # pycommon
@@ -479,16 +470,7 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.95  2010-01-21 09:01:20  ncq
-# - bump version
-#
-# Revision 1.94  2010/01/19 15:46:37  ncq
-# - include more languages
-#
-# Revision 1.93  2010/01/15 13:33:34  ncq
-# - bump version
-#
-# Revision 1.92  2010/01/09 19:35:25  ncq
+# Revision 1.92  2010-01-09 19:35:25  ncq
 # - bump version
 # - include v12 data/python
 #

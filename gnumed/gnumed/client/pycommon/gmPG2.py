@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.125 $"
+__version__ = "$Revision: 1.123 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -23,7 +23,7 @@ import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logg
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N, gmLog2
+from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N
 
 _log = logging.getLogger('gm.db')
 _log.info(__version__)
@@ -909,14 +909,8 @@ def file2bytea(query=None, filename=None, args=None, conn=None):
 	# insert the data
 	if conn is None:
 		conn = get_raw_connection(readonly=False)
-		close_conn = True
-	else:
-		close_conn = False
-
-	run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = True)
-
-	if close_conn:
-		conn.close()
+	run_rw_queries(link_obj=conn, queries = [{'cmd': query, 'args': args}], end_tx=True)
+	conn.close()
 
 	return
 #------------------------------------------------------------------------
@@ -1098,7 +1092,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			curs.execute(query['cmd'], args)
 		except:
 			_log.exception('error running RW query')
-			gmLog2.log_stack_trace()
+			_log.log_stack_trace()
 			try:
 				curs_close()
 				conn_rollback()
@@ -1115,7 +1109,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			data = curs.fetchall()
 		except:
 			_log.exception('error fetching data from RW query')
-			gmLog2.log_stack_trace()
+			_log.log_stack_trace()
 			try:
 				curs_close()
 				conn_rollback()
@@ -1943,13 +1937,7 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.125  2010-01-21 08:41:37  ncq
-# - in file -> bytea only close conn if we opened it ourselves
-#
-# Revision 1.124  2010/01/11 22:02:49  ncq
-# - properly log stack trace
-#
-# Revision 1.123  2010/01/06 14:38:17  ncq
+# Revision 1.123  2010-01-06 14:38:17  ncq
 # - log database size
 #
 # Revision 1.122  2009/12/21 15:02:18  ncq

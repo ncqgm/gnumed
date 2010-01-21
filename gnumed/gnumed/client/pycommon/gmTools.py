@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.98 2010-01-17 19:47:10 ncq Exp $
+# $Id: gmTools.py,v 1.96 2009-12-21 15:02:51 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.98 $"
+__version__ = "$Revision: 1.96 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -42,10 +42,10 @@ default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
 
-u_right_double_angle_quote = u'\u00AB'		# <<
+u_right_double_angle_quote = u'\u00AB'
 u_registered_trademark = u'\u00AE'
 u_plus_minus = u'\u00B1'
-u_left_double_angle_quote = u'\u00BB'		# >>
+u_left_double_angle_quote = u'\u00BB'
 u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
@@ -793,23 +793,6 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 	text = text.rstrip(line_separator)
 
 	return text
-#---------------------------------------------------------------------------
-def tex_escape_string(text=None):
-	"""check for special latex-characters and transform them"""
-
-	text = text.replace(u'\\', u'$\\backslash$')
-	text = text.replace(u'{', u'\\{')
-	text = text.replace(u'}', u'\\}')
-	text = text.replace(u'%', u'\\%')
-	text = text.replace(u'&', u'\\&')
-	text = text.replace(u'#', u'\\#')
-	text = text.replace(u'$', u'\\$')
-	text = text.replace(u'_', u'\\_')
-
-	text = text.replace(u'^', u'\\verb#^#')
-	text = text.replace('~','\\verb#~#')
-
-	return text
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -1115,13 +1098,7 @@ second line\n
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.98  2010-01-17 19:47:10  ncq
-# - add comment on quotes
-#
-# Revision 1.97  2010/01/15 12:42:46  ncq
-# - tex-escape-string
-#
-# Revision 1.96  2009/12/21 15:02:51  ncq
+# Revision 1.96  2009-12-21 15:02:51  ncq
 # - cleanup
 #
 # Revision 1.95  2009/11/29 15:57:51  ncq

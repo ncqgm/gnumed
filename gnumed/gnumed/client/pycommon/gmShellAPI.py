@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.13 2010-01-11 22:03:08 ncq Exp $
+# $Id: gmShellAPI.py,v 1.12 2010-01-03 18:16:11 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -120,7 +120,6 @@ def run_command_in_shell(command=None, blocking=False):
 			command += ' &'
 
 	_log.info('running shell command >>>%s<<<', command)
-	# FIXME: use subprocess.Popen()
 	ret_val = os.system(command.encode(sys.getfilesystemencoding()))
 	_log.debug('os.system() returned: [%s]', ret_val)
 
@@ -183,10 +182,7 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.13  2010-01-11 22:03:08  ncq
-# - comment
-#
-# Revision 1.12  2010/01/03 18:16:11  ncq
+# Revision 1.12  2010-01-03 18:16:11  ncq
 # - find-first-binary
 # - run-first-available-in-shell
 #

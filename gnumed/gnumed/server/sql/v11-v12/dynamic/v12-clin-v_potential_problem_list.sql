@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-v_potential_problem_list.sql,v 1.2 2010-01-21 08:48:50 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v12-clin-v_potential_problem_list.sql,v 1.1 2009-11-28 18:11:29 ncq Exp $
+-- $Revision: 1.1 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -35,9 +35,7 @@ select	-- all the (closed) episodes
 	cep.pk
 		as pk_episode,
 	cep.fk_health_issue
-		as pk_health_issue,
-	cep.diagnostic_certainty_classification
-		as diagnostic_certainty_classification
+		as pk_health_issue
 from
 	clin.episode cep
 where
@@ -61,9 +59,7 @@ select	-- all the (clinically NOT relevant) health issues
 	null
 		as pk_episode,
 	chi.pk
-		as pk_health_issue,
-	chi.diagnostic_certainty_classification
-		as diagnostic_certainty_classification
+		as pk_health_issue
 from
 	clin.health_issue chi
 where
@@ -73,14 +69,11 @@ where
 
 grant select on clin.v_potential_problem_list TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-v_potential_problem_list.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v12-clin-v_potential_problem_list.sql,v $', '$Revision: 1.1 $');
 
 -- ==============================================================
 -- $Log: v12-clin-v_potential_problem_list.sql,v $
--- Revision 1.2  2010-01-21 08:48:50  ncq
--- - include Dx certainty
---
--- Revision 1.1  2009/11/28 18:11:29  ncq
+-- Revision 1.1  2009-11-28 18:11:29  ncq
 -- - new view
 --
 --
