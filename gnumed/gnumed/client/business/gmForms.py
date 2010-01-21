@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.77 2010-01-15 12:42:18 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmForms.py,v 1.78 2010-01-21 08:40:38 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -696,6 +696,7 @@ class cLaTeXForm(cFormEngine):
 			cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
 		for run in [1, 2, 3]:
 			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+				_log.error('problem running pdflatex, cannot generate form output')
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 				return None
 
@@ -1059,7 +1060,6 @@ def test_au2 ():
 	print os.getcwd ()
 	form.xdvi ()
 	form.cleanup ()
-	
 #------------------------------------------------------------
 def test_de():
 		template = open('../../test-area/ian/Formularkopf-DE.tex')
@@ -1207,7 +1207,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.77  2010-01-15 12:42:18  ncq
+# Revision 1.78  2010-01-21 08:40:38  ncq
+# - better logging, again
+#
+# Revision 1.77  2010/01/15 12:42:18  ncq
 # - factor out texify_string into gmTools
 # - handle None-return on placeholders in LaTeX engine
 #
