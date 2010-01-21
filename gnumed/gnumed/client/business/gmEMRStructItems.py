@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.156 $"
+__version__ = "$Revision: 1.157 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -19,20 +19,30 @@ from Gnumed.business import gmClinNarrative
 _log = logging.getLogger('gm.emr')
 _log.info(__version__)
 
-
 try: _
 except NameError: _ = lambda x:x
 #============================================================
 # diagnostic certainty classification
 #============================================================
-diagnostic_certainty_classification2str = {
-	None: u'',
-	u'A': _('A %s Sign') % gmTools.u_corresponds_to,
-	u'B': _('B %s Cluster of signs') % gmTools.u_corresponds_to,
-	u'C': _('C %s Syndromic diagnosis') % gmTools.u_corresponds_to,
-	u'D': _('D %s Scientific diagnosis') % gmTools.u_corresponds_to
-}
+__diagnostic_certainty_classification_map = None
 
+def diagnostic_certainty_classification2str(classification):
+
+	global __diagnostic_certainty_classification_map
+
+	if __diagnostic_certainty_classification_map is None:
+		__diagnostic_certainty_classification_map = {
+			None: u'',
+			u'A': _(u'A: Sign'),
+			u'B': _(u'B: Cluster of signs'),
+			u'C': _(u'C: Syndromic diagnosis'),
+			u'D': _(u'D: Scientific diagnosis')
+		}
+
+	try:
+		return __diagnostic_certainty_classification_map[classification]
+	except KeyError:
+		return _(u'%s: unknown diagnostic certainty classification' % classification)
 #============================================================
 # Health Issues API
 #============================================================
@@ -203,7 +213,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	laterality_description = property(_get_laterality_description, lambda x:x)
 	#--------------------------------------------------------
 	def _get_diagnostic_certainty_description(self):
-		return diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]]
+		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
@@ -257,7 +267,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('active'), _('inactive')),
 			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant')),
 			gmTools.coalesce (
-				initial = diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]],
+				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
 				instead = u'',
 				template_initial = u', %s',
 				none_equivalents = [None, u'']
@@ -559,7 +569,7 @@ from (
 		return True
 	#--------------------------------------------------------
 	def _get_diagnostic_certainty_description(self):
-		return diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]]
+		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
@@ -581,7 +591,7 @@ from (
 			self._payload[self._idx['description']],
 			gmTools.u_right_double_angle_quote,
 			gmTools.coalesce (
-				initial = diagnostic_certainty_classification2str[self._payload[self._idx['diagnostic_certainty_classification']]],
+				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
 				instead = u'',
 				template_initial = u'%s, ',
 				none_equivalents = [None, u'']
@@ -1306,6 +1316,12 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
 		return cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
+	#--------------------------------------------------------
+	# doubles as 'diagnostic_certainty_description' getter:
+	def get_diagnostic_certainty_description(self):
+		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
+
+	diagnostic_certainty_description = property(get_diagnostic_certainty_description, lambda x:x)
 #============================================================
 class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
@@ -1568,6 +1584,14 @@ if __name__ == '__main__':
 		delete_hospital_stay(stay['pk_hospital_stay'])
 		stay = create_hospital_stay(encounter = 1, episode = 4)
 	#--------------------------------------------------------
+	def test_diagnostic_certainty_classification_map():
+		tests = [None, 'A', 'B', 'C', 'D', 'E']
+
+		for t in tests:
+			print type(t), t
+			print type(diagnostic_certainty_classification2str(t)), diagnostic_certainty_classification2str(t)
+
+	#--------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		# run them
 		#test_episode()
@@ -1575,10 +1599,16 @@ if __name__ == '__main__':
 		#test_encounter()
 		#test_health_issue()
 		#test_hospital_stay()
-		test_performed_procedure()
+		#test_performed_procedure()
+		test_diagnostic_certainty_classification_map()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.156  2009-12-21 14:58:19  ncq
+# Revision 1.157  2010-01-21 08:40:15  ncq
+# - make diagnostic certainty conversion robust against when _() is imported
+# - enable problem to return certainty description
+# - test certainty mapper
+#
+# Revision 1.156  2009/12/21 14:58:19  ncq
 # - for issue/episode show creation encounter
 # - %x -> %Y-%m-%d timestamp formatting
 #
