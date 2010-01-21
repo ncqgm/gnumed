@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -37,7 +37,8 @@ known_placeholders = [
 	'soap_a',
 	'soap_p',
 	u'client_version',
-	u'current_provider'
+	u'current_provider',
+	u'allergy_state'
 ]
 
 
@@ -53,7 +54,10 @@ known_variant_placeholders = [
 	u'gender_mapper',			# "data" holds: value for male // value for female
 	u'current_meds',			# "data" holds: line template
 	u'today',					# "data" holds: strftime format
-	u'tex_escape'				# "data" holds: string to escape
+	u'tex_escape',				# "data" holds: string to escape
+	u'allergies',				# "data" holds: line template, one allergy per line
+	u'allergy_list',			# "data" holds: template per allergy, allergies on one line
+	u'problems'					# "data" holds: line template, one problem per line
 ]
 
 #default_placeholder_regex = r'$<.+(::.+){0,2}>$'
@@ -232,6 +236,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return tmp
 	#--------------------------------------------------------
+	def _get_allergy_state(self):
+		allg_state = self.pat.get_emr().allergy_state
+		tmp = u'%s (%s)' % (
+			allg_state.state_string,
+			allg_state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
+		)
+		return tmp
+	#--------------------------------------------------------
 	# property definitions for static placeholders
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, _setter_noop)
@@ -250,6 +262,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	soap_p = property(_get_soap_p, _setter_noop)
 	soap_admin = property(_get_soap_admin, _setter_noop)
 
+	allergy_state = property(_get_allergy_state, _setter_noop)
+
 	client_version = property(_get_client_version, _setter_noop)
 
 	current_provider = property(_get_current_provider, _setter_noop)
@@ -260,12 +274,25 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._get_variant_soap(data=data)
 	#--------------------------------------------------------
 	def _get_variant_soap(self, data=None):
-		if data is not None:
-			data = list(data)
-		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = data)
+		if data is None:
+			cats = list(data)
+			template = u'%s'
+		else:
+			parts = data.split('//', 2)
+			if len(parts) == 1:
+				cats = list(parts)
+				template = u'%s'
+			else:
+				cats = list(parts[0])
+				template = parts[1]
+
+		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
+
 		if len(narr) == 0:
 			return u''
-		narr = [ n['narrative'] for n in narr ]
+
+		narr = [ template % n['narrative'] for n in narr ]
+
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%x'):
@@ -317,6 +344,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return _('no postcode for address type [%s]') % data
 		return adrs[0]['postcode']
 	#--------------------------------------------------------
+	def _get_variant_allergy_list(self, data=None):
+		if data is None:
+			return [_('template is missing')]
+
+		template, separator = data.split('//', 2)
+
+		emr = self.pat.get_emr()
+		return separator.join([ template % a for a in emr.get_allergies() ])
+	#--------------------------------------------------------
 	def _get_variant_allergies(self, data=None):
 
 		if data is None:
@@ -338,6 +374,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 
 		return u'\n'.join([ data % m for m in current_meds ])
+	#--------------------------------------------------------
+	def _get_variant_problems(self, data=None):
+
+		if data is None:
+			return [_('template is missing')]
+
+		probs = self.pat.get_emr().get_problems()
+
+		return u'\n'.join([ data % p for p in probs ])
 	#--------------------------------------------------------
 	def _get_variant_today(self, data='%x'):
 		return gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding())
@@ -406,7 +451,7 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def version(self):
 		ver = _cfg.get(option = u'client_version')
-		return "GNUmed %s, %s $Revision: 1.49 $" % (ver, self.__class__.__name__)
+		return "GNUmed %s, %s $Revision: 1.50 $" % (ver, self.__class__.__name__)
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -636,7 +681,8 @@ if __name__ == '__main__':
 			# should work:
 			'$<adr_location::home::35>$',
 			'$<gender_mapper::male//female//other::5>$',
-			'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) <==\n::50>$'
+			'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) <==\n::50>$',
+			'$<allergy_list::%(descriptor)s, >$'
 
 #			'firstname',
 #			'title',
@@ -716,7 +762,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.49  2010-01-15 12:43:46  ncq
+# Revision 1.50  2010-01-21 08:44:46  ncq
+# - implement new placeholders, improve others
+#
+# Revision 1.49  2010/01/15 12:43:46  ncq
 # - tex-escape placeholder
 # - return safe substitute if real client version unavailable
 #
