@@ -5,13 +5,18 @@
 % Author: Karsten Hilbert
 % License: GPL
 %
-% $Id: GNUmed-default_medication_list_template.tex,v 1.5 2010-01-15 12:45:01 ncq Exp $
-% $Revision: 1.5 $
+% $Id: GNUmed-default_medication_list_template.tex,v 1.6 2010-01-21 08:47:11 ncq Exp $
+% $Revision: 1.6 $
 %------------------------------------------------------------------
 
 \documentclass[english]{article}
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{hyperref}
+%\usepackage{ucs}
+%\usepackage{lmodern}
+%\usepackage{times}
+%\usepackage{amsmath}
 \usepackage[a4paper]{geometry}
 \geometry{verbose,lmargin=2.54cm}
 \pagestyle{empty}
@@ -30,8 +35,8 @@
 
 \begin{document}
 
-\footnotetext{$<tex_escape::$Id: GNUmed-default_medication_list_template.tex,v 1.5 2010-01-15 12:45:01 ncq Exp $>$}
-\footnotetext{GNUmed $<client_version>$ -- www.gnumed.org}
+\footnotetext {\href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny $<tex_escape::$Id: GNUmed-default_medication_list_template.tex,v 1.6 2010-01-21 08:47:11 ncq Exp $>$}
 
 \noindent \begin{center}
 {\LARGE Current Medication List}%
@@ -97,7 +102,10 @@ $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabu
 
 %------------------------------------------------------------------
 % $Log: GNUmed-default_medication_list_template.tex,v $
-% Revision 1.5  2010-01-15 12:45:01  ncq
+% Revision 1.6  2010-01-21 08:47:11  ncq
+% - much improved layout
+%
+% Revision 1.5  2010/01/15 12:45:01  ncq
 % - eventually include template file CVS version properly :-)
 %
 % Revision 1.4  2009/12/30 12:47:18  ncq

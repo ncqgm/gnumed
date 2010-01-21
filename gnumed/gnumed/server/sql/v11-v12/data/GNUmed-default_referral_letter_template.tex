@@ -1,80 +1,105 @@
-%% GNUmed Referral Letter LaTeX template 
+%% GNUmed Referral Letter LaTeX template
 %% Copyright (c)2010 by Rogerio Luz Coelho,MD - Brasil - dr.rogerioluz@gmail.com
 %% This document is an integral part of the GNUmed project, find us at <wiki.gnumed.de>
 %------------------------------------------------------------------
 % License: GPL
 %
-% $Id: GNUmed-default_referral_letter_template.tex,v 1.1 2010-01-20 11:53:01 ncq Exp $
-% $Revision: 1.1 $
+% $Id: GNUmed-default_referral_letter_template.tex,v 1.2 2010-01-21 08:47:11 ncq Exp $
+% $Revision: 1.2 $
 %------------------------------------------------------------------
 
-\documentclass[11pt,a4paper,american]{article}
+\documentclass[11pt,english]{article}
+\usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+\usepackage{ucs}
+%\usepackage{lmodern}
+%\usepackage{times}
+%\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{babel}
+
 \usepackage[a4paper]{geometry}
 \geometry{verbose,lmargin=2.54cm}
 
-\pagestyle{empty}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+%\fancyhead[L]
+\lhead {$<title>$ $<lastname>$, $<firstname>$ ($<date_of_birth::%Y %B %d>$)}
+\cfoot {\thepage}
+
+
 \setlength{\parskip}{\medskipamount}
 \setlength{\parindent}{0pt}
 
-\usepackage{babel}
-
-%% Because html converters don't know tabularnewline
-\providecommand{\tabularnewline}{\\}
 
 \begin{document}
-\title {Referral Letter of: \\ \emph {($<title>$) ($<lastname>$), ($<firstname>$)}}
-%\footnote{ -- Referral Letter --\emph http://wiki.gnumed.de/bin/view/Gnumed}
 
-\author{From ($<current_provider>$) in:}
+\footnotetext {\href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny $<tex_escape::$Id: GNUmed-default_referral_letter_template.tex,v 1.2 2010-01-21 08:47:11 ncq Exp $>$}
+
+\title {Referral Letter concerning: \\ \emph {$<title>$ $<lastname>$, $<firstname>$}}
+\author {From $<current_provider>$ on:}
 \maketitle 
 
-\footnotetext {$<tex_escape::$Id: GNUmed-default_referral_letter_template.tex,v 1.1 2010-01-20 11:53:01 ncq Exp $>$}
-\footnotetext {GNUmed Electronic Medical Record ($<client_version>$) -- www.gnumed.org}
+%\begin{center}
+%{\LARGE Referral Letter concerning:}
+%{\LARGE \emph {$<title>$ $<lastname>$, $<firstname>$}}
+%{\large From $<current_provider>$ on $<today::%Y %B %d>$}
+%\end{center}
 
-\paragraph* {To whom this may concern, the above patient born in \emph {($<date_of_birth::%Y %B %d>$)}
-is at this time in my care and after his expressed consent I disclose of the following:}
+
+
+\paragraph* {To whom this may concern,\\
+\\
+The above patient born on \emph {$<date_of_birth::%Y %B %d>$} has been under my care.
+With due consideration to consent I will here disclose:
+}
 
 \begin{enumerate}
 
-	\item This patient's allergy state: $<allergy_state>$ ($<allergy_list::%(descriptor)s, >$)
+	\item This patient's allergy state: $<allergy_state>$ (\emph {$<allergy_list::%(descriptor)s//, >$})
 
 	\item This patient has the following active health issues:
 
-	%\begin{description}
-		%\item [{($<active_health_issues::*list_or_csv*>$)}]~
-	%\end{description}
+	\begin{description}
+$<problems::		\item[%(problem)s] (%(diagnostic_certainty_description)s) >$
+	\end{description}
 
 	\item The above patient is currently using: 
 	\begin{description}
-		$<current_meds:: \item[%(substance)s {\footnotesize (%(brand)s)} %(preparation)s %(strength)s: %(schedule)s] >$
-		%\item [{($<current_meds>$)}]~
+$<current_meds::		\item[%(substance)s] {\footnotesize (%(brand)s)} %(preparation)s %(strength)s: %(schedule)s >$
 	\end{description}
 
 \end{enumerate}
 
-\paragraph* {Lastly, we have discussed the following Plan for the future which the
-patient may or may not have chosen to follow at this time:}
+\noindent \paragraph* {
+Lastly, we have discussed the following plan for the future which the
+patient may or may not have fully completed or followed:
+}
 
-%\begin{description}
-%\item [($<soap_p>$)]~
-%\end{description}
+\begin{itemize}
+$<progress_notes::p//	{\item %s} \\ >$
+\end{itemize}
 
-\begin{tabular}[b]{c}
-\rule{0pt}{10ex} \today {} ($<current_provider>$)\\
-\rule{0pt}{4ex} Practice Stamp , Signature:\\
+\vfill{}
+
+%\begin{tabular}[b]{c}
+\begin{tabular}{c}
+\rule{0pt}{10ex} \texttt {\textsl {\footnotesize <Practice Stamp / Signature>}}\\
+\rule{0pt}{4ex} {\footnotesize $<current_provider>$}\\
 \hline
-{\tiny Any information below this point can not be assumed
-valid and the above physician will not be held responsible.
-Any non-printed information above this point should be
-countersigned or needs to be reconfirmed by other means.}
+\tiny The above physician cannot be held responsible for unconfirmed content or alterations to this letter. \\
 \end{tabular}
+
 \end{document}
 
 %------------------------------------------------------------------
 % $Log: GNUmed-default_referral_letter_template.tex,v $
-% Revision 1.1  2010-01-20 11:53:01  ncq
+% Revision 1.2  2010-01-21 08:47:11  ncq
+% - much improved layout
+%
+% Revision 1.1  2010/01/20 11:53:01  ncq
 % - referral letter template contributed by Rogerio Luz
 %
 %
