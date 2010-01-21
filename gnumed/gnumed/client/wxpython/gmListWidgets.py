@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.34 2009-11-28 18:30:07 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmListWidgets.py,v 1.35 2010-01-21 08:43:23 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -61,6 +61,8 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 	if refresh_callback is None:
 		dlg.set_string_items(items = choices)		# list ctrl will refresh anyway if possible
 
+	dlg.set_column_widths()
+
 	if data is not None:
 		dlg.set_data(data=data)						# can override data set if refresh_callback is not None
 
@@ -105,6 +107,9 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
+	#------------------------------------------------------------
+	def set_column_widths(self, widths=None):
+		self._LCTRL_items.set_column_widths(widths = widths)
 	#------------------------------------------------------------
 	def set_string_items(self, items = None):
 		self._LCTRL_items.set_string_items(items = items)
@@ -547,7 +552,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.34  2009-11-28 18:30:07  ncq
+# Revision 1.35  2010-01-21 08:43:23  ncq
+# - somewhat support setting col widths within get-choice-from-list
+#
+# Revision 1.34  2009/11/28 18:30:07  ncq
 # - hide disabled buttons/show enabled ones
 #
 # Revision 1.33  2009/06/29 15:07:58  ncq
