@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.112 2009-12-03 17:48:15 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmEMRStructWidgets.py,v 1.113 2010-01-21 08:42:31 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1866,10 +1866,10 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_FixedList (
 			aSeq = [
-				{'data': u'A', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'A'], 'weight': 1},
-				{'data': u'B', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'B'], 'weight': 1},
-				{'data': u'C', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'C'], 'weight': 1},
-				{'data': u'D', 'label': gmEMRStructItems.diagnostic_certainty_classification2str[u'D'], 'weight': 1}
+				{'data': u'A', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'weight': 1},
+				{'data': u'B', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'weight': 1},
+				{'data': u'C', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'weight': 1},
+				{'data': u'D', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'weight': 1}
 			]
 		)
 		mp.setThresholds(1, 2, 4)
@@ -2025,7 +2025,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.112  2009-12-03 17:48:15  ncq
+# Revision 1.113  2010-01-21 08:42:31  ncq
+# - adjust to Dx certainty mapper changes
+#
+# Revision 1.112  2009/12/03 17:48:15  ncq
 # - only create episode in GetData if there's a name available
 #
 # Revision 1.111  2009/12/01 10:50:44  ncq
