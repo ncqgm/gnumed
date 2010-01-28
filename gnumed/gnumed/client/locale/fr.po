@@ -7,7 +7,7 @@
 # author: DAVID Thomas <tdavid@gromalin.dyndns.org>
 # ------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/fr.po,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
@@ -9392,7 +9392,6 @@ msgid ""
 "There is no drug database specified in the configuration."
 msgstr ""
 
-# msgstr "Connecté"
 msgid "   Find   "
 msgstr "   Trouver   "
 
