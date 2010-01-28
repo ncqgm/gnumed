@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 GUI text localization
 =====================
@@ -7,15 +7,15 @@ The GNU gettext system is used to provide a user interface
 translated into the local language. Currently only the
 original English version and a German translation exist.
 
-NOTE: $LANG corresponds to the ISO code for your language
+NOTE: <LANG> corresponds to the ISO code for your language
 NOTE: Requires gettext tools to be installed.
 
 Message catalogs, related files and useful shell scripts
 live in the directories below gnumed/client/locale/ .
 
-How to translate the GnuMed UI
+How to translate the GNUmed UI
 ------------------------------
-Those are the rough steps to get GnuMed translated
+Those are the rough steps to get GNUmed translated
 into your language:
 
 - create a *.po file containing all English
@@ -30,26 +30,29 @@ into your language:
 Creating a *.po file
 --------------------
 With
- <create-gnumed_po.sh $LANG>
+
+	$> create-gnumed_po.sh <LANG>
+
 you can rescan the Python source for strings that need
-translation. The result is merged with the file $LANG.po
+translation. The result is merged with the file <LANG>.po
 which serves as a repository of previously translated
 strings. You can then edit this file adding in more
 translations for message strings. For this you can use
 a simple text editor or any tool you wish (such as EMACS
 po mode or kbabel) as long as you keep a copy of your
-final results in $LANG.po as a repository for future
+final results in <LANG>.po as a repository for future
 translations.
 
 If you execute this script for the first time you will
-end up with a $LANG.po file without any previous translations.
+end up with a <LANG>.po file without any previous translations.
 In this case you need to edit a few metadata entries at the
-very top of the $LANG.po file such as the character set you
+very top of the <LANG>.po file such as the character set you
 are using.
 
 Hints for translations:
+
  - look at translations in other languages to get an idea
- - look at the source and/or the running GnuMed to find good translations
+ - look at the source and/or the running GNUmed to find good translations
  - keep exactly the same number of %s, %d etc in your translation,
    they are formatting placeholders and will be replaced with
    certain data (such as file names) dynamically at runtime
@@ -59,22 +62,30 @@ Hints for translations:
    the empty string cannot be translated and _will_ produce errors
    because it is used as the message string ID for po-file
    metadata
+ - do not translate strings which say that they don't need
+   to be translated
+ - do translate strings that say they MUST be translated :-)
 
 Creating a *.mo file
 --------------------
 With 
- <create-gnumed_mo.sh $LANG>
+
+	$> create-gnumed_mo.sh <LANG>
+
 you can compile a *.mo file from the message catalog source.
-You will end up with a $LANG-gnumed.mo file.
+You will end up with a <LANG>-gnumed.mo file.
 
 Installation of translated messages
 -----------------------------------
 On a POSIX system (Linux, BSD, MacOSX, CygWin) the
-$LANG-gnumed.mo file should be moved into
- /usr/share/locale/$LANG/LC_MESSAGES/
+<LANG>-gnumed.mo file should be moved into
+
+	/usr/share/locale/<LANG>/LC_MESSAGES/
+
 or the corresponding standard place. Alternatively you
 can make symlinks from there to
- /usr/share/gnumed/client/locale/$LANG.mo
+
+	/usr/share/gnumed/client/locale/<LANG>.mo
 
 You need to name either the copy or the symlink "gnumed.mo".
 
@@ -82,13 +93,14 @@ On MS Windows you must create the following directories:
 client/
  client/wxpython/
  client/locale/
-  client/locale/$LANG/
-   client/locale/$LANG/LC_MESSAGES/
+  client/locale/<LANG>/
+   client/locale/<LANG>/LC_MESSAGES/
 
-You then need to move the $LANG-gnumed.mo to the
+You then need to move the <LANG>-gnumed.mo to the
 appropriate LC_MESSAGES directory (or make a symlink)
 again under the name of "gnumed.mo".
 
 Karsten Hilbert
 <Karsten.Hilbert@gmx.net>
-GnuMed i18n/L10n coordinator
+GNUmed i18n/L10n coordinator
+
