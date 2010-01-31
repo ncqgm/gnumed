@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.130 2009-12-21 15:12:29 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmPatSearchWidgets.py,v 1.131 2010-01-31 18:19:41 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -906,7 +906,8 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
-		name = u''
+		#name = u''
+		name = _('<type here to search patient>')
 
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.connected:
@@ -1389,7 +1390,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.130  2009-12-21 15:12:29  ncq
+# Revision 1.131  2010-01-31 18:19:41  ncq
+# - show hint when no patient selected
+#
+# Revision 1.130  2009/12/21 15:12:29  ncq
 # - cleanup
 # - fix typo
 # - missing return
