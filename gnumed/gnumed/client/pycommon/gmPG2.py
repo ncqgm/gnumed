@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.125 $"
+__version__ = "$Revision: 1.126 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1540,6 +1540,8 @@ class cAdapterMxDateTime(object):
 # PostgreSQL -> Python
 # ----------------------------------------------------------------------
 
+# Delete this later:
+
 # We need this because some places once used time "zones"
 # with true local time, IOW having seconds in the UTC offset.
 # The Python datetime zone code cannot handle that, however,
@@ -1582,27 +1584,25 @@ if TIMESTAMPTZ_OID not in dbapi.DATETIME.values:
 	raise ImportError('TIMESTAMPTZ_OID <%s> not in psycopg2.DATETIME.values [%s]' % (TIMESTAMPTZ_OID, dbapi.DATETIME.values))
 
 DT_W_ODD_TZ = psycopg2.extensions.new_type((TIMESTAMPTZ_OID,), 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
-#psycopg2.extensions.register_type(DT_W_ODD_TZ)		# now done by psycopg2
+#psycopg2.extensions.register_type(DT_W_ODD_TZ)		# now done by psycopg2 during new_type()
+
+# delete until here
 
 #=======================================================================
 #  main
 #-----------------------------------------------------------------------
+# properly adapt *tuples* into (a, b, c, ...) for
+# "where ... IN (...)" queries
+# but only needed/possible in psycopg2 < 2.0.6
+#try:
+#	psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
+#except AttributeError:
+#	print "SQL_IN not needed"
+#	pass
 
 # make sure psycopg2 knows how to handle unicode ...
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
-
-# properly adapt *tuples* into (a, b, c, ...) for
-# "where ... IN (...)" queries
-# but only needed/possible in psycopg2 < 2.0.6
-try:
-	psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
-except AttributeError:
-	pass
-
-# do NOT adapt *lists* to "... IN (*) ..." syntax because we want
-# them adapted to "... ARRAY()..." so we can support PG arrays
-#psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
 
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
@@ -1611,6 +1611,15 @@ try:
 	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
 except ImportError:
 	_log.warning('cannot import mx.DateTime')
+
+#try:
+#	psycopg2.extras.register_tstz_w_secs()
+#except AttributeError:
+#	_log.error('cannot activate parsing time stamps with seconds in the time zone')
+
+# do NOT adapt *lists* to "... IN (*) ..." syntax because we want
+# them adapted to "... ARRAY()..." so we can support PG arrays
+#psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
 
 #=======================================================================
 if __name__ == "__main__":
@@ -1943,7 +1952,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.125  2010-01-21 08:41:37  ncq
+# Revision 1.126  2010-01-31 16:39:17  ncq
+# - we do still need our own ts with tz and seconds handler as the one in psycopg2 is buggy
+#
+# Revision 1.125  2010/01/21 08:41:37  ncq
 # - in file -> bytea only close conn if we opened it ourselves
 #
 # Revision 1.124  2010/01/11 22:02:49  ncq
