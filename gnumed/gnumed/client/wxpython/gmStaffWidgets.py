@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.26 2009-07-23 16:42:38 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmStaffWidgets.py,v 1.27 2010-01-31 18:20:03 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -215,6 +215,19 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self._TXT_password_again.SetValue('')
 			return False
 
+		if self._TXT_password.GetValue().strip() == u'':
+			really_wants_empty_password = gmGuiHelpers.gm_show_question (
+				aMessage = _(
+					'Are you positively sure you want to create\n'
+					'a user with an empty password ?\n'
+					'\n'
+					'Think about the record access implications !'
+				),
+				aTitle = _('Adding GNUmed user')
+			)
+			if not really_wants_empty_password:
+				return False
+
 		# connect as "gm-dbo"
 		conn = gmAuthWidgets.get_dbowner_connection (
 			procedure = _('Enlisting person as user.'),
@@ -258,7 +271,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.26  2009-07-23 16:42:38  ncq
+# Revision 1.27  2010-01-31 18:20:03  ncq
+# - protect against empty passwords
+#
+# Revision 1.26  2009/07/23 16:42:38  ncq
 # - staff -> user
 #
 # Revision 1.25  2009/06/04 16:33:51  ncq
