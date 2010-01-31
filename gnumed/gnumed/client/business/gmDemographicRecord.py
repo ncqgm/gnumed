@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.103 2009-11-18 16:10:02 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmDemographicRecord.py,v 1.104 2010-01-31 16:32:19 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -29,6 +29,15 @@ from Gnumed.business import gmMedDoc
 _log = logging.getLogger('gm.business')
 _log.info(__version__)
 
+#============================================================
+def get_countries()
+	cmd = u"""
+		select
+			_(name) as l10n_country, name, code, deprecated
+		from dem.country
+		order by l10n_country"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return rows
 #============================================================
 def delete_province(province=None, delete_urbs=False):
 
@@ -635,7 +644,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.103  2009-11-18 16:10:02  ncq
+# Revision 1.104  2010-01-31 16:32:19  ncq
+# - get-countries()
+#
+# Revision 1.103  2009/11/18 16:10:02  ncq
 # - more provinces handling
 #
 # Revision 1.102  2009/11/17 19:40:40  ncq
