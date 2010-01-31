@@ -48,8 +48,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.168 2010-01-21 09:01:00 ncq Exp $
-__version__ = "$Revision: 1.168 $"
+# $Id: gnumed.py,v 1.169 2010-01-31 18:20:41 ncq Exp $
+__version__ = "$Revision: 1.169 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -78,10 +78,10 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'0.6.rc6'
-#current_client_version = u'CVS HEAD'
-current_client_branch = u'0.6'
-#current_client_branch = u'CVS HEAD'
+#current_client_version = u'0.7.rc1'
+current_client_version = u'CVS HEAD'
+#current_client_branch = u'0.7'
+current_client_branch = u'CVS HEAD'
 
 _log = None
 _cfg = None
@@ -508,7 +508,10 @@ shutdown_logging()
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.168  2010-01-21 09:01:00  ncq
+# Revision 1.169  2010-01-31 18:20:41  ncq
+# - bump version and back to CVS HEAD
+#
+# Revision 1.168  2010/01/21 09:01:00  ncq
 # - bump version
 #
 # Revision 1.167  2010/01/15 13:33:07  ncq
