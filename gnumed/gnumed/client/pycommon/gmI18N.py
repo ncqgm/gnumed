@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.48 2009-12-21 15:02:17 ncq Exp $
+# $Id: gmI18N.py,v 1.49 2010-01-31 16:37:21 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -256,12 +256,14 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 
 	# text domain directly specified ?
 	if domain is None:
+		_log.info('domain not specified, deriving from script name')
 		# get text domain from name of script
 		domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 	_log.info('text domain is [%s]' % domain)
 
 	# http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap08.html
 	_log.debug('searching message catalog file for system locale [%s]' % system_locale)
+
 	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
 		tmp = os.getenv(env_var)
 		if env_var is None:
@@ -276,6 +278,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 
 	# search for message catalog
 	candidates = []
+
 	# - locally
 	if prefer_local_catalog:
 		_log.debug('preferring local message catalog')
@@ -290,6 +293,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
+
 	# - standard places
 	if os.name == 'posix':
 		_log.debug('system is POSIX, looking in standard locations (see Python Manual)')
@@ -298,6 +302,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		candidates.append(gettext.bindtextdomain(domain))
 	else:
 		_log.debug('No use looking in standard POSIX locations - not a POSIX system.')
+
 	# - $(<script-name>_DIR)/
 	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
 	_log.debug('looking at ${%s}' % env_key)
@@ -307,6 +312,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		candidates.append(loc_dir)
 	else:
 		_log.info("${%s} not set" % env_key)
+
 	# - locally
 	if not prefer_local_catalog:
 		# - one level above path to binary
@@ -414,7 +420,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.48  2009-12-21 15:02:17  ncq
+# Revision 1.49  2010-01-31 16:37:21  ncq
+# slightly better logging
+#
+# Revision 1.48  2009/12/21 15:02:17  ncq
 # - fix typo
 #
 # Revision 1.47  2009/07/09 16:42:49  ncq
