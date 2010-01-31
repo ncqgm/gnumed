@@ -1,8 +1,8 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.16 2009-12-21 15:06:05 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmExceptionHandlingWidgets.py,v 1.17 2010-01-31 18:15:55 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -65,6 +65,11 @@ def handle_uncaught_exception_wx(t, v, tb):
 		if t == wx._core.PyDeadObjectError:
 			return
 		gmLog2.log_stack_trace()
+		return
+
+	# try to ignore those, they come about from async handling
+	if t == wx._core.PyDeadObjectError:
+		_log.warning('continuing and hoping for the best')
 		return
 
 	# failed import ?
@@ -332,7 +337,10 @@ sender email  : %s
 		evt.Skip()
 # ========================================================================
 # $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.16  2009-12-21 15:06:05  ncq
+# Revision 1.17  2010-01-31 18:15:55  ncq
+# - ignore one more PyDeadObjectError
+#
+# Revision 1.16  2009/12/21 15:06:05  ncq
 # - better layout
 #
 # Revision 1.15  2009/07/30 12:04:06  ncq
