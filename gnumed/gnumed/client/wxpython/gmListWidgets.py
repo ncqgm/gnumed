@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.35 2010-01-21 08:43:23 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmListWidgets.py,v 1.36 2010-01-31 18:17:33 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -60,8 +60,7 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 
 	if refresh_callback is None:
 		dlg.set_string_items(items = choices)		# list ctrl will refresh anyway if possible
-
-	dlg.set_column_widths()
+		dlg.set_column_widths()
 
 	if data is not None:
 		dlg.set_data(data=data)						# can override data set if refresh_callback is not None
@@ -239,13 +238,17 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _get_refresh_callback(self):
 		return self.__refresh_callback
 
+	def _set_refresh_callback_helper(self):
+		self.refresh_callback(lctrl = self._LCTRL_items)
+		self._LCTRL_items.set_column_widths()
+
 	def _set_refresh_callback(self, callback):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<refresh> callback is not a callable: %s' % callback)
 		self.__refresh_callback = callback
 		if callback is not None:
-			wx.CallAfter(self.__refresh_callback, lctrl = self._LCTRL_items)
+			wx.CallAfter(self._set_refresh_callback_helper)
 
 	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
 #================================================================
@@ -552,7 +555,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.35  2010-01-21 08:43:23  ncq
+# Revision 1.36  2010-01-31 18:17:33  ncq
+# - make refresh callback setting smarter: set column widths after setting items
+#
+# Revision 1.35  2010/01/21 08:43:23  ncq
 # - somewhat support setting col widths within get-choice-from-list
 #
 # Revision 1.34  2009/11/28 18:30:07  ncq
