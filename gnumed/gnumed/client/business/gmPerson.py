@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.197 2010-01-11 19:43:05 ncq Exp $
-__version__ = "$Revision: 1.197 $"
+# $Id: gmPerson.py,v 1.198 2010-01-31 16:35:03 ncq Exp $
+__version__ = "$Revision: 1.198 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -197,7 +197,7 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 				map_gender2salutation(self._payload[self._idx['gender']])
 			),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' "%s"', u'%s')
 		}
 
 	description = property(_get_description, lambda x:x)
@@ -2373,7 +2373,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.197  2010-01-11 19:43:05  ncq
+# Revision 1.198  2010-01-31 16:35:03  ncq
+# - put nick in ""
+#
+# Revision 1.197  2010/01/11 19:43:05  ncq
 # - do not change the patient if any of the
 #   synchronous pre-selection callbacks fails
 #
