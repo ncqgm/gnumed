@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.64 2009-12-21 15:12:29 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmMeasurementWidgets.py,v 1.65 2010-01-31 18:19:11 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1300,7 +1300,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		tr['val_alpha'] = v_al
 		tr['val_unit'] = self._PRW_units.GetValue().strip()
 		tr['clin_when'] = self._DPRW_evaluated.GetData().get_pydt()
-		tr['abnormality_indicator'] = self._PRW_abnormality_indicator.strip()
+		tr['abnormality_indicator'] = self._PRW_abnormality_indicator.GetValue().strip()
 
 		ctrls = [
 			('note_test_org', self._TCTRL_note_test_org),
@@ -1915,7 +1915,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.64  2009-12-21 15:12:29  ncq
+# Revision 1.65  2010-01-31 18:19:11  ncq
+# - fix faulty access to value of abnormality indicator PRW
+#
+# Revision 1.64  2009/12/21 15:12:29  ncq
 # - cleanup
 # - fix typo
 # - missing return
