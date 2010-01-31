@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.173 2010-01-08 14:39:44 ncq Exp $
-__version__ = "$Revision: 1.173 $"
+# $Id: gmDemographicsWidgets.py,v 1.174 2010-01-31 18:14:40 ncq Exp $
+__version__ = "$Revision: 1.174 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,11 +17,12 @@ import wx.wizard
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
-from Gnumed.business import gmDemographicRecord, gmPerson
+from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmCfg
+from Gnumed.pycommon import gmDateTime, gmShellAPI
+from Gnumed.business import gmDemographicRecord, gmPerson, gmSurgery
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
 from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
-from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmAuthWidgets, gmCfgWidgets
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl
 from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
 
@@ -36,7 +37,117 @@ except NameError:
 	_ = lambda x:x
 
 #============================================================
+# country related widgets / functions
+#============================================================
+def configure_default_country(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	countries = gmDemographicRecord.get_countries()
+
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _('Select the default region for new persons.\n'),
+		option = 'person.create.default_country',
+		bias = 'user',
+		choices = [ (c['l10n_country'], c['code']) for c in countries ],
+		columns = [_('Country'), _('Code')],
+		data = [ c['country'] for c in countries ]
+	)
+#============================================================
+class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		context = {
+			u'ctxt_zip': {
+				u'where_part': u'and zip ilike %(zip)s',
+				u'placeholder': u'zip'
+			}
+		}
+		query = u"""
+select code, name from (
+	select distinct on (code, name) code, (name || ' (' || code || ')') as name, rank from (
+
+-- localized to user
+
+			select
+				code_country as code, l10n_country as name, 1 as rank
+			from dem.v_zip2data
+			where
+				l10n_country %(fragment_condition)s
+				%(ctxt_zip)s
+
+		union all
+
+			select
+				code as code, _(name) as name, 2 as rank
+			from dem.country
+			where
+				_(name) %(fragment_condition)s
+
+		union all
+
+-- non-localized
+
+			select
+				code_country as code, country as name, 3 as rank
+			from dem.v_zip2data
+			where
+				country %(fragment_condition)s
+				%(ctxt_zip)s
+
+		union all
+
+			select
+				code as code, name as name, 4 as rank
+			from dem.country
+			where
+				name %(fragment_condition)s
+
+		union all
+
+-- abbreviation
+
+			select
+				code as code, name as name, 5 as rank
+			from dem.country
+			where
+				code %(fragment_condition)s
+
+	) as q2
+) as q1 order by rank, name limit 25"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
+		mp.setThresholds(2, 5, 9)
+		self.matcher = mp
+
+		self.unset_context(context = u'zip')
+		self.SetToolTipString(_('Type or select a country.'))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.selection_only = True
+
+#============================================================
 # province related widgets / functions
+#============================================================
+def configure_default_region(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	provs = gmDemographicRecord.get_provinces()
+
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _('Select the default region/province/state/territory for new persons.\n'),
+		option = 'person.create.default_region',
+		bias = 'user',
+		choices = [ (p['l10n_country'], p['l10n_state'], p['code_state']) for p in provs ],
+		columns = [_('Country'), _('Region'), _('Code')],
+		data = [ p['state'] for p in provs ]
+	)
 #============================================================
 def edit_province(parent=None, province=None):
 	ea = cProvinceEAPnl(parent = parent, id = -1, province = province)
@@ -100,7 +211,7 @@ def manage_provinces(parent=None):
 	def refresh(lctrl):
 		wx.BeginBusyCursor()
 		provinces = gmDemographicRecord.get_provinces()
-		lctrl.set_string_items(provinces)
+		lctrl.set_string_items([ (p['l10n_country'], p['l10n_state']) for p in provinces ])
 		lctrl.set_data(provinces)
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
@@ -118,7 +229,7 @@ def manage_provinces(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Editing provinces ...'),
-		columns = [_('Province'), _('Country')],
+		columns = [_('Country'), _('Province')],
 		single_selection = True,
 		new_callback = edit,
 		#edit_callback = edit,
@@ -1030,70 +1141,6 @@ limit 50
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #============================================================
-class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	# FIXME: default in config
-	def __init__(self, *args, **kwargs):
-
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-
-		context = {
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
-			}
-		}
-		query = u"""
-select code, name from (
-	select distinct on (code, name) code, (name || ' (' || code || ')') as name, rank from (
-
-		-- localized to user
-
-			select
-				code_country as code, l10n_country as name, 1 as rank
-			from dem.v_zip2data
-			where
-				l10n_country %(fragment_condition)s
-				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, _(name) as name, 2 as rank
-			from dem.country
-			where
-				_(name) %(fragment_condition)s
-
-		union all
-
-		-- non-localized
-
-			select
-				code_country as code, country as name, 3 as rank
-			from dem.v_zip2data
-			where
-				country %(fragment_condition)s
-				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, name as name, 4 as rank
-			from dem.country
-			where
-				name %(fragment_condition)s
-
-	) as q2
-) as q1 order by rank, name limit 25"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
-		mp.setThresholds(2, 5, 9)
-		self.matcher = mp
-
-		self.unset_context(context = u'zip')
-		self.SetToolTipString(_('Type or select a country.'))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.selection_only = True
-#============================================================
 # communications channel related widgets
 #============================================================
 class cCommChannelTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1947,7 +1994,26 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 #============================================================
 def create_new_person(parent=None, activate=False):
 
-	ea = cNewPatientEAPnl(parent = parent, id = -1)
+	dbcfg = gmCfg.cCfgSQL()
+
+	def_region = dbcfg.get2 (
+		option = u'person.create.default_region',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = u'user'
+	)
+
+	if def_region is None:
+		def_country = dbcfg.get2 (
+			option = u'person.create.default_country',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user'
+		)
+	else:
+		countries = gmDemographicRecord.get_country_for_region(region = def_region)
+		if len(countries) == 1:
+			def_country = countries[0]['l10n_country']
+
+	ea = cNewPatientEAPnl(parent = parent, id = -1, country = def_country, region = def_region)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(_('Adding new patient'))
 	ea._PRW_lastname.SetFocus()
@@ -1972,6 +2038,18 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 	def __init__(self, *args, **kwargs):
 
+		try:
+			self.default_region = kwargs['region']
+			del kwargs['region']
+		except KeyError:
+			self.default_region = None
+
+		try:
+			self.default_country = kwargs['country']
+			del kwargs['country']
+		except KeyError:
+			self.default_country = None
+
 		wxgNewPatientEAPnl.wxgNewPatientEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
@@ -1993,6 +2071,12 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._DP_dob.SetRange(low, hi.SetToCurrent())
 		# only if we would support None on selection_only's
 		#self._PRW_external_id_type.selection_only = True
+
+		if self.default_country is not None:
+			self._PRW_country.SetText(value = self.default_country)
+
+		if self.default_region is not None:
+			self._PRW_region.SetText(value = self.default_region)
 	#----------------------------------------------------------------
 	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
 
@@ -3319,7 +3403,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.173  2010-01-08 14:39:44  ncq
+# Revision 1.174  2010-01-31 18:14:40  ncq
+# - configure-default-region/country()
+# - improved province management list layout
+# - use default region/country in new patient creation
+#
+# Revision 1.173  2010/01/08 14:39:44  ncq
 # - support NULLing the dob
 #
 # Revision 1.172  2010/01/08 13:54:19  ncq
