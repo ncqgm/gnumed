@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.487 2010-01-11 19:46:19 ncq Exp $
-__version__ = "$Revision: 1.487 $"
+# $Id: gmGuiMain.py,v 1.488 2010-01-31 18:16:35 ncq Exp $
+__version__ = "$Revision: 1.488 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -259,21 +259,27 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_update.Append(ID, _('URL'), _('The URL to retrieve version information from.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_update_url)
 
-		# -- submenu gnumed / config / ui / patient search
+		# -- submenu gnumed / config / ui / patient
 		menu_cfg_pat_search = wx.Menu()
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Patient search ...'), menu_cfg_pat_search)
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Person ...'), menu_cfg_pat_search)
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Birthday reminder'), _('Configure birthday reminder proximity interval.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_dob_reminder_proximity)
 
 		ID = wx.NewId()
-		menu_cfg_pat_search.Append(ID, _('Immediate source activation'), _('Configure immediate activation of single external patient.'))
+		menu_cfg_pat_search.Append(ID, _('Immediate source activation'), _('Configure immediate activation of single external person.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_quick_pat_search)
 
 		ID = wx.NewId()
-		menu_cfg_pat_search.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after patient activation.'))
+		menu_cfg_pat_search.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after person activation.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_initial_pat_plugin)
+
+		item = menu_cfg_pat_search.Append(-1, _('Default region'), _('Configure the default province/region/state for person creation.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_default_region, item)
+
+		item = menu_cfg_pat_search.Append(-1, _('Default country'), _('Configure the default country for person creation.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_default_country, item)
 
 		# -- submenu gnumed / config / ui / soap handling
 		menu_cfg_soap_editing = wx.Menu()
@@ -1339,6 +1345,12 @@ class gmTopLevelFrame(wx.Frame):
 				_('No, let me confirm the external patient first.')
 			]
 		)
+	#----------------------------------------------
+	def __on_cfg_default_region(self, evt):
+		gmDemographicsWidgets.configure_default_region()
+	#----------------------------------------------
+	def __on_cfg_default_country(self, evt):
+		gmDemographicsWidgets.configure_default_country()
 	#----------------------------------------------
 	def __on_configure_dob_reminder_proximity(self, evt):
 
@@ -2922,7 +2934,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.487  2010-01-11 19:46:19  ncq
+# Revision 1.488  2010-01-31 18:16:35  ncq
+# - access to default region/country setting
+#
+# Revision 1.487  2010/01/11 19:46:19  ncq
 # - cleanup
 #
 # Revision 1.486  2010/01/10 17:27:16  ncq
