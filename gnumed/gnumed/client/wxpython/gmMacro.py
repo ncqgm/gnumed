@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types, logging
@@ -57,11 +57,19 @@ known_variant_placeholders = [
 	u'tex_escape',				# "data" holds: string to escape
 	u'allergies',				# "data" holds: line template, one allergy per line
 	u'allergy_list',			# "data" holds: template per allergy, allergies on one line
-	u'problems'					# "data" holds: line template, one problem per line
+	u'problems',				# "data" holds: line template, one problem per line
+	u'name'						# "data" holds: template for name parts arrangement
 ]
 
-#default_placeholder_regex = r'$<.+(::.+){0,2}>$'
-default_placeholder_regex = r'\$<.+?>\$'
+default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
+
+#_regex_parts = [
+#	r'\$<\w+::.*(?::)\d+>\$',
+#	r'\$<\w+::.+(?!>\$)>\$',
+#	r'\$<\w+?>\$'
+#]
+#default_placeholder_regex = r'|'.join(_regex_parts)
+
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
 #=====================================================================
@@ -295,6 +303,25 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
+	def _get_variant_name(self, data=None):
+		if data is None:
+			return [_('template is missing')]
+
+		name = self.pat.get_active_name()
+
+		parts = {
+			'title': gmTools.coalesce(name['title'], u''),
+			'firstnames': name['firstnames'],
+			'lastnames': name['lastnames'],
+			'preferred': gmTools.coalesce (
+				initial = name['preferred'],
+				instead = u' ',
+				template_initial = u' "%s" '
+			)
+		}
+
+		return data % parts
+	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%x'):
 		return self.pat['dob'].strftime(str(data)).decode(gmI18N.get_encoding())
 	#--------------------------------------------------------
@@ -451,7 +478,7 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def version(self):
 		ver = _cfg.get(option = u'client_version')
-		return "GNUmed %s, %s $Revision: 1.50 $" % (ver, self.__class__.__name__)
+		return "GNUmed %s, %s $Revision: 1.51 $" % (ver, self.__class__.__name__)
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -661,6 +688,7 @@ if __name__ == '__main__':
 			# should work:
 			'$<lastname>$',
 			'$<lastname::::3>$',
+			'$<name::%(title)s %(firstnames)s%(preferred)s%(lastnames)s>$',
 
 			# should fail:
 			'lastname',
@@ -754,15 +782,67 @@ if __name__ == '__main__':
 
 		listener.shutdown()
 	#--------------------------------------------------------
+	def test_placeholder_regex():
+
+		import re as regex
+
+		tests = [
+			' $<lastname>$ ',
+			' $<lastname::::3>$ ',
+
+			# should fail:
+			'$<date_of_birth::%Y-%m-%d>$',
+			'$<date_of_birth::%Y-%m-%d::3>$',
+			'$<date_of_birth::%Y-%m-%d::>$',
+
+			'$<adr_location::home::35>$',
+			'$<gender_mapper::male//female//other::5>$',
+			'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) <==\\n::50>$',
+			'$<allergy_list::%(descriptor)s, >$',
+
+			'\\noindent Patient: $<lastname>$, $<firstname>$',
+			'$<allergies::%(descriptor)s & %(l10n_type)s & {\\footnotesize %(reaction)s} \tabularnewline \hline >$',
+			'$<current_meds::		\item[%(substance)s] {\\footnotesize (%(brand)s)} %(preparation)s %(strength)s: %(schedule)s >$'
+		]
+
+		tests = [
+
+			'junk	$<lastname::::3>$			junk',
+			'junk	$<lastname::abc::3>$		junk',
+			'junk	$<lastname::abc>$			junk',
+			'junk	$<lastname>$				junk',
+
+			'junk	$<lastname>$   junk   $<firstname>$						junk',
+			'junk	$<lastname::abc>$   junk   $<fiststname::abc>$			junk',
+			'junk	$<lastname::abc::3>$   junk   $<firstname::abc::3>$		junk',
+			'junk	$<lastname::::3>$   junk   $<firstname::::3>$			junk'
+
+		]
+
+		print "testing placeholder regex:", default_placeholder_regex
+		print ""
+
+		for t in tests:
+			print 'line: "%s"' % t
+			print "placeholders:"
+			for p in regex.findall(default_placeholder_regex, t, regex.IGNORECASE):
+				print ' => "%s"' % p
+			print " "
+	#--------------------------------------------------------
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		#test_placeholders()
 		test_new_variant_placeholders()
 		#test_scripting()
+		#test_placeholder_regex()
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.50  2010-01-21 08:44:46  ncq
+# Revision 1.51  2010-01-31 18:18:28  ncq
+# - add name variant placeholder
+# - try to work around OOo being always greedy
+#
+# Revision 1.50  2010/01/21 08:44:46  ncq
 # - implement new placeholders, improve others
 #
 # Revision 1.49  2010/01/15 12:43:46  ncq
