@@ -1,8 +1,8 @@
-"""GnuMed clinical narrative business object.
+"""GNUmed clinical narrative business object.
 
 """
 #============================================================
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -303,7 +303,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.44  2009-12-26 19:05:08  ncq
+# Revision 1.45  2010-01-31 16:30:20  ncq
+# - cleanup
+#
+# Revision 1.44  2009/12/26 19:05:08  ncq
 # - improved comment
 #
 # Revision 1.43  2009/11/13 20:46:49  ncq
