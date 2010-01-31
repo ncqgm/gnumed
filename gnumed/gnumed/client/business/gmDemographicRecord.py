@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.105 2010-01-31 16:51:21 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmDemographicRecord.py,v 1.106 2010-01-31 18:12:53 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -37,6 +37,15 @@ def get_countries():
 		from dem.country
 		order by l10n_country"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return rows
+#============================================================
+def get_country_for_region(region=None):
+	cmd = u"""
+SELECT code_country, l10n_country FROM dem.v_state WHERE l10n_state = %(region)s
+	union
+SELECT code_country, l10n_country FROM dem.v_state WHERE state = %(region)s
+"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'region': region}}])
 	return rows
 #============================================================
 def delete_province(province=None, delete_urbs=False):
@@ -616,6 +625,10 @@ if __name__ == "__main__":
 		for c in get_countries():
 			print c
 	#--------------------------------------------------------
+	def test_get_country_for_region():
+		region = raw_input("Please enter a region: ")
+		print "country for region [%s] is: %s" % (region, get_country_for_region(region = region))
+	#--------------------------------------------------------
 	if sys.argv[1] != 'test':
 		sys.exit()
 
@@ -623,7 +636,8 @@ if __name__ == "__main__":
 
 	#test_address_exists()
 	#test_create_address()
-	test_get_countries()
+	#test_get_countries()
+	test_get_country_for_region()
 
 	sys.exit()
 
@@ -650,7 +664,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.105  2010-01-31 16:51:21  ncq
+# Revision 1.106  2010-01-31 18:12:53  ncq
+# - get-country-for-region
+#
+# Revision 1.105  2010/01/31 16:51:21  ncq
 # - fix get-countries()
 #
 # Revision 1.104  2010/01/31 16:32:19  ncq
