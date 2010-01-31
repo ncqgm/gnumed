@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.104 2010-01-31 16:32:19 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmDemographicRecord.py,v 1.105 2010-01-31 16:51:21 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -30,7 +30,7 @@ _log = logging.getLogger('gm.business')
 _log.info(__version__)
 
 #============================================================
-def get_countries()
+def get_countries():
 	cmd = u"""
 		select
 			_(name) as l10n_country, name, code, deprecated
@@ -560,6 +560,9 @@ def _post_patient_selection(**kwargs):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
 	import random
 	#--------------------------------------------------------
 	def test_address_exists():
@@ -609,15 +612,18 @@ if __name__ == "__main__":
 		print address
 		print "deleted address:", delete_address(address)
 	#--------------------------------------------------------
+	def test_get_countries():
+		for c in get_countries():
+			print c
+	#--------------------------------------------------------
+	if sys.argv[1] != 'test':
+		sys.exit()
 
-	try:
-		gmPG2.get_connection()
+	#gmPG2.get_connection()
 
-		test_address_exists()
-		test_create_address()
-	except:
-		_log.exception('test suite failed')
-		raise
+	#test_address_exists()
+	#test_create_address()
+	test_get_countries()
 
 	sys.exit()
 
@@ -644,7 +650,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.104  2010-01-31 16:32:19  ncq
+# Revision 1.105  2010-01-31 16:51:21  ncq
+# - fix get-countries()
+#
+# Revision 1.104  2010/01/31 16:32:19  ncq
 # - get-countries()
 #
 # Revision 1.103  2009/11/18 16:10:02  ncq
