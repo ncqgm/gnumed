@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-19 16:16+CET\n"
+"POT-Creation-Date: 2010-02-01 15:47+CET\n"
 "PO-Revision-Date: 2010-01-10 09:45+0000\n"
 "Last-Translator: John Jaarsveld <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -219,16 +219,16 @@ msgstr ""
 msgid "last check:"
 msgstr "achternaam"
 
-msgid "A %s Sign"
+msgid "A: Sign"
 msgstr ""
 
-msgid "B %s Cluster of signs"
+msgid "B: Cluster of signs"
 msgstr ""
 
-msgid "C %s Syndromic diagnosis"
+msgid "C: Syndromic diagnosis"
 msgstr ""
 
-msgid "D %s Scientific diagnosis"
+msgid "D: Scientific diagnosis"
 msgstr ""
 
 msgid "bilateral"
@@ -1599,30 +1599,6 @@ msgid ""
 "\n"
 "Command\n"
 "(SQL)"
-msgstr ""
-
-msgid "right list"
-msgstr ""
-
-msgid "left list"
-msgstr ""
-
-msgid "Do something with the two lists below."
-msgstr ""
-
-msgid "Refresh"
-msgstr ""
-
-msgid "= selected =>"
-msgstr ""
-
-msgid "= all =>"
-msgstr ""
-
-msgid "<= all ="
-msgstr ""
-
-msgid "<= selected ="
 msgstr ""
 
 msgid "Edit Document Types"
@@ -8050,34 +8026,13 @@ msgstr ""
 msgid "weeks"
 msgstr ""
 
-msgid "Hx"
-msgstr ""
-
-msgid "History Taken"
-msgstr ""
-
-msgid "Obj"
-msgstr ""
-
-msgid "Findings"
-msgstr ""
-
-msgid "A"
-msgstr ""
-
-msgid "P"
-msgstr ""
-
-msgid "xxxSOAPxxx"
-msgstr ""
-
 msgid "Cannot save text expansion without keyword."
 msgstr ""
 
 msgid "Cannot save text expansion without expansion text."
 msgstr ""
 
-msgid "Adding text espansion"
+msgid "Adding text expansion"
 msgstr ""
 
 msgid "Editing text expansion \"%s\""
@@ -8308,6 +8263,12 @@ msgid "Error saving embedded data."
 msgstr ""
 
 msgid "Patient Request"
+msgstr ""
+
+msgid "History Taken"
+msgstr ""
+
+msgid "Findings"
 msgstr ""
 
 msgid "save"
