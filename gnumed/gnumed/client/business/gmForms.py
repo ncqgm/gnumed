@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.78 2010-01-21 08:40:38 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmForms.py,v 1.78.2.1 2010-02-01 14:53:03 ncq Exp $
+__version__ = "$Revision: 1.78.2.1 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -433,11 +433,21 @@ class cOOoLetter(object):
 		searcher = self.ooo_doc.createSearchDescriptor()
 		searcher.SearchCaseSensitive = False
 		searcher.SearchRegularExpression = True
+		searcher.SearchWords = True
 		searcher.SearchString = handler.placeholder_regex
 
 		placeholder_instance = self.ooo_doc.findFirst(searcher)
 		while placeholder_instance is not None:
-			placeholder_instance.String = handler[placeholder_instance.String]
+			try:
+				val = handler[placeholder_instance.String]
+			except:
+				_log.exception(val)
+				val = _('error with placeholder [%s]' % placeholder_instance.String)
+
+			if val is None:
+				val = _('error with placeholder [%s]' % placeholder_instance.String)
+
+			placeholder_instance.String = val
 			placeholder_instance = self.ooo_doc.findNext(placeholder_instance.End, searcher)
 
 		if not old_style_too:
@@ -1207,7 +1217,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.78  2010-01-21 08:40:38  ncq
+# Revision 1.78.2.1  2010-02-01 14:53:03  ncq
+# - always return a string from placeholder handler
+#
+# Revision 1.78  2010/01/21 08:40:38  ncq
 # - better logging, again
 #
 # Revision 1.77  2010/01/15 12:42:18  ncq
