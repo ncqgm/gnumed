@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.47 2010-01-10 17:29:26 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmProviderInboxWidgets.py,v 1.47.2.1 2010-02-01 14:57:17 ncq Exp $
+__version__ = "$Revision: 1.47.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -135,7 +135,7 @@ def configure_keyword_text_expansion(parent=None):
 		ea = cTextExpansionEditAreaPnl(parent, -1, keyword=keyword)
 		dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea)
 		dlg.SetTitle (
-			gmTools.coalesce(keyword, _('Adding text espansion'), _('Editing text expansion "%s"'))
+			gmTools.coalesce(keyword, _('Adding text expansion'), _('Editing text expansion "%s"'))
 		)
 		if dlg.ShowModal() == wx.ID_OK:
 			return True
@@ -562,7 +562,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.47  2010-01-10 17:29:26  ncq
+# Revision 1.47.2.1  2010-02-01 14:57:17  ncq
+# - fix typo
+#
+# Revision 1.47  2010/01/10 17:29:26  ncq
 # - slightly postpone plugin raising after message double-clicking
 #   to avoid async problems with patient activation plugin raising
 #
