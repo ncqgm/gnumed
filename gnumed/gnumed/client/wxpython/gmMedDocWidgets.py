@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.175 2009-02-04 21:47:17 ncq Exp $
-__version__ = "$Revision: 1.175 $"
+# $Id: gmMedDocWidgets.py,v 1.175.2.1 2010-02-01 13:07:17 ncq Exp $
+__version__ = "$Revision: 1.175.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -1258,6 +1258,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __populate_tree(self):
 
 		wx.BeginBusyCursor()
+
 		# clean old tree
 		if self.root is not None:
 			self.DeleteAllItems()
@@ -1953,7 +1954,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.175  2009-02-04 21:47:17  ncq
+# Revision 1.175.2.1  2010-02-01 13:07:17  ncq
+# - cleanup
+#
+# Revision 1.175  2009/02/04 21:47:17  ncq
 # - properly sort tree
 #
 # Revision 1.174  2009/01/30 12:11:02  ncq
