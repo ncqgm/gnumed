@@ -7,7 +7,7 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.1 2009-09-08 17:16:30 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.1.2.1 2010-02-01 14:58:05 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
@@ -72,7 +72,7 @@ if [ -f /etc/SuSE-release ]; then
 fi
 # Debian
 if [ -f /etc/debian_version ]; then
-	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file python-gnuplot konsolekalendar aspell python python-enchant python-support python-wxgtk2.8 bash xsane apt"
+	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file python-gnuplot konsolekalendar aspell python python-enchant python-support python-wxgtk2.8 bash xsane apt texlive-latex-base gtklp"
 	PKG_INSTALLER="apt-get install"
 	SYS_TYPE="Debian"
 fi
@@ -294,7 +294,10 @@ mc -e gm-from-cvs.sh
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.1  2009-09-08 17:16:30  ncq
+# Revision 1.1.2.1  2010-02-01 14:58:05  ncq
+# - include 2 missing deps for Debian
+#
+# Revision 1.1  2009/09/08 17:16:30  ncq
 # - relocated, in passing adjust to tarball name changes as per list
 #
 # Revision 1.9  2009/09/01 22:38:20  ncq
