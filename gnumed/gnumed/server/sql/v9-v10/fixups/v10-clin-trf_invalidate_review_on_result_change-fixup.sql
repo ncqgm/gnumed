@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v 1.1.2.1 2009-08-04 21:26:54 ncq Exp $
--- $Revision: 1.1.2.1 $
+-- $Id: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v 1.1.2.2 2010-02-01 13:08:39 ncq Exp $
+-- $Revision: 1.1.2.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -19,9 +19,9 @@ drop function clin.trf_invalidate_review_on_result_change() cascade;
 
 
 create or replace function clin.trf_invalidate_review_on_result_change()
-	security definer
 	returns trigger
 	language 'plpgsql'
+	security definer
 	as '
 DECLARE
 	is_modified bool;
@@ -61,11 +61,14 @@ create trigger tr_invalidate_review_on_result_change
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v $', '$Revision: 1.1.2.1 $');
+select gm.log_script_insertion('$RCSfile: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v $', '$Revision: 1.1.2.2 $');
 
 -- ==============================================================
 -- $Log: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v $
--- Revision 1.1.2.1  2009-08-04 21:26:54  ncq
+-- Revision 1.1.2.2  2010-02-01 13:08:39  ncq
+-- - fix trigger to invalidate review
+--
+-- Revision 1.1.2.1  2009/08/04 21:26:54  ncq
 -- - fix
 --
 --
