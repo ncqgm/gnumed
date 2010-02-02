@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.79 2009-12-03 17:45:29 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmPathLab.py,v 1.80 2010-02-02 13:50:15 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -23,6 +23,42 @@ _log.info(__version__)
 
 # FIXME: use UCUM from Regenstrief Institute
 
+#============================================================
+class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents one test org/lab."""
+
+	_cmd_fetch_payload = u"""SELECT *, xmin FROM clin.test_org WHERE pk = %s"""
+
+	_cmds_store_payload = [
+		u"""UPDATE clin.test_org SET
+				internal_name = gm.nullify_empty_string(%(internal_name)s),
+				contact = gm.nullify_empty_string(%(contact)s),
+				comment = gm.nullify_empty_string(%(comment)s)
+			WHERE
+				pk = %(pk)s
+					AND
+				xmin = %(xmin)s
+			RETURNING
+				xmin
+		"""
+	]
+
+	_updatable_fields = [
+		u'internal_name',
+		u'contact',
+		u'comment'
+	]
+#------------------------------------------------------------
+def create_test_org(name=None):
+	cmd = u'insert into clin.test_org (internal_name) values (%(name)s) returning pk'
+	args = {'name': name.strip()}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	return cTestOrg(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def get_test_orgs(order_by=u'internal_name'):
+	cmd = u'select *, xmin from clin.test_org order by %s' % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cTestOrg(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
 #============================================================
 class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one meta test type under which actual test types can be aggregated."""
@@ -773,7 +809,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.79 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.80 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -1068,7 +1104,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.79  2009-12-03 17:45:29  ncq
+# Revision 1.80  2010-02-02 13:50:15  ncq
+# - add test org handling
+#
+# Revision 1.79  2009/12/03 17:45:29  ncq
 # - implement cUnifiedTestType
 #
 # Revision 1.78  2009/09/17 21:52:13  ncq
