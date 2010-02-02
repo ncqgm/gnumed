@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-remove_person.sh,v $
-# $Id: gm-remove_person.sh,v 1.2 2009-11-19 15:07:34 ncq Exp $
+# $Id: gm-remove_person.sh,v 1.3 2010-02-02 13:49:05 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -26,7 +26,7 @@ if test -z ${PERSON_PK} ; then
 	echo "============================================================="
 	echo "usage: $0 <target database> <person PK>"
 	echo ""
-	echo " <target database>: a GNUmed database (such as \"gnumed_v12\")"
+	echo " <target database>: a GNUmed database (such as \"gnumed_vNN\")"
 	echo " <person PK>: primary key of a person in that database"
 	echo "============================================================="
 	exit 1
@@ -45,7 +45,7 @@ echo "" > $SQL_FILE
 (
 cat <<-EOF
 	-- GNUmed person removal script
-	-- \$Id: gm-remove_person.sh,v 1.2 2009-11-19 15:07:34 ncq Exp $
+	-- \$Id: gm-remove_person.sh,v 1.3 2010-02-02 13:49:05 ncq Exp $
 
 	\set ON_ERROR_STOP 1
 	set default_transaction_read_only to off;
@@ -101,7 +101,10 @@ rm ${SQL_FILE}
 
 #==============================================================
 # $Log: gm-remove_person.sh,v $
-# Revision 1.2  2009-11-19 15:07:34  ncq
+# Revision 1.3  2010-02-02 13:49:05  ncq
+# - make DB name example more generic
+#
+# Revision 1.2  2009/11/19 15:07:34  ncq
 # - bump db version
 #
 # Revision 1.1  2009/09/08 12:44:29  ncq
