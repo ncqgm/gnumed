@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.49 2010-01-31 16:37:21 ncq Exp $
+# $Id: gmI18N.py,v 1.50 2010-02-02 13:51:50 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -329,13 +329,13 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 
 	# now try to actually install it
 	for candidate in candidates:
-		_log.debug('trying [%s](/%s/LC_MESSAGES/%s.mo)' % (candidate, system_locale, domain))
+		_log.debug('trying [%s](/%s/LC_MESSAGES/%s.mo)', candidate, system_locale, domain)
 		if not os.path.exists(candidate):
 			continue
 		try:
 			gettext.install(domain, candidate, unicode=1)
 		except:
-			_log.exception('installing text domain [%s] failed from [%s]' % (domain, candidate))
+			_log.exception('installing text domain [%s] failed from [%s]', domain, candidate)
 			continue
 		global _
 		# does it translate ?
@@ -395,32 +395,44 @@ def get_encoding():
 #---------------------------------------------------------------------------
 if __name__ == "__main__":
 
-	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+	if len(sys.argv) == 1:
+		sys.exit()
 
-		logging.basicConfig(level = logging.DEBUG)
+	if sys.argv[1] != u'test':
+		sys.exit()
 
-		print "======================================================================"
-		print "GNUmed i18n"
-		print ""
-		print "authors:", __author__
-		print "license:", __license__, "; version:", __version__
-		print "======================================================================"
-		activate_locale()
-		print "system locale: ", system_locale, "; levels:", system_locale_level
-		print "likely encoding:", get_encoding()
+	logging.basicConfig(level = logging.DEBUG)
+
+	print "======================================================================"
+	print "GNUmed i18n"
+	print ""
+	print "authors:", __author__
+	print "license:", __license__, "; version:", __version__
+	print "======================================================================"
+
+	activate_locale()
+	print "system locale: ", system_locale, "; levels:", system_locale_level
+	print "likely encoding:", get_encoding()
+
+	if len(sys.argv) > 1:
+		install_domain(domain = sys.argv[2])
+	else:
 		install_domain()
-		# ********************************************************
-		# == do not remove this line =============================
-		# it is needed to check for successful installation of
-		# the desired message catalog
-		# ********************************************************
-		tmp = _('Translate this or i18n will not work properly !')
-		# ********************************************************
-		# ********************************************************
+	# ********************************************************
+	# == do not remove this line =============================
+	# it is needed to check for successful installation of
+	# the desired message catalog
+	# ********************************************************
+	tmp = _('Translate this or i18n will not work properly !')
+	# ********************************************************
+	# ********************************************************
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.49  2010-01-31 16:37:21  ncq
+# Revision 1.50  2010-02-02 13:51:50  ncq
+# - improved logging and testing
+#
+# Revision 1.49  2010/01/31 16:37:21  ncq
 # slightly better logging
 #
 # Revision 1.48  2009/12/21 15:02:17  ncq
