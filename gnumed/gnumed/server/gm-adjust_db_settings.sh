@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-adjust_db_settings.sh,v $
-# $Id: gm-adjust_db_settings.sh,v 1.6 2009-11-06 15:20:50 ncq Exp $
+# $Id: gm-adjust_db_settings.sh,v 1.7 2010-02-02 13:44:31 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -26,7 +26,7 @@ if test -z ${TARGET_DB} ; then
 	echo "============================================================="
 	echo "usage: $0 <target database>"
 	echo ""
-	echo " <target database>: a GNUmed database (such as \"gnumed_v12\")"
+	echo " <target database>: a GNUmed database (such as \"gnumed_vNN\")"
 	echo "============================================================="
 	exit 1
 fi
@@ -37,7 +37,7 @@ echo "=> Creating adjustment script ..."
 echo "    ${SQL_FILE}"
 
 echo "-- GNUmed database settings adjustment script" > $SQL_FILE
-echo "-- \$Id: gm-adjust_db_settings.sh,v 1.6 2009-11-06 15:20:50 ncq Exp $" >> $SQL_FILE
+echo "-- \$Id: gm-adjust_db_settings.sh,v 1.7 2010-02-02 13:44:31 ncq Exp $" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
 echo "\set ECHO queries" >> $SQL_FILE
@@ -66,7 +66,7 @@ echo "-- cannot be changed now (?):" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.6 $');" >> $SQL_FILE
+echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.7 $');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
@@ -107,7 +107,10 @@ echo ""
 
 #==============================================================
 # $Log: gm-adjust_db_settings.sh,v $
-# Revision 1.6  2009-11-06 15:20:50  ncq
+# Revision 1.7  2010-02-02 13:44:31  ncq
+# - make database name example more generic
+#
+# Revision 1.6  2009/11/06 15:20:50  ncq
 # - adjust check-func-bodies, too
 # - improve SQL file by echoing queries
 # - document encoding/lc_ctype settings of database
