@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.488 2010-01-31 18:16:35 ncq Exp $
-__version__ = "$Revision: 1.488 $"
+# $Id: gmGuiMain.py,v 1.489 2010-02-02 13:54:41 ncq Exp $
+__version__ = "$Revision: 1.489 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -356,14 +356,18 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Workplace profiles'), _('Manage the plugins to load per workplace.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_workplace, item)
 
+		menu_master_data.AppendSeparator()
+
 		item = menu_master_data.Append(-1, _('&Document types'), _('Manage the document types available in the system.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_doc_types, item)
 
-		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
-
 		item = menu_master_data.Append(-1, _('&Form templates'), _('Manage templates for forms and letters.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_form_templates, item)
+
+		menu_master_data.AppendSeparator()
+
+		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
 
 		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
@@ -371,16 +375,26 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_provinces, item)
 
+		menu_master_data.AppendSeparator()
+
 		item = menu_master_data.Append(-1, _('Substances'), _('Manage substances in use.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_substances, item)
 
 		item = menu_master_data.Append(-1, _('Drugs'), _('Manage branded drugs.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_branded_drugs, item)
 
-		item = menu_master_data.Append(-1, _('Drug components'), _('View components of branded drugs.'))
+		item = menu_master_data.Append(-1, _('Drug components'), _('Manage components of branded drugs.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_substances_in_brands, item)
 
-		item = menu_master_data.Append(-1, _('&Test types'), _('Show test/measurement types.'))
+		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
+		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
+
+		menu_master_data.AppendSeparator()
+
+		item = menu_master_data.Append(-1, _('Diagnostic orgs'), _('Manage diagnostic organisations (path labs etc).'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_test_orgs, item)
+
+		item = menu_master_data.Append(-1, _('&Test types'), _('Manage test/measurement types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_test_types, item)
 
 		item = menu_master_data.Append(-1, _('&Meta test types'), _('Show meta test/measurement types.'))
@@ -389,8 +403,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
 
-		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
-		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
+		#menu_master_data.AppendSeparator()
 
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
@@ -2196,6 +2209,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_substances_in_brands(self, evt):
 		gmMedicationWidgets.manage_substances_in_brands(parent = self)
 	#----------------------------------------------
+	def __on_manage_test_orgs(self, evt):
+		gmMeasurementWidgets.manage_measurement_orgs(parent = self)
+	#----------------------------------------------
 	def __on_manage_test_types(self, evt):
 		gmMeasurementWidgets.manage_measurement_types(parent = self)
 	#----------------------------------------------
@@ -2934,7 +2950,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.488  2010-01-31 18:16:35  ncq
+# Revision 1.489  2010-02-02 13:54:41  ncq
+# - tidy up master data management
+# - add managing diagnostic orgs
+#
+# Revision 1.488  2010/01/31 18:16:35  ncq
 # - access to default region/country setting
 #
 # Revision 1.487  2010/01/11 19:46:19  ncq
