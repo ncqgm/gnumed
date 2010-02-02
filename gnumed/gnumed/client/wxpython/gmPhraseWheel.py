@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.135 2009-11-15 01:10:53 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gmPhraseWheel.py,v 1.136 2010-02-02 13:55:59 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -332,9 +332,12 @@ class cPhraseWheel(wx.TextCtrl):
 		self.display_as_valid(valid = True)
 		return True
 	#---------------------------------------------------------
-	def GetData(self):
+	def GetData(self, can_create=False):
 		"""Retrieve the data associated with the displayed string.
 		"""
+		if self.data is None:
+			if can_create:
+				self._create_data()
 		return self.data
 	#---------------------------------------------------------
 	def SetText(self, value=u'', data=None, suppress_smarts=False):
@@ -660,6 +663,9 @@ class cPhraseWheel(wx.TextCtrl):
 		return True
 	#--------------------------------------------------------
 	# internal helpers: logic
+	#--------------------------------------------------------
+	def _create_data(self):
+		raise NotImplementedError('[%s]: cannot create data object' % self.__class__.__name__)
 	#--------------------------------------------------------
 	def __char_is_allowed(self, char=None):
 		# if undefined accept all chars
@@ -1069,7 +1075,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.135  2009-11-15 01:10:53  ncq
+# Revision 1.136  2010-02-02 13:55:59  ncq
+# - add generic support for can_create in GetData()
+#
+# Revision 1.135  2009/11/15 01:10:53  ncq
 # - cleanup
 #
 # Revision 1.134  2009/07/23 16:41:42  ncq
