@@ -13,6 +13,7 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmPhraseWheel
+        from Gnumed.wxpython import gmMeasurementWidgets
 
         # begin wxGlade: wxgMeasurementTypeEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -23,7 +24,7 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         self._PRW_loinc = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_loinc_info = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_comment_type = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_test_org = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_test_org = gmMeasurementWidgets.cMeasurementOrgPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_comment_org = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
@@ -74,6 +75,7 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(__lbl_comment_org, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_comment_org, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(_gszr_main)
+        _gszr_main.Fit(self)
         _gszr_main.AddGrowableCol(1)
         # end wxGlade
 
