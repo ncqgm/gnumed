@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.65 2010-01-31 18:19:11 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmMeasurementWidgets.py,v 1.66 2010-02-02 13:55:33 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -539,6 +539,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 			'ind': gmTools.coalesce(d['abnormality_indicator'], u'', u' (%s)'),
 			'pk_result': d['pk_test_result']
 		})
+		tmp = (u'%s%s' % (
+			gmTools.coalesce(d['name_test_org'], u''),
+			gmTools.coalesce(d['contact_test_org'], u'', u' (%s)'),
+		)).strip()
+		if tmp != u'':
+			tt += u' ' + _(u'Source: %s\n') % tmp
+		tt += u'\n'
 
 		# clinical evaluation
 		norm_eval = None
@@ -645,7 +652,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 #			#-------------------------------------
 
 		# ranges
-		tt += u'\n'
 		tt += u' ' + _(u'Standard normal range: %(norm_min_max)s%(norm_range)s  \n') % ({
 			'norm_min_max': normal_min_max,
 			'norm_range': gmTools.coalesce (
@@ -658,7 +664,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 				)
 			)
 		})
-		tt += u' ' + _(u'Reference group: %(ref_group)s\n') % ({'ref_group': gmTools.coalesce(d['norm_ref_group'], u'')})
+		if d['norm_ref_group'] is not None:
+			tt += u' ' + _(u'Reference group: %s\n') % d['norm_ref_group']
 		tt += u' ' + _(u'Clinical target range: %(clin_min_max)s%(clin_range)s  \n') % ({
 			'clin_min_max': clinical_min_max,
 			'clin_range': gmTools.coalesce (
@@ -673,12 +680,17 @@ class cMeasurementsGrid(wx.grid.Grid):
 		})
 
 		# metadata
-		tt += u' ' + _(u'Doc: %s\n') % _(u'\n Doc: ').join(gmTools.coalesce(d['comment'], u'').split(u'\n'))
-		tt += u' ' + _(u'Lab: %s\n') % _(u'\n Lab: ').join(gmTools.coalesce(d['note_test_org'], u'').split(u'\n'))
+		if d['comment'] is not None:
+			tt += u' ' + _(u'Doc: %s\n') % _(u'\n Doc: ').join(d['comment'].split(u'\n'))
+		if d['note_test_org'] is not None:
+			tt += u' ' + _(u'Lab: %s\n') % _(u'\n Lab: ').join(d['note_test_org'].split(u'\n'))
 		tt += u' ' + _(u'Episode: %s\n') % d['episode']
-		tt += u' ' + _(u'Issue: %s\n') % gmTools.coalesce(d['health_issue'], u'')
-		tt += u' ' + _(u'Material: %s\n') % gmTools.coalesce(d['material'], u'')
-		tt += u' ' + _(u'Details: %s\n') % gmTools.coalesce(d['material_detail'], u'')
+		if d['health_issue'] is not None:
+			tt += u' ' + _(u'Issue: %s\n') % d['health_issue']
+		if d['material'] is not None:
+			tt += u' ' + _(u'Material: %s\n') % d['material']
+		if d['material_detail'] is not None:
+			tt += u' ' + _(u'Details: %s\n') % d['material_detail']
 		tt += u'\n'
 
 		# review
@@ -690,11 +702,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 			'sig_hand': gmTools.u_writing_hand,
 			'reviewed': review
 		})
-		tt += u' ' + _(u'Last reviewer: %(reviewer)s\n') % ({'reviewer': gmTools.bool2subst(d['review_by_you'], _('you'), gmTools.coalesce(d['last_reviewer'], u''))})
-		tt += u' ' + _(u' Technically abnormal: %(abnormal)s\n') % ({'abnormal': gmTools.bool2subst(d['is_technically_abnormal'], _('yes'), _('no'), u'')})
-		tt += u' ' + _(u' Clinically relevant: %(relevant)s\n') % ({'relevant': gmTools.bool2subst(d['is_clinically_relevant'], _('yes'), _('no'), u'')})
-		tt += u' ' + _(u' Comment: %s\n') % gmTools.coalesce(d['review_comment'], u'')
 		tt += u' ' + _(u'Responsible clinician: %s\n') % gmTools.bool2subst(d['you_are_responsible'], _('you'), d['responsible_reviewer'])
+		if d['reviewed']:
+			tt += u' ' + _(u'Last reviewer: %(reviewer)s\n') % ({'reviewer': gmTools.bool2subst(d['review_by_you'], _('you'), gmTools.coalesce(d['last_reviewer'], u'?'))})
+			tt += u' ' + _(u' Technically abnormal: %(abnormal)s\n') % ({'abnormal': gmTools.bool2subst(d['is_technically_abnormal'], _('yes'), _('no'), u'?')})
+			tt += u' ' + _(u' Clinically relevant: %(relevant)s\n') % ({'relevant': gmTools.bool2subst(d['is_clinically_relevant'], _('yes'), _('no'), u'?')})
+		if d['review_comment'] is not None:
+			tt += u' ' + _(u' Comment: %s\n') % d['review_comment'].strip()
 		tt += u'\n'
 
 		# type
@@ -704,8 +718,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 			'abbrev_meta': gmTools.coalesce(d['abbrev_meta'], u''),
 			'pk_u_type': d['pk_meta_test_type']
 		})
-		tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(gmTools.coalesce(d['comment_tt'], u'').split(u'\n'))
-		tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(gmTools.coalesce(d['comment_meta'], u'').split(u'\n'))
+		if d['comment_tt'] is not None:
+			tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(d['comment_tt'].split(u'\n'))
+		if d['comment_meta'] is not None:
+			tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(d['comment_meta'].split(u'\n'))
 		tt += u'\n'
 
 		tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
@@ -1507,6 +1523,40 @@ limit 50""" % {'in_house': _('in house lab')}
 		self.SetToolTipString(_('Select the type of measurement.'))
 		self.selection_only = False
 #----------------------------------------------------------------
+class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+select distinct on (internal_name)
+	pk,
+	internal_name
+from clin.test_org
+where
+	internal_name %(fragment_condition)s
+order by internal_name
+limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		#mp.word_separators = '[ \t:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.matcher = mp
+		self.SetToolTipString(_('The name of the path lab/diagnostic organisation.'))
+		self.selection_only = False
+	#------------------------------------------------------------
+	def _create_data(self):
+		if self.data is not None:
+			_log.debug('data already set, not creating')
+			return
+
+		if self.GetValue().strip() == u'':
+			_log.debug('cannot create new lab, missing name')
+			return
+
+		lab = gmPathLab.create_test_org(name = self.GetValue().strip())
+		self.SetText(value = lab['internal_name'], data = lab['pk'])
+		return
+#----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementTypeEAPnl
 
 class cMeasurementTypeEAPnl(wxgMeasurementTypeEAPnl.wxgMeasurementTypeEAPnl, gmEditArea.cGenericEditAreaMixin):
@@ -1639,20 +1689,20 @@ limit 50"""
 		self._PRW_loinc.selection_only = False
 		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
 
-		# test org
-		query = u"""
-select distinct on (internal_name)
-	pk,
-	internal_name
-from clin.test_org
-where
-	internal_name %(fragment_condition)s
-order by internal_name
-limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 4)
-		self._PRW_test_org.matcher = mp
-		self._PRW_test_org.selection_only = False
+#		# test org
+#		query = u"""
+#select distinct on (internal_name)
+#	pk,
+#	internal_name
+#from clin.test_org
+#where
+#	internal_name %(fragment_condition)s
+#order by internal_name
+#limit 50"""
+#		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+#		mp.setThresholds(1, 2, 4)
+#		self._PRW_test_org.matcher = mp
+#		self._PRW_test_org.selection_only = False
 	#----------------------------------------------------------------
 	def _on_loinc_lost_focus(self):
 		loinc = self._PRW_loinc.GetData()
@@ -1836,6 +1886,136 @@ limit 25"""
 		self.SetToolTipString(_('Select an indicator for the level of abnormality.'))
 		self.selection_only = False
 #================================================================
+# measurement org widgets / functions
+#----------------------------------------------------------------
+def edit_measurement_org(parent=None, org=None):
+	ea = cMeasurementOrgEAPnl(parent = parent, id = -1)
+	ea.data = org
+	ea.mode = gmTools.coalesce(org, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+	dlg.SetTitle(gmTools.coalesce(org, _('Adding new diagnostic org'), _('Editing diagnostic org')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+#----------------------------------------------------------------
+def manage_measurement_orgs(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def edit(org=None):
+		return edit_measurement_org(parent = parent, org = org)
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		orgs = gmPathLab.get_test_orgs()
+		lctrl.set_string_items ([
+			(o['internal_name'], gmTools.coalesce(o['contact'], u''), gmTools.coalesce(o['comment']), o['pk'])
+			for o in orgs
+		])
+		lctrl.set_data(orgs)
+	#------------------------------------------------------------
+	def delete(measurement_type):
+		if measurement_type.in_use:
+			gmDispatcher.send (
+				signal = 'statustext',
+				beep = True,
+				msg = _('Cannot delete measurement type [%s (%s)] because it is in use.') % (measurement_type['name'], measurement_type['abbrev'])
+			)
+			return False
+		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
+		return True
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nThese are the diagnostic orgs (path labs etc) currently defined in GNUmed.\n\n'),
+		caption = _('Showing diagnostic orgs.'),
+		columns = [_('Name'), _('Contact'), _('Comment'), u'#'],
+		single_selection = True,
+		refresh_callback = refresh,
+		edit_callback = edit,
+		new_callback = edit
+#		,delete_callback = delete
+	)
+
+
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgMeasurementOrgEAPnl
+
+class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['org']
+			del kwargs['org']
+		except KeyError:
+			data = None
+
+		wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		has_errors = False
+		if self._PRW_name.GetValue().strip() == u'':
+			has_errors = True
+			self._PRW_name.display_as_valid(valid = False)
+		else:
+			self._PRW_name.display_as_valid(valid = True)
+
+		return (not has_errors)
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = self._PRW_name.GetData(can_create = True)
+
+		data['contact'] = self._TCTRL_contact.GetValue().strip()
+		data['comment'] = self._TCTRL_comment.GetValue().strip()
+		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+		self.data = data
+
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['internal_name'] = self._PRW_name.GetValue().strip()
+		self.data['contact'] = self._TCTRL_contact.GetValue().strip()
+		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_name.SetText(value = u'', data = None)
+		self._TCTRL_contact.SetValue(u'')
+		self._TCTRL_comment.SetValue(u'')
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_name.SetText(value = self.data['internal_name'], data = self.data['pk'])
+		self._TCTRL_contact.SetValue(gmTools.coalesce(self.data['contact'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+#================================================================
 def manage_meta_test_types(parent=None):
 
 	if parent is None:
@@ -1915,7 +2095,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMeasurementWidgets.py,v $
-# Revision 1.65  2010-01-31 18:19:11  ncq
+# Revision 1.66  2010-02-02 13:55:33  ncq
+# - much improved results tooltip
+# - manage diagnostic orgs
+#
+# Revision 1.65  2010/01/31 18:19:11  ncq
 # - fix faulty access to value of abnormality indicator PRW
 #
 # Revision 1.64  2009/12/21 15:12:29  ncq
