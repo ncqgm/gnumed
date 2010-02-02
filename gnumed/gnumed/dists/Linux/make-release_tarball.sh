@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.96 2010-01-31 18:22:09 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.97 2010-02-02 13:59:52 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.7.rc1"
@@ -446,6 +446,21 @@ cp -R ../../server/sql/v11-v12/python/*.py ./gnumed-client.$CLIENTREV/server/sql
 #cp -R ../../server/sql/v11-v12/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/fixups
 
 
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/static
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/superuser
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
+
+cp -R ../../server/sql/v12-v13/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/dynamic
+cp -R ../../server/sql/v12-v13/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/static
+#cp -R ../../server/sql/v12-v13/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/superuser
+#cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
+#cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
+#cp -R ../../server/sql/v12-v13/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
+
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
@@ -482,7 +497,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.96  2010-01-31 18:22:09  ncq
+# Revision 1.97  2010-02-02 13:59:52  ncq
+# - include v13 scripts
+#
+# Revision 1.96  2010/01/31 18:22:09  ncq
 # - include pt_BR
 #
 # Revision 1.95  2010/01/21 09:01:20  ncq
