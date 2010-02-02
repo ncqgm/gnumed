@@ -5,7 +5,7 @@
 # - first arg should be ISO language code
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_po.sh,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 # what language are we working on
 LANGNAME="$1"
@@ -13,6 +13,15 @@ if [ "${LANGNAME}" == "" ]; then
 	echo "You must give an ISO language code as the first argument."
 	exit
 fi
+
+
+# is there an additional file ?
+if [ -f "${LANGNAME}-additional-translations.po" ]; then
+	AUX_PO="-C ${LANGNAME}-additional-translations.po"
+else
+	AUX_PO=""
+fi
+
 
 # where to look for files
 BASE="../"
@@ -31,9 +40,10 @@ find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext --no-location -v 
 if [ -f "${LANGNAME}.po" ]; then
 	echo ""
 	echo "Merging strings with old translations ..."
-	echo " current strings : ${POTNAME}"
-	echo " old translations: ${LANGNAME}.po"
-	msgmerge -v -o gnumed-${LANGNAME}.po ${LANGNAME}.po ${POTNAME} >> create-${LANGNAME}-po.log 2>&1
+	echo " current strings :        ${POTNAME}"
+	echo " old translations:        ${LANGNAME}.po"
+	echo " additional translations: ${AUX_PO}"
+	msgmerge -v -o gnumed-${LANGNAME}.po ${AUX_PO} ${LANGNAME}.po ${POTNAME} >> create-${LANGNAME}-po.log 2>&1
 	mv -vf gnumed-${LANGNAME}.po ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
 else
 	cp -vf ${POTNAME} ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
