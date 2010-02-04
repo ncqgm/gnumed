@@ -1,8 +1,8 @@
 """GNUmed measurements related business objects."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.79 2009-12-03 17:45:29 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmPathLab.py,v 1.79.2.1 2010-02-04 16:52:19 ncq Exp $
+__version__ = "$Revision: 1.79.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -57,11 +57,14 @@ class cUnifiedTestType(gmBusinessDBObject.cBusinessDBObject):
 		cmd = u"""
 			SELECT pk_test_result, clin_when
 			FROM clin.v_test_results
-			WHERE pk_patient = %(pat)s
+			WHERE
+				pk_patient = %(pat)s
+					AND
+				pk_meta_test_type = %(pkmtt)s
 			ORDER BY clin_when DESC
-			limit 1
+			LIMIT 1
 		"""
-		args = {'pat': pk_patient}
+		args = {'pat': pk_patient, 'pkmtt': self._payload[self._idx['pk_meta_test_type']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		if len(rows) == 0:
 			return None
@@ -773,7 +776,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.79 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.79.2.1 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -1068,7 +1071,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.79  2009-12-03 17:45:29  ncq
+# Revision 1.79.2.1  2010-02-04 16:52:19  ncq
+# - fix faulty get-most-recent-result()
+#
+# Revision 1.79  2009/12/03 17:45:29  ncq
 # - implement cUnifiedTestType
 #
 # Revision 1.78  2009/09/17 21:52:13  ncq
