@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.113 2010-01-21 08:42:31 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmEMRStructWidgets.py,v 1.113.2.1 2010-02-04 12:01:22 ncq Exp $
+__version__ = "$Revision: 1.113.2.1 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1660,7 +1660,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		narr = self._TCTRL_notes.GetValue().strip()
 		if narr != u'':
-			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.__issue['pk_health_issue'])
+			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = issue['pk_health_issue'])
 			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
 
 		self.data = issue
@@ -1696,7 +1696,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		if narr != '':
 			pat = gmPerson.gmCurrentPatient()
 			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.__issue['pk_health_issue'])
+			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.data['pk_health_issue'])
 			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
 
 		# FIXME: handle is_operation
@@ -2025,7 +2025,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.113  2010-01-21 08:42:31  ncq
+# Revision 1.113.2.1  2010-02-04 12:01:22  ncq
+# - fix adding health issue
+#
+# Revision 1.113  2010/01/21 08:42:31  ncq
 # - adjust to Dx certainty mapper changes
 #
 # Revision 1.112  2009/12/03 17:48:15  ncq
