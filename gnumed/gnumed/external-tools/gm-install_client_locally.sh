@@ -7,7 +7,7 @@
 # you will need to know the root password.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.2 2010-02-01 11:18:17 ncq Exp $
+# $Id: gm-install_client_locally.sh,v 1.3 2010-02-04 20:36:29 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
@@ -72,7 +72,7 @@ if [ -f /etc/SuSE-release ]; then
 fi
 # Debian
 if [ -f /etc/debian_version ]; then
-	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file python-gnuplot konsolekalendar aspell python python-enchant python-support python-wxgtk2.8 bash xsane apt gtklp texlive-latex-base"
+	DEPS="postgresql-client tar coreutils mc python-psycopg2 openssl wget gzip file python-gnuplot konsolekalendar aspell python python-enchant python-support python-wxgtk2.8 bash xsane apt texlive-latex-base gtklp"
 	PKG_INSTALLER="apt-get install"
 	SYS_TYPE="Debian"
 fi
@@ -155,7 +155,7 @@ echo "easily start this version of the GNUmed client."
 echo ""
 echo "Installation directory:"
 echo ""
-echo "  ${INSTALL_BASE}/GNUmed-${TARGET_VER}/"
+echo "  ${INSTALL_BASE}/gnumed-client.${TARGET_VER}/"
 echo "=========================================================="
 
 
@@ -183,7 +183,7 @@ cd ${INSTALL_BASE}
 
 # check previous installation and unpack package
 echo ""
-if test -d GNUmed-${TARGET_VER}/ ; then
+if test -d gnumed-client.${TARGET_VER}/ ; then
 	echo ""
 	echo "It seems the client version v${TARGET_VER} is"
 	echo "already installed. What do you want to do ?"
@@ -205,7 +205,7 @@ if test "${REPLY}" == "c" ; then
 	CONFIGURE="true"
 
 elif test "${REPLY}" == "o" ; then
-	rm -rf GNUmed-${TARGET_VER}/
+	rm -rf gnumed-client.${TARGET_VER}/
 	tar -xzf ${TGZ_NAME}
 	if test $? -ne 0 ; then
 		echo "ERROR: cannot unpack ${TGZ_NAME}, aborting"
@@ -222,7 +222,7 @@ fi
 # check dependancies
 echo ""
 echo "Checking dependencies ..."
-cd GNUmed-${TARGET_VER}/client/
+cd gnumed-client.${TARGET_VER}/client/
 ./check-prerequisites.sh
 
 
@@ -248,6 +248,16 @@ mkdir -p ./it_IT/LC_MESSAGES/
 cd it_IT/LC_MESSAGES/
 ln -sf ../../it-gnumed.mo gnumed.mo
 cd ../../
+# NL
+mkdir -p ./nl_NL/LC_MESSAGES/
+cd nl_NL/LC_MESSAGES/
+ln -sf ../../nl-gnumed.mo gnumed.mo
+cd ../../
+# PL
+mkdir -p ./pl_PL/LC_MESSAGES/
+cd pl_PL/LC_MESSAGES/
+ln -sf ../../pl-gnumed.mo gnumed.mo
+cd ../../
 # pt_BR
 mkdir -p ./pt_BR/LC_MESSAGES/
 cd pt_BR/LC_MESSAGES/
@@ -264,13 +274,13 @@ if test -e "${LAUNCHER}" ; then
 	else
 		echo "#!/bin/bash" > "${LAUNCHER}"
 		echo "" >> "${LAUNCHER}"
-		echo "cd ${INSTALL_BASE}/GNUmed-${TARGET_VER}/client/" >> "${LAUNCHER}"
+		echo "cd ${INSTALL_BASE}/gnumed-client.${TARGET_VER}/client/" >> "${LAUNCHER}"
 		echo "./gm-from-cvs.sh" >> "${LAUNCHER}"
 	fi
 else
 	echo "#!/bin/bash" > "${LAUNCHER}"
 	echo "" >> "${LAUNCHER}"
-	echo "cd ${INSTALL_BASE}/GNUmed-${TARGET_VER}/client/" >> "${LAUNCHER}"
+	echo "cd ${INSTALL_BASE}/gnumed-client.${TARGET_VER}/client/" >> "${LAUNCHER}"
 	echo "./gm-from-cvs.sh" >> "${LAUNCHER}"
 fi
 chmod u+x "${LAUNCHER}"
@@ -287,15 +297,18 @@ mc -e gm-from-cvs.conf
 # edit startup script
 echo "Editing startup shell script ..."
 echo ""
-echo "You may want to remove the --debug and --override-schema-check options."
+echo "You may want to activate the proper gnumed.py call."
 read -p "hit [ENTER] to continue"
 mc -e gm-from-cvs.sh
 
 
 # ============================================
 # $Log: gm-install_client_locally.sh,v $
-# Revision 1.2  2010-02-01 11:18:17  ncq
-# - add missing deps
+# Revision 1.3  2010-02-04 20:36:29  ncq
+# - fix paths
+#
+# Revision 1.1.2.1  2010/02/01 14:58:05  ncq
+# - include 2 missing deps for Debian
 #
 # Revision 1.1  2009/09/08 17:16:30  ncq
 # - relocated, in passing adjust to tarball name changes as per list
