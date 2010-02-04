@@ -2,13 +2,13 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.95.2.1 2010-01-23 07:43:20 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.95.2.2 2010-02-04 16:53:57 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.6.0"
+CLIENTREV="0.6.1"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="12.0"
+SRVREV="12.1"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -195,6 +195,7 @@ cp -R ../../client/locale/it.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/nb.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/nl.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/pl.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/pt_BR.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/ru.po ./gnumed-client.$CLIENTREV/client/locale
 
 cd ../../client/locale/
@@ -205,6 +206,7 @@ cd ../../client/locale/
 ./create-gnumed_mo.sh nb
 ./create-gnumed_mo.sh nl
 ./create-gnumed_mo.sh pl
+./create-gnumed_mo.sh pt_BR
 ./create-gnumed_mo.sh ru
 cd -
 
@@ -215,6 +217,7 @@ cp -R ../../client/locale/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/locale/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 
 
@@ -477,7 +480,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.95.2.1  2010-01-23 07:43:20  ncq
+# Revision 1.95.2.2  2010-02-04 16:53:57  ncq
+# - bump version
+# - include pt_BR
+#
+# Revision 1.95.2.1  2010/01/23 07:43:20  ncq
 # - 0.6.0 / 12.0
 #
 # Revision 1.95  2010/01/21 09:01:20  ncq
