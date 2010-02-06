@@ -13,8 +13,8 @@ TODO:
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.36 2010-01-31 18:17:33 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmListWidgets.py,v 1.37 2010-02-06 21:37:26 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -34,7 +34,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg, wxgGenericListManagerPnl
 
 #================================================================
-def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False, can_return_empty=False):
+def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False, can_return_empty=False, ignore_OK_button=False):
 	"""Let user select item(s) from a list.
 
 	- edit_callback: (item data)
@@ -56,6 +56,7 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 	dlg.edit_callback = edit_callback
 	dlg.new_callback = new_callback
 	dlg.delete_callback = delete_callback
+	dlg.ignore_OK_button = ignore_OK_button
 	dlg.set_columns(columns = columns)
 
 	if refresh_callback is None:
@@ -102,6 +103,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 
+		self.ignore_OK_button = False			# by default do show/use the OK button
+
 		self.can_return_empty = False
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
@@ -127,18 +130,21 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	# event handlers
 	#------------------------------------------------------------
 	def _on_list_item_selected(self, event):
-		self._BTN_ok.Enable(True)
-		self._BTN_ok.SetDefault()
+		if not self.__ignore_OK_button:
+			self._BTN_ok.SetDefault()
+			self._BTN_ok.Enable(True)
+
 		if self.edit_callback is not None:
 			self._BTN_edit.Enable(True)
+
 		if self.delete_callback is not None:
 			self._BTN_delete.Enable(True)
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
 			if not self.can_return_empty:
-				self._BTN_ok.Enable(False)
 				self._BTN_cancel.SetDefault()
+				self._BTN_ok.Enable(False)
 			self._BTN_edit.Enable(False)
 			self._BTN_delete.Enable(False)
 	#------------------------------------------------------------
@@ -174,6 +180,17 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	# properties
+	#------------------------------------------------------------
+	def _set_ignore_OK_button(self, ignored):
+		self.__ignore_OK_button = ignored
+		if self.__ignore_OK_button:
+			self._BTN_ok.Enable(False)
+			self._BTN_ok.Hide()
+		else:
+			self._BTN_ok.Enable(True)
+			self._BTN_ok.Show()
+
+	ignore_OK_button = property(lambda x:x, _set_ignore_OK_button)
 	#------------------------------------------------------------
 	def _get_new_callback(self):
 		return self.__new_callback
@@ -555,7 +572,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.36  2010-01-31 18:17:33  ncq
+# Revision 1.37  2010-02-06 21:37:26  ncq
+# - support ignoring OK button
+#
+# Revision 1.36  2010/01/31 18:17:33  ncq
 # - make refresh callback setting smarter: set column widths after setting items
 #
 # Revision 1.35  2010/01/21 08:43:23  ncq
