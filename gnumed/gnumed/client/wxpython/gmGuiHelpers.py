@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.105 2009-09-23 14:42:28 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmGuiHelpers.py,v 1.106 2010-02-06 21:05:48 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -144,7 +144,6 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxgMultilineTextEntryDlg
 
-
 class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 	"""Editor for a bit of text."""
 
@@ -161,6 +160,12 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			del kwargs['msg']
 		except KeyError:
 			msg = None
+
+		try:
+			data = kwargs['data']
+			del kwargs['data']
+		except KeyError:
+			data = None
 
 		try:
 			self.original_text = kwargs['text']
@@ -181,6 +186,13 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self._LBL_msg.Hide()
 		else:
 			self._LBL_msg.SetLabel(msg)
+			self.Layout()
+			self.Refresh()
+
+		if data is None:
+			self._TCTRL_data.Hide()
+		else:
+			self._TCTRL_data.SetValue(data)
 			self.Layout()
 			self.Refresh()
 	#--------------------------------------------------------
@@ -421,7 +433,10 @@ def makePageTitle(wizPg, title):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.105  2009-09-23 14:42:28  ncq
+# Revision 1.106  2010-02-06 21:05:48  ncq
+# - support data in multiline text ctrl
+#
+# Revision 1.105  2009/09/23 14:42:28  ncq
 # - remove dead code
 #
 # Revision 1.104  2009/07/23 16:39:23  ncq
