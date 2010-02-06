@@ -3,8 +3,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.34 2010-01-21 08:41:56 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmAbout.py,v 1.34.2.1 2010-02-06 19:53:04 ncq Exp $
+__version__ = "$Revision: 1.34.2.1 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -180,7 +180,7 @@ class cContributorsDlg(wx.Dialog):
 ) % u"""
 == B ===========================================
 
-James Busser, MD, GP
+James Busser, MD
  British Columbia
 
  - test results handling
@@ -279,7 +279,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.34  2010-01-21 08:41:56  ncq
+# Revision 1.34.2.1  2010-02-06 19:53:04  ncq
+# - properly attribute Jim
+#
+# Revision 1.34  2010/01/21 08:41:56  ncq
 # - properly acknowledge Rogerio
 #
 # Revision 1.33  2010/01/13 21:51:00  ncq
