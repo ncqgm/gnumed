@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.187 2010-01-17 19:48:20 ncq Exp $
-__version__ = "$Revision: 1.187 $"
+# $Id: gmMedDocWidgets.py,v 1.187.2.1 2010-02-06 19:56:36 ncq Exp $
+__version__ = "$Revision: 1.187.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex, logging
@@ -139,7 +139,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 	if unlock_patient:
 		pat.locked = False
 
-	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].' % filename), beep = True)
+	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].') % filename, beep = True)
 
 	return doc
 #----------------------
@@ -682,7 +682,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(self.acquired_pages) > 0:
 			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
-				self._LBOX_doc_pages.Append(_('part %s: %s' % (i+1, fname)), fname)
+				self._LBOX_doc_pages.Append(_('part %s: %s') % (i+1, fname), fname)
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 		title = _('saving document')
@@ -1965,7 +1965,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.187  2010-01-17 19:48:20  ncq
+# Revision 1.187.2.1  2010-02-06 19:56:36  ncq
+# - fix _()
+#
+# Revision 1.187  2010/01/17 19:48:20  ncq
 # - add tooltips on phrasewheels
 # - cleaner layout for document tree
 #
