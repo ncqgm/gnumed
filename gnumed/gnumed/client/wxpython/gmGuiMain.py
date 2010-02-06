@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.489 2010-02-02 13:54:41 ncq Exp $
-__version__ = "$Revision: 1.489 $"
+# $Id: gmGuiMain.py,v 1.490 2010-02-06 21:06:59 ncq Exp $
+__version__ = "$Revision: 1.490 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -516,7 +516,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter, item)
 
 		# - list encounters
-		item = menu_emr.Append(-1, _('View encounter list'), _('List all encounters including empty ones.'))
+		item = menu_emr.Append(-1, _('&Encounters list'), _('List all encounters including empty ones.'))
 		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
 
 		# - submenu GNUmed / "export as"
@@ -785,7 +785,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.__pre_exit_callbacks.append(callback)
 	#-----------------------------------------------
 	def _on_set_statustext_pubsub(self, context=None):
-		wx.CallAfter(self.SetStatusText, context.data['msg'])
+		msg = u'%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), context.data['msg'])
+		wx.CallAfter(self.SetStatusText, msg)
+
 		try:
 			if context.data['beep']:
 				wx.Bell()
@@ -800,6 +802,7 @@ class gmTopLevelFrame(wx.Frame):
 		if loglevel is not None:
 			_log.log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
 
+		msg = u'%s %s' % (gmDateTime.pydt_now_here().strftime('%H:%M'), msg)
 		wx.CallAfter(self.SetStatusText, msg)
 
 		if beep:
@@ -2950,7 +2953,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.489  2010-02-02 13:54:41  ncq
+# Revision 1.490  2010-02-06 21:06:59  ncq
+# - add time to status line messages
+#
+# Revision 1.489  2010/02/02 13:54:41  ncq
 # - tidy up master data management
 # - add managing diagnostic orgs
 #
