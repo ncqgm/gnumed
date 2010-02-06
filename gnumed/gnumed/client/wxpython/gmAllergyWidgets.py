@@ -1,8 +1,8 @@
 """GNUmed allergy related widgets."""
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-# $Id: gmAllergyWidgets.py,v 1.35 2009-06-04 16:30:30 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmAllergyWidgets.py,v 1.36 2010-02-06 21:00:07 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -343,6 +343,8 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		emr = pat.get_emr()
 
 		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
+		if allergy is None:
+			return
 		emr.delete_allergy(pk_allergy = allergy['pk_allergy'])
 
 		state = emr.allergy_state
@@ -354,6 +356,8 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, evt):
 		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
+		if allergy is None:
+			return
 		self._PNL_edit_area.refresh(allergy=allergy)
 		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
@@ -563,7 +567,10 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.35  2009-06-04 16:30:30  ncq
+# Revision 1.36  2010-02-06 21:00:07  ncq
+# - do not fail deleting allergy if none selected
+#
+# Revision 1.35  2009/06/04 16:30:30  ncq
 # - use set active patient from pat search widgets
 #
 # Revision 1.34  2008/10/22 12:12:31  ncq
