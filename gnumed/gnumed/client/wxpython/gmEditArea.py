@@ -2,9 +2,9 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.134 2009-12-21 15:05:53 ncq Exp $
+# $Id: gmEditArea.py,v 1.135 2010-02-06 21:03:01 ncq Exp $
 __license__ = 'GPL'
-__version__ = "$Revision: 1.134 $"
+__version__ = "$Revision: 1.135 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -185,26 +185,29 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 	def __init__(self, *args, **kwargs):
 
-		ea = kwargs['edit_area']
+		new_ea = kwargs['edit_area']
 		del kwargs['edit_area']
 
-		single_entry = False
+		if not isinstance(new_ea, cGenericEditAreaMixin):
+			raise TypeError('[%s]: edit area instance must be child of cGenericEditAreaMixin')
+
 		try:
 			single_entry = kwargs['single_entry']
 			del kwargs['single_entry']
 		except KeyError:
-			pass
-
-		if not isinstance(ea, cGenericEditAreaMixin):
-			raise TypeError('[%s]: edit area instance must be child of cGenericEditAreaMixin')
+			single_entry = False
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
 		# replace dummy panel
-		ea_pnl_szr = self._PNL_ea.GetContainingSizer()
-		ea_pnl_szr.Remove(self._PNL_ea)
-		ea.Reparent(self)
-		self._PNL_ea = ea
+		old_ea = self._PNL_ea
+		ea_pnl_szr = old_ea.GetContainingSizer()
+		ea_pnl_parent = old_ea.GetParent()
+		ea_pnl_szr.Remove(old_ea)
+		del old_ea
+		#new_ea.Reparent(self)
+		new_ea.Reparent(ea_pnl_parent)
+		self._PNL_ea = new_ea
 		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
 
 		# adjust buttons
@@ -2196,7 +2199,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.134  2009-12-21 15:05:53  ncq
+# Revision 1.135  2010-02-06 21:03:01  ncq
+# - try proper EA reparenting once again
+#
+# Revision 1.134  2009/12/21 15:05:53  ncq
 # - add comment
 #
 # Revision 1.133  2009/11/29 15:59:31  ncq
