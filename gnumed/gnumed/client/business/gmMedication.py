@@ -5,8 +5,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.20 2009-12-25 21:38:50 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmMedication.py,v 1.21 2010-02-06 20:44:58 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, csv, codecs, os, re as regex
@@ -597,6 +597,30 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_ddd(self):
+
+		try: self.__ddd
+		except AttributeError: self.__ddd = None
+
+		if self.__ddd is not None:
+			return self.__ddd
+
+		if self._payload[self._idx['atc_substance']] is not None:
+			ddd = gmATC.atc2ddd(atc = self._payload[self._idx['atc_substance']])
+			if len(ddd) != 0:
+				self.__ddd = ddd[0]
+		else:
+			if self._payload[self._idx['atc_brand']] is not None:
+				ddd = gmATC.atc2ddd(atc = self._payload[self._idx['atc_brand']])
+				if len(ddd) != 0:
+					self.__ddd = ddd[0]
+
+		return self.__ddd
+
+	ddd = property(_get_ddd, lambda x:x)
+	#--------------------------------------------------------
 	def _get_external_code(self):
 		drug = self.containing_drug
 
@@ -876,7 +900,10 @@ if __name__ == "__main__":
 		test_show_components()
 #============================================================
 # $Log: gmMedication.py,v $
-# Revision 1.20  2009-12-25 21:38:50  ncq
+# Revision 1.21  2010-02-06 20:44:58  ncq
+# - .ddd on substance intake
+#
+# Revision 1.20  2009/12/25 21:38:50  ncq
 # - add 2 new fields to MMI CSV file
 # - show-info-on-drug
 # - enhance switch-to-frontend to allow custom startup cmd
