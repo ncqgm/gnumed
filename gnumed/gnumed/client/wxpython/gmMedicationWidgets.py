@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.32 2010-01-13 21:52:04 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmMedicationWidgets.py,v 1.33 2010-02-06 21:39:10 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import logging, sys, os.path
@@ -23,6 +23,37 @@ from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWi
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+#============================================================
+def browse_atc_reference(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		atcs = gmATC.get_reference_atcs()
+
+		items = [ [
+			a['atc'],
+			a['term'],
+			u'%s' % gmTools.coalesce(a['ddd'], u''),
+			gmTools.coalesce(a['unit'], u''),
+			gmTools.coalesce(a['administrative_route'], u''),
+			gmTools.coalesce(a['comment'], u''),
+			a['version'],
+			a['lang']
+		] for a in atcs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(atcs)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nThe ATC codes as known to GNUmed.\n'),
+		caption = _('Showing ATC codes.'),
+		columns = [ u'ATC', _('Term'), u'DDD', _('Unit'), _(u'Route'), _('Comment'), _('Version'), _('Language') ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
+
 #============================================================
 def manage_substances_in_brands(parent=None):
 
@@ -1131,7 +1162,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += u' ' + _('Substance name: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
 		tt += u' ' + _('Preparation: %s\n') % entry['preparation']
-		tt += gmTools.coalesce(entry['strength'], u'', _(' Amount per dose: %s\n'))
+		if entry['strength'] is not None:
+			tt += u' ' + _('Amount per dose: %s') % entry['strength']
+			if entry.ddd is not None:
+				tt += u' (DDD: %s %s)' % (entry.ddd['ddd'], entry.ddd['unit'])
+			tt += u'\n'
+		else:
+			if entry.ddd is not None:
+				tt += u' DDD: %s %s' % (entry.ddd['ddd'], entry.ddd['unit'])
+				tt += u'\n'
 		tt += gmTools.coalesce(entry['atc_substance'], u'', _(' ATC (substance): %s\n'))
 
 		tt += u'\n'
@@ -1362,7 +1401,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedicationWidgets.py,v $
-# Revision 1.32  2010-01-13 21:52:04  ncq
+# Revision 1.33  2010-02-06 21:39:10  ncq
+# - browse-atc-reference
+# - include DDD in substance intake tooltip
+#
+# Revision 1.32  2010/01/13 21:52:04  ncq
 # - implement phrase wheel on schedule and preparation
 #
 # Revision 1.31  2010/01/09 20:15:06  ncq
