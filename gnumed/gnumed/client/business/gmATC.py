@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.6 2009-12-01 21:47:02 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmATC.py,v 1.7 2010-02-06 20:43:22 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, codecs, logging, csv, re as regex, os.path
@@ -110,6 +110,27 @@ def text2atc(text=None, fuzzy=False):
 
 	_log.debug(u'term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
+	return rows
+#============================================================
+def atc2ddd(atc=None):
+	cmd = u"""
+		SELECT DISTINCT ON (atc) ddd, unit
+		FROM ref.atc
+		WHERE
+			code = %(atc)s
+				AND
+			ddd IS NOT NULL
+	"""
+	args = {'atc': atc.strip()}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	_log.debug(u'ATC: %s => DDD: %s', atc, rows)
+
+	return rows
+#============================================================
+def get_reference_atcs(order_by=u'atc, term, lang'):
+	cmd = u'select * from ref.v_atc order by %s' % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 #============================================================
 def atc_import(cfg_fname=None, conn=None):
@@ -266,6 +287,12 @@ from
 #------------------------------------------------------------
 if __name__ == "__main__":
 
+	if len(sys.argv) == 1:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
 
@@ -281,13 +308,26 @@ if __name__ == "__main__":
 		print ' ', text2atc(sys.argv[2])
 		print ' ', text2atc(sys.argv[2], True)
 	#--------------------------------------------------------
-	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
-		#test_atc_import()
-		test_text2atc()
+	def test_atc2ddd():
+		print "searching for DDD on ATC:", sys.argv[2]
+		print atc2ddd(atc = sys.argv[2])
+	#--------------------------------------------------------
+	def test_get_reference_atcs():
+		print "reference_of_atc_codes:"
+		for atc in get_reference_atcs():
+			print atc
+	#--------------------------------------------------------
+	#test_atc_import()
+	#test_text2atc()
+	test_atc2ddd()
+	#test_get_reference_atcs()
 
 #============================================================
 # $Log: gmATC.py,v $
-# Revision 1.6  2009-12-01 21:47:02  ncq
+# Revision 1.7  2010-02-06 20:43:22  ncq
+# - atc2ddd / get-reference-atcs
+#
+# Revision 1.6  2009/12/01 21:47:02  ncq
 # - make ATC propatation smarter
 #
 # Revision 1.5  2009/11/29 19:58:36  ncq
