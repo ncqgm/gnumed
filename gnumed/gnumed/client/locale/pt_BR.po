@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Gnumed 0.3\n"
-"POT-Creation-Date: 2010-01-19 16:31+CET\n"
+"POT-Creation-Date: 2010-02-06 19:55+CET\n"
 "PO-Revision-Date: 2009-06-22 11:59+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: pt-br <luz.rogerio@gmail.com>\n"
@@ -224,16 +224,19 @@ msgid "last check:"
 msgstr "sobrenome"
 
 #, fuzzy
-msgid "A %s Sign"
+msgid "A: Sign"
 msgstr "Assinar"
 
-msgid "B %s Cluster of signs"
+msgid "B: Cluster of signs"
 msgstr ""
 
-msgid "C %s Syndromic diagnosis"
+msgid "C: Syndromic diagnosis"
 msgstr ""
 
-msgid "D %s Scientific diagnosis"
+msgid "D: Scientific diagnosis"
+msgstr ""
+
+msgid "%s: unknown diagnostic certainty classification"
 msgstr ""
 
 #, fuzzy
@@ -365,6 +368,10 @@ msgstr "Horário de Verão"
 
 msgid "Documents:"
 msgstr "Documentos"
+
+#, fuzzy
+msgid "error with placeholder [%s]"
+msgstr "estado alérgico inválido [%s]"
 
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
 msgstr ""
@@ -1729,30 +1736,6 @@ msgstr ""
 "Command\n"
 "(SQL)"
 
-msgid "right list"
-msgstr "lista a direita"
-
-msgid "left list"
-msgstr "lista a esquerda"
-
-msgid "Do something with the two lists below."
-msgstr "Manipule as listas abaixo."
-
-msgid "Refresh"
-msgstr "Recarregar"
-
-msgid "= selected =>"
-msgstr "= selected =>"
-
-msgid "= all =>"
-msgstr "= all =>"
-
-msgid "<= all ="
-msgstr "<= all ="
-
-msgid "<= selected ="
-msgstr "<= selected ="
-
 msgid "Edit Document Types"
 msgstr "Editar os Formatos de Documentos"
 
@@ -1939,7 +1922,7 @@ msgid "Local name"
 msgstr "Nome Local"
 
 msgid "Encounter type"
-msgstr ""
+msgstr "Tipo de Consulta"
 
 msgid "Closed"
 msgstr "Fechado"
@@ -5216,7 +5199,7 @@ msgid ""
 msgstr ""
 
 msgid "Started a new encounter for the active patient."
-msgstr ""
+msgstr "Iniciado nova consulta para o paciente ativo."
 
 #, fuzzy
 msgid ""
@@ -6711,6 +6694,14 @@ msgid ""
 "as long as the shell command is correct despite\n"
 "the failing test."
 msgstr ""
+"Entre aqui o comando de shell que iniciará o\n"
+"banco de dados IFAP.\n"
+"\n"
+"O GNUmed tentará verificar o caminho, no entanto isso \n"
+"poderá falhar se estiver usando um emulador como o \n"
+"Wine. Mesmo assim iniciar o IFAP funcionará contanto\n"
+"que o comando de shell esteja correto não importando \n"
+"o teste do caminho tendo falhado."
 
 msgid ""
 "Here you can choose which plugin you want\n"
@@ -6721,9 +6712,16 @@ msgid ""
 "\n"
 "Select the desired plugin below:"
 msgstr ""
+"Aqui você pode decidir qual o plugin que \n"
+"quer que o GNUmed mostre após iniciar. \n"
+"\n"
+"Esse plugin não pode exigir qualquer \n"
+"paciente para ser ativado\n"
+"\n"
+"Selecione o plugin desejado abaixo:"
 
 msgid "GNUmed Plugin"
-msgstr ""
+msgstr "Plugins GNUmed"
 
 msgid ""
 "If there is only one external patient\n"
@@ -6733,12 +6731,18 @@ msgid ""
 "\n"
 "If not GNUmed will let you confirm the source."
 msgstr ""
+"Se há apenas uma fonte externa de pacientes\n"
+"você quer que o GNUmed já se adiante e\n"
+"procure automaticamente por pacientes \n"
+"nessa fonte externa? \n"
+"\n"
+"Se não o GNUmed deixará que confirme a fonte."
 
 msgid "Yes, search for matches immediately."
-msgstr ""
+msgstr "Sim procure automaticamente."
 
 msgid "No, let me confirm the external patient first."
-msgstr ""
+msgstr "Não, me deixe confirmar o paciente externo antes."
 
 msgid ""
 "When a patient is activated GNUmed checks the\n"
@@ -6749,6 +6753,13 @@ msgid ""
 "GNUmed will remind you of the recent or\n"
 "imminent anniversary."
 msgstr ""
+"Quando um paciente é ativado o GNUmed checa a\n"
+"proximidade do seu aniversário.\n"
+"\n"
+"Se o aniversário cai no intervalo entre \n"
+" \"hoje %s <intervalo que você define aqui>\"\n"
+"o GNUmed o lembrará de um aniversário recente\n"
+"ou eminente."
 
 msgid ""
 "When adding progress notes do you want to\n"
@@ -6759,12 +6770,19 @@ msgid ""
 "progress notes on entirely new patients presenting\n"
 "with a multitude of problems on their first visit."
 msgstr ""
+"Quando adicionando notas de evolução você quer\n"
+"permitir que se abra vários novos episódios não \n"
+"associados para um paciente por vez? \n"
+"\n"
+"Isso pode ser benéfico por exemplo quando o paciente \n"
+"vem na primeira consulta com vários problemas de saúde\n"
+"ou queixas sem relação umas com as outras."
 
 msgid "Yes, allow for multiple new episodes concurrently."
-msgstr ""
+msgstr "Sim permita múltiplos episódios concomitantes"
 
 msgid "No, only allow editing one new episode at a time."
-msgstr ""
+msgstr "Não, apenas abra um episódio novo por vez."
 
 msgid ""
 "When a patient is activated GNUmed can\n"
@@ -6772,9 +6790,13 @@ msgid ""
 "\n"
 "Select the desired plugin below:"
 msgstr ""
+"Quando um paciente é ativado o GNUmed pode\n"
+"ser configurado para mudar para um plugin específico. \n"
+"\n"
+"Escolha o plugin desejado abaixo:"
 
 msgid "Select the default type for new encounters.\n"
-msgstr ""
+msgstr "Selecione o tipo padrão para novas consultas.\n"
 
 msgid ""
 "Do you want GNUmed to show the encounter\n"
@@ -6797,6 +6819,14 @@ msgid ""
 "To effectively disable removal of such encounters\n"
 "set this option to an improbable value.\n"
 msgstr ""
+"Quando um paciente é ativado o GNUmed checa \n"
+"o seu prontuário para consultas sem dados.\n"
+"\n"
+"Quando uma dessas consultas sem dados for mais\n"
+"velha do que o que você definir aqui será removida. \n"
+"\n"
+"Para efetivamente impedir isso defina nessa opção \n"
+"um valor enorme e improvável.\n"
 
 msgid ""
 "When a patient is activated GNUmed checks the\n"
@@ -6851,7 +6881,7 @@ msgid ""
 msgstr ""
 
 msgid "Please enter your email address."
-msgstr ""
+msgstr "Por favor informe seu endereço de email."
 
 msgid ""
 "Do you want GNUmed to check for updates at startup ?\n"
@@ -6976,7 +7006,7 @@ msgid "Log file backed up as [%s]."
 msgstr ""
 
 msgid "Cannot start new encounter. No active patient."
-msgstr ""
+msgstr "Não foi possível iniciar nova consulta. Não há um paciente ativo."
 
 msgid "Cannot add health issue. No active patient."
 msgstr ""
@@ -7002,10 +7032,10 @@ msgid "Cannot add measurement. No active patient."
 msgstr ""
 
 msgid "Cannot show EMR summary. No active patient."
-msgstr ""
+msgstr "Não é possível mostrar resumo de Prontuário. Não há paciente ativo."
 
 msgid "EMR Summary"
-msgstr ""
+msgstr "Resumo do Prontuário"
 
 msgid "Cannot export EMR journal. No active patient."
 msgstr ""
@@ -7744,6 +7774,9 @@ msgstr ""
 msgid "Select the episode under which to file the document ..."
 msgstr ""
 
+msgid "Imported new document from [%s]."
+msgstr ""
+
 #, fuzzy
 msgid "Enter a comment on the document."
 msgstr "Digite um comentário a esse ID externo"
@@ -7829,7 +7862,7 @@ msgid "Error setting \"reviewed\" status of this document."
 msgstr ""
 
 msgid "Error setting responsible clinician for this document."
-msgstr ""
+msgstr "Erro ao alocar o prestador responsável por esse documento"
 
 msgid "Error setting \"reviewed\" status of this part."
 msgstr ""
@@ -7842,6 +7875,10 @@ msgstr ""
 
 msgid "Extracting files from folder [%s] ..."
 msgstr ""
+
+#, fuzzy
+msgid "part %s: %s"
+msgstr "opção [%s]: %s"
 
 msgid "saving document"
 msgstr ""
@@ -8272,7 +8309,7 @@ msgid "medication list printed from template [%s - %s]"
 msgstr ""
 
 msgid "Dose"
-msgstr ""
+msgstr "Dose"
 
 msgid "%s (fake)"
 msgstr ""
@@ -8496,7 +8533,7 @@ msgid "Select the narrative you are interested in ..."
 msgstr ""
 
 msgid "There is no narrative for this episode in this encounter."
-msgstr ""
+msgstr "Não há narrativa para esse episódio nessa consulta."
 
 msgid "Must select episode to move narrative to first."
 msgstr ""
@@ -8936,35 +8973,15 @@ msgstr ""
 msgid "weeks"
 msgstr ""
 
-msgid "Hx"
-msgstr ""
-
-msgid "History Taken"
-msgstr ""
-
-msgid "Obj"
-msgstr ""
-
-msgid "Findings"
-msgstr ""
-
-msgid "A"
-msgstr ""
-
-msgid "P"
-msgstr ""
-
-msgid "xxxSOAPxxx"
-msgstr ""
-
 msgid "Cannot save text expansion without keyword."
 msgstr ""
 
 msgid "Cannot save text expansion without expansion text."
 msgstr ""
 
-msgid "Adding text espansion"
-msgstr ""
+#, fuzzy
+msgid "Adding text expansion"
+msgstr "&Expansões de texto"
 
 msgid "Editing text expansion \"%s\""
 msgstr ""
@@ -9205,6 +9222,12 @@ msgid "Error saving embedded data."
 msgstr ""
 
 msgid "Patient Request"
+msgstr ""
+
+msgid "History Taken"
+msgstr ""
+
+msgid "Findings"
 msgstr ""
 
 msgid "save"
@@ -9782,7 +9805,7 @@ msgid "&Show archived documents"
 msgstr "Erro ao procurar documentos. "
 
 msgid "&Vaccinations"
-msgstr ""
+msgstr "&Vacinações"
 
 msgid "Waiting list"
 msgstr "Lista de espera"
@@ -9816,13 +9839,13 @@ msgid ""
 msgstr ""
 
 msgid "loading xDT file"
-msgstr ""
+msgstr "carregando arquivo xDT"
 
 msgid "Encoding missing in xDT file. Assuming [%s]."
 msgstr ""
 
 msgid "name of xDT file"
-msgstr ""
+msgstr "nome do arquivo xDT"
 
 msgid "XDT field"
 msgstr ""
@@ -9831,14 +9854,14 @@ msgid "XDT field content"
 msgstr ""
 
 msgid "xDT viewer"
-msgstr ""
+msgstr "vizualizador xDT"
 
 #, fuzzy
 msgid "&xDT viewer"
 msgstr "visualizador DICOM"
 
 msgid "Opening xDT file"
-msgstr ""
+msgstr "Abrindo arquivo xDT"
 
 msgid ""
 "Cannot open xDT file.\n"
@@ -9866,10 +9889,10 @@ msgid "     Habits            Risk Factors"
 msgstr ""
 
 msgid "   Alerts   "
-msgstr ""
+msgstr "   Alertas   "
 
 msgid "&Summary"
-msgstr ""
+msgstr "&Resumo"
 
 msgid "icon_clinical_summary"
 msgstr ""
@@ -9890,22 +9913,22 @@ msgid "icon_hx_ship"
 msgstr ""
 
 msgid "Drug Interactions"
-msgstr ""
+msgstr "Interações medicamentosas"
 
 msgid "Items prescribed this consultation"
 msgstr ""
 
 msgid "Drug"
-msgstr ""
+msgstr "Medicamento"
 
 msgid "For"
-msgstr ""
+msgstr "Para"
 
 msgid "Authority Indications"
 msgstr ""
 
 msgid "Interactions"
-msgstr ""
+msgstr "Interações"
 
 msgid "Pregnancy Information"
 msgstr ""
@@ -9914,13 +9937,13 @@ msgid "Restricted Use Information"
 msgstr ""
 
 msgid "Edit Item"
-msgstr ""
+msgstr "Editar Item"
 
 msgid "Delete Item"
-msgstr ""
+msgstr "Apagar item"
 
 msgid "Delete all Items"
-msgstr ""
+msgstr "Apagar todos itens"
 
 msgid "Make Item Reg 24"
 msgstr ""
@@ -9935,7 +9958,7 @@ msgid "Print Single Item"
 msgstr ""
 
 msgid "Print All Items"
-msgstr ""
+msgstr "Imprimir Todos Itens"
 
 msgid "Reprint Item"
 msgstr ""
@@ -9950,16 +9973,16 @@ msgid "Save All Items no print"
 msgstr ""
 
 msgid "Change Font"
-msgstr ""
+msgstr "Alterar Fonte"
 
 msgid "Save list layout"
 msgstr ""
 
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 msgid "Exit"
-msgstr ""
+msgstr "Sair"
 
 msgid "icon_Rx_symbol"
 msgstr ""
@@ -9968,64 +9991,88 @@ msgid "Recalls entered this consultation"
 msgstr ""
 
 msgid "Recall Details"
-msgstr ""
+msgstr "Detalhes da Reconsulta"
 
 msgid "icon_talking_head"
 msgstr ""
 
 msgid "     REFERRALS     "
-msgstr ""
+msgstr "     REFERÊNCIAS     "
 
 msgid "icon_writing_pen"
 msgstr ""
 
 msgid "Requests generated this consultation"
-msgstr ""
+msgstr "Solicitações geraram essa consulta"
 
 msgid "Request summary"
-msgstr ""
+msgstr "Resumo da solicitação"
 
 msgid "icon_blood_sample"
 msgstr ""
 
 msgid "Scratch Pad"
-msgstr ""
+msgstr "Bloco de Notas"
 
 msgid "Recalls/Reviews"
-msgstr ""
+msgstr "Reconsulta/Revisão"
 
 msgid "Logged"
-msgstr ""
+msgstr "Logado"
 
 msgid "Recall or Review"
-msgstr ""
+msgstr "Reconsulta ou Revisão"
 
 msgid "Prescriptions"
-msgstr ""
+msgstr "Prescrições"
 
 msgid "Requests"
-msgstr ""
+msgstr "Solicitações"
 
 msgid "Referrals"
-msgstr ""
+msgstr "Referências"
 
 msgid "Recalls and Reviews"
-msgstr ""
+msgstr "Reconsultas e Revisões"
 
 msgid "icon_inbox"
 msgstr ""
 
 msgid "Last Date"
-msgstr ""
+msgstr "Última Data"
 
 msgid "Prescribed For"
-msgstr ""
+msgstr "Prescrito Para"
 
 msgid "Quantity"
-msgstr ""
+msgstr "Quantidade"
 
 msgid "First Date"
-msgstr ""
+msgstr "Primeira Data"
+
+#~ msgid "right list"
+#~ msgstr "lista a direita"
+
+#~ msgid "left list"
+#~ msgstr "lista a esquerda"
+
+#~ msgid "Do something with the two lists below."
+#~ msgstr "Manipule as listas abaixo."
+
+#~ msgid "Refresh"
+#~ msgstr "Recarregar"
+
+#~ msgid "= selected =>"
+#~ msgstr "= selected =>"
+
+#~ msgid "= all =>"
+#~ msgstr "= all =>"
+
+#~ msgid "<= all ="
+#~ msgstr "<= all ="
+
+#~ msgid "<= selected ="
+#~ msgstr "<= selected ="
 
 #~ msgid "soap_ADMIN"
 #~ msgstr "soap_ADMIN"
