@@ -4,7 +4,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.157 $"
+__version__ = "$Revision: 1.157.2.1 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -42,7 +42,7 @@ def diagnostic_certainty_classification2str(classification):
 	try:
 		return __diagnostic_certainty_classification_map[classification]
 	except KeyError:
-		return _(u'%s: unknown diagnostic certainty classification' % classification)
+		return _(u'%s: unknown diagnostic certainty classification') % classification
 #============================================================
 # Health Issues API
 #============================================================
@@ -1603,7 +1603,10 @@ if __name__ == '__main__':
 		test_diagnostic_certainty_classification_map()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.157  2010-01-21 08:40:15  ncq
+# Revision 1.157.2.1  2010-02-06 19:11:59  ncq
+# - fix _()
+#
+# Revision 1.157  2010/01/21 08:40:15  ncq
 # - make diagnostic certainty conversion robust against when _() is imported
 # - enable problem to return certainty description
 # - test certainty mapper
