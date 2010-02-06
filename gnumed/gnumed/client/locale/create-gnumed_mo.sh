@@ -4,7 +4,7 @@
 # - first arg should be ISO language code
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_mo.sh,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 # what language are we working on
 LANGNAME="$1"
@@ -23,10 +23,11 @@ echo " target language      : ${LANGNAME}"
 echo " raw translations     : ${POFILE}"
 echo " compiled translations: ${MOFILE}"
 echo ""
-msgfmt -v --statistics -o ${MOFILE} ${POFILE}
+msgfmt -v -c --statistics -o ${MOFILE} ${POFILE}
 
 
 echo ""
 echo "You can now copy \"${MOFILE}\" into the appropriate"
 echo "language specific directory (such as ./${LANGNAME}/LC_MESSAGES/)."
 echo ""
+
