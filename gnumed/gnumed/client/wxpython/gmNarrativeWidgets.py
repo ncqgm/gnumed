@@ -1,8 +1,8 @@
 """GNUmed narrative handling widgets."""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.45 2010-01-11 19:51:09 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmNarrativeWidgets.py,v 1.46 2010-02-07 15:16:32 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging, os, os.path, time, re as regex
@@ -147,11 +147,8 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 			parent,
 			-1,
 			title = _('Editing progress note'),
-			msg = _(
-				'This is the original progress note:\n'
-				'\n'
-				' %s'
-			) % item.format(left_margin = u' ', fancy = True),
+			msg = _('This is the original progress note:'),
+			data = item.format(left_margin = u' ', fancy = True),
 			text = item['narrative']
 		)
 		decision = dlg.ShowModal()
@@ -197,7 +194,8 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		can_return_empty = False,
 		edit_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		ignore_OK_button = True
 	)
 #------------------------------------------------------------
 def search_narrative_across_emrs(parent=None):
@@ -1534,7 +1532,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.45  2010-01-11 19:51:09  ncq
+# Revision 1.46  2010-02-07 15:16:32  ncq
+# - support selectable, scrollabe "old" progress note in progress note editor
+# - support ignoring the OK button in the progress note selector
+#
+# Revision 1.45  2010/01/11 19:51:09  ncq
 # - cleanup
 # - warn-on-unsaved-soap and use in syn pre-selection callback
 #
