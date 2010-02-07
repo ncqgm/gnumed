@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,7 +44,8 @@ class gmNotebookedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('&Progress notes editor'))
+		return None
+		#return ('emr', _('&Progress notes editor'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -93,7 +94,10 @@ if __name__ == "__main__":
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.17  2009-06-04 16:31:24  ncq
+# Revision 1.18  2010-02-07 15:19:16  ncq
+# - no more showing in EMR menu
+#
+# Revision 1.17  2009/06/04 16:31:24  ncq
 # - use set-active-patient from pat-search-widgets
 #
 # Revision 1.16  2008/07/10 08:45:14  ncq
