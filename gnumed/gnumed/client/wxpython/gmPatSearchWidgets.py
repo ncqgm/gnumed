@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.131 2010-01-31 18:19:41 ncq Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gmPatSearchWidgets.py,v 1.132 2010-02-07 15:17:06 ncq Exp $
+__version__ = "$Revision: 1.132 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -797,11 +797,16 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			if dlg.ShowModal() != wx.ID_NO:
 				return
 
-			wiz = gmDemographicsWidgets.cNewPatientWizard(parent = self.GetParent())
-			result = wiz.RunWizard(activate = False)
-			if result is False:
-				return None
-			self.person = result
+			#wiz = gmDemographicsWidgets.cNewPatientWizard(parent = self.GetParent())
+			#result = wiz.RunWizard(activate = False)
+			#if result is False:
+			#	return None
+			#self.person = result
+			success = gmDemographicsWidgets.create_new_person(parent = self, activate = True)
+			if success:
+				self.person = gmPerson.gmCurrentPatient()
+			else:
+				self.person = None
 			self._display_name()
 			return None
 
@@ -1390,7 +1395,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.131  2010-01-31 18:19:41  ncq
+# Revision 1.132  2010-02-07 15:17:06  ncq
+# - don't use the old new-patient wizard anymore
+#
+# Revision 1.131  2010/01/31 18:19:41  ncq
 # - show hint when no patient selected
 #
 # Revision 1.130  2009/12/21 15:12:29  ncq
