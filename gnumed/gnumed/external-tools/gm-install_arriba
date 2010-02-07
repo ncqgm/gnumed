@@ -7,7 +7,7 @@
 #	http://www.arriba-hausarzt.de/material/software.html
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-install_arriba,v $
-# $Id: gm-install_arriba,v 1.4 2009-12-21 15:13:56 ncq Exp $
+# $Id: gm-install_arriba,v 1.5 2010-02-07 15:21:28 ncq Exp $
 # ===========================================================
 
 JAR_VER="2.0.3"
@@ -33,12 +33,12 @@ echo ""												>> ${WRAPPER_NAME}
 echo "java -jar  ${INSTALL_BASE}/${APP_NAME}.jar"	>> ${WRAPPER_NAME}
 echo ""												>> ${WRAPPER_NAME}
 echo "# ======================================="	>> ${WRAPPER_NAME}
-echo "# \$Id: gm-install_arriba,v 1.4 2009-12-21 15:13:56 ncq Exp $"						>> ${WRAPPER_NAME}
+echo "# \$Id: gm-install_arriba,v 1.5 2010-02-07 15:21:28 ncq Exp $"						>> ${WRAPPER_NAME}
 chmod +x ${WRAPPER_NAME}
 
 
 # install jar
-echo "Sie müssen jetzt das Passwort für root eingeben:"
+echo "Sie müssen jetzt das Passwort für root eingeben (außer Sie SIND root):"
 su -c "mv -vf ${WRAPPER_NAME} ${INSTALL_BASE}/${APP_NAME} && mv -vf ${DL_TARGET_DIR}/${VERSIONED_JAR_NAME} ${INSTALL_BASE}/${VERSIONED_JAR_NAME} && ln -f -s -v ${INSTALL_BASE}/${VERSIONED_JAR_NAME} ${INSTALL_BASE}/${APP_NAME}.jar"
 
 
@@ -49,7 +49,7 @@ if test "${REPLY}" == "j" ; then
 
 	OLD_JARS="/usr/bin/arriba*"
 
-	echo "Sie müssen jetzt das Passwort für root eingeben:"
+	echo "Sie müssen jetzt das Passwort für root eingeben (außer Sie SIND root):"
 	su -c "rm -v -f ${OLD_JARS}"
 fi
 
@@ -57,7 +57,10 @@ fi
 exit 0
 # ===========================================================
 # $Log: gm-install_arriba,v $
-# Revision 1.4  2009-12-21 15:13:56  ncq
+# Revision 1.5  2010-02-07 15:21:28  ncq
+# - improved console messages
+#
+# Revision 1.4  2009/12/21 15:13:56  ncq
 # - ARRIBA 2.0.3 is here
 # - create java wrapper
 # - cleanup
