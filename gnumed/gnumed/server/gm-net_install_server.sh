@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-net_install_server.sh,v $
-# $Id: gm-net_install_server.sh,v 1.1 2009-09-08 17:24:34 ncq Exp $
+# $Id: gm-net_install_server.sh,v 1.2 2010-02-07 15:22:28 ncq Exp $
 #
 # This should be run as a normal user, not as root.
 #
@@ -62,7 +62,7 @@ echo ""
 read -e -p "Install dependancies ? [y/N]: "
 if test "${REPLY}" == "y" ; then
 	echo ""
-	echo "You may need to enter the root password now:"
+	echo "You may need to enter the root password now (unless you ARE root):"
 	su -c "${PKG_INSTALLER} ${DEPS}"
 fi
 
@@ -93,7 +93,10 @@ su -c "./bootstrap-latest.sh"
 
 # ============================================
 # $Log: gm-net_install_server.sh,v $
-# Revision 1.1  2009-09-08 17:24:34  ncq
+# Revision 1.2  2010-02-07 15:22:28  ncq
+# - better console message re root
+#
+# Revision 1.1  2009/09/08 17:24:34  ncq
 # - relocated
 # - renamed to be more consistent
 # - adjusted to tarball name
