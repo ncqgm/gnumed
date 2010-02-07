@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-net_upgrade_server.sh,v $
-# $Id: gm-net_upgrade_server.sh,v 1.2 2009-11-19 15:07:53 ncq Exp $
+# $Id: gm-net_upgrade_server.sh,v 1.3 2010-02-07 15:23:04 ncq Exp $
 # ============================================
 
 PREV_VER="11"
@@ -66,7 +66,7 @@ BASEDIR=`ls -1 -d gnumed-server.*`
 mv -f gnumed-server.latest.tgz ${BASEDIR}-server.tgz
 
 # run bootstrapper
-cd ${BASEDIR}/server/bootstrap/
+cd ${INSTALL_BASE}/${BASEDIR}/server/bootstrap/
 echo ""
 echo "The GNUmed server version \"${BASEDIR}\" has been"
 echo "prepared for installation in the directory"
@@ -79,7 +79,10 @@ su -c "./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}"
 
 # ============================================
 # $Log: gm-net_upgrade_server.sh,v $
-# Revision 1.2  2009-11-19 15:07:53  ncq
+# Revision 1.3  2010-02-07 15:23:04  ncq
+# - cd to the proper directory for bootstrapping
+#
+# Revision 1.2  2009/11/19 15:07:53  ncq
 # - bump db version
 #
 # Revision 1.1  2009/09/08 17:25:40  ncq
