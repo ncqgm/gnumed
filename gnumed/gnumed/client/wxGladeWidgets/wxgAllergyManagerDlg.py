@@ -42,7 +42,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgAllergyManagerDlg.__set_properties
         self.SetTitle(_("Allergy Manager"))
-        self.SetSize((650, 400))
+        self.SetSize((650, 500))
         self._TXT_current_state.SetToolTipString(_("This displays the current allergy state as saved in the database."))
         self._TXT_last_confirmed.SetToolTipString(_("When was the allergy state last confirmed."))
         self._RBTN_unknown.SetToolTipString(_("Select this if there is no information available on whether the patient has any allergies or not."))
@@ -92,8 +92,8 @@ class wxgAllergyManagerDlg(wx.Dialog):
         __szr_state_button.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_state.Add(__szr_state_button, 0, wx.EXPAND, 0)
         __szr_main.Add(__szr_state, 0, wx.ALL|wx.EXPAND, 5)
-        __szr_details.Add(self._LCTRL_allergies, 3, wx.BOTTOM|wx.EXPAND, 5)
-        __szr_details.Add(self._PNL_edit_area, 1, wx.BOTTOM|wx.EXPAND, 5)
+        __szr_details.Add(self._LCTRL_allergies, 2, wx.BOTTOM|wx.EXPAND, 5)
+        __szr_details.Add(self._PNL_edit_area, 2, wx.BOTTOM|wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_save_details, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_clear, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)

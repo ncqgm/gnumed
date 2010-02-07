@@ -31,7 +31,7 @@ class wxgEncounterTypeEditAreaPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgEncounterTypeEditAreaPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(3, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(2, 2, 1, 3)
         __lbl_l10n_name = wx.StaticText(self, -1, _("Local name"))
         __lbl_l10n_name.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_l10n_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
