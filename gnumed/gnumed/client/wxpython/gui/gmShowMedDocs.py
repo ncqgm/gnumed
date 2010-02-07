@@ -9,7 +9,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -29,15 +29,15 @@ class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 
 	tab_name = _("Documents")
 
-	def name (self):
+	def name(self):
 		return gmShowMedDocs.tab_name
 	#--------------------------------------------------------
-	def GetWidget (self, parent):
+	def GetWidget(self, parent):
 		self._widget = gmMedDocWidgets.cSelectablySortedDocTreePnl(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
-	def MenuInfo (self):
-		return ('emr', _('&Show archived documents'))
+	def MenuInfo(self):
+		return ('emr', _('&Documents review'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		# need patient
@@ -80,7 +80,10 @@ if __name__ == '__main__':
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.77  2009-08-08 21:12:17  ncq
+# Revision 1.78  2010-02-07 15:19:43  ncq
+# - rename to Documents review in menu
+#
+# Revision 1.77  2009/08/08 21:12:17  ncq
 # - protect against missing keyword argument
 #
 # Revision 1.76  2009/06/29 15:13:25  ncq
