@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -31,7 +31,8 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr_show', _('Chronological &journal'))
+		#return ('emr_show', _('Chronological &journal'))
+		return ('emr', _('Chronological &journal'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -84,7 +85,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.14  2009-06-29 15:13:25  ncq
+# Revision 1.15  2010-02-07 15:18:35  ncq
+# - put this in EMR rather then EMR / Show as as per Jim
+#
+# Revision 1.14  2009/06/29 15:13:25  ncq
 # - improved placement in menu hierarchy
 # - add active letters
 #
