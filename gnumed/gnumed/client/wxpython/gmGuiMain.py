@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.490 2010-02-06 21:06:59 ncq Exp $
-__version__ = "$Revision: 1.490 $"
+# $Id: gmGuiMain.py,v 1.491 2010-02-07 15:14:07 ncq Exp $
+__version__ = "$Revision: 1.491 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -364,10 +364,10 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('&Form templates'), _('Manage templates for forms and letters.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_form_templates, item)
 
-		menu_master_data.AppendSeparator()
-
 		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
+
+		menu_master_data.AppendSeparator()
 
 		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter types.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
@@ -2153,11 +2153,11 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_create_new_patient(self, evt):
 		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
 	#----------------------------------------------
-	def __on_create_patient(self, event):
-		"""Launch create patient wizard.
-		"""
-		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-		wiz.RunWizard(activate=True)
+#	def __on_create_patient(self, event):
+#		"""Launch create patient wizard.
+#		"""
+#		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
+#		wiz.RunWizard(activate=True)
 	#----------------------------------------------
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -2180,9 +2180,10 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
 		"""Create new person and add it as staff."""
-		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-		if not wiz.RunWizard(activate=True):
-			return False
+		#wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
+		#if not wiz.RunWizard(activate=True):
+		#	return False
+		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
@@ -2953,7 +2954,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.490  2010-02-06 21:06:59  ncq
+# Revision 1.491  2010-02-07 15:14:07  ncq
+# - comment out some deprecated code
+# - root out a forgotten use of the old new-patient wizard (found by Jim)
+#
+# Revision 1.490  2010/02/06 21:06:59  ncq
 # - add time to status line messages
 #
 # Revision 1.489  2010/02/02 13:54:41  ncq
