@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.174 2010-01-31 18:14:40 ncq Exp $
-__version__ = "$Revision: 1.174 $"
+# $Id: gmDemographicsWidgets.py,v 1.175 2010-02-07 15:13:02 ncq Exp $
+__version__ = "$Revision: 1.175 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2015,7 +2015,7 @@ def create_new_person(parent=None, activate=False):
 
 	ea = cNewPatientEAPnl(parent = parent, id = -1, country = def_country, region = def_region)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
-	dlg.SetTitle(_('Adding new patient'))
+	dlg.SetTitle(_('Adding new person'))
 	ea._PRW_lastname.SetFocus()
 	result = dlg.ShowModal()
 	pat = ea.data
@@ -3403,7 +3403,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.174  2010-01-31 18:14:40  ncq
+# Revision 1.175  2010-02-07 15:13:02  ncq
+# - patient -> person
+#
+# Revision 1.174  2010/01/31 18:14:40  ncq
 # - configure-default-region/country()
 # - improved province management list layout
 # - use default region/country in new patient creation
