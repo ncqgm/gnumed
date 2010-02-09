@@ -869,7 +869,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		self.__patient = None
 		self.__row_data = {}
-		self.__row_tooltips = {}
 		self.__prev_row = None
 		self.__prev_tooltip_row = None
 		self.__prev_cell_0 = None
@@ -1152,7 +1151,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
 
-		entry = self.__row_data[row]
+		try:
+			entry = self.__row_data[row]
+		except KeyError:
+			return u' '
 
 		tt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst(entry['is_currently_active'], _('active'), _('inactive')),
