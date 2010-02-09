@@ -457,7 +457,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 		# most recent value in this row, etc
 #		test_details, td_idx = emr.get_test_types_details()
 
-		tt = self.__row_label_data[row]
+		# sometimes, for some reason, there is no row and
+		# wxPython still tries to find a tooltip for it
+		try:
+			tt = self.__row_label_data[row]
+		except IndexError:
+			return u' '
+
 		tip = u''
 		tip += _('Details about %s (%s)%s\n') % (tt['unified_name'], tt['unified_abbrev'], gmTools.coalesce(tt['unified_loinc'], u'', u' [%s]'))
 		tip += u'\n'
@@ -494,7 +500,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			d = None
 
 		if d is None:
-			return u''
+			return u' '
 
 		is_multi_cell = False
 		if len(d) > 1:
