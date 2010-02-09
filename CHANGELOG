@@ -1,0 +1,491 @@
+*****************************************************************
+# client
+*****************************************************************
+
+------------------------------------------------
+# rel-0-7-patches
+------------------------------------------------
+
+	0.7.0
+
+- new: manage diagnostic orgs
+
+- improved: warn on creating database users with empty passwords
+- improved: default region/country for new-person creation
+- improved: show lab name/contact details in measurement tooltip
+- improved: always use new person creation rather than old
+- improved: placeholders:
+	- name::*::*
+- improved: various typos
+
+------------------------------------------------
+# rel-0-6-patches
+------------------------------------------------
+
+	0.6.2
+
+- FIX: properly attribute James Busser, MD
+- FIX: do not fail on attempt to <delete> when no allergy entry selected
+- FIX: do not fail on tooltipping empty results/meds grids
+- FIX: fail less haphazardly on invalid dates in wx -> py conversion
+
+	0.6.1
+
+- FIX: WRONG most-recent result displayed in measurement type tooltip
+- FIX: missing .GetValue() on abnormality indicator PRW on updating a test result
+- FIX: exception on problem with any placeholder rather than continuing with a notice
+- FIX: work around one more bogus PyDeadObjectError exception
+- FIX: re-add pt_BR translation to release tarball
+- FIX: missing dependencies/faulty paths in gm-install_client_locally.sh
+- FIX: exception on adding health issue from GUI
+- FIX: several typos
+
+	0.6.0
+
+- can promote an episode to being a health issue
+- can add home phone/external ID to newly created patient directly
+- can track diagnostic certainty classification (ABCD) on episodes and issues
+- can track procedures performed on a patient
+- can do end user friendly free-text search across all EMRs
+- can move all progress notes of a pre-selected list of encounters to another episode
+- can manage provinces
+- can manage substance intake
+- can print medication list
+- can print LaTeX as well as OOo letters
+	- referral letter template contributed by Rogerio Luz and James Busser
+- can interface with German "MMI/Gelbe Liste" external drug database
+	- show info on drug/substance by PZN / name
+	- show interactions
+	- import drugs/substances
+- can display UI in Polish and others (partially)
+- can include potential problems in problem list of soap plugin
+- can remove DOB from person
+
+- improved (more) placeholders
+	- gender to re placement mapper
+	- medication list
+	- allergies list
+	- problem list
+- improved inbox
+
+- improved tarballs: include schema/API docs, better names
+- improved import path detection
+
+------------------------------------------------
+# rel-0-5-patches
+------------------------------------------------
+
+	0.5.1 -> 0.5.2
+
+FIX: obsolete LogException in gmMimeLib.py
+FIX: failure on adding patient to waiting list with no patient active
+FIX: wx.K_* must be wx.WXK_*
+NEW: better default size of encounter details editor
+
+	0.5.0 -> 0.5.1
+
+FIX: be more careful when deleting measurement types - they could be in use
+FIX: faulty access to "pk" column after creating measurement type from phrasewheel
+FIX: missing "import os" in measurement widgets code
+FIX: improved starting of new encounter from SOAP widget
+
+NEW: install ARRIBA jar into /usr/local/bin
+NEW: man page for gm-install_arriba
+
+	0.5.0
+
+- can track hospital stays
+- can group health issues by arbitrary grouping tag
+- can display/edit *all* encounters of a patient in a list
+- can move individual soap rows between encounters
+- can delete progress notes
+- can delete workplaces from GUI
+- can show measurements encyclopedia from grid
+- can manage measurement types
+- can list meta measurement types
+- can start external MI/stroke risk assessment calculator
+- can install ARRIBA MI/stroke risk assessment calculator
+- can download and import LOINC data
+- can import ATC data
+- can disconnect from database welcome message dialog
+- can handle persons without DOB
+- can display deceased person's age properly
+- can remove persons from the database
+
+- new/simpler placeholder style for OOo documents
+- protection against %s-count mismatch in _()
+- improved display of measurement types in grid
+- improved sending of bug reports (log = attachment)
+- improved new-patient dialog
+- improved sorting of documents in formatted episode summary
+- improved "About Database"/startup banner
+- improved episode formatting
+
+- has some revision info in EMR Journal view
+- has built-in fallback workplace for problem situations
+
+------------------------------------------------
+# rel-0-4-patches
+------------------------------------------------
+
+	0.4.6 -> 0.4.7
+
+FIX: faulty get_selected_cells() in measurement grid
+FIX: failed to properly check problem field in measurements edit area
+FIX: missing ) on setting document type translation
+
+	0.4.5 -> 0.4.6
+
+FIX: missing space in update-available message
+FIX: search_for_document by type ID: fk_type must be pk_type
+
+	0.4.4 -> 0.4.5
+
+FIX: _log.panic hiccuping on .conf files with malformed lists, should be _log.critical
+FIX: on Python 2.6 __new__ doesn't like extra parameters anymore
+
+	0.4.3 -> 0.4.4
+
+FIX: re-enable path sanity check that fell off when fixing Windows
+FIX: properly backpatch "properly find last-but-one encounter for an episode or issue"
+NEW: make recent notes in SOAP plugin copy-able for pasting
+
+	0.4.2 -> 0.4.3
+
+NEW: enable removing RFE/AOE by emptying the encounter edit area field
+FIX: properly format encounter times in tooltip in tree browser
+FIX: properly find last-but-one encounter for an episode or issue
+
+	0.4.1 -> 0.4.2
+
+FIX: add comment/example on adjusting PYTHONPATH if needed
+
+	0.4.0 -> 0.4.1
+
+FIX: properly handle unmappable time zones
+FIX: look for system wide app data in "C:\Dokumente und Einstellungen\All Users\Anwendungsdaten\gnumed"
+
+	0.4.0
+
+- can show log file from client
+- can merge patients
+- can edit existing progress notes
+- can access text expansion macros by start-of-keyword
+
+- has new hook "after_new_doc_created"
+- has minimum HIPAA compliance
+- has waiting list
+- has random access to plugins
+- has screenshots on Linux include window decoration
+- has local "installer" for tarball
+
+------------------------------------------------
+# rel-0-3-patches
+------------------------------------------------
+
+	0.3.12 -> 0.3.13
+
+FIX: properly handle unmappable time zones
+
+	0.3.11 -> 0.3.12
+
+FIX: failure to properly render test tooltips in unicode
+
+	0.3.10 -> 0.3.11
+
+FIX: failure to properly format() test results for display
+
+	0.3.9 -> 0.3.10
+
+FIX: failure to delete comm channel
+
+	0.3.8 -> 0.3.9
+
+NEW: better honour post-patient-activation-plugin
+FIX: setting database language more than once
+FIX: faulty logic in XML-RPC port detection
+
+	0.3.7 -> 0.3.8
+
+FIX: missing gmI18N import in gmEMRStructItems
+FIX: missing import of wx._core.PyDeadObjectError in gmDispatcher
+
+	0.3.6 -> 0.3.7
+
+FIX: if a writable --conf-file was used the ignore language mismatch wasn't found
+FIX: do not use dummy name record anymore, fixes name deletion
+FIX: missing cfg = ... when exporting doc to disk
+FIX: tame overzealous validation code so adding external ID types on the fly becomes possible again
+FIX: do not announce new version twice in upgrade-availability message
+FIX: fix misguided wording in upgrade-availability message
+NEW: improve bug reporting for launchpad
+NEW: confirmation dialog before deleting document from tree context menu
+NEW: allow editing part comment in document part details dialog
+
+	0.3.5 -> 0.3.6
+
+FIX: exception on non-ascii time zone name on Windows
+
+	0.3.5 -> 0.3.6
+
+FIX: exception on missing .helpdesk when no backend profiles found
+FIX: exception on empty DOB in new patient wizard
+
+	0.3.4 -> 0.3.5
+
+FIX: reversed logic when detecting new versions
+FIX: further SQL fixes to language setting issue
+
+	0.3.3 -> 0.3.4
+
+NEW: fixup SQL script for language setting issue
+
+	0.3.2 -> 0.3.3
+
+FIX: crash on Windows on bootstrapping on asking password with prompt containing "%s"
+FIX: crash on trying to import document part due to readonly connection
+FIX: crash on failure to set database language
+FIX: crash on DOB "too early" for platform :-(
+FIX: crash on very early failure when instantiating a cStaff object
+FIX: crash on catching PyDeadObjectError which must be wx._core.PyDeadObjectError
+FIX: crash on auto-setting encounter type for document-import-only encounters
+FIX: failure to remember ignored database language mismatch
+FIX: failure to one-step bootstrap databases when the authentication group was missing
+
+NEW: improved EMR stats display: make clear that of total known problems only relevant ones are listed
+NEW: improved EMR stats display: say "encounters" where "visits" was misleading
+
+	0.3.1 -> 0.3.2
+
+FIX: crash on loading external patients if several config files define PRACSOFT source
+FIX: crash on not finding any "previously used accounts" in config files
+FIX: crash on accessing review status in document
+FIX: crash when phrasewheel *thinks* there is a dropdown and receives <enter>
+FIX: crash on __call__ing PyDeadObjects from dispatcher
+
+NEW: fix encoding of gmAbout.py so contributors have proper umlauts
+NEW: do not at all handle DEL/BS in ResizingSTC to avoid weird cursor behaviour reported by user
+NEW: annotate emailed bug reports to somewhat help Launchpad
+
+	0.3.0 -> 0.3.1
+
+FIX: crash on creating patient letter due to local variable "desktop" typo
+FIX: faulty handling of candidate paths in /usr/bin/gnumed
+FIX: crash when explicitely setting up dummy file source (file=None in add_file_source)
+FIX: error on finding profiles list in several sources - need to flatten option value
+FIX: properly set source order and return policy on retrieving backend profile data
+FIX: crash on double-clicking empty cell in test results grid
+FIX: crash on double-clicking test result with non-NULL val_normal/target_min/max in results grid
+FIX: crash on select-all-unsigned due to cell data beings lists now
+FIX: crash on Windows' inability to properly do nothing when there's nothing to be done
+FIX: crash on narrative update signal caught in EMR tree before tree populated
+
+NEW: detect "no config file at all" and fail on that
+NEW: actually act on not finding gnumed.py in /usr/bin/gnumed
+
+------------------------------------------------
+# rel-0-2-8-patches
+------------------------------------------------
+
+	0.2.8.11 -> 0.2.8.12
+
+FIX: exception on empty DOB in new patient wizard
+
+	0.2.8.10 -> 0.2.8.11
+
+FIX: crash on Windows on bootstrapping on asking password with prompt containing "%s"
+
+FIX: crash on trying to import document part due to readonly connection
+FIX: crash due to "desk" -> "desktop" typo in gmForms.py
+
+	0.2.8.9 -> 0.2.8.10
+
+FIX: crash on HELP pressed in login window in non-english locale
+FIX: crash on MacOSX due to <title> not having a default in OnSetTitle() in Manual HtmlWindow
+FIX: crash on MacOSX due to missing .vals on Snellen Config Dialog
+NEW: improved detection of writable user prefs file
+NEW: improved wording on not finding a user prefs file
+NEW: improved German
+
+	0.2.8.8 -> 0.2.8.9
+
+FIX: crash on non-existing state or country when adding new patient
+
+	0.2.8.7 -> 0.2.8.8
+
+FIX: crash on invalid input on tabbing out of year_noted in health issue edit area
+FIX: crash on invalid input on tabbing out of age_noted in health issue edit area
+FIX: crash on MacOSX on cancelling selecting patients from a list (busy cursor refcounting)
+NEW: properly stat() hook script on Windows
+
+	0.2.8.6 -> 0.2.8.7
+
+FIX: crash on editing occupation
+NEW: better detect missing TWAIN *and* XSane
+NEW: Schriftkram -> Schriftverkehr
+
+	0.2.8.5 -> 0.2.8.6
+
+FIX: brown paper bag: uninitialized variable self.user_prefs_cfg_file
+
+	0.2.8.4 -> 0.2.8.5
+
+FIX: crash on adding new workplace
+FIX: crash on --conf-file not writable for user prefs (live-cd)
+FIX: crash on changing type on address due to missing s in %(type)s
+
+	0.2.8.3 -> 0.2.8.4
+
+FIX: crash (sometimes) on opening progress notes editor
+FIX: crash on dragging documents onto part list box
+NEW: Encoding deprecated in desktop files
+NEW: work around python logging module bug on Windows
+NEW: crash less often on faulty address data
+
+	0.2.8.2 -> 0.2.8.3
+
+FIX: crash on not being able to open korganizer2gnumed.csv file
+FIX: crash on saving progress note from single editor for new episode
+FIX: MacOSX: crash on Move*InTabOrder() across sizers in allergy manager
+FIX: crash on trying to edit workplace w/o plugins configured already
+FIX: crash on faulty profile name in preferences
+NEW: on startup create ~/.gnumed/ if necessary
+
+	0.2.8.1 -> 0.2.8.2
+
+FIX: crash on writing OOo letter (.desk -> .desktop)
+FIX: crash on faulty references to 'first'/'last' instead of 'firstnames'/'lastnames'
+FIX: crash on non-existant IFAP transfer directory
+FIX: crash on configuring IFAP startup command ('workpace' typo)
+FIX: crash on use of wxDebug window after application shutdown
+
+	0.2.8.0 -> 0.2.8.1
+
+FIX: crash on setting Windows SetFocus() on dialogs in gm_show_*()
+FIX: crash on passing identity to cDTO_Person.import_extra_data()
+FIX: failure on PG server version checking on MacOSX (bootstrapper)
+FIX: crash on MacOSX after clicking OK in Snellen config dialog
+FIX: crash on missing slave personality
+NEW: do not crash on not being able to write to the config file
+NEW: touch user config file so it exists when needed
+
+------------------------------------------------
+# rel-0-2-7-patches
+------------------------------------------------
+
+	0.2.7.1 -> 0.2.7.2
+
+FIX: failure on setting db logon message to ''
+FIX: work around PG 8.1 lower('Ö') = '' !
+NEW: give OOo a bit more time to startup
+
+	0.2.7.0 -> 0.2.7.1
+
+FIX: failure to save new episode w/o rfe/aoe because episode name is empty
+FIX: faulty path for user-local startup script
+FIX: crash on right-clicking empty provider inbox
+FIX: crash on right-clicking notebook tabs
+FIX: crash on shutdown
+FIX: failure to detect succeeding connection to enslaved client
+FIX: faulty variable access resulting in match_type not being displayed on patient searches
+FIX: remove only older-than-a-week empty encounters such that encounters open
+     on other machines are not deleted from under them
+FIX: missing cast to ::text in dem.date_trunc_utc() calls
+
+*****************************************************************
+# database
+*****************************************************************
+
+------------------------------------------------
+# gnumed_v13
+------------------------------------------------
+
+NEW: translate some Dutch demographics
+
+------------------------------------------------
+# gnumed_v12
+------------------------------------------------
+
+NEW: bootstrapper: soft-sanity check pg_hba.conf for authentication directive and give advice if not found
+
+------------------------------------------------
+# gnumed_v11
+------------------------------------------------
+
+	11.0 -> 11.1
+
+FIX: SQL: add missing view clin.v_narrative4search
+
+------------------------------------------------
+# gnumed_v10
+------------------------------------------------
+
+	10.7 -> 10.8
+
+FIX: SQL: review invalidation trigger on result change
+
+	10.6 -> 10.7
+
+No changes.
+
+	10.5 -> 10.6
+
+No changes.
+
+	10.4 -> 10.5
+
+FIX: SQL: dem.identity.dob trigger indiscriminately applied UTC to all incoming DOBs
+
+	10.3 -> 10.4
+
+FIX: SQL: delete_document: .date is now .clin_when
+NEW: bootstrapper: add commented out password option for postgres for Windows guidance
+NEW: maintenance: DB backup script checks for DB existance
+NEW: maintenance: do not run DB backup script if DB name set empty
+
+	10.2 -> 10.3
+
+FIX: maintenance: make DB backup script actually do something
+
+	10.1 -> 10.2
+
+FIX: SQL: clin.v_pat_allergy_state_journal missed data due to unintended use of coalesce()
+FIX: SQL: fix sync of clin.allergy_state with clin.allergy on saving the first allergy for a patient
+
+	10.0 -> 10.1
+
+NEW: bootstrapper: do not ask for gm-dbo pwd if the user exists
+NEW: bootstrapper: ensure gm-dbo has createdb createrole
+
+------------------------------------------------
+# gnumed_v9
+------------------------------------------------
+
+	9.1 -> 9.2
+
+FIX: SQL: fix delete_document(): explicitely delete document parts
+NEW: bootstrapper: do not assume '' as password if none supplied and not interactive
+NEW: bootstrapper: accept UTF8, too, not just UTF-8
+
+	9.0 -> 9.1
+
+FIX: SQL: failure to properly handle i18n in the backend: fixup SQL script
+FIX: SQL: very old databases had $1 instead of "reviewed_test_results_fk_reviewed_row_fkey"
+
+------------------------------------------------
+# gnumed_v8
+------------------------------------------------
+
+FIX: failure to drop old check constraints with 8.1 names in clin.soap_cat_ranks
+FIX: failure to delete document if seq_idx is NULL
+FIX: exception on lang being null in i18n.upd_tx
+FIX: exception in trigger function on deleting allergy
+
+------------------------------------------------
+# gnumed_v7
+------------------------------------------------
+
+FIX: remove begin/commit from SQL scripts to allow bootstrapping v2-v3 to work
+FIX: failure to import data set upgrade scripts on Windows
+NEW: actually expect target version v7
+NEW: be permissive about missing "data import scripts" option
