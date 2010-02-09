@@ -1,0 +1,20 @@
+
+# Python compiled bytecode
+*.pyc
+
+# log files
+*.log
+
+# our import symlink
+gnumed/Gnumed
+
+# gettext compiled strings
+*.mo
+
+# backup files
+*.*~
+*.bak
+
+
+#MANIFEST
+
