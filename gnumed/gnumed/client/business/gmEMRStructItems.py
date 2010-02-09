@@ -188,24 +188,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			return u'<???>'
 
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
-
-#		# seemingly silly but convinces PG to "nicely"
-#		# format the interval for us
-#		cmd = u"""select
-#age (
-#	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s,
-#	(select dob from dem.identity where pk = %(pat)s)
-#)::text
-#|| ' (' || age (
-#	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s
-#)::text || ' ago)'
-#"""
-#		args = {
-#			'pat': self._payload[self._idx['pk_patient']],
-#			'issue_age': self._payload[self._idx['age_noted']]
-#		}
-#		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-#		return rows[0][0]
 	#--------------------------------------------------------
 	def _get_laterality_description(self):
 		return laterality2str[self._payload[self._idx['laterality']]]
