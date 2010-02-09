@@ -201,12 +201,35 @@ def pydt_now_here():
 # wxPython conversions
 #---------------------------------------------------------------------------
 def wxDate2py_dt(wxDate=None):
-	return pyDT.datetime (
-		year = wxDate.GetYear(),
-		month = wxDate.GetMonth() + 1,
-		day = wxDate.GetDay(),
-		tzinfo = gmCurrentLocalTimezone
-	)
+	if not wxDate.IsValid():
+		raise ArgumentError (u'invalid wxDate: %s-%s-%s %s:%s %s.%s',
+			wxDate.GetYear(),
+			wxDate.GetMonth(),
+			wxDate.GetDay(),
+			wxDate.GetHour(),
+			wxDate.GetMinute(),
+			wxDate.GetSecond(),
+			wxDate.GetMillisecond()
+		)
+
+	try:
+		return pyDT.datetime (
+			year = wxDate.GetYear(),
+			month = wxDate.GetMonth() + 1,
+			day = wxDate.GetDay(),
+			tzinfo = gmCurrentLocalTimezone
+		)
+	except:
+		_log.debug (u'error converting wxDateTime to Python: %s-%s-%s %s:%s %s.%s',
+			wxDate.GetYear(),
+			wxDate.GetMonth(),
+			wxDate.GetDay(),
+			wxDate.GetHour(),
+			wxDate.GetMinute(),
+			wxDate.GetSecond(),
+			wxDate.GetMillisecond()
+		)
+		raise
 #---------------------------------------------------------------------------
 def py_dt2wxDate(py_dt=None, wx=None):
 	wxdt = wx.DateTime()
