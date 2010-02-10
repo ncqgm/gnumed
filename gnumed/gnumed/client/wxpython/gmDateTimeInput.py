@@ -189,35 +189,55 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 
 		value = wx.DatePickerCtrl.GetValue(self)
 
+		if value is None:
+			return None
+
 		# manage null dates (useful when wx.DP_ALLOWNONE is set)
 		if not value.IsValid():
 			return None
 
+		self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+		self.Refresh()
+
 		if not as_pydt:
 			return value
 
-		return pyDT.datetime(value.GetYear(), value.GetMonth() + 1, value.GetDay())
+		return gmDateTime.wxDate2py_dt(value)
+
+		#return pyDT.datetime(value.GetYear(), value.GetMonth() + 1, value.GetDay())
 	#----------------------------------------------
 	# def convenience wrapper
 	#----------------------------------------------
-	def is_valid_timestamp(self):
-		valid = self.GetValue().IsValid()
+	def is_valid_timestamp(self, allow_none=True):
+		val = self.GetValue()
+
+		if val is None:
+			if allow_none:
+				valid = True
+			else:
+				valid = False
+		else:
+			valid = val.IsValid()
+
 		if valid:
 			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
 		else:
 			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+
 		self.Refresh()
 		return valid
 	#----------------------------------------------
 	def get_pydt(self):
-		val = self.GetValue()
-		if val.IsValid():
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-			val = gmDateTime.wxDate2py_dt(val)
-			self.Refresh()
-		else:
-			val = None
-		return val
+		return self.GetValue(as_pydt = True)
+
+#		val = self.GetValue()
+#		if val.IsValid():
+#			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+#			val = gmDateTime.wxDate2py_dt(val)
+#			self.Refresh()
+#		else:
+#			val = None
+#		return val
 #==================================================
 # main
 #--------------------------------------------------
