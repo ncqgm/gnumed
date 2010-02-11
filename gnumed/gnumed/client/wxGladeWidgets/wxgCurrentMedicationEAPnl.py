@@ -19,6 +19,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
+        self._LBL_allergies = wx.StaticText(self, -1, "")
         self._PRW_substance = gmMedicationWidgets.cSubstancePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_substance = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._PRW_strength = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -66,11 +67,13 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__do_layout
+        __szr_main = wx.BoxSizer(wx.VERTICAL)
         _gszr_main = wx.FlexGridSizer(10, 2, 1, 3)
         __szr_duration = wx.BoxSizer(wx.HORIZONTAL)
         __szr_brand = wx.BoxSizer(wx.HORIZONTAL)
         __szr_specs = wx.BoxSizer(wx.HORIZONTAL)
         __szr_substance = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_main.Add(self._LBL_allergies, 0, wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __lbl_substance = wx.StaticText(self, -1, _("Substance"))
         _gszr_main.Add(__lbl_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_substance.Add(self._PRW_substance, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -111,9 +114,10 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         __lbl_notes = wx.StaticText(self, -1, _("Advice"))
         _gszr_main.Add(__lbl_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_notes, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        self.SetSizer(_gszr_main)
-        _gszr_main.Fit(self)
         _gszr_main.AddGrowableCol(1)
+        __szr_main.Add(_gszr_main, 1, wx.EXPAND, 0)
+        self.SetSizer(__szr_main)
+        __szr_main.Fit(self)
         # end wxGlade
 
     def _on_chbox_long_term_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
