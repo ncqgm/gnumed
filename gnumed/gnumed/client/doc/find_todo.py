@@ -5,8 +5,6 @@ example:
 FIXME: plugin loading should be optional
 """
 #=====================================================================
-# $Id: find_todo.py,v 1.2 2005-01-19 09:16:32 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/find_todo.py,v $
 __version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -32,18 +30,3 @@ for line in fileinput.input():
 		line = line.replace('\015','')
 		line = line.replace('\012','')
 		print '#%s: %s' % (line_no, line)
-
-#=====================================================================
-# $Log: find_todo.py,v $
-# Revision 1.2  2005-01-19 09:16:32  ncq
-# - improved readability
-#
-# Revision 1.1  2005/01/19 08:39:49  ncq
-# - moved here from pycommon/tools/
-#
-# Revision 1.2  2004/06/25 12:29:47  ncq
-# - coding style
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#
