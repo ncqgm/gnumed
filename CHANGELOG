@@ -9,6 +9,7 @@
 	0.7.0
 
 - new: manage diagnostic orgs
+- new: manage date of death per patient
 
 - improved: warn on creating database users with empty passwords
 - improved: default region/country for new-person creation
