@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/gm-from-cvs.sh,v $
-# $Revision: 1.17 $
-
 # maybe force some locale setting here
 #export LANGUAGE=fr
 
@@ -36,6 +33,9 @@ PSYCOPG_DEBUG="on"		# should actually be done within gnumed.py based on --debug
 
 # eventually run it
 # - devel version:
+echo "-------------------------------------------------"
+echo "Running from Git branch: "`git branch | grep \*`
+echo "-------------------------------------------------"
 python wxpython/gnumed.py ${LOG} ${CONF} ${DEV_OPTS} $@
 
 # - production version:
