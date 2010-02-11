@@ -23,23 +23,27 @@
 # rel-0-6-patches
 ------------------------------------------------
 
+	0.6.3
+
+FIX: faulty tooltip on EMR tree items w/ no data to display
+
 	0.6.2
 
-- FIX: properly attribute James Busser, MD
-- FIX: do not fail on attempt to <delete> when no allergy entry selected
-- FIX: do not fail on tooltipping empty results/meds grids
-- FIX: fail less haphazardly on invalid dates in wx -> py conversion
+FIX: properly attribute James Busser, MD
+FIX: do not fail on attempt to <delete> when no allergy entry selected
+FIX: do not fail on tooltipping empty results/meds grids
+FIX: fail less haphazardly on invalid dates in wx -> py conversion
 
 	0.6.1
 
-- FIX: WRONG most-recent result displayed in measurement type tooltip
-- FIX: missing .GetValue() on abnormality indicator PRW on updating a test result
-- FIX: exception on problem with any placeholder rather than continuing with a notice
-- FIX: work around one more bogus PyDeadObjectError exception
-- FIX: re-add pt_BR translation to release tarball
-- FIX: missing dependencies/faulty paths in gm-install_client_locally.sh
-- FIX: exception on adding health issue from GUI
-- FIX: several typos
+FIX: WRONG most-recent result displayed in measurement type tooltip
+FIX: missing .GetValue() on abnormality indicator PRW on updating a test result
+FIX: exception on problem with any placeholder rather than continuing with a notice
+FIX: work around one more bogus PyDeadObjectError exception
+FIX: re-add pt_BR translation to release tarball
+FIX: missing dependencies/faulty paths in gm-install_client_locally.sh
+FIX: exception on adding health issue from GUI
+FIX: several typos
 
 	0.6.0
 
