@@ -116,7 +116,7 @@ map_schema_hash2version = {
 }
 
 map_client_branch2required_db_version = {
-	u'CVS HEAD': u'devel',
+	u'GIT tree': u'devel',
 	u'0.3': u'v9',
 	u'0.4': u'v10',
 	u'0.5': u'v11',
