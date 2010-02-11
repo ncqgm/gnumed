@@ -7,12 +7,12 @@ import wx
 class wxgEditDocumentTypesDlg(wx.Dialog):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmMedDocWidgets
+        from Gnumed.wxpython import gmDocumentWidgets
 
         # begin wxGlade: wxgEditDocumentTypesDlg.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
-        self._PNL_edit_document_types = gmMedDocWidgets.cEditDocumentTypesPnl(self, -1)
+        self._PNL_edit_document_types = gmDocumentWidgets.cEditDocumentTypesPnl(self, -1)
 
         self.__set_properties()
         self.__do_layout()

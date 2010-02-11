@@ -61,7 +61,7 @@ from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructIt
 from Gnumed.exporters import gmPatientExporter
 
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
-from Gnumed.wxpython import gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
+from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 
@@ -2192,7 +2192,7 @@ class gmTopLevelFrame(wx.Frame):
 		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_edit_doc_types(self, event):
-		dlg = gmMedDocWidgets.cEditDocumentTypesDlg(parent=self, id=-1)
+		dlg = gmDocumentWidgets.cEditDocumentTypesDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_manage_text_expansion(self, evt):

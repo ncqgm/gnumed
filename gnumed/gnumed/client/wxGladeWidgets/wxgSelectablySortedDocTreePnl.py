@@ -7,7 +7,7 @@ import wx
 class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmMedDocWidgets
+        from Gnumed.wxpython import gmDocumentWidgets
 
         # begin wxGlade: wxgSelectablySortedDocTreePnl.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
@@ -16,7 +16,7 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
         self._rbtn_sort_by_review = wx.RadioButton(self, -1, _("review status"))
         self._rbtn_sort_by_episode = wx.RadioButton(self, -1, _("episode"))
         self._rbtn_sort_by_type = wx.RadioButton(self, -1, _("type"))
-        self._doc_tree = gmMedDocWidgets.cDocTree(self, -1)
+        self._doc_tree = gmDocumentWidgets.cDocTree(self, -1)
 
         self.__set_properties()
         self.__do_layout()

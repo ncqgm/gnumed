@@ -1,13 +1,12 @@
 #=====================================================
 # GNUmed scan and index plugin
 #=====================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmScanIdxMedDocsPlugin.py,v $
 __version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-from Gnumed.wxpython import gmPlugin, gmMedDocWidgets
+from Gnumed.wxpython import gmPlugin, gmDocumentWidgets
 
 #====================================
 class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
@@ -19,7 +18,7 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		return gmScanIdxMedDocsPlugin.tab_name
 
 	def GetWidget(self, parent):
-		self._widget = gmMedDocWidgets.cScanIdxDocsPnl(parent, -1)
+		self._widget = gmDocumentWidgets.cScanIdxDocsPnl(parent, -1)
 		return self._widget
 
 	def MenuInfo(self):
@@ -31,21 +30,3 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 			return None
 		return 1
 #======================================================================
-# $Log: gmScanIdxMedDocsPlugin.py,v $
-# Revision 1.8  2009-06-29 15:13:25  ncq
-# - improved placement in menu hierarchy
-# - add active letters
-#
-# Revision 1.7  2008/01/27 21:22:18  ncq
-# -rename per Jim
-#
-# Revision 1.6  2008/01/22 12:26:24  ncq
-# - better tab names
-#
-# Revision 1.5  2007/10/12 07:28:25  ncq
-# - lots of import related cleanup
-#
-# Revision 1.4  2005/11/27 12:46:42  ncq
-# - cleanup
-#
-#

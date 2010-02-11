@@ -7,7 +7,7 @@ import wx
 class wxgReviewDocPartDlg(wx.Dialog):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmEMRStructWidgets, gmDateTimeInput, gmMedDocWidgets
+        from Gnumed.wxpython import gmEMRStructWidgets, gmDateTimeInput, gmDocumentWidgets
 
         # begin wxGlade: wxgReviewDocPartDlg.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME|wx.STAY_ON_TOP
@@ -15,8 +15,8 @@ class wxgReviewDocPartDlg(wx.Dialog):
         self.__szr_box_review_staticbox = wx.StaticBox(self, -1, _("Your review"))
         self.__szr_reviews_staticbox = wx.StaticBox(self, -1, _("Reviews by others"))
         self._PhWheel_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1, style=wx.NO_BORDER)
-        self._PhWheel_doc_type = gmMedDocWidgets.cDocumentTypeSelectionPhraseWheel(self, -1, style=wx.NO_BORDER)
-        self._PRW_doc_comment = gmMedDocWidgets.cDocumentCommentPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PhWheel_doc_type = gmDocumentWidgets.cDocumentTypeSelectionPhraseWheel(self, -1, style=wx.NO_BORDER)
+        self._PRW_doc_comment = gmDocumentWidgets.cDocumentCommentPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PhWheel_doc_date = gmDateTimeInput.cFuzzyTimestampInput(self, -1, style=wx.NO_BORDER)
         self._TCTRL_reference = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_filename = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)

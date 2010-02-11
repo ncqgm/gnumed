@@ -7,7 +7,7 @@ import wx
 class wxgScanIdxPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmMedDocWidgets, gmPhraseWheel, gmDateTimeInput, gmEMRStructWidgets
+        from Gnumed.wxpython import gmDocumentWidgets, gmPhraseWheel, gmDateTimeInput, gmEMRStructWidgets
 
         # begin wxGlade: wxgScanIdxPnl.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
@@ -18,8 +18,8 @@ class wxgScanIdxPnl(wx.Panel):
         self.__btn_scan = wx.Button(self, -1, _("&Scan page(s)"))
         self.__btn_load = wx.Button(self, -1, _("Pick &file(s)"))
         self._PhWheel_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1)
-        self._PhWheel_doc_type = gmMedDocWidgets.cDocumentTypeSelectionPhraseWheel(self, -1)
-        self._PRW_doc_comment = gmMedDocWidgets.cDocumentCommentPhraseWheel(self, -1, "")
+        self._PhWheel_doc_type = gmDocumentWidgets.cDocumentTypeSelectionPhraseWheel(self, -1)
+        self._PRW_doc_comment = gmDocumentWidgets.cDocumentCommentPhraseWheel(self, -1, "")
         self._PhWheel_doc_date = gmDateTimeInput.cFuzzyTimestampInput(self, -1)
         self.__lbl_reviewer = wx.StaticText(self, -1, _("Intended reviewer:"))
         self._PhWheel_reviewer = gmPhraseWheel.cPhraseWheel(self, -1)

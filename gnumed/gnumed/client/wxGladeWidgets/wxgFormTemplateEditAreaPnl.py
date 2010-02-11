@@ -7,7 +7,7 @@ import wx
 class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmPhraseWheel, gmMedDocWidgets
+        from Gnumed.wxpython import gmPhraseWheel, gmDocumentWidgets
 
         # begin wxGlade: wxgFormTemplateEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -16,7 +16,7 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
         self._PRW_name_short = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_external_version = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_template_type = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_instance_type = gmMedDocWidgets.cDocumentTypeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_instance_type = gmDocumentWidgets.cDocumentTypeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_filename = wx.TextCtrl(self, -1, "")
         self._BTN_load = wx.Button(self, -1, _("&Template"), style=wx.BU_EXACTFIT)
         self._CH_engine = wx.Choice(self, -1, choices=[_("OpenOffice"), _("LaTeX")])

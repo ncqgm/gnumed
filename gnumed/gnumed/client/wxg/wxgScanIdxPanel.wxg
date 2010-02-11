@@ -90,7 +90,7 @@
                                 <flag>wxLEFT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <border>3</border>
                                 <option>0</option>
-                                <object class="gmMedDocWidgets.cDocumentTypeSelectionPhraseWheel" name="_PhWheel_doc_type" base="CustomWidget">
+                                <object class="gmDocumentWidgets.cDocumentTypeSelectionPhraseWheel" name="_PhWheel_doc_type" base="CustomWidget">
                                     <tooltip>Required: The type of this document.</tooltip>
                                     <arguments>
                                         <argument>$parent</argument>
@@ -111,7 +111,7 @@
                                 <flag>wxLEFT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <border>3</border>
                                 <option>0</option>
-                                <object class="gmMedDocWidgets.cDocumentCommentPhraseWheel" name="_PRW_doc_comment" base="EditTextCtrl">
+                                <object class="gmDocumentWidgets.cDocumentCommentPhraseWheel" name="_PRW_doc_comment" base="EditTextCtrl">
                                     <tooltip>Optional: A short comment identifying the document. Good comments give an idea of the content and source of the document.</tooltip>
                                 </object>
                             </object>

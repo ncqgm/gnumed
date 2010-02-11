@@ -105,7 +105,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmMedDocWidgets.cDocumentTypeSelectionPhraseWheel" name="_PRW_instance_type" base="EditTextCtrl">
+                <object class="gmDocumentWidgets.cDocumentTypeSelectionPhraseWheel" name="_PRW_instance_type" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                     <tooltip>The document type under which to store forms generated from this template.</tooltip>
                 </object>

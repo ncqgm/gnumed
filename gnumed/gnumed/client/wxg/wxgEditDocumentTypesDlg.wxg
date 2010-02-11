@@ -13,7 +13,7 @@
                 <flag>wxALL|wxEXPAND</flag>
                 <border>3</border>
                 <option>1</option>
-                <object class="gmMedDocWidgets.cEditDocumentTypesPnl" name="_PNL_edit_document_types" base="CustomWidget">
+                <object class="gmDocumentWidgets.cEditDocumentTypesPnl" name="_PNL_edit_document_types" base="CustomWidget">
                     <arguments>
                         <argument>$parent</argument>
                         <argument>$id</argument>

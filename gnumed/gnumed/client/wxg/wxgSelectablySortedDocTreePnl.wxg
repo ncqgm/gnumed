@@ -88,7 +88,7 @@
                 <flag>wxEXPAND|wxADJUST_MINSIZE</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmMedDocWidgets.cDocTree" name="_doc_tree" base="CustomWidget">
+                <object class="gmDocumentWidgets.cDocTree" name="_doc_tree" base="CustomWidget">
                     <arguments>
                         <argument>$parent</argument>
                         <argument>$id</argument>
