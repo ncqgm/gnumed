@@ -212,9 +212,8 @@ def call_viewer_on_file(aFile = None, block=None):
 	try:
 		open(aFile).close()
 	except:
-#	if not (os.path.isfile(aFile) and os.access(aFile, os.R_OK)):
+		_log.exception('cannot read [%s]', aFile)
 		msg = _('[%s] is not a readable file') % aFile
-		_log.error(msg, aFile)
 		return False, msg
 
 	# try to detect any of the UNIX openers
