@@ -577,6 +577,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				_('closed episode'),
 				'error: episode state is None'
 			)
+			if tt == u'':
+				tt = u' '
 			event.SetToolTip(tt)
 
 		elif isinstance(data, gmEMRStructItems.cHealthIssue):
@@ -597,6 +599,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
 			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
 			tt += gmTools.coalesce(data['grouping'], u'', _('Grouping: %s'))
+			if tt == u'':
+				tt = u' '
 			event.SetToolTip(tt)
 
 		else:
