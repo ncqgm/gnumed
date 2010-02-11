@@ -488,8 +488,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Past history (health issue / PMH)'), _('Add a past/previous medical history item (health issue) to the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_add_health_issue, item)
 
-#		item = menu_emr_edit.Append(-1, _('Current &medication'), _('Select current medication from drug database and save into progress notes.'))
-#		self.Bind(wx.EVT_MENU, self.__on_add_medication, item)
+		item = menu_emr_edit.Append(-1, _('&Medication'), _('Add medication / substance use entry.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_medication, item)
 
 		item = menu_emr_edit.Append(-1, _('&Allergies'), _('Manage documentation of allergies for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_allergies, item)
@@ -2008,7 +2008,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add medication. No active patient.'))
 			return False
 
-		gmMedicationWidgets.jump_to_ifap(import_drugs = True)
+		gmMedicationWidgets.edit_intake_of_substance(parent = self, substance = None)
 
 		evt.Skip()
 	#----------------------------------------------

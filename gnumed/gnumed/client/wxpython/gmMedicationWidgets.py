@@ -465,7 +465,29 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		# adjust phrasewheels
 
 		self._PRW_brand.add_callback_on_lose_focus(callback = self._on_leave_brand)
+	#----------------------------------------------------------------
+	def __refresh_allergies(self):
+		emr = gmPerson.gmCurrentPatient().get_emr()
 
+		state = emr.allergy_state
+		if state['last_confirmed'] is None:
+			confirmed = _('never')
+		else:
+			confirmed = state['last_confirmed'].strftime('%Y %B %d')
+		msg = _(u'%s, last confirmed %s\n') % (state.state_string, confirmed)
+		msg += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s\n') % state['modified_by'])
+		msg += u'\n'
+
+		for allergy in emr.get_allergies():
+			msg += u'%s (%s, %s): %s\n' % (
+				allergy['descriptor'],
+				allergy['l10n_type'],
+				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?'),
+				gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
+			)
+
+		self._LBL_allergies.SetLabel(msg)
+		#self.Refresh()
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -640,6 +662,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_brand.SetText(u'', None)
 		self._TCTRL_brand_ingredients.SetValue(u'')
 
+		self.__refresh_allergies()
+
 		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
@@ -677,6 +701,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 				comps = u' / '.join([ u'%s%s' % (c['description'], gmTools.coalesce(c['atc_code'], u'', u' (%s)')) for c in comps ])
 				self._TCTRL_brand_ingredients.SetValue(comps)
 
+		self.__refresh_allergies()
+
 		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
@@ -685,6 +711,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_substance.SetText(u'', None)
 		self._PRW_strength.SetText(u'', None)
 		self._PRW_notes.SetText(u'', None)
+
+		self.__refresh_allergies()
 
 		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------

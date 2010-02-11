@@ -332,7 +332,7 @@ class cMainTopPanel(wx.Panel):
 		if state['last_confirmed'] is None:
 			confirmed = _('never')
 		else:
-			confirmed = state['last_confirmed'].strftime('%x')
+			confirmed = state['last_confirmed'].strftime('%Y %B %d')
 		tt = (state.state_string + (90 * u' '))[:90] + u'\n'
 		tt += _('last confirmed %s\n') % confirmed
 		tt += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s') % state['modified_by'])
