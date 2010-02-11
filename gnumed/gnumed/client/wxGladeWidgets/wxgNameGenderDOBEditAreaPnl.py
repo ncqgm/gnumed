@@ -19,6 +19,7 @@ class wxgNameGenderDOBEditAreaPnl(wx.ScrolledWindow):
         self._PRW_dob = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_active = wx.CheckBox(self, -1, _("active"))
+        self._DP_dod = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
@@ -28,13 +29,15 @@ class wxgNameGenderDOBEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgNameGenderDOBEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._PRW_dob.SetToolTipString(_("The date of birth for this person."))
         self._CHBOX_active.SetToolTipString(_("Check this to make this the currently active name."))
+        self._DP_dod.SetToolTipString(_("The date of death."))
         self._TCTRL_comment.SetToolTipString(_("Enter a comment relevant to this name (such as \"before marriage\")."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgNameGenderDOBEditAreaPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(10, 2, 3, 5)
+        _gszr_main = wx.FlexGridSizer(8, 2, 3, 5)
         __szr_gender = wx.BoxSizer(wx.HORIZONTAL)
         __LBL_title = wx.StaticText(self, -1, _("Title"))
         _gszr_main.Add(__LBL_title, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -56,6 +59,9 @@ class wxgNameGenderDOBEditAreaPnl(wx.ScrolledWindow):
         __szr_gender.Add(self._PRW_gender, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_gender.Add(self._CHBOX_active, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 10)
         _gszr_main.Add(__szr_gender, 1, wx.EXPAND, 0)
+        __lbl_dod = wx.StaticText(self, -1, _("Date of death"))
+        _gszr_main.Add(__lbl_dod, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._DP_dod, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __LBL_comment = wx.StaticText(self, -1, _("Comment"))
         _gszr_main.Add(__LBL_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_comment, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

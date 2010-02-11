@@ -24,7 +24,7 @@ from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInp
 from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
 from Gnumed.wxpython import gmAuthWidgets, gmCfgWidgets
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl
-from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
+from Gnumed.wxGladeWidgets import wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
 
 
 # constant defs
@@ -1609,6 +1609,8 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		return no_errors
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl
+
 class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl):
 	"""An edit area for editing/creating name/gender/dob.
 
@@ -1639,6 +1641,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		self._PRW_dob.SetText(value = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
 		self._PRW_gender.SetData(self.__name['gender'])
 		self._CHBOX_active.SetValue(self.__name['active_name'])
+		self._DP_dod.SetValue(self.__identity['deceased'])
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.__name['comment'], u''))
 		# FIXME: clear fields
 #		else:
@@ -1655,6 +1658,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		else:
 			self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
 		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
+		self.__identity['deceased'] = self._DP_dod.GetValue(as_pydt = True)
 		self.__identity.save_payload()
 
 		active = self._CHBOX_active.GetValue()
@@ -1701,13 +1705,13 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 
-		error_found = True
+		has_error = False
 
 		if self._PRW_gender.GetData() is None:
 			self._PRW_gender.SetBackgroundColour('pink')
 			self._PRW_gender.Refresh()
 			self._PRW_gender.SetFocus()
-			error_found = False
+			has_error = True
 		else:
 			self._PRW_gender.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_gender.Refresh()
@@ -1718,16 +1722,26 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 			self._PRW_dob.SetBackgroundColour('pink')
 			self._PRW_dob.Refresh()
 			self._PRW_dob.SetFocus()
-			error_found = False
+			has_error = True
 		else:
 			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_dob.Refresh()
+
+		if not self._DP_dod.is_valid_timestamp():
+			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
+			self._DP_dod.SetBackgroundColour('pink')
+			self._DP_dod.Refresh()
+			self._DP_dod.SetFocus()
+			has_error = True
+		else:
+			self._DP_dod.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._DP_dod.Refresh()
 
 		if self._PRW_lastname.GetValue().strip() == u'':
 			self._PRW_lastname.SetBackgroundColour('pink')
 			self._PRW_lastname.Refresh()
 			self._PRW_lastname.SetFocus()
-			error_found = False
+			has_error = True
 		else:
 			self._PRW_lastname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_lastname.Refresh()
@@ -1736,12 +1750,12 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 			self._PRW_firstname.SetBackgroundColour('pink')
 			self._PRW_firstname.Refresh()
 			self._PRW_firstname.SetFocus()
-			error_found = False
+			has_error = True
 		else:
 			self._PRW_firstname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_firstname.Refresh()
 
-		return error_found
+		return (has_error is False)
 #------------------------------------------------------------
 # list manager
 #------------------------------------------------------------
