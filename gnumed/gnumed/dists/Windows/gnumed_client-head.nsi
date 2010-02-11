@@ -559,8 +559,8 @@ Section !$(Sec1Name) SEC01
   Rename "$INSTDIR\bin\gnumed.py" "$INSTDIR\bin\gnumed.pyw"
   
   SetOutPath "$INSTDIR"
-  File "gnumed-0-2-8-3\gnumed\client\gm-from-cvs.conf"
-  Rename "$INSTDIR\gm-from-cvs.conf" "$INSTDIR\gnumed.conf"
+  File "gnumed-0-2-8-3\gnumed\client\gm-from-vcs.conf"
+  Rename "$INSTDIR\gm-from-vcs.conf" "$INSTDIR\gnumed.conf"
   
   SetOutPath "$INSTDIR\bitmaps"
   File "gnumed-0-2-8-3\gnumed\client\wxpython\__init__.py"

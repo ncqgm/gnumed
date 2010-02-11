@@ -5,9 +5,6 @@
 # GNUmed client. If you opt for letting the script try to
 # install dependancies it will attempt to use SU for which
 # you will need to know the root password.
-#
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-install_client_locally.sh,v $
-# $Id: gm-install_client_locally.sh,v 1.3 2010-02-04 20:36:29 ncq Exp $
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
@@ -275,13 +272,13 @@ if test -e "${LAUNCHER}" ; then
 		echo "#!/bin/bash" > "${LAUNCHER}"
 		echo "" >> "${LAUNCHER}"
 		echo "cd ${INSTALL_BASE}/gnumed-client.${TARGET_VER}/client/" >> "${LAUNCHER}"
-		echo "./gm-from-cvs.sh" >> "${LAUNCHER}"
+		echo "./gm-from-vcs.sh" >> "${LAUNCHER}"
 	fi
 else
 	echo "#!/bin/bash" > "${LAUNCHER}"
 	echo "" >> "${LAUNCHER}"
 	echo "cd ${INSTALL_BASE}/gnumed-client.${TARGET_VER}/client/" >> "${LAUNCHER}"
-	echo "./gm-from-cvs.sh" >> "${LAUNCHER}"
+	echo "./gm-from-vcs.sh" >> "${LAUNCHER}"
 fi
 chmod u+x "${LAUNCHER}"
 
@@ -291,7 +288,7 @@ echo "Editing configuration file ..."
 echo ""
 echo "You may want to adjust profiles and workplace name."
 read -p "hit [ENTER] to continue"
-mc -e gm-from-cvs.conf
+mc -e gm-from-vcs.conf
 
 
 # edit startup script
@@ -299,74 +296,4 @@ echo "Editing startup shell script ..."
 echo ""
 echo "You may want to activate the proper gnumed.py call."
 read -p "hit [ENTER] to continue"
-mc -e gm-from-cvs.sh
-
-
-# ============================================
-# $Log: gm-install_client_locally.sh,v $
-# Revision 1.3  2010-02-04 20:36:29  ncq
-# - fix paths
-#
-# Revision 1.1.2.1  2010/02/01 14:58:05  ncq
-# - include 2 missing deps for Debian
-#
-# Revision 1.1  2009/09/08 17:16:30  ncq
-# - relocated, in passing adjust to tarball name changes as per list
-#
-# Revision 1.9  2009/09/01 22:38:20  ncq
-# - add showdeps
-# - rename deps to installdeps
-#
-# Revision 1.8  2009/06/20 12:48:57  ncq
-# - support installing deps by "deps" argument
-#
-# Revision 1.7  2009/05/08 08:03:03  ncq
-# - add self-update
-#
-# Revision 1.6  2009/05/05 08:42:57  ncq
-# - fix missing cut
-#
-# Revision 1.5  2009/05/05 08:37:25  ncq
-# - add option update
-#
-# Revision 1.4  2009/04/21 17:02:27  ncq
-# - calculate DL URL from version on command line
-#
-# Revision 1.3  2009/04/13 11:01:40  ncq
-# - hint on what to edit in conf file
-# - offer to edit startup file with hint
-#
-# Revision 1.2  2009/02/25 09:38:18  ncq
-# - better wording
-#
-# Revision 1.1  2009/02/24 17:57:32  ncq
-# - added install script, works both from local tarball or from the net
-#
-# Revision 1.9  2009/02/17 11:58:53  ncq
-# - bump download client version dir
-#
-# Revision 1.8  2009/01/06 18:26:30  ncq
-# - sudo -> su
-#
-# Revision 1.7  2008/10/22 12:24:48  ncq
-# - lsb_release
-#
-# Revision 1.6  2008/10/12 16:38:46  ncq
-# - do not run as root
-#
-# Revision 1.5  2008/08/28 18:35:46  ncq
-# - bump download URL
-#
-# Revision 1.4  2008/08/05 12:45:28  ncq
-# - adjust Debian dependancies
-#
-# Revision 1.3  2008/08/01 10:33:16  ncq
-# - /bin/sh -> /bin/bash
-#
-# Revision 1.2  2008/02/25 17:47:12  ncq
-# - detect PCLinuxOS for setting installer/dependancies
-#
-# Revision 1.1  2008/02/21 16:22:06  ncq
-# - newly added
-#
-#
+mc -e gm-from-vcs.sh
