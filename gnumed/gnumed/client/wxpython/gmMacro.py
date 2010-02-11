@@ -400,6 +400,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			order_by = u'brand, substance'
 		)
 
+		# FIXME: we should be dealing with translating None to u'' here
+
 		return u'\n'.join([ data % m for m in current_meds ])
 	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):

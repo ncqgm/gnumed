@@ -359,6 +359,7 @@ LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
+		mp.word_separators = '[ \t=+&:@]+'
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.SetToolTipString(_('The schedule for taking this substance.'))
 		self.matcher = mp
@@ -401,6 +402,13 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	SELECT NULL, (coalesce(atc_code || ': ', '') || description) as subst
 	FROM ref.substance_in_brand
 	WHERE description %(fragment_condition)s
+) union (
+	SELECT NULL, (atc || ': ' || term) as subst
+	FROM ref.v_atc
+	WHERE
+		is_group_code IS FALSE
+			AND
+		description %(fragment_condition)s
 )
 order by subst
 limit 50"""
