@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
-from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
+from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 
 _log = logging.getLogger('gm.ui')
@@ -581,6 +581,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl
+
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
 	def __init__(self, *args, **kwds):
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
@@ -715,7 +717,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 			return False
 
-		# this should optional, actually
+		# this should be optional, actually
 #		if self._PRW_doc_comment.GetValue().strip() == '':
 #			gmGuiHelpers.gm_show_error (
 #				aMessage = _('No document comment supplied. Add a comment for this document.'),
@@ -860,6 +862,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return None
 		# now, which file was that again ?
 		page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
+		
 		(result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
 		if not result:
 			gmGuiHelpers.gm_show_warning (
@@ -885,22 +888,24 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# 2) reload list box
 		self.__reload_LBOX_doc_pages()
 
-		# 3) kill file in the file system
+		# 3) optionally kill file in the file system
 		do_delete = gmGuiHelpers.gm_show_question (
-			_(
-"""Do you want to permanently delete the file
-
- [%s]
-
-from your computer ?
-
-If it is a temporary file for a page you just scanned
-in this makes a lot of sense. In other cases you may
-not want to lose the file.
-
-Pressing [YES] will permanently remove the file
-from your computer.""") % page_fname,
-			_('deleting part')
+			_('The part has successfully been removed from the document.\n'
+			  '\n'
+			  'Do you also want to permanently delete the file\n'
+			  '\n'
+			  ' [%s]\n'
+			  '\n'
+			  'from which this document part was loaded ?\n'
+			  '\n'
+			  'If it is a temporary file for a page you just scanned\n'
+			  'this makes a lot of sense. In other cases you may not\n'
+			  'want to lose the file.\n'
+			  '\n'
+			  'Pressing [YES] will permanently remove the file\n'
+			  'from your computer.\n'
+			) % page_fname,
+			_('Removing document part')
 		)
 		if do_delete:
 			try:
@@ -983,7 +988,10 @@ from your computer.""") % page_fname,
 				return False
 
 		# add document parts from files
-		success, msg, filename = new_doc.add_parts_from_files(files=self.acquired_pages, reviewer=self._PhWheel_reviewer.GetData())
+		success, msg, filename = new_doc.add_parts_from_files (
+			files = self.acquired_pages,
+			reviewer = self._PhWheel_reviewer.GetData()
+		)
 		if not success:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (

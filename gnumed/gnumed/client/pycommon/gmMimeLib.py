@@ -209,10 +209,13 @@ def call_viewer_on_file(aFile = None, block=None):
 	block: try to detach from viewer or not, None means to use mailcap default
 	"""
 	# does this file exist, actually ?
-	if not (os.path.isfile(aFile) and os.access(aFile, os.R_OK)):
-		msg = '[%s] is not a readable file'
+	try:
+		open(aFile).close()
+	except:
+#	if not (os.path.isfile(aFile) and os.access(aFile, os.R_OK)):
+		msg = _('[%s] is not a readable file') % aFile
 		_log.error(msg, aFile)
-		raise IOError(msg % aFile)
+		return False, msg
 
 	# try to detect any of the UNIX openers
 	found, startfile_cmd = _get_system_startfile_cmd(aFile)
