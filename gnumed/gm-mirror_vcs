@@ -1,32 +1,29 @@
 #!/bin/sh
 
 #------------------------------------------------------------------
-# $Id: gm-mirror_vcs,v 1.2 2009-06-09 14:36:29 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gm-mirror_vcs,v $
-# $Revision: 1.2 $
-#------------------------------------------------------------------
 
 BAK_BASE=~/".gnumed/backup"
 #------------------------------------------------------------------
 
 mkdir -p ${BAK_BASE}/vcs-mirror
-rsync -qar --delete rsync://cvs.sv.gnu.org/sources/gnumed/ ${BAK_BASE}/vcs-mirror
+cd ${BAK_BASE}/vcs-mirror
 
+
+# Git
+git clone git://gitorious.org/gnumed/gnumed.git
 if test "$?" != "0" ; then
-	echo "Rsyncing VCS tree failed. Aborting."
-	exit 1
+	git pull
 fi
 
-date > ${BAK_BASE}/vcs-mirror/timestamp.txt
 
-tar -C ${BAK_BASE}/ -czf ${BAK_BASE}/gm-vcs-mirror-day_`date +%u`.tgz vcs-mirror
+# CVS
+#rsync -qar --delete rsync://cvs.sv.gnu.org/sources/gnumed/ .
+#if test "$?" != "0" ; then
+#	echo "Rsyncing VCS tree failed. Aborting."
+#	exit 1
+#fi
 
-#------------------------------------------------------------------
-# $Log: gm-mirror_vcs,v $
-# Revision 1.2  2009-06-09 14:36:29  ncq
-# - much improved
-#
-# Revision 1.1  2009/06/05 07:31:03  ncq
-# - first version
-#
-#
+date > timestamp.txt
+
+cd ..
+tar -czf gm-vcs-mirror-day_`date +%u`.tgz vcs-mirror
