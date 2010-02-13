@@ -10,9 +10,9 @@ cd ${BAK_BASE}/vcs-mirror
 
 
 # Git
-git clone git://gitorious.org/gnumed/gnumed.git
+git clone git://gitorious.org/gnumed/gnumed.git | tee git-clone.log
 if test "$?" != "0" ; then
-	git pull
+	git pull -v | tee git-pull.log
 fi
 
 

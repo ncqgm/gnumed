@@ -3,7 +3,7 @@
 ./remove_pyc.sh
 
 echo "updating python client source from VCS"
-git pull
+git pull -v | tee git-pull.log
 
 #export CVS_RSH="ssh"
 #echo "diffing against CVS just to be sure"
