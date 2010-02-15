@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#------------------------------------------------------------------
-
 BAK_BASE=~/".gnumed/backup"
 #------------------------------------------------------------------
 
@@ -10,9 +8,9 @@ cd ${BAK_BASE}/vcs-mirror
 
 
 # Git
-git clone git://gitorious.org/gnumed/gnumed.git | tee git-clone.log
+git clone git://gitorious.org/gnumed/gnumed.git
 if test "$?" != "0" ; then
-	git pull -v | tee git-pull.log
+	git pull -v
 fi
 
 
