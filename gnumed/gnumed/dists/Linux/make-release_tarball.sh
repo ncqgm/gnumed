@@ -109,7 +109,7 @@ rm -R ./gnumed-client.$CLIENTREV/
 rm -vf $CLIENTARCH
 rm -vf $SRVARCH
 cd ../../../
-./remove_pyc.sh
+./remove-debris.sh
 cd -
 
 

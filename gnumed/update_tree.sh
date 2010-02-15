@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./remove_pyc.sh
+./remove-debris.sh
 
 echo "updating python client source from VCS"
 git pull -v | tee git-pull.log
