@@ -22,6 +22,37 @@ _log = logging.getLogger('gm.meds')
 _log.info(__version__)
 
 #============================================================
+# this should be in gmCoding.py
+def create_data_source(long_name=None, short_name=None, version=None, source=None, language=None):
+
+		args = {
+			'lname': long_name,
+			'sname': short_name,
+			'ver': version,
+			'src': source,
+			'lang': language
+		}
+
+		cmd = u"""select pk from ref.data_source where name_long = %(lname)s and name_short = %(sname)s and version = %(ver)s"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if len(rows) > 0:
+			return rows[0]['pk']
+
+		cmd = u"""
+			INSERT INTO ref.data_source (name_long, name_short, version, source, lang)
+			VALUES (
+				%(lname)s,
+				%(sname)s,
+				%(ver)s,
+				%(src)s,
+				%(lang)s
+			)
+			returning pk
+			"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+
+		return rows[0]['pk']
+#============================================================
 # wishlist:
 # - --conf-file= for glwin.exe
 # - wirkstoff: Konzentration auch in Multiprodukten
@@ -148,6 +179,9 @@ class cGelbeListeCSVFile(object):
 class cDrugDataSourceInterface(object):
 
 	#--------------------------------------------------------
+	def __init__(self):
+		self._patient = None
+	#--------------------------------------------------------
 	def get_data_source_version(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
@@ -156,6 +190,74 @@ class cDrugDataSourceInterface(object):
 	#--------------------------------------------------------
 	def switch_to_frontend(self):
 		raise NotImplementedError
+	#--------------------------------------------------------
+	def select_drugs(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
+	def import_drugs(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
+	def check_drug_interactions(self):
+		raise NotImplementedError
+	#--------------------------------------------------------
+	def show_info_on_drug(self, drug=None):
+		raise NotImplementedError
+#============================================================
+class cFreeDiamsInterface(cDrugDataSourceInterface):
+
+	"""http://ericmaeker.fr/FreeMedForms/di-manual/ligne_commandes.html"""
+
+	version = u'FreeDiams v0.3.0 interface'
+	default_encoding = 'utf8'
+
+	#--------------------------------------------------------
+	def __init__(self):
+
+		cDrugDataSourceInterface.__init__(self)
+		_log.info(cFreeDiamsInterface.version)
+
+		self.__exchange_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2freediams.html')
+	#--------------------------------------------------------
+	def get_data_source_version(self):
+		return u'0.3.0'
+	#--------------------------------------------------------
+	def create_data_source_entry(self):
+		return create_data_source (
+			long_name = u'FreeDiams',
+			short_name = u'FreeDiams',
+			version = self.get_data_source_version(),
+			source = u'http://ericmaeker.fr/FreeMedForms/di-manual/index.html',
+			language = u'fr'			# actually to be multi-locale
+		)
+	#--------------------------------------------------------
+	def switch_to_frontend(self):
+		"""--medintux : définit une utilisation spécifique à MedinTux.
+		  • --exchange="xxx" : définit le fichier d'échange entre les deux applications.
+		  • --chrono : Chronomètres diverses fonctions du testeur d'interactions (proposé à des fins de déboggage)
+		  • --transmit-dosage = non documenté.
+		"""
+		args = u'--exchange="%s"' % self.__exchange_filename
+
+		if self._patient is not None:
+			# --patientname="xx xx xx" : définit le nom du patient.
+			# --dateofbirth="yyyy/MM/dd" : définit la data de naissance du patient (la date doit
+			#                              être transmise sous la forme : dd/MM/yyyy)
+			# --weight="dd" : définit le poids du patient (en kg)
+			# --size="ddd" : définit la taille du patient (en cm)
+			# --clcr="dd.d" : définit la clairance de la créatinine du patient (en ml/min)
+			# --creatinin="dd" : définit la créatininémie du patient (en mg/l)
+			pass
+
+		# must make sure csv file exists
+		open(self.__exchange_filename, 'wb').close()
+
+		cmd = u'freediams %' % args
+
+		if not gmShellAPI.run_command_in_shell(command = cmd):
+			_log.error('problem switching to the FreeDiams drug database')
+			return False
+
+		return True
 	#--------------------------------------------------------
 	def select_drugs(self):
 		raise NotImplementedError
@@ -178,6 +280,9 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	bdt_line_base_length = 8
 	#--------------------------------------------------------
 	def __init__(self):
+
+		cDrugDataSourceInterface.__init__(self)
+
 		_log.info(u'%s (native Windows)', cGelbeListeWindowsInterface.version)
 
 		self.path_to_binary = r'C:\Programme\MMI PHARMINDEX\glwin.exe'
@@ -190,63 +295,52 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		self.interactions_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2mmi.bdt')
 		self.data_date_filename = r'C:\Programme\MMI PHARMINDEX\datadate.txt'
 
-		self.data_date = None
-		self.online_update_date = None
+		self.__data_date = None
+		self.__online_update_date = None
 
 		# use adjusted config.dat
 	#--------------------------------------------------------
-	def get_data_source_version(self):
+	def get_data_source_version(self, force_reload=False):
+
+		if self.__data_date is not None:
+			if not force_reload:
+				return {
+					'data': self.__data_date,
+					'online_update': self.__online_update_date
+				}
 
 		open(self.data_date_filename, 'wb').close()
 
 		cmd = u'%s -DATADATE' % self.path_to_binary
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
 			_log.error('problem querying the MMI drug database for version information')
+			self.__data_date = None
+			self.__online_update_date = None
 			return {
 				'data': u'?',
 				'online_update': u'?'
 			}
 
 		version_file = open(self.data_date_filename, 'rU')
-		versions = {
-			'data': version_file.readline()[:10],
-			'online_update': version_file.readline()[:10]
-		}
+		self.__data_date = version_file.readline()[:10]
+		self.__online_update_date = version_file.readline()[:10]
 		version_file.close()
 
-		return versions
+		return {
+			'data': self.__data_date,
+			'online_update': self.__online_update_date
+		}
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
 		versions = self.get_data_source_version()
 
-		args = {
-			'lname': u'Medikamentendatenbank "mmi PHARMINDEX" (Gelbe Liste)',
-			'sname': u'GL/MMI',
-			'ver': u'Daten: %s, Preise (Onlineupdate): %s' % (versions['data'], versions['online_update']),
-			'src': u'Medizinische Medien Informations GmbH, Am Forsthaus Gravenbruch 7, 63263 Neu-Isenburg',
-			'lang': u'de'
-		}
-
-		cmd = u"""select pk from ref.data_source where name_long = %(lname)s and name_short = %(sname)s and version = %(ver)s"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		if len(rows) > 0:
-			return rows[0]['pk']
-
-		cmd = u"""
-			INSERT INTO ref.data_source (name_long, name_short, version, source, lang)
-			VALUES (
-				%(lname)s,
-				%(sname)s,
-				%(ver)s,
-				%(src)s,
-				%(lang)s
-			)
-			returning pk
-			"""
-
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-
-		return rows[0]['pk']
+		return create_data_source (
+			long_name = u'Medikamentendatenbank "mmi PHARMINDEX" (Gelbe Liste)',
+			short_name = u'GL/MMI',
+			version = u'Daten: %s, Preise (Onlineupdate): %s' % (versions['data'], versions['online_update']),
+			source = u'Medizinische Medien Informations GmbH, Am Forsthaus Gravenbruch 7, 63263 Neu-Isenburg',
+			language = u'de'
+		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False, cmd=None):
 
