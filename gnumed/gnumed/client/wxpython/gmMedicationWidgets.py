@@ -238,6 +238,9 @@ def jump_to_drug_database():
 	drug_db = get_drug_database()
 	if drug_db is None:
 		return
+	pat = gmPerson.gmCurrentPatient()
+	if pat.connected:
+		drug_db.patient = pat
 	drug_db.switch_to_frontend(blocking = False)
 #============================================================
 def jump_to_ifap(import_drugs=False):

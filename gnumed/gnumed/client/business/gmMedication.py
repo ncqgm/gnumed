@@ -180,7 +180,8 @@ class cDrugDataSourceInterface(object):
 
 	#--------------------------------------------------------
 	def __init__(self):
-		self._patient = None
+		self.patient = None
+		self.custom_path_to_binary = None
 	#--------------------------------------------------------
 	def get_data_source_version(self):
 		raise NotImplementedError
@@ -188,7 +189,7 @@ class cDrugDataSourceInterface(object):
 	def create_data_source_entry(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def switch_to_frontend(self):
+	def switch_to_frontend(self, blocking=False):
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def select_drugs(self):
@@ -209,16 +210,19 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 	version = u'FreeDiams v0.3.0 interface'
 	default_encoding = 'utf8'
+	default_dob_format = '%d/%m/%Y'			# Contrary to what the above page says !
 
 	#--------------------------------------------------------
 	def __init__(self):
-
 		cDrugDataSourceInterface.__init__(self)
 		_log.info(cFreeDiamsInterface.version)
 
-		self.__exchange_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2freediams.html')
+		paths = gmTools.gmPaths()
+		self.__exchange_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2freediams.xml')
 	#--------------------------------------------------------
 	def get_data_source_version(self):
+		#> Coded. Available next release
+		#> Use --version or -version or -v
 		return u'0.3.0'
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
@@ -230,28 +234,43 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			language = u'fr'			# actually to be multi-locale
 		)
 	#--------------------------------------------------------
-	def switch_to_frontend(self):
+	def switch_to_frontend(self, blocking=False):
 		"""--medintux : définit une utilisation spécifique à MedinTux.
 		  • --exchange="xxx" : définit le fichier d'échange entre les deux applications.
 		  • --chrono : Chronomètres diverses fonctions du testeur d'interactions (proposé à des fins de déboggage)
 		  • --transmit-dosage = non documenté.
 		"""
+		found, cmd = gmShellAPI.find_first_binary(binaries = [
+			self.custom_path_to_binary,
+			r'freediams',
+			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
+			r'c:\programs\freediams\freediams.exe',
+			r'freediams.exe'
+		])
+
+		if not found:
+			_log.error('cannot find FreeDiams binary')
+			return False
+
+		# make sure csv file exists
+		open(self.__exchange_filename, 'wb').close()
 		args = u'--exchange="%s"' % self.__exchange_filename
 
-		if self._patient is not None:
-			# --patientname="xx xx xx" : définit le nom du patient.
-			# --dateofbirth="yyyy/MM/dd" : définit la data de naissance du patient (la date doit
-			#                              être transmise sous la forme : dd/MM/yyyy)
+		if self.patient is not None:
+			# there's no way to pass the gender yet
+			args += u' --patientname="%(firstnames)s %(lastnames)s"' % self.patient.get_active_name()
+			if self.patient['dob'] is not None:
+				args += u' --dateofbirth="%s"' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
+			# FIXME: search by LOINC code and add
 			# --weight="dd" : définit le poids du patient (en kg)
 			# --size="ddd" : définit la taille du patient (en cm)
 			# --clcr="dd.d" : définit la clairance de la créatinine du patient (en ml/min)
 			# --creatinin="dd" : définit la créatininémie du patient (en mg/l)
-			pass
 
-		# must make sure csv file exists
-		open(self.__exchange_filename, 'wb').close()
+			#> Planned for next release ;)
+			#> Use --gender=F  or --gender=M
 
-		cmd = u'freediams %' % args
+		cmd = r'%s %s' % (cmd, args)
 
 		if not gmShellAPI.run_command_in_shell(command = cmd):
 			_log.error('problem switching to the FreeDiams drug database')
@@ -553,8 +572,9 @@ class cIfapInterface(cDrugDataSourceInterface):
 #				)
 #============================================================
 drug_data_source_interfaces = {
-	'Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
-	'Gelbe Liste/MMI (WINE)': cGelbeListeWineInterface
+	'Deutschland: Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
+	'Deutschland: Gelbe Liste/MMI (WINE)': cGelbeListeWineInterface,
+	'France: FreeDiams': cFreeDiamsInterface
 }
 #============================================================
 # substances in use across all patients
