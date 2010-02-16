@@ -1,8 +1,6 @@
 """GNUmed medication/substances handling widgets.
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedicationWidgets.py,v $
-# $Id: gmMedicationWidgets.py,v 1.33 2010-02-06 21:39:10 ncq Exp $
 __version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -75,7 +73,7 @@ def manage_substances_in_brands(parent=None):
 			s['substance'],
 			gmTools.coalesce(s['atc_substance'], u''),
 			s['preparation'],
-			gmTools.coalesce(s['external_code_brand'], u''),
+			gmTools.coalesce(s['external_code_brand'], u'', u'%%s [%s]' % s['external_code_type_brand']),
 			s['pk_substance_in_brand']
 		] for s in substs ]
 		lctrl.set_string_items(items)
@@ -120,7 +118,7 @@ def manage_branded_drugs(parent=None):
 			d['description'],
 			d['preparation'],
 			gmTools.coalesce(d['atc_code'], u''),
-			gmTools.coalesce(d['external_code'], u''),
+			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
 			d['pk']
 		] for d in drugs ]
 		lctrl.set_string_items(items)
@@ -1246,9 +1244,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += u'\n'
 
-#		tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
-		tt += _(u'Revisions: Last modified %(mod_when)s by %(mod_by)s.') % ({
-			#'row_ver': entry['row_version'],
+		tt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % ({
+			'row_ver': entry['row_version'],
 			'mod_when': entry['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
 			'mod_by': entry['modified_by']
 		})
@@ -1438,125 +1435,3 @@ if __name__ == '__main__':
 		pass
 
 #============================================================
-# $Log: gmMedicationWidgets.py,v $
-# Revision 1.33  2010-02-06 21:39:10  ncq
-# - browse-atc-reference
-# - include DDD in substance intake tooltip
-#
-# Revision 1.32  2010/01/13 21:52:04  ncq
-# - implement phrase wheel on schedule and preparation
-#
-# Revision 1.31  2010/01/09 20:15:06  ncq
-# - use Advice
-#
-# Revision 1.30  2010/01/08 12:21:04  ncq
-# - even better error detection on forms template loading
-#
-# Revision 1.29  2010/01/06 14:42:20  ncq
-# - medication list printing:
-# 	- tie cleanup to --debug
-# 	- better error detection
-#
-# Revision 1.28  2010/01/01 21:48:15  ncq
-# - remove confusing status message
-#
-# Revision 1.27  2009/12/26 19:08:38  ncq
-# - document printing of medication list in EMR
-#
-# Revision 1.26  2009/12/25 22:07:17  ncq
-# - cleanup
-# - configure-medication-list-template
-# - print-medication-list
-# - show-info-on-entry
-# - tooltips on substance entry rows
-#
-# Revision 1.25  2009/12/22 12:02:57  ncq
-# - cleanup
-#
-# Revision 1.24  2009/12/03 17:51:11  ncq
-# - explicit ATC col in brand component list
-#
-# Revision 1.23  2009/12/02 16:50:44  ncq
-# - enable brand component deletion
-# - normalize substance name before adding as component
-#
-# Revision 1.22  2009/12/01 21:55:24  ncq
-# - branded drug phrasewheel
-# - much improved substance intake EA implementation
-#
-# Revision 1.21  2009/11/30 13:15:20  ncq
-# - better meds grid column ordering as per list
-#
-# Revision 1.20  2009/11/29 20:01:46  ncq
-# - substance phrasewheel
-#
-# Revision 1.19  2009/11/29 16:05:41  ncq
-# - must set self.data *late* in _save-as-new or else !
-# - properly enable/disable duration PRW
-# - grid business logic moved into grid so no need to access self._grid_substances anymore
-#
-# Revision 1.18  2009/11/28 18:31:30  ncq
-# - implement drug brand management
-# - implement drug brand component management
-#
-# Revision 1.17  2009/11/24 20:59:59  ncq
-# - use import-drugs rather than import-drugs-as-substances
-# - improved grid layout as per list
-# - fix get-selected-data
-# - make grid wrapper do less
-#
-# Revision 1.16  2009/11/19 14:44:25  ncq
-# - improved plugin
-#
-# Revision 1.15  2009/11/15 01:09:07  ncq
-# - implement grouping/filtering
-# - mark unapproved vs approved if showing all substances
-#
-# Revision 1.14  2009/11/08 20:49:20  ncq
-# - implement deletion
-# - start grouping/filtering/ row tooltips
-#
-# Revision 1.13  2009/11/06 15:19:25  ncq
-# - implement saving as new substance intake
-#
-# Revision 1.12  2009/10/29 17:23:24  ncq
-# - consolidate get-drug-database
-# - much improved substance intake EA
-# - better naming and adjust to such
-#
-# Revision 1.11  2009/10/28 21:48:55  ncq
-# - further improved substances grid
-#
-# Revision 1.10  2009/10/28 16:43:42  ncq
-# - start implementing substances edit area
-# - enhance grid to allow actual substances management
-#
-# Revision 1.9  2009/10/26 22:30:58  ncq
-# - implement deletion of INN
-#
-# Revision 1.8  2009/10/21 20:41:53  ncq
-# - access MMI from substance management via NEW button
-#
-# Revision 1.7  2009/10/21 09:21:13  ncq
-# - manage substances
-# - jump to drug database
-#
-# Revision 1.6  2009/10/20 10:27:35  ncq
-# - implement configuration of drug data source
-#
-# Revision 1.5  2009/09/01 22:36:08  ncq
-# - add jump-to-mmi
-#
-# Revision 1.4  2009/06/20 12:46:04  ncq
-# - move IFAP handling here
-#
-# Revision 1.3  2009/06/10 21:02:34  ncq
-# - update-atc-reference-data
-#
-# Revision 1.2  2009/05/13 12:20:59  ncq
-# - improve and streamline
-#
-# Revision 1.1  2009/05/12 12:04:01  ncq
-# - substance intake handling
-#
-#

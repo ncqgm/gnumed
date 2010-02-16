@@ -4,8 +4,6 @@
 license: GPL
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedication.py,v $
-# $Id: gmMedication.py,v 1.21 2010-02-06 20:44:58 ncq Exp $
 __version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -325,7 +323,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			# update fields
 			drug['is_fake'] = False
 			drug['atc_code'] = entry['atc']
-			drug['external_code'] = u'%s::%s' % ('DE-PZN', entry['pzn'])
+			drug['external_code_type'] = u'DE-PZN'
+			drug['external_code'] = entry['pzn']
 			drug['fk_data_source'] = data_src_pk
 			drug.save()
 
@@ -353,9 +352,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 				return
 			if len(substances) < 2:
 				return
-			pzn_list = [ s.external_code for s in substances ]
-			pzn_list = [ pzn for pzn in pzn_list if pzn is not None ]
-			pzn_list = [ code_value for code_type, code_value in pzn_list if code_type == u'DE-PZN']
+			pzn_list = [ (s.external_code_type, s.external_code) for s in substances ]
+			pzn_list = [ code_value for code_type, code_value in pzn_list if (code_value is not None) and (code_type == u'DE-PZN')]
 
 		else:
 			if len(pzn_list) < 2:
@@ -379,10 +377,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		cmd = None
 
-		if substance.external_code is not None:
-			code_type, pzn = substance.external_code
-			if code_type == u'DE-PZN':
-				cmd = u'%s -PZN %s' % (self.path_to_binary, pzn)
+		if substance.external_code_type == u'DE-PZN':
+			cmd = u'%s -PZN %s' % (self.path_to_binary, substance.external_code)
 
 		if cmd is None:
 			name = gmTools.coalesce (
@@ -631,6 +627,16 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 	external_code = property(_get_external_code, lambda x:x)
 	#--------------------------------------------------------
+	def _get_external_code_type(self):
+		drug = self.containing_drug
+
+		if drug is None:
+			return None
+
+		return drug.external_code_type
+
+	external_code_type = property(_get_external_code_type, lambda x:x)
+	#--------------------------------------------------------
 	def _get_containing_drug(self):
 		if self._payload[self._idx['pk_brand']] is None:
 			return None
@@ -695,6 +701,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 				preparation = %(preparation)s,
 				atc_code = gm.nullify_empty_string(%(atc_code)s),
 				external_code = gm.nullify_empty_string(%(external_code)s),
+				external_code_type = gm.nullify_empty_string(%(external_code_type)s),
 				is_fake = %(is_fake)s,
 				fk_data_source = %(fk_data_source)s
 			where
@@ -710,6 +717,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		u'atc_code',
 		u'is_fake',
 		u'external_code',
+		u'external_code_type',
 		u'fk_data_source'
 	]
 	#--------------------------------------------------------
@@ -717,13 +725,19 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['external_code']] is None:
 			return None
 
-		if regex.match(u'.+::.+', self._payload[self._idx['external_code']], regex.UNICODE) is None:
-			# FIXME: maybe evaluate fk_data_source
-			return None
-
-		return regex.split(u'::', self._payload[self._idx['external_code']], 1)
+		return self._payload[self._idx['external_code']]
 
 	external_code = property(_get_external_code, lambda x:x)
+	#--------------------------------------------------------
+	def _get_external_code_type(self):
+
+		# FIXME: maybe evaluate fk_data_source ?
+		if self._payload[self._idx['external_code_type']] is None:
+			return None
+
+		return self._payload[self._idx['external_code_type']]
+
+	external_code_type = property(_get_external_code_type, lambda x:x)
 	#--------------------------------------------------------
 	def _get_components(self):
 		cmd = u'select * from ref.substance_in_brand where fk_brand = %(brand)s'
@@ -823,6 +837,12 @@ def delete_component_from_branded_drug(brand=None, component=None):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
 
@@ -888,104 +908,13 @@ if __name__ == "__main__":
 		print drug
 		print drug.components
 	#--------------------------------------------------------
-	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
-		#test_MMI_interface()
-		#test_MMI_file()
-		#test_mmi_switch_to()
-		#test_mmi_select_drugs()
-		#test_mmi_import_substances()
-		#test_mmi_import_drugs()
-		#test_interaction_check()
-		#test_create_substance_intake()
-		test_show_components()
+	#test_MMI_interface()
+	#test_MMI_file()
+	#test_mmi_switch_to()
+	#test_mmi_select_drugs()
+	#test_mmi_import_substances()
+	#test_mmi_import_drugs()
+	#test_interaction_check()
+	#test_create_substance_intake()
+	test_show_components()
 #============================================================
-# $Log: gmMedication.py,v $
-# Revision 1.21  2010-02-06 20:44:58  ncq
-# - .ddd on substance intake
-#
-# Revision 1.20  2009/12/25 21:38:50  ncq
-# - add 2 new fields to MMI CSV file
-# - show-info-on-drug
-# - enhance switch-to-frontend to allow custom startup cmd
-#
-# Revision 1.19  2009/12/02 16:48:58  ncq
-# - add infrastructure for removing component from brand
-#
-# Revision 1.18  2009/12/01 21:48:09  ncq
-# - get-substance-by-pk
-#
-# Revision 1.17  2009/11/30 21:56:36  ncq
-# - components property on branded drug
-#
-# Revision 1.16  2009/11/30 15:06:27  ncq
-# - handle a bunch of possibilities of dirty records retrieved from GLI/MMI
-# - default preparation to i18n(units)
-#
-# Revision 1.15  2009/11/29 19:59:31  ncq
-# - improve substance/component creation with propagate-atc
-#
-# Revision 1.14  2009/11/29 15:57:27  ncq
-# - while SQL results are dicts as far as *retrieval* is concerned,
-#   they are NOT for inserting data into them, so use list access
-#
-# Revision 1.13  2009/11/28 18:27:30  ncq
-# - much improved ATC detection on substance creation
-# - create-patient-consumed-substance -> create-substance-intake
-# - get-branded-drugs
-# - get-substances-in-brands
-# - delete-branded-drugs
-#
-# Revision 1.12  2009/11/24 19:57:22  ncq
-# - implement getting/creating data souce entry for MMI
-# - implement version retrieval for MMI
-# - import-drugs()
-# - check-drug-interactions()
-# - cConsumedSubstance -> cSubstanceIntakeEntry + .external_code
-# - cBrandedDrug
-# - tests
-#
-# Revision 1.11  2009/11/06 15:05:07  ncq
-# - get-substances-in-use
-# - meds formatting
-# - delete-patient-consumed-substance
-#
-# Revision 1.10  2009/10/29 17:16:59  ncq
-# - return newly created substances from creator func and substance importer method
-# - better naming
-# - finish up cConsumedSubstance
-#
-# Revision 1.9  2009/10/28 16:40:12  ncq
-# - add some docs about schedule parsing
-#
-# Revision 1.8  2009/10/26 22:29:05  ncq
-# - better factorization of paths in MMI interface
-# - update ATC on INN if now known
-# - delete-consumed-substance
-#
-# Revision 1.7  2009/10/21 20:37:18  ncq
-# - MMI uses cp1250, rather than cp1252, (at least under WINE) contrary to direct communication ...
-# - use unicode csv reader
-# - add a bunch of file cleanup
-# - split MMI interface into WINE vs native Windows version
-#
-# Revision 1.6  2009/10/21 09:15:50  ncq
-# - much improved MMI frontend
-#
-# Revision 1.5  2009/09/29 13:14:25  ncq
-# - faulty ordering of definitions
-#
-# Revision 1.4  2009/09/01 22:16:35  ncq
-# - improved interaction check test
-#
-# Revision 1.3  2009/08/24 18:36:20  ncq
-# - add CSV file iterator
-# - add BDT interaction check
-#
-# Revision 1.2  2009/08/21 09:56:37  ncq
-# - start drug data source interfaces
-# - add MMI/Gelbe Liste interface
-#
-# Revision 1.1  2009/05/12 12:02:01  ncq
-# - start supporting current medications
-#
-#
