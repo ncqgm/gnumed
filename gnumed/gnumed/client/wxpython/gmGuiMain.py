@@ -293,9 +293,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ext_tools = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
 
-		ID = wx.NewId()
-		menu_cfg_ext_tools.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
-		wx.EVT_MENU(self, ID, self.__on_configure_ifap_cmd)
+#		ID = wx.NewId()
+#		menu_cfg_ext_tools.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
+#		wx.EVT_MENU(self, ID, self.__on_configure_ifap_cmd)
 
 		item = menu_cfg_ext_tools.Append(-1, _('MI/stroke risk calc cmd'), _('Set the command to start the CV risk calculator.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_acs_risk_calculator_cmd, item)
@@ -605,10 +605,10 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_drug_dbs.Append(-1, _('&Database'), _('Jump to the drug database configured as the default.'))
 		self.Bind(wx.EVT_MENU, self.__on_jump_to_drug_db, item)
 
-		# - IFAP drug DB
-		ID_IFAP = wx.NewId()
-		menu_drug_dbs.Append(ID_IFAP, u'ifap', _('Start "ifap index PRAXIS" %s drug browser (Windows/Wine, Germany)') % gmTools.u_registered_trademark)
-		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
+#		# - IFAP drug DB
+#		ID_IFAP = wx.NewId()
+#		menu_drug_dbs.Append(ID_IFAP, u'ifap', _('Start "ifap index PRAXIS" %s drug browser (Windows/Wine, Germany)') % gmTools.u_registered_trademark)
+#		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
 
 		menu_id = wx.NewId()
 		menu_drug_dbs.Append(menu_id, u'kompendium.ch', _('Show "kompendium.ch" drug database (online, Switzerland)'))
@@ -1819,8 +1819,8 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_jump_to_drug_db(self, evt):
 		gmMedicationWidgets.jump_to_drug_database()
 	#----------------------------------------------
-	def __on_ifap(self, evt):
-		gmMedicationWidgets.jump_to_ifap()
+#	def __on_ifap(self, evt):
+#		gmMedicationWidgets.jump_to_ifap()
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
 		webbrowser.open (

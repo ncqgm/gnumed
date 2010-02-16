@@ -73,6 +73,11 @@ def find_first_binary(binaries=None):
 	binary = None
 
 	for cmd in binaries:
+		_log.debug('looking for [%s]', cmd)
+
+		if cmd is None:
+			continue
+
 		found, binary = detect_external_binary(binary = cmd)
 		if found:
 			break
