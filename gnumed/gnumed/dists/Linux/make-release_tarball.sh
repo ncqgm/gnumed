@@ -108,7 +108,7 @@ echo "cleaning up"
 rm -R ./gnumed-client.$CLIENTREV/
 rm -vf $CLIENTARCH
 rm -vf $SRVARCH
-cd ../../../
+cd ../../../../
 ./remove-debris.sh
 cd -
 
