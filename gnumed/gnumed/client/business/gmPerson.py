@@ -586,7 +586,7 @@ select exists (
 		"""Edits an existing external ID.
 
 		creates ID type if necessary
-		context hardcoded to 'p' for now		
+		context hardcoded to 'p' for now
 		"""
 		cmd = u"""
 update dem.lnk_identity2ext_id set
@@ -2033,6 +2033,25 @@ def ask_for_patient():
 #============================================================
 # gender related
 #------------------------------------------------------------
+def get_gender_list():
+	"""Retrieves the list of known genders from the database."""
+	global __gender_idx
+	global __gender_list
+
+	if __gender_list is None:
+		cmd = u"select tag, l10n_tag, label, l10n_label, sort_weight from dem.v_gender_labels order by sort_weight desc"
+		__gender_list, __gender_idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+
+	return (__gender_list, __gender_idx)
+#------------------------------------------------------------
+map_gender2mf = {
+	'm': u'm',
+	'f': u'f',
+	'tf': u'f',
+	'tm': u'm',
+	'h': u'mf'
+}
+#------------------------------------------------------------
 # Maps GNUmed related i18n-aware gender specifiers to a unicode symbol.
 map_gender2symbol = {
 	'm': u'\u2642',
@@ -2044,14 +2063,6 @@ map_gender2symbol = {
 #	'tm': u'\u2642\u2640-\u2642',
 #	'h': u'\u2642\u2640'
 }
-#------------------------------------------------------------
-def get_gender_list():
-	global __gender_idx
-	global __gender_list
-	if __gender_list is None:
-		cmd = u"select tag, l10n_tag, label, l10n_label, sort_weight from dem.v_gender_labels order by sort_weight desc"
-		__gender_list, __gender_idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return (__gender_list, __gender_idx)
 #------------------------------------------------------------
 def map_gender2salutation(gender=None):
 	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable salutation."""

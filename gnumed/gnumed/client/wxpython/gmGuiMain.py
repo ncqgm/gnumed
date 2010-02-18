@@ -310,6 +310,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('Drug data source'), _('Select the drug data source.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_drug_data_source, item)
 
+		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
+
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('EMR ...'), menu_cfg_emr)
@@ -1262,6 +1265,32 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
+	def __on_configure_freediams_cmd(self, event):
+
+		def is_valid(value):
+			found, binary = gmShellAPI.detect_external_binary(value)
+			if not found:
+				gmDispatcher.send (
+					signal = 'statustext',
+					msg = _('The command [%s] is not found.') % value,
+					beep = True
+				)
+				return False, value
+			return True, binary
+		#------------------------------------------
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'Enter the shell command with which to start\n'
+				'the FreeDiams drug database frontend.\n'
+				'\n'
+				'GNUmed will try to verify that path.'
+			),
+			option = 'external.tools.freediams_cmd',
+			bias = 'workplace',
+			default_value = None,
+			validator = is_valid
+		)
+	#----------------------------------------------
 	def __on_configure_ifap_cmd(self, event):
 
 		def is_valid(value):
@@ -1818,9 +1847,6 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_jump_to_drug_db(self, evt):
 		gmMedicationWidgets.jump_to_drug_database()
-	#----------------------------------------------
-#	def __on_ifap(self, evt):
-#		gmMedicationWidgets.jump_to_ifap()
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
 		webbrowser.open (
