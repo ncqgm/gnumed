@@ -48,7 +48,7 @@ def configure_default_country(parent=None):
 
 	gmCfgWidgets.configure_string_from_list_option (
 		parent = parent,
-		message = _('Select the default region for new persons.\n'),
+		message = _('Select the default country for new persons.\n'),
 		option = 'person.create.default_country',
 		bias = 'user',
 		choices = [ (c['l10n_country'], c['code']) for c in countries ],
