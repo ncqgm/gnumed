@@ -6,4 +6,4 @@
 BASE=~/gm-git
 ARCHIVE=~/public_html/gnumed/snapshot/gnumed-latest-snapshot.tgz
 
-tar -cvzf ${ARCHIVE} ${BASE}
+tar -C ${BASE} -cvzf ${ARCHIVE} ./

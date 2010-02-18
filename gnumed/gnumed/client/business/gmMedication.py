@@ -208,8 +208,15 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 	version = u'FreeDiams v0.3.0 interface'
 	default_encoding = 'utf8'
-	default_dob_format = '%d/%m/%Y'			# Contrary to what the above page says !
+	default_dob_format = '%d/%m/%Y'
 
+	map_gender2mf = {
+		'm': u'M',
+		'f': u'F',
+		'tf': u'F',
+		'tm': u'M',
+		'h': u'H'
+	}
 	#--------------------------------------------------------
 	def __init__(self):
 		cDrugDataSourceInterface.__init__(self)
@@ -222,10 +229,11 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		#> Coded. Available next release
 		#> Use --version or -version or -v
 		return u'0.3.0'
+		# ~/.freediams/config.ini: [License] -> AcceptedVersion=....
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
 		return create_data_source (
-			long_name = u'FreeDiams',
+			long_name = u'"FreeDiams" Drug Database Frontend',
 			short_name = u'FreeDiams',
 			version = self.get_data_source_version(),
 			source = u'http://ericmaeker.fr/FreeMedForms/di-manual/index.html',
@@ -233,13 +241,14 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False):
-		"""--medintux : définit une utilisation spécifique à MedinTux.
-		  • --exchange="xxx" : définit le fichier d'échange entre les deux applications.
-		  • --chrono : Chronomètres diverses fonctions du testeur d'interactions (proposé à des fins de déboggage)
-		  • --transmit-dosage = non documenté.
+		"""	--medintux : définit une utilisation spécifique à MedinTux.
+			--exchange="xxx" : définit le fichier d'échange entre les deux applications.
+			--chrono : Chronomètres diverses fonctions du testeur d'interactions (proposé à des fins de déboggage)
+			--transmit-dosage = non documenté.
 		"""
 		found, cmd = gmShellAPI.find_first_binary(binaries = [
 			self.custom_path_to_binary,
+			r'/usr/bin/freediams',
 			r'freediams',
 			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
 			r'c:\programs\freediams\freediams.exe',
@@ -255,18 +264,19 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		args = u'--exchange="%s"' % self.__exchange_filename
 
 		if self.patient is not None:
-			# there's no way to pass the gender yet
+
 			args += u' --patientname="%(firstnames)s %(lastnames)s"' % self.patient.get_active_name()
+
+			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
+
 			if self.patient['dob'] is not None:
 				args += u' --dateofbirth="%s"' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
+
 			# FIXME: search by LOINC code and add
 			# --weight="dd" : définit le poids du patient (en kg)
 			# --size="ddd" : définit la taille du patient (en cm)
 			# --clcr="dd.d" : définit la clairance de la créatinine du patient (en ml/min)
 			# --creatinin="dd" : définit la créatininémie du patient (en mg/l)
-
-			#> Planned for next release ;)
-			#> Use --gender=F  or --gender=M
 
 		cmd = r'%s %s' % (cmd, args)
 
@@ -277,16 +287,30 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		return True
 	#--------------------------------------------------------
 	def select_drugs(self):
-		raise NotImplementedError
+		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def import_drugs(self):
-		raise NotImplementedError
+		"""FreeDiams ONLY use CIS.
+
+			CIS stands for Unique Speciality Identifier (eg bisoprolol 5 mg, gel).
+			CIS is AFSSAPS specific, but pharmacist can retreive drug name with the CIS.
+			AFSSAPS is the French FDA.
+
+			CIP stands for Unique Presentation Identifier (eg 30 pills plaq)
+			CIP if you want to specify the packaging of the drug (30 pills
+			thermoformed tablet...) -- actually not really usefull for french
+			doctors.
+		"""
+		self.switch_to_frontend()
+		# .external_code_type: u'FR-CIS'
+		# .external_cod: the CIS value
 	#--------------------------------------------------------
 	def check_drug_interactions(self):
-		raise NotImplementedError
+		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
-		raise NotImplementedError
+		# pass in CIS
+		self.switch_to_frontend()
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
