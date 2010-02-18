@@ -10,7 +10,9 @@ cd ${BAK_BASE}/vcs-mirror
 # Git
 git clone git://gitorious.org/gnumed/gnumed.git
 if test "$?" != "0" ; then
+	cd gnumed
 	git pull -v
+	cd ..
 fi
 
 
@@ -20,6 +22,7 @@ fi
 #	echo "Rsyncing VCS tree failed. Aborting."
 #	exit 1
 #fi
+
 
 date > timestamp.txt
 
