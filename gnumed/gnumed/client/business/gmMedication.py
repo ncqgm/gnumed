@@ -289,16 +289,30 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		return True
 	#--------------------------------------------------------
 	def select_drugs(self):
-		raise NotImplementedError
+		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def import_drugs(self):
-		raise NotImplementedError
+		"""FreeDiams ONLY use CIS.
+
+			CIS stands for Unique Speciality Identifier (eg bisoprolol 5 mg, gel).
+			CIS is AFSSAPS specific, but pharmacist can retreive drug name with the CIS.
+			AFSSAPS is the French FDA.
+
+			CIP stands for Unique Presentation Identifier (eg 30 pills plaq)
+			CIP if you want to specify the packaging of the drug (30 pills
+			thermoformed tablet...) -- actually not really usefull for french
+			doctors.
+		"""
+		self.switch_to_frontend()
+		# .external_code_type: u'FR-CIS'
+		# .external_cod: the CIS value
 	#--------------------------------------------------------
 	def check_drug_interactions(self):
-		raise NotImplementedError
+		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
-		raise NotImplementedError
+		# pass in CIS
+		self.switch_to_frontend()
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
