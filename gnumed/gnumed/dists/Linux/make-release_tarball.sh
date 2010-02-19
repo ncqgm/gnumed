@@ -473,14 +473,14 @@ find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 # now make tarballs
 # - client
 cd gnumed-client.$CLIENTREV
-ln -s client Gnumed
+ln -sT client Gnumed
 cd ..
 tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
 # - server
 mv gnumed-client.$CLIENTREV gnumed-server.$SRVREV
 cd gnumed-server.$SRVREV
 rm Gnumed
-ln -s server Gnumed
+ln -sT server Gnumed
 cd ..
 tar -czf $SRVARCH ./gnumed-server.$SRVREV/server/ ./gnumed-server.$SRVREV/Gnumed
 
