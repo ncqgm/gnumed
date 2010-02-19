@@ -48,7 +48,7 @@ fi
 # make sure we can locally find the Python modules
 # when running from a copy of the CVS tree
 cd gnumed
-ln -s client Gnumed &> /dev/null
+ln -sT client Gnumed &> /dev/null
 cd -
 
 echo ""

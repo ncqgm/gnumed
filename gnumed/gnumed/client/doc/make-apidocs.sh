@@ -4,7 +4,7 @@
 # author: Karsten.Hilbert@gmx.net
 
 cd ~/gm-git/gnumed/gnumed/
-ln -s client Gnumed
+ln -sT client Gnumed
 cd -
 BASE=~/gm-git/gnumed/gnumed/Gnumed
 #MODULES=" $BASE/pycommon/ $BASE/business/ $BASE/connectors/ $BASE/exporters/ $BASE/importers/ $BASE/wxpython/"
