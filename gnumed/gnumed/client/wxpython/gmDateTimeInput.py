@@ -180,7 +180,7 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 			value = wxvalue
 
 		elif value is None:
-			value = wx.DateTime()
+			value = wx.DefaultDateTime
 
 		wx.DatePickerCtrl.SetValue(self, value)
 	#----------------------------------------------

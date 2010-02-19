@@ -653,6 +653,8 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.substance_intake set
 				clin_when = %(started)s,
+				discontinued = %(discontinued)s,
+				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
 				strength = gm.nullify_empty_string(%(strength)s),
 				preparation = %(preparation)s,
 				schedule = gm.nullify_empty_string(%(schedule)s),
@@ -690,6 +692,8 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		u'started',
+		u'discontinued',
+		u'discontinue_reason',
 		u'preparation',
 		u'strength',
 		u'intake_is_approved_of',

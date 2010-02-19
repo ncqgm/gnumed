@@ -15,6 +15,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmPhraseWheel
         from Gnumed.wxpython import gmEMRStructWidgets
         from Gnumed.wxpython import gmMedicationWidgets
+        from Gnumed.wxpython import gmDateTimeInput
 
         # begin wxGlade: wxgCurrentMedicationEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -28,11 +29,11 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._PRW_brand = gmMedicationWidgets.cBrandedDrugPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_brand = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._TCTRL_brand_ingredients = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._DP_started = wx.DatePickerCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_SHOWCENTURY)
-        self._DP_discontinued = wx.DatePickerCtrl(self, -1, style=wx.DP_SPIN|wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
+        self._DP_started = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_SHOWCENTURY)
+        self._DP_discontinued = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_SPIN|wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
         self._BTN_discontinued_as_planned = wx.Button(self, -1, _("Per plan"), style=wx.BU_EXACTFIT)
         self._PRW_discontinue_reason = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self.checkbox_1 = wx.CheckBox(self, -1, _("Allergy"))
+        self._CHBOX_is_allergy = wx.CheckBox(self, -1, _("Allergy"))
         self._PRW_schedule = gmMedicationWidgets.cSubstanceSchedulePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_duration = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_long_term = wx.CheckBox(self, -1, _("Long-term"))
@@ -46,6 +47,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_get_substance_button_pressed, self._BTN_database_substance)
         self.Bind(wx.EVT_BUTTON, self._on_get_brand_button_pressed, self._BTN_database_brand)
         self.Bind(wx.EVT_BUTTON, self._on_discontinued_as_planned_button_pressed, self._BTN_discontinued_as_planned)
+        self.Bind(wx.EVT_CHECKBOX, self._on_chbox_is_allergy_checked, self._CHBOX_is_allergy)
         self.Bind(wx.EVT_CHECKBOX, self._on_chbox_long_term_checked, self._CHBOX_long_term)
         # end wxGlade
 
@@ -66,8 +68,8 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._BTN_discontinued_as_planned.SetToolTipString(_("Press if discontinuation was as planned."))
         self._PRW_discontinue_reason.SetToolTipString(_("Reason for discontinuation."))
         self._PRW_discontinue_reason.Enable(False)
-        self.checkbox_1.SetToolTipString(_("Discontinuation due to allergy/intolerance ?"))
-        self.checkbox_1.Enable(False)
+        self._CHBOX_is_allergy.SetToolTipString(_("Discontinuation due to allergy/intolerance ?"))
+        self._CHBOX_is_allergy.Enable(False)
         self._PRW_schedule.SetToolTipString(_("The schedule for taking this substance."))
         self._PRW_duration.SetToolTipString(_("How long is this substance supposed to be taken."))
         self._CHBOX_long_term.SetToolTipString(_("Whether this substance is to be taken for the rest of the patient's life."))
@@ -120,7 +122,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         __lbl_reason = wx.StaticText(self, -1, _("Reason"))
         _gszr_main.Add(__lbl_reason, 0, wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_discontinued.Add(self._PRW_discontinue_reason, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_discontinued.Add(self.checkbox_1, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_discontinued.Add(self._CHBOX_is_allergy, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(__szr_discontinued, 1, wx.EXPAND, 0)
         __lbl_schedule = wx.StaticText(self, -1, _("Schedule"))
         _gszr_main.Add(__lbl_schedule, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -159,6 +161,10 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def _on_discontinued_as_planned_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
         print "Event handler `_on_discontinued_as_planned_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_chbox_is_allergy_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
+        print "Event handler `_on_chbox_is_allergy_checked' not implemented"
         event.Skip()
 
 # end of class wxgCurrentMedicationEAPnl
