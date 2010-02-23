@@ -16,7 +16,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
 
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
-        wx.ScrolledWindow.__init__(self, *args, **kwds)
+        wx.Panel.__init__(self, *args, **kwds)
         self._TCTRL_Soap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_sOap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_soAp = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
@@ -28,7 +28,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__set_properties
-        self.SetScrollRate(10, 10)
+        pass
         # end wxGlade
 
     def __do_layout(self):
