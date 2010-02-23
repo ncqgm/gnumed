@@ -488,7 +488,37 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 			)
 
 		self._LBL_allergies.SetLabel(msg)
-		#self.Refresh()
+	#----------------------------------------------------------------
+	def __refresh_brand_and_components(self):
+
+		if self._PRW_brand.GetData() is None:
+			self._TCTRL_brand_ingredients.SetValue(u'')
+			if self.data is None:
+				return
+			if self.data['pk_brand'] is None:
+				return
+			self._PRW_brand.SetText(self.data['brand'], self.data['pk_brand'])
+
+		brand = gmMedication.cBrandedDrug(aPK_obj = self._PRW_brand.GetData())
+
+		if self.data is None:
+			self._PRW_preparation.SetText(brand['preparation'], None)
+		else:
+			self._PRW_preparation.SetText (
+				gmTools.coalesce(self.data['preparation'], brand['preparation']),
+				self.data['preparation']
+			)
+
+		comps = brand.components
+
+		if comps is None:
+			return
+
+		if len(comps) == 0:
+			return
+
+		comps = u' / '.join([ u'%s%s' % (c['description'], gmTools.coalesce(c['atc_code'], u'', u' (%s)')) for c in comps ])
+		self._TCTRL_brand_ingredients.SetValue(comps)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -527,6 +557,17 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 				else:
 					self._PRW_duration.display_as_valid(True)
 
+		end = self._DP_discontinued.GetValue(as_pydt = True)
+		if end is not None:
+			start = self._DP_started.GetValue(as_pydt = True)
+			if start > end:
+				self._DP_started.display_as_valid(False)
+				self._DP_discontinued.display_as_valid(False)
+				validity = False
+			else:
+				self._DP_started.display_as_valid(True)
+				self._DP_discontinued.display_as_valid(True)
+
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance intake. Invalid or missing essential input.'))
 
@@ -552,8 +593,10 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		intake['strength'] = self._PRW_strength.GetValue()
 		intake['started'] = self._DP_started.GetValue(as_pydt = True)
 		intake['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True)
-		intake['discontinue_reason'] = self._PRW_discontinue_reason().GetValue().strip()
-		# FIXME: add allergy handling
+		if intake['discontinued'] is None:
+			intake['discontinue_reason'] = None
+		else:
+			intake['discontinue_reason'] = self._PRW_discontinue_reason().GetValue().strip()
 		intake['schedule'] = self._PRW_schedule.GetValue()
 		intake['aim'] = self._PRW_aim.GetValue()
 		intake['notes'] = self._PRW_notes.GetValue()
@@ -607,6 +650,9 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 				brand.add_component(substance = subst['description'])
 
 		self.data = intake
+
+		# FIXME: add allergy handling
+
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
@@ -620,8 +666,10 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self.data['started'] = self._DP_started.GetValue(as_pydt=True)
 		self.data['discontinued'] = self._DP_discontinued.GetValue(as_pydt=True)
-		self.data['discontinue_reason'] = self._PRW_discontinue_reason.GetValue().strip()
-		# FIXME: add allergy handling
+		if self.data['discontinued'] is None:
+			self.data['discontinue_reason'] = None
+		else:
+			self.data['discontinue_reason'] = self._PRW_discontinue_reason.GetValue().strip()
 		self.data['preparation'] = self._PRW_preparation.GetValue()
 		self.data['strength'] = self._PRW_strength.GetValue()
 		self.data['schedule'] = self._PRW_schedule.GetValue()
@@ -649,12 +697,15 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 			self.data['pk_brand'] = self._PRW_brand.GetData()
 
 		self.data.save()
+
+		# FIXME: add allergy handling
+
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_substance.SetText(u'', None)
 		self._PRW_strength.SetText(u'', None)
-		self._PRW_preparation.SetText(u'', None)
+#		self._PRW_preparation.SetText(u'', None)
 		self._PRW_schedule.SetText(u'', None)
 		self._PRW_duration.SetText(u'', None)
 		self._PRW_aim.SetText(u'', None)
@@ -668,9 +719,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._DP_discontinued.SetValue(None)
 		self._PRW_discontinue_reason.SetValue(u'')
 
-		self._PRW_brand.SetText(u'', None)
-		self._TCTRL_brand_ingredients.SetValue(u'')
-
+		self.__refresh_brand_and_components()
 		self.__refresh_allergies()
 
 		self._PRW_substance.SetFocus()
@@ -679,14 +728,16 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self._PRW_substance.SetText(self.data['substance'], self.data['pk_substance'])
 		self._PRW_strength.SetText(gmTools.coalesce(self.data['strength'], u''), self.data['strength'])
-		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
+
 		if self.data['is_long_term']:
 	 		self._CHBOX_long_term.SetValue(True)
 			self._PRW_duration.Enable(False)
 			self._PRW_duration.SetText(gmTools.u_infinity, None)
+			self._BTN_discontinued_as_planned.Enable(False)
 		else:
 			self._CHBOX_long_term.SetValue(False)
 			self._PRW_duration.Enable(True)
+			self._BTN_discontinued_as_planned.Enable(True)
 			if self.data['duration'] is None:
 				self._PRW_duration.SetText(u'', None)
 			else:
@@ -702,16 +753,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._DP_discontinued.SetValue(self.data['discontinued'])
 		self._PRW_discontinue_reason.SetValue(gmTools.coalesce(self.data['discontinue_reason'], u''))
 
-		self._PRW_brand.SetText(u'', None)
-		self._TCTRL_brand_ingredients.SetValue(u'')
-		if self.data['pk_brand'] is not None:
-			brand = gmMedication.cBrandedDrug(aPK_obj = self.data['pk_brand'])
-			self._PRW_brand.SetText(brand['description'], self.data['pk_brand'])
-			comps = brand.components
-			if comps is not None:
-				comps = u' / '.join([ u'%s%s' % (c['description'], gmTools.coalesce(c['atc_code'], u'', u' (%s)')) for c in comps ])
-				self._TCTRL_brand_ingredients.SetValue(comps)
-
+		self.__refresh_brand_and_components()
 		self.__refresh_allergies()
 
 		self._PRW_substance.SetFocus()
@@ -723,6 +765,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_strength.SetText(u'', None)
 		self._PRW_notes.SetText(u'', None)
 
+		self.__refresh_brand_and_components()
 		self.__refresh_allergies()
 
 		self._PRW_substance.SetFocus()
@@ -730,31 +773,29 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	# event handlers
 	#----------------------------------------------------------------
 	def _on_leave_brand(self):
-		self._TCTRL_brand_ingredients.SetValue(u'')
-
-		pk_brand = self._PRW_brand.GetData()
-		if pk_brand is None:
-			return
-
-		brand = gmMedication.cBrandedDrug(aPK_obj = pk_brand)
-		self._PRW_preparation.SetText(brand['preparation'], None)
-
-		comps = brand.components
-		if comps is None:
-			return
-		comps = u' / '.join([ u'%s%s' % (c['description'], gmTools.coalesce(c['atc_code'], u'', u' (%s)')) for c in comps ])
-		self._TCTRL_brand_ingredients.SetValue(comps)
+		self.__refresh_brand_and_components()
+	#----------------------------------------------------------------
+	def _on_discontinued_date_changed(self, event):
+		if self._DP_discontinued.GetValue() is None:
+			self._PRW_discontinue_reason.Enable(False)
+			self._CHBOX_is_allergy.Enable(False)
+		else:
+			self._PRW_discontinue_reason.Enable(True)
+			self._CHBOX_is_allergy.Enable(True)
 	#----------------------------------------------------------------
 	def _on_get_substance_button_pressed(self, event):
 		drug_db = get_drug_database()
 		if drug_db is None:
 			return
+
 		result = drug_db.import_drugs()
 		if result is None:
 			return
+
 		new_drugs, new_substances = result
 		if len(new_substances) == 0:
 			return
+
 		# FIXME: could usefully
 		# FIXME: a) ask which to post-process
 		# FIXME: b) remember the others for post-processing
@@ -763,11 +804,15 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	#----------------------------------------------------------------
 	def _on_get_brand_button_pressed(self, event):
 		drug_db = get_drug_database()
+		self.__refresh_allergies()
 		if drug_db is None:
 			return
+
 		result = drug_db.import_drugs()
+		self.__refresh_allergies()
 		if result is None:
 			return
+
 		new_drugs, new_substances = result
 		if len(new_drugs) == 0:
 			return
@@ -776,44 +821,59 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		# FIXME: b) remember the others for post-processing
 		first = new_drugs[0]
 		self._PRW_brand.SetText(first['description'], first['pk'])
-	#----------------------------------------------------------------
-	def _on_chbox_long_term_checked(self, event):
-		if self._CHBOX_long_term.IsChecked() is True:
-			self._PRW_duration.Enable(False)
-		else:
-			self._PRW_duration.Enable(True)
-	#----------------------------------------------------------------
-	def _on_chbox_is_allergy_checked(self, event):
-		if self._CHBOX_is_allergy.IsChecked() is True:
-			val = self._PRW_discontinue_reason.GetValue().strip()
-			if not val.startswith(_('not tolerated:')):
-				self._PRW_discontinue_reason.SetValue(_('not tolerated: %s') % val)
+
+		self.__refresh_brand_and_components()
 	#----------------------------------------------------------------
 	def _on_discontinued_as_planned_button_pressed(self, event):
+
 		now = gmDateTime.pydt_now_here()
 
-		print now
+		self.__refresh_allergies()
 
 		# do we have a (full) plan ?
 		if None not in [self.data['started'], self.data['duration']]:
 			planned_end = self.data['started'] + self.data['duration']
-			print planned_end
-			# the plan hasn't ended so [as planned] can't apply ;-)
+			# the plan hasn't ended so [Per plan] can't apply ;-)
 			if planned_end > now:
 				return
 			self._DP_discontinued.SetValue(planned_end)
+			self._PRW_discontinue_reason.Enable(True)
 			self._PRW_discontinue_reason.SetValue(u'')
+			self._CHBOX_is_allergy.Enable(True)
 			return
 
-		# apparently the plan is to stop today
+		# we know started but not duration: apparently the plan is to stop today
 		if self.data['started'] is not None:
 			# but we haven't started yet so we can't stop
 			if self.data['started'] > now:
 				return
 
 		self._DP_discontinued.SetValue(now)
+		self._PRW_discontinue_reason.Enable(True)
 		self._PRW_discontinue_reason.SetValue(u'')
-		return
+		self._CHBOX_is_allergy.Enable(True)
+	#----------------------------------------------------------------
+	def _on_chbox_long_term_checked(self, event):
+		if self._CHBOX_long_term.IsChecked() is True:
+			self._PRW_duration.Enable(False)
+			self._BTN_discontinued_as_planned.Enable(False)
+			self._PRW_discontinue_reason.Enable(False)
+			self._CHBOX_is_allergy.Enable(False)
+		else:
+			self._PRW_duration.Enable(True)
+			self._BTN_discontinued_as_planned.Enable(True)
+			self._PRW_discontinue_reason.Enable(True)
+			self._CHBOX_is_allergy.Enable(True)
+
+		self.__refresh_allergies()
+	#----------------------------------------------------------------
+	def _on_chbox_is_allergy_checked(self, event):
+		if self._CHBOX_is_allergy.IsChecked() is True:
+			val = self._PRW_discontinue_reason.GetValue().strip()
+			if not val.startswith(_('not tolerated:')):
+				self._PRW_discontinue_reason.SetValue(u'%s %s' % (_('not tolerated:'), val))
+
+		self.__refresh_allergies()
 #============================================================
 def delete_substance_intake(parent=None, substance=None):
 	delete_it = gmGuiHelpers.gm_show_question (

@@ -128,7 +128,7 @@ select
 	case
 		-- no discontinue date documented so assumed active
 		when csi.discontinued is null then true
-		-- else not active (constraints guarantuee that .discontinued > clin_when and < current_timestamp)
+		-- else not active (constraints guarantee that .discontinued > clin_when and < current_timestamp)
 		else false
 	end::boolean
 		as is_currently_active,

@@ -29,8 +29,8 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._PRW_brand = gmMedicationWidgets.cBrandedDrugPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_brand = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._TCTRL_brand_ingredients = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._DP_started = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_SHOWCENTURY)
-        self._DP_discontinued = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_SPIN|wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
+        self._DP_started = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_SHOWCENTURY)
+        self._DP_discontinued = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
         self._BTN_discontinued_as_planned = wx.Button(self, -1, _("Per plan"), style=wx.BU_EXACTFIT)
         self._PRW_discontinue_reason = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_is_allergy = wx.CheckBox(self, -1, _("Allergy"))
@@ -46,6 +46,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
         self.Bind(wx.EVT_BUTTON, self._on_get_substance_button_pressed, self._BTN_database_substance)
         self.Bind(wx.EVT_BUTTON, self._on_get_brand_button_pressed, self._BTN_database_brand)
+        self.Bind(wx.EVT_DATE_CHANGED, self._on_discontinued_date_changed, self._DP_discontinued)
         self.Bind(wx.EVT_BUTTON, self._on_discontinued_as_planned_button_pressed, self._BTN_discontinued_as_planned)
         self.Bind(wx.EVT_CHECKBOX, self._on_chbox_is_allergy_checked, self._CHBOX_is_allergy)
         self.Bind(wx.EVT_CHECKBOX, self._on_chbox_long_term_checked, self._CHBOX_long_term)
@@ -53,6 +54,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__set_properties
+        self.SetMinSize((610, 475))
         self.SetScrollRate(10, 10)
         self._BTN_database_substance.SetToolTipString(_("Get substances from an external drug database.\n\nNote that if you select more than one substance only the first one will be available for further editing right away."))
         self._PRW_strength.SetToolTipString(_("The amount of substance per dose."))
@@ -88,9 +90,9 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         __szr_brand = wx.BoxSizer(wx.HORIZONTAL)
         __szr_specs = wx.BoxSizer(wx.HORIZONTAL)
         __szr_substance = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._LBL_allergies, 0, wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_main.Add(self._LBL_allergies, 0, wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 2)
         __sline_top = wx.StaticLine(self, -1)
-        __szr_main.Add(__sline_top, 0, wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 2)
+        __szr_main.Add(__sline_top, 0, wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
         __lbl_substance = wx.StaticText(self, -1, _("Substance"))
         _gszr_main.Add(__lbl_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_substance.Add(self._PRW_substance, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -165,6 +167,10 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def _on_chbox_is_allergy_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
         print "Event handler `_on_chbox_is_allergy_checked' not implemented"
+        event.Skip()
+
+    def _on_discontinued_date_changed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
+        print "Event handler `_on_discontinued_date_changed' not implemented"
         event.Skip()
 
 # end of class wxgCurrentMedicationEAPnl
