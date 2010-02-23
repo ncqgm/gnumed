@@ -19,11 +19,11 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
 
         # begin wxGlade: wxgSoapPluginPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
-        wx.ScrolledWindow.__init__(self, *args, **kwds)
+        wx.Panel.__init__(self, *args, **kwds)
         self._splitter_main = wx.SplitterWindow(self, -1, style=wx.SP_3D|wx.SP_BORDER|wx.SP_PERMIT_UNSPLIT)
         self.__splitter_main_right_pnl = wx.Panel(self._splitter_main, -1, style=wx.NO_BORDER)
         self._splitter_right = wx.SplitterWindow(self.__splitter_main_right_pnl, -1, style=wx.SP_3D|wx.SP_BORDER|wx.SP_PERMIT_UNSPLIT)
-        self.__splitter_right_bottom_pnl = wx.ScrolledWindow(self._splitter_right, -1, style=wx.NO_BORDER)
+        self.__splitter_right_bottom_pnl = wx.Panel(self._splitter_right, -1, style=wx.NO_BORDER)
         self.__splitter_right_top_pnl = wx.Panel(self._splitter_right, -1, style=wx.NO_BORDER)
         self._NB_soap_editors = cSoapNoteInputNotebook(self.__splitter_right_top_pnl, -1, style=0)
         self.__splitter_main_left_pnl = wx.Panel(self._splitter_main, -1, style=wx.NO_BORDER)
@@ -72,7 +72,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgSoapPluginPnl.__set_properties
-        self.SetScrollRate(10, 10)
         self._CHBOX_show_closed_episodes.SetToolTipString(_("Show closed episodes as pseudo-problems ?"))
         self._CHBOX_irrelevant_issues.SetToolTipString(_("Show issues marked clinically NOT relevant."))
         self._LCTRL_active_problems.SetToolTipString(_("This shows the list of active problems, They include open episodes as well as active health issues."))
@@ -89,7 +88,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._BTN_new_encounter.SetToolTipString(_("Start a new encounter. If there are any changes to the current encounter you will be asked whether to save them."))
         self._BTN_save_encounter.SetToolTipString(_("Save the encounter details."))
         self._BTN_save_all.SetToolTipString(_("Save encounter details and all progress notes."))
-        self.__splitter_right_bottom_pnl.SetScrollRate(10, 10)
         # end wxGlade
 
     def __do_layout(self):

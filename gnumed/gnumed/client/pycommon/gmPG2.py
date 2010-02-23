@@ -1591,16 +1591,9 @@ DT_W_ODD_TZ = psycopg2.extensions.new_type((TIMESTAMPTZ_OID,), 'DT_W_ODD_TZ', co
 #=======================================================================
 #  main
 #-----------------------------------------------------------------------
-# properly adapt *tuples* into (a, b, c, ...) for
-# "where ... IN (...)" queries
-# but only needed/possible in psycopg2 < 2.0.6
-#try:
-#	psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
-#except AttributeError:
-#	print "SQL_IN not needed"
-#	pass
 
 # make sure psycopg2 knows how to handle unicode ...
+# intended to become standard
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
@@ -1619,7 +1612,6 @@ except ImportError:
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY()..." so we can support PG arrays
-#psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
 
 #=======================================================================
 if __name__ == "__main__":
