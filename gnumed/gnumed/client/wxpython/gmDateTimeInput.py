@@ -229,15 +229,13 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 	#----------------------------------------------
 	def get_pydt(self):
 		return self.GetValue(as_pydt = True)
-
-#		val = self.GetValue()
-#		if val.IsValid():
-#			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-#			val = gmDateTime.wxDate2py_dt(val)
-#			self.Refresh()
-#		else:
-#			val = None
-#		return val
+	#----------------------------------------------
+	def display_as_valid(self, valid=True):
+		if valid is True:
+			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+		else:
+			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+		self.Refresh()
 #==================================================
 # main
 #--------------------------------------------------
