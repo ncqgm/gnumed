@@ -4,16 +4,18 @@ BAK_BASE=~/".gnumed/backup"
 #------------------------------------------------------------------
 
 mkdir -p ${BAK_BASE}/vcs-mirror
+
 cd ${BAK_BASE}/vcs-mirror
 
-
-# Git
-git clone git://gitorious.org/gnumed/gnumed.git
-if test "$?" != "0" ; then
+if [ -d gnumed ]; then
 	cd gnumed
 	git pull -v
 	cd ..
+else
+	git clone git://gitorious.org/gnumed/gnumed.git
 fi
+
+
 
 
 # CVS
