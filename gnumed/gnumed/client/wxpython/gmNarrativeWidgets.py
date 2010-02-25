@@ -1,7 +1,5 @@
 """GNUmed narrative handling widgets."""
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.46 2010-02-07 15:16:32 ncq Exp $
 __version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -17,7 +15,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime, gmPG2, gmCfg
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
+from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
+from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg, wxgSoapNoteExpandoEditAreaPnl
 
 
@@ -628,6 +627,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._splitter_main.SetSashGravity(0.5)
 		self._splitter_left.SetSashGravity(0.5)
 		self._splitter_right.SetSashGravity(1.0)
+		self._splitter_soap.SetSashGravity(0.75)
 
 		splitter_size = self._splitter_main.GetSizeTuple()[0]
 		self._splitter_main.SetSashPosition(splitter_size * 3 / 10, True)
@@ -637,6 +637,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		splitter_size = self._splitter_right.GetSizeTuple()[1]
 		self._splitter_right.SetSashPosition(splitter_size * 15 / 20, True)
+
+		splitter_size = self._splitter_soap.GetSizeTuple()[0]
+		self._splitter_soap.SetSashPosition(splitter_size * 3 / 4, True)
 
 		self._NB_soap_editors.DeleteAllPages()
 	#--------------------------------------------------------
@@ -1487,6 +1490,70 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 		self.ShowPosition(position + len(expansion) + 1)
 
 		return
+#============================================================
+class cVisualSoapTemplatePhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Phrasewheel to allow selection of visual SOAP template."""
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+
+#		ctxt = {'ctxt_pat': {'where_part': u'pk_patient = %(pat)s and', 'placeholder': u'pat'}}
+
+"""
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [
+u"""
+"""
+select
+	pk_hospital_stay,
+	descr
+from (
+	select distinct on (pk_hospital_stay)
+		pk_hospital_stay,
+		descr
+	from
+		(select
+			pk_hospital_stay,
+			(
+				to_char(admission, 'YYYY-Mon-DD')
+				|| coalesce((' (' || hospital || '):'), ': ')
+				|| episode
+				|| coalesce((' (' || health_issue || ')'), '')
+			) as descr
+		 from
+		 	clin.v_pat_hospital_stays
+		 where
+			%(ctxt_pat)s
+
+			hospital %(fragment_condition)s
+				or
+			episode %(fragment_condition)s
+				or
+			health_issue %(fragment_condition)s
+		) as the_stays
+) as distinct_stays
+order by descr
+limit 25
+"""
+"""			],
+			context = ctxt
+		)
+		mp.setThresholds(3, 4, 6)
+		mp.set_context('pat', gmPerson.gmCurrentPatient().ID)
+
+		self.matcher = mp
+		self.selection_only = True
+"""
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgVisualSoapPnl
+
+class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
+
+	def __init__(self, *args, **kwargs):
+
+		wxgVisualSoapPnl.wxgVisualSoapPnl.__init__(self, *args, **kwargs)
+
 #============================================================
 # main
 #------------------------------------------------------------
