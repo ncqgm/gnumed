@@ -14,8 +14,6 @@ to anybody else.
 copyright: authors
 """
 #==============================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.491 2010-02-07 15:14:07 ncq Exp $
 __version__ = "$Revision: 1.491 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -312,6 +310,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
+
+		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
@@ -1264,6 +1265,9 @@ class gmTopLevelFrame(wx.Frame):
 			bias = 'user',
 			validator = is_valid
 		)
+	#----------------------------------------------
+	def __on_configure_visual_soap_cmd(self, event):
+		gmNarrativeWidgets.configure_visual_progress_note_editor()
 	#----------------------------------------------
 	def __on_configure_freediams_cmd(self, event):
 

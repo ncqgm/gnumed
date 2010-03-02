@@ -12,12 +12,13 @@ import wx.lib.expando as wxexpando
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime, gmPG2, gmCfg
+from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
+from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
-from Gnumed.exporters import gmPatientExporter
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
-from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg, wxgSoapNoteExpandoEditAreaPnl
+from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
+from Gnumed.exporters import gmPatientExporter
 
 
 _log = logging.getLogger('gm.ui')
@@ -513,6 +514,8 @@ class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = narrative)
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg
+
 class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -1219,6 +1222,8 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		page = self.GetPage(page_idx)
 		return page.problem
 #============================================================
+from Gnumed.wxGladeWidgets import wxgSoapNoteExpandoEditAreaPnl
+
 class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpandoEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -1491,6 +1496,100 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 
 		return
 #============================================================
+# visual progress notes
+#============================================================
+def configure_visual_progress_note_editor():
+
+	def is_valid(value):
+		found, binary = gmShellAPI.detect_external_binary(value)
+		if not found:
+			gmDispatcher.send (
+				signal = 'statustext',
+				msg = _('The command [%s] is not found.') % value,
+				beep = True
+			)
+			return True, value
+		return True, binary
+	#------------------------------------------
+	gmCfgWidgets.configure_string_option (
+		message = _(
+			'Enter the shell command with which to start\n'
+			'the image editor for visual progress notes.\n'
+			'\n'
+			'Any "%(img)s" included with the arguments\n'
+			'will be replaced by the file name of the\n'
+			'note template.'
+		),
+		option = u'external.tools.visual_soap_editor_cmd',
+		bias = 'user',
+		default_value = None,
+		validator = is_valid
+	)
+#============================================================
+def edit_visual_progress_note(filename=None, episode=None):
+	"""This assumes <filename> contains an image which can be handled by the configured image editor."""
+
+	dbcfg = gmCfg.cCfgSQL()
+	cmd = dbcfg.get2 (
+		option = u'external.tools.visual_soap_editor_cmd',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user'
+	)
+
+	if cmd is None:
+		gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = False)
+		cmd = configure_visual_progress_note_editor()
+		if cmd is None:
+			gmDispatcher.send(signal = u'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
+			return None
+
+	if u'%(img)s' in cmd:
+		cmd % {u'img': filename}
+	else:
+		cmd = u'%s %s' % (cmd, filename)
+
+	# FIXME: create copy and hand that to the editor
+	success = gmShellAPI.run_command_in_shell(cmd, blocking = True)
+	if not success:
+		gmGuiHelpers.gm_show_error (
+			_(
+				'There was a problem with running the editor\n'
+				'for visual progress notes.\n'
+				'\n'
+				' [%s]\n'
+				'\n'
+			) % cmd,
+			_('Editing visual progress note')
+		)
+		return None
+
+	try:
+		open(filename, 'r').close()
+	except StandardError:
+		_log.exception('problem accessing visual progress note file [%s]', filename)
+		gmGuiHelpers.gm_show_error (
+			_(
+				'There was a problem reading the visual\n'
+				'progress note from the file:\n'
+				'\n'
+				' [%s]\n'
+				'\n'
+			) % filename,
+			_('Saving visual progress note')
+		)
+		return None
+
+	# FIXME: compare copy to original
+
+	doc = gmDocumentWidgets.save_file_as_new_document (
+		filename = filename,
+		document_type = u'visual progress note',
+		episode = episode,
+		unlock_patient = True
+	)
+
+	return doc
+#============================================================
 class cVisualSoapTemplatePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of visual SOAP template."""
 	def __init__(self, *args, **kwargs):
@@ -1553,6 +1652,32 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 	def __init__(self, *args, **kwargs):
 
 		wxgVisualSoapPnl.wxgVisualSoapPnl.__init__(self, *args, **kwargs)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_from_file_button_pressed(self, event):
+
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Choose a visual progress note template file'),
+			defaultDir = os.path.expanduser('~'),
+			defaultFile = '',
+			#wildcard = "%s (*)|*|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
+			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+		)
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			dlg.Destroy()
+			return
+
+		full_filename = dlg.GetPath()
+		dlg.Hide()
+		dlg.Destroy()
+
+		episode = self._PRW_episode.GetData(can_create = True, is_open = False, as_instance = True)
+
+		doc = edit_visual_progress_note(filename = full_filename, episode = episode)
+	#--------------------------------------------------------
 
 #============================================================
 # main
@@ -1598,162 +1723,4 @@ if __name__ == '__main__':
 		#test_cSoapPluginPnl()
 
 #============================================================
-# $Log: gmNarrativeWidgets.py,v $
-# Revision 1.46  2010-02-07 15:16:32  ncq
-# - support selectable, scrollabe "old" progress note in progress note editor
-# - support ignoring the OK button in the progress note selector
-#
-# Revision 1.45  2010/01/11 19:51:09  ncq
-# - cleanup
-# - warn-on-unsaved-soap and use in syn pre-selection callback
-#
-# Revision 1.44  2009/11/28 18:32:50  ncq
-# - finalize showing potential problems in problem list, too, and adjust box label
-#
-# Revision 1.43  2009/11/24 21:03:41  ncq
-# - display problems based on checkbox selection
-# - set recent notes label based on problem selection
-#
-# Revision 1.42  2009/11/15 01:10:09  ncq
-# - enhance move-progress-notes-to-another-encounter
-# - use enhanced new encounter start
-#
-# Revision 1.41  2009/11/13 21:08:24  ncq
-# - enable cross-EMR narrative search to activate matching
-#   patient from result list
-#
-# Revision 1.40  2009/11/08 20:49:49  ncq
-# - implement search across all EMRs
-#
-# Revision 1.39  2009/09/13 18:45:25  ncq
-# - no more get-active-encounter()
-#
-# Revision 1.38  2009/09/01 22:36:59  ncq
-# - wx-CallAfter on start-new-encounter
-#
-# Revision 1.37  2009/07/23 16:41:13  ncq
-# - cleanup
-#
-# Revision 1.36  2009/07/02 20:55:48  ncq
-# - properly honor allow-same-problem on non-new editors only
-#
-# Revision 1.35  2009/07/01 17:09:06  ncq
-# - refresh fields explicitly when active encounter is switched
-#
-# Revision 1.34  2009/06/29 15:09:45  ncq
-# - inform user when nothing is found during search
-# - refresh recent-notes on problem single-click selection
-#   but NOT anymore on editor changes
-#
-# Revision 1.33  2009/06/22 09:28:20  ncq
-# - improved wording as per list
-#
-# Revision 1.32  2009/06/20 22:39:27  ncq
-# - improved wording as per list discussion
-#
-# Revision 1.31  2009/06/11 12:37:25  ncq
-# - much simplified initial setup of list ctrls
-#
-# Revision 1.30  2009/06/04 16:33:13  ncq
-# - adjust to dob-less person
-# - use set-active-patient from pat-search-widgets
-#
-# Revision 1.29  2009/05/13 13:12:41  ncq
-# - cleanup
-#
-# Revision 1.28  2009/05/13 12:22:05  ncq
-# - move_progress_notes_to_another_encounter
-#
-# Revision 1.27  2009/04/16 12:51:02  ncq
-# - edit_* -> manage_progress_notes as it can delete now, too,
-#   after being converted to using get_choices_from_list
-#
-# Revision 1.26  2009/04/13 10:56:21  ncq
-# - use same_payload on encounter to detect changes
-# - detect when current encounter is switched, not just modified
-#
-# Revision 1.25  2009/03/10 14:23:56  ncq
-# - comment
-#
-# Revision 1.24  2009/03/02 18:57:52  ncq
-# - make expando soap editor scroll to cursor when needed
-#
-# Revision 1.23  2009/02/24 13:22:06  ncq
-# - fix saving edited progress notes
-#
-# Revision 1.22  2009/02/17 08:07:37  ncq
-# - support explicit macro expansion
-#
-# Revision 1.21  2009/01/21 22:37:14  ncq
-# - do not fail save_all_editors() where not appropriate
-#
-# Revision 1.20  2009/01/21 18:53:57  ncq
-# - fix save_all_editors and call it with proper args
-#
-# Revision 1.19  2009/01/03 17:29:01  ncq
-# - listen on new current_encounter_modified
-# - detecting encounter field changes at exit/patient doesn't properly work
-# - refresh recent notes where needed
-#
-# Revision 1.18  2009/01/02 11:41:16  ncq
-# - improved event handling
-#
-# Revision 1.17  2008/12/27 15:50:41  ncq
-# - almost finish implementing soap saving
-#
-# Revision 1.16  2008/12/26 22:35:44  ncq
-# - edit_progress_notes
-# - implement most of new soap plugin functionality
-#
-# Revision 1.15  2008/11/24 11:10:29  ncq
-# - cleanup
-#
-# Revision 1.14  2008/11/23 12:47:02  ncq
-# - preset splitter ratios and gravity
-# - cleanup
-# - reorder recent notes with most recent on bottom as per list
-#
-# Revision 1.13  2008/11/20 20:35:50  ncq
-# - new soap plugin widgets
-#
-# Revision 1.12  2008/10/26 01:21:52  ncq
-# - factor out searching EMR for narrative
-#
-# Revision 1.11  2008/10/22 12:21:57  ncq
-# - use %x in strftime where appropriate
-#
-# Revision 1.10  2008/10/12 16:26:20  ncq
-# - consultation -> encounter
-#
-# Revision 1.9  2008/09/02 19:01:12  ncq
-# - adjust to clin health_issue fk_patient drop and related changes
-#
-# Revision 1.8  2008/07/28 15:46:05  ncq
-# - export_narrative_for_medistar_import
-#
-# Revision 1.7  2008/03/05 22:30:14  ncq
-# - new style logging
-#
-# Revision 1.6  2007/12/03 20:45:28  ncq
-# - improved docs
-#
-# Revision 1.5  2007/09/10 12:36:02  ncq
-# - improved wording in narrative selector at SOAP level
-#
-# Revision 1.4  2007/09/09 19:21:04  ncq
-# - get top level wx.App window if parent is None
-# - support filtering by soap_cats
-#
-# Revision 1.3  2007/09/07 22:45:58  ncq
-# - much improved select_narrative_from_episodes()
-#
-# Revision 1.2  2007/09/07 10:59:17  ncq
-# - greatly improve select_narrative_by_episodes
-#   - remember selections
-#   - properly levelled looping
-# - fix test suite
-#
-# Revision 1.1  2007/08/29 22:06:15  ncq
-# - factored out narrative widgets
-#
-#
+

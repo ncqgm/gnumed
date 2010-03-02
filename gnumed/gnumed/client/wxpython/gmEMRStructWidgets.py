@@ -1217,27 +1217,53 @@ limit 30"""
 		self.set_context('pat', self.__patient_id)
 		return True
 	#--------------------------------------------------------
-	def GetData(self, can_create=False, is_open=False):
-		if self.data is None:
-			if can_create:
-				epi_name = self.GetValue().strip()
-				if epi_name == u'':
-					gmDispatcher.send(signal = u'statustext',	msg = _('Cannot create episode without name.'),	beep = True)
-					_log.debug('cannot create episode without name')
-				else:
-					if self.use_current_patient:
-						pat = gmPerson.gmCurrentPatient()
-					else:
-						pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
+	def GetData(self, can_create=False, as_instance=False, is_open=False):
 
-					emr = pat.get_emr()
-					epi = emr.add_episode(episode_name = epi_name, is_open = is_open)
-					if epi is None:
-						self.data = None
-					else:
-						self.data = epi['pk_episode']
+		self.__is_open = is_open
 
-		return gmPhraseWheel.cPhraseWheel.GetData(self)
+#		if self.data is None:
+#			if can_create:
+#				epi_name = self.GetValue().strip()
+#				if epi_name == u'':
+#					gmDispatcher.send(signal = u'statustext', msg = _('Cannot create episode without name.'), beep = True)
+#					_log.debug('cannot create episode without name')
+#				else:
+#					if self.use_current_patient:
+#						pat = gmPerson.gmCurrentPatient()
+#					else:
+#						pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
+#
+#					emr = pat.get_emr()
+#					epi = emr.add_episode(episode_name = epi_name, is_open = is_open)
+#					if epi is None:
+#						self.data = None
+#					else:
+#						self.data = epi['pk_episode']
+
+		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
+	#--------------------------------------------------------
+	def _create_data(self):
+
+		epi_name = self.GetValue().strip()
+		if epi_name == u'':
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create episode without name.'), beep = True)
+			_log.debug('cannot create episode without name')
+			return
+
+		if self.use_current_patient:
+			pat = gmPerson.gmCurrentPatient()
+		else:
+			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
+
+		emr = pat.get_emr()
+		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open)
+		if epi is None:
+			self.data = None
+		else:
+			self.data = epi['pk_episode']
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmEMRStructItems.cEpisode(aPK_obj = self.data)
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
