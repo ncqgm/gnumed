@@ -4,11 +4,11 @@
 # license: GPL
 #====================================================
 CLIENTREV="0.7.rc1"
-CLIENTREV="GIT"
+CLIENTREV="Git"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
 SRVREV="13.rc1"
-SRVREV="GIT"
+SRVREV="Git"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -150,7 +150,6 @@ cp -R ./gnumed.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/gnumedlogo.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/serpent.png ./gnumed-client.$CLIENTREV/client/bitmaps/
-chmod -cR -x ./gnumed-client.$CLIENTREV/client/bitmaps/*.*
 
 
 # business
@@ -237,8 +236,6 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/wxpython/
 cp -R ../../client/wxpython/*.py ./gnumed-client.$CLIENTREV/client/wxpython/
 mkdir -p ./gnumed-client.$CLIENTREV/client/wxpython/gui/
 cp -R ../../client/wxpython/gui/*.py ./gnumed-client.$CLIENTREV/client/wxpython/gui/
-chmod -cR -x ./gnumed-client.$CLIENTREV/client/wxpython/*.*
-chmod -cR -x ./gnumed-client.$CLIENTREV/client/wxpython/gui/*.*
 
 
 # current User Manual
@@ -476,14 +473,14 @@ find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 # now make tarballs
 # - client
 cd gnumed-client.$CLIENTREV
-ln -s client Gnumed
+ln -sT client Gnumed
 cd ..
 tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
 # - server
 mv gnumed-client.$CLIENTREV gnumed-server.$SRVREV
 cd gnumed-server.$SRVREV
 rm Gnumed
-ln -s server Gnumed
+ln -sT server Gnumed
 cd ..
 tar -czf $SRVARCH ./gnumed-server.$SRVREV/server/ ./gnumed-server.$SRVREV/Gnumed
 

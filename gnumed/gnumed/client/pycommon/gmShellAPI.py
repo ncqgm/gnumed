@@ -1,8 +1,6 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.13 2010-01-11 22:03:08 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
 __version__ = "$Revision: 1.13 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -23,7 +21,7 @@ def detect_external_binary(binary=None):
 	if os.access(binary, os.X_OK):
 		return (True, binary)
 
-	# maybe we are on UNIX and should use "which" to find the full path ?
+	# try "which" to find the full path
 	cmd = 'which %s' % binary
 	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
 	result = pipe.readline()
@@ -38,6 +36,8 @@ def detect_external_binary(binary=None):
 			return (True, result)
 		else:
 			_log.debug('[%s] not detected with "which"', binary)
+
+	# consider "d/m/s/locate" to find the full path
 
 	tmp = binary.lstrip()
 	# to be run by wine ?
@@ -160,73 +160,32 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 
-	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+	if len(sys.argv) < 2:
+		sys.exit()
 
-		logging.basicConfig(level = logging.DEBUG)
+	if sys.argv[1] != u'test':
+		sys.exit()
 
-		#---------------------------------------------------------
-		def test_detect_external_binary():
-			found, path = detect_external_binary(binary = sys.argv[2])
-			if found:
-				print "found as:", path
-			else:
-				print sys.argv[2], "not found"
-		#---------------------------------------------------------
-		def test_run_command_in_shell():
+	logging.basicConfig(level = logging.DEBUG)
+	#---------------------------------------------------------
+	def test_detect_external_binary():
+		found, path = detect_external_binary(binary = sys.argv[2])
+		if found:
+			print "found as:", path
+		else:
+			print sys.argv[2], "not found"
+	#---------------------------------------------------------
+	def test_run_command_in_shell():
+		print "-------------------------------------"
+		print "running:", sys.argv[2]
+		if run_command_in_shell(command=sys.argv[2], blocking=True):
 			print "-------------------------------------"
-			print "running:", sys.argv[2]
-			if run_command_in_shell(command=sys.argv[2], blocking=True):
-				print "-------------------------------------"
-				print "success"
-			else:
-				print "-------------------------------------"
-				print "failure, consult log"
-		#---------------------------------------------------------
-
-		#test_run_command_in_shell()
-		test_detect_external_binary()
+			print "success"
+		else:
+			print "-------------------------------------"
+			print "failure, consult log"
+	#---------------------------------------------------------
+	#test_run_command_in_shell()
+	test_detect_external_binary()
 
 #===========================================================================
-# $Log: gmShellAPI.py,v $
-# Revision 1.13  2010-01-11 22:03:08  ncq
-# - comment
-#
-# Revision 1.12  2010/01/03 18:16:11  ncq
-# - find-first-binary
-# - run-first-available-in-shell
-#
-# Revision 1.11  2010/01/01 21:20:01  ncq
-# - much better logging
-#
-# Revision 1.10  2009/04/20 11:39:41  ncq
-# - properly detect binaries run by Wine
-#
-# Revision 1.9  2008/12/09 23:26:12  ncq
-# - improved logging
-#
-# Revision 1.8  2008/03/06 21:25:41  ncq
-# - optimize detect_external_binary() for the common case
-#
-# Revision 1.7  2008/03/06 18:48:21  ncq
-# - much improved wine-based executable detection
-#
-# Revision 1.6  2008/03/02 15:09:35  ncq
-# - smarten up detect_external_binary about winepath
-#
-# Revision 1.5  2008/01/14 20:30:11  ncq
-# - detect_external_binary()
-# - better tests
-#
-# Revision 1.4  2007/12/12 16:17:16  ncq
-# - better logger names
-#
-# Revision 1.3  2007/12/11 14:33:48  ncq
-# - use standard logging module
-#
-# Revision 1.2  2007/03/31 21:20:34  ncq
-# - os.system() needs encoded commands
-#
-# Revision 1.1  2006/12/23 13:17:32  ncq
-# - new API
-#
-

@@ -6,10 +6,11 @@
 *.log
 
 # our import symlink
-gnumed/Gnumed
+gnumed/gnumed/Gnumed
 
 # gettext compiled strings
 *.mo
+gnumed.pot
 
 # backup files
 *.*~

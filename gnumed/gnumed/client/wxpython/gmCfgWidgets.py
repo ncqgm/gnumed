@@ -136,7 +136,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 			parent = parent,
 			message = message,
 			caption = _('Configuration'),
-			defaultValue = u'%s' % current_value,
+			defaultValue = gmTools.coalesce(current_value, u''),
 			style = wx.OK | wx.CANCEL | wx.CENTRE
 		)
 		result = dlg.ShowModal()
