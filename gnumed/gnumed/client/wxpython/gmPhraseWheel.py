@@ -332,6 +332,8 @@ class cPhraseWheel(wx.TextCtrl):
 	#---------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False):
 		"""Retrieve the data associated with the displayed string.
+
+			_create_data() must set self.data if possible
 		"""
 		if self.data is None:
 			if can_create:
