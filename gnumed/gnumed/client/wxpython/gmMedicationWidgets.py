@@ -345,7 +345,7 @@ def update_atc_reference_data():
 	return True
 
 #============================================================
-# current medication widgets
+# current substance intake handling
 #============================================================
 class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
 

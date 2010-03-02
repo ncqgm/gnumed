@@ -12,12 +12,20 @@ import sys, logging, csv, codecs, os, re as regex
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools, gmDateTime
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools
+from Gnumed.pycommon import gmDispatcher, gmDateTime, gmHooks
 from Gnumed.business import gmATC
 
 
 _log = logging.getLogger('gm.meds')
 _log.info(__version__)
+
+#============================================================
+def _on_substance_intake_modified():
+	"""Always relates to the active patient."""
+	gmHooks.run_hook_script(hook = u'after_substance_intake_modified')
+
+gmDispatcher.connect(_on_substance_intake_modified, u'substance_intake_mod_db')
 
 #============================================================
 # this should be in gmCoding.py
@@ -104,7 +112,7 @@ class cGelbeListeCSVFile(object):
 		u'status_billigere_packung',
 		u'rezepttyp',
 		u'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
-		u't-rezept-pflicht',				# Thalidomid-Rezept
+		u't_rezept_pflicht',				# Thalidomid-Rezept
 		u'erstattbares_medizinprodukt',
 		u'hilfsmittel',
 		u'hzv_rabattkennung',
@@ -124,7 +132,7 @@ class cGelbeListeCSVFile(object):
 		u'apothekenpflicht',
 		u'status_billigere_packung',
 		u'besonderes_arzneimittel',			# Abstimmungsverfahren SGB-V
-		u't-rezept-pflicht',
+		u't_rezept_pflicht',
 		u'erstattbares_medizinprodukt',
 		u'hilfsmittel'
 	]
