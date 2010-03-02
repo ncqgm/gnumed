@@ -1549,15 +1549,19 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 #------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.pycommon import gmI18N
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
 	#----------------------------------------
-	#----------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-#		test_*()
-		pass
+#	test_*()
+	pass
 
 #============================================================
