@@ -142,13 +142,13 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
 			dlg.Destroy()
-			return
+			return None
 
 		user_val = dlg.GetValue().strip()
 		dlg.Destroy()
 
 		if user_val == current_value:
-			return
+			return user_val
 
 		validated, user_val = validator(user_val)
 		if validated:
@@ -167,7 +167,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 		value = user_val
 	)
 
-	return
+	return user_val
 #================================================================
 def configure_boolean_option(parent=None, question=None, option=None, button_tooltips=None):
 
