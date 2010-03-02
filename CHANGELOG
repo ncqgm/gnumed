@@ -10,6 +10,8 @@
 
 - new: manage diagnostic orgs
 - new: manage date of death per patient
+- new: hook after_substance_intake_modified
+- new: hook after_test_result_modified
 
 - improved: show allergies in substance intake edit area
 - improved: warn on creating database users with empty passwords

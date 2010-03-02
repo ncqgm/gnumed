@@ -16,12 +16,20 @@ if __name__ == '__main__':
 	gmDateTime.init()
 	gmI18N.activate_locale()
 from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2, gmTools
+from Gnumed.pycommon import gmDispatcher
 
 
 _log = logging.getLogger('gm.lab')
 _log.info(__version__)
 
 # FIXME: use UCUM from Regenstrief Institute
+
+#============================================================
+def _on_test_result_modified():
+	"""Always relates to the active patient."""
+	gmHooks.run_hook_script(hook = u'after_test_result_modified')
+
+gmDispatcher.connect(_on_test_result_modified, u'test_result_mod_db')
 
 #============================================================
 class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
