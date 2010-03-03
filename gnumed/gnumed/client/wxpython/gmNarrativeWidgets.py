@@ -579,6 +579,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	- previous notes
 	- notebook with progress note editors
 	- encounter details fields
+	- visual soap area
 
 	Listens to patient change signals, thus acts on the current patient.
 	"""
@@ -651,15 +652,24 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		Clear all information from input panel
 		"""
 		self._LCTRL_active_problems.set_string_items()
-		self._lbl_hints.SetLabel(u'')
+
 		self._TCTRL_recent_notes.SetValue(u'')
-		self._NB_soap_editors.DeleteAllPages()
-		self._NB_soap_editors.add_editor()
+
 		self._PRW_encounter_type.SetText(suppress_smarts = True)
 		self._PRW_encounter_start.SetText(suppress_smarts = True)
 		self._PRW_encounter_end.SetText(suppress_smarts = True)
 		self._TCTRL_rfe.SetValue(u'')
 		self._TCTRL_aoe.SetValue(u'')
+
+		self._NB_soap_editors.DeleteAllPages()
+		self._NB_soap_editors.add_editor()
+
+		self._PNL_visual_soap.clear()
+
+		self._lbl_hints.SetLabel(u'')
+	#--------------------------------------------------------
+	def __refresh_visual_soaps(self):
+		self._PNL_visual_soap.refresh()
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
 		"""Update health problems list.
@@ -891,8 +901,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
-		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_modified)
+		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
 
 		# synchronous signals
 		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
@@ -945,11 +956,21 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_post_patient_selection(self):
 		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
+	def _on_doc_mod_db(self):
+		wx.CallAfter(self.__refresh_visual_soaps)
+	#--------------------------------------------------------
 	def _on_episode_issue_mod_db(self):
 		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_current_encounter_modified(self):
 		wx.CallAfter(self.__refresh_encounter)
+	#--------------------------------------------------------
+	def _on_current_encounter_switched(self):
+		wx.CallAfter(self.__on_current_encounter_switched)
+	#--------------------------------------------------------
+	def __on_current_encounter_switched(self):
+		self.__refresh_encounter()
+		self.__refresh_visual_soaps()
 	#--------------------------------------------------------
 	def _on_problem_focused(self, event):
 		"""Show related note at the bottom."""
@@ -1056,6 +1077,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _populate_with_data(self):
 		self.__refresh_problem_list()
 		self.__refresh_encounter()
+		self.__refresh_visual_soaps()
 		return True
 #============================================================
 class cSoapNoteInputNotebook(wx.Notebook):
@@ -1498,6 +1520,9 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 #============================================================
 # visual progress notes
 #============================================================
+visual_progress_note_document_type = u'visual progress note'
+
+#============================================================
 def configure_visual_progress_note_editor():
 
 	def is_valid(value):
@@ -1583,7 +1608,7 @@ def edit_visual_progress_note(filename=None, episode=None):
 
 	doc = gmDocumentWidgets.save_file_as_new_document (
 		filename = filename,
-		document_type = u'visual progress note',
+		document_type = visual_progress_note_document_type,
 		episode = episode,
 		unlock_patient = True
 	)
@@ -1653,7 +1678,88 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		wxgVisualSoapPnl.wxgVisualSoapPnl.__init__(self, *args, **kwargs)
 	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def clear(self):
+		# FIXME: clear image field, too
+		self._PRW_episode.SetText(value = u'', data = None)
+		#self._PRW_comment.SetText(value = u'', data = None)
+		self._PRW_comment.SetValue(u'')
+		self._PRW_template.SetText(value = u'', data = None)
+		self._LCTRL_visual_soaps.set_columns([_('Sketches')])
+	#--------------------------------------------------------
+	def refresh(self, patient=None, encounter=None):
+
+		self.clear()
+
+		if patient is None:
+			patient = gmPerson.gmCurrentPatient()
+
+		if not patient.connected:
+			return
+
+		emr = patient.get_emr()
+		if encounter is None:
+			encounter = emr.active_encounter
+
+		folder = patient.get_document_folder()
+		soap_docs = folder.get_documents (
+			doc_type = visual_progress_note_document_type,
+			encounter = encounter['pk_encounter']
+		)
+
+		self._LCTRL_visual_soaps.set_string_items ([
+			u'%s%s%s' % (
+				gmTools.coalesce(sd['comment'], u'', u'%s\n'),
+				gmTools.coalesce(sd['ext_ref'], u'', u'%s\n'),
+				sd['episode']
+			) for sd in soap_docs
+		])
+		self._LCTRL_visual_soaps.set_data(soap_docs)
+
+		#self.Layout()
+	#--------------------------------------------------------
 	# event handlers
+	#--------------------------------------------------------
+	def _on_visual_soap_selected(self, event):
+
+		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
+		if doc is None:
+			return
+
+		parts = doc.get_parts()
+		if len(parts) == 0:
+			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
+			return
+
+		fname = parts[0].export_to_file()
+		if fname is None:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note to file.'))
+			return
+
+		img_data = None
+		rescaled_width = 300
+		try:
+			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
+			current_width = img_data.GetWidth()
+			current_height = img_data.GetHeight()
+			rescaled_height = (rescaled_width * current_height) / current_width
+			img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
+			bmp_data = wx.BitmapFromImage(img_data)
+		except:
+			_log.exception('cannot load visual progress note from [%s]', fname)
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot load visual progress note from [%s].') % fname)
+			del img_data
+			return
+
+		del img_data
+		self._IMG_soap.SetBitmap(bmp_data)
+
+		self._PRW_episode.SetText(value = doc['episode'], data = doc['pk_episode'])
+		if doc['comment'] is not None:
+			self._PRW_comment.SetValue(doc['comment'].strip())
+
+		return
 	#--------------------------------------------------------
 	def _on_from_file_button_pressed(self, event):
 
@@ -1674,11 +1780,20 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 		dlg.Hide()
 		dlg.Destroy()
 
+		#shutil.copy2(gmLog2._logfile_name, new_name)
+
 		episode = self._PRW_episode.GetData(can_create = True, is_open = False, as_instance = True)
+		if episode is None:
+			if self._PRW_episode.GetValue().strip() == u'':
+				# dummy episode to hold images
+				self._PRW_episode.SetText(value = _('visual progress notes'))
+				episode = self._PRW_episode.GetData(can_create = True, is_open = False, as_instance = True)
 
 		doc = edit_visual_progress_note(filename = full_filename, episode = episode)
+		doc.set_reviewed(technically_abnormal=False, clinically_relevant=True)
+		doc['comment'] = self._PRW_comment.GetValue().strip()
+		doc.save()
 	#--------------------------------------------------------
-
 #============================================================
 # main
 #------------------------------------------------------------

@@ -14,6 +14,7 @@ class wxgVisualSoapPnl(wx.Panel):
 
         from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
         from Gnumed.wxpython.gmNarrativeWidgets import cVisualSoapTemplatePhraseWheel
+        from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 
         # begin wxGlade: wxgVisualSoapPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -21,9 +22,11 @@ class wxgVisualSoapPnl(wx.Panel):
         self._IMG_soap = wx.StaticBitmap(self, -1, wx.NullBitmap, style=wx.SIMPLE_BORDER)
         self._BTN_delete = wx.Button(self, -1, _("Delete"), style=wx.BU_EXACTFIT)
         self._PRW_episode = cEpisodeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_template = cVisualSoapTemplatePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_from_template = wx.Button(self, -1, _("Template"), style=wx.BU_EXACTFIT)
         self._BTN_load_image = wx.Button(self, -1, _("File"), style=wx.BU_EXACTFIT)
+        self._LCTRL_visual_soaps = cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_ALIGN_LEFT|wx.LC_SINGLE_SEL|wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -31,21 +34,25 @@ class wxgVisualSoapPnl(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
         self.Bind(wx.EVT_BUTTON, self._on_from_template_button_pressed, self._BTN_from_template)
         self.Bind(wx.EVT_BUTTON, self._on_from_file_button_pressed, self._BTN_load_image)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_visual_soap_selected, self._LCTRL_visual_soaps)
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_visual_soap_activated, self._LCTRL_visual_soaps)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgVisualSoapPnl.__set_properties
         self._BTN_delete.SetToolTipString(_("Delete this visual progress note."))
+        self._PRW_comment.SetToolTipString(_("Enter a short comment on this visual progress note."))
         self._PRW_template.SetToolTipString(_("Select a visual progress note template."))
         self._BTN_from_template.SetToolTipString(_("Add a new visual progress note from the template selected above."))
         self._BTN_load_image.SetToolTipString(_("Add a new visual progress note from an image file."))
+        self._LCTRL_visual_soaps.SetToolTipString(_("This list shows the visual progress notes for this encounter."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgVisualSoapPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.HORIZONTAL)
         __szr_buttons = wx.BoxSizer(wx.VERTICAL)
-        _szr_thumbnails = wx.BoxSizer(wx.VERTICAL)
+        _SZR_thumbnails = wx.BoxSizer(wx.VERTICAL)
         __szr_from_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_img = wx.BoxSizer(wx.VERTICAL)
         __szr_img_details = wx.BoxSizer(wx.HORIZONTAL)
@@ -53,7 +60,10 @@ class wxgVisualSoapPnl(wx.Panel):
         __szr_img_details.Add(self._BTN_delete, 0, wx.RIGHT, 5)
         __lbl_episode = wx.StaticText(self, -1, _("Episode:"))
         __szr_img_details.Add(__lbl_episode, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_img_details.Add(self._PRW_episode, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_img_details.Add(self._PRW_episode, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __lbl_comment = wx.StaticText(self, -1, _("Comment:"))
+        __szr_img_details.Add(__lbl_comment, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_img_details.Add(self._PRW_comment, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_img.Add(__szr_img_details, 0, wx.TOP|wx.EXPAND, 3)
         __szr_main.Add(__szr_img, 1, wx.EXPAND, 3)
         __sline_vertical = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
@@ -62,7 +72,8 @@ class wxgVisualSoapPnl(wx.Panel):
         __szr_from_buttons.Add(self._BTN_from_template, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 2)
         __szr_from_buttons.Add(self._BTN_load_image, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 2)
         __szr_buttons.Add(__szr_from_buttons, 0, wx.BOTTOM|wx.EXPAND, 2)
-        __szr_buttons.Add(_szr_thumbnails, 1, wx.EXPAND, 0)
+        _SZR_thumbnails.Add(self._LCTRL_visual_soaps, 1, wx.EXPAND, 0)
+        __szr_buttons.Add(_SZR_thumbnails, 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_buttons, 0, wx.EXPAND, 2)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
@@ -78,6 +89,14 @@ class wxgVisualSoapPnl(wx.Panel):
 
     def _on_from_file_button_pressed(self, event): # wxGlade: wxgVisualSoapPnl.<event_handler>
         print "Event handler `_on_from_file_button_pressed' not implemented!"
+        event.Skip()
+
+    def _on_visual_soap_selected(self, event): # wxGlade: wxgVisualSoapPnl.<event_handler>
+        print "Event handler `_on_visual_soap_selected' not implemented"
+        event.Skip()
+
+    def _on_visual_soap_activated(self, event): # wxGlade: wxgVisualSoapPnl.<event_handler>
+        print "Event handler `_on_visual_soap_activated' not implemented"
         event.Skip()
 
 # end of class wxgVisualSoapPnl
