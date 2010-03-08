@@ -23,8 +23,8 @@
 	- name::*::*
 - improved: various typos
 - improved: do not fail if unable to show part when adding documents
-
-- lots of gitification
+- improved: ARRIBA now is v2.0.4
+- improved: SCM now in git
 
 
 ------------------------------------------------
