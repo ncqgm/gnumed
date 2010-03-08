@@ -66,6 +66,7 @@ u_pencil_1 = u'\u270e'
 u_pencil_2 = u'\u270f'
 u_pencil_3 = u'\u2710'
 u_latin_cross = u'\u271d'
+u_replacement_character = u'\ufffd'
 
 #===========================================================================
 def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):

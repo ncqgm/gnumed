@@ -14,6 +14,9 @@
 - new: hook after_substance_intake_modified
 - new: hook after_test_result_modified
 
+- improved: login dialag:
+	- hint about local DB on failure
+	- do not show password ;-)
 - improved: show allergies in substance intake edit area
 - improved: warn on creating database users with empty passwords
 - improved: default region/country for new-person creation

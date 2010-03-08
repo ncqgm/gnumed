@@ -12,7 +12,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import sys, os.path, cPickle, zlib, logging
+import sys, os.path, cPickle, zlib, logging, re as regex
 
 
 # 3rd party
@@ -143,17 +143,36 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			attempt += 1
 			_log.error(u"login attempt failed: %s", e)
 			if attempt < max_attempts:
-				gmGuiHelpers.gm_show_error (_(
-					"Unable to connect to database:\n\n"
-					"%s\n\n"
-					"Please retry with proper credentials or cancel.\n"
-					"\n"
-					'You may also need to check the PostgreSQL client\n'
-					'authentication configuration in pg_hba.conf. For\n'
-					'details see:\n'
-					'\n'
-					'wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL'
-					) % e,
+				if (u'host=127.0.0.1' in (u'%s' % e)) or (u'host=' not in (u'%s' % e)):
+					msg = _(
+						'Unable to connect to database:\n\n'
+						'%s\n\n'
+						"Are you sure you have got a local database installed ?\n"
+						'\n'
+						"Please retry with proper credentials or cancel.\n"
+						'\n'
+						'You may also need to check the PostgreSQL client\n'
+						'authentication configuration in pg_hba.conf. For\n'
+						'details see:\n'
+						'\n'
+						'wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL'
+					)
+				else:
+					msg = _(
+						"Unable to connect to database:\n\n"
+						"%s\n\n"
+						"Please retry with proper credentials or cancel.\n"
+						"\n"
+						'You may also need to check the PostgreSQL client\n'
+						'authentication configuration in pg_hba.conf. For\n'
+						'details see:\n'
+						'\n'
+						'wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL'
+					)
+				msg = msg % e
+				msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
+				gmGuiHelpers.gm_show_error (
+					msg,
 					_('Connecting to backend')
 				)
 			del e
@@ -161,11 +180,14 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		except gmPG2.dbapi.OperationalError, e:
 			_log.error(u"login attempt failed: %s", e)
-			gmGuiHelpers.gm_show_error (_(
-					"Unable to connect to database:\n\n"
-					"%s\n\n"
-					"Please retry another backend / user / password combination !\n"
-				) % gmPG2.extract_msg_from_pg_exception(e),
+			msg = _(
+				"Unable to connect to database:\n\n"
+				"%s\n\n"
+				"Please retry another backend / user / password combination !\n"
+			) % gmPG2.extract_msg_from_pg_exception(e)
+			msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
+			gmGuiHelpers.gm_show_error (
+				msg,
 				_('Connecting to backend')
 			)
 			del e
