@@ -97,7 +97,7 @@ def manage_document_descriptions(parent=None, document=None):
 def _save_file_as_new_document(**kwargs):
 	wx.CallAfter(save_file_as_new_document, **kwargs)
 #----------------------
-def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, **kwargs):
+def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, **kwargs):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -105,22 +105,25 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 
 	emr = pat.get_emr()
 
-	all_epis = emr.get_episodes()
-	# FIXME: what to do here ? probably create dummy episode
-	if len(all_epis) == 0:
-		epi = emr.add_episode(episode_name = _('Documents'), is_open = False)
-	else:
-		# FIXME: parent=None map to toplevel window
-		dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg(parent = parent, id = -1, episodes = all_epis)
-		dlg.SetTitle(_('Select the episode under which to file the document ...'))
-		btn_pressed = dlg.ShowModal()
-		epi = dlg.get_selected_item_data(only_one = True)
-		dlg.Destroy()
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
 
-		if btn_pressed == wx.ID_CANCEL:
-			if unlock_patient:
-				pat.locked = False
-			return None
+	if episode is None:
+		all_epis = emr.get_episodes()
+		# FIXME: what to do here ? probably create dummy episode
+		if len(all_epis) == 0:
+			episode = emr.add_episode(episode_name = _('Documents'), is_open = False)
+		else:
+			dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg(parent = parent, id = -1, episodes = all_epis)
+			dlg.SetTitle(_('Select the episode under which to file the document ...'))
+			btn_pressed = dlg.ShowModal()
+			episode = dlg.get_selected_item_data(only_one = True)
+			dlg.Destroy()
+
+			if btn_pressed == wx.ID_CANCEL:
+				if unlock_patient:
+					pat.locked = False
+				return None
 
 	doc_type = gmMedDoc.create_document_type(document_type = document_type)
 
@@ -128,7 +131,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 	doc = docs_folder.add_document (
 		document_type = doc_type['pk_doc_type'],
 		encounter = emr.active_encounter['pk_encounter'],
-		episode = epi['pk_episode']
+		episode = episode['pk_episode']
 	)
 	part = doc.add_part(file = filename)
 	part['filename'] = filename
@@ -862,7 +865,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return None
 		# now, which file was that again ?
 		page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
-		
+
 		(result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
 		if not result:
 			gmGuiHelpers.gm_show_warning (
@@ -1308,22 +1311,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			parts = doc.get_parts()
 
-			cmt = gmTools.coalesce(doc['comment'], _('no comment available'))
-			page_num = len(parts)
-			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = u'', template_initial = u', \u00BB%s\u00AB')
-
-			if doc.has_unreviewed_parts():
-				review = gmTools.u_writing_hand
-			else:
-				review = u''
-
-			label = _('%s%7s %s: %s (%s part(s)%s)') % (
-				review,
+			label = _('%s%7s %s:%s (%s part(s)%s)') % (
+				gmTools.bool2subst(doc.has_unreviewed_parts(), gmTools.u_writing_hand, u'', u'?'),
 				doc['clin_when'].strftime('%m/%Y'),
 				doc['l10n_type'][:26],
-				cmt,
-				page_num,
-				ref
+				gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+				len(parts),
+				gmTools.coalesce(initial = doc['ext_ref'], instead = u'', template_initial = u', \u00BB%s\u00AB')
 			)
 
 			# need intermediate branch level ?
@@ -1350,22 +1344,24 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			# now add parts as child nodes
 			for part in parts:
-
-				pg = _('part %2s') % part['seq_idx']
-				cmt = gmTools.coalesce(part['obj_comment'], u'', u': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote))
-				sz = gmTools.size2str(part['size'])
-				rev = gmTools.bool2str (
-					boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
-					true_str = u'',
-					false_str = gmTools.u_writing_hand
-				)
-
 #				if part['clinically_relevant']:
 #					rel = ' [%s]' % _('Cave')
 #				else:
 #					rel = ''
-
-				label = '%s%s (%s)%s' % (rev, pg, sz, cmt)
+				label = '%s%s (%s)%s' % (
+					gmTools.bool2str (
+						boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
+						true_str = u'',
+						false_str = gmTools.u_writing_hand
+					),
+					_('part %2s') % part['seq_idx'],
+					gmTools.size2str(part['size']),
+					gmTools.coalesce (
+						part['obj_comment'],
+						u'',
+						u': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
+					)
+				)
 
 				part_node = self.AppendItem(parent = doc_node, text = label)
 				self.SetPyData(part_node, part)

@@ -252,7 +252,7 @@ select pk
 from blobs.reviewed_doc_objs
 where
 	fk_reviewed_row = %s and
-	fk_reviewer = (select pk from dem.staff where db_user=current_user)"""
+	fk_reviewer = (select pk from dem.staff where db_user = current_user)"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 
 		# INSERT needed
