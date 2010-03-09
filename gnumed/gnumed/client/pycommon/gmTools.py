@@ -9,7 +9,7 @@ __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import re as regex, sys, os, os.path, csv, tempfile, logging
+import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
 import urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
 
 
@@ -198,36 +198,6 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	return (True, msg)
 #===========================================================================
-def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
-	for line in unicode_csv_data:
-		yield line.encode(encoding)
-
-#def utf_8_encoder(unicode_csv_data):
-#	for line in unicode_csv_data:
-#		yield line.encode('utf-8')
-
-def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
-	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
-	try:
-		is_dict_reader = kwargs['dict']
-		del kwargs['dict']
-		if is_dict_reader is not True:
-			raise KeyError
-		csv_reader = csv.DictReader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
-	except KeyError:
-		is_dict_reader = False
-		csv_reader = csv.reader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
-
-	for row in csv_reader:
-		# decode ENCODING back to Unicode, cell by cell:
-		if is_dict_reader:
-			for key in row.keys():
-				row[key] = unicode(row[key], encoding)
-			yield row
-		else:
-			yield [ unicode(cell, encoding) for cell in row ]
-			#yield [unicode(cell, 'utf-8') for cell in row]
-#===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
 	print ",========================================================"
@@ -238,6 +208,17 @@ def handle_uncaught_exception_console(t, v, tb):
 	_log.critical('unhandled exception caught', exc_info = (t,v,tb))
 	sys.__excepthook__(t,v,tb)
 #===========================================================================
+# path level operations
+#---------------------------------------------------------------------------
+def mkdir(directory=None):
+	try:
+		os.makedirs(directory)
+	except OSError, e:
+		if (e.errno == 17) and not os.path.isdir(directory):
+			raise
+	return True
+
+#---------------------------------------------------------------------------
 class gmPaths(gmBorg.cBorg):
 
 	def __init__(self, app_name=None, wx=None):
@@ -528,13 +509,56 @@ Subject: %s
 
 	return True
 #===========================================================================
-def mkdir(directory=None):
+# file related tools
+#---------------------------------------------------------------------------
+def file2md5(filename=None, return_hex=True):
+	blocksize = 2**10 * 128			# 128k, since md5 use 128 byte blocks
+	_log.debug('md5(%s): <%s> byte blocks', filename, blocksize)
+
+	f = open(filename, 'rb')
+
+	md5 = hashlib.md5()
+	while True:
+		data = f.read(blocksize)
+		if not data:
+			break
+		md5.update(data)
+
+	_log.debug('md5(%s): %s', filename, md5.hexdigest())
+
+	if return_hex:
+		return md5.hexdigest()
+	return md5.digest()
+#---------------------------------------------------------------------------
+def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
+	for line in unicode_csv_data:
+		yield line.encode(encoding)
+
+#def utf_8_encoder(unicode_csv_data):
+#	for line in unicode_csv_data:
+#		yield line.encode('utf-8')
+
+def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
+	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
 	try:
-		os.makedirs(directory)
-	except OSError, e:
-		if (e.errno == 17) and not os.path.isdir(directory):
-			raise
-	return True
+		is_dict_reader = kwargs['dict']
+		del kwargs['dict']
+		if is_dict_reader is not True:
+			raise KeyError
+		csv_reader = csv.DictReader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+	except KeyError:
+		is_dict_reader = False
+		csv_reader = csv.reader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+
+	for row in csv_reader:
+		# decode ENCODING back to Unicode, cell by cell:
+		if is_dict_reader:
+			for key in row.keys():
+				row[key] = unicode(row[key], encoding)
+			yield row
+		else:
+			yield [ unicode(cell, encoding) for cell in row ]
+			#yield [unicode(cell, 'utf-8') for cell in row]
 #---------------------------------------------------------------------------
 def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	"""This introduces a race condition between the file.close() and
@@ -558,7 +582,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	else:
 		kwargs['prefix'] = prefix
 
-	if suffix is None:
+	if suffix in [None, u'']:
 		kwargs['suffix'] = '.tmp'
 	else:
 		if not suffix.startswith('.'):
@@ -815,6 +839,12 @@ def tex_escape_string(text=None):
 # main
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
 
 	#-----------------------------------------------------------------------
 	def test_input2decimal():
@@ -1096,340 +1126,24 @@ second line\n
 
 		return
 	#-----------------------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-
-		#test_check_for_update()
-		#test_coalesce()
-		#test_capitalize()
-		#test_import_module()
-		#test_mkdir()
-		#test_send_mail()
-		#test_gmPaths()
-		#test_none_if()
-		#test_bool2str()
-		#test_bool2subst()
-		#test_get_unique_filename()
-		#test_size2str()
-		#test_wrap()
-		#test_input2decimal()
-		test_unwrap()
+	def test_md5():
+		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
+	#-----------------------------------------------------------------------
+	#test_check_for_update()
+	#test_coalesce()
+	#test_capitalize()
+	#test_import_module()
+	#test_mkdir()
+	#test_send_mail()
+	#test_gmPaths()
+	#test_none_if()
+	#test_bool2str()
+	#test_bool2subst()
+	#test_get_unique_filename()
+	#test_size2str()
+	#test_wrap()
+	#test_input2decimal()
+	#test_unwrap()
+	test_md5()
 
 #===========================================================================
-# $Log: gmTools.py,v $
-# Revision 1.98  2010-01-17 19:47:10  ncq
-# - add comment on quotes
-#
-# Revision 1.97  2010/01/15 12:42:46  ncq
-# - tex-escape-string
-#
-# Revision 1.96  2009/12/21 15:02:51  ncq
-# - cleanup
-#
-# Revision 1.95  2009/11/29 15:57:51  ncq
-# - must properly initialize is_dict_reader
-#
-# Revision 1.94  2009/11/15 01:04:30  ncq
-# - add smiling/frowning face
-#
-# Revision 1.93  2009/11/06 15:12:57  ncq
-# - add right arrow
-#
-# Revision 1.92  2009/10/28 16:40:32  ncq
-# - add infinity symbol
-#
-# Revision 1.91  2009/10/21 20:39:18  ncq
-# - make unicode csv *dict* reader actually work
-# - make intermediate encoding of unicode csv reader configurable
-#
-# Revision 1.90  2009/09/23 14:32:30  ncq
-# - u-corresponds-to
-#
-# Revision 1.89  2009/09/08 17:15:13  ncq
-# - add unwrap() test
-#
-# Revision 1.88  2009/09/01 22:25:02  ncq
-# - enhance coalesce with none_equivalents
-#
-# Revision 1.87  2009/08/13 12:12:20  ncq
-# - slightly better upgrade available message
-#
-# Revision 1.86  2009/07/15 12:17:14  ncq
-# - add latin cross unicode point
-# - better error handling on version checking
-#
-# Revision 1.85  2009/06/10 21:00:43  ncq
-# - remove "gm_versions" cfg source after use
-#
-# Revision 1.84  2009/05/13 10:35:22  ncq
-# - some cleanup
-#
-# Revision 1.83  2009/04/21 16:54:34  ncq
-# - fix setting sys app data dir on non-Windows
-#
-# Revision 1.82  2009/04/19 22:26:25  ncq
-# - factor out LOINC handling
-# - factor out interval parsing
-#
-# Revision 1.81  2009/04/14 17:54:48  ncq
-# - test under Py2.6
-#
-# Revision 1.80  2009/04/03 12:29:36  ncq
-# - add attachment handling to send_mail
-#
-# Revision 1.79  2009/04/03 11:08:33  ncq
-# - add two more unicode code points
-#
-# Revision 1.78  2009/04/03 09:37:05  ncq
-# - splitter for LOINCDB.TXT
-# - improved paths handling (~ doesn't expand under Wine)
-#
-# Revision 1.77  2009/03/18 14:29:45  ncq
-# - add unicode code point for 3/4
-# - better fallback for sys app data dir on Windows
-#
-# Revision 1.76  2009/03/10 14:22:33  ncq
-# - add unicode code points
-#
-# Revision 1.75  2009/03/01 18:10:50  ncq
-# - improve update-avail message
-#
-# Revision 1.74  2009/02/18 13:45:25  ncq
-# - get_unique_filename API change
-#
-# Revision 1.73  2009/01/02 11:38:09  ncq
-# - input2decimal + tests
-#
-# Revision 1.72  2008/12/22 18:58:53  ncq
-# - cleanup
-#
-# Revision 1.71  2008/12/09 23:28:15  ncq
-# - better logging
-# - always remove aux module path if importing fails
-#
-# Revision 1.70  2008/11/20 18:47:40  ncq
-# - add left arrow unicode
-# - fix logging in update check
-#
-# Revision 1.69  2008/11/03 10:28:55  ncq
-# - check_for_update
-#   - improved logging and wording
-#   - logic reversal fix
-#
-# Revision 1.68  2008/10/12 15:48:33  ncq
-# - improved wording when checking for updates
-#
-# Revision 1.67  2008/08/31 16:13:15  ncq
-# - cleanup
-#
-# Revision 1.66  2008/08/28 18:32:24  ncq
-# - read latest branch then latest release from branch group
-#
-# Revision 1.65  2008/08/20 13:53:57  ncq
-# - add some coalesce tests
-#
-# Revision 1.64  2008/07/28 15:43:35  ncq
-# - teach wrap() about target EOL
-#
-# Revision 1.63  2008/07/12 15:30:56  ncq
-# - improved coalesce test
-#
-# Revision 1.62  2008/07/12 15:24:37  ncq
-# - impove coalesce to allow template_initial to be returned *instead* of
-#   initial substituted into the template by not including a substitution
-#
-# Revision 1.61  2008/07/10 20:51:38  ncq
-# - better logging
-#
-# Revision 1.60  2008/07/10 19:59:09  ncq
-# - better logging
-# - check whether sys config dir ends in "gnumed"
-#
-# Revision 1.59  2008/07/07 11:34:41  ncq
-# - robustify capsify on single character strings
-#
-# Revision 1.58  2008/06/28 18:25:01  ncq
-# - add unicode Registered TM symbol
-#
-# Revision 1.57  2008/05/31 16:32:42  ncq
-# - a couple of unicode shortcuts
-#
-# Revision 1.56  2008/05/26 12:05:50  ncq
-# - improved wording of update message
-# - better handling of CVS tip
-#
-# Revision 1.55  2008/05/21 15:51:45  ncq
-# - if cannot open update URL may throw OSError, so deal with that
-#
-# Revision 1.54  2008/05/21 14:01:32  ncq
-# - add check_for_update and tests
-#
-# Revision 1.53  2008/05/13 14:09:36  ncq
-# - str2interval: support xMxW syntax
-#
-# Revision 1.52  2008/05/07 15:18:01  ncq
-# - i18n str2interval
-#
-# Revision 1.51  2008/04/16 20:34:43  ncq
-# - add bool2subst tests
-#
-# Revision 1.50  2008/04/11 12:24:39  ncq
-# - add initial_indent/subsequent_indent and tests to wrap()
-#
-# Revision 1.49  2008/03/20 15:29:51  ncq
-# - bool2subst() supporting None, make bool2str() use it
-#
-# Revision 1.48  2008/03/02 15:10:32  ncq
-# - truncate exception comment to 50 chars when used as subject
-#
-# Revision 1.47  2008/01/16 19:42:24  ncq
-# - whitespace sync
-#
-# Revision 1.46  2007/12/23 11:59:40  ncq
-# - improved docs
-#
-# Revision 1.45  2007/12/12 16:24:09  ncq
-# - general cleanup
-#
-# Revision 1.44  2007/12/11 14:33:48  ncq
-# - use standard logging module
-#
-# Revision 1.43  2007/11/28 13:59:23  ncq
-# - test improved
-#
-# Revision 1.42  2007/11/21 13:28:35  ncq
-# - enhance send_mail() with subject and encoding
-# - handle body formatting
-#
-# Revision 1.41  2007/10/23 21:23:30  ncq
-# - cleanup
-#
-# Revision 1.40  2007/10/09 10:29:02  ncq
-# - clean up import_module_from_directory()
-#
-# Revision 1.39  2007/10/08 12:48:17  ncq
-# - normalize / and \ in import_module_from_directory() so it works on Windows
-#
-# Revision 1.38  2007/08/29 14:33:56  ncq
-# - better document get_unique_filename()
-#
-# Revision 1.37  2007/08/28 21:47:19  ncq
-# - log user home dir
-#
-# Revision 1.36  2007/08/15 09:18:56  ncq
-# - size2str() and test
-#
-# Revision 1.35  2007/08/07 21:41:02  ncq
-# - cPaths -> gmPaths
-#
-# Revision 1.34  2007/07/13 09:47:38  ncq
-# - fix and test suite for get_unique_filename()
-#
-# Revision 1.33  2007/07/11 21:06:51  ncq
-# - improved docs
-# - get_unique_filename()
-#
-# Revision 1.32  2007/07/10 20:45:42  ncq
-# - add unicode CSV reader
-# - factor out OOo related code
-#
-# Revision 1.31  2007/06/19 12:43:17  ncq
-# - add bool2str() and test
-#
-# Revision 1.30  2007/06/10 09:56:03  ncq
-# - u''ificiation and flags in regex calls
-#
-# Revision 1.29  2007/05/17 15:12:59  ncq
-# - even more careful about pathes
-#
-# Revision 1.28  2007/05/17 15:10:16  ncq
-# - create user config dir if it doesn't exist
-#
-# Revision 1.27  2007/05/15 08:20:13  ncq
-# - ifdef GetDataDir() on wxMSW as per Robin's suggestion
-#
-# Revision 1.26  2007/05/14 08:35:06  ncq
-# - better logging
-# - try to handle platforms with broken GetDataDir()
-#
-# Revision 1.25  2007/05/13 21:20:54  ncq
-# - improved logging
-#
-# Revision 1.24  2007/05/13 20:22:17  ncq
-# - log errors
-#
-# Revision 1.23  2007/05/08 16:03:55  ncq
-# - add console exception display handler
-#
-# Revision 1.22  2007/05/07 12:31:06  ncq
-# - improved path handling and testing
-# - switch file to utf8
-#
-# Revision 1.21  2007/04/21 19:38:27  ncq
-# - add none_if() and test suite
-#
-# Revision 1.20  2007/04/19 13:09:52  ncq
-# - add cPaths borg and test suite
-#
-# Revision 1.19  2007/04/09 16:30:31  ncq
-# - add send_mail()
-#
-# Revision 1.18  2007/03/08 16:19:30  ncq
-# - typo and cleanup
-#
-# Revision 1.17  2007/02/17 13:58:11  ncq
-# - improved coalesce()
-#
-# Revision 1.16  2007/02/04 16:43:01  ncq
-# - improve capitalize() test suite
-# - set coding
-#
-# Revision 1.15  2007/02/04 16:29:51  ncq
-# - make umlauts u''
-#
-# Revision 1.14  2007/02/04 15:33:28  ncq
-# - enhance capitalize() and add mode CONSTS for it
-#   - however, CAPS_NAMES for now maps to CAPS_FIRST until fixed for Heller-Brunner
-# - slightly improved test suite for it
-#
-# Revision 1.13  2007/01/30 17:38:28  ncq
-# - add mkdir() and a test for it
-#
-# Revision 1.12  2007/01/20 22:04:01  ncq
-# - strip ".py" from script name if it is there
-#
-# Revision 1.11  2007/01/18 12:46:30  ncq
-# - add reasonably safe import_module_from_directory() and test
-#
-# Revision 1.10  2007/01/15 20:20:39  ncq
-# - add wrap()
-#
-# Revision 1.9  2007/01/06 17:05:57  ncq
-# - start OOo server if cannot connect to one
-# - test suite
-#
-# Revision 1.8  2006/12/21 10:53:53  ncq
-# - document coalesce() better
-#
-# Revision 1.7  2006/12/18 15:51:12  ncq
-# - comment how to start server OOo writer
-#
-# Revision 1.6  2006/12/17 20:47:16  ncq
-# - add open_uri_in_ooo()
-#
-# Revision 1.5  2006/11/27 23:02:08  ncq
-# - add comment
-#
-# Revision 1.4  2006/11/24 09:52:09  ncq
-# - add str2interval() - this will need to end up in an interval input phrasewheel !
-# - improve test suite
-#
-# Revision 1.3  2006/11/20 15:58:10  ncq
-# - template handling in coalesce()
-#
-# Revision 1.2  2006/10/31 16:03:06  ncq
-# - add capitalize() and test
-#
-# Revision 1.1  2006/09/03 08:53:19  ncq
-# - first version
-#
-#
