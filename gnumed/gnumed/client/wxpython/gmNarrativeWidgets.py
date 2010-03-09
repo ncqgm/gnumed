@@ -3,7 +3,7 @@
 __version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, logging, os, os.path, time, re as regex
+import sys, logging, os, os.path, time, re as regex, shutil
 
 
 import wx
@@ -14,7 +14,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
 from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg
-from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
+from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery, gmMedDoc
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
@@ -1551,8 +1551,14 @@ def configure_visual_progress_note_editor():
 		validator = is_valid
 	)
 #============================================================
-def edit_visual_progress_note(filename=None, episode=None):
+def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None):
 	"""This assumes <filename> contains an image which can be handled by the configured image editor."""
+
+	if doc_part is not None:
+		filename = doc_part.export_to_file()
+		if filename is None:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note to file.'))
+			return None
 
 	dbcfg = gmCfg.cCfgSQL()
 	cmd = dbcfg.get2 (
@@ -1573,7 +1579,10 @@ def edit_visual_progress_note(filename=None, episode=None):
 	else:
 		cmd = u'%s %s' % (cmd, filename)
 
-	# FIXME: create copy and hand that to the editor
+	if discard_unmodified:
+		original_stat = os.stat(filename)
+		original_md5 = gmTools.file2md5(filename)
+
 	success = gmShellAPI.run_command_in_shell(cmd, blocking = True)
 	if not success:
 		gmGuiHelpers.gm_show_error (
@@ -1604,7 +1613,25 @@ def edit_visual_progress_note(filename=None, episode=None):
 		)
 		return None
 
-	# FIXME: compare copy to original
+	if discard_unmodified:
+		modified_stat = os.stat(filename)
+		# same size ?
+		if original_stat.st_size == modified_stat.st_size:
+			modified_md5 = gmTools.file2md5(filename)
+			# same hash ?
+			if original_md5 == modified_md5:
+				_log.debug('visual progress note (template) not modified, discarding')
+				return
+
+	if doc_part is not None:
+		doc_part.update_data_from_file(fname = filename)
+		doc_part.set_reviewed(technically_abnormal = False, clinically_relevant = True)
+		return None
+
+	if not isinstance(episode, gmEMRStructItems.cEpisode):
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+		episode = emr.add_episode(episode_name = episode.strip(), is_open = False)
 
 	doc = gmDocumentWidgets.save_file_as_new_document (
 		filename = filename,
@@ -1612,6 +1639,7 @@ def edit_visual_progress_note(filename=None, episode=None):
 		episode = episode,
 		unlock_patient = True
 	)
+	doc.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 
 	return doc
 #============================================================
@@ -1681,12 +1709,14 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 	# external API
 	#--------------------------------------------------------
 	def clear(self):
-		# FIXME: clear image field, too
 		self._PRW_episode.SetText(value = u'', data = None)
 		#self._PRW_comment.SetText(value = u'', data = None)
 		self._PRW_comment.SetValue(u'')
 		self._PRW_template.SetText(value = u'', data = None)
 		self._LCTRL_visual_soaps.set_columns([_('Sketches')])
+		self._LCTRL_visual_soaps.set_string_items()
+
+		self.show_image()
 	#--------------------------------------------------------
 	def refresh(self, patient=None, encounter=None):
 
@@ -1708,6 +1738,10 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 			encounter = encounter['pk_encounter']
 		)
 
+		if len(soap_docs) == 0:
+			self._BTN_delete.Enable(False)
+			return
+
 		self._LCTRL_visual_soaps.set_string_items ([
 			u'%s%s%s' % (
 				gmTools.coalesce(sd['comment'], u'', u'%s\n'),
@@ -1717,14 +1751,12 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 		])
 		self._LCTRL_visual_soaps.set_data(soap_docs)
 
-		#self.Layout()
+		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
-	# event handlers
-	#--------------------------------------------------------
-	def _on_visual_soap_selected(self, event):
+	def show_image(self, doc=None):
 
-		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
 		if doc is None:
+			self._IMG_soap.SetBitmap(wx.NullBitmap)
 			return
 
 		parts = doc.get_parts()
@@ -1754,12 +1786,41 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		del img_data
 		self._IMG_soap.SetBitmap(bmp_data)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_visual_soap_selected(self, event):
+
+		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
+		self.show_image(doc = doc)
+		if doc is None:
+			return
 
 		self._PRW_episode.SetText(value = doc['episode'], data = doc['pk_episode'])
 		if doc['comment'] is not None:
 			self._PRW_comment.SetValue(doc['comment'].strip())
 
-		return
+		self._BTN_delete.Enable(True)
+	#--------------------------------------------------------
+	def _on_visual_soap_deselected(self, event):
+		self._BTN_delete.Enable(False)
+	#--------------------------------------------------------
+	def _on_visual_soap_activated(self, event):
+
+		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
+		if doc is None:
+			self.show_image()
+			return
+
+		parts = doc.get_parts()
+		if len(parts) == 0:
+			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
+			return
+
+		doc = edit_visual_progress_note(doc_part = parts[0], discard_unmodified = True)
+		self.show_image(doc = doc)
+
+		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
 	def _on_from_file_button_pressed(self, event):
 
@@ -1780,24 +1841,73 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 		dlg.Hide()
 		dlg.Destroy()
 
-		#shutil.copy2(gmLog2._logfile_name, new_name)
+		# create a copy of the picked file -- don't modify the original
+		ext = os.path.splitext(full_filename)[1]
+		new_name = gmTools.get_unique_filename(suffix = ext)
+		_log.debug('visual progress note from file: [%s] -> [%s]', full_filename, new_name)
+		shutil.copy2(full_filename, new_name)
 
-		episode = self._PRW_episode.GetData(can_create = True, is_open = False, as_instance = True)
+		episode = self._PRW_episode.GetData(as_instance = True)
 		if episode is None:
-			if self._PRW_episode.GetValue().strip() == u'':
-				# dummy episode to hold images
-				self._PRW_episode.SetText(value = _('visual progress notes'))
-				episode = self._PRW_episode.GetData(can_create = True, is_open = False, as_instance = True)
+			episode = self._PRW_episode.GetValue().strip()
+			if episode == u'':
+				episode = _('visual progress notes')		# dummy episode to hold images
 
-		doc = edit_visual_progress_note(filename = full_filename, episode = episode)
-		doc.set_reviewed(technically_abnormal=False, clinically_relevant=True)
+		# always store note even if unmodified as we
+		# may simply want to store a clinical photograph
+		doc = edit_visual_progress_note(filename = new_name, episode = episode, discard_unmodified = False)
 		doc['comment'] = self._PRW_comment.GetValue().strip()
 		doc.save()
+		self.show_image(doc = doc)
+
+		try:
+			os.remove(new_name)
+		except StandardError:
+			_log.exception('cannot remove [%s]', new_name)
+
+		remove_original = gmGuiHelpers.gm_show_question (
+			_(
+				'Do you want to delete the original file\n'
+				'\n'
+				' [%s]\n'
+				'\n'
+				'from your computer ?'
+			) % full_filename,
+			_('Saving visual progress note ...')
+		)
+		if remove_original:
+			try:
+				os.remove(full_filename)
+			except StandardError:
+				_log.exception('cannot remove [%s]', full_filename)
 	#--------------------------------------------------------
+	def _on_delete_button_pressed(self, event):
+
+		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
+		if doc is None:
+			self.show_image()
+			return
+
+		delete_it = gmGuiHelpers.gm_show_question (
+			aMessage = _('Are you sure you want to delete the visual progress note ?'),
+			aTitle = _('Deleting visual progress note')
+		)
+		if delete_it is True:
+			gmMedDoc.delete_document (
+				document_id = doc['pk_doc'],
+				encounter_id = doc['pk_encounter']
+			)
+		self.show_image()
 #============================================================
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
@@ -1832,10 +1942,9 @@ if __name__ == '__main__':
 		soap_input._schedule_data_reget()
 		application.MainLoop()
 	#----------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		#test_select_narrative_from_episodes()
-		test_cSoapNoteExpandoEditAreaPnl()
-		#test_cSoapPluginPnl()
+	#test_select_narrative_from_episodes()
+	test_cSoapNoteExpandoEditAreaPnl()
+	#test_cSoapPluginPnl()
 
 #============================================================
 
