@@ -1709,14 +1709,14 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 	# external API
 	#--------------------------------------------------------
 	def clear(self):
-		self._PRW_episode.SetText(value = u'', data = None)
-		#self._PRW_comment.SetText(value = u'', data = None)
-		self._PRW_comment.SetValue(u'')
 		self._PRW_template.SetText(value = u'', data = None)
 		self._LCTRL_visual_soaps.set_columns([_('Sketches')])
 		self._LCTRL_visual_soaps.set_string_items()
 
-		self.show_image()
+#		self._PRW_episode.SetText(value = u'', data = None)
+		#self._PRW_comment.SetText(value = u'', data = None)
+#		self._PRW_comment.SetValue(u'')
+		self.show_image_and_metadata()
 	#--------------------------------------------------------
 	def refresh(self, patient=None, encounter=None):
 
@@ -1753,10 +1753,12 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
-	def show_image(self, doc=None):
+	def show_image_and_metadata(self, doc=None):
 
 		if doc is None:
 			self._IMG_soap.SetBitmap(wx.NullBitmap)
+			self._PRW_episode.SetText()
+			self._PRW_comment.SetValue(u'')
 			return
 
 		parts = doc.get_parts()
@@ -1786,19 +1788,19 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		del img_data
 		self._IMG_soap.SetBitmap(bmp_data)
+
+		self._PRW_episode.SetText(value = doc['episode'], data = doc['pk_episode'])
+		if doc['comment'] is not None:
+			self._PRW_comment.SetValue(doc['comment'].strip())
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_visual_soap_selected(self, event):
 
 		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
-		self.show_image(doc = doc)
+		self.show_image_and_metadata(doc = doc)
 		if doc is None:
 			return
-
-		self._PRW_episode.SetText(value = doc['episode'], data = doc['pk_episode'])
-		if doc['comment'] is not None:
-			self._PRW_comment.SetValue(doc['comment'].strip())
 
 		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
@@ -1809,7 +1811,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
 		if doc is None:
-			self.show_image()
+			self.show_image_and_metadata()
 			return
 
 		parts = doc.get_parts()
@@ -1817,8 +1819,8 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
 			return
 
-		doc = edit_visual_progress_note(doc_part = parts[0], discard_unmodified = True)
-		self.show_image(doc = doc)
+		edit_visual_progress_note(doc_part = parts[0], discard_unmodified = True)
+		self.show_image_and_metadata(doc = doc)
 
 		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
@@ -1843,9 +1845,9 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		# create a copy of the picked file -- don't modify the original
 		ext = os.path.splitext(full_filename)[1]
-		new_name = gmTools.get_unique_filename(suffix = ext)
-		_log.debug('visual progress note from file: [%s] -> [%s]', full_filename, new_name)
-		shutil.copy2(full_filename, new_name)
+		tmp_name = gmTools.get_unique_filename(suffix = ext)
+		_log.debug('visual progress note from file: [%s] -> [%s]', full_filename, tmp_name)
+		shutil.copy2(full_filename, tmp_name)
 
 		episode = self._PRW_episode.GetData(as_instance = True)
 		if episode is None:
@@ -1855,15 +1857,19 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		# always store note even if unmodified as we
 		# may simply want to store a clinical photograph
-		doc = edit_visual_progress_note(filename = new_name, episode = episode, discard_unmodified = False)
-		doc['comment'] = self._PRW_comment.GetValue().strip()
+		doc = edit_visual_progress_note(filename = tmp_name, episode = episode, discard_unmodified = False)
+		if self._PRW_comment.GetValue().strip() == u'':
+			# use filename as default comment (w/o extension)
+			doc['comment'] = os.path.splitext(os.path.split(full_filename)[1])[0]
+		else:
+			doc['comment'] = self._PRW_comment.GetValue().strip()
 		doc.save()
-		self.show_image(doc = doc)
+		self.show_image_and_metadata(doc = doc)
 
 		try:
-			os.remove(new_name)
+			os.remove(tmp_name)
 		except StandardError:
-			_log.exception('cannot remove [%s]', new_name)
+			_log.exception('cannot remove [%s]', tmp_name)
 
 		remove_original = gmGuiHelpers.gm_show_question (
 			_(
@@ -1885,7 +1891,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
 		if doc is None:
-			self.show_image()
+			self.show_image_and_metadata()
 			return
 
 		delete_it = gmGuiHelpers.gm_show_question (
@@ -1897,7 +1903,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 				document_id = doc['pk_doc'],
 				encounter_id = doc['pk_encounter']
 			)
-		self.show_image()
+		self.show_image_and_metadata()
 #============================================================
 # main
 #------------------------------------------------------------

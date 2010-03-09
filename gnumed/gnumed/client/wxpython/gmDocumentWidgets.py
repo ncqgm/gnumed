@@ -1311,22 +1311,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			parts = doc.get_parts()
 
-			cmt = gmTools.coalesce(doc['comment'], _('no comment available'))
-			page_num = len(parts)
-			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = u'', template_initial = u', \u00BB%s\u00AB')
-
-			if doc.has_unreviewed_parts():
-				review = gmTools.u_writing_hand
-			else:
-				review = u''
-
-			label = _('%s%7s %s: %s (%s part(s)%s)') % (
-				review,
+			label = _('%s%7s %s:%s (%s part(s)%s)') % (
+				gmTools.bool2subst(doc.has_unreviewed_parts(), gmTools.u_writing_hand, u'', u'?'),
 				doc['clin_when'].strftime('%m/%Y'),
 				doc['l10n_type'][:26],
-				cmt,
-				page_num,
-				ref
+				gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+				len(parts),
+				gmTools.coalesce(initial = doc['ext_ref'], instead = u'', template_initial = u', \u00BB%s\u00AB')
 			)
 
 			# need intermediate branch level ?
@@ -1353,22 +1344,24 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			# now add parts as child nodes
 			for part in parts:
-
-				pg = _('part %2s') % part['seq_idx']
-				cmt = gmTools.coalesce(part['obj_comment'], u'', u': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote))
-				sz = gmTools.size2str(part['size'])
-				rev = gmTools.bool2str (
-					boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
-					true_str = u'',
-					false_str = gmTools.u_writing_hand
-				)
-
 #				if part['clinically_relevant']:
 #					rel = ' [%s]' % _('Cave')
 #				else:
 #					rel = ''
-
-				label = '%s%s (%s)%s' % (rev, pg, sz, cmt)
+				label = '%s%s (%s)%s' % (
+					gmTools.bool2str (
+						boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
+						true_str = u'',
+						false_str = gmTools.u_writing_hand
+					),
+					_('part %2s') % part['seq_idx'],
+					gmTools.size2str(part['size']),
+					gmTools.coalesce (
+						part['obj_comment'],
+						u'',
+						u': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
+					)
+				)
 
 				part_node = self.AppendItem(parent = doc_node, text = label)
 				self.SetPyData(part_node, part)
