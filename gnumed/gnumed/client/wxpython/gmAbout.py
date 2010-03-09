@@ -44,7 +44,9 @@ class ScrollTxtWin (wx.Window):
 		u'Dr Carlos Moro',
 		u'Dr James Busser',
 		u'Dr Rogerio Luz',
-		u'Dr Sebastian Hilbert'
+		u'Dr Sebastian Hilbert',
+		u'Dr John Jaarsveld',
+		u'et alii'
 	]
 
 	# initializations
@@ -200,12 +202,27 @@ Joachim Fischer
 == H ===========================================
 
 Sebastian Hilbert, MD
+ Germany
 
  - packaging, PR
+
+Anne te Harvik
+ Netherlands
+
+ - Dutch translation
+
+== J ===========================================
+
+John Jaarsveld, MD
+ Netherlands
+
+ - lots of help with the visual progress notes
+ - Dutch l10n
 
 == L ===========================================
 
 Steffi Leibner, Leipzig
+ Germany
 
  - Testen, Fehlerberichte
  - Dokumentenvorlage
