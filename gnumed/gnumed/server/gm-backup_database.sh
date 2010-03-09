@@ -127,6 +127,11 @@ else
 		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- Below find a list of database roles which were in use" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- in the GNUmed database \"${GM_DATABASE}\"."            >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "--" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- Only those need to be restored to create a working"    >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- copy of your original database. All other roles can"   >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- be commented out by prepending '-- ' to the relevant"  >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- lines above."                                          >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- "`psql -A -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
