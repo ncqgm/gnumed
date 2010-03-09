@@ -1,0 +1,5 @@
+This directory contains the GNUmed-specific non-generic
+wxPython code such as classes derived from wxGlade-generated
+classes.
+
+Files in this directory can be modified as needed.
