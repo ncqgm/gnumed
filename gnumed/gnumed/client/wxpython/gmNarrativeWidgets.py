@@ -13,8 +13,9 @@ import wx.lib.expando as wxexpando
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
-from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg
-from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery, gmMedDoc
+from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg, gmMatchProvider
+from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
+from Gnumed.business import gmForms, gmMedDoc
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
@@ -1645,58 +1646,38 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 #============================================================
 class cVisualSoapTemplatePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of visual SOAP template."""
+
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
-#		ctxt = {'ctxt_pat': {'where_part': u'pk_patient = %(pat)s and', 'placeholder': u'pat'}}
+		query = u"""
+SELECT
+	pk,
+	name_short
+FROM
+	ref.paperwork_templates
+WHERE
+	fk_template_type = (SELECT pk FROM ref.form_types WHERE name = '%s') AND (
+		name_long %%(fragment_condition)s
+			OR
+		name_short %%(fragment_condition)s
+	)
+ORDER BY name_short
+LIMIT 15
+"""	% visual_progress_note_document_type
 
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [
-u"""
-"""
-select
-	pk_hospital_stay,
-	descr
-from (
-	select distinct on (pk_hospital_stay)
-		pk_hospital_stay,
-		descr
-	from
-		(select
-			pk_hospital_stay,
-			(
-				to_char(admission, 'YYYY-Mon-DD')
-				|| coalesce((' (' || hospital || '):'), ': ')
-				|| episode
-				|| coalesce((' (' || health_issue || ')'), '')
-			) as descr
-		 from
-		 	clin.v_pat_hospital_stays
-		 where
-			%(ctxt_pat)s
-
-			hospital %(fragment_condition)s
-				or
-			episode %(fragment_condition)s
-				or
-			health_issue %(fragment_condition)s
-		) as the_stays
-) as distinct_stays
-order by descr
-limit 25
-"""
-"""			],
-			context = ctxt
-		)
-		mp.setThresholds(3, 4, 6)
-		mp.set_context('pat', gmPerson.gmCurrentPatient().ID)
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
+		mp.setThresholds(2, 3, 5)
 
 		self.matcher = mp
 		self.selection_only = True
-"""
+	#--------------------------------------------------------
+	def _data2instance(self):
+		if self.data is None:
+			return None
 
+		return gmForms.cFormTemplate(aPK_obj = self.data)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgVisualSoapPnl
 
@@ -1705,6 +1686,9 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 	def __init__(self, *args, **kwargs):
 
 		wxgVisualSoapPnl.wxgVisualSoapPnl.__init__(self, *args, **kwargs)
+
+		# dummy episode to hold images
+		self.default_episode_name = _('visual progress notes')
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1713,9 +1697,6 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 		self._LCTRL_visual_soaps.set_columns([_('Sketches')])
 		self._LCTRL_visual_soaps.set_string_items()
 
-#		self._PRW_episode.SetText(value = u'', data = None)
-		#self._PRW_comment.SetText(value = u'', data = None)
-#		self._PRW_comment.SetValue(u'')
 		self.show_image_and_metadata()
 	#--------------------------------------------------------
 	def refresh(self, patient=None, encounter=None):
@@ -1758,6 +1739,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 		if doc is None:
 			self._IMG_soap.SetBitmap(wx.NullBitmap)
 			self._PRW_episode.SetText()
+			#self._PRW_comment.SetText(value = u'', data = None)
 			self._PRW_comment.SetValue(u'')
 			return
 
@@ -1824,6 +1806,32 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
+	def _on_from_template_button_pressed(self, event):
+
+		template = self._PRW_template.GetData(as_instance = True)
+		if template is None:
+			return
+
+		filename = template.export_to_file()
+		if filename is None:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
+			return
+
+		episode = self._PRW_episode.GetData(as_instance = True)
+		if episode is None:
+			episode = self._PRW_episode.GetValue().strip()
+			if episode == u'':
+				episode = self.default_episode_name
+
+		# do not store note if not modified -- change if users complain
+		doc = edit_visual_progress_note(filename = filename, episode = episode, discard_unmodified = True)
+		if self._PRW_comment.GetValue().strip() == u'':
+			doc['comment'] = template['instance_type']
+		else:
+			doc['comment'] = self._PRW_comment.GetValue().strip()
+		doc.save()
+		self.show_image_and_metadata(doc = doc)
+	#--------------------------------------------------------
 	def _on_from_file_button_pressed(self, event):
 
 		dlg = wx.FileDialog (
@@ -1853,7 +1861,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 		if episode is None:
 			episode = self._PRW_episode.GetValue().strip()
 			if episode == u'':
-				episode = _('visual progress notes')		# dummy episode to hold images
+				episode = self.default_episode_name
 
 		# always store note even if unmodified as we
 		# may simply want to store a clinical photograph
