@@ -16,6 +16,9 @@ gnumed.pot
 *.*~
 *.bak
 
+# tarballs
+gnumed-client.*.tgz
+gnumed-server.*.tgz
 
 #MANIFEST
 
