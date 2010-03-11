@@ -375,7 +375,7 @@ class db_server:
 			_log.warning('in any encoding as is it does not allow for locale')
 			_log.warning('sorting etc, hence it is not recommended for use')
 		elif not (lc_ctype.endswith('.UTF-8') or lc_ctype.endswith('.UTF8')):
-			_log.error('LC_CTYPE does not end in .UTF-8 or UTF8')
+			_log.error('LC_CTYPE does not end in .UTF-8 or .UTF8')
 			_log.error('cluster encoding incompatible with utf8 encoded databases but')
 			_log.error('for GNUmed installation the cluster must accept this encoding')
 			_log.error('you may need to re-initdb or create a new cluster')
