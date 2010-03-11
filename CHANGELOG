@@ -13,6 +13,7 @@
 - new: manage discontinuation of substance intake
 - new: hook after_substance_intake_modified
 - new: hook after_test_result_modified
+- new: visual progress notes
 
 - improved: login dialag:
 	- hint about local DB on failure
