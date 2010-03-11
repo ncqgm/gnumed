@@ -1,0 +1,4 @@
+This directory contains generic Python code used by GNUmed.
+
+This code belongs to neither the GUI (wxpython/,
+wxGladeWidgets/, wxg/) nor the middleware (business/).
