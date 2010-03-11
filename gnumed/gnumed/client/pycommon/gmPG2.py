@@ -120,7 +120,8 @@ map_client_branch2required_db_version = {
 	u'0.3': u'v9',
 	u'0.4': u'v10',
 	u'0.5': u'v11',
-	u'0.6': u'v12'
+	u'0.6': u'v12',
+	u'0.7': u'v13'
 }
 
 # get columns and data types for a given table

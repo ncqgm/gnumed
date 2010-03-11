@@ -3,11 +3,11 @@
 #====================================================
 # license: GPL
 #====================================================
-CLIENTREV="0.7.rc1"
+#CLIENTREV="0.7.rc1"
 CLIENTREV="Git"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="13.rc1"
+#SRVREV="13.rc1"
 SRVREV="Git"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
@@ -465,8 +465,10 @@ done ;
 
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'
+find ./ -name '*.py~' -exec rm -v '{}' ';'
+find ./ -name 'wxg*.wxg~' -exec rm -v '{}' ';'
 find ./ -name '*.log' -exec rm -v '{}' ';'
-find ./gnumed-client.$CLIENTREV/ -name 'CVS' -type d -exec rm -v -r '{}' ';'
+find ./ -name 'gnumed.pot' -exec rm -v '{}' ';'
 find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
 

@@ -14,6 +14,7 @@
 - new: hook after_substance_intake_modified
 - new: hook after_test_result_modified
 - new: visual progress notes
+- new: initial support for FreeDiams drug database frontend
 
 - improved: login dialag:
 	- hint about local DB on failure
@@ -30,7 +31,6 @@
 - improved: cleaner display of documents in tree
 - improved: ARRIBA is now v2.0.4
 - improved: using Git for SCM now
-
 
 ------------------------------------------------
 # rel-0-6-patches

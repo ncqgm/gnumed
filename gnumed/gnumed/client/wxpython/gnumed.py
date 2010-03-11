@@ -47,8 +47,6 @@ care of all the pre- and post-GUI runtime environment setup.
  Show this help.
 """
 #==========================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.169 2010-01-31 18:20:41 ncq Exp $
 __version__ = "$Revision: 1.169 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
