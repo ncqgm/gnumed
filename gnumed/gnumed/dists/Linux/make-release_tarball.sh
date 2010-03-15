@@ -134,6 +134,7 @@ cp -R ../../external-tools/gm-install_client_locally.sh ./gnumed-client.$CLIENTR
 # client
 mkdir -p ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/gnumed.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.conf ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.bat ./gnumed-client.$CLIENTREV/client/
