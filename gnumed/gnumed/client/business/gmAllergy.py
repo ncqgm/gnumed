@@ -1,8 +1,6 @@
-"""GnuMed allergy related business object.
+"""GNUmed allergy related business object.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.34 2009-06-29 14:49:42 ncq Exp $
 __version__ = "$Revision: 1.34 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
@@ -140,23 +138,23 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 
 	Another word might be Therapeutic Precautions.
 	"""
-	_cmd_fetch_payload = u"select * from clin.v_pat_allergies where pk_allergy=%s"
+	_cmd_fetch_payload = u"SELECT * FROM clin.v_pat_allergies WHERE pk_allergy = %s"
 	_cmds_store_payload = [
-		u"""update clin.allergy set
-				clin_when=%(date)s,
-				substance=%(substance)s,
-				substance_code=%(substance_code)s,
-				generics=%(generics)s,
-				allergene=%(allergene)s,
-				atc_code=%(atc_code)s,
-				fk_type=%(pk_type)s,
-				generic_specific=%(generic_specific)s::boolean,
-				definite=%(definite)s::boolean,
-				narrative=%(reaction)s
-			where
-				pk=%(pk_allergy)s and
-				xmin=%(xmin_allergy)s""",
-		u"""select xmin_allergy from clin.v_pat_allergies where pk_allergy=%(pk_allergy)s"""
+		u"""UPDATE clin.allergy SET
+				clin_when = %(date)s,
+				substance = %(substance)s,
+				substance_code = %(substance_code)s,
+				generics = %(generics)s,
+				allergene = %(allergene)s,
+				atc_code = %(atc_code)s,
+				fk_type = %(pk_type)s,
+				generic_specific = %(generic_specific)s::boolean,
+				definite = %(definite)s::boolean,
+				narrative = %(reaction)s
+			WHERE
+				pk = %(pk_allergy)s AND
+				xmin = %(xmin_allergy)s""",
+		u"""SELECT xmin_allergy FROM clin.v_pat_allergies WHERE pk_allergy=%(pk_allergy)s"""
 	]
 	_updatable_fields = [
 		'date',
@@ -259,122 +257,5 @@ if __name__ == '__main__':
 	print 'status:', status
 	print 'data:', data
 	print allg
+
 #============================================================
-# $Log: gmAllergy.py,v $
-# Revision 1.34  2009-06-29 14:49:42  ncq
-# - improved wording of allergy state
-#
-# Revision 1.33  2009/02/20 15:41:24  ncq
-# - fix ensure_has_allergy_state
-#
-# Revision 1.32  2008/10/22 12:03:46  ncq
-# - better documentation
-# - better allergy state symbols
-# - improved __setitem__ on allergy state
-#
-# Revision 1.31  2008/10/12 15:10:05  ncq
-# - allergic -> allergy
-#
-# Revision 1.30  2008/10/12 15:02:43  ncq
-# - no more allergy state -1
-# - ensure_has_allergic_state()
-# - cAllergyState
-#
-# Revision 1.29  2008/01/30 13:34:49  ncq
-# - switch to std lib logging
-#
-# Revision 1.28  2007/10/25 12:17:28  ncq
-# - robustify stringification of allergic state
-#
-# Revision 1.27  2007/08/20 14:17:59  ncq
-# - note on what an "allergy" really is to capture Adrian Midgleys input
-#
-# Revision 1.26  2007/03/26 16:48:34  ncq
-# - various id -> pk/fk type fixes
-#
-# Revision 1.25  2007/03/21 08:09:07  ncq
-# - add allergic_states
-# - add allergic_state2str()
-#
-# Revision 1.24  2007/03/18 12:54:39  ncq
-# - allow string and integer for setting pk_type on allergy
-#
-# Revision 1.24  2007/03/12 12:23:23  ncq
-# - error handling now more exception centric
-#
-# Revision 1.23  2006/10/28 15:02:24  ncq
-# - remove superfluous xmin_allergy
-#
-# Revision 1.22  2006/10/08 14:27:52  ncq
-# - convert to cBusinessDBObject
-# - convert to gmPG2
-#
-# Revision 1.21  2006/07/19 20:25:00  ncq
-# - gmPyCompat.py is history
-#
-# Revision 1.20  2005/11/27 12:44:57  ncq
-# - clinical tables are in schema "clin" now
-#
-# Revision 1.19  2005/04/30 13:30:02  sjtan
-#
-# id_patient is  now pk_patient.
-#
-# Revision 1.18  2005/01/02 19:55:30  ncq
-# - don't need _xmins_refetch_col_pos anymore
-#
-# Revision 1.17  2004/12/20 16:45:49  ncq
-# - gmBusinessDBObject now requires refetching of XMIN after save_payload
-#
-# Revision 1.16  2004/12/15 21:52:05  ncq
-# - improve unit test
-#
-# Revision 1.15  2004/11/03 22:32:34  ncq
-# - support _cmds_lock_rows_for_update in business object base class
-#
-# Revision 1.14  2004/10/11 19:42:32  ncq
-# - add license
-# - adapt field names
-# - some cleanup
-#
-# Revision 1.13  2004/06/28 12:18:41  ncq
-# - more id_* -> fk_*
-#
-# Revision 1.12  2004/06/26 07:33:54  ncq
-# - id_episode -> fk/pk_episode
-#
-# Revision 1.11  2004/06/14 08:22:10  ncq
-# - cast to boolean in save payload
-#
-# Revision 1.10  2004/06/09 14:32:24  ncq
-# - remove extraneous ()'s
-#
-# Revision 1.9  2004/06/08 00:41:38  ncq
-# - fix imports, cleanup, improved self-test
-#
-# Revision 1.8  2004/06/02 21:47:27  ncq
-# - improved sanity check in create_allergy() contributed by Carlos
-#
-# Revision 1.7  2004/05/30 18:33:28  ncq
-# - cleanup, create_allergy, done mostly by Carlos
-#
-# Revision 1.6  2004/05/12 14:28:52  ncq
-# - allow dict style pk definition in __init__ for multicolum primary keys (think views)
-# - self.pk -> self.pk_obj
-# - __init__(aPKey) -> __init__(aPK_obj)
-#
-# Revision 1.5  2004/04/20 13:32:33  ncq
-# - improved __str__ output
-#
-# Revision 1.4  2004/04/20 00:17:55  ncq
-# - allergies API revamped, kudos to Carlos
-#
-# Revision 1.3  2004/04/16 16:17:33  ncq
-# - test save_payload
-#
-# Revision 1.2  2004/04/16 00:00:59  ncq
-# - Carlos fixes
-# - save_payload should now work
-#
-# Revision 1.1  2004/04/12 22:58:55  ncq
-# - Carlos sent me this
-#

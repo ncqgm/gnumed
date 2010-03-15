@@ -352,6 +352,8 @@ class cPhraseWheel(wx.TextCtrl):
 		if data is not None:
 			self.suppress_text_update_smarts = True
 			self.data = data
+		if value is None:
+			value = u''
 		wx.TextCtrl.SetValue(self, value)
 		self.display_as_valid(valid = True)
 

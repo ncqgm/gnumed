@@ -14,7 +14,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools
 from Gnumed.pycommon import gmDispatcher, gmDateTime, gmHooks
-from Gnumed.business import gmATC
+from Gnumed.business import gmATC, gmAllergy
 
 
 _log = logging.getLogger('gm.meds')
@@ -742,6 +742,25 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 		return line
+	#--------------------------------------------------------
+	def turn_into_allergy(self, encounter_id=None, allergy_type='allergy'):
+		allg = gmAllergy.create_allergy (
+			substance = gmTools.coalesce (
+				self._payload[self._idx['brand']],
+				self._payload[self._idx['substance']]
+			),
+			allg_type = allergy_type,
+			episode_id = self._payload[self._idx['pk_episode']],
+			encounter_id = encounter_id
+		)
+		allg['reaction'] = self._payload[self._idx['discontinue_reason']]
+		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_brand']])
+		if self._payload[self._idx['external_code_brand']] is not None:
+			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
+		allg['generics'] = self._payload[self._idx['substance']]
+
+		allg.save()
+		return allg
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

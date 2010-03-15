@@ -11,8 +11,10 @@
 - new: manage diagnostic orgs
 - new: manage date of death per patient
 - new: manage discontinuation of substance intake
-- new: hook after_substance_intake_modified
-- new: hook after_test_result_modified
+- new: turn substance intake entry into allergy
+- new: hooks
+	- after_substance_intake_modified
+	- hook after_test_result_modified
 - new: visual progress notes
 - new: initial support for FreeDiams drug database frontend
 

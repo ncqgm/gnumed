@@ -23,12 +23,13 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._CHBOX_show_inactive = wx.CheckBox(self, -1, _("Inactive"))
         self._CHBOX_show_unapproved = wx.CheckBox(self, -1, _("Unapproved"))
         self._grid_substances = gmMedicationWidgets.cCurrentSubstancesGrid(self, -1, size=(1, 1))
-        self._BTN_add = wx.Button(self, wx.ID_ADD, "")
-        self._BTN_edit = wx.Button(self, -1, _("&Edit"))
-        self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
+        self._BTN_add = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
+        self._BTN_edit = wx.Button(self, -1, _("&Edit"), style=wx.BU_EXACTFIT)
+        self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
+        self._BTN_allergy = wx.Button(self, -1, _("Allergy"), style=wx.BU_EXACTFIT)
         self._BTN_info = wx.Button(self, -1, _("Info"), style=wx.BU_EXACTFIT)
         self._BTN_interactions = wx.Button(self, -1, _("&Interactions?"), style=wx.BU_EXACTFIT)
-        self._BTN_print = wx.Button(self, wx.ID_PRINT, "")
+        self._BTN_print = wx.Button(self, wx.ID_PRINT, "", style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -40,6 +41,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
+        self.Bind(wx.EVT_BUTTON, self._on_allergy_button_pressed, self._BTN_allergy)
         self.Bind(wx.EVT_BUTTON, self._on_info_button_pressed, self._BTN_info)
         self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
         self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
@@ -56,6 +58,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_add.SetToolTipString(_("Add a substance."))
         self._BTN_edit.SetToolTipString(_("Edit the selected substance intake entry."))
         self._BTN_delete.SetToolTipString(_("Remove a substance from the list."))
+        self._BTN_allergy.SetToolTipString(_("Discontinue selected entry due to an allergy or intolerance."))
         self._BTN_info.SetToolTipString(_("Show in-depth information on the selected substance if available."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
         self._BTN_print.SetToolTipString(_("Print the medication list."))
@@ -82,13 +85,14 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_grid.Add(self._grid_substances, 1, wx.TOP|wx.EXPAND, 5)
         __szr_main.Add(__szr_grid, 1, wx.EXPAND, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_buttons.Add(self._BTN_add, 0, wx.RIGHT, 5)
-        __szr_buttons.Add(self._BTN_edit, 0, wx.RIGHT, 5)
-        __szr_buttons.Add(self._BTN_delete, 0, 0, 5)
-        __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_buttons.Add(self._BTN_info, 0, wx.RIGHT, 5)
-        __szr_buttons.Add(self._BTN_interactions, 0, wx.RIGHT, 5)
-        __szr_buttons.Add(self._BTN_print, 0, 0, 0)
+        __szr_buttons.Add(self._BTN_add, 0, wx.RIGHT|wx.EXPAND, 5)
+        __szr_buttons.Add(self._BTN_edit, 0, wx.RIGHT|wx.EXPAND, 5)
+        __szr_buttons.Add(self._BTN_delete, 0, wx.RIGHT|wx.EXPAND, 5)
+        __szr_buttons.Add(self._BTN_allergy, 0, wx.RIGHT|wx.EXPAND, 5)
+        __szr_buttons.Add(self._BTN_info, 0, wx.EXPAND, 5)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_interactions, 0, wx.RIGHT|wx.EXPAND, 5)
+        __szr_buttons.Add(self._BTN_print, 0, wx.EXPAND, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
@@ -133,6 +137,10 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
     def _on_info_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
         print "Event handler `_on_info_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_allergy_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_allergy_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgCurrentSubstancesPnl
