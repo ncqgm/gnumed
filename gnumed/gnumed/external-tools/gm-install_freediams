@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# ===========================================================
+# Fetch and install FreeDiams
+#
+# http://freemedforms.googlecode.com
+#
+# ===========================================================
+
+VER="0.3.0"
+
+# ===========================================================
+APP_NAME="freediams"
+DL_SOURCE_URL="http://freemedforms.googlecode.com/files/${APP_NAME}_${VER}_i386.deb"
+DL_TARGET_DIR="/home/${USER}/.gnumed/tools-installation"
+
+
+mkdir -p ${DL_TARGET_DIR}
+cd ${DL_TARGET_DIR}
+wget -c ${DL_SOURCE_URL}		# -P ${DL_TARGET_DIR}/
+
+
+echo "Installing FreeDiams version ${VER} ..."
+echo ""
+echo "You must now enter the root password (unless you ARE root):"
+su -c "dpkg -i ${APP_NAME}_${VER}_i386.deb &> dpkg_i-${APP_NAME}_${VER}_i386.deb.log"
+
+exit 0
