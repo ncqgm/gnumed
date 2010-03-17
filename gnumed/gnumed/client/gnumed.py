@@ -41,6 +41,9 @@ care of all the pre- and post-GUI runtime environment setup.
  and when the update check URL is unavailable (down).
 --local-import
  Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
+--ui=<ui type>
+ Start an alternative UI. Defaults to wxPython if not specified.
+ Valid values: web (CherryPy), wxp (wxPython)
 --version, -V
  Show version information.
 --help, -h, or -?
@@ -94,11 +97,17 @@ _known_long_options = [
 	u'log-file=',
 	u'conf-file=',
 	u'lang-gettext=',
+	u'ui=',
 	u'override-schema-check',
 	u'local-import',
 	u'help',
 	u'version',
 	u'hipaa'
+]
+
+_known_ui_types = [
+	u'web',
+	u'wxp'
 ]
 
 import_error_sermon = """
@@ -188,6 +197,17 @@ def setup_logging():
 
 	global _log
 	_log = logging.getLogger('gm.launcher')
+#==========================================================
+def log_startup_info():
+	_log.info('Starting up as main module (%s).', __version__)
+	_log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
+	_log.info('Platform: %s', platform.uname())
+	_log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
+	try:
+		import lsb_release
+		_log.info('%s' % lsb_release.get_distro_information())
+	except ImportError:
+		pass
 #==========================================================
 def setup_console_exception_handler():
 	from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
@@ -403,6 +423,24 @@ def setup_cfg():
 		encoding = enc
 	)
 #==========================================================
+def setup_ui_type():
+	global ui_type
+
+	ui_type = _cfg.get(option = u'--ui', source_order = [(u'cli', u'return')])
+
+	if ui_type in [True, False, None]:
+		ui_type = 'wxp'
+
+	ui_type = ui_type.strip()
+
+	if ui_type not in _known_ui_types:
+		_log.error('unknown UI type: %s', ui_type)
+		_log.debug('known UI types: %s', str(_known_ui_types))
+		print "GNUmed startup: Unknown UI type (%s). Defaulting to wxPython client." % ui_type
+		ui_type = 'wxp'
+
+	_log.debug('UI type: %s', ui_type)
+#==========================================================
 def setup_backend():
 	_log.info('client expects database version [%s]', gmPG2.map_client_branch2required_db_version[current_client_branch])
 
@@ -457,45 +495,38 @@ def shutdown_logging():
 #----------------------------------------------------------
 setup_python_path()
 setup_logging()
-
-_log.info('Starting up as main module (%s).', __version__)
-_log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
-_log.info('Platform: %s', platform.uname())
-_log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
-try:
-	import lsb_release
-	_log.info('%s' % lsb_release.get_distro_information())
-except ImportError:
-	pass
-
+log_startup_info()
 setup_console_exception_handler()
 setup_cli()
 setup_signal_handlers()
 
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
-
 setup_locale()
 handle_help_request()
 handle_version_request()
 setup_paths_and_files()
 setup_date_time()
 setup_cfg()
+setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
-
 setup_backend()
 
 
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
-from Gnumed.wxpython import gmGuiMain
-profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
-if profile_file is not None:
-	_log.info('writing profiling data into %s', profile_file)
-	import profile
-	profile.run('gmGuiMain.main()', profile_file)
-else:
-	gmGuiMain.main()
+if ui_type == u'wxp':
+	from Gnumed.wxpython import gmGuiMain
+	profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
+	if profile_file is not None:
+		_log.info('writing profiling data into %s', profile_file)
+		import profile
+		profile.run('gmGuiMain.main()', profile_file)
+	else:
+		gmGuiMain.main()
+elif ui_type == u'web':
+	from Gnumed.cherrypy import gmGuiWeb
+	gmGuiWeb.main()
 
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
