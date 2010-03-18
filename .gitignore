@@ -22,5 +22,6 @@ gnumed-server.*.tgz
 
 #MANIFEST
 
-TODO
+gnumed/TODO
 
+andreas-release.txt
