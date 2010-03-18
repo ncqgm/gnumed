@@ -1379,7 +1379,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			)
 			tt += u'\n'
 
-		tt += u' ' + _('Substance name: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
+		tt += u' ' + _('Substance: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
 		tt += u' ' + _('Preparation: %s\n') % entry['preparation']
 		if entry['strength'] is not None:
 			tt += u' ' + _('Amount per dose: %s') % entry['strength']
