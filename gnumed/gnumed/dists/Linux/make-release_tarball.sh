@@ -448,15 +448,15 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/static
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/superuser
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
 
 cp -R ../../server/sql/v12-v13/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/dynamic
 cp -R ../../server/sql/v12-v13/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/static
 #cp -R ../../server/sql/v12-v13/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/superuser
-#cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
-#cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
+cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
+cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #cp -R ../../server/sql/v12-v13/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
 
 #----------------------------------
