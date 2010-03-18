@@ -1825,10 +1825,14 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		# do not store note if not modified -- change if users complain
 		doc = edit_visual_progress_note(filename = filename, episode = episode, discard_unmodified = True)
+		if doc is None:
+			return
+
 		if self._PRW_comment.GetValue().strip() == u'':
 			doc['comment'] = template['instance_type']
 		else:
 			doc['comment'] = self._PRW_comment.GetValue().strip()
+
 		doc.save()
 		self.show_image_and_metadata(doc = doc)
 	#--------------------------------------------------------
