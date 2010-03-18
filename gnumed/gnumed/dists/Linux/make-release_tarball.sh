@@ -142,6 +142,7 @@ cp -R ../../client/gm-from-vcs.bat ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../CHANGELOG ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
 
