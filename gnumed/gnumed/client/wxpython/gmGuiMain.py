@@ -194,6 +194,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_config = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('Preferences ...'), menu_config)
 
+		item = menu_config.Append(-1, _('List configuration'), _('List all configuration items stored in the database.'))
+		self.Bind(wx.EVT_MENU, self.__on_list_configuration, item)
+
 		# GNUmed / Preferences / Database
 		menu_cfg_db = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('Database ...'), menu_cfg_db)
@@ -1043,6 +1046,10 @@ class gmTopLevelFrame(wx.Frame):
 		if not send:
 			return
 		gmPG2.send_maintenance_notification()
+	#----------------------------------------------
+	#----------------------------------------------
+	def __on_list_configuration(self, evt):
+		gmCfgWidgets.list_configuration(parent = self)
 	#----------------------------------------------
 	# submenu GNUmed / options / client
 	#----------------------------------------------

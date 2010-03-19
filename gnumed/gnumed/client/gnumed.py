@@ -525,7 +525,7 @@ if ui_type == u'wxp':
 	else:
 		gmGuiMain.main()
 elif ui_type == u'web':
-	from Gnumed.cherrypy import gmGuiWeb
+	from Gnumed.CherryPy import gmGuiWeb
 	gmGuiWeb.main()
 
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')

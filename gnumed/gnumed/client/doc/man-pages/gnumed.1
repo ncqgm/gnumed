@@ -19,6 +19,7 @@ You have been warned.
 .RB [--log-file=FILE]
 .RB [--conf-file=FILE]
 .RB [--lang-gettext=LANGUAGE]
+.RB [--ui=UI-TYPE]
 .RB [--override-schema-check]
 .RB [--local-import]
 .RB [--help]
@@ -78,6 +79,16 @@ Explicitly set the language to use in gettext translation. The very
 same effect can be achieved by setting the environment variable $LANG
 from a launcher script.
 .TP
+.B \--ui=UI-TYPE
+Explicitely set the user interface type. Omitting this argument will
+default the interface to wxPython.
+
+Valid values are:
+
+	web: CherryPy web client
+
+	wxp: wxPython Python client
+.TP
 .B \--override-schema-check
 Continue loading the client even if the database schema
 version and the client software version cannot be verified
@@ -134,7 +145,10 @@ Users' website
 German website
 .TP
 .B http://savannah.gnu.org/projects/gnumed
-Source code repository (CVS)
+Mailing list home
+.TP
+.B http://gitorious.org/gnumed
+Source code repository (Git)
 .TP
 .B /usr/share/doc/gnumed/
 Local documentation
