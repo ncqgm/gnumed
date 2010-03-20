@@ -162,7 +162,32 @@ class gmTopLevelFrame(wx.Frame):
 			default = 600
 		))
 
-		_log.debug('setting GUI size to [%s:%s]' % (width, height))
+		dw = wx.DisplaySize()[0]
+		dh = wx.DisplaySize()[1]
+
+		_log.info('display size: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
+		_log.debug('display size: %s:%s %s mm', dw, dh, str(wx.DisplaySizeMM()))
+		_log.debug('previous GUI size [%s:%s]', width, height)
+
+		# max size
+		if width > dw:
+			_log.debug('adjusting GUI width from %s to %s', width, dw)
+			width = dw
+
+		if height > dh:
+			_log.debug('adjusting GUI height from %s to %s', height, dh)
+			height = dh
+
+		# min size
+		if width < 100:
+			_log.debug('adjusting GUI width to minimum of 100 pixel')
+			width = 100
+		if height < 100:
+			_log.debug('adjusting GUI height to minimum of 100 pixel')
+			height = 100
+
+		_log.info('setting GUI to size [%s:%s]', width, height)
+
  		self.SetClientSize(wx.Size(width, height))
 	#----------------------------------------------
 	def __setup_main_menu(self):
@@ -1916,7 +1941,6 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_display_bugtracker(self, evt):
 		webbrowser.open (
 			url = 'https://bugs.launchpad.net/gnumed/',
-			#url = 'http://savannah.gnu.org/bugs/?group=gnumed',
 			new = False,
 			autoraise = True
 		)
@@ -2442,7 +2466,7 @@ class gmApp(wx.App):
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
 
-		_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
+#		_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
 
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')

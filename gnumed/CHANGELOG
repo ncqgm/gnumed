@@ -37,6 +37,7 @@
 - improved: ARRIBA is now v2.0.4
 - improved: using Git for SCM now
 - improved: gnumed.py now directly under client/
+- improved: startup size will never go beyond screen size/below 100x100 pixel
 
 ------------------------------------------------
 # rel-0-6-patches
