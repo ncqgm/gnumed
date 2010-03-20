@@ -19,6 +19,7 @@
 - new: initial support for FreeDiams drug database frontend including install helper
 - new: commandline option --ui=<web/wxp> with rudimentary CherryPy frontend
 - new: show list of all configuration settings
+- new: configurable web search for test type from test result edit area
 
 - improved: login dialag:
 	- hint about local DB on failure

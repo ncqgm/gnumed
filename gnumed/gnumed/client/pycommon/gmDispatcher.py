@@ -54,7 +54,7 @@ class DispatcherError(exceptions.Exception):
 #---------------------------------------------------------------------
 def connect(receiver=None, signal=Any, sender=Any, weak=1):
 	"""Connect receiver to sender for signal.
-	
+
 	If sender is Any, receiver will receive signal from any sender.
 	If signal is Any, receiver will receive any signal from sender.
 	If sender is None, receiver will receive signal from anonymous.
@@ -63,7 +63,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 	If signal is Any and sender is Any, receiver will receive any 
 		signal from any sender.
 	If weak is true, weak references will be used.
-	
+
 	ADDITIONAL gnumed specific documentation:
 			this dispatcher is not designed with a gui single threaded event
 			loop in mind.
@@ -73,16 +73,16 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 				self._callsThatDoNotTriggerGuiUpdates()
 				self.data = processArgs(args)
 				wxCallAfter( self._callsThatTriggerGuiUpdates() )
-		
+
 		since it is likely data change occurs before the signalling,
 		it would probably look more simply like:
-		
+
 		def receiveSignal(self, **args):
 				wxCallAfter(self._updateUI() )
-		
+
 		def _updateUI(self):
 				# your code that reads data
-		
+
 		Especially if the widget can get a reference to updated data through
 		a global reference, such as via gmCurrentPatient.
 """
@@ -91,7 +91,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 
 	if signal not in known_signals:
 		_log.error('unknown signal [%(sig)s]', {'sig': signal})
-		print "DISPATCHER ERROR: connect(): unknown signal [%s]" % signal
+		print "DISPATCHER WARNING: connect(): unknown signal [%s]" % signal
 
 	if signal is not Any:
 		signal = str(signal)
@@ -126,7 +126,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 #---------------------------------------------------------------------
 def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	"""Disconnect receiver from sender for signal.
-	
+
 	Disconnecting is not required. The use of disconnect is the same as for
 	connect, only in reverse. Think of it as undoing a previous connection."""
 	if signal not in known_signals:
@@ -152,7 +152,7 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 #---------------------------------------------------------------------
 def send(signal=None, sender=None, **kwds):
 	"""Send signal from sender to all connected receivers.
-	
+
 	Return a list of tuple pairs [(receiver, response), ... ].
 	If sender is None, signal is sent anonymously.
 	"""
@@ -318,85 +318,3 @@ def _removeSender(senderkey):
 	except: pass
 
 #=====================================================================
-# $Log: gmDispatcher.py,v $
-# Revision 1.24  2009-05-12 12:05:56  ncq
-# - add missing signal
-#
-# Revision 1.23  2009/04/20 11:39:07  ncq
-# - add signal clin_item_updated
-#
-# Revision 1.22  2009/04/13 10:51:18  ncq
-# - add "current encounter switched"
-#
-# Revision 1.21  2009/02/05 21:07:50  ncq
-# - add signal
-#
-# Revision 1.20  2009/01/02 11:37:19  ncq
-# - new signal
-#
-# Revision 1.19  2008/12/01 12:12:06  ncq
-# - lazy import of wx._core.PyDeadObjectError
-#
-# Revision 1.18  2008/10/22 12:07:43  ncq
-# - spurious double :
-#
-# Revision 1.17  2008/09/09 20:16:35  ncq
-# - don't crash if weak ref target is dead
-#
-# Revision 1.16  2008/08/08 13:29:56  ncq
-# - add register_pre_exit_callback signal
-#
-# Revision 1.15  2008/06/28 22:33:57  ncq
-# - remove obsolete signal
-#
-# Revision 1.14  2007/12/12 16:17:15  ncq
-# - better logger names
-#
-# Revision 1.13  2007/12/11 15:35:46  ncq
-# - log, don't print, but critical
-#
-# Revision 1.12  2007/12/11 14:19:27  ncq
-# - stdlib logging
-#
-# Revision 1.11  2007/11/02 13:52:52  ncq
-# - add two signals
-#
-# Revision 1.10  2007/10/25 12:19:18  ncq
-# - allergy_updated is no more
-# - by default know signal "Any"
-#
-# Revision 1.9  2007/08/11 23:55:07  ncq
-# - register more signals
-# - report unknown signals but still pass them on
-#
-# Revision 1.8  2006/09/06 10:26:52  shilbert
-# - removed some weird EOL via dos2unix
-#
-# Revision 1.7  2005/10/10 18:10:33  ncq
-# - ever so slightly beautify debugging
-#
-# Revision 1.6  2005/10/08 12:33:08  sjtan
-# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
-#
-# Revision 1.5  2005/04/03 20:09:20  ncq
-# - it's rather stupid to try to remove a signal that we just tested to not exist,
-#   hence refrain from doing so
-#
-# Revision 1.4  2005/03/23 19:02:27  ncq
-# - improved error handling
-#
-# Revision 1.3  2005/03/17 12:59:16  ncq
-# - if an event receiver fails we should not fail all other receivers, too
-# - so report and continue
-# - but do not make us depend on gmLog just because of one fundamental,
-#   low level failure - may be the wrong choice in the long term, however
-#
-# Revision 1.2  2004/06/21 17:05:20  ncq
-# - whitespace cleanup
-# - it's a bit harsh to throw an exception when trying
-#   to disconnect an unconnected signal, reporting and
-#   succeeding should do
-#
-# Revision 1.1	2004/02/25 09:30:13	 ncq
-# - moved here from python-common
-#
