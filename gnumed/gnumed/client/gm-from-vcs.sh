@@ -36,10 +36,10 @@ PSYCOPG_DEBUG="on"		# should actually be done within gnumed.py based on --debug
 echo "-------------------------------------------------"
 echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
-python wxpython/gnumed.py ${LOG} ${CONF} ${DEV_OPTS} $@
+python gnumed.py ${LOG} ${CONF} ${DEV_OPTS} $@
 
 # - production version:
-#python wxpython/gnumed.py ${LOG} ${CONF} $@
+#python gnumed.py ${LOG} ${CONF} $@
 
 # - production version with HIPAA support:
-#python wxpython/gnumed.py ${LOG} ${CONF} --hipaa $@
+#python gnumed.py ${LOG} ${CONF} --hipaa $@

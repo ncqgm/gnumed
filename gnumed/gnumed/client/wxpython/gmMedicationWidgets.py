@@ -17,6 +17,7 @@ from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2
 from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea, gmMacro
 from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWidgets
+from Gnumed.wxpython import gmAllergyWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -409,7 +410,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	WHERE
 		is_group_code IS FALSE
 			AND
-		description %(fragment_condition)s
+		term %(fragment_condition)s
 )
 order by subst
 limit 50"""
@@ -651,7 +652,11 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self.data = intake
 
-		# FIXME: add allergy handling
+		if self._CHBOX_is_allergy.IsChecked():
+			allg = self.data.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
+			# open for editing
+			dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = self, id = -1)
+			dlg.ShowModal()
 
 		return True
 	#----------------------------------------------------------------
@@ -698,7 +703,11 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self.data.save()
 
-		# FIXME: add allergy handling
+		if self._CHBOX_is_allergy.IsChecked():
+			allg = self.data.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
+			# open for editing
+			dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = self, id = -1)
+			dlg.ShowModal()
 
 		return True
 	#----------------------------------------------------------------
@@ -1130,7 +1139,21 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			med = meds[row_idx]
 			self.__row_data[row_idx] = med
 
-			if med['is_currently_active'] is not True:
+			if med['is_currently_active'] is True:
+				atcs = []
+				if med['atc_substance'] is not None:
+					atcs.append(med['atc_substance'])
+				if med['atc_brand'] is not None:
+					atcs.append(med['atc_brand'])
+				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],), brand = med['brand'])
+				if allg not in [None, False]:
+					attr = self.GetOrCreateCellAttr(row_idx, 0)
+					if allg['type'] == u'allergy':
+						attr.SetTextColour('red')
+					else:
+						attr.SetTextColour('yellow')
+					self.SetRowAttr(row_idx, attr)
+			else:
 				attr = self.GetOrCreateCellAttr(row_idx, 0)
 				attr.SetTextColour('grey')
 				self.SetRowAttr(row_idx, attr)
@@ -1283,6 +1306,28 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		subst = self.get_selected_data()[0]
 		delete_substance_intake(parent = self, substance = subst['pk_substance_intake'])
 	#------------------------------------------------------------
+	def create_allergy_from_substance(self):
+		rows = self.get_selected_rows()
+
+		if len(rows) == 0:
+			return
+
+		if len(rows) > 1:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot create allergy from more than one substance at once.'), beep = True)
+			return
+
+		subst = self.get_selected_data()[0]
+		if subst['is_currently_active']:
+			subst['discontinued'] = gmDateTime.pydt_now_here()
+		if subst['discontinue_reason'] is None:
+			subst['discontinue_reason'] = _('discontinued due to allergy or intolerance')
+		subst.save()
+
+		emr = self.__patient.get_emr()
+		allg = subst.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
+		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = self, id = -1)
+		dlg.ShowModal()
+	#------------------------------------------------------------
 	def print_medication_list(self):
 		# there could be some filtering/user interaction going on here
 		_cfg = gmCfg2.gmCfgData()
@@ -1295,7 +1340,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		except KeyError:
 			return u' '
 
-		# FIXME: check for allergy
+		emr = self.__patient.get_emr()
+		atcs = []
+		if entry['atc_substance'] is not None:
+			atcs.append(entry['atc_substance'])
+		if entry['atc_brand'] is not None:
+			atcs.append(entry['atc_brand'])
+		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],), brand = entry['brand'])
 
 		tt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (
@@ -1316,7 +1367,19 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			entry['pk_substance_intake']
 		)
 
-		tt += u' ' + _('Substance name: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
+		if allg not in [None, False]:
+			certainty = gmTools.bool2subst(allg['definite'], _('definite'), _('suspected'))
+			tt += u'\n'
+			tt += u' !! ---- Cave ---- !!\n'
+			tt += u' %s (%s): %s (%s)\n' % (
+				allg['l10n_type'],
+				certainty,
+				allg['descriptor'],
+				gmTools.coalesce(allg['reaction'], u'')[:40]
+			)
+			tt += u'\n'
+
+		tt += u' ' + _('Substance: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
 		tt += u' ' + _('Preparation: %s\n') % entry['preparation']
 		if entry['strength'] is not None:
 			tt += u' ' + _('Amount per dose: %s') % entry['strength']
@@ -1544,6 +1607,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_print_button_pressed(self, event):
 		self._grid_substances.print_medication_list()
+	#--------------------------------------------------------
+	def _on_allergy_button_pressed(self, event):
+		self._grid_substances.create_allergy_from_substance()
 #============================================================
 # main
 #------------------------------------------------------------

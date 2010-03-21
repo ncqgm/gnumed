@@ -28,11 +28,12 @@ _log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L']
+form_engine_abbrevs = [u'O', u'L', u'T']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
-	u'L': 'LaTeX'
+	u'L': 'LaTeX',
+	u'T': 'text / dummy'
 }
 
 # is filled in further below after each engine is defined

@@ -1,8 +1,6 @@
 """GNUmed configuration related widgets.
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmCfgWidgets.py,v $
-# $Id: gmCfgWidgets.py,v 1.4 2009-12-30 18:47:01 ncq Exp $
 __version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
@@ -63,6 +61,34 @@ def check_for_updates():
 		_('Checking for client updates')
 	)
 #================================================================
+def list_configuration(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#---------------
+	def refresh(lctrl):
+		opts = gmCfg.get_all_options()
+
+		items = [ [
+			o['option'],
+			o['value'],
+			o['owner'],
+			o['workplace'],
+			o['type'],
+			gmTools.coalesce(o['description'], u'')
+		] for o in opts ]
+		lctrl.set_string_items(items)
+
+	#---------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('This list shows all configuration settings from the database.'),
+		caption = _('Showing configuration'),
+		columns = [_('Option'), _('Value'), _('User'), _('Workplace'), _('Type'), _('Description')],
+		refresh_callback = refresh,
+		ignore_OK_button = True
+	)
 #================================================================
 def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value=u'', choices=None, columns=None, data=None, caption=None):
 
@@ -223,17 +249,3 @@ if __name__ == '__main__':
 			check_for_updates()
 
 #================================================================
-# $Log: gmCfgWidgets.py,v $
-# Revision 1.4  2009-12-30 18:47:01  ncq
-# - fix strange case of missing gmCfg2 import
-#
-# Revision 1.3  2009/12/21 15:03:34  ncq
-# - check_for_updates should be here
-#
-# Revision 1.2  2009/10/20 10:25:43  ncq
-# - support pre-selections in configure-string-from-list
-#
-# Revision 1.1  2008/01/16 19:25:18  ncq
-# - new file, factored out from gmGuiHelpers
-#
-#

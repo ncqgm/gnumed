@@ -1286,7 +1286,6 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	# set connection properties
 	# 1) client encoding
-	_log.debug('client string encoding [%s]' % encoding)
 	try:
 		conn.set_client_encoding(encoding)
 	except dbapi.OperationalError:
@@ -1298,26 +1297,25 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	# 2) transaction isolation level
 	if readonly:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-		_log.debug('isolation level [read committed]')
+		iso_level = u'read committed'
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
-		_log.debug('isolation level [serializable]')
+		iso_level = u'serializable'
+
+	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s], datestyle [ISO], sql_inheritance [ON]', encoding, iso_level, _default_client_timezone)
 
 	curs = conn.cursor()
 
 	# client time zone
-	_log.debug('time zone [%s]' % _default_client_timezone)
 	curs.execute(_sql_set_timezone, [_default_client_timezone])
 
 	# datestyle
 	# regarding DMY/YMD handling: since we force *input* to
 	# ISO, too, the DMY/YMD setting is not needed
-	_log.debug('datestyle [ISO]')
 	cmd = "set datestyle to 'ISO'"
 	curs.execute(cmd)
 
 	# SQL inheritance mode
-	_log.debug('sql_inheritance [on]')
 	cmd = 'set sql_inheritance to on'
 	curs.execute(cmd)
 

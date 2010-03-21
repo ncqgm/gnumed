@@ -122,6 +122,7 @@ echo "============"
 # external tools
 mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-install_freediams ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_loinc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-print_doc ./gnumed-client.$CLIENTREV/external-tools/
@@ -134,12 +135,14 @@ cp -R ../../external-tools/gm-install_client_locally.sh ./gnumed-client.$CLIENTR
 # client
 mkdir -p ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/client/
+cp -R ../../client/gnumed.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.conf ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.sh ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/gm-from-vcs.bat ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../CHANGELOG ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
 
@@ -445,15 +448,15 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/static
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/superuser
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
 
 cp -R ../../server/sql/v12-v13/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/dynamic
 cp -R ../../server/sql/v12-v13/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/static
 #cp -R ../../server/sql/v12-v13/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/superuser
-#cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
-#cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
+cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
+cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #cp -R ../../server/sql/v12-v13/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
 
 #----------------------------------

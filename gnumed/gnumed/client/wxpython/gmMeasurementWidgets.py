@@ -1,14 +1,11 @@
-"""GNUmed measurement widgets.
-"""
+"""GNUmed measurement widgets."""
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMeasurementWidgets.py,v $
-# $Id: gmMeasurementWidgets.py,v 1.66 2010-02-02 13:55:33 ncq Exp $
 __version__ = "$Revision: 1.66 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal, os
+import sys, logging, datetime as pyDT, decimal, os, webbrowser
 
 
 import wx, wx.grid, wx.lib.hyperlink
@@ -25,6 +22,7 @@ from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+
 #================================================================
 # LOINC related widgets
 #================================================================
@@ -73,6 +71,40 @@ def update_loinc_reference_data():
 #================================================================
 # convenience functions
 #================================================================
+def call_browser_on_measurement_type(measurement_type=None):
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	url = dbcfg.get (
+		option = u'external.urls.measurements_search',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user',
+		default = u"http://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
+	)
+
+	base_url = dbcfg.get2 (
+		option = u'external.urls.measurements_encyclopedia',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user',
+		default = u'http://www.laborlexikon.de'
+	)
+
+	if measurement_type is None:
+		url = base_url
+
+	measurement_type = measurement_type.strip()
+
+	if measurement_type == u'':
+		url = base_url
+
+	url = url % {'search_term': measurement_type}
+
+	webbrowser.open (
+		url = url,
+		new = False,
+		autoraise = True
+	)
+#----------------------------------------------------------------
 def edit_measurement(parent=None, measurement=None):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
 	ea.data = measurement
@@ -1375,6 +1407,23 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._CHBOX_abnormal.Enable(self._CHBOX_review.GetValue())
 		self._CHBOX_relevant.Enable(self._CHBOX_review.GetValue())
 		self._TCTRL_review_comment.Enable(self._CHBOX_review.GetValue())
+	#--------------------------------------------------------
+	def _on_test_info_button_pressed(self, event):
+
+		pk = self._PRW_test.GetData()
+		if pk is not None:
+			tt = gmPathLab.cMeasurementType(aPK_obj = pk)
+			search_term = u'%s %s %s' % (
+				tt['name'],
+				tt['abbrev'],
+				gmTools.coalesce(tt['loinc'], u'')
+			)
+		else:
+			search_term = self._PRW_test.GetValue()
+
+		search_term = search_term.replace(' ', u'+')
+
+		call_browser_on_measurement_type(measurement_type = search_term)
 #================================================================
 # measurement type handling
 #================================================================
@@ -2100,259 +2149,4 @@ if __name__ == '__main__':
 		#test_primary_care_vitals_pnl()
 
 #================================================================
-# $Log: gmMeasurementWidgets.py,v $
-# Revision 1.66  2010-02-02 13:55:33  ncq
-# - much improved results tooltip
-# - manage diagnostic orgs
-#
-# Revision 1.65  2010/01/31 18:19:11  ncq
-# - fix faulty access to value of abnormality indicator PRW
-#
-# Revision 1.64  2009/12/21 15:12:29  ncq
-# - cleanup
-# - fix typo
-# - missing return
-#
-# Revision 1.63  2009/12/03 17:50:20  ncq
-# - row label tooltips
-#
-# Revision 1.62  2009/12/01 21:54:04  ncq
-# - cleanup
-#
-# Revision 1.61  2009/10/28 16:42:53  ncq
-# - make grid draggable
-#
-# Revision 1.60  2009/09/17 21:54:55  ncq
-# - properly access test type pk
-# - check for use before deleting test type
-#
-# Revision 1.59  2009/09/01 22:33:25  ncq
-# - order test types in list
-#
-# Revision 1.58  2009/08/24 20:11:27  ncq
-# - bump db version
-# - fix tag creation
-# - provider inbox:
-# 	enable filter-to-active-patient,
-# 	listen to new signal,
-# 	use cInboxMessage class
-# - properly constrain LOINC phrasewheel SQL
-# - include v12 scripts in release
-# - install arriba jar to /usr/local/bin/
-# - check for table existence in audit schema generator
-# - include dem.message inbox with additional generic signals
-#
-# Revision 1.57  2009/08/11 10:49:23  ncq
-# - cleanup
-# - remove LOINC files after import
-# - row labels now "abbrev (desc)", again
-# - Encyclopedia -> Reference
-# - improved LOINC matcher and use loinc to set loinc info
-#
-# Revision 1.56  2009/08/08 12:18:12  ncq
-# - setup phrasewheels in measurement type EA
-#
-# Revision 1.55  2009/08/03 20:50:48  ncq
-# - properly support adding/editing measurement type
-#
-# Revision 1.54  2009/07/20 20:33:35  ncq
-# - start implementing test type management
-#
-# Revision 1.53  2009/07/15 12:22:46  ncq
-# - fix incomplete validity check for new-result problem
-#
-# Revision 1.52  2009/07/06 17:15:45  ncq
-# - row labels only test name until proper support for abbrev is there
-# - improved formatting of test result for display in cell
-# - only remind of display being most-recent only if cell actually is multi-result in cell tooltip
-# - use successful-save message on EA
-# - safer refresh after save-and-next-value
-#
-# Revision 1.51  2009/07/02 20:54:05  ncq
-# - fix bug where second patient didn't show measurements on patient change
-#
-# Revision 1.50  2009/06/22 09:26:49  ncq
-# - people didn't like the bandwidth calculation
-#
-# Revision 1.49  2009/06/20 22:38:05  ncq
-# - factor out cell tooltip creation and only do it on mouse over
-#
-# Revision 1.48  2009/06/11 12:37:25  ncq
-# - much simplified initial setup of list ctrls
-#
-# Revision 1.47  2009/06/04 16:19:00  ncq
-# - re-adjust to test table changes
-# - update loinc
-# - adjust to list widget changes (refresh)
-#
-# Revision 1.47  2009/05/28 10:53:40  ncq
-# - adjust to test tables changes
-#
-# Revision 1.46  2009/05/24 16:29:14  ncq
-# - support (meta) test types
-#
-# Revision 1.45  2009/04/24 12:05:20  ncq
-# - properly display lab link in grid corner
-#
-# Revision 1.44  2009/04/21 17:01:12  ncq
-# - try various other things to try to center the lab link
-#
-# Revision 1.43  2009/04/19 22:28:23  ncq
-# - put hyperlink in upper left corner of lab grid
-#
-# Revision 1.42  2009/04/14 18:35:27  ncq
-# - HCI screening revealed test types scroll off when
-#   moving horizontall so fix that
-#
-# Revision 1.41  2009/04/03 09:50:21  ncq
-# - comment
-#
-# Revision 1.40  2009/03/18 14:30:47  ncq
-# - improved result tooltip
-#
-# Revision 1.39  2009/03/01 18:15:55  ncq
-# - lots of missing u'', decode strftime results
-# - adjust word separators in test type match provider
-#
-# Revision 1.38  2009/02/20 15:43:21  ncq
-# - u''ify
-#
-# Revision 1.37  2009/02/17 17:47:31  ncq
-# - comment out primary care vitals
-#
-# Revision 1.36  2009/02/12 16:23:39  ncq
-# - start work on primary care vitals input
-#
-# Revision 1.35  2009/01/28 11:27:56  ncq
-# - slightly better naming and comments
-#
-# Revision 1.34  2009/01/02 11:40:27  ncq
-# - properly check for numericity of value/range input
-#
-# Revision 1.33  2008/10/22 12:21:57  ncq
-# - use %x in strftime where appropriate
-#
-# Revision 1.32  2008/08/31 18:21:54  ncq
-# - work around Windows' inability to do nothing when
-#   there's nothing to do
-#
-# Revision 1.31  2008/08/31 18:04:30  ncq
-# - properly handle cell data now being list in select_cells()
-#
-# Revision 1.30  2008/08/31 17:13:50  ncq
-# - don't crash on double-clicking empty test results cell
-#
-# Revision 1.29  2008/08/31 17:04:17  ncq
-# - need to cast val_normal/target_min/max to unicode before display
-#
-# Revision 1.28  2008/08/15 15:57:10  ncq
-# - indicate data revisions in tooltip
-#
-# Revision 1.27  2008/08/08 13:31:58  ncq
-# - better results layout
-#
-# Revision 1.26  2008/08/05 16:21:30  ncq
-# - support multiple values per cell
-#
-# Revision 1.25  2008/07/17 21:41:36  ncq
-# - cleanup
-#
-# Revision 1.24  2008/07/14 13:47:36  ncq
-# - explicitely set focus after refresh per user request
-#
-# Revision 1.23  2008/07/13 16:13:33  ncq
-# - add_new_measurement -> edit_measurement
-# - use cGenericEditAreaMixin on results edit area
-# - invoked results edit area via double-click on result in grid
-#
-# Revision 1.22  2008/07/07 13:43:17  ncq
-# - current patient .connected
-#
-# Revision 1.21  2008/06/24 14:00:09  ncq
-# - action button popup menu
-# - handle result deletion
-#
-# Revision 1.20  2008/06/23 21:50:26  ncq
-# - create test types on the fly
-#
-# Revision 1.19  2008/06/22 17:32:39  ncq
-# - implement refresh on measurement ea so "Next" will work in dialog
-#
-# Revision 1.18  2008/06/19 15:26:09  ncq
-# - finish saving test result from edit area
-# - fix a few oversights in the result tooltip
-#
-# Revision 1.17  2008/06/18 15:49:22  ncq
-# - improve save validity check on edit area
-#
-# Revision 1.16  2008/06/16 15:03:20  ncq
-# - first cut at saving test results
-#
-# Revision 1.15  2008/06/15 20:43:31  ncq
-# - add test result indicator phrasewheel
-#
-# Revision 1.14  2008/06/09 15:36:04  ncq
-# - reordered for clarity
-# - add_new_measurement
-# - edit area start
-# - phrasewheels
-#
-# Revision 1.13  2008/05/14 15:01:43  ncq
-# - remove spurious evt argument in _on_pre_patient_selection()
-#
-# Revision 1.12  2008/04/26 21:40:58  ncq
-# - eventually support selecting certain ranges of cells
-#
-# Revision 1.11  2008/04/26 10:05:32  ncq
-# - in review dialog when user is already responsible
-#   disable make_me_responsible checkbox
-#
-# Revision 1.10  2008/04/22 21:18:49  ncq
-# - implement signing
-# - improved tooltip
-# - properly clear grid when active patient changes
-#
-# Revision 1.9  2008/04/16 20:39:39  ncq
-# - working versions of the wxGlade code and use it, too
-# - show client version in login dialog
-#
-# Revision 1.8  2008/04/11 23:12:23  ncq
-# - improve docs
-#
-# Revision 1.7  2008/04/04 13:09:45  ncq
-# - use +/- as abnormality indicator where not available
-# - more complete calculation of "more result data available"
-#
-# Revision 1.6  2008/04/02 10:48:33  ncq
-# - cleanup, review -> sign
-# - support test_count in review widget
-# - better results formatting as per list discussion
-#
-# Revision 1.5  2008/03/29 16:19:57  ncq
-# - review_current_selection()
-# - get_selected_cells()
-# - bold test names
-# - display abnormality indicator and clinical relevance
-# - improve tooltip
-# - cMeasurementsReviewDialog()
-# - listen to test result database changes
-#
-# Revision 1.4  2008/03/25 19:36:30  ncq
-# - fix imports
-# - better docs
-# - str() wants non-u''
-# - cMeasurementsPnl()
-#
-# Revision 1.3  2008/03/20 15:31:40  ncq
-# - improve cell tooltips with review status and issue/episode information
-# - start row labels tooltips
-#
-# Revision 1.2  2008/03/17 14:55:41  ncq
-# - add lots of TODOs
-# - better layout
-# - set grid cell tooltips
-#
-# Revision 1.1  2008/03/16 11:57:47  ncq
-# - first iteration
-#
-#
+

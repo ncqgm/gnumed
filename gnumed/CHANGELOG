@@ -11,10 +11,15 @@
 - new: manage diagnostic orgs
 - new: manage date of death per patient
 - new: manage discontinuation of substance intake
-- new: hook after_substance_intake_modified
-- new: hook after_test_result_modified
+- new: turn substance intake entry into allergy
+- new: hooks
+	- after_substance_intake_modified
+	- hook after_test_result_modified
 - new: visual progress notes
-- new: initial support for FreeDiams drug database frontend
+- new: initial support for FreeDiams drug database frontend including install helper
+- new: commandline option --ui=<web/wxp> with rudimentary CherryPy frontend
+- new: show list of all configuration settings
+- new: configurable web search for test type from test result edit area
 
 - improved: login dialag:
 	- hint about local DB on failure
@@ -31,6 +36,8 @@
 - improved: cleaner display of documents in tree
 - improved: ARRIBA is now v2.0.4
 - improved: using Git for SCM now
+- improved: gnumed.py now directly under client/
+- improved: startup size will never go beyond screen size/below 100x100 pixel
 
 ------------------------------------------------
 # rel-0-6-patches

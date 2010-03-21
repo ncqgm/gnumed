@@ -47,7 +47,7 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgMeasurementTypeEAPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(6, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(7, 2, 1, 3)
         __szr_loinc = wx.BoxSizer(wx.HORIZONTAL)
         __szr_abbrev_unit = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_name = wx.StaticText(self, -1, _("Name"))
@@ -62,9 +62,10 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(__szr_abbrev_unit, 1, wx.EXPAND, 0)
         __lbl_loinc = wx.StaticText(self, -1, _("LOINC"))
         _gszr_main.Add(__lbl_loinc, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_loinc.Add(self._PRW_loinc, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
-        __szr_loinc.Add(self._TCTRL_loinc_info, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_loinc.Add(self._PRW_loinc, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
         _gszr_main.Add(__szr_loinc, 1, wx.EXPAND, 0)
+        _gszr_main.Add((20, 20), 0, wx.EXPAND, 0)
+        _gszr_main.Add(self._TCTRL_loinc_info, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_comment_type = wx.StaticText(self, -1, _("Comment"))
         _gszr_main.Add(__lbl_comment_type, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_comment_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

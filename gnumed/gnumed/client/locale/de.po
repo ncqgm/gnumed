@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2010-02-18 14:34+CET\n"
-"PO-Revision-Date: 2010-02-18 14:51+0100\n"
+"POT-Creation-Date: 2010-03-19 10:43+CET\n"
+"PO-Revision-Date: 2010-03-19 11:00+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -552,6 +552,76 @@ msgstr "berichtigtes Ergebnis"
 msgid "missing, reported later"
 msgstr "fehlt/folgt"
 
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you have got a local database installed ?\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Kann nicht mit Datenbank verbinden:\n"
+"\n"
+"%s\n"
+"\n"
+"Haben Sie wirklich eine lokale Datenbank installiert ?\n"
+"\n"
+"Mit korrekten Angaben neu versuchen oder abbrechen.\n"
+"\n"
+"Möglicherweise müssen die PostgreSQL-Einstellungen\n"
+"für die Anmeldung in pg_hba.conf überprüft werden.\n"
+"Details unter:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Kann nicht mit Datenbank verbinden:\n"
+"\n"
+"%s\n"
+"\n"
+"Mit korrekten Angaben neu versuchen oder abbrechen.\n"
+"\n"
+"Möglicherweise müssen die PostgreSQL-Einstellungen\n"
+"für die Anmeldung in pg_hba.conf überprüft werden.\n"
+"Details unter:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+msgid "Connecting to backend"
+msgstr "Verbinde mit Datenbank"
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry another backend / user / password combination !\n"
+msgstr ""
+"Anmeldung bei Datenbank fehlgeschlagen:\n"
+"\n"
+"%s\n"
+"\n"
+"Bitte versuchen Sie andere Zugangsdaten.\n"
+
 msgid "gm_ctl_client: starting slave GNUmed client"
 msgstr "gm_ctl_client: Starte ferngesteuertes GNUmed"
 
@@ -683,6 +753,13 @@ msgstr "Karteieintrag"
 
 msgid "Exported: %s\n"
 msgstr "Exportiert: %s\n"
+
+msgid ""
+"Help requested\n"
+"--------------"
+msgstr ""
+"Hilfe angefordert\n"
+"-----------------"
 
 msgid "unknown test status [%s]"
 msgstr "unbekannter Teststatus [%s]"
@@ -1359,6 +1436,9 @@ msgstr "+"
 msgid "Approved of"
 msgstr "Gebilligt"
 
+msgid "Per plan"
+msgstr "Planmäßig"
+
 msgid "Long-term"
 msgstr "Langzeit"
 
@@ -1398,6 +1478,18 @@ msgstr "Die aktiven Wirkstoffe dieses Medikaments."
 msgid "When was this substance started to be consumed."
 msgstr "Seit wann wird diese Substanz konsumiert."
 
+msgid "When was intake of this substance discontinued ?"
+msgstr "Wann wurde die Einnahme dieser Substanz beendet ?"
+
+msgid "Press if discontinuation was as planned."
+msgstr "Einnahmeende auf plangemäßes Datum setzen."
+
+msgid "Reason for discontinuation."
+msgstr "Grund der Beendigung"
+
+msgid "Discontinuation due to allergy/intolerance ?"
+msgstr "Beendigung wegen Allergie/Unverträglichkeit ?"
+
 msgid "The schedule for taking this substance."
 msgstr "Der Einnahmeplan für diese Substanz."
 
@@ -1430,6 +1522,12 @@ msgstr "Handelsname"
 
 msgid "Started"
 msgstr "Beginn"
+
+msgid "Discontinued"
+msgstr "Beendet"
+
+msgid "Reason"
+msgstr "Grund"
 
 msgid "Schedule"
 msgstr "Plan"
@@ -1487,6 +1585,9 @@ msgstr "Den markierten Eintrag bearbeiten."
 
 msgid "Remove a substance from the list."
 msgstr "Eine Substanz aus der Liste löschen."
+
+msgid "Discontinue selected entry due to an allergy or intolerance."
+msgstr "Den gewählten Eintrag wegen einer Allergie oder Unverträglichkeit beenden."
 
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Fachinformationen zur markierten Substanz anzeigen, sofern verfügbar."
@@ -3236,6 +3337,33 @@ msgstr "Hotline"
 msgid "Log file"
 msgstr "Log-Datei"
 
+msgid "Template"
+msgstr "Vorlage"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "Enter a short comment on this visual progress note."
+msgstr "Geben Sie einen Kommentar zu dieser Bildnotiz ein."
+
+msgid "Select a visual progress note template."
+msgstr "Wählen Sie eine Vorlage für eine Bildnotiz."
+
+msgid "Add a new visual progress note from the template selected above."
+msgstr "Eine neue Bildnotiz aus der oben gewählten Vorlage erzeugen."
+
+msgid "Add a new visual progress note from an image file."
+msgstr "Eine neue Bildnotiz aus einer Bilddatei erzeugen."
+
+msgid "This list shows the visual progress notes for this encounter."
+msgstr "Diese Liste zeigt die Bildnotizen dieses Kontakts."
+
+msgid "Delete this visual progress note."
+msgstr "Diese Bildnotiz löschen."
+
+msgid "Episode:"
+msgstr "Episode:"
+
 msgid "Waiting list details for this patient."
 msgstr "Wartelisteneintrag für diesen Patienten."
 
@@ -3537,47 +3665,6 @@ msgstr ""
 "\n"
 "Fehler assoziiert mit der Datenbankstruktur können auftreten. Bitte melden Sie diese oder beheben Sie sie. Verlassen Sie sich nicht auf das vollständig fehlerfreie Funktionieren dieser Datenbank !"
 
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-"Kann nicht mit Datenbank verbinden:\n"
-"\n"
-"%s\n"
-"\n"
-"Mit korrekten Angaben neu versuchen oder abbrechen.\n"
-"\n"
-"Möglicherweise müssen die PostgreSQL-Einstellungen\n"
-"für die Anmeldung in pg_hba.conf überprüft werden.\n"
-"Details unter:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-
-msgid "Connecting to backend"
-msgstr "Verbinde mit Datenbank"
-
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry another backend / user / password combination !\n"
-msgstr ""
-"Anmeldung bei Datenbank fehlgeschlagen:\n"
-"\n"
-"%s\n"
-"\n"
-"Bitte versuchen Sie andere Zugangsdaten.\n"
-
 msgid "Verifying database version"
 msgstr "Verifiziere Datenbankversion"
 
@@ -3745,6 +3832,21 @@ msgstr "Ihre Installation (%s) ist auf dem neuesten Stand."
 
 msgid "Checking for client updates"
 msgstr "Updates suchen"
+
+msgid "This list shows all configuration settings from the database."
+msgstr "Diese Liste zeigt alle Konfigurationseinstellungen aus der Datenbank."
+
+msgid "Showing configuration"
+msgstr "Konfiguration zeigen"
+
+msgid "Option"
+msgstr "Einstellung"
+
+msgid "User"
+msgstr "Nutzer"
+
+msgid "Workplace"
+msgstr "Arbeitsplatz"
 
 msgid "Configuration"
 msgstr "Konfiguration"
@@ -4909,11 +5011,8 @@ msgstr "Fehler beim Suchen von Dokumenten."
 msgid "loading document list"
 msgstr "Dokumentenliste laden"
 
-msgid "no comment available"
-msgstr "kein Kommentar verfügbar"
-
-msgid "%s%7s %s: %s (%s part(s)%s)"
-msgstr "%s%7s %s: %s (%s Teil(e)%s)"
+msgid "%s%7s %s:%s (%s part(s)%s)"
+msgstr "%s%7s %s:%s (%s Teil(e)%s)"
 
 msgid "part %2s"
 msgstr "Teil %2s"
@@ -5260,9 +5359,6 @@ msgstr "Einweisung"
 
 msgid "Discharge"
 msgstr "Entlassung"
-
-msgid "Reason"
-msgstr "Grund"
 
 msgid "Adding a hospital stay"
 msgstr "Einen Krankenhausaufenthalt hinzufügen"
@@ -5845,9 +5941,6 @@ msgstr ""
 msgid "Select letter or form template."
 msgstr "Die Brief- oder Formularvorlage wählen."
 
-msgid "Template"
-msgstr "Vorlage"
-
 msgid "Version"
 msgstr "Version"
 
@@ -5910,6 +6003,12 @@ msgstr "Wartung ankündigen"
 
 msgid "Preferences ..."
 msgstr "Konfiguration ..."
+
+msgid "List all configuration items stored in the database."
+msgstr "Komplette Konfiguration aus der Datenbank zeigen."
+
+msgid "List configuration"
+msgstr "Konfiguration zeigen"
 
 msgid "Database ..."
 msgstr "Datenbank ..."
@@ -6063,6 +6162,12 @@ msgstr "FreeDiams-Pfad"
 
 msgid "Set the path for the FreeDiams binary."
 msgstr "Den Befehl zum Aufruf von FreeDiams einstellen."
+
+msgid "Set the command for calling the visual progress note editor."
+msgstr "Den Editor für Bildnotizen einstellen."
+
+msgid "Visual SOAP editor"
+msgstr "Editor für Bildnotizen"
 
 msgid "EMR ..."
 msgstr "Karteikarte ..."
@@ -8045,6 +8150,9 @@ msgstr "Reaktion nicht dokumentiert"
 msgid "Cannot save substance intake. Invalid or missing essential input."
 msgstr "Kann Substanzeinnahme nicht speichern. Es fehlen grundlegende Informationen."
 
+msgid "not tolerated:"
+msgstr "nicht vertragen:"
+
 msgid ""
 "Do you really want to remove this substance intake ?\n"
 "\n"
@@ -8101,8 +8209,20 @@ msgstr "Kann nicht mehrere Substanzen gleichzeitig bearbeiten."
 msgid "Cannot delete more than one substance at once."
 msgstr "Kann nicht mehrere Substanzen gleichzeitig entfernen."
 
+msgid "Cannot create allergy from more than one substance at once."
+msgstr "Kann eine Allergie nicht aus mehreren Substanzen gleichzeitig erzeugen."
+
+msgid "discontinued due to allergy or intolerance"
+msgstr "beendet wegen Allergie oder Unverträglichkeit"
+
 msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr "Substanzgebrauch (%s, %s)   [#%s]                     \n"
+
+msgid "active, needs check"
+msgstr "aktiv, Überprüfung nötig"
+
+msgid "assumed active"
+msgstr "vermutlich aktiv"
 
 msgid "approved"
 msgstr "gebilligt"
@@ -8110,8 +8230,8 @@ msgstr "gebilligt"
 msgid "unapproved"
 msgstr "ungebilligt"
 
-msgid "Substance name: %s   [#%s]\n"
-msgstr "Substanzname: %s   [#%s]\n"
+msgid "Substance: %s   [#%s]\n"
+msgstr "Substanz: %s   [#%s]\n"
 
 msgid "Preparation: %s\n"
 msgstr "Darreichungsform: %s\n"
@@ -8139,6 +8259,12 @@ msgstr " (langfristig)"
 
 msgid " (short-term)"
 msgstr " (kurzzeitig)"
+
+msgid " Discontinued %s\n"
+msgstr " Beended %s\n"
+
+msgid " Reason: %s\n"
+msgstr " Grund: %s\n"
 
 msgid " Aim: %s\n"
 msgstr " Ziel: %s\n"
@@ -8447,6 +8573,99 @@ msgstr ""
 
 msgid "Selecting text macro"
 msgstr "Textmakro wählen"
+
+msgid ""
+"Enter the shell command with which to start\n"
+"the image editor for visual progress notes.\n"
+"\n"
+"Any \"%(img)s\" included with the arguments\n"
+"will be replaced by the file name of the\n"
+"note template."
+msgstr ""
+"Geben Sie die Befehlszeile zum Starten der\n"
+"Bildbearbeitungssoftware für Bildnotizen ein.\n"
+"\n"
+"Jedes \"%(img)s\" in der Befehlszeile wird\n"
+"beim Aufruf von GNUmed durch den Dateinamen\n"
+"der Vorlage ersetzt."
+
+msgid "Cannot export visual progress note to file."
+msgstr "Kann Bildnotiz nicht in eine Datei exportieren."
+
+msgid "Editor for visual progress note not configured."
+msgstr "Kein Editor für Bildnotizen konfiguriert."
+
+msgid ""
+"There was a problem with running the editor\n"
+"for visual progress notes.\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+"Es gab ein Problem beim Aufrufen des Editors\n"
+"für Bildnotizen.\n"
+"\n"
+" [%s]\n"
+"\n"
+
+msgid "Editing visual progress note"
+msgstr "Bearbeite Bildnotiz"
+
+msgid ""
+"There was a problem reading the visual\n"
+"progress note from the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+"Es gab ein Problem beim Lesen der\n"
+"Bildnotiz aus der Datei:\n"
+"\n"
+" [%s]\n"
+"\n"
+
+msgid "Saving visual progress note"
+msgstr "Speichere Bildnotiz"
+
+msgid "visual progress notes"
+msgstr "Bildnotizen"
+
+msgid "Sketches"
+msgstr "Skizzen"
+
+msgid "No images in visual progress note."
+msgstr "Keine Bilder in der Bildnotiz."
+
+msgid "Cannot load visual progress note from [%s]."
+msgstr "Kann Bildnotiz nicht aus [%s] laden."
+
+msgid "Cannot export visual progress note template for [%s]."
+msgstr "Kann Bildnotiz-Vorlage [%s] nicht exportieren."
+
+msgid "Choose a visual progress note template file"
+msgstr "Wählen Sie eine Datei als Bildnotiz-Vorlage."
+
+msgid ""
+"Do you want to delete the original file\n"
+"\n"
+" [%s]\n"
+"\n"
+"from your computer ?"
+msgstr ""
+"Wollen Sie die Originaldatei\n"
+"\n"
+" [%s]\n"
+"\n"
+"auch löschen ?"
+
+msgid "Saving visual progress note ..."
+msgstr "Speichere Bildnotiz ..."
+
+msgid "Are you sure you want to delete the visual progress note ?"
+msgstr "Sind Sie sicher, daß die Bildnotiz gelöscht werden soll ?"
+
+msgid "Deleting visual progress note"
+msgstr "Lösche Bildnotiz"
 
 msgid "Refresh from database"
 msgstr "Neu laden"
@@ -8965,9 +9184,6 @@ msgstr ""
 "\n"
 "Der aktive Arbeitsplatz ist vorselektiert.\n"
 
-msgid "Workplace"
-msgstr "Arbeitsplatz"
-
 msgid "category"
 msgstr "Kategorie"
 
@@ -9374,13 +9590,6 @@ msgstr "überfällig %.0d J %.0d Wo: %s. Impfung gegen %s nach Impfplan \"%s\" (
 
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr "jetzt fällig: Booster gegen %s nach Impfplan \"%s\" (%s)"
-
-msgid ""
-"Help requested\n"
-"--------------"
-msgstr ""
-"Hilfe angefordert\n"
-"-----------------"
 
 msgid "AU Vacc"
 msgstr "Impfungen (AU)"
@@ -9972,6 +10181,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "no comment available"
+#~ msgstr "kein Kommentar verfügbar"
 #~ msgid "IFAP command"
 #~ msgstr "IFAP-Aufruf"
 #~ msgid "Set the command to start IFAP."
@@ -10776,8 +10987,6 @@ msgstr "erstmals"
 #~ msgstr "Angekreuzt wenn die Originalvorlage modifiziert wurde."
 #~ msgid "Form handler:"
 #~ msgstr "Umsetzung in:"
-#~ msgid "idle"
-#~ msgstr "Leerlauf"
 #~ msgid "generic single choice dialog"
 #~ msgstr "allgemeine Nutzerauswahl"
 #~ msgid "Edit episode details"
@@ -10788,8 +10997,6 @@ msgstr "erstmals"
 #~ msgstr "Details der Konsultation ändern"
 #~ msgid "0 bytes - data missing ?"
 #~ msgstr "0 Byte - fehlen die Daten ?"
-#~ msgid "Cannot export document part from database to file."
-#~ msgstr "Kann diesen Dokumententeil nicht in eine Datei exportieren."
 #~ msgid "invalid type for DOB (must be datetime.datetime): %s [%s]"
 #~ msgstr ""
 #~ "ungültiger Datentyp für Geburtsdatum (muß datetime.datetime sein): %s [%s]"
