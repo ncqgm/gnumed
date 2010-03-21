@@ -90,33 +90,34 @@ def run(conn=None):
 		# and (re-)import it
 		# - template
 		cmd = u"""
-INSERT INTO ref.paperwork_templates (
-	fk_template_type,
-	instance_type,
-	name_short,
-	name_long,
-	external_version,
-	filename,
-	engine,
-	data
-) VALUES (
-	(SELECT pk FROM ref.form_types WHERE name = %(ttype)s),
-	%(sname)s,
-	%(sname)s,
-	%(lname)s,
-	'1.0'::TEXT,
-	%(fname)s,
-	'O'::TEXT,
-	'template data missing'::BYTEA
-)"""
+			INSERT INTO ref.paperwork_templates (
+				fk_template_type,
+				instance_type,
+				name_short,
+				name_long,
+				external_version,
+				filename,
+				engine,
+				data
+			) VALUES (
+				(SELECT pk FROM ref.form_types WHERE name = %(ttype)s),
+				%(sname)s,
+				%(sname)s,
+				%(lname)s,
+				'1.0'::TEXT,
+				%(fname)s,
+				'T'::TEXT,
+				'template data missing'::BYTEA
+			)"""
 		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = False)
 
 		# - data
+		cmd = u"""
+			UPDATE ref.paperwork_templates
+			SET data = %(data)s::BYTEA
+			WHERE name_long = %(lname)s"""
 		gmPG2.file2bytea (
-			query = u"""
-UPDATE ref.paperwork_templates
-SET data = %(data)s::BYTEA
-WHERE name_long = %(lname)s""",
+			query = cmd,
 			filename = os.path.join('..', 'sql', 'v12-v13', 'data', filename),
 			conn = conn,
 			args = args
