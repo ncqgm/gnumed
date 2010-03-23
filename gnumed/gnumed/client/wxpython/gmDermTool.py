@@ -25,7 +25,7 @@ class DermToolDialog(wx.Dialog):
         wx.Dialog.__init__(self, *args, **kwds)
         self.population = wx.RadioBox(self, -1, _("Population"), choices=[_("Child"), _("Adult"), _("Elderly")], majorDimension=0, style=wx.RA_SPECIFY_ROWS)
         self.distribution = wx.RadioBox(self, -1, _("Distribution"), choices=[_("Truncal"), _("Generalised"), _("Face"), _("Hands"), _("Flexural"), _("Sun-exposed")], majorDimension=0, style=wx.RA_SPECIFY_ROWS)
-        self.colouring = wx.RadioBox(self, -1, _("Colouring"), choices=[_("Normal"), _("Pigmented"), _("Depigmented"), _("Erthyema"), _("Purpura")], majorDimension=0, style=wx.RA_SPECIFY_ROWS)
+        self.colouring = wx.RadioBox(self, -1, _("Colouring"), choices=[_("Normal"), _("Pigmented"), _("Depigmented"), _("Erythema"), _("Purpura")], majorDimension=0, style=wx.RA_SPECIFY_ROWS)
         self.pattern = wx.RadioBox(self, -1, _("Pattern"), choices=[_("Confluent"), _("Macular"),  _("Maculo-Papular"), _("Papular"), _("Bullous")], majorDimension=0, style=wx.RA_SPECIFY_ROWS)
         self.surface = wx.RadioBox(self, -1, _("Surface"), choices=[_("Skin level"), _("Eroded"), _("Crust"), _("Scale"), _("Exudate")], majorDimension=0, style=wx.RA_SPECIFY_ROWS)
         self.sensation = wx.RadioBox(self, -1, _("Sensation"), choices=[_("Normal"), _("Itchy"), _("Painful")], majorDimension=0, style=wx.RA_SPECIFY_ROWS)
