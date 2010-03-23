@@ -1633,7 +1633,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 					u'EMR of the patient ?'
 				)
 				save_unmodified = gmGuiHelpers.gm_show_question (
-					msg
+					msg,
 					_('Saving visual progress note')
 				)
 				if not save_unmodified:
