@@ -6,8 +6,8 @@ REM should be run as root
 REM command line options:
 REM  quiet
 
-SET VER=10
-SET PREV_VER=9
+SET VER=13
+SET PREV_VER=12
 SET QUIET=%1
 
 SET PYTHONPATH="%PYTHONPATH%;../../"
