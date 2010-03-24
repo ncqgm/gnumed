@@ -2174,7 +2174,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			if not do_it_anyway:
 				error = True
 
-		if self._DP_dob.GetValue().GetYear() < 1900:
+		if self._DP_dob.GetValue() is None:
+			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+		elif self._DP_dob.GetValue().GetYear() < 1900:
 			error = True
 			gmDispatcher.send(signal = 'statustext', msg = _('The year of birth must lie after 1900.'), beep = True)
 			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
