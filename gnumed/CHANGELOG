@@ -20,6 +20,8 @@
 - new: commandline option --ui=<web/wxp> with rudimentary CherryPy frontend
 - new: show list of all configuration settings
 - new: configurable web search for test type from test result edit area
+- new: systemwide/user-level optional shutdown scripts invoked from /usr/bin/gnumed
+- new: Centor/McIsaac-Score as keyword expansions
 
 - improved: login dialag:
 	- hint about local DB on failure
@@ -38,6 +40,7 @@
 - improved: using Git for SCM now
 - improved: gnumed.py now directly under client/
 - improved: startup size will never go beyond screen size/below 100x100 pixel
+- improved: Dutch translation
 
 ------------------------------------------------
 # rel-0-6-patches

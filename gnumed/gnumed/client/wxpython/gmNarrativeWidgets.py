@@ -1621,8 +1621,24 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			modified_md5 = gmTools.file2md5(filename)
 			# same hash ?
 			if original_md5 == modified_md5:
-				_log.debug('visual progress note (template) not modified, discarding')
-				return
+				_log.debug('visual progress note (template) not modified')
+				# ask user to decide
+				msg = _(
+					u'This visual progress note was created from a\n'
+					u'template in the database rather than from a file\n'
+					u'but the image was not modified at all.\n'
+					u'\n'
+					u'Do you want to still save the unmodified\n'
+					u'image as a visual progress note into the\n'
+					u'EMR of the patient ?'
+				)
+				save_unmodified = gmGuiHelpers.gm_show_question (
+					msg,
+					_('Saving visual progress note')
+				)
+				if not save_unmodified:
+					_log.debug('user discarded unmodified note')
+					return
 
 	if doc_part is not None:
 		doc_part.update_data_from_file(fname = filename)
