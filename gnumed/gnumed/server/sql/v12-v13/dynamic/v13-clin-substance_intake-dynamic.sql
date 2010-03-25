@@ -37,7 +37,7 @@ alter table clin.substance_intake
 
 -- unset reason if setting discontinued to null
 \unset ON_ERROR_STOP
-drop function clin.trf_undiscontinue_unsets_reason cascade;
+drop function clin.trf_undiscontinue_unsets_reason() cascade;
 \set ON_ERROR_STOP 1
 
 create or replace function clin.trf_undiscontinue_unsets_reason()
