@@ -22,6 +22,7 @@
 - new: configurable web search for test type from test result edit area
 - new: systemwide/user-level optional shutdown scripts invoked from /usr/bin/gnumed
 - new: Centor/McIsaac-Score as keyword expansions
+- new: man pages for backup scripts
 
 - improved: login dialag:
 	- hint about local DB on failure

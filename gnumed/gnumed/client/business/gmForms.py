@@ -6,8 +6,6 @@ Business layer for printing all manners of forms, letters, scripts etc.
 license: GPL
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.79 2010-01-31 16:33:32 ncq Exp $
 __version__ = "$Revision: 1.79 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
@@ -28,12 +26,12 @@ _log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L', u'T']
+form_engine_abbrevs = [u'O', u'L', u'I']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
 	u'L': 'LaTeX',
-	u'T': 'text / dummy'
+	u'I': 'Image editor'
 }
 
 # is filled in further below after each engine is defined
@@ -120,7 +118,8 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		u'O': u'.ott',
 		u'L': u'.tex',
 		u'T': u'.txt',
-		u'X': u'.xslt'
+		u'X': u'.xslt',
+		u'I': u'.img'
 	}
 
 	#--------------------------------------------------------
@@ -1217,265 +1216,3 @@ if __name__ == '__main__':
 		test_latex_form()
 
 #============================================================
-# $Log: gmForms.py,v $
-# Revision 1.79  2010-01-31 16:33:32  ncq
-# - OOo can't search non-greedy :-(
-# - always return a string from placeholder replacement as OOo doesn't know what to do with None
-#
-# Revision 1.78  2010/01/21 08:40:38  ncq
-# - better logging, again
-#
-# Revision 1.77  2010/01/15 12:42:18  ncq
-# - factor out texify_string into gmTools
-# - handle None-return on placeholders in LaTeX engine
-#
-# Revision 1.76  2010/01/11 22:49:29  ncq
-# - Windows likely has pdflatex.exe
-#
-# Revision 1.75  2010/01/11 22:02:18  ncq
-# - properly log stack trace
-#
-# Revision 1.74  2010/01/09 18:28:49  ncq
-# - switch OOo access to named pipes
-# - better logging
-#
-# Revision 1.73  2010/01/08 13:49:14  ncq
-# - better logging
-#
-# Revision 1.72  2010/01/06 14:30:23  ncq
-# - start going from sockets to named pipes on OOo connection
-# - improved problem detection no PDF generation
-#
-# Revision 1.71  2010/01/03 18:17:30  ncq
-# - implement edit() on LaTeX forms
-#
-# Revision 1.70  2009/12/26 19:55:12  ncq
-# - wrong keyword
-#
-# Revision 1.69  2009/12/26 19:05:58  ncq
-# - start OOo wrapper
-# - check pdflatex return code
-#
-# Revision 1.68  2009/12/25 21:37:01  ncq
-# - properly make forms engine access generic
-#
-# Revision 1.67  2009/12/21 20:26:05  ncq
-# - instantiate() on templates
-# - cleanup
-# - improve form engine base class
-# - LaTeX form template engine
-#
-# Revision 1.66  2009/11/24 19:55:25  ncq
-# - comment out libxml2/libxslt for now
-#
-# Revision 1.65  2009/10/27 11:46:10  ncq
-# - crawl towards extracting SQL from XSLT
-#
-# Revision 1.64  2009/10/20 10:24:19  ncq
-# - inject Jerzys form code
-#
-# Revision 1.63  2009/09/13 18:25:54  ncq
-# - no more get-active-encounter()
-#
-# Revision 1.62  2009/03/10 14:18:11  ncq
-# - support new-style simpler placeholders in OOo docs
-#
-# Revision 1.61  2009/02/18 13:43:37  ncq
-# - get_unique_filename API change
-#
-# Revision 1.60  2008/09/02 18:59:01  ncq
-# - add "invisible" to ooo startup command as suggested by Jerzy
-#
-# Revision 1.59  2008/08/29 20:54:28  ncq
-# - cleanup
-#
-# Revision 1.58  2008/04/29 18:27:44  ncq
-# - cOOoConnector -> gmOOoConnector
-#
-# Revision 1.57  2008/02/25 17:31:41  ncq
-# - logging cleanup
-#
-# Revision 1.56  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.55  2007/11/10 20:49:22  ncq
-# - handle failing to connect to OOo much more gracefully
-#
-# Revision 1.54  2007/10/21 20:12:42  ncq
-# - make OOo startup settle time configurable
-#
-# Revision 1.53  2007/10/07 12:27:08  ncq
-# - workplace property now on gmSurgery.gmCurrentPractice() borg
-#
-# Revision 1.52  2007/09/01 23:31:36  ncq
-# - fix form template type phrasewheel query
-# - settable of external_version
-# - delete_form_template()
-#
-# Revision 1.51  2007/08/31 23:03:45  ncq
-# - improved docs
-#
-# Revision 1.50  2007/08/31 14:29:52  ncq
-# - optionalized UNO import
-# - create_form_template()
-#
-# Revision 1.49  2007/08/29 14:32:25  ncq
-# - remove data_modified property
-# - adjust to external_version
-#
-# Revision 1.48  2007/08/20 14:19:48  ncq
-# - engine_names
-# - match providers
-# - fix active_only logic in get_form_templates() and sort properly
-# - adjust to renamed database fields
-# - cleanup
-#
-# Revision 1.47  2007/08/15 09:18:07  ncq
-# - cleanup
-# - cOOoLetter.show()
-#
-# Revision 1.46  2007/08/13 22:04:32  ncq
-# - factor out placeholder handler
-# - use view in get_form_templates()
-# - add cFormTemplate() and test
-# - move export_form_template() to cFormTemplate.export_to_file()
-#
-# Revision 1.45  2007/08/11 23:44:01  ncq
-# - improve document close listener, get_form_templates(), cOOoLetter()
-# - better test suite
-#
-# Revision 1.44  2007/07/22 08:59:19  ncq
-# - get_form_templates()
-# - export_form_template()
-# - absolutize -> os.path.abspath
-#
-# Revision 1.43  2007/07/13 21:00:55  ncq
-# - apply uno.absolutize()
-#
-# Revision 1.42  2007/07/13 12:08:38  ncq
-# - do not touch unknown placeholders unless debugging is on, user might
-#   want to use them elsewise
-# - use close listener
-#
-# Revision 1.41  2007/07/13 09:15:52  ncq
-# - fix faulty imports
-#
-# Revision 1.40  2007/07/11 21:12:50  ncq
-# - gmPlaceholderHandler()
-# - OOo API with test suite
-#
-# Revision 1.39  2007/02/17 14:08:52  ncq
-# - gmPerson.gmCurrentProvider.workplace now a property
-#
-# Revision 1.38  2006/12/23 15:23:11  ncq
-# - use gmShellAPI
-#
-# Revision 1.37  2006/10/25 07:17:40  ncq
-# - no more gmPG
-# - no more cClinItem
-#
-# Revision 1.36  2006/05/14 21:44:22  ncq
-# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
-# - remove use of gmWhoAmI.py
-#
-# Revision 1.35  2006/05/12 12:03:01  ncq
-# - whoami -> whereami
-#
-# Revision 1.34  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.33  2005/12/31 18:01:54  ncq
-# - spelling of GNUmed
-# - clean up imports
-#
-# Revision 1.32  2005/11/06 12:31:30  ihaywood
-# I've discovered that most of what I'm trying to do with forms involves
-# re-implementing Cheetah (www.cheetahtemplate.org), so switch to using this.
-#
-# If this new dependency annoys you, don't import the module: it's not yet
-# used for any end-user functionality.
-#
-# Revision 1.31  2005/04/03 20:06:51  ncq
-# - comment on emr.get_active_episode being no more
-#
-# Revision 1.30  2005/03/06 08:17:02  ihaywood
-# forms: back to the old way, with support for LaTeX tables
-#
-# business objects now support generic linked tables, demographics
-# uses them to the same functionality as before (loading, no saving)
-# They may have no use outside of demographics, but saves much code already.
-#
-# Revision 1.29  2005/02/03 20:17:18  ncq
-# - get_demographic_record() -> get_identity()
-#
-# Revision 1.28  2005/02/01 10:16:07  ihaywood
-# refactoring of gmDemographicRecord and follow-on changes as discussed.
-#
-# gmTopPanel moves to gmHorstSpace
-# gmRichardSpace added -- example code at present, haven't even run it myself
-# (waiting on some icon .pngs from Richard)
-#
-# Revision 1.27  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.26  2004/08/20 13:19:06  ncq
-# - use getDBParam()
-#
-# Revision 1.25  2004/07/19 11:50:42  ncq
-# - cfg: what used to be called "machine" really is "workplace", so fix
-#
-# Revision 1.24  2004/06/28 12:18:52  ncq
-# - more id_* -> fk_*
-#
-# Revision 1.23  2004/06/26 07:33:55  ncq
-# - id_episode -> fk/pk_episode
-#
-# Revision 1.22  2004/06/18 13:32:37  ncq
-# - just some whitespace cleanup
-#
-# Revision 1.21  2004/06/17 11:36:13  ihaywood
-# Changes to the forms layer.
-# Now forms can have arbitrary Python expressions embedded in @..@ markup.
-# A proper forms HOWTO will appear in the wiki soon
-#
-# Revision 1.20  2004/06/08 00:56:39  ncq
-# - even if we don't need parameters we need to pass an
-#   empty param list to gmPG.run_commit()
-#
-# Revision 1.19  2004/06/05 12:41:39  ihaywood
-# some more comments for gmForms.py
-# minor change to gmReferral.py: print last so bugs don't waste toner ;-)
-#
-# Revision 1.18  2004/05/28 13:13:15  ncq
-# - move currval() inside transaction in gmForm.store()
-#
-# Revision 1.17  2004/05/27 13:40:21  ihaywood
-# more work on referrals, still not there yet
-#
-# Revision 1.16  2004/04/21 22:26:48  ncq
-# - it is form_data.place_holder, not placeholder
-#
-# Revision 1.15  2004/04/21 22:05:28  ncq
-# - better error reporting
-#
-# Revision 1.14  2004/04/21 22:01:15  ncq
-# - generic store() for storing instance in form_data/form_instances
-#
-# Revision 1.13	 2004/04/18 08:39:57  ihaywood
-# new config options
-#
-# Revision 1.12	 2004/04/11 10:15:56  ncq
-# - load title in get_names() and use it superceding getFullName
-#
-# Revision 1.11	 2004/04/10 01:48:31  ihaywood
-# can generate referral letters, output to xdvi at present
-#
-# Revision 1.10	 2004/03/12 15:23:36  ncq
-# - cleanup, test_de
-#
-# Revision 1.9	2004/03/12 13:20:29	 ncq
-# - remove unneeded import
-# - log keyword
-#

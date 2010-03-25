@@ -106,8 +106,8 @@ def run(conn=None):
 				%(lname)s,
 				'1.0'::TEXT,
 				%(fname)s,
-				'T'::TEXT,
-				'template data missing'::BYTEA
+				'I'::TEXT,
+				'image data missing'::BYTEA
 			)"""
 		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = False)
 
