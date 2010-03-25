@@ -183,6 +183,7 @@
                             <choices>
                                 <choice>OpenOffice</choice>
                                 <choice>LaTeX</choice>
+                                <choice>Image editor</choice>
                             </choices>
                         </object>
                     </object>
