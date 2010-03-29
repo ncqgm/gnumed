@@ -4,13 +4,25 @@
 # - merge with existing translations
 # - first arg should be ISO language code
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_po.sh,v $
-# $Revision: 1.13 $
 
-# what language are we working on
-LANGNAME="$1"
+BASE="../"							# where to look for files
+POTNAME="gnumed.pot"				# what to call the result
+LANGNAME="$1"						# what language are we working on
+
+
+echo ""
+echo "Looking for translatable strings ..."
+echo " source: ${BASE}*.py"
+echo " target: ${POTNAME}"
+
+
+# create gnumed.pot
+find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext --no-location -v -o ${POTNAME} "-" &> create-${LANGNAME}-po.log
+#find ${BASE} -follow -name '*.py' -print0 | xargs -0 xgettext -L Python -j -o ${LANGNAME}.po "-" &> create-${LANGNAME}-po.log
+
+
 if [ "${LANGNAME}" == "" ]; then
-	echo "You must give an ISO language code as the first argument."
+	mv -f create-${LANGNAME}-po.log create-gnumed-pot.log
 	exit
 fi
 
@@ -23,23 +35,9 @@ else
 fi
 
 
-# where to look for files
-BASE="../"
-# what to call the result
-POTNAME="gnumed.pot"
-
-
-echo ""
-echo "Looking for translatable strings ..."
-echo " source: ${BASE}*.py"
-echo " target: ${POTNAME}"
-find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext --no-location -v -o ${POTNAME} "-" &> create-${LANGNAME}-po.log
-#find ${BASE} -follow -name '*.py' -print0 | xargs -0 xgettext -L Python -j -o ${LANGNAME}.po "-" &> create-${LANGNAME}-po.log
-
-
 if [ -f "${LANGNAME}.po" ]; then
 	echo ""
-	echo "Merging strings with old translations ..."
+	echo "Merging strings with old <${LANGNAME}> translations ..."
 	echo ""
 	echo " old translations:   ${LANGNAME}.po"
 	TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
@@ -59,7 +57,7 @@ fi;
 echo ""
 echo "Saving merged translations ..."
 echo ""
-echo " translations:   ${LANGNAME}.po"
+echo " file :   ${LANGNAME}.po"
 TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
-echo " new statistics: ${TMP}"
+echo " stats: ${TMP}"
 rm -f tmp.pot

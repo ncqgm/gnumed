@@ -1,27 +1,36 @@
+# GNUmed .gitignore file
 
 # Python compiled bytecode
 *.pyc
 
+
 # log files
 *.log
+
 
 # our import symlink
 gnumed/gnumed/Gnumed
 
+
 # gettext compiled strings
 *.mo
-gnumed.pot
+#gnumed.pot
+
 
 # backup files
 *.*~
 *.bak
 
+
 # tarballs
 gnumed-client.*.tgz
 gnumed-server.*.tgz
 
+
 #MANIFEST
 
+
 gnumed/TODO
+
 
 andreas-release.txt
