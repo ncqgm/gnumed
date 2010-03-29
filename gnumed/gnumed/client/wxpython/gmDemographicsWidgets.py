@@ -1456,7 +1456,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 	Does NOT act on/listen to the current patient.
 	"""
 	def __init__(self, *args, **kwargs):
-	
+
 		try:
 			self.ext_id = kwargs['external_id']
 			del kwargs['external_id']
@@ -1480,7 +1480,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 		if self.ext_id is not None:
 			self._PRW_type.SetText(value = self.ext_id['name'], data = self.ext_id['pk_type'])
 			self._TCTRL_value.SetValue(self.ext_id['value'])
-			self._PRW_issuer.SetText(self.ext_id['issuer'])
+			self._PRW_issuer.SetText(gmTools.coalesce(self.ext_id['issuer'], u''))
 			self._TCTRL_comment.SetValue(gmTools.coalesce(self.ext_id['comment'], u''))
 		# FIXME: clear fields
 #		else:
@@ -1533,7 +1533,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 		}])
 		if len(rows) == 0:
 			return True
-		wx.CallAfter(self._PRW_issuer.SetText, rows[0][0])
+		wx.CallAfter(self._PRW_issuer.SetText, gmTools.coalesce(rows[0][0], u''))
 		return True
 	#--------------------------------------------------------
 	def __valid_for_save(self):
