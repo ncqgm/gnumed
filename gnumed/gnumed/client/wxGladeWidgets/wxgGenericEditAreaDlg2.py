@@ -14,12 +14,13 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         # begin wxGlade: wxgGenericEditAreaDlg2.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
-        self._PNL_ea = wx.Panel(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._PNL_ea = wx.ScrolledWindow(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
         self._BTN_save = wx.Button(self, wx.ID_OK, "")
         self._BTN_forward = wx.Button(self, -1, _("&Next..."))
         self._BTN_revert = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+        self._BTN_lucky = wx.Button(self, -1, _("Lala !"), style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -28,6 +29,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self._on_forward_button_pressed, self._BTN_forward)
         self.Bind(wx.EVT_BUTTON, self._on_revert_button_pressed, self._BTN_revert)
         self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
+        self.Bind(wx.EVT_BUTTON, self._on_lucky_button_pressed, self._BTN_lucky)
         # end wxGlade
 
     def __set_properties(self):
@@ -35,6 +37,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         self.SetTitle(_("GNUmed generic EditArea dialog"))
         self.SetSize((625, 450))
         self.SetMinSize((600, 425))
+        self._PNL_ea.SetScrollRate(10, 10)
         self._BTN_save.SetToolTipString(_("Save the entered data into the database and close the dialog."))
         self._BTN_forward.SetToolTipString(_("Save data into database and clear fields for another value."))
         self._BTN_revert.SetToolTipString(_("Reset all fields to their previous values."))
@@ -42,6 +45,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         self._BTN_revert.Hide()
         self._BTN_clear.SetToolTipString(_("Clear all fields."))
         self._BTN_cancel.SetToolTipString(_("Cancel editing the data and discard changes."))
+        self._BTN_lucky.SetToolTipString(_("Press me !\n\n(This will NOT endanger any data.)"))
         # end wxGlade
 
     def __do_layout(self):
@@ -58,6 +62,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         __szr_buttons.Add(self._BTN_clear, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_lucky, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
         _szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 5)
         self.SetSizer(_szr_main)
         self.Layout()
@@ -78,6 +83,10 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
 
     def _on_clear_button_pressed(self, event): # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
         print "Event handler `_on_clear_button_pressed' not implemented!"
+        event.Skip()
+
+    def _on_lucky_button_pressed(self, event): # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+        print "Event handler `_on_lucky_button_pressed' not implemented!"
         event.Skip()
 
 # end of class wxgGenericEditAreaDlg2

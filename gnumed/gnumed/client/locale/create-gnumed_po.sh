@@ -4,52 +4,57 @@
 # - merge with existing translations
 # - first arg should be ISO language code
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_po.sh,v $
-# $Revision: 1.13 $
 
-# what language are we working on
-LANGNAME="$1"
+BASE="../"											# where to look for files
+POTNAME="gnumed.pot"								# what to call the result
+LANGNAME="$1"										# what language are we working on
+AUXNAME="${LANGNAME}-additional-translations.po"	# more translations
+
+
+echo ""
+echo "Collecting translatable strings ..."
+echo "  source file definition: ${BASE}*.py"
+
+
+# create gnumed.pot
+find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext --no-location -v -o ${POTNAME} "-" &> create-${LANGNAME}-po.log
+#find ${BASE} -follow -name '*.py' -print0 | xargs -0 xgettext -L Python -j -o ${LANGNAME}.po "-" &> create-${LANGNAME}-po.log
+
+
 if [ "${LANGNAME}" == "" ]; then
-	echo "You must give an ISO language code as the first argument."
+	mv -f create-${LANGNAME}-po.log create-gnumed-pot.log
 	exit
 fi
 
 
 # is there an additional file ?
-if [ -f "${LANGNAME}-additional-translations.po" ]; then
-	AUX_PO="-C ${LANGNAME}-additional-translations.po"
+if [ -f "${AUXNAME}" ]; then
+	AUX_PO_ARG="-C ${AUXNAME}"
 else
-	AUX_PO=""
+	AUX_PO_ARG=""
 fi
-
-
-# where to look for files
-BASE="../"
-# what to call the result
-POTNAME="gnumed.pot"
-
-
-echo ""
-echo "Looking for translatable strings ..."
-echo " source: ${BASE}*.py"
-echo " target: ${POTNAME}"
-find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext --no-location -v -o ${POTNAME} "-" &> create-${LANGNAME}-po.log
-#find ${BASE} -follow -name '*.py' -print0 | xargs -0 xgettext -L Python -j -o ${LANGNAME}.po "-" &> create-${LANGNAME}-po.log
 
 
 if [ -f "${LANGNAME}.po" ]; then
 	echo ""
-	echo "Merging strings with old translations ..."
+	echo "Merging translatable strings with existing translations for <${LANGNAME}> ..."
 	echo ""
-	echo " old translations:   ${LANGNAME}.po"
+	echo "    translatable strings: ${POTNAME}"
+	echo ""
+	echo "        old translations: ${LANGNAME}.po"
 	TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
 	rm -f tmp.pot
-	echo " old statistics:     ${TMP}"
-	echo ""
-	echo " references strings: ${AUX_PO}"
-	echo " current strings:    ${POTNAME}"
+	echo "              statistics: ${TMP}"
 
-	msgmerge -v -o gnumed-${LANGNAME}.po ${AUX_PO} ${LANGNAME}.po ${POTNAME} >> create-${LANGNAME}-po.log 2>&1
+	if [ -f "${AUXNAME}" ]; then
+		echo ""
+		echo " additional translations: ${AUXNAME}"
+		TMP=`msgfmt -v -c --statistics -o tmp.pot ${AUXNAME} 2>&1`
+		rm -f tmp.pot
+		echo "              statistics: ${TMP}"
+	fi
+
+	msgmerge -v -o gnumed-${LANGNAME}.po ${AUX_PO_ARG} ${LANGNAME}.po ${POTNAME} >> create-${LANGNAME}-po.log 2>&1
 	mv -vf gnumed-${LANGNAME}.po ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
 else
 	cp -vf ${POTNAME} ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
@@ -57,9 +62,8 @@ fi;
 
 
 echo ""
-echo "Saving merged translations ..."
-echo ""
-echo " translations:   ${LANGNAME}.po"
+echo "  final translation file: ${LANGNAME}.po"
 TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
-echo " new statistics: ${TMP}"
+echo "              statistics: ${TMP}"
 rm -f tmp.pot
+echo ""

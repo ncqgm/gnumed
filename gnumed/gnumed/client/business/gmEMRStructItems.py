@@ -42,7 +42,7 @@ def diagnostic_certainty_classification2str(classification):
 	try:
 		return __diagnostic_certainty_classification_map[classification]
 	except KeyError:
-		return _(u'%s: unknown diagnostic certainty classification' % classification)
+		return _(u'%s: unknown diagnostic certainty classification') % classification
 #============================================================
 # Health Issues API
 #============================================================

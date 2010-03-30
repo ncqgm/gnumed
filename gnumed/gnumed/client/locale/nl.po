@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-03-23 15:07+CET\n"
-"PO-Revision-Date: 2010-01-10 09:45+0000\n"
-"Last-Translator: John Jaarsveld <Unknown>\n"
+"POT-Creation-Date: 2010-03-30 16:15+CEST\n"
+"PO-Revision-Date: 2010-03-23 13:54+0000\n"
+"Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-19 11:56+0000\n"
+"X-Launchpad-Export-Date: 2010-03-30 12:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 msgid ""
@@ -50,6 +50,7 @@ msgstr ""
 msgid "Connecting to backend"
 msgstr "Verbinden met backend"
 
+#, fuzzy
 msgid ""
 "Unable to connect to database:\n"
 "\n"
@@ -57,10 +58,15 @@ msgid ""
 "\n"
 "Please retry another backend / user / password combination !\n"
 msgstr ""
+"Niet in staat met de database te verbinden:\n"
+"\n"
+"%s\n"
+"\n"
+"Probeer het met een ander profiel!\n"
 
 #, fuzzy
 msgid "unknown allergy state"
-msgstr "Allergiestatus: onbekend"
+msgstr "onbekende allergiestatus"
 
 msgid "no known allergies"
 msgstr "geen allergieën bekend"
@@ -83,7 +89,7 @@ msgid "soap_O"
 msgstr "soap_B"
 
 msgid "soap_A"
-msgstr "soap_B"
+msgstr "soap_C"
 
 msgid "soap_P"
 msgstr "soap_P"
@@ -95,7 +101,7 @@ msgid "soap_Objective"
 msgstr "soap_Bevindingen"
 
 msgid "soap_Assessment"
-msgstr "soap_Beoordeling"
+msgstr "soap_Conclusie"
 
 msgid "soap_Plan"
 msgstr "soap_Plan"
@@ -103,10 +109,11 @@ msgstr "soap_Plan"
 msgid "soap_Administrative"
 msgstr "soap_Administratie"
 
+#, fuzzy
 msgid ""
 "%s: %s by %.8s\n"
 "%s"
-msgstr ""
+msgstr "prik: %s, %s, %s"
 
 msgid "modified entry"
 msgstr "gewijzigde invoer"
@@ -115,7 +122,7 @@ msgid "original entry"
 msgstr "orginele invoer"
 
 msgid "%s: encounter (%s)"
-msgstr "%s: contactmoment (%s)"
+msgstr "%s: ontmoeting (%s)"
 
 msgid "health issue: %s"
 msgstr "gezondheidsprobleem: %s"
@@ -136,7 +143,7 @@ msgid ""
 msgstr ""
 "Medische problemen: %(problems)\n"
 "Totale bezoeken: %(visits)\n"
-"Totale EMR invoer %(items)\n"
+"Totale EMD invoer %(items)\n"
 "Documenten: %(documents)\n"
 "Uitslagen: %(results)\n"
 "\n"
@@ -145,7 +152,7 @@ msgid ""
 "EMR Statistics\n"
 "\n"
 msgstr ""
-"EMR statistieken\n"
+"EMD statistieken\n"
 "\n"
 
 #, fuzzy
@@ -174,7 +181,7 @@ msgstr " %s documenten\n"
 #, fuzzy
 msgid " %s test results\n"
 msgstr ""
-" %s testresultaten\n"
+" %s testuitslagen\n"
 "\n"
 
 msgid " %s hospital stays\n"
@@ -236,22 +243,26 @@ msgid "none given"
 msgstr "niet gegeven"
 
 msgid "Starting patient encounter"
-msgstr "Begin patiënten-contactmoment"
+msgstr "Begin ontmoeting met patiënt"
 
+#, fuzzy
 msgid "Battery:"
-msgstr ""
+msgstr "Patroon"
 
+#, fuzzy
 msgid "Device(%s):"
-msgstr ""
+msgstr "Apparaat"
 
+#, fuzzy
 msgid "Implanted:"
-msgstr ""
+msgstr "Sjabloon"
 
 msgid "Impedance:"
 msgstr ""
 
+#, fuzzy
 msgid "Sensing:"
-msgstr ""
+msgstr "Sensatie"
 
 msgid "Threshold"
 msgstr ""
@@ -273,8 +284,12 @@ msgstr ""
 msgid "D: Scientific diagnosis"
 msgstr ""
 
-msgid "bilateral"
+msgid "%s: unknown diagnostic certainty classification"
 msgstr ""
+
+#, fuzzy
+msgid "bilateral"
+msgstr "Lateraliteit"
 
 msgid "left"
 msgstr "links"
@@ -294,7 +309,7 @@ msgstr " droeg bij aan de dood van de patiënt"
 
 #, fuzzy
 msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr "Contactmomenten: %s (%s - %s):"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid " Noted at age: %s"
 msgstr " Opgemerkt op leeftijd: %s"
@@ -326,10 +341,10 @@ msgid "ongoing"
 msgstr "voortdurend"
 
 msgid "No encounters found for this health issue."
-msgstr "Geen contactmomenten gevonden voor deze klacht"
+msgstr "Geen ontmoetingen gevonden voor dit gezondheidsprobleem."
 
 msgid "Encounters: %s (%s - %s):"
-msgstr "Contactmomenten: %s (%s - %s):"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid " Most recent: %s - %s"
 msgstr " Meest recent: %s - %s"
@@ -349,7 +364,7 @@ msgstr "Documenten: %s"
 
 #, fuzzy
 msgid "Measurements and Results: %s"
-msgstr "Metingen en Resultaten:"
+msgstr "Metingen en Uitslagen:"
 
 msgid "Unattributed episodes"
 msgstr "Niet toegewezen episodes"
@@ -363,13 +378,13 @@ msgstr "voltooid"
 
 #, fuzzy
 msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Contactmomenten: %s (%s - %s):"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "Error retrieving encounters for this episode."
-msgstr "Fout bij het laden van contactmomenten voor deze episode."
+msgstr "Fout bij het laden van ontmoetingen voor deze episode."
 
 msgid "There are no encounters for this episode."
-msgstr "Er zijn geen contactmomenten voor deze episode."
+msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 msgid "Last worked on: %s\n"
 msgstr "Laatst gewerkt aan: %s\n"
@@ -387,10 +402,10 @@ msgid " ... %s skipped ..."
 msgstr ""
 
 msgid "Progress notes in most recent encounter:"
-msgstr "Notities van laatste contactmoment:"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid "Measurements and Results:"
-msgstr "Metingen en Resultaten:"
+msgstr "Metingen en Uitslagen:"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  plaatselijke tijd: %s - %s (@%s = %s%s)\n"
@@ -400,6 +415,10 @@ msgstr "zomertijd ingegaan"
 
 msgid "Documents:"
 msgstr "Documenten"
+
+#, fuzzy
+msgid "error with placeholder [%s]"
+msgstr "onbekende plaatsvuller: <%s>"
 
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
 msgstr ""
@@ -423,8 +442,9 @@ msgstr ""
 msgid "?ongoing"
 msgstr "voortdurend"
 
+#, fuzzy
 msgid "units"
-msgstr ""
+msgstr "Eenheden"
 
 msgid "Org must be saved before adding persons"
 msgstr "Org moet bewaard worden voordat nieuw persoon toegevoegd kan worden"
@@ -438,8 +458,9 @@ msgstr "Ok"
 msgid "SQL failed for link persons"
 msgstr "SQL kon personen niet linken"
 
+#, fuzzy
 msgid "inhouse lab"
-msgstr ""
+msgstr "intern laboratorium"
 
 msgid "auto-generated"
 msgstr ""
@@ -458,8 +479,9 @@ msgstr "niet relevant"
 msgid "normal but relevant"
 msgstr "niet relevant"
 
+#, fuzzy
 msgid "   unreviewed"
-msgstr ""
+msgstr "beoordeeld"
 
 msgid "The lab request already exists but belongs to a different patient."
 msgstr ""
@@ -477,10 +499,10 @@ msgstr ""
 "[%s]"
 
 msgid "need lab request when inserting lab result"
-msgstr "laboratoriumverzoek nodig om laboratoriumresultaat in te voegen"
+msgstr "laboratoriumverzoek nodig om laboratoriumuitslag in te voegen"
 
 msgid "error retrieving unreviewed lab results"
-msgstr "fout bij het opvragen van onbekeken laboratoriumresultaten"
+msgstr "fout bij het opvragen van niet beoordeelde laboratoriumuitslagen"
 
 msgid "external patient source (name, gender, date of birth)"
 msgstr "externe patiëntenbron (naam, geslacht, geboortedatum)"
@@ -488,8 +510,9 @@ msgstr "externe patiëntenbron (naam, geslacht, geboortedatum)"
 msgid "** DOB unknown **"
 msgstr ""
 
+#, fuzzy
 msgid "Cannot merge active patient into another patient."
-msgstr ""
+msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
 msgid "internal patient ID"
 msgstr "interne patiëntennummer"
@@ -615,7 +638,7 @@ msgid "already reported"
 msgstr "reeds gerapporteerd"
 
 msgid "corrected result"
-msgstr "verbeterd resultaat"
+msgstr "verbeterde uitslag"
 
 msgid "missing, reported later"
 msgstr "vermist, rapport volgt"
@@ -678,7 +701,7 @@ msgid ""
 "Error retrieving encounters for episode\n"
 "%s"
 msgstr ""
-"Fout bij het ophalen van contactmomenten voor episode\n"
+"Fout bij het ophalen van ontmoetingen voor episode\n"
 "%s"
 
 msgid ""
@@ -687,7 +710,7 @@ msgid ""
 "%sLast worked on: %s\n"
 msgstr ""
 "%sEpisode \"%s\" [%s]\n"
-"%sContactmomenten: %s (%s - %s)\n"
+"%sOntmoetingen: %s (%s - %s)\n"
 "%sLaatst aan gewerkt: %s\n"
 
 msgid "Subjective"
@@ -697,7 +720,7 @@ msgid "Objective"
 msgstr "Bevindingen"
 
 msgid "Assessment"
-msgstr "Beoordeling"
+msgstr "Conclusie"
 
 msgid "Plan"
 msgstr "Plan"
@@ -706,7 +729,7 @@ msgid "Administrative"
 msgstr "Beheer"
 
 msgid "Encounter"
-msgstr "Contactmoment"
+msgstr "Ontmoeting"
 
 msgid ""
 "An error occurred while retrieving a text\n"
@@ -723,7 +746,7 @@ msgid ""
 "An error occurred while Demographic record export\n"
 "Please check the log file for details."
 msgstr ""
-"Er is een fout opgetreden bij het ophalen van het demografische bestand\n"
+"Er is een fout opgetreden bij het exporteren van de persoonsgegevens.\n"
 "Bekijk het logboek voor details."
 
 msgid "emr-journal"
@@ -733,7 +756,7 @@ msgid "Chronological EMR Journal\n"
 msgstr "Chronologisch EMD-journaal\n"
 
 msgid "Patient: %s (%s), No: %s\n"
-msgstr "Patient: %s (%s), Nee: %s\n"
+msgstr "Patiënt: %s (%s), Nee: %s\n"
 
 msgid ""
 "Born   : %s, age: %s\n"
@@ -745,8 +768,9 @@ msgstr ""
 msgid "Doc"
 msgstr "Doc"
 
+#, fuzzy
 msgid "Happened"
-msgstr ""
+msgstr "Handen"
 
 msgid "Narrative"
 msgstr "Verhaal"
@@ -952,19 +976,24 @@ msgid ""
 "Cannot retrieve version information from:\n"
 "\n"
 "%s"
-msgstr "FOUT: kan vaccinatie-indicaties niet laden"
+msgstr "Kan versieinformatie niet ophalen."
 
+#, fuzzy
 msgid ""
 "Cannot read version information from:\n"
 "\n"
 "%s"
-msgstr ""
+msgstr "Kan versieinformatie niet ophalen."
 
+#, fuzzy
 msgid ""
 "There is no version information available from:\n"
 "\n"
 "%s"
 msgstr ""
+"Er is geen versieinformatie beschikbaar van:\n"
+"\n"
+" %s"
 
 msgid ""
 "A new version of GNUmed is available.\n"
@@ -973,17 +1002,20 @@ msgstr ""
 "Een nieuwe versie van GNUmed is beschikbaar.\n"
 "\n"
 
+#, fuzzy
 msgid " Your current version: \"%s\"\n"
-msgstr ""
+msgstr " Uw versie: \"%s\"\n"
 
+#, fuzzy
 msgid " New version: \"%s\""
-msgstr ""
+msgstr " Nieuwe versie: \"%s\"\n"
 
 msgid " - bug fixes only\n"
 msgstr " - alleen fouten bijgewerkt\n"
 
+#, fuzzy
 msgid " - database fixups may be needed\n"
-msgstr ""
+msgstr " - geen upgrade van de database nodig\n"
 
 msgid " - bug fixes and new features\n"
 msgstr " - fouten bijgewerkt en nieuwe functionaliteiten\n"
@@ -996,14 +1028,18 @@ msgid ""
 "be available *pre-packaged* for your system."
 msgstr ""
 
+#, fuzzy
 msgid "Details are found on <http://wiki.gnumed.de>.\n"
-msgstr ""
+msgstr "Zoek ook hulp op http://wiki.gnumed.de."
 
+#, fuzzy
 msgid ""
 "Version information loaded from:\n"
 "\n"
 " %s"
 msgstr ""
+"Versieinformatie geladen van:\n"
+" [%s]"
 
 msgid "1 Byte"
 msgstr "1 Byte"
@@ -1044,11 +1080,15 @@ msgstr "Annuleren"
 msgid "Enlist person as GNUmed user"
 msgstr ""
 
+#, fuzzy
 msgid ""
 "A short alias identifying the GNUmed user. It is used in the clinical record "
 "among other places."
 msgstr ""
+"Een kort alias dat het staflid identificeerd. Het wordt onder andere "
+"gebruikt in de dossiers."
 
+#, fuzzy
 msgid ""
 "The database account for this user.\n"
 "\n"
@@ -1059,6 +1099,11 @@ msgid ""
 "You can use the name of an existing account but it must not be used by any "
 "other GNUmed user yet."
 msgstr ""
+"De naam van het nieuwe account. Dit account zl worden gecreëerd in de "
+"database met de juiste toegangsrechten. Privacybeperkingen zijn nu vast "
+"gekoppeld aan lidmaatschap van de PostgreSQL groep \"gm-doctors\". U kunt de "
+"naam van een bestaant account gebruiken maar het mag nog niet gebruikt zijn "
+"door een ander staflid."
 
 msgid "The password for the new database account. Input will not be shown."
 msgstr ""
@@ -1072,24 +1117,32 @@ msgstr ""
 "Het databasewachtwoord moet opnieuw worden ingegeven om te controleren op "
 "typfouten."
 
+#, fuzzy
 msgid ""
 "Enlisting GNUmed users is a priviledged operation.\n"
 "You must enter the password for the database administrator \"gm-dbo\" here."
 msgstr ""
+"Stafleden inschrijven is een voorbehouden handeling.\n"
+"U moet het wachtwoord voor de databasebeheerder \"gm-dbo\" hier ingeven."
 
+#, fuzzy
 msgid ""
 "Enlist this person as a GNUmed user and associate it with the given database "
 "account."
 msgstr ""
+"Schrijf deze persoon in als staflid en bind het aan genoemde database "
+"account."
 
+#, fuzzy
 msgid "Cancel this dialog, do not enlist new GNUmed user."
-msgstr ""
+msgstr "Annuleer deze handeling, voeg geen nieuw staflid toe.,"
 
 msgid "The currently selected patient is:"
 msgstr "De huidige geselecteerde patiënt is:"
 
+#, fuzzy
 msgid "User parameters:"
-msgstr ""
+msgstr "Parameters"
 
 msgid "Alias"
 msgstr "Alias"
@@ -1208,15 +1261,15 @@ msgstr "Reactie Soort"
 
 #, fuzzy
 msgid "Allergy details"
-msgstr "Allergie"
+msgstr "Allergieën"
 
 #, fuzzy
 msgid "Allergy state"
-msgstr "Allergie"
+msgstr "allergische toestand"
 
 #, fuzzy
 msgid "<current allergy state>"
-msgstr "Allergiestatus: onbekend"
+msgstr "onbekende allergiestatus"
 
 #, fuzzy
 msgid "<last confirmed>"
@@ -1231,7 +1284,7 @@ msgstr "geen allergieën bekend"
 
 #, fuzzy
 msgid "Has allergies"
-msgstr "heeft allergieën"
+msgstr "Allergieën bewerken"
 
 msgid "Con&firm"
 msgstr ""
@@ -1239,8 +1292,9 @@ msgstr ""
 msgid "Allergy Manager"
 msgstr "Allergiën Manager"
 
+#, fuzzy
 msgid "This displays the current allergy state as saved in the database."
-msgstr ""
+msgstr "Bewaar de allergie/ intollerantie in de database."
 
 msgid "When was the allergy state last confirmed."
 msgstr ""
@@ -1250,15 +1304,17 @@ msgid ""
 "any allergies or not."
 msgstr ""
 
+#, fuzzy
 msgid "Select this if the patient has no known allergies."
-msgstr ""
+msgstr "Selecteer dit als de reactie een allergie is."
 
+#, fuzzy
 msgid "Select this if the patient has known allergies."
-msgstr ""
+msgstr "Selecteer dit als de reactie een allergie is."
 
 #, fuzzy
 msgid "A comment on the allergy state."
-msgstr "Allergiestatus: onbekend"
+msgstr "Een aantekening bij deze patiënt."
 
 msgid "Save and confirm the allergy state."
 msgstr ""
@@ -1266,10 +1322,12 @@ msgstr ""
 msgid "Lists the allergies known for this patient if any."
 msgstr "Noteer de bekende allergiën van deze patiënt."
 
+#, fuzzy
 msgid ""
 "Save the allergy details in the edit area as either a new allergy or as an "
 "update to the existing allergy selected above."
 msgstr ""
+"Bewaar als een nieuwe allergie of bewerk de hierboven geselecteerde allergie."
 
 msgid "Clear the fields of the edit area. Will discard unsaved data."
 msgstr ""
@@ -1284,22 +1342,24 @@ msgstr "Sluit het venster. Dit zal onopgeslagen data wissen."
 msgid "Currently:"
 msgstr ""
 
+#, fuzzy
 msgid "Last confirmed:"
-msgstr ""
+msgstr "Laatst gewijzigd:"
 
+#, fuzzy
 msgid "Set to:"
-msgstr ""
+msgstr "Instellen"
 
 msgid "Comment:"
 msgstr "Toelichting:"
 
 #, fuzzy
 msgid "Previous Encounters"
-msgstr "Contactmoment"
+msgstr "Ontmoeting"
 
 #, fuzzy
 msgid "New notes in current encounter"
-msgstr "Notities van laatste contactmoment:"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid "Tips and Hints"
 msgstr ""
@@ -1342,18 +1402,21 @@ msgid ""
 "2008"
 msgstr ""
 
+#, fuzzy
 msgid "New"
-msgstr ""
+msgstr "&Nieuw"
 
+#, fuzzy
 msgid "&All"
-msgstr ""
+msgstr "Alle"
 
 #, fuzzy
 msgid "&Encounter"
-msgstr "Contactmoment"
+msgstr "Ontmoeting"
 
+#, fuzzy
 msgid "&Note"
-msgstr ""
+msgstr "Aantekening"
 
 msgid "&New"
 msgstr "&Nieuw"
@@ -1412,14 +1475,16 @@ msgid ""
 "during this encounter."
 msgstr ""
 
+#, fuzzy
 msgid "Save encounter details and all progress notes."
-msgstr ""
+msgstr "Sla dit voortgangsrapport op"
 
 msgid "Save the encounter details."
 msgstr "Bewaar de details van de ontmoeting"
 
+#, fuzzy
 msgid "Save the currently displayed progress note."
-msgstr ""
+msgstr "Sla dit voortgangsrapport op"
 
 msgid ""
 "Open a new progress note editor.\n"
@@ -1428,20 +1493,24 @@ msgid ""
 "editors at once."
 msgstr ""
 
+#, fuzzy
 msgid "Clear the editor for the displayed progress note."
-msgstr ""
+msgstr "Voeg editor toe voor een nieuw voortgangsrapport."
 
+#, fuzzy
 msgid "Discard the editor for the displayed progress note."
-msgstr ""
+msgstr "Voeg editor toe voor een nieuw voortgangsrapport."
 
+#, fuzzy
 msgid "until"
-msgstr ""
+msgstr "Hoeveelheid"
 
 msgid "Request"
 msgstr "Verzoek"
 
+#, fuzzy
 msgid "device1"
-msgstr ""
+msgstr "Apparaat"
 
 msgid "Summary"
 msgstr "Samenvatting"
@@ -1449,11 +1518,13 @@ msgstr "Samenvatting"
 msgid "EKG"
 msgstr ""
 
+#, fuzzy
 msgid "Save:"
-msgstr ""
+msgstr "Opslaan"
 
+#, fuzzy
 msgid "Editor:"
-msgstr ""
+msgstr "Bewerken"
 
 msgid "Confidential"
 msgstr "Vertrouwelijk"
@@ -1498,14 +1569,16 @@ msgstr ""
 msgid "The amount of substance per dose."
 msgstr ""
 
+#, fuzzy
 msgid "The preparation the substance comes in."
-msgstr ""
+msgstr "De eenheid waarin dit resultaat komt."
 
 msgid "Whether this substance is taken by advice."
 msgstr ""
 
+#, fuzzy
 msgid "The brand name of the drug the patient is taking."
-msgstr ""
+msgstr "Merknaam als het medicijn als trigger is ingevoerd."
 
 msgid ""
 "Get brand(s) from an external drug database.\n"
@@ -1526,9 +1599,8 @@ msgstr ""
 msgid "Press if discontinuation was as planned."
 msgstr ""
 
-#, fuzzy
 msgid "Reason for discontinuation."
-msgstr "Contactmoment"
+msgstr ""
 
 #, fuzzy
 msgid "Discontinuation due to allergy/intolerance ?"
@@ -1547,8 +1619,11 @@ msgstr ""
 msgid "The aim of consuming this substance."
 msgstr ""
 
+#, fuzzy
 msgid "The episode this substance is taken under."
 msgstr ""
+"Benodigd: de primaire episode waar dit document onder vermeld dient te "
+"worden."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
@@ -1559,11 +1634,13 @@ msgstr "Stof"
 msgid "Strength"
 msgstr "Sterkte"
 
+#, fuzzy
 msgid "Preparation"
-msgstr ""
+msgstr "Operatie"
 
+#, fuzzy
 msgid "Brand"
-msgstr ""
+msgstr "Branch"
 
 msgid "Started"
 msgstr "Gestart"
@@ -1572,14 +1649,17 @@ msgstr "Gestart"
 msgid "Discontinued"
 msgstr "Doorgaan"
 
+#, fuzzy
 msgid "Reason"
-msgstr ""
+msgstr "Reactie"
 
+#, fuzzy
 msgid "Schedule"
-msgstr ""
+msgstr "Actieve Schema"
 
+#, fuzzy
 msgid "Duration"
-msgstr ""
+msgstr "Operatie"
 
 msgid "Aim"
 msgstr ""
@@ -1587,8 +1667,9 @@ msgstr ""
 msgid "Episode"
 msgstr "Episode"
 
+#, fuzzy
 msgid "Advice"
-msgstr ""
+msgstr "Apparaat"
 
 #, fuzzy
 msgid "Inactive"
@@ -1600,11 +1681,13 @@ msgstr ""
 msgid "&Edit"
 msgstr "&Bewerken"
 
+#, fuzzy
 msgid "Info"
-msgstr ""
+msgstr "nee"
 
+#, fuzzy
 msgid "&Interactions?"
-msgstr ""
+msgstr "Interacties"
 
 msgid ""
 "Sort entries by \"health issue\" and \"episode\" for which they are taken, "
@@ -1628,14 +1711,17 @@ msgid ""
 "of."
 msgstr ""
 
+#, fuzzy
 msgid "Add a substance."
-msgstr ""
+msgstr "Stof"
 
+#, fuzzy
 msgid "Edit the selected substance intake entry."
-msgstr ""
+msgstr "Bewerk het geselecteerde item."
 
+#, fuzzy
 msgid "Remove a substance from the list."
-msgstr ""
+msgstr "Verwijder de geselecteerde items van de lijst."
 
 msgid "Discontinue selected entry due to an allergy or intolerance."
 msgstr ""
@@ -1649,8 +1735,9 @@ msgid ""
 "Includes all drugs if none selected."
 msgstr ""
 
+#, fuzzy
 msgid "Print the medication list."
-msgstr ""
+msgstr "Huidige medicatie"
 
 msgid "Sort by:"
 msgstr ""
@@ -1757,8 +1844,9 @@ msgstr "&Sluiten"
 msgid "This lists the available document types."
 msgstr "Dit laat de beschikbare documenttypen zien."
 
+#, fuzzy
 msgid "The document type, usually in English."
-msgstr ""
+msgstr "Het documenttype, meestal in het Engels."
 
 msgid "The document type in the local language."
 msgstr "Het documenttype in de plaatselijke taal."
@@ -1800,41 +1888,57 @@ msgstr "Sluiten"
 msgid "Edit staff list"
 msgstr "Stafledenlijst bewerken"
 
+#, fuzzy
 msgid "The list of currently existing GNUmed users."
-msgstr ""
+msgstr "Lijst met momenteel bestaande stafleden."
 
+#, fuzzy
 msgid "Short alias for the GNUmed user. Must be unique for this system."
-msgstr ""
+msgstr "Kort alias voor het GNUmed staflid. Moet uniek zijn voor dit systeem."
 
+#, fuzzy
 msgid ""
 "The database account for this GNUmed user. Note that you cannot change your "
 "*own* database account."
 msgstr ""
+"Het database account voor dit GNUmed staflid. Merk op dat u niet uw *eigen* "
+"database account kunt wijzigen."
 
+#, fuzzy
 msgid "A short comment on this GNUmed user."
-msgstr ""
+msgstr "Een korte aantekening over dit GNUmed staflid."
 
+#, fuzzy
 msgid ""
 "Save modified user details.\n"
 "\n"
 "You will need to know the password for the GNUmed database administrator <gm-"
 "dbo>."
 msgstr ""
+"Bewaar details van medewerkers. U heeft hiervoor het beheerderswachtwoord "
+"van de GNUmed database beheerder <gm-dbo> nodig."
 
+#, fuzzy
 msgid ""
 "Activate selected user.\n"
 "\n"
 "You will need to know the password for the GNUmed database administrator <gm-"
 "dbo>."
 msgstr ""
+"Huidige geselecteerde medewerker activeren. U heeft hiervoor het "
+"beheerderswachtwoord van de GNUmed database beheerder <gm-dbo> nodig."
 
+#, fuzzy
 msgid ""
 "Deactivate selected user.\n"
 "\n"
 "You will need to know the password for the GNUmed database administrator <gm-"
 "dbo>."
 msgstr ""
+"Huidige geselecteerde medewerker deactiveren. U heeft hiervoor het "
+"beheerderswachtwoord van de GNUmed database beheerder <gm-dbo> nodig."
 
+#, fuzzy
 msgid ""
 "Entirely remove the GNUmed user (including the database account).\n"
 "\n"
@@ -1844,6 +1948,10 @@ msgid ""
 "You will need to know the password for the GNUmed database administrator <gm-"
 "dbo>."
 msgstr ""
+"Verwijder het staflid helemaal (inclusief het database account). Dit is "
+"alleen mogelijk als er geen patientgegevens onder dit account opgeslagen "
+"zijn. Als er gegevens zijn zal dit staflid alleen gedeactiveerd worden. U "
+"heeft het wachtwoord voor de GNUmed database beheerder <gm-dbo> nodig."
 
 msgid "Close this dialog."
 msgstr "Sluit deze dialoog."
@@ -1857,21 +1965,29 @@ msgstr "Toelichting"
 msgid "edit encounter details"
 msgstr "bewerk details van de ontmoeting"
 
+#, fuzzy
 msgid "Edit the details for the encounter below:"
-msgstr ""
+msgstr "Bewerk details van het beroep voor de huidige patiënt."
 
+#, fuzzy
 msgid ""
 "Enter the Reason For Encounter here. This is the patient's initial request "
 "which led to the encounter."
 msgstr ""
+"Geef de reden voor de ontmoeting in. Dit is het verzoek van de patiënt dat "
+"leidde tot het consult."
 
+#, fuzzy
 msgid ""
 "Enter the Encounter Summary here. This is your final assessment of the "
 "encounter summary."
 msgstr ""
+"Geef hier de samenvatting van het consult in. Dit is uw uiteindelijke "
+"beoordeling van  de ontmoeting/ consult."
 
+#, fuzzy
 msgid "Patient:"
-msgstr ""
+msgstr "Patiënt"
 
 msgid "Type"
 msgstr "Type"
@@ -1879,9 +1995,11 @@ msgstr "Type"
 msgid "Ended"
 msgstr "Beeindigd"
 
+#, fuzzy
 msgid "Required: A name for this encounter type in your local language."
-msgstr ""
+msgstr "Benodigd: de Naam voor deze episode in uw plaatselijke taal."
 
+#, fuzzy
 msgid ""
 "Optional: A system-wide description for this encounter type. If you leave "
 "this empty the local name will be used.\n"
@@ -1891,6 +2009,12 @@ msgid ""
 "can have the system description translated into their language and still use "
 "the same encounter type."
 msgstr ""
+"Optioneel: De systeem-brede naam voor dit contacttype. Als u dit leeg laat "
+"zal de locale naam gebruikt worden.\n"
+"\n"
+"Het is handig om een Engelse term te gebruiken, maar dit is niet verplicht. "
+"Een voordeel van een systeemnaam is dat verschillende mensen de systeemnaam "
+"kunnen vertalen in hun taal en toch hetzelfde type ontmoeting gebruiken."
 
 msgid "Local name"
 msgstr "Plaatselijke naam"
@@ -1901,8 +2025,9 @@ msgstr "Ontmoetingstype"
 msgid "Closed"
 msgstr "Gesloten"
 
+#, fuzzy
 msgid "Select the health issue this episode belongs to."
-msgstr ""
+msgstr "Selecteer het gezondheidsprobleem waarbijdeze episode behoort."
 
 msgid ""
 "Type or select the description for this episode. It should be a summary for "
@@ -1926,8 +2051,9 @@ msgstr ""
 msgid "Patient"
 msgstr "Patiënt"
 
+#, fuzzy
 msgid "Nest under"
-msgstr ""
+msgstr "Geslacht"
 
 msgid "Description"
 msgstr "Beschrijving"
@@ -1952,6 +2078,9 @@ msgstr "Wijzig formuliersjabloon detais."
 
 msgid "&Template"
 msgstr "&Template"
+
+msgid "Image editor"
+msgstr ""
 
 msgid "LaTeX"
 msgstr ""
@@ -2085,16 +2214,29 @@ msgstr "Annuleer het bewerken van de gegevens en verwerp de veranderingen."
 msgid "&Next..."
 msgstr ""
 
+msgid "Lala !"
+msgstr ""
+
 msgid "GNUmed generic EditArea dialog"
 msgstr "GNUmed algemene bewerk gebied dialoog"
 
+#, fuzzy
 msgid "Save the entered data into the database and close the dialog."
-msgstr ""
+msgstr "Sla de ingevoerde informatie op in de database."
 
+#, fuzzy
 msgid "Save data into database and clear fields for another value."
 msgstr ""
+"Sla gegevens op in de database en wis de velden voor de volgende invoer."
 
+#, fuzzy
 msgid "Reset all fields to their previous values."
+msgstr "Wis alle velden of reset tot de waardes in de database."
+
+msgid ""
+"Press me !\n"
+"\n"
+"(This will NOT endanger any data.)"
 msgstr ""
 
 msgid "Edit"
@@ -2214,13 +2356,15 @@ msgstr ""
 msgid "Condition"
 msgstr "Aandoening"
 
+#, fuzzy
 msgid "Grouping:"
-msgstr ""
+msgstr "Groep"
 
+#, fuzzy
 msgid ""
 "Additional\n"
 "Notes"
-msgstr ""
+msgstr "Klinische aantekeningen"
 
 msgid "When Noted"
 msgstr "Wanneer opgemerkt"
@@ -2238,8 +2382,9 @@ msgstr ""
 msgid "Admitted"
 msgstr "Beheer"
 
+#, fuzzy
 msgid "Discharged"
-msgstr ""
+msgstr "Verwerpen"
 
 msgid "Please select a health issue:"
 msgstr "Selecteer een gezondheidsprobleem:"
@@ -2357,8 +2502,9 @@ msgstr "Datum"
 msgid "Context"
 msgstr "Context"
 
+#, fuzzy
 msgid "Clinical details"
-msgstr ""
+msgstr "Klinische aantekeningen"
 
 msgid "In charge"
 msgstr "Verantwoordelijk"
@@ -2405,8 +2551,9 @@ msgstr "Achternaam"
 msgid "Contact"
 msgstr "Contactpersonen"
 
+#, fuzzy
 msgid "A descriptive name for this test type."
-msgstr ""
+msgstr "Een langere, beschrijvende naam voor dit template."
 
 msgid "An abbreviation for the name of this test type."
 msgstr ""
@@ -2429,11 +2576,13 @@ msgstr ""
 msgid "A comment on the organisation performing this measurement."
 msgstr ""
 
+#, fuzzy
 msgid "Abbreviation"
-msgstr ""
+msgstr "Kalibreren"
 
+#, fuzzy
 msgid "Unit"
-msgstr ""
+msgstr "Eenheid:"
 
 msgid "LOINC"
 msgstr ""
@@ -2566,18 +2715,21 @@ msgstr ""
 "\n"
 "Als u dit wilt wijzigen kunt u meer of minder resultaten selecteren."
 
+#, fuzzy
 msgid "Keep *this* patient"
-msgstr ""
+msgstr "Patiënt selecteren"
 
+#, fuzzy
 msgid "Merge"
-msgstr ""
+msgstr "bereik"
 
 #, fuzzy
 msgid "Merging patients"
-msgstr "interne patiëntennummer"
+msgstr "Patiënt selecteren"
 
+#, fuzzy
 msgid "Select this if you want to keep this patient."
-msgstr ""
+msgstr "Selecteer de episode waar u het verhaal naar wilt verplaatsen."
 
 msgid "Details of the patients to merge:"
 msgstr ""
@@ -2609,12 +2761,13 @@ msgstr "Doelepisode"
 msgid "The episode you want to move the displayed narrative to."
 msgstr "De episode waar u het getoonde verhaal naar toe wilt verplaatsen."
 
+#, fuzzy
 msgid "Generic multi line text entry dialog"
-msgstr ""
+msgstr "algemene meerkeuze dialoog"
 
 #, fuzzy
 msgid "The date of birth for this person."
-msgstr "Er zijn geen contactmomenten voor deze episode."
+msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 msgid "Check this to make this the currently active name."
 msgstr "Vink dit aan om dit de actieve naam te maken."
@@ -2651,8 +2804,9 @@ msgstr "Geboortedatum"
 msgid "Required: lastname (family name)"
 msgstr "Benodigd: achternaam"
 
+#, fuzzy
 msgid "Required: surname/first name/given name"
-msgstr ""
+msgstr "Benodigd: voornaam"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
 msgstr ""
@@ -2660,13 +2814,15 @@ msgstr ""
 msgid "Optional: the time of birth if known"
 msgstr ""
 
+#, fuzzy
 msgid "Required: gender"
-msgstr ""
+msgstr "Benodigd: geslacht van patiënt"
 
+#, fuzzy
 msgid ""
 "Optional: nickname (alias, preferred name, call name, warrior name, artist "
 "name, pseudonym)"
-msgstr ""
+msgstr "Typ of selecteer een voornaam. (bijnaam)"
 
 msgid ""
 "Optional: title (academic or honorary). Note that a title applies to a "
@@ -2684,23 +2840,29 @@ msgid ""
 "fields without searching for an existing address."
 msgstr ""
 
+#, fuzzy
 msgid "Primary address: zip/postal code"
-msgstr ""
+msgstr "huisadres: postcode"
 
+#, fuzzy
 msgid "Primary address: name of street"
-msgstr ""
+msgstr "huisadres: straatnaam"
 
+#, fuzzy
 msgid "Primary address: number"
-msgstr ""
+msgstr "huisadres: huisnummer"
 
+#, fuzzy
 msgid "Primary address: city/town/village/dwelling/..."
-msgstr ""
+msgstr "huisadres: plaats/stad/dorp"
 
+#, fuzzy
 msgid "Primary address: state/province/county/..."
-msgstr ""
+msgstr "huisadres: staat/provincie/regio"
 
+#, fuzzy
 msgid "Primary address: country of residence"
-msgstr ""
+msgstr "huisadres: land"
 
 msgid "Primary phone number."
 msgstr ""
@@ -2708,17 +2870,21 @@ msgstr ""
 msgid "The type of the external ID (selection only)."
 msgstr ""
 
+#, fuzzy
 msgid "The value of the external ID."
-msgstr ""
+msgstr "Geef een commentaar in op dit BSN."
 
+#, fuzzy
 msgid "The current occupation."
-msgstr ""
+msgstr "Typ of selecteer een beroep."
 
+#, fuzzy
 msgid "A comment on this person."
-msgstr ""
+msgstr "Een aantekening bij deze patiënt."
 
+#, fuzzy
 msgid "Basic demographics"
-msgstr ""
+msgstr "Basale persoonsgegevens"
 
 msgid "Identity"
 msgstr "Identiteit"
@@ -2726,11 +2892,13 @@ msgstr "Identiteit"
 msgid "First name(s)"
 msgstr "Voornaam(en)"
 
+#, fuzzy
 msgid "Time:"
-msgstr ""
+msgstr "Titel"
 
+#, fuzzy
 msgid "Primary (home) address (optional)"
-msgstr ""
+msgstr "huisadres: land"
 
 msgid "Search"
 msgstr "Zoeken"
@@ -2744,15 +2912,16 @@ msgstr "Locatie"
 msgid "Region"
 msgstr "Regio"
 
+#, fuzzy
 msgid "Other"
-msgstr ""
+msgstr "Eigenaar"
 
 msgid "Phone"
 msgstr "Telefoon"
 
 #, fuzzy
 msgid "External ID"
-msgstr "extern patientennummer"
+msgstr "BSN bewerken."
 
 msgid "Occupation"
 msgstr "Beroep"
@@ -2778,20 +2947,24 @@ msgstr ""
 msgid "°F"
 msgstr ""
 
+#, fuzzy
 msgid "<last height>"
-msgstr ""
+msgstr "laatste bezoek"
 
 msgid "BMI"
 msgstr "BMI"
 
+#, fuzzy
 msgid "<last weight>"
-msgstr ""
+msgstr "laatste bezoek"
 
+#, fuzzy
 msgid "<BMI>"
-msgstr ""
+msgstr "BMI"
 
+#, fuzzy
 msgid "<last waist>"
-msgstr ""
+msgstr "laatste bezoek"
 
 msgid "RR measured on the left arm."
 msgstr ""
@@ -2828,11 +3001,13 @@ msgid ""
 " intravascular"
 msgstr ""
 
+#, fuzzy
 msgid "Respiration rate."
-msgstr ""
+msgstr "Item herprinten"
 
+#, fuzzy
 msgid "Current height in cm."
-msgstr ""
+msgstr "Huidige lengte/gewicht"
 
 msgid ""
 "Body Mass Index.\n"
@@ -2851,26 +3026,31 @@ msgstr ""
 msgid "Current waist circumference in cm."
 msgstr ""
 
+#, fuzzy
 msgid "Vitals"
-msgstr ""
+msgstr "Bijzonderheden"
 
+#, fuzzy
 msgid "RR left"
-msgstr ""
+msgstr "links"
 
 msgid "mmHg"
 msgstr ""
 
+#, fuzzy
 msgid "RR right"
-msgstr ""
+msgstr "rechts"
 
+#, fuzzy
 msgid "Pulse"
-msgstr ""
+msgstr "Sluiten"
 
 msgid "/min"
 msgstr ""
 
+#, fuzzy
 msgid "Temp"
-msgstr ""
+msgstr "Sjabloon"
 
 msgid "(axill./oral/...)"
 msgstr ""
@@ -2878,20 +3058,23 @@ msgstr ""
 msgid "(rectal)"
 msgstr ""
 
+#, fuzzy
 msgid "Resp"
-msgstr ""
+msgstr "Reset"
 
 msgid "Figure"
 msgstr ""
 
+#, fuzzy
 msgid "Height"
-msgstr ""
+msgstr "rechts"
 
 msgid "cm"
 msgstr ""
 
+#, fuzzy
 msgid "Weight"
-msgstr ""
+msgstr "rechts"
 
 msgid "g or kg"
 msgstr ""
@@ -2931,11 +3114,11 @@ msgstr ""
 
 #, fuzzy
 msgid "Location"
-msgstr "Vaccinatie"
+msgstr "beroep"
 
 #, fuzzy
 msgid "and Episode"
-msgstr "Episodes: %s"
+msgstr "Episode"
 
 msgid "Procedure"
 msgstr ""
@@ -2946,24 +3129,29 @@ msgstr "De programmeur moet deze tekst uitzetten."
 msgid "All"
 msgstr "Alle"
 
+#, fuzzy
 msgid "Active-patient related"
-msgstr ""
+msgstr "Aktieve patient"
 
+#, fuzzy
 msgid "Show all your messages."
-msgstr ""
+msgstr "Toon ALLE patientgerelateerde berichten."
 
+#, fuzzy
 msgid "Show those of your messages which are related to the active patient."
-msgstr ""
+msgstr "Toon alleen de patiëntberichten voor de active patiënt."
 
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 "Toon de volledige tekst van de geselectreerde berichten in uw Postvak In."
 
+#, fuzzy
 msgid "Show messages:"
-msgstr ""
+msgstr "bericht"
 
+#, fuzzy
 msgid "A code for this province."
-msgstr ""
+msgstr "Een commentaar op deze beoordeling."
 
 msgid "Province"
 msgstr "Provincie"
@@ -3010,8 +3198,9 @@ msgstr "technisch abnormaal"
 msgid "take over responsibility"
 msgstr "neem verantwoordelijkheid over"
 
+#, fuzzy
 msgid "sign all pages"
-msgstr ""
+msgstr "teken alle delen af"
 
 msgid "Edit document properties"
 msgstr "Documenteigenschappen bewerken"
@@ -3023,8 +3212,9 @@ msgstr ""
 "Toont de episode die met dit document geassocieerd is. Selecteer een ander "
 "type of geef een nieuwe episodenaam in om met een andere te associeren."
 
+#, fuzzy
 msgid "Enter the date of creation of the document."
-msgstr ""
+msgstr "Benodigd: Het soort document"
 
 msgid "Enter the ID by which this document is referenced externally."
 msgstr ""
@@ -3283,12 +3473,13 @@ msgstr "Sorteer documenten op soort."
 msgid "Sort documents by"
 msgstr "Sorteer documenten op"
 
+#, fuzzy
 msgid "Most recent notes on above problem"
-msgstr ""
+msgstr "meest recente bovenaan"
 
 #, fuzzy
 msgid "New notelets in current encounter"
-msgstr "Notities van laatste contactmoment:"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid "Tips and hints"
 msgstr ""
@@ -3298,10 +3489,11 @@ msgstr "Actieve problemen"
 
 #, fuzzy
 msgid "Closed episodes"
-msgstr "Niet toegewezen episodes"
+msgstr "Oude episode"
 
+#, fuzzy
 msgid "Non-relevant issues"
-msgstr ""
+msgstr "Niet relevant"
 
 msgid ""
 "In this area GNUmed will place the notes of the\n"
@@ -3337,29 +3529,31 @@ msgstr ""
 
 #, fuzzy
 msgid "Show issues marked clinically NOT relevant."
-msgstr "niet klinisch relevant"
+msgstr "Vink dit aan als de uitslag klinisch relevant is."
 
 msgid ""
 "This shows the list of active problems, They include open episodes as well "
 "as active health issues."
 msgstr ""
 
+#, fuzzy
 msgid "Purpose ..."
-msgstr ""
+msgstr "Opties ..."
 
 msgid "tab1"
 msgstr ""
 
+#, fuzzy
 msgid "... summary"
-msgstr ""
+msgstr "Samenvatting"
 
 #, fuzzy
 msgid "Notelet:"
-msgstr "niet relevant"
+msgstr "Niet relevant"
 
 #, fuzzy
 msgid "Encounter:"
-msgstr "Contactmoment"
+msgstr "Ontmoeting"
 
 msgid "Edit staff details"
 msgstr "Bewerk details van staf"
@@ -3476,8 +3670,9 @@ msgstr "Bereik"
 msgid "Details"
 msgstr "Bijzonderheden"
 
+#, fuzzy
 msgid "<Please supply your email address here !>"
-msgstr ""
+msgstr "Voer uw emailadres in."
 
 msgid "Keep running"
 msgstr "Blijf draaien"
@@ -3499,11 +3694,15 @@ msgid ""
 "were about to do."
 msgstr "Geef overige informatie of commentaar zoals wat u wilde doen."
 
+#, fuzzy
 msgid ""
 "Please enter your email address so we can provide feedback directly to you. "
 "Otherwise, feedback will be given on the GNUmed mailing list (http://lists."
 "gnu.org/mailman/listinfo/gnumed-bugs)."
 msgstr ""
+"Geef alstublieft uw emailadres in zodat we u feedback kunnen geven. Anders "
+"zal de feedback gegeven worden op de GNUmed mailinglijs (http://lists.gnu."
+"org/mailman/listinfo/gnumed-devel)."
 
 msgid "Find help on http://wiki.gnumed.de, too."
 msgstr "Zoek ook hulp op http://wiki.gnumed.de."
@@ -3517,6 +3716,7 @@ msgstr "Sluit deze dialoog EN de GNUmed frontend."
 msgid "View the log file."
 msgstr "Bekijk logboek."
 
+#, fuzzy
 msgid ""
 "Email a bug report to the GNUmed developers.\n"
 "\n"
@@ -3527,6 +3727,14 @@ msgid ""
 "If you specify your address in the Sender field above the developers will be "
 "able to contact you directly for feedback."
 msgstr ""
+"Email een foutrapport aan de GNUmed ontwikkelaars.\n"
+"\n"
+"De meeste vragen zullen op de mailinglijst beantwoord worden dus het is aan "
+"te raden om u hiervoor aan te melden of in het archief te kijken (http://"
+"lists.gnu.org/mailman/listinfo/gnumed-devel).\n"
+"\n"
+"Als u uw emailadres in het afzenderveld hierboven invoert geeft u de "
+"ontwikkelaars mogelijkheid u direct een reactie te geven."
 
 msgid "An unhandled exception has occurred."
 msgstr "Een niet gemanagde uitzondering is opgetreden."
@@ -3613,14 +3821,16 @@ msgstr "Sla dit voortgangsrapport op"
 msgid "Episode:"
 msgstr "Episode"
 
+#, fuzzy
 msgid "Waiting list details for this patient."
-msgstr ""
+msgstr "Bewerk details van het beroep voor de huidige patiënt."
 
 msgid "What is the patient here for. Could be the Reason for Encounter."
 msgstr ""
 
+#, fuzzy
 msgid "Select or enter the zone the patient is waiting in."
-msgstr ""
+msgstr "Selecteer dit als de reactie een gevoeligheid is."
 
 msgid ""
 "Select the urgency for this patient.\n"
@@ -3629,19 +3839,21 @@ msgid ""
 "Higher values mean higher urgency."
 msgstr ""
 
+#, fuzzy
 msgid "&Zone:"
-msgstr ""
+msgstr "Geen"
 
+#, fuzzy
 msgid "&Urgency:"
-msgstr ""
+msgstr "Urgent"
 
 #, fuzzy
 msgid "&Activate"
-msgstr "actief"
+msgstr "Activeren"
 
 #, fuzzy
 msgid "Activate²"
-msgstr "actief"
+msgstr "Activeren"
 
 msgid ""
 "Enter the waiting zone you want to filter by here.\n"
@@ -3658,29 +3870,36 @@ msgstr ""
 msgid "Activate patient but do not remove from waiting list."
 msgstr ""
 
+#, fuzzy
 msgid "Activate patient and remove from waiting list."
-msgstr ""
+msgstr "Patiënt van de lijst activeren."
 
+#, fuzzy
 msgid "Add the active patient to the waiting list."
-msgstr ""
+msgstr "Voeg een volgend item aan de lijst toe."
 
+#, fuzzy
 msgid "Remove selected patient from the waiting list."
-msgstr ""
+msgstr "Verwijder de geselecteerde items van de lijst."
 
+#, fuzzy
 msgid "Edit details of the waiting list entry."
-msgstr ""
+msgstr "Bewerk details van het geselecteerde staflid."
 
+#, fuzzy
 msgid "Move patient up."
-msgstr ""
+msgstr "Geen actieve patiënt"
 
+#, fuzzy
 msgid "Move patient down."
-msgstr ""
+msgstr "Geen actieve patiënt"
 
 msgid "Filter by:"
 msgstr ""
 
+#, fuzzy
 msgid "Zone"
-msgstr ""
+msgstr "Geen"
 
 msgid "load file"
 msgstr "laad bestand"
@@ -3766,8 +3985,9 @@ msgstr "Nieuwe allergie aanmaken niet toegestaan."
 msgid "&Restore"
 msgstr "&Herstellen"
 
+#, fuzzy
 msgid "<allergy state unasked>"
-msgstr ""
+msgstr "allergische toestand"
 
 #, fuzzy
 msgid "invalid allergy state [%s]"
@@ -3776,15 +3996,17 @@ msgstr "FOUT: onbekende allergiestatus [%s]"
 msgid "definite"
 msgstr "zekere"
 
+#, fuzzy
 msgid ""
 "Cannot set allergy state to <unknown> because there are allergies stored for "
 "this patient."
-msgstr ""
+msgstr "Onbekend: het is niet bekend of deze patiënt allergieën heeft."
 
+#, fuzzy
 msgid ""
 "Cannot set allergy state to <None> because there are allergies stored for "
 "this patient."
-msgstr ""
+msgstr "Onbekend: het is niet bekend of deze patiënt allergieën heeft."
 
 msgid ""
 "Cannot set allergy state to <some> because there are neither allergies nor a "
@@ -3962,8 +4184,9 @@ msgstr "Kan afbeelding niet vinden"
 msgid "\"%s\" (version %s)"
 msgstr "\"%s\" (versie %s)"
 
+#, fuzzy
 msgid "Log into"
-msgstr ""
+msgstr "Logboek"
 
 msgid "Username"
 msgstr "Gebruikersnaam"
@@ -4086,8 +4309,9 @@ msgstr "BMI calculator"
 msgid "&Reset"
 msgstr "&Resetten"
 
+#, fuzzy
 msgid "Your client (%s) is up to date."
-msgstr ""
+msgstr "Uw frontend is up to date."
 
 msgid "Checking for client updates"
 msgstr "Controleren voor frontend updates"
@@ -4191,14 +4415,20 @@ msgstr ""
 
 #, fuzzy
 msgid "Activating patient from report result"
-msgstr "Begin patiënten-contactmoment"
+msgstr "patiënt activeren van rapportresultaat"
 
+#, fuzzy
 msgid ""
 "Cannot activate patient.\n"
 "\n"
 "There does not seem to exist a patient\n"
 "with an internal ID of [%s].\n"
 msgstr ""
+"Kan patiënt niet activeren.\n"
+"\n"
+"De rij bevat geen kolom met de\n"
+"naam of index \"%s\".\n"
+"\n"
 
 msgid "Report must have a name for contribution."
 msgstr ""
@@ -4225,8 +4455,9 @@ msgstr ""
 "Kan geen bericht verzenden. Kan rapport niet bijdragen aan de GNUmed "
 "community."
 
+#, fuzzy
 msgid "Thank you for your contribution to the GNUmed community!"
-msgstr ""
+msgstr "Dank u voor uw bijdrage aan de GNUmed community!"
 
 msgid "Deleted report definition [%s]."
 msgstr "Verwijderede rapportdefinitie [%s]."
@@ -4264,14 +4495,17 @@ msgstr "kolomnaam"
 msgid "Choose a column to be used as the Y-Axis:"
 msgstr "Kies een kolom die gebruikt wordt voor de Y-as:"
 
+#, fuzzy
 msgid "GNUmed report: %s"
-msgstr ""
+msgstr "GNUmed rapportresultaten:"
 
+#, fuzzy
 msgid "GNUmed report results"
-msgstr ""
+msgstr "GNUmed rapportresultaten:"
 
+#, fuzzy
 msgid "Error plotting data."
-msgstr ""
+msgstr "Fout bij het opslaan van ingevoerde gegevens."
 
 msgid "Error"
 msgstr "Fout"
@@ -4291,7 +4525,7 @@ msgstr "Geen data teruggegeven voor dit rapport."
 #, fuzzy
 msgid "Found %s results."
 msgstr ""
-" %s testresultaten\n"
+" %s testuitslagen\n"
 "\n"
 
 msgid "Cannot interpret input as timestamp."
@@ -4311,11 +4545,13 @@ msgstr "Typ of selecteer een land."
 msgid "Select the default region/province/state/territory for new persons.\n"
 msgstr "Selecteer een staat/provincie/regio/gemeente."
 
+#, fuzzy
 msgid "Adding province"
-msgstr ""
+msgstr "Provincies bijwerken ..."
 
+#, fuzzy
 msgid "Editing province"
-msgstr ""
+msgstr "Provincies bijwerken ..."
 
 msgid ""
 "Are you sure you want to delete this province ?\n"
@@ -4330,8 +4566,9 @@ msgid ""
 "no patients are recorded to live there."
 msgstr ""
 
+#, fuzzy
 msgid "Deleting province"
-msgstr ""
+msgstr "Naam verwijderen"
 
 msgid "delete related townships"
 msgstr ""
@@ -4342,8 +4579,9 @@ msgstr ""
 msgid "Yes, delete"
 msgstr "Ja, verwijder"
 
+#, fuzzy
 msgid "No, do NOT delete anything."
-msgstr ""
+msgstr "Nee, verwijder GEEN enkele uitslag."
 
 msgid ""
 "\n"
@@ -4365,8 +4603,9 @@ msgstr ""
 msgid "Editing provinces ..."
 msgstr "Provincies bijwerken ..."
 
+#, fuzzy
 msgid "Type or select a state/region/province/territory."
-msgstr ""
+msgstr "Selecteer een staat/provincie/regio/gemeente."
 
 msgid "Today's KOrganizer appointments ..."
 msgstr "KOrganizr afspraken voor vandaag ..."
@@ -4405,6 +4644,7 @@ msgstr ""
 msgid "Editing primary occupation"
 msgstr "Wijzigen beroep"
 
+#, fuzzy
 msgid ""
 "Are you sure you really, positively want\n"
 "to disable the following person ?\n"
@@ -4414,6 +4654,11 @@ msgid ""
 "\n"
 "%s\n"
 msgstr ""
+"Weet u zeker, heel zeker dat u de \n"
+"volgende patiënt op non-aktief wit zetten?\n"
+"\n"
+" %s %s %s\n"
+" geboren %s\n"
 
 msgid "This patient DID receive care."
 msgstr ""
@@ -4421,8 +4666,9 @@ msgstr ""
 msgid "This person did NOT receive care."
 msgstr ""
 
+#, fuzzy
 msgid "Disabling person"
-msgstr ""
+msgstr "Patiënt op non-aktief zetten"
 
 msgid "Disabling patient"
 msgstr "Patiënt op non-aktief zetten"
@@ -4470,8 +4716,9 @@ msgid ""
 "exist in country [%s] ?"
 msgstr ""
 
+#, fuzzy
 msgid "Saving address"
-msgstr ""
+msgstr "Adres verwijderen"
 
 msgid "Address details must be filled in completely or not at all."
 msgstr "Adresgegevens moeten volledig worden ingevuld of helemaal niet."
@@ -4576,8 +4823,9 @@ msgstr "Nieuwe naam toegoegen"
 msgid "Editing name"
 msgstr "Naam bewerken"
 
+#, fuzzy
 msgid "Cannot delete the only name of a person."
-msgstr ""
+msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
 msgid ""
 "It is often advisable to keep old names around and\n"
@@ -4648,8 +4896,9 @@ msgid ""
 "be before 1900, either :-(\n"
 msgstr ""
 
+#, fuzzy
 msgid "Registering new person"
-msgstr ""
+msgstr "Inschrijven nieuw persoon"
 
 msgid "The year of birth must lie after 1900."
 msgstr ""
@@ -4799,8 +5048,9 @@ msgstr "Verkleuring"
 msgid "Depigmented"
 msgstr "Gedepigmenteerd"
 
+#, fuzzy
 msgid "Erythema"
-msgstr ""
+msgstr "Erytheem"
 
 msgid "Pigmented"
 msgstr "Gepigmenteerd"
@@ -4872,31 +5122,42 @@ msgstr ""
 msgid "There are no device checkup reports in the database."
 msgstr "Er zijn geen episodes van dit gezondheidsprobleem"
 
+#, fuzzy
 msgid ""
 "Are you sure you want to delete this\n"
 "description from the document ?\n"
 msgstr ""
+"Weet u zeker dat u deze episode wilt verwijderen?\n"
+"\n"
+" \"%s\"\n"
 
+#, fuzzy
 msgid "Deleting document description"
-msgstr ""
+msgstr "Kan geen beschrijving van het document toevoegen."
 
+#, fuzzy
 msgid "Adding document description"
-msgstr ""
+msgstr "Kan geen beschrijving van het document toevoegen."
 
+#, fuzzy
 msgid "Below you can add a document description.\n"
-msgstr ""
+msgstr "Kan geen beschrijving van het document toevoegen."
 
+#, fuzzy
 msgid "Editing document description"
-msgstr ""
+msgstr "Kan geen beschrijving van het document toevoegen."
 
+#, fuzzy
 msgid "Below you can edit the document description.\n"
-msgstr ""
+msgstr "Kan geen beschrijving van het document toevoegen."
 
+#, fuzzy
 msgid "Select the description you are interested in.\n"
-msgstr ""
+msgstr "Selecteer de episodes waar u in geïnteresseerd bent ..."
 
+#, fuzzy
 msgid "Managing document descriptions"
-msgstr ""
+msgstr "Kan geen beschrijving van het document toevoegen."
 
 msgid "Documents"
 msgstr "Documenten"
@@ -4904,8 +5165,13 @@ msgstr "Documenten"
 msgid "Select the episode under which to file the document ..."
 msgstr "Selecteer de episode waaronder dit document bewaard moet worden..."
 
+#, fuzzy
+msgid "Imported new document from [%s]."
+msgstr "Kan documenttype niet veranderen naar [%s]."
+
+#, fuzzy
 msgid "Enter a comment on the document."
-msgstr ""
+msgstr "Geef een commentaar in op dit BSN."
 
 msgid "In use"
 msgstr "In gebruik"
@@ -4959,8 +5225,9 @@ msgstr ""
 msgid "Reassigning document type"
 msgstr "Documenttype opnieuw toepassen"
 
+#, fuzzy
 msgid "Select the document type."
-msgstr ""
+msgstr "verwijderen documenttype"
 
 msgid "who"
 msgstr "wie"
@@ -5024,6 +5291,10 @@ msgstr "Kan geen nieuwe documenten accepteren. Geen actieve patiënt."
 
 msgid "Extracting files from folder [%s] ..."
 msgstr "Bestanden ophalen uit map [%s] ..."
+
+#, fuzzy
+msgid "part %s: %s"
+msgstr "part %2s"
 
 msgid "saving document"
 msgstr "document bewaren"
@@ -5237,36 +5508,42 @@ msgstr "Onderdeel mailen"
 msgid "document menu"
 msgstr "documentenmenu"
 
+#, fuzzy
 msgid "Print all parts"
-msgstr ""
+msgstr "Onderdelen afdrukken"
 
 #, fuzzy
 msgid "Fax all parts"
-msgstr "willekeurig deel van de naam"
+msgstr "Onderdelen faxen"
 
+#, fuzzy
 msgid "Mail all parts"
-msgstr ""
+msgstr "Onderdelen mailen"
 
+#, fuzzy
 msgid "Export all parts"
-msgstr ""
+msgstr "teken alle delen af"
 
 #, fuzzy
 msgid "Delete document"
-msgstr "Documenten"
+msgstr "Tekstdocument"
 
 msgid "Access external original"
 msgstr "Toegang tot externe origineel"
 
+#, fuzzy
 msgid "Edit corresponding encounter"
-msgstr ""
+msgstr "Bewerk overeenkomstig consult"
 
 #, fuzzy
 msgid "Manage descriptions"
-msgstr "geen beschrijvingen beschikbaar"
+msgstr "Beschrijving van de Parameter"
 
 #, fuzzy
 msgid "Error searching documents."
-msgstr " %s documenten\n"
+msgstr ""
+"Fout bij het zoeken naar documenten voor patiënt\n"
+"[%s %s]."
 
 msgid "loading document list"
 msgstr "documentenlijst laden"
@@ -5398,11 +5675,16 @@ msgstr "Document opslaan in map..."
 msgid "Successfully exported %s parts into the directory [%s]."
 msgstr "Succes bij het exporteren van %s onderdelen in de map [%s]."
 
+#, fuzzy
 msgid "Are you sure you want to delete the document ?"
 msgstr ""
+"Weet u zeker dat u deze episode wilt verwijderen?\n"
+"\n"
+" \"%s\"\n"
 
+#, fuzzy
 msgid "Deleting document"
-msgstr ""
+msgstr "verwijderen documenttype"
 
 msgid "Cannot export EMR. No active patient."
 msgstr "Kan EMD niet exporteren. Geen actieve patiënt."
@@ -5440,12 +5722,15 @@ msgstr "Episode Menu"
 msgid "Edit details"
 msgstr "Details bewerken"
 
+#, fuzzy
 msgid "Promote"
 msgstr ""
+"Voortgangs\n"
+"Bericht"
 
 #, fuzzy
 msgid "Move encounters"
-msgstr "%s: contactmoment (%s)"
+msgstr "%s: ontmoeting (%s)"
 
 msgid "Encounter Menu"
 msgstr "Ontmoeting Menu"
@@ -5453,11 +5738,13 @@ msgstr "Ontmoeting Menu"
 msgid "Move data to another episode"
 msgstr "Verplaats gegevens naar andere episode"
 
+#, fuzzy
 msgid "Edit progress notes"
-msgstr ""
+msgstr "voortgangsrapport"
 
+#, fuzzy
 msgid "Move progress notes"
-msgstr ""
+msgstr "voortgangsrapport"
 
 msgid "Export for Medistar"
 msgstr "Exporteren voor Medistar"
@@ -5544,11 +5831,11 @@ msgstr ""
 
 #, fuzzy
 msgid "ongoing episode"
-msgstr "voortdurend"
+msgstr "Episode verwijderen"
 
 #, fuzzy
 msgid "closed episode"
-msgstr "gesloten"
+msgstr "Oude episode"
 
 #, fuzzy
 msgid ""
@@ -5583,45 +5870,61 @@ msgstr ""
 msgid "Cannot delete performed procedure."
 msgstr ""
 
+#, fuzzy
 msgid ""
 "\n"
 "Select the procedure you want to edit !\n"
 msgstr ""
+"\n"
+"Selecteer het sleutelwoord dat u wilt bewerken!\n"
 
+#, fuzzy
 msgid "Editing performed procedures ..."
-msgstr ""
+msgstr "Provincies bijwerken ..."
 
+#, fuzzy
 msgid "When"
-msgstr ""
+msgstr "wanneer"
 
+#, fuzzy
 msgid "Where"
-msgstr ""
+msgstr "Weken"
 
+#, fuzzy
 msgid "Adding a procedure"
-msgstr ""
+msgstr "Nieuwe episode toevoegen"
 
+#, fuzzy
 msgid "Editing a procedure"
-msgstr ""
+msgstr "Adres wijzigen"
 
+#, fuzzy
 msgid "Cannot save procedure."
-msgstr ""
+msgstr "Kan laboratoriumverzoek niet opslaan"
 
+#, fuzzy
 msgid "Cannot delete hospital stay."
-msgstr ""
+msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
+#, fuzzy
 msgid ""
 "\n"
 "Select the hospital stay you want to edit !\n"
 msgstr ""
+"\n"
+"Selecteer het ontmoetingstype dat u wilt bewerken!\n"
 
+#, fuzzy
 msgid "Editing hospital stays ..."
-msgstr ""
+msgstr "Ontmoetingstypes bewerken ..."
 
+#, fuzzy
 msgid "Admission"
-msgstr ""
+msgstr "Beheer"
 
+#, fuzzy
 msgid "Discharge"
-msgstr ""
+msgstr "Verwerpen"
 
 msgid "Adding a hospital stay"
 msgstr ""
@@ -5640,22 +5943,25 @@ msgstr ""
 msgid "Started a new encounter for the active patient."
 msgstr "Begin een niewe ontmoeting voor de actieve patiënt."
 
+#, fuzzy
 msgid ""
 "\n"
 "A new encounter was started for the active patient.\n"
-msgstr ""
+msgstr "Begin een niewe ontmoeting voor de actieve patiënt."
 
 #, fuzzy
 msgid "Start of new encounter"
-msgstr "Begin patiënten-contactmoment"
+msgstr "Begin nieuwe ontmoeting"
 
+#, fuzzy
 msgid "Cannot list encounters. No active patient."
-msgstr ""
+msgstr "Kan geen nieuwe ontmoeting beginnen. Geen actieve patiënt."
 
+#, fuzzy
 msgid ""
 "\n"
 "Below find the relevant encounters of the patient.\n"
-msgstr ""
+msgstr "Begin een niewe ontmoeting voor de actieve patiënt."
 
 #, fuzzy
 msgid "Encounters ..."
@@ -5663,14 +5969,14 @@ msgstr "Ontmoeting ..."
 
 #, fuzzy
 msgid "Assessment of Encounter"
-msgstr "Beoordeling"
+msgstr "Conclusie"
 
 msgid "Empty"
 msgstr ""
 
 #, fuzzy
 msgid "Reason for Encounter"
-msgstr "Contactmoment"
+msgstr "Ontmoeting"
 
 msgid "Continue"
 msgstr "Doorgaan"
@@ -5694,20 +6000,23 @@ msgstr ""
 "\n"
 "Selecteer het ontmoetingstype dat u wilt bewerken!\n"
 
+#, fuzzy
 msgid "Managing encounter types ..."
-msgstr ""
+msgstr "Ontmoetingstypes bewerken ..."
 
 msgid "Adding new encounter type"
 msgstr "Nieuw contmoetingstype toevoegen"
 
+#, fuzzy
 msgid "Editing local encounter type name"
-msgstr ""
+msgstr "Ontmoetingstype bewerken"
 
 msgid "Adding a new episode"
 msgstr "Nieuwe episode toevoegen"
 
+#, fuzzy
 msgid "Editing an episode"
-msgstr ""
+msgstr "Nieuwe episode toevoegen"
 
 #, fuzzy
 msgid "Promoting episode to health issue"
@@ -5730,23 +6039,25 @@ msgstr "Er zijn geen episodes van dit gezondheidsprobleem"
 msgid "Use existing"
 msgstr ""
 
+#, fuzzy
 msgid "Create a new health issue with another name"
-msgstr ""
+msgstr "Een nieuw gezondheidsprobleem creëeren is niet toegestaan."
 
 msgid "Create new"
 msgstr "Nieuw"
 
 #, fuzzy
 msgid "Enter a short descriptive name for the new health issue:"
-msgstr "Er zijn geen episodes van dit gezondheidsprobleem"
+msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
 
 #, fuzzy
 msgid "Creating a new health issue ..."
-msgstr "Inactief gezondheidsprobleem"
+msgstr "Een nieuw gezondheidsprobleem creëeren is niet toegestaan."
 
 msgid "Closed episodes older than %s days on health issue [%s]"
 msgstr "Gesloten episodes ouder dan %s dagen over gezondheidsprobleem [%s]"
 
+#, fuzzy
 msgid ""
 "You want to associate the running episode:\n"
 "\n"
@@ -5766,6 +6077,22 @@ msgid ""
 "\n"
 "Which episode do you want to close ?"
 msgstr ""
+"U wilt de lopende episode associeren :\n"
+"\n"
+" \"%(new_epi_name)s\" (%(new_epi_start)s - %(new_epi_end)s)\n"
+"\n"
+"met het gezondheidsprobleem:\n"
+"\n"
+" \"%(issue_name)s\"\n"
+"\n"
+"Er is al een andere episode bezig voor dit \n"
+"gezondheidsprobleem:\n"
+"\n"
+" \"%(old_epi_name)s\" (%(old_epi_start)s - %(old_epi_end)s)\n"
+"\n"
+"Er kan echter maar een lopende episode zijn per gezondheidsprobleem.\n"
+"\n"
+"Welke episode wilt u sluiten?"
 
 msgid "Resolving two-running-episodes conflict"
 msgstr "Oplossen van conflict tussen twee lopende episodes"
@@ -5788,8 +6115,9 @@ msgstr "Selecteer de episodes waar u in geïnteresseerd bent ..."
 msgid "Health Issue"
 msgstr "Gezondheidsprobleem"
 
+#, fuzzy
 msgid "Cannot create episode without name."
-msgstr ""
+msgstr "Kan geen nieuwe episode toevoegen zonder een naam."
 
 msgid ""
 "Cannot attach episode [%s] to health issue [%s] because it already has a "
@@ -5800,11 +6128,11 @@ msgstr ""
 
 #, fuzzy
 msgid "Adding a new health issue"
-msgstr "Huidige gezondheidsprobleem"
+msgstr "Nieuwe episode toevoegen"
 
 #, fuzzy
 msgid "Editing a health issue"
-msgstr "Huidige gezondheidsprobleem"
+msgstr "Gezondheidsprobleem verwijderen"
 
 msgid "Select the health issues you are interested in ..."
 msgstr "Selecteer de gezondheidsproblemen waar u in geïnteresseerd bent..."
@@ -5831,8 +6159,11 @@ msgstr ""
 msgid "Cannot parse [%s] into valid interval."
 msgstr "Kan [%s] niet in juist interval invoegen."
 
+#, fuzzy
 msgid "Health issue cannot have been noted at age %s. Patient is only %s old."
 msgstr ""
+"Gezondheidsprobleem kan niet opgemerkt zijn op leeftijd %s. Patiënt is maar %"
+"s jaar oud."
 
 msgid "Condition diagnosed in the future."
 msgstr "Aandoening gediagnosticeerd in de toekomst."
@@ -5851,6 +6182,17 @@ msgstr "EMD tekst dump"
 
 msgid "Currently there is no active patient. Cannot retrieve EMR text."
 msgstr "Er is geen actieve patiënt. Kan geen EMD tekst ophalen."
+
+msgid ""
+"Today is your lucky day !\n"
+"\n"
+"You have won one year of GNUmed\n"
+"updates for free !\n"
+msgstr ""
+
+#, fuzzy
+msgid "GNUmed Lottery"
+msgstr "Bijgedragen aan GNUmed"
 
 msgid "save entry into medical record"
 msgstr "Bewaar ingave in het medisch dossier."
@@ -5995,6 +6337,7 @@ msgstr "Significant"
 msgid "Missing GNUmed module"
 msgstr "Ontbrekende GNUmed module"
 
+#, fuzzy
 msgid ""
 "GNUmed detected that parts of it are not\n"
 "properly installed. The following message\n"
@@ -6006,6 +6349,15 @@ msgid ""
 "parts installed. Otherwise some of the\n"
 "functionality will not be accessible."
 msgstr ""
+"GNUmed ontdekte dat er onderdelen niet\n"
+"goed geïnstalleerd zijn. Hier volgt het\n"
+"ontbrekende onderdeel:\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"Zorg ervoor dat de ontbrekende onderdelen\n"
+"geïnstalleerd worden. Anders zal niet\n"
+"alle functionaliteit beschikbaar zijn."
 
 msgid ""
 "Please enter a short note on what you\n"
@@ -6017,6 +6369,7 @@ msgstr ""
 msgid "Sending bug report"
 msgstr "Foutrapport verzendenn"
 
+#, fuzzy
 msgid ""
 "Edit the list of email addresses to send the\n"
 "bug report to (separate addresses by spaces).\n"
@@ -6024,6 +6377,11 @@ msgid ""
 "Note that <gnumed-bugs@gnu.org> refers to\n"
 "the public (!) GNUmed bugs mailing list."
 msgstr ""
+"Geen de lijst van emailadressen om het foutrapport \n"
+"naar te verzenden (tussen de adressen spaties).\n"
+"\n"
+"Merk op dat <gnumed-devel@gnu.org> verwijst naar\n"
+"de openbare (!) GNUmed mailinglijst."
 
 msgid ""
 "Your bug report will be sent to:\n"
@@ -6084,8 +6442,9 @@ msgstr "<niet gegeven>"
 msgid "Bug report has been emailed."
 msgstr "Foutrapport is geëmaild."
 
+#, fuzzy
 msgid "Bug report COULD NOT be emailed."
-msgstr ""
+msgstr "Foutrapport is geëmaild."
 
 msgid "Printer Setup"
 msgstr "Printerinstellingen"
@@ -6096,17 +6455,25 @@ msgstr "Kalibreren"
 msgid "No document template selected."
 msgstr ""
 
+#, fuzzy
 msgid "Error creating printable document."
 msgstr ""
+"Fout bij het instellen van de \"beoordeeld\" status van dit nieuwe document."
 
+#, fuzzy
 msgid "Printing document"
-msgstr ""
+msgstr "document bewaren"
 
+#, fuzzy
 msgid "Error printing document (%s)."
-msgstr ""
+msgstr "Document verwerken: %s"
 
+#, fuzzy
 msgid "%s printed from template [%s - %s]"
 msgstr ""
+"Fout bij het exporteren van het formuliersjabloon\n"
+"\n"
+" \"%s\" (%s)"
 
 msgid ""
 "Error exporting form template\n"
@@ -6184,8 +6551,9 @@ msgstr "U moet een sjabloonbestand selecteren voordat u opslaat."
 msgid "Choose a form template file"
 msgstr "Kies een formuliersjabloon bestand"
 
+#, fuzzy
 msgid "LaTeX templates"
-msgstr ""
+msgstr "OOo sjablonen"
 
 msgid "OOo templates"
 msgstr "OOo sjablonen"
@@ -6220,8 +6588,9 @@ msgstr "algemene waarschuwing"
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "U bent ingelogd als %s%s.%s (%s). DB account <%s>."
 
+#, fuzzy
 msgid "&Go to plugin ..."
-msgstr ""
+msgstr "plugin toevoegen..."
 
 msgid "Check for new releases of the GNUmed client."
 msgstr "Controleer op nieuwe versies van de GNUmed frontend."
@@ -6235,8 +6604,9 @@ msgstr ""
 msgid "Announce downtime"
 msgstr ""
 
+#, fuzzy
 msgid "Preferences ..."
-msgstr ""
+msgstr "Verwijzing"
 
 #, fuzzy
 msgid "List all configuration items stored in the database."
@@ -6332,7 +6702,7 @@ msgstr "Webadres"
 
 #, fuzzy
 msgid "Person ..."
-msgstr "Voeg persoon toe"
+msgstr "beschrijvingen..."
 
 msgid "Birthday reminder"
 msgstr "Verjaardag herrineren"
@@ -6386,24 +6756,27 @@ msgstr "Externe hulpmiddelen ..."
 msgid "MI/stroke risk calc cmd"
 msgstr ""
 
+#, fuzzy
 msgid "Set the command to start the CV risk calculator."
-msgstr ""
+msgstr "Geef het commando in dat IFAP start."
 
 msgid "Set the time to wait for OpenOffice to settle after startup."
 msgstr "Geeft in hoelang gewacht op OpenOffice om op te starten."
 
 #, fuzzy
 msgid "Measurements URL"
-msgstr "Metingen en Resultaten:"
+msgstr "Metingen"
 
 msgid "URL for measurements encyclopedia."
 msgstr ""
 
+#, fuzzy
 msgid "Select the drug data source."
-msgstr ""
+msgstr "Selecteer het soort adres."
 
+#, fuzzy
 msgid "Drug data source"
-msgstr ""
+msgstr "&Geneesmiddelen Bronnen"
 
 msgid "FreeDiams path"
 msgstr ""
@@ -6424,8 +6797,9 @@ msgstr "EMD ..."
 msgid "Medication list template"
 msgstr ""
 
+#, fuzzy
 msgid "Select the template for printing a medication list."
-msgstr ""
+msgstr "Selecteer het soort communicatiekanaal."
 
 msgid "Encounter ..."
 msgstr "Ontmoeting ..."
@@ -6473,14 +6847,17 @@ msgid ""
 msgstr ""
 "Maximum slapende periode voordat een episode als afgesloten wordt beschouwd."
 
+#, fuzzy
 msgid "&Master data ..."
-msgstr ""
+msgstr "Bewerk &meesterdata ..."
 
+#, fuzzy
 msgid "Manage the plugins to load per workplace."
-msgstr ""
+msgstr "Kies de plugins die per werkplek geladen moeten worden."
 
+#, fuzzy
 msgid "Workplace profiles"
-msgstr ""
+msgstr "Werkplekken"
 
 msgid "&Document types"
 msgstr "&Documenttypen"
@@ -6503,8 +6880,9 @@ msgstr "Beheer op sleutelwoorden gebaseerde tekstuitbreidingsmacro's."
 msgid "&Encounter types"
 msgstr "&Ontmoetingstypen"
 
+#, fuzzy
 msgid "Manage encounter types."
-msgstr ""
+msgstr "Ontmoetingstypes bewerken ..."
 
 msgid "&Provinces"
 msgstr "&Provincies"
@@ -6515,11 +6893,13 @@ msgstr "Organiseer provincies (landen, gebieden)"
 msgid "Manage substances in use."
 msgstr ""
 
+#, fuzzy
 msgid "Substances"
-msgstr ""
+msgstr "Stof"
 
+#, fuzzy
 msgid "Drugs"
-msgstr ""
+msgstr "Geneesmiddel"
 
 msgid "Manage branded drugs."
 msgstr ""
@@ -6533,8 +6913,9 @@ msgstr ""
 msgid "Install ATC reference data."
 msgstr ""
 
+#, fuzzy
 msgid "Update ATC"
-msgstr ""
+msgstr "Bijwerken"
 
 msgid "Diagnostic orgs"
 msgstr ""
@@ -6542,14 +6923,16 @@ msgstr ""
 msgid "Manage diagnostic organisations (path labs etc)."
 msgstr ""
 
+#, fuzzy
 msgid "&Test types"
-msgstr ""
+msgstr "&Documenttypen"
 
 msgid "Manage test/measurement types."
 msgstr ""
 
+#, fuzzy
 msgid "&Meta test types"
-msgstr ""
+msgstr "Sjabloontype"
 
 msgid "Show meta test/measurement types."
 msgstr ""
@@ -6557,23 +6940,29 @@ msgstr ""
 msgid "Download and install LOINC reference data."
 msgstr ""
 
+#, fuzzy
 msgid "Update LOINC"
-msgstr ""
+msgstr "Bijwerken"
 
+#, fuzzy
 msgid "&Users ..."
-msgstr ""
+msgstr "&Waarnemingen"
 
+#, fuzzy
 msgid "&Add user"
-msgstr ""
+msgstr "&Alle gebruikers"
 
+#, fuzzy
 msgid "Add a new GNUmed user"
-msgstr ""
+msgstr "Voeg een nieuwe  gebruiker toe aan het GNUmed systeem."
 
+#, fuzzy
 msgid "&Edit users"
-msgstr ""
+msgstr "&Alle gebruikers"
 
+#, fuzzy
 msgid "Edit the list of GNUmed users"
-msgstr ""
+msgstr "De lijst met stafleden bewerke"
 
 msgid "Close this GNUmed client."
 msgstr "Slui deze GNUmed frontend."
@@ -6581,38 +6970,47 @@ msgstr "Slui deze GNUmed frontend."
 msgid "E&xit\tAlt-X"
 msgstr "E&xit\tAlt-X"
 
+#, fuzzy
 msgid "Register a new person with GNUmed"
-msgstr ""
+msgstr "Inschrijven nieuw persoon"
 
+#, fuzzy
 msgid "Register person"
-msgstr ""
+msgstr "Inschrijven nieuw persoon"
 
+#, fuzzy
 msgid "Load and possibly create person from an external source."
-msgstr ""
+msgstr "Laad patiënt van externe bron in en creëer mogelijk nieuwe"
 
 msgid "Load external"
 msgstr "Extern inladen"
 
+#, fuzzy
 msgid "Deactivate (exclude from search) person record in database."
-msgstr ""
+msgstr "Deactiveer patiënt"
 
 msgid "Deactivate record"
 msgstr "Dossier deactiveren"
 
+#, fuzzy
 msgid "&Merge persons"
-msgstr ""
+msgstr "Inschrijven nieuw persoon"
 
 msgid "Merge two persons into one."
 msgstr ""
 
+#, fuzzy
 msgid "Enlist as user"
-msgstr ""
+msgstr "Inschrjiven als staflid"
 
+#, fuzzy
 msgid "Enlist current person as GNUmed user"
-msgstr ""
+msgstr "Huidige patiënt registreren als medewerker"
 
+#, fuzzy
 msgid "Export demographics of currently active person into GDT file."
 msgstr ""
+"Exporteer de persoonsgegevens van de huidige patiënt naar een GDT-bestand."
 
 msgid "Export to GDT"
 msgstr "Exporteer naar GDT"
@@ -6629,25 +7027,31 @@ msgstr ""
 msgid "Search for data in the EMR of the active patient"
 msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
 
+#, fuzzy
 msgid "Search this EMR"
-msgstr ""
+msgstr "Tekst zoeken in het gehele EMD"
 
 msgid "Search all EMRs"
 msgstr ""
 
+#, fuzzy
 msgid "Search for data across the EMRs of all patients"
-msgstr ""
+msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
 
 msgid "&Add / Edit ..."
 msgstr ""
 
+#, fuzzy
 msgid "&Past history (health issue / PMH)"
-msgstr ""
+msgstr "&Vorige geschiedenis (fundamenteel gezondheidsprobleem)"
 
+#, fuzzy
 msgid ""
 "Add a past/previous medical history item (health issue) to the EMR of the "
 "active patient"
 msgstr ""
+"Voeg vorige medische geschiedenis (fundamenteel gezondheidsprobleem) toe aan "
+"het EMD van de actieve patiënt"
 
 #, fuzzy
 msgid "&Medication"
@@ -6674,15 +7078,17 @@ msgstr ""
 msgid "Manage hospital stays."
 msgstr ""
 
+#, fuzzy
 msgid "&Procedures"
-msgstr ""
+msgstr "&Provincies"
 
+#, fuzzy
 msgid "Manage procedures performed on the patient."
-msgstr ""
+msgstr "voeg een nieuw verzoek toe voor actieve patiënt"
 
 #, fuzzy
 msgid "&Measurement(s)"
-msgstr "Metingen en Resultaten:"
+msgstr "Metingen"
 
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr "Voeg meetresultaten toe aan de huidige patiënt."
@@ -6695,7 +7101,7 @@ msgstr "Begin nieuwe ontmoeting"
 
 #, fuzzy
 msgid "&Encounters list"
-msgstr "Contactmoment"
+msgstr "&Ontmoetingstypen"
 
 msgid "List all encounters including empty ones."
 msgstr ""
@@ -6772,8 +7178,9 @@ msgstr "&Kennis"
 msgid "&Drug Resources"
 msgstr "&Geneesmiddelen Bronnen"
 
+#, fuzzy
 msgid "&Database"
-msgstr ""
+msgstr "Database ..."
 
 msgid "Jump to the drug database configured as the default."
 msgstr ""
@@ -6817,8 +7224,9 @@ msgstr "Bewaar een schermafdruk van deze GNUmed frontend."
 msgid "Screenshot"
 msgstr "Schermafdruk"
 
+#, fuzzy
 msgid "Show log file"
-msgstr ""
+msgstr "logboek bestanden"
 
 msgid "Show the log file in text viewer."
 msgstr ""
@@ -6881,8 +7289,9 @@ msgstr "Over de database"
 msgid "Show information about the current database."
 msgstr "Toon informatie over de huidige database."
 
+#, fuzzy
 msgid "Raise plugin [%s]."
-msgstr ""
+msgstr "plugin toevoegen..."
 
 msgid "programmer forgot to specify status message"
 msgstr "programmeur vergat een statusbericht te specificeren"
@@ -6941,8 +7350,9 @@ msgid ""
 " server:\t%s\n"
 msgstr ""
 
+#, fuzzy
 msgid "About database and server"
-msgstr ""
+msgstr "Over de database"
 
 msgid ""
 "This will send a notification about database downtime\n"
@@ -6980,6 +7390,7 @@ msgstr ""
 "GNUmed het document in stukjes zal inladen. Als u dit\n"
 "op 0 zet, wordt het ophalen in stukjes uitgezet."
 
+#, fuzzy
 msgid ""
 "Please select your database language from the list below.\n"
 "\n"
@@ -6993,6 +7404,12 @@ msgid ""
 "To switch back to the default English language unselect all\n"
 "pre-selected languages from the list below."
 msgstr ""
+"Selecteer de taal van de database in de onderstaande lijst.\n"
+"\n"
+"Deze instelling zal de taal van de gebruikersinterface niet veranderen \n"
+"maar dat van de gegevens die in de database worden opgeslagen zoals\n"
+"ontmoetingstypes, document types, en EMD uiterlijk.\n"
+"\n"
 
 msgid "not configured"
 msgstr ""
@@ -7039,6 +7456,7 @@ msgid "The command [%s] is not found. This may or may not be a problem."
 msgstr ""
 "Het commando [%s] werd niet gevonden. Dit kan wel of niet een probleem zijn."
 
+#, fuzzy
 msgid ""
 "Enter the shell command with which to start the\n"
 "the ACS risk assessment calculator.\n"
@@ -7049,6 +7467,15 @@ msgid ""
 "will work as long as the shell command is correct\n"
 "despite the failing test."
 msgstr ""
+"Geef het shellcommando waarmee om de IFAP \n"
+"geneesmiddelendatabase te starten.\n"
+"\n"
+"GNUmed zal proberen het pad te verifiëren,\n"
+"maar wellicht lukt dit niet omdat u een\n"
+"emulator zoals WINE gebruikt. IFAP opstarten\n"
+"zal echter wel lukken, als het shellcommando\n"
+"maar correct is, ondanks het mislukken van de \n"
+"test."
 
 #, fuzzy
 msgid "The command [%s] is not found."
@@ -7177,16 +7604,21 @@ msgstr ""
 msgid "Select the default type for new encounters.\n"
 msgstr "Selecteer het standaardtype voor nieuwe ontmoetingen.\n"
 
+#, fuzzy
 msgid ""
 "Do you want GNUmed to show the encounter\n"
 "details editor when changing the active patient ?"
 msgstr ""
+"Wilt u dat GNUmed de consult details editor laat zien als \n"
+"de actieve patiënt gewisseld wordt?"
 
+#, fuzzy
 msgid "Yes, show the encounter editor if it seems appropriate."
-msgstr ""
+msgstr "Ja, toon de consult editor als het van toepassing lijkt."
 
+#, fuzzy
 msgid "No, never show the encounter editor even if it would seem useful."
-msgstr ""
+msgstr "Nee, laat de consult editor nooit zien, ook niet als het nuttig lijkt."
 
 msgid ""
 "When a patient is activated GNUmed checks the\n"
@@ -7207,6 +7639,7 @@ msgstr ""
 "Om het verwijderen van zulke ontmoetingen te\n"
 "vermijden kunt u deze waarde op zeer lang stellen.\n"
 
+#, fuzzy
 msgid ""
 "When a patient is activated GNUmed checks the\n"
 "age of the most recent encounter.\n"
@@ -7217,7 +7650,17 @@ msgid ""
 "(If it is really old a new encounter is\n"
 " started, or else GNUmed will ask you.)\n"
 msgstr ""
+"Wanneer een patiënt wordt geactiveerd controleerd \n"
+"GNUmed hoe recent het laatste consult was.\n"
+"\n"
+"Als het consult jonger is dan dit zal het\n"
+"bestaande consult worden voortgezet.\n"
+"\n"
+"(Als het een heel lang geleden is zal een\n"
+" nieuw consult opgestart worden, of \n"
+" GNUmed zal het u vragen.)\n"
 
+#, fuzzy
 msgid ""
 "When a patient is activated GNUmed checks the\n"
 "age of the most recent encounter.\n"
@@ -7228,7 +7671,17 @@ msgid ""
 "(If it is very recent the existing encounter\n"
 " is continued, or else GNUmed will ask you.)\n"
 msgstr ""
+"Wanneer een patiënt wordt geactiveerd controleerd \n"
+"GNUmed hoe recent het laatste consult was.\n"
+"\n"
+"Als het consult ouder is dan dit zal GNUmed\n"
+"altijd een nieuw consult beginnen.\n"
+"\n"
+"(Als het een heel kort geleden is zal het\n"
+" bestaande consult voortgezet worden, of \n"
+" GNUmed zal het u vragen.)\n"
 
+#, fuzzy
 msgid ""
 "At any time there can only be one open (ongoing)\n"
 "episode for each health issue.\n"
@@ -7245,6 +7698,19 @@ msgid ""
 "\n"
 "Enter maximum episode dormancy in DAYS:"
 msgstr ""
+"Op ieder geven moment kan er maar een open (voortdurende) episode\n"
+"zijn voor ieder gezondheidsprobleem.\n"
+"\n"
+"Als u probeert een episode te openen (gegevens aan toe te voegen)\n"
+"controleerd GNUmed voor een reeds bestaande open episode voor\n"
+"dit probleem. Als er een is zal het controleren hoe oud deze is. De \n"
+"episode wordt gesloten als het niet gebruikt is (geen gegevens\n"
+"aan toegevoegd) voor een periode (in dagen) die u hier instelt.\n"
+"\n"
+"Als de bestaande episode niet zo lang geleden is zal GNUmed\n"
+"u vragen wat te doen.\n"
+"\n"
+"Geef de maximale rusttijd in DAGEN in:"
 
 msgid ""
 "This email address will be used when GNUmed\n"
@@ -7465,11 +7931,13 @@ msgstr "Kan medicatie niet toevoegen. Geen actieve patiënt."
 msgid "Cannot add allergy. No active patient."
 msgstr "Kan allergie niet toevoegen. Geen actieve patiënt."
 
+#, fuzzy
 msgid "Cannot manage performed procedures. No active patient."
-msgstr ""
+msgstr "Kan documenten niet laden. Geen actieve patiënt."
 
+#, fuzzy
 msgid "Cannot manage hospital stays. No active patient."
-msgstr ""
+msgstr "Kan niet van tabblad wijzigen. Geen active patiënt."
 
 msgid "Cannot edit occupation. No active patient."
 msgstr "Kan beroep niet bewerken. Geen actieve patiënt."
@@ -7553,17 +8021,20 @@ msgstr ""
 msgid "Verifying database"
 msgstr "Verifiëren database"
 
+#, fuzzy
 msgid "Connect"
-msgstr ""
+msgstr "Context"
 
+#, fuzzy
 msgid "Yes, connect to this database."
-msgstr ""
+msgstr "Een aantekening bij deze patiënt."
 
 msgid "Disconnect"
 msgstr ""
 
+#, fuzzy
 msgid "No, do not connect to this database."
-msgstr ""
+msgstr "Nee, niet bij het opstarten controleren of er updates zijn."
 
 msgid ""
 "Cannot find configuration file in any of:\n"
@@ -7802,11 +8273,13 @@ msgstr "Geen laboratoriumgegevens beschikbaar"
 msgid "generic multi choice dialog"
 msgstr "algemene meerkeuze dialoog"
 
+#, fuzzy
 msgid "invalid placeholder [%s]"
-msgstr ""
+msgstr "onbekende plaatsvuller: <%s>"
 
+#, fuzzy
 msgid "template is missing"
-msgstr ""
+msgstr "missend label"
 
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
@@ -7950,22 +8423,25 @@ msgstr "Kan uitslagen niet tekenen. Geen uitslagen geselecteerd."
 msgid "Details about %s (%s)%s\n"
 msgstr ""
 
+#, fuzzy
 msgid "Meta type:\n"
-msgstr ""
+msgstr "Standaard type"
 
 #, fuzzy
 msgid " Name: %s (%s)%s #%s\n"
-msgstr "Patient: %s (%s), Nee: %s\n"
+msgstr "Patiënt: %s (%s), Nee: %s\n"
 
+#, fuzzy
 msgid " Conversion unit: %s\n"
-msgstr ""
+msgstr " Uw versie: \"%s\"\n"
 
 #, fuzzy
 msgid " Comment: %s\n"
-msgstr "Documenten: %s"
+msgstr "Toelichting:"
 
+#, fuzzy
 msgid "Test type:\n"
-msgstr ""
+msgstr "Sjabloontype"
 
 #, fuzzy
 msgid " Code: %s\n"
@@ -7973,17 +8449,18 @@ msgstr "Episodes: %s"
 
 #, fuzzy
 msgid "Most recent result:\n"
-msgstr "verbeterd resultaat"
+msgstr "verbeterde uitslag"
 
 #, fuzzy
 msgid " %s: %s%s%s"
-msgstr " Meest recent: %s%s%s"
+msgstr "prik: %s, %s, %s"
 
 msgid "Measurement details of most recent (topmost) result:               \n"
 msgstr ""
 
+#, fuzzy
 msgid "Measurement details:                                               \n"
-msgstr ""
+msgstr "laden lijst van plugins                               "
 
 #, fuzzy
 msgid "Date: %s\n"
@@ -7997,7 +8474,7 @@ msgstr ""
 
 #, fuzzy
 msgid "Source: %s\n"
-msgstr "   Doc: %s"
+msgstr "Bron"
 
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
@@ -8049,8 +8526,9 @@ msgid ""
 " Lab: "
 msgstr "Lab"
 
+#, fuzzy
 msgid "Lab: %s\n"
-msgstr ""
+msgstr "SQL: %s"
 
 #, fuzzy
 msgid "Episode: %s\n"
@@ -8058,14 +8536,14 @@ msgstr "Episodes: %s"
 
 #, fuzzy
 msgid "Issue: %s\n"
-msgstr "gezondheidsprobleem: %s"
+msgstr "Bericht: %s"
 
 msgid "Material: %s\n"
 msgstr ""
 
 #, fuzzy
 msgid "Details: %s\n"
-msgstr "Documenten: %s"
+msgstr "Bijzonderheden"
 
 msgid "not yet"
 msgstr "nog niet"
@@ -8082,8 +8560,9 @@ msgstr "u"
 msgid "Last reviewer: %(reviewer)s\n"
 msgstr ""
 
+#, fuzzy
 msgid " Technically abnormal: %(abnormal)s\n"
-msgstr ""
+msgstr "Technisch abnormaal"
 
 msgid "no"
 msgstr "nee"
@@ -8095,16 +8574,18 @@ msgstr "ja"
 msgid " Clinically relevant: %(relevant)s\n"
 msgstr "klinisch relevant: ja\n"
 
+#, fuzzy
 msgid "Test type details:\n"
-msgstr ""
+msgstr "bewerk details van episode."
 
 msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
 msgstr ""
 
+#, fuzzy
 msgid ""
 "\n"
 " Type comment:"
-msgstr ""
+msgstr "toelichting"
 
 #, fuzzy
 msgid "Type comment: %s\n"
@@ -8165,23 +8646,32 @@ msgstr "Exporteren naar &clipboard"
 msgid "%s results selected. Too many to list individually."
 msgstr "%s uitslagen geselecteerd. Te veel om allemaal te tonen."
 
+#, fuzzy
 msgid "Successfully saved measurement."
-msgstr ""
+msgstr "Succesvol docment opgeslagen."
 
+#, fuzzy
 msgid "Cannot save result. Invalid or missing essential input."
-msgstr ""
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
 
+#, fuzzy
 msgid "Adding measurement type"
-msgstr ""
+msgstr "Nieuwe meting toevoegen"
 
+#, fuzzy
 msgid "Editing measurement type"
-msgstr ""
+msgstr "Meting bewerken"
 
+#, fuzzy
 msgid "in-house"
-msgstr ""
+msgstr "intern laboratorium"
 
+#, fuzzy
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
+"Kan documenttype\n"
+" [%s]\n"
+"niet verwijderen omdat het in gebruik is."
 
 msgid ""
 "\n"
@@ -8189,11 +8679,13 @@ msgid ""
 "\n"
 msgstr ""
 
+#, fuzzy
 msgid "Showing measurement types."
-msgstr ""
+msgstr "Meting bewerken"
 
+#, fuzzy
 msgid "Base unit"
-msgstr ""
+msgstr "Grondprobleem"
 
 msgid "Org"
 msgstr ""
@@ -8255,8 +8747,9 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr ""
 
+#, fuzzy
 msgid "Route"
-msgstr ""
+msgstr "Aantekening"
 
 msgid "Term"
 msgstr ""
@@ -8296,8 +8789,9 @@ msgid ""
 "Note that to actually use it you need to have the database installed, too."
 msgstr ""
 
+#, fuzzy
 msgid "Configuring default drug data source"
-msgstr ""
+msgstr "Database taal instellen"
 
 msgid "No default drug database configured."
 msgstr ""
@@ -8305,8 +8799,9 @@ msgstr ""
 msgid "There is no default drug database configured."
 msgstr ""
 
+#, fuzzy
 msgid "Jumping to drug database"
-msgstr ""
+msgstr "Opstarten van geneesmidellengevens bladeraar"
 
 msgid "Cannot call IFAP via [%s]."
 msgstr "Kan IFAP niet aanroepen via [%s]."
@@ -8317,17 +8812,20 @@ msgstr "Kan niet IFAP <-> GNUmed transfer file [%s] creëeren."
 msgid "Current medication"
 msgstr "Huidige medicatie"
 
+#, fuzzy
 msgid "Choose an ATC import config file"
-msgstr ""
+msgstr "Kies een formuliersjabloon bestand"
 
+#, fuzzy
 msgid "config files"
-msgstr ""
+msgstr "logboek bestanden"
 
 msgid "importing ATC reference data"
 msgstr ""
 
+#, fuzzy
 msgid "Successfully imported ATC reference data."
-msgstr ""
+msgstr "Succesvol docment opgeslagen."
 
 msgid "Importing ATC reference data failed."
 msgstr ""
@@ -8338,12 +8836,12 @@ msgstr ""
 msgid "The INN / substance the patient is taking."
 msgstr ""
 
-msgid "never"
-msgstr ""
-
 #, fuzzy
+msgid "never"
+msgstr "Eigenaar"
+
 msgid "%s, last confirmed %s\n"
-msgstr "Laatst gewerkt aan: %s\n"
+msgstr ""
 
 #, fuzzy
 msgid "Comment (%s): %%s\n"
@@ -8355,11 +8853,13 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr "reactie niet genoteerd"
 
+#, fuzzy
 msgid "Cannot save substance intake. Invalid or missing essential input."
-msgstr ""
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
 
+#, fuzzy
 msgid "not tolerated:"
-msgstr ""
+msgstr "niet relevant"
 
 msgid ""
 "Do you really want to remove this substance intake ?\n"
@@ -8371,11 +8871,13 @@ msgstr ""
 msgid "Deleting medication / substance intake"
 msgstr ""
 
+#, fuzzy
 msgid "Adding substance intake"
-msgstr ""
+msgstr "Nieuwe naam toegoegen"
 
+#, fuzzy
 msgid "Editing substance intake"
-msgstr ""
+msgstr "Naam bewerken"
 
 msgid "No medication list template configured."
 msgstr ""
@@ -8383,20 +8885,24 @@ msgstr ""
 msgid "There is no medication list template configured."
 msgstr ""
 
+#, fuzzy
 msgid "Printing medication list"
-msgstr ""
+msgstr "Huidige medicatie"
 
 msgid "Problem loading medication list template."
 msgstr ""
 
+#, fuzzy
 msgid "Cannot load medication list template [%s - %s]"
-msgstr ""
+msgstr "Kan medicatie niet toevoegen. Geen actieve patiënt."
 
+#, fuzzy
 msgid "Error generating the medication list."
-msgstr ""
+msgstr "Fout bij het verwijderen van de rapportdefinitie [%s]."
 
+#, fuzzy
 msgid "Error printing the medication list."
-msgstr ""
+msgstr "Fout bij het verwijderen van de rapportdefinitie [%s]."
 
 msgid "medication list printed from template [%s - %s]"
 msgstr ""
@@ -8407,8 +8913,9 @@ msgstr "Hoeveelheid"
 msgid "%s (fake)"
 msgstr ""
 
+#, fuzzy
 msgid "Cannot edit more than one substance at once."
-msgstr ""
+msgstr "Kan beroep niet bewerken. Geen actieve patiënt."
 
 msgid "Cannot delete more than one substance at once."
 msgstr ""
@@ -8439,8 +8946,9 @@ msgstr ""
 msgid "Substance: %s   [#%s]\n"
 msgstr ""
 
+#, fuzzy
 msgid "Preparation: %s\n"
-msgstr ""
+msgstr "Voorschrifen"
 
 msgid "Amount per dose: %s"
 msgstr ""
@@ -8470,18 +8978,16 @@ msgstr ""
 msgid " (short-term)"
 msgstr ""
 
-#, fuzzy
 msgid " Discontinued %s\n"
-msgstr "Laatst gewerkt aan: %s\n"
+msgstr ""
 
 #, fuzzy
 msgid " Reason: %s\n"
-msgstr ""
-"%s Laatst gezien: %s\n"
-"\n"
+msgstr " Nieuwe versie: \"%s\"\n"
 
+#, fuzzy
 msgid " Aim: %s\n"
-msgstr ""
+msgstr "   MTA: %s"
 
 #, fuzzy
 msgid " Episode: %s\n"
@@ -8493,27 +8999,33 @@ msgstr ""
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
+#, fuzzy
 msgid "Cannot move progress notes. No active patient."
-msgstr ""
+msgstr "Kan documenten niet laden. Geen actieve patiënt."
 
 #, fuzzy
 msgid "Moving progress notes between encounters ..."
-msgstr "Notities van laatste contactmoment:"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
+#, fuzzy
 msgid ""
 "\n"
 " Select the progress notes to move from the list !\n"
 "\n"
 msgstr ""
+"\n"
+"Selecteer het ontmoetingstype dat u wilt bewerken!\n"
 
 msgid "entry"
 msgstr "ingave"
 
+#, fuzzy
 msgid "Cannot edit progress notes. No active patient."
-msgstr ""
+msgstr "Kan beroep niet bewerken. Geen actieve patiënt."
 
+#, fuzzy
 msgid "Deleting progress note"
-msgstr ""
+msgstr "opslaan voortgangsrapport"
 
 msgid ""
 "Are you positively sure you want to delete this\n"
@@ -8525,21 +9037,25 @@ msgid ""
 "to be unlawful in some jurisdictions.\n"
 msgstr ""
 
+#, fuzzy
 msgid "Yes, delete the progress note."
-msgstr ""
+msgstr "Ja, verwijder alle uitslagen."
 
+#, fuzzy
 msgid "No, do NOT delete the progress note."
-msgstr ""
+msgstr "Nee, verwijder GEEN enkele uitslag."
 
+#, fuzzy
 msgid "Editing progress note"
-msgstr ""
+msgstr "opslaan voortgangsrapport"
 
 #, fuzzy
 msgid "This is the original progress note:"
 msgstr "Gooi dit voortgangsrapport weg"
 
+#, fuzzy
 msgid "Managing progress notes"
-msgstr ""
+msgstr "opslaan voortgangsrapport"
 
 msgid ""
 "\n"
@@ -8550,27 +9066,34 @@ msgstr ""
 msgid "Enter (regex) term to search for across all EMRs:"
 msgstr ""
 
+#, fuzzy
 msgid "Text search across all EMRs"
-msgstr ""
+msgstr "Tekst zoeken in het gehele EMD"
 
+#, fuzzy
 msgid ""
 "Nothing found for search term:\n"
 " \"%s\""
 msgstr ""
+"Fout bij het zoeken van overeenkomstige personen.\n"
+"\n"
+"Zoekterm: \"%s\""
 
 #, fuzzy
 msgid "Search results"
-msgstr "Laboratoriumuitslag"
+msgstr "zoekresultaten"
 
+#, fuzzy
 msgid "Search results for %s"
-msgstr ""
+msgstr "zoekresultaten"
 
+#, fuzzy
 msgid "Match"
-msgstr ""
+msgstr "Batch"
 
 #, fuzzy
 msgid "Match location"
-msgstr "Vaccinatie"
+msgstr "Creatiedatum:"
 
 msgid "Cannot search EMR. No active patient."
 msgstr "Kan EMD niet doorzoeken. Geen actieve patiënt."
@@ -8578,13 +9101,15 @@ msgstr "Kan EMD niet doorzoeken. Geen actieve patiënt."
 msgid "Enter search term:"
 msgstr "Geef zoekterm in:"
 
+#, fuzzy
 msgid "Text search of entire EMR of active patient"
-msgstr ""
+msgstr "Tekst zoeken in het gehele EMD"
 
 #, fuzzy
 msgid "Health issue"
-msgstr "gezondheidsprobleem: %s"
+msgstr "Gezondheidsprobleem"
 
+#, fuzzy
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -8592,6 +9117,10 @@ msgid ""
 "\n"
 "%s\n"
 msgstr ""
+"Zoekterm was: \"%s\"\n"
+"\n"
+"Zoekresultaten:\n"
+"%s\n"
 
 msgid "Cannot export EMR for Medistar. No active patient."
 msgstr "Kan EMD niet exporteren voor Medistar. Geen actieve patiënt."
@@ -8657,35 +9186,41 @@ msgstr "Er is geen verhaal voor de episode in deze ontmoeting."
 msgid "Must select episode to move narrative to first."
 msgstr "Moet eerst episode selecteren om verhaal naar te verplaatsen."
 
+#, fuzzy
 msgid "Last"
-msgstr ""
+msgstr "Achternaam"
 
+#, fuzzy
 msgid "%s (active+potential) problems"
-msgstr ""
+msgstr "Actieve problemen"
 
 #, fuzzy
 msgid "%s active problems"
-msgstr " %s bekende klachten\n"
+msgstr "Actieve problemen"
 
 #, fuzzy
 msgid "Current encounter:"
-msgstr "Begin patiënten-contactmoment"
+msgstr "Huidige medicatie"
 
 #, fuzzy
 msgid "Most recent notes on %s%s%s"
 msgstr " Meest recent: %s%s%s"
 
+#, fuzzy
 msgid "Cannot save encounter: missing type."
-msgstr ""
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
 
+#, fuzzy
 msgid "Cannot save encounter: missing start time."
-msgstr ""
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
 
+#, fuzzy
 msgid "Cannot save encounter: missing end time."
-msgstr ""
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
 
+#, fuzzy
 msgid "Cannot save all editors. Some were kept open."
-msgstr ""
+msgstr "Kan allergie niet toevoegen. Geen actieve patiënt."
 
 msgid ""
 "Cannot open progress note editor for\n"
@@ -8710,19 +9245,19 @@ msgstr ""
 
 #, fuzzy
 msgid "Starting new encounter"
-msgstr "Begin patiënten-contactmoment"
+msgstr "Begin nieuwe ontmoeting"
 
 #, fuzzy
 msgid "Error saving current encounter."
-msgstr "Begin patiënten-contactmoment"
+msgstr "Fout bij het opslaan van voortgangsrapport."
 
 #, fuzzy
 msgid "Started new encounter for active patient."
-msgstr "Er zijn geen contactmomenten voor deze episode."
+msgstr "Begin een niewe ontmoeting voor de actieve patiënt."
 
 #, fuzzy
 msgid "new problem"
-msgstr " %s bekende klachten\n"
+msgstr "probleem"
 
 msgid ""
 "Are you sure you really want to\n"
@@ -8734,23 +9269,29 @@ msgstr ""
 msgid "Discarding progress note"
 msgstr "Weggooien voortgangsrapport"
 
+#, fuzzy
 msgid "There are unsaved progress notes !\n"
-msgstr ""
+msgstr "Bewaar alle overgebleven onopgeslagen voortgangsrapporten."
 
+#, fuzzy
 msgid "Unsaved progress notes"
-msgstr ""
+msgstr "Niet opgeslagen voortgangsrapport"
 
+#, fuzzy
 msgid "Enter a short working name for this new problem:"
-msgstr ""
+msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
 
+#, fuzzy
 msgid "Creating a problem (episode) to save the notelet under ..."
 msgstr ""
+"U moet een episode selecteren waar dit document onder bewaard moet worden."
 
 msgid "saving progress note"
 msgstr "opslaan voortgangsrapport"
 
+#, fuzzy
 msgid "Cannot save a new problem without a name."
-msgstr ""
+msgstr "Kan geen nieuwe episode toevoegen zonder een naam."
 
 msgid ""
 "The new episode:\n"
@@ -8769,8 +9310,9 @@ msgid ""
 "Please select the expansion you want to happen."
 msgstr ""
 
+#, fuzzy
 msgid "Selecting text macro"
-msgstr ""
+msgstr "Testresultaten selecteren"
 
 msgid ""
 "Enter the shell command with which to start\n"
@@ -8912,8 +9454,9 @@ msgstr ""
 msgid "The Borg"
 msgstr ""
 
+#, fuzzy
 msgid "Cannot merge Kirk into another patient."
-msgstr ""
+msgstr "Kan geen brief schrijven. Geen actieve patiënt."
 
 msgid ""
 "Are you positively sure you want to merge patient\n"
@@ -8931,7 +9474,7 @@ msgstr ""
 
 #, fuzzy
 msgid "Merging patients: confirmation"
-msgstr "Begin patiënten-contactmoment"
+msgstr "Begin ontmoeting met patiënt"
 
 msgid ""
 "The patient\n"
@@ -9159,17 +9702,21 @@ msgstr ""
 "%(pat)s wordt %(age)s op %(month)s %(day)s ! (vandaag is het %(month_now)s %"
 "(day_now)s)"
 
+#, fuzzy
 msgid "Cannot add to waiting list. Missing essential input."
-msgstr ""
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
 
+#, fuzzy
 msgid "Urgency"
-msgstr ""
+msgstr "Urgent"
 
+#, fuzzy
 msgid "Waiting time"
-msgstr ""
+msgstr "Naam bewerken"
 
+#, fuzzy
 msgid "Born"
-msgstr ""
+msgstr "of"
 
 msgid ""
 "%s patients are waiting.\n"
@@ -9177,19 +9724,22 @@ msgid ""
 "Doubleclick to activate (entry will stay in list)."
 msgstr ""
 
+#, fuzzy
 msgid "(%s patients)"
-msgstr ""
+msgstr "patiënt"
 
+#, fuzzy
 msgid "Cannot add waiting list entry: No patient selected."
-msgstr ""
+msgstr "Kan niet wisselen naar [%s]: geen patiënt geselecteerd"
 
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
 "U moet een waarde van de keuzelijst selecteren of een precieze overeenkomst."
 
+#, fuzzy
 msgid ""
 "The content is invalid. It must match the regular expression: [%%s]. <%s>"
-msgstr ""
+msgstr "De invoer is ongeldig. Het moet zijn volgens: [%s]"
 
 msgid "GNUmed: configuring [%s] (%s plugins)"
 msgstr "GNUmed: instellen [%s] (%s plugins)"
@@ -9303,37 +9853,48 @@ msgstr "Openbaar"
 msgid "Select a healthcare provider."
 msgstr "Selecteer een behandelaar."
 
+#, fuzzy
 msgid "Cannot delete the active workplace."
-msgstr ""
+msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
+#, fuzzy
 msgid "Deleting workplace ..."
-msgstr ""
+msgstr "Formuliersjabloon verwijderen."
 
+#, fuzzy
 msgid ""
 "Are you sure you want to delete this workplace ?\n"
 "\n"
 " \"%s\"\n"
 msgstr ""
+"Weet u zeker dat u deze episode wilt verwijderen?\n"
+"\n"
+" \"%s\"\n"
 
+#, fuzzy
 msgid "delete configuration, too"
-msgstr ""
+msgstr "Instellingen"
 
 msgid ""
 "Check this if you want to delete all configuration items\n"
 "for this workplace along with the workplace itself."
 msgstr ""
 
+#, fuzzy
 msgid "Yes, delete this workplace."
-msgstr ""
+msgstr "Ja, verwijder alle uitslagen."
 
+#, fuzzy
 msgid "Do NOT delete"
-msgstr ""
+msgstr "Verwijderen"
 
+#, fuzzy
 msgid "No, do NOT delete this workplace"
-msgstr ""
+msgstr "Nee, verwijder GEEN enkele uitslag."
 
+#, fuzzy
 msgid "delete workplace"
-msgstr ""
+msgstr "verwijder onderdeel"
 
 msgid "Enter a descriptive name for the new workplace:"
 msgstr "Geef een beschrijvende naam voor de nieuwe werkplek:"
@@ -9410,20 +9971,27 @@ msgid ""
 "You must deal with the reason for this message to remove it from your inbox."
 msgstr ""
 
+#, fuzzy
 msgid "Problem removing message from Inbox."
-msgstr ""
+msgstr "Kan bericht niet verwijderen van Postvak In."
 
+#, fuzzy
 msgid ""
 "Supposedly there are unreviewed documents\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
 msgstr ""
+"Schijnbaar zijn er onbeoordeelde documenten voor patiënt [%s]. Echter, ik "
+"kan deze patiënt niet vinden in de GNUmed database."
 
+#, fuzzy
 msgid ""
 "Supposedly there are unreviewed results\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
 msgstr ""
+"Schijnbaar zijn er onbeoordeelde uitslagen voor patiënt [%s]. Echter, ik kan "
+"deze patiënt niet vinden in de GNUmed database."
 
 msgid "No action configured for keyword [%s]."
 msgstr "Geen aktie ingesteld voor sleutelwoord [%s]."
@@ -9507,8 +10075,9 @@ msgstr "missend label"
 msgid "soap cat missing"
 msgstr "ABCP categorie missend"
 
+#, fuzzy
 msgid "Enter a descriptive name for this new problem:"
-msgstr ""
+msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
 
 msgid "Error saving progress note."
 msgstr "Fout bij het opslaan van voortgangsrapport."
@@ -9599,21 +10168,25 @@ msgstr "kan inloggen"
 msgid "can not login"
 msgstr "kan niet inloggen"
 
+#, fuzzy
 msgid "Activating GNUmed user."
-msgstr ""
+msgstr "GNUmed staflid activeren."
 
+#, fuzzy
 msgid "Deactivating GNUmed user."
-msgstr ""
+msgstr "GNUmed staflid deactiveren."
 
+#, fuzzy
 msgid "Modifying GNUmed user."
-msgstr ""
+msgstr "GNUmed staflid modificeren."
 
 msgid "Failed to save changes to GNUmed database user."
 msgstr ""
 "Niet gelukt om veranderingen naar de GNUmed database gebruiker op te slaan."
 
+#, fuzzy
 msgid "Modifying GNUmed user"
-msgstr ""
+msgstr "GNUmed staflid modificeren"
 
 msgid ""
 "\n"
@@ -9631,8 +10204,9 @@ msgstr ""
 "Wachtwoorden komen niet overeen. Geef de wachtwoorden opnieuw in om "
 "typefouten te voorkomen."
 
+#, fuzzy
 msgid "Adding GNUmed user"
-msgstr ""
+msgstr "GNUmed staflid toevoegen"
 
 msgid ""
 "Are you positively sure you want to create\n"
@@ -9641,9 +10215,11 @@ msgid ""
 "Think about the record access implications !"
 msgstr ""
 
+#, fuzzy
 msgid "Enlisting person as user."
-msgstr ""
+msgstr "Patiënt inschrijven als staf."
 
+#, fuzzy
 msgid ""
 "Cannot add GNUmed user.\n"
 "\n"
@@ -9651,6 +10227,11 @@ msgid ""
 "GNUmed user. There can only be one GNUmed user\n"
 "for each database account.\n"
 msgstr ""
+"Kan GNUmed staflid niet toevoegen.\n"
+"\n"
+"Het databaseaccount [%s] is al toegewezen aan\n"
+"een staflid. Er kan maar een staflid zijn per\n"
+"databaseaccount.\n"
 
 msgid "Caveat"
 msgstr "Caveat"
@@ -9774,8 +10355,9 @@ msgstr "Allergieën"
 msgid "Cardiac Devices"
 msgstr ""
 
+#, fuzzy
 msgid "Show &cardiac devices"
-msgstr ""
+msgstr "Toon bewaarde documenten"
 
 msgid "Type of entered value is not compatible with type expected."
 msgstr "Soort waarde dat is ingegeven is niet compatibel."
@@ -9955,8 +10537,9 @@ msgstr "Direct importeren van Grid"
 msgid "Pre-formatted reports"
 msgstr "Voor-gevormde rapporten"
 
+#, fuzzy
 msgid "Medication"
-msgstr ""
+msgstr "Indicatie"
 
 msgid "Current &medication"
 msgstr "Huidige &medicatie"
@@ -9964,8 +10547,9 @@ msgstr "Huidige &medicatie"
 msgid "Reports"
 msgstr "Rapportages"
 
+#, fuzzy
 msgid "&Report Generator"
-msgstr ""
+msgstr "Rapportgenerator"
 
 msgid "No matching drug found."
 msgstr "Geen overeenkomend medicijn gevonden."
@@ -10032,14 +10616,16 @@ msgstr ""
 msgid "EMR journal"
 msgstr "EMD journaal"
 
+#, fuzzy
 msgid "Chronological &journal"
-msgstr ""
+msgstr "chronologisch journaal"
 
 msgid "Appointments"
 msgstr "Afspraken"
 
+#, fuzzy
 msgid "&Appointments"
-msgstr ""
+msgstr "Afspraken"
 
 msgid "lab journal"
 msgstr "laboratoriumjournaal"
@@ -10068,11 +10654,13 @@ msgstr "voortgangsrapport (sash)"
 msgid "progress notes"
 msgstr "voortgangsrapport"
 
+#, fuzzy
 msgid "Demographics"
-msgstr ""
+msgstr "Persoonsgegevens bewerken"
 
+#, fuzzy
 msgid "&Demographics"
-msgstr ""
+msgstr "Persoonsgegevens bewerken"
 
 msgid "Progress notes"
 msgstr "Voortgangsrapport"
@@ -10080,8 +10668,9 @@ msgstr "Voortgangsrapport"
 msgid "Inbox"
 msgstr "Postvak in"
 
+#, fuzzy
 msgid "Provider &inbox"
-msgstr ""
+msgstr "Provider Postvak In"
 
 msgid "Clinical"
 msgstr "Klinisch"
@@ -10104,7 +10693,7 @@ msgstr "Document bijvoegen"
 
 #, fuzzy
 msgid "&Attach documents"
-msgstr " %s documenten\n"
+msgstr "Document bijvoegen"
 
 #, fuzzy
 msgid "&Documents review"
@@ -10125,16 +10714,18 @@ msgstr ""
 
 #, fuzzy
 msgid "Field name"
-msgstr "achternaam"
+msgstr "Bestandsnaam"
 
+#, fuzzy
 msgid "Interpreted content"
-msgstr ""
+msgstr "veldinhoud"
 
 msgid "xDT field ID"
 msgstr ""
 
+#, fuzzy
 msgid "Raw content"
-msgstr ""
+msgstr "context"
 
 msgid "Choose an xDT file"
 msgstr ""
@@ -10169,8 +10760,9 @@ msgstr "XDT veld inhoud"
 msgid "xDT viewer"
 msgstr "xDT viewer"
 
+#, fuzzy
 msgid "&xDT viewer"
-msgstr ""
+msgstr "xDT viewer"
 
 msgid "Opening xDT file"
 msgstr "openen van xDT bestand"
@@ -10366,21 +10958,29 @@ msgstr "Hoeveelheid"
 msgid "First Date"
 msgstr "Eerste Datum"
 
-#, fuzzy
-#~ msgid "View encounter list"
-#~ msgstr "%s: contactmoment (%s)"
-
 #~ msgid "undisclosed allergic state"
-#~ msgstr "Allergiestatus: toegang geweigerd"
+#~ msgstr "allergiestatus niet openbaar gemaakt"
+
+#~ msgid "dummy-no-need-to-translate"
+#~ msgstr "dummy-hoeft-niet-vertaald-te-worden"
 
 #~ msgid "soap_ADMIN"
 #~ msgstr "soap_ADMIN"
+
+#~ msgid "no descriptions available"
+#~ msgstr "geen beschrijvingen beschikbaar"
 
 #~ msgid "abnormal"
 #~ msgstr "abnormaal"
 
 #~ msgid "normal"
 #~ msgstr "normaal"
+
+#~ msgid "Active health issue"
+#~ msgstr "Huidige gezondheidsprobleem"
+
+#~ msgid "Inactive health issue"
+#~ msgstr "Inactief gezondheidsprobleem"
 
 #~ msgid ""
 #~ "%s \"%s\"\n"
@@ -10405,10 +11005,341 @@ msgstr "Eerste Datum"
 #~ msgstr ""
 #~ "%s%s episode(s)\n"
 #~ "\n"
-#~ "%sGeen contactmomenten gevonden voor dit gezondheidsprobleem.\n"
+#~ "%sGeen ontmoetingen gevonden voor dit gezondheidsprobleem.\n"
 
 #~ msgid "%s%s episode(s) between %s and %s\n"
 #~ msgstr "%s%s episode(s) tussen %s en %s\n"
 
 #~ msgid "Entered"
 #~ msgstr "Ingevoerd"
+
+#~ msgid ""
+#~ "To enlist this person as a staff member fill in the fields below and hit "
+#~ "[Enlist]."
+#~ msgstr ""
+#~ "Om deze persoon als een staflid toe te voegen moet u onderstaande velden "
+#~ "invullen en op [Inschrijven] drukken."
+
+#~ msgid "Short alias"
+#~ msgstr "Kort alias"
+
+#~ msgid "Database account"
+#~ msgstr "Databaseaccount"
+
+#~ msgid "Database password"
+#~ msgstr "Database wachtwoord"
+
+#~ msgid "&Generic Specific"
+#~ msgstr "&Algemeen Specifiek"
+
+#~ msgid "Undisclosed"
+#~ msgstr "Niet vrijgegeven"
+
+#~ msgid ""
+#~ "Undisclosed: The patient does not disclose whether or not an allergy "
+#~ "exists."
+#~ msgstr ""
+#~ "Niet vrijgegeven: De patiënt laat niet weten of deze allergie aanwezig is."
+
+#~ msgid ""
+#~ "None: It is believed the patient does not currently suffer from any "
+#~ "allergies."
+#~ msgstr "Geen: zover bekend heeft de patiënt op dit moment geen allergiën."
+
+#~ msgid ""
+#~ "Edit the details for the consultation below.\n"
+#~ "\n"
+#~ "The following problems were discussed:"
+#~ msgstr ""
+#~ "Geeft de details in voor het onderstaande consult.\n"
+#~ "\n"
+#~ "De volgende problemen werden besproken:"
+
+#~ msgid "Mark the items you want to work on with <SPACE>."
+#~ msgstr "Markeer de items waar u aan wilt werken met <SPACE>"
+
+#~ msgid "Save/Update"
+#~ msgstr "Opslaan/ Bijwerken"
+
+#~ msgid "Clear/Restore"
+#~ msgstr "Wis/Herstel"
+
+#~ msgid ""
+#~ "add -- or edit selected -- past history item (Foundational Health Issue)"
+#~ msgstr "voeg toe of wijzig geselecteerd Fundamenteel Gezondheidsprobleem"
+
+#~ msgid "Save or update the condition (past history item)."
+#~ msgstr "Bewaar of update de aandoening (vroeger geschiedenis item)."
+
+#~ msgid "Clear fields or restore them to the values in the database."
+#~ msgstr "Wis velden of herstel ze naar de waardes in de database."
+
+#~ msgid "Clinical context"
+#~ msgstr "Klinische context"
+
+#~ msgid "Patient-related messages:"
+#~ msgstr "Patientgerelateerde berichten:"
+
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please retry with proper\n"
+#~ "credentials or cancel !"
+#~ msgstr ""
+#~ "Niet in staat om verbinding te maken met database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Probeer opnieuw met de juiste \n"
+#~ "inloggegevens of annuleer!"
+
+#~ msgid "Backend"
+#~ msgstr "Backend"
+
+#~ msgid "%s EMR"
+#~ msgstr "%s EMD"
+
+#~ msgid "System type"
+#~ msgstr "Systeem type"
+
+#~ msgid "past medical history"
+#~ msgstr "medische geschiedenis"
+
+#~ msgid "Restore"
+#~ msgstr "Herstellen"
+
+#~ msgid "GNUmed: Starting up ..."
+#~ msgstr "GNUmed: Opstarten ..."
+
+#~ msgid "This field can only contain digits."
+#~ msgstr "Dit veld kan alleen cijfers bevatten."
+
+#~ msgid "This field cannot be empty."
+#~ msgstr "Dit veld mag niet leeg zijn."
+
+#~ msgid "Enslaved GNUmed [%s%s.%s@%s] %s"
+#~ msgstr "GNUmed in \"slave mode\" [%s%s.%s@%s] %s"
+
+#~ msgid "Patient search ..."
+#~ msgstr "Patiënt zoeken ..."
+
+#~ msgid "IFAP command"
+#~ msgstr "IFAP commando"
+
+#~ msgid "&Staff ..."
+#~ msgstr "&Staf ..."
+
+#~ msgid "&Add staff member"
+#~ msgstr "&Staflid toevoegen"
+
+#~ msgid "Add a new staff member"
+#~ msgstr "Een nieuw staflid toevoegen"
+
+#~ msgid "&Edit staff list"
+#~ msgstr "&Lijst met stafleden bewerken"
+
+#~ msgid "Manage encounter (consultation) types."
+#~ msgstr "Organiseer ontmoeting (consult) typen."
+
+#~ msgid "Register a new patient with this practice"
+#~ msgstr "Schrijf nieuwe patiënt in voor deze praktijk"
+
+#~ msgid "Register new"
+#~ msgstr "Schrijf in nieuwe"
+
+#~ msgid "Show Summary"
+#~ msgstr "Toon samenvatting"
+
+#~ msgid "Show a summary of the EMR of the active patient"
+#~ msgstr "Toon een samenvatting van het EMD van de actieve patiënt"
+
+#~ msgid "&History taking ..."
+#~ msgstr "&Geschiedenis opnemen ..."
+
+#~ msgid ""
+#~ "Select current medication from drug database and save into progress notes."
+#~ msgstr ""
+#~ "Selecteer huidige medicatie van de geneesmiddelendatabase en bewaar in "
+#~ "voortgangsrapport."
+
+#~ msgid "Add &Measurement(s)"
+#~ msgstr "Voeg &Meting(en) toe"
+
+#~ msgid "Start \"ifap index PRAXIS\" %s drug browser (Windows/Wine, Germany)"
+#~ msgstr ""
+#~ "Start \"ifap index PRAXIS\" %s geneesmiddelenzoeker (Windows/Wine, "
+#~ "Duitsland)"
+
+#~ msgid ""
+#~ "Measurement details of most recent result:               \n"
+#~ " Date: %(clin_when)s\n"
+#~ " Type: \"%(name)s\" (%(code)s)\n"
+#~ " Result: %(val)s%(unit)s%(ind)s\n"
+#~ " Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+#~ " Reference group: %(ref_group)s\n"
+#~ " Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
+#~ " Doc: %(comment_doc)s\n"
+#~ " Lab: %(comment_lab)s\n"
+#~ " Episode: %(epi)s\n"
+#~ " Issue: %(issue)s\n"
+#~ " Material: %(material)s\n"
+#~ " Details: %(mat_detail)s\n"
+#~ "\n"
+#~ "Signed (%(sig_hand)s): %(reviewed)s\n"
+#~ " Last reviewer: %(reviewer)s\n"
+#~ "  Technically abnormal: %(abnormal)s\n"
+#~ "  Clinically relevant: %(relevant)s\n"
+#~ "  Comment: %(rev_comment)s\n"
+#~ " Responsible clinician: %(responsible_reviewer)s\n"
+#~ "\n"
+#~ "Test type details:\n"
+#~ " Grouped under \"%(name_unified)s\" (%(code_unified)s)  \n"
+#~ " Type comment: %(comment_type)s\n"
+#~ " Group comment: %(comment_type_unified)s\n"
+#~ "\n"
+#~ "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+#~ msgstr ""
+#~ "Details van meest recente meetresultaat:               \n"
+#~ " Datum: %(clin_when)s\n"
+#~ " Type: \"%(name)s\" (%(code)s)\n"
+#~ " Resultaat: %(val)s%(unit)s%(ind)s\n"
+#~ " Standard normaal bereik: %(norm_min_max)s%(norm_range)s\n"
+#~ " Referentiegroep: %(ref_group)s\n"
+#~ " Klinisch doelbereik: %(clin_min_max)s%(clin_range)s\n"
+#~ " Arts: %(comment_doc)s\n"
+#~ " Laboratorium: %(comment_lab)s\n"
+#~ " Episode: %(epi)s\n"
+#~ " Issue: %(issue)s\n"
+#~ " Materiaal: %(material)s\n"
+#~ " Details: %(mat_detail)s\n"
+#~ "\n"
+#~ "Ondertekend (%(sig_hand)s): %(reviewed)s\n"
+#~ " Laaste beoordelaar: %(reviewer)s\n"
+#~ "  Technisch abnormal: %(abnormal)s\n"
+#~ "  Klinisch relevant: %(relevant)s\n"
+#~ "  Commentaar: %(rev_comment)s\n"
+#~ " Verantwoordelijke behandelaar: %(responsible_reviewer)s\n"
+#~ "\n"
+#~ "Test type details:\n"
+#~ " Grouped under \"%(name_unified)s\" (%(code_unified)s)\n"
+#~ " Type commentaar: %(comment_type)s\n"
+#~ " Groep commentaar: %(comment_type_unified)s\n"
+#~ "\n"
+#~ "Revisies: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+
+#~ msgid "No document comment supplied. Add a comment for this document."
+#~ msgstr "Geen toelichting gegeven. Geef een toelichting voor dit document."
+
+#~ msgid "Export to disk"
+#~ msgstr "Exporteren naar disk"
+
+#~ msgid "no comment available"
+#~ msgstr "geen toelichting beschikbaar"
+
+#~ msgid "no reference ID found"
+#~ msgstr "geen referentie ID gevonden"
+
+#~ msgid ""
+#~ "\n"
+#~ "Select the plugins to load for the workplace \"%s\".\n"
+#~ "\n"
+#~ "Note that he plugins currently associated with\n"
+#~ "this workplace are preselected.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Selecteer de plugins die voor deze werkplek \"%s\"\n"
+#~ "geladen moeten worden.\n"
+#~ "\n"
+#~ "Merk op dat de plugins die op dit moment met deze\n"
+#~ "werkstation verbonden zijn reeds geselecteerd zijn.\n"
+
+#~ msgid ""
+#~ "\n"
+#~ "\t\tWelcome %(title)s %(lname)s !\n"
+#~ "\n"
+#~ "\tBelow find the new messages in your Inbox.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "\t\tWelkom %(title)s %(lname)s !\n"
+#~ "\n"
+#~ "\tHieronder vind u de nieuwe berichten in uw Postvak In.\n"
+
+#~ msgid ""
+#~ "Unknown message type:\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "Don't know what to do with it.\n"
+#~ "Leaving message in inbox."
+#~ msgstr ""
+#~ "Onbekend berichttentype:\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "Weet niet wat hiermee te doen.\n"
+#~ "Bericht blijft staan in Postvak In."
+
+#~ msgid "lock client"
+#~ msgstr "vergrendel frontend"
+
+#~ msgid "locks client and hides data"
+#~ msgstr "Frontend op slot en verberg gegevens"
+
+#~ msgid "tree view"
+#~ msgstr "boom tonenn"
+
+#~ msgid "EMR dump"
+#~ msgstr "EMD dump"
+
+#~ msgid "simple EMR text viewer"
+#~ msgstr "simpel EMD tekstviewer"
+
+#~ msgid "?button?"
+#~ msgstr "?knop?"
+
+#~ msgid "Load File"
+#~ msgstr "Bestand laden"
+
+#~ msgid "Back"
+#~ msgstr "Vorige"
+
+#~ msgid "Forward"
+#~ msgstr "Vooruit"
+
+#~ msgid "View Source"
+#~ msgstr "Broncode bekijken"
+
+#~ msgid "Guidelines"
+#~ msgstr "Richtlijnen"
+
+#~ msgid "&Guidelines"
+#~ msgstr "&Richtlijnen"
+
+#~ msgid "Patient details"
+#~ msgstr "Patiëntendetails"
+
+#~ msgid "&Progress notes editor"
+#~ msgstr "&Voortgangsrapport bewerker"
+
+#~ msgid "Service"
+#~ msgstr "Service"
+
+#~ msgid "Query"
+#~ msgstr "Zoekopdracht"
+
+#~ msgid "&Run query"
+#~ msgstr "&Geef zoekopdracht"
+
+#~ msgid "&Clear query"
+#~ msgstr "&Wis zoekopdracht"
+
+#~ msgid "Tables in database  /  Feedback"
+#~ msgstr "Tabellen in database / Terugkoppeling"
+
+#~ msgid "SQL Search"
+#~ msgstr "SQL Zoeken"
+
+#~ msgid "&SQL Search"
+#~ msgstr "&SQL Zoekopdracht"

@@ -23,6 +23,7 @@
 - new: systemwide/user-level optional shutdown scripts invoked from /usr/bin/gnumed
 - new: Centor/McIsaac-Score as keyword expansions
 - new: man pages for backup scripts
+- new: partial Catalan translation
 
 - improved: login dialag:
 	- hint about local DB on failure
@@ -47,9 +48,10 @@
 # rel-0-6-patches
 ------------------------------------------------
 
-	0.6.3
+	0.6.3 (unreleased)
 
 FIX: faulty tooltip on EMR tree items w/ no data to display
+FIX: exception on reusing person ID type w/o issuer
 
 	0.6.2
 
@@ -430,6 +432,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 
 NEW: translate some Dutch demographics
+FIX: Windows bootstrapping batch file
 
 ------------------------------------------------
 # gnumed_v12
