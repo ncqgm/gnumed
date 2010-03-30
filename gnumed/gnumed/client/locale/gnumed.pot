@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-03-29 16:13+CEST\n"
+"POT-Creation-Date: 2010-03-29 18:19+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1859,6 +1859,9 @@ msgstr ""
 msgid "&Next..."
 msgstr ""
 
+msgid "Lala !"
+msgstr ""
+
 msgid "GNUmed generic EditArea dialog"
 msgstr ""
 
@@ -1869,6 +1872,12 @@ msgid "Save data into database and clear fields for another value."
 msgstr ""
 
 msgid "Reset all fields to their previous values."
+msgstr ""
+
+msgid ""
+"Press me !\n"
+"\n"
+"(This will NOT endanger any data.)"
 msgstr ""
 
 msgid "Edit"
@@ -5039,6 +5048,16 @@ msgid "EMR text dump"
 msgstr ""
 
 msgid "Currently there is no active patient. Cannot retrieve EMR text."
+msgstr ""
+
+msgid ""
+"Today is your lucky day !\n"
+"\n"
+"You have won one year of GNUmed\n"
+"updates for free !\n"
+msgstr ""
+
+msgid "GNUmed Lottery"
 msgstr ""
 
 msgid "save entry into medical record"

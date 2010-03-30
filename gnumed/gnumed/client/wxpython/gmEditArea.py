@@ -8,7 +8,7 @@ __version__ = "$Revision: 1.135 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
-import logging
+import logging, datetime as pydt
 
 
 import wx
@@ -95,7 +95,6 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	def _refresh_as_new_from_existing(self):
 		pass
 	#----------------------------------------------------------------
-
 	"""
 	def __init__(self):
 		self.__mode = 'new'
@@ -183,6 +182,10 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	"""Dialog for parenting edit area panels with save/clear/next/cancel"""
 
+	_lucky_day = 1
+	_lucky_month = 4
+	_today = pydt.date.today()
+
 	def __init__(self, *args, **kwargs):
 
 		new_ea = kwargs['edit_area']
@@ -199,13 +202,20 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
+		if cGenericEditAreaDlg2._today.day != cGenericEditAreaDlg2._lucky_day:
+			self._BTN_lucky.Enable(False)
+			self._BTN_lucky.Hide()
+		else:
+			if cGenericEditAreaDlg2._today.month != cGenericEditAreaDlg2._lucky_month:
+				self._BTN_lucky.Enable(False)
+				self._BTN_lucky.Hide()
+
 		# replace dummy panel
 		old_ea = self._PNL_ea
 		ea_pnl_szr = old_ea.GetContainingSizer()
 		ea_pnl_parent = old_ea.GetParent()
 		ea_pnl_szr.Remove(old_ea)
 		del old_ea
-		#new_ea.Reparent(self)
 		new_ea.Reparent(ea_pnl_parent)
 		self._PNL_ea = new_ea
 		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
@@ -264,6 +274,16 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			self.Refresh()
 
 			self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_lucky_button_pressed(self, evt):
+		gmGuiHelpers.gm_show_info (
+			_(	'Today is your lucky day !\n'
+				'\n'
+				'You have won one year of GNUmed\n'
+				'updates for free !\n'
+			),
+			_('GNUmed Lottery')
+		)
 #====================================================================
 # DEPRECATED:
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
