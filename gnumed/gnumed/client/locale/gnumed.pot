@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-03-29 18:19+CEST\n"
+"POT-Creation-Date: 2010-03-30 16:15+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -246,6 +246,9 @@ msgstr ""
 msgid "D: Scientific diagnosis"
 msgstr ""
 
+msgid "%s: unknown diagnostic certainty classification"
+msgstr ""
+
 msgid "bilateral"
 msgstr ""
 
@@ -368,6 +371,9 @@ msgid "daylight savings time in effect"
 msgstr ""
 
 msgid "Documents:"
+msgstr ""
+
+msgid "error with placeholder [%s]"
 msgstr ""
 
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
@@ -4256,6 +4262,9 @@ msgstr ""
 msgid "Select the episode under which to file the document ..."
 msgstr ""
 
+msgid "Imported new document from [%s]."
+msgstr ""
+
 msgid "Enter a comment on the document."
 msgstr ""
 
@@ -4351,6 +4360,9 @@ msgid "Cannot accept new documents. No active patient."
 msgstr ""
 
 msgid "Extracting files from folder [%s] ..."
+msgstr ""
+
+msgid "part %s: %s"
 msgstr ""
 
 msgid "saving document"

@@ -442,10 +442,10 @@ class cOOoLetter(object):
 				val = handler[placeholder_instance.String]
 			except:
 				_log.exception(val)
-				val = _('error with placeholder [%s]' % placeholder_instance.String)
+				val = _('error with placeholder [%s]') % placeholder_instance.String
 
 			if val is None:
-				val = _('error with placeholder [%s]' % placeholder_instance.String)
+				val = _('error with placeholder [%s]') % placeholder_instance.String
 
 			placeholder_instance.String = val
 			placeholder_instance = self.ooo_doc.findNext(placeholder_instance.End, searcher)
@@ -640,10 +640,10 @@ class cLaTeXForm(cFormEngine):
 					val = data_source[placeholder]
 				except:
 					_log.exception(val)
-					val = _('error with placeholder [%s]' % placeholder)
+					val = _('error with placeholder [%s]') % placeholder
 
 				if val is None:
-					val = _('error with placeholder [%s]' % placeholder)
+					val = _('error with placeholder [%s]') % placeholder
 
 				line = line.replace(placeholder, val)
 

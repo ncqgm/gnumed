@@ -190,6 +190,7 @@ cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/cli
 
 # locale
 mkdir -p ./gnumed-client.$CLIENTREV/client/locale/
+cp -R ../../client/locale/ca.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/de.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/es.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/fr.po ./gnumed-client.$CLIENTREV/client/locale
@@ -201,6 +202,7 @@ cp -R ../../client/locale/pt_BR.po ./gnumed-client.$CLIENTREV/client/locale
 cp -R ../../client/locale/ru.po ./gnumed-client.$CLIENTREV/client/locale
 
 cd ../../client/locale/
+./create-gnumed_mo.sh ca
 ./create-gnumed_mo.sh de
 ./create-gnumed_mo.sh es
 ./create-gnumed_mo.sh fr

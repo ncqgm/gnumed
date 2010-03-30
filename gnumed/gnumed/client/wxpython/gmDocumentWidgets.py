@@ -140,7 +140,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 	if unlock_patient:
 		pat.locked = False
 
-	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].' % filename), beep = True)
+	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].') % filename, beep = True)
 
 	return doc
 #----------------------
@@ -685,7 +685,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(self.acquired_pages) > 0:
 			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
-				self._LBOX_doc_pages.Append(_('part %s: %s' % (i+1, fname)), fname)
+				self._LBOX_doc_pages.Append(_('part %s: %s') % (i+1, fname), fname)
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 		title = _('saving document')

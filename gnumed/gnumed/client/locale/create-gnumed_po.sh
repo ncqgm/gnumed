@@ -5,15 +5,15 @@
 # - first arg should be ISO language code
 
 
-BASE="../"							# where to look for files
-POTNAME="gnumed.pot"				# what to call the result
-LANGNAME="$1"						# what language are we working on
+BASE="../"											# where to look for files
+POTNAME="gnumed.pot"								# what to call the result
+LANGNAME="$1"										# what language are we working on
+AUXNAME="${LANGNAME}-additional-translations.po"	# more translations
 
 
 echo ""
-echo "Looking for translatable strings ..."
-echo " source: ${BASE}*.py"
-echo " target: ${POTNAME}"
+echo "Collecting translatable strings ..."
+echo "  source file definition: ${BASE}*.py"
 
 
 # create gnumed.pot
@@ -28,26 +28,33 @@ fi
 
 
 # is there an additional file ?
-if [ -f "${LANGNAME}-additional-translations.po" ]; then
-	AUX_PO="-C ${LANGNAME}-additional-translations.po"
+if [ -f "${AUXNAME}" ]; then
+	AUX_PO_ARG="-C ${AUXNAME}"
 else
-	AUX_PO=""
+	AUX_PO_ARG=""
 fi
 
 
 if [ -f "${LANGNAME}.po" ]; then
 	echo ""
-	echo "Merging strings with old <${LANGNAME}> translations ..."
+	echo "Merging translatable strings with existing translations for <${LANGNAME}> ..."
 	echo ""
-	echo " old translations:   ${LANGNAME}.po"
+	echo "    translatable strings: ${POTNAME}"
+	echo ""
+	echo "        old translations: ${LANGNAME}.po"
 	TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
 	rm -f tmp.pot
-	echo " old statistics:     ${TMP}"
-	echo ""
-	echo " references strings: ${AUX_PO}"
-	echo " current strings:    ${POTNAME}"
+	echo "              statistics: ${TMP}"
 
-	msgmerge -v -o gnumed-${LANGNAME}.po ${AUX_PO} ${LANGNAME}.po ${POTNAME} >> create-${LANGNAME}-po.log 2>&1
+	if [ -f "${AUXNAME}" ]; then
+		echo ""
+		echo " additional translations: ${AUXNAME}"
+		TMP=`msgfmt -v -c --statistics -o tmp.pot ${AUXNAME} 2>&1`
+		rm -f tmp.pot
+		echo "              statistics: ${TMP}"
+	fi
+
+	msgmerge -v -o gnumed-${LANGNAME}.po ${AUX_PO_ARG} ${LANGNAME}.po ${POTNAME} >> create-${LANGNAME}-po.log 2>&1
 	mv -vf gnumed-${LANGNAME}.po ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
 else
 	cp -vf ${POTNAME} ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
@@ -55,9 +62,8 @@ fi;
 
 
 echo ""
-echo "Saving merged translations ..."
-echo ""
-echo " file :   ${LANGNAME}.po"
+echo "  final translation file: ${LANGNAME}.po"
 TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
-echo " stats: ${TMP}"
+echo "              statistics: ${TMP}"
 rm -f tmp.pot
+echo ""

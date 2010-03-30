@@ -23,6 +23,7 @@
 - new: systemwide/user-level optional shutdown scripts invoked from /usr/bin/gnumed
 - new: Centor/McIsaac-Score as keyword expansions
 - new: man pages for backup scripts
+- new: partial Catalan translation
 
 - improved: login dialag:
 	- hint about local DB on failure
