@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
 from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg, gmMatchProvider
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
-from Gnumed.business import gmForms, gmMedDoc
+from Gnumed.business import gmForms, gmDocuments
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
@@ -1927,7 +1927,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 			aTitle = _('Deleting visual progress note')
 		)
 		if delete_it is True:
-			gmMedDoc.delete_document (
+			gmDocuments.delete_document (
 				document_id = doc['pk_doc'],
 				encounter_id = doc['pk_encounter']
 			)

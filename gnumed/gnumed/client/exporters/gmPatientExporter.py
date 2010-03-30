@@ -25,7 +25,7 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmExceptions, gmNull, gmPG2, gmTools
-from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord, gmClinNarrative
+from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmDemographicRecord, gmClinNarrative
 
 
 _log = logging.getLogger('gm.export')

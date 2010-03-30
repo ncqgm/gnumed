@@ -19,7 +19,7 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools, gmPG2, gmMatchProvider, gmDateTime, gmLog2
-from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
+from Gnumed.business import gmDocuments, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 
 _log = logging.getLogger('gm.person')
@@ -1085,7 +1085,7 @@ class cPatient(cIdentity):
 		except KeyError:
 			pass
 
-		self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
+		self.__db_cache['document folder'] = gmDocuments.cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['document folder']
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):

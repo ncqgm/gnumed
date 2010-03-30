@@ -17,7 +17,7 @@ import wx	#, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.business import gmPerson, gmDevices, gmMedDoc
+from Gnumed.business import gmPerson, gmDevices, gmDocuments
 from Gnumed.pycommon import gmDispatcher, gmMatchProvider
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
@@ -33,7 +33,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 
 		# check if report types exist in db, if not create them
 		self.__checkup_doc_type = u'cardiac device checkup report'
-		dtype = gmMedDoc.create_document_type(self.__checkup_doc_type)
+		dtype = gmDocuments.create_document_type(self.__checkup_doc_type)
 		# cannot reuse self.__checkup_doc_type here or else it wouldn't get translated
 		dtype.set_translation(_('cardiac device checkup report'))
 

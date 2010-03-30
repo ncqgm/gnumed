@@ -13,7 +13,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
-from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmSurgery
+from Gnumed.business import gmPerson, gmDocuments, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
@@ -125,7 +125,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 					pat.locked = False
 				return None
 
-	doc_type = gmMedDoc.create_document_type(document_type = document_type)
+	doc_type = gmDocuments.create_document_type(document_type = document_type)
 
 	docs_folder = pat.get_document_folder()
 	doc = docs_folder.add_document (
@@ -221,7 +221,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		self._LCTRL_doc_type.DeleteAllItems()
 
-		doc_types = gmMedDoc.get_document_types()
+		doc_types = gmDocuments.get_document_types()
 		pos = len(doc_types) + 1
 
 		for doc_type in doc_types:
@@ -293,14 +293,14 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 			)
 			return
 
-		gmMedDoc.delete_document_type(document_type = doc_type)
+		gmDocuments.delete_document_type(document_type = doc_type)
 
 		return
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		desc = self._TCTRL_type.GetValue().strip()
 		if desc != '':
-			doc_type = gmMedDoc.create_document_type(document_type = desc)		# does not create dupes
+			doc_type = gmDocuments.create_document_type(document_type = desc)		# does not create dupes
 			l10n_desc = self._TCTRL_l10n_type.GetValue().strip()
 			if (l10n_desc != '') and (l10n_desc != doc_type['l10n_type']):
 				doc_type.set_translation(translation = l10n_desc)
@@ -310,7 +310,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	def _on_reassign_button_pressed(self, event):
 
 		orig_type = self._LCTRL_doc_type.get_selected_item_data()
-		doc_types = gmMedDoc.get_document_types()
+		doc_types = gmDocuments.get_document_types()
 
 		new_type = gmListWidgets.get_choices_from_list (
 			parent = self,
@@ -334,7 +334,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 			return
 
 		wx.BeginBusyCursor()
-		gmMedDoc.reclassify_documents_by_type(original_type = orig_type, target_type = new_type)
+		gmDocuments.reclassify_documents_by_type(original_type = orig_type, target_type = new_type)
 		wx.EndBusyCursor()
 
 		return
@@ -368,7 +368,7 @@ u"""select * from ((
 	def GetData(self, can_create=False):
 		if self.data is None:
 			if can_create:
-				self.data = gmMedDoc.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
+				self.data = gmDocuments.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
 		return self.data
 #============================================================
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
@@ -379,16 +379,16 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		del kwds['part']
 		wxgReviewDocPartDlg.wxgReviewDocPartDlg.__init__(self, *args, **kwds)
 
-		if isinstance(part, gmMedDoc.cMedDocPart):
+		if isinstance(part, gmDocuments.cMedDocPart):
 			self.__part = part
 			self.__doc = self.__part.get_containing_document()
 			self.__reviewing_doc = False
-		elif isinstance(part, gmMedDoc.cMedDoc):
+		elif isinstance(part, gmDocuments.cMedDoc):
 			self.__doc = part
 			self.__part = self.__doc.get_parts()[0]
 			self.__reviewing_doc = True
 		else:
-			raise ValueError('<part> must be gmMedDoc.cMedDoc or gmMedDoc.cMedDocPart instance, got <%s>' % type(part))
+			raise ValueError('<part> must be gmDocuments.cMedDoc or gmDocuments.cMedDocPart instance, got <%s>' % type(part))
 
 		self.__init_ui_data()
 	#--------------------------------------------------------
@@ -964,7 +964,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# - date of generation
 		new_doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		# - external reference
-		ref = gmMedDoc.get_ext_ref()
+		ref = gmDocuments.get_ext_ref()
 		if ref is not None:
 			new_doc['ext_ref'] = ref
 		# - comment
@@ -1124,7 +1124,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		node = self.GetSelection()
 		node_data = self.GetPyData(node)
 
-		if not isinstance(node_data, gmMedDoc.cMedDocPart):
+		if not isinstance(node_data, gmDocuments.cMedDocPart):
 			return True
 
 		self.__display_part(part = node_data)
@@ -1394,7 +1394,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		item2 = self.GetPyData(node2)
 
 		# doc node
-		if isinstance(item1, gmMedDoc.cMedDoc):
+		if isinstance(item1, gmDocuments.cMedDoc):
 
 			date_field = 'clin_when'
 			#date_field = 'modified_when'
@@ -1454,7 +1454,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				return 1
 
 		# part node
-		if isinstance(item1, gmMedDoc.cMedDocPart):
+		if isinstance(item1, gmDocuments.cMedDocPart):
 			# compare sequence IDs (= "page" numbers)
 			# FIXME: wrong order ?
 			if item1['seq_idx'] < item2['seq_idx']:
@@ -1507,7 +1507,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return None
 
 		# expand/collapse documents on activation
-		if isinstance(node_data, gmMedDoc.cMedDoc):
+		if isinstance(node_data, gmDocuments.cMedDoc):
 			self.Toggle(node)
 			return True
 
@@ -1529,11 +1529,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return None
 
 		# documents
-		if isinstance(self.__curr_node_data, gmMedDoc.cMedDoc):
+		if isinstance(self.__curr_node_data, gmDocuments.cMedDoc):
 			self.__handle_doc_context()
 
 		# parts
-		if isinstance(self.__curr_node_data, gmMedDoc.cMedDocPart):
+		if isinstance(self.__curr_node_data, gmDocuments.cMedDocPart):
 			self.__handle_part_context()
 
 		del self.__curr_node_data
@@ -1954,7 +1954,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			curr_pat = gmPerson.gmCurrentPatient()
 			emr = curr_pat.get_emr()
 			enc = emr.active_encounter
-			gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
+			gmDocuments.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
 #============================================================
 # main
 #------------------------------------------------------------

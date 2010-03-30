@@ -23,7 +23,6 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmBusinessDBObject, gmPG2, gmTools
-from Gnumed.business import gmMedDoc
 
 
 _log = logging.getLogger('gm.business')
