@@ -18,7 +18,7 @@ import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrows
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
 from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N, gmDispatcher
 
-from Gnumed.business import gmMedDoc
+from Gnumed.business import gmDocuments
 
 #try:
 #	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -323,7 +323,7 @@ class gmApp:
     def doSomething(self):
 	msg = 'schema version is:' + gmPG2.get_schema_version() +'\n\n'
 	msg2 =''
-	for item in gmMedDoc.get_document_types():
+	for item in gmDocuments.get_document_types():
 	    msg2 = msg2 +'\n' + str(item)
 	msg = msg + msg2
 	return msg

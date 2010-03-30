@@ -19,7 +19,7 @@ import wx, wx.lib.imagebrowser
 
 # GNUmed
 from Gnumed.pycommon import gmDispatcher, gmTools
-from Gnumed.business import gmMedDoc, gmPerson
+from Gnumed.business import gmDocuments, gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 
 
@@ -129,13 +129,13 @@ class cPatientPicture(wx.StaticBitmap):
 	#-----------------------------------------------------------------
 	def __import_pic_into_db(self, fname=None):
 
-		docs = gmMedDoc.search_for_document(patient_id = self.__pat.ID, type_id = gmMedDoc.MUGSHOT)
+		docs = gmDocuments.search_for_document(patient_id = self.__pat.ID, type_id = gmDocuments.MUGSHOT)
 		if len(docs) == 0:
 			emr = self.__pat.get_emr()
 			epi = emr.add_episode(episode_name=_('Administration'))
 			enc = emr.active_encounter
-			doc = gmMedDoc.create_document (
-				document_type = gmMedDoc.MUGSHOT,
+			doc = gmDocuments.create_document (
+				document_type = gmDocuments.MUGSHOT,
 				episode = epi['pk_episode'],
 				encounter = enc['pk_encounter']
 			)
