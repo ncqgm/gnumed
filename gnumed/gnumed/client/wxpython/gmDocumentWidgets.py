@@ -1387,7 +1387,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		 1: 1 > 2
 		"""
 		# Windows can send bogus events so ignore that
-		if not (node1.IsOk() and node2.IsOk()):
+		if not node1.IsOk()
+			return 0
+		if not node2.IsOk():
 			return 0
 
 		item1 = self.GetPyData(node1)
