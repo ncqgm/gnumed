@@ -122,23 +122,51 @@ class cDocumentFolder:
 	#--------------------------------------------------------
 	def get_documents(self, doc_type=None, episodes=None, encounter=None):
 		"""Return list of documents."""
-		doc_ids = self.get_doc_list(doc_type=doc_type)
 
-		docs = []
-		for doc_id in doc_ids:
+		args = {
+			'pat': self.pk_patient,
+			'type': doc_type,
+			'epi': episodes,
+			'enc': encounter
+		}
+		where_parts = [u'pk_patient = %(pat)s']
+
+		if doc_type is not None:
 			try:
-				docs.append(cMedDoc(aPK_obj=doc_id))
-			except gmExceptions.ConstructorError:
-				_log.exception('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
-				continue
+				int(doc_type)
+				where_parts.append(u'pk_type = %(type)s')
+			except (TypeError, ValueError):
+				where_parts.append(u'pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
 
 		if episodes is not None:
-			docs = [ d for d in docs if d['pk_episode'] in episodes ]
+			where_parts.append(u'pk_episode = %(epi)s')
 
 		if encounter is not None:
-			docs = [ d for d in docs if d['pk_encounter'] == encounter ]
+			where_parts.append(u'pk_encounter = %(enc)s')
 
-		return docs
+		cmd = u"%s\nORDER BY clin_when" % (_sql_fetch_document_fields % u' AND '.join(where_parts))
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		return [ cMedDoc(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
+
+#		doc_ids = self.get_doc_list(doc_type=doc_type)
+#
+#		docs = []
+#		for doc_id in doc_ids:
+#			try:
+#				docs.append(cMedDoc(aPK_obj=doc_id))
+#			except gmExceptions.ConstructorError:
+#				_log.exception('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
+#				continue
+#
+#		if episodes is not None:
+#			docs = [ d for d in docs if d['pk_episode'] in episodes ]
+#
+#		if encounter is not None:
+#			docs = [ d for d in docs if d['pk_encounter'] == encounter ]
+#
+#		return docs
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None):
 		return create_document(document_type = document_type, encounter = encounter, episode = episode)
@@ -323,10 +351,12 @@ where
 
 		return True, ''
 #============================================================
+_sql_fetch_document_fields = u"select * from blobs.v_doc_med where %s"
+
 class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
 
-	_cmd_fetch_payload = u"""select * from blobs.v_doc_med where pk_doc=%s"""
+	_cmd_fetch_payload = _sql_fetch_document_fields % u"pk_doc = %s"
 	_cmds_store_payload = [
 		u"""update blobs.doc_med set
 				fk_type = %(pk_type)s,
@@ -697,23 +727,25 @@ if __name__ == '__main__':
 
 		return
 	#--------------------------------------------------------
+	def test_get_documents():
+		doc_folder = cDocumentFolder(aPKey=12)
+
+		#photo = doc_folder.get_latest_mugshot()
+		#print type(photo), photo
+
+		docs = doc_folder.get_documents()
+		for doc in docs:
+			print type(doc), doc
+	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	test_doc_types()
-	test_adding_doc_part()
+	#test_doc_types()
+	#test_adding_doc_part()
+	test_get_documents()
 
 #	print get_ext_ref()
-
-#	doc_folder = cDocumentFolder(aPKey=12)
-
-#	photo = doc_folder.get_latest_mugshot()
-#	print type(photo), photo
-
-#	docs = doc_folder.get_documents()
-#	for doc in docs:
-#		print type(doc), doc
 
 #============================================================
 
