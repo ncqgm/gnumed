@@ -37,7 +37,7 @@
 	- name::*::*
 - improved: various typos
 - improved: do not fail if unable to show part when adding documents
-- improved: cleaner display of documents in tree
+- improved: cleaner/faster display of documents in tree, and sorted, eventually !
 - improved: ARRIBA is now v2.0.4
 - improved: using Git for SCM now
 - improved: gnumed.py now directly under client/
