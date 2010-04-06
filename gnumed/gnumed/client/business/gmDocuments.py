@@ -126,7 +126,6 @@ class cDocumentFolder:
 		args = {
 			'pat': self.pk_patient,
 			'type': doc_type,
-			'epi': episodes,
 			'enc': encounter
 		}
 		where_parts = [u'pk_patient = %(pat)s']
@@ -138,8 +137,9 @@ class cDocumentFolder:
 			except (TypeError, ValueError):
 				where_parts.append(u'pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
 
-		if episodes is not None:
-			where_parts.append(u'pk_episode = %(epi)s')
+		if (episodes is not None) and (len(episodes) != 0):
+			where_parts.append(u'pk_episode IN %(epi)s')
+			args['epi'] = tuple(episodes)
 
 		if encounter is not None:
 			where_parts.append(u'pk_encounter = %(enc)s')
@@ -149,32 +149,16 @@ class cDocumentFolder:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		return [ cMedDoc(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
-
-#		doc_ids = self.get_doc_list(doc_type=doc_type)
-#
-#		docs = []
-#		for doc_id in doc_ids:
-#			try:
-#				docs.append(cMedDoc(aPK_obj=doc_id))
-#			except gmExceptions.ConstructorError:
-#				_log.exception('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
-#				continue
-#
-#		if episodes is not None:
-#			docs = [ d for d in docs if d['pk_episode'] in episodes ]
-#
-#		if encounter is not None:
-#			docs = [ d for d in docs if d['pk_encounter'] == encounter ]
-#
-#		return docs
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None):
 		return create_document(document_type = document_type, encounter = encounter, episode = episode)
 #============================================================
+_sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
+
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
 
-	_cmd_fetch_payload = u"""select * from blobs.v_obj4doc_no_data where pk_obj=%s"""
+	_cmd_fetch_payload = _sql_fetch_document_part_fields % u"pk_obj = %s"
 	_cmds_store_payload = [
 		u"""update blobs.doc_obj set
 				seq_idx = %(seq_idx)s,
@@ -378,6 +362,10 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		'pk_episode'
 	]
 	#--------------------------------------------------------
+	def refetch_payload(self, ignore_changes=False):
+		del self.__has_unreviewed_parts
+		return super(cMedDoc, self).refetch_payload(ignore_changes = ignore_changes)
+	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
 		"""Get document descriptions.
 
@@ -408,16 +396,9 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		return True
 	#--------------------------------------------------------
 	def get_parts(self):
-		cmd = u"select pk_obj from blobs.v_obj4doc_no_data where pk_doc=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		parts = []
-		for row in rows:
-			try:
-				parts.append(cMedDocPart(aPK_obj=row[0]))
-			except ConstructorError, msg:
-				_log.exception(msg)
-				continue
-		return parts
+		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
+		return [ cMedDocPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
 	#--------------------------------------------------------
 	def add_part(self, file=None):
 		"""Add a part to the document."""
@@ -489,9 +470,16 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		return fnames
 	#--------------------------------------------------------
 	def has_unreviewed_parts(self):
-		cmd = u"select exists(select 1 from blobs.v_obj4doc_no_data where pk_doc=%s and not reviewed)"
+		try:
+			return self.__has_unreviewed_parts
+		except AttributeError:
+			pass
+
+		cmd = u"SELECT EXISTS(SELECT 1 FROM blobs.v_obj4doc_no_data WHERE pk_doc = %s AND reviewed IS FALSE)"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		return rows[0][0]
+		self.__has_unreviewed_parts = rows[0][0]
+
+		return self.__has_unreviewed_parts
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# FIXME: this is probably inefficient
@@ -509,7 +497,6 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 				_log.error(str(data))
 				return False
 		return True
-
 #------------------------------------------------------------
 def create_document(document_type=None, encounter=None, episode=None):
 	"""Returns new document instance or raises an exception.
