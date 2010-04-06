@@ -339,21 +339,22 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		del procs
 
 		epis = self.get_episodes()
-		# documents
-		doc_folder = patient.get_document_folder()
-		docs = doc_folder.get_documents(episodes = [ e['pk_episode'] for e in epis ])
+		if len(epis) > 0:
+			# documents
+			doc_folder = patient.get_document_folder()
+			docs = doc_folder.get_documents(episodes = [ e['pk_episode'] for e in epis ])
 
-		if len(docs) > 0:
-			lines.append(u'')
-			lines.append(_('Documents: %s') % len(docs))
-		del docs
+			if len(docs) > 0:
+				lines.append(u'')
+				lines.append(_('Documents: %s') % len(docs))
+			del docs
 
-		# rest results
-		tests = emr.get_test_results_by_date(episodes = [ e['pk_episode'] for e in epis ])
-		if len(tests) > 0:
-			lines.append(u'')
-			lines.append(_('Measurements and Results: %s') % len(tests))
-		del tests
+			# test results
+			tests = emr.get_test_results_by_date(episodes = [ e['pk_episode'] for e in epis ])
+			if len(tests) > 0:
+				lines.append(u'')
+				lines.append(_('Measurements and Results: %s') % len(tests))
+			del tests
 
 		del epis
 
