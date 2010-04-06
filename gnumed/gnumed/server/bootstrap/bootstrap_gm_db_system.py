@@ -942,7 +942,7 @@ class database:
 				return False
 
 			try:
-				script.run(conn=self.conn)
+				script.run(conn = self.conn)
 			except:
 				print_msg("    ... failed (cannot run script [%s])" % import_script)
 				_log.exception('cannot run import script [%s]' % import_script)
@@ -1153,6 +1153,13 @@ def bootstrap_bundles():
 		print_msg('==> bootstrapping "%s" ...' % bundle_alias)
 		bundle = gmBundle(bundle_alias)
 		if not bundle.bootstrap():
+			return None
+	return True
+#--------------------------------------------------------------
+def import_data():
+	for db_key in _bootstrapped_dbs.keys():
+		db = _bootstrapped_dbs[db_key]
+		if not db.import_data():
 			return None
 	return True
 #--------------------------------------------------------------
@@ -1370,6 +1377,10 @@ def handle_cfg():
 
 	if not bootstrap_notifications():
 		exit_with_msg("Cannot bootstrap notification tables.")
+
+	if not import_data():
+		exit_with_msg("Bootstrapping failed: unable to import data")
+
 #==================================================================
 def main():
 
@@ -1426,8 +1437,8 @@ def main():
 	if not db.check_data_plausibility():
 		exit_with_msg("Bootstrapping failed: plausibility checks inconsistent")
 
-	if not db.import_data():
-		exit_with_msg("Bootstrapping failed: unable to import data")
+#	if not db.import_data():
+#		exit_with_msg("Bootstrapping failed: unable to import data")
 
 	db.check_holy_auth_line()
 
