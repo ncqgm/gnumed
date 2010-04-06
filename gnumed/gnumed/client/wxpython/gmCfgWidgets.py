@@ -154,6 +154,9 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 		default = default_value
 	)
 
+	if current_value is not None:
+		current_value = u'%s' % current_value
+
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 

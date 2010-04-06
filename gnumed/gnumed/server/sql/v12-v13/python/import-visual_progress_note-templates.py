@@ -124,7 +124,6 @@ def run(conn=None):
 		)
 
 	conn.commit()
-	conn.close()
 
 	return True
 #==============================================================

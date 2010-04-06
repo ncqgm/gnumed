@@ -1289,6 +1289,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		curr_pat = gmPerson.gmCurrentPatient()
 		docs_folder = curr_pat.get_document_folder()
 		docs = docs_folder.get_documents()
+
 		if docs is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error searching documents.'),
@@ -1322,11 +1323,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				if not intermediate_nodes.has_key(doc['episode']):
-					intermediate_nodes[doc['episode']] = self.AppendItem(parent = self.root, text = doc['episode'])
-					self.SetItemBold(intermediate_nodes[doc['episode']], bold = True)
-					self.SetPyData(intermediate_nodes[doc['episode']], None)
-				parent = intermediate_nodes[doc['episode']]
+				lbl = doc['episode']				# it'd be nice to also show the issue but we don't have that
+				if not intermediate_nodes.has_key(lbl):
+					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
+					self.SetItemBold(intermediate_nodes[lbl], bold = True)
+					self.SetPyData(intermediate_nodes[lbl], None)
+				parent = intermediate_nodes[lbl]
 			elif self.__sort_mode == 'type':
 				if not intermediate_nodes.has_key(doc['l10n_type']):
 					intermediate_nodes[doc['l10n_type']] = self.AppendItem(parent = self.root, text = doc['l10n_type'])
@@ -1377,6 +1379,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				self.Expand(intermediate_nodes[key])
 
 		wx.EndBusyCursor()
+
 		return True
 	#------------------------------------------------------------------------
 	def OnCompareItems (self, node1=None, node2=None):
@@ -1387,61 +1390,63 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		 1: 1 > 2
 		"""
 		# Windows can send bogus events so ignore that
-		if not node1.IsOk()
+		if not node1.IsOk():
+			_log.debug('no data on node 1')
 			return 0
 		if not node2.IsOk():
+			_log.debug('no data on node 2')
 			return 0
 
-		item1 = self.GetPyData(node1)
-		item2 = self.GetPyData(node2)
+		data1 = self.GetPyData(node1)
+		data2 = self.GetPyData(node2)
 
 		# doc node
-		if isinstance(item1, gmDocuments.cMedDoc):
+		if isinstance(data1, gmDocuments.cMedDoc):
 
 			date_field = 'clin_when'
 			#date_field = 'modified_when'
 
 			if self.__sort_mode == 'age':
 				# reverse sort by date
-				if item1[date_field] > item2[date_field]:
+				if data1[date_field] > data2[date_field]:
 					return -1
-				if item1[date_field] == item2[date_field]:
+				if data1[date_field] == data2[date_field]:
 					return 0
 				return 1
 
 			elif self.__sort_mode == 'episode':
-				if item1['episode'] < item2['episode']:
+				if data1['episode'] < data2['episode']:
 					return -1
-				if item1['episode'] == item2['episode']:
+				if data1['episode'] == data2['episode']:
 					# inner sort: reverse by date
-					if item1[date_field] > item2[date_field]:
+					if data1[date_field] > data2[date_field]:
 						return -1
-					if item1[date_field] == item2[date_field]:
+					if data1[date_field] == data2[date_field]:
 						return 0
 					return 1
 				return 1
 
 			elif self.__sort_mode == 'review':
 				# equality
-				if item1.has_unreviewed_parts() == item2.has_unreviewed_parts():
+				if data1.has_unreviewed_parts() == data2.has_unreviewed_parts():
 					# inner sort: reverse by date
-					if item1[date_field] > item2[date_field]:
+					if data1[date_field] > data2[date_field]:
 						return -1
-					if item1[date_field] == item2[date_field]:
+					if data1[date_field] == data2[date_field]:
 						return 0
 					return 1
-				if item1.has_unreviewed_parts():
+				if data1.has_unreviewed_parts():
 					return -1
 				return 1
 
 			elif self.__sort_mode == 'type':
-				if item1['l10n_type'] < item2['l10n_type']:
+				if data1['l10n_type'] < data2['l10n_type']:
 					return -1
-				if item1['l10n_type'] == item2['l10n_type']:
+				if data1['l10n_type'] == data2['l10n_type']:
 					# inner sort: reverse by date
-					if item1[date_field] > item2[date_field]:
+					if data1[date_field] > data2[date_field]:
 						return -1
-					if item1[date_field] == item2[date_field]:
+					if data1[date_field] == data2[date_field]:
 						return 0
 					return 1
 				return 1
@@ -1449,32 +1454,34 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			else:
 				_log.error('unknown document sort mode [%s], reverse-sorting by age', self.__sort_mode)
 				# reverse sort by date
-				if item1[date_field] > item2[date_field]:
+				if data1[date_field] > data2[date_field]:
 					return -1
-				if item1[date_field] == item2[date_field]:
+				if data1[date_field] == data2[date_field]:
 					return 0
 				return 1
 
 		# part node
-		if isinstance(item1, gmDocuments.cMedDocPart):
+		if isinstance(data1, gmDocuments.cMedDocPart):
 			# compare sequence IDs (= "page" numbers)
 			# FIXME: wrong order ?
-			if item1['seq_idx'] < item2['seq_idx']:
+			if data1['seq_idx'] < data2['seq_idx']:
 				return -1
-			if item1['seq_idx'] == item2['seq_idx']:
+			if data1['seq_idx'] == data2['seq_idx']:
 				return 0
 			return 1
 
 		# else sort alphabetically
-		if None in [item1, item2]:
-			if node1 < node2:
+		if None in [data1, data2]:
+			l1 = self.GetItemText(node1)
+			l2 = self.GetItemText(node2)
+			if l1 < l2:
 				return -1
-			if node1 == node2:
+			if l1 == l2:
 				return 0
 		else:
-			if item1 < item2:
+			if data1 < data2:
 				return -1
-			if item1 == item2:
+			if data1 == data2:
 				return 0
 		return 1
 	#------------------------------------------------------------------------
@@ -1545,7 +1552,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__curr_node_data.set_as_active_photograph()
 	#--------------------------------------------------------
 	def __display_curr_part(self, evt):
-		self.__display_part(part=self.__curr_node_data)
+		self.__display_part(part = self.__curr_node_data)
 	#--------------------------------------------------------
 	def __review_curr_part(self, evt):
 		self.__review_part(part = self.__curr_node_data)
@@ -1556,8 +1563,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	# internal API
 	#--------------------------------------------------------
 	def __sort_nodes(self, start_node=None):
+
 		if start_node is None:
-			start_node = self.root
+			start_node = self.GetRootItem()
 
 		# protect against empty tree where not even
 		# a root node exists
