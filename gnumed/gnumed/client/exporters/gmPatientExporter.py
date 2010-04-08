@@ -834,8 +834,7 @@ class cEmrExport:
                 doc['l10n_type'],
                 doc['comment'])
             )
-            parts = doc.get_parts()
-            for part in parts:
+            for part in doc.parts:
                 self.__target.write('\n         %s - %s' % (
                     part['seq_idx'],
                     part['obj_comment'])

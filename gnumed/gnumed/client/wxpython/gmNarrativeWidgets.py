@@ -1759,7 +1759,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 			self._PRW_comment.SetValue(u'')
 			return
 
-		parts = doc.get_parts()
+		parts = doc.parts
 		if len(parts) == 0:
 			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
 			return
@@ -1812,7 +1812,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 			self.show_image_and_metadata()
 			return
 
-		parts = doc.get_parts()
+		parts = doc.parts
 		if len(parts) == 0:
 			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
 			return

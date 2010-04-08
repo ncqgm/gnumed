@@ -395,10 +395,12 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'doc': self.pk_obj, 'desc': pk}}])
 		return True
 	#--------------------------------------------------------
-	def get_parts(self):
+	def _get_parts(self):
 		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
 		return [ cMedDocPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
+
+	parts = property(_get_parts, lambda x:x)
 	#--------------------------------------------------------
 	def add_part(self, file=None):
 		"""Add a part to the document."""
@@ -458,7 +460,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def export_parts_to_files(self, export_dir=None, chunksize=0):
 		fnames = []
-		for part in self.get_parts():
+		for part in self.parts:
 			# FIXME: add guess_extension_from_mimetype
 			fname = os.path.basename(gmTools.coalesce (
 				part['filename'],
@@ -469,27 +471,30 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			fnames.append(part.export_to_file(aChunkSize = chunksize, filename = fname))
 		return fnames
 	#--------------------------------------------------------
-	def has_unreviewed_parts(self):
+	def _get_has_unreviewed_parts(self):
 		try:
 			return self.__has_unreviewed_parts
 		except AttributeError:
 			pass
 
-		cmd = u"SELECT EXISTS(SELECT 1 FROM blobs.v_obj4doc_no_data WHERE pk_doc = %s AND reviewed IS FALSE)"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		cmd = u"SELECT EXISTS(SELECT 1 FROM blobs.v_obj4doc_no_data WHERE pk_doc = %(pk)s AND reviewed IS FALSE)"
+		args = {'pk': self.pk_obj}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		self.__has_unreviewed_parts = rows[0][0]
 
 		return self.__has_unreviewed_parts
+
+	has_unreviewed_parts = property(_get_has_unreviewed_parts, lambda x:x)
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# FIXME: this is probably inefficient
-		for part in self.get_parts():
+		for part in self.parts:
 			if not part.set_reviewed(technically_abnormal, clinically_relevant):
 				return False
 		return True
 	#--------------------------------------------------------
 	def set_primary_reviewer(self, reviewer=None):
-		for part in self.get_parts():
+		for part in self.parts:
 			part['pk_intended_reviewer'] = reviewer
 			success, data = part.save_payload()
 			if not success:
@@ -723,6 +728,7 @@ if __name__ == '__main__':
 		docs = doc_folder.get_documents()
 		for doc in docs:
 			print type(doc), doc
+			print doc.parts
 	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()

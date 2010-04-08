@@ -385,7 +385,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self.__reviewing_doc = False
 		elif isinstance(part, gmDocuments.cMedDoc):
 			self.__doc = part
-			self.__part = self.__doc.get_parts()[0]
+			self.__part = self.__doc.parts[0]
 			self.__reviewing_doc = True
 		else:
 			raise ValueError('<part> must be gmDocuments.cMedDoc or gmDocuments.cMedDocPart instance, got <%s>' % type(part))
@@ -1310,10 +1310,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		intermediate_nodes = {}
 		for doc in docs:
 
-			parts = doc.get_parts()
+			parts = doc.parts
 
 			label = _('%s%7s %s:%s (%s part(s)%s)') % (
-				gmTools.bool2subst(doc.has_unreviewed_parts(), gmTools.u_writing_hand, u'', u'?'),
+				gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
 				doc['clin_when'].strftime('%m/%Y'),
 				doc['l10n_type'][:26],
 				gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
@@ -1428,14 +1428,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			elif self.__sort_mode == 'review':
 				# equality
-				if data1.has_unreviewed_parts() == data2.has_unreviewed_parts():
+				if data1.has_unreviewed_parts == data2.has_unreviewed_parts:
 					# inner sort: reverse by date
 					if data1[date_field] > data2[date_field]:
 						return -1
 					if data1[date_field] == data2[date_field]:
 						return 0
 					return 1
-				if data1.has_unreviewed_parts():
+				if data1.has_unreviewed_parts:
 					return -1
 				return 1
 
