@@ -1,8 +1,6 @@
 """GNUmed form/letter handling widgets.
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.16 2010-01-09 18:30:10 ncq Exp $
 __version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -386,12 +384,29 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 	# event handlers
 	#--------------------------------------------------------
 	def _on_load_button_pressed(self, evt):
+
+		engine_abbrev = gmForms.form_engine_abbrevs[self._CH_engine.GetSelection()]
+
+		wildcards = []
+		try:
+			wildcards.append(u'%s (%s)|%s' % (
+				gmForms.form_engine_names[engine_abbrev],
+				gmForms.form_engine_template_wildcards[engine_abbrev],
+				gmForms.form_engine_template_wildcards[engine_abbrev]
+			))
+		except KeyError:
+			pass
+
+		wildcards.append(u"%s (*)|*" % _('all files'))
+		wildcards.append(u"%s (*.*)|*.*" % _('all files (Windows)'))
+
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _('Choose a form template file'),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
-			wildcard = "%s (*.ott)|*.ott|%s (*.tex)|*.tex|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('LaTeX templates'), _('all files'), _('all files (Win)')),
+#			wildcard = "%s (*.ott)|*.ott|%s (*.tex)|*.tex|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('LaTeX templates'), _('all files'), _('all files (Win)')),
+			wildcard = '|'.join(wildcards),
 			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
 		)
 		result = dlg.ShowModal()
