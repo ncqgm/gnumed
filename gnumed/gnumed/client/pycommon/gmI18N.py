@@ -48,8 +48,6 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.50 2010-02-02 13:51:50 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
 __version__ = "$Revision: 1.50 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -201,14 +199,16 @@ def __log_locale_settings(message=None):
 def _translate_protected(term):
 	"""This wraps _().
 
-	It protects against translation errors such as different number of %s.
+	It protects against translation errors such as a different number of "%s".
 	"""
 	translation = _translate_original(term)
 
 	if translation.count(u'%s') == term.count(u'%s'):
 		return translation
 
-	_log.error('mismatch in translation of [%s]' % term)
+	_log.error('count(%s) mismatch, returning untranslated string')
+	_log.error('original   : %s', term)
+	_log.error('translation: %s', translation)
 	return term
 #---------------------------------------------------------------------------
 # external API
@@ -428,226 +428,4 @@ if __name__ == "__main__":
 	# ********************************************************
 
 #=====================================================================
-# $Log: gmI18N.py,v $
-# Revision 1.50  2010-02-02 13:51:50  ncq
-# - improved logging and testing
-#
-# Revision 1.49  2010/01/31 16:37:21  ncq
-# slightly better logging
-#
-# Revision 1.48  2009/12/21 15:02:17  ncq
-# - fix typo
-#
-# Revision 1.47  2009/07/09 16:42:49  ncq
-# - honor prefer_local_catalog
-#
-# Revision 1.46  2009/04/13 10:34:17  ncq
-# - start preferring local catalogs when needed
-#
-# Revision 1.45  2009/03/10 14:19:08  ncq
-# - protect against translation errors
-#
-# Revision 1.44  2008/08/01 10:46:14  ncq
-# - add URL
-#
-# Revision 1.43  2008/06/11 19:11:26  ncq
-# - slight cleanup
-# - ignore - in encoding for comparison
-#
-# Revision 1.42  2008/06/09 15:28:00  ncq
-# - better logging
-#
-# Revision 1.41  2008/05/13 14:08:44  ncq
-# - get_encoding: log encoding mismatch only once
-#
-# Revision 1.40  2008/01/14 20:26:35  ncq
-# - cleanup
-#
-# Revision 1.39  2008/01/13 01:14:48  ncq
-# - remove *really* excessive logging
-#
-# Revision 1.38  2007/12/23 11:57:59  ncq
-# - better docs
-# - better get_encoding()
-#
-# Revision 1.37  2007/12/20 13:09:13  ncq
-# - improved docs and variable naming
-#
-# Revision 1.36  2007/12/12 16:18:31  ncq
-# - cleanup
-# - need to be careful about logging locale settings since
-#   they come in the active locale ...
-#
-# Revision 1.35  2007/12/11 15:36:18  ncq
-# - no more gmLog2.py importing
-#
-# Revision 1.34  2007/12/11 14:27:02  ncq
-# - use std logging
-#
-# Revision 1.33  2007/07/10 20:34:37  ncq
-# - in install_domain(): rename text_domain arg to domain
-#
-# Revision 1.32  2007/04/01 15:20:52  ncq
-# - add get_encoding()
-# - fix test suite
-#
-# Revision 1.31  2006/09/01 14:41:22  ncq
-# - always use UNICODE gettext
-#
-# Revision 1.30  2006/07/10 21:44:23  ncq
-# - slightly better logging
-#
-# Revision 1.29  2006/07/04 14:11:29  ncq
-# - downgrade some errors to warnings and show them once, only
-#
-# Revision 1.28  2006/07/01 13:12:14  ncq
-# - better logging
-#
-# Revision 1.27  2006/07/01 11:23:50  ncq
-# - one more hint added
-#
-# Revision 1.26  2006/07/01 09:42:30  ncq
-# - ever better logging and handling of encoding
-#
-# Revision 1.25  2006/06/30 14:15:39  ncq
-# - remove dependancy on gmCLI
-# - set unicode_flag, text_domain and language explicitely in install_domain()
-#
-# Revision 1.24  2006/06/26 21:35:57  ncq
-# - improved logging
-#
-# Revision 1.23  2006/06/20 09:37:33  ncq
-# - variable naming error
-#
-# Revision 1.22  2006/06/19 07:12:05  ncq
-# - getlocale() does not support LC_ALL
-#
-# Revision 1.21  2006/06/19 07:06:13  ncq
-# - arch linux cannot locale.get_locale(locale.LC_ALL)  :-(
-#
-# Revision 1.20  2006/06/17 12:36:40  ncq
-# - remove testing cruft
-#
-# Revision 1.19  2006/06/17 12:25:22  ncq
-# - for some extremly strange reason "AttributeError" is not accepted as
-#   an exception name in "except AttributeError:"
-#
-# Revision 1.18  2006/06/17 11:49:26  ncq
-# - make locale.LC_* robust against platform diffs
-#
-# Revision 1.17  2006/06/15 07:55:35  ncq
-# - ever better logging of affairs
-#
-# Revision 1.16  2006/06/14 15:53:17  ncq
-# - attempt setting Python string encoding if appears to not be set
-#
-# Revision 1.15  2006/06/13 20:34:40  ncq
-# - now has *explicit* activate_locale() and install_domain()
-# - much improved logging
-#
-# Revision 1.14  2006/06/12 21:41:46  ncq
-# - improved locale setting logging
-#
-# Revision 1.13  2005/10/30 15:50:01  ncq
-# - only try to activate user preferred locale if it does not appear
-#   to be activated yet, also catch one more exception to make failing
-#   locale stuff non-fatal
-#
-# Revision 1.12  2005/08/18 18:41:48  ncq
-# - Windows does not know proper i18n
-#
-# Revision 1.11  2005/08/18 18:30:57  ncq
-# - allow explicit setting of $LANG by --lang-gettext
-#
-# Revision 1.10  2005/08/18 18:10:52  ncq
-# - explicitely dump l10n related env vars as Windows
-#   is dumb and needs to be debugged
-#
-# Revision 1.9  2005/08/06 16:26:50  ncq
-# - read locale for messages from LC_MESSAGES, not LC_ALL
-#
-# Revision 1.8  2005/07/18 09:12:12  ncq
-# - make __install_domain more robust
-#
-# Revision 1.7  2005/04/24 15:48:47  ncq
-# - change unicode_flag default to 0
-# - add comment on proper fix involving sitecustomize.py
-#
-# Revision 1.6  2005/03/30 22:08:57  ncq
-# - properly handle 0/1 in --unicode-gettext
-#
-# Revision 1.5  2005/03/29 07:25:39  ncq
-# - improve docs
-# - add unicode CLI switch to toggle unicode gettext use
-# - use std lib locale modules to get system locale
-#
-# Revision 1.4  2004/06/26 23:06:00  ncq
-# - cleanup
-# - I checked it, no matter where we import (function-/class-/method-
-#   local or globally) it will always only be done once so we can
-#   get rid of the semaphore
-#
-# Revision 1.3  2004/06/25 12:29:13  ncq
-# - cleanup
-#
-# Revision 1.2  2004/06/25 07:11:15  ncq
-# - make gmI18N self-aware (eg. remember installing _())
-#   so we should be able to safely import gmI18N anywhere
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#
-# Revision 1.29  2003/11/17 10:56:36  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:39  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.28  2003/06/26 21:34:03  ncq
-# - fatal->verbose
-#
-# Revision 1.27  2003/04/25 08:48:47  ncq
-# - refactored, now also take into account different delimiters (see __split_locale*)
-#
-# Revision 1.26  2003/04/18 09:00:02  ncq
-# - assume en_EN for locale if none found
-#
-# Revision 1.25  2003/03/24 16:52:27  ncq
-# - calculate system locale levels at startup
-#
-# Revision 1.24  2003/02/05 21:27:05  ncq
-# - more aptly names a variable
-#
-# Revision 1.23  2003/02/01 02:42:46  ncq
-# - log -> _log to prevent namespace pollution on import
-#
-# Revision 1.22  2003/02/01 02:39:53  ncq
-# - get and remember user's locale
-#
-# Revision 1.21  2002/12/09 23:39:50  ncq
-# - only try standard message catalog locations on true POSIX systems
-#   as windows will choke on it
-#
-# Revision 1.20  2002/11/18 09:41:25  ncq
-# - removed magic #! interpreter incantation line to make Debian happy
-#
-# Revision 1.19  2002/11/17 20:09:10  ncq
-# - always display __doc__ when called standalone
-#
-# Revision 1.18  2002/09/26 13:16:52  ncq
-# - log version
-#
-# Revision 1.17  2002/09/23 02:23:16  ncq
-# - comment on why it fails on some version of Windows
-#
-# Revision 1.16  2002/09/22 18:38:58  ncq
-# - added big comment on gmTimeFormat
-#
-# Revision 1.15  2002/09/10 07:52:29  ncq
-# - increased log level of gmTimeFormat
-#
-# Revision 1.14  2002/09/08 15:57:42  ncq
-# - added log cvs keyword
-#
+
