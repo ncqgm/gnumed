@@ -39,7 +39,8 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
-from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools
+
+from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools, gmDateTime
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab, gmMedication
 
 
@@ -48,8 +49,21 @@ _log.debug(__version__)
 
 _me = None
 _here = None
-
+#============================================================
+# helper functions
+#------------------------------------------------------------
 _func_ask_user = None
+
+def set_func_ask_user(a_func = None):
+	if not callable(a_func):
+		_log.error('[%] not callable, not setting _func_ask_user', a_func)
+		return False
+
+	_log.debug('setting _func_ask_user to [%s]', a_func)
+
+	global _func_ask_user
+	_func_ask_user = a_func
+
 #============================================================
 class cClinicalRecord(object):
 
@@ -97,6 +111,9 @@ SELECT fk_encounter from
 		}
 
 		# load current or create new encounter
+		if _func_ask_user is None:
+			_log.error('[_func_ask_user] is None')
+			print "*** GNUmed [%s]: _func_ask_user is not set ***" % self.__class__.__name__
 		self.remove_empty_encounters()
 		self.__encounter = None
 		if not self.__initiate_active_encounter():
@@ -1457,11 +1474,11 @@ WHERE
 				raise ValueError('unsaved changes in active encounter, cannot switch to another one')
 
 		# set the currently active encounter and announce that change
+		if encounter['started'] == encounter['last_affirmed']:
+			encounter['last_affirmed'] = gmDateTime.pydt_now_here()		# this will trigger an "encounter_mod_db"
+			encounter.save()
 		self.__encounter = encounter
 		gmDispatcher.send(u'current_encounter_switched')
-
-		# this will trigger another signal "encounter_mod_db"
-		self.__encounter.set_active(staff_id = _me['pk_staff'])
 
 		return True
 
@@ -1469,12 +1486,16 @@ WHERE
 	active_encounter = property(_get_current_encounter, _set_current_encounter)
 	#------------------------------------------------------------------
 	def __initiate_active_encounter(self):
+
 		# 1) "very recent" encounter recorded ?
 		if self.__activate_very_recent_encounter():
 			return True
+
 		# 2) "fairly recent" encounter recorded ?
 		if self.__activate_fairly_recent_encounter():
 			return True
+
+		# 3) start a completely new encounter
 		self.start_new_encounter()
 		return True
 	#------------------------------------------------------------------
@@ -1990,13 +2011,6 @@ order by clin_when desc, pk_episode, unified_name"""
 			_log.error(str(data))
 			return None
 		return data
-#============================================================
-# convenience functions
-#------------------------------------------------------------
-def set_func_ask_user(a_func = None):
-	if a_func is not None:
-		global _func_ask_user
-		_func_ask_user = a_func
 #============================================================
 # main
 #------------------------------------------------------------

@@ -34,6 +34,11 @@ form_engine_names = {
 	u'I': 'Image editor'
 }
 
+form_engine_template_wildcards = {
+	u'O': u'*.o?t',
+	u'L': u'*.tex'
+}
+
 # is filled in further below after each engine is defined
 form_engines = {}
 
