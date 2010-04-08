@@ -363,7 +363,9 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False):
-		del self.__has_unreviewed_parts
+		try: del self.__has_unreviewed_parts
+		except AttributeError: pass
+
 		return super(cMedDoc, self).refetch_payload(ignore_changes = ignore_changes)
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
