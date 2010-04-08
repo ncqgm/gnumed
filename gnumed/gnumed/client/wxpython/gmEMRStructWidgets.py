@@ -552,7 +552,10 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	)
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
-
+	"""This is used as the callback when the EMR detects that the
+	   patient was here rather recently and wants to ask the
+	   provider whether to continue the recent encounter.
+	"""
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
