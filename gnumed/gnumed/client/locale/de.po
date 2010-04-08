@@ -6391,7 +6391,7 @@ msgid "Error printing document (%s)."
 msgstr "Fehler beim Drucken eines Dokuments (%s)."
 
 msgid "%s printed from template [%s - %s]"
-msgstr "%s gedruckt mittels Template [%s - %]"
+msgstr "%s gedruckt mittels Template [%s - %s]"
 
 msgid ""
 "Error exporting form template\n"
