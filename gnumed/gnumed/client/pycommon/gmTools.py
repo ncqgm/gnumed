@@ -2,8 +2,6 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.98 2010-01-17 19:47:10 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
 __version__ = "$Revision: 1.98 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -595,15 +593,16 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 
 	return filename
 #===========================================================================
-def import_module_from_directory(module_path=None, module_name=None):
+def import_module_from_directory(module_path=None, module_name=None, always_remove_path=False):
 	"""Import a module from any location."""
 
+	remove_path = always_remove_path or False
 	if module_path not in sys.path:
 		_log.info('appending to sys.path: [%s]' % module_path)
 		sys.path.append(module_path)
 		remove_path = True
-	else:
-		remove_path = False
+
+	_log.debug('will remove import path: %s', remove_path)
 
 	if module_name.endswith('.py'):
 		module_name = module_name[:-3]
@@ -612,12 +611,14 @@ def import_module_from_directory(module_path=None, module_name=None):
 		module = __import__(module_name)
 	except StandardError:
 		_log.exception('cannot __import__() module [%s] from [%s]' % (module_name, module_path))
-		sys.path.remove(module_path)
+		while module_path in sys.path:
+			sys.path.remove(module_path)
 		raise
 
 	_log.info('imported module [%s] as [%s]' % (module_name, module))
 	if remove_path:
-		sys.path.remove(module_path)
+		while module_path in sys.path:
+			sys.path.remove(module_path)
 
 	return module
 #===========================================================================

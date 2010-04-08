@@ -935,7 +935,7 @@ class database:
 
 		for import_script in import_scripts:
 			try:
-				script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
+				script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script, always_remove_path = True)
 			except ImportError:
 				print_msg("    ... failed (cannot load script [%s])" % import_script)
 				_log.error('cannot load data set import script [%s/%s]' % (script_base_dir, import_script))
@@ -947,6 +947,16 @@ class database:
 				print_msg("    ... failed (cannot run script [%s])" % import_script)
 				_log.exception('cannot run import script [%s]' % import_script)
 				return False
+
+			if import_script.endswith('.py'):
+				import_script = import_script[:-3]
+			import gc
+			try:
+				del sys.modules[import_script]
+				del script
+				gc.collect()
+			except:
+				_log.exception('cannot remove data import script module [%s], hoping for the best', import_script)
 
 		return True
 	#--------------------------------------------------------------
