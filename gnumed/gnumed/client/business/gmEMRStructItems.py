@@ -843,11 +843,13 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		relevant_fields = [
 			'pk_location',
 			'pk_type',
+			'pk_patient',
 			'reason_for_encounter',
 			'assessment_of_encounter'
 		]
 		for field in relevant_fields:
 			if self._payload[self._idx[field]] != another_object[field]:
+				_log.debug('mismatch on [%s]: "%s" vs. "%s"', field, self._payload[self._idx[field]], another_object[field])
 				return False
 
 		relevant_fields = [
@@ -858,12 +860,15 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			if self._payload[self._idx[field]] is None:
 				if another_object[field] is None:
 					continue
+				_log.debug('mismatch on [%s]: "%s" vs. "%s"', field, self._payload[self._idx[field]], another_object[field])
 				return False
 
 			if another_object[field] is None:
 				return False
 
-			if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M:%S %Z') != another_object[field].strftime('%Y-%m-%d %H:%M:%S %Z'):
+			#if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M:%S %Z') != another_object[field].strftime('%Y-%m-%d %H:%M:%S %Z'):
+			if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M') != another_object[field].strftime('%Y-%m-%d %H:%M'):
+				_log.debug('mismatch on [%s]: "%s" vs. "%s"', field, self._payload[self._idx[field]], another_object[field])
 				return False
 
 		return True
