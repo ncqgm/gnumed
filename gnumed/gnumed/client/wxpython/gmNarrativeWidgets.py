@@ -856,7 +856,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			'pk_type': self._PRW_encounter_type.GetData(),
 			'reason_for_encounter': gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u''),
 			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-			'pk_location': enc['pk_location']
+			'pk_location': enc['pk_location'],
+			'pk_patient': enc['pk_patient']
 		}
 
 		if self._PRW_encounter_start.GetData() is None:
@@ -869,7 +870,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		else:
 			data['last_affirmed'] = self._PRW_encounter_end.GetData().get_pydt()
 
-		return enc.same_payload(another_object = data)
+		return not enc.same_payload(another_object = data)
 	#--------------------------------------------------------
 	def __encounter_valid_for_save(self):
 
