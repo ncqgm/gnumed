@@ -6,6 +6,10 @@
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.1
+
+- improved: removed spurious printk() when switching encounters
+
 	0.7.0
 
 - new: manage diagnostic orgs
