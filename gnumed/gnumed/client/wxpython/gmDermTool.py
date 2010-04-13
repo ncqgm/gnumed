@@ -14,7 +14,6 @@ except ImportError:
 	from wxPython import wx
 
 # GNUmed modules
-import Gnumed.pycommon.gmGuiBroker as gmGuiBroker
 from Gnumed.pycommon import gmI18N
 
 #===================================================================
@@ -55,7 +54,6 @@ class DermToolDialog(wx.Dialog):
         # end wxGlade
         self.Bind(wx.EVT_CLOSE, self.close, self)
         self.Bind(wx.EVT_SIZE, self.bind_image, self.image)
-        self.gb = gmGuiBroker.GuiBroker ()
         self.diseases = []
         self.path = os.path.join (self.gb['resource dir'], 'data', 'derm')
         for l in file (os.path.join (self.path, 'INDEX')).readlines ():
