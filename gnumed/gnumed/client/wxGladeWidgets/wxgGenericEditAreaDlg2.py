@@ -35,8 +35,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgGenericEditAreaDlg2.__set_properties
         self.SetTitle(_("GNUmed generic EditArea dialog"))
-        self.SetSize((625, 450))
-        self.SetMinSize((600, 425))
+        self.SetMinSize((450, 300))
         self._PNL_ea.SetScrollRate(10, 10)
         self._BTN_save.SetToolTipString(_("Save the entered data into the database and close the dialog."))
         self._BTN_forward.SetToolTipString(_("Save data into database and clear fields for another value."))
@@ -65,6 +64,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         __szr_buttons.Add(self._BTN_lucky, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
         _szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 5)
         self.SetSizer(_szr_main)
+        _szr_main.Fit(self)
         self.Layout()
         self.Centre()
         # end wxGlade

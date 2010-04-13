@@ -105,11 +105,11 @@ def call_browser_on_measurement_type(measurement_type=None):
 		autoraise = True
 	)
 #----------------------------------------------------------------
-def edit_measurement(parent=None, measurement=None):
+def edit_measurement(parent=None, measurement=None, single_entry=False):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
 	ea.data = measurement
 	ea.mode = gmTools.coalesce(measurement, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(measurement, _('Adding new measurement'), _('Editing measurement')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -903,7 +903,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		if data is None:
 			return
 
-		edit_measurement(parent = self, measurement = data)
+		edit_measurement(parent = self, measurement = data, single_entry = True)
 	#------------------------------------------------------------
 #     def OnMouseMotionRowLabel(self, evt):
 #         x, y = self.CalcUnscrolledPosition(evt.GetPosition())

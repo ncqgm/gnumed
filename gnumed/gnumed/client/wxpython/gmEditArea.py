@@ -10,7 +10,6 @@ import logging, datetime as pydt
 
 
 import wx
-#import wx.lib.inspection
 
 
 from Gnumed.pycommon import gmDispatcher, gmExceptions
@@ -234,8 +233,6 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		self.Refresh()
 
 		self._PNL_ea.refresh()
-
-#		wx.lib.inspection.InspectionTool().Show()
 	#--------------------------------------------------------
 	def _adjust_clear_revert_buttons(self):
 		if self._PNL_ea.data is None:
