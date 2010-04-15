@@ -18,7 +18,8 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools, gmPG2, gmMatchProvider, gmDateTime, gmLog2
+from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools
+from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime, gmLog2
 from Gnumed.business import gmDocuments, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 
@@ -439,12 +440,10 @@ select exists (
 		if self._payload[self._idx['dob']] is None:
 			return _('** DOB unknown **')
 
-		tmp = self._payload[self._idx['dob']].strftime(format)
-
 		if encoding is None:
-			return tmp
+			encoding = gmI18N.get_encoding()
 
-		return tmp.decode(encoding)
+		return self._payload[self._idx['dob']].strftime(format).decode(encoding)
 	#--------------------------------------------------------
 	def get_description_gender(self):
 		return '%(sex)s%(title)s %(last)s, %(first)s%(nick)s' % {
