@@ -251,7 +251,8 @@ class gmPaths(gmBorg.cBorg):
 		self.__home_dir = None
 
 		# where the main script (the "binary") is installed
-		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '.'))
+		#self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '.'))
+		self.local_base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 		# the current working dir at the OS
 		self.working_dir = os.path.abspath(os.curdir)
