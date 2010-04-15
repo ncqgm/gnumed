@@ -475,7 +475,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		if state['last_confirmed'] is None:
 			confirmed = _('never')
 		else:
-			confirmed = state['last_confirmed'].strftime('%Y %B %d')
+			confirmed = state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
 		msg = _(u'%s, last confirmed %s\n') % (state.state_string, confirmed)
 		msg += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s\n') % state['modified_by'])
 		msg += u'\n'
