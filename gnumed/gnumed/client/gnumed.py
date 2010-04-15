@@ -398,7 +398,7 @@ def setup_cfg():
 	if explicit_fname is not None:
 		if _cfg.source_files['explicit'] is None:
 			_log.error('--conf-file argument does not exist')
-			sys.exit(missing_config_file % fname)
+			sys.exit(missing_cli_config_file % explicit_fname)
 
 	# any config file found at all ?
 	found_any_file = False

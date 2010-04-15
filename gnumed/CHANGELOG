@@ -8,6 +8,8 @@
 
 	0.7.1
 
+- FIX: exception when signalling invalid -conf-file=... value
+
 - improved: removed spurious printk() when switching encounters
 
 	0.7.0
