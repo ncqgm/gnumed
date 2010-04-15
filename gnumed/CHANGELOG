@@ -8,7 +8,8 @@
 
 	0.7.1
 
-- FIX: exception when signalling invalid -conf-file=... value
+- FIX: exception when signalling invalid -conf-file=... value [thanks to S.Reus]
+- FIX: some missing .decode()s on .strftime() [thanks to uy2qw from Ukraine]
 
 - improved: removed spurious printk() when switching encounters
 
