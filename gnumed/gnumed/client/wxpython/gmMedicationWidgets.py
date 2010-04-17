@@ -4,7 +4,7 @@
 __version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import logging, sys, os.path
+import logging, sys, os.path, webbrowser
 
 
 import wx, wx.grid
@@ -1261,6 +1261,22 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		drug_db.show_info_on_substance(substance = self.get_selected_data()[0])
 	#------------------------------------------------------------
+	def show_renal_insufficiency_info(self):
+
+		if len(self.__row_data) == 0:
+			return
+
+		sel_rows = self.get_selected_rows()
+
+		if len(sel_rows) != 1:
+			return
+
+		webbrowser.open (
+			url = gmMedication.drug2renal_insufficiency_url(search_term = self.get_selected_data()[0]),
+			new = False,
+			autoraise = True
+		)
+	#------------------------------------------------------------
 	def check_interactions(self):
 
 		if len(self.__row_data) == 0:
@@ -1610,6 +1626,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_allergy_button_pressed(self, event):
 		self._grid_substances.create_allergy_from_substance()
+	#--------------------------------------------------------
+	def _on_button_kidneys_pressed(self, event):
+		self._grid_substances.show_renal_insufficiency_info()
 #============================================================
 # main
 #------------------------------------------------------------

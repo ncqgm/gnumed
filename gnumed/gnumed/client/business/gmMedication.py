@@ -28,6 +28,45 @@ def _on_substance_intake_modified():
 gmDispatcher.connect(_on_substance_intake_modified, u'substance_intake_mod_db')
 
 #============================================================
+def drug2renal_insufficiency_url(search_term=None):
+
+	if search_term is None:
+		return u'http://www.dosing.de'
+
+	terms = []
+	names = []
+
+	if isinstance(search_term, cBrandedDrug):
+		#names.append(search_term['description'])
+		if search_term['atc_code'] is not None:
+			terms.append(search_term['atc_code'])
+
+	elif isinstance(search_term, cSubstanceIntakeEntry):
+		names.append(search_term['substance'])
+#		if search_term['brand'] is not None:
+#			names.append(search_term['brand'])
+		if search_term['atc_brand'] is not None:
+			terms.append(search_term['atc_brand'])
+		if search_term['atc_substance'] is not None:
+			terms.append(search_term['atc_substance'])
+
+	elif search_term is not None:
+		names.append(u'%s' % search_term)
+		terms.extend(gmATC.text2atc(text = u'%s' % search_term, fuzzy = True))
+
+	for name in names:
+		if name.endswith('e'):
+			terms.append(name[:-1])
+		else:
+			terms.append(name)
+
+	url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
+	url = url_template % u'+OR+'.join(terms)
+
+	_log.debug(u'renal insufficiency URL: %s', url)
+
+	return url
+#============================================================
 # this should be in gmCoding.py
 def create_data_source(long_name=None, short_name=None, version=None, source=None, language=None):
 
