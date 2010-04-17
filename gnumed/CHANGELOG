@@ -18,6 +18,7 @@ NEW: button to lookup drugs on www.dosing.de
 
 - FIX: exception when signalling invalid -conf-file=... value [thanks to S.Reus]
 - FIX: some missing .decode()s on .strftime() [thanks to uy2qw from Ukraine]
+- FIX: gnumed.py moved, thus .local_base_dir different, hence .system_app_data_dir incorrect [thanks to S.Reus]
 
 - improved: removed spurious printk() when switching encounters
 
