@@ -52,8 +52,9 @@ known_hooks = [
 	u'app_activated',
 	u'app_deactivated',
 
-	u'after_substance_intake_added',
-	u'after_test_result_added',
+	u'after_substance_intake_modified',
+	u'after_test_result_modified',
+	u'after_soap_modified',
 
 	u'after_new_doc_created',
 	u'before_print_doc',
