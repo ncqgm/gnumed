@@ -99,7 +99,7 @@ BEGIN
 				_generic_name,
 				''vaccine'',		-- this is rather arbitrary
 				True,
-				coalesce(_row.atcs_mono_indication[1], ''J07'')
+				coalesce(_row.atcs_single_indication[1], ''J07'')
 			)
 			returning pk
 			into _pk_brand;
