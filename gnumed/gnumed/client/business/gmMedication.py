@@ -37,14 +37,11 @@ def drug2renal_insufficiency_url(search_term=None):
 	names = []
 
 	if isinstance(search_term, cBrandedDrug):
-		#names.append(search_term['description'])
 		if search_term['atc_code'] is not None:
 			terms.append(search_term['atc_code'])
 
 	elif isinstance(search_term, cSubstanceIntakeEntry):
 		names.append(search_term['substance'])
-#		if search_term['brand'] is not None:
-#			names.append(search_term['brand'])
 		if search_term['atc_brand'] is not None:
 			terms.append(search_term['atc_brand'])
 		if search_term['atc_substance'] is not None:
@@ -315,10 +312,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		self.__create_gm2fd_file()
 		open(self.__fd2gm_filename, 'wb').close()
 
-		args = u'--exchange-in="%s" --exchange="%s"' % (
-			self.__gm2fd_filename,
-			self.__fd2gm_filename
-		)
+		args = u'--exchange-in="%s"' % (self.__gm2fd_filename)
 
 		cmd = r'%s %s' % (self.path_to_binary, args)
 
@@ -400,6 +394,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 <FreeDiams_In version="0.4.0">
 	<EMR name="GNUmed" uid="unused"/>
+	<OutFile value="%s" format="html_xml"/>
 	<Ui editmode="select-only" blockPatientDatas="1"/>
 	<Patient>
 		<Identity name="%s" surname="%s" uid="%s" dob="%s" gender="%s"/>
@@ -423,8 +418,11 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		<ATCAllergies value="ATC1;ATC2;ATC3"/>
 		<DrugsUidAllergies value="7655668;876769;656789"/>
 		<ICD10 value="J11.0;A22;Z23"/>
+
+		<OutFile value="...." format="xml html html_xml"/>
 -->
 """		% (
+			self.__f2gm_filename,
 			name['lastnames'], name['firstnames'], self.patient.ID, dob, cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
 			u'', u'',		# crea
 			u'', u'',		# weight
