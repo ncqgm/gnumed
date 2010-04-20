@@ -72,6 +72,13 @@ def get_vaccines(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 
 	return [ cVaccine(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
+#------------------------------------------------------------
+def regenerate_generic_vaccines():
+
+	cmd = u'select gm.create_generic_monovalent_vaccines()'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
+
+	return rows[0][0]
 #============================================================
 #============================================================
 #============================================================

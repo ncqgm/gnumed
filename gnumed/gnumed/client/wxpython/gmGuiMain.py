@@ -55,6 +55,7 @@ from Gnumed.pycommon import gmExceptions, gmShellAPI, gmTools, gmDateTime
 from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2
 
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
+from Gnumed.business import gmVaccination
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -442,6 +443,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('Vaccines'), _('Show known vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_vaccines, item)
+
+		item = menu_master_data.Append(-1, _('Create vaccines'), _('Re-create fake generic vaccines.'))
+		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
 
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
@@ -2298,6 +2302,11 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_vaccines(self, evt):
 		gmVaccWidgets.manage_vaccines(parent = self)
+	#----------------------------------------------
+	def __on_generate_vaccines(self, evt):
+		wx.BeginBusyCursor()
+		gmVaccination.regenerate_generic_vaccines()
+		wx.EndBusyCursor()
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
