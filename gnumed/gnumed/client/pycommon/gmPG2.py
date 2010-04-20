@@ -312,7 +312,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v13]: ", 'gnumed_v13')
+		login.database = __prompted_input("database [gnumed_v14]: ", 'gnumed_v14')
 		login.user = __prompted_input("user name: ", '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
