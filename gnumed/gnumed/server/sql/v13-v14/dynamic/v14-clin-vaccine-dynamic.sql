@@ -374,7 +374,10 @@ create view clin.v_vaccines as
 			as pk_brand,
 
 		rbd.fk_data_source
-			as pk_data_source
+			as pk_data_source,
+
+		clv.xmin
+			as xmin_vaccine
 
 	from
 		clin.vaccine clv

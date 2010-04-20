@@ -42,7 +42,7 @@ BEGIN
 					--, external_code_type
 				) values (
 					_row.trade_name || '' ('' || _row.short_name || '')'',
-					''oral vaccine'',			-- this is rather arbitrary
+					''vaccine (oral)'',			-- this is rather arbitrary
 					False,
 					''J07''
 				)
@@ -60,7 +60,7 @@ BEGIN
 					--, external_code_type
 				) values (
 					_row.trade_name || '' ('' || _row.short_name || '')'',
-					''injection (i.m.)'',		-- this is rather arbitrary
+					''vaccine (i.m.)'',		-- this is rather arbitrary
 					False,
 					''J07''
 				)
@@ -78,7 +78,7 @@ BEGIN
 					--, external_code_type
 				) values (
 					_row.trade_name || '' ('' || _row.short_name || '')'',
-					''injection (s.c.)'',		-- this is rather arbitrary
+					''vaccine (s.c.)'',		-- this is rather arbitrary
 					False,
 					''J07''
 				)
