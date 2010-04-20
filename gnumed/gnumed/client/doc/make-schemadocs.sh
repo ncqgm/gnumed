@@ -3,7 +3,7 @@
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-DB_LIST="gnumed_v12 gnumed_v13"
+DB_LIST="gnumed_v12 gnumed_v13 gnumed_v14"
 
 export PGUSER="gm-dbo"
 
