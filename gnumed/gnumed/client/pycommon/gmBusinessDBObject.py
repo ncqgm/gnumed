@@ -125,8 +125,6 @@ The solution is to use our own column for optimistic locking
 which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.60 2009-12-21 15:02:17 ncq Exp $
 __version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -179,6 +177,10 @@ class cBusinessDBObject(object):
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		"""Init business object.
+
+		Call from child classes:
+
+			super(cChildClass, self).__init__(aPK_obj = aPK_obj, row = row)
 		"""
 		# initialize those "too early" because checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
@@ -232,6 +234,11 @@ class cBusinessDBObject(object):
 			- idx: a dict mapping field names to position
 			- data: the field values in a list (as returned by
 			  cursor.fetchone() in the DB-API)
+
+		row = {'data': row, 'idx': idx, 'pk_field': 'the PK column name'}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
 		"""
 		try:
 			self._idx = row['idx']
@@ -444,6 +451,13 @@ class cBusinessDBObject(object):
 		return (True, None)
 #============================================================
 if __name__ == '__main__':
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
 	#--------------------------------------------------------
 	class cTestObj(cBusinessDBObject):
 		_cmd_fetch_payload = None
@@ -456,307 +470,18 @@ if __name__ == '__main__':
 		def set_something(self):
 			pass
 	#--------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
-		from Gnumed.pycommon import gmI18N
-		gmI18N.activate_locale()
-		gmI18N.install_domain()
-
-		data = {
-			'pk_field': 'bogus_pk',
-			'idx': {'bogus_pk': 0, 'bogus_field': 1},
-			'data': [-1, 'bogus_data']
-		}
-		obj = cTestObj(row=data)
-		#print obj['wrong_field']
-		obj['wrong_field'] = 1
+	data = {
+		'pk_field': 'bogus_pk',
+		'idx': {'bogus_pk': 0, 'bogus_field': 1},
+		'data': [-1, 'bogus_data']
+	}
+	obj = cTestObj(row=data)
+	#print obj['wrong_field']
+	obj['wrong_field'] = 1
 
 #============================================================
-# $Log: gmBusinessDBObject.py,v $
-# Revision 1.60  2009-12-21 15:02:17  ncq
-# - fix typo
-#
-# Revision 1.59  2009/11/30 15:06:50  ncq
-# - slightly improved __str__
-#
-# Revision 1.58  2009/11/28 18:27:50  ncq
-# - cleanup
-#
-# Revision 1.57  2009/09/13 18:27:38  ncq
-# - cleanup
-#
-# Revision 1.56  2009/04/13 10:37:41  ncq
-# - support same_payload
-# - support save around save_payload
-#
-# Revision 1.55  2009/02/18 13:44:32  ncq
-# - streamline exception handling in __init__
-#
-# Revision 1.54  2009/01/02 11:37:09  ncq
-# - teach refetch_payload to ignore changes on demand
-#
-# Revision 1.53  2008/12/26 22:33:57  ncq
-# - cleanup
-#
-# Revision 1.52  2008/12/25 16:53:18  ncq
-# - business object base class really should support properties
-#   so make it inherit from object
-#
-# Revision 1.51  2008/11/20 18:43:01  ncq
-# - better logger name
-#
-# Revision 1.50  2008/10/22 12:06:48  ncq
-# - more careful __str__ for early failure
-#
-# Revision 1.49  2008/10/12 15:39:49  ncq
-# - set up instance vars before testing for consts so if we fail they exist
-#
-# Revision 1.48  2007/12/12 16:17:15  ncq
-# - better logger names
-#
-# Revision 1.47  2007/12/11 14:17:18  ncq
-# - use stdlib logging
-#
-# Revision 1.46  2007/11/28 13:58:32  ncq
-# - hide one less exception
-#
-# Revision 1.45  2007/10/19 12:49:39  ncq
-# - much improved XMIN docs, TODO for XMIN removal
-#
-# Revision 1.44  2007/10/12 07:26:25  ncq
-# - somewhat improved docs
-#
-# Revision 1.43  2007/08/13 21:55:10  ncq
-# - fix logging statement
-#
-# Revision 1.42  2007/05/21 14:47:22  ncq
-# - no caching of get_*()ers anymore, but don't deprecate them eiter
-#
-# Revision 1.41  2007/05/19 23:12:28  ncq
-# - cleanup
-# - remove _subtable support
-#
-# Revision 1.40  2006/11/14 23:30:33  ncq
-# - fix var name
-#
-# Revision 1.39  2006/10/31 15:59:47  ncq
-# - we are dealing with gmPG2 now
-#
-# Revision 1.38  2006/10/23 13:22:07  ncq
-# - no conn pool no more
-#
-# Revision 1.37  2006/10/21 20:39:48  ncq
-# - a bunch of cleanup
-#
-# Revision 1.36  2006/10/09 11:42:16  ncq
-# - in refetch_payload() properly handle scalar vs complex self.pk_obj
-#
-# Revision 1.35  2006/10/08 14:26:16  ncq
-# - convert to use gmPG2
-# 	- subtable support may still be suffering fallout
-# - better docstrings
-# - drop _cmds_lock_rows_for_update
-# 	- must use xmin=... in UPDATE now
-# - drop self._service
-# - adjust test suite
-#
-# Revision 1.34  2006/07/19 20:27:03  ncq
-# - gmPyCompat.py is history
-#
-# Revision 1.33  2006/06/18 13:20:29  ncq
-# - cleanup, better logging
-#
-# Revision 1.32  2006/06/17 16:41:30  ncq
-# - only modify self._data if it actually changes
-# - don't close the connection if it was passed in
-#
-# Revision 1.31  2005/11/19 08:47:56  ihaywood
-# tiny bugfixes
-#
-# Revision 1.30  2005/10/19 09:12:00  ncq
-# - cleanup
-#
-# Revision 1.29  2005/10/15 18:17:06  ncq
-# - error detection in subtable support much improved
-#
-# Revision 1.28  2005/10/10 17:40:57  ncq
-# - slightly enhance Syans fixes on AttributeError
-#
-# Revision 1.27  2005/10/08 12:33:08  sjtan
-# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
-#
-# Revision 1.26  2005/10/04 11:39:58  sjtan
-# catch missing attribute error.
-#
-# Revision 1.25  2005/06/15 22:26:20  ncq
-# - CAVEAT regarding XMIN vs. savepoints
-#
-# Revision 1.24  2005/05/04 08:54:00  ncq
-# - improved __setitem__ handling
-# - add_to_subtable()/del_from_subtable() now set _is_modified appropriately
-# - some internal renaming for clarification
-#
-# Revision 1.23  2005/04/29 15:28:47  ncq
-# - one fix to del_from_subtable() as approved by Ian
-# - some internal renaming to clear things up
-#
-# Revision 1.22  2005/04/28 21:10:20  ncq
-# - improved _subtable docs
-# - avoid confusion:
-#   - add_subtable -> add_to_subtable
-#   - del_subtable -> del_from_subtable
-#
-# Revision 1.21  2005/04/18 19:19:15  ncq
-# - cleanup
-#
-# Revision 1.20  2005/04/14 18:58:59  cfmoro
-# Commented line to avoid hiding _subtables
-#
-# Revision 1.19  2005/04/11 17:55:10  ncq
-# - update self.original_payload in the right places
-#
-# Revision 1.18  2005/03/20 16:49:56  ncq
-# - improve concurrency error handling docs
-#
-# Revision 1.17  2005/03/14 14:31:17  ncq
-# - add support for self.original_payload such that we can make
-#   available all the information to the user when concurrency
-#   conflicts are detected
-# - init _subtables so child classes don't HAVE to have it
-#
-# Revision 1.16  2005/03/06 21:15:13  ihaywood
-# coment expanded on _subtables
-#
-# Revision 1.15  2005/03/06 14:44:02  ncq
-# - cleanup
-#
-# Revision 1.14  2005/03/06 08:17:02  ihaywood
-# forms: back to the old way, with support for LaTeX tables
-#
-# business objects now support generic linked tables, demographics
-# uses them to the same functionality as before (loading, no saving)
-# They may have no use outside of demographics, but saves much code already.
-#
-# Revision 1.13  2005/02/03 20:20:14  ncq
-# - really use class level static connection pool
-#
-# Revision 1.12  2005/02/01 10:16:07  ihaywood
-# refactoring of gmDemographicRecord and follow-on changes as discussed.
-#
-# gmTopPanel moves to gmHorstSpace
-# gmRichardSpace added -- example code at present, haven't even run it myself
-# (waiting on some icon .pngs from Richard)
-#
-# Revision 1.11  2005/01/31 12:56:55  ncq
-# - properly update xmin in save_payload()
-#
-# Revision 1.10  2005/01/31 06:25:35  ncq
-# - brown paper bag bug, I wonder how it ever worked:
-#   connections are gotten from an instance of the pool
-#
-# Revision 1.9  2005/01/19 06:52:24  ncq
-# - improved docstring
-#
-# Revision 1.8  2005/01/02 19:58:02  ncq
-# - remove _xmins_refetch_col_pos
-#
-# Revision 1.7  2005/01/02 16:16:52  ncq
-# - by Ian: improve XMIN update on save by using new commit() get_col_idx
-#
-# Revision 1.6  2004/12/20 16:46:55  ncq
-# - improve docs
-# - close last known concurrency issue (reget xmin values after save)
-#
-# Revision 1.5  2004/12/17 16:15:36  ncq
-# - add extension method result caching as suggested by Ian
-# - I maintain a bad feeling due to cache eviction policy being murky at best
-#
-# Revision 1.4  2004/11/03 22:30:35  ncq
-# - improved docs
-# - introduce class level SQL query _cmds_lock_rows_for_update
-# - rewrite save_payload() to use that via gmPG.run_commit2()
-# - report concurrency errors from save_payload()
-#
-# Revision 1.3  2004/10/27 12:13:37  ncq
-# - __init_from_row_data -> _init_from_row_data so we can override it
-# - more sanity checks
-#
-# Revision 1.2  2004/10/12 18:37:45  ncq
-# - Carlos added passing in possibly bulk-fetched row data w/o
-#   touching the database in __init__()
-# - note that some higher level things will be broken until all
-#   affected child classes are fixed
-# - however, note that child classes that don't overload __init__()
-#   are NOT affected and support no-DB init transparently
-# - changed docs accordingly
-# - this is the initial bulk-loader work that is hoped to gain
-#   quite some performance in some areas (think lab results)
-#
-# Revision 1.1  2004/10/11 19:05:41  ncq
-# - business object-in-db root class, used by cClinItem etc.
-#
-# Revision 1.17  2004/06/18 13:31:21  ncq
-# - return False from save_payload on failure to update
-#
-# Revision 1.16  2004/06/02 21:50:32  ncq
-# - much improved error logging in set/getitem()
-#
-# Revision 1.15  2004/06/02 12:51:47  ncq
-# - add exceptions tailored to cClinItem __set/getitem__()
-#   errors as per Syan's suggestion
-#
-# Revision 1.14  2004/05/22 08:09:10  ncq
-# - more in line w/ coding style
-# - _service will never change (or else it wouldn't
-#   be cCLINitem) but it's still good coding practice
-#   to put it into a class attribute
-#
-# Revision 1.13  2004/05/21 15:36:51  sjtan
-#
-# moved 'historica' into the class attribute SERVICE , in case gmClinItem can
-# be reused in other services.
-#
-# Revision 1.12  2004/05/12 14:28:53  ncq
-# - allow dict style pk definition in __init__ for multicolum primary keys (think views)
-# - self.pk -> self.pk_obj
-# - __init__(aPKey) -> __init__(aPK_obj)
-#
-# Revision 1.11  2004/05/08 22:13:11  ncq
-# - cleanup
-#
-# Revision 1.10  2004/05/08 17:27:21  ncq
-# - speed up __del__
-# - use NoSuchClinItemError
-#
-# Revision 1.9  2004/04/20 13:32:33  ncq
-# - improved __str__ output
-#
-# Revision 1.8  2004/04/19 12:41:30  ncq
-# - self-check in __del__
-#
-# Revision 1.7  2004/04/18 18:50:36  ncq
-# - override __init__() thusly removing the unholy _pre/post_init() business
-#
-# Revision 1.6  2004/04/18 17:51:28  ncq
-# - it's surely helpful to be able to say <item>.is_modified() and know the status...
-#
-# Revision 1.5  2004/04/16 12:46:35  ncq
-# - set is_modified=False after save_payload
-#
-# Revision 1.4  2004/04/16 00:00:59  ncq
-# - Carlos fixes
-# - save_payload should now work
-#
-# Revision 1.3  2004/04/12 22:53:19  ncq
-# - __init__ now handles arbitrary keyword args
-# - _pre_/_post_init()
-# - streamline
-# - must do _payload[self._idx[attribute]] since payload not a dict
-#
-# Revision 1.2  2004/04/11 11:24:00  ncq
-# - handle _is_modified
-# - protect against reload if modified
-#
-# Revision 1.1  2004/04/11 10:16:53  ncq
-# - first version
-#
+

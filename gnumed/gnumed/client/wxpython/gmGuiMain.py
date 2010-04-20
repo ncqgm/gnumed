@@ -58,10 +58,13 @@ from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructIt
 
 from Gnumed.exporters import gmPatientExporter
 
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets
-from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
-from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
-from Gnumed.wxpython import gmTimer, gmMeasurementWidgets, gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser
+from Gnumed.wxpython import gmDemographicsWidgets, gmEMRStructWidgets
+from Gnumed.wxpython import gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
+from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
+from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
+from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
+from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -435,7 +438,10 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
 
-		#menu_master_data.AppendSeparator()
+		menu_master_data.AppendSeparator()
+
+		item = menu_master_data.Append(-1, _('Vaccines'), _('Show known vaccines.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_vaccines, item)
 
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
@@ -2289,6 +2295,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
 		gmMedicationWidgets.update_atc_reference_data()
+	#----------------------------------------------
+	def __on_manage_vaccines(self, evt):
+		gmVaccWidgets.manage_vaccines(parent = self)
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.

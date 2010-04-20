@@ -1,29 +1,72 @@
-"""GnuMed immunisation/vaccination widgets.
+"""GNUmed immunisation/vaccination widgets.
 
 Modelled after Richard Terry's design document.
 
 copyright: authors
 """
 #======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.36 2008-10-22 12:21:58 ncq Exp $
 __version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, time
+import sys, time, logging
 
 
 import wx
 import mx.DateTime as mxDT
 
 
-from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmDispatcher, gmMatchProvider, gmTools
 from Gnumed.business import gmPerson, gmVaccination
-from Gnumed.pycommon import gmDispatcher, gmExceptions, gmMatchProvider
+from Gnumed.wxpython import gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
+from Gnumed.wxpython import gmEditArea, gmListWidgets
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+
+_log = logging.getLogger('gm.vaccination')
+_log.info(__version__)
+#======================================================================
+def manage_vaccines(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		vaccines = gmVaccination.get_vaccines(order_by = 'vaccine')
+
+		items = [ [
+			u'%s (#%s%s)' % (
+				v['vaccine'],
+				v['pk_brand'],
+				gmTools.bool2subst (
+					v['is_fake_vaccine'],
+					u', %s' % _('fake'),
+					u''
+				)
+			),
+			v['preparation'],
+			u'%s (%s)' % (v['route_abbreviation'], v['route_description']),
+			gmTools.bool2subst(v['is_live'], gmTools.u_checkmark_thin, u''),
+			gmTools.coalesce(v['atc_code'], u''),
+			u'%s%s' % (
+				gmTools.coalesce(v['min_age'], u'?'),
+				gmTools.coalesce(v['max_age'], u'?', u' - %s'),
+			),
+			v['comment']
+		] for v in vaccines ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(vaccines)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nThe vaccines currently known to GNUmed.\n'),
+		caption = _('Showing vaccines.'),
+		columns = [ u'Brand', _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
+
 #======================================================================
 class cVaccinationEditArea(gmEditArea.cEditArea2):
 	"""
@@ -542,136 +585,15 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(cImmunisationsPanel, -1)
 	app.MainLoop()
 #======================================================================
-# $Log: gmVaccWidgets.py,v $
-# Revision 1.36  2008-10-22 12:21:58  ncq
-# - use %x in strftime where appropriate
-#
-# Revision 1.35  2008/03/06 18:29:30  ncq
-# - standard lib logging only
-#
-# Revision 1.34  2008/01/30 14:03:42  ncq
-# - use signal names directly
-# - switch to std lib logging
-#
-# Revision 1.33  2007/08/28 14:18:13  ncq
-# - no more gm_statustext()
-#
-# Revision 1.32  2007/07/09 12:47:17  ncq
-# - cleanup
-#
-# Revision 1.31  2007/02/05 12:15:23  ncq
-# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
-#
-# Revision 1.30  2006/11/24 10:01:31  ncq
-# - gm_beep_statustext() -> gm_statustext()
-#
-# Revision 1.29  2006/10/25 07:46:44  ncq
-# - Format() -> strftime() since datetime.datetime does not have .Format()
-#
-# Revision 1.28  2006/10/25 07:24:08  ncq
-# - match provider _SQL2 does not need service name anymore
-#
-# Revision 1.27  2006/05/15 13:36:00  ncq
-# - signal cleanup:
-#   - activating_patient -> pre_patient_selection
-#   - patient_selected -> post_patient_selection
-#
-# Revision 1.26  2006/05/12 12:18:11  ncq
-# - whoami -> whereami cleanup
-# - use gmCurrentProvider()
-#
-# Revision 1.25  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.24  2005/12/29 21:54:35  ncq
-# - adjust to schema changes
-#
-# Revision 1.23  2005/10/21 09:27:11  ncq
-# - propagate new way of popup data saving
-#
-# Revision 1.22  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.21  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.20  2005/09/26 18:01:51  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.19  2005/09/26 04:30:33  ihaywood
-# allow problem to be passed to vaccs popup
-# use the same popup method as for cHealthIssue
-# get rid of the second set of OK/Cancel buttons
-#
-# Revision 1.18  2005/09/24 09:17:29  ncq
-# - some wx2.6 compatibility fixes
-#
-# Revision 1.17  2005/06/10 23:22:43  ncq
-# - SQL2 match provider now requires query *list*
-#
-# Revision 1.16  2005/04/20 22:23:36  ncq
-# - cNewVaccinationPopup
-#
-# Revision 1.15  2005/04/18 19:26:43  ncq
-# - inherit vaccinations edit area from cEditArea2
-#
-# Revision 1.14  2005/03/08 16:46:55  ncq
-# - add FIXME for virtual indication suggestion by Syan
-#
-# Revision 1.13  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.12  2004/12/15 22:14:21  ncq
-# - convert to new style edit area
-#
-# Revision 1.11  2004/10/27 12:16:54  ncq
-# - make wxNewId() call internal to classes so that
-#   "import <a class> from <us>" works properly
-# - cleanup, properly use helpers
-# - properly deal with save_payload/add_vaccination results
-# - rearrange middle panel to include active schedules
-#
-# Revision 1.10  2004/10/11 20:11:32  ncq
-# - cleanup
-# - attach vacc VOs directly to list items
-# - add editing (eg. adding) missing vaccination
-#
-# Revision 1.9  2004/10/01 11:50:45  ncq
-# - cleanup
-#
-# Revision 1.8  2004/09/18 13:55:28  ncq
-# - cleanup
-#
-# Revision 1.7  2004/09/13 19:19:41  ncq
-# - improved missing booster string
-#
-# Revision 1.6  2004/09/13 09:28:26  ncq
-# - improve strings
-#
-# Revision 1.5  2004/08/18 08:30:25  ncq
-# - what used to be v_vacc_regimes now is v_vacc_defs4reg
-#
-# Revision 1.4  2004/07/28 15:40:53  ncq
-# - convert to wx.EVT_PAINT framework
-#
-# Revision 1.3  2004/07/18 20:12:03  ncq
-# - vacc business object primary key is named pk_vaccination in view
-#
-# Revision 1.2  2004/07/17 21:11:47  ncq
-# - use gmTerryGuiParts
-#
-# Revision 1.1  2004/07/15 23:16:20  ncq
-# - refactor vaccinations GUI code into
-#   - gmVaccWidgets.py: layout manager independant widgets
-#   - gui/gmVaccinationsPlugins.py: Horst space notebook plugin
-#   - patient/gmPG_Immunisation.py: erstwhile Richard space patient plugin
-#
+
