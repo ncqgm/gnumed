@@ -37,14 +37,11 @@ def drug2renal_insufficiency_url(search_term=None):
 	names = []
 
 	if isinstance(search_term, cBrandedDrug):
-		#names.append(search_term['description'])
 		if search_term['atc_code'] is not None:
 			terms.append(search_term['atc_code'])
 
 	elif isinstance(search_term, cSubstanceIntakeEntry):
 		names.append(search_term['substance'])
-#		if search_term['brand'] is not None:
-#			names.append(search_term['brand'])
 		if search_term['atc_brand'] is not None:
 			terms.append(search_term['atc_brand'])
 		if search_term['atc_substance'] is not None:
