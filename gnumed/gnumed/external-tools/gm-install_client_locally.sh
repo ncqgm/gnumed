@@ -137,6 +137,8 @@ else
 	TARGET_BRANCH=`echo ${TARGET_VER} | cut -c 1-3`
 	DL_BASE_URL="${DL_BASE}/${TARGET_BRANCH}"
 fi
+
+# this will fail on localized "Desktop" names
 LAUNCHER=~/"Desktop/GNUmed ${TARGET_VER}"
 
 
