@@ -219,7 +219,7 @@ fi
 # check dependancies
 echo ""
 echo "Checking dependencies ..."
-cd gnumed-client.${TARGET_VER}/client/
+cd gnumed-client.${TARGET_VER}/external-tools/
 ./check-prerequisites.sh
 
 
