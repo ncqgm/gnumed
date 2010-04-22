@@ -25,7 +25,8 @@ fi
 LOG="--log-file=gm-from-vcs.log"
 CONF="--conf-file=gm-from-vcs.conf"
 # these options are useful for development and debugging:
-DEV_OPTS="--override-schema-check --skip-update-check --local-import --debug"
+#DEV_OPTS="--override-schema-check --skip-update-check --local-import --debug"
+DEV_OPTS="--local-import --debug"
 # --profile=gm-from-vcs.prof
 
 PSYCOPG_DEBUG="on"		# should actually be done within gnumed.py based on --debug
