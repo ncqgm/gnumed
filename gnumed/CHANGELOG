@@ -15,13 +15,17 @@ NEW: hook "after_soap_modified"
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.2
+
+FIX: don't use --override-schema-check in tarballed gm-from-vcs.sh [thanks to J.Jaarsveld]
+
 	0.7.1
 
-- FIX: exception when signalling invalid -conf-file=... value [thanks to S.Reus]
-- FIX: some missing .decode()s on .strftime() [thanks to uy2qw from Ukraine]
-- FIX: gnumed.py moved, thus .local_base_dir different, hence .system_app_data_dir incorrect [thanks to S.Reus]
+FIX: exception when signalling invalid -conf-file=... value [thanks to S.Reus]
+FIX: some missing .decode()s on .strftime() [thanks to uy2qw from Ukraine]
+FIX: gnumed.py moved, thus .local_base_dir different, hence .system_app_data_dir incorrect [thanks to S.Reus]
 
-- improved: removed spurious printk() when switching encounters
+improved: removed spurious printk() when switching encounters
 
 	0.7.0
 
