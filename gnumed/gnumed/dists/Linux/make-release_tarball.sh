@@ -130,6 +130,7 @@ cp -R ../../external-tools/gm-read_chipcard.sh ./gnumed-client.$CLIENTREV/extern
 cp -R ../../external-tools/gnumed-client-init_script.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-install_client_locally.sh ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/check-prerequisites.* ./gnumed-client.$CLIENTREV/external-tools/
 
 
 # client
@@ -143,7 +144,6 @@ cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../CHANGELOG ./gnumed-client.$CLIENTREV/client/
-cp -R ../../../check-prerequisites.* ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
 
 
