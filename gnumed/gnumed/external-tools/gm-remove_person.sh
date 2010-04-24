@@ -1,15 +1,12 @@
 #!/bin/bash
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-remove_person.sh,v $
-# $Id: gm-remove_person.sh,v 1.3 2010-02-02 13:49:05 ncq Exp $
-#
-# author: Karsten Hilbert
-# license: GPL v2
 #
 # This script can be used to remove a person
 # from a GNUmed database.
 #
+# author: Karsten Hilbert
+# license: GPL v2
 #==============================================================
 
 SQL_FILE="/tmp/gm-remove_person.sql"
@@ -21,7 +18,8 @@ SQL_FILE="/tmp/gm-remove_person.sql"
 
 TARGET_DB="$1"
 PERSON_PK="$2"
-END_TX="$3"
+END_TX="$3"			# set this to "COMMIT" to make the SQL script actually commit the changes
+
 if test -z ${PERSON_PK} ; then
 	echo "============================================================="
 	echo "usage: $0 <target database> <person PK>"
@@ -45,7 +43,6 @@ echo "" > $SQL_FILE
 (
 cat <<-EOF
 	-- GNUmed person removal script
-	-- \$Id: gm-remove_person.sh,v 1.3 2010-02-02 13:49:05 ncq Exp $
 
 	\set ON_ERROR_STOP 1
 	set default_transaction_read_only to off;
@@ -81,7 +78,7 @@ EOF
 
 echo ""
 echo "Are you sure you want to remove the person #${PERSON_PK}"
-echo "irrevocably from the database \"${TARGET_DB}\" ?"
+echo "*irrevocably* from the database \"${TARGET_DB}\" ?"
 echo ""
 read -e -p "Remove ? [yes / NO]:"
 if test "$REPLY" == "yes"; then
@@ -93,6 +90,9 @@ if test "$REPLY" == "yes"; then
 	if test $? -ne 0 ; then
 		echo "ERROR: failed to remove person."
 		echo "       see: ${LOG}"
+		echo ""
+		echo "-----------------------------------------------------"
+		cat ${SQL_FILE} >> ${LOG}
 		exit 1
 	fi
 fi
@@ -100,21 +100,3 @@ fi
 rm ${SQL_FILE}
 
 #==============================================================
-# $Log: gm-remove_person.sh,v $
-# Revision 1.3  2010-02-02 13:49:05  ncq
-# - make DB name example more generic
-#
-# Revision 1.2  2009/11/19 15:07:34  ncq
-# - bump db version
-#
-# Revision 1.1  2009/09/08 12:44:29  ncq
-# - relocated from elsewhere
-#
-# Revision 1.2  2009/08/08 10:37:38  ncq
-# - better docs
-#
-# Revision 1.1  2009/08/08 10:00:01  ncq
-# - new
-#
-# Revision 1.3  2008/12/17 22:00:45  ncq
-#

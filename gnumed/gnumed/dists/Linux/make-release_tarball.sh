@@ -173,6 +173,7 @@ cp -R ../../client/doc/man-pages/gnumed.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-print_doc.1 ./gnumed-client.$CLIENTREV/client/doc/gm-print_doc.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./gnumed-client.$CLIENTREV/client/doc/gm_ctl_client.1
 cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./gnumed-client.$CLIENTREV/client/doc/gm-install_arriba.8
+cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/server/doc/
 
 
 # etc
@@ -324,6 +325,8 @@ cp -R ../../client/doc/man-pages/gm-upgrade_server.8 ./gnumed-client.$CLIENTREV/
 cp -R ../../client/doc/man-pages/gm-fixup_server.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-backup_data.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-backup_database.8 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-adjust_db_settings.8 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/server/doc/
 
 
