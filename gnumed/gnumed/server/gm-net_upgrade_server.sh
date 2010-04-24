@@ -1,12 +1,9 @@
 #!/bin/bash
 
 # ============================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-net_upgrade_server.sh,v $
-# $Id: gm-net_upgrade_server.sh,v 1.3 2010-02-07 15:23:04 ncq Exp $
-# ============================================
 
-PREV_VER="11"
-NEXT_VER="12"
+PREV_VER="12"
+NEXT_VER="13"
 
 INSTALL_BASE=~/".gnumed/server-installation"
 DL_BASE="http://www.gnumed.de/downloads/server"
@@ -65,6 +62,7 @@ tar -xzf gnumed-server.latest.tgz
 BASEDIR=`ls -1 -d gnumed-server.*`
 mv -f gnumed-server.latest.tgz ${BASEDIR}-server.tgz
 
+
 # run bootstrapper
 cd ${INSTALL_BASE}/${BASEDIR}/server/bootstrap/
 echo ""
@@ -78,44 +76,3 @@ echo "You may need to enter your password now:"
 su -c "./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}"
 
 # ============================================
-# $Log: gm-net_upgrade_server.sh,v $
-# Revision 1.3  2010-02-07 15:23:04  ncq
-# - cd to the proper directory for bootstrapping
-#
-# Revision 1.2  2009/11/19 15:07:53  ncq
-# - bump db version
-#
-# Revision 1.1  2009/09/08 17:25:40  ncq
-# - relocated
-# - renamed to be more consistent
-# - adjusted to tarball name
-#
-# Revision 1.9  2009/09/01 22:40:56  ncq
-# - add self-upgrade
-# - cleanup
-#
-# Revision 1.8  2009/04/07 11:32:02  ncq
-# - deal with non-one-digit versions
-#
-# Revision 1.7  2009/03/18 14:32:57  ncq
-# - bump version
-#
-# Revision 1.6  2009/01/06 18:23:24  ncq
-# - sudo -> su
-#
-# Revision 1.5  2008/10/22 12:25:21  ncq
-# - lsb_release
-#
-# Revision 1.4  2008/08/01 10:38:25  ncq
-# - /bin/sh -> /bin/bash
-#
-# Revision 1.3  2008/01/05 20:42:32  ncq
-# - bump version
-#
-# Revision 1.2  2007/12/06 13:08:13  ncq
-# - support more upgrade-db.sh options
-#
-# Revision 1.1  2007/11/02 12:44:09  ncq
-# - first version to ease migration
-#
-#
