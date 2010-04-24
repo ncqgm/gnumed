@@ -285,7 +285,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			executable = self.path_to_binary,
 			stdout = subprocess.PIPE,
 			stderr = subprocess.PIPE,
-			close_fds = True,
+#			close_fds = True,					# Windows can't do that in conjunction with stdout/stderr = ... :-(
 			universal_newlines = True
 		)
 		data, errors = freediams.communicate()
