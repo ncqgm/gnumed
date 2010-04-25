@@ -18,7 +18,16 @@ SQL_FILE="/tmp/gm-remove_person.sql"
 
 TARGET_DB="$1"
 PERSON_PK="$2"
-END_TX="$3"			# set this to "COMMIT" to make the SQL script actually commit the changes
+
+# You will need to understand what this does
+# before exerting the power of setting it.
+#
+# You may want to start studying here:
+#
+#	http://en.wikipedia.org/wiki/Database_transaction
+#
+# Use the Source, Luke.
+END_TX="$3"
 
 if test -z ${PERSON_PK} ; then
 	echo "============================================================="
@@ -94,6 +103,15 @@ if test "$REPLY" == "yes"; then
 		echo "-----------------------------------------------------"
 		cat ${SQL_FILE} >> ${LOG}
 		exit 1
+	fi
+
+	if test "${END_TX}" != "commit"; then
+		echo ""
+		echo "This test seems fine. You should be good to go for real."
+		echo "Learn about END_TX from the source of this script at:"
+		echo ""
+		echo $0
+		echo ""
 	fi
 fi
 

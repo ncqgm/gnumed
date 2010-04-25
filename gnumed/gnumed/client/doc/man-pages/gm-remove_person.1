@@ -1,4 +1,4 @@
-.TH GM-REMOVE_PERSON 8 "2010 April 23th" "GNUmed server remove person from database"
+.TH GM-REMOVE_PERSON 1 "2010 April 23th" "Remove person from GNUmed DB"
 
 .SH NAME
 .B gm-remove_person
@@ -9,13 +9,15 @@
 .I <target database> <person PK> [END_TX]
 
 .I <target database>:
-a GNUmed database (such as "gnumed_VERSION")
+a GNUmed database (such as "gnumed_v14")
 
 .I <person PK>:
 primary key of a person in that database
 
 .I <END_TX>:
-set to "COMMIT" if you REALLY know what you are doing (read the source of gm-remove_person if you don't)
+set this appropriately to commit the transaction removing
+the person if you REALLY know what you are doing (read the
+source of gm-remove_person if you don't)
 
 .SH DESCRIPTION
 The script
@@ -26,3 +28,4 @@ a GNUmed database.
 .SH AUTHOR
 This manual page was written by Andreas Tille <tille@debian.org>,
 for the Debian GNU/Linux system (but may be used by others).
+
