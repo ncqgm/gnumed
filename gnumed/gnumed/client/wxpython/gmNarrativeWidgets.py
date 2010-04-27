@@ -1528,6 +1528,23 @@ visual_progress_note_document_type = u'visual progress note'
 def configure_visual_progress_note_editor():
 
 	def is_valid(value):
+
+		if value is None:
+			gmDispatcher.send (
+				signal = 'statustext',
+				msg = _('You need to actually set an editor.'),
+				beep = True
+			)
+			return False, value
+
+		if value.strip() == u'':
+			gmDispatcher.send (
+				signal = 'statustext',
+				msg = _('You need to actually set an editor.'),
+				beep = True
+			)
+			return False, value
+
 		found, binary = gmShellAPI.detect_external_binary(value)
 		if not found:
 			gmDispatcher.send (
@@ -1536,6 +1553,7 @@ def configure_visual_progress_note_editor():
 				beep = True
 			)
 			return True, value
+
 		return True, binary
 	#------------------------------------------
 	gmCfgWidgets.configure_string_option (

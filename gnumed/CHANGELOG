@@ -11,6 +11,8 @@
 FIX: don't use --override-schema-check in tarballed gm-from-vcs.sh [thanks to J.Jaarsveld]
 FIX: actually fail DB connect if we detect secondary problems with database [thanks to J.Jaarsveld]
 
+improved: better detection of unconfigured visual progress notes editor [thanks Marc]
+
 	0.7.1
 
 FIX: exception when signalling invalid -conf-file=... value [thanks to S.Reus]
