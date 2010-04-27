@@ -21,6 +21,7 @@ IMPROVED: GNUmed can now import the ARRIBA result as a document
 
 FIX: don't use --override-schema-check in tarballed gm-from-vcs.sh [thanks to J.Jaarsveld]
 FIX: actually fail DB connect if we detect secondary problems with database [thanks to J.Jaarsveld]
+FIX: don't fail in create_new_person when called from unsuccessful search [thanks to S.Reus]
 
 improved: better detection of unconfigured visual progress notes editor [thanks Marc]
 
