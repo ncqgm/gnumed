@@ -10,6 +10,7 @@
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook "after_soap_modified"
+NEW: placeholder "current_meds_table::latex"
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 

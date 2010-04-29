@@ -895,6 +895,82 @@ returning pk
 def delete_substance_intake(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
+#------------------------------------------------------------
+def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
+
+	tex = u"""\\noindent %s {\\tiny (%s)}{\\tiny \\par}
+
+\\noindent \\begin{tabular}{|l|l|l|}
+\\hline
+%s & %s & {\\scriptsize %s} \\\\
+\\hline
+
+\\hline
+%%s
+
+\\end{tabular}""" % (
+			_('Medication list'),
+			_('ordered by brand'),
+			_('Drug'),
+			_('Regimen'),
+			_('Substances')
+	)
+
+	current_meds = emr.get_current_substance_intake (
+		include_inactive = False,
+		include_unapproved = False,
+		order_by = u'brand, substance'
+	)
+
+	# aggregate data
+	line_data = {}
+	for med in current_meds:
+		identifier = gmTools.coalesce(med['brand'], med['substance'])
+
+		try:
+			line_data[identifier]
+		except KeyError:
+			line_data[identifier] = {'brand': u'', 'substances': [], 'preparation': u'', 'schedule': u'', 'aims': [], 'notes': []}
+
+		line_data[identifier]['brand'] = identifier
+		line_data[identifier]['substances'].append(u'%s%s' % (med['substance'], gmTools.coalesce(med['strength'], u'', u' %s')))
+		line_data[identifier]['preparation'] = med['preparation']
+		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
+		if med['aim'] not in line_data[identifier]['aims']:
+			line_data[identifier]['aims'].append(med['aim'])
+		if med['notes'] not in line_data[identifier]['notes']:
+			line_data[identifier]['notes'].append(med['notes'])
+
+	# create lines
+	already_seen = []
+	lines = []
+	line1_template = u'%s %s & %s & {\\scriptsize %s} \\\\'
+	line2_template = u' & \\multicolumn{2}{l|}{{\\scriptsize %s}} \\\\'
+
+	for med in current_meds:
+		identifier = gmTools.coalesce(med['brand'], med['substance'])
+
+		if identifier in already_seen:
+			continue
+
+		already_seen.append(identifier)
+
+		lines.append (line1_template % (
+			line_data[identifier]['brand'],
+			line_data[identifier]['preparation'],
+			line_data[identifier]['schedule'],
+			u', '.join(line_data[identifier]['substances'])
+		))
+
+		for aim in line_data[identifier]['aims']:
+			lines.append(line2_template % aim)
+
+		for note in line_data[identifier]['notes']:
+			lines.append(line2_template % note)
+
+		lines.append(u'\\hline')
+
+	return tex % u' \n'.join(lines)
 #============================================================
 class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a drug as marketed by a manufacturer."""
