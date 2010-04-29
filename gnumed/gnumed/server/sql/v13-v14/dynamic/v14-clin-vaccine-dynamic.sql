@@ -7,6 +7,45 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 
+set check_function_bodies to on;
+
+-- --------------------------------------------------------------
+-- trigger to ensure that after an INSERT or UPDATE transaction there
+-- ARE indications linked to this vaccine
+
+\unset ON_ERROR_STOP
+drop function clin.trf_sanity_check_vaccine_has_indications() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_sanity_check_vaccine_has_indications()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_indication_link_pk integer;
+BEGIN
+	perform 1 from clin.lnk_vaccine2inds where fk_vaccine = NEW.pk limit 1;
+
+	if FOUND then
+		return NEW;
+	end if;
+
+	raise exception ''[clin.vaccine]: INSERT/UPDATE failed: no indication linked to vaccine (clin.lnk_vaccine2inds.fk_vaccine <-(%)-> clin.vaccine.pk)'', NEW.pk;
+
+	return NEW;
+END;';
+
+
+create constraint trigger tr_sanity_check_vaccine_has_indications
+	after insert or update on clin.vaccine
+	deferrable
+	initially deferred
+		for each row execute procedure clin.trf_sanity_check_vaccine_has_indications()
+;
+
+
+revoke delete on clin.lnk_vaccine2inds from public, "gm-doctors";
+
 -- --------------------------------------------------------------
 -- .fk_brand
 comment on column clin.vaccine.fk_brand is
