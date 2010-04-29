@@ -10,7 +10,7 @@ __version__ = "$Revision: 1.79 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, codecs, re as regex, shutil, random, platform
+import os, sys, time, os.path, logging, codecs, re as regex, shutil, random, platform, subprocess
 #, libxml2, libxslt
 
 
@@ -257,6 +257,34 @@ def delete_form_template(template=None):
 uno = None
 cOOoDocumentCloseListener = None
 
+#-----------------------------------------------------------
+def __configure_path_to_UNO():
+
+	try:
+		which = subprocess.Popen (
+			args = ('which', 'soffice'),
+			stdout = subprocess.PIPE,
+			stdin = subprocess.PIPE,
+			stderr = subprocess.PIPE,
+			universal_newlines = True
+		)
+	except (OSError, ValueError, subprocess.CalledProcessError):
+		_log.exception('there was a problem executing [%s]', cmd)
+		return
+
+	soffice_path, err = which.communicate()
+	soffice_path = soffice_path.strip('\n')
+	uno_path = os.path.abspath ( os.path.join (
+		os.path.dirname(os.path.realpath(soffice_path)),
+		'..',
+		'basis-link',
+		'program'
+	))
+
+	_log.info('UNO should be at [%s], appending to sys.path', uno_path)
+
+	sys.path.append(uno_path)
+#-----------------------------------------------------------
 def init_ooo():
 	"""FIXME: consider this:
 
@@ -273,9 +301,15 @@ def init_ooo():
 	if uno is not None:
 		return
 
+	try:
+		import uno
+	except ImportError:
+		__configure_path_to_UNO()
+		import uno
+
 	global unohelper, oooXCloseListener, oooNoConnectException, oooPropertyValue
 
-	import uno, unohelper
+	import unohelper
 	from com.sun.star.util import XCloseListener as oooXCloseListener
 	from com.sun.star.connection import NoConnectException as oooNoConnectException
 	from com.sun.star.beans import PropertyValue as oooPropertyValue
@@ -1096,6 +1130,12 @@ def test_de():
 #------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.pycommon import gmI18N, gmDateTime
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain='gnumed')
@@ -1103,6 +1143,9 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	# OOo
+	#--------------------------------------------------------
+	def test_init_ooo():
+		init_ooo()
 	#--------------------------------------------------------
 	def test_ooo_connect():
 		srv = gmOOoConnector()
@@ -1204,20 +1247,20 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		# now run the tests
-		#test_au()
-		#test_de()
+	# now run the tests
+	#test_au()
+	#test_de()
 
-		# OOo
-		#test_ooo_connect()
-		#test_open_ooo_doc_from_srv()
-		#test_open_ooo_doc_from_letter()
-		#play_with_ooo()
-		#test_cOOoLetter()
+	# OOo
+	test_init_ooo()
+	#test_ooo_connect()
+	#test_open_ooo_doc_from_srv()
+	#test_open_ooo_doc_from_letter()
+	#play_with_ooo()
+	#test_cOOoLetter()
 
-		#test_cFormTemplate()
-		#set_template_from_file()
-		test_latex_form()
+	#test_cFormTemplate()
+	#set_template_from_file()
+	#test_latex_form()
 
 #============================================================

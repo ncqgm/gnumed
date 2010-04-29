@@ -24,6 +24,7 @@ FIX: actually fail DB connect if we detect secondary problems with database [tha
 FIX: don't fail in create_new_person when called from unsuccessful search [thanks to S.Reus]
 
 improved: better detection of unconfigured visual progress notes editor [thanks Marc]
+IMPROVED: better Python UNO OOo bridge detection [thanks Petr Mladek]
 
 	0.7.1
 
