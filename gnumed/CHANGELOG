@@ -11,6 +11,8 @@
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook "after_soap_modified"
 
+IMPROVED: GNUmed can now import the ARRIBA result as a document
+
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
@@ -19,6 +21,9 @@ NEW: hook "after_soap_modified"
 
 FIX: don't use --override-schema-check in tarballed gm-from-vcs.sh [thanks to J.Jaarsveld]
 FIX: actually fail DB connect if we detect secondary problems with database [thanks to J.Jaarsveld]
+FIX: don't fail in create_new_person when called from unsuccessful search [thanks to S.Reus]
+
+improved: better detection of unconfigured visual progress notes editor [thanks Marc]
 
 	0.7.1
 

@@ -225,6 +225,10 @@ cd gnumed-client.${TARGET_VER}/external-tools/
 ./check-prerequisites.sh
 
 
+cd ../
+cd client/
+
+
 # activate local translation
 cd locale/
 # DE
@@ -261,7 +265,10 @@ cd ../../
 mkdir -p ./pt_BR/LC_MESSAGES/
 cd pt_BR/LC_MESSAGES/
 ln -sf ../../pt_BR-gnumed.mo gnumed.mo
-cd ../../../
+cd ../../
+
+
+cd ../
 
 
 # add desktop link

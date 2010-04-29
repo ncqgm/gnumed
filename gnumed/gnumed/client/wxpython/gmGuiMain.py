@@ -21,7 +21,8 @@ __author__  = "H. Herb <hherb@gnumed.net>,\
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT
+import webbrowser, shutil, logging, urllib2, subprocess, glob
 
 
 # 3rd party libs
@@ -1863,9 +1864,44 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = u'statustext', msg = _('ACS risk assessment calculator not configured.'), beep = True)
 			return
 
-		#found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
-		#if found:
-		gmShellAPI.run_command_in_shell(cmd, blocking = False)
+		cwd = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+		try:
+			subprocess.check_call (
+				args = (cmd,),
+				close_fds = True,
+				cwd = cwd
+			)
+		except (OSError, ValueError, subprocess.CalledProcessError):
+			_log.exception('there was a problem executing [%s]', cmd)
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run [%s] !') % cmd, beep = True)
+			return
+
+		pdfs = glob.glob(os.path.join(cwd, 'arriba-%s-*.pdf' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d')))
+		for pdf in pdfs:
+			try:
+				open(pdf).close()
+			except:
+				_log.exception('error accessing [%s]', pdf)
+				gmDispatcher.send(signal = u'statustext', msg = _('There was a problem accessing the ARRIBA result in [%s] !') % pdf, beep = True)
+				continue
+
+			doc = gmDocumentWidgets.save_file_as_new_document (
+				parent = self,
+				filename = pdf,
+				document_type = u'risk assessment'
+			)
+
+			try:
+				os.remove(pdf)
+			except StandardError:
+				_log.exception('cannot remove [%s]', pdf)
+
+			if doc is None:
+				continue
+			doc['comment'] = u'ARRIBA: %s' % _('cardiovascular risk assessment')
+			doc.save()
+
+		return
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		dlg = gmSnellen.cSnellenCfgDlg()

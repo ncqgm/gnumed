@@ -6871,7 +6871,7 @@ msgid "Deactivate (exclude from search) person record in database."
 msgstr "Person in der Datenbank deaktivieren."
 
 msgid "Deactivate record"
-msgstr "Eintrag deaktivieren"
+msgstr "Person deaktivieren"
 
 msgid "&Merge persons"
 msgstr "Personen &zusammenführen"

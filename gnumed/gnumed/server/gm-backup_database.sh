@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #==============================================================
-# author: Karsten Hilbert
-# license: GPL v2
 #
 # This script creates an uncompressed, plain text (SQL) backup
 # of the database schema, data, and roles which can be used to
@@ -29,6 +27,8 @@
 #
 #  47 12,19 * * * * /usr/bin/gm-backup_database.sh
 #
+# author: Karsten Hilbert
+# license: GPL v2
 #==============================================================
 
 CONF="/etc/gnumed/gnumed-backup.conf"

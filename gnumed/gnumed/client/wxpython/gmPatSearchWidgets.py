@@ -797,12 +797,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			if dlg.ShowModal() != wx.ID_NO:
 				return
 
-			#wiz = gmDemographicsWidgets.cNewPatientWizard(parent = self.GetParent())
-			#result = wiz.RunWizard(activate = False)
-			#if result is False:
-			#	return None
-			#self.person = result
-			success = gmDemographicsWidgets.create_new_person(parent = self, activate = True)
+			success = gmDemographicsWidgets.create_new_person(activate = True)
 			if success:
 				self.person = gmPerson.gmCurrentPatient()
 			else:

@@ -2025,6 +2025,9 @@ def create_new_person(parent=None, activate=False):
 		if len(countries) == 1:
 			def_country = countries[0]['l10n_country']
 
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
 	ea = cNewPatientEAPnl(parent = parent, id = -1, country = def_country, region = def_region)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(_('Adding new person'))
