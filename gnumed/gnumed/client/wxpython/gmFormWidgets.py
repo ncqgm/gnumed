@@ -41,7 +41,15 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 	wx.BeginBusyCursor()
 
 	# 2) process template
-	doc = template.instantiate()
+	try:
+		doc = template.instantiate()
+	except KeyError:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error creating printable document.\n\nThere is no engine for this type of template.'),
+			aTitle = _('Printing document')
+		)
+		return False
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
 	doc.substitute_placeholders(data_source = ph)
