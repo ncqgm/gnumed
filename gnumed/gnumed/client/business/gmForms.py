@@ -1089,7 +1089,7 @@ crap to demonstrate how it can cover multiple lines.""",
 	form.process (params)
 	form.xdvi ()
 	form.cleanup ()
-	
+
 def test_au2 ():
 	form = LaTeXForm (2, test_letter)
 	params = {'RECIPIENTNAME':'Dr. Richard Terry',
@@ -1252,7 +1252,7 @@ if __name__ == '__main__':
 	#test_de()
 
 	# OOo
-	test_init_ooo()
+	#test_init_ooo()
 	#test_ooo_connect()
 	#test_open_ooo_doc_from_srv()
 	#test_open_ooo_doc_from_letter()
@@ -1261,6 +1261,6 @@ if __name__ == '__main__':
 
 	#test_cFormTemplate()
 	#set_template_from_file()
-	#test_latex_form()
+	test_latex_form()
 
 #============================================================
