@@ -190,19 +190,19 @@ cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/cli
 
 
 # locale
-mkdir -p ./gnumed-client.$CLIENTREV/client/locale/
-cp -R ../../client/locale/ca.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/de.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/es.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/fr.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/it.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nb.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nl.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pl.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pt_BR.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/ru.po ./gnumed-client.$CLIENTREV/client/locale
+mkdir -p ./gnumed-client.$CLIENTREV/client/po/
+cp -R ../../client/po/ca.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/de.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/es.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/fr.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/it.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nb.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nl.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pl.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pt_BR.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/locale
 
-cd ../../client/locale/
+cd ../../client/po/
 ./create-gnumed_mo.sh ca
 ./create-gnumed_mo.sh de
 ./create-gnumed_mo.sh es
@@ -215,15 +215,15 @@ cd ../../client/locale/
 ./create-gnumed_mo.sh ru
 cd -
 
-cp -R ../../client/locale/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 
 
 # pycommon

@@ -230,7 +230,7 @@ cd client/
 
 
 # activate local translation
-cd locale/
+cd po/
 # DE
 mkdir -p ./de_DE/LC_MESSAGES/
 cd de_DE/LC_MESSAGES/
