@@ -92,11 +92,14 @@ def handle_uncaught_exception_wx(t, v, tb):
 		return
 
 	# other exceptions
-	_log2.error('enabling debug mode')
 	_cfg = gmCfg2.gmCfgData()
-	_cfg.set_option(option = 'debug', value = True)
-	root_logger = logging.getLogger()
-	root_logger.setLevel(logging.DEBUG)
+	if _cfg.get(option = 'debug') is False:
+		_log2.error('enabling debug mode')
+		_cfg.set_option(option = 'debug', value = True)
+		root_logger = logging.getLogger()
+		root_logger.setLevel(logging.DEBUG)
+		_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
+
 	gmLog2.log_stack_trace()
 
 	name = os.path.basename(_logfile_name)
