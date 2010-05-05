@@ -473,6 +473,7 @@ IMPROVED: bootstrapper now better detects utf8 ctype
 
 NEW: translate some Dutch demographics
 FIX: Windows bootstrapping batch file
+FIX: teleport gmPsql.py logging into the wonderful world of unicode [thanks Dmitry]
 
 ------------------------------------------------
 # gnumed_v12
