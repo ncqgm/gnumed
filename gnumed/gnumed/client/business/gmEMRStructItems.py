@@ -190,7 +190,10 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
 	#--------------------------------------------------------
 	def _get_laterality_description(self):
-		return laterality2str[self._payload[self._idx['laterality']]]
+		try:
+			return laterality2str[self._payload[self._idx['laterality']]]
+		except KeyError:
+			return u'??'
 
 	laterality_description = property(_get_laterality_description, lambda x:x)
 	#--------------------------------------------------------
@@ -216,7 +219,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['description']],
 			u'\u00AB',
 			gmTools.coalesce (
-				initial = laterality2str[self._payload[self._idx['laterality']]],
+				initial = self.laterality_description,		#laterality2str[self._payload[self._idx['laterality']]],
 				instead = u'',
 				template_initial = u' (%s)',
 				none_equivalents = [None, u'', u'?']
