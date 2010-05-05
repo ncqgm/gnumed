@@ -3,6 +3,20 @@
 *****************************************************************
 
 ------------------------------------------------
+# rel-0-8-patches
+------------------------------------------------
+
+	0.8.x
+
+NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
+NEW: hook "after_soap_modified"
+NEW: placeholder "current_meds_table::latex"
+
+IMPROVED: GNUmed can now import the ARRIBA result as a document
+IMPROVED: rename client/locale/ to client/po/ and adjust to that
+IMPROVED: when enabling --debug during unhandled exception try harder to log the exception in question
+
+------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
 
