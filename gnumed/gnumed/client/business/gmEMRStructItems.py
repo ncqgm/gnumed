@@ -193,7 +193,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		try:
 			return laterality2str[self._payload[self._idx['laterality']]]
 		except KeyError:
-			return u'??'
+			return u'<???>'
 
 	laterality_description = property(_get_laterality_description, lambda x:x)
 	#--------------------------------------------------------
@@ -219,7 +219,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['description']],
 			u'\u00AB',
 			gmTools.coalesce (
-				initial = self.laterality_description,		#laterality2str[self._payload[self._idx['laterality']]],
+				initial = self.laterality_description,
 				instead = u'',
 				template_initial = u' (%s)',
 				none_equivalents = [None, u'', u'?']

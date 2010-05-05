@@ -465,6 +465,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v14
 ------------------------------------------------
 
+FIX: during upgrade nullify empty clin.health_issue.laterality's
+
 IMPROVED: bootstrapper now better detects utf8 ctype
 
 ------------------------------------------------
