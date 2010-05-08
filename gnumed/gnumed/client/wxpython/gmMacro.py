@@ -16,7 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
 from Gnumed.pycommon import gmCfg2, gmDateTime
-from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication
+from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
 
@@ -53,6 +53,7 @@ known_variant_placeholders = [
 	u'gender_mapper',			# "data" holds: value for male // value for female
 	u'current_meds',			# "data" holds: line template
 	u'current_meds_table',		# "data" holds: format, options
+	u'lab_table',				# "data" holds: format (currently "latex" only)
 	u'today',					# "data" holds: strftime format
 	u'tex_escape',				# "data" holds: string to escape
 	u'allergies',				# "data" holds: line template, one allergy per line
@@ -417,6 +418,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		_log.error('no known current medications table formatting style in [%]', data)
 		return _('unknown current medication table formatting style')
+	#--------------------------------------------------------
+	def _get_variant_lab_table(self, data=None):
+
+		options = data.split('//')
+
+		emr = self.pat.get_emr()
+
+		if u'latex' in options:
+			return gmPathLab.format_test_results (
+				results = emr.get_test_results_by_date(),
+				output_format = u'latex'
+			)
+
+		_log.error('no known test results table formatting style in [%]', data)
+		return _('unknown test results table formatting style')
 	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
