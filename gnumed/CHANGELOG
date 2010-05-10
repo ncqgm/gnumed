@@ -20,6 +20,10 @@ IMPROVED: when enabling --debug during unhandled exception try harder to log the
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.3
+
+FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
+
 	0.7.2
 
 FIX: don't use --override-schema-check in tarballed gm-from-vcs.sh [thanks to J.Jaarsveld]
@@ -27,7 +31,6 @@ FIX: actually fail DB connect if we detect secondary problems with database [tha
 FIX: don't fail in create_new_person when called from unsuccessful search [thanks to S.Reus]
 FIX: don't fail when writing letter from template for which there's no engine [thanks Marc]
 FIX: don't fail displaying if laterality of issue happens to be u'' [thanks S.Reus]
-FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
 
 improved: better detection of unconfigured visual progress notes editor [thanks Marc]
 IMPROVED: better Python UNO OOo bridge detection [thanks Petr Mladek]
@@ -83,7 +86,7 @@ improved: removed spurious printk() when switching encounters
 # rel-0-6-patches
 ------------------------------------------------
 
-	0.6.3 (unreleased)
+	0.6.3
 
 FIX: faulty tooltip on EMR tree items w/ no data to display
 FIX: exception on reusing person ID type w/o issuer
