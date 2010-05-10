@@ -5,10 +5,10 @@
 # $Id: make-release_tarball.sh,v 1.95.2.2 2010-02-04 16:53:57 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.6.2"
+CLIENTREV="0.6.3"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="12.2"
+SRVREV="12.3"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
