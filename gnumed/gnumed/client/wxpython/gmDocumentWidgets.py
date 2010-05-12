@@ -815,7 +815,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				tmpdir = tmpdir,
 				calling_window = self
 			)
-		except ImportError:
+		except OSError:
+			_log.exception('problem acquiring image from source')
 			gmGuiHelpers.gm_show_error (
 				aMessage = _(
 					'No pages could be acquired from the source.\n\n'
