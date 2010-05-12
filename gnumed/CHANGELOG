@@ -23,6 +23,7 @@ IMPROVED: more robust acquiring of data from image sources
 
 	0.7.3
 
+IMPROVED: more robust acquiring of data from image sources
 FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
 
 	0.7.2
