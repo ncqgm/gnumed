@@ -21,6 +21,11 @@ IMPROVED: more robust acquiring of data from image sources
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.3
+
+IMPROVED: more robust acquiring of data from image sources
+FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
+
 	0.7.2
 
 FIX: don't use --override-schema-check in tarballed gm-from-vcs.sh [thanks to J.Jaarsveld]
