@@ -1,8 +1,6 @@
 """GNUmed patient picture widget."""
 
 #=====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.33 2009-09-13 18:45:25 ncq Exp $
 __version__ = "$Revision: 1.33 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
@@ -108,17 +106,33 @@ class cPatientPicture(wx.StaticBitmap):
 		# get from image source
 		from Gnumed.pycommon import gmScanBackend
 
-		fnames = gmScanBackend.acquire_pages_into_files (
-			delay = 5,
-			tmpdir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp')),
-			calling_window = self
-		)
+		try:
+			fnames = gmScanBackend.acquire_pages_into_files (
+				delay = 5,
+				tmpdir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp')),
+				calling_window = self
+			)
+		except OSError:
+			_log.exception('problem acquiring image from source')
+			gmGuiHelpers.gm_show_error (
+				aMessage = _(
+					'No image could be acquired from the source.\n\n'
+					'This may mean the scanner driver is not properly installed\n\n'
+					'On Windows you must install the TWAIN Python module\n'
+					'while on Linux and MacOSX it is recommended to install\n'
+					'the XSane package.'
+				),
+				aTitle = _('Acquiring photo')
+			)
+			return
+
 		if fnames is False:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Patient photo could not be acquired from source.'),
-				aTitle = _('acquiring photo')
+				aTitle = _('Acquiring photo')
 			)
 			return
+
 		if len(fnames) == 0:		# no pages scanned
 			return
 
@@ -186,162 +200,3 @@ if __name__ == "__main__":
 	app.SetWidget(cPatientPicture, -1)
 	app.MainLoop()
 #====================================================
-# $Log: gmPatPicWidgets.py,v $
-# Revision 1.33  2009-09-13 18:45:25  ncq
-# - no more get-active-encounter()
-#
-# Revision 1.32  2008/12/09 23:40:50  ncq
-# - no more patient fk in doc_med
-#
-# Revision 1.31  2008/07/10 20:54:17  ncq
-# - cleanup
-#
-# Revision 1.30  2008/07/07 13:43:17  ncq
-# - current patient .connected
-#
-# Revision 1.29  2008/01/30 14:03:42  ncq
-# - use signal names directly
-# - switch to std lib logging
-#
-# Revision 1.28  2007/09/10 12:37:37  ncq
-# - don't send signal on not finding patient pic
-#   a) it's quite obvious
-#   b) it might obscure more important messages
-#
-# Revision 1.27  2007/08/12 00:12:41  ncq
-# - no more gmSignals.py
-#
-# Revision 1.26  2007/08/07 21:42:40  ncq
-# - cPaths -> gmPaths
-#
-# Revision 1.25  2007/07/22 09:27:48  ncq
-# - tmp/ now in .gnumed/
-#
-# Revision 1.24  2007/05/08 11:16:32  ncq
-# - need to import gmTools
-#
-# Revision 1.23  2007/05/07 12:35:20  ncq
-# - improve use of gmTools.cPaths()
-#
-# Revision 1.22  2007/04/23 01:10:58  ncq
-# - add menu item to refresh from database
-#
-# Revision 1.21  2007/04/11 14:52:47  ncq
-# - lots of cleanup
-# - properly implement popup menu actions
-#
-# Revision 1.20  2006/12/21 16:54:32  ncq
-# - inage handlers already inited
-#
-# Revision 1.19  2006/11/24 10:01:31  ncq
-# - gm_beep_statustext() -> gm_statustext()
-#
-# Revision 1.18  2006/07/30 18:47:38  ncq
-# - better comment
-#
-# Revision 1.17  2006/05/15 13:36:00  ncq
-# - signal cleanup:
-#   - activating_patient -> pre_patient_selection
-#   - patient_selected -> post_patient_selection
-#
-# Revision 1.16  2006/04/29 19:47:36  ncq
-# - improve commented out code :-)
-#
-# Revision 1.15  2006/01/13 13:52:17  ncq
-# - create_document_part is gone, make comment on new way
-#
-# Revision 1.14  2006/01/01 20:38:03  ncq
-# - properly use create_document()
-#
-# Revision 1.13  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.12  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.11  2005/09/27 20:44:59  ncq
-# - wx.wx* -> wx.*
-#
-# Revision 1.10  2005/09/26 18:01:51  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.9  2005/08/08 08:07:11  ncq
-# - cleanup
-#
-# Revision 1.8  2005/02/05 10:58:09  ihaywood
-# fixed patient picture problem (gratutious use of a named parameter)
-# more rationalisation of loggin in gmCfg
-#
-# Revision 1.7  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.6  2004/10/11 20:18:17  ncq
-# - GnuMed now sports a patient pic in the top panel
-# - not loaded when changing patient (rather reverting to empty face)
-# - use right-click context menu "refresh photo" manually
-# - only Kirk has a picture so far
-#
-# Revision 1.5  2004/09/18 13:54:37  ncq
-# - improve strings
-#
-# Revision 1.4  2004/08/20 13:23:43  ncq
-# - aquire -> acquire
-#
-# Revision 1.3  2004/08/19 14:37:30  ncq
-# - fix missing import
-#
-# Revision 1.2  2004/08/19 14:07:54  ncq
-# - cleanup
-# - add tooltip but doesn't work with wx.Bitmap
-#
-# Revision 1.1  2004/08/18 10:15:26  ncq
-# - Richard is improving the patient picture
-# - added popup menu
-# - cleanups
-#
-# Revision 1.10  2004/06/13 22:31:48  ncq
-# - gb['main.toolbar'] -> gb['main.top_panel']
-# - self.internal_name() -> self.__class__.__name__
-# - remove set_widget_reference()
-# - cleanup
-# - fix lazy load in _on_patient_selected()
-# - fix lazy load in ReceiveFocus()
-# - use self._widget in self.GetWidget()
-# - override populate_with_data()
-# - use gb['main.notebook.raised_plugin']
-#
-# Revision 1.9  2004/06/01 07:59:55  ncq
-# - comments improved
-#
-# Revision 1.8  2004/05/28 08:57:08  shilbert
-# - bugfix for wx.BitmapFromImage()
-#
-# Revision 1.7  2004/03/04 19:46:54  ncq
-# - switch to package based import: from Gnumed.foo import bar
-#
-# Revision 1.6  2004/03/03 23:53:22  ihaywood
-# GUI now supports external IDs,
-# Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
-# but happy to consider cosmetic changes
-#
-# Revision 1.5  2004/03/03 14:53:16  ncq
-# - comment on optimizing SQL for getting latest photo
-#
-# Revision 1.4  2004/03/03 05:24:01  ihaywood
-# patient photograph support
-#
-# Revision 1.3  2003/11/17 10:56:38  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:39  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.2  2003/03/29 13:43:30  ncq
-# - make standalone work, CVS keywords, general cleanup
-# - change from wx.Panel to wx.StaticBitmap; load PNG, BMP, GIP automagically
-# - alleviate sizer hell
-#

@@ -15,6 +15,7 @@ NEW: placeholder "current_meds_table::latex"
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
 IMPROVED: when enabling --debug during unhandled exception try harder to log the exception in question
+IMPROVED: more robust acquiring of data from image sources
 
 ------------------------------------------------
 # rel-0-7-patches
