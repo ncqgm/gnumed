@@ -264,6 +264,22 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		dlg.Destroy()
 	#------------------------------------------------------------
+	def plot_current_selection(self):
+		if not self.IsSelection():
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot plot results. No results selected.'))
+			return True
+
+		tests = self.__cells_to_data (
+			cells = self.get_selected_cells(),
+			exclude_multi_cells = False,
+			auto_include_multi_cells = True
+		)
+
+		gmPathLab.export_results_for_gnuplot (
+			results = tests,
+			filename = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'gnumed-lab.dat'))
+		)
+	#------------------------------------------------------------
 	def get_selected_cells(self):
 
 		sel_block_top_left = self.GetSelectionBlockTopLeft()
@@ -826,7 +842,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def __resize_corner_window(self, evt):
 		self.__WIN_corner.Layout()
 	#------------------------------------------------------------
-	def __cells_to_data(self, cells=None, exclude_multi_cells=False):
+	def __cells_to_data(self, cells=None, exclude_multi_cells=False, auto_include_multi_cells=False):
 		"""List of <cells> must be in row / col order."""
 		data = []
 		for row, col in cells:
@@ -844,11 +860,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 				gmDispatcher.send(signal = u'statustext', msg = _('Excluding multi-result field from further processing.'))
 				continue
 
-			data_to_include = self.__get_choices_from_multi_cell(cell_data = data_list)
-
-			if data_to_include is None:
+			if auto_include_multi_cells:
+				data.extend(data_list)
 				continue
 
+			data_to_include = self.__get_choices_from_multi_cell(cell_data = data_list)
+			if data_to_include is None:
+				continue
 			data.extend(data_to_include)
 
 		return data
@@ -1013,6 +1031,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def __on_sign_current_selection(self, evt):
 		self.data_grid.sign_current_selection()
 	#--------------------------------------------------------
+	def __on_plot_current_selection(self, evt):
+		self.data_grid.plot_current_selection()
+	#--------------------------------------------------------
 	def __on_delete_current_selection(self, evt):
 		self.data_grid.delete_current_selection()
 	#--------------------------------------------------------
@@ -1024,6 +1045,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
 		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_sign_current_selection)
+
+		menu_id = wx.NewId()
+		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Plot')))
+		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_plot_current_selection)
 
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &file')))
