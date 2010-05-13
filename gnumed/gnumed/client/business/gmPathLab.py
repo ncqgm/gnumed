@@ -590,6 +590,9 @@ where
 #------------------------------------------------------------
 def export_results_for_gnuplot(results=None, filename=None):
 
+	if filename is None:
+		filename = gmTools.get_unique_filename(prefix = u'gm2gpl-', suffix = '.dat')
+
 	# sort results into series by test type
 	series = {}
 	for r in results:
@@ -647,6 +650,8 @@ def export_results_for_gnuplot(results=None, filename=None):
 			prev_date = curr_date
 
 	gp_data.close()
+
+	return filename
 #============================================================
 class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab result."""

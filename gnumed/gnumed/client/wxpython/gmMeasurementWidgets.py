@@ -5,7 +5,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal, os, webbrowser
+import sys, logging, datetime as pyDT, decimal, os, webbrowser, subprocess, codecs
 
 
 import wx, wx.grid, wx.lib.hyperlink
@@ -275,10 +275,30 @@ class cMeasurementsGrid(wx.grid.Grid):
 			auto_include_multi_cells = True
 		)
 
-		gmPathLab.export_results_for_gnuplot (
-			results = tests,
-			filename = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'gnumed-lab.dat'))
+		fname_data = gmPathLab.export_results_for_gnuplot(results = tests)
+		fname_conf = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
+		fname_file = codecs.open(fname_conf, 'wb', 'utf8')
+		fname_file.write('# setting the gnuplot data file\n')
+		fname_file.write("gm2gpl_datafile = '%s'\n" % fname_data)
+		fname_file.close()
+
+		fname_script = 'gm2gpl-plot.scr'
+
+		args = ['gnuplot', '-p', fname_conf, fname_script, '&']
+		_log.debug('plotting args: %s' % str(args))
+
+		gp = subprocess.Popen (
+			args = args,
+			close_fds = True
 		)
+		try:
+			gp.communicate()
+		except (OSError, ValueError, subprocess.CalledProcessError):
+			_log.exception('there was a problem executing gnuplot')
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run gnuplot !'), beep = True)
+			return
+
+		return
 	#------------------------------------------------------------
 	def get_selected_cells(self):
 
