@@ -1635,8 +1635,10 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		self._PRW_firstname.SetText(self.__name['firstnames'])
 		self._PRW_lastname.SetText(self.__name['lastnames'])
 		self._PRW_nick.SetText(gmTools.coalesce(self.__name['preferred'], u''))
-		dob = self.__identity['dob']
-		self._PRW_dob.SetText(value = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
+		self._PRW_dob.SetText (
+			value = self.__identity.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
+			data = self.__identity['dob']
+		)
 		self._PRW_gender.SetData(self.__name['gender'])
 		self._CHBOX_active.SetValue(self.__name['active_name'])
 		self._DP_dod.SetValue(self.__identity['deceased'])

@@ -1800,8 +1800,6 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			return True
 
 		age = gmDateTime.str2interval(str_interval = str_age)
-		pat = gmPerson.gmCurrentPatient()
-		max_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
 
 		if age is None:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot parse [%s] into valid interval.') % str_age)
@@ -1810,31 +1808,36 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
 			return True
 
-		if age >= max_age:
-			gmDispatcher.send (
-				signal = 'statustext',
-				msg = _(
-					'Health issue cannot have been noted at age %s. Patient is only %s old.'
-				) % (age, pat.get_medical_age())
-			)
-			self._PRW_age_noted.SetBackgroundColour('pink')
-			self._PRW_age_noted.Refresh()
-			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
-			return True
+		pat = gmPerson.gmCurrentPatient()
+		if pat['dob'] is not None:
+			max_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
+
+			if age >= max_age:
+				gmDispatcher.send (
+					signal = 'statustext',
+					msg = _(
+						'Health issue cannot have been noted at age %s. Patient is only %s old.'
+					) % (age, pat.get_medical_age())
+				)
+				self._PRW_age_noted.SetBackgroundColour('pink')
+				self._PRW_age_noted.Refresh()
+				wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
+				return True
 
 		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_age_noted.Refresh()
 		self._PRW_age_noted.SetData(data=age)
 
-		fts = gmDateTime.cFuzzyTimestamp (
-			timestamp = pat['dob'] + age,
-			accuracy = gmDateTime.acc_months
-		)
-		wx.CallAfter(self._PRW_year_noted.SetText, str(fts), fts)
-		# if we do this we will *always* navigate there, regardless of TAB vs ALT-TAB
-		#wx.CallAfter(self._ChBOX_active.SetFocus)
-		# if we do the following instead it will take us to the save/update button ...
-		#wx.CallAfter(self.Navigate)
+		if pat['dob'] is not None:
+			fts = gmDateTime.cFuzzyTimestamp (
+				timestamp = pat['dob'] + age,
+				accuracy = gmDateTime.acc_months
+			)
+			wx.CallAfter(self._PRW_year_noted.SetText, str(fts), fts)
+			# if we do this we will *always* navigate there, regardless of TAB vs ALT-TAB
+			#wx.CallAfter(self._ChBOX_active.SetFocus)
+			# if we do the following instead it will take us to the save/update button ...
+			#wx.CallAfter(self.Navigate)
 
 		return True
 	#--------------------------------------------------------
@@ -1867,9 +1870,10 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._PRW_year_noted.Refresh()
 
 		pat = gmPerson.gmCurrentPatient()
-		issue_age = year_noted - pat['dob']
-		str_age = gmDateTime.format_interval_medically(interval = issue_age)
-		wx.CallAfter(self._PRW_age_noted.SetText, str_age, issue_age)
+		if pat['dob'] is not None:
+			issue_age = year_noted - pat['dob']
+			str_age = gmDateTime.format_interval_medically(interval = issue_age)
+			wx.CallAfter(self._PRW_age_noted.SetText, str_age, issue_age)
 
 		return True
 	#--------------------------------------------------------

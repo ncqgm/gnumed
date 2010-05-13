@@ -89,11 +89,12 @@ improved: removed spurious printk() when switching encounters
 # rel-0-6-patches
 ------------------------------------------------
 
-	0.6.3 (unreleased)
+	0.6.3
 
 FIX: faulty tooltip on EMR tree items w/ no data to display
 FIX: exception on reusing person ID type w/o issuer
 FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
+FIX: properly deal with persons w/o a DOB in more places [thanks "user"]
 
 	0.6.2
 
