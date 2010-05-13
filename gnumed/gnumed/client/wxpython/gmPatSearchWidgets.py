@@ -1156,7 +1156,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				p['urgency'],
 				p['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
-				p['dob'].strftime('%x').decode(gmI18N.get_encoding()),
+				p.get_formatted_dob(encoding = gmI18N.get_encoding()),
 				gmTools.coalesce(p['comment'], u'')
 			  ] for p in pats
 			]
