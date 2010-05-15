@@ -93,6 +93,10 @@ improved: removed spurious printk() when switching encounters
 # rel-0-6-patches
 ------------------------------------------------
 
+	0.6.4
+
+FIX: properly deal with persons w/o a DOB in even more places
+
 	0.6.3
 
 FIX: faulty tooltip on EMR tree items w/ no data to display
