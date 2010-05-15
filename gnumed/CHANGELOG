@@ -25,8 +25,8 @@ IMPROVED: more robust acquiring of data from image sources
 
 IMPROVED: more robust acquiring of data from image sources
 FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
-FIX: faulty field access ['country'] when setting default country
-FIX: missing "s" after % in Italian translation
+FIX: faulty field access ['country'] when setting default country [thanks papis]
+FIX: missing "s" after "%" in Italian translation [thanks papis]
 
 	0.7.2
 
