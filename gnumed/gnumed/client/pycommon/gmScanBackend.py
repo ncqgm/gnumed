@@ -312,7 +312,7 @@ class cSaneScanner:
 #==================================================
 class cXSaneScanner:
 
-	_filetype = '.png'					# FIXME: configurable, TIFF ?
+	_filetype = u'.png'					# FIXME: configurable, TIFF ?
 	_xsanerc = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc'))
 	#_xsanerc_backup = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc.gnumed.bak'))
 	_xsanerc_gnumed = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed-xsanerc.conf'))
@@ -395,26 +395,27 @@ class cXSaneScanner:
 		fwrite = codecs.open(cXSaneScanner._xsanerc_gnumed, mode = "w", encoding = enc)
 
 		val_dict = {
-			'filetype': cXSaneScanner._filetype,
-			'tmp-path': tmpdir,
-			'working-directory': tmpdir,
-			'skip-existing-numbers': '1',
-			'filename-counter-step': '1',
-			'filename-counter-len': '3'
+			u'filetype': cXSaneScanner._filetype,
+			u'tmp-path': tmpdir,
+			u'working-directory': tmpdir,
+			u'skip-existing-numbers': u'1',
+			u'filename-counter-step': u'1',
+			u'filename-counter-len': u'3'
 		}
 
 		for idx, line in enumerate(fread):
-			line = line.replace(fread.newlines, '')
+			line = line.replace(u'\n', u'')
+			line = line.replace(u'\r', u'')
 
 			if idx % 2 == 0:			# even lines are keys
-				key = line.strip('"')
-				fwrite.write('"%s"%s' % (key, fread.newlines))
+				key = line.strip(u'"')
+				fwrite.write(u'"%s"\n' % key)
 			else: 						# odd lines are corresponding values
 				try:
 					value = val_dict[key]
 				except KeyError:
 					value = line
-				fwrite.write('%s%s' % (value, fread.newlines))
+				fwrite.write(u'%s\n' % value)
 
 		fwrite.flush()
 		fwrite.close()
