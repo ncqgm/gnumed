@@ -108,7 +108,7 @@ msgid " %s known problems. Clinically relevant thereof:\n"
 msgstr ""
 
 msgid " %s known problems\n"
-msgstr " % problemi noti\n"
+msgstr " %s problemi noti\n"
 
 msgid "active"
 msgstr "attivo"
