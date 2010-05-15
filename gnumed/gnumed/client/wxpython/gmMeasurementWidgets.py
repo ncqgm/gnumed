@@ -282,21 +282,22 @@ class cMeasurementsGrid(wx.grid.Grid):
 		fname_file.write("gm2gpl_datafile = '%s'\n" % fname_data)
 		fname_file.close()
 
-		fname_script = 'gm2gpl-plot.scr'
+		fname_script = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts', 'gm2gpl-plot.scr'))
 
-		args = ['gnuplot', '-p', fname_conf, fname_script, '&']
+		args = ['gnuplot', '-p', fname_conf, fname_script]
 		_log.debug('plotting args: %s' % str(args))
 
-		gp = subprocess.Popen (
-			args = args,
-			close_fds = True
-		)
 		try:
-			gp.communicate()
+			gp = subprocess.Popen (
+				args = args,
+				close_fds = True
+			)
 		except (OSError, ValueError, subprocess.CalledProcessError):
 			_log.exception('there was a problem executing gnuplot')
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run gnuplot !'), beep = True)
 			return
+
+		gp.communicate()
 
 		return
 	#------------------------------------------------------------
