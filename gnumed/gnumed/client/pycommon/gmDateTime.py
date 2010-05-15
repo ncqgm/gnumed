@@ -341,19 +341,19 @@ def format_interval_medically(interval=None):
 		minutes = seconds // 60
 		if minutes == 0:
 			return '%sh' % int(hours)
-		return "%sh %sm" % (int(hours), int(minutes))
+		return "%s:%02d" % (int(hours), int(minutes))
 
 	# minutes only
 	if interval.seconds > (5*60):
-		return "%smi" % (int(interval.seconds // 60))
+		return "0:%02d" % (int(interval.seconds // 60))
 
 	# seconds
 	minutes, seconds = divmod(interval.seconds, 60)
 	if minutes == 0:
 		return '%ss' % int(seconds)
 	if seconds == 0:
-		return '%smi' % int(minutes)
-	return "%sm %ss" % (int(minutes), int(seconds))
+		return '0:%02d' % int(minutes)
+	return "%s.%ss" % (int(minutes), int(seconds))
 #---------------------------------------------------------------------------
 def str2interval(str_interval=None):
 
