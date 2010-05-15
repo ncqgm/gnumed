@@ -51,7 +51,7 @@ def configure_default_country(parent=None):
 		bias = 'user',
 		choices = [ (c['l10n_country'], c['code']) for c in countries ],
 		columns = [_('Country'), _('Code')],
-		data = [ c['country'] for c in countries ]
+		data = [ c['name'] for c in countries ]
 	)
 #============================================================
 class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
