@@ -5,7 +5,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal, os, webbrowser
+import sys, logging, datetime as pyDT, decimal, os, webbrowser, subprocess, codecs
 
 
 import wx, wx.grid, wx.lib.hyperlink
@@ -263,6 +263,43 @@ class cMeasurementsGrid(wx.grid.Grid):
 			wx.EndBusyCursor()
 
 		dlg.Destroy()
+	#------------------------------------------------------------
+	def plot_current_selection(self):
+		if not self.IsSelection():
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot plot results. No results selected.'))
+			return True
+
+		tests = self.__cells_to_data (
+			cells = self.get_selected_cells(),
+			exclude_multi_cells = False,
+			auto_include_multi_cells = True
+		)
+
+		fname_data = gmPathLab.export_results_for_gnuplot(results = tests)
+		fname_conf = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
+		fname_file = codecs.open(fname_conf, 'wb', 'utf8')
+		fname_file.write('# setting the gnuplot data file\n')
+		fname_file.write("gm2gpl_datafile = '%s'\n" % fname_data)
+		fname_file.close()
+
+		fname_script = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts', 'gm2gpl-plot.scr'))
+
+		args = ['gnuplot', '-p', fname_conf, fname_script]
+		_log.debug('plotting args: %s' % str(args))
+
+		try:
+			gp = subprocess.Popen (
+				args = args,
+				close_fds = True
+			)
+		except (OSError, ValueError, subprocess.CalledProcessError):
+			_log.exception('there was a problem executing gnuplot')
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run gnuplot !'), beep = True)
+			return
+
+		gp.communicate()
+
+		return
 	#------------------------------------------------------------
 	def get_selected_cells(self):
 
@@ -826,7 +863,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def __resize_corner_window(self, evt):
 		self.__WIN_corner.Layout()
 	#------------------------------------------------------------
-	def __cells_to_data(self, cells=None, exclude_multi_cells=False):
+	def __cells_to_data(self, cells=None, exclude_multi_cells=False, auto_include_multi_cells=False):
 		"""List of <cells> must be in row / col order."""
 		data = []
 		for row, col in cells:
@@ -844,11 +881,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 				gmDispatcher.send(signal = u'statustext', msg = _('Excluding multi-result field from further processing.'))
 				continue
 
-			data_to_include = self.__get_choices_from_multi_cell(cell_data = data_list)
-
-			if data_to_include is None:
+			if auto_include_multi_cells:
+				data.extend(data_list)
 				continue
 
+			data_to_include = self.__get_choices_from_multi_cell(cell_data = data_list)
+			if data_to_include is None:
+				continue
 			data.extend(data_to_include)
 
 		return data
@@ -1013,6 +1052,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def __on_sign_current_selection(self, evt):
 		self.data_grid.sign_current_selection()
 	#--------------------------------------------------------
+	def __on_plot_current_selection(self, evt):
+		self.data_grid.plot_current_selection()
+	#--------------------------------------------------------
 	def __on_delete_current_selection(self, evt):
 		self.data_grid.delete_current_selection()
 	#--------------------------------------------------------
@@ -1024,6 +1066,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
 		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_sign_current_selection)
+
+		menu_id = wx.NewId()
+		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Plot')))
+		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_plot_current_selection)
 
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &file')))
