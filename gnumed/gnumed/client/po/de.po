@@ -6283,7 +6283,7 @@ msgstr ""
 "\n"
 " \"%s\"\n"
 "\n"
-"Installieren Sie die fehlenden Module nach\n"
+"Installieren Sie die fehlenden Module nach,\n"
 "denn sonst werden einige Funktionen von\n"
 "GNUmed nicht verfügbar sein."
 
