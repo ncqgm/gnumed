@@ -29,6 +29,7 @@ FIX: faulty field access ['country'] when setting default country [thanks papis]
 FIX: missing "s" after % in Italian translation [thanks papis]
 FIX: missing "," in German translation
 FIX: exception on mogrifying xsanerc file if no EOL seen [thanks S.Reus]
+FIX: non-fatal exception on setting active patient from gmCurrentPatient instance [thanks rafmav]
 
 	0.7.2
 

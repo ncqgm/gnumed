@@ -1970,10 +1970,12 @@ def set_active_patient(patient=None, forced_reload=False):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, cStaff):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
+	elif isinstance(patient, gmCurrentPatient):
+		pat = patient.patient
 	elif patient == -1:
 		pat = patient
 	else:
-		raise ValueError('<patient> must be either -1, cPatient, cStaff or cIdentity instance, is: %s' % patient)
+		raise ValueError('<patient> must be either -1, cPatient, cStaff, cIdentity or gmCurrentPatient instance, is: %s' % patient)
 
 	# attempt to switch
 	try:
