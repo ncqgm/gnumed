@@ -154,7 +154,7 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 			_log.warning('cannot find any of: %s', binaries)
 			return False
 
-	return run_command_in_shell(command = '%s %s' % (binary, args), blocking=False)
+	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking)
 #===========================================================================
 # main
 #---------------------------------------------------------------------------

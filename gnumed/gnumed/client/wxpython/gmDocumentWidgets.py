@@ -120,7 +120,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 			episode = dlg.get_selected_item_data(only_one = True)
 			dlg.Destroy()
 
-			if btn_pressed == wx.ID_CANCEL:
+			if (btn_pressed == wx.ID_CANCEL) or (episode is None):
 				if unlock_patient:
 					pat.locked = False
 				return None
