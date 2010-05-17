@@ -13,9 +13,10 @@ import wx, wx.grid, wx.lib.hyperlink
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC
+from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC, gmForms
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg, gmShellAPI
-from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets, gmAuthWidgets, gmPatSearchWidgets
+from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
+from Gnumed.wxpython import gmAuthWidgets, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
@@ -276,28 +277,21 @@ class cMeasurementsGrid(wx.grid.Grid):
 		)
 
 		fname_data = gmPathLab.export_results_for_gnuplot(results = tests)
-		fname_conf = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
-		fname_file = codecs.open(fname_conf, 'wb', 'utf8')
-		fname_file.write('# setting the gnuplot data file\n')
-		fname_file.write("gm2gpl_datafile = '%s'\n" % fname_data)
-		fname_file.close()
 
-		fname_script = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts', 'gm2gpl-plot.scr'))
-
-		args = ['gnuplot', '-p', fname_conf, fname_script]
-		_log.debug('plotting args: %s' % str(args))
-
-		try:
-			gp = subprocess.Popen (
-				args = args,
-				close_fds = True
+		# FIXME: make configurable/selectable
+		template = gmForms.get_form_template(name_long = '2 test types plot script (GNUmed default)', external_version = '1.0')
+		if template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot load plot script template [%s - %s]') % (name, ver),
+				aTitle = _('Plotting test results')
 			)
-		except (OSError, ValueError, subprocess.CalledProcessError):
-			_log.exception('there was a problem executing gnuplot')
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run gnuplot !'), beep = True)
-			return
+			return False
 
-		gp.communicate()
+		script = template.instantiate()
+		script.data_filename = fname_data
+		script.generate_output(format = 'wxp') 		# Gnuplot output terminal
+#		if cleanup:
+#			script.cleanup()
 
 		return
 	#------------------------------------------------------------

@@ -26,17 +26,19 @@ _log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L', u'I']
+form_engine_abbrevs = [u'O', u'L', u'I', u'G']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
 	u'L': 'LaTeX',
-	u'I': 'Image editor'
+	u'I': 'Image editor',
+	u'G': 'Gnuplot script'
 }
 
 form_engine_template_wildcards = {
 	u'O': u'*.o?t',
-	u'L': u'*.tex'
+	u'L': u'*.tex',
+	u'G': u'*.gpl'
 }
 
 # is filled in further below after each engine is defined
@@ -643,7 +645,7 @@ class cOOoForm(cFormEngine):
 
 		path, ext = os.path.splitext(self.template_filename)
 		if ext in [r'', r'.']:
-			ext = r'.tex'
+			ext = r'.odt'
 		self.instance_filename = r'%s-instance%s' % (path, ext)
 
 #================================================================
@@ -774,12 +776,66 @@ class cLaTeXForm(cFormEngine):
 			os.remove(self.template_filename)
 		except:
 			_log.debug(u'cannot remove template file [%s]', self.template_filename)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-
 #------------------------------------------------------------
 form_engines[u'L'] = cLaTeXForm
+#============================================================
+# Gnuplot template forms
+#------------------------------------------------------------
+class cGnuplotForm(cFormEngine):
+	"""A forms engine wrapping Gnuplot."""
+
+	#--------------------------------------------------------
+	def substitute_placeholders(self, data_source=None):
+		"""Parse the template into an instance and replace placeholders with values."""
+		pass
+	#--------------------------------------------------------
+	def edit(self):
+		"""Allow editing the instance of the template."""
+		pass
+	#--------------------------------------------------------
+	def generate_output(self, format=None):
+		"""Generate output suitable for further processing outside this class, e.g. printing.
+
+		Expects .data_filename to be set.
+		"""
+		self.conf_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
+		fname_file = codecs.open(self.conf_filename, 'wb', 'utf8')
+		fname_file.write('# setting the gnuplot data file\n')
+		fname_file.write("gm2gpl_datafile = '%s'\n" % self.data_filename)
+		fname_file.close()
+
+		# FIXME: cater for configurable path
+		if platform.system() == 'Windows':
+			exec_name = 'gnuplot.exe'
+		else:
+			exec_name = 'gnuplot'
+
+		args = [exec_name, '-p', self.conf_filename, self.template_filename]
+		_log.debug('plotting args: %s' % str(args))
+
+		try:
+			gp = subprocess.Popen (
+				args = args,
+				close_fds = True
+			)
+		except (OSError, ValueError, subprocess.CalledProcessError):
+			_log.exception('there was a problem executing gnuplot')
+			gmDispatcher.send(signal = u'statustext', msg = _('Error running gnuplot. Cannot plot data.'), beep = True)
+			return
+
+		gp.communicate()
+
+		return
+	#--------------------------------------------------------
+	def cleanup (self):
+		try:
+			os.remove(self.template_filename)
+			os.remove(self.conf_filename)
+			os.remove(self.data_filename)
+		except StandardError:
+			_log.exception(u'cannot remove either of script/conf/data file')
+#------------------------------------------------------------
+form_engines[u'G'] = cGnuplotForm
 #------------------------------------------------------------
 #------------------------------------------------------------
 class cIanLaTeXForm(cFormEngine):
@@ -934,10 +990,6 @@ class cXSLTFormEngine(cFormEngine):
 		self.preview()
 
 
-#=====================================================
-engines = {
-	u'L': cLaTeXForm
-}
 #=====================================================
 #class LaTeXFilter(Cheetah.Filters.Filter):
 class LaTeXFilter:

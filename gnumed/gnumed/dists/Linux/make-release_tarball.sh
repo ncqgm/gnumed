@@ -469,6 +469,22 @@ cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-
 cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #cp -R ../../server/sql/v12-v13/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
 
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
+
+cp -R ../../server/sql/v13-v14/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
+cp -R ../../server/sql/v13-v14/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
+#cp -R ../../server/sql/v13-v14/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
+cp -R ../../server/sql/v13-v14/data/* ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
+cp -R ../../server/sql/v13-v14/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
+#cp -R ../../server/sql/v13-v14/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
+
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
