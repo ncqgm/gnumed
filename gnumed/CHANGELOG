@@ -18,6 +18,7 @@ IMPROVED: rename client/locale/ to client/po/ and adjust to that
 IMPROVED: when enabling --debug during unhandled exception try harder to log the exception in question
 IMPROVED: more robust acquiring of data from image sources
 IMPROVED: more medically-sound interval formatting
+IMPROVED: edit non-name identity parts *directly* in demographics plugin (no popup needed)
 
 ------------------------------------------------
 # rel-0-7-patches
