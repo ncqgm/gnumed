@@ -171,6 +171,12 @@ class cPatientPicture(wx.StaticBitmap):
 		else:
 			fname = photo.export_to_file()
 
+		self.SetToolTipString (_(
+			'Patient picture (%s).\n'
+			'\n'
+			'Right-click for context menu.'
+		) % photo['date_generated'].strftime('%b %Y'))
+
 		return self.__set_pic_from_file(fname)
 	#-----------------------------------------------------------------
 	def __set_pic_from_file(self, fname=None):
@@ -187,6 +193,7 @@ class cPatientPicture(wx.StaticBitmap):
 		del img_data
 		self.SetBitmap(bmp_data)
 		self.__pic_name = fname
+
 		return True
 	#-----------------------------------------------------------------
 	def _on_post_patient_selection(self):

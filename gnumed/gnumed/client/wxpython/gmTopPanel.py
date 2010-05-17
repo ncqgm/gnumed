@@ -187,8 +187,8 @@ class cMainTopPanel(wx.Panel):
 
 		# create patient picture
 		self.patient_picture = gmPatPicWidgets.cPatientPicture(self, -1)
-		tt = wx.ToolTip(_('Patient picture.\nRight-click for context menu.'))
-		self.patient_picture.SetToolTip(tt)
+#		tt = wx.ToolTip(_('Patient picture.\nRight-click for context menu.'))
+#		self.patient_picture.SetToolTip(tt)
 
 		# create main sizer
 		self.szr_main = wx.BoxSizer(wx.HORIZONTAL)
