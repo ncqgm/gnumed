@@ -1,0 +1,55 @@
+#----------------------------------------------------
+# GNUmed gnuplot graphing script example:
+#
+# plot two test result types into one plot
+#----------------------------------------------------
+
+# general
+#set title "GNUmed test results"			# enable this if you want a title
+set grid xtics ytics y2tics
+set autoscale
+set datafile missing '<?>'
+set key autotitle columnheader
+set bmargin 5
+
+
+# x axis
+set xtics rotate by 360-45
+set xdata time
+set timefmt "%Y-%m-%d_%H:%M"
+
+
+# y2 axis
+set autoscale y2
+set ytics nomirror
+set y2tics
+
+
+# plot
+plot gm2gpl_datafile using 1:2:(valid(4) ? column(4) : $2):(valid(5) ? column(5) : $2):xticlabels(10) index 0 with yerrorbars, \
+     gm2gpl_datafile using 1:2:3 index 0 notitle with labels offset 0, 1 , \
+     gm2gpl_datafile using 1:2:(valid(4) ? column(4) : $2):(valid(5) ? column(5) : $2):xticlabels(10) index 1 with yerrorbars axes x1y2, \
+     gm2gpl_datafile using 1:2:3 index 1 notitle with labels offset 0, 1 axes x1y2
+
+
+# detect and adjust x range by 2 hours
+set xrange [(GPVAL_X_MIN - 7200):(GPVAL_X_MAX + 7200)]
+
+# detect and adjust y range by 5%
+five_percent = abs(GPVAL_Y_MIN * 5 / 100)
+loffset = (GPVAL_Y_MIN == 0) ? 1 : five_percent
+hoffset = (GPVAL_Y_MAX == 0) ? 1 : five_percent
+set yrange [(GPVAL_Y_MIN - loffset):(GPVAL_Y_MAX + hoffset)]
+
+five_percent = abs(GPVAL_Y2_MIN * 5 / 100)
+loffset = (GPVAL_Y2_MIN == 0) ? 1 : five_percent
+hoffset = (GPVAL_Y2_MAX == 0) ? 1 : five_percent
+set y2range [(GPVAL_Y2_MIN - loffset):(GPVAL_Y2_MAX + hoffset)]
+
+
+# enable this if you want .png output:
+#set terminal png
+#set output "gnumed-lab.png"
+
+
+replot

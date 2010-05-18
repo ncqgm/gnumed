@@ -1,8 +1,6 @@
 #==================================================
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.56 2009-12-21 15:02:51 ncq Exp $
 __version__ = "$Revision: 1.56 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -314,7 +312,7 @@ class cSaneScanner:
 #==================================================
 class cXSaneScanner:
 
-	_filetype = '.png'					# FIXME: configurable, TIFF ?
+	_filetype = u'.png'					# FIXME: configurable, TIFF ?
 	_xsanerc = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc'))
 	#_xsanerc_backup = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc.gnumed.bak'))
 	_xsanerc_gnumed = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed-xsanerc.conf'))
@@ -374,7 +372,7 @@ class cXSaneScanner:
 			flist.sort()
 			return flist
 
-		raise ImportError('error starting XSane as [%s]' % cmd)
+		raise OSError(-1, 'error starting XSane as [%s]' % cmd)
 	#---------------------------------------------------
 	def image_transfer_done(self):
 		return True
@@ -397,26 +395,27 @@ class cXSaneScanner:
 		fwrite = codecs.open(cXSaneScanner._xsanerc_gnumed, mode = "w", encoding = enc)
 
 		val_dict = {
-			'filetype': cXSaneScanner._filetype,
-			'tmp-path': tmpdir,
-			'working-directory': tmpdir,
-			'skip-existing-numbers': '1',
-			'filename-counter-step': '1',
-			'filename-counter-len': '3'
+			u'filetype': cXSaneScanner._filetype,
+			u'tmp-path': tmpdir,
+			u'working-directory': tmpdir,
+			u'skip-existing-numbers': u'1',
+			u'filename-counter-step': u'1',
+			u'filename-counter-len': u'3'
 		}
 
 		for idx, line in enumerate(fread):
-			line = line.replace(fread.newlines, '')
+			line = line.replace(u'\n', u'')
+			line = line.replace(u'\r', u'')
 
 			if idx % 2 == 0:			# even lines are keys
-				key = line.strip('"')
-				fwrite.write('"%s"%s' % (key, fread.newlines))
+				key = line.strip(u'"')
+				fwrite.write(u'"%s"\n' % key)
 			else: 						# odd lines are corresponding values
 				try:
 					value = val_dict[key]
 				except KeyError:
 					value = line
-				fwrite.write('%s%s' % (value, fread.newlines))
+				fwrite.write(u'%s\n' % value)
 
 		fwrite.flush()
 		fwrite.close()
@@ -503,182 +502,4 @@ if __name__ == '__main__':
 				print " image files:", fnames
 
 #==================================================
-# $Log: gmScanBackend.py,v $
-# Revision 1.56  2009-12-21 15:02:51  ncq
-# - cleanup
-#
-# Revision 1.55  2009/02/18 13:45:25  ncq
-# - get_unique_filename API change
-#
-# Revision 1.54  2008/07/10 11:20:03  ncq
-# - use --xsane-rc when calling XSane
-#
-# Revision 1.53  2008/04/11 12:24:01  ncq
-# - better handle missing XSane when TWAIN is missing, too
-#
-# Revision 1.52  2007/12/12 16:17:15  ncq
-# - better logger names
-#
-# Revision 1.51  2007/12/11 15:38:29  ncq
-# - no more gmLog2
-#
-# Revision 1.50  2007/12/11 14:33:48  ncq
-# - use standard logging module
-#
-# Revision 1.49  2007/09/10 20:27:40  ncq
-# - eventually find out how xsane handles counter filenames
-#
-# Revision 1.48  2007/08/29 14:33:38  ncq
-# - a bit more readability
-#
-# Revision 1.47  2007/08/08 21:26:39  ncq
-# - tiny improvements re file extension in XSane scanner driver
-#
-# Revision 1.46  2007/07/17 13:40:31  ncq
-# - PIL currently not used so don't load it
-#
-# Revision 1.45  2007/07/13 09:49:10  ncq
-# - add missing ","
-#
-# Revision 1.44  2007/07/11 21:06:01  ncq
-# - use gmTools.get_unique_filename()
-#
-# Revision 1.43  2007/07/10 20:37:56  ncq
-# - properly delete the tempfile so XSane won't complain
-#
-# Revision 1.42  2007/07/09 12:38:38  ncq
-# - cleanup
-#
-# Revision 1.41  2007/06/10 10:19:24  ncq
-# - use exceptions for error reporting
-#
-# Revision 1.40  2007/06/05 14:58:16  ncq
-# - better support missing XSane, thereby enabling better error reporting
-#
-# Revision 1.39  2007/05/08 11:14:34  ncq
-# - cleanup
-#
-# Revision 1.38  2007/04/01 15:27:09  ncq
-# - safely get_encoding()
-#
-# Revision 1.37  2007/02/17 18:18:09  ncq
-# - support pre-setting device and device-settings-file with XSane
-#
-# Revision 1.36  2007/02/15 12:03:27  ncq
-# - really support numbered multi-file scans with XSane
-#
-# Revision 1.35  2007/01/29 11:59:34  ncq
-# - improve comment
-#
-# Revision 1.34  2007/01/19 14:06:17  ncq
-# - do not attempt to handle several scans at once
-#
-# Revision 1.33  2007/01/19 13:37:39  ncq
-# - cannot wait on semaphore as it blocks the TWAIN GUI
-#
-# Revision 1.32  2007/01/19 13:29:35  ncq
-# - try semaphore on TWAIN scanning to detect finish
-#
-# Revision 1.31  2007/01/19 12:43:39  ncq
-# - properly return False if initing scanner was cancelled
-#
-# Revision 1.30  2007/01/19 10:55:56  ncq
-# - clean up
-#
-# Revision 1.29  2007/01/18 19:33:09  ncq
-# - fix typo
-#
-# Revision 1.28  2007/01/18 18:43:07  ncq
-# - added print "" for debugging
-#
-# Revision 1.27  2007/01/18 17:58:34  ncq
-# - explicitely wait for TWAIN memory scan transfer to finish
-#
-# Revision 1.26  2007/01/18 17:14:54  ncq
-# - closer to twain example code
-#
-# Revision 1.25  2007/01/18 14:41:29  ncq
-# - use ShowModal in RequestAcquire()
-#
-# Revision 1.24  2007/01/18 13:27:16  ncq
-# - try to comply more closely with TWAIN sample wx app
-#
-# Revision 1.23  2007/01/18 13:03:25  ncq
-# - no ProductName
-#
-# Revision 1.22  2007/01/18 12:34:01  ncq
-# - must init self.__scanner/self.__src_manager
-#
-# Revision 1.21  2007/01/18 12:08:56  ncq
-# - try to once again fix/improve TWAIN scanning
-#
-# Revision 1.20  2006/12/27 16:42:53  ncq
-# - cleanup
-# - add XSane interface in cXSaneScanner as worked out by Kai Schmidt
-# - acquire_pages_into_files() now returns a list
-# - fix test suite
-#
-# Revision 1.19  2006/09/02 21:11:59  ncq
-# - improved test suite
-#
-# Revision 1.18  2006/08/29 18:41:58  ncq
-# - improve test suite
-#
-# Revision 1.17  2006/08/29 18:33:02  ncq
-# - forward port TWAIN fixes from 0.2 branch
-#
-# Revision 1.16  2006/05/14 20:42:20  ncq
-# - properly handle get_devices()
-#
-# Revision 1.15  2006/05/13 23:42:13  shilbert
-# - getting there, TWAIN now lets me take more than one image in one session
-#
-# Revision 1.14  2006/05/13 23:18:11  shilbert
-# - fix more TWAIN issues
-#
-# Revision 1.13  2006/05/13 21:36:15  shilbert
-# - fixed some TWAIN rleated issues
-#
-# Revision 1.12  2006/01/17 19:45:32  ncq
-# - close scanner when done
-# - cleanup
-#
-# Revision 1.11  2006/01/16 19:42:18  ncq
-# - improve unit test
-#
-# Revision 1.10  2006/01/16 19:41:29  ncq
-# - properly init sane now
-#
-# Revision 1.9  2006/01/16 19:35:41  ncq
-# - can only get sane device list after init()
-#
-# Revision 1.8  2006/01/16 19:27:26  ncq
-# - cleaner layout
-# - report_devices() -> get_devices()
-#
-# Revision 1.7  2006/01/15 14:00:28  ncq
-# - reconvert spaces to tabs
-#
-# Revision 1.6	2006/01/15 13:16:06	 shilbert
-# - support for multiple scanners was added
-#
-# Revision 1.5	2006/01/15 10:04:37	 shilbert
-# - scanner device has not been passed on to the acquire_image function - fixed
-#
-# Revision 1.4	2005/11/27 13:05:45	 ncq
-# - used calling_window in the wrong place ...
-#
-# Revision 1.3	2005/11/27 10:38:46	 ncq
-# - use secure creation of file names when not given
-#
-# Revision 1.2	2005/11/27 08:48:45	 ncq
-# - some old cruft removed
-# - example code useful being kept around for now commented out
-#
-# Revision 1.1	2005/11/26 16:53:43	 shilbert
-# - moved here from Archive
-# - needed by gmScanIdxMedDocs plugin
-#
-# Revision 1.7	2005/11/09 11:30:21	 ncq
-# - activate sane test scanner
-#
+

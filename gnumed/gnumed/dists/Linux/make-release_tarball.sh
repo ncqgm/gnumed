@@ -153,7 +153,10 @@ cp -R ./gnumed.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/gnumedlogo.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/serpent.png ./gnumed-client.$CLIENTREV/client/bitmaps/
-
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.png ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.ico ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.svg ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.xcf ./gnumed-client.$CLIENTREV/client/bitmaps/
 
 # business
 mkdir -p ./gnumed-client.$CLIENTREV/client/business/
@@ -465,6 +468,22 @@ cp -R ../../server/sql/v12-v13/static/*.sql ./gnumed-client.$CLIENTREV/server/sq
 cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
 cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #cp -R ../../server/sql/v12-v13/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
+
+cp -R ../../server/sql/v13-v14/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
+cp -R ../../server/sql/v13-v14/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
+#cp -R ../../server/sql/v13-v14/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
+cp -R ../../server/sql/v13-v14/data/* ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
+cp -R ../../server/sql/v13-v14/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
+#cp -R ../../server/sql/v13-v14/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
 
 #----------------------------------
 # weed out unnecessary stuff

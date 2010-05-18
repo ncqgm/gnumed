@@ -51,7 +51,7 @@ def configure_default_country(parent=None):
 		bias = 'user',
 		choices = [ (c['l10n_country'], c['code']) for c in countries ],
 		columns = [_('Country'), _('Code')],
-		data = [ c['country'] for c in countries ]
+		data = [ c['name'] for c in countries ]
 	)
 #============================================================
 class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1607,6 +1607,114 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		return no_errors
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgIdentityEAPnl
+
+class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditAreaMixin):
+	"""An edit area for editing/creating title/gender/dob/dod etc."""
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			data = None
+
+		wxgIdentityEAPnl.wxgIdentityEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+#		self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		has_error = False
+
+		if self._PRW_gender.GetData() is None:
+			self._PRW_gender.SetFocus()
+			has_error = True
+
+		if not self._PRW_dob.is_valid_timestamp():
+			val = self._PRW_dob.GetValue().strip()
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
+			self._PRW_dob.SetBackgroundColour('pink')
+			self._PRW_dob.Refresh()
+			self._PRW_dob.SetFocus()
+			has_error = True
+		else:
+			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_dob.Refresh()
+
+		if not self._DP_dod.is_valid_timestamp(allow_none=True):
+			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
+			self._DP_dod.SetFocus()
+			has_error = True
+
+		return (has_error is False)
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+#		data = 1
+
+#		data[''] = 1
+#		data[''] = 1
+
+#		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+#		self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+
+		self.data['gender'] = self._PRW_gender.GetData()
+
+		if self._PRW_dob.GetValue().strip() == u'':
+			self.data['dob'] = None
+		else:
+			self.data['dob'] = self._PRW_dob.GetData().get_pydt()
+
+		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
+		self.data['deceased'] = self._DP_dod.GetValue(as_pydt = True)
+
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+
+		self._LBL_info.SetLabel(u'ID: #%s' % (
+			self.data.ID
+			# FIXME: add 'deleted' status
+		))
+		self._PRW_dob.SetText (
+			value = self.data.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
+			data = self.data['dob']
+		)
+		self._DP_dod.SetValue(self.data['deceased'])
+		self._PRW_gender.SetData(self.data['gender'])
+		#self._PRW_ethnicity.SetValue()
+		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], u''))
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl
 
 class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl):
@@ -1635,8 +1743,10 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		self._PRW_firstname.SetText(self.__name['firstnames'])
 		self._PRW_lastname.SetText(self.__name['lastnames'])
 		self._PRW_nick.SetText(gmTools.coalesce(self.__name['preferred'], u''))
-		dob = self.__identity['dob']
-		self._PRW_dob.SetText(value = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
+		self._PRW_dob.SetText (
+			value = self.__identity.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
+			data = self.__identity['dob']
+		)
 		self._PRW_gender.SetData(self.__name['gender'])
 		self._CHBOX_active.SetValue(self.__name['active_name'])
 		self._DP_dod.SetValue(self.__identity['deceased'])
@@ -1791,7 +1901,6 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_string_items (
 			items = [ [
 					gmTools.bool2str(n['active_name'], 'X', ''),
-					gmTools.coalesce(n['title'], gmPerson.map_gender2salutation(n['gender'])),
 					n['lastnames'],
 					n['firstnames'],
 					gmTools.coalesce(n['preferred'], u''),
@@ -1806,7 +1915,6 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def __init_ui(self):
 		self._LCTRL_items.set_columns(columns = [
 			_('Active'),
-			_('Title'),
 			_('Lastname'),
 			_('Firstname(s)'),
 			_('Preferred Name'),
@@ -1990,6 +2098,11 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 	def refresh(self):
 		self._PNL_names.identity = self.__identity
 		self._PNL_ids.identity = self.__identity
+		# this is an Edit Area:
+		self._PNL_identity.mode = 'new'
+		self._PNL_identity.data = self.__identity
+		if self.__identity is not None:
+			self._PNL_identity.mode = 'edit'
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -2001,6 +2114,15 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 		self.refresh()
 
 	identity = property(_get_identity, _set_identity)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_save_identity_details_button_pressed(self, event):
+		if not self._PNL_identity.save():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save identity. Incomplete information'), beep = True)
+	#--------------------------------------------------------
+	def _on_reload_identity_button_pressed(self, event):
+		self._PNL_identity.refresh()
 #============================================================
 # new-patient widgets
 #============================================================
@@ -2949,6 +3071,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 
 		- Identity
 		- Contacts (addresses, phone numbers, etc)
+		- Social Net
 
 	Does NOT act on/listen to the current patient.
 	"""

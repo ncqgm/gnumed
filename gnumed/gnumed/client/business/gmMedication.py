@@ -406,7 +406,18 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 				'online_update': u'?'
 			}
 
-		version_file = open(self.data_date_filename, 'rU')
+		try:
+			version_file = open(self.data_date_filename, 'rU')
+		except StandardError:
+			_log.error('problem querying the MMI drug database for version information')
+			_log.exception('cannot open MMI drug database version file [%s]', self.data_date_filename)
+			self.__data_date = None
+			self.__online_update_date = None
+			return {
+				'data': u'?',
+				'online_update': u'?'
+			}
+
 		self.__data_date = version_file.readline()[:10]
 		self.__online_update_date = version_file.readline()[:10]
 		version_file.close()

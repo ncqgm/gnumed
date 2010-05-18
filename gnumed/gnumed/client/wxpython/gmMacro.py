@@ -324,7 +324,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return data % parts
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%x'):
-		return self.pat['dob'].strftime(str(data)).decode(gmI18N.get_encoding())
+		return self.pat.get_formatted_dob(format = str(data), encoding = gmI18N.get_encoding())
 	#--------------------------------------------------------
 	# FIXME: extend to all supported genders
 	def _get_variant_gender_mapper(self, data='male//female//other'):

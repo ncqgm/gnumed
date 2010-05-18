@@ -1027,7 +1027,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
 			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
 			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)'),
-			self._payload[self._idx['dob']].strftime('%Y-%m-%d')
+			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
 		)
 #============================================================
 class cStaffMember(cIdentity):
@@ -1970,10 +1970,12 @@ def set_active_patient(patient=None, forced_reload=False):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, cStaff):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
+	elif isinstance(patient, gmCurrentPatient):
+		pat = patient.patient
 	elif patient == -1:
 		pat = patient
 	else:
-		raise ValueError('<patient> must be either -1, cPatient, cStaff or cIdentity instance, is: %s' % patient)
+		raise ValueError('<patient> must be either -1, cPatient, cStaff, cIdentity or gmCurrentPatient instance, is: %s' % patient)
 
 	# attempt to switch
 	try:
