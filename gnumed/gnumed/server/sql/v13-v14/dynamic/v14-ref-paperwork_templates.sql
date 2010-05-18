@@ -36,6 +36,26 @@ insert into ref.form_types (name) values (i18n.i18n('gnuplot script'));
 
 select i18n.upd_tx('de_DE', 'gnuplot script', 'Gnuplot-Script');
 
+-- --------------------------------------------------------------
+delete from ref.paperwork_templates where name_long = '1 test type plot script (GNUmed default)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'gnuplot script'),
+	'1 test plot (GNUmed)',
+	'1 test type plot script (GNUmed default)',
+	'1.0',
+	'G',
+	'gm2gpl-plot_1_test.scr',
+	'real template missing'::bytea
+);
 
 -- --------------------------------------------------------------
 delete from ref.paperwork_templates where name_long = '2 test types plot script (GNUmed default)';

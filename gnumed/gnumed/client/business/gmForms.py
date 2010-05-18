@@ -158,8 +158,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 
 			filename = gmTools.get_unique_filename (
 				prefix = 'gm-%s-Template-' % self._payload[self._idx['engine']],
-				suffix = suffix,
-				tmp_dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+				suffix = suffix
 			)
 
 		data_query = {

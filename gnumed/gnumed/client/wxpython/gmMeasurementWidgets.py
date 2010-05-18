@@ -16,7 +16,7 @@ if __name__ == '__main__':
 from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC, gmForms
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg, gmShellAPI
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
-from Gnumed.wxpython import gmAuthWidgets, gmPatSearchWidgets
+from Gnumed.wxpython import gmAuthWidgets, gmPatSearchWidgets, gmFormWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
 from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
@@ -117,6 +117,26 @@ def edit_measurement(parent=None, measurement=None, single_entry=False):
 		return True
 	dlg.Destroy()
 	return False
+#================================================================
+def plot_measurements(parent=None, tests=None):
+
+	template = gmFormWidgets.manage_form_templates(parent = parent)
+
+	if template is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot plot without a plot script.'),
+			aTitle = _('Plotting test results')
+		)
+		return False
+
+	fname_data = gmPathLab.export_results_for_gnuplot(results = tests)
+
+	script = template.instantiate()
+	script.data_filename = fname_data
+	script.generate_output(format = 'wxp') 		# Gnuplot output terminal
+#	if cleanup:
+#		script.cleanup()
+
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
 
@@ -266,6 +286,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		dlg.Destroy()
 	#------------------------------------------------------------
 	def plot_current_selection(self):
+
 		if not self.IsSelection():
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot plot results. No results selected.'))
 			return True
@@ -276,24 +297,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			auto_include_multi_cells = True
 		)
 
-		fname_data = gmPathLab.export_results_for_gnuplot(results = tests)
-
-		# FIXME: make configurable/selectable
-		template = gmForms.get_form_template(name_long = '2 test types plot script (GNUmed default)', external_version = '1.0')
-		if template is None:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot load plot script template [%s - %s]') % (name, ver),
-				aTitle = _('Plotting test results')
-			)
-			return False
-
-		script = template.instantiate()
-		script.data_filename = fname_data
-		script.generate_output(format = 'wxp') 		# Gnuplot output terminal
-#		if cleanup:
-#			script.cleanup()
-
-		return
+		plot_measurements(parent = self, tests = tests)
 	#------------------------------------------------------------
 	def get_selected_cells(self):
 
@@ -1338,18 +1342,25 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			('abnormality_indicator', self._PRW_abnormality_indicator),
 			('note_test_org', self._TCTRL_note_test_org),
 			('comment', self._TCTRL_narrative),
-			('val_normal_min', self._TCTRL_normal_min),
-			('val_normal_max', self._TCTRL_normal_max),
 			('val_normal_range', self._TCTRL_normal_range),
-			('val_target_min', self._TCTRL_target_min),
-			('val_target_max', self._TCTRL_target_max),
 			('val_target_range', self._TCTRL_target_range),
 			('norm_ref_group', self._TCTRL_norm_ref_group)
 		]
 		for field, widget in ctrls:
+			tr[field] = widget.GetValue().strip()
+
+		ctrls = [
+			('val_normal_min', self._TCTRL_normal_min),
+			('val_normal_max', self._TCTRL_normal_max),
+			('val_target_min', self._TCTRL_target_min),
+			('val_target_max', self._TCTRL_target_max)
+		]
+		for field, widget in ctrls:
 			val = widget.GetValue().strip()
-			if val != u'':
-				tr[field] = val
+			if val == u'':
+				tr[field] = None
+			else:
+				tr[field] = decimal.Decimal(val.replace(',', u'.', 1))
 
 		tr.save_payload()
 
@@ -1394,23 +1405,30 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		tr['val_alpha'] = v_al
 		tr['val_unit'] = self._PRW_units.GetValue().strip()
 		tr['clin_when'] = self._DPRW_evaluated.GetData().get_pydt()
-		tr['abnormality_indicator'] = self._PRW_abnormality_indicator.GetValue().strip()
 
 		ctrls = [
+			('abnormality_indicator', self._PRW_abnormality_indicator),
 			('note_test_org', self._TCTRL_note_test_org),
 			('comment', self._TCTRL_narrative),
-			('val_normal_min', self._TCTRL_normal_min),
-			('val_normal_max', self._TCTRL_normal_max),
 			('val_normal_range', self._TCTRL_normal_range),
-			('val_target_min', self._TCTRL_target_min),
-			('val_target_max', self._TCTRL_target_max),
 			('val_target_range', self._TCTRL_target_range),
 			('norm_ref_group', self._TCTRL_norm_ref_group)
 		]
 		for field, widget in ctrls:
+			tr[field] = widget.GetValue().strip()
+
+		ctrls = [
+			('val_normal_min', self._TCTRL_normal_min),
+			('val_normal_max', self._TCTRL_normal_max),
+			('val_target_min', self._TCTRL_target_min),
+			('val_target_max', self._TCTRL_target_max)
+		]
+		for field, widget in ctrls:
 			val = widget.GetValue().strip()
-			if val != u'':
-				tr[field] = val
+			if val == u'':
+				tr[field] = None
+			else:
+				tr[field] = decimal.Decimal(val.replace(',', u'.', 1))
 
 		tr.save_payload()
 

@@ -1,7 +1,7 @@
 #----------------------------------------------------
 # GNUmed gnuplot graphing script example:
 #
-# plot up to two test result types into one plot
+# plot two test result types into one plot
 #----------------------------------------------------
 
 # general
