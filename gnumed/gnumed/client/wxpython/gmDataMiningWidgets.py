@@ -386,7 +386,8 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		try:
 			# read-only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
-		except:
+		except StandardError:
+			_log.exception('report query failed')
 			self._LCTRL_result.set_columns([_('Error')])
 			t, v = sys.exc_info()[:2]
 			rows = [
@@ -402,7 +403,6 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			self._LCTRL_result.set_string_items(rows)
 			self._LCTRL_result.set_column_widths()
 			gmDispatcher.send('statustext', msg = _('The query failed.'), beep = True)
-			_log.exception('report query failed')
 			return False
 
 		if len(rows) == 0:
