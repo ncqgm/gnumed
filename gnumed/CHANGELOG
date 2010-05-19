@@ -25,6 +25,7 @@ IMPROVED: more robust acquiring of data from image sources
 
 FIX: exception when not selecting an episode but pressing [OK] after printing a letter
 FIX: exception when template for medication list is not suitable [thanks wilfried.muenster]
+FIX: exception when retrieving DDD for ATC in meds grid tooltip on less capable PG versions
 
 	0.7.3
 
