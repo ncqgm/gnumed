@@ -30,6 +30,7 @@ IMPROVED: much better icon [thanks J.Jaarsveld]
 	0.7.4
 
 FIX: exception when not selecting an episode but pressing [OK] after printing a letter
+FIX: exception when template for medication list is not suitable [thanks wilfried.muenster]
 
 	0.7.3
 
