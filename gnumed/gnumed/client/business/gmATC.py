@@ -114,7 +114,7 @@ def text2atc(text=None, fuzzy=False):
 #============================================================
 def atc2ddd(atc=None):
 	cmd = u"""
-		SELECT DISTINCT ON (atc) ddd, unit
+		SELECT DISTINCT ON (code) ddd, unit
 		FROM ref.atc
 		WHERE
 			code = %(atc)s

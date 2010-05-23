@@ -112,6 +112,11 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.__set_window_title_template()
 		self.__update_window_title()
+
+		#icon_bundle = wx.IconBundle()
+		#icon_bundle.AddIcon(wx.Icon("my_icon_16_16.ico", wx.BITMAP_TYPE_ICO))
+		#icon_bundle.AddIcon(wx.Icon("my_icon_32_32.ico", wx.BITMAP_TYPE_ICO))
+		#self.SetIcons(icon_bundle)
 		self.SetIcon(gmTools.get_icon(wx = wx))
 
 		self.__register_events()
