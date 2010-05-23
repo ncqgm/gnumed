@@ -632,7 +632,7 @@ def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_r
 					)
 				lines.append(tmp)
 
-	return u'\\begin{minipage}{%s} %s \\end{minipage}' % (width, u' \\\\ '.join(lines))
+	return u'\\begin{minipage}{%s} \\begin{flushright} %s \\end{flushright} \\end{minipage}' % (width, u' \\\\ '.join(lines))
 #------------------------------------------------------------
 def __format_test_results_latex(results=None):
 
@@ -701,7 +701,7 @@ def __format_test_results_latex(results=None):
 			cells.append (
 				__tests2latex_minipage (
 					results = tests,
-					width = u'1.5cm',
+					width = u'1.3cm',
 					show_time = (len(tests) > 1),
 					show_range = True
 				)

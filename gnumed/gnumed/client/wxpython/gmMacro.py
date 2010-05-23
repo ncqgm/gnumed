@@ -431,8 +431,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				output_format = u'latex'
 			)
 
-		_log.error('no known test results table formatting style in [%]', data)
-		return _('unknown test results table formatting style')
+		_log.error('no known test results table formatting style in [%s]', data)
+		return _('unknown test results table formatting style [%s]') % data
 	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
