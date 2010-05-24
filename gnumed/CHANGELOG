@@ -12,6 +12,7 @@ NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook "after_soap_modified"
 NEW: placeholder "current_meds_table::latex"
 NEW: Rome diagnostic criteria on obstipation
+NEW: emergency contact handling
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
