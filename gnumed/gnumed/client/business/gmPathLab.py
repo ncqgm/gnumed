@@ -698,10 +698,15 @@ def __format_test_results_latex(results=None):
 				cells.append(u' ')
 				continue
 
+			if len(tests) > 1:
+				width = u'1.8cm'
+			else:
+				width = u'1.3cm'
+
 			cells.append (
 				__tests2latex_minipage (
 					results = tests,
-					width = u'1.3cm',
+					width = width,
 					show_time = (len(tests) > 1),
 					show_range = True
 				)
