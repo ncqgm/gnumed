@@ -21,6 +21,10 @@ IMPROVED: more robust acquiring of data from image sources
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.5
+
+FIX: cannot reach some parts of the expanding SOAP control when typing "too much" [thanks J.Jaarsveld] (lp #583019)
+
 	0.7.4
 
 FIX: exception when not selecting an episode but pressing [OK] after printing a letter
