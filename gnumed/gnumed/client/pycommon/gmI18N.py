@@ -30,8 +30,8 @@ install_domain().
 This module searches for message catalog files in 3 main locations:
 
  - standard POSIX places (/usr/share/locale/ ...)
- - below "${YOURAPPNAME_DIR}/locale/"
- - below "<directory of binary of your app>/../locale/"
+ - below "${YOURAPPNAME_DIR}/po/"
+ - below "<directory of binary of your app>/../po/"
 
 For DOS/Windows I don't know of standard places so probably
 only the last option will work. I don't know a thing about
@@ -286,11 +286,11 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		#    last resort for inferior operating systems such as DOS/Windows
 		#    strip one directory level
 		#    this is a rather neat trick :-)
-		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 		# - in path to binary
-		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po'))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 
@@ -307,7 +307,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
 	_log.debug('looking at ${%s}' % env_key)
 	if os.environ.has_key(env_key):
-		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'locale'))
+		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'po'))
 		_log.debug('${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
 		candidates.append(loc_dir)
 	else:
@@ -319,11 +319,11 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		#    last resort for inferior operating systems such as DOS/Windows
 		#    strip one directory level
 		#    this is a rather neat trick :-)
-		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 		# - in path to binary
-		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po' ))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 

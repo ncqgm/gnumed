@@ -153,7 +153,10 @@ cp -R ./gnumed.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/gnumedlogo.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/serpent.png ./gnumed-client.$CLIENTREV/client/bitmaps/
-
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.png ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.ico ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.svg ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.xcf ./gnumed-client.$CLIENTREV/client/bitmaps/
 
 # business
 mkdir -p ./gnumed-client.$CLIENTREV/client/business/
@@ -190,19 +193,19 @@ cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/cli
 
 
 # locale
-mkdir -p ./gnumed-client.$CLIENTREV/client/locale/
-cp -R ../../client/locale/ca.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/de.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/es.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/fr.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/it.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nb.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nl.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pl.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pt_BR.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/ru.po ./gnumed-client.$CLIENTREV/client/locale
+mkdir -p ./gnumed-client.$CLIENTREV/client/po/
+cp -R ../../client/po/ca.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/de.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/es.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/fr.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/it.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nb.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nl.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pl.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pt_BR.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/locale
 
-cd ../../client/locale/
+cd ../../client/po/
 ./create-gnumed_mo.sh ca
 ./create-gnumed_mo.sh de
 ./create-gnumed_mo.sh es
@@ -215,15 +218,15 @@ cd ../../client/locale/
 ./create-gnumed_mo.sh ru
 cd -
 
-cp -R ../../client/locale/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/locale/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
 
 
 # pycommon
@@ -465,6 +468,22 @@ cp -R ../../server/sql/v12-v13/static/*.sql ./gnumed-client.$CLIENTREV/server/sq
 cp -R ../../server/sql/v12-v13/data/* ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
 cp -R ../../server/sql/v12-v13/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #cp -R ../../server/sql/v12-v13/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
+
+cp -R ../../server/sql/v13-v14/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
+cp -R ../../server/sql/v13-v14/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
+#cp -R ../../server/sql/v13-v14/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
+cp -R ../../server/sql/v13-v14/data/* ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
+cp -R ../../server/sql/v13-v14/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
+#cp -R ../../server/sql/v13-v14/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
 
 #----------------------------------
 # weed out unnecessary stuff

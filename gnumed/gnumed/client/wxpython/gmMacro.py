@@ -3,7 +3,6 @@
 This module implements functions a macro can legally use.
 """
 #=====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
 __version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
@@ -17,7 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
 from Gnumed.pycommon import gmCfg2, gmDateTime
-from Gnumed.business import gmPerson, gmDemographicRecord
+from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
 
@@ -53,6 +52,7 @@ known_variant_placeholders = [
 	u'adr_postcode',
 	u'gender_mapper',			# "data" holds: value for male // value for female
 	u'current_meds',			# "data" holds: line template
+	u'current_meds_table',		# "data" holds: format, options
 	u'today',					# "data" holds: strftime format
 	u'tex_escape',				# "data" holds: string to escape
 	u'allergies',				# "data" holds: line template, one allergy per line
@@ -323,7 +323,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return data % parts
 	#--------------------------------------------------------
 	def _get_variant_date_of_birth(self, data='%x'):
-		return self.pat['dob'].strftime(str(data)).decode(gmI18N.get_encoding())
+		return self.pat.get_formatted_dob(format = str(data), encoding = gmI18N.get_encoding())
 	#--------------------------------------------------------
 	# FIXME: extend to all supported genders
 	def _get_variant_gender_mapper(self, data='male//female//other'):
@@ -403,6 +403,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# FIXME: we should be dealing with translating None to u'' here
 
 		return u'\n'.join([ data % m for m in current_meds ])
+	#--------------------------------------------------------
+	def _get_variant_current_meds_table(self, data=None):
+
+		options = data.split('//')
+
+		if u'latex' in options:
+			return gmMedication.format_substance_intake (
+				emr = self.pat.get_emr(),
+				output_format = u'latex',
+				table_type = u'by-brand'
+			)
+
+		_log.error('no known current medications table formatting style in [%]', data)
+		return _('unknown current medication table formatting style')
 	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
@@ -658,6 +672,12 @@ class cMacroPrimitives:
 #=====================================================================
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
@@ -712,7 +732,8 @@ if __name__ == '__main__':
 			'$<adr_location::home::35>$',
 			'$<gender_mapper::male//female//other::5>$',
 			'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) <==\n::50>$',
-			'$<allergy_list::%(descriptor)s, >$'
+			'$<allergy_list::%(descriptor)s, >$',
+			'$<current_meds_table::latex//by-brand>$'
 
 #			'firstname',
 #			'title',
@@ -832,189 +853,10 @@ if __name__ == '__main__':
 			print " "
 	#--------------------------------------------------------
 
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		#test_placeholders()
-		test_new_variant_placeholders()
-		#test_scripting()
-		#test_placeholder_regex()
+	#test_placeholders()
+	test_new_variant_placeholders()
+	#test_scripting()
+	#test_placeholder_regex()
 
 #=====================================================================
-# $Log: gmMacro.py,v $
-# Revision 1.51  2010-01-31 18:18:28  ncq
-# - add name variant placeholder
-# - try to work around OOo being always greedy
-#
-# Revision 1.50  2010/01/21 08:44:46  ncq
-# - implement new placeholders, improve others
-#
-# Revision 1.49  2010/01/15 12:43:46  ncq
-# - tex-escape placeholder
-# - return safe substitute if real client version unavailable
-#
-# Revision 1.48  2009/12/22 12:01:58  ncq
-# - escape dollar signs as they frequently mean something
-#
-# Revision 1.47  2009/12/21 20:28:02  ncq
-# - allergies placeholder
-#
-# Revision 1.46  2009/12/21 15:11:30  ncq
-# - client_version, current_provider, today, current_meds
-# - placeholder regex must be non-greedy to support several per line
-# - improved logging
-# - don't throw exceptions on placeholder substitution, rather return hint
-#
-# Revision 1.45  2009/09/29 13:18:28  ncq
-# - implement address placeholders
-# - implement gender mapper placeholder
-#
-# Revision 1.44  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.43  2009/03/10 14:23:32  ncq
-# - support new style placeholders and test
-#
-# Revision 1.42  2009/01/15 11:40:20  ncq
-# - better logging
-#
-# Revision 1.41  2008/03/20 15:30:37  ncq
-# - fix misplaced %
-#
-# Revision 1.40  2008/03/09 20:16:32  ncq
-# *** empty log message ***
-#
-# Revision 1.39  2008/03/05 22:30:14  ncq
-# - new style logging
-#
-# Revision 1.38  2007/12/03 20:45:16  ncq
-# - add variant placeholder handling ! :-)
-#
-# Revision 1.37  2007/11/05 12:10:21  ncq
-# - support admin soap type
-#
-# Revision 1.36  2007/10/19 12:52:00  ncq
-# - immediately search for patient matches
-#
-# Revision 1.35  2007/09/16 22:40:46  ncq
-# - fix soap_* placeholder handling
-#
-# Revision 1.34  2007/09/09 19:17:44  ncq
-# - add a bunch of placeholders regarding SOAP notes
-#
-# Revision 1.33  2007/08/29 22:09:32  ncq
-# - narrative widgets factored out
-#
-# Revision 1.32  2007/08/13 21:59:54  ncq
-# - add placeholder handler
-# - add progress_notes placeholder
-# - improved test suite
-#
-# Revision 1.31  2007/07/17 21:44:24  ncq
-# - use patient.locked properly
-#
-# Revision 1.30  2007/07/11 21:09:54  ncq
-# - use curr_pat.locked
-#
-# Revision 1.29  2007/07/03 16:00:56  ncq
-# - remove unneeded import
-#
-# Revision 1.28  2007/01/21 12:21:38  ncq
-# - comment on search_dict -> dto
-#
-# Revision 1.27  2006/12/25 22:54:44  ncq
-# - comment fix
-#
-# Revision 1.26  2006/07/22 12:15:08  ncq
-# - add missing import
-#
-# Revision 1.25  2006/07/22 10:04:51  ncq
-# - cleanup
-# - pre-init all attributes so connectors won't kill the GNUmed slave
-#   with stupid AttributeExceptions
-# - add lock_loaded_patient()
-#
-# Revision 1.24  2006/07/21 14:47:19  ncq
-# - cleanup
-# - add (_)load_patient_from_external_source()
-# - improve testing
-#
-# Revision 1.23  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.22  2005/11/28 23:07:34  ncq
-# - add shutdown_gnumed()
-#
-# Revision 1.21  2005/11/27 22:08:38  ncq
-# - patient searcher has somewhat changed so adapt
-#
-# Revision 1.20  2005/11/27 20:38:10  ncq
-# - properly import wx
-#
-# Revision 1.19  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.18  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.17  2005/09/27 20:44:59  ncq
-# - wx.wx* -> wx.*
-#
-# Revision 1.16  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.15  2004/09/13 09:38:29  ncq
-# - allow to wait for user interaction in controlled GnuMed instance
-#   despite having to use wxCallAfter by waiting on a semaphore
-#
-# Revision 1.14  2004/07/24 17:13:25  ncq
-# - main.plugins.gui now horstspace.notebook.gui
-#
-# Revision 1.13  2004/06/25 13:28:00  ncq
-# - logically separate notebook and clinical window plugins completely
-#
-# Revision 1.12  2004/06/01 07:59:55  ncq
-# - comments improved
-#
-# Revision 1.11  2004/03/20 19:48:07  ncq
-# - adapt to flat id list from get_patient_ids
-#
-# Revision 1.10  2004/03/20 17:54:18  ncq
-# - lock_into_patient now supports dicts and strings
-# - fix unit test
-#
-# Revision 1.9  2004/03/12 13:22:38  ncq
-# - comment on semaphore for GUI actions
-#
-# Revision 1.8  2004/03/05 11:22:35  ncq
-# - import from Gnumed.<pkg>
-#
-# Revision 1.7  2004/02/25 09:46:22  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.6  2004/02/17 10:45:30  ncq
-# - return authentication cookie from attach()
-# - use that cookie in all RPCs
-# - add assume_staff_identity()
-#
-# Revision 1.5  2004/02/12 23:57:22  ncq
-# - now also use random cookie for attach/detach
-# - add force_detach() with user feedback
-# - add get_loaded_plugins()
-# - implement raise_plugin()
-#
-# Revision 1.4  2004/02/05 23:52:05  ncq
-# - remove spurious return 0
-#
-# Revision 1.3  2004/02/05 20:46:18  ncq
-# - require attach() cookie for detach(), too
-#
-# Revision 1.2  2004/02/05 20:40:34  ncq
-# - added attach()
-# - only allow attach()ed clients to call methods
-# - introduce patient locking/unlocking cookie
-# - enhance unit test
-#
-# Revision 1.1  2004/02/05 18:10:44  ncq
-# - actually minimally functional macro executor with test code
-#
+

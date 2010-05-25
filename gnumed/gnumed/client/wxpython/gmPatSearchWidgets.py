@@ -9,8 +9,6 @@ query generators. However, there's always the fallback
 generator.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.132 2010-02-07 15:17:06 ncq Exp $
 __version__ = "$Revision: 1.132 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
@@ -610,9 +608,18 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		self.__prev_idents = []
 		self._lclick_count = 0
 
-		self._display_name()
-
 		self.__register_events()
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _set_person(self, person):
+		self.__person = person
+		wx.CallAfter(self._display_name)
+
+	def _get_person(self):
+		return self.__person
+
+	person = property(_get_person, _set_person)
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
@@ -697,7 +704,6 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			if result == wx.ID_OK:
 				wx.BeginBusyCursor()
 				self.person = dlg.get_selected_person()
-				self._display_name()
 				dlg.Destroy()
 				wx.EndBusyCursor()
 				return True
@@ -729,7 +735,6 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			)
 			if p is not None:
 				self.person = p
-				self._display_name()
 				return True
 			return False
 
@@ -802,13 +807,11 @@ class cPersonSearchCtrl(wx.TextCtrl):
 				self.person = gmPerson.gmCurrentPatient()
 			else:
 				self.person = None
-			self._display_name()
 			return None
 
 		# only one matching identity
 		if len(idents) == 1:
 			self.person = idents[0]
-			self._display_name()		# needed when the found patient is the same as the active one
 			wx.EndBusyCursor()
 			return None
 
@@ -824,7 +827,6 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		wx.BeginBusyCursor()
 		self.person = dlg.get_selected_person()
 		dlg.Destroy()
-		self._display_name()		# needed when the found patient is the same as the active one
 		wx.EndBusyCursor()
 
 		return None
@@ -854,7 +856,33 @@ def set_active_patient(patient=None, forced_reload=False):
 				) % patient['description_gender']
 			)
 
-	return gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
+	success = gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
+
+	if success:
+		if patient['dob'] is not None:
+			dbcfg = gmCfg.cCfgSQL()
+			dob_distance = dbcfg.get2 (
+				option = u'patient_search.dob_warn_interval',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = u'user',
+				default = u'1 week'
+			)
+
+			if patient.dob_in_range(dob_distance, dob_distance):
+				now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+				enc = gmI18N.get_encoding()
+				gmDispatcher.send(signal = 'statustext', msg = _(
+					'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
+						'pat': patient.get_description_gender(),
+						'age': patient.get_medical_age().strip('y'),
+						'month': patient.get_formatted_dob(format = '%B', encoding = enc),
+						'day': patient.get_formatted_dob(format = '%d', encoding = enc),
+						'month_now': now.strftime('%B').decode(enc),
+						'day_now': now.strftime('%d')
+					}
+				)
+
+	return success
 #------------------------------------------------------------
 class cActivePatientSelector(cPersonSearchCtrl):
 
@@ -906,7 +934,6 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
-		#name = u''
 		name = _('<type here to search patient>')
 
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -924,27 +951,27 @@ class cActivePatientSelector(cPersonSearchCtrl):
 
 		self._remember_ident(pat)
 
-		dbcfg = gmCfg.cCfgSQL()
-		dob_distance = dbcfg.get2 (
-			option = u'patient_search.dob_warn_interval',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = u'user',
-			default = u'1 week'
-		)
-
-		if pat.dob_in_range(dob_distance, dob_distance):
-			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-			enc = gmI18N.get_encoding()
-			gmDispatcher.send(signal = 'statustext', msg = _(
-				'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
-					'pat': pat.get_description_gender(),
-					'age': pat.get_medical_age().strip('y'),
-					'month': pat.get_formatted_dob(format = '%B', encoding = enc),
-					'day': pat.get_formatted_dob(format = '%d', encoding = enc),
-					'month_now': now.strftime('%B').decode(enc),
-					'day_now': now.strftime('%d')
-				}
-			)
+#		dbcfg = gmCfg.cCfgSQL()
+#		dob_distance = dbcfg.get2 (
+#			option = u'patient_search.dob_warn_interval',
+#			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#			bias = u'user',
+#			default = u'1 week'
+#		)
+#
+#		if pat.dob_in_range(dob_distance, dob_distance):
+#			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+#			enc = gmI18N.get_encoding()
+#			gmDispatcher.send(signal = 'statustext', msg = _(
+#				'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
+#					'pat': pat.get_description_gender(),
+#					'age': pat.get_medical_age().strip('y'),
+#					'month': pat.get_formatted_dob(format = '%B', encoding = enc),
+#					'day': pat.get_formatted_dob(format = '%d', encoding = enc),
+#					'month_now': now.strftime('%B').decode(enc),
+#					'day_now': now.strftime('%d')
+#				}
+#			)
 
 		return True
 	#--------------------------------------------------------
@@ -967,7 +994,6 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			self.person = gmPerson.gmCurrentPatient().patient
 		else:
 			self.person = None
-		wx.CallAfter(self._display_name)
 	#----------------------------------------------
 	def _on_enter(self, search_term = None):
 
@@ -981,7 +1007,6 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			return
 
 		self._set_person_as_active_patient(self.person)
-		self._display_name()
 	#----------------------------------------------
 	def _on_char(self, evt):
 
@@ -1156,7 +1181,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				p['urgency'],
 				p['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
-				p['dob'].strftime('%x').decode(gmI18N.get_encoding()),
+				p['dob'],
 				gmTools.coalesce(p['comment'], u'')
 			  ] for p in pats
 			]
@@ -1388,606 +1413,3 @@ if __name__ == "__main__":
 
 # user defined function key to start search
 
-#============================================================
-# $Log: gmPatSearchWidgets.py,v $
-# Revision 1.132  2010-02-07 15:17:06  ncq
-# - don't use the old new-patient wizard anymore
-#
-# Revision 1.131  2010/01/31 18:19:41  ncq
-# - show hint when no patient selected
-#
-# Revision 1.130  2009/12/21 15:12:29  ncq
-# - cleanup
-# - fix typo
-# - missing return
-#
-# Revision 1.129  2009/11/15 01:10:34  ncq
-# - cleanup
-#
-# Revision 1.128  2009/07/17 09:25:06  ncq
-# - ! -> Urgency as per list
-# - adding acts on the current patient *only*
-# - add missing Destroy
-#
-# Revision 1.127  2009/07/02 20:56:26  ncq
-# - used edit area dlg2
-#
-# Revision 1.126  2009/07/01 17:10:35  ncq
-# - need to return state from set_active_patient
-#
-# Revision 1.125  2009/06/20 12:47:17  ncq
-# - only display last encounter in search results if
-#   patient has clinical data (that is, is a patient)
-#
-# Revision 1.124  2009/06/04 16:27:47  ncq
-# - add set active patient and use it
-# - adjust to dob-less persons
-#
-# Revision 1.123  2009/04/21 17:00:00  ncq
-# - edit area dlg now takes single_entry argument
-#
-# Revision 1.122  2009/02/05 14:30:36  ncq
-# - only run new-patient-wizard if user explicitely said so
-# - do not try to set active patient if user cancelled new patient wizard
-#
-# Revision 1.121  2009/02/04 12:35:18  ncq
-# - support editing waiting list entries
-#
-# Revision 1.120  2009/01/30 12:11:43  ncq
-# - waiting list entry edit area
-#
-# Revision 1.119  2009/01/22 11:16:41  ncq
-# - implement moving waiting list entries
-#
-# Revision 1.118  2009/01/21 22:39:02  ncq
-# - waiting zones phrasewheel and use it
-#
-# Revision 1.117  2009/01/21 18:04:41  ncq
-# - implement most of waiting list
-#
-# Revision 1.116  2009/01/17 23:08:31  ncq
-# - waiting list
-#
-# Revision 1.115  2008/12/17 21:59:22  ncq
-# - add support for merging patients
-#
-# Revision 1.114  2008/12/09 23:43:27  ncq
-# - use description_gender
-# - no more hardcoded plugin raising after patient activation
-#
-# Revision 1.113  2008/10/12 16:26:46  ncq
-# - cleanup
-#
-# Revision 1.112  2008/09/01 20:28:51  ncq
-# - properly handle case when several option sources define AU PracSoft source
-#
-# Revision 1.111  2008/08/28 18:34:18  ncq
-# - make active patient selector react to patient activation,
-#   name/identity change all by itself with updating its display,
-#   don't let top panel do it for us
-#
-# Revision 1.110  2008/07/28 20:27:20  ncq
-# - do not try to activate None person
-#
-# Revision 1.109  2008/07/07 13:43:17  ncq
-# - current patient .connected
-#
-# Revision 1.108  2008/05/13 14:13:57  ncq
-# - fix on-focus-select-all behaviour
-# - don't display search term after name - when a search failed this gets confusing
-#
-# Revision 1.107  2008/04/16 20:39:39  ncq
-# - working versions of the wxGlade code and use it, too
-# - show client version in login dialog
-#
-# Revision 1.106  2008/03/20 15:31:59  ncq
-# - missing \n added
-#
-# Revision 1.105  2008/03/09 20:18:22  ncq
-# - cleanup
-# - load_patient_* -> get_person_*
-# - make cPatientSelector() generic -> cPersonSearchCtrl()
-#
-# Revision 1.104  2008/02/25 17:40:18  ncq
-# - new style logging
-#
-# Revision 1.103  2008/01/30 14:09:39  ncq
-# - switch to new style cfg file support
-# - cleanup
-#
-# Revision 1.102  2008/01/27 21:17:49  ncq
-# - improve message on patient not found
-#
-# Revision 1.101  2008/01/22 12:24:55  ncq
-# - include search fragment into patient name display
-# - reenable on kill focus handler restoring patient name
-# - improved wording on patient not found
-#
-# Revision 1.100  2008/01/11 16:15:33  ncq
-# - first/last -> first-/lastnames
-#
-# Revision 1.99  2008/01/05 16:41:27  ncq
-# - remove logging from gm_show_*()
-#
-# Revision 1.98  2007/12/11 12:49:26  ncq
-# - explicit signal handling
-#
-# Revision 1.97  2007/11/12 23:05:55  ncq
-# - import extra data from DTOs
-#
-# Revision 1.96  2007/11/10 20:58:59  ncq
-# - use dto.get_candidate_identities() and dto.delete_from_source()
-#
-# Revision 1.95  2007/10/19 12:52:34  ncq
-# - implement search_immediately in load_patient_from_external_source()
-#
-# Revision 1.94  2007/10/12 14:20:09  ncq
-# - prepare "activate_immediately" in load_patient_from_external_sources()
-#
-# Revision 1.93  2007/10/12 13:33:06  ncq
-# - if only one external patient available - activate it right away
-#
-# Revision 1.92  2007/10/11 12:15:09  ncq
-# - make filling patient selector list more robust in absence of match_type field
-#
-# Revision 1.91  2007/10/07 12:32:42  ncq
-# - workplace property now on gmSurgery.gmCurrentPractice() borg
-#
-# Revision 1.90  2007/09/10 12:38:12  ncq
-# - improve wording on announcing upcoming patient birthday
-#
-# Revision 1.89  2007/08/28 14:18:13  ncq
-# - no more gm_statustext()
-#
-# Revision 1.88  2007/08/12 00:12:41  ncq
-# - no more gmSignals.py
-#
-# Revision 1.87  2007/07/17 16:00:28  ncq
-# - check existence of PracSoft import file
-#
-# Revision 1.86  2007/07/11 21:11:08  ncq
-# - display patient locked state
-# - listen on patient lock/unlock events
-#
-# Revision 1.85  2007/07/09 12:46:33  ncq
-# - move cDataMiningPnl to gmDataMiningWidgets.py
-#
-# Revision 1.84  2007/07/07 12:43:25  ncq
-# - in cDataMiningPnl use cPatientListingCtrl
-#
-# Revision 1.83  2007/06/28 12:40:48  ncq
-# - handle dto.dob being optional now
-# - support dto source gotten from xdt file
-#
-# Revision 1.82  2007/06/12 16:03:58  ncq
-# - some comments
-# - fix typo
-# - better error display on failing queries
-#
-# Revision 1.81  2007/06/10 10:12:55  ncq
-# - options need names
-#
-# Revision 1.80  2007/05/18 15:55:58  ncq
-# - auto-select first item in person/dto selector
-#
-# Revision 1.79  2007/05/14 14:56:41  ncq
-# - fix typo
-#
-# Revision 1.78  2007/05/14 13:52:24  ncq
-# - add display_name() in two places to fix visual glitch with search
-#
-# Revision 1.77  2007/05/14 13:37:42  ncq
-# - don't do anything if the only external patient is
-#   already the active patient in GNUmed
-#
-# Revision 1.76  2007/05/14 13:11:24  ncq
-# - use statustext() signal
-#
-# Revision 1.75  2007/05/07 08:04:36  ncq
-# - a bit of cleanup
-#
-# Revision 1.74  2007/04/19 13:13:47  ncq
-# - cleanup
-#
-# Revision 1.73  2007/04/11 14:53:33  ncq
-# - do some safeguarding against binary/large files being dropped onto
-#   the data mining plugin - check mimetype and size
-#
-# Revision 1.72  2007/04/09 22:03:57  ncq
-# - make data mining panel a file drop target
-#
-# Revision 1.71  2007/04/09 21:12:49  ncq
-# - better wording in contribute email
-# - properly unicode() SQL results
-#
-# Revision 1.70  2007/04/09 18:52:47  ncq
-# - magic patient activation from report result list
-#
-# Revision 1.69  2007/04/09 16:31:06  ncq
-# - add _on_contribute
-#
-# Revision 1.68  2007/04/08 21:17:14  ncq
-# - add more event handlers to data mining panel
-#
-# Revision 1.67  2007/04/07 22:45:28  ncq
-# - add save handler to data mining panel
-#
-# Revision 1.66  2007/04/06 23:15:21  ncq
-# - add data mining panel
-#
-# Revision 1.65  2007/04/01 15:29:51  ncq
-# - safely get_encoding()
-#
-# Revision 1.64  2007/03/02 15:38:47  ncq
-# - decode() strftime() to u''
-#
-# Revision 1.63  2007/02/22 17:41:13  ncq
-# - adjust to gmPerson changes
-#
-# Revision 1.62  2007/02/17 14:01:26  ncq
-# - gmCurrentProvider.workplace now property
-# - notify about birthday after activating patient
-# - remove crufty code/docs
-#
-# Revision 1.61  2007/02/15 14:58:08  ncq
-# - tie KVKs intoi external patient sources framework
-#
-# Revision 1.60  2007/02/13 17:07:38  ncq
-# - tie PracSoft PATIENTS.IN file into external patients framework
-# - *always* let user decide on whether to activate an external patient
-#   even if only a single source provides a patient
-#
-# Revision 1.59  2007/01/20 22:52:27  ncq
-# - .KeyCode -> GetKeyCode()
-#
-# Revision 1.58  2007/01/18 22:07:52  ncq
-# - (Get)KeyCode() -> KeyCode so 2.8 can do
-#
-# Revision 1.57  2007/01/10 23:04:12  ncq
-# - support explicit DOB format for xDT files
-#
-# Revision 1.56  2006/12/13 14:57:16  ncq
-# - inform about no patients found in external sources
-#
-# Revision 1.55  2006/11/24 14:23:19  ncq
-# - self.Close() does not need wx.ID_*
-#
-# Revision 1.54  2006/11/24 09:56:03  ncq
-# - improved message when error searching patient
-#
-# Revision 1.53  2006/11/20 19:11:04  ncq
-# - improved message when no matching patient found
-#
-# Revision 1.52  2006/11/20 17:05:55  ncq
-# - do not search if supposed search term matches 'description' of current patient
-#
-# Revision 1.51  2006/11/01 12:54:40  ncq
-# - there may not be a previous encounter so don't try to
-#   format it's start date if so
-#
-# Revision 1.50  2006/10/31 12:43:09  ncq
-# - out with the crap
-# - no more patient expanders
-#
-# Revision 1.49  2006/10/30 16:46:52  ncq
-# - missing encoding in xDT source defs does not *have* to be
-#   an error as the file itself may contain the encoding itself
-#
-# Revision 1.48  2006/10/28 14:57:17  ncq
-# - use cPatient.get_last_encounter()
-#
-# Revision 1.47  2006/10/28 12:34:53  ncq
-# - make person and dto selector dialogs handle functionality themselves
-# - remove person selector panel class
-# - act on ENTER/double-click in person/dto select list
-#
-# Revision 1.46  2006/10/25 07:46:44  ncq
-# - Format() -> strftime() since datetime.datetime does not have .Format()
-#
-# Revision 1.45  2006/10/24 13:26:43  ncq
-# - switch to gmPG2
-#
-# Revision 1.44  2006/09/13 07:55:11  ncq
-# - handle encoding in xDT patient sources
-#
-# Revision 1.43  2006/09/06 07:22:34  ncq
-# - add missing import for glob module
-#
-# Revision 1.42  2006/09/01 14:46:30  ncq
-# - add (untested) MCS/Isynet external patient source
-#
-# Revision 1.41  2006/08/09 15:00:47  ncq
-# - better search widget tooltip
-#
-# Revision 1.40  2006/07/30 18:48:18  ncq
-# - invoke load_external_patient on <F2> in searcher
-# - robustify by commenting out shaky KVK code
-#
-# Revision 1.39  2006/07/30 17:51:00  ncq
-# - cleanup
-#
-# Revision 1.38  2006/07/27 17:07:18  ncq
-# - cleanup
-# - make Cursor-Down the way to invoke previous patients
-#
-# Revision 1.37  2006/07/26 13:22:37  ncq
-# - degrade non-fatal error messages to info messages
-#
-# Revision 1.36  2006/07/26 13:15:03  ncq
-# - cleanup
-#
-# Revision 1.35  2006/07/24 19:38:39  ncq
-# - fix "prev patients" list (alt-p) in patient selector
-# - start obsoleting old (ugly) patient pick list
-#
-# Revision 1.34  2006/07/24 14:18:31  ncq
-# - finish pat/dto selection dialogs
-# - use them in loading external patients and selecting among matches in search control
-#
-# Revision 1.33  2006/07/24 11:31:11  ncq
-# - cleanup
-# - add dialogs to select person/person-dto from list
-# - use dto-selection dialog when loading external patient
-#
-# Revision 1.32  2006/07/22 15:18:24  ncq
-# - better error logging
-#
-# Revision 1.31  2006/07/21 14:48:39  ncq
-# - proper returns from load_patient_from_external_sources()
-#
-# Revision 1.30  2006/07/19 21:41:13  ncq
-# - support list of xdt files
-#
-# Revision 1.29  2006/07/18 21:18:13  ncq
-# - add proper load_patient_from_external_sources()
-#
-# Revision 1.28  2006/05/15 13:36:00  ncq
-# - signal cleanup:
-#   - activating_patient -> pre_patient_selection
-#   - patient_selected -> post_patient_selection
-#
-# Revision 1.27  2006/05/12 12:18:11  ncq
-# - whoami -> whereami cleanup
-# - use gmCurrentProvider()
-#
-# Revision 1.26  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.25  2005/12/14 17:01:51  ncq
-# - use improved db cfg option getting
-#
-# Revision 1.24  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.23  2005/09/27 20:44:59  ncq
-# - wx.wx* -> wx.*
-#
-# Revision 1.22  2005/09/26 18:01:51  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.21  2005/09/24 09:17:29  ncq
-# - some wx2.6 compatibility fixes
-#
-# Revision 1.20  2005/09/12 15:18:05  ncq
-# - fix faulty call to SetActivePatient() found by Richard when using
-#   always_dismiss_after_search
-#
-# Revision 1.19  2005/09/11 17:35:05  ncq
-# - support "patient_search.always_reload_new_patient"
-#
-# Revision 1.18  2005/09/04 07:31:14  ncq
-# - Richard requested the "no active patient" tag be removed
-#   when no patient is active
-#
-# Revision 1.17  2005/05/05 06:29:22  ncq
-# - if patient not found invoke new patient wizard with activate=true
-#
-# Revision 1.16  2005/03/08 16:54:13  ncq
-# - teach patient picklist about cIdentity
-#
-# Revision 1.15  2005/02/20 10:33:26  sjtan
-#
-# disable lose focus to prevent core dumping in a wxPython version.
-#
-# Revision 1.14  2005/02/13 15:28:07  ncq
-# - v_basic_person.i_pk -> pk_identity
-#
-# Revision 1.13  2005/02/12 13:59:11  ncq
-# - v_basic_person.i_id -> i_pk
-#
-# Revision 1.12  2005/02/01 10:16:07  ihaywood
-# refactoring of gmDemographicRecord and follow-on changes as discussed.
-#
-# gmTopPanel moves to gmHorstSpace
-# gmRichardSpace added -- example code at present, haven't even run it myself
-# (waiting on some icon .pngs from Richard)
-#
-# Revision 1.11  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.10  2004/10/20 12:40:55  ncq
-# - some cleanup
-#
-# Revision 1.9  2004/10/20 07:49:45  sjtan
-# small forward wxWidget compatibility change.
-#
-# Revision 1.7  2004/09/06 22:22:15  ncq
-# - properly use setDBParam()
-#
-# Revision 1.6  2004/09/02 00:40:13  ncq
-# - store option always_dismiss_previous_patient if not found
-#
-# Revision 1.5  2004/09/01 22:04:03  ncq
-# - cleanup
-# - code order change to avoid exception due to None-check after logging
-#
-# Revision 1.4  2004/08/29 23:15:58  ncq
-# - Richard improved the patient picklist popup
-# - plus cleanup/fixes etc
-#
-# Revision 1.3  2004/08/24 15:41:13  ncq
-# - eventually force patient pick list to stay on top
-#   as suggested by Robin Dunn
-#
-# Revision 1.2  2004/08/20 13:31:05  ncq
-# - cleanup/improve comments/improve naming
-# - dismiss patient regardless of search result if so configured
-# - don't search on empty search term
-#
-# Revision 1.1  2004/08/20 06:46:38  ncq
-# - used to be gmPatientSelector.py
-#
-# Revision 1.45  2004/08/19 13:59:14  ncq
-# - streamline/cleanup
-# - Busy Cursor according to Richard
-#
-# Revision 1.44  2004/08/18 08:18:35  ncq
-# - later wxWidgets version don't support parent=NULL anymore
-#
-# Revision 1.43  2004/08/02 18:53:36  ncq
-# - used wx.Begin/EndBusyCursor() around setting the active patient
-#
-# Revision 1.42  2004/07/18 19:51:12  ncq
-# - cleanup, use True/False, not true/false
-# - use run_ro_query(), not run_query()
-#
-# Revision 1.41  2004/07/15 20:36:11  ncq
-# - better default size
-#
-# Revision 1.40  2004/06/20 16:01:05  ncq
-# - please epydoc more carefully
-#
-# Revision 1.39  2004/06/20 06:49:21  ihaywood
-# changes required due to Epydoc's OCD
-#
-# Revision 1.38  2004/06/04 16:27:12  shilbert
-# - giving focus highlights the text and lets you replace it
-#
-# Revision 1.37  2004/03/27 18:24:11  ncq
-# - Ian and I fixed the same bugs again :)
-#
-# Revision 1.36  2004/03/27 04:37:01  ihaywood
-# lnk_person2address now lnk_person_org_address
-# sundry bugfixes
-#
-# Revision 1.35  2004/03/25 11:03:23  ncq
-# - getActiveName -> get_names
-#
-# Revision 1.34  2004/03/20 19:48:07  ncq
-# - adapt to flat id list from get_patient_ids
-#
-# Revision 1.33  2004/03/12 13:23:41  ncq
-# - cleanup
-#
-# Revision 1.32  2004/03/05 11:22:35  ncq
-# - import from Gnumed.<pkg>
-#
-# Revision 1.31  2004/03/04 19:47:06  ncq
-# - switch to package based import: from Gnumed.foo import bar
-#
-# Revision 1.30  2004/02/25 09:46:22  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.29  2004/02/05 18:41:31  ncq
-# - make _on_patient_selected() thread-safe
-# - move SetActivePatient() logic into gmPatient
-#
-# Revision 1.28  2004/02/04 00:55:02  ncq
-# - moved UI-independant patient searching code into business/gmPatient.py where it belongs
-#
-# Revision 1.27  2003/11/22 14:49:32  ncq
-# - fix typo
-#
-# Revision 1.26  2003/11/22 00:26:10  ihaywood
-# Set coding to latin-1 to please python 2.3
-#
-# Revision 1.25  2003/11/18 23:34:02  ncq
-# - don't use reload to force reload of same patient
-#
-# Revision 1.24  2003/11/17 10:56:38  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.23  2003/11/09 17:29:22  shilbert
-# - ['demographics'] -> ['demographic record']
-#
-# Revision 1.22  2003/11/07 20:44:11  ncq
-# - some cleanup
-# - listen to patient_selected by other widgets
-#
-# Revision 1.21  2003/11/04 00:22:46  ncq
-# - remove unneeded import
-#
-# Revision 1.20  2003/10/26 17:42:51  ncq
-# - cleanup
-#
-# Revision 1.19  2003/10/26 11:27:10  ihaywood
-# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
-#
-# Ergregious breakages are fixed, but needs more work
-#
-# Revision 1.18  2003/10/26 01:36:13  ncq
-# - gmTmpPatient -> gmPatient
-#
-# Revision 1.17  2003/10/19 12:17:57  ncq
-# - typo fix
-#
-# Revision 1.16  2003/09/21 07:52:57  ihaywood
-# those bloody umlauts killed by python interpreter!
-#
-# Revision 1.15  2003/07/07 08:34:31  ihaywood
-# bugfixes on gmdrugs.sql for postgres 7.3
-#
-# Revision 1.14  2003/07/03 15:22:19  ncq
-# - removed unused stuff
-#
-# Revision 1.13  2003/06/29 14:08:02  ncq
-# - extra ; removed
-# - kvk/incoming/ as default KVK dir
-#
-# Revision 1.12  2003/04/09 16:20:19  ncq
-# - added set selection on get focus -- but we don't tab in yet !!
-# - can now set title on pick list
-# - added KVK handling :-)
-#
-# Revision 1.11  2003/04/04 23:54:30  ncq
-# - tweaked some parent and style settings here and there, but still
-#   not where we want to be with the pick list ...
-#
-# Revision 1.10  2003/04/04 20:46:45  ncq
-# - adapt to new gmCurrentPatient()
-# - add (ugly) tooltip
-# - break out helper _display_name()
-# - fix KeyError on ids[0]
-#
-# Revision 1.9  2003/04/01 16:01:06  ncq
-# - fixed handling of no-patients-found result
-#
-# Revision 1.8  2003/04/01 15:33:22  ncq
-# - and double :: of course, duh
-#
-# Revision 1.7  2003/04/01 15:32:52  ncq
-# - stupid indentation error
-#
-# Revision 1.6  2003/04/01 12:28:14  ncq
-# - factored out _normalize_soundalikes()
-#
-# Revision 1.5  2003/04/01 09:08:27  ncq
-# - better Umlaut replacement
-# - safer cursor.close() handling
-#
-# Revision 1.4  2003/03/31 23:38:16  ncq
-# - sensitize() helper for smart names upcasing
-# - massively rework queries for speedup
-#
-# Revision 1.3  2003/03/30 00:24:00  ncq
-# - typos
-# - (hopefully) less confusing printk()s at startup
-#
-# Revision 1.2  2003/03/28 15:56:04  ncq
-# - adapted to GnuMed CVS structure
-#

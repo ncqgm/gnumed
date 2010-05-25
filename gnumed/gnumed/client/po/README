@@ -1,6 +1,3 @@
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
-# $Revision: 1.11 $
-
 GUI text localization
 =====================
 The GNU gettext system is used to provide a user interface
@@ -11,10 +8,47 @@ NOTE: <LANG> corresponds to the ISO code for your language
 NOTE: Requires gettext tools to be installed.
 
 Message catalogs, related files and useful shell scripts
-live in the directories below gnumed/client/locale/ .
+live in the directories below gnumed/client/po/ .
+
+The most convenient way to translation the GNUmed UI is
+via translations.launchpad.net/gnumed
 
 How to translate the GNUmed UI
 ------------------------------
+
+The most convenient way to translation the GNUmed UI is
+via translations.launchpad.net/gnumed
+
+Hints for translators:
+
+ - look at translations in other languages to get an idea of what
+   a term might mean
+
+ - look at the source and/or a running GNUmed to find good translations
+
+ - keep exactly the same number of %s, %d etc in your translation,
+   they are formatting placeholders and will be replaced with
+   certain data (such as file names) dynamically at runtime
+
+ - if you see the ampersand (&) next to a word do keep it there
+   in your translation because that is what tells wxPython
+   which key to use for the keyboard hotkey
+
+ - if the file asks you to translate the empty string ("")
+   go into the python source and remove the _() around the
+   empty string,
+   the empty string cannot be translated and _will_ produce errors
+   because it is used as the message string ID for po-file
+   metadata
+
+ - do not translate strings which say that they don't need
+   to be translated
+
+ - do translate strings that say they MUST be translated :-)
+
+Technical description
+---------------------
+
 Those are the rough steps to get GNUmed translated
 into your language:
 
@@ -49,23 +83,6 @@ In this case you need to edit a few metadata entries at the
 very top of the <LANG>.po file such as the character set you
 are using.
 
-Hints for translations:
-
- - look at translations in other languages to get an idea
- - look at the source and/or the running GNUmed to find good translations
- - keep exactly the same number of %s, %d etc in your translation,
-   they are formatting placeholders and will be replaced with
-   certain data (such as file names) dynamically at runtime
- - if the file asks you to translate the empty string ("")
-   go into the python source and remove the _() around the
-   empty string,
-   the empty string cannot be translated and _will_ produce errors
-   because it is used as the message string ID for po-file
-   metadata
- - do not translate strings which say that they don't need
-   to be translated
- - do translate strings that say they MUST be translated :-)
-
 Creating a *.mo file
 --------------------
 With 
@@ -92,9 +109,9 @@ You need to name either the copy or the symlink "gnumed.mo".
 On MS Windows you must create the following directories:
 client/
  client/wxpython/
- client/locale/
-  client/locale/<LANG>/
-   client/locale/<LANG>/LC_MESSAGES/
+ client/po/
+ client/po/<LANG>/
+ client/po/<LANG>/LC_MESSAGES/
 
 You then need to move the <LANG>-gnumed.mo to the
 appropriate LC_MESSAGES directory (or make a symlink)
@@ -102,5 +119,4 @@ again under the name of "gnumed.mo".
 
 Karsten Hilbert
 <Karsten.Hilbert@gmx.net>
-GNUmed i18n/L10n coordinator
 

@@ -51,7 +51,7 @@ def configure_default_country(parent=None):
 		bias = 'user',
 		choices = [ (c['l10n_country'], c['code']) for c in countries ],
 		columns = [_('Country'), _('Code')],
-		data = [ c['country'] for c in countries ]
+		data = [ c['name'] for c in countries ]
 	)
 #============================================================
 class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1607,6 +1607,114 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		return no_errors
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgIdentityEAPnl
+
+class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditAreaMixin):
+	"""An edit area for editing/creating title/gender/dob/dod etc."""
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			data = None
+
+		wxgIdentityEAPnl.wxgIdentityEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+#		self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		has_error = False
+
+		if self._PRW_gender.GetData() is None:
+			self._PRW_gender.SetFocus()
+			has_error = True
+
+		if not self._PRW_dob.is_valid_timestamp():
+			val = self._PRW_dob.GetValue().strip()
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
+			self._PRW_dob.SetBackgroundColour('pink')
+			self._PRW_dob.Refresh()
+			self._PRW_dob.SetFocus()
+			has_error = True
+		else:
+			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_dob.Refresh()
+
+		if not self._DP_dod.is_valid_timestamp(allow_none=True):
+			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
+			self._DP_dod.SetFocus()
+			has_error = True
+
+		return (has_error is False)
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+#		data = 1
+
+#		data[''] = 1
+#		data[''] = 1
+
+#		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+#		self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+
+		self.data['gender'] = self._PRW_gender.GetData()
+
+		if self._PRW_dob.GetValue().strip() == u'':
+			self.data['dob'] = None
+		else:
+			self.data['dob'] = self._PRW_dob.GetData().get_pydt()
+
+		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
+		self.data['deceased'] = self._DP_dod.GetValue(as_pydt = True)
+
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+
+		self._LBL_info.SetLabel(u'ID: #%s' % (
+			self.data.ID
+			# FIXME: add 'deleted' status
+		))
+		self._PRW_dob.SetText (
+			value = self.data.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
+			data = self.data['dob']
+		)
+		self._DP_dod.SetValue(self.data['deceased'])
+		self._PRW_gender.SetData(self.data['gender'])
+		#self._PRW_ethnicity.SetValue()
+		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], u''))
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl
 
 class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl):
@@ -1635,8 +1743,10 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		self._PRW_firstname.SetText(self.__name['firstnames'])
 		self._PRW_lastname.SetText(self.__name['lastnames'])
 		self._PRW_nick.SetText(gmTools.coalesce(self.__name['preferred'], u''))
-		dob = self.__identity['dob']
-		self._PRW_dob.SetText(value = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
+		self._PRW_dob.SetText (
+			value = self.__identity.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
+			data = self.__identity['dob']
+		)
 		self._PRW_gender.SetData(self.__name['gender'])
 		self._CHBOX_active.SetValue(self.__name['active_name'])
 		self._DP_dod.SetValue(self.__identity['deceased'])
@@ -1791,7 +1901,6 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_string_items (
 			items = [ [
 					gmTools.bool2str(n['active_name'], 'X', ''),
-					gmTools.coalesce(n['title'], gmPerson.map_gender2salutation(n['gender'])),
 					n['lastnames'],
 					n['firstnames'],
 					gmTools.coalesce(n['preferred'], u''),
@@ -1806,7 +1915,6 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def __init_ui(self):
 		self._LCTRL_items.set_columns(columns = [
 			_('Active'),
-			_('Title'),
 			_('Lastname'),
 			_('Firstname(s)'),
 			_('Preferred Name'),
@@ -1990,6 +2098,11 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 	def refresh(self):
 		self._PNL_names.identity = self.__identity
 		self._PNL_ids.identity = self.__identity
+		# this is an Edit Area:
+		self._PNL_identity.mode = 'new'
+		self._PNL_identity.data = self.__identity
+		if self.__identity is not None:
+			self._PNL_identity.mode = 'edit'
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -2001,6 +2114,89 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 		self.refresh()
 
 	identity = property(_get_identity, _set_identity)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_save_identity_details_button_pressed(self, event):
+		if not self._PNL_identity.save():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save identity. Incomplete information'), beep = True)
+	#--------------------------------------------------------
+	def _on_reload_identity_button_pressed(self, event):
+		self._PNL_identity.refresh()
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgPersonSocialNetworkManagerPnl
+
+class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonSocialNetworkManagerPnl):
+	def __init__(self, *args, **kwargs):
+
+		wxgPersonSocialNetworkManagerPnl.wxgPersonSocialNetworkManagerPnl.__init__(self, *args, **kwargs)
+
+		self.__identity = None
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self):
+
+		tt = _("Link another person in this database as the emergency contact.")
+
+		if self.__identity is None:
+			self._TCTRL_er_contact.SetValue(u'')
+			self._TCTRL_person.person = None
+			self._TCTRL_person.SetToolTipString(tt)
+			return
+
+		self._TCTRL_er_contact.SetValue(gmTools.coalesce(self.__identity['emergency_contact'], u''))
+		if self.__identity['pk_emergency_contact'] is not None:
+			ident = gmPerson.cIdentity(aPK_obj = self.__identity['pk_emergency_contact'])
+			self._TCTRL_person.person = ident
+			tt = u'%s\n\n%s\n\n%s' % (
+				tt,
+				ident['description_gender'],
+				u'\n'.join([
+					u'%s: %s%s' % (
+						c['l10n_comm_type'],
+						c['url'],
+						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), u'', u'')
+					)
+					for c in ident.get_comm_channels()
+				])
+			)
+		else:
+			self._TCTRL_person.person = None
+
+		self._TCTRL_person.SetToolTipString(tt)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, event):
+		if self.__identity is not None:
+			self.__identity['emergency_contact'] = self._TCTRL_er_contact.GetValue().strip()
+			self.__identity['pk_emergency_contact'] = self._TCTRL_person.person.ID
+			self.__identity.save()
+
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_button_activate_contact_pressed(self, event):
+
+		ident = self._TCTRL_person.person
+		if ident is not None:
+			from Gnumed.wxpython import gmPatSearchWidgets
+			gmPatSearchWidgets.set_active_patient(patient = ident, forced_reload = False)
+
+		event.Skip()
 #============================================================
 # new-patient widgets
 #============================================================
@@ -2717,6 +2913,7 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		self.basic_pat_details = cBasicPatDetailsPage(self, self.__subtitle )
 		self.FitToPage(self.basic_pat_details)
 #============================================================
+#============================================================
 class cBasicPatDetailsPageValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered all
@@ -2897,50 +3094,50 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			return False
 		return True
 #============================================================
-class cFormDTD:
-	"""
-	Simple Data Transfer Dictionary class to make easy the trasfer of
-	data between the form (view) and the business logic.
-
-	Maybe later consider turning this into a standard dict by
-	{}.fromkeys([key, key, ...], default) when it becomes clear that
-	we really don't need the added potential of a full-fledged class.
-	"""
-	def __init__(self, fields):
-		"""
-		Initialize the DTD with the supplied field names.
-		@param fields The names of the fields.
-		@type fields A TupleType instance.
-		"""
-		self.data = {}
-		for a_field in fields:
-			self.data[a_field] = ''
-
-	def __getitem__(self, attribute):
-		"""
-		Retrieve the value of the given attribute (key)
-		@param attribute The attribute (key) to retrieve its value for.
-		@type attribute a StringType instance.
-		"""
-		if not self.data[attribute]:
-			return ''
-		return self.data[attribute]
-
-	def __setitem__(self, attribute, value):
-		"""
-		Set the value of a given attribute (key).
-		@param attribute The attribute (key) to set its value for.
-		@type attribute a StringType instance.		
-		@param avaluee The value to set.
-		@rtpe attribute a StringType instance.
-		"""
-		self.data[attribute] = value
-	
-	def __str__(self):
-		"""
-		Print string representation of the DTD object.
-		"""
-		return str(self.data)
+#class cFormDTD:
+#	"""
+#	Simple Data Transfer Dictionary class to make easy the trasfer of
+#	data between the form (view) and the business logic.
+#
+#	Maybe later consider turning this into a standard dict by
+#	{}.fromkeys([key, key, ...], default) when it becomes clear that
+#	we really don't need the added potential of a full-fledged class.
+#	"""
+#	def __init__(self, fields):
+#		"""
+#		Initialize the DTD with the supplied field names.
+#		@param fields The names of the fields.
+#		@type fields A TupleType instance.
+#		"""
+#		self.data = {}
+#		for a_field in fields:
+#			self.data[a_field] = ''
+#
+#	def __getitem__(self, attribute):
+#		"""
+#		Retrieve the value of the given attribute (key)
+#		@param attribute The attribute (key) to retrieve its value for.
+#		@type attribute a StringType instance.
+#		"""
+#		if not self.data[attribute]:
+#			return ''
+#		return self.data[attribute]
+#
+#	def __setitem__(self, attribute, value):
+#		"""
+#		Set the value of a given attribute (key).
+#		@param attribute The attribute (key) to set its value for.
+#		@type attribute a StringType instance.		
+#		@param avaluee The value to set.
+#		@rtpe attribute a StringType instance.
+#		"""
+#		self.data[attribute] = value
+#
+#	def __str__(self):
+#		"""
+#		Print string representation of the DTD object.
+#		"""
+#		return str(self.data)
 #============================================================
 # patient demographics editing classes
 #============================================================
@@ -2949,6 +3146,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 
 		- Identity
 		- Contacts (addresses, phone numbers, etc)
+		- Social Network (significant others, GP, etc)
 
 	Does NOT act on/listen to the current patient.
 	"""
@@ -2981,6 +3179,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""Build patient edition notebook pages."""
+
 		# contacts page
 		new_page = cPersonContactsManagerPnl(self, -1)
 		new_page.identity = self.__identity
@@ -2998,6 +3197,15 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 			text = _('Identity'),
 			select = False
 		)
+
+		# social network page
+		new_page = cPersonSocialNetworkManagerPnl(self, -1)
+		new_page.identity = self.__identity
+		self.AddPage (
+			page = new_page,
+			text = _('Social Network'),
+			select = False
+		)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -3008,6 +3216,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		self.__identity = identity
 
 	identity = property(_get_identity, _set_identity)
+#============================================================
 #============================================================
 # FIXME: support multiple occupations
 # FIXME: redo with wxGlade
@@ -3125,122 +3334,122 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__patient_notebook.refresh()
 		return True
 #============================================================
-def create_identity_from_dtd(dtd=None):
-	"""
-	Register a new patient, given the data supplied in the 
-	Data Transfer Dictionary object.
-
-	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-	supplied data.
-	@type basic_details_DTD A cFormDTD instance.
-	"""
-	new_identity = gmPerson.create_identity (
-		gender = dtd['gender'],
-		dob = dtd['dob'].get_pydt(),
-		lastnames = dtd['lastnames'],
-		firstnames = dtd['firstnames']
-	)
-	if new_identity is None:
-		_log.error('cannot create identity from %s' % str(dtd))
-		return None
-	_log.debug('identity created: %s' % new_identity)
-
-	if dtd['comment'] is not None:
-		if dtd['comment'].strip() != u'':
-			name = new_identity.get_active_name()
-			name['comment'] = dtd['comment']
-			name.save_payload()
-
-	return new_identity
+#def create_identity_from_dtd(dtd=None):
+#	"""
+#	Register a new patient, given the data supplied in the 
+#	Data Transfer Dictionary object.
+#
+#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+#	supplied data.
+#	@type basic_details_DTD A cFormDTD instance.
+#	"""
+#	new_identity = gmPerson.create_identity (
+#		gender = dtd['gender'],
+#		dob = dtd['dob'].get_pydt(),
+#		lastnames = dtd['lastnames'],
+#		firstnames = dtd['firstnames']
+#	)
+#	if new_identity is None:
+#		_log.error('cannot create identity from %s' % str(dtd))
+#		return None
+#	_log.debug('identity created: %s' % new_identity)
+#
+#	if dtd['comment'] is not None:
+#		if dtd['comment'].strip() != u'':
+#			name = new_identity.get_active_name()
+#			name['comment'] = dtd['comment']
+#			name.save_payload()
+#
+#	return new_identity
 #============================================================
-def update_identity_from_dtd(identity, dtd=None):
-	"""
-	Update patient details with data supplied by
-	Data Transfer Dictionary object.
-
-	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-	supplied data.
-	@type basic_details_DTD A cFormDTD instance.
-	"""
-	# identity
-	if identity['gender'] != dtd['gender']:
-		identity['gender'] = dtd['gender']
-	if identity['dob'] != dtd['dob'].get_pydt():
-		identity['dob'] = dtd['dob'].get_pydt()
-	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
-		identity['title'] = dtd['title']
-	# FIXME: error checking
-	# FIXME: we need a trigger to update the values of the
-	# view, identity['keys'], eg. lastnames and firstnames
-	# are not refreshed.
-	identity.save_payload()
-
-	# names
-	# FIXME: proper handling of "active"
-	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
-		new_name = identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True)
-	# nickname
-	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
-		identity.set_nickname(nickname = dtd['nick'])
-
-	return True
-#============================================================
-def link_contacts_from_dtd(identity, dtd=None):
-	"""
-	Update patient details with data supplied by
-	Data Transfer Dictionary object.
-
-	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-	supplied data.
-	@type basic_details_DTD A cFormDTD instance.
-	"""
-	lng = len (
-		dtd['address_number'].strip() +
-		dtd['street'].strip() +
-		dtd['zip_code'].strip() +
-		dtd['town'].strip() +
-		dtd['state'].strip() +
-		dtd['country'].strip()
-	)
-	# FIXME: improve error checking
-	if lng > 5:
-		# FIXME: support address type
-		success = identity.link_address (
-			number = dtd['address_number'].strip(),
-			street = dtd['street'].strip(),
-			postcode = dtd['zip_code'].strip(),
-			urb = dtd['town'].strip(),
-			state = dtd['state'].strip(),
-			country = dtd['country'].strip()
-		)
-		if not success:
-			gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address.'))
-	else:
-		gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address. Missing fields.'))
-
-	if len(dtd['phone']) > 0:
-		identity.link_comm_channel (
-			comm_medium = 'homephone',
-			url = dtd['phone'],
-			is_confidential = False
-		)
-
-	# FIXME: error checking
+#def update_identity_from_dtd(identity, dtd=None):
+#	"""
+#	Update patient details with data supplied by
+#	Data Transfer Dictionary object.
+#
+#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+#	supplied data.
+#	@type basic_details_DTD A cFormDTD instance.
+#	"""
+#	# identity
+#	if identity['gender'] != dtd['gender']:
+#		identity['gender'] = dtd['gender']
+#	if identity['dob'] != dtd['dob'].get_pydt():
+#		identity['dob'] = dtd['dob'].get_pydt()
+#	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
+#		identity['title'] = dtd['title']
+#	# FIXME: error checking
+#	# FIXME: we need a trigger to update the values of the
+#	# view, identity['keys'], eg. lastnames and firstnames
+#	# are not refreshed.
 #	identity.save_payload()
-	return True
+#
+#	# names
+#	# FIXME: proper handling of "active"
+#	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
+#		new_name = identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True)
+#	# nickname
+#	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
+#		identity.set_nickname(nickname = dtd['nick'])
+#
+#	return True
+#============================================================
+#def link_contacts_from_dtd(identity, dtd=None):
+#	"""
+#	Update patient details with data supplied by
+#	Data Transfer Dictionary object.
+#
+#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+#	supplied data.
+#	@type basic_details_DTD A cFormDTD instance.
+#	"""
+#	lng = len (
+#		dtd['address_number'].strip() +
+#		dtd['street'].strip() +
+#		dtd['zip_code'].strip() +
+#		dtd['town'].strip() +
+#		dtd['state'].strip() +
+#		dtd['country'].strip()
+#	)
+#	# FIXME: improve error checking
+#	if lng > 5:
+#		# FIXME: support address type
+#		success = identity.link_address (
+#			number = dtd['address_number'].strip(),
+#			street = dtd['street'].strip(),
+#			postcode = dtd['zip_code'].strip(),
+#			urb = dtd['town'].strip(),
+#			state = dtd['state'].strip(),
+#			country = dtd['country'].strip()
+#		)
+#		if not success:
+#			gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address.'))
+#	else:
+#		gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address. Missing fields.'))
+#
+#	if len(dtd['phone']) > 0:
+#		identity.link_comm_channel (
+#			comm_medium = 'homephone',
+#			url = dtd['phone'],
+#			is_confidential = False
+#		)
+#
+#	# FIXME: error checking
+##	identity.save_payload()
+#	return True
 #============================================================				
-def link_occupation_from_dtd(identity, dtd=None):
-	"""
-	Update patient details with data supplied by
-	Data Transfer Dictionary object.
-
-	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-	supplied data.
-	@type basic_details_DTD A cFormDTD instance.
-	"""
-	identity.link_occupation(occupation = dtd['occupation'])
-
-	return True
+#def link_occupation_from_dtd(identity, dtd=None):
+#	"""
+#	Update patient details with data supplied by
+#	Data Transfer Dictionary object.
+#
+#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+#	supplied data.
+#	@type basic_details_DTD A cFormDTD instance.
+#	"""
+#	identity.link_occupation(occupation = dtd['occupation'])
+#
+#	return True
 #============================================================
 class TestWizardPanel(wx.Panel):   
 	"""

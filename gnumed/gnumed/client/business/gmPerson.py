@@ -5,8 +5,6 @@ This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.198 2010-01-31 16:35:03 ncq Exp $
 __version__ = "$Revision: 1.198 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -353,13 +351,27 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 				fk_marital_status = %(pk_marital_status)s,
 				karyotype = gm.nullify_empty_string(%(karyotype)s),
 				pupic = gm.nullify_empty_string(%(pupic)s),
-				deceased = %(deceased)s
+				deceased = %(deceased)s,
+				emergency_contact = gm.nullify_empty_string(%(emergency_contact)s),
+				fk_emergency_contact = %(pk_emergency_contact)s
 			where
 				pk = %(pk_identity)s and
 				xmin = %(xmin_identity)s""",
 		u"""select xmin_identity from dem.v_basic_person where pk_identity = %(pk_identity)s"""
 	]
-	_updatable_fields = ["title", "dob", "tob", "cob", "gender", "pk_marital_status", "karyotype", "pupic", 'deceased']
+	_updatable_fields = [
+		"title",
+		"dob",
+		"tob",
+		"cob",
+		"gender",
+		"pk_marital_status",
+		"karyotype",
+		"pupic",
+		'deceased',
+		'emergency_contact',
+		'pk_emergency_contact'
+	]
 	#--------------------------------------------------------
 	def _get_ID(self):
 		return self._payload[self._idx['pk_identity']]
@@ -1027,7 +1039,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
 			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
 			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)'),
-			self._payload[self._idx['dob']].strftime('%Y-%m-%d')
+			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
 		)
 #============================================================
 class cStaffMember(cIdentity):
@@ -1970,10 +1982,12 @@ def set_active_patient(patient=None, forced_reload=False):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, cStaff):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
+	elif isinstance(patient, gmCurrentPatient):
+		pat = patient.patient
 	elif patient == -1:
 		pat = patient
 	else:
-		raise ValueError('<patient> must be either -1, cPatient, cStaff or cIdentity instance, is: %s' % patient)
+		raise ValueError('<patient> must be either -1, cPatient, cStaff, cIdentity or gmCurrentPatient instance, is: %s' % patient)
 
 	# attempt to switch
 	try:

@@ -41,8 +41,8 @@ su -c "mv -vf ${WRAPPER_NAME} ${INSTALL_BASE}/${APP_NAME} && mv -vf ${DL_TARGET_
 
 # remove old jars ?
 echo ""
-read -e -p "Alte ARRIBA-Versionen entfernen ? [j/N]: "
-if test "${REPLY}" == "j" ; then
+read -p "Alte ARRIBA-Versionen entfernen ? [j/N]: " REPLY
+if test "${REPLY}" = "j" ; then
 
 	OLD_JARS="/usr/bin/arriba* /usr/local/bin/arriba-2.0.3.jar"
 

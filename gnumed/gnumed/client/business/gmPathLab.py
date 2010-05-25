@@ -7,7 +7,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import types, sys, logging
+import types, sys, logging, codecs
 
 
 if __name__ == '__main__':
@@ -587,6 +587,71 @@ where
 	})
 
 	return tr
+#------------------------------------------------------------
+def export_results_for_gnuplot(results=None, filename=None):
+
+	if filename is None:
+		filename = gmTools.get_unique_filename(prefix = u'gm2gpl-', suffix = '.dat')
+
+	# sort results into series by test type
+	series = {}
+	for r in results:
+		try:
+			series[r['unified_name']].append(r)
+		except KeyError:
+			series[r['unified_name']] = [r]
+
+	gp_data = codecs.open(filename, 'wb', 'utf8')
+
+	gp_data.write(u'# %s\n' % _('GNUmed test results export for Gnuplot plotting'))
+	gp_data.write(u'# -------------------------------------------------------------\n')
+	gp_data.write(u'# first line of index: test type abbreviation & name\n')
+	gp_data.write(u'#\n')
+	gp_data.write(u'# clin_when at full precision\n')
+	gp_data.write(u'# value\n')
+	gp_data.write(u'# unit\n')
+	gp_data.write(u'# unified (target or normal) range: lower bound\n')
+	gp_data.write(u'# unified (target or normal) range: upper bound\n')
+	gp_data.write(u'# normal range: lower bound\n')
+	gp_data.write(u'# normal range: upper bound\n')
+	gp_data.write(u'# target range: lower bound\n')
+	gp_data.write(u'# target range: upper bound\n')
+	gp_data.write(u'# clin_when formatted into string as x-axis tic label\n')
+	gp_data.write(u'# -------------------------------------------------------------\n')
+
+	for test_type in series.keys():
+		if len(series[test_type]) == 0:
+			continue
+
+		r = series[test_type][0]
+		title = u'%s (%s)' % (
+			r['unified_abbrev'],
+			r['unified_name']
+		)
+		gp_data.write(u'\n\n"%s" "%s"\n' % (title, title))
+
+		prev_date = None
+		for r in series[test_type]:
+			curr_date = r['clin_when'].strftime('%Y-%m-%d')
+			if curr_date == prev_date:
+				gp_data.write(u'\n# %s\n' % _('blank line inserted to allow for discontinued line drawing for same-day values'))
+			gp_data.write (u'%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
+				r['clin_when'].strftime('%Y-%m-%d_%H:%M'),
+				r['unified_val'],
+				gmTools.coalesce(r['val_unit'], u'"<?>"'),
+				gmTools.coalesce(r['unified_target_min'], u'"<?>"'),
+				gmTools.coalesce(r['unified_target_max'], u'"<?>"'),
+				gmTools.coalesce(r['val_normal_min'], u'"<?>"'),
+				gmTools.coalesce(r['val_normal_max'], u'"<?>"'),
+				gmTools.coalesce(r['val_target_min'], u'"<?>"'),
+				gmTools.coalesce(r['val_target_max'], u'"<?>"'),
+				r['clin_when'].strftime('%b %d %H:%M')
+			))
+			prev_date = curr_date
+
+	gp_data.close()
+
+	return filename
 #============================================================
 class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab result."""

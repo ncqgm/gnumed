@@ -10,7 +10,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import sys, os.path, cPickle, zlib, logging, re as regex
+import sys, os.path, logging, re as regex
 
 
 # 3rd party
@@ -286,25 +286,13 @@ class cBackendProfile:
 class cLoginDialog(wx.Dialog):
 	"""cLoginDialog - window holding cLoginPanel"""
 
-	icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
-\xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
-\xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
-\x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
-\xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
-\xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
-\xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
-
 	def __init__(self, parent, id, title=_("Welcome to the"), client_version=u'*** unknown ***'):
 		wx.Dialog.__init__(self, parent, id, title)
 		self.panel = cLoginPanel(self, -1, isDialog=1, client_version = client_version)
 		self.Fit() # needed for Windoze.
 		self.Centre()
 
-		# set window icon
-		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent)))
-		icon = wx.EmptyIcon()
-		icon.CopyFromBitmap(icon_bmp_data)
-		self.SetIcon(icon)
+		self.SetIcon(gmTools.get_icon(wx = wx))
 #================================================================
 class cLoginPanel(wx.Panel):
 	"""GUI panel class that interactively gets Postgres login parameters.
