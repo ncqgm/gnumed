@@ -11,6 +11,9 @@ import wx
 
 class wxgVaccinationEAPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
+
+        from Gnumed.wxpython import gmPhraseWheel, gmEMRStructWidgets
+
         # begin wxGlade: wxgVaccinationEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)

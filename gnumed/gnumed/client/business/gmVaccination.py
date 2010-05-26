@@ -19,13 +19,14 @@ from Gnumed.business import gmMedication
 
 _log = logging.getLogger('gm.vaccination')
 _log.info(__version__)
+
 #============================================================
 _sql_fetch_vaccine = u"""SELECT *, xmin_vaccine FROM clin.v_vaccines WHERE %s"""
 
 class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccine."""
 
-	_cmd_fetch_payload = _sql_fetch_vaccine % "pk = %s"
+	_cmd_fetch_payload = _sql_fetch_vaccine % "pk_vaccine = %s"
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.vaccine SET
@@ -80,11 +81,44 @@ def regenerate_generic_vaccines():
 
 	return rows[0][0]
 #============================================================
+# vaccination related classes
+#============================================================
+sql_fetch_vaccination = u"""SELECT * FROM clin.v_pat_vaccinations WHERE %s"""
+
+class cVaccination(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = sql_fetch_vaccination % "pk_vaccination = %s"
+
+	_cmds_store_payload = [
+		u"""UPDATE clin.vaccine SET
+--				internal_name = gm.nullify_empty_string(%(internal_name)s),
+			WHERE
+				pk = %(pk_vaccine)s
+					AND
+				xmin = %(xmin_vaccine)s
+			RETURNING
+				xmin as xmin_vaccine
+		"""
+	]
+
+	_updatable_fields = [
+		u'date_given',
+		u'site',
+		u'batch_no',
+		u'reaction',
+		u'comment',
+		u'pk_vaccine',
+		u'pk_provider',
+		u'pk_encounter',
+		u'pk_episode',
+	]
+
+#============================================================
 #============================================================
 #============================================================
 # old code
 #============================================================
-class cVaccination(gmBusinessDBObject.cBusinessDBObject):
+class cVaccinationOld(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccination event.
 	"""
 	_cmd_fetch_payload = """
@@ -92,7 +126,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 		where pk_vaccination=%s
 		order by date desc"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.vaccination where id=%(pk_vaccination)s and xmin=%(xmin_vaccination)s for update"""
+		"""select 1 from clin.vaccination where pk = %(pk_vaccination)s and xmin = %(xmin_vaccination)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update clin.vaccination set
@@ -102,7 +136,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 				fk_vaccine=(select pk from clin.vaccine where trade_name=%(vaccine)s),
 				site=%(site)s,
 				batch_no=%(batch_no)s
-			where id=%(pk_vaccination)s""",
+			where pk = %(pk_vaccination)s""",
 		"""select xmin_vaccination from clin.v_pat_vaccinations4indication where pk_vaccination=%(pk_vaccination)s"""
 		]
 	_updatable_fields = [

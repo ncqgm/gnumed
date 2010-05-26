@@ -18,7 +18,7 @@ import mx.DateTime as mxDT
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmMatchProvider, gmTools
+from Gnumed.pycommon import gmDispatcher, gmMatchProvider, gmTools, gmI18N
 from Gnumed.business import gmPerson, gmVaccination
 from Gnumed.wxpython import gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
 from Gnumed.wxpython import gmEditArea, gmListWidgets
@@ -27,6 +27,8 @@ from Gnumed.wxpython import gmEditArea, gmListWidgets
 _log = logging.getLogger('gm.vaccination')
 _log.info(__version__)
 #======================================================================
+# vaccines related widgets
+#----------------------------------------------------------------------
 def manage_vaccines(parent=None):
 
 	if parent is None:
@@ -66,9 +68,115 @@ def manage_vaccines(parent=None):
 		single_selection = True,
 		refresh_callback = refresh
 	)
+#======================================================================
+# vaccination related widgets
+#----------------------------------------------------------------------
+def manage_vaccinations(parent=None):
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+
+		vaccs = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
+
+		items = [ [
+			v['date_given'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
+			v['vaccine'],
+			u', '.join(v['indications']),
+			v['batch_no'],
+			gmTools.coalesce(v['site'], u''),
+			gmTools.coalesce(v['reaction'], u''),
+			gmTools.coalesce(v['comment'], u'')
+		] for v in vaccs ]
+
+		lctrl.set_string_items(items)
+		lctrl.set_data(vaccs)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nComplete vaccination history for this patient.\n'),
+		caption = _('Showing vaccinations.'),
+		columns = [ u'Date', _('Vaccine'), _(u'Indications'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
+#----------------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl
+
+class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['vaccination']
+			del kwargs['vaccination']
+		except KeyError:
+			data = None
+
+		wxgVaccinationEAPnl.wxgVaccinationEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = 1
+
+		data[''] = 1
+		data[''] = 1
+
+		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+		self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+		self.data[''] = 1
+		self.data[''] = 1
+		self.data[''] = 1
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+
+
+
 
 #======================================================================
-class cVaccinationEditArea(gmEditArea.cEditArea2):
+class cVaccinationEditAreaOld(gmEditArea.cEditArea2):
 	"""
 	- warn on apparent duplicates
 	- ask if "missing" (= previous, non-recorded) vaccinations

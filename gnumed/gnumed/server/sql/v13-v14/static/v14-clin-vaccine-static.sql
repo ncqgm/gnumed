@@ -8,6 +8,9 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+
+-- we don't use inheritance here since UNIQUE constraints are
+-- not automatically enforced across inheritance trees
 -- .fk_brand
 alter table clin.vaccine
 	add column fk_brand integer;

@@ -41,7 +41,8 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools, gmDateTime
-from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab, gmMedication
+from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab
+from Gnumed.business import gmMedication, gmVaccination
 
 
 _log = logging.getLogger('gm.emr')
@@ -106,9 +107,7 @@ SELECT fk_encounter from
 			)
 		# ...........................................
 
-		self.__db_cache = {
-			'vaccinations': {}
-		}
+		self.__db_cache = {}
 
 		# load current or create new encounter
 		if _func_ask_user is None:
@@ -175,10 +174,6 @@ SELECT fk_encounter from
 		return True
 	#--------------------------------------------------------
 	def db_callback_vaccs_modified(self, **kwds):
-		try:
-			self.__db_cache['vaccinations'] = {}
-		except KeyError:
-			pass
 		return True
 	#--------------------------------------------------------
 	def _health_issues_modified(self):
@@ -287,7 +282,7 @@ SELECT fk_encounter from
 			order by date, soap_rank
 		"""
 
-		#xxxxxxxxxxxxxxx
+		#xxxxxxxxxxxxxxxx
 		# support row_version in narrative for display in tree
 
 		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
@@ -675,12 +670,13 @@ SELECT ((
 			u'SELECT count(1) FROM clin.v_pat_procedures WHERE pk_patient = %(pat)s',
 			# active and approved substances == medication
 			u"""
-SELECT count(1)
-from clin.v_pat_substance_intake
-WHERE
-	pk_patient = %(pat)s
-	and is_currently_active in (null, true)
-	and intake_is_approved_of in (null, true)"""
+				SELECT count(1)
+				from clin.v_pat_substance_intake
+				WHERE
+					pk_patient = %(pat)s
+					and is_currently_active in (null, true)
+					and intake_is_approved_of in (null, true)""",
+			u'SELECT count(1) FROM clin.v_pat_vaccinations WHERE pk_patient = %(pat)s'
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
@@ -696,7 +692,8 @@ WHERE
 			results = rows[4][0],
 			stays = rows[5][0],
 			procedures = rows[6][0],
-			active_drugs = rows[7][0]
+			active_drugs = rows[7][0],
+			vaccinations = rows[8][0]
 		)
 
 		return stats
@@ -710,6 +707,7 @@ Documents: %(documents)s
 Test results: %(results)s
 Hospital stays: %(stays)s
 Procedures: %(procedures)s
+Vaccinations: %(vaccinations)s
 """			) % self.get_statistics()
 	#--------------------------------------------------------
 	def format_summary(self):
@@ -733,8 +731,8 @@ Procedures: %(procedures)s
 			)
 		txt += _(' %s encounters from %s to %s\n') % (
 			stats['encounters'],
-			first['started'].strftime('%x'),
-			last['started'].strftime('%x')
+			first['started'].strftime('%x').decode(gmI18N.get_encoding()),
+			last['started'].strftime('%x').decode(gmI18N.get_encoding())
 		)
 		txt += _(' %s active medications\n') % stats['active_drugs']
 		txt += _(' %s documents\n') % stats['documents']
@@ -747,13 +745,25 @@ Procedures: %(procedures)s
 		allg_state = self.allergy_state
 		txt += (u' ' + allg_state.state_string)
 		if allg_state['last_confirmed'] is not None:
-			txt += (_(' (last confirmed %s)') % allg_state['last_confirmed'].strftime('%x'))
+			txt += (_(' (last confirmed %s)') % allg_state['last_confirmed'].strftime('%x').decode(gmI18N.get_encoding()))
 		txt += u'\n'
 		txt += gmTools.coalesce(allg_state['comment'], u'', u' %s\n')
 		for allg in self.get_allergies():
 			txt += u' %s: %s\n' % (
 				allg['descriptor'],
 				gmTools.coalesce(allg['reaction'], _('unknown reaction'))
+			)
+
+		txt += u'\n'
+		txt += _('Latest vaccinations')
+		txt += u'\n'
+
+		vaccs = self.get_latest_vaccinations()
+		inds = sorted(vaccs.keys())
+		for ind in inds:
+			txt += u' %s: %s\n' % (
+				ind,
+				vaccs[ind]['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding())
 			)
 
 		return txt
@@ -1210,6 +1220,67 @@ WHERE
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
+	def get_latest_vaccinations(self, episodes=None, issues=None):
+		"""Returns latest given vaccination for each vaccinated indication.
+
+		as a dict {'l10n_indication': cVaccination instance}
+
+		Note that this will produce duplicate vaccination instances on combi-indication vaccines !
+		"""
+		# find the PKs
+		args = {'pat': self.pk_patient}
+		where_parts = [u'pk_patient = %(pat)s']
+
+		if (episodes is not None) and (len(episodes) > 0):
+			where_parts.append(u'pk_episode IN %(epis)s')
+			args['epis'] = tuple(episodes)
+
+		if (issues is not None) and (len(issues) > 0):
+			where_parts.append(u'pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
+			args['issues'] = tuple(issues)
+
+		cmd = u'SELECT pk_vaccination, l10n_indication FROM clin.v_pat_last_vacc4indication WHERE %s' % u'\nAND '.join(where_parts)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		vpks = [ ind['pk_vaccination'] for ind in rows ]
+		vinds = [ ind['l10n_indication'] for ind in rows ]
+
+		# turn them into vaccinations
+		cmd = gmVaccination.sql_fetch_vaccination % u'pk_vaccination IN %(pks)s'
+		args = {'pks': tuple(vpks)}
+		rows, row_idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		vaccs = {}
+		for idx in range(len(vpks)):
+			pk = vpks[idx]
+			for r in rows:
+				if r['pk_vaccination'] == pk:
+					vaccs[vinds[idx]] = gmVaccination.cVaccination(row = {'idx': row_idx, 'data': r, 'pk_field': 'pk_vaccination'})
+
+		return vaccs
+	#--------------------------------------------------------
+	def get_vaccinations(self, order_by=u''):
+
+		args = {
+			'pat': self.pk_patient
+		}
+		where_parts = [u'pk_patient = %(pat)s']
+
+		if order_by is None:
+			order_by = u''
+		else:
+			order_by = u'order by %s' % order_by
+
+		cmd = u'%s %s' % (
+			gmVaccination.sql_fetch_vaccination % u'\nAND '.join(where_parts),
+			order_by
+		)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		vaccs = [ gmVaccination.cVaccination(row = {'idx': idx, 'data': r, 'pk_field': 'pk_vaccination'})  for r in rows ]
+
+		return vaccs
+	#--------------------------------------------------------
+	# old/obsolete:
+	#--------------------------------------------------------
 	def get_scheduled_vaccination_regimes(self, ID=None, indications=None):
 		"""Retrieves vaccination regimes the patient is on.
 
@@ -1277,7 +1348,7 @@ WHERE
 			v_indications.append(tmp)
 		return (True, v_indications)
 	#--------------------------------------------------------
-	def get_vaccinations(self, ID=None, indications=None, since=None, until=None, encounters=None, episodes=None, issues=None):
+	def get_vaccinations_old(self, ID=None, indications=None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves list of vaccinations the patient has received.
 
 		optional:

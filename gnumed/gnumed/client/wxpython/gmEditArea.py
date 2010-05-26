@@ -39,7 +39,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		except KeyError:
 			data = None
 
-		wxgXxxEAPnl.wxgXxxPatientEAPnl.__init__(self, *args, **kwargs)
+		wxgXxxEAPnl.wxgXxxEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		# Code using this mixin should set mode and data
