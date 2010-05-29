@@ -55,6 +55,16 @@ alter table clin.vaccination
 	alter column site
 		set default null;
 
+
+-- .batch_no
+comment on column clin.vaccination.batch_no is
+	'The batch/lot number of the vaccine given.';
+
+alter table clin.vaccination
+	alter column batch_no
+		drop default;
+
+
 -- --------------------------------------------------------------
 -- trigger to ensure that UNIQUE(clin_when, pk_patient, fk_vaccine) holds
 
@@ -112,7 +122,7 @@ create trigger tr_sanity_check_no_duplicate_vaccinations
 drop view clin.v_pat_vaccinations cascade;
 \set ON_ERROR_STOP 1
 
-create or replace view clin.v_pat_vaccinations as
+create view clin.v_pat_vaccinations as
 
 select
 	cenc.fk_patient
@@ -123,7 +133,7 @@ select
 		as date_given,
 	rbd.description
 		as vaccine,
-	(select array_agg(description)
+	(select array_agg(_(description))
 	 from
 		clin.lnk_vaccine2inds clvi
 			join clin.vacc_indication cvi on (clvi.fk_indication = cvi.id)
@@ -184,7 +194,7 @@ grant select on clin.v_pat_vaccinations to group "gm-doctors";
 drop view clin.v_pat_vaccs4indication cascade;
 \set ON_ERROR_STOP 1
 
-create or replace view clin.v_pat_vaccs4indication as
+create view clin.v_pat_vaccs4indication as
 
 select
 	cenc.fk_patient
@@ -247,7 +257,7 @@ grant select on clin.v_pat_vaccs4indication to group "gm-doctors";
 drop view clin.v_pat_last_vacc4indication cascade;
 \set ON_ERROR_STOP 1
 
-create or replace view clin.v_pat_last_vacc4indication as
+create view clin.v_pat_last_vacc4indication as
 
 select
 	*
@@ -272,7 +282,83 @@ comment on view clin.v_pat_last_vacc4indication is
 grant select on clin.v_pat_last_vacc4indication to group "gm-doctors";
 
 -- --------------------------------------------------------------
--- EMR journal view
+\unset ON_ERROR_STOP
+drop view clin.v_pat_vaccinations_journal cascade;
+\set ON_ERROR_STOP 1
+
+create view clin.v_pat_vaccinations_journal as
+
+select
+	cenc.fk_patient
+		as pk_patient,
+	cv.modified_when
+		as modified_when,
+	cv.clin_when
+		as clin_when,
+	coalesce (
+		(select short_alias from dem.staff where db_user = cv.modified_by),
+		'<' || cv.modified_by || '>'
+	)
+		as modified_by,
+	cv.soap_cat
+		as soap_cat,
+
+	(_('Vaccination') || ': '
+		|| rbd.description || ' '
+		|| '[' || cv.batch_no || ']'
+		|| coalesce(' (' || cv.site || ')', '')
+		|| coalesce(E'\n' || _('Reaction') || ': ' || cv.reaction, '')
+		|| coalesce(E'\n' || _('Comment') || ': ' || cv.narrative, '')
+		|| coalesce (
+			(
+				E'\n' || _('Indications') || ': '
+				|| array_to_string ((
+					select
+						array_agg(_(description))
+		 			from
+						clin.lnk_vaccine2inds clvi
+							join clin.vacc_indication cvi on (clvi.fk_indication = cvi.id)
+					where
+						clvi.fk_vaccine = cv.fk_vaccine
+					),
+					' / '
+				)
+			),
+			''
+		)
+	)
+		as narrative,
+
+	cv.fk_encounter
+		as pk_encounter,
+	cv.fk_episode
+		as pk_episode,
+	(select fk_health_issue from clin.episode where pk = cv.fk_episode)
+		as pk_health_issue,
+	cv.pk
+		as src_pk,
+	'clin.vaccination'::text
+		as src_table,
+	cv.row_version
+		as row_version
+from
+	clin.vaccination cv
+		join clin.encounter cenc on (cenc.pk = cv.fk_encounter)
+			join clin.vaccine on (clin.vaccine.pk = cv.fk_vaccine)
+				join ref.branded_drug rbd on (clin.vaccine.fk_brand = rbd.pk)
+;
+
+select i18n.upd_tx('de_DE', 'Vaccination', 'Impfung');
+select i18n.upd_tx('de_DE', 'Reaction', 'Reaktion');
+select i18n.upd_tx('de_DE', 'Comment', 'Kommentar');
+select i18n.upd_tx('de_DE', 'Indications', 'Indikationen');
+
+
+comment on view clin.v_pat_vaccinations_journal is
+	'Vaccination data denormalized for the EMR journal.';
+
+grant select on clin.v_pat_vaccinations_journal to group "gm-doctors";
+
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v14-clin-vaccination-dynamic.sql', 'Revision: 1.1');

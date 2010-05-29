@@ -10,10 +10,10 @@ import sys, copy, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-#	from Gnumed.pycommon import gmI18N		#, gmDateTime, gmLog2
+#	from Gnumed.pycommon import 		#, gmDateTime, gmLog2
 #	gmDateTime.init()
 #	gmI18N.activate_locale()
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N
 from Gnumed.business import gmMedication
 
 
@@ -26,7 +26,7 @@ _sql_fetch_vaccine = u"""SELECT *, xmin_vaccine FROM clin.v_vaccines WHERE %s"""
 class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccine."""
 
-	_cmd_fetch_payload = _sql_fetch_vaccine % "pk_vaccine = %s"
+	_cmd_fetch_payload = _sql_fetch_vaccine % u"pk_vaccine = %s"
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.vaccine SET
@@ -87,17 +87,25 @@ sql_fetch_vaccination = u"""SELECT * FROM clin.v_pat_vaccinations WHERE %s"""
 
 class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = sql_fetch_vaccination % "pk_vaccination = %s"
+	_cmd_fetch_payload = sql_fetch_vaccination % u"pk_vaccination = %s"
 
 	_cmds_store_payload = [
-		u"""UPDATE clin.vaccine SET
---				internal_name = gm.nullify_empty_string(%(internal_name)s),
+		u"""UPDATE clin.vaccination SET
+				clin_when = %(date_given)s,
+				site = gm.nullify_empty_string(%(site)s),
+				batch_no = gm.nullify_empty_string(%(batch_no)s),
+				reaction = gm.nullify_empty_string(%(reaction)s),
+				narrative = gm.nullify_empty_string(%(comment)s),
+				fk_vaccine = %(pk_vaccine)s,
+				fk_provider = %(pk_provider)s,
+				fk_encounter = %(pk_encounter)s,
+				fk_episode = %(pk_episode)s
 			WHERE
-				pk = %(pk_vaccine)s
+				pk = %(pk_vaccination)s
 					AND
-				xmin = %(xmin_vaccine)s
+				xmin = %(xmin_vaccination)s
 			RETURNING
-				xmin as xmin_vaccine
+				xmin as xmin_vaccination
 		"""
 	]
 
@@ -110,87 +118,37 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_vaccine',
 		u'pk_provider',
 		u'pk_encounter',
-		u'pk_episode',
+		u'pk_episode'
 	]
+	#--------------------------------------------------------
+	def format(self, with_indications=False, with_comment=False, with_reaction=False, date_format='%Y-%m-%d'):
 
+		lines = []
+
+		lines.append (u' %s: %s [%s] (%s) ' % (
+			self._payload[self._idx['date_given']].strftime(date_format).decode(gmI18N.get_encoding()),
+			self._payload[self._idx['vaccine']],
+			self._payload[self._idx['batch_no']],
+			self._payload[self._idx['site']]
+		))
+
+		if with_comment:
+			if self._payload[self._idx['comment']] is not None:
+				lines.append(u'   %s' % self._payload[self._idx['comment']])
+
+		if with_reaction:
+			if self._payload[self._idx['reaction']] is not None:
+				lines.append(u'   %s' % self._payload[self._idx['reaction']])
+
+		if with_indications:
+			lines.append(u'   %s' % u' / '.join(self._payload[self._idx['indications']]))
+
+		return lines
+#============================================================
 #============================================================
 #============================================================
 #============================================================
 # old code
-#============================================================
-class cVaccinationOld(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one vaccination event.
-	"""
-	_cmd_fetch_payload = """
-		select *, NULL as is_booster, -1 as seq_no, xmin_vaccination from clin.v_pat_vaccinations4indication
-		where pk_vaccination=%s
-		order by date desc"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.vaccination where pk = %(pk_vaccination)s and xmin = %(xmin_vaccination)s for update"""
-	]
-	_cmds_store_payload = [
-		"""update clin.vaccination set
-				clin_when=%(date)s,
-				narrative=%(narrative)s,
-				fk_provider=%(pk_provider)s,
-				fk_vaccine=(select pk from clin.vaccine where trade_name=%(vaccine)s),
-				site=%(site)s,
-				batch_no=%(batch_no)s
-			where pk = %(pk_vaccination)s""",
-		"""select xmin_vaccination from clin.v_pat_vaccinations4indication where pk_vaccination=%(pk_vaccination)s"""
-		]
-	_updatable_fields = [
-		'date',
-		'narrative',
-		'pk_provider',
-		'vaccine',
-		'site',
-		'batch_no',
-		# the following two are updatable via __setitem__
-		# API but not persisted via _cmds_store_payload
-		'is_booster',
-		'seq_no'
-	]
-	#--------------------------------------------------------
-	def _init_from_row_data(self, row=None):
-		"""Make sure we have is_booster/seq_no when loading from row data."""
-		gmBusinessDBObject.cBusinessDBObject._init_from_row_data(self, row=row)
-		try:
-			idx = self._idx['is_booster']
-		except KeyError:
-			idx = len(self._payload)
-			self._payload.append(False)
-			# make local copy so we can safely modify it, but from
-			# self._idx which is row['idx'] with possible modifications
-			self._idx = copy.copy(self._idx)
-			self._idx['is_booster'] = idx
-		try:
-			idx = self._idx['seq_no']
-		except KeyError:
-			idx = len(self._payload)
-			self._payload.append(False)
-			self._idx = copy.copy(self._idx)
-			self._idx['seq_no'] = -1
-	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-		if attribute in ['is_booster', 'seq_no']:
-			self._is_modified = False
-#	#--------------------------------------------------------
-#	def get_next_shot_due(self):
-#		"""
-#		Retrieves next shot due date
-#		"""
-#		# FIXME: this will break due to not being initialized
-#		return self.__next_shot_due
-#	#--------------------------------------------------------
-#	def set_next_shot_due(self, next_shot_due):
-#		"""
-#		Sets next shot due date
-#		
-#		* next_shot_due : Scheduled date for next vaccination shot
-#		"""
-#		self.__next_shot_due = next_shot_due
 #============================================================
 class cMissingVaccination(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one missing vaccination.
@@ -221,7 +179,7 @@ class cMissingVaccination(gmBusinessDBObject.cBusinessDBObject):
 					and
 				indication=%(indication)s
 					and
-				seq_no=%(seq_no)s		
+				seq_no=%(seq_no)s
 			order by amount_overdue)"""
 	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = ["""select 1"""]
@@ -285,12 +243,10 @@ class cVaccinationCourse(gmBusinessDBObject.cBusinessDBObject):
 		'comment'
 	]
 #============================================================
-class VaccByRecommender:
-	_recommended_courses = None 
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staff_id = None, vaccine=None):
+def create_vaccination_old(patient_id=None, episode_id=None, encounter_id=None, staff_id = None, vaccine=None):
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?

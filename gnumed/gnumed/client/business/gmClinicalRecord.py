@@ -761,9 +761,14 @@ Vaccinations: %(vaccinations)s
 		vaccs = self.get_latest_vaccinations()
 		inds = sorted(vaccs.keys())
 		for ind in inds:
-			txt += u' %s: %s\n' % (
+			vacc = vaccs[ind]
+			txt += u' %s: %s (%s %s%s%s)\n' % (
 				ind,
-				vaccs[ind]['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding())
+				vacc['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding()),
+				vacc['vaccine'],
+				gmTools.u_left_double_angle_quote,
+				vacc['batch_no'],
+				gmTools.u_right_double_angle_quote
 			)
 
 		return txt
@@ -1258,17 +1263,27 @@ WHERE
 
 		return vaccs
 	#--------------------------------------------------------
-	def get_vaccinations(self, order_by=u''):
+	def get_vaccinations(self, order_by=None, episodes=None, issues=None, encounters=None):
 
-		args = {
-			'pat': self.pk_patient
-		}
+		args = {'pat': self.pk_patient}
 		where_parts = [u'pk_patient = %(pat)s']
 
 		if order_by is None:
 			order_by = u''
 		else:
 			order_by = u'order by %s' % order_by
+
+		if (episodes is not None) and (len(episodes) > 0):
+			where_parts.append(u'pk_episode IN %(epis)s')
+			args['epis'] = tuple(episodes)
+
+		if (issues is not None) and (len(issues) > 0):
+			where_parts.append(u'pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
+			args['issues'] = tuple(issues)
+
+		if (encounters is not None) and (len(encounters) > 0):
+			where_parts.append(u'pk_encounter IN %(encs)s')
+			args['encs'] = tuple(encounters)
 
 		cmd = u'%s %s' % (
 			gmVaccination.sql_fetch_vaccination % u'\nAND '.join(where_parts),
