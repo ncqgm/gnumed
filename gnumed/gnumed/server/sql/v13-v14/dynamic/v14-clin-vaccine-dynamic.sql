@@ -412,6 +412,14 @@ create view clin.v_vaccines as
 			clvi.fk_vaccine = cv.pk
 		) as indications,
 
+		(select array_agg(_(description))
+		 from
+			clin.lnk_vaccine2inds clvi
+				join clin.vacc_indication cvi on (clvi.fk_indication = cvi.id)
+		 where
+			clvi.fk_vaccine = cv.pk
+		) as l10n_indications,
+
 		rbd.external_code,
 		rbd.external_code_type,
 

@@ -755,15 +755,17 @@ Vaccinations: %(vaccinations)s
 			)
 
 		txt += u'\n'
-		txt += _('Latest vaccinations')
+		txt += _('Vaccinations')
 		txt += u'\n'
 
 		vaccs = self.get_latest_vaccinations()
 		inds = sorted(vaccs.keys())
 		for ind in inds:
-			vacc = vaccs[ind]
-			txt += u' %s: %s (%s %s%s%s)\n' % (
+			ind_count, vacc = vaccs[ind]
+			txt += u' %s (%s%s): %s (%s %s%s%s)\n' % (
 				ind,
+				gmTools.u_sum,
+				ind_count,
 				vacc['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding()),
 				vacc['vaccine'],
 				gmTools.u_left_double_angle_quote,
@@ -1244,10 +1246,11 @@ WHERE
 			where_parts.append(u'pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
 			args['issues'] = tuple(issues)
 
-		cmd = u'SELECT pk_vaccination, l10n_indication FROM clin.v_pat_last_vacc4indication WHERE %s' % u'\nAND '.join(where_parts)
+		cmd = u'SELECT pk_vaccination, l10n_indication, indication_count FROM clin.v_pat_last_vacc4indication WHERE %s' % u'\nAND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		vpks = [ ind['pk_vaccination'] for ind in rows ]
 		vinds = [ ind['l10n_indication'] for ind in rows ]
+		ind_counts = [ ind['indication_count'] for ind in rows ]
 
 		# turn them into vaccinations
 		cmd = gmVaccination.sql_fetch_vaccination % u'pk_vaccination IN %(pks)s'
@@ -1257,9 +1260,10 @@ WHERE
 		vaccs = {}
 		for idx in range(len(vpks)):
 			pk = vpks[idx]
+			ind_count = ind_counts[idx]
 			for r in rows:
 				if r['pk_vaccination'] == pk:
-					vaccs[vinds[idx]] = gmVaccination.cVaccination(row = {'idx': row_idx, 'data': r, 'pk_field': 'pk_vaccination'})
+					vaccs[vinds[idx]] = (ind_count, gmVaccination.cVaccination(row = {'idx': row_idx, 'data': r, 'pk_field': 'pk_vaccination'}))
 
 		return vaccs
 	#--------------------------------------------------------

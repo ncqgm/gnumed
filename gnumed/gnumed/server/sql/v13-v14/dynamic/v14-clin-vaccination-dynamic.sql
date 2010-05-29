@@ -81,7 +81,7 @@ DECLARE
 	_row record;
 	_indication_collision integer;
 BEGIN
-	select fk_patient into _NEW_pk_patient from clin.episode where pk = NEW.fk_episode;
+	select fk_patient into _NEW_pk_patient from clin.encounter where pk = NEW.fk_encounter;
 
 	-- loop over ...
 	for _row in
@@ -89,7 +89,7 @@ BEGIN
 		SELECT * FROM clin.vaccination
 		WHERE
 			-- ... of this patient ...
-			NEW.fk_episode in (select pk from clin.episode where fk_patient = _NEW_pk_patient)
+			NEW.fk_encounter in (select pk from clin.encounter where fk_patient = _NEW_pk_patient)
 				and
 			-- ... within 2 days of the vaccination date
 			clin_when BETWEEN (NEW.clin_when - ''2 days''::interval) AND (NEW.clin_when + ''2 days''::interval)
@@ -133,13 +133,20 @@ select
 		as date_given,
 	rbd.description
 		as vaccine,
-	(select array_agg(_(description))
+	(select array_agg(description)
 	 from
 		clin.lnk_vaccine2inds clvi
 			join clin.vacc_indication cvi on (clvi.fk_indication = cvi.id)
 	 where
 		clvi.fk_vaccine = clv.fk_vaccine
 	) as indications,
+	(select array_agg(_(description))
+	 from
+		clin.lnk_vaccine2inds clvi
+			join clin.vacc_indication cvi on (clvi.fk_indication = cvi.id)
+	 where
+		clvi.fk_vaccine = clv.fk_vaccine
+	) as l10n_indications,
 	clv.site
 		as site,
 	clv.batch_no
@@ -260,9 +267,20 @@ drop view clin.v_pat_last_vacc4indication cascade;
 create view clin.v_pat_last_vacc4indication as
 
 select
-	*
+	cvpv4i1.*,
+	cpi.indication_count
 from
 	clin.v_pat_vaccs4indication cvpv4i1
+		join (
+			SELECT
+				COUNT(1) AS indication_count,
+				pk_patient,
+				pk_indication
+			FROM clin.v_pat_vaccs4indication
+			GROUP BY
+				pk_patient,
+				pk_indication
+		) AS cpi ON (cvpv4i1.pk_patient = cpi.pk_patient AND cvpv4i1.pk_indication = cpi.pk_indication)
 where
 	cvpv4i1.date_given = (
 		select
@@ -277,7 +295,7 @@ where
 ;
 
 comment on view clin.v_pat_last_vacc4indication is
-	'Lists *latest* vaccination per indication for patients';
+	'Lists *latest* vaccinations with total count per indication.';
 
 grant select on clin.v_pat_last_vacc4indication to group "gm-doctors";
 
