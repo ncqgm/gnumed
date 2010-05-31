@@ -634,6 +634,51 @@ def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_r
 
 	return u'\\begin{minipage}{%s} \\begin{flushright} %s \\end{flushright} \\end{minipage}' % (width, u' \\\\ '.join(lines))
 #------------------------------------------------------------
+def __tests2latex_cell(results=None, show_time=False, show_range=True):
+
+	if len(results) == 0:
+		return u''
+
+	lines = []
+	for t in results:
+
+		tmp = u''
+
+		if show_time:
+			tmp += u'\\tiny %s ' % t['clin_when'].strftime('%H:%M')
+
+		tmp += u'\\normalsize %.8s' % t['unified_val']
+
+		lines.append(tmp)
+		tmp = u'\\tiny %s' % gmTools.coalesce(t['val_unit'], u'', u'%s:')
+
+		if not show_range:
+			lines.append(tmp)
+			continue
+
+		has_range = (
+			t['unified_target_range'] is not None
+				or
+			t['unified_target_min'] is not None
+				or
+			t['unified_target_max'] is not None
+		)
+
+		if not has_range:
+			lines.append(tmp)
+			continue
+
+		if t['unified_target_range'] is not None:
+			tmp += t['unified_target_range']
+		else:
+			tmp += u'%s%s' % (
+				gmTools.coalesce(t['unified_target_min'], u'- ', u'%s - '),
+				gmTools.coalesce(t['unified_target_max'], u'', u'%s')
+			)
+		lines.append(tmp)
+
+	return u' \\\\ '.join(lines)
+#------------------------------------------------------------
 def __format_test_results_latex(results=None):
 
 	if len(results) == 0:
@@ -644,7 +689,7 @@ def __format_test_results_latex(results=None):
 	tests = {}
 	grid = {}
 	for result in results:
-		#row_label = u'%s {\\tiny (%s)}' % (result['unified_abbrev'], result['unified_name'])
+#		row_label = u'%s \\ \\tiny (%s)}' % (result['unified_abbrev'], result['unified_name'])
 		row_label = result['unified_abbrev']
 		tests[row_label] = None
 		col_label = u'{\\scriptsize %s}' % result['clin_when'].strftime('%Y-%m-%d')
@@ -663,17 +708,17 @@ def __format_test_results_latex(results=None):
 	row_labels = sorted(tests.keys())
 	del tests
 
-	col_def = len(col_labels) * u'r|'
+	col_def = len(col_labels) * u'>{\\raggedleft}p{1.7cm}|'
 
 	# format them
 	tex = u"""\\noindent %s
 
 \\noindent \\begin{tabular}{|l|%s}
 \\hline
- & %s \\\\
+ & %s \\tabularnewline
 \\hline
 
-%%s \\\\
+%%s \\tabularnewline
 
 \\hline
 
@@ -698,15 +743,9 @@ def __format_test_results_latex(results=None):
 				cells.append(u' ')
 				continue
 
-			if len(tests) > 1:
-				width = u'1.8cm'
-			else:
-				width = u'1.3cm'
-
 			cells.append (
-				__tests2latex_minipage (
+				__tests2latex_cell (
 					results = tests,
-					width = width,
 					show_time = (len(tests) > 1),
 					show_range = True
 				)
@@ -714,7 +753,7 @@ def __format_test_results_latex(results=None):
 
 		rows.append(u' & '.join(cells))
 
-	return tex % u' \\\\ \n \\hline \n'.join(rows)
+	return tex % u' \\tabularnewline\n \\hline\n'.join(rows)
 
 #============================================================
 def export_results_for_gnuplot(results=None, filename=None):
