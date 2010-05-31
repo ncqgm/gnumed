@@ -503,6 +503,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 FIX: during upgrade nullify empty clin.health_issue.lateralities
 
 IMPROVED: bootstrapper now better detects utf8 ctype
+IMPROVED: boostrap-latest: check for any previous version since all of them would be dropped [thanks S.Hilbert]
 
 ------------------------------------------------
 # gnumed_v13
