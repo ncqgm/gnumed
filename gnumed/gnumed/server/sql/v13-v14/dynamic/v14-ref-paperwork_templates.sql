@@ -79,4 +79,32 @@ insert into ref.paperwork_templates (
 );
 
 -- --------------------------------------------------------------
+-- example referral template
+\unset ON_ERROR_STOP
+insert into ref.form_types (name) values (i18n.i18n('referral letter'));
+\set ON_ERROR_STOP 1
+
+select i18n.upd_tx('de_DE', 'referral letter', 'Überweisungsbrief');
+
+delete from ref.paperwork_templates where name_long = 'Referral letter (GNUmed default) [Dr.Rogerio Luz]';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'referral letter'),
+	'Referral letter (GNUmed)',
+	'Referral letter (GNUmed default) [Dr.Rogerio Luz]',
+	'2.0',
+	'L',
+	'referral-letter.tex',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v14-ref-paperwork_templates.sql,v $', '$Revision: 1.3 $');

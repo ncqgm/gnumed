@@ -1,7 +1,5 @@
 """GNUmed measurements related business objects."""
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.81 2010-02-06 20:45:44 ncq Exp $
 __version__ = "$Revision: 1.81 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -14,7 +12,6 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2, gmDateTime, gmI18N
 	gmDateTime.init()
-	gmI18N.activate_locale()
 from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2, gmTools
 from Gnumed.pycommon import gmDispatcher
 
@@ -588,6 +585,177 @@ where
 
 	return tr
 #------------------------------------------------------------
+def format_test_results(results=None, output_format=u'latex'):
+
+	_log.debug(u'formatting test results into [%s]', output_format)
+
+	if output_format == u'latex':
+		return __format_test_results_latex(results = results)
+
+	msg = _('unknown test results output format [%s]') % output_format
+	_log.error(msg)
+	return msg
+#------------------------------------------------------------
+def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_range=True):
+
+	if len(results) == 0:
+		return u'\\begin{minipage}{%s} \\end{minipage}' % width
+
+	lines = []
+	for t in results:
+
+		tmp = u''
+
+		if show_time:
+			tmp += u'{\\tiny (%s)} ' % t['clin_when'].strftime('%H:%M')
+
+		tmp += u'%.8s' % t['unified_val']
+
+		lines.append(tmp)
+		tmp = u''
+
+		if show_range:
+			has_range = (
+				t['unified_target_range'] is not None
+					or
+				t['unified_target_min'] is not None
+					or
+				t['unified_target_max'] is not None
+			)
+			if has_range:
+				if t['unified_target_range'] is not None:
+					tmp += u'{\\tiny %s}' % t['unified_target_range']
+				else:
+					tmp += u'{\\tiny %s}' % (
+						gmTools.coalesce(t['unified_target_min'], u'- ', u'%s - '),
+						gmTools.coalesce(t['unified_target_max'], u'', u'%s')
+					)
+				lines.append(tmp)
+
+	return u'\\begin{minipage}{%s} \\begin{flushright} %s \\end{flushright} \\end{minipage}' % (width, u' \\\\ '.join(lines))
+#------------------------------------------------------------
+def __tests2latex_cell(results=None, show_time=False, show_range=True):
+
+	if len(results) == 0:
+		return u''
+
+	lines = []
+	for t in results:
+
+		tmp = u''
+
+		if show_time:
+			tmp += u'\\tiny %s ' % t['clin_when'].strftime('%H:%M')
+
+		tmp += u'\\normalsize %.8s' % t['unified_val']
+
+		lines.append(tmp)
+		tmp = u'\\tiny %s' % gmTools.coalesce(t['val_unit'], u'', u'%s:')
+
+		if not show_range:
+			lines.append(tmp)
+			continue
+
+		has_range = (
+			t['unified_target_range'] is not None
+				or
+			t['unified_target_min'] is not None
+				or
+			t['unified_target_max'] is not None
+		)
+
+		if not has_range:
+			lines.append(tmp)
+			continue
+
+		if t['unified_target_range'] is not None:
+			tmp += t['unified_target_range']
+		else:
+			tmp += u'%s%s' % (
+				gmTools.coalesce(t['unified_target_min'], u'- ', u'%s - '),
+				gmTools.coalesce(t['unified_target_max'], u'', u'%s')
+			)
+		lines.append(tmp)
+
+	return u' \\\\ '.join(lines)
+#------------------------------------------------------------
+def __format_test_results_latex(results=None):
+
+	if len(results) == 0:
+		return u'\\noindent %s' % _('No test results to format.')
+
+	# discover the columns and rows
+	dates = {}
+	tests = {}
+	grid = {}
+	for result in results:
+#		row_label = u'%s \\ \\tiny (%s)}' % (result['unified_abbrev'], result['unified_name'])
+		row_label = result['unified_abbrev']
+		tests[row_label] = None
+		col_label = u'{\\scriptsize %s}' % result['clin_when'].strftime('%Y-%m-%d')
+		dates[col_label] = None
+		try:
+			grid[row_label]
+		except KeyError:
+			grid[row_label] = {}
+		try:
+			grid[row_label][col_label].append(result)
+		except KeyError:
+			grid[row_label][col_label] = [result]
+
+	col_labels = sorted(dates.keys(), reverse = True)
+	del dates
+	row_labels = sorted(tests.keys())
+	del tests
+
+	col_def = len(col_labels) * u'>{\\raggedleft}p{1.7cm}|'
+
+	# format them
+	tex = u"""\\noindent %s
+
+\\noindent \\begin{tabular}{|l|%s}
+\\hline
+ & %s \\tabularnewline
+\\hline
+
+%%s \\tabularnewline
+
+\\hline
+
+\\end{tabular}""" % (
+		_('Test results'),
+		col_def,
+		u' & '.join(col_labels)
+	)
+
+	rows = []
+
+	# loop over rows
+	for rl in row_labels:
+		cells = [rl]
+		# loop over cols per row
+		for cl in col_labels:
+			try:
+				# get tests for this (row/col) position
+				tests = grid[rl][cl]
+			except KeyError:
+				# none there, so insert empty cell
+				cells.append(u' ')
+				continue
+
+			cells.append (
+				__tests2latex_cell (
+					results = tests,
+					show_time = (len(tests) > 1),
+					show_range = True
+				)
+			)
+
+		rows.append(u' & '.join(cells))
+
+	return tex % u' \\tabularnewline\n \\hline\n'.join(rows)
+
+#============================================================
 def export_results_for_gnuplot(results=None, filename=None):
 
 	if filename is None:
@@ -1067,7 +1235,17 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	import time
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
 	#------------------------------------------
 	def test_create_test_result():
@@ -1164,289 +1342,29 @@ if __name__ == '__main__':
 		print tt
 		print get_measurement_types()
 	#--------------------------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+	def test_format_test_results():
+		results = [
+			cTestResult(aPK_obj=1),
+			cTestResult(aPK_obj=2),
+			cTestResult(aPK_obj=3)
+#			cTestResult(aPK_obj=4)
+		]
+		print format_test_results(results = results)
+	#--------------------------------------------------------
 
-		#test_result()
-		#test_create_test_result()
-		#test_delete_test_result()
-		#test_create_measurement_type()
-		#test_lab_result()
-		#test_request()
-		#test_create_result()
-		#test_unreviewed()
-		#test_pending()
-		#test_meta_test_type()
-		test_test_type()
+
+	#test_result()
+	#test_create_test_result()
+	#test_delete_test_result()
+	#test_create_measurement_type()
+	#test_lab_result()
+	#test_request()
+	#test_create_result()
+	#test_unreviewed()
+	#test_pending()
+	#test_meta_test_type()
+	#test_test_type()
+	test_format_test_results()
 
 #============================================================
-# $Log: gmPathLab.py,v $
-# Revision 1.81  2010-02-06 20:45:44  ncq
-# - fix get-most-recent-result
-#
-# Revision 1.80  2010/02/02 13:50:15  ncq
-# - add test org handling
-#
-# Revision 1.79  2009/12/03 17:45:29  ncq
-# - implement cUnifiedTestType
-#
-# Revision 1.78  2009/09/17 21:52:13  ncq
-# - add .in_use property to test types
-#
-# Revision 1.77  2009/09/01 22:20:40  ncq
-# - nullify empty strings where appropriate
-# - support order_by on getting measurement types
-#
-# Revision 1.76  2009/08/08 12:16:48  ncq
-# - must us AS to supply pk
-#
-# Revision 1.75  2009/08/03 20:47:24  ncq
-# - fix storing measurement type and test org
-#
-# Revision 1.74  2009/07/23 16:30:45  ncq
-# - test -> measurement
-# - code -> abbrev
-#
-# Revision 1.73  2009/07/06 14:56:54  ncq
-# - make update of test result more resilient re "" == null
-# - much improved test result formatting
-#
-# Revision 1.72  2009/06/04 14:45:15  ncq
-# - re-import lost adjustments
-#
-# Revision 1.72  2009/05/28 10:45:57  ncq
-# - adjust to test table changes
-#
-# Revision 1.71  2009/05/26 09:21:13  ncq
-# - delete_meta_type
-# - cTestType -> cMeasurementType
-# - delete_measurement_type
-#
-# Revision 1.70  2009/05/24 16:27:34  ncq
-# - support meta test types
-# - better support test types
-#
-# Revision 1.69  2009/03/18 14:27:28  ncq
-# - add comment
-#
-# Revision 1.68  2009/02/27 12:38:16  ncq
-# - improved results formatting
-#
-# Revision 1.67  2009/02/18 19:17:56  ncq
-# - properly test for NULLness when formatting results
-#
-# Revision 1.66  2009/01/02 11:34:50  ncq
-# - cleanup
-#
-# Revision 1.65  2008/10/22 12:04:55  ncq
-# - use %x in strftime
-#
-# Revision 1.64  2008/07/14 13:45:08  ncq
-# - add .format to test results
-#
-# Revision 1.63  2008/06/24 13:54:47  ncq
-# - delete_test_result and test
-#
-# Revision 1.62  2008/06/23 21:49:19  ncq
-# - pimp cTestType, find/create_test_type
-# - some tests
-#
-# Revision 1.61  2008/06/19 15:24:47  ncq
-# - fix updating cTestResult
-#
-# Revision 1.60  2008/06/16 15:01:53  ncq
-# - create_test_result
-# - test suite cleanup
-# - reference_ranges property on cTestResult
-#
-# Revision 1.59  2008/04/22 21:15:16  ncq
-# - cTestResult
-#
-# Revision 1.58  2008/02/25 17:31:41  ncq
-# - logging cleanup
-#
-# Revision 1.57  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.56  2007/07/17 11:13:25  ncq
-# - no more gmClinItem
-#
-# Revision 1.55  2007/03/08 11:31:08  ncq
-# - just cleanup
-#
-# Revision 1.54  2007/01/09 12:56:18  ncq
-# - comment
-#
-# Revision 1.53  2006/10/25 07:17:40  ncq
-# - no more gmPG
-# - no more cClinItem
-#
-# Revision 1.52  2006/07/19 20:25:00  ncq
-# - gmPyCompat.py is history
-#
-# Revision 1.51  2005/10/26 21:16:26  ncq
-# - adjust to changes in reviewed status handling
-#
-# Revision 1.50  2005/04/27 12:37:32  sjtan
-#
-# id_patient -> pk_patient
-#
-# Revision 1.49  2005/03/23 18:31:19  ncq
-# - v_patient_items -> v_pat_items
-#
-# Revision 1.48  2005/02/15 18:29:03  ncq
-# - test_result.id -> pk
-#
-# Revision 1.47  2005/02/13 15:45:31  ncq
-# - v_basic_person.i_pk -> pk_identity
-#
-# Revision 1.46  2005/01/02 19:55:30  ncq
-# - don't need _xmins_refetch_col_pos anymore
-#
-# Revision 1.45  2004/12/27 16:48:11  ncq
-# - fix create_lab_request() to use proper aPK_obj syntax
-#
-# Revision 1.44  2004/12/20 16:45:49  ncq
-# - gmBusinessDBObject now requires refetching of XMIN after save_payload
-#
-# Revision 1.43  2004/12/14 03:27:56  ihaywood
-# xmin_rest_result -> xmin_test_result
-#
-# Carlos used a very old version of the SOAP2.py for no good reason, fixed.
-#
-# Revision 1.42  2004/11/03 22:32:34  ncq
-# - support _cmds_lock_rows_for_update in business object base class
-#
-# Revision 1.41  2004/10/18 09:48:20  ncq
-# - must have been asleep at the keyboard
-#
-# Revision 1.40  2004/10/18 09:46:02  ncq
-# - fix create_lab_result()
-#
-# Revision 1.39  2004/10/15 09:05:08  ncq
-# - converted cLabResult to allow use of row __init__()
-#
-# Revision 1.38  2004/10/12 18:32:52  ncq
-# - allow cLabRequest and cTestType to be filled from bulk fetch row data
-# - cLabResult not adapted yet
-#
-# Revision 1.37  2004/09/29 10:25:04  ncq
-# - basic_unit->conversion_unit
-#
-# Revision 1.36  2004/09/18 13:51:56  ncq
-# - support val_target_*
-#
-# Revision 1.35  2004/07/02 00:20:54  ncq
-# - v_patient_items.id_item -> pk_item
-#
-# Revision 1.34  2004/06/28 15:14:50  ncq
-# - use v_lab_requests
-#
-# Revision 1.33  2004/06/28 12:18:52  ncq
-# - more id_* -> fk_*
-#
-# Revision 1.32  2004/06/26 07:33:55  ncq
-# - id_episode -> fk/pk_episode
-#
-# Revision 1.31  2004/06/18 13:33:58  ncq
-# - saner logging
-#
-# Revision 1.30  2004/06/16 17:16:56  ncq
-# - correctly handle val_num/val_alpha in create_lab_result so
-#   we can safely detect duplicates
-#
-# Revision 1.29  2004/06/01 23:56:39  ncq
-# - improved error handling in several places
-#
-# Revision 1.28  2004/05/30 20:12:33  ncq
-# - make create_lab_result() handle request objects, not request_id
-#
-# Revision 1.27  2004/05/26 15:45:25  ncq
-# - get_next_request_ID()
-#
-# Revision 1.26  2004/05/25 13:29:20  ncq
-# - order unreviewed results by pk_patient
-#
-# Revision 1.25  2004/05/25 00:20:47  ncq
-# - fix reversal of is_pending in get_pending_requests()
-#
-# Revision 1.24  2004/05/25 00:07:31  ncq
-# - speed up get_patient in test_result
-#
-# Revision 1.23  2004/05/24 23:34:53  ncq
-# - optimize get_patient in cLabRequest()
-#
-# Revision 1.22  2004/05/24 14:59:45  ncq
-# - get_pending_requests()
-#
-# Revision 1.21  2004/05/24 14:35:00  ncq
-# - get_unreviewed_results() now returns status of more_available
-#
-# Revision 1.20  2004/05/24 14:15:54  ncq
-# - get_unreviewed_results()
-#
-# Revision 1.19  2004/05/14 13:17:27  ncq
-# - less useless verbosity
-# - cleanup
-#
-# Revision 1.18  2004/05/13 00:03:17  ncq
-# - aPKey -> aPK_obj
-#
-# Revision 1.17  2004/05/11 01:37:21  ncq
-# - create_test_result -> create_lab_result
-# - need to insert into lnk_result2lab_req, too, in create_lab_result
-#
-# Revision 1.16  2004/05/08 22:13:11  ncq
-# - cleanup
-#
-# Revision 1.15  2004/05/08 17:29:18  ncq
-# - us NoSuchClinItemError
-#
-# Revision 1.14  2004/05/06 23:37:19  ncq
-# - lab result _update_payload update
-# - lab result.__init__ now supports values other than the PK
-# - add create_test_result()
-#
-# Revision 1.13  2004/05/04 07:55:00  ncq
-# - correctly detect "no such lab request" condition in create_lab_request()
-# - fail gracefully in test_request()
-#
-# Revision 1.12  2004/05/03 22:25:10  shilbert
-# - some typos fixed
-#
-# Revision 1.11  2004/05/03 15:30:58  ncq
-# - add create_lab_request()
-# - add cLabResult.get_patient()
-#
-# Revision 1.10  2004/05/03 12:50:34  ncq
-# - relative imports
-# - str()ify some things
-#
-# Revision 1.9  2004/05/02 22:56:36  ncq
-# - add create_lab_request()
-#
-# Revision 1.8  2004/04/26 21:56:19  ncq
-# - add cLabRequest.get_patient()
-# - add create_test_type()
-#
-# Revision 1.7  2004/04/21 15:27:38  ncq
-# - map 8407 to string for ldt import
-#
-# Revision 1.6  2004/04/20 00:14:30  ncq
-# - cTestType invented
-#
-# Revision 1.5  2004/04/19 12:42:41  ncq
-# - fix cLabRequest._cms_store_payload
-# - modularize testing
-#
-# Revision 1.4  2004/04/18 18:50:36  ncq
-# - override __init__() thusly removing the unholy _pre/post_init() business
-#
-# Revision 1.3  2004/04/12 22:59:38  ncq
-# - add lab request
-#
-# Revision 1.2  2004/04/11 12:07:54  ncq
-# - better unit testing
-#
-# Revision 1.1  2004/04/11 12:04:55  ncq
-# - first version
-#
+
