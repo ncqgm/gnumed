@@ -506,6 +506,7 @@ FIX: properly use pg_dump: no more -d DATABASE [thanks S.Hilbert]
 
 IMPROVED: bootstrapper now better detects utf8 ctype
 IMPROVED: boostrap-latest: check for any previous version since all of them would be dropped [thanks S.Hilbert]
+IMPROVED: try to make su compatible with both MacOSX and Linux
 
 ------------------------------------------------
 # gnumed_v13

@@ -23,7 +23,7 @@ GM_SERVER_DIR="/var/lib/gnumed/server/bootstrap"
 
 set -e
 
-if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" postgres | grep -q -e C -e UTF-8 ; then
+if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" -l postgres | grep -q -e C -e UTF-8 ; then
 	echo "Your PostgreSQL installation seems not to have lc_ctype UTF-8 or C."
 	echo "This will most probably lead to failures of the GNUmed server installation."
 	#exit -1
