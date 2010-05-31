@@ -500,7 +500,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v14
 ------------------------------------------------
 
-FIX: during upgrade nullify empty clin.health_issue.lateralities
+FIX: during upgrade nullify empty clin.health_issue.laterality
+FIX: properly use pg_dump: no more -d DATABASE [thanks S.Hilbert]
 
 IMPROVED: bootstrapper now better detects utf8 ctype
 IMPROVED: boostrap-latest: check for any previous version since all of them would be dropped [thanks S.Hilbert]
