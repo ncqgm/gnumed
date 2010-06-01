@@ -59,7 +59,7 @@ fi
 
 
 # sanity check
-if ! su postgres -c 'psql -t -l' | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+if ! su -c 'psql -t -l' -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
 	echo "The configuration in ${CONF} is set to backup"
 	echo "the GNUmed database ${GM_DATABASE}. This"
 	echo "database does not exist, however. Aborting."
@@ -98,7 +98,7 @@ fi
 
 
 # data only
-pg_dump --data-only -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql 2> /dev/null
+pg_dump --data-only -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql ${GM_DATABASE} 2> /dev/null
 
 
 # tar and test it

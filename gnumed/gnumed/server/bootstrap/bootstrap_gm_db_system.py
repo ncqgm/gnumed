@@ -931,7 +931,8 @@ class database:
 			return True
 
 		script_base_dir = cfg_get(self.section, "script base directory")
-		script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
+		script_base_dir = os.path.expanduser(script_base_dir)
+		script_base_dir = os.path.abspath(script_base_dir)
 
 		for import_script in import_scripts:
 			try:

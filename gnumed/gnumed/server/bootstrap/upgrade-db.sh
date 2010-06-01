@@ -106,9 +106,9 @@ if test "$SKIP_BACKUP" != "no-backup" ; then
 	echo_msg "   Note that this may take a substantial amount of time and disk space!"
 	echo_msg "   You may need to type in the password for gm-dbo."
 	if test "$BZIP_BACKUP" != "no-compression" ; then
-		pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} | bzip2 -z9 > ${BAK_FILE}.bz2
+		pg_dump -C -U gm-dbo ${PORT_DEF} gnumed_v${PREV_VER} | bzip2 -z9 > ${BAK_FILE}.bz2
 	else
-		pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} -f ${BAK_FILE}
+		pg_dump -C -U gm-dbo ${PORT_DEF} -f ${BAK_FILE} gnumed_v${PREV_VER}
 	fi ;
 else
 	echo_msg ""

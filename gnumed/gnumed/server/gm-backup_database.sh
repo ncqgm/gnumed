@@ -56,7 +56,7 @@ fi
 
 
 # sanity check
-if ! su postgres -c 'psql -t -l' | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+if ! su -c 'psql -t -l' -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
 	echo "The configuration in ${CONF} is set to backup"
 	echo "the GNUmed database ${GM_DATABASE}. This"
 	echo "database does not exist, however. Aborting."
