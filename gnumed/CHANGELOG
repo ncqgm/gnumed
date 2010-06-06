@@ -24,6 +24,7 @@ IMPROVED: more robust acquiring of data from image sources
 	0.7.5
 
 FIX: cannot reach some parts of the expanding SOAP control when typing "too much" [thanks J.Jaarsveld] (lp #583019)
+FIX: Windows cannot differentiate os.system() exit status [thanks Panos]
 
 	0.7.4
 
