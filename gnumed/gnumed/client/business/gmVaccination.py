@@ -79,6 +79,9 @@ def regenerate_generic_vaccines():
 	cmd = u'select gm.create_generic_monovalent_vaccines()'
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
 
+	cmd = u'select gm.create_generic_combi_vaccines()'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
+
 	return rows[0][0]
 #============================================================
 # vaccination related classes

@@ -19,6 +19,176 @@ alter table audit.log_vaccine
 	add column fk_brand integer;
 
 
+-- add missing indications
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis infant/child formulation'),
+	(select id from clin.vacc_indication where description = 'diphtheria')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis infant/child formulation'),
+	(select id from clin.vacc_indication where description = 'tetanus')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis infant/child formulation'),
+	(select id from clin.vacc_indication where description = 'pertussis')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation'),
+	(select id from clin.vacc_indication where description = 'diphtheria')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation'),
+	(select id from clin.vacc_indication where description = 'tetanus')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation'),
+	(select id from clin.vacc_indication where description = 'pertussis')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'adult diptheria-tetanus'),
+	(select id from clin.vacc_indication where description = 'diphtheria')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'adult diptheria-tetanus'),
+	(select id from clin.vacc_indication where description = 'tetanus')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where short_name = 'PRP-OMP'),
+	(select id from clin.vacc_indication where description = 'haemophilus influenzae b')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where short_name = 'HbOC'),
+	(select id from clin.vacc_indication where description = 'haemophilus influenzae b')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where short_name = 'PRP-T'),
+	(select id from clin.vacc_indication where description = 'haemophilus influenzae b')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'oral poliomyelitis vaccine'),
+	(select id from clin.vacc_indication where description = 'poliomyelitis')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'inactivated poliomyelitis vaccine'),
+	(select id from clin.vacc_indication where description = 'poliomyelitis')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where short_name = 'VZV'),
+	(select id from clin.vacc_indication where description = 'varicella')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'measles-mumps-rubella vaccine'),
+	(select id from clin.vacc_indication where description = 'measles')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'measles-mumps-rubella vaccine'),
+	(select id from clin.vacc_indication where description = 'mumps')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where trade_name = 'measles-mumps-rubella vaccine'),
+	(select id from clin.vacc_indication where description = 'rubella')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where short_name = '7vPCV'),
+	(select id from clin.vacc_indication where description = 'pneumococcus')
+);
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where short_name = '23vPPV'),
+	(select id from clin.vacc_indication where description = 'pneumococcus')
+);
+
+
+insert into clin.lnk_vaccine2inds (
+	fk_vaccine,
+	fk_indication
+) values (
+	(select pk from clin.vaccine where short_name = 'menCCV'),
+	(select id from clin.vacc_indication where description = 'meningococcus C')
+);
+
+
 -- convert existing vaccines to drugs and adjust clin.vaccines.fk_brand
 create or replace function tmp_v13_v14_convert_vaccines_to_drugs()
 	returns boolean
@@ -30,7 +200,7 @@ DECLARE
 BEGIN
 	for _row in select * from clin.vaccine loop
 
-		raise notice ''vaccine: %'', _row.pk::text;
+		raise notice ''vaccine: % (% - %)'', _row.pk::text, _row.trade_name, _row.short_name;
 
 		-- create drug
 		case
@@ -40,9 +210,6 @@ BEGIN
 					preparation,
 					is_fake,
 					atc_code
-					--, fk_data_source
-					--, external_code
-					--, external_code_type
 				) values (
 					_row.trade_name || '' ('' || _row.short_name || '')'',
 					''vaccine (oral)'',			-- this is rather arbitrary
@@ -58,9 +225,6 @@ BEGIN
 					preparation,
 					is_fake,
 					atc_code
-					--, fk_data_source
-					--, external_code
-					--, external_code_type
 				) values (
 					_row.trade_name || '' ('' || _row.short_name || '')'',
 					''vaccine (i.m.)'',		-- this is rather arbitrary
@@ -76,9 +240,6 @@ BEGIN
 					preparation,
 					is_fake,
 					atc_code
-					--, fk_data_source
-					--, external_code
-					--, external_code_type
 				) values (
 					_row.trade_name || '' ('' || _row.short_name || '')'',
 					''vaccine (s.c.)'',		-- this is rather arbitrary
@@ -94,9 +255,6 @@ BEGIN
 					preparation,
 					is_fake,
 					atc_code
-					--, fk_data_source
-					--, external_code
-					--, external_code_type
 				) values (
 					_row.trade_name || '' ('' || _row.short_name || '')'',
 					''vaccine'',				-- this is rather arbitrary
@@ -115,6 +273,25 @@ BEGIN
 			fk_brand = _new_drug_pk
 		where
 			pk = _row.pk;
+
+		-- adjust indications
+		perform * from clin.lnk_vaccine2inds where fk_vaccine = _row.pk;
+		if FOUND is false then
+			insert into clin.lnk_vaccine2inds (
+				fk_vaccine,
+				fk_indication
+			) values (
+				_row.pk,
+				(SELECT id
+				 FROM clin.vacc_indication
+				 WHERE
+					lower(description) = lower(_row.trade_name)
+						OR
+					lower(description) = lower(_row.short_name)
+				LIMIT 1
+				)
+			);
+		end if;
 
 	end loop;
 

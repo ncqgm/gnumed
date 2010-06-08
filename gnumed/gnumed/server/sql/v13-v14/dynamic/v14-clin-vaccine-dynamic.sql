@@ -65,6 +65,7 @@ alter table clin.vaccine
 -- .min_age
 \unset ON_ERROR_STOP
 alter table clin.vaccine drop constraint vaccine_min_age_check cascade;
+alter table clin.vaccine drop constraint vaccine_sane_min_age cascade;
 \set ON_ERROR_STOP 1
 
 alter table clin.vaccine
@@ -88,6 +89,7 @@ alter table clin.vaccine
 -- .max_age
 \unset ON_ERROR_STOP
 alter table clin.vaccine drop constraint vaccine_check cascade;
+alter table clin.vaccine drop constraint vaccine_sane_max_age cascade;
 \set ON_ERROR_STOP 1
 
 alter table clin.vaccine
@@ -108,6 +110,7 @@ alter table clin.vaccine
 -- generic mono-valent vaccines
 create or replace function gm.create_generic_monovalent_vaccines()
 	returns boolean
+	security definer
 	language plpgsql
 	as '
 DECLARE
@@ -118,7 +121,7 @@ DECLARE
 BEGIN
 	for _row in select * from clin.vacc_indication loop
 
-		_generic_name := _row.description || '' (generic vaccine)'';
+		_generic_name := _row.description || '' - generic vaccine'';
 		raise notice ''re-creating [%]'', _generic_name;
 
 		-- retrieve or create ref.branded_drug entry for indication
@@ -181,6 +184,163 @@ BEGIN
 END;';
 
 select gm.create_generic_monovalent_vaccines();
+
+-- --------------------------------------------------------------
+-- create a few typical, generic combi-indication vaccines
+create or replace function gm.create_generic_combi_vaccine(text, text[], text, boolean)
+	returns boolean
+	security definer
+	language plpgsql
+	as '
+DECLARE
+	_name alias for $1;
+	_indications alias for $2;
+	_atc alias for $3;
+	_is_live alias for $4;
+	_generic_name text;
+	_pk_brand integer;
+	_pk_vaccine integer;
+	_indication text;
+BEGIN
+
+	_generic_name := _name || '' - generic vaccine'';
+	raise notice ''re-creating [%] (%)'', _generic_name, array_to_string(_indications, ''-'');
+
+	-- retrieve or create ref.branded_drug entry for indication
+	select pk into _pk_brand from ref.branded_drug
+	where
+		is_fake is true
+			and
+		description = _generic_name;
+
+	if FOUND is false then
+		insert into ref.branded_drug (
+			description,
+			preparation,
+			is_fake,
+			atc_code
+		) values (
+			_generic_name,
+			''vaccine'',		-- this is rather arbitrary
+			True,
+			coalesce(_atc, ''J07'')
+		)
+		returning pk
+		into _pk_brand;
+	end if;
+
+	-- retrieve or create clin.vaccine entry for generic brand
+	select pk into _pk_vaccine from clin.vaccine
+	where fk_brand = _pk_brand;
+
+	if FOUND is false then
+		insert into clin.vaccine (
+			id_route,
+			is_live,
+			fk_brand
+		) values (
+			(select id from clin.vacc_route where abbreviation = ''i.m.''),
+			_is_live,
+			_pk_brand
+		)
+		returning pk
+		into _pk_vaccine;
+	end if;
+
+	-- link indications to vaccine
+	for _indication in select unnest(_indications) loop
+
+		delete from clin.lnk_vaccine2inds
+		where
+			fk_vaccine = _pk_vaccine;
+
+		insert into clin.lnk_vaccine2inds (
+			fk_vaccine,
+			fk_indication
+		) values (
+			_pk_vaccine,
+			(select id from clin.vacc_indication where description = _indication)
+		);
+
+	end loop;
+
+	return true;
+END;';
+
+
+
+create or replace function gm.create_generic_combi_vaccines()
+	returns boolean
+	language SQL
+	as '
+
+select gm.create_generic_combi_vaccine (
+	''Td''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text],
+	''J07AM51'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
+	''DT''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text],
+	''J07AM51'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
+	''TdaP''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text],
+	''J07CA01'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
+	''TdaP-Pol''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text,''poliomyelitis''::text],
+	''J07CA02'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
+	''TdaP-Pol-HiB''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text,''poliomyelitis''::text,''haemophilus influenzae b''::text],
+	''J07CA06'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
+	''TdaP-Pol-HiB-HepB''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text,''poliomyelitis''::text,''haemophilus influenzae b''::text,''hepatitis B''::text],
+	''J07CA09'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
+	''MMR''::text,
+	ARRAY[''measles''::text,''mumps''::text,''rubella''::text],
+	''J07BD52'',
+	True
+);
+
+select gm.create_generic_combi_vaccine (
+	''MMRV''::text,
+	ARRAY[''measles''::text,''mumps''::text,''rubella''::text,''varicella (chickenpox, shingles)''::text],
+	''J07BD54'',
+	True
+);
+
+select gm.create_generic_combi_vaccine (
+	''HepAB''::text,
+	ARRAY[''hepatitis A''::text,''hepatitis B''::text],
+	''J07BC20'',
+	False
+);
+
+select True;
+';
+
+select gm.create_generic_combi_vaccines();
 
 -- --------------------------------------------------------------
 -- improve ATC codes of pre-existing vaccines
