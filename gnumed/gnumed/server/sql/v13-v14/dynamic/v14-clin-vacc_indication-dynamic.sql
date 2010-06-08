@@ -34,7 +34,7 @@ alter table clin.vacc_indication
 -- --------------------------------------------------------------
 -- rename a few indications
 update clin.vacc_indication set
-	description = 'Coxiella burnetii (Q fever)',
+	description = 'coxiella burnetii (Q fever)',
 	atcs_single_indication = array['J07AX']
 where
 	description = 'Coxiella burnetii';

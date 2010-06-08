@@ -434,8 +434,11 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Vaccines'), _('Show known vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_vaccines, item)
 
-		item = menu_master_data.Append(-1, _('Create vaccines'), _('Re-create fake generic vaccines.'))
+		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
+
+		item = menu_master_data.Append(-1, _('Indications'), _('Show known vaccination indications.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination_indications, item)
 
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
@@ -2339,6 +2342,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_vaccines(self, evt):
 		gmVaccWidgets.manage_vaccines(parent = self)
+	#----------------------------------------------
+	def __on_manage_vaccination_indications(self, evt):
+		gmVaccWidgets.manage_vaccination_indications(parent = self)
 	#----------------------------------------------
 	def __on_generate_vaccines(self, evt):
 		wx.BeginBusyCursor()

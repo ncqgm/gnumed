@@ -19,74 +19,26 @@ alter table audit.log_vaccine
 	add column fk_brand integer;
 
 
+-- --------------------------------------------------------------
+-- delete a few vaccines
+
+delete from clin.vaccine where
+	trade_name = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation';
+
+delete from clin.vaccine where
+	trade_name = 'diptheria-tetanus-acellular pertussis infant/child formulation';
+
+delete from clin.vaccine where
+	trade_name = 'adult diptheria-tetanus';
+
+delete from clin.vaccine where
+	trade_name = 'measles-mumps-rubella vaccine';
+
+delete from clin.vaccine where
+	trade_name = 'influenza vaccine';
+
+-- --------------------------------------------------------------
 -- add missing indications
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis infant/child formulation'),
-	(select id from clin.vacc_indication where description = 'diphtheria')
-);
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis infant/child formulation'),
-	(select id from clin.vacc_indication where description = 'tetanus')
-);
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis infant/child formulation'),
-	(select id from clin.vacc_indication where description = 'pertussis')
-);
-
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation'),
-	(select id from clin.vacc_indication where description = 'diphtheria')
-);
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation'),
-	(select id from clin.vacc_indication where description = 'tetanus')
-);
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation'),
-	(select id from clin.vacc_indication where description = 'pertussis')
-);
-
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'adult diptheria-tetanus'),
-	(select id from clin.vacc_indication where description = 'diphtheria')
-);
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'adult diptheria-tetanus'),
-	(select id from clin.vacc_indication where description = 'tetanus')
-);
-
-
 insert into clin.lnk_vaccine2inds (
 	fk_vaccine,
 	fk_indication
@@ -142,31 +94,6 @@ insert into clin.lnk_vaccine2inds (
 	fk_vaccine,
 	fk_indication
 ) values (
-	(select pk from clin.vaccine where trade_name = 'measles-mumps-rubella vaccine'),
-	(select id from clin.vacc_indication where description = 'measles')
-);
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'measles-mumps-rubella vaccine'),
-	(select id from clin.vacc_indication where description = 'mumps')
-);
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
-	(select pk from clin.vaccine where trade_name = 'measles-mumps-rubella vaccine'),
-	(select id from clin.vacc_indication where description = 'rubella')
-);
-
-
-insert into clin.lnk_vaccine2inds (
-	fk_vaccine,
-	fk_indication
-) values (
 	(select pk from clin.vaccine where short_name = '7vPCV'),
 	(select id from clin.vacc_indication where description = 'pneumococcus')
 );
@@ -197,10 +124,17 @@ create or replace function tmp_v13_v14_convert_vaccines_to_drugs()
 DECLARE
 	_row record;
 	_new_drug_pk integer;
+	_new_drug_name text;
 BEGIN
 	for _row in select * from clin.vaccine loop
 
 		raise notice ''vaccine: % (% - %)'', _row.pk::text, _row.trade_name, _row.short_name;
+
+		if position(lower(_row.short_name) in lower(_row.trade_name)) = 0 then
+			_new_drug_name := _row.trade_name || '' ('' || _row.short_name || '')'';
+		else
+			_new_drug_name := _row.trade_name;
+		end if;
 
 		-- create drug
 		case
@@ -211,7 +145,7 @@ BEGIN
 					is_fake,
 					atc_code
 				) values (
-					_row.trade_name || '' ('' || _row.short_name || '')'',
+					_new_drug_name,
 					''vaccine (oral)'',			-- this is rather arbitrary
 					False,
 					''J07''
@@ -226,7 +160,7 @@ BEGIN
 					is_fake,
 					atc_code
 				) values (
-					_row.trade_name || '' ('' || _row.short_name || '')'',
+					_new_drug_name,
 					''vaccine (i.m.)'',		-- this is rather arbitrary
 					False,
 					''J07''
@@ -241,7 +175,7 @@ BEGIN
 					is_fake,
 					atc_code
 				) values (
-					_row.trade_name || '' ('' || _row.short_name || '')'',
+					_new_drug_name,
 					''vaccine (s.c.)'',		-- this is rather arbitrary
 					False,
 					''J07''
@@ -256,7 +190,7 @@ BEGIN
 					is_fake,
 					atc_code
 				) values (
-					_row.trade_name || '' ('' || _row.short_name || '')'',
+					_new_drug_name,
 					''vaccine'',				-- this is rather arbitrary
 					False,
 					''J07''

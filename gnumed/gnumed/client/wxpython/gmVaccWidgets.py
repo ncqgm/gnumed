@@ -26,6 +26,44 @@ from Gnumed.wxpython import gmEditArea, gmListWidgets
 
 _log = logging.getLogger('gm.vaccination')
 _log.info(__version__)
+
+#======================================================================
+# vaccination indication related widgets
+#----------------------------------------------------------------------
+def manage_vaccination_indications(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		inds = gmVaccination.get_indications(order_by = 'description')
+
+		items = [ [
+			i['description'],
+			gmTools.coalesce (
+				i['atcs_single_indication'],
+				u'',
+				u'%s'
+			),
+			gmTools.coalesce (
+				i['atcs_combi_indication'],
+				u'',
+				u'%s'
+			),
+			u'%s' % i['id']
+		] for i in inds ]
+
+		lctrl.set_string_items(items)
+		lctrl.set_data(inds)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nThe vaccination indications currently known to GNUmed.\n'),
+		caption = _('Showing vaccination indications.'),
+		columns = [ _('Indication'), _('ATCs (single indication vaccines)'), _('ATCs (combi-indication vaccines)'), u'#' ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
 #======================================================================
 # vaccines related widgets
 #----------------------------------------------------------------------
@@ -38,12 +76,12 @@ def manage_vaccines(parent=None):
 		vaccines = gmVaccination.get_vaccines(order_by = 'vaccine')
 
 		items = [ [
-			u'%s (#%s%s)' % (
+			u'%s' % v['pk_brand'],
+			u'%s%s' % (
 				v['vaccine'],
-				v['pk_brand'],
 				gmTools.bool2subst (
 					v['is_fake_vaccine'],
-					u', %s' % _('fake'),
+					u' (%s)' % _('fake'),
 					u''
 				)
 			),
@@ -55,7 +93,7 @@ def manage_vaccines(parent=None):
 				gmTools.coalesce(v['min_age'], u'?'),
 				gmTools.coalesce(v['max_age'], u'?', u' - %s'),
 			),
-			v['comment']
+			gmTools.coalesce(v['comment'], u'')
 		] for v in vaccines ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(vaccines)
@@ -64,7 +102,7 @@ def manage_vaccines(parent=None):
 		parent = parent,
 		msg = _('\nThe vaccines currently known to GNUmed.\n'),
 		caption = _('Showing vaccines.'),
-		columns = [ u'Brand', _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
+		columns = [ u'#', _('Brand'), _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
 		single_selection = True,
 		refresh_callback = refresh
 	)
@@ -247,7 +285,7 @@ class cVaccinationIndicationsPnl(wxgVaccinationIndicationsPnl.wxgVaccinationIndi
 		wxgVaccinationIndicationsPnl.wxgVaccinationIndicationsPnl.__init__(self, *args, **kwargs)
 
 		self.__fields = {
-			u'Coxiella burnetii (Q fever)': self._CHBOX_coxq,
+			u'coxiella burnetii (Q fever)': self._CHBOX_coxq,
 			u'salmonella typhi (typhoid)': self._CHBOX_typhoid,
 			u'varicella (chickenpox, shingles)': self._CHBOX_varicella,
 			u'influenza (seasonal)': self._CHBOX_influenza,

@@ -296,6 +296,13 @@ select gm.create_generic_combi_vaccine (
 );
 
 select gm.create_generic_combi_vaccine (
+	''TDaP''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text],
+	''J07CA01'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
 	''TdaP-Pol''::text,
 	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text,''poliomyelitis''::text],
 	''J07CA02'',
@@ -303,14 +310,21 @@ select gm.create_generic_combi_vaccine (
 );
 
 select gm.create_generic_combi_vaccine (
-	''TdaP-Pol-HiB''::text,
+	''TDaP-Pol''::text,
+	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text,''poliomyelitis''::text],
+	''J07CA02'',
+	False
+);
+
+select gm.create_generic_combi_vaccine (
+	''TDaP-Pol-HiB''::text,
 	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text,''poliomyelitis''::text,''haemophilus influenzae b''::text],
 	''J07CA06'',
 	False
 );
 
 select gm.create_generic_combi_vaccine (
-	''TdaP-Pol-HiB-HepB''::text,
+	''TDaP-Pol-HiB-HepB''::text,
 	ARRAY[''tetanus''::text,''diphtheria''::text,''pertussis''::text,''poliomyelitis''::text,''haemophilus influenzae b''::text,''hepatitis B''::text],
 	''J07CA09'',
 	False
@@ -367,12 +381,12 @@ where
 update ref.branded_drug set
 	atc_code = 'J07BC01'
 where
-	description = 'HBVAXPRO (HBVAXPRO)';
+	description = 'HBVAXPRO';
 
 update ref.branded_drug set
 	atc_code = 'J07AL02'
 where
-	description = 'Prevenar (Prevenar)';
+	description = 'Prevenar';
 
 update ref.branded_drug set
 	atc_code = 'J07BB01'
@@ -397,57 +411,57 @@ where
 update ref.branded_drug set
 	atc_code = 'J07AH07'
 where
-	description = 'Meningitec (Meningitec)';
+	description = 'Meningitec';
 
 update ref.branded_drug set
 	atc_code = 'J07CA02'
 where
-	description = 'REPEVAX (Repevax)';
+	description = 'REPEVAX';
 
 update ref.branded_drug set
 	atc_code = 'J07CA01'
 where
-	description = 'REVAXIS (Revaxis)';
+	description = 'REVAXIS';
 
 update ref.branded_drug set
 	atc_code = 'J07BA01'
 where
-	description = 'FSME-IMMUN 0.25ml Junior (FSME)';
+	description = 'FSME-IMMUN 0.25ml Junior';
 
 update ref.branded_drug set
 	atc_code = 'J07BA01'
 where
-	description = 'Encepur Kinder (Encepur K)';
+	description = 'Encepur Kinder';
 
 update ref.branded_drug set
 	atc_code = 'J07BD52'
 where
-	description = 'PRIORIX (Priorix)';
+	description = 'PRIORIX';
 
 update ref.branded_drug set
 	atc_code = 'J07BD01'
 where
-	description = 'Masern-Impfstoff Mérieux (Masern)';
+	description = 'Masern-Impfstoff Mérieux';
 
 update ref.branded_drug set
 	atc_code = 'J07CA06'
 where
-	description = 'INFANRIX-IPV+HIB (Infanrix)';
+	description = 'INFANRIX-IPV+HIB';
 
 update ref.branded_drug set
 	atc_code = 'J07AG01'
 where
-	description = 'Act-HiB (HiB)';
+	description = 'Act-HiB';
 
 update ref.branded_drug set
 	atc_code = 'J07CA06'
 where
-	description = 'PentaVac (PentaVac)';
+	description = 'PentaVac';
 
 update ref.branded_drug set
 	atc_code = 'J07BF03'
 where
-	description = 'IPV Mérieux (IPV)';
+	description = 'IPV Mérieux';
 
 update ref.branded_drug set
 	atc_code = 'J07AP03'
@@ -459,30 +473,23 @@ update ref.branded_drug set
 where
 	description = 'Hepatitis B (Hep B)';
 
---update ref.branded_drug set
---	atc_code = 'J07'
---where
---	description = 'diptheria-tetanus-acellular pertussis infant/child formulation (DTPa)';
---
---update ref.branded_drug set
---	atc_code = 'J07'
---where
---	description = 'diptheria-tetanus-acellular pertussis adult/adolescent formulation (dTpa)';
-
 update ref.branded_drug set
+	description = 'Haemophilus influenzae B (PRP-OMP)',
 	atc_code = 'J07AG01'
 where
 	description = 'Haemophilius influenzae type b (PRP-OMP)';
 
 update ref.branded_drug set
+	description = 'Haemophilus influenzae B (PRP-T)',
 	atc_code = 'J07AG01'
 where
-	description = 'Haemophilius influenzae type b(PRP-T) (PRP-T)';
+	description = 'Haemophilius influenzae type b(PRP-T)';
 
 update ref.branded_drug set
+	description = 'Haemophilus influenzae B (HbOC)',
 	atc_code = 'J07AG01'
 where
-	description = 'Haemophilius influenzae type b(HbOC) (HbOC)';
+	description = 'Haemophilius influenzae type b(HbOC)';
 
 update ref.branded_drug set
 	atc_code = 'J07BF03'
@@ -510,24 +517,9 @@ where
 	description = 'meningococcal C conjugate vaccine (menCCV)';
 
 update ref.branded_drug set
-	atc_code = 'J07AM51'
-where
-	description = 'adult diptheria-tetanus (dT)';
-
-update ref.branded_drug set
 	atc_code = 'J07BF02'
 where
 	description = 'oral poliomyelitis vaccine (OPV)';
-
-update ref.branded_drug set
-	atc_code = 'J07BD52'
-where
-	description = 'measles-mumps-rubella vaccine (MMR)';
-
-update ref.branded_drug set
-	atc_code = 'J07BB01'
-where
-	description = 'influenza vaccine (influenza)';
 
 update ref.branded_drug set
 	atc_code = 'J07AM01'

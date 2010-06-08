@@ -24,7 +24,7 @@ class wxgVaccinationIndicationsPnl(wx.Panel):
         self._CHBOX_hepA = wx.CheckBox(self, -1, _("Hep A"))
         self._CHBOX_pertussis = wx.CheckBox(self, -1, _("Pertussis"))
         self._CHBOX_rubella = wx.CheckBox(self, -1, _("Rubella"))
-        self._CHBOX_pneumococcus = wx.CheckBox(self, -1, _("Pneumococc."))
+        self._CHBOX_pneumococcus = wx.CheckBox(self, -1, _("Pneumococc"))
         self._CHBOX_menW = wx.CheckBox(self, -1, _("W"))
         self._CHBOX_menY = wx.CheckBox(self, -1, _("Y"))
         self._CHBOX_cholera = wx.CheckBox(self, -1, _("Cholera"))
@@ -48,38 +48,6 @@ class wxgVaccinationIndicationsPnl(wx.Panel):
 
         self.__set_properties()
         self.__do_layout()
-
-        self.Bind(wx.EVT_CHECKBOX, self._on_tetanus_checked, self._CHBOX_tetanus)
-        self.Bind(wx.EVT_CHECKBOX, self._on_measles_checked, self._CHBOX_measles)
-        self.Bind(wx.EVT_CHECKBOX, self._on_diphtheria_checked, self._CHBOX_diphtheria)
-        self.Bind(wx.EVT_CHECKBOX, self._on_mumps_checked, self._CHBOX_mumps)
-        self.Bind(wx.EVT_CHECKBOX, self._on_influenza_checked, self._CHBOX_influenza)
-        self.Bind(wx.EVT_CHECKBOX, self._on_menA_checked, self._CHBOX_menA)
-        self.Bind(wx.EVT_CHECKBOX, self._on_menC_checked, self._CHBOX_menC)
-        self.Bind(wx.EVT_CHECKBOX, self._on_hepA_checked, self._CHBOX_hepA)
-        self.Bind(wx.EVT_CHECKBOX, self._on_pertussis_checked, self._CHBOX_pertussis)
-        self.Bind(wx.EVT_CHECKBOX, self._on_rubella_checked, self._CHBOX_rubella)
-        self.Bind(wx.EVT_CHECKBOX, self._on_pneumococcus_checked, self._CHBOX_pneumococcus)
-        self.Bind(wx.EVT_CHECKBOX, self._on_menW_checked, self._CHBOX_menW)
-        self.Bind(wx.EVT_CHECKBOX, self._on_menY_checked, self._CHBOX_menY)
-        self.Bind(wx.EVT_CHECKBOX, self._on_cholera_checked, self._CHBOX_cholera)
-        self.Bind(wx.EVT_CHECKBOX, self._on_polio_checked, self._CHBOX_polio)
-        self.Bind(wx.EVT_CHECKBOX, self._on_varicella_checked, self._CHBOX_varicella)
-        self.Bind(wx.EVT_CHECKBOX, self._on_coxq_checked, self._CHBOX_coxq)
-        self.Bind(wx.EVT_CHECKBOX, self._on_fsme_checked, self._CHBOX_fsme)
-        self.Bind(wx.EVT_CHECKBOX, self._on_typhoid_checked, self._CHBOX_typhoid)
-        self.Bind(wx.EVT_CHECKBOX, self._on_hib_checked, self._CHBOX_hib)
-        self.Bind(wx.EVT_CHECKBOX, self._on_h1n1_checked, self._CHBOX_h1n1)
-        self.Bind(wx.EVT_CHECKBOX, self._on_japanese_checked, self._CHBOX_japanese)
-        self.Bind(wx.EVT_CHECKBOX, self._on_rotavirus_checked, self._CHBOX_rota)
-        self.Bind(wx.EVT_CHECKBOX, self._on_hepB_checked, self._CHBOX_hepB)
-        self.Bind(wx.EVT_CHECKBOX, self._on_hpv_checked, self._CHBOX_hpv)
-        self.Bind(wx.EVT_CHECKBOX, self._on_tuberculosis_checked, self._CHBOX_tuberculosis)
-        self.Bind(wx.EVT_CHECKBOX, self._on_rabies_checked, self._CHBOX_rabies)
-        self.Bind(wx.EVT_CHECKBOX, self._on_yellow_fever_checked, self._CHBOX_yellow_fever)
-        self.Bind(wx.EVT_CHECKBOX, self._on_anthrax_checked, self._CHBOX_anthrax)
-        self.Bind(wx.EVT_CHECKBOX, self._on_plague_checked, self._CHBOX_yersinia_pestis)
-        self.Bind(wx.EVT_CHECKBOX, self._on_smallpox_checked, self._CHBOX_smallpox)
         # end wxGlade
 
     def __set_properties(self):
@@ -159,134 +127,7 @@ class wxgVaccinationIndicationsPnl(wx.Panel):
         __gszr_indications.Add(self._CHBOX_smallpox, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         self.SetSizer(__gszr_indications)
         __gszr_indications.Fit(self)
-        __gszr_indications.AddGrowableCol(0)
-        __gszr_indications.AddGrowableCol(1)
-        __gszr_indications.AddGrowableCol(2)
         # end wxGlade
-
-    def _on_tetanus_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_tetanus_checked' not implemented!"
-        event.Skip()
-
-    def _on_measles_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_measles_checked' not implemented!"
-        event.Skip()
-
-    def _on_diphtheria_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_diphtheria_checked' not implemented!"
-        event.Skip()
-
-    def _on_mumps_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_mumps_checked' not implemented!"
-        event.Skip()
-
-    def _on_influenza_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_influenza_checked' not implemented!"
-        event.Skip()
-
-    def _on_menA_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_menA_checked' not implemented!"
-        event.Skip()
-
-    def _on_menC_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_menC_checked' not implemented!"
-        event.Skip()
-
-    def _on_hepA_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_hepA_checked' not implemented!"
-        event.Skip()
-
-    def _on_pertussis_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_pertussis_checked' not implemented!"
-        event.Skip()
-
-    def _on_rubella_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_rubella_checked' not implemented!"
-        event.Skip()
-
-    def _on_pneumococcus_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_pneumococcus_checked' not implemented!"
-        event.Skip()
-
-    def _on_menW_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_menW_checked' not implemented!"
-        event.Skip()
-
-    def _on_menY_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_menY_checked' not implemented!"
-        event.Skip()
-
-    def _on_cholera_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_cholera_checked' not implemented!"
-        event.Skip()
-
-    def _on_polio_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_polio_checked' not implemented!"
-        event.Skip()
-
-    def _on_varicella_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_varicella_checked' not implemented!"
-        event.Skip()
-
-    def _on_coxq_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_coxq_checked' not implemented!"
-        event.Skip()
-
-    def _on_fsme_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_fsme_checked' not implemented!"
-        event.Skip()
-
-    def _on_typhoid_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_typhoid_checked' not implemented!"
-        event.Skip()
-
-    def _on_hib_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_hib_checked' not implemented!"
-        event.Skip()
-
-    def _on_h1n1_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_h1n1_checked' not implemented!"
-        event.Skip()
-
-    def _on_japanese_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_japanese_checked' not implemented!"
-        event.Skip()
-
-    def _on_rotavirus_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_rotavirus_checked' not implemented!"
-        event.Skip()
-
-    def _on_hepB_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_hepB_checked' not implemented!"
-        event.Skip()
-
-    def _on_hpv_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_hpv_checked' not implemented!"
-        event.Skip()
-
-    def _on_tuberculosis_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_tuberculosis_checked' not implemented!"
-        event.Skip()
-
-    def _on_rabies_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_rabies_checked' not implemented!"
-        event.Skip()
-
-    def _on_yellow_fever_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_yellow_fever_checked' not implemented!"
-        event.Skip()
-
-    def _on_anthrax_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_anthrax_checked' not implemented!"
-        event.Skip()
-
-    def _on_plague_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_plague_checked' not implemented!"
-        event.Skip()
-
-    def _on_smallpox_checked(self, event): # wxGlade: wxgVaccinationIndicationsPnl.<event_handler>
-        print "Event handler `_on_smallpox_checked' not implemented!"
-        event.Skip()
 
 # end of class wxgVaccinationIndicationsPnl
 

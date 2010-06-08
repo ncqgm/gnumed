@@ -21,6 +21,16 @@ _log = logging.getLogger('gm.vaccination')
 _log.info(__version__)
 
 #============================================================
+def get_indications(order_by=None):
+	cmd = u'SELECT * from clin.vacc_indication'
+
+	if order_by is not None:
+		cmd = u'%s ORDER BY %s' % (cmd, order_by)
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+
+	return rows
+#============================================================
 _sql_fetch_vaccine = u"""SELECT *, xmin_vaccine FROM clin.v_vaccines WHERE %s"""
 
 class cVaccine(gmBusinessDBObject.cBusinessDBObject):
