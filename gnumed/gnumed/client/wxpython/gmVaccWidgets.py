@@ -69,6 +69,62 @@ def manage_vaccines(parent=None):
 		refresh_callback = refresh
 	)
 #----------------------------------------------------------------------
+class cBatchNoPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		context = {
+			u'ctxt_vaccine': {
+				u'where_part': u'AND pk_vaccine = %(pk_vaccine)s',
+				u'placeholder': u'pk_vaccine'
+			}
+		}
+
+		query = u"""
+SELECT code, batch_no FROM (
+
+	SELECT distinct on (batch_no) code, batch_no, rank FROM (
+
+		(
+			-- batch_no by vaccine
+			SELECT
+				batch_no AS code,
+				batch_no,
+				1 AS rank
+			FROM
+				clin.v_pat_vaccinations
+			WHERE
+				batch_no %(fragment_condition)s
+				%(ctxt_vaccine)s
+		) UNION ALL (
+			-- batch_no for any vaccine
+			SELECT
+				batch_no AS code,
+				batch_no,
+				2 AS rank
+			FROM
+				clin.v_pat_vaccinations
+			WHERE
+				batch_no %(fragment_condition)s
+		)
+
+	) AS matching_batch_nos
+
+) as unique_matches
+
+ORDER BY rank, batch_no
+LIMIT 25
+"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = context)
+		mp.setThresholds(1, 2, 3)
+		self.matcher = mp
+
+		self.unset_context(context = u'pk_vaccine')
+		self.SetToolTipString(_('Enter or select the batch/lot number of the vaccine used.'))
+		self.selection_only = False
+#----------------------------------------------------------------------
 class cVaccinePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -269,8 +325,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		wxgVaccinationEAPnl.wxgVaccinationEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		# Code using this mixin should set mode and data
-		# after instantiating the class:
 		self.mode = 'new'
 		self.data = data
 		if data is not None:
@@ -282,15 +336,18 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		# adjust phrasewheels etc
 		self._PRW_vaccine.add_callback_on_lose_focus(self._on_PRW_vaccine_lost_focus)
 		self._PRW_provider.selection_only = False
+		self._PRW_batch.unset_context(context = 'pk_vaccine')
 	#----------------------------------------------------------------
 	def _on_PRW_vaccine_lost_focus(self):
 		vaccine = self._PRW_vaccine.GetData(as_instance=True)
 		if vaccine is None:
 			self._PNL_indications.enable_all()
+			self._PRW_batch.unset_context(context = 'pk_vaccine')
 		else:
 			self._PNL_indications.clear_all()
 			self._PNL_indications.select(indications = vaccine['indications'])
 			self._PNL_indications.disable_all()
+			self._PRW_batch.set_context(context = 'pk_vaccine', val = vaccine['pk_vaccine'])
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -355,7 +412,9 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self._PNL_indications.select(indications = self.data['indications'])
 		self._PNL_indications.disable_all()
 
+		self._PRW_batch.set_context(context = 'pk_vaccine', val = self.data['pk_vaccine'])
 		self._PRW_batch.SetValue(u'')
+
 		self._PRW_episode.SetData(data = self.data['pk_episode'])
 		self._PRW_site.SetValue(gmTools.coalesce(self.data['site'], u''))
 		self._PRW_provider.SetData(self.data['pk_provider'])
