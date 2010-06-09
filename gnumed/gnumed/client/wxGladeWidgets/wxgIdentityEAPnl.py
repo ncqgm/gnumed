@@ -23,6 +23,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_ethnicity = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_title = gmDemographicsWidgets.cTitlePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -34,11 +35,12 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         self._PRW_dob.SetToolTipString(_("The date of birth for this person."))
         self._DP_dod.SetToolTipString(_("The date of death."))
         self._PRW_ethnicity.Enable(False)
+        self._TCTRL_comment.SetToolTipString(_("A free-text comment on this person."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgIdentityEAPnl.__do_layout
-        __gzszr_main = wx.FlexGridSizer(6, 2, 1, 3)
+        __gzszr_main = wx.FlexGridSizer(7, 2, 1, 3)
         __lbl_name = wx.StaticText(self, -1, _("Status"))
         __gzszr_main.Add(__lbl_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzszr_main.Add(self._LBL_info, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -57,6 +59,9 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         __lbl_title = wx.StaticText(self, -1, _("Title"))
         __gzszr_main.Add(__lbl_title, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzszr_main.Add(self._PRW_title, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_comment = wx.StaticText(self, -1, _("Comment"))
+        __gzszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gzszr_main.Add(self._TCTRL_comment, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(__gzszr_main)
         __gzszr_main.Fit(self)
         __gzszr_main.AddGrowableCol(1)

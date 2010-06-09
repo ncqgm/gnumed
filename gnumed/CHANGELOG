@@ -14,7 +14,8 @@ NEW: placeholder "current_meds_table::latex"
 NEW: placeholder "lab_table::latex"
 NEW: Rome diagnostic criteria on obstipation
 NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
-NEW: emergency contact handling
+NEW: support emergency contact
+NEW: support comment directly on identity
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
@@ -24,6 +25,7 @@ IMPROVED: more medically-sound interval formatting
 IMPROVED: edit non-name identity parts *directly* in demographics plugin (no popup needed)
 IMPROVED: show date-generated in patient picture tooltip
 IMPROVED: much better icon [thanks J.Jaarsveld]
+IMPROVED: show comment/emergency contact in patient search control tooltip
 
 ------------------------------------------------
 # rel-0-7-patches

@@ -1688,6 +1688,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 
 		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
 		self.data['deceased'] = self._DP_dod.GetValue(as_pydt = True)
+		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 
 		self.data.save()
 		return True
@@ -1709,6 +1710,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self._PRW_gender.SetData(self.data['gender'])
 		#self._PRW_ethnicity.SetValue()
 		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		pass
@@ -2184,13 +2186,24 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 	def _on_save_button_pressed(self, event):
 		if self.__identity is not None:
 			self.__identity['emergency_contact'] = self._TCTRL_er_contact.GetValue().strip()
-			self.__identity['pk_emergency_contact'] = self._TCTRL_person.person.ID
+			if self._TCTRL_person.person is not None:
+				self.__identity['pk_emergency_contact'] = self._TCTRL_person.person.ID
 			self.__identity.save()
 
 		event.Skip()
 	#--------------------------------------------------------
-	def _on_button_activate_contact_pressed(self, event):
+	def _on_remove_contact_button_pressed(self, event):
+		event.Skip()
 
+		if self.__identity is None:
+			return
+
+		self._TCTRL_person.person = None
+
+		self.__identity['pk_emergency_contact'] = None
+		self.__identity.save()
+	#--------------------------------------------------------
+	def _on_button_activate_contact_pressed(self, event):
 		ident = self._TCTRL_person.person
 		if ident is not None:
 			from Gnumed.wxpython import gmPatSearchWidgets
