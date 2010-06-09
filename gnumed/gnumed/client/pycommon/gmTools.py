@@ -886,7 +886,10 @@ def get_icon(wx=None):
 	else:
 		_log.debug('icon found in [%s]', found_as)
 		icon = wx.EmptyIcon()
-		icon.LoadFile(found_as, wx.BITMAP_TYPE_ANY)		#_PNG
+		try:
+			icon.LoadFile(found_as, wx.BITMAP_TYPE_ANY)		#_PNG
+		except AttributeError:
+			_log.exception(u"this platform doesn't support wx.Icon().LoadFile()")
 
 	return icon
 #===========================================================================
