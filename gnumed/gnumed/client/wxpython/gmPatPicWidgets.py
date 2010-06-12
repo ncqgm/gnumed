@@ -117,7 +117,7 @@ class cPatientPicture(wx.StaticBitmap):
 			gmGuiHelpers.gm_show_error (
 				aMessage = _(
 					'No image could be acquired from the source.\n\n'
-					'This may mean the scanner driver is not properly installed\n\n'
+					'This may mean the scanner driver is not properly installed.\n\n'
 					'On Windows you must install the TWAIN Python module\n'
 					'while on Linux and MacOSX it is recommended to install\n'
 					'the XSane package.'

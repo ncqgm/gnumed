@@ -2121,7 +2121,7 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 	#--------------------------------------------------------
 	def _on_save_identity_details_button_pressed(self, event):
 		if not self._PNL_identity.save():
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save identity. Incomplete information'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save identity. Incomplete information.'), beep = True)
 	#--------------------------------------------------------
 	def _on_reload_identity_button_pressed(self, event):
 		self._PNL_identity.refresh()

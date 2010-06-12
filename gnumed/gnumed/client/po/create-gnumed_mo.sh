@@ -24,7 +24,11 @@ msgfmt -v -c --statistics -o ${MOFILE} ${POFILE}
 
 
 echo ""
-echo "You can now copy \"${MOFILE}\" into the appropriate"
-echo "language specific directory (such as ./${LANGNAME}/LC_MESSAGES/)."
+echo "activating translation ${LANGNAME}"
+mkdir ${LANGNAME}
+cd ${LANGNAME}
+mkdir LC_MESSAGES
+cd LC_MESSAGES
+ln -s ../../${MOFILE} gnumed.mo
+cd ../../
 echo ""
-
