@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-06-12 20:08+CEST\n"
+"POT-Creation-Date: 2010-06-12 22:02+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1489,6 +1489,9 @@ msgstr ""
 msgid "&Interactions?"
 msgstr ""
 
+msgid "ADR"
+msgstr ""
+
 msgid "Sort entries by \"health issue\" and \"episode\" for which they are taken, then \"substance\", then \"started\"."
 msgstr ""
 
@@ -1526,6 +1529,9 @@ msgid ""
 "Check for interactions between selected drugs.\n"
 "\n"
 "Includes all drugs if none selected."
+msgstr ""
+
+msgid "Report an Adverse Drug Reaction."
 msgstr ""
 
 msgid "Print the medication list."
@@ -5640,6 +5646,12 @@ msgstr ""
 msgid "Set the path for the FreeDiams binary."
 msgstr ""
 
+msgid "ADR URL"
+msgstr ""
+
+msgid "URL for reporting Adverse Drug Reactions."
+msgstr ""
+
 msgid "Set the command for calling the visual progress note editor."
 msgstr ""
 
@@ -6204,6 +6216,14 @@ msgid ""
 "some time to fully start up.\n"
 "\n"
 "Here you can set the time for GNUmed to wait for OOo.\n"
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
 msgstr ""
 
 msgid ""

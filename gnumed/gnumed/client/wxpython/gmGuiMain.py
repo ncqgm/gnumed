@@ -332,6 +332,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
 
+		item = menu_cfg_ext_tools.Append(-1, _('ADR URL'), _('URL for reporting Adverse Drug Reactions.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_adr_url, item)
+
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
@@ -1239,6 +1242,32 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_drug_data_source(self, evt):
 		gmMedicationWidgets.configure_drug_data_source(parent = self)
+	#----------------------------------------------
+	def __on_configure_adr_url(self, evt):
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, value
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return False, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access a website which lets\n'
+				'you report an adverse drug reaction (ADR).\n'
+				'\n'
+				'You can leave this empty but to set it to a specific\n'
+				'address the URL must be accessible now.'
+			),
+			option = 'external.urls.report_ADR',
+			bias = 'user',
+			default_value = u'https://dcgma.org/uaw/meldung.php',
+			validator = is_valid
+		)
 	#----------------------------------------------
 	def __on_configure_measurements_url(self, evt):
 

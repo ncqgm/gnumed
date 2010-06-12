@@ -16,6 +16,7 @@ NEW: Rome diagnostic criteria on obstipation
 NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
 NEW: support emergency contact
 NEW: support comment directly on identity
+NEW: Add button to report ADR from within current substances plugin.
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
