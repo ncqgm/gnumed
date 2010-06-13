@@ -9,10 +9,12 @@
 	0.8.x
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
-NEW: hook "after_soap_modified"
-NEW: placeholder "current_meds_table::latex"
-NEW: placeholder "lab_table::latex"
-NEW: Rome diagnostic criteria on obstipation
+NEW: hook: "after_soap_modified"
+NEW: placeholder: "current_meds_table::latex"
+NEW: placeholder: "lab_table::latex"
+NEW: score: Rome diagnostic criteria on obstipation
+NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
+NEW: score: bacterial UTI algorithm
 NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
 NEW: support emergency contact
 NEW: support comment directly on identity
