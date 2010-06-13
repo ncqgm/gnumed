@@ -582,7 +582,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		self.person = None
 
-		self.SetToolTipString (_(
+		self._tt_search_hints = _(
 			'To search for a person type any of:                   \n'
 			'\n'
 			' - fragment of last or first name\n'
@@ -599,7 +599,8 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			'  - recall most recently used search term\n'
 			' <CURSOR-DOWN>\n'
 			'  - list 10 most recently found persons\n'
-		))
+		)
+		self.SetToolTipString(self._tt_search_hints)
 
 		# FIXME: set query generator
 		self.__person_searcher = gmPerson.cPatientSearcher_SQL()
@@ -890,23 +891,23 @@ class cActivePatientSelector(cPersonSearchCtrl):
 
 		cPersonSearchCtrl.__init__(self, *args, **kwargs)
 
-		selector_tooltip = _(
-		'Patient search field.                             \n'
-		'\n'
-		'To search, type any of:\n'
-		' - fragment of last or first name\n'
-		" - date of birth (can start with '$' or '*')\n"
-		" - patient ID (can start with '#')\n"
-		'and hit <ENTER>.\n'
-		'\n'
-		'<CURSOR-UP>\n'
-		' - recall most recently used search term\n'
-		'<CURSOR-DOWN>\n'
-		' - list 10 most recently activated patients\n'
-		'<F2>\n'
-		' - scan external sources for patients to import and activate\n'
-		)
-		self.SetToolTip(wx.ToolTip(selector_tooltip))
+#		selector_tooltip = _(
+#		'Patient search field.                             \n'
+#		'\n'
+#		'To search, type any of:\n'
+#		' - fragment of last or first name\n'
+#		" - date of birth (can start with '$' or '*')\n"
+#		" - patient ID (can start with '#')\n"
+#		'and hit <ENTER>.\n'
+#		'\n'
+#		'<CURSOR-UP>\n'
+#		' - recall most recently used search term\n'
+#		'<CURSOR-DOWN>\n'
+#		' - list 10 most recently activated patients\n'
+#		'<F2>\n'
+#		' - scan external sources for patients to import and activate\n'
+#		)
+#		self.SetToolTip(wx.ToolTip(selector_tooltip))
 
 		# get configuration
 		cfg = gmCfg.cCfgSQL()
@@ -943,6 +944,17 @@ class cActivePatientSelector(cPersonSearchCtrl):
 				name = _('%(name)s (locked)') % {'name': name}
 
 		self.SetValue(name)
+
+		if self.person is None:
+			self.SetToolTipString(self._tt_search_hints)
+			return
+
+		tt = u'%s%s-----------------------------------\n%s' % (
+			gmTools.coalesce(self.person['emergency_contact'], u'', _('In case of emergency contact:') + u'\n %s\n'),
+			gmTools.coalesce(self.person['comment'], u'', u'\n%s\n'),
+			self._tt_search_hints
+		)
+		self.SetToolTipString(tt)
 	#--------------------------------------------------------
 	def _set_person_as_active_patient(self, pat):
 		if not set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
@@ -950,28 +962,6 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			return None
 
 		self._remember_ident(pat)
-
-#		dbcfg = gmCfg.cCfgSQL()
-#		dob_distance = dbcfg.get2 (
-#			option = u'patient_search.dob_warn_interval',
-#			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#			bias = u'user',
-#			default = u'1 week'
-#		)
-#
-#		if pat.dob_in_range(dob_distance, dob_distance):
-#			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-#			enc = gmI18N.get_encoding()
-#			gmDispatcher.send(signal = 'statustext', msg = _(
-#				'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
-#					'pat': pat.get_description_gender(),
-#					'age': pat.get_medical_age().strip('y'),
-#					'month': pat.get_formatted_dob(format = '%B', encoding = enc),
-#					'day': pat.get_formatted_dob(format = '%d', encoding = enc),
-#					'month_now': now.strftime('%B').decode(enc),
-#					'day_now': now.strftime('%d')
-#				}
-#			)
 
 		return True
 	#--------------------------------------------------------

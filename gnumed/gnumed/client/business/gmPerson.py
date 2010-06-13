@@ -353,7 +353,8 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 				pupic = gm.nullify_empty_string(%(pupic)s),
 				deceased = %(deceased)s,
 				emergency_contact = gm.nullify_empty_string(%(emergency_contact)s),
-				fk_emergency_contact = %(pk_emergency_contact)s
+				fk_emergency_contact = %(pk_emergency_contact)s,
+				comment = gm.nullify_empty_string(%(comment)s)
 			where
 				pk = %(pk_identity)s and
 				xmin = %(xmin_identity)s""",
@@ -370,7 +371,8 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		"pupic",
 		'deceased',
 		'emergency_contact',
-		'pk_emergency_contact'
+		'pk_emergency_contact',
+		'comment'
 	]
 	#--------------------------------------------------------
 	def _get_ID(self):

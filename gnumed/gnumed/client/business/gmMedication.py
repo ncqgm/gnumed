@@ -57,7 +57,10 @@ def drug2renal_insufficiency_url(search_term=None):
 		else:
 			terms.append(name)
 
-	url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
+	#url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
+	#url = url_template % u'+OR+'.join(terms)
+
+	url_template = u'http://www.google.de/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
 	url = url_template % u'+OR+'.join(terms)
 
 	_log.debug(u'renal insufficiency URL: %s', url)

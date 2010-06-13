@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-03-30 16:15+CEST\n"
+"POT-Creation-Date: 2010-06-12 22:02+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -234,6 +234,9 @@ msgstr ""
 msgid "last check:"
 msgstr ""
 
+msgid "part"
+msgstr ""
+
 msgid "A: Sign"
 msgstr ""
 
@@ -382,7 +385,7 @@ msgstr ""
 msgid "PDF output file cannot be opened."
 msgstr ""
 
-msgid "part"
+msgid "Error running gnuplot. Cannot plot data."
 msgstr ""
 
 msgid "long-term"
@@ -395,6 +398,21 @@ msgid "?short-term"
 msgstr ""
 
 msgid "?ongoing"
+msgstr ""
+
+msgid "Medication list"
+msgstr ""
+
+msgid "ordered by brand"
+msgstr ""
+
+msgid "Drug"
+msgstr ""
+
+msgid "Regimen"
+msgstr ""
+
+msgid "Substances"
 msgstr ""
 
 msgid "units"
@@ -431,6 +449,21 @@ msgid "normal but relevant"
 msgstr ""
 
 msgid "   unreviewed"
+msgstr ""
+
+msgid "unknown test results output format [%s]"
+msgstr ""
+
+msgid "No test results to format."
+msgstr ""
+
+msgid "Test results"
+msgstr ""
+
+msgid "GNUmed test results export for Gnuplot plotting"
+msgstr ""
+
+msgid "blank line inserted to allow for discontinued line drawing for same-day values"
 msgstr ""
 
 msgid "The lab request already exists but belongs to a different patient."
@@ -1450,7 +1483,13 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+msgid "Kidney"
+msgstr ""
+
 msgid "&Interactions?"
+msgstr ""
+
+msgid "ADR"
 msgstr ""
 
 msgid "Sort entries by \"health issue\" and \"episode\" for which they are taken, then \"substance\", then \"started\"."
@@ -1483,10 +1522,16 @@ msgstr ""
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 
+msgid "Show information on handling of drugs in presence of renal insufficiency."
+msgstr ""
+
 msgid ""
 "Check for interactions between selected drugs.\n"
 "\n"
 "Includes all drugs if none selected."
+msgstr ""
+
+msgid "Report an Adverse Drug Reaction."
 msgstr ""
 
 msgid "Print the medication list."
@@ -1748,6 +1793,9 @@ msgstr ""
 msgid "&Template"
 msgstr ""
 
+msgid "Gnuplot"
+msgstr ""
+
 msgid "Image editor"
 msgstr ""
 
@@ -1998,6 +2046,30 @@ msgid "Admitted"
 msgstr ""
 
 msgid "Discharged"
+msgstr ""
+
+msgid "The date of birth for this person."
+msgstr ""
+
+msgid "The date of death."
+msgstr ""
+
+msgid "A free-text comment on this person."
+msgstr ""
+
+msgid "Born"
+msgstr ""
+
+msgid "Deceased"
+msgstr ""
+
+msgid "Gender"
+msgstr ""
+
+msgid "Ethnicity"
+msgstr ""
+
+msgid "Title"
 msgstr ""
 
 msgid "Please select a health issue:"
@@ -2310,19 +2382,10 @@ msgstr ""
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
-msgid "The date of birth for this person."
-msgstr ""
-
 msgid "Check this to make this the currently active name."
 msgstr ""
 
-msgid "The date of death."
-msgstr ""
-
 msgid "Enter a comment relevant to this name (such as \"before marriage\")."
-msgstr ""
-
-msgid "Title"
 msgstr ""
 
 msgid "First name"
@@ -2335,9 +2398,6 @@ msgid "Nick name"
 msgstr ""
 
 msgid "Date of birth"
-msgstr ""
-
-msgid "Gender"
 msgstr ""
 
 msgid "Date of death"
@@ -2444,6 +2504,24 @@ msgid "Occupation"
 msgstr ""
 
 msgid "Activate the respective patient by double-clicking a row."
+msgstr ""
+
+msgid "Save the identity details."
+msgstr ""
+
+msgid "Reload identity from the database."
+msgstr ""
+
+msgid "Link another person in this database as the emergency contact."
+msgstr ""
+
+msgid "Make the emergency contact the active patient."
+msgstr ""
+
+msgid "Name, relation, and contact details for person to notify in case of emergency/serious trouble."
+msgstr ""
+
+msgid "Emergency contact"
 msgstr ""
 
 msgid "Schock index"
@@ -3991,6 +4069,12 @@ msgstr ""
 msgid "Deleting external ID"
 msgstr ""
 
+msgid "Cannot save identity. Incomplete information."
+msgstr ""
+
+msgid " (confidential !)"
+msgstr ""
+
 msgid "Adding new person"
 msgstr ""
 
@@ -4104,16 +4188,13 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
+msgid "Social Network"
+msgstr ""
+
 msgid "primary occupation of the patient"
 msgstr ""
 
 msgid "Last updated"
-msgstr ""
-
-msgid "Cannot add patient address."
-msgstr ""
-
-msgid "Cannot add patient address. Missing fields."
 msgstr ""
 
 msgid "Adult"
@@ -4401,7 +4482,7 @@ msgstr ""
 msgid ""
 "No pages could be acquired from the source.\n"
 "\n"
-"This may mean the scanner driver is not properly installed\n"
+"This may mean the scanner driver is not properly installed.\n"
 "\n"
 "On Windows you must install the TWAIN Python module\n"
 "while on Linux and MacOSX it is recommended to install\n"
@@ -5284,10 +5365,16 @@ msgstr ""
 msgid "No document template selected."
 msgstr ""
 
-msgid "Error creating printable document."
+msgid ""
+"Error creating printable document.\n"
+"\n"
+"There is no engine for this type of template."
 msgstr ""
 
 msgid "Printing document"
+msgstr ""
+
+msgid "Error creating printable document."
 msgstr ""
 
 msgid "Error printing document (%s)."
@@ -5349,13 +5436,10 @@ msgstr ""
 msgid "You must select a template file before saving."
 msgstr ""
 
+msgid "all files (Windows)"
+msgstr ""
+
 msgid "Choose a form template file"
-msgstr ""
-
-msgid "LaTeX templates"
-msgstr ""
-
-msgid "OOo templates"
 msgstr ""
 
 msgid "programmer forgot to specify error message"
@@ -5562,6 +5646,12 @@ msgstr ""
 msgid "Set the path for the FreeDiams binary."
 msgstr ""
 
+msgid "ADR URL"
+msgstr ""
+
+msgid "URL for reporting Adverse Drug Reactions."
+msgstr ""
+
 msgid "Set the command for calling the visual progress note editor."
 msgstr ""
 
@@ -5661,9 +5751,6 @@ msgstr ""
 msgid "Manage substances in use."
 msgstr ""
 
-msgid "Substances"
-msgstr ""
-
 msgid "Drugs"
 msgstr ""
 
@@ -5704,6 +5791,12 @@ msgid "Download and install LOINC reference data."
 msgstr ""
 
 msgid "Update LOINC"
+msgstr ""
+
+msgid "Show known vaccines."
+msgstr ""
+
+msgid "Vaccines"
 msgstr ""
 
 msgid "&Users ..."
@@ -6126,6 +6219,14 @@ msgid ""
 msgstr ""
 
 msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
+msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
 "\n"
@@ -6411,6 +6512,15 @@ msgid "No DICOM viewer found."
 msgstr ""
 
 msgid "ACS risk assessment calculator not configured."
+msgstr ""
+
+msgid "Cannot run [%s] !"
+msgstr ""
+
+msgid "There was a problem accessing the ARRIBA result in [%s] !"
+msgstr ""
+
+msgid "cardiovascular risk assessment"
 msgstr ""
 
 msgid "Saved screenshot to file [%s]."
@@ -6758,6 +6868,12 @@ msgstr ""
 msgid "no postcode for address type [%s]"
 msgstr ""
 
+msgid "unknown current medication table formatting style"
+msgstr ""
+
+msgid "unknown test results table formatting style [%s]"
+msgstr ""
+
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -6834,6 +6950,12 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
+msgid "Cannot plot without a plot script."
+msgstr ""
+
+msgid "Plotting test results"
+msgstr ""
+
 msgid ""
 "lab_grid_date_format::%Y\n"
 "%b %d"
@@ -6866,6 +6988,9 @@ msgid "No, do NOT delete any results."
 msgstr ""
 
 msgid "Cannot sign results. No results selected."
+msgstr ""
+
+msgid "Cannot plot results. No results selected."
 msgstr ""
 
 msgid ""
@@ -7089,6 +7214,9 @@ msgstr ""
 msgid "Review and &sign"
 msgstr ""
 
+msgid "Plot"
+msgstr ""
+
 msgid "Export to &file"
 msgstr ""
 
@@ -7187,10 +7315,10 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr ""
 
-msgid "Route"
+msgid "Term"
 msgstr ""
 
-msgid "Term"
+msgid "Route"
 msgstr ""
 
 msgid ""
@@ -7322,6 +7450,9 @@ msgid "Problem loading medication list template."
 msgstr ""
 
 msgid "Cannot load medication list template [%s - %s]"
+msgstr ""
+
+msgid "Invalid medication list template [%s - %s (%s)]"
 msgstr ""
 
 msgid "Error generating the medication list."
@@ -7674,6 +7805,9 @@ msgstr ""
 msgid "Selecting text macro"
 msgstr ""
 
+msgid "You need to actually set an editor."
+msgstr ""
+
 msgid ""
 "Enter the shell command with which to start\n"
 "the image editor for visual progress notes.\n"
@@ -7768,13 +7902,29 @@ msgstr ""
 msgid "No active patient."
 msgstr ""
 
+msgid ""
+"No image could be acquired from the source.\n"
+"\n"
+"This may mean the scanner driver is not properly installed.\n"
+"\n"
+"On Windows you must install the TWAIN Python module\n"
+"while on Linux and MacOSX it is recommended to install\n"
+"the XSane package."
+msgstr ""
+
+msgid "Acquiring photo"
+msgstr ""
+
 msgid "Patient photo could not be acquired from source."
 msgstr ""
 
-msgid "acquiring photo"
+msgid "Administration"
 msgstr ""
 
-msgid "Administration"
+msgid ""
+"Patient picture (%s).\n"
+"\n"
+"Right-click for context menu."
 msgstr ""
 
 msgid "Cannot set patient picture from [%s]."
@@ -7948,21 +8098,7 @@ msgid ""
 "age-related decisions.\n"
 msgstr ""
 
-msgid ""
-"Patient search field.                             \n"
-"\n"
-"To search, type any of:\n"
-" - fragment of last or first name\n"
-" - date of birth (can start with '$' or '*')\n"
-" - patient ID (can start with '#')\n"
-"and hit <ENTER>.\n"
-"\n"
-"<CURSOR-UP>\n"
-" - recall most recently used search term\n"
-"<CURSOR-DOWN>\n"
-" - list 10 most recently activated patients\n"
-"<F2>\n"
-" - scan external sources for patients to import and activate\n"
+msgid "%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)"
 msgstr ""
 
 msgid "<type here to search patient>"
@@ -7971,7 +8107,7 @@ msgstr ""
 msgid "%(name)s (locked)"
 msgstr ""
 
-msgid "%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)"
+msgid "In case of emergency contact:"
 msgstr ""
 
 msgid "Cannot add to waiting list. Missing essential input."
@@ -7981,9 +8117,6 @@ msgid "Urgency"
 msgstr ""
 
 msgid "Waiting time"
-msgstr ""
-
-msgid "Born"
 msgstr ""
 
 msgid ""
@@ -8435,11 +8568,6 @@ msgstr ""
 msgid "Caveat"
 msgstr ""
 
-msgid ""
-"Patient picture.\n"
-"Right-click for context menu."
-msgstr ""
-
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
@@ -8451,6 +8579,23 @@ msgid ""
 msgstr ""
 
 msgid "Comment (%s): %%s"
+msgstr ""
+
+msgid "fake"
+msgstr ""
+
+msgid ""
+"\n"
+"The vaccines currently known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing vaccines."
+msgstr ""
+
+msgid "Age range"
+msgstr ""
+
+msgid "Live"
 msgstr ""
 
 msgid "Date given"
@@ -8981,9 +9126,6 @@ msgid "Drug Interactions"
 msgstr ""
 
 msgid "Items prescribed this consultation"
-msgstr ""
-
-msgid "Drug"
 msgstr ""
 
 msgid "For"

@@ -20,7 +20,7 @@ insert into clin.keyword_expansion (
 	'score-Rom-Obstipation',
 'Rom-Kriterien der Obstipation
 ------------------------------------------------
-Mindestens 2 Symptome für mindestes 3 Monat im letzten halbe Jahr.
+Mindestens 2 Symptome für mindestens 3 Monate im letzten halben Jahr.
 
 - heftiges Pressen ...
 - harte Stühle ...
@@ -40,6 +40,50 @@ Obstipation ist UAW bei:
 - trizyklische Antidepressiva
 - Eisen, Antiepileptika, Opiate
 - Parkinsonmedikation (anticholinerg, dopaminerg)
+');
+
+-- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'score-stroke-Cincinatti';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-stroke-Cincinatti',
+'Cincinatti Stroke Scale (F.A.S.T.)
+--------------------------------------
+
+F(ace): Can patient smile symmetrically ?
+A(rms): Close eyes, lift arms palms up, hold: asymmetric swaying/sinking ?
+S(peech): Can patient repeat "I do not need help" clearly and correctly ?
+T(ime): How long ?  (therapeutic window 4-6 hours)
+');
+
+-- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'score-UTI';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-UTI',
+'Bacterial UTI score
+---------------------------------------------
+Dtsch Arzteblatt Int 2010; 107(21): 361-7
+
+ 2:  Nitrite detected
+1½: Leukocytes detected
+ 1:  Hämaturie
+ 1:  at least moderately severe dysuria
+ ½:  at least moderately severe nocturia
+
+Bacterial UTI:
+
+ 3 points: 76% sensitivity, 74% specifity
 ');
 
 -- --------------------------------------------------------------
