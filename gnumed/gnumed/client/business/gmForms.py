@@ -354,24 +354,19 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		init_ooo()
 
-		#self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=2002;urp;"'
-		#self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
-
-		pipe_name = "uno-gm2ooo-%s" % str(random.random())[2:]
-		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
-		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
-
-		_log.debug('pipe name: %s', pipe_name)
-		_log.debug('startup command: %s', self.ooo_start_cmd)
-		_log.debug('remote context URI: %s', self.remote_context_uri)
+		self.__setup_connection_string()
 
 		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
 		self.desktop_uri = "com.sun.star.frame.Desktop"
+
+		self.max_connect_attempts = 5
 
 		self.local_context = uno.getComponentContext()
 		self.uri_resolver = self.local_context.ServiceManager.createInstanceWithContext(self.resolver_uri, self.local_context)
 
 		self.__desktop = None
+	#--------------------------------------------------------
+	# external API
 	#--------------------------------------------------------
 	def cleanup(self, force=True):
 		if self.__desktop is None:
@@ -411,29 +406,64 @@ class gmOOoConnector(gmBorg.cBorg):
 			default = 3.0
 		)
 	#--------------------------------------------------------
+	def __setup_connection_string(self):
+
+		# socket:
+		ooo_port = u'2002'
+		_log.debug('expecting OOo server on port [%s]', ooo_port)
+		#self.ooo_start_cmd = 'oowriter -invisible -norestore -nofirststartwizard -nologo -accept="socket,host=localhost,port=%s;urp;StarOffice.ServiceManager"' % ooo_port
+		self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=%s;urp;"' % ooo_port
+		self.remote_context_uri = "uno:socket,host=localhost,port=%s;urp;StarOffice.ComponentContext" % ooo_port
+
+		# pipe:
+#		pipe_name = "uno-gm2ooo-%s" % str(random.random())[2:]
+#		_log.debug('expecting OOo server on named pipe [%s]', pipe_name)
+#		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
+#		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
+
+	#--------------------------------------------------------
+	def __startup_ooo(self):
+		_log.info('trying to start OOo server')
+		_log.debug('startup command: %s', self.ooo_start_cmd)
+		os.system(self.ooo_start_cmd)
+		self.__get_startup_settle_time()
+		_log.debug('waiting %s seconds for OOo to start up', self.ooo_startup_settle_time)
+		time.sleep(self.ooo_startup_settle_time)
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_desktop(self):
 		if self.__desktop is not None:
 			return self.__desktop
 
-		try:
-			self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
-		except oooNoConnectException:
-			_log.exception('cannot connect to OOo server')
-			_log.info('trying to start OOo server')
-			os.system(self.ooo_start_cmd)
-			self.__get_startup_settle_time()
-			_log.debug('waiting %s seconds for OOo to start up', self.ooo_startup_settle_time)
-			time.sleep(self.ooo_startup_settle_time)	# OOo sometimes needs a bit
-			try:
-				self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
-			except oooNoConnectException:
-				_log.exception('cannot start (or connect to started) OOo server')
-				return None
+		_log.debug('remote context URI: %s', self.remote_context_uri)
+		self.remote_context = None
 
-		self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
+		attempts = self.max_connect_attempts
+		while attempts > 0:
+
+			_log.debug(u'attempt %s/%s', self.max_connect_attempts - attempts + 1, self.max_connect_attempts)
+
+			try:
+				self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
+				break
+			except oooNoConnectException:
+				_log.exception('cannot connect to OOo')
+
+			# first loop ?
+			if attempts == self.max_connect_attempts:
+				self.__startup_ooo()
+			else:
+				time.sleep(1)
+
+			attempts = attempts - 1
+
+		if self.remote_context is None:
+			raise OSError(-1, u'cannot connect to OpenOffice', self.remote_context_uri)
+
 		_log.debug('connection seems established')
+		self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
+		_log.debug('got OOo desktop handle')
 		return self.__desktop
 
 	desktop = property(_get_desktop, lambda x:x)
