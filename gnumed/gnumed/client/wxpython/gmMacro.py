@@ -247,9 +247,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_allergy_state(self):
 		allg_state = self.pat.get_emr().allergy_state
-		tmp = u'%s (%s)' % (
+
+		if allg_state['last_confirmed'] is None:
+			date_confirmed = u''
+		else:
+			date_confirmed = u' (%s)' % allg_state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
+
+		tmp = u'%s%s' % (
 			allg_state.state_string,
-			allg_state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
+			date_confirmed
 		)
 		return tmp
 	#--------------------------------------------------------
