@@ -343,7 +343,7 @@ class cMainTopPanel(wx.Panel):
 		for allergy in emr.get_allergies():
 			# in field: "true" allergies only, not intolerances
 			if allergy['type'] == 'allergy':
-				tmp.append(allergy['descriptor'][:10] + gmTools.u_ellipsis)
+				tmp.append(allergy['descriptor'][:10].strip() + gmTools.u_ellipsis)
 			# in tooltip
 			if allergy['definite']:
 				certainty = _('definite')
