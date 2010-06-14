@@ -24,6 +24,7 @@ IMPROVED: more robust acquiring of data from image sources
 	0.7.6
 
 FIX: faulty variable access when detecting OOo UNO bridge [thanks S.Hilbert]
+FIX: fail on "allergy_state" placeholder when date-last-checked not available [thanks Marc]
 
 	0.7.5
 
