@@ -1221,29 +1221,9 @@ limit 30"""
 		return True
 	#--------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False, is_open=False):
-
-		self.__is_open = is_open
-
-#		if self.data is None:
-#			if can_create:
-#				epi_name = self.GetValue().strip()
-#				if epi_name == u'':
-#					gmDispatcher.send(signal = u'statustext', msg = _('Cannot create episode without name.'), beep = True)
-#					_log.debug('cannot create episode without name')
-#				else:
-#					if self.use_current_patient:
-#						pat = gmPerson.gmCurrentPatient()
-#					else:
-#						pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
-#
-#					emr = pat.get_emr()
-#					epi = emr.add_episode(episode_name = epi_name, is_open = is_open)
-#					if epi is None:
-#						self.data = None
-#					else:
-#						self.data = epi['pk_episode']
-
-		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
+		self.__is_open_for_create_data = is_open		# used (only) in _create_data()
+		gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
+		return self.data
 	#--------------------------------------------------------
 	def _create_data(self):
 
@@ -1259,7 +1239,7 @@ limit 30"""
 			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
 		emr = pat.get_emr()
-		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open)
+		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open_for_create_data)
 		if epi is None:
 			self.data = None
 		else:
