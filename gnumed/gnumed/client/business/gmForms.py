@@ -270,7 +270,7 @@ def __configure_path_to_UNO():
 			universal_newlines = True
 		)
 	except (OSError, ValueError, subprocess.CalledProcessError):
-		_log.exception('there was a problem executing [%s]', cmd)
+		_log.exception('there was a problem executing [which soffice]')
 		return
 
 	soffice_path, err = which.communicate()
