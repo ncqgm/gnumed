@@ -25,6 +25,7 @@ IMPROVED: more robust acquiring of data from image sources
 
 FIX: faulty variable access when detecting OOo UNO bridge [thanks S.Hilbert]
 FIX: fail on "allergy_state" placeholder when date-last-checked not available [thanks Marc]
+FIX: fail to properly log non-ascii PostgreSQL messages on ASCII configured Pythons [thanks E.Kuznetsov]
 
 	0.7.5
 
