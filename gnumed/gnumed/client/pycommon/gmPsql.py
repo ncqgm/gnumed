@@ -51,13 +51,17 @@ class Psql:
 		return ret
 	#---------------------------------------------------------------
 	def fmt_msg(self, aMsg):
-		tmp = u"%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
-		tmp = tmp.replace(u'\r', u'')
-		#tmp = string.replace("%s:%d: %s" % (self.filename, self.lineno-1, aMsg), '\r', '')
-		return tmp.replace(u'\n', u'')
-	#---------------------------------------------------------------
-#	def log (self, level, str):
-#	   _log.Log (level, "%s: line %d: %s" % (self.filename, self.lineno-1, str))
+		try:
+			tmp = u"%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
+			tmp = tmp.replace(u'\r', u'')
+			#tmp = string.replace("%s:%d: %s" % (self.filename, self.lineno-1, aMsg), '\r', '')
+			tmp = tmp.replace(u'\n', u'')
+		except UnicodeDecodeError:
+			tmp = u"%s:%d: <cannot unicode(msg), printing on console>" % (self.filename, self.lineno-1)
+			try:
+				print aMsg
+			except: pass
+		return tmp
 	#---------------------------------------------------------------
 	def run (self, filename):
 		"""
