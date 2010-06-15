@@ -412,7 +412,7 @@ class gmOOoConnector(gmBorg.cBorg):
 		ooo_port = u'2002'
 		_log.debug('expecting OOo server on port [%s]', ooo_port)
 		#self.ooo_start_cmd = 'oowriter -invisible -norestore -nofirststartwizard -nologo -accept="socket,host=localhost,port=%s;urp;StarOffice.ServiceManager"' % ooo_port
-		self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=%s;urp;"' % ooo_port
+		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="socket,host=localhost,port=%s;urp;"' % ooo_port
 		self.remote_context_uri = "uno:socket,host=localhost,port=%s;urp;StarOffice.ComponentContext" % ooo_port
 
 		# pipe:
