@@ -34,6 +34,11 @@ IMPROVED: show comment/emergency contact in patient search control tooltip
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.6
+
+FIX: faulty variable access when detecting OOo UNO bridge [thanks S.Hilbert]
+FIX: fail on "allergy_state" placeholder when date-last-checked not available [thanks Marc]
+
 	0.7.5
 
 FIX: cannot reach some parts of the expanding SOAP control when typing "too much" [thanks J.Jaarsveld] (lp #583019)
