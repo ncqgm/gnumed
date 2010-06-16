@@ -1,8 +1,6 @@
 """GNUmed provider inbox handling widgets.
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.48 2010-02-02 13:56:42 ncq Exp $
 __version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -26,7 +24,7 @@ _log.info(__version__)
 _indicator = {
 	-1: '',
 	0: '',
-	1: '!'
+	1: '*!!*'
 }
 #============================================================
 class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl):
@@ -181,6 +179,45 @@ class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = True
 #============================================================
 # practice related widgets 
+#============================================================
+def show_audit_trail(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#-----------------------------------
+	def refresh(lctrl):
+
+		cmd = u'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+
+
+
+		lctrl.set_string_items (
+			[ [
+				r['event_when'],
+				r['event_by'],
+				u'%s %s %s' % (
+					gmTools.coalesce(r['row_version_before'], gmTools.u_diameter),
+					gmTools.u_right_arrow,
+					gmTools.coalesce(r['row_version_after'], gmTools.u_diameter)
+				),
+				r['event_table'],
+				r['event'],
+				r['pk_audit']
+			] for r in rows ]
+		)
+		#lctrl.set_selections(selections = sels)
+	#-----------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = u'',
+		caption = _('GNUmed database audit log ...'),
+		columns = [ _('When'), _('Who'), _('Revisions'), _('Table'), _('Event'), '#' ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
+
 #============================================================
 # FIXME: this should be moved elsewhere !
 def configure_workplace_plugins(parent=None):
@@ -561,174 +598,3 @@ if __name__ == '__main__':
 		test_message_inbox()
 
 #============================================================
-# $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.48  2010-02-02 13:56:42  ncq
-# - text expansion management typo fix
-#
-# Revision 1.47  2010/01/10 17:29:26  ncq
-# - slightly postpone plugin raising after message double-clicking
-#   to avoid async problems with patient activation plugin raising
-#
-# Revision 1.46  2010/01/06 14:43:55  ncq
-# - inbox title flush left
-#
-# Revision 1.45  2009/11/30 22:27:57  ncq
-# - adjust provider inbox filters
-#
-# Revision 1.44  2009/11/30 13:16:27  ncq
-# - no deletion of .is_virtual messages
-# - data update after patient activation
-# - enabling active-patient filter on init, too
-#
-# Revision 1.43  2009/11/29 13:07:15  ncq
-# - properly map messages to check boxes as per list
-#
-# Revision 1.42  2009/11/28 20:07:08  ncq
-# - fix message detail display
-#
-# Revision 1.41  2009/08/24 20:11:27  ncq
-# - bump db version
-# - fix tag creation
-# - provider inbox:
-# 	enable filter-to-active-patient,
-# 	listen to new signal,
-# 	use cInboxMessage class
-# - properly constrain LOINC phrasewheel SQL
-# - include v12 scripts in release
-# - install arriba jar to /usr/local/bin/
-# - check for table existence in audit schema generator
-# - include dem.message inbox with additional generic signals
-#
-# Revision 1.40  2009/07/01 17:12:11  ncq
-# - better wording
-#
-# Revision 1.39  2009/06/29 15:10:58  ncq
-# - prevent deletion of the active workplace
-#
-# Revision 1.38  2009/06/22 09:28:21  ncq
-# - improved wording as per list
-#
-# Revision 1.37  2009/06/20 12:47:38  ncq
-# - test
-#
-# Revision 1.36  2009/06/11 12:37:25  ncq
-# - much simplified initial setup of list ctrls
-#
-# Revision 1.35  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.34  2009/05/18 15:32:42  ncq
-# - add deleting workplaces
-#
-# Revision 1.33  2009/02/18 13:47:43  ncq
-# - do not throw exception in _goto_doc_review if patient
-#   does not exist, rather report error
-#
-# Revision 1.32  2009/01/17 23:09:30  ncq
-# - cleanup
-#
-# Revision 1.31  2008/10/22 12:21:57  ncq
-# - use %x in strftime where appropriate
-#
-# Revision 1.30  2008/09/04 12:52:23  ncq
-# - display received_when for incoming messages
-#
-# Revision 1.29  2008/07/13 16:14:59  ncq
-# - implement keyword based text expansion widgets
-#
-# Revision 1.28  2008/06/09 15:36:58  ncq
-# - provider phrasewheel
-#
-# Revision 1.27  2008/05/20 16:45:43  ncq
-# - add filter for active patient messages
-# - fix longstanding bug updating display on *every* PAINT event
-#
-# Revision 1.26  2008/04/22 21:19:22  ncq
-# - signal busy-ness when activating patient
-#
-# Revision 1.25  2008/03/29 16:21:16  ncq
-# - handle unreviewed tests messages
-# - listen to review changes
-#
-# Revision 1.24  2008/03/05 22:30:14  ncq
-# - new style logging
-#
-# Revision 1.23  2008/02/25 17:40:45  ncq
-# - establish db cfg instance early enough
-#
-# Revision 1.22  2008/01/30 14:03:42  ncq
-# - use signal names directly
-# - switch to std lib logging
-#
-# Revision 1.21  2008/01/27 21:18:45  ncq
-# - don't crash on trying to edit module-less workplace
-#
-# Revision 1.20  2008/01/05 16:41:27  ncq
-# - remove logging from gm_show_*()
-#
-# Revision 1.19  2007/11/28 11:56:30  ncq
-# - better logging
-#
-# Revision 1.18  2007/11/23 23:36:38  ncq
-# - finish configure_workplace_plugins()
-#
-# Revision 1.17  2007/11/02 13:59:33  ncq
-# - request user attention when new item arrives
-#
-# Revision 1.16  2007/10/30 12:51:45  ncq
-# - make it a reget mixin child
-# - cleanup
-# - listen on backend changes
-#
-# Revision 1.15  2007/10/08 13:05:10  ncq
-# - use gmListWidgets.cReportListCtrl
-# - fix right-click on empty message list crashes
-# - start test suite
-# - start configure_workplace_plugins()
-#
-# Revision 1.14  2007/08/12 00:12:41  ncq
-# - no more gmSignals.py
-#
-# Revision 1.13  2007/05/14 13:11:25  ncq
-# - use statustext() signal
-#
-# Revision 1.12  2007/01/04 22:52:34  ncq
-# - show proper salutation for people without title
-#
-# Revision 1.11  2006/12/17 20:46:24  ncq
-# - cleanup
-#
-# Revision 1.10  2006/11/24 10:01:31  ncq
-# - gm_beep_statustext() -> gm_statustext()
-#
-# Revision 1.9  2006/05/28 16:19:54  ncq
-# - repopulate_ui() needed for receive_focus() from plugin base class
-#
-# Revision 1.8  2006/05/20 18:55:21  ncq
-# - calculate handler via original category/type not i18ned one
-#
-# Revision 1.7  2006/05/16 15:56:03  ncq
-# - properly resize columns
-#
-# Revision 1.6  2006/05/15 14:46:38  ncq
-# - implement message deletion via context menu popup
-#
-# Revision 1.5  2006/05/15 13:39:31  ncq
-# - cleanup
-#
-# Revision 1.4  2006/05/12 22:04:22  ncq
-# - add _populate_with_data()
-# - fully implement _goto_doc_review()
-#
-# Revision 1.3  2006/05/12 12:21:58  ncq
-# - implement double-click item handling
-# - use gmCurrentProvider
-# - show message on item focused
-#
-# Revision 1.2  2006/01/22 18:10:52  ncq
-# - now really display messages from backend
-#
-# Revision 1.1  2006/01/15 14:30:56  ncq
-# - first crude cut at this
-#
-#
