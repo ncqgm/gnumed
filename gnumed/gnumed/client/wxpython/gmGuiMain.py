@@ -668,6 +668,11 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['main.officemenu'] = self.menu_office
 		self.mainmenu.Append(self.menu_office, _('&Office'))
 
+		item = self.menu_office.Append(-1, _('Audit trail'), _('Display database audit trail.'))
+		self.Bind(wx.EVT_MENU, self.__on_display_audit_trail, item)
+
+		self.menu_office.AppendSeparator()
+
 		# -- menu "Help" --------------
 		help_menu = wx.Menu()
 
@@ -1961,6 +1966,12 @@ class gmTopLevelFrame(wx.Frame):
 			new = False,
 			autoraise = True
 		)
+	#----------------------------------------------
+	# Office
+	#----------------------------------------------
+	def __on_display_audit_trail(self, evt):
+		gmProviderInboxWidgets.show_audit_trail(parent = self)
+		evt.Skip()
 	#----------------------------------------------
 	# Help / Debugging
 	#----------------------------------------------
