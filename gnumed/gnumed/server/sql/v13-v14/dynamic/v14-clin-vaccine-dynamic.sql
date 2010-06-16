@@ -248,11 +248,11 @@ BEGIN
 	end if;
 
 	-- link indications to vaccine
-	for _indication in select unnest(_indications) loop
+	delete from clin.lnk_vaccine2inds
+	where
+		fk_vaccine = _pk_vaccine;
 
-		delete from clin.lnk_vaccine2inds
-		where
-			fk_vaccine = _pk_vaccine;
+	for _indication in select unnest(_indications) loop
 
 		insert into clin.lnk_vaccine2inds (
 			fk_vaccine,
@@ -647,6 +647,30 @@ create view clin.v_indications4vaccine as
 
 		rbd.external_code,
 		rbd.external_code_type,
+
+		(select array_agg(cvi2.description)
+		 from
+			clin.lnk_vaccine2inds clv2i_2
+				join clin.vacc_indication cvi2 on (clv2i_2.fk_indication = cvi2.id)
+		 where
+			clv2i_2.fk_vaccine = cv.pk
+		) as indications,
+
+		(select array_agg(_(cvi2.description))
+		 from
+			clin.lnk_vaccine2inds clv2i_2
+				join clin.vacc_indication cvi2 on (clv2i_2.fk_indication = cvi2.id)
+		 where
+			clv2i_2.fk_vaccine = cv.pk
+		) as l10n_indications,
+
+		(select array_agg(clv2i_2.fk_indication)
+		 from
+			clin.lnk_vaccine2inds clv2i_2
+				join clin.vacc_indication cvi2 on (clv2i_2.fk_indication = cvi2.id)
+		 where
+			clv2i_2.fk_vaccine = cv.pk
+		) as pk_indications,
 
 		cv.id_route
 			as pk_route,

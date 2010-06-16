@@ -104,6 +104,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.vaccination SET
+				soap_cat = %(soap_cat)s,
 				clin_when = %(date_given)s,
 				site = gm.nullify_empty_string(%(site)s),
 				batch_no = gm.nullify_empty_string(%(batch_no)s),
@@ -123,6 +124,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	_updatable_fields = [
+		u'soap_cat',
 		u'date_given',
 		u'site',
 		u'batch_no',
@@ -138,11 +140,11 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 
 		lines = []
 
-		lines.append (u' %s: %s [%s] (%s) ' % (
+		lines.append (u' %s: %s [%s]%s' % (
 			self._payload[self._idx['date_given']].strftime(date_format).decode(gmI18N.get_encoding()),
 			self._payload[self._idx['vaccine']],
 			self._payload[self._idx['batch_no']],
-			self._payload[self._idx['site']]
+			gmTools.coalesce(self._payload[self._idx['site']], u'', u' (%s)')
 		))
 
 		if with_comment:
@@ -157,6 +159,32 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(u'   %s' % u' / '.join(self._payload[self._idx['indications']]))
 
 		return lines
+#------------------------------------------------------------
+def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
+
+	cmd = u"""
+		INSERT INTO clin.vaccination (
+			fk_encounter,
+			fk_episode,
+			fk_vaccine,
+			batch_no
+		) VALUES (
+			%(enc)s,
+			%(epi)s,
+			%(vacc)s,
+			%(batch)s
+		) RETURNING pk;
+	"""
+	args = {
+		u'enc': encounter,
+		u'epi': episode,
+		u'vacc': vaccine,
+		u'batch': batch_no
+	}
+
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+
+	return cVaccination(aPK_obj = rows[0][0])
 #============================================================
 #============================================================
 #============================================================

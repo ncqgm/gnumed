@@ -336,6 +336,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('ADR URL'), _('URL for reporting Adverse Drug Reactions.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_adr_url, item)
 
+		item = menu_cfg_ext_tools.Append(-1, _('vaccADR URL'), _('URL for reporting Adverse Drug Reactions to *vaccines*.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_vaccine_adr_url, item)
+
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
@@ -1281,6 +1284,33 @@ class gmTopLevelFrame(wx.Frame):
 			option = 'external.urls.report_ADR',
 			bias = 'user',
 			default_value = u'https://dcgma.org/uaw/meldung.php',
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_configure_vaccine_adr_url(self, evt):
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, value
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return False, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access a website which lets\n'
+				'you report an adverse vaccination reaction (vADR).\n'
+				'\n'
+				'If you set it to a specific address that URL must be\n'
+				'accessible now. If you leave it empty it will fall back\n'
+				'to the URL for reporting other adverse drug reactions.'
+			),
+			option = 'external.urls.report_vaccine_ADR',
+			bias = 'user',
+			default_value = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf',
 			validator = is_valid
 		)
 	#----------------------------------------------

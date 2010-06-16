@@ -30,13 +30,15 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         self._PRW_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_site = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_provider = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._TCTRL_reaction = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_reaction = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._BTN_report = wx.Button(self, -1, _("ADR"), style=wx.BU_EXACTFIT)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_add_vaccine_button_pressed, self._BTN_add_vaccine)
+        self.Bind(wx.EVT_BUTTON, self._on_report_button_pressed, self._BTN_report)
         # end wxGlade
 
     def __set_properties(self):
@@ -46,15 +48,19 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         self._PRW_vaccine.SetToolTipString(_("The vaccine used, if known.\n\nIf unknown check off the indications which were vaccinated against."))
         self._BTN_add_vaccine.SetToolTipString(_("Add a vaccine to GNUmed."))
         self._PRW_batch.SetToolTipString(_("The batch number of the vaccine."))
+        self._PRW_episode.SetToolTipString(_("Select an episode to file this vaccination under.\n\nIf you do not select one it will be filed under \"prevention\".\n\nAlternatively, type the name for a new episode."))
         self._PRW_site.SetToolTipString(_("The injection site, if known."))
         self._PRW_provider.SetToolTipString(_("The provider who administered the vaccine, if known."))
-        self._TCTRL_reaction.SetToolTipString(_("Record any adverse reactions in this field."))
+        self._PRW_reaction.SetToolTipString(_("Record any adverse reactions to this vaccine."))
+        self._BTN_report.SetToolTipString(_("Report this event as an adverse drug reaction."))
+        self._BTN_report.Enable(False)
         self._TCTRL_comment.SetToolTipString(_("Any comment you may wish to relate to this vaccination."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgVaccinationEAPnl.__do_layout
         _gszr_main = wx.FlexGridSizer(9, 2, 1, 3)
+        sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
         _SZR_indications = wx.BoxSizer(wx.VERTICAL)
         __szr_vaccine_details = wx.BoxSizer(wx.HORIZONTAL)
         __szr_date_details = wx.BoxSizer(wx.HORIZONTAL)
@@ -80,7 +86,7 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(__lbl_batch, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_batch, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
         __lbl_episode = wx.StaticText(self, -1, _("Episode"))
-        __lbl_episode.SetForegroundColour(wx.Colour(255, 0, 0))
+        __lbl_episode.SetForegroundColour(wx.Colour(255, 127, 0))
         _gszr_main.Add(__lbl_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_episode, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_site = wx.StaticText(self, -1, _("Site"))
@@ -91,7 +97,9 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(self._PRW_provider, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_reaction = wx.StaticText(self, -1, _("Reaction"))
         _gszr_main.Add(__lbl_reaction, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_main.Add(self._TCTRL_reaction, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        sizer_1.Add(self._PRW_reaction, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        sizer_1.Add(self._BTN_report, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(sizer_1, 1, wx.EXPAND, 0)
         __lbl_comment = wx.StaticText(self, -1, _("Comment"))
         _gszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_comment, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -102,6 +110,10 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
 
     def _on_add_vaccine_button_pressed(self, event): # wxGlade: wxgVaccinationEAPnl.<event_handler>
         print "Event handler `_on_add_vaccine_button_pressed' not implemented!"
+        event.Skip()
+
+    def _on_report_button_pressed(self, event): # wxGlade: wxgVaccinationEAPnl.<event_handler>
+        print "Event handler `_on_report_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgVaccinationEAPnl

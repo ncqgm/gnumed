@@ -65,6 +65,21 @@ alter table clin.vaccination
 		drop default;
 
 
+
+-- .fk_provider
+comment on column clin.vaccination.fk_provider is
+	'Who administered this vaccination.';
+
+alter table clin.vaccination
+	alter column fk_provider
+		drop not null;
+
+alter table clin.vaccination
+	add foreign key (fk_provider)
+		references dem.staff(pk)
+		on update cascade
+		on delete restrict;
+
 -- --------------------------------------------------------------
 -- trigger to ensure that UNIQUE(clin_when, pk_patient, fk_vaccine) holds
 
@@ -96,9 +111,9 @@ BEGIN
 	loop
 
 		select (
-			select fk_indication from clin.link_vaccine2inds where fk_vaccine = NEW.fk_vaccine
+			select fk_indication from clin.lnk_vaccine2inds where fk_vaccine = NEW.fk_vaccine
 		) INTERSECT (
-			select fk_indication from clin.link_vaccine2inds where fk_vaccine = _row.fk_vaccine
+			select fk_indication from clin.lnk_vaccine2inds where fk_vaccine = _row.fk_vaccine
 		) into _indication_collision;
 
 		if FOUND then
