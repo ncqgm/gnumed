@@ -15,7 +15,7 @@
 -- --------------------------------------------------------------
 -- remember to handle dependant objects possibly dropped by CASCADE
 \unset ON_ERROR_STOP
-drop clin.v_lab_requests cascade;
+drop view clin.v_lab_requests cascade;
 \set ON_ERROR_STOP 1
 
 
