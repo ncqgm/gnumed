@@ -34,7 +34,7 @@ alter table clin.vacc_indication
 -- --------------------------------------------------------------
 -- rename a few indications
 update clin.vacc_indication set
-	description = 'Coxiella burnetii (Q fever)',
+	description = 'coxiella burnetii (Q fever)',
 	atcs_single_indication = array['J07AX']
 where
 	description = 'Coxiella burnetii';
@@ -61,7 +61,7 @@ where
 -- add new ones
 delete from clin.vacc_indication
 where description in (
-	'Bacillus anthracis (Anthrax)',
+	'bacillus anthracis (Anthrax)',
  	'human papillomavirus',
 	'rotavirus',
 	'tuberculosis',
@@ -74,7 +74,7 @@ insert into clin.vacc_indication (
 	description,
 	atcs_single_indication
 ) values (
-	'Bacillus anthracis (Anthrax)',
+	'bacillus anthracis (Anthrax)',
 	array['J07AC01']
 );
 

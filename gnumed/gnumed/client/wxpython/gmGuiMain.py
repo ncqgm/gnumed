@@ -56,6 +56,7 @@ from Gnumed.pycommon import gmExceptions, gmShellAPI, gmTools, gmDateTime
 from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2
 
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
+from Gnumed.business import gmVaccination
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -335,6 +336,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('ADR URL'), _('URL for reporting Adverse Drug Reactions.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_adr_url, item)
 
+		item = menu_cfg_ext_tools.Append(-1, _('vaccADR URL'), _('URL for reporting Adverse Drug Reactions to *vaccines*.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_vaccine_adr_url, item)
+
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
@@ -436,6 +440,12 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Vaccines'), _('Show known vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_vaccines, item)
 
+		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
+		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
+
+		item = menu_master_data.Append(-1, _('Indications'), _('Show known vaccination indications.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination_indications, item)
+
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('&Users ...'), menu_users)
@@ -536,6 +546,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_emr_edit.Append(-1, _('&Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
+
+		item = menu_emr_edit.Append(-1, _('&Vaccination(s)'), _('Add (a) vaccination(s) for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
 
 #		item = menu_emr_edit.Append(-1, )
 #		self.Bind(wx.EVT_MENU, , item)
@@ -1271,6 +1284,33 @@ class gmTopLevelFrame(wx.Frame):
 			option = 'external.urls.report_ADR',
 			bias = 'user',
 			default_value = u'https://dcgma.org/uaw/meldung.php',
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_configure_vaccine_adr_url(self, evt):
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, value
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return False, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access a website which lets\n'
+				'you report an adverse vaccination reaction (vADR).\n'
+				'\n'
+				'If you set it to a specific address that URL must be\n'
+				'accessible now. If you leave it empty it will fall back\n'
+				'to the URL for reporting other adverse drug reactions.'
+			),
+			option = 'external.urls.report_vaccine_ADR',
+			bias = 'user',
+			default_value = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf',
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -2177,6 +2217,15 @@ class gmTopLevelFrame(wx.Frame):
 		gmDemographicsWidgets.edit_occupation()
 		evt.Skip()
 	#----------------------------------------------
+	def __on_add_vaccination(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add vaccinations. No active patient.'))
+			return False
+
+		gmVaccWidgets.manage_vaccinations(parent = self)
+		evt.Skip()
+	#----------------------------------------------
 	def __on_add_measurement(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2363,6 +2412,14 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_vaccines(self, evt):
 		gmVaccWidgets.manage_vaccines(parent = self)
+	#----------------------------------------------
+	def __on_manage_vaccination_indications(self, evt):
+		gmVaccWidgets.manage_vaccination_indications(parent = self)
+	#----------------------------------------------
+	def __on_generate_vaccines(self, evt):
+		wx.BeginBusyCursor()
+		gmVaccination.regenerate_generic_vaccines()
+		wx.EndBusyCursor()
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.

@@ -389,21 +389,27 @@ class cMatchProvider_SQL2(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		fragment_condition = u"ilike %(fragment)s"
+
+		fragment_condition = u"ILIKE %(fragment)s"
 		self._args['fragment'] = u"%s%%" % aFragment
+
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
+
 		fragment_condition = u"~* %(fragment)s"
 		aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 		self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
+
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
-		fragment_condition = u"ilike %(fragment)s"
+
+		fragment_condition = u"ILIKE %(fragment)s"
 		self._args['fragment'] = u"%%%s%%" % aFragment
+
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getAllMatches(self):

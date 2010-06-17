@@ -343,21 +343,31 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		epis = self.get_episodes()
 		if len(epis) > 0:
+			epi_pks = [ e['pk_episode'] for e in epis ]
+
 			# documents
 			doc_folder = patient.get_document_folder()
-			docs = doc_folder.get_documents(episodes = [ e['pk_episode'] for e in epis ])
-
+			docs = doc_folder.get_documents(episodes = epi_pks)
 			if len(docs) > 0:
 				lines.append(u'')
 				lines.append(_('Documents: %s') % len(docs))
 			del docs
 
 			# test results
-			tests = emr.get_test_results_by_date(episodes = [ e['pk_episode'] for e in epis ])
+			tests = emr.get_test_results_by_date(episodes = epi_pks)
 			if len(tests) > 0:
 				lines.append(u'')
 				lines.append(_('Measurements and Results: %s') % len(tests))
 			del tests
+
+			# vaccinations
+			vaccs = emr.get_vaccinations(episodes = epi_pks)
+			if len(vaccs) > 0:
+				lines.append(u'')
+				lines.append(_('Vaccinations:'))
+			for vacc in vaccs:
+				lines.extend(vacc.format(with_reaction = True))
+			del vaccs
 
 		del epis
 
@@ -720,6 +730,22 @@ from (
 			))
 		del tests
 
+		# vaccinations
+		vaccs = emr.get_vaccinations(episodes = [ self._payload[self._idx['pk_episode']] ])
+
+		if len(vaccs) > 0:
+			lines.append(u'')
+			lines.append(_('Vaccinations:'))
+
+		for vacc in vaccs:
+			lines.extend(vacc.format (
+				with_indications = True,
+				with_comment = True,
+				with_reaction = True,
+				date_format = '%Y-%m-%d'
+			))
+		del vaccs
+
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
@@ -997,7 +1023,7 @@ limit 1
 
 		return lines
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True):
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True):
 
 		lines = []
 
@@ -1078,6 +1104,27 @@ limit 1
 
 			del tests
 
+		# vaccinations
+		if with_vaccinations:
+			vaccs = emr.get_vaccinations (
+				episodes = episodes,
+				encounters = [ self._payload[self._idx['pk_encounter']] ]
+			)
+
+			if len(vaccs) > 0:
+				lines.append(u'')
+				lines.append(_('Vaccinations:'))
+
+			for vacc in vaccs:
+				lines.extend(vacc.format (
+					with_indications = True,
+					with_comment = True,
+					with_reaction = True,
+					date_format = '%Y-%m-%d'
+				))
+			del vaccs
+
+		# documents
 		if with_docs:
 			doc_folder = patient.get_document_folder()
 			docs = doc_folder.get_documents (
@@ -1101,19 +1148,6 @@ limit 1
 
 		eol_w_margin = u'\n%s' % (u' ' * left_margin)
 		return u'%s\n' % eol_w_margin.join(lines)
-
-		# special items (vaccinations, ...)
-
-#        try:
- #               filtered_items.extend(emr.get_vaccinations(
-  #                  since=self.__constraints['since'],
-   #                 until=self.__constraints['until'],
-    #                encounters=self.__constraints['encounters'],
-     #               episodes=self.__constraints['episodes'],
-      #              issues=self.__constraints['issues']))
-       # except:
-        #        _log.error("vaccination error? outside regime")
-
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.

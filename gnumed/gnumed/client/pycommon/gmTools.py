@@ -51,6 +51,7 @@ u_three_quarters = u'\u00BE'
 u_ellipsis = u'\u2026'
 u_left_arrow = u'\u2190'					# -->
 u_right_arrow = u'\u2192'					# <--
+u_sum = u'\u2211'
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
 u_diameter = u'\u2300'

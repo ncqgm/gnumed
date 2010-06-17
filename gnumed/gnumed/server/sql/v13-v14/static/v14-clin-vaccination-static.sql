@@ -15,6 +15,14 @@ alter table clin.vaccination
 alter table audit.log_vaccination
 	add column reaction text;
 
+
+-- .id -> .pk
+alter table clin.vaccination
+	rename column id to pk;
+
+alter table audit.log_vaccination
+	rename column id to pk;
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v14-clin-vaccination-static.sql', 'Revision: 1.1');
 

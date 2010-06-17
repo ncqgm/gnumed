@@ -1521,21 +1521,21 @@ class cAdapterPyDateTime(object):
 		return _timestamp_template % self.__dt.isoformat()
 
 # ----------------------------------------------------------------------
-class cAdapterMxDateTime(object):
-
-	def __init__(self, dt):
-		if dt.tz == '???':
-			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
-		self.__dt = dt
-
-	def getquoted(self):
-		# under some locale settings the mx.DateTime ISO formatter
-		# will insert "," into the ISO string,
-		# while this is allowed per the ISO8601 spec PostgreSQL
-		# cannot currently handle that,
-		# so map those "," to "." to make things work:
-		return mxDT.ISO.str(self.__dt).replace(',', '.')
-
+#class cAdapterMxDateTime(object):
+#
+#	def __init__(self, dt):
+#		if dt.tz == '???':
+#			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
+#		self.__dt = dt
+#
+#	def getquoted(self):
+#		# under some locale settings the mx.DateTime ISO formatter
+#		# will insert "," into the ISO string,
+#		# while this is allowed per the ISO8601 spec PostgreSQL
+#		# cannot currently handle that,
+#		# so map those "," to "." to make things work:
+#		return mxDT.ISO.str(self.__dt).replace(',', '.')
+#
 # ----------------------------------------------------------------------
 # PostgreSQL -> Python
 # ----------------------------------------------------------------------
@@ -1553,7 +1553,7 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 try:
 	import mx.DateTime as mxDT
-	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+#	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
 except ImportError:
 	_log.warning('cannot import mx.DateTime')
 
