@@ -253,6 +253,10 @@ def manage_vaccinations(parent=None):
 	def edit(vaccination=None):
 		return edit_vaccination(parent = parent, vaccination = vaccination, single_entry = True)
 	#------------------------------------------------------------
+	def delete(vaccination=None):
+		gmVaccination.delete_vaccination(vaccination = vaccination['pk_vaccination'])
+		return True
+	#------------------------------------------------------------
 	def refresh(lctrl):
 
 		vaccs = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
@@ -278,7 +282,8 @@ def manage_vaccinations(parent=None):
 		single_selection = True,
 		refresh_callback = refresh,
 		new_callback = edit,
-		edit_callback = edit
+		edit_callback = edit,
+		delete_callback = delete
 	)
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccinationIndicationsPnl
@@ -482,9 +487,15 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 	def __save_new_from_indications(self):
 
-		for ind in self._PNL_indications.selected_indications:
-			vaccine = gmVaccination.get_generic_single_indication_for_vaccine(indication = ind)
-			data = self.__save_new_from_vaccine(vaccine = vaccine)
+		inds = self._PNL_indications.selected_indications
+		vaccine = gmVaccination.map_indications2generic_vaccine(indications = inds)
+
+		if vaccine is None:
+			for ind in inds:
+				vaccine = gmVaccination.map_indications2generic_vaccine(indications = [ind])
+				data = self.__save_new_from_vaccine(vaccine = vaccine['pk_vaccine'])
+		else:
+			data = self.__save_new_from_vaccine(vaccine = vaccine['pk_vaccine'])
 
 		return data
 	#----------------------------------------------------------------
@@ -525,9 +536,9 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self.data['batch_no'] = self._PRW_batch.GetValue().strip()
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True, is_open = False)
 		self.data['site'] = self._PRW_site.GetValue().strip()
-		self.data['pk_provider'] = self._PRW_provider.SetData()
+		self.data['pk_provider'] = self._PRW_provider.GetData()
 		self.data['reaction'] = self._PRW_reaction.GetValue().strip()
-		self.data['comment'] = self._TCTRL_comment.SetValue().strip()
+		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
 
 		self.data.save()
 

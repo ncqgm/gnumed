@@ -13,7 +13,7 @@ if __name__ == '__main__':
 #	from Gnumed.pycommon import 		#, gmDateTime, gmLog2
 #	gmDateTime.init()
 #	gmI18N.activate_locale()
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N, gmTools
 from Gnumed.business import gmMedication
 
 
@@ -83,6 +83,19 @@ def get_vaccines(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 
 	return [ cVaccine(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
+#------------------------------------------------------------
+def map_indications2generic_vaccine(indications=None):
+
+	args = {'inds': indications}
+	cmd = _sql_fetch_vaccine % (u'is_fake_vaccine is True AND indications @> %(inds)s AND %(inds)s @> indications')
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	if len(rows) == 0:
+		_log.warning('no fake, generic vaccine found for [%s]', indications)
+		return None
+
+	return cVaccine(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_vaccine'})
 #------------------------------------------------------------
 def regenerate_generic_vaccines():
 
@@ -185,6 +198,12 @@ def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cVaccination(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def delete_vaccination(vaccination=None):
+	cmd = u"""DELETE FROM clin.vaccination WHERE pk = %(pk)s"""
+	args = {'pk': vaccination}
+
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
 #============================================================
 #============================================================
