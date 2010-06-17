@@ -1227,6 +1227,14 @@ WHERE
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
+	def add_vaccination(self, episode=None, vaccine=None, batch_no=None):
+		return gmVaccination.create_vaccination (
+			encounter = self.current_encounter['pk_encounter'],
+			episode = episode,
+			vaccine = vaccine,
+			batch_no = batch_no
+		)
+	#--------------------------------------------------------
 	def get_latest_vaccinations(self, episodes=None, issues=None):
 		"""Returns latest given vaccination for each vaccinated indication.
 
@@ -1341,31 +1349,31 @@ WHERE
 
 		return filtered_regimes
 	#--------------------------------------------------------
-	def get_vaccinated_indications(self):
-		"""Retrieves patient vaccinated indications list.
-
-		Note that this does NOT rely on the patient being on
-		some schedule or other but rather works with what the
-		patient has ACTUALLY been vaccinated against. This is
-		deliberate !
-		"""
-		# most likely, vaccinations will be fetched close
-		# by so it makes sense to count on the cache being
-		# filled (or fill it for nearby use)
-		vaccinations = self.get_vaccinations()
-		if vaccinations is None:
-			_log.error('cannot load vaccinated indications for patient [%s]' % self.pk_patient)
-			return (False, [[_('ERROR: cannot retrieve vaccinated indications'), _('ERROR: cannot retrieve vaccinated indications')]])
-		if len(vaccinations) == 0:
-			return (True, [[_('no vaccinations recorded'), _('no vaccinations recorded')]])
-		v_indications = []
-		for vacc in vaccinations:
-			tmp = [vacc['indication'], vacc['l10n_indication']]
-			# remove duplicates
-			if tmp in v_indications:
-				continue
-			v_indications.append(tmp)
-		return (True, v_indications)
+#	def get_vaccinated_indications(self):
+#		"""Retrieves patient vaccinated indications list.
+#
+#		Note that this does NOT rely on the patient being on
+#		some schedule or other but rather works with what the
+#		patient has ACTUALLY been vaccinated against. This is
+#		deliberate !
+#		"""
+#		# most likely, vaccinations will be fetched close
+#		# by so it makes sense to count on the cache being
+#		# filled (or fill it for nearby use)
+#		vaccinations = self.get_vaccinations()
+#		if vaccinations is None:
+#			_log.error('cannot load vaccinated indications for patient [%s]' % self.pk_patient)
+#			return (False, [[_('ERROR: cannot retrieve vaccinated indications'), _('ERROR: cannot retrieve vaccinated indications')]])
+#		if len(vaccinations) == 0:
+#			return (True, [[_('no vaccinations recorded'), _('no vaccinations recorded')]])
+#		v_indications = []
+#		for vacc in vaccinations:
+#			tmp = [vacc['indication'], vacc['l10n_indication']]
+#			# remove duplicates
+#			if tmp in v_indications:
+#				continue
+#			v_indications.append(tmp)
+#		return (True, v_indications)
 	#--------------------------------------------------------
 	def get_vaccinations_old(self, ID=None, indications=None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves list of vaccinations the patient has received.
@@ -1535,16 +1543,6 @@ WHERE
 			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['boosters']:
 				filtered_shots['boosters'].append(due_shot)
 		return filtered_shots
-	#--------------------------------------------------------
-	def add_vaccination(self, vaccine=None, episode=None):
-		"""Creates a new vaccination entry in backend."""
-		return gmVaccination.create_vaccination (
-			patient_id = self.pk_patient,
-			episode_id = episode['pk_episode'],
-			encounter_id = self.current_encounter['pk_encounter'],
-			staff_id = _me['pk_staff'],
-			vaccine = vaccine
-		)
 	#------------------------------------------------------------------
 	# API: encounters
 	#------------------------------------------------------------------

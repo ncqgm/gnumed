@@ -13,13 +13,23 @@ if __name__ == '__main__':
 #	from Gnumed.pycommon import 		#, gmDateTime, gmLog2
 #	gmDateTime.init()
 #	gmI18N.activate_locale()
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N, gmTools
 from Gnumed.business import gmMedication
 
 
 _log = logging.getLogger('gm.vaccination')
 _log.info(__version__)
 
+#============================================================
+def get_indications(order_by=None):
+	cmd = u'SELECT * from clin.vacc_indication'
+
+	if order_by is not None:
+		cmd = u'%s ORDER BY %s' % (cmd, order_by)
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+
+	return rows
 #============================================================
 _sql_fetch_vaccine = u"""SELECT *, xmin_vaccine FROM clin.v_vaccines WHERE %s"""
 
@@ -74,9 +84,25 @@ def get_vaccines(order_by=None):
 
 	return [ cVaccine(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
 #------------------------------------------------------------
+def map_indications2generic_vaccine(indications=None):
+
+	args = {'inds': indications}
+	cmd = _sql_fetch_vaccine % (u'is_fake_vaccine is True AND indications @> %(inds)s AND %(inds)s @> indications')
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	if len(rows) == 0:
+		_log.warning('no fake, generic vaccine found for [%s]', indications)
+		return None
+
+	return cVaccine(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_vaccine'})
+#------------------------------------------------------------
 def regenerate_generic_vaccines():
 
 	cmd = u'select gm.create_generic_monovalent_vaccines()'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
+
+	cmd = u'select gm.create_generic_combi_vaccines()'
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
 
 	return rows[0][0]
@@ -91,6 +117,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.vaccination SET
+				soap_cat = %(soap_cat)s,
 				clin_when = %(date_given)s,
 				site = gm.nullify_empty_string(%(site)s),
 				batch_no = gm.nullify_empty_string(%(batch_no)s),
@@ -110,6 +137,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	_updatable_fields = [
+		u'soap_cat',
 		u'date_given',
 		u'site',
 		u'batch_no',
@@ -125,11 +153,11 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 
 		lines = []
 
-		lines.append (u' %s: %s [%s] (%s) ' % (
+		lines.append (u' %s: %s [%s]%s' % (
 			self._payload[self._idx['date_given']].strftime(date_format).decode(gmI18N.get_encoding()),
 			self._payload[self._idx['vaccine']],
 			self._payload[self._idx['batch_no']],
-			self._payload[self._idx['site']]
+			gmTools.coalesce(self._payload[self._idx['site']], u'', u' (%s)')
 		))
 
 		if with_comment:
@@ -144,6 +172,38 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(u'   %s' % u' / '.join(self._payload[self._idx['indications']]))
 
 		return lines
+#------------------------------------------------------------
+def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
+
+	cmd = u"""
+		INSERT INTO clin.vaccination (
+			fk_encounter,
+			fk_episode,
+			fk_vaccine,
+			batch_no
+		) VALUES (
+			%(enc)s,
+			%(epi)s,
+			%(vacc)s,
+			%(batch)s
+		) RETURNING pk;
+	"""
+	args = {
+		u'enc': encounter,
+		u'epi': episode,
+		u'vacc': vaccine,
+		u'batch': batch_no
+	}
+
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+
+	return cVaccination(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def delete_vaccination(vaccination=None):
+	cmd = u"""DELETE FROM clin.vaccination WHERE pk = %(pk)s"""
+	args = {'pk': vaccination}
+
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
 #============================================================
 #============================================================
