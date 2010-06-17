@@ -125,80 +125,44 @@ DECLARE
 	_row record;
 	_new_drug_pk integer;
 	_new_drug_name text;
+	_new_drug_preparation text;
 BEGIN
 	for _row in select * from clin.vaccine loop
 
 		raise notice ''vaccine: % (% - %)'', _row.pk::text, _row.trade_name, _row.short_name;
 
+		-- generate new name
 		if position(lower(_row.short_name) in lower(_row.trade_name)) = 0 then
 			_new_drug_name := _row.trade_name || '' ('' || _row.short_name || '')'';
 		else
 			_new_drug_name := _row.trade_name;
 		end if;
 
+		-- generate preparation (this is rather arbitrary)
+		IF _row.id_route = (select id from clin.vacc_route where abbreviation = ''o'') THEN
+			_new_drug_preparation := ''vaccine (oral)'';
+		ELSE IF_row.id_route = (select id from clin.vacc_route where abbreviation = ''i.m.'') THEN
+			_new_drug_preparation := ''vaccine (i.m.)'';
+		ELSE IF _row.id_route = (select id from clin.vacc_route where abbreviation = ''s.c.'') THEN
+			_new_drug_preparation := ''vaccine (s.c.)'';
+		ELSE
+			_new_drug_preparation := ''vaccine'';
+		END IF;
+
 		-- create drug
-		case
-			when _row.id_route = (select id from clin.vacc_route where abbreviation = ''o'') then
-				insert into ref.branded_drug (
-					description,
-					preparation,
-					is_fake,
-					atc_code
-				) values (
-					_new_drug_name,
-					''vaccine (oral)'',			-- this is rather arbitrary
-					False,
-					''J07''
-				)
-				returning pk
-				into _new_drug_pk;
-
-			when _row.id_route = (select id from clin.vacc_route where abbreviation = ''i.m.'') then
-				insert into ref.branded_drug (
-					description,
-					preparation,
-					is_fake,
-					atc_code
-				) values (
-					_new_drug_name,
-					''vaccine (i.m.)'',		-- this is rather arbitrary
-					False,
-					''J07''
-				)
-				returning pk
-				into _new_drug_pk;
-
-			when _row.id_route = (select id from clin.vacc_route where abbreviation = ''s.c.'') then
-				insert into ref.branded_drug (
-					description,
-					preparation,
-					is_fake,
-					atc_code
-				) values (
-					_new_drug_name,
-					''vaccine (s.c.)'',		-- this is rather arbitrary
-					False,
-					''J07''
-				)
-				returning pk
-				into _new_drug_pk;
-
-			else
-				insert into ref.branded_drug (
-					description,
-					preparation,
-					is_fake,
-					atc_code
-				) values (
-					_new_drug_name,
-					''vaccine'',				-- this is rather arbitrary
-					False,
-					''J07''
-				)
-				returning pk
-				into _new_drug_pk;
-
-		end case;
+		insert into ref.branded_drug (
+			description,
+			preparation,
+			is_fake,
+			atc_code
+		) values (
+			_new_drug_name,
+			_new_drug_preparation,
+			False,
+			''J07''
+		)
+		returning pk
+		into _new_drug_pk;
 
 		raise notice ''-> drug: %'', _new_drug_pk::text;
 
