@@ -16,7 +16,7 @@ alter table clin.vacc_indication
 	add constraint vacc_indication_sane_single_atcs check (
 		(atcs_single_indication is null)
 			or
-		array_length(atcs_single_indication, 1) > 0
+		array_upper(atcs_single_indication, 1) > 0
 	);
 
 -- --------------------------------------------------------------
@@ -28,7 +28,7 @@ alter table clin.vacc_indication
 	add constraint vacc_indication_sane_combi_atcs check (
 		(atcs_combi_indication is null)
 			or
-		(array_length(atcs_combi_indication, 1) > 0)
+		(array_upper(atcs_combi_indication, 1) > 0)
 	);
 
 -- --------------------------------------------------------------
