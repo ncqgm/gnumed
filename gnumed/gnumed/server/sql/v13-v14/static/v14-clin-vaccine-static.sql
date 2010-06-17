@@ -139,11 +139,11 @@ BEGIN
 		end if;
 
 		-- generate preparation (this is rather arbitrary)
-		IF _row.id_route = (select id from clin.vacc_route where abbreviation = ''o'') THEN
+		IF (_row.id_route = (select id from clin.vacc_route where abbreviation = ''o'')) THEN
 			_new_drug_preparation := ''vaccine (oral)'';
-		ELSE IF_row.id_route = (select id from clin.vacc_route where abbreviation = ''i.m.'') THEN
+		ELSEIF (_row.id_route = (select id from clin.vacc_route where abbreviation = ''i.m.'')) THEN
 			_new_drug_preparation := ''vaccine (i.m.)'';
-		ELSE IF _row.id_route = (select id from clin.vacc_route where abbreviation = ''s.c.'') THEN
+		ELSEIF (_row.id_route = (select id from clin.vacc_route where abbreviation = ''s.c.'')) THEN
 			_new_drug_preparation := ''vaccine (s.c.)'';
 		ELSE
 			_new_drug_preparation := ''vaccine'';
