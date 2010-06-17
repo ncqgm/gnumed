@@ -20,9 +20,16 @@ alter table audit.log_identity
 alter table dem.identity
 	add column fk_emergency_contact integer;
 
-
 alter table audit.log_identity
 	add column fk_emergency_contact integer;
+
+
+-- .comment
+alter table dem.identity
+	add column comment text;
+
+alter table audit.log_identity
+	add column comment text;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v14-dem-identity-static.sql', 'Revision: 1.1');

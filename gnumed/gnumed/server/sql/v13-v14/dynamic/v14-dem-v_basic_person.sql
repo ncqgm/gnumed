@@ -56,6 +56,8 @@ select
 		as l10n_marital_status,
 	i.emergency_contact
 		as emergency_contact,
+	i.comment
+		as comment,
 	i.fk_marital_status
 		as pk_marital_status,
 	n.id

@@ -10,7 +10,9 @@ __version__ = "$Revision: 1.79 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, codecs, re as regex, shutil, random, platform, subprocess
+import os, sys, time, os.path, logging, codecs, re as regex
+import shutil, random, platform, subprocess
+import socket										# needed for OOo on Windows
 #, libxml2, libxslt
 
 
@@ -270,7 +272,7 @@ def __configure_path_to_UNO():
 			universal_newlines = True
 		)
 	except (OSError, ValueError, subprocess.CalledProcessError):
-		_log.exception('there was a problem executing [%s]', cmd)
+		_log.exception('there was a problem executing [which soffice]')
 		return
 
 	soffice_path, err = which.communicate()

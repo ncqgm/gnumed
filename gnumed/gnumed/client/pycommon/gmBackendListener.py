@@ -4,7 +4,6 @@ This module implements threaded listening for asynchronuous
 notifications from the database backend.
 """
 #=====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
 __version__ = "$Revision: 1.22 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
@@ -119,8 +118,10 @@ class gmBackendListener(gmBorg.cBorg):
 		# determine patient-specific notifications
 		cmd = u'select distinct on (signal) signal from gm.notifying_tables where carries_identity_pk is True'
 		self._conn_lock.acquire(1)
-		self._cursor.execute(cmd)
-		self._conn_lock.release()
+		try:
+			self._cursor.execute(cmd)
+		finally:
+			self._conn_lock.release()
 		rows = self._cursor.fetchall()
 		self.patient_specific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
 		_log.info('configured patient specific notifications:')
@@ -130,8 +131,10 @@ class gmBackendListener(gmBorg.cBorg):
 		# determine unspecific notifications
 		cmd = u'select distinct on (signal) signal from gm.notifying_tables where carries_identity_pk is False'
 		self._conn_lock.acquire(1)
-		self._cursor.execute(cmd)
-		self._conn_lock.release()
+		try:
+			self._cursor.execute(cmd)
+		finally:
+			self._conn_lock.release()
 		rows = self._cursor.fetchall()
 		self.unspecific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
 		self.unspecific_notifications.extend(static_signals)
@@ -160,8 +163,10 @@ class gmBackendListener(gmBorg.cBorg):
 			_log.debug('starting to listen for [%s]' % notification)
 			cmd = 'LISTEN "%s"' % notification
 			self._conn_lock.acquire(1)
-			self._cursor.execute(cmd)
-			self._conn_lock.release()
+			try:
+				self._cursor.execute(cmd)
+			finally:
+				self._conn_lock.release()
 	#-------------------------------
 	def __unregister_patient_notifications(self):
 		if self.curr_patient_pk is None:
@@ -171,8 +176,10 @@ class gmBackendListener(gmBorg.cBorg):
 			_log.debug('stopping to listen for [%s]' % notification)
 			cmd = 'UNLISTEN "%s"' % notification
 			self._conn_lock.acquire(1)
-			self._cursor.execute(cmd)
-			self._conn_lock.release()
+			try:
+				self._cursor.execute(cmd)
+			finally:
+				self._conn_lock.release()
 	#-------------------------------
 	def __register_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
@@ -180,8 +187,10 @@ class gmBackendListener(gmBorg.cBorg):
 			_log.info('starting to listen for [%s]' % sig)
 			cmd = 'LISTEN "%s"' % sig
 			self._conn_lock.acquire(1)
-			self._cursor.execute(cmd)
-			self._conn_lock.release()
+			try:
+				self._cursor.execute(cmd)
+			finally:
+				self._conn_lock.release()
 	#-------------------------------
 	def __unregister_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
@@ -189,15 +198,19 @@ class gmBackendListener(gmBorg.cBorg):
 			_log.info('stopping to listen for [%s]' % sig)
 			cmd = 'UNLISTEN "%s"' % sig
 			self._conn_lock.acquire(1)
-			self._cursor.execute(cmd)
-			self._conn_lock.release()
+			try:
+				self._cursor.execute(cmd)
+			finally:
+				self._conn_lock.release()
 	#-------------------------------
 	def __shutdown_connection(self):
 		_log.debug('shutting down connection with backend PID [%s]', self.backend_pid)
 		self._conn_lock.acquire(1)
-		self._conn.rollback()
-		self._conn.close()
-		self._conn_lock.release()
+		try:
+			self._conn.rollback()
+			self._conn.close()
+		finally:
+			self._conn_lock.release()
 	#-------------------------------
 	def __start_thread(self):
 		if self._conn is None:
@@ -220,8 +233,10 @@ class gmBackendListener(gmBorg.cBorg):
 				break
 			# wait at most self._poll_interval for new data
 			self._conn_lock.acquire(1)
-			ready_input_sockets = select.select([self._cursor], [], [], self._poll_interval)[0]
-			self._conn_lock.release()
+			try:
+				ready_input_sockets = select.select([self._cursor], [], [], self._poll_interval)[0]
+			finally:
+				self._conn_lock.release()
 			# any input available ?
 			if len(ready_input_sockets) == 0:
 				# no, select.select() timed out
@@ -241,8 +256,10 @@ class gmBackendListener(gmBorg.cBorg):
 					break
 
 				self._conn_lock.acquire(1)
-				notification = self._conn.notifies.pop()
-				self._conn_lock.release()
+				try:
+					notification = self._conn.notifies.pop()
+				finally:
+					self._conn_lock.release()
 				# try sending intra-client signal
 				pid, full_signal = notification
 				signal_name, pk = full_signal.split(':')
@@ -269,6 +286,13 @@ class gmBackendListener(gmBorg.cBorg):
 # main
 #=====================================================================
 if __name__ == "__main__":
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] not in ['test', 'monitor']:
+		sys.exit()
+
 
 	notifies = 0
 
@@ -325,18 +349,18 @@ if __name__ == "__main__":
 
 		try:
 			counter = 0
-			while counter<20:
+			while counter < 20:
 				counter += 1
 				time.sleep(1)
 				sys.stdout.flush()
 				print '.',
 			print "Looping",n,"times through dummy function"
-			i=0
+			i = 0
 			t1 = time.time()
-			while i<n:
+			while i < n:
 				r = dummy(i)
-				i+=1
-			t2=time.time()
+				i += 1
+			t2 = time.time()
 			t_threaded = t2-t1
 			print "With backend thread, it took", t_threaded, "seconds"
 			print "Difference:", t_threaded-t_nothreads
@@ -384,168 +408,11 @@ if __name__ == "__main__":
 		listener.shutdown()
 
 		print "shutting down backend notifications monitor"
+
 	#-------------------------------
-	if len(sys.argv) > 1:
-		if sys.argv[1] == 'test':
-			run_test()
-		if sys.argv[1] == 'monitor':
-			run_monitor()
+	if sys.argv[1] == 'monitor':
+		run_monitor()
+	else:
+		run_test()
 
 #=====================================================================
-# $Log: gmBackendListener.py,v $
-# Revision 1.22  2009-07-02 20:47:34  ncq
-# - stop-thread -> shutdown
-# - properly shutdown connection
-#
-# Revision 1.21  2009/02/12 16:21:15  ncq
-# - be more careful about signal de-registration
-#
-# Revision 1.20  2009/01/21 18:53:04  ncq
-# - adjust to signals
-#
-# Revision 1.19  2008/11/20 18:43:01  ncq
-# - better logger name
-#
-# Revision 1.18  2008/07/07 13:39:47  ncq
-# - current patient .connected
-#
-# Revision 1.17  2008/06/15 20:17:17  ncq
-# - be even more careful rejoining worker threads
-#
-# Revision 1.16  2008/04/28 13:31:16  ncq
-# - now static signals for database maintenance
-#
-# Revision 1.15  2008/01/07 19:48:22  ncq
-# - bump db version
-#
-# Revision 1.14  2007/12/12 16:17:15  ncq
-# - better logger names
-#
-# Revision 1.13  2007/12/11 14:16:29  ncq
-# - cleanup
-# - use logging
-#
-# Revision 1.12  2007/10/30 12:48:17  ncq
-# - attach_identity_pk -> carries_identity_pk
-#
-# Revision 1.11  2007/10/25 12:18:37  ncq
-# - cleanup
-# - include listener backend pid in signal data
-#
-# Revision 1.10  2007/10/23 21:22:42  ncq
-# - completely redone:
-#   - use psycopg2
-#   - handle signals based on backend metadata
-#   - add monitor to test cases
-#
-# Revision 1.9  2006/05/24 12:50:21  ncq
-# - now only empty string '' means use local UNIX domain socket connections
-#
-# Revision 1.8  2005/01/27 17:23:14  ncq
-# - just some cleanup
-#
-# Revision 1.7  2005/01/12 14:47:48  ncq
-# - in DB speak the database owner is customarily called dbo, hence use that
-#
-# Revision 1.6  2004/06/25 12:28:25  ncq
-# - just cleanup
-#
-# Revision 1.5  2004/06/15 19:18:06  ncq
-# - _unlisten_notification() now accepts a list of notifications to unlisten from
-# - cleanup/enhance __del__
-# - slightly untighten notification handling loop so others
-#   get a chance to grab the connection lock
-#
-# Revision 1.4  2004/06/09 14:42:05  ncq
-# - cleanup, clarification
-# - improve exception handling in __del__
-# - tell_thread_to_stop() -> stop_thread(), uses self._listener_thread.join()
-#   now, hence may take at max self._poll_interval+2 seconds longer but is
-#   considerably cleaner/safer
-# - vastly simplify threaded notification handling loop
-#
-# Revision 1.3  2004/06/01 23:42:53  ncq
-# - improve error message from failed notify dispatch attempt
-#
-# Revision 1.2  2004/04/21 14:27:15  ihaywood
-# bug preventing backendlistener working on local socket connections
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#
-# Revision 1.21  2004/01/18 21:45:50  ncq
-# - use real lock for thread quit indicator
-#
-# Revision 1.20  2003/11/17 10:56:35  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:38  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.19  2003/09/11 10:53:10  ncq
-# - fix test code in __main__
-#
-# Revision 1.18  2003/07/04 20:01:48  ncq
-# - remove blocking keyword from acquire() since Python does not like the
-#
-# Revision 1.17  2003/06/26 04:18:40  ihaywood
-# Fixes to gmCfg for commas
-#
-# Revision 1.16  2003/06/03 13:21:20  ncq
-# - still some problems syncing with threads on __del__ when
-#   failing in a constructor that sets up threads also
-# - slightly better comments in threaded code
-#
-# Revision 1.15  2003/06/01 12:55:58  sjtan
-#
-# sql commit may cause PortalClose, whilst connection.commit() doesnt?
-#
-# Revision 1.14  2003/05/27 15:23:48  ncq
-# - Sian found a uncleanliness in releasing the lock
-#   during notification registration, clean up his fix
-#
-# Revision 1.13  2003/05/27 14:38:22  sjtan
-#
-# looks like was intended to be caught if throws exception here.
-#
-# Revision 1.12  2003/05/03 14:14:27  ncq
-# - slightly better variable names
-# - keep reference to thread so we properly rejoin() upon __del__
-# - helper __unlisten_signal()
-# - remove notification from list of intercepted ones upon unregister_callback
-# - be even more careful in thread such that to stop quickly
-#
-# Revision 1.11  2003/05/03 00:42:11  ncq
-# - first shot at syncing thread at __del__ time, non-working
-#
-# Revision 1.10  2003/04/28 21:38:13  ncq
-# - properly lock access to self._conn across threads
-# - give others a chance to acquire the lock
-#
-# Revision 1.9  2003/04/27 11:34:02  ncq
-# - rewrite register_callback() to allow for more than one callback per signal
-# - add unregister_callback()
-# - clean up __connect(), __start_thread()
-# - optimize _process_notifications()
-#
-# Revision 1.8  2003/04/25 13:00:43  ncq
-# - more cleanup/renaming on the way to more goodness, eventually
-#
-# Revision 1.7  2003/02/07 14:22:35  ncq
-# - whitespace fix
-#
-# Revision 1.6  2003/01/16 14:45:03  ncq
-# - debianized
-#
-# Revision 1.5  2002/09/26 13:21:37  ncq
-# - log version
-#
-# Revision 1.4  2002/09/08 21:22:36  ncq
-# - removed one debugging level print()
-#
-# Revision 1.3  2002/09/08 20:58:46  ncq
-# - made comments more useful
-# - added some more metadata to get in line with GnuMed coding standards
-#

@@ -49,8 +49,8 @@ u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
 u_ellipsis = u'\u2026'
-u_left_arrow = u'\u2190'
-u_right_arrow = u'\u2192'
+u_left_arrow = u'\u2190'					# -->
+u_right_arrow = u'\u2192'					# <--
 u_sum = u'\u2211'
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
@@ -887,7 +887,10 @@ def get_icon(wx=None):
 	else:
 		_log.debug('icon found in [%s]', found_as)
 		icon = wx.EmptyIcon()
-		icon.LoadFile(found_as, wx.BITMAP_TYPE_ANY)		#_PNG
+		try:
+			icon.LoadFile(found_as, wx.BITMAP_TYPE_ANY)		#_PNG
+		except AttributeError:
+			_log.exception(u"this platform doesn't support wx.Icon().LoadFile()")
 
 	return icon
 #===========================================================================

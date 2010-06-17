@@ -15,6 +15,8 @@ import sys, os, string, re, urllib2, logging
 
 _log = logging.getLogger('gm.bootstrapper')
 _log.info(__version__)
+
+unformattable_error_id = 12345
 #===================================================================
 def shellrun (cmd):
 	"""
@@ -51,13 +53,19 @@ class Psql:
 		return ret
 	#---------------------------------------------------------------
 	def fmt_msg(self, aMsg):
-		tmp = u"%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
-		tmp = tmp.replace(u'\r', u'')
-		#tmp = string.replace("%s:%d: %s" % (self.filename, self.lineno-1, aMsg), '\r', '')
-		return tmp.replace(u'\n', u'')
-	#---------------------------------------------------------------
-#	def log (self, level, str):
-#	   _log.Log (level, "%s: line %d: %s" % (self.filename, self.lineno-1, str))
+		try:
+			tmp = u"%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
+			tmp = tmp.replace(u'\r', u'')
+			tmp = tmp.replace(u'\n', u'')
+		except UnicodeDecodeError:
+			tmp = u"%s:%d: <cannot unicode(msg), printing on console with ID [#%s]>" % (self.filename, self.lineno-1, unformattable_error_id)
+			try:
+				print 'ERROR: vvvvv GNUmed bootstrap vvvvv [#%s]' % unformattable_error_id
+				print aMsg
+				print 'ERROR: ^^^^^ GNUmed bootstrap ^^^^^ [#%s]' % unformattable_error_id
+			except: pass
+			unformattable_error_id += 1
+		return tmp
 	#---------------------------------------------------------------
 	def run (self, filename):
 		"""

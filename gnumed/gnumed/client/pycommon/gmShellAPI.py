@@ -130,6 +130,11 @@ def run_command_in_shell(command=None, blocking=False):
 	_log.debug('os.system() returned: [%s]', ret_val)
 
 	exited_normally = False
+
+	if not hasattr(os, 'WIFEXITED'):
+		_log.debug('platform does not support exit status differentiation')
+		return exited_normally
+
 	_log.debug('exited via exit(): %s', os.WIFEXITED(ret_val))
 	if os.WIFEXITED(ret_val):
 		_log.debug('exit code: [%s]', os.WEXITSTATUS(ret_val))
@@ -185,7 +190,7 @@ if __name__ == '__main__':
 			print "-------------------------------------"
 			print "failure, consult log"
 	#---------------------------------------------------------
-	#test_run_command_in_shell()
-	test_detect_external_binary()
+	test_run_command_in_shell()
+	#test_detect_external_binary()
 
 #===========================================================================

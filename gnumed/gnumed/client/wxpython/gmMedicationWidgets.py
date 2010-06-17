@@ -1290,6 +1290,19 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			autoraise = True
 		)
 	#------------------------------------------------------------
+	def report_ADR(self):
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		url = dbcfg.get2 (
+			option = u'external.urls.report_ADR',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user',
+			default = u'https://dcgma.org/uaw/meldung.php'
+		)
+
+		webbrowser.open(url = url, new = False, autoraise = True)
+	#------------------------------------------------------------
 	def check_interactions(self):
 
 		if len(self.__row_data) == 0:
@@ -1642,6 +1655,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_button_kidneys_pressed(self, event):
 		self._grid_substances.show_renal_insufficiency_info()
+	#--------------------------------------------------------
+	def _on_adr_button_pressed(self, event):
+		self._grid_substances.report_ADR()
 #============================================================
 # main
 #------------------------------------------------------------
