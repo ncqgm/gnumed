@@ -104,7 +104,7 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 					)
 				msg = msg % e
 				msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
-				gmGuiHelpers.gm_show_error (
+				gmGuiHelpers.gm_show_error_web (
 					msg,
 					_('Connecting to backend')
 				)
@@ -119,7 +119,7 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 				"Please retry another backend / user / password combination !\n"
 			) % gmPG2.extract_msg_from_pg_exception(e)
 			msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
-			gmGuiHelpers.gm_show_error (
+			gmGuiHelpers.gm_show_error_web (
 				msg,
 				_('Connecting to backend')
 			)
