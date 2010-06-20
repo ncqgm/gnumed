@@ -21,6 +21,7 @@ NEW: support comment directly on identity
 NEW: Add button to report ADR from within current substances plugin.
 NEW: list view of database audit trail
 NEW: management of vaccinations
+NEW: templates for writing a plugin [thanks S.Hilbert]
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
