@@ -20,15 +20,15 @@ Now import the Panel that holds your widgets you designed with wxglade
 adapt the name of the files and panel to match those you define in 
 wxglade
 """
-from Gnumed.wxGladeWidgets import wxgPlugintemplatePnl
+from Gnumed.wxGladeWidgets import wxgExamplePluginPnl
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #================================================================
-class cPlugintemplatePnl(wxgPlugintemplatePnl.wxgPlugintemplatePnl, gmRegetMixin.cRegetOnPaintMixin):
+class cExamplePluginPnl(wxgExamplePluginPnl.wxgExamplePluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""Panel holding a number of widgets. Used as notebook page."""
 	def __init__(self, *args, **kwargs):
-		wxgPlugintemplatePnl.wxgPlugintemplatePnl.__init__(self, *args, **kwargs)
+		wxgExamplePluginPnl.wxgExamplePluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__init_ui()
 		self.__register_interests()
