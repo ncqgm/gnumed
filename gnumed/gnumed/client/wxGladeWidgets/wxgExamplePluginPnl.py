@@ -9,9 +9,9 @@ import wx
 
 
 
-class wxgPlugintemplatePnl(wx.Panel):
+class wxgExamplePluginPnl(wx.Panel):
     def __init__(self, *args, **kwds):
-        # begin wxGlade: wxgPlugintemplatePnl.__init__
+        # begin wxGlade: wxgExamplePluginPnl.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
         wx.Panel.__init__(self, *args, **kwds)
         self.sizer_1_staticbox = wx.StaticBox(self, -1, "hello world")
@@ -22,16 +22,16 @@ class wxgPlugintemplatePnl(wx.Panel):
         # end wxGlade
 
     def __set_properties(self):
-        # begin wxGlade: wxgPlugintemplatePnl.__set_properties
+        # begin wxGlade: wxgExamplePluginPnl.__set_properties
         pass
         # end wxGlade
 
     def __do_layout(self):
-        # begin wxGlade: wxgPlugintemplatePnl.__do_layout
+        # begin wxGlade: wxgExamplePluginPnl.__do_layout
         sizer_1 = wx.StaticBoxSizer(self.sizer_1_staticbox, wx.HORIZONTAL)
         sizer_1.Add(self._TCTRL_template, 0, 0, 0)
         self.SetSizer(sizer_1)
         sizer_1.Fit(self)
         # end wxGlade
 
-# end of class wxgPlugintemplatePnl
+# end of class wxgExamplePluginPnl
