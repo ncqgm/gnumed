@@ -19,30 +19,32 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 
 """ import the widgets from the file referencing the widgets 
-for that particualr plugin 
+for that particualr plugin (e.g. ExamplePlugin.
+If you code your own plugin replace Example by something reflecting
+what your plugin does. 
 """
 
-from Gnumed.wxpython import gmPlugin, gmPlugintemplateWidgets
+from Gnumed.wxpython import gmPlugin, gmExamplePluginWidgets
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #================================================================
 #The name of the class must match the filename of the plugin
-class gmPlugintemplate(gmPlugin.cNotebookPlugin):
+class gmExamplePlugin(gmPlugin.cNotebookPlugin):
 	#name of the plugin as it will appear as tab in GNUmed
 	tab_name = _("Template Plugin")
 
 	def name (self):
-		return gmPlugintemplate.tab_name
+		return gmExamplePlugin.tab_name
 	#--------------------------------------------------------
 	def GetWidget (self, parent):
 		#Sets up the GUI by instanciating the file containing the widget that make up the layout in the plugin
-		self._widget = gmPlugintemplateWidgets.cPlugintemplatePnl(parent, -1)
+		self._widget = gmExamplePluginWidgets.cExamplePluginPnl(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
 		#This will set the name of the Plugin in the GNUmed menu
-		return ('emr', _('Show &Plugintemplate'))
+		return ('emr', _('Show &ExamplePlugin'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		# need patient
@@ -83,7 +85,7 @@ if __name__ == '__main__':
 
 		# display the plugin standalone
 		application = wx.wx.PyWidgetTester(size = (800,600))
-		widgets = gmPlugintemplateWidgets.cPlugintemplatePnl(application.frame, -1)
+		widgets = gmExamplePluginWidgets.cExamplePluginPnl(application.frame, -1)
 
 		application.frame.Show(True)
 		application.MainLoop()
