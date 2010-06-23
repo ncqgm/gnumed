@@ -1758,6 +1758,7 @@ limit 50"""
 		mp.setThresholds(1, 2, 4)
 		self._PRW_name.matcher = mp
 		self._PRW_name.selection_only = False
+		self._PRW_name.add_callback_on_lose_focus(callback = self._on_name_lost_focus)
 
 		# abbreviation
 		query = u"""
@@ -1775,19 +1776,6 @@ limit 50"""
 		self._PRW_abbrev.selection_only = False
 
 		# unit
-		# FIXME: use units from test_result
-		query = u"""
-select distinct on (conversion_unit)
-	conversion_unit,
-	conversion_unit
-from clin.test_type
-where
-	conversion_unit %(fragment_condition)s
-order by conversion_unit
-limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 3)
-		self._PRW_conversion_unit.matcher = mp
 		self._PRW_conversion_unit.selection_only = False
 
 		# loinc
@@ -1851,28 +1839,26 @@ limit 50"""
 		self._PRW_loinc.matcher = mp
 		self._PRW_loinc.selection_only = False
 		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
+	#----------------------------------------------------------------
+	def _on_name_lost_focus(self):
 
-#		# test org
-#		query = u"""
-#select distinct on (internal_name)
-#	pk,
-#	internal_name
-#from clin.test_org
-#where
-#	internal_name %(fragment_condition)s
-#order by internal_name
-#limit 50"""
-#		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-#		mp.setThresholds(1, 2, 4)
-#		self._PRW_test_org.matcher = mp
-#		self._PRW_test_org.selection_only = False
+		test = self._PRW_name.GetValue().strip()
+
+		if test == u'':
+			self._PRW_conversion_unit.unset_context(context = u'test_name')
+			return
+
+		self._PRW_conversion_unit.set_context(context = u'test_name', val = test)
 	#----------------------------------------------------------------
 	def _on_loinc_lost_focus(self):
 		loinc = self._PRW_loinc.GetData()
 
 		if loinc is None:
 			self._TCTRL_loinc_info.SetValue(u'')
+			self._PRW_conversion_unit.unset_context(context = u'loinc')
 			return
+
+		self._PRW_conversion_unit.set_context(context = u'loinc', val = loinc)
 
 		info = gmLOINC.loinc2info(loinc = loinc)
 		if len(info) == 0:
@@ -1909,7 +1895,10 @@ limit 50"""
 			lab = pk_org,
 			abbrev = self._PRW_abbrev.GetValue().strip(),
 			name = self._PRW_name.GetValue().strip(),
-			unit = gmTools.none_if(self._PRW_conversion_unit.GetValue().strip(), u'')
+			unit = gmTools.coalesce (
+				self._PRW_conversion_unit.GetData(),
+				self._PRW_conversion_unit.GetValue()
+			).strip()
 		)
 		tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
 		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
@@ -1931,7 +1920,10 @@ limit 50"""
 		self.data['pk_test_org'] = pk_org
 		self.data['abbrev'] = self._PRW_abbrev.GetValue().strip()
 		self.data['name'] = self._PRW_name.GetValue().strip()
-		self.data['conversion_unit'] = gmTools.none_if(self._PRW_conversion_unit.GetValue().strip(), u'')
+		self.data['conversion_unit'] = gmTools.coalesce (
+			self._PRW_conversion_unit.GetData(),
+			self._PRW_conversion_unit.GetValue()
+		).strip()
 		self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
 		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		self.data.save()
@@ -1940,16 +1932,18 @@ limit 50"""
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_name.SetText(u'', None, True)
+		self._on_name_lost_focus()
 		self._PRW_abbrev.SetText(u'', None, True)
 		self._PRW_conversion_unit.SetText(u'', None, True)
 		self._PRW_loinc.SetText(u'', None, True)
-		self._TCTRL_loinc_info.SetValue(u'')
+		self._on_loinc_lost_focus()
 		self._TCTRL_comment_type.SetValue(u'')
 		self._PRW_test_org.SetText(u'', None, True)
 		self._TCTRL_comment_org.SetValue(u'')
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_name.SetText(self.data['name'], self.data['name'], True)
+		self._on_name_lost_focus()
 		self._PRW_abbrev.SetText(self.data['abbrev'], self.data['abbrev'], True)
 		self._PRW_conversion_unit.SetText (
 			gmTools.coalesce(self.data['conversion_unit'], u''),
@@ -1961,7 +1955,7 @@ limit 50"""
 			self.data['loinc'],
 			True
 		)
-		self._TCTRL_loinc_info.SetValue(u'')			# FIXME: properly set
+		self._on_loinc_lost_focus()
 		self._TCTRL_comment_type.SetValue(gmTools.coalesce(self.data['comment_type'], u''))
 		self._PRW_test_org.SetText (
 			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['internal_name_org']),
@@ -2069,7 +2063,7 @@ SELECT DISTINCT ON (data) data, unit FROM (
 
 ) as ranked_matching_units
 
-LIMIT 25"""
+LIMIT 50"""
 
 		ctxt = {
 			'ctxt_type_pk': {
