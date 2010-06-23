@@ -1,7 +1,42 @@
 """
 This is a template plugin 
+This is in line with the blog series on developing a plugin for GNUmed
+Read all posts to follow along a step by step guide
+The first thirteen parts are a chronical on a plugin I developed
+
+Part 1:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-1.html
+Part 2:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-2.html
+Part 3:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-3.html
+Part 4:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-4.html
+Part 5:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-5.html
+Part 6:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-6.html
+Part 7:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-7.html
+Part 8:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-8.html
+Part 9:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-9.html
+Part 10: http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-10.html
+Part 11: http://gnumed.blogspot.com/2009/05/gnumed-plugin-development-part-11.html
+Part 12: http://gnumed.blogspot.com/2009/07/gnumed-plugin-development-part-12.html
+Part 13: http://gnumed.blogspot.com/2009/07/gnumed-plugin-development-part-13.html
+
+The second series is  more general and coves second plugin as a starting point
+Part 1:  http://gnumed.blogspot.com/2010/04/gnumed-plugin-developement-part-1.html
+
+The third series covers an hands on introduction on how to share your code
+Part 1:  http://gnumed.blogspot.com/2010/04/gnumed-plugin-development-how-to-share.html
+
+For development information such as database schema, function and classes documentation
+and more see http://wiki.gnumed.de
 """
-__version__ = "$Revision: 0.1 $"
+
+"""
+This file is used together with 
+../../wxg/wxgExamplePluginPnl.wxg            - this is the UI layout as done with wxglade
+../../wxGladeWidgets/wxgExamplePluginPnl.py  - this is the generated python code of the above
+../gmExamplePluginWidgets.py                 - holds the widgets of the user interface, it 
+                                               imports and manipulates the above generated code 
+"""
+
+__version__ = "$Revision: 0.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -101,4 +136,4 @@ if __name__ == '__main__':
 		# but re-raise them
 		raise
 
-	_log.info("closing Notebooked cardiac device input plugin...")
+	_log.info("closing example plugin...")
