@@ -428,6 +428,10 @@ class cMatchProvider_SQL2(cMatchProvider):
 					self._args[placeholder] = self._context_vals[placeholder]
 					# we do have a context value for this key, so add the where condition
 					where_fragments[context_key] = where_part
+					if self.print_queries:
+						print placeholder
+						print where_part
+						print self._context_vals[placeholder]
 				except KeyError:
 					# we don't have a context value for this key, so skip the where condition
 					where_fragments[context_key] = u''
