@@ -50,6 +50,10 @@ class gmBackendListener(gmBorg.cBorg):
 		_log.debug('connection has backend PID [%s]', self.backend_pid)
 		self._conn.set_isolation_level(0)		# autocommit mode
 		self._cursor = self._conn.cursor()
+		try:
+			self._conn_fd = self._conn.fileno()
+		except AttributeError:
+			self._conn_fd = self._cursor.fileno()
 		self._conn_lock = threading.Lock()		# lock for access to connection object
 
 		self.curr_patient_pk = None
@@ -234,7 +238,7 @@ class gmBackendListener(gmBorg.cBorg):
 			# wait at most self._poll_interval for new data
 			self._conn_lock.acquire(1)
 			try:
-				ready_input_sockets = select.select([self._cursor], [], [], self._poll_interval)[0]
+				ready_input_sockets = select.select([self._conn_fd], [], [], self._poll_interval)[0]
 			finally:
 				self._conn_lock.release()
 			# any input available ?
