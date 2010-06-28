@@ -2015,6 +2015,7 @@ def create_new_person(parent=None, activate=False):
 		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = u'user'
 	)
+	def_country = None
 
 	if def_region is None:
 		def_country = dbcfg.get2 (
@@ -2040,6 +2041,8 @@ def create_new_person(parent=None, activate=False):
 
 	if result != wx.ID_OK:
 		return False
+
+	_log.debug('created new person [%s]', pat.ID)
 
 	if activate:
 		from Gnumed.wxpython import gmPatSearchWidgets
