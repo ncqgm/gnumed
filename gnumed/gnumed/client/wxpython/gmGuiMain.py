@@ -2362,9 +2362,6 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
 		"""Create new person and add it as staff."""
-		#wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-		#if not wiz.RunWizard(activate=True):
-		#	return False
 		if not gmDemographicsWidgets.create_new_person(parent = self, activate = True):
 			return
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
