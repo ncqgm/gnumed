@@ -2365,7 +2365,8 @@ class gmTopLevelFrame(wx.Frame):
 		#wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
 		#if not wiz.RunWizard(activate=True):
 		#	return False
-		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
+		if not gmDemographicsWidgets.create_new_person(parent = self, activate = True):
+			return
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
