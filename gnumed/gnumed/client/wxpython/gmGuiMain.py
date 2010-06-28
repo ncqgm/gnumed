@@ -94,6 +94,18 @@ class gmTopLevelFrame(wx.Frame):
 		"""
 		wx.Frame.__init__(self, parent, id, title, size, style = wx.DEFAULT_FRAME_STYLE)
 
+		if wx.Platform == '__WXMSW__':
+			font = self.GetFont()
+			_log.debug('default font is [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+			desired_font_face = u'DejaVu Sans'
+			success = font.SetFaceName(desired_font_face)
+			if success:
+				self.SetFont(font)
+				_log.debug('setting font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+			else:
+				_log.error('cannot set font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), desired_font_face)
+				_log.debug('default font is ', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
 		self.bar_width = -1
