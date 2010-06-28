@@ -1,11 +1,9 @@
-$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/README,v $
-$Revision: 1.10 $
 
-Welcome to the GNUmed CVS tree !
+Welcome to the GNUmed VCS tree !
 
 To check if you have installed all the components
 necessary to run GNUmed use:
-	check-prerequites.sh
+	gnumed/external-tools/check-prerequites.sh
 
 
 Documentation is in:
@@ -33,5 +31,4 @@ Enjoy, join the mailing list, ask questions, develop and use !
 
 Karsten Hilbert, MD
 
-GnuMed i18n coordinator
-Karsten.Hilbert@gmx.net
+<Karsten.Hilbert@gmx.net>

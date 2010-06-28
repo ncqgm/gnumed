@@ -9,6 +9,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
 import urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
+import cPickle, zlib
 
 
 # GNUmed libs
@@ -48,8 +49,9 @@ u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
 u_ellipsis = u'\u2026'
-u_left_arrow = u'\u2190'
-u_right_arrow = u'\u2192'
+u_left_arrow = u'\u2190'					# -->
+u_right_arrow = u'\u2192'					# <--
+u_sum = u'\u2211'
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
 u_diameter = u'\u2300'
@@ -198,7 +200,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
-	print ",========================================================"
+	print ".========================================================"
 	print "| Unhandled exception caught !"
 	print "| Type :", t
 	print "| Value:", v
@@ -218,7 +220,15 @@ def mkdir(directory=None):
 
 #---------------------------------------------------------------------------
 class gmPaths(gmBorg.cBorg):
+	"""This class provides the following paths:
 
+	.home_dir
+	.local_base_dir
+	.working_dir
+	.user_config_dir
+	.system_config_dir
+	.system_app_data_dir
+	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.
 
@@ -838,6 +848,52 @@ def tex_escape_string(text=None):
 
 	return text
 #===========================================================================
+# image handling tools
+#---------------------------------------------------------------------------
+# builtin (ugly but tried and true) fallback icon
+__icon_serpent = \
+"""x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
+\xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
+\xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
+\x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
+\xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
+\xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
+\xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec"""
+
+def get_icon(wx=None):
+
+	paths = gmPaths(app_name = u'gnumed', wx = wx)
+
+	candidates = [
+		os.path.join(paths.system_app_data_dir, 'bitmaps', 'gm_icon-serpent_and_gnu.png'),
+		os.path.join(paths.local_base_dir, 'bitmaps', 'gm_icon-serpent_and_gnu.png'),
+		os.path.join(paths.system_app_data_dir, 'bitmaps', 'serpent.png'),
+		os.path.join(paths.local_base_dir, 'bitmaps', 'serpent.png')
+	]
+
+	found_as = None
+	for candidate in candidates:
+		try:
+			open(candidate, 'r').close()
+			found_as = candidate
+			break
+		except IOError:
+			_log.debug('icon not found in [%s]', candidate)
+
+	if found_as is None:
+		_log.warning('no icon file found, falling back to builtin (ugly) icon')
+		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(__icon_serpent)))
+		icon.CopyFromBitmap(icon_bmp_data)
+	else:
+		_log.debug('icon found in [%s]', found_as)
+		icon = wx.EmptyIcon()
+		try:
+			icon.LoadFile(found_as, wx.BITMAP_TYPE_ANY)		#_PNG
+		except AttributeError:
+			_log.exception(u"this platform doesn't support wx.Icon().LoadFile()")
+
+	return icon
+#===========================================================================
 # main
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -1137,7 +1193,7 @@ second line\n
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
-	#test_gmPaths()
+	test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
@@ -1146,6 +1202,6 @@ second line\n
 	#test_wrap()
 	#test_input2decimal()
 	#test_unwrap()
-	test_md5()
+	#test_md5()
 
 #===========================================================================

@@ -20,7 +20,7 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._PRW_name = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_abbrev = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_conversion_unit = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_conversion_unit = gmMeasurementWidgets.cUnitPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_loinc = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_loinc_info = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_comment_type = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)

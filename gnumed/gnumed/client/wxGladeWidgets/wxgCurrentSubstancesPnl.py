@@ -30,6 +30,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_info = wx.Button(self, -1, _("Info"), style=wx.BU_EXACTFIT)
         self._BTN_kidneys = wx.Button(self, -1, _("Kidney"), style=wx.BU_EXACTFIT)
         self._BTN_interactions = wx.Button(self, -1, _("&Interactions?"), style=wx.BU_EXACTFIT)
+        self._BTN_adr = wx.Button(self, -1, _("ADR"), style=wx.BU_EXACTFIT)
         self._BTN_print = wx.Button(self, wx.ID_PRINT, "", style=wx.BU_EXACTFIT)
 
         self.__set_properties()
@@ -46,6 +47,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_info_button_pressed, self._BTN_info)
         self.Bind(wx.EVT_BUTTON, self._on_button_kidneys_pressed, self._BTN_kidneys)
         self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
+        self.Bind(wx.EVT_BUTTON, self._on_adr_button_pressed, self._BTN_adr)
         self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
         # end wxGlade
 
@@ -64,6 +66,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_info.SetToolTipString(_("Show in-depth information on the selected substance if available."))
         self._BTN_kidneys.SetToolTipString(_("Show information on handling of drugs in presence of renal insufficiency."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
+        self._BTN_adr.SetToolTipString(_("Report an Adverse Drug Reaction."))
         self._BTN_print.SetToolTipString(_("Print the medication list."))
         # end wxGlade
 
@@ -94,10 +97,11 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_buttons.Add(self._BTN_allergy, 0, wx.RIGHT|wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_info, 0, wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_kidneys, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_kidneys, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_interactions, 0, wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_interactions, 0, wx.RIGHT|wx.EXPAND, 5)
-        __szr_buttons.Add(self._BTN_print, 0, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_adr, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_print, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
@@ -150,6 +154,10 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
     def _on_button_kidneys_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
         print "Event handler `_on_button_kidneys_pressed' not implemented"
+        event.Skip()
+
+    def _on_adr_button_pressed(self, event): # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_adr_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgCurrentSubstancesPnl

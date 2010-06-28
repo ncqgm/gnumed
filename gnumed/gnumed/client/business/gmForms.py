@@ -10,7 +10,9 @@ __version__ = "$Revision: 1.79 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, codecs, re as regex, shutil, random, platform
+import os, sys, time, os.path, logging, codecs, re as regex
+import shutil, random, platform, subprocess
+import socket										# needed for OOo on Windows
 #, libxml2, libxslt
 
 
@@ -26,17 +28,19 @@ _log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L', u'I']
+form_engine_abbrevs = [u'O', u'L', u'I', u'G']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
 	u'L': 'LaTeX',
-	u'I': 'Image editor'
+	u'I': 'Image editor',
+	u'G': 'Gnuplot script'
 }
 
 form_engine_template_wildcards = {
 	u'O': u'*.o?t',
-	u'L': u'*.tex'
+	u'L': u'*.tex',
+	u'G': u'*.gpl'
 }
 
 # is filled in further below after each engine is defined
@@ -156,8 +160,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 
 			filename = gmTools.get_unique_filename (
 				prefix = 'gm-%s-Template-' % self._payload[self._idx['engine']],
-				suffix = suffix,
-				tmp_dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+				suffix = suffix
 			)
 
 		data_query = {
@@ -257,6 +260,34 @@ def delete_form_template(template=None):
 uno = None
 cOOoDocumentCloseListener = None
 
+#-----------------------------------------------------------
+def __configure_path_to_UNO():
+
+	try:
+		which = subprocess.Popen (
+			args = ('which', 'soffice'),
+			stdout = subprocess.PIPE,
+			stdin = subprocess.PIPE,
+			stderr = subprocess.PIPE,
+			universal_newlines = True
+		)
+	except (OSError, ValueError, subprocess.CalledProcessError):
+		_log.exception('there was a problem executing [which soffice]')
+		return
+
+	soffice_path, err = which.communicate()
+	soffice_path = soffice_path.strip('\n')
+	uno_path = os.path.abspath ( os.path.join (
+		os.path.dirname(os.path.realpath(soffice_path)),
+		'..',
+		'basis-link',
+		'program'
+	))
+
+	_log.info('UNO should be at [%s], appending to sys.path', uno_path)
+
+	sys.path.append(uno_path)
+#-----------------------------------------------------------
 def init_ooo():
 	"""FIXME: consider this:
 
@@ -273,9 +304,15 @@ def init_ooo():
 	if uno is not None:
 		return
 
+	try:
+		import uno
+	except ImportError:
+		__configure_path_to_UNO()
+		import uno
+
 	global unohelper, oooXCloseListener, oooNoConnectException, oooPropertyValue
 
-	import uno, unohelper
+	import unohelper
 	from com.sun.star.util import XCloseListener as oooXCloseListener
 	from com.sun.star.connection import NoConnectException as oooNoConnectException
 	from com.sun.star.beans import PropertyValue as oooPropertyValue
@@ -609,7 +646,7 @@ class cOOoForm(cFormEngine):
 
 		path, ext = os.path.splitext(self.template_filename)
 		if ext in [r'', r'.']:
-			ext = r'.tex'
+			ext = r'.odt'
 		self.instance_filename = r'%s-instance%s' % (path, ext)
 
 #================================================================
@@ -740,12 +777,66 @@ class cLaTeXForm(cFormEngine):
 			os.remove(self.template_filename)
 		except:
 			_log.debug(u'cannot remove template file [%s]', self.template_filename)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-
 #------------------------------------------------------------
 form_engines[u'L'] = cLaTeXForm
+#============================================================
+# Gnuplot template forms
+#------------------------------------------------------------
+class cGnuplotForm(cFormEngine):
+	"""A forms engine wrapping Gnuplot."""
+
+	#--------------------------------------------------------
+	def substitute_placeholders(self, data_source=None):
+		"""Parse the template into an instance and replace placeholders with values."""
+		pass
+	#--------------------------------------------------------
+	def edit(self):
+		"""Allow editing the instance of the template."""
+		pass
+	#--------------------------------------------------------
+	def generate_output(self, format=None):
+		"""Generate output suitable for further processing outside this class, e.g. printing.
+
+		Expects .data_filename to be set.
+		"""
+		self.conf_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
+		fname_file = codecs.open(self.conf_filename, 'wb', 'utf8')
+		fname_file.write('# setting the gnuplot data file\n')
+		fname_file.write("gm2gpl_datafile = '%s'\n" % self.data_filename)
+		fname_file.close()
+
+		# FIXME: cater for configurable path
+		if platform.system() == 'Windows':
+			exec_name = 'gnuplot.exe'
+		else:
+			exec_name = 'gnuplot'
+
+		args = [exec_name, '-p', self.conf_filename, self.template_filename]
+		_log.debug('plotting args: %s' % str(args))
+
+		try:
+			gp = subprocess.Popen (
+				args = args,
+				close_fds = True
+			)
+		except (OSError, ValueError, subprocess.CalledProcessError):
+			_log.exception('there was a problem executing gnuplot')
+			gmDispatcher.send(signal = u'statustext', msg = _('Error running gnuplot. Cannot plot data.'), beep = True)
+			return
+
+		gp.communicate()
+
+		return
+	#--------------------------------------------------------
+	def cleanup (self):
+		try:
+			os.remove(self.template_filename)
+			os.remove(self.conf_filename)
+			os.remove(self.data_filename)
+		except StandardError:
+			_log.exception(u'cannot remove either of script/conf/data file')
+#------------------------------------------------------------
+form_engines[u'G'] = cGnuplotForm
 #------------------------------------------------------------
 #------------------------------------------------------------
 class cIanLaTeXForm(cFormEngine):
@@ -901,10 +992,6 @@ class cXSLTFormEngine(cFormEngine):
 
 
 #=====================================================
-engines = {
-	u'L': cLaTeXForm
-}
-#=====================================================
 #class LaTeXFilter(Cheetah.Filters.Filter):
 class LaTeXFilter:
 	def filter (self, item, table_sep= " \\\\\n", **kwds):
@@ -1055,7 +1142,7 @@ crap to demonstrate how it can cover multiple lines.""",
 	form.process (params)
 	form.xdvi ()
 	form.cleanup ()
-	
+
 def test_au2 ():
 	form = LaTeXForm (2, test_letter)
 	params = {'RECIPIENTNAME':'Dr. Richard Terry',
@@ -1096,6 +1183,12 @@ def test_de():
 #------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.pycommon import gmI18N, gmDateTime
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain='gnumed')
@@ -1103,6 +1196,9 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	# OOo
+	#--------------------------------------------------------
+	def test_init_ooo():
+		init_ooo()
 	#--------------------------------------------------------
 	def test_ooo_connect():
 		srv = gmOOoConnector()
@@ -1204,20 +1300,20 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		# now run the tests
-		#test_au()
-		#test_de()
+	# now run the tests
+	#test_au()
+	#test_de()
 
-		# OOo
-		#test_ooo_connect()
-		#test_open_ooo_doc_from_srv()
-		#test_open_ooo_doc_from_letter()
-		#play_with_ooo()
-		#test_cOOoLetter()
+	# OOo
+	#test_init_ooo()
+	#test_ooo_connect()
+	#test_open_ooo_doc_from_srv()
+	#test_open_ooo_doc_from_letter()
+	#play_with_ooo()
+	#test_cOOoLetter()
 
-		#test_cFormTemplate()
-		#set_template_from_file()
-		test_latex_form()
+	#test_cFormTemplate()
+	#set_template_from_file()
+	test_latex_form()
 
 #============================================================

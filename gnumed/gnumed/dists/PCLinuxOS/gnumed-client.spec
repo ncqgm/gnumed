@@ -115,6 +115,7 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}/bitmaps
 cp client/bitmaps/empty-face-in-bust.png $RPM_BUILD_ROOT%{_datadir}/%{name}/bitmaps/empty-face-in-bust.png
 cp client/bitmaps/gnumedlogo.png $RPM_BUILD_ROOT%{_datadir}/%{name}/bitmaps/gnumedlogo.png
 cp client/bitmaps/serpent.png $RPM_BUILD_ROOT%{_datadir}/%{name}/bitmaps/serpent.png
+cp client/bitmaps/gm_icon-serpent_and_gnu.png $RPM_BUILD_ROOT%{_datadir}/%{name}/bitmaps/gm_icon-serpent_and_gnu.png
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/locale/fr/LC_MESSAGES/
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/locale/de/LC_MESSAGES/

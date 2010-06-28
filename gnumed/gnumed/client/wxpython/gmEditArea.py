@@ -39,7 +39,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		except KeyError:
 			data = None
 
-		wxgXxxEAPnl.wxgXxxPatientEAPnl.__init__(self, *args, **kwargs)
+		wxgXxxEAPnl.wxgXxxEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		# Code using this mixin should set mode and data
@@ -113,7 +113,11 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if mode == 'edit':
 			if self.__data is None:
 				raise ValueError('[%s] <mode> "edit" needs data value' % self.__class__.__name__)
+
+		prev_mode = self.__mode
 		self.__mode = mode
+		if mode != prev_mode:
+			self.refresh()
 
 	mode = property(_get_mode, _set_mode)
 	#----------------------------------------------------------------

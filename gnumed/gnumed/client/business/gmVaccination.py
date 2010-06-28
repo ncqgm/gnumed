@@ -1,94 +1,214 @@
 """GNUmed vaccination related business objects.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.38 2008-02-25 17:31:41 ncq Exp $
 __version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import types, copy, logging
+import sys, copy, logging
 
 
-from Gnumed.pycommon import gmExceptions, gmI18N, gmBusinessDBObject
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+#	from Gnumed.pycommon import 		#, gmDateTime, gmLog2
+#	gmDateTime.init()
+#	gmI18N.activate_locale()
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N, gmTools
+from Gnumed.business import gmMedication
 
 
 _log = logging.getLogger('gm.vaccination')
 _log.info(__version__)
+
 #============================================================
-class cVaccination(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one vaccination event.
-	"""
-	_cmd_fetch_payload = """
-		select *, NULL as is_booster, -1 as seq_no, xmin_vaccination from clin.v_pat_vaccinations4indication
-		where pk_vaccination=%s
-		order by date desc"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.vaccination where id=%(pk_vaccination)s and xmin=%(xmin_vaccination)s for update"""
-	]
+def get_indications(order_by=None):
+	cmd = u'SELECT * from clin.vacc_indication'
+
+	if order_by is not None:
+		cmd = u'%s ORDER BY %s' % (cmd, order_by)
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+
+	return rows
+#============================================================
+_sql_fetch_vaccine = u"""SELECT *, xmin_vaccine FROM clin.v_vaccines WHERE %s"""
+
+class cVaccine(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents one vaccine."""
+
+	_cmd_fetch_payload = _sql_fetch_vaccine % u"pk_vaccine = %s"
+
 	_cmds_store_payload = [
-		"""update clin.vaccination set
-				clin_when=%(date)s,
-				narrative=%(narrative)s,
-				fk_provider=%(pk_provider)s,
-				fk_vaccine=(select pk from clin.vaccine where trade_name=%(vaccine)s),
-				site=%(site)s,
-				batch_no=%(batch_no)s
-			where id=%(pk_vaccination)s""",
-		"""select xmin_vaccination from clin.v_pat_vaccinations4indication where pk_vaccination=%(pk_vaccination)s"""
-		]
+		u"""UPDATE clin.vaccine SET
+--				internal_name = gm.nullify_empty_string(%(internal_name)s),
+			WHERE
+				pk = %(pk_vaccine)s
+					AND
+				xmin = %(xmin_vaccine)s
+			RETURNING
+				xmin as xmin_vaccine
+		"""
+	]
+
 	_updatable_fields = [
-		'date',
-		'narrative',
-		'pk_provider',
-		'vaccine',
-		'site',
-		'batch_no',
-		# the following two are updatable via __setitem__
-		# API but not persisted via _cmds_store_payload
-		'is_booster',
-		'seq_no'
+		u'id_route',
+		u'is_live',
+		u'min_age',
+		u'max_age',
+		u'comment'
+		# forward fields to brand and include brand in save()
 	]
 	#--------------------------------------------------------
-	def _init_from_row_data(self, row=None):
-		"""Make sure we have is_booster/seq_no when loading from row data."""
-		gmBusinessDBObject.cBusinessDBObject._init_from_row_data(self, row=row)
-		try:
-			idx = self._idx['is_booster']
-		except KeyError:
-			idx = len(self._payload)
-			self._payload.append(False)
-			# make local copy so we can safely modify it, but from
-			# self._idx which is row['idx'] with possible modifications
-			self._idx = copy.copy(self._idx)
-			self._idx['is_booster'] = idx
-		try:
-			idx = self._idx['seq_no']
-		except KeyError:
-			idx = len(self._payload)
-			self._payload.append(False)
-			self._idx = copy.copy(self._idx)
-			self._idx['seq_no'] = -1
+	def __init__(self, aPK_obj=None, row=None):
+		super(cVaccine, self).__init__(aPK_obj = aPK_obj, row = row)
+
+		self.__brand = None
 	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-		if attribute in ['is_booster', 'seq_no']:
-			self._is_modified = False
-#	#--------------------------------------------------------
-#	def get_next_shot_due(self):
-#		"""
-#		Retrieves next shot due date
-#		"""
-#		# FIXME: this will break due to not being initialized
-#		return self.__next_shot_due
-#	#--------------------------------------------------------
-#	def set_next_shot_due(self, next_shot_due):
-#		"""
-#		Sets next shot due date
-#		
-#		* next_shot_due : Scheduled date for next vaccination shot
-#		"""
-#		self.__next_shot_due = next_shot_due
+	# properties
+	#--------------------------------------------------------
+	def _get_brand(self):
+		if self.__brand is None:
+			self.__brand = gmMedication.cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
+		return self.__brand
+
+	brand = property(_get_brand, lambda x:x)
+#------------------------------------------------------------
+def get_vaccines(order_by=None):
+
+	if order_by is None:
+		cmd = _sql_fetch_vaccine % u'TRUE'
+	else:
+		cmd = _sql_fetch_vaccine % (u'TRUE\nORDER BY %s' % order_by)
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+
+	return [ cVaccine(row = {'data': r, 'idx': idx, 'pk_field': 'pk_vaccine'}) for r in rows ]
+#------------------------------------------------------------
+def map_indications2generic_vaccine(indications=None):
+
+	args = {'inds': indications}
+	cmd = _sql_fetch_vaccine % (u'is_fake_vaccine is True AND indications @> %(inds)s AND %(inds)s @> indications')
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	if len(rows) == 0:
+		_log.warning('no fake, generic vaccine found for [%s]', indications)
+		return None
+
+	return cVaccine(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_vaccine'})
+#------------------------------------------------------------
+def regenerate_generic_vaccines():
+
+	cmd = u'select gm.create_generic_monovalent_vaccines()'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
+
+	cmd = u'select gm.create_generic_combi_vaccines()'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
+
+	return rows[0][0]
+#============================================================
+# vaccination related classes
+#============================================================
+sql_fetch_vaccination = u"""SELECT * FROM clin.v_pat_vaccinations WHERE %s"""
+
+class cVaccination(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = sql_fetch_vaccination % u"pk_vaccination = %s"
+
+	_cmds_store_payload = [
+		u"""UPDATE clin.vaccination SET
+				soap_cat = %(soap_cat)s,
+				clin_when = %(date_given)s,
+				site = gm.nullify_empty_string(%(site)s),
+				batch_no = gm.nullify_empty_string(%(batch_no)s),
+				reaction = gm.nullify_empty_string(%(reaction)s),
+				narrative = gm.nullify_empty_string(%(comment)s),
+				fk_vaccine = %(pk_vaccine)s,
+				fk_provider = %(pk_provider)s,
+				fk_encounter = %(pk_encounter)s,
+				fk_episode = %(pk_episode)s
+			WHERE
+				pk = %(pk_vaccination)s
+					AND
+				xmin = %(xmin_vaccination)s
+			RETURNING
+				xmin as xmin_vaccination
+		"""
+	]
+
+	_updatable_fields = [
+		u'soap_cat',
+		u'date_given',
+		u'site',
+		u'batch_no',
+		u'reaction',
+		u'comment',
+		u'pk_vaccine',
+		u'pk_provider',
+		u'pk_encounter',
+		u'pk_episode'
+	]
+	#--------------------------------------------------------
+	def format(self, with_indications=False, with_comment=False, with_reaction=False, date_format='%Y-%m-%d'):
+
+		lines = []
+
+		lines.append (u' %s: %s [%s]%s' % (
+			self._payload[self._idx['date_given']].strftime(date_format).decode(gmI18N.get_encoding()),
+			self._payload[self._idx['vaccine']],
+			self._payload[self._idx['batch_no']],
+			gmTools.coalesce(self._payload[self._idx['site']], u'', u' (%s)')
+		))
+
+		if with_comment:
+			if self._payload[self._idx['comment']] is not None:
+				lines.append(u'   %s' % self._payload[self._idx['comment']])
+
+		if with_reaction:
+			if self._payload[self._idx['reaction']] is not None:
+				lines.append(u'   %s' % self._payload[self._idx['reaction']])
+
+		if with_indications:
+			lines.append(u'   %s' % u' / '.join(self._payload[self._idx['indications']]))
+
+		return lines
+#------------------------------------------------------------
+def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
+
+	cmd = u"""
+		INSERT INTO clin.vaccination (
+			fk_encounter,
+			fk_episode,
+			fk_vaccine,
+			batch_no
+		) VALUES (
+			%(enc)s,
+			%(epi)s,
+			%(vacc)s,
+			%(batch)s
+		) RETURNING pk;
+	"""
+	args = {
+		u'enc': encounter,
+		u'epi': episode,
+		u'vacc': vaccine,
+		u'batch': batch_no
+	}
+
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+
+	return cVaccination(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def delete_vaccination(vaccination=None):
+	cmd = u"""DELETE FROM clin.vaccination WHERE pk = %(pk)s"""
+	args = {'pk': vaccination}
+
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#============================================================
+#============================================================
+#============================================================
+#============================================================
+# old code
 #============================================================
 class cMissingVaccination(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one missing vaccination.
@@ -119,7 +239,7 @@ class cMissingVaccination(gmBusinessDBObject.cBusinessDBObject):
 					and
 				indication=%(indication)s
 					and
-				seq_no=%(seq_no)s		
+				seq_no=%(seq_no)s
 			order by amount_overdue)"""
 	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = ["""select 1"""]
@@ -183,12 +303,10 @@ class cVaccinationCourse(gmBusinessDBObject.cBusinessDBObject):
 		'comment'
 	]
 #============================================================
-class VaccByRecommender:
-	_recommended_courses = None 
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staff_id = None, vaccine=None):
+def create_vaccination_old(patient_id=None, episode_id=None, encounter_id=None, staff_id = None, vaccine=None):
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
@@ -403,7 +521,7 @@ def remove_patient_from_schedule(patient_id=None, course=None):
 	# delete  patient - vaccination course relation
 	queries = []
 	cmd = """delete from clin.lnk_pat2vacc_reg where fk_patient = %s and fk_course = %s"""
-			 
+
 	queries.append((cmd, [patient_id, course_id]))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -433,7 +551,7 @@ group by trade_name"""
 
 	cmd_presence_in_vaccine = """
 			select count(v.trade_name) , v.trade_name 
-	
+
 		from 
 			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
 		where 
@@ -441,13 +559,13 @@ group by trade_name"""
 		and  
 			i.description like any ( array [ %s ] ) 		
 		group 
-			
+
 			by trade_name
 
 		"""		% ', '.join( quoted_inds )
 
 	inds_per_vaccine = gmPG.run_ro_query( 'historica', cmd_inds_per_vaccine)
-	
+
 	presence_in_vaccine = gmPG.run_ro_query( 'historica', cmd_presence_in_vaccine)
 
 	map_vacc_count_inds = dict ( [ (x[1], x[0]) for x in inds_per_vaccine ] )
@@ -464,9 +582,14 @@ group by trade_name"""
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
-	import sys
 
-	from Gnumed.pycommon import gmPG
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
+#	from Gnumed.pycommon import gmPG
 	#--------------------------------------------------------
 	def test_vacc():
 		vacc = cVaccination(aPK_obj=1)
@@ -536,143 +659,19 @@ if __name__ == '__main__':
 		result, msg = put_patient_on_schedule(patient_id=12, course_id=1)
 		print '\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg)
 	#--------------------------------------------------------
+	def test_get_vaccines():
 
-	test_vaccination_course()
+		for vaccine in get_vaccines():
+			print vaccine
+
+	#--------------------------------------------------------
+	#test_vaccination_course()
 	#test_put_patient_on_schedule()
-	test_scheduled_vacc()
-	test_vacc()
-	test_due_vacc()
-#	test_due_booster()
+	#test_scheduled_vacc()
+	#test_vacc()
+	#test_due_vacc()
+	#test_due_booster()
+
+	test_get_vaccines()
 #============================================================
-# $Log: gmVaccination.py,v $
-# Revision 1.38  2008-02-25 17:31:41  ncq
-# - logging cleanup
-#
-# Revision 1.37  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.36  2007/07/17 11:13:42  ncq
-# - no more gmClinItem
-#
-# Revision 1.35  2007/03/08 11:31:08  ncq
-# - just cleanup
-#
-# Revision 1.34  2007/02/22 17:27:44  ncq
-# - no more cPerson
-#
-# Revision 1.33  2006/11/24 14:15:36  ncq
-# - u'' one query
-#
-# Revision 1.32  2006/10/25 07:17:40  ncq
-# - no more gmPG
-# - no more cClinItem
-#
-# Revision 1.31  2006/07/19 20:25:00  ncq
-# - gmPyCompat.py is history
-#
-# Revision 1.30  2006/05/06 18:53:56  ncq
-# - select age(...) <> ...; -> select ... <> now() - ...; as per Syan
-#
-# Revision 1.29  2006/05/04 17:55:08  ncq
-# - lots of DDL naming adjustments
-#   - many things spelled out at Richard's request
-#   - regime -> course
-#
-# Revision 1.28  2006/01/10 23:22:53  sjtan
-#
-# id has become pk
-#
-# Revision 1.27  2006/01/09 10:43:07  ncq
-# - more dem schema qualifications
-#
-# Revision 1.26  2006/01/07 11:23:24  ncq
-# - must use """ for multi-line string
-#
-# Revision 1.25  2006/01/06 08:32:12  ncq
-# - some cleanup, added view to backend, may need some fixing
-#
-# Revision 1.24  2006/01/05 22:39:57  sjtan
-#
-# vaccination use case; some sql stuff may need to be added ( e.g. permissions ); sorry in a hurry
-#
-# Revision 1.23  2005/12/29 21:54:35  ncq
-# - adjust to schema changes
-#
-# Revision 1.22  2005/11/27 12:44:57  ncq
-# - clinical tables are in schema "clin" now
-#
-# Revision 1.21  2005/03/20 12:28:50  cfmoro
-# On create_vaccination, id_patient -> pk_patient
-#
-# Revision 1.20  2005/02/12 13:56:49  ncq
-# - identity.id -> identity.pk
-#
-# Revision 1.19  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.18  2005/01/02 19:55:30  ncq
-# - don't need _xmins_refetch_col_pos anymore
-#
-# Revision 1.17  2004/12/20 16:45:49  ncq
-# - gmBusinessDBObject now requires refetching of XMIN after save_payload
-#
-# Revision 1.16  2004/11/03 22:32:34  ncq
-# - support _cmds_lock_rows_for_update in business object base class
-#
-# Revision 1.15  2004/10/27 12:11:59  ncq
-# - add is_booster/seq_no as pseudo columns to _cmd_fetch_payload so
-#   __init_from_pk() automagically creates all the right things
-# - enhance _init_from_row_data() to construct those fields if need be
-# - make __setitem__ aware of is_booster/seq_no being pseudo columns
-#   that do not affect _is_modified
-#
-# Revision 1.14  2004/10/20 21:42:28  ncq
-# - fix faulty appending on repeated use of set_booster_status/set_seq_no()
-#
-# Revision 1.13  2004/10/18 11:35:42  ncq
-# - cleanup
-#
-# Revision 1.12  2004/10/12 11:16:22  ncq
-# - robustify cVaccination.set_seq_no/set_booster_status
-# - Carlos added cVaccinationRegime/put_patient_on_schedule
-# - some test code
-#
-# Revision 1.11  2004/09/28 12:28:12  ncq
-# - cVaccination: add set_booster_status(), set_seq_no()
-# - add cScheduledVaccination (by Carlos)
-# - improve testing
-#
-# Revision 1.10  2004/08/20 13:19:52  ncq
-# - add license
-#
-# Revision 1.9  2004/06/28 12:18:52  ncq
-# - more id_* -> fk_*
-#
-# Revision 1.8  2004/06/26 07:33:55  ncq
-# - id_episode -> fk/pk_episode
-#
-# Revision 1.7  2004/06/13 08:03:07  ncq
-# - cleanup, better separate vaccination code from general EMR code
-#
-# Revision 1.6  2004/06/08 00:48:05  ncq
-# - cleanup
-#
-# Revision 1.5  2004/05/14 13:17:27  ncq
-# - less useless verbosity
-# - cleanup
-#
-# Revision 1.4  2004/05/12 14:30:30  ncq
-# - cMissingVaccination()
-# - cMissingBooster()
-#
-# Revision 1.3  2004/04/24 12:59:17  ncq
-# - all shiny and new, vastly improved vaccinations
-#   handling via clinical item objects
-# - mainly thanks to Carlos Moro
-#
-# Revision 1.2  2004/04/11 12:07:54  ncq
-# - better unit testing
-#
-# Revision 1.1  2004/04/11 10:16:53  ncq
-# - first version
-#
+

@@ -923,6 +923,10 @@ def configure_medication_list_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
+	if template['engine'] != u'L':
+		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
+		return None
+
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
 		workplace = gmSurgery.gmCurrentPractice().active_workplace,
@@ -971,7 +975,16 @@ def print_medication_list(parent=None, cleanup=True):
 			return False
 
 	# 2) process template
-	meds_list = template.instantiate()
+	try:
+		meds_list = template.instantiate()
+	except KeyError:
+		_log.exception('cannot instantiate medication list template [%s]', template)
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Invalid medication list template [%s - %s (%s)]') % (name, ver, template['engine']),
+			aTitle = _('Printing medication list')
+		)
+		return False
+
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
 	meds_list.substitute_placeholders(data_source = ph)
@@ -1276,6 +1289,19 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			new = False,
 			autoraise = True
 		)
+	#------------------------------------------------------------
+	def report_ADR(self):
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		url = dbcfg.get2 (
+			option = u'external.urls.report_ADR',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user',
+			default = u'https://dcgma.org/uaw/meldung.php'
+		)
+
+		webbrowser.open(url = url, new = False, autoraise = True)
 	#------------------------------------------------------------
 	def check_interactions(self):
 
@@ -1629,6 +1655,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_button_kidneys_pressed(self, event):
 		self._grid_substances.show_renal_insufficiency_info()
+	#--------------------------------------------------------
+	def _on_adr_button_pressed(self, event):
+		self._grid_substances.report_ADR()
 #============================================================
 # main
 #------------------------------------------------------------

@@ -9,19 +9,86 @@
 	0.8.x
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
-NEW: hook "after_soap_modified"
+NEW: hook: "after_soap_modified"
+NEW: placeholder: "current_meds_table::latex"
+NEW: placeholder: "lab_table::latex"
+NEW: score: Rome diagnostic criteria on obstipation
+NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
+NEW: score: bacterial UTI algorithm
+NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
+NEW: support emergency contact
+NEW: support comment directly on identity
+NEW: Add button to report ADR from within current substances plugin.
+NEW: list view of database audit trail
+NEW: management of vaccinations
+NEW: templates for writing a plugin [thanks S.Hilbert]
+
+IMPROVED: GNUmed can now import the ARRIBA result as a document
+IMPROVED: rename client/locale/ to client/po/ and adjust to that
+IMPROVED: when enabling --debug during unhandled exception try harder to log the exception in question
+IMPROVED: more robust acquiring of data from image sources
+IMPROVED: more medically-sound interval formatting
+IMPROVED: edit non-name identity parts *directly* in demographics plugin (no popup needed)
+IMPROVED: show date-generated in patient picture tooltip
+IMPROVED: much better icon [thanks J.Jaarsveld]
+IMPROVED: show comment/emergency contact in patient search control tooltip
+IMPROVED: re-add encounters to auditing
+IMPROVED: show loinc info for test in test results EA
+IMPROVED: much smarter result units phrasewheel
 
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.6
+
+FIX: faulty variable access when detecting OOo UNO bridge [thanks S.Hilbert]
+FIX: fail on "allergy_state" placeholder when date-last-checked not available [thanks Marc]
+FIX: fail to properly log non-ascii PostgreSQL messages on ASCII configured Pythons [thanks E.Kuznetsov]
+FIX: faulty access to PG connection filedescriptor when polling for notifications [thanks J.Busser]
+FIX: exception when aborting person creation while adding new staff [thanks Manuel]
+FIX: def_country undefined when def_region not set
+
+	0.7.5
+
+FIX: cannot reach some parts of the expanding SOAP control when typing "too much" [thanks J.Jaarsveld] (lp #583019)
+FIX: Windows cannot differentiate os.system() exit status [thanks Panos]
+
+	0.7.4
+
+FIX: exception when not selecting an episode but pressing [OK] after printing a letter
+FIX: exception when template for medication list is not suitable [thanks wilfried.muenster]
+FIX: exception when retrieving DDD for ATC in meds grid tooltip on less capable PG versions
+FIX: exception on some data mining query types
+
+	0.7.3
+
+IMPROVED: more robust acquiring of data from image sources
+FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
+FIX: faulty field access ['country'] when setting default country [thanks papis]
+FIX: missing "s" after "%" in Italian translation [thanks papis]
+FIX: missing "," in German translation
+FIX: exception on mogrifying xsanerc file if no EOL seen [thanks S.Reus]
+FIX: non-fatal exception on setting active patient from gmCurrentPatient instance [thanks rafmav]
+
+	0.7.2
+
+FIX: don't use --override-schema-check in tarballed gm-from-vcs.sh [thanks to J.Jaarsveld]
+FIX: actually fail DB connect if we detect secondary problems with database [thanks to J.Jaarsveld]
+FIX: don't fail in create_new_person when called from unsuccessful search [thanks to S.Reus]
+FIX: don't fail when writing letter from template for which there's no engine [thanks Marc]
+FIX: don't fail displaying if laterality of issue happens to be u'' [thanks S.Reus]
+
+improved: better detection of unconfigured visual progress notes editor [thanks Marc]
+IMPROVED: better Python UNO OOo bridge detection [thanks Petr Mladek]
+
 	0.7.1
 
-- FIX: exception when signalling invalid -conf-file=... value [thanks to S.Reus]
-- FIX: some missing .decode()s on .strftime() [thanks to uy2qw from Ukraine]
-- FIX: gnumed.py moved, thus .local_base_dir different, hence .system_app_data_dir incorrect [thanks to S.Reus]
+FIX: exception when signalling invalid -conf-file=... value [thanks to S.Reus]
+FIX: some missing .decode()s on .strftime() [thanks to uy2qw from Ukraine]
+FIX: gnumed.py moved, thus .local_base_dir different, hence .system_app_data_dir incorrect [thanks to S.Reus]
 
-- improved: removed spurious printk() when switching encounters
+improved: removed spurious printk() when switching encounters
 
 	0.7.0
 
@@ -66,10 +133,16 @@ NEW: hook "after_soap_modified"
 # rel-0-6-patches
 ------------------------------------------------
 
-	0.6.3 (unreleased)
+	0.6.4
+
+FIX: properly deal with persons w/o a DOB in even more places
+
+	0.6.3
 
 FIX: faulty tooltip on EMR tree items w/ no data to display
 FIX: exception on reusing person ID type w/o issuer
+FIX: fail gracefully if cannot read MMI/Gelbe Liste data version file [thanks doogie]
+FIX: properly deal with persons w/o a DOB in more places [thanks "user"]
 
 	0.6.2
 
@@ -446,11 +519,31 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 *****************************************************************
 
 ------------------------------------------------
+# gnumed_v14
+------------------------------------------------
+
+FIX: during upgrade nullify empty clin.health_issue.laterality
+FIX: properly use pg_dump: no more -d DATABASE [thanks S.Hilbert]
+
+IMPROVED: bootstrapper now better detects utf8 ctype
+IMPROVED: boostrap-latest: check for any previous version since all of them would be dropped [thanks S.Hilbert]
+IMPROVED: try to make su compatible with both MacOSX and Linux
+
+------------------------------------------------
 # gnumed_v13
 ------------------------------------------------
 
+	13.5 -> 13.6
+
+FIX: SQL: v9 -> v10 drop on view missed "view" keyword [thanks E.Kuznetsov]
+FIX: SQL: v9 -> v10 translation INSERT missed ";" [thanks E.Kuznetsov]
+FIX: more robust gmPsql.py unicode logging [thanks E.Kuznetsov]
+
+	13.0 -> 13.5
+
 NEW: translate some Dutch demographics
 FIX: Windows bootstrapping batch file
+FIX: teleport gmPsql.py logging into the wonderful world of unicode [thanks Dmitry]
 
 ------------------------------------------------
 # gnumed_v12

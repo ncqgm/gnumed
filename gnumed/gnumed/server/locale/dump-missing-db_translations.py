@@ -8,8 +8,6 @@ for which no translation is given.
 Usage: just run it
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/locale/dump-missing-db_translations.py,v $
-# $Id: dump-missing-db_translations.py,v 1.9 2009-02-10 18:51:18 ncq Exp $
 __version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 

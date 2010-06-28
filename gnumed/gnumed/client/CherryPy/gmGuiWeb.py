@@ -347,7 +347,7 @@ class gmApp:
         return """
         <form action="doLogin" method="post">
 	    <p>Backend</p>
-	    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v13@)" 
+	    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
 		size="15" maxlength="40"/>
 	    <p>Username</p>
 	    <input type="text" name="username" value="" 

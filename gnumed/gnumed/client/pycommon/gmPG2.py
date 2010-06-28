@@ -11,14 +11,13 @@ def resultset_functional_batchgenerator(cursor, size=100):
 			yield rec
 """
 # =======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
 __version__ = "$Revision: 1.127 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 ### imports ###
 # stdlib
-import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging, locale
+import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging
 
 # GNUmed
 if __name__ == '__main__':
@@ -312,7 +311,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v13]: ", 'gnumed_v13')
+		login.database = __prompted_input("database [gnumed_v14]: ", 'gnumed_v14')
 		login.user = __prompted_input("user name: ", '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
@@ -1522,72 +1521,24 @@ class cAdapterPyDateTime(object):
 		return _timestamp_template % self.__dt.isoformat()
 
 # ----------------------------------------------------------------------
-class cAdapterMxDateTime(object):
-
-	def __init__(self, dt):
-		if dt.tz == '???':
-			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
-		self.__dt = dt
-
-	def getquoted(self):
-		# under some locale settings the mx.DateTime ISO formatter
-		# will insert "," into the ISO string,
-		# while this is allowed per the ISO8601 spec PostgreSQL
-		# cannot currently handle that,
-		# so map those "," to "." to make things work:
-		return mxDT.ISO.str(self.__dt).replace(',', '.')
-
+#class cAdapterMxDateTime(object):
+#
+#	def __init__(self, dt):
+#		if dt.tz == '???':
+#			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
+#		self.__dt = dt
+#
+#	def getquoted(self):
+#		# under some locale settings the mx.DateTime ISO formatter
+#		# will insert "," into the ISO string,
+#		# while this is allowed per the ISO8601 spec PostgreSQL
+#		# cannot currently handle that,
+#		# so map those "," to "." to make things work:
+#		return mxDT.ISO.str(self.__dt).replace(',', '.')
+#
 # ----------------------------------------------------------------------
 # PostgreSQL -> Python
 # ----------------------------------------------------------------------
-
-# Delete this later:
-
-# We need this because some places once used time "zones"
-# with true local time, IOW having seconds in the UTC offset.
-# The Python datetime zone code cannot handle that, however,
-# which makes psycopg2 fail when loading timestamps with such
-# time zones from the backend ...
-# So we (almost silently) drop the seconds and try again.
-def convert_ts_with_odd_tz(string_value, cursor):
-	#_log.debug('parsing [%s]' % string_value)
-	try:
-		return dbapi.DATETIME(string_value, cursor)
-	except (dbapi.DataError,), exc:
-		_log.error('unable to parse [%s]' % string_value)
-
-		if string_value is None:
-			raise
-
-		if exc.message != "unable to parse time":
-			raise
-
-		_log.debug('unable to parse as <timestamp with time zone>')
-
-		if regex.match('(\+|-)\d\d:\d\d:\d\d', string_value[-9:]) is None:
-			raise
-
-		if regex.match('-\d\d:\d\d:\d\d', string_value[-9:]) is not None:
-			if string_value[-5:-3] != '00':
-				_log.debug('psycopg2 versions < 2.0.8 may misinterpret this time zone: [%s]', string_value[-9:])
-
-		# parsing doesn't succeed even if seconds
-		# are ":00" so truncate in any case
-		_log.debug('time zone with seconds detected (true local time ?): %s', string_value[-9:])
-		truncated_string_value = string_value[:-3]
-		_log.warning('truncating to [%s] and trying again', truncated_string_value)
-		_log.warning('value will be off by %s seconds', string_value[-2:])
-		return dbapi.DATETIME(truncated_string_value, cursor)
-
-
-TIMESTAMPTZ_OID = 1184		# taken from PostgreSQL headers
-if TIMESTAMPTZ_OID not in dbapi.DATETIME.values:
-	raise ImportError('TIMESTAMPTZ_OID <%s> not in psycopg2.DATETIME.values [%s]' % (TIMESTAMPTZ_OID, dbapi.DATETIME.values))
-
-DT_W_ODD_TZ = psycopg2.extensions.new_type((TIMESTAMPTZ_OID,), 'DT_W_ODD_TZ', convert_ts_with_odd_tz)
-#psycopg2.extensions.register_type(DT_W_ODD_TZ)		# now done by psycopg2 during new_type()
-
-# delete until here
 
 #=======================================================================
 #  main
@@ -1602,20 +1553,21 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 try:
 	import mx.DateTime as mxDT
-	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+#	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
 except ImportError:
 	_log.warning('cannot import mx.DateTime')
-
-#try:
-#	psycopg2.extras.register_tstz_w_secs()
-#except AttributeError:
-#	_log.error('cannot activate parsing time stamps with seconds in the time zone')
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY()..." so we can support PG arrays
 
 #=======================================================================
 if __name__ == "__main__":
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
 
 	logging.basicConfig(level=logging.DEBUG)
 	#--------------------------------------------------------------------
@@ -1925,473 +1877,21 @@ if __name__ == "__main__":
 		for line in get_schema_revision_history():
 			print u' - '.join(line)
 	#--------------------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		# run tests
-		#test_file2bytea()
-		#test_get_connection()
-		#test_exceptions()
-		#test_ro_queries()
-		#test_request_dsn()
-		#test_set_encoding()
-		#test_connection_pool()
-		#test_list_args()
-		#test_sanitize_pg_regex()
-		#test_is_pg_interval()
-		#test_sanity_check_time_skew()
-		#test_keyword_expansion()
-		#test_get_foreign_key_details()
-		#test_set_user_language()
-		test_get_schema_revision_history()
+	# run tests
+	#test_file2bytea()
+	#test_get_connection()
+	#test_exceptions()
+	#test_ro_queries()
+	#test_request_dsn()
+	#test_set_encoding()
+	#test_connection_pool()
+	#test_list_args()
+	#test_sanitize_pg_regex()
+	#test_is_pg_interval()
+	#test_sanity_check_time_skew()
+	#test_keyword_expansion()
+	#test_get_foreign_key_details()
+	#test_set_user_language()
+	test_get_schema_revision_history()
 
-# =======================================================================
-# $Log: gmPG2.py,v $
-# Revision 1.127  2010-02-02 13:53:16  ncq
-# - bump default database
-#
-# Revision 1.126  2010/01/31 16:39:17  ncq
-# - we do still need our own ts with tz and seconds handler as the one in psycopg2 is buggy
-#
-# Revision 1.125  2010/01/21 08:41:37  ncq
-# - in file -> bytea only close conn if we opened it ourselves
-#
-# Revision 1.124  2010/01/11 22:02:49  ncq
-# - properly log stack trace
-#
-# Revision 1.123  2010/01/06 14:38:17  ncq
-# - log database size
-#
-# Revision 1.122  2009/12/21 15:02:18  ncq
-# - fix typo
-#
-# Revision 1.121  2009/12/03 17:46:37  ncq
-# - somewhat better logging in run_rw_queries
-#
-# Revision 1.120  2009/12/01 22:06:22  ncq
-# - adjust v12 hash
-#
-# Revision 1.119  2009/11/19 15:06:50  ncq
-# - add 0.6/v12 client/server mapping and database hash
-#
-# Revision 1.118  2009/11/06 15:08:13  ncq
-# - expect check-function-bodies to be on
-#
-# Revision 1.117  2009/09/01 22:24:35  ncq
-# - better comment
-#
-# Revision 1.116  2009/08/24 20:11:27  ncq
-# - bump db version
-# - fix tag creation
-# - provider inbox:
-# 	enable filter-to-active-patient,
-# 	listen to new signal,
-# 	use cInboxMessage class
-# - properly constrain LOINC phrasewheel SQL
-# - include v12 scripts in release
-# - install arriba jar to /usr/local/bin/
-# - check for table existence in audit schema generator
-# - include dem.message inbox with additional generic signals
-#
-# Revision 1.115  2009/07/30 12:02:30  ncq
-# - better error handling
-#
-# Revision 1.114  2009/07/23 16:32:01  ncq
-# - get_current_user_language
-#
-# Revision 1.113  2009/07/02 20:48:24  ncq
-# - log creation/closure of connections with PID
-#
-# Revision 1.112  2009/06/29 15:01:33  ncq
-# - better wording re time zones
-#
-# Revision 1.111  2009/06/11 13:03:52  ncq
-# - add proper hash for v11
-#
-# Revision 1.110  2009/06/04 16:26:22  ncq
-# - normalize login.host
-#
-# Revision 1.109  2009/05/24 16:28:06  ncq
-# - better output
-#
-# Revision 1.108  2009/05/22 11:00:47  ncq
-# - gm_schema_revision -> gm.schema_revision
-#
-# Revision 1.107  2009/04/03 09:34:26  ncq
-# - bump DB version
-#
-# Revision 1.106  2009/03/18 14:28:49  ncq
-# - add 0.5 -> v11
-# - properly handle unfound timezone
-#
-# Revision 1.105  2009/03/10 14:19:29  ncq
-# - improve comment
-#
-# Revision 1.104  2009/02/24 10:19:21  ncq
-# - improved TZ caster
-#
-# Revision 1.103  2009/02/20 15:42:51  ncq
-# - warn on negative non-whole-number timezones as those are
-#   currently wrongly calculated by psycopg2
-#
-# Revision 1.102  2009/02/18 13:45:04  ncq
-# - narrow down exception handler for odd time zones
-#
-# Revision 1.101  2009/02/17 17:46:42  ncq
-# - work around Python datetime not being able
-#   to use time zones with seconds
-#
-# Revision 1.100  2009/02/17 08:00:46  ncq
-# - get_keyword_expansion_candidates
-#
-# Revision 1.99  2009/02/10 18:39:11  ncq
-# - test time zone for usability, not just for settability ...
-# - get_schema_revision_history and use it
-#
-# Revision 1.98  2009/02/05 13:00:56  ncq
-# - add v10 hashes
-#
-# Revision 1.97  2008/12/25 17:43:08  ncq
-# - add exception msg extraction function
-#
-# Revision 1.96  2008/12/25 16:54:01  ncq
-# - support around user db language handling
-#
-# Revision 1.95  2008/12/17 21:55:38  ncq
-# - get_foreign_keys2column
-# - only check HIPAA compliance when --hipaa was given
-#
-# Revision 1.94  2008/12/12 16:35:06  ncq
-# - add HIPAA compliance to db settings checks, needs configurability
-#
-# Revision 1.93  2008/12/01 12:13:24  ncq
-# - log exeption on __str__ in auth error so we have *something*
-#   on encoding errors
-#
-# Revision 1.92  2008/11/20 18:45:10  ncq
-# - modernize read/write conn mode setting
-#
-# Revision 1.91  2008/11/17 23:12:29  ncq
-# - need to unicodify "$TZ"
-#
-# Revision 1.90  2008/10/22 12:08:17  ncq
-# - improved query logging
-#
-# Revision 1.89  2008/10/12 15:40:46  ncq
-# - cleanup
-# - add mapping for client to database version
-#
-# Revision 1.88  2008/09/02 20:19:37  ncq
-# - send_maintenance_*
-#
-# Revision 1.87  2008/08/21 10:21:40  ncq
-# - update v9 hash
-#
-# Revision 1.86  2008/07/30 12:51:14  ncq
-# - set_default_client_timezone needs to set _sql_set_timezone,
-#   too, as noticed by Gour
-#
-# Revision 1.85  2008/07/24 13:58:08  ncq
-# - import SQL error codes
-#
-# Revision 1.84  2008/07/17 21:31:00  ncq
-# - missing arg for log.exception
-#
-# Revision 1.83  2008/07/13 17:15:30  ncq
-# - update v9 database hash
-#
-# Revision 1.82  2008/07/13 16:04:54  ncq
-# - use views when handling keyword expansions
-# - add/delete/edit_text_expansion,
-#
-# Revision 1.81  2008/07/10 19:52:50  ncq
-# - add expansion keyword functions with tests
-#
-# Revision 1.80  2008/06/24 16:54:20  ncq
-# - make v9 database hash known
-#
-# Revision 1.79  2008/06/15 20:32:46  ncq
-# - improve sanitize_pg_regex
-#
-# Revision 1.78  2008/06/13 10:32:55  ncq
-# - better time zone detection logging
-#
-# Revision 1.77  2008/05/31 17:45:03  ncq
-# - log other sorts of time zone errors, too
-#
-# Revision 1.76  2008/05/19 15:55:01  ncq
-# - some cleanup
-# - redo timezone detection since numeric timezones will do the right
-#   thing *now* but will not allow for DST boundary crossing detection
-#   and correction, so try to find a TZ name first, but fallback to
-#   numeric offset if no name is found and verifiable against PostgreSQL
-# - don't close() RO conns and raise an error if we do (unless we
-#   *know* what we are doing)
-#
-# Revision 1.75  2008/04/11 12:21:59  ncq
-# - support link_obj in get_child_tables()
-#
-# Revision 1.74  2008/03/20 15:29:13  ncq
-# - sanity_check_time_skew() and test
-#
-# Revision 1.73  2008/03/11 16:59:54  ncq
-# - push readonly setting down into get_raw_connection() so callers
-#   can now decide what to request since default transactions are
-#   readonly now
-# - add file2bytea() test
-#
-# Revision 1.72  2008/03/06 21:24:02  ncq
-# - add shutdown() code
-#
-# Revision 1.71  2008/03/02 11:26:25  ncq
-# - cleanup
-#
-# Revision 1.70  2008/02/25 17:32:50  ncq
-# - improve database settings sanity checks
-#
-# Revision 1.69  2008/01/14 20:29:16  ncq
-# - improve exception type detection in get_raw_connection()
-#
-# Revision 1.68  2008/01/13 01:15:58  ncq
-# - remove faulty flush()
-#
-# Revision 1.67  2008/01/07 19:51:04  ncq
-# - better comments
-# - some cleanup
-# - bump db version
-# - add __unicode__ to exceptions
-# - improve test suite
-#
-# Revision 1.66  2007/12/26 18:34:53  ncq
-# - check for lc_messages being C
-#
-# Revision 1.65  2007/12/12 16:17:15  ncq
-# - better logger names
-#
-# Revision 1.64  2007/12/11 15:38:11  ncq
-# - use std logging
-#
-# Revision 1.63  2007/12/06 13:07:19  ncq
-# - add v8 schema hash
-#
-# Revision 1.62  2007/12/04 16:14:24  ncq
-# - use gmAuthWidgets
-#
-# Revision 1.61  2007/12/04 15:11:20  ncq
-# - sanity_check_database_settings()
-# - force sql_inheritance to on after connect
-#
-# Revision 1.60  2007/11/09 14:39:10  ncq
-# - log schema dump if verbose on failed version detection
-#
-# Revision 1.59  2007/10/25 16:41:30  ncq
-# - is_pg_interval() + test
-#
-# Revision 1.58  2007/10/22 12:37:59  ncq
-# - default db change
-#
-# Revision 1.57  2007/09/24 18:29:42  ncq
-# - select 1,2; will return two columns with the same name !
-#   hence, mapping names to column indices in a dict will not work :-(
-#   fix breakage but don't really support it, either
-#
-# Revision 1.56  2007/09/18 22:53:26  ncq
-# - enhance file2bytea to accept conn argument
-#
-# Revision 1.55  2007/09/17 21:46:28  ncq
-# - make hash for v7 known
-#
-# Revision 1.54  2007/08/31 14:28:29  ncq
-# - improved docs
-#
-# Revision 1.53  2007/08/08 21:25:39  ncq
-# - improve bytea2file()
-#
-# Revision 1.52  2007/07/22 09:03:33  ncq
-# - bytea2file(_object)()
-# - file2bytea()
-#
-# Revision 1.51  2007/07/03 15:53:50  ncq
-# - import re as regex
-# - sanitize_pg_regex() and test
-#
-# Revision 1.50  2007/06/28 12:35:38  ncq
-# - optionalize SQL IN tuple adaptation as it's now builtin to 0.2.6 psycopg2
-#
-# Revision 1.49  2007/06/15 10:24:24  ncq
-# - add a test to the test suite
-#
-# Revision 1.48  2007/06/12 16:02:12  ncq
-# - fix case when there are no args for execute()
-#
-# Revision 1.47  2007/06/11 20:24:18  ncq
-# - bump database version
-#
-# Revision 1.46  2007/05/07 16:45:12  ncq
-# - add v6 schema hash
-#
-# Revision 1.45  2007/05/07 16:28:34  ncq
-# - use database maintenance functions in schema "gm"
-#
-# Revision 1.44  2007/04/27 13:19:58  ncq
-# - get_schema_structure()
-#
-# Revision 1.43  2007/04/02 18:36:17  ncq
-# - fix comment
-#
-# Revision 1.42  2007/04/02 14:31:17  ncq
-# - v5 -> v6
-#
-# Revision 1.41  2007/04/01 15:27:09  ncq
-# - safely get_encoding()
-#
-# Revision 1.40  2007/03/26 16:08:06  ncq
-# - added v5 hash
-#
-# Revision 1.39  2007/03/08 11:37:24  ncq
-# - simplified gmLogin
-# - log PG settings on first connection if verbose
-#
-# Revision 1.38  2007/03/01 14:05:53  ncq
-# - rollback in run_ro_queries() even if no error occurred such that
-#   we don't stay IDLE IN TRANSACTION
-#
-# Revision 1.37  2007/03/01 14:03:53  ncq
-# - in run_ro_queries() we now need to rollback failed transactions due to
-#   the connections being pooled - or else abort state could carry over into
-#   the next use of that connection - since transactions aren't really
-#   in need of ending
-#
-# Revision 1.36  2007/02/19 15:00:53  ncq
-# - restrict pooling to the default DSN, too
-#
-# Revision 1.35  2007/02/18 16:56:21  ncq
-# - add connection pool for read-only connections ...
-#
-# Revision 1.34  2007/02/06 12:11:25  ncq
-# - gnumed_v5
-#
-# Revision 1.33  2007/01/24 11:03:55  ncq
-# - add sslmode=prefer to DSN
-#
-# Revision 1.32  2007/01/23 14:03:14  ncq
-# - add known v4 schema hash - backport from 0.2.4
-#
-# Revision 1.31  2007/01/17 13:26:02  ncq
-# - note on MDY/DMY handling
-# - slightly easier python datetime adaptation
-#
-# Revision 1.30  2007/01/16 12:45:21  ncq
-# - properly import/adapt mx.DateTime
-#
-# Revision 1.29  2007/01/16 10:28:49  ncq
-# - do not FAIL on mxDT timezone string being ??? as
-#   it should then be assumed to be local time
-# - use mx.DateTime.ISO.str() to include timestamp in output
-#
-# Revision 1.28  2007/01/04 22:51:10  ncq
-# - change hash for unreleased v4
-#
-# Revision 1.27  2007/01/03 11:54:16  ncq
-# - log successful schema hash, too
-#
-# Revision 1.26  2007/01/02 19:47:29  ncq
-# - support (and use) <link_obj> in get_schema_version()
-#
-# Revision 1.25  2007/01/02 16:17:13  ncq
-# - slightly improved logging
-# - fix fatal typo in set_default_login()
-# - add <link_obj> support to database_schema_compatible()
-# - really apply end_tx to run_rw_queries !
-#
-# Revision 1.24  2006/12/29 16:25:35  ncq
-# - add PostgreSQL version handling
-#
-# Revision 1.23  2006/12/27 16:41:15  ncq
-# - make sure python datetime adapter does not put ',' into string
-#
-# Revision 1.22  2006/12/22 16:54:44  ncq
-# - init gmDateTime if necessary
-#
-# Revision 1.21  2006/12/21 17:44:54  ncq
-# - use gmDateTime.current_iso_timezone_*string* as that is ISO conformant
-#
-# Revision 1.20  2006/12/21 10:52:52  ncq
-# - fix test suite
-# - set default client encoding to "UTF8" which is more precise than "UNICODE"
-# - use gmDateTime for timezone handling thereby fixing the time.daylight error
-#
-# Revision 1.19  2006/12/18 17:39:55  ncq
-# - make v3 database have known hash
-#
-# Revision 1.18  2006/12/18 14:55:40  ncq
-# - u''ify a query
-#
-# Revision 1.17  2006/12/15 15:23:50  ncq
-# - improve database_schema_compatible()
-#
-# Revision 1.16  2006/12/12 13:14:32  ncq
-# - u''ify queries
-#
-# Revision 1.15  2006/12/06 20:32:09  ncq
-# - careful about port.strip()
-#
-# Revision 1.14  2006/12/06 16:06:30  ncq
-# - cleanup
-# - handle empty port def in make_psycopg2_dsn()
-# - get_col_defs()
-# - get_col_indices()
-# - get_col_names()
-# - table_exists()
-#
-# Revision 1.13  2006/12/05 13:58:45  ncq
-# - add get_schema_version()
-# - improve handling of known schema hashes
-# - register UNICODEARRAY psycopg2 extension
-#
-# Revision 1.12  2006/11/24 09:51:16  ncq
-# - whitespace fix
-#
-# Revision 1.11  2006/11/14 16:56:23  ncq
-# - improved (and documented) rationale for registering SQL_IN adapter on tuples only
-#
-# Revision 1.10  2006/11/07 23:52:48  ncq
-# - register our own adapters for mx.DateTime and datetime.datetime so
-#   we can solve the "ss,ms" issue in locale-aware str(timestamp)
-#
-# Revision 1.9  2006/11/07 00:30:36  ncq
-# - activate SQL_IN for lists only
-#
-# Revision 1.8  2006/11/05 17:03:26  ncq
-# - register SQL_INI adapter for tuples and lists
-#
-# Revision 1.7  2006/10/24 13:20:07  ncq
-# - fix get_current_user()
-# - add default login handling
-# - remove set_default_dsn() - now use set_default_login() which will create the DSN, too
-# - slighly less verbose logging for log size sanity
-#
-# Revision 1.6  2006/10/23 13:22:38  ncq
-# - add get_child_tables()
-#
-# Revision 1.5  2006/10/10 07:38:22  ncq
-# - tighten checks on psycopg2 capabilities
-#
-# Revision 1.4  2006/10/08 09:23:40  ncq
-# - default encoding UNICODE, not utf8
-# - add database_schema_compatible()
-# - smartify set_default_client_encoding()
-# - support <verbose> in run_ro_queries()
-# - non-fatally warn on non-unicode queries
-# - register unicode type so psycopg2 knows how to deal with u''
-# - improve test suite
-#
-# Revision 1.3  2006/09/30 11:57:48  ncq
-# - document get_raw_connection()
-#
-# Revision 1.2  2006/09/30 11:52:40  ncq
-# - factor out get_raw_connection()
-# - reorder conecction customization in get_connection()
-#
-# Revision 1.1  2006/09/21 19:18:35  ncq
-# - first psycopg2 version
-#
-#
+# ======================================================================

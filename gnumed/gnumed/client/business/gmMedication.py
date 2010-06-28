@@ -57,7 +57,10 @@ def drug2renal_insufficiency_url(search_term=None):
 		else:
 			terms.append(name)
 
-	url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
+	#url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
+	#url = url_template % u'+OR+'.join(terms)
+
+	url_template = u'http://www.google.de/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
 	url = url_template % u'+OR+'.join(terms)
 
 	_log.debug(u'renal insufficiency URL: %s', url)
@@ -502,7 +505,18 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 				'online_update': u'?'
 			}
 
-		version_file = open(self.data_date_filename, 'rU')
+		try:
+			version_file = open(self.data_date_filename, 'rU')
+		except StandardError:
+			_log.error('problem querying the MMI drug database for version information')
+			_log.exception('cannot open MMI drug database version file [%s]', self.data_date_filename)
+			self.__data_date = None
+			self.__online_update_date = None
+			return {
+				'data': u'?',
+				'online_update': u'?'
+			}
+
 		self.__data_date = version_file.readline()[:10]
 		self.__online_update_date = version_file.readline()[:10]
 		version_file.close()
@@ -991,6 +1005,82 @@ returning pk
 def delete_substance_intake(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
+#------------------------------------------------------------
+def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
+
+	tex = u"""\\noindent %s {\\tiny (%s)}{\\tiny \\par}
+
+\\noindent \\begin{tabular}{|l|l|l|}
+\\hline
+%s & %s & {\\scriptsize %s} \\\\
+\\hline
+
+\\hline
+%%s
+
+\\end{tabular}""" % (
+			_('Medication list'),
+			_('ordered by brand'),
+			_('Drug'),
+			_('Regimen'),
+			_('Substances')
+	)
+
+	current_meds = emr.get_current_substance_intake (
+		include_inactive = False,
+		include_unapproved = False,
+		order_by = u'brand, substance'
+	)
+
+	# aggregate data
+	line_data = {}
+	for med in current_meds:
+		identifier = gmTools.coalesce(med['brand'], med['substance'])
+
+		try:
+			line_data[identifier]
+		except KeyError:
+			line_data[identifier] = {'brand': u'', 'substances': [], 'preparation': u'', 'schedule': u'', 'aims': [], 'notes': []}
+
+		line_data[identifier]['brand'] = identifier
+		line_data[identifier]['substances'].append(u'%s%s' % (med['substance'], gmTools.coalesce(med['strength'], u'', u' %s')))
+		line_data[identifier]['preparation'] = med['preparation']
+		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
+		if med['aim'] not in line_data[identifier]['aims']:
+			line_data[identifier]['aims'].append(med['aim'])
+		if med['notes'] not in line_data[identifier]['notes']:
+			line_data[identifier]['notes'].append(med['notes'])
+
+	# create lines
+	already_seen = []
+	lines = []
+	line1_template = u'%s %s & %s & {\\scriptsize %s} \\\\'
+	line2_template = u' & \\multicolumn{2}{l|}{{\\scriptsize %s}} \\\\'
+
+	for med in current_meds:
+		identifier = gmTools.coalesce(med['brand'], med['substance'])
+
+		if identifier in already_seen:
+			continue
+
+		already_seen.append(identifier)
+
+		lines.append (line1_template % (
+			line_data[identifier]['brand'],
+			line_data[identifier]['preparation'],
+			line_data[identifier]['schedule'],
+			u', '.join(line_data[identifier]['substances'])
+		))
+
+		for aim in line_data[identifier]['aims']:
+			lines.append(line2_template % aim)
+
+		for note in line_data[identifier]['notes']:
+			lines.append(line2_template % note)
+
+		lines.append(u'\\hline')
+
+	return tex % u' \n'.join(lines)
 #============================================================
 class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a drug as marketed by a manufacturer."""

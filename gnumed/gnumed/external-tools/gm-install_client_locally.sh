@@ -137,6 +137,8 @@ else
 	TARGET_BRANCH=`echo ${TARGET_VER} | cut -c 1-3`
 	DL_BASE_URL="${DL_BASE}/${TARGET_BRANCH}"
 fi
+
+# this will fail on localized "Desktop" names
 LAUNCHER=~/"Desktop/GNUmed ${TARGET_VER}"
 
 
@@ -219,12 +221,16 @@ fi
 # check dependancies
 echo ""
 echo "Checking dependencies ..."
-cd gnumed-client.${TARGET_VER}/client/
+cd gnumed-client.${TARGET_VER}/external-tools/
 ./check-prerequisites.sh
 
 
+cd ../
+cd client/
+
+
 # activate local translation
-cd locale/
+cd po/
 # DE
 mkdir -p ./de_DE/LC_MESSAGES/
 cd de_DE/LC_MESSAGES/
@@ -259,7 +265,10 @@ cd ../../
 mkdir -p ./pt_BR/LC_MESSAGES/
 cd pt_BR/LC_MESSAGES/
 ln -sf ../../pt_BR-gnumed.mo gnumed.mo
-cd ../../../
+cd ../../
+
+
+cd ../
 
 
 # add desktop link

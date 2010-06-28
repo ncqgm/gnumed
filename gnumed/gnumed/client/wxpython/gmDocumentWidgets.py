@@ -120,7 +120,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 			episode = dlg.get_selected_item_data(only_one = True)
 			dlg.Destroy()
 
-			if btn_pressed == wx.ID_CANCEL:
+			if (btn_pressed == wx.ID_CANCEL) or (episode is None):
 				if unlock_patient:
 					pat.locked = False
 				return None
@@ -815,11 +815,12 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				tmpdir = tmpdir,
 				calling_window = self
 			)
-		except ImportError:
+		except OSError:
+			_log.exception('problem acquiring image from source')
 			gmGuiHelpers.gm_show_error (
 				aMessage = _(
 					'No pages could be acquired from the source.\n\n'
-					'This may mean the scanner driver is not properly installed\n\n'
+					'This may mean the scanner driver is not properly installed.\n\n'
 					'On Windows you must install the TWAIN Python module\n'
 					'while on Linux and MacOSX it is recommended to install\n'
 					'the XSane package.'

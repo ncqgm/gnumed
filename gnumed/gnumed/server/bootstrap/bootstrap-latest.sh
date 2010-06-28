@@ -46,31 +46,34 @@ echo_msg "with the name \"gnumed_v${VER}\"."
 
 
 # better safe than sorry
-TARGET_VER_EXISTS=`su -c "psql -l" postgres | grep gnumed_v${VER}`
-PREV_VER_EXISTS=`su -c "psql -l" postgres | grep gnumed_v${PREV_VER}`
-if test "${TARGET_VER_EXISTS}" != "" -o  "${PREV_VER_EXISTS}" != "" ; then
-	echo ""
-	echo "-----------------------------------------------"
-	echo "At least one of the GNUmed databases"
-	echo "v${PREV_VER} or v${VER} already exists."
-	echo ""
-	echo "Note that during *bootstrapping* both"
-	echo "databases will be OVERWRITTEN !"
-	echo ""
-	echo "Do you really intend to bootstrap or did you"
-	echo "rather want to *upgrade* from v${PREV_VER} to v${VER} ?"
-	echo ""
-	echo "For upgrading you should run the"
-	echo "upgrade script instead."
-	echo ""
-	echo "Continue bootstrapping (deletes databases) ? "
-	echo ""
-	read -e -p "[yes / NO]: "
-	if test "${REPLY}" != "yes" ; then
-		echo "Bootstrapping aborted by user."
-		exit 1
+ALL_PREV_VERS="${VERSIONS_TO_DROP} ${PREV_VER} ${VER}"
+for DB_VER in ${ALL_PREV_VERS} ; do
+	VER_EXISTS=`su -c "psql -l" -l postgres | grep gnumed_v${DB_VER}`
+	if test "${VER_EXISTS}" != "" ; then
+		echo ""
+		echo "-----------------------------------------------"
+		echo "At least one of the GNUmed databases among"
+		echo ""
+		echo " [${ALL_PREV_VERS}]"
+		echo ""
+		echo "already exists.  Note that during bootstrapping"
+		echo "those databases will be OVERWRITTEN !"
+		echo ""
+		echo "Do you really intend to bootstrap or did you"
+		echo "rather want to *upgrade* from v${PREV_VER} to v${VER} ?"
+		echo ""
+		echo "(For upgrading you should run the upgrade"
+		echo " script instead.)"
+		echo ""
+		echo "Continue bootstrapping (deletes databases) ? "
+		echo ""
+		read -e -p "[yes / NO]: "
+		if test "${REPLY}" != "yes" ; then
+			echo "Bootstrapping aborted by user."
+			exit 1
+		fi
 	fi
-fi
+done
 
 
 LOG="${GM_LOG_BASE}/bootstrap-latest.log"
@@ -85,5 +88,5 @@ fi
 for DB_VER in ${VERSIONS_TO_DROP} ; do
 	echo_msg "Dropping obsoleted staging database gnumed_v${DB_VER} ..."
 	echo_msg " (you may need to provide the password for ${USER})"
-	su -c "dropdb ${PORT_DEF} gnumed_v${DB_VER}" postgres
+	su -c "dropdb ${PORT_DEF} gnumed_v${DB_VER}" -l postgres
 done

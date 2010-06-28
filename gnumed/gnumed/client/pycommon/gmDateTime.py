@@ -34,8 +34,6 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.34 2009-11-13 21:04:45 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
 __version__ = "$Revision: 1.34 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -300,24 +298,25 @@ def format_interval_medically(interval=None):
 	# FIXME: i18n for abbrevs
 
 	# more than 1 year ?
-	if interval.days > 360:
-		years, days = divmod(interval.days, 360)
-		months, day = divmod(days, 30)
-		if months == 0:
+	if interval.days > 363:
+		years, days = divmod(interval.days, 364)
+		leap_days, tmp = divmod(years, 4)
+		months, day = divmod((days + leap_days), 30.33)
+		if int(months) == 0:
 			return "%sy" % int(years)
 		return "%sy %sm" % (int(years), int(months))
 
 	# more than 30 days / 1 month ?
 	if interval.days > 30:
-		months, days = divmod(interval.days, 30)
+		months, days = divmod(interval.days, 30.33)
 		weeks, days = divmod(days, 7)
-		if (weeks + days) == 0:
+		if int(weeks + days) == 0:
 			result = '%smo' % int(months)
 		else:
 			result = '%sm' % int(months)
-		if weeks != 0:
+		if int(weeks) != 0:
 			result += ' %sw' % int(weeks)
-		if days != 0:
+		if int(days) != 0:
 			result += ' %sd' % int(days)
 		return result
 
@@ -342,19 +341,19 @@ def format_interval_medically(interval=None):
 		minutes = seconds // 60
 		if minutes == 0:
 			return '%sh' % int(hours)
-		return "%sh %sm" % (int(hours), int(minutes))
+		return "%s:%02d" % (int(hours), int(minutes))
 
 	# minutes only
 	if interval.seconds > (5*60):
-		return "%smi" % (int(interval.seconds // 60))
+		return "0:%02d" % (int(interval.seconds // 60))
 
 	# seconds
 	minutes, seconds = divmod(interval.seconds, 60)
 	if minutes == 0:
 		return '%ss' % int(seconds)
 	if seconds == 0:
-		return '%smi' % int(minutes)
-	return "%sm %ss" % (int(minutes), int(seconds))
+		return '0:%02d' % int(minutes)
+	return "%s.%ss" % (int(minutes), int(seconds))
 #---------------------------------------------------------------------------
 def str2interval(str_interval=None):
 
@@ -1249,7 +1248,9 @@ if __name__ == '__main__':
 			pyDT.timedelta(days = 365),
 			pyDT.timedelta(days = 366),
 			pyDT.timedelta(days = 367),
-			pyDT.timedelta(days = 400)
+			pyDT.timedelta(days = 400),
+			pyDT.timedelta(weeks = 52 * 30),
+			pyDT.timedelta(weeks = 52 * 79, days = 33)
 		]
 
 		idx = 1
@@ -1351,167 +1352,3 @@ if __name__ == '__main__':
 		test_format_interval_medically()
 
 #===========================================================================
-# $Log: gmDateTime.py,v $
-# Revision 1.34  2009-11-13 21:04:45  ncq
-# - improved medical interval formatting
-#
-# Revision 1.33  2009/11/08 20:43:04  ncq
-# - improved format-interval-medically plus tests
-#
-# Revision 1.32  2009/11/06 15:07:40  ncq
-# - re-formatting for clarity
-# - simplify str2interval regexes
-#
-# Revision 1.31  2009/10/29 17:14:11  ncq
-# - improve (simplify) str2interval
-#
-# Revision 1.30  2009/09/23 14:32:05  ncq
-# - pydt-now-here()
-#
-# Revision 1.29  2009/07/09 16:42:06  ncq
-# - ISO date formatting
-#
-# Revision 1.28  2009/06/04 14:50:06  ncq
-# - re-import lost formatters
-#
-# Revision 1.28  2009/05/28 10:48:29  ncq
-# - format_interval(_medically)
-#
-# Revision 1.27  2009/04/19 22:23:36  ncq
-# - move interval parsers here
-#
-# Revision 1.26  2009/04/03 09:33:22  ncq
-# - conversions for wx.DateTime
-#
-# Revision 1.25  2009/02/05 14:28:30  ncq
-# - comment
-#
-# Revision 1.24  2008/11/17 23:11:38  ncq
-# - provide properly utf8iefied py_*_timezone_name
-#
-# Revision 1.23  2008/11/03 10:28:03  ncq
-# - improved wording
-#
-# Revision 1.22  2008/10/22 12:07:28  ncq
-# - log mx.DateTime version
-# - use %x in strftime
-#
-# Revision 1.21  2008/06/18 15:28:32  ncq
-# - properly i18n trigger chars in str 2 timestamp conversions
-# - document "patterns" arg for str 2 timestamp conversion
-#
-# Revision 1.20  2008/05/19 15:45:26  ncq
-# - re-adjust timezone handling code
-# - remember timezone *name* for PG
-#
-# Revision 1.19  2008/04/12 22:30:46  ncq
-# - support more date/time patterns
-#
-# Revision 1.18  2008/01/13 01:14:26  ncq
-# - does need gmI18N
-#
-# Revision 1.17  2008/01/05 16:37:47  ncq
-# - typo fix
-#
-# Revision 1.16  2007/12/12 16:17:15  ncq
-# - better logger names
-#
-# Revision 1.15  2007/12/11 14:18:20  ncq
-# - stdlib logging
-#
-# Revision 1.14  2007/09/04 23:28:06  ncq
-# - document what's happening
-#
-# Revision 1.13  2007/09/04 21:59:30  ncq
-# - try to work around Windows breakage before 1970
-#
-# Revision 1.12  2007/09/03 12:56:00  ncq
-# - test for dates before 1970
-#
-# Revision 1.11  2007/06/15 08:10:40  ncq
-# - improve test suite
-#
-# Revision 1.10  2007/06/15 08:01:09  ncq
-# - better argument naming
-# - fix regexen for unicode/locale
-#
-# Revision 1.9  2007/05/21 17:13:12  ncq
-# - import gmI18N
-#
-# Revision 1.8  2007/04/23 16:56:54  ncq
-# - poperly place misplaced "
-#
-# Revision 1.7  2007/04/02 18:21:27  ncq
-# - incorporate all of gmFuzzyTimestamp.py
-#
-# Revision 1.6  2007/01/16 17:59:55  ncq
-# - improved docs and tests
-# - normalized UTC offset since time and datetime modules
-#   do not agree sign vs direction
-#
-# Revision 1.5  2007/01/16 13:42:21  ncq
-# - add gmCurrentLocalTimezone() as cFixedOffsetTimezone instance
-#   with values taken from currently applicable UTC offset
-#
-# Revision 1.4  2007/01/10 22:31:10  ncq
-# - add FixedOffsetTimezone() from psycopg2.tz
-#
-# Revision 1.3  2006/12/22 16:54:28  ncq
-# - add cLocalTimezone from psycopg2 until datetime supports it
-# - better logging
-# - enhanced test suite
-#
-# Revision 1.2  2006/12/21 17:44:26  ncq
-# - differentiate between timezone as interval and as string
-# - if timezone string is to be ISO aware it cannot contain ","
-#
-# Revision 1.1  2006/12/21 10:50:50  ncq
-# - date/time handling
-#
-#
-#===========================================================================
-# old Log for gmFuzzyTimestamp.py:
-#
-# Revision 1.11  2007/04/01 15:27:09  ncq
-# - safely get_encoding()
-#
-# Revision 1.10  2007/03/02 15:30:24  ncq
-# - must decode() strftime() output
-#
-# Revision 1.9  2007/02/16 10:20:39  ncq
-# - improved doc strings
-#
-# Revision 1.8  2007/02/16 10:15:27  ncq
-# - strftime() returns str() but encoded, so we need
-#   locale.getlocale()[1] to properly decode that to
-#   unicode, which needs the locale system to have been
-#   initialized
-# - improved test suite
-#
-# Revision 1.7  2007/01/10 22:43:39  ncq
-# - depend on gmDateTime, not gmPG2
-#
-# Revision 1.6  2006/11/27 23:00:45  ncq
-# - add str2fuzzy_timestamp_matches() with all the needed infrastructure
-# - some unicode()ing
-# - user more symbolic names
-#
-# Revision 1.5  2006/11/07 23:49:08  ncq
-# - make runnable standalone for testing
-# - add get_mxdt()/get_pydt()
-#   - but thus requires gmPG2, yuck, work around later
-#
-# Revision 1.4  2006/10/31 17:18:55  ncq
-# - make cFuzzyTimestamp accept datetime.datetime instances, too
-#
-# Revision 1.3  2006/10/25 07:46:44  ncq
-# - Format() -> strftime() since datetime.datetime does not have .Format()
-#
-# Revision 1.2  2006/05/24 09:59:57  ncq
-# - add constants for accuracy values
-# - __init__() now defaults to now()
-# - add accuracy-aware Format()/strftime() proxies
-#
-# Revision 1.1  2006/05/22 12:00:00  ncq
-# - first cut at this
-#

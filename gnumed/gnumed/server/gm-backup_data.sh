@@ -1,11 +1,6 @@
 #!/bin/bash
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_data.sh,v $
-# $Id: gm-backup_data.sh,v 1.7 2009-01-08 16:43:18 ncq Exp $
-#
-# author: Karsten Hilbert
-# license: GPL v2
 #
 # This script creates a backup of the data of a GNUmed
 # database. It includes neither roles nor the schema.
@@ -37,6 +32,8 @@
 #
 # Note that 1a) will only work on UN*X.
 #
+# author: Karsten Hilbert
+# license: GPL v2
 #==============================================================
 
 CONF="/etc/gnumed/gnumed-backup.conf"
@@ -55,6 +52,39 @@ else
 fi
 
 
+# switched off ? (database name empty)
+if [ "$GM_DATABASE" = "" ] ; then
+	exit 0
+fi
+
+
+# sanity check
+if ! su -c 'psql -t -l' -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+	echo "The configuration in ${CONF} is set to backup"
+	echo "the GNUmed database ${GM_DATABASE}. This"
+	echo "database does not exist, however. Aborting."
+	exit 1
+fi
+
+
+# are we backing up the latest DB ?
+OUR_VER=`echo ${GM_DATABASE} | cut -f 2 -d v`
+if test -z ${GM_HOST} ; then
+	HAS_HIGHER_VER=`sudo -u postgres psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -c "SELECT exists (select 1 from pg_database where datname like 'gnumed_v%' and substring(datname from 9 for 3)::integer > '${OUR_VER}');"`
+else
+	HAS_HIGHER_VER=`sudo -u postgres psql -A -t -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -c "SELECT exists (select 1 from pg_database where datname like 'gnumed_v%' and substring(datname from 9 for 3)::integer > '${OUR_VER}');"`
+fi;
+
+if test "${HAS_HIGHER_VER}" = "t" ; then
+	echo "Backing up database ${GM_DATABASE}. However,"
+	echo "a newer database seems to exist:"
+	echo ""
+	sudo -u postgres psql -l | grep gnumed_v
+	echo ""
+	echo "Make sure you really want to backup the old database !"
+fi ;
+
+
 TS=`date +%Y-%m-%d-%H-%M-%S`
 BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"`hostname`
 BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
@@ -68,7 +98,7 @@ fi
 
 
 # data only
-pg_dump --data-only -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql 2> /dev/null
+pg_dump --data-only -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql ${GM_DATABASE} 2> /dev/null
 
 
 # tar and test it
@@ -89,26 +119,3 @@ chown ${BACKUP_OWNER} ${BACKUP_FILENAME}-data_only.tar
 exit 0
 
 #==============================================================
-# $Log: gm-backup_data.sh,v $
-# Revision 1.7  2009-01-08 16:43:18  ncq
-# - improve docstring
-#
-# Revision 1.6  2008/11/03 10:31:06  ncq
-# - wording fix
-#
-# Revision 1.5  2008/08/01 10:34:21  ncq
-# - /bin/sh -> /bin/bash
-#
-# Revision 1.4  2007/12/08 15:23:14  ncq
-# - minor cleanup
-#
-# Revision 1.3  2007/12/02 11:45:18  ncq
-# - tar the sql so it gets picked up by both the zipping and offsiting script
-#
-# Revision 1.2  2007/11/04 22:58:45  ncq
-# - improved docs
-#
-# Revision 1.1  2007/11/04 01:40:45  ncq
-# - first version
-#
-#
