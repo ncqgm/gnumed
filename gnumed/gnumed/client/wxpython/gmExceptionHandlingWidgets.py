@@ -1,7 +1,5 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmExceptionHandlingWidgets.py,v $
-# $Id: gmExceptionHandlingWidgets.py,v 1.17 2010-01-31 18:15:55 ncq Exp $
 __version__ = "$Revision: 1.17 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -13,7 +11,7 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmDispatcher, gmTools, gmCfg2, gmI18N, gmLog2
+from Gnumed.pycommon import gmDispatcher, gmTools, gmCfg2, gmI18N, gmLog2, gmPG2
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgUnhandledExceptionDlg
 
@@ -68,12 +66,14 @@ def handle_uncaught_exception_wx(t, v, tb):
 		return
 
 	# try to ignore those, they come about from async handling
+	# as Robin tells us
 	if t == wx._core.PyDeadObjectError:
 		_log.warning('continuing and hoping for the best')
 		return
 
 	# failed import ?
 	if t == exceptions.ImportError:
+		_log2.error('module [%s] not installed', v)
 		gmGuiHelpers.gm_show_error (
 			aTitle = _('Missing GNUmed module'),
 			aMessage = _(
@@ -88,7 +88,6 @@ def handle_uncaught_exception_wx(t, v, tb):
 				'functionality will not be accessible.'
 			) % v
 		)
-		_log2.error('module [%s] not installed', v)
 		return
 
 	# other exceptions
@@ -99,6 +98,46 @@ def handle_uncaught_exception_wx(t, v, tb):
 		root_logger = logging.getLogger()
 		root_logger.setLevel(logging.DEBUG)
 		_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
+
+	# lost connection ?
+	try:
+		msg = gmPG2.extract_msg_from_pg_exception(exc = v)
+	except:
+		msg = u'cannot extract message from PostgreSQL exception'
+		print msg
+		print v
+
+	conn_loss_on_operational_error = (
+		(t == gmPG2.dbapi.OperationalError)
+			and
+		('erver' in msg)
+			and
+		(('term' in msg) or ('abnorm' in msg) or ('end' in msg))
+	)
+	conn_loss_on_interface_error = (
+		(t == gmPG2.dbapi.InterfaceError)
+			and
+		('onnect' in msg)
+			and
+		(('close' in msg) or ('end' in msg))
+	)
+	if (conn_loss_on_operational_error or conn_loss_on_interface_error):
+		_log2.error('lost connection')
+		gmLog2.log_stack_trace()
+		gmLog2.flush()
+		gmGuiHelpers.gm_show_error (
+			aTitle = _('Lost connection'),
+			aMessage = _(
+				'Since you were last working in GNUmed,\n'
+				'your database connection timed out.\n'
+				'\n'
+				'This GNUmed session is now expired.\n'
+				'\n'
+				'You will have to close this client and\n'
+				'restart a new GNUmed session.'
+			)
+		)
+		return
 
 	gmLog2.log_stack_trace()
 
@@ -339,58 +378,3 @@ sender email  : %s
 		gmMimeLib.call_viewer_on_file(_logfile_name, block = False)
 		evt.Skip()
 # ========================================================================
-# $Log: gmExceptionHandlingWidgets.py,v $
-# Revision 1.17  2010-01-31 18:15:55  ncq
-# - ignore one more PyDeadObjectError
-#
-# Revision 1.16  2009/12/21 15:06:05  ncq
-# - better layout
-#
-# Revision 1.15  2009/07/30 12:04:06  ncq
-# - better handle Ctrl-C
-#
-# Revision 1.14  2009/05/22 11:01:23  ncq
-# - better catch exceptions on mailing log
-#
-# Revision 1.13  2009/05/08 07:59:55  ncq
-# - improved default version
-#
-# Revision 1.12  2009/04/19 22:27:00  ncq
-# - cleanup
-#
-# Revision 1.11  2009/04/03 12:30:16  ncq
-# - attach log rather than include
-#
-# Revision 1.10  2009/02/24 10:13:02  ncq
-# - -devel -> -bugs
-#
-# Revision 1.9  2009/02/20 15:43:05  ncq
-# - typo fix
-#
-# Revision 1.8  2009/02/05 14:29:27  ncq
-# - improved report mail reporting
-#
-# Revision 1.7  2008/12/25 23:31:51  ncq
-# - ignore but log most exceptions during application shutdown
-#
-# Revision 1.6  2008/12/09 23:29:54  ncq
-# - trap exceptions during smtp handling inside top-level exception handler
-#
-# Revision 1.5  2008/11/20 19:50:45  ncq
-# - improved wording
-#
-# Revision 1.4  2008/10/12 16:17:57  ncq
-# - include client version at top of bug email
-# - improved launchpad tracking tags
-#
-# Revision 1.3  2008/07/28 20:26:49  ncq
-# - fixed include_log logic
-#
-# Revision 1.2  2008/07/16 11:10:46  ncq
-# - set_sender_email and use it
-# - some cleanup and better docs
-#
-# Revision 1.1  2008/05/13 12:32:54  ncq
-# - factor out exception handling widgets
-#
-#

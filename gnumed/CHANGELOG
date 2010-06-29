@@ -23,6 +23,8 @@ NEW: list view of database audit trail
 NEW: management of vaccinations
 NEW: templates for writing a plugin [thanks S.Hilbert]
 NEW: on Windows try to switch to "DejaVu Sans" font for improved unicode display
+NEW: demonstrable path to get up and running on Macintosh [thanks J.Busser]
+NEW: useful error dialog when database connection lost
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
