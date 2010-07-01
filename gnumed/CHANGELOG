@@ -44,6 +44,8 @@ IMPROVED: DOB validity check when creating new person
 # rel-0-7-patches
 ------------------------------------------------
 
+FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
+
 	0.7.6
 
 FIX: faulty variable access when detecting OOo UNO bridge [thanks S.Hilbert]

@@ -162,28 +162,27 @@ class cTimeInput(wx.TextCtrl):
 #==================================================
 class cDateInputCtrl(wx.DatePickerCtrl):
 
-	def __init__(self, *args, **kwargs):
-
-		wx.DatePickerCtrl.__init__(self,*args,**kwargs)
-		#super(cDateInputCtrl, self).__init__(*args, **kwargs)
-		#self.Bind(wx.EVT_DATE_CHANGED, self.__on_date_changed, self)
 	#----------------------------------------------
 	def SetValue(self, value):
 		"""Set either datetime.datetime or wx.DateTime"""
 
 		if isinstance(value, (pyDT.date, pyDT.datetime)):
-			wxvalue = wx.DateTime()
-			wxvalue.Set(year = value.year, month = value.month-1, day = value.day)
-			value = wxvalue
+			value = gmDateTime.py_dt2wxDate(py_dt = value, wx = wx)
 
 		elif value is None:
 			value = wx.DefaultDateTime
 
 		wx.DatePickerCtrl.SetValue(self, value)
 	#----------------------------------------------
-	def GetValue(self, as_pydt=False):
+	def GetValue(self, as_pydt=False, invalid_as_none=False):
 		"""Returns datetime.datetime values"""
 
+		# datepicker can fail to pick up user changes by keyboard until
+		# it has lost focus, so do that but also set the focus back to
+		# us, now this is a side-effect (after GetValue() focus will be
+		# here) but at least it is predictable ...
+		self.Navigate()
+		self.SetFocus()
 		value = wx.DatePickerCtrl.GetValue(self)
 
 		if value is None:
@@ -191,7 +190,10 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 
 		# manage null dates (useful when wx.DP_ALLOWNONE is set)
 		if not value.IsValid():
-			return None
+			if invalid_as_none:
+				return None
+			else:
+				return value
 
 		self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
 		self.Refresh()
@@ -204,7 +206,7 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 	# def convenience wrapper
 	#----------------------------------------------
 	def is_valid_timestamp(self, allow_none=True):
-		val = self.GetValue()
+		val = self.GetValue(as_pydt = False, invalid_as_none = False)
 
 		if val is None:
 			if allow_none:
