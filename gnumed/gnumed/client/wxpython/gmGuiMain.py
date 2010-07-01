@@ -455,7 +455,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
 
-		item = menu_master_data.Append(-1, _('Indications'), _('Show known vaccination indications.'))
+		item = menu_master_data.Append(-1, _('Immunizables'), _('Show conditions known to be preventable by vaccination.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination_indications, item)
 
 		# -- submenu gnumed / users

@@ -40,7 +40,12 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.vaccine SET
---				internal_name = gm.nullify_empty_string(%(internal_name)s),
+				id_route = %(pk_route)s,
+				is_live = %(is_live)s,
+				min_age = %(min_age)s,
+				max_age = %(max_age)s,
+				comment = gm.nullify_empty_string(%(comment)s),
+				fk_brand = %(pk_brand)s
 			WHERE
 				pk = %(pk_vaccine)s
 					AND
@@ -55,23 +60,70 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		u'is_live',
 		u'min_age',
 		u'max_age',
-		u'comment'
+		u'comment',
+		u'pk_brand'
 		# forward fields to brand and include brand in save()
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None):
-		super(cVaccine, self).__init__(aPK_obj = aPK_obj, row = row)
-
-		self.__brand = None
+#	def __init__(self, aPK_obj=None, row=None):
+#		super(cVaccine, self).__init__(aPK_obj = aPK_obj, row = row)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_brand(self):
-		if self.__brand is None:
-			self.__brand = gmMedication.cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
-		return self.__brand
+		return gmMedication.cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
 
 	brand = property(_get_brand, lambda x:x)
+#------------------------------------------------------------
+def create_vaccine(pk_brand=None, brand_name=None, indications=None):
+
+	if pk_brand is None:
+		_log.debug('creating branded drug [%s %s]', brand_name, preparation)
+		drug = gmMedication.create_branded_drug (
+			brand_name = brand_name,
+			preparation = _('vaccine'),
+			return_existing = True
+		)
+		drug['atc_code'] = u'J07'
+		drug.save()
+		pk_brand = drug['pk']
+
+	cmd = u'INSERT INTO clin.vaccine (fk_brand) values (%(pk_brand)s) RETURNING pk'
+	queries = [{'cmd': cmd, 'args': {'pk_brand': pk_brand}}]
+
+	for indication in indications:
+		cmd = u"""
+			INSERT INTO into clin.lnk_vaccine2inds (
+				fk_vaccine,
+				fk_indication
+			) VALUES (
+				currval(pg_get_serial_sequence('clin.vaccine', 'pk')),
+				(SELECT id
+				 FROM clin.vacc_indication
+				 WHERE
+					lower(description) = lower(%(ind)s)
+				 LIMIT 1
+				)
+			RETURNING fk_vaccine
+		"""
+		queries.append({'cmd': cmd, 'args': {'ind': indication}})
+
+	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = False, return_data = True)
+
+	return cVaccine(aPK_obj = rows[0]['fk_vaccine'])
+#------------------------------------------------------------
+def delete_vaccine(vaccine=None):
+
+	cmd = u'DELETE FROM clin.vaccine WHERE pk = %(pk)s'
+	args = {'pk': vaccine}
+
+	try:
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	except gmPG2.dbapi.IntegrityError:
+		_log.exception('cannot delete vaccine [%s]', vaccine)
+		return False
+
+	return True
 #------------------------------------------------------------
 def get_vaccines(order_by=None):
 

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-06-12 22:02+CEST\n"
+"POT-Creation-Date: 2010-07-01 17:11+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,6 +127,7 @@ msgid ""
 "Test results: %(results)s\n"
 "Hospital stays: %(stays)s\n"
 "Procedures: %(procedures)s\n"
+"Vaccinations: %(vaccinations)s\n"
 msgstr ""
 
 msgid ""
@@ -184,13 +185,10 @@ msgstr ""
 msgid "unknown reaction"
 msgstr ""
 
+msgid "Vaccinations"
+msgstr ""
+
 msgid "allergies/intolerances"
-msgstr ""
-
-msgid "ERROR: cannot retrieve vaccinated indications"
-msgstr ""
-
-msgid "no vaccinations recorded"
 msgstr ""
 
 msgid ""
@@ -322,6 +320,9 @@ msgid "Documents: %s"
 msgstr ""
 
 msgid "Measurements and Results: %s"
+msgstr ""
+
+msgid "Vaccinations:"
 msgstr ""
 
 msgid "Unattributed episodes"
@@ -560,6 +561,9 @@ msgid "unable to get provider inbox messages from database"
 msgstr ""
 
 msgid "An error occurred while retrieving provider inbox messages from the database."
+msgstr ""
+
+msgid "vaccine"
 msgstr ""
 
 msgid "internal error, check log"
@@ -2162,6 +2166,9 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
+msgid "LOINC"
+msgstr ""
+
 msgid "Units"
 msgstr ""
 
@@ -2244,9 +2251,6 @@ msgid "Abbreviation"
 msgstr ""
 
 msgid "Unit"
-msgstr ""
-
-msgid "LOINC"
 msgstr ""
 
 msgid "&Your unsigned"
@@ -3198,6 +3202,275 @@ msgstr ""
 msgid "Log file"
 msgstr ""
 
+msgid "Anamnestic"
+msgstr ""
+
+msgid " + "
+msgstr ""
+
+msgid "Check this if - within the SOAP classification - you want to mark the entry as Subjective rather than Plan."
+msgstr ""
+
+msgid ""
+"The vaccine used, if known.\n"
+"\n"
+"If unknown check off the indications which were vaccinated against."
+msgstr ""
+
+msgid "Add a vaccine to GNUmed."
+msgstr ""
+
+msgid "The batch number of the vaccine."
+msgstr ""
+
+msgid ""
+"Select an episode to file this vaccination under.\n"
+"\n"
+"If you do not select one it will be filed under \"prevention\".\n"
+"\n"
+"Alternatively, type the name for a new episode."
+msgstr ""
+
+msgid "The injection site, if known."
+msgstr ""
+
+msgid "The provider who administered the vaccine, if known."
+msgstr ""
+
+msgid "Record any adverse reactions to this vaccine."
+msgstr ""
+
+msgid "Report this event as an adverse drug reaction."
+msgstr ""
+
+msgid "Any comment you may wish to relate to this vaccination."
+msgstr ""
+
+msgid "Date given"
+msgstr ""
+
+msgid "Vaccine ..."
+msgstr ""
+
+msgid ""
+"... or ...\n"
+"\n"
+"vaccinated against"
+msgstr ""
+
+msgid "Batch \342\204\226"
+msgstr ""
+
+msgid "Site"
+msgstr ""
+
+msgid "Given by"
+msgstr ""
+
+msgid "Tetanus"
+msgstr ""
+
+msgid "Measles"
+msgstr ""
+
+msgid "Diphtheria"
+msgstr ""
+
+msgid "Mumps"
+msgstr ""
+
+msgid "Influenza"
+msgstr ""
+
+msgid "A"
+msgstr ""
+
+msgid "C"
+msgstr ""
+
+msgid "Hep A"
+msgstr ""
+
+msgid "Pertussis"
+msgstr ""
+
+msgid "Rubella"
+msgstr ""
+
+msgid "Pneumococc"
+msgstr ""
+
+msgid "W"
+msgstr ""
+
+msgid "Y"
+msgstr ""
+
+msgid "Cholera"
+msgstr ""
+
+msgid "Poliomyelitis"
+msgstr ""
+
+msgid "Varicella"
+msgstr ""
+
+msgid "Cox (Q)"
+msgstr ""
+
+msgid "Tick Encep"
+msgstr ""
+
+msgid "Typhoid"
+msgstr ""
+
+msgid "HiB"
+msgstr ""
+
+msgid "H1N1"
+msgstr ""
+
+msgid "Jap B"
+msgstr ""
+
+msgid "Rotavirus"
+msgstr ""
+
+msgid "Hep B"
+msgstr ""
+
+msgid "HPV"
+msgstr ""
+
+msgid "Tuberculosis"
+msgstr ""
+
+msgid "Rabies"
+msgstr ""
+
+msgid "Yellow fever"
+msgstr ""
+
+msgid "Anthrax"
+msgstr ""
+
+msgid "Plague"
+msgstr ""
+
+msgid "Smallpox"
+msgstr ""
+
+msgid "Regardless of childhood/adult toxoid content."
+msgstr ""
+
+msgid "Seasonal influenza"
+msgstr ""
+
+msgid "Meningococcus A"
+msgstr ""
+
+msgid "Meningococcus C"
+msgstr ""
+
+msgid "Pneumococcus"
+msgstr ""
+
+msgid "Meningococcus W"
+msgstr ""
+
+msgid "Meningococcus Y"
+msgstr ""
+
+msgid "Varicella zoster (shingles)"
+msgstr ""
+
+msgid "Coxiella burnetii (Q fever)"
+msgstr ""
+
+msgid "Tick-borne meningoencephalitis"
+msgstr ""
+
+msgid "Salmonella typhi (typhoid)"
+msgstr ""
+
+msgid "HiB: Haemophilus influenzae B"
+msgstr ""
+
+msgid "H1N1 influenza"
+msgstr ""
+
+msgid "Japanese B encephalitis"
+msgstr ""
+
+msgid "Human papilloma virus"
+msgstr ""
+
+msgid "Bacillus anthracis"
+msgstr ""
+
+msgid "Yersinia pestis"
+msgstr ""
+
+msgid "Variola virus"
+msgstr ""
+
+msgid "<--Resp-->"
+msgstr ""
+
+msgid "<--Neuro-->"
+msgstr ""
+
+msgid "<--GI-->"
+msgstr ""
+
+msgid "Other:"
+msgstr ""
+
+msgid "Live"
+msgstr ""
+
+msgid "Fake"
+msgstr ""
+
+msgid ""
+"The route by which this vaccine is to be administered.\n"
+"\n"
+"Typically one of i.m., s.c., or orally."
+msgstr ""
+
+msgid "Check if this is a live attenuated vaccine."
+msgstr ""
+
+msgid "Whether this is an actual brand or a generic, fake vaccine."
+msgstr ""
+
+msgid "The ATC for this vaccine."
+msgstr ""
+
+msgid "The minimum age at which this vaccine should be given."
+msgstr ""
+
+msgid "The maximum age at which this vaccine should be given."
+msgstr ""
+
+msgid "Any comment you may wish to relate to this vaccine."
+msgstr ""
+
+msgid "Route"
+msgstr ""
+
+msgid "Protects from"
+msgstr ""
+
+msgid "ATC"
+msgstr ""
+
+msgid "Age range"
+msgstr ""
+
+msgid "\342\206\222"
+msgstr ""
+
 msgid "Template"
 msgstr ""
 
@@ -3300,16 +3573,13 @@ msgstr ""
 msgid "No vaccines were chosen"
 msgstr ""
 
-msgid "Batch"
-msgstr ""
-
 msgid "Sequence"
 msgstr ""
 
-msgid "Site"
+msgid "Vaccinator"
 msgstr ""
 
-msgid "Vaccinator"
+msgid "Batch"
 msgstr ""
 
 msgid "Vaccine"
@@ -4904,10 +5174,10 @@ msgstr ""
 msgid "Editing performed procedures ..."
 msgstr ""
 
-msgid "When"
+msgid "Where"
 msgstr ""
 
-msgid "Where"
+msgid "When"
 msgstr ""
 
 msgid "Adding a procedure"
@@ -5297,6 +5567,19 @@ msgid ""
 "functionality will not be accessible."
 msgstr ""
 
+msgid "Lost connection"
+msgstr ""
+
+msgid ""
+"Since you were last working in GNUmed,\n"
+"your database connection timed out.\n"
+"\n"
+"This GNUmed session is now expired.\n"
+"\n"
+"You will have to close this client and\n"
+"restart a new GNUmed session."
+msgstr ""
+
 msgid ""
 "Please enter a short note on what you\n"
 "were about to do in GNUmed:"
@@ -5652,6 +5935,12 @@ msgstr ""
 msgid "URL for reporting Adverse Drug Reactions."
 msgstr ""
 
+msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
+msgstr ""
+
+msgid "vaccADR URL"
+msgstr ""
+
 msgid "Set the command for calling the visual progress note editor."
 msgstr ""
 
@@ -5799,6 +6088,18 @@ msgstr ""
 msgid "Vaccines"
 msgstr ""
 
+msgid "Create fake vaccines"
+msgstr ""
+
+msgid "Re-create fake generic vaccines."
+msgstr ""
+
+msgid "Immunizables"
+msgstr ""
+
+msgid "Show conditions known to be preventable by vaccination."
+msgstr ""
+
 msgid "&Users ..."
 msgstr ""
 
@@ -5922,6 +6223,12 @@ msgstr ""
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr ""
 
+msgid "&Vaccination(s)"
+msgstr ""
+
+msgid "Add (a) vaccination(s) for the current patient."
+msgstr ""
+
 msgid "Start a new encounter for the active patient right now."
 msgstr ""
 
@@ -6010,6 +6317,12 @@ msgid "Show a page of links to useful medical content."
 msgstr ""
 
 msgid "&Office"
+msgstr ""
+
+msgid "Audit trail"
+msgstr ""
+
+msgid "Display database audit trail."
 msgstr ""
 
 msgid "GNUmed wiki"
@@ -6224,6 +6537,15 @@ msgid ""
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse vaccination reaction (vADR).\n"
+"\n"
+"If you set it to a specific address that URL must be\n"
+"accessible now. If you leave it empty it will fall back\n"
+"to the URL for reporting other adverse drug reactions."
 msgstr ""
 
 msgid ""
@@ -6560,6 +6882,9 @@ msgid "Cannot manage hospital stays. No active patient."
 msgstr ""
 
 msgid "Cannot edit occupation. No active patient."
+msgstr ""
+
+msgid "Cannot add vaccinations. No active patient."
 msgstr ""
 
 msgid "Cannot add measurement. No active patient."
@@ -7318,9 +7643,6 @@ msgstr ""
 msgid "Term"
 msgstr ""
 
-msgid "Route"
-msgstr ""
-
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
@@ -7335,9 +7657,6 @@ msgid ""
 msgstr ""
 
 msgid "Showing branded drugs."
-msgstr ""
-
-msgid "ATC"
 msgstr ""
 
 msgid ""
@@ -8243,6 +8562,21 @@ msgstr ""
 msgid "Select a healthcare provider."
 msgstr ""
 
+msgid "GNUmed database audit log ..."
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Revisions"
+msgstr ""
+
+msgid "Table"
+msgstr ""
+
+msgid "Who"
+msgstr ""
+
 msgid "Cannot delete the active workplace."
 msgstr ""
 
@@ -8581,6 +8915,37 @@ msgstr ""
 msgid "Comment (%s): %%s"
 msgstr ""
 
+msgid ""
+"\n"
+"Conditions preventable by vaccination as currently known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing vaccination preventable conditions."
+msgstr ""
+
+msgid "ATCs: multi-condition vaccines"
+msgstr ""
+
+msgid "ATCs: single-condition vaccines"
+msgstr ""
+
+msgid "Adding new vaccine"
+msgstr ""
+
+msgid "Editing vaccine"
+msgstr ""
+
+msgid ""
+"Cannot delete vaccine\n"
+"\n"
+" %s - %s (#%s)\n"
+"\n"
+"It is probably documented in a vaccination."
+msgstr ""
+
+msgid "Deleting vaccine"
+msgstr ""
+
 msgid "fake"
 msgstr ""
 
@@ -8592,64 +8957,33 @@ msgstr ""
 msgid "Showing vaccines."
 msgstr ""
 
-msgid "Age range"
+msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
-msgid "Live"
+msgid "Adding new vaccination"
 msgstr ""
 
-msgid "Date given"
+msgid "Editing vaccination"
 msgstr ""
 
-msgid "Serial #"
+msgid ""
+"\n"
+"Complete vaccination history for this patient.\n"
 msgstr ""
 
-msgid "Site injected"
+msgid "Showing vaccinations."
 msgstr ""
 
-msgid "Cannot save vaccination: %s"
+msgid "Intended to protect from"
 msgstr ""
 
-msgid "Cannot save new vaccination: %s"
-msgstr ""
-
-msgid "Vaccination saved."
-msgstr ""
-
-msgid "shot: %s, %s, %s"
-msgstr ""
-
-msgid "Cannot queue new vaccination."
-msgstr ""
-
-msgid "Vaccination queued for saving."
-msgstr ""
-
-msgid "Cannot update vaccination: %s"
-msgstr ""
-
-msgid "Vaccination updated."
-msgstr ""
-
-msgid "left/right deltoid"
-msgstr ""
-
-msgid "was due: %s, delayed because:"
-msgstr ""
-
-msgid "booster: was due: %s, delayed because:"
-msgstr ""
-
-msgid "booster"
+msgid "prevention"
 msgstr ""
 
 msgid "  IMMUNISATIONS  "
 msgstr ""
 
 msgid "Indications"
-msgstr ""
-
-msgid "Vaccinations"
 msgstr ""
 
 msgid "Active Schedules"
@@ -8941,6 +9275,12 @@ msgstr ""
 msgid "Chronological &journal"
 msgstr ""
 
+msgid "Template Plugin"
+msgstr ""
+
+msgid "Show &ExamplePlugin"
+msgstr ""
+
 msgid "Appointments"
 msgstr ""
 
@@ -8981,6 +9321,9 @@ msgid "&Demographics"
 msgstr ""
 
 msgid "Progress notes"
+msgstr ""
+
+msgid "Show &Plugintemplate"
 msgstr ""
 
 msgid "Inbox"

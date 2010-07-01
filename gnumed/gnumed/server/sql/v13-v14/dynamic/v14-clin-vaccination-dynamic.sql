@@ -81,61 +81,171 @@ alter table clin.vaccination
 		on delete restrict;
 
 -- --------------------------------------------------------------
--- this was shot down on the list because documenting clinical
--- reality (at least of previous previous, perhaps faulty,
--- vaccinations) is more important than making it impossible
--- to record reality at all
-
--- trigger to ensure that UNIQUE(clin_when, pk_patient, fk_vaccine) holds
-
---\unset ON_ERROR_STOP
---drop function clin.trf_sanity_check_no_duplicate_vaccinations() cascade;
---\set ON_ERROR_STOP 1
-
---create function clin.trf_sanity_check_no_duplicate_vaccinations()
---	returns trigger
---	language 'plpgsql'
---	as '
---DECLARE
---	_NEW_pk_patient integer;
---	_row record;
---	_indication_collision integer;
---BEGIN
---	select fk_patient into _NEW_pk_patient from clin.encounter where pk = NEW.fk_encounter;
---
---	-- loop over ...
---	for _row in
---		-- ... vaccinations ...
---		SELECT * FROM clin.vaccination
---		WHERE
---			-- ... of this patient ...
---			NEW.fk_encounter in (select pk from clin.encounter where fk_patient = _NEW_pk_patient)
---				and
---			-- ... within 2 days of the vaccination date
---			clin_when BETWEEN (NEW.clin_when - ''2 days''::interval) AND (NEW.clin_when + ''2 days''::interval)
---	loop
---
---		select (
---			select fk_indication from clin.lnk_vaccine2inds where fk_vaccine = NEW.fk_vaccine
---		) INTERSECT (
---			select fk_indication from clin.lnk_vaccine2inds where fk_vaccine = _row.fk_vaccine
---		) into _indication_collision;
---
---		if FOUND then
---			raise exception ''[clin.vaccination]: INSERT/UPDATE failed: vaccinations [%] and [%] share the indication [%] within 2 days of each other'', NEW.pk, _row.pk, _indication_collision;
---			return NEW;
---		end if;
---
---	end loop;
---
---	return NEW;
---END;';
+-- list discussion showed that we do want to be able to document
+-- non-conformant and clinically "wrong" vaccinations (such as
+-- two tetanus boosters within 1 week) -- but we can still do
+-- something about it ...
 
 
---create trigger tr_sanity_check_no_duplicate_vaccinations
---	before insert or update on clin.vaccination
---		for each row execute procedure clin.trf_sanity_check_no_duplicate_vaccinations()
---;
+-- we need a suitable inbox message type
+grant select on
+	dem.v_inbox_item_type
+to group "gm-public";
+
+delete from dem.inbox_item_type where description = 'review vaccs';
+
+insert into dem.inbox_item_type (
+	fk_inbox_item_category,
+	description,
+	is_user
+) values (
+	(select pk from dem.inbox_item_category where description = 'clinical'),
+	'review vaccs',
+	False
+);
+
+select i18n.upd_tx('de_DE', 'review vaccs', 'Impfungen überprüfen');
+
+
+-- add localized message
+select i18n.upd_tx('de_DE', 'Two vaccinations with overlapping target conditions recorded within one week of each other !', 'Zwei Impfungen innerhalb einer Woche haben überlappende Indikationen !');
+
+
+-- eventually add the trigger to warn on potential dupes
+\unset ON_ERROR_STOP
+drop function clin.trf_warn_on_duplicate_vaccinations() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_warn_on_duplicate_vaccinations()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_NEW_pk_patient integer;
+
+	_NEW_vaccination record;
+	_NEW_vacc_label text;
+
+	_prev_vacc_loop_record record;
+	_prev_vaccination record;
+	_prev_vacc_label text;
+
+	_indication_collision integer;
+
+	msg text;
+	_pk_current_provider integer;
+BEGIN
+	-- find patient for NEW vaccination
+	select fk_patient into _NEW_pk_patient from clin.encounter where pk = NEW.fk_encounter;
+
+	-- load denormalized vaccination corresponding to NEW vaccination
+	select * into _NEW_vaccination from clin.v_pat_vaccinations where pk_vaccination = NEW.pk;
+
+	-- generate label for NEW vaccination
+	_NEW_vacc_label := to_char(_NEW_vaccination.date_given, ''YYYY-MM-DD'')
+		|| '' (#'' || _NEW_vaccination.pk_vaccination || ''): ''
+		|| _NEW_vaccination.vaccine
+		|| '' ('' || array_to_string(_NEW_vaccination.l10n_indications, '', '') || '')'';
+
+	-- loop over ...
+	for _prev_vacc_loop_record in
+		-- ... vaccinations ...
+		SELECT * FROM clin.vaccination
+		WHERE
+			-- ... of this patient ...
+			NEW.fk_encounter in (select pk from clin.encounter where fk_patient = _NEW_pk_patient)
+				AND
+			-- ... within 7 days of the vaccination date ...
+			clin_when BETWEEN (NEW.clin_when - ''7 days''::interval) AND (NEW.clin_when + ''7 days''::interval)
+				AND
+			-- ... not the vaccination we just INSERTed/UPDATEed
+			pk != NEW.pk
+	loop
+
+		select * into _indication_collision from ((
+			select fk_indication from clin.lnk_vaccine2inds where fk_vaccine = NEW.fk_vaccine
+		) INTERSECT (
+			select fk_indication from clin.lnk_vaccine2inds where fk_vaccine = _prev_vacc_loop_record.fk_vaccine
+		)) as colliding_indications;
+
+		if FOUND then
+
+			-- retrieve denormalized data corresponding to that previous vaccination
+			select * into _prev_vaccination from clin.v_pat_vaccinations where pk_vaccination = _prev_vacc_loop_record.pk;
+
+			-- generate label for that previous vaccination
+			_prev_vacc_label := to_char(_prev_vaccination.date_given, ''YYYY-MM-DD'')
+				|| '' (#'' || _prev_vaccination.pk_vaccination || ''): ''
+				|| _prev_vaccination.vaccine
+				|| '' ('' || array_to_string(_prev_vaccination.l10n_indications, '', '') || '')'';
+
+			msg := _prev_vacc_label || E''\n'' || _NEW_vacc_label;
+
+			select pk into _pk_current_provider from dem.staff where db_user = session_user;
+
+			-- create inbox message for current user
+			insert into dem.message_inbox (
+				fk_staff,
+				fk_inbox_item_type,
+				comment,
+				data,
+				importance,
+--				ufk_context,
+				fk_patient
+			) values (
+				_pk_current_provider,
+				(select pk_type from dem.v_inbox_item_type where type = ''review vaccs'' and category = ''clinical''),
+				_(''Two vaccinations with overlapping target conditions recorded within one week of each other !''),
+				msg,
+				1,
+--				NEW.pk,
+				_NEW_pk_patient
+			);
+
+			-- create inbox message for vaccinating provider if known
+			if NEW.fk_provider is not NULL then
+				-- and not identical to session user
+				if NEW.fk_provider != _pk_current_provider then
+					insert into dem.message_inbox (
+						fk_staff,
+						fk_inbox_item_type,
+						comment,
+						data,
+						importance,
+--						ufk_context,
+						fk_patient
+					) values (
+						NEW.fk_provider,
+						(select pk_type from dem.v_inbox_item_type where type = ''review vaccs'' and category = ''clinical''),
+						_(''Two vaccinations with overlapping target conditions recorded within one week of each other !''),
+						msg,
+						1,
+--						NEW.pk,
+						_NEW_pk_patient
+					);
+				end if;
+			end if;
+
+		end if;
+
+	end loop;
+
+	return NEW;
+END;';
+
+
+comment on function clin.trf_warn_on_duplicate_vaccinations() is
+'Sends a notification to the inbox of both current_user and
+ clin.vaccination.fk_provider (if not NULL) in case a new or updated
+ vaccination falls within 1 week of another vaccination with (even
+ partially) overlapping indications.';
+
+
+
+create trigger tr_warn_on_duplicate_vaccinations
+	after insert or update on clin.vaccination
+		for each row execute procedure clin.trf_warn_on_duplicate_vaccinations()
+;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
