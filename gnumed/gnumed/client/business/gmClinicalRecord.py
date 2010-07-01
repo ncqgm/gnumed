@@ -30,7 +30,7 @@ import sys, string, time, copy, locale
 
 
 # 3rd party
-import mx.DateTime as mxDT, psycopg2, logging
+import logging
 
 
 if __name__ == '__main__':

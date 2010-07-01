@@ -15,10 +15,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 import sys, os.path, time, string, logging
 
 
-# 3rd party
-import mx.DateTime as mxDT
-
-
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')

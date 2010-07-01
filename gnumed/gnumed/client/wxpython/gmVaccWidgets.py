@@ -13,7 +13,6 @@ import sys, time, logging
 
 
 import wx
-import mx.DateTime as mxDT
 
 
 if __name__ == '__main__':
@@ -59,19 +58,56 @@ def manage_vaccination_indications(parent=None):
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nThe vaccination indications currently known to GNUmed.\n'),
-		caption = _('Showing vaccination indications.'),
-		columns = [ _('Indication'), _('ATCs (single indication vaccines)'), _('ATCs (combi-indication vaccines)'), u'#' ],
+		msg = _('\nConditions preventable by vaccination as currently known to GNUmed.\n'),
+		caption = _('Showing vaccination preventable conditions.'),
+		columns = [ _('Condition'), _('ATCs: single-condition vaccines'), _('ATCs: multi-condition vaccines'), u'#' ],
 		single_selection = True,
 		refresh_callback = refresh
 	)
 #======================================================================
 # vaccines related widgets
 #----------------------------------------------------------------------
+def edit_vaccine(parent=None, vaccine=None, single_entry=True):
+	ea = cVaccineEAPnl(parent = parent, id = -1)
+	ea.data = vaccine
+	ea.mode = gmTools.coalesce(vaccine, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(vaccine, _('Adding new vaccine'), _('Editing vaccine')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+#----------------------------------------------------------------------
 def manage_vaccines(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def delete(vaccine=None):
+		deleted = gmVaccination.delete_vaccine(vaccine = vaccine['pk_vaccine'])
+		if deleted:
+			return True
+
+		gmGuiHelpers.gm_show_info (
+			_(
+				'Cannot delete vaccine\n'
+				'\n'
+				' %s - %s (#%s)\n'
+				'\n'
+				'It is probably documented in a vaccination.'
+			) % (
+				vaccine['vaccine'],
+				vaccine['preparation'],
+				vaccine['pk_vaccine']
+			),
+			_('Deleting vaccine')
+		)
+
+		return False
+	#------------------------------------------------------------
+	def edit(vaccine=None):
+		return edit_vaccine(parent = parent, vaccine = vaccine, single_entry = True)
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		vaccines = gmVaccination.get_vaccines(order_by = 'vaccine')
@@ -105,7 +141,10 @@ def manage_vaccines(parent=None):
 		caption = _('Showing vaccines.'),
 		columns = [ u'#', _('Brand'), _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
 		single_selection = True,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete
 	)
 #----------------------------------------------------------------------
 class cBatchNoPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -226,6 +265,148 @@ LIMIT 25
 	#------------------------------------------------------------------
 	def _data2instance(self):
 		return gmVaccination.cVaccine(aPK_obj = self.data)
+#----------------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgVaccineEAPnl
+
+class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['vaccine']
+			del kwargs['vaccine']
+		except KeyError:
+			data = None
+
+		wxgVaccineEAPnl.wxgVaccineEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		# setup phrasewheels and stuff
+		self._PRW_route.selection_only = True
+
+		self.Layout()
+		self.Fit()
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		has_errors = False
+
+		if self._PRW_brand.GetValue().strip() == u'':
+			has_errors = True
+			self._PRW_brand.display_as_valid(False)
+		else:
+			self._PRW_brand.display_as_valid(True)
+
+		if self._PRW_route.GetData() is None:
+			has_errors = True
+			self._PRW_route.display_as_valid(False)
+		else:
+			self._PRW_route.display_as_valid(True)
+
+		if not self._PNL_indications.has_selection:
+			has_errors = True
+
+		if self._PRW_atc.GetValue().strip() == u'':
+			self._PRW_atc.display_as_valid(True)
+		else:
+			if self._PRW_atc.GetData() is None:
+				self._PRW_atc.display_as_valid(True)
+			else:
+				has_errors = True
+				self._PRW_atc.display_as_valid(False)
+
+		val = self._PRW_age_min.GetValue().strip()
+		if val == u'':
+			self._PRW_age_min.display_as_valid(True)
+		else:
+			if gmDateTime.str2interval(val) is None:
+				has_errors = True
+				self._PRW_age_min.display_as_valid(False)
+			else:
+				self._PRW_age_min.display_as_valid(True)
+
+		val = self._PRW_age_max.GetValue().strip()
+		if val == u'':
+			self._PRW_age_max.display_as_valid(True)
+		else:
+			if gmDateTime.str2interval(val) is None:
+				has_errors = True
+				self._PRW_age_max.display_as_valid(False)
+			else:
+				self._PRW_age_max.display_as_valid(True)
+
+		return (has_errors is False)
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = 1
+
+		data[''] = 1
+		data[''] = 1
+
+		#data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+		#self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+		self.data[''] = 1
+		self.data[''] = 1
+		self.data[''] = 1
+		#self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_brand.SetText(value = u'', data = None, suppress_smarts = True)
+		self._PRW_route.SetText(value = u'intramuscular')
+		self._CHBOX_live.SetValue(False)
+		self._CHBOX_fake.SetValue(False)
+		self._PNL_indications.clear_all()
+		self._PRW_atc.SetText(value = u'', data = None, suppress_smarts = True)
+		self._PRW_age_min.SetText(value = u'', data = None, suppress_smarts = True)
+		self._PRW_age_max.SetText(value = u'', data = None, suppress_smarts = True)
+		self._TCTRL_comment.SetValue(u'')
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_brand.SetText(value = self.data['vaccine'], data = self.data['pk_brand'])
+		self._PRW_route.SetText(value = self.data['route_description'], data = self.data['pk_route'])
+		self._CHBOX_live.SetValue(self.data['is_live'])
+		self._CHBOX_fake.SetValue(self.data['is_fake_vaccine'])
+		self._PNL_indications.select(self.data['indications'])
+		self._PRW_atc.SetText(value = self.data['atc_code'], data = self.data['atc_code'])
+		if self.data['min_age'] is None:
+			self._PRW_age_min.SetText(value = u'', data = None, suppress_smarts = True)
+		else:
+			self._PRW_age_min.SetText (
+				value = gmDateTime.format_interval(self.data['min_age'], gmDateTime.acc_years),
+				data = self.data['min_age']
+			)
+		if self.data['max_age'] is None:
+			self._PRW_age_max.SetText(value = u'', data = None, suppress_smarts = True)
+		else:
+			self._PRW_age_max.SetText (
+				value = gmDateTime.format_interval(self.data['max_age'], gmDateTime.acc_years),
+				data = self.data['max_age']
+			)
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
 #======================================================================
 # vaccination related widgets
 #----------------------------------------------------------------------
@@ -264,7 +445,7 @@ def manage_vaccinations(parent=None):
 		items = [ [
 			v['date_given'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
 			v['vaccine'],
-			u', '.join(v['indications']),
+			u', '.join(v['l10n_indications']),
 			v['batch_no'],
 			gmTools.coalesce(v['site'], u''),
 			gmTools.coalesce(v['reaction'], u''),
@@ -278,7 +459,7 @@ def manage_vaccinations(parent=None):
 		parent = parent,
 		msg = _('\nComplete vaccination history for this patient.\n'),
 		caption = _('Showing vaccinations.'),
-		columns = [ u'Date', _('Vaccine'), _(u'Indications'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ],
+		columns = [ _('Date'), _('Vaccine'), _(u'Intended to protect from'), _('Batch'), _('Site'), _('Reaction'), _('Comment') ],
 		single_selection = True,
 		refresh_callback = refresh,
 		new_callback = edit,
@@ -370,7 +551,13 @@ class cVaccinationIndicationsPnl(wxgVaccinationIndicationsPnl.wxgVaccinationIndi
 from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl
 
 class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
+	"""
+	- warn on apparent duplicates
+	- ask if "missing" (= previous, non-recorded) vaccinations
+	  should be estimated and saved (add note "auto-generated")
 
+	Batch No (http://www.fao.org/docrep/003/v9952E12.htm)
+	"""
 	def __init__(self, *args, **kwargs):
 
 		try:
@@ -632,258 +819,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 
 #======================================================================
-class cVaccinationEditAreaOld(gmEditArea.cEditArea2):
-	"""
-	- warn on apparent duplicates
-	- ask if "missing" (= previous, non-recorded) vaccinations
-	  should be estimated and saved (add note "auto-generated")
-	"""
-	def __init__(self, parent, id, pos, size, style, data_sink=None):
-		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
-		self.__data_sink = data_sink
-	#----------------------------------------------------
-	def _define_fields(self, parent):
-#		# regime/disease
-#		query = """
-#			select distinct on (regime)
-#				pk_regime,
-#				regime || ' - ' || _(indication)
-#			from
-#				v_vacc_defs4reg
-#			where
-#				regime || ' ' || _(indication) %(fragment_condition)s
-#			limit 25"""
-
-		# vaccine
-		# FIXME: move to gmClinicalRecord or gmVaccination
-		query = """
-			select
-				pk,
-				trade_name
-			from
-				vaccine
-			where
-				short_name || ' ' || trade_name %(fragment_condition)s
-			limit 25"""
-		mp = gmMatchProvider.cMatchProvider_SQL2([query])
-		mp.setThresholds(aWord=2, aSubstring=4)
-		self.fld_vaccine = gmPhraseWheel.cPhraseWheel(
-			parent = parent
-			, id = -1
-			, style = wx.SIMPLE_BORDER
-		)
-		self.fld_vaccine.matcher = mp
-		gmEditArea._decorate_editarea_field(self.fld_vaccine)
-		self._add_field(
-			line = 1,
-			pos = 1,
-			widget = self.fld_vaccine,
-			weight = 3
-		)
-
-		# FIXME: gmDateTimeInput
-		self.fld_date_given = gmEditArea.cEditAreaField(parent)
-		self._add_field(
-			line = 2,
-			pos = 1,
-			widget = self.fld_date_given,
-			weight = 2
-		)
-
-		# Batch No (http://www.fao.org/docrep/003/v9952E12.htm)
-		self.fld_batch_no = gmEditArea.cEditAreaField(parent)
-		self._add_field(
-			line = 3,
-			pos = 1,
-			widget = self.fld_batch_no,
-			weight = 1
-		)
-
-		# site given
-		query = """
-			select distinct on (tmp.site)
-				tmp.id, tmp.site
-			from (
-				select id, site
-				from vaccination
-				group by id, site
-				order by count(site)
-			) as tmp
-			where
-				tmp.site %(fragment_condition)s
-			limit 10"""
-		mp = gmMatchProvider.cMatchProvider_SQL2([query])
-		mp.setThresholds(aWord=1, aSubstring=3)
-		self.fld_site_given = gmPhraseWheel.cPhraseWheel(
-			parent = parent
-			, id = -1
-			, style = wx.SIMPLE_BORDER
-		)
-		self.fld_site_given.matcher = mp
-		gmEditArea._decorate_editarea_field(self.fld_site_given)
-		self._add_field(
-			line = 4,
-			pos = 1,
-			widget = self.fld_site_given,
-			weight = 1
-		)
-
-		# progress note
-		query = """
-			select distinct on (narrative)
-				id, narrative
-			from
-				vaccination
-			where
-				narrative %(fragment_condition)s
-			limit 30"""
-		mp = gmMatchProvider.cMatchProvider_SQL2([query])
-		mp.setThresholds(aWord=3, aSubstring=5)
-		self.fld_progress_note = gmPhraseWheel.cPhraseWheel(
-			parent = parent
-			, id = -1
-			, style = wx.SIMPLE_BORDER
-		)
-		self.fld_progress_note = mp
-		gmEditArea._decorate_editarea_field(self.fld_progress_note)
-		self._add_field(
-			line = 5,
-			pos = 1,
-			widget = self.fld_progress_note,
-			weight = 1
-		)
-		return 1
-	#----------------------------------------------------
-	def _define_prompts(self):
-		self._add_prompt(line = 1, label = _("Vaccine"))
-		self._add_prompt(line = 2, label = _("Date given"))
-		self._add_prompt(line = 3, label = _("Serial #"))
-		self._add_prompt(line = 4, label = _("Site injected"))
-		self._add_prompt(line = 5, label = _("Progress Note"))
-	#----------------------------------------------------
-	def _save_new_entry(self, episode):
-		# FIXME: validation ?
-		if self.__data_sink is None:
-			# save directly into database
-			emr = self._patient.get_emr()
-			# create new vaccination
-			successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue(), episode=episode)
-			if not successfull:
-				gmDispatcher.send(signal = 'statustext', msg =_('Cannot save vaccination: %s') % data)
-				return False
-			# update it with known data
-			data['pk_provider'] = gmPerson.gmCurrentProvider()['pk_staff']
-			data['date'] = self.fld_date_given.GetValue()
-			data['narrative'] = self.fld_progress_note.GetValue()
-			data['site'] = self.fld_site_given.GetValue()
-			data['batch_no'] = self.fld_batch_no.GetValue()
-			successful, err = data.save_payload()
-			if not successful:
-				gmDispatcher.send(signal = 'statustext', msg =_('Cannot save new vaccination: %s') % err)
-				return False
-			gmDispatcher.send(signal = 'statustext', msg =_('Vaccination saved.'))
-			self.data = data
-			return True
-		else:
-			# pump into data sink
-			data = {
-				'vaccine': self.fld_vaccine.GetValue(),
-				'pk_provider': gmPerson.gmCurrentProvider()['pk_staff'],
-				'date': self.fld_date_given.GetValue(),
-				'narrative': self.fld_progress_note.GetValue(),
-				'site': self.fld_site_given.GetValue(),
-				'batch_no': self.fld_batch_no.GetValue()
-			}
-			# FIXME: old_desc
-			successful = self.__data_sink (
-				popup_type = 'vaccination',
-				data = data,
-				desc = _('shot: %s, %s, %s') % (data['date'], data['vaccine'], data['site'])
-			)
-			if not successful:
-				gmDispatcher.send(signal = 'statustext', msg =_('Cannot queue new vaccination.'))
-				return False
-			gmDispatcher.send(signal = 'statustext', msg =_('Vaccination queued for saving.'))
-			return True
-	#----------------------------------------------------
-	def _save_modified_entry(self):
-		"""Update vaccination object and persist to backend.
-		"""
-		self.data['vaccine'] = self.fld_vaccine.GetValue()
-		self.data['batch_no'] = self.fld_batch_no.GetValue()
-		self.data['date'] = self.fld_date_given.GetValue()
-		self.data['site'] = self.fld_site_given.GetValue()
-		self.data['narrative'] = self.fld_progress_note.GetValue()
-		successfull, data = self.data.save_payload()
-		if not successfull:
-			gmDispatcher.send(signal = 'statustext', msg =_('Cannot update vaccination: %s') % err)
-			return False
-		gmDispatcher.send(signal = 'statustext', msg =_('Vaccination updated.'))
-		return True
-	#----------------------------------------------------
-	def save_data(self, episode=None):
-		if self.data is None:
-			return self._save_new_entry(episode=episode)
-		else:
-			return self._save_modified_entry()
-	#----------------------------------------------------
-	def set_data(self, aVacc = None):
-		"""Set edit area fields with vaccination object data.
-
-		- set defaults if no object is passed in, this will
-		  result in a new object being created upon saving
-		"""
-		# no vaccination passed in
-		if aVacc is None:
-			self.data = None
-			self.fld_vaccine.SetValue('')
-			self.fld_batch_no.SetValue('')
-			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
-			self.fld_site_given.SetValue(_('left/right deltoid'))
-			self.fld_progress_note.SetValue('')
-			return True
-
-		# previous vaccination for modification ?
-		if isinstance(aVacc, gmVaccination.cVaccination):
-			self.data = aVacc
-			self.fld_vaccine.SetValue(aVacc['vaccine'])
-			self.fld_batch_no.SetValue(aVacc['batch_no'])
-			self.fld_date_given.SetValue(aVacc['date'].strftime('%Y-%m-%d'))
-			self.fld_site_given.SetValue(aVacc['site'])
-			self.fld_progress_note.SetValue(aVacc['narrative'])
-			return True
-
-		# vaccination selected from list of missing ones
-		if isinstance(aVacc, gmVaccination.cMissingVaccination):
-			self.data = None
-			# FIXME: check for gap in seq_idx and offer filling in missing ones ?
-			self.fld_vaccine.SetValue('')
-			self.fld_batch_no.SetValue('')
-			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
-			# FIXME: use previously used value from table ?
-			self.fld_site_given.SetValue(_('left/right deltoid'))
-			if aVacc['overdue']:
-				self.fld_progress_note.SetValue(_('was due: %s, delayed because:') % aVacc['latest_due'].strftime('%x'))
-			else:
-				self.fld_progress_note.SetValue('')
-			return True
-
-		# booster selected from list of missing ones
-		if isinstance(aVacc, gmVaccination.cMissingBooster):
-			self.data = None
-			self.fld_vaccine.SetValue('')
-			self.fld_batch_no.SetValue('')
-			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
-			# FIXME: use previously used value from table ?
-			self.fld_site_given.SetValue(_('left/right deltoid'))
-			if aVacc['overdue']:
-				self.fld_progress_note.SetValue(_('booster: was due: %s, delayed because:') % aVacc['latest_due'].strftime('%Y-%m-%d'))
-			else:
-				self.fld_progress_note.SetValue(_('booster'))
-			return True
-
-		_log.Log(gmLog.lErr, 'do not know how to handle [%s:%s]' % (type(aVacc), str(aVacc)))
-		return False
 #======================================================================
 class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
