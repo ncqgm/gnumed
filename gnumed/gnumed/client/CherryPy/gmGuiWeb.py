@@ -9,7 +9,9 @@ __version__ = "$Revision: 1 $"
 __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import cherrypy
+import cherrypy                         # importing the CherryPy server library
+from Cheetah.Template import Template   # importing the Cheetah Template engine
+
 
 # stdlib
 import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2, re as regex
@@ -19,6 +21,7 @@ from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
 from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N, gmDispatcher
 
 from Gnumed.business import gmDocuments
+from Gnumed.CherryPy import gmGuiHelpersWeb 
 
 #try:
 #	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -104,13 +107,13 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 					)
 				msg = msg % e
 				msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
-				gmGuiHelpers.gm_show_error_web (
+				gmGuiHelpersWeb.gm_show_error (
 					msg,
 					_('Connecting to backend')
 				)
 			del e
 			continue
-
+			
 		except gmPG2.dbapi.OperationalError, e:
 			_log.error(u"login attempt failed: %s", e)
 			msg = _(
@@ -119,7 +122,7 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 				"Please retry another backend / user / password combination !\n"
 			) % gmPG2.extract_msg_from_pg_exception(e)
 			msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
-			gmGuiHelpers.gm_show_error_web (
+			gmGuiHelpersWeb.gm_show_error (
 				msg,
 				_('Connecting to backend')
 			)
@@ -147,9 +150,9 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 #			)
 
 #			if require_version:
-			#	gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
+			#	gmGuiHelpersWeb.gm_show_error(msg + msg_fail, _('Verifying database version'))
 #				pass
-			#gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'))
+			#gmGuiHelpersWeb.gm_show_info(msg + msg_override, _('Verifying database version'))
 
 #		# FIXME: make configurable
 #		max_skew = 1		# minutes
@@ -157,14 +160,14 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 #			max_skew = 10
 #		if not gmPG2.sanity_check_time_skew(tolerance = (max_skew * 60)):
 #			if _cfg.get(option = 'debug'):
-#				gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
+#				gmGuiHelpersWeb.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
 #			else:
-#				gmGuiHelpers.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
+#				gmGuiHelpersWeb.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
 #				continue
 
 #		sanity_level, message = gmPG2.sanity_check_database_settings()
 #		if sanity_level != 0:
-#			gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
+#			gmGuiHelpersWeb.gm_show_error((msg_insanity % message), _('Verifying database settings'))
 #			if sanity_level == 2:
 #				continue
 
@@ -336,29 +339,45 @@ class gmApp:
 			expected_version = gmPG2.map_client_branch2required_db_version[_cfg.get(option = 'client_branch')],
 			require_version = not override
 		)
-	msg = self.doSomething()
-	return msg
+	if connected:
+		msg = self.doSomething()
+		return msg
+	else:
+		return 'something went wrong'
 
     doLogin.exposed = True
 
     # ------------------------------------------------------------
     def index(self):
-		# backend is hardcoded for now, make it use drop down list later
-        return """
-        <form action="doLogin" method="post">
-	    <p>Backend</p>
-	    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
-		size="15" maxlength="40"/>
-	    <p>Username</p>
-	    <input type="text" name="username" value="" 
-		size="15" maxlength="40"/>
-	    <p>Password</p>
-	    <input type="password" name="password" value="" 
-		size="10" maxlength="40"/>
-	    <p><input type="submit" value="Login"/></p>
-	    <p><input type="reset" value="Clear"/></p>
-	</form>
-        """
+	# backend is hardcoded for now, make it use drop down list later
+        # building the html out of the Cheetah Template
+        t = Template( file="CherryPy/templates/index.tmpl"
+            # a dictionnary containing values that is going to be inserted in the Template
+            , searchList = {
+                "title" : "Welcome to GNUmed - Login"
+                , "cssFiles" : ["css/ext-all.css", "css/xtheme-gray.css"]
+                , "jsFiles" : ["ext/ext-base.js", "ext/ext-core.js"]
+                , "backend" : "GNUmed database on this machine (Linux/Mac) (gnumed_v13@)"
+            }
+        )
+        return str( t )     # returning a string representation of the Template. CherryPy will only let you return strings with an exposed function
+
+        
+        #return """
+        #<form action="doLogin" method="post">
+	#    <p>Backend</p>
+	#    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v13@)"
+	#	size="15" maxlength="40"/>
+	#    <p>Username</p>
+	#    <input type="text" name="username" value="" 
+	#	size="15" maxlength="40"/>
+	#    <p>Password</p>
+	#    <input type="password" name="password" value="" 
+	#	size="10" maxlength="40"/>
+	#    <p><input type="submit" value="Login"/></p>
+	#    <p><input type="reset" value="Clear"/></p>
+	#</form>
+        #"""
     index.exposed = True
 
 #==========================================================
