@@ -2086,11 +2086,15 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._PRW_lastname.final_regex = '.+'
 		self._PRW_firstnames.final_regex = '.+'
 		self._PRW_address_searcher.selection_only = False
-		low = wx.DateTimeFromDMY(1,0,1900)
-		hi = wx.DateTime()
-		self._DP_dob.SetRange(low, hi.SetToCurrent())
+
+		# don't do that or else it will turn <invalid> into <today> :-(
+#		low = wx.DateTimeFromDMY(1,0,1900)
+#		hi = wx.DateTime()
+#		self._DP_dob.SetRange(low, hi.SetToCurrent())
+		#self._DP_dob.SetValue(None)
+
 		# only if we would support None on selection_only's:
-		#self._PRW_external_id_type.selection_only = True
+#		self._PRW_external_id_type.selection_only = True
 
 		if self.default_country is not None:
 			self._PRW_country.SetText(value = self.default_country)
@@ -2158,8 +2162,41 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_gender.display_as_valid(True)
 
 		# dob validation
-		# NULL ?
-		if self._DP_dob.GetValue() is None:
+		dob = self._DP_dob.GetValue(as_pydt = False, invalid_as_none = True)
+		# 1) valid timestamp ?
+		if self._DP_dob.is_valid_timestamp(allow_none = False):			# properly colors the field
+			# but year also usable ?
+			msg = None
+			if (dob.GetYear() < 1900):
+				msg = _(
+					'DOB: %s\n'
+					'\n'
+					'While this is a valid point in time Python does\n'
+					'not know how to deal with it.\n'
+					'\n'
+					'We suggest using January 1st 1901 instead and adding\n'
+					'the true date of birth to the patient comment.\n'
+					'\n'
+					'Sorry for the inconvenience %s'
+				) % (dob, gmTools.u_frowning_face)
+			elif dob > gmDateTime.wx_now_here(wx = wx):
+				msg = _(
+					'DOB: %s\n'
+					'\n'
+					'Date of birth in the future !'
+				) % dob
+
+			if msg is not None:
+				error = True
+				gmGuiHelpers.gm_show_error (
+					msg,
+					_('Registering new person')
+				)
+				self._DP_dob.display_as_valid(False)
+				self._DP_dob.SetFocus()
+		# 2) invalid timestamp ?
+		#	Do we have to check for u'', ever ?
+		else:
 			allow_empty_dob = gmGuiHelpers.gm_show_question (
 				_(
 					'Are you sure you want to register this person\n'
@@ -2171,26 +2208,11 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 				),
 				_('Registering new person')
 			)
-
 			if allow_empty_dob:
 				self._DP_dob.display_as_valid(True)
 			else:
 				error = True
-				self._DP_dob.display_as_valid(False)
 				self._DP_dob.SetFocus()
-
-		# valid timestamp ?
-		elif self._DP_dob.is_valid_timestamp(allow_none = False):
-			# already colored properly by is_valid_timestamp()
-			if self._DP_dob.GetValue().GetYear() < 1900:
-				error = True
-				gmDispatcher.send(signal = 'statustext', msg = _('The year of birth must lie after 1900.'), beep = True)
-				self._DP_dob.SetFocus()
-
-		# not NULL but invalid timestamp
-		#	Do we have to check for u'', ever ?
-		else:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth. Does it lie before 1900 ?'))
 
 		# TOB validation if non-empty
 #		if self._TCTRL_tob.GetValue().strip() != u'':

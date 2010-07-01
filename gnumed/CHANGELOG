@@ -32,7 +32,7 @@ IMPROVED: DOB validity check when creating new person
 
 	0.7.7
 
-IMPROVED: cleaner checking of DOB validity on creating new person
+FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
 
 	0.7.6
 
