@@ -39,6 +39,7 @@ IMPROVED: re-add encounters to auditing
 IMPROVED: show loinc info for test in test results EA
 IMPROVED: much smarter result units phrasewheel
 IMPROVED: DOB validity check when creating new person
+IMPROVED: better layout of configuration listing
 
 ------------------------------------------------
 # rel-0-7-patches

@@ -68,13 +68,13 @@ def list_configuration(parent=None):
 
 	#---------------
 	def refresh(lctrl):
-		opts = gmCfg.get_all_options()
+		opts = gmCfg.get_all_options(order_by = u'owner, workplace, option')
 
 		items = [ [
-			o['option'],
-			o['value'],
 			o['owner'],
 			o['workplace'],
+			o['option'],
+			o['value'],
 			o['type'],
 			gmTools.coalesce(o['description'], u'')
 		] for o in opts ]
@@ -85,7 +85,7 @@ def list_configuration(parent=None):
 		parent = parent,
 		msg = _('This list shows all configuration settings from the database.'),
 		caption = _('Showing configuration'),
-		columns = [_('Option'), _('Value'), _('User'), _('Workplace'), _('Type'), _('Description')],
+		columns = [ _('User'), _('Workplace'), _('Option'), _('Value'), _('Type'), _('Description') ],
 		refresh_callback = refresh,
 		ignore_OK_button = True
 	)
