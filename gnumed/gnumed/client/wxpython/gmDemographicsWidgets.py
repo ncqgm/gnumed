@@ -5,7 +5,7 @@ __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex, logging
+import sys, os, codecs, re as regex, logging
 
 
 import wx
@@ -18,11 +18,9 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmCfg
 from Gnumed.pycommon import gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson, gmSurgery
-from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
+from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
 from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
-from Gnumed.wxpython import gmAuthWidgets, gmCfgWidgets
-from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl
-from Gnumed.wxGladeWidgets import wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
+from Gnumed.wxpython import gmAuthWidgets
 
 
 # constant defs
@@ -34,386 +32,6 @@ try:
 except NameError:
 	_ = lambda x:x
 
-#============================================================
-# country related widgets / functions
-#============================================================
-def configure_default_country(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	countries = gmDemographicRecord.get_countries()
-
-	gmCfgWidgets.configure_string_from_list_option (
-		parent = parent,
-		message = _('Select the default country for new persons.\n'),
-		option = 'person.create.default_country',
-		bias = 'user',
-		choices = [ (c['l10n_country'], c['code']) for c in countries ],
-		columns = [_('Country'), _('Code')],
-		data = [ c['name'] for c in countries ]
-	)
-#============================================================
-class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-
-		context = {
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
-			}
-		}
-		query = u"""
-select code, name from (
-	select distinct on (code, name) code, (name || ' (' || code || ')') as name, rank from (
-
--- localized to user
-
-			select
-				code_country as code, l10n_country as name, 1 as rank
-			from dem.v_zip2data
-			where
-				l10n_country %(fragment_condition)s
-				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, _(name) as name, 2 as rank
-			from dem.country
-			where
-				_(name) %(fragment_condition)s
-
-		union all
-
--- non-localized
-
-			select
-				code_country as code, country as name, 3 as rank
-			from dem.v_zip2data
-			where
-				country %(fragment_condition)s
-				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, name as name, 4 as rank
-			from dem.country
-			where
-				name %(fragment_condition)s
-
-		union all
-
--- abbreviation
-
-			select
-				code as code, name as name, 5 as rank
-			from dem.country
-			where
-				code %(fragment_condition)s
-
-	) as q2
-) as q1 order by rank, name limit 25"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
-		mp.setThresholds(2, 5, 9)
-		self.matcher = mp
-
-		self.unset_context(context = u'zip')
-		self.SetToolTipString(_('Type or select a country.'))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.selection_only = True
-
-#============================================================
-# province related widgets / functions
-#============================================================
-def configure_default_region(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	provs = gmDemographicRecord.get_provinces()
-
-	gmCfgWidgets.configure_string_from_list_option (
-		parent = parent,
-		message = _('Select the default region/province/state/territory for new persons.\n'),
-		option = 'person.create.default_region',
-		bias = 'user',
-		choices = [ (p['l10n_country'], p['l10n_state'], p['code_state']) for p in provs ],
-		columns = [_('Country'), _('Region'), _('Code')],
-		data = [ p['state'] for p in provs ]
-	)
-#============================================================
-def edit_province(parent=None, province=None):
-	ea = cProvinceEAPnl(parent = parent, id = -1, province = province)
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (province is not None))
-	dlg.SetTitle(gmTools.coalesce(province, _('Adding province'), _('Editing province')))
-	result = dlg.ShowModal()
-	dlg.Destroy()
-	return (result == wx.ID_OK)
-#============================================================
-def delete_province(parent=None, province=None):
-
-	msg = _(
-		'Are you sure you want to delete this province ?\n'
-		'\n'
-		'Deletion will only work if this province is not\n'
-		'yet in use in any patient addresses.'
-	)
-
-	tt = _(
-		'Also delete any towns/cities/villages known\n'
-		'to be situated in this state as long as\n'
-		'no patients are recorded to live there.'
-	)
-
-	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-		parent,
-		-1,
-		caption = _('Deleting province'),
-		question = msg,
-		show_checkbox = True,
-		checkbox_msg = _('delete related townships'),
-		checkbox_tooltip = tt,
-		button_defs = [
-			{'label': _('Yes, delete'), 'tooltip': _('Delete province and possibly related townships.'), 'default': False},
-			{'label': _('No'), 'tooltip': _('No, do NOT delete anything.'), 'default': True}
-		]
-	)
-
-	decision = dlg.ShowModal()
-	if decision != wx.ID_YES:
-		dlg.Destroy()
-		return False
-
-	include_urbs = dlg.checkbox_is_checked()
-	dlg.Destroy()
-
-	return gmDemographicRecord.delete_province(province = province, delete_urbs = include_urbs)
-#============================================================
-def manage_provinces(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	#------------------------------------------------------------
-	def delete(province=None):
-		return delete_province(parent = parent, province = province['pk_state'])
-	#------------------------------------------------------------
-	def edit(province=None):
-		return edit_province(parent = parent, province = province)
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		wx.BeginBusyCursor()
-		provinces = gmDemographicRecord.get_provinces()
-		lctrl.set_string_items([ (p['l10n_country'], p['l10n_state']) for p in provinces ])
-		lctrl.set_data(provinces)
-		wx.EndBusyCursor()
-	#------------------------------------------------------------
-	msg = _(
-		'\n'
-		'This list shows the provinces known to GNUmed.\n'
-		'\n'
-		'In your jurisdiction "province" may correspond to either of "state",\n'
-		'"county", "region", "territory", or some such term.\n'
-		'\n'
-		'Select the province you want to edit !\n'
-	)
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = _('Editing provinces ...'),
-		columns = [_('Country'), _('Province')],
-		single_selection = True,
-		new_callback = edit,
-		#edit_callback = edit,
-		delete_callback = delete,
-		refresh_callback = refresh
-	)
-#============================================================
-class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-
-		context = {
-			u'ctxt_country_name': {
-				u'where_part': u'and l10n_country ilike %(country_name)s or country ilike %(country_name)s',
-				u'placeholder': u'country_name'
-			},
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
-			},
-			u'ctxt_country_code': {
-				u'where_part': u'and country in (select code from dem.country where _(name) ilike %(country_name)s or name ilike %(country_name)s)',
-				u'placeholder': u'country_name'
-			}
-		}
-
-		query = u"""
-select code, name from (
-	select distinct on (name) code, name, rank from (
-			-- 1: find states based on name, context: zip and country name
-			select
-				code_state as code, state as name, 1 as rank
-			from dem.v_zip2data
-			where
-				state %(fragment_condition)s
-				%(ctxt_country_name)s
-				%(ctxt_zip)s
-
-		union all
-
-			-- 2: find states based on code, context: zip and country name
-			select
-				code_state as code, state as name, 2 as rank
-			from dem.v_zip2data
-			where
-				code_state %(fragment_condition)s
-				%(ctxt_country_name)s
-				%(ctxt_zip)s
-
-		union all
-
-			-- 3: find states based on name, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
-				name %(fragment_condition)s
-				%(ctxt_country_code)s
-
-		union all
-
-			-- 4: find states based on code, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
-				code %(fragment_condition)s
-				%(ctxt_country_code)s
-
-	) as q2
-) as q1 order by rank, name limit 50"""
-
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
-		mp.setThresholds(2, 5, 6)
-		mp.word_separators = u'[ \t]+'
-		self.matcher = mp
-
-		self.unset_context(context = u'zip')
-		self.unset_context(context = u'country_name')
-		self.SetToolTipString(_('Type or select a state/region/province/territory.'))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.selection_only = True
-#====================================================================
-from Gnumed.wxGladeWidgets import wxgProvinceEAPnl
-
-class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditAreaMixin):
-
-	def __init__(self, *args, **kwargs):
-
-		try:
-			data = kwargs['province']
-			del kwargs['province']
-		except KeyError:
-			data = None
-
-		wxgProvinceEAPnl.wxgProvinceEAPnl.__init__(self, *args, **kwargs)
-		gmEditArea.cGenericEditAreaMixin.__init__(self)
-
-		self.mode = 'new'
-		self.data = data
-		if data is not None:
-			self.mode = 'edit'
-
-		self.__init_ui()
-	#----------------------------------------------------------------
-	def __init_ui(self):
-		self._PRW_province.selection_only = False
-	#----------------------------------------------------------------
-	# generic Edit Area mixin API
-	#----------------------------------------------------------------
-	def _valid_for_save(self):
-
-		validity = True
-
-		if self._PRW_province.GetData() is None:
-			if self._PRW_province.GetValue().strip() == u'':
-				validity = False
-				self._PRW_province.display_as_valid(False)
-			else:
-				self._PRW_province.display_as_valid(True)
-		else:
-			self._PRW_province.display_as_valid(True)
-
-		if self._PRW_province.GetData() is None:
-			if self._TCTRL_code.GetValue().strip() == u'':
-				validity = False
-				self._TCTRL_code.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-			else:
-				self._TCTRL_code.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-
-		if self._PRW_country.GetData() is None:
-			validity = False
-			self._PRW_country.display_as_valid(False)
-		else:
-			self._PRW_country.display_as_valid(True)
-
-		return validity
-	#----------------------------------------------------------------
-	def _save_as_new(self):
-		gmDemographicRecord.create_province (
-			name = self._PRW_province.GetValue().strip(),
-			code = self._TCTRL_code.GetValue().strip(),
-			country = self._PRW_country.GetData()
-		)
-
-		# EA is refreshed automatically after save, so need this ...
-		self.data = {
-			'l10n_state' : self._PRW_province.GetValue().strip(),
-			'code_state' : self._TCTRL_code.GetValue().strip(),
-			'l10n_country' : self._PRW_country.GetValue().strip()
-		}
-
-		return True
-	#----------------------------------------------------------------
-	def _save_as_update(self):
-		# update self.data and save the changes
-		#self.data[''] = 
-		#self.data[''] = 
-		#self.data[''] = 
-		#self.data.save()
-
-		# do nothing for now (IOW, don't support updates)
-		return True
-	#----------------------------------------------------------------
-	def _refresh_as_new(self):
-		self._PRW_province.SetText()
-		self._TCTRL_code.SetValue(u'')
-		self._PRW_country.SetText()
-
-		self._PRW_province.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_from_existing(self):
-		self._PRW_province.SetText(self.data['l10n_state'], self.data['code_state'])
-		self._TCTRL_code.SetValue(self.data['code_state'])
-		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
-
-		self._PRW_province.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_as_new_from_existing(self):
-		self._PRW_province.SetText()
-		self._TCTRL_code.SetValue(u'')
-		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
-
-		self._PRW_province.SetFocus()
 #============================================================
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
@@ -487,6 +105,8 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 	def repopulate_ui(self):
 		self.reload_appointments()
 #============================================================
+# occupation related widgets / functions
+#============================================================
 def edit_occupation():
 
 	pat = gmPerson.gmCurrentPatient()
@@ -521,6 +141,25 @@ def edit_occupation():
 			pat.unlink_occupation(occupation = job['l10n_occupation'])
 	# and link the new one
 	pat.link_occupation(occupation = new_job)
+
+#------------------------------------------------------------
+class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"select distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 5)
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.SetToolTipString(_("Type or select an occupation."))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.matcher = mp
+
+#============================================================
+# identity widgets / functions
 #============================================================
 def disable_identity(identity=None):
 	# ask user for assurance
@@ -563,793 +202,8 @@ def disable_identity(identity=None):
 	gmPG2.run_rw_queries(queries = [{'cmd': u"update dem.identity set deleted=True where pk=%s", 'args': [identity['pk_identity']]}])
 
 	return True
-#============================================================
-# address phrasewheels and widgets
-#============================================================
-class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
-	"""A list for managing a person's addresses.
 
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-
-		try:
-			self.__identity = kwargs['identity']
-			del kwargs['identity']
-		except KeyError:
-			self.__identity = None
-
-		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
-
-		self.new_callback = self._add_address
-		self.edit_callback = self._edit_address
-		self.delete_callback = self._del_address
-		self.refresh_callback = self.refresh
-
-		self.__init_ui()
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, *args, **kwargs):
-		if self.__identity is None:
-			self._LCTRL_items.set_string_items()
-			return
-
-		adrs = self.__identity.get_addresses()
-		self._LCTRL_items.set_string_items (
-			items = [ [
-					a['l10n_address_type'],
-					a['street'],
-					gmTools.coalesce(a['notes_street'], u''),
-					a['number'],
-					gmTools.coalesce(a['subunit'], u''),
-					a['postcode'],
-					a['urb'],
-					gmTools.coalesce(a['suburb'], u''),
-					a['l10n_state'],
-					a['l10n_country'],
-					gmTools.coalesce(a['notes_subunit'], u'')
-				] for a in adrs
-			]
-		)
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.set_data(data = adrs)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('List of known addresses.'))
-		self._LCTRL_items.set_columns(columns = [
-			_('Type'),
-			_('Street'),
-			_('Street info'),
-			_('Number'),
-			_('Subunit'),
-			_('Postal code'),
-			_('Place'),
-			_('Suburb'),
-			_('Region'),
-			_('Country'),
-			_('Comment')
-		])
-	#--------------------------------------------------------
-	def _add_address(self):
-		ea = cAddressEditAreaPnl(self, -1)
-		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
-		dlg.SetTitle(_('Adding new address'))
-		if dlg.ShowModal() == wx.ID_OK:
-			return True
-		return False
-	#--------------------------------------------------------
-	def _edit_address(self, address):
-		ea = cAddressEditAreaPnl(self, -1, address = address)
-		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
-		dlg.SetTitle(_('Editing address'))
-		if dlg.ShowModal() == wx.ID_OK:
-			# did we add an entirely new address ?
-			# if so then unlink the old one as implied by "edit"
-			if ea.address['pk_address'] != address['pk_address']:
-				self.__identity.unlink_address(address = address)
-			return True
-		return False
-	#--------------------------------------------------------
-	def _del_address(self, address):
-		go_ahead = gmGuiHelpers.gm_show_question (
-			_(	'Are you sure you want to remove this\n'
-				"address from the patient's addresses ?\n"
-				'\n'
-				'The address itself will not be deleted\n'
-				'but it will no longer be associated with\n'
-				'this patient.'
-			),
-			_('Removing address')
-		)
-		if not go_ahead:
-			return False
-		self.__identity.unlink_address(address = address)
-		return True
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_identity(self):
-		return self.__identity
-
-	def _set_identity(self, identity):
-		self.__identity = identity
-		self.refresh()
-
-	identity = property(_get_identity, _set_identity)
-#============================================================
-class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsManagerPnl):
-	"""A panel for editing contact data for a person.
-
-	- provides access to:
-	  - addresses
-	  - communication paths
-
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-
-		wxgPersonContactsManagerPnl.wxgPersonContactsManagerPnl.__init__(self, *args, **kwargs)
-
-		self.__identity = None
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self):
-		self._PNL_addresses.identity = self.__identity
-		self._PNL_comms.identity = self.__identity
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_identity(self):
-		return self.__identity
-
-	def _set_identity(self, identity):
-		self.__identity = identity
-		self.refresh()
-
-	identity = property(_get_identity, _set_identity)
-#============================================================
-class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl):
-	"""An edit area for editing/creating an address.
-
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-		try:
-			self.address = kwargs['address']
-			del kwargs['address']
-		except KeyError:
-			self.address = None
-
-		wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl.__init__(self, *args, **kwargs)
-
-		self.identity = None
-
-		self.__register_interests()
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, address = None):
-		if address is not None:
-			self.address = address
-
-		if self.address is not None:
-			self._PRW_type.SetText(self.address['l10n_address_type'])
-			self._PRW_zip.SetText(self.address['postcode'])
-			self._PRW_street.SetText(self.address['street'], data = self.address['street'])
-			self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.address['notes_street'], ''))
-			self._TCTRL_number.SetValue(self.address['number'])
-			self._TCTRL_subunit.SetValue(gmTools.coalesce(self.address['subunit'], ''))
-			self._PRW_suburb.SetText(gmTools.coalesce(self.address['suburb'], ''))
-			self._PRW_urb.SetText(self.address['urb'], data = self.address['urb'])
-			self._PRW_state.SetText(self.address['l10n_state'], data = self.address['code_state'])
-			self._PRW_country.SetText(self.address['l10n_country'], data = self.address['code_country'])
-			self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.address['notes_subunit'], ''))
-		# FIXME: clear fields
-#		else:
-#			pass
-	#--------------------------------------------------------
-	def save(self):
-		"""Links address to patient, creating new address if necessary"""
-
-		if not self.__valid_for_save():
-			return False
-
-		# link address to patient
-		try:
-			adr = self.identity.link_address (
-				number = self._TCTRL_number.GetValue().strip(),
-				street = self._PRW_street.GetValue().strip(),
-				postcode = self._PRW_zip.GetValue().strip(),
-				urb = self._PRW_urb.GetValue().strip(),
-				state = self._PRW_state.GetData(),
-				country = self._PRW_country.GetData(),
-				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u''),
-				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
-				id_type = self._PRW_type.GetData()
-			)
-		except:
-			_log.exception('cannot save address')
-			gmGuiHelpers.gm_show_error (
-				_('Cannot save address.\n\n'
-				  'Does the state [%s]\n'
-				  'exist in country [%s] ?'
-				) % (
-					self._PRW_state.GetValue().strip(),
-					self._PRW_country.GetValue().strip()
-				),
-				_('Saving address')
-			)
-			return False
-
-		notes = self._TCTRL_notes_street.GetValue().strip()
-		if notes != u'':
-			adr['notes_street'] = notes
-		notes = self._TCTRL_notes_subunit.GetValue().strip()
-		if notes != u'':
-			adr['notes_subunit'] = notes
-		adr.save_payload()
-
-		self.address = adr
-
-		return True
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		self._PRW_zip.add_callback_on_lose_focus(self._on_zip_set)
-		self._PRW_country.add_callback_on_lose_focus(self._on_country_set)
-	#--------------------------------------------------------
-	def _on_zip_set(self):
-		"""Set the street, town, state and country according to entered zip code."""
-		zip_code = self._PRW_zip.GetValue()
-		if zip_code.strip() == u'':
-			self._PRW_street.unset_context(context = u'zip')
-			self._PRW_urb.unset_context(context = u'zip')
-			self._PRW_state.unset_context(context = u'zip')
-			self._PRW_country.unset_context(context = u'zip')
-		else:
-			self._PRW_street.set_context(context = u'zip', val = zip_code)
-			self._PRW_urb.set_context(context = u'zip', val = zip_code)
-			self._PRW_state.set_context(context = u'zip', val = zip_code)
-			self._PRW_country.set_context(context = u'zip', val = zip_code)
-	#--------------------------------------------------------
-	def _on_country_set(self):
-		"""Set the states according to entered country."""
-		country = self._PRW_country.GetData()
-		if country is None:
-			self._PRW_state.unset_context(context = 'country')
-		else:
-			self._PRW_state.set_context(context = 'country', val = country)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __valid_for_save(self):
-
-		# validate required fields
-		is_any_field_filled = False
-
-		required_fields = (
-			self._PRW_type,
-			self._PRW_zip,
-			self._PRW_street,
-			self._TCTRL_number,
-			self._PRW_urb
-		)
-		for field in required_fields:
-			if len(field.GetValue().strip()) == 0:
-				if is_any_field_filled:
-					field.SetBackgroundColour('pink')
-					field.SetFocus()
-					field.Refresh()
-					gmGuiHelpers.gm_show_error (
-						_('Address details must be filled in completely or not at all.'),
-						_('Saving contact data')
-					)
-					return False
-			else:
-				is_any_field_filled = True
-				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()
-
-		required_fields = (
-			self._PRW_state,
-			self._PRW_country
-		)
-		for field in required_fields:
-			if field.GetData() is None:
-				if is_any_field_filled:
-					field.SetBackgroundColour('pink')
-					field.SetFocus()
-					field.Refresh()
-					gmGuiHelpers.gm_show_error (
-						_('Address details must be filled in completely or not at all.'),
-						_('Saving contact data')
-					)
-					return False
-			else:
-				is_any_field_filled = True
-				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()
-
-		return True
-#============================================================
-class cAddressMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
-
-	def __init__(self):
-
-		query = u"""
-select * from (
-	(select
-		pk_address,
-		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '') || ', '
-		|| postcode
-		|| coalesce(', ' || notes_street, '')
-		|| coalesce(', ' || notes_subunit, '')
-		) as address
-	from
-		dem.v_address
-	where
-		street %(fragment_condition)s
-
-	) union (
-
-	select
-		pk_address,
-		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '') || ', '
-		|| postcode
-		|| coalesce(', ' || notes_street, '')
-		|| coalesce(', ' || notes_subunit, '')
-		) as address
-	from
-		dem.v_address
-	where
-		postcode_street %(fragment_condition)s
-
-	) union (
-
-	select
-		pk_address,
-		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '') || ', '
-		|| postcode
-		|| coalesce(', ' || notes_street, '')
-		|| coalesce(', ' || notes_subunit, '')
-		) as address
-	from
-		dem.v_address
-	where
-		postcode_urb %(fragment_condition)s
-	)
-) as union_result
-order by union_result.address limit 50"""
-
-		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = query)
-
-		self.setThresholds(2, 4, 6)
-#		self.word_separators = u'[ \t]+'
-
-#============================================================
-class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		mp = cAddressMatchProvider()
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.matcher = cAddressMatchProvider()
-		self.SetToolTipString(_('Select an address by postcode or street name.'))
-		self.selection_only = True
-		self.__address = None
-		self.__old_pk = None
-	#--------------------------------------------------------
-	def get_address(self):
-
-		pk = self.GetData()
-
-		if pk is None:
-			self.__address = None
-			return None
-
-		if self.__address is None:
-			self.__old_pk = pk
-			self.__address = gmDemographicRecord.cAddress(aPK_obj = pk)
-		else:
-			if pk != self.__old_pk:
-				self.__old_pk = pk
-				self.__address = gmDemographicRecord.cAddress(aPK_obj = pk)
-
-		return self.__address
-#============================================================
-class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		query = u"""
-select id, type from ((
-	select id, _(name) as type, 1 as rank
-	from dem.address_type
-	where _(name) %(fragment_condition)s
-) union (
-	select id, name as type, 2 as rank
-	from dem.address_type
-	where name %(fragment_condition)s
-)) as ur
-order by
-	ur.rank, ur.type
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 4)
-		mp.word_separators = u'[ \t]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.matcher = mp
-		self.SetToolTipString(_('Select the type of address.'))
-#		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.selection_only = True
-	#--------------------------------------------------------
-#	def GetData(self, can_create=False):
-#		if self.data is None:
-#			if can_create:
-#				self.data = gmDocuments.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
-#		return self.data
-#============================================================
-class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-		# FIXME: add possible context
-		query = u"""
-			(select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s limit 20)
-				union
-			(select distinct postcode, postcode from dem.urb where postcode %(fragment_condition)s limit 20)"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(2, 3, 15)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.SetToolTipString(_("Type or select a zip code (postcode)."))
-		self.matcher = mp
-#============================================================
-class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-		context = {
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
-			}
-		}
-		query = u"""
-select s1, s2 from (
-	select s1, s2, rank from (
-			select distinct on (street)
-				street as s1, street as s2, 1 as rank
-			from dem.v_zip2data
-			where
-				street %(fragment_condition)s
-				%(ctxt_zip)s
-
-		union all
-
-			select distinct on (name)
-				name as s1, name as s2, 2 as rank
-			from dem.street
-			where
-				name %(fragment_condition)s
-
-	) as q2
-) as q1 order by rank, s2 limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
-		mp.setThresholds(3, 5, 8)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.unset_context(context = u'zip')
-
-		self.SetToolTipString(_('Type or select a street.'))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.matcher = mp
-#============================================================
-class cSuburbPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		query = """
-select distinct on (suburb) suburb, suburb
-from dem.street
-where suburb %(fragment_condition)s
-order by suburb
-limit 50
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(2, 3, 6)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-
-		self.SetToolTipString(_('Type or select the suburb.'))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.matcher = mp
-#============================================================
-class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-		context = {
-			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': u'zip'
-			}
-		}
-		query = u"""
-select u1, u2 from (
-	select distinct on (rank, u1)
-		u1, u2, rank
-	from (
-			select
-				urb as u1, urb as u2, 1 as rank
-			from dem.v_zip2data
-			where
-				urb %(fragment_condition)s
-				%(ctxt_zip)s
-
-		union all
-
-			select
-				name as u1, name as u2, 2 as rank
-			from dem.urb
-			where
-				name %(fragment_condition)s
-	) as union_result
-	order by rank, u1
-) as distincted_union
-limit 50
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
-		mp.setThresholds(3, 5, 7)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.unset_context(context = u'zip')
-
-		self.SetToolTipString(_('Type or select a city/town/village/dwelling.'))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.matcher = mp
-#============================================================
-# communications channel related widgets
-#============================================================
-class cCommChannelTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		query = u"""
-select pk, type from ((
-	select pk, _(description) as type, 1 as rank
-	from dem.enum_comm_types
-	where _(description) %(fragment_condition)s
-) union (
-	select pk, description as type, 2 as rank
-	from dem.enum_comm_types
-	where description %(fragment_condition)s
-)) as ur
-order by
-	ur.rank, ur.type
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 4)
-		mp.word_separators = u'[ \t]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.matcher = mp
-		self.SetToolTipString(_('Select the type of communications channel.'))
-		self.selection_only = True
 #------------------------------------------------------------
-class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl):
-	"""An edit area for editing/creating a comms channel.
-
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-		try:
-			self.channel = kwargs['comm_channel']
-			del kwargs['comm_channel']
-		except KeyError:
-			self.channel = None
-
-		wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl.__init__(self, *args, **kwargs)
-
-		self.identity = None
-
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, comm_channel = None):
-		if comm_channel is not None:
-			self.channel = comm_channel
-
-		if self.channel is None:
-			self._PRW_type.SetText(u'')
-			self._TCTRL_url.SetValue(u'')
-			self._PRW_address.SetText(value = u'', data = None)
-			self._CHBOX_confidential.SetValue(False)
-		else:
-			self._PRW_type.SetText(self.channel['l10n_comm_type'])
-			self._TCTRL_url.SetValue(self.channel['url'])
-			self._PRW_address.SetData(data = self.channel['pk_address'])
-			self._CHBOX_confidential.SetValue(self.channel['is_confidential'])
-	#--------------------------------------------------------
-	def save(self):
-		"""Links comm channel to patient."""
-		if self.channel is None:
-			if not self.__valid_for_save():
-				return False
-			try:
-				self.channel = self.identity.link_comm_channel (
-					pk_channel_type = self._PRW_type.GetData(),
-					url = self._TCTRL_url.GetValue().strip(),
-					is_confidential = self._CHBOX_confidential.GetValue(),
-				)
-			except gmPG2.dbapi.IntegrityError:
-				_log.exception('error saving comm channel')
-				gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
-				return False
-		else:
-			comm_type = self._PRW_type.GetValue().strip()
-			if comm_type != u'':
-				self.channel['comm_type'] = comm_type
-			url = self._TCTRL_url.GetValue().strip()
-			if url != u'':
-				self.channel['url'] = url
-			self.channel['is_confidential'] = self._CHBOX_confidential.GetValue()
-
-		self.channel['pk_address'] = self._PRW_address.GetData()
-		self.channel.save_payload()
-
-		return True
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __valid_for_save(self):
-
-		no_errors = True
-
-		if self._PRW_type.GetData() is None:
-			self._PRW_type.SetBackgroundColour('pink')
-			self._PRW_type.SetFocus()
-			self._PRW_type.Refresh()
-			no_errors = False
-		else:
-			self._PRW_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_type.Refresh()
-
-		if self._TCTRL_url.GetValue().strip() == u'':
-			self._TCTRL_url.SetBackgroundColour('pink')
-			self._TCTRL_url.SetFocus()
-			self._TCTRL_url.Refresh()
-			no_errors = False
-		else:
-			self._TCTRL_url.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._TCTRL_url.Refresh()
-
-		return no_errors
-#------------------------------------------------------------
-class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
-	"""A list for managing a person's comm channels.
-
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-
-		try:
-			self.__identity = kwargs['identity']
-			del kwargs['identity']
-		except KeyError:
-			self.__identity = None
-
-		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
-
-		self.new_callback = self._add_comm
-		self.edit_callback = self._edit_comm
-		self.delete_callback = self._del_comm
-		self.refresh_callback = self.refresh
-
-		self.__init_ui()
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, *args, **kwargs):
-		if self.__identity is None:
-			self._LCTRL_items.set_string_items()
-			return
-
-		comms = self.__identity.get_comm_channels()
-		self._LCTRL_items.set_string_items (
-			items = [ [ gmTools.bool2str(c['is_confidential'], u'X', u''), c['l10n_comm_type'], c['url'] ] for c in comms ]
-		)
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.set_data(data = comms)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('List of known communication channels.'))
-		self._LCTRL_items.set_columns(columns = [
-			_('confidential'),
-			_('Type'),
-			_('Value')
-		])
-	#--------------------------------------------------------
-	def _add_comm(self):
-		ea = cCommChannelEditAreaPnl(self, -1)
-		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
-		dlg.SetTitle(_('Adding new communications channel'))
-		if dlg.ShowModal() == wx.ID_OK:
-			return True
-		return False
-	#--------------------------------------------------------
-	def _edit_comm(self, comm_channel):
-		ea = cCommChannelEditAreaPnl(self, -1, comm_channel = comm_channel)
-		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
-		dlg.SetTitle(_('Editing communications channel'))
-		if dlg.ShowModal() == wx.ID_OK:
-			return True
-		return False
-	#--------------------------------------------------------
-	def _del_comm(self, comm):
-		go_ahead = gmGuiHelpers.gm_show_question (
-			_(	'Are you sure this patient can no longer\n'
-				"be contacted via this channel ?"
-			),
-			_('Removing communication channel')
-		)
-		if not go_ahead:
-			return False
-		self.__identity.unlink_comm_channel(comm_channel = comm)
-		return True
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_identity(self):
-		return self.__identity
-
-	def _set_identity(self, identity):
-		self.__identity = identity
-		self.refresh()
-
-	identity = property(_get_identity, _set_identity)
-#============================================================
-# identity widgets
-#============================================================
 # phrasewheels
 #------------------------------------------------------------
 class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1449,21 +303,6 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 		self.picklist_delay = 50
 #------------------------------------------------------------
-class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-		query = u"select distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 3, 5)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.SetToolTipString(_("Type or select an occupation."))
-		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.matcher = mp
-#------------------------------------------------------------
 class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1495,13 +334,15 @@ order by issuer limit 25"""
 #------------------------------------------------------------
 # edit areas
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgExternalIDEditAreaPnl
+
 class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 	"""An edit area for editing/creating external IDs.
 
 	Does NOT act on/listen to the current patient.
 	"""
 	def __init__(self, *args, **kwargs):
-	
+
 		try:
 			self.ext_id = kwargs['external_id']
 			del kwargs['external_id']
@@ -1662,20 +503,8 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		return (has_error is False)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-#		data = 1
-
-#		data[''] = 1
-#		data[''] = 1
-
-#		data.save()
-
-		# must be done very late or else the property access
-		# will refresh the display such that later field
-		# access will return empty values
-#		self.data = data
+		# not intended to be used
 		return False
-		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
@@ -1714,7 +543,6 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		pass
-	#----------------------------------------------------------------
 
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl
@@ -2079,6 +907,8 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 #------------------------------------------------------------
 # integrated panels
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgPersonIdentityManagerPnl
+
 class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityManagerPnl):
 	"""A panel for editing identity data for a person.
 
@@ -2737,13 +1567,13 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Postal code'))
 		STT_zip_code.SetForegroundColour('orange')
-		self.PRW_zip_code = cZipcodePhraseWheel(parent = PNL_form, id = -1)
+		self.PRW_zip_code = gmPersonContactWidgets.cZipcodePhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip/postal code"))
 
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
 		STT_street.SetForegroundColour('orange')
-		self.PRW_street = cStreetPhraseWheel(parent = PNL_form, id = -1)
+		self.PRW_street = gmPersonContactWidgets.cStreetPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 
 		# address number
@@ -2755,19 +1585,19 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Place'))
 		STT_town.SetForegroundColour('orange')
-		self.PRW_town = cUrbPhraseWheel(parent = PNL_form, id = -1)
+		self.PRW_town = gmPersonContactWidgets.cUrbPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_town.SetToolTipString(_("primary/home address: city/town/village/dwelling/..."))
 
 		# state
 		STT_state = wx.StaticText(PNL_form, -1, _('Region'))
 		STT_state.SetForegroundColour('orange')
-		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
+		self.PRW_state = gmPersonContactWidgets.cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
 		self.PRW_state.SetToolTipString(_("primary/home address: state/province/county/..."))
 
 		# country
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
 		STT_country.SetForegroundColour('orange')
-		self.PRW_country = cCountryPhraseWheel(parent = PNL_form, id = -1)
+		self.PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
@@ -3132,51 +1962,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			return False
 		return True
 #============================================================
-#class cFormDTD:
-#	"""
-#	Simple Data Transfer Dictionary class to make easy the trasfer of
-#	data between the form (view) and the business logic.
-#
-#	Maybe later consider turning this into a standard dict by
-#	{}.fromkeys([key, key, ...], default) when it becomes clear that
-#	we really don't need the added potential of a full-fledged class.
-#	"""
-#	def __init__(self, fields):
-#		"""
-#		Initialize the DTD with the supplied field names.
-#		@param fields The names of the fields.
-#		@type fields A TupleType instance.
-#		"""
-#		self.data = {}
-#		for a_field in fields:
-#			self.data[a_field] = ''
-#
-#	def __getitem__(self, attribute):
-#		"""
-#		Retrieve the value of the given attribute (key)
-#		@param attribute The attribute (key) to retrieve its value for.
-#		@type attribute a StringType instance.
-#		"""
-#		if not self.data[attribute]:
-#			return ''
-#		return self.data[attribute]
-#
-#	def __setitem__(self, attribute, value):
-#		"""
-#		Set the value of a given attribute (key).
-#		@param attribute The attribute (key) to set its value for.
-#		@type attribute a StringType instance.		
-#		@param avaluee The value to set.
-#		@rtpe attribute a StringType instance.
-#		"""
-#		self.data[attribute] = value
-#
-#	def __str__(self):
-#		"""
-#		Print string representation of the DTD object.
-#		"""
-#		return str(self.data)
-#============================================================
 # patient demographics editing classes
 #============================================================
 class cPersonDemographicsEditorNb(wx.Notebook):
@@ -3372,123 +2157,6 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__patient_notebook.refresh()
 		return True
 #============================================================
-#def create_identity_from_dtd(dtd=None):
-#	"""
-#	Register a new patient, given the data supplied in the 
-#	Data Transfer Dictionary object.
-#
-#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-#	supplied data.
-#	@type basic_details_DTD A cFormDTD instance.
-#	"""
-#	new_identity = gmPerson.create_identity (
-#		gender = dtd['gender'],
-#		dob = dtd['dob'].get_pydt(),
-#		lastnames = dtd['lastnames'],
-#		firstnames = dtd['firstnames']
-#	)
-#	if new_identity is None:
-#		_log.error('cannot create identity from %s' % str(dtd))
-#		return None
-#	_log.debug('identity created: %s' % new_identity)
-#
-#	if dtd['comment'] is not None:
-#		if dtd['comment'].strip() != u'':
-#			name = new_identity.get_active_name()
-#			name['comment'] = dtd['comment']
-#			name.save_payload()
-#
-#	return new_identity
-#============================================================
-#def update_identity_from_dtd(identity, dtd=None):
-#	"""
-#	Update patient details with data supplied by
-#	Data Transfer Dictionary object.
-#
-#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-#	supplied data.
-#	@type basic_details_DTD A cFormDTD instance.
-#	"""
-#	# identity
-#	if identity['gender'] != dtd['gender']:
-#		identity['gender'] = dtd['gender']
-#	if identity['dob'] != dtd['dob'].get_pydt():
-#		identity['dob'] = dtd['dob'].get_pydt()
-#	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
-#		identity['title'] = dtd['title']
-#	# FIXME: error checking
-#	# FIXME: we need a trigger to update the values of the
-#	# view, identity['keys'], eg. lastnames and firstnames
-#	# are not refreshed.
-#	identity.save_payload()
-#
-#	# names
-#	# FIXME: proper handling of "active"
-#	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
-#		new_name = identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True)
-#	# nickname
-#	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
-#		identity.set_nickname(nickname = dtd['nick'])
-#
-#	return True
-#============================================================
-#def link_contacts_from_dtd(identity, dtd=None):
-#	"""
-#	Update patient details with data supplied by
-#	Data Transfer Dictionary object.
-#
-#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-#	supplied data.
-#	@type basic_details_DTD A cFormDTD instance.
-#	"""
-#	lng = len (
-#		dtd['address_number'].strip() +
-#		dtd['street'].strip() +
-#		dtd['zip_code'].strip() +
-#		dtd['town'].strip() +
-#		dtd['state'].strip() +
-#		dtd['country'].strip()
-#	)
-#	# FIXME: improve error checking
-#	if lng > 5:
-#		# FIXME: support address type
-#		success = identity.link_address (
-#			number = dtd['address_number'].strip(),
-#			street = dtd['street'].strip(),
-#			postcode = dtd['zip_code'].strip(),
-#			urb = dtd['town'].strip(),
-#			state = dtd['state'].strip(),
-#			country = dtd['country'].strip()
-#		)
-#		if not success:
-#			gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address.'))
-#	else:
-#		gmDispatcher.send(signal='statustext', msg = _('Cannot add patient address. Missing fields.'))
-#
-#	if len(dtd['phone']) > 0:
-#		identity.link_comm_channel (
-#			comm_medium = 'homephone',
-#			url = dtd['phone'],
-#			is_confidential = False
-#		)
-#
-#	# FIXME: error checking
-##	identity.save_payload()
-#	return True
-#============================================================				
-#def link_occupation_from_dtd(identity, dtd=None):
-#	"""
-#	Update patient details with data supplied by
-#	Data Transfer Dictionary object.
-#
-#	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
-#	supplied data.
-#	@type basic_details_DTD A cFormDTD instance.
-#	"""
-#	identity.link_occupation(occupation = dtd['occupation'])
-#
-#	return True
-#============================================================
 class TestWizardPanel(wx.Panel):   
 	"""
 	Utility class to test the new patient wizard.
@@ -3506,52 +2174,6 @@ class TestWizardPanel(wx.Panel):
 #============================================================
 if __name__ == "__main__":
 
-	#--------------------------------------------------------
-	def test_zipcode_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cZipcodePhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_state_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cStateSelectionPhraseWheel(app.frame, -1)
-#		pw.set_context(context = u'zip', val = u'04318')
-#		pw.set_context(context = u'country', val = u'Deutschland')
-		app.frame.Show(True)
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_urb_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cUrbPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		pw.set_context(context = u'zip', val = u'04317')
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_suburb_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cSuburbPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_address_type_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cAddressTypePhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_address_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cAddressPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_street_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cStreetPhraseWheel(app.frame, -1)
-#		pw.set_context(context = u'zip', val = u'04318')
-		app.frame.Show(True)
-		app.MainLoop()
 	#--------------------------------------------------------
 	def test_organizer_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
@@ -3582,25 +2204,6 @@ if __name__ == "__main__":
 	def test_name_ea_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
 		app.SetWidget(cNameGenderDOBEditAreaPnl, name = activate_patient().get_active_name())
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_address_ea_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		app.SetWidget(cAddressEditAreaPnl, address = gmDemographicRecord.cAddress(aPK_obj = 1))
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_person_adrs_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonAddressesManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
-		app.frame.Show(True)
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_person_comms_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonCommsManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
-		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_pat_contacts_pnl():

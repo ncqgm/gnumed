@@ -66,7 +66,7 @@ from Gnumed.wxpython import gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
-from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets
+from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -1511,10 +1511,10 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_cfg_default_region(self, evt):
-		gmDemographicsWidgets.configure_default_region()
+		gmPersonContactWidgets.configure_default_region()
 	#----------------------------------------------
 	def __on_cfg_default_country(self, evt):
-		gmDemographicsWidgets.configure_default_country()
+		gmPersonContactWidgets.configure_default_country()
 	#----------------------------------------------
 	def __on_configure_dob_reminder_proximity(self, evt):
 
@@ -2394,7 +2394,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmEMRStructWidgets.manage_encounter_types(parent=self)
 	#----------------------------------------------
 	def __on_manage_provinces(self, evt):
-		gmDemographicsWidgets.manage_provinces(parent=self)
+		gmPersonContactWidgets.manage_provinces(parent=self)
 	#----------------------------------------------
 	def __on_manage_substances(self, evt):
 		gmMedicationWidgets.manage_substances_in_use(parent = self)

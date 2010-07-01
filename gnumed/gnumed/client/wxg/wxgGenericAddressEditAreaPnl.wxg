@@ -26,7 +26,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmDemographicsWidgets.cAddressTypePhraseWheel" name="_PRW_type" base="EditTextCtrl">
+                <object class="gmPersonContactWidgets.cAddressTypePhraseWheel" name="_PRW_type" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
@@ -43,7 +43,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmDemographicsWidgets.cZipcodePhraseWheel" name="_PRW_zip" base="EditTextCtrl">
+                <object class="gmPersonContactWidgets.cZipcodePhraseWheel" name="_PRW_zip" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
@@ -60,7 +60,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmDemographicsWidgets.cStreetPhraseWheel" name="_PRW_street" base="EditTextCtrl">
+                <object class="gmStreetWidgets.cStreetPhraseWheel" name="_PRW_street" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
@@ -145,7 +145,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>1</option>
-                        <object class="gmDemographicsWidgets.cUrbPhraseWheel" name="_PRW_urb" base="EditTextCtrl">
+                        <object class="gmPersonContactWidgets.cUrbPhraseWheel" name="_PRW_urb" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                         </object>
                     </object>
@@ -162,7 +162,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>1</option>
-                        <object class="gmDemographicsWidgets.cSuburbPhraseWheel" name="_PRW_suburb" base="EditTextCtrl">
+                        <object class="gmPersonContactWidgets.cSuburbPhraseWheel" name="_PRW_suburb" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                         </object>
                     </object>
@@ -181,7 +181,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmDemographicsWidgets.cStateSelectionPhraseWheel" name="_PRW_state" base="EditTextCtrl">
+                <object class="gmPersonContactWidgets.cStateSelectionPhraseWheel" name="_PRW_state" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
@@ -198,7 +198,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmDemographicsWidgets.cCountryPhraseWheel" name="_PRW_country" base="EditTextCtrl">
+                <object class="gmPersonContactWidgets.cCountryPhraseWheel" name="_PRW_country" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
