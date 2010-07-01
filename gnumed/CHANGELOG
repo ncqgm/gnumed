@@ -536,6 +536,10 @@ IMPROVED: try to make su compatible with both MacOSX and Linux
 # gnumed_v13
 ------------------------------------------------
 
+	13.6 -> 13.7
+
+NEW: improved detection of unicode support in server encoding
+
 	13.5 -> 13.6
 
 FIX: SQL: v9 -> v10 drop on view missed "view" keyword [thanks E.Kuznetsov]
