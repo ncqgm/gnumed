@@ -786,7 +786,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.u_right_arrow,
 			duration,
 			self._payload[self._idx['substance']],
-			self._payload[self._idx['strength']],
+			gmTools.coalesce(self._payload[self._idx['strength']], u''),
 			self._payload[self._idx['preparation']],
 			gmTools.bool2subst(self._payload[self._idx['is_currently_active']], _('ongoing'), _('inactive'), _('?ongoing'))
 		)
