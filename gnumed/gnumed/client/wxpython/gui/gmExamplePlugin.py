@@ -22,7 +22,9 @@ The second series is  more general and coves second plugin as a starting point
 Part 1:  http://gnumed.blogspot.com/2010/04/gnumed-plugin-developement-part-1.html
 
 The third series covers an hands on introduction on how to share your code
+and how to test your plugin
 Part 1:  http://gnumed.blogspot.com/2010/04/gnumed-plugin-development-how-to-share.html
+Part 2:  http://gnumed.blogspot.com/2010/07/gnumed-plugin-development-easy-testing.html
 
 For development information such as database schema, function and classes documentation
 and more see http://wiki.gnumed.de
