@@ -5,7 +5,7 @@ __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex, psycopg2, logging
+import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex, logging
 
 
 import wx
@@ -1216,7 +1216,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 					url = self._TCTRL_url.GetValue().strip(),
 					is_confidential = self._CHBOX_confidential.GetValue(),
 				)
-			except psycopg2.IntegrityError:
+			except gmPG2.dbapi.IntegrityError:
 				_log.exception('error saving comm channel')
 				gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
 				return False
@@ -2089,7 +2089,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		low = wx.DateTimeFromDMY(1,0,1900)
 		hi = wx.DateTime()
 		self._DP_dob.SetRange(low, hi.SetToCurrent())
-		# only if we would support None on selection_only's
+		# only if we would support None on selection_only's:
 		#self._PRW_external_id_type.selection_only = True
 
 		if self.default_country is not None:
@@ -2158,11 +2158,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_gender.display_as_valid(True)
 
 		# dob validation
-		if not self._DP_dob.is_valid_timestamp():
-
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth. Does it lie before 1900 ?'))
-
-			do_it_anyway = gmGuiHelpers.gm_show_question (
+		# NULL ?
+		if self._DP_dob.GetValue() is None:
+			allow_empty_dob = gmGuiHelpers.gm_show_question (
 				_(
 					'Are you sure you want to register this person\n'
 					'without a valid date of birth ?\n'
@@ -2170,26 +2168,29 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					'This can be useful for temporary staff members\n'
 					'but will provoke nag screens if this person\n'
 					'becomes a patient.\n'
-					'\n'
-					'Note that the date of birth cannot technically\n'
-					'be before 1900, either :-(\n'
 				),
 				_('Registering new person')
 			)
 
-			if not do_it_anyway:
+			if allow_empty_dob:
+				self._DP_dob.display_as_valid(True)
+			else:
 				error = True
+				self._DP_dob.display_as_valid(False)
+				self._DP_dob.SetFocus()
 
-		if self._DP_dob.GetValue() is None:
-			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		elif self._DP_dob.GetValue().GetYear() < 1900:
-			error = True
-			gmDispatcher.send(signal = 'statustext', msg = _('The year of birth must lie after 1900.'), beep = True)
-			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-			self._DP_dob.SetFocus()
+		# valid timestamp ?
+		elif self._DP_dob.is_valid_timestamp(allow_none = False):
+			# already colored properly by is_valid_timestamp()
+			if self._DP_dob.GetValue().GetYear() < 1900:
+				error = True
+				gmDispatcher.send(signal = 'statustext', msg = _('The year of birth must lie after 1900.'), beep = True)
+				self._DP_dob.SetFocus()
+
+		# not NULL but invalid timestamp
+		#	Do we have to check for u'', ever ?
 		else:
-			self._DP_dob.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		self._DP_dob.Refresh()
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot use this date of birth. Does it lie before 1900 ?'))
 
 		# TOB validation if non-empty
 #		if self._TCTRL_tob.GetValue().strip() != u'':
@@ -2383,8 +2384,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					state = self._PRW_region.GetData(),
 					country = self._PRW_country.GetData()
 				)
-			except psycopg2.InternalError:
-			#except StandardError:
+			except gmPG2.dbapi.InternalError:
 				_log.debug('number: >>%s<<', self._TCTRL_number.GetValue().strip())
 				_log.debug('street: >>%s<<', self._PRW_street.GetValue().strip())
 				_log.debug('postcode: >>%s<<', self._PRW_zip.GetValue().strip())
