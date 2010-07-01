@@ -51,6 +51,10 @@ revoke delete on clin.lnk_vaccine2inds from public, "gm-doctors";
 comment on column clin.vaccine.fk_brand is
 	'The brand of this vaccine, can be a fake entry in ref.branded_drug.';
 
+alter table clin.vaccine
+	alter column fk_brand
+		set not null;
+
 \unset ON_ERROR_STOP
 alter table clin.vaccine drop constraint vaccine_fk_brand_fkey cascade;
 \set ON_ERROR_STOP 1

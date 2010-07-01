@@ -94,6 +94,18 @@ class gmTopLevelFrame(wx.Frame):
 		"""
 		wx.Frame.__init__(self, parent, id, title, size, style = wx.DEFAULT_FRAME_STYLE)
 
+		if wx.Platform == '__WXMSW__':
+			font = self.GetFont()
+			_log.debug('default font is [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+			desired_font_face = u'DejaVu Sans'
+			success = font.SetFaceName(desired_font_face)
+			if success:
+				self.SetFont(font)
+				_log.debug('setting font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+			else:
+				_log.error('cannot set font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), desired_font_face)
+				_log.debug('default font is ', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
 		self.bar_width = -1
@@ -443,7 +455,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
 
-		item = menu_master_data.Append(-1, _('Indications'), _('Show known vaccination indications.'))
+		item = menu_master_data.Append(-1, _('Immunizables'), _('Show conditions known to be preventable by vaccination.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination_indications, item)
 
 		# -- submenu gnumed / users
@@ -2362,10 +2374,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
 		"""Create new person and add it as staff."""
-		#wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-		#if not wiz.RunWizard(activate=True):
-		#	return False
-		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
+		if not gmDemographicsWidgets.create_new_person(parent = self, activate = True):
+			return
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------

@@ -1166,6 +1166,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_test.SetText(u'', None, True)
+		self.__refresh_loinc_info()
+		self.__update_units_context()
 		self._TCTRL_result.SetValue(u'')
 		self._PRW_units.SetText(u'', None, True)
 		self._PRW_abnormality_indicator.SetText(u'', None, True)
@@ -1195,6 +1197,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_test.SetData(data = self.data['pk_test_type'])
+		self.__refresh_loinc_info()
+		self.__update_units_context()
 		self._TCTRL_result.SetValue(self.data['unified_val'])
 		self._PRW_units.SetText(self.data['val_unit'], self.data['val_unit'], True)
 		self._PRW_abnormality_indicator.SetText (
@@ -1227,6 +1231,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._refresh_from_existing()
 
 		self._PRW_test.SetText(u'', None, True)
+		self.__refresh_loinc_info()
+		self.__update_units_context()
 		self._TCTRL_result.SetValue(u'')
 		self._PRW_units.SetText(u'', None, True)
 		self._PRW_abnormality_indicator.SetText(u'', None, True)
@@ -1323,7 +1329,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				lab = None,
 				abbrev = self._PRW_test.GetValue().strip(),
 				name = self._PRW_test.GetValue().strip(),
-				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
+				unit = gmTools.coalesce(self._PRW_units.GetData(), self._PRW_units.GetValue()).strip()
 			)
 			pk_type = tt['pk_test_type']
 
@@ -1403,7 +1409,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		tr['pk_intended_reviewer'] = self._PRW_intended_reviewer.GetData()
 		tr['val_num'] = v_num
 		tr['val_alpha'] = v_al
-		tr['val_unit'] = self._PRW_units.GetValue().strip()
+		tr['val_unit'] = gmTools.coalesce(self._PRW_units.GetData(), self._PRW_units.GetValue()).strip()
 		tr['clin_when'] = self._DPRW_evaluated.GetData().get_pydt()
 
 		ctrls = [
@@ -1449,12 +1455,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._PRW_abnormality_indicator.add_callback_on_lose_focus(self._on_leave_indicator_prw)
 	#--------------------------------------------------------
 	def _on_leave_test_prw(self):
-		pk_type = self._PRW_test.GetData()
-		# units context
-		if pk_type is None:
-			self._PRW_units.unset_context(context = u'pk_type')
-		else:
-			self._PRW_units.set_context(context = u'pk_type', val = pk_type)
+		self.__refresh_loinc_info()
+		self.__update_units_context()
 	#--------------------------------------------------------
 	def _on_leave_indicator_prw(self):
 		# if the user hasn't explicitly enabled reviewing
@@ -1482,6 +1484,48 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		search_term = search_term.replace(' ', u'+')
 
 		call_browser_on_measurement_type(measurement_type = search_term)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __update_units_context(self):
+
+		self._PRW_units.unset_context(context = u'loinc')
+
+		tt = self._PRW_test.GetData(as_instance = True)
+
+		if tt is None:
+			self._PRW_units.unset_context(context = u'pk_type')
+			if self._PRW_test.GetValue().strip() == u'':
+				self._PRW_units.unset_context(context = u'test_name')
+			else:
+				self._PRW_units.set_context(context = u'test_name', val = self._PRW_test.GetValue().strip())
+			return
+
+		self._PRW_units.set_context(context = u'pk_type', val = tt['pk_test_type'])
+		self._PRW_units.set_context(context = u'test_name', val = tt['name'])
+
+		if tt['loinc'] is None:
+			return
+
+		self._PRW_units.set_context(context = u'loinc', val = tt['loinc'])
+	#--------------------------------------------------------
+	def __refresh_loinc_info(self):
+
+		self._TCTRL_loinc.SetValue(u'')
+
+		if self._PRW_test.GetData() is None:
+			return
+
+		tt = self._PRW_test.GetData(as_instance = True)
+
+		if tt['loinc'] is None:
+			return
+
+		info = gmLOINC.loinc2info(loinc = tt['loinc'])
+		if len(info) == 0:
+			return
+
+		self._TCTRL_loinc.SetValue(u'%s: %s' % (tt['loinc'], info[0]))
 #================================================================
 # measurement type handling
 #================================================================
@@ -1635,6 +1679,12 @@ limit 50""" % {'in_house': _('in house lab')}
 		self.matcher = mp
 		self.SetToolTipString(_('Select the type of measurement.'))
 		self.selection_only = False
+	#------------------------------------------------------------
+	def _data2instance(self):
+		if self.data is None:
+			return None
+
+		return gmPathLab.cMeasurementType(aPK_obj = self.data)
 #----------------------------------------------------------------
 class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1708,6 +1758,7 @@ limit 50"""
 		mp.setThresholds(1, 2, 4)
 		self._PRW_name.matcher = mp
 		self._PRW_name.selection_only = False
+		self._PRW_name.add_callback_on_lose_focus(callback = self._on_name_lost_focus)
 
 		# abbreviation
 		query = u"""
@@ -1725,19 +1776,6 @@ limit 50"""
 		self._PRW_abbrev.selection_only = False
 
 		# unit
-		# FIXME: use units from test_result
-		query = u"""
-select distinct on (conversion_unit)
-	conversion_unit,
-	conversion_unit
-from clin.test_type
-where
-	conversion_unit %(fragment_condition)s
-order by conversion_unit
-limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 3)
-		self._PRW_conversion_unit.matcher = mp
 		self._PRW_conversion_unit.selection_only = False
 
 		# loinc
@@ -1801,28 +1839,26 @@ limit 50"""
 		self._PRW_loinc.matcher = mp
 		self._PRW_loinc.selection_only = False
 		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
+	#----------------------------------------------------------------
+	def _on_name_lost_focus(self):
 
-#		# test org
-#		query = u"""
-#select distinct on (internal_name)
-#	pk,
-#	internal_name
-#from clin.test_org
-#where
-#	internal_name %(fragment_condition)s
-#order by internal_name
-#limit 50"""
-#		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-#		mp.setThresholds(1, 2, 4)
-#		self._PRW_test_org.matcher = mp
-#		self._PRW_test_org.selection_only = False
+		test = self._PRW_name.GetValue().strip()
+
+		if test == u'':
+			self._PRW_conversion_unit.unset_context(context = u'test_name')
+			return
+
+		self._PRW_conversion_unit.set_context(context = u'test_name', val = test)
 	#----------------------------------------------------------------
 	def _on_loinc_lost_focus(self):
 		loinc = self._PRW_loinc.GetData()
 
 		if loinc is None:
 			self._TCTRL_loinc_info.SetValue(u'')
+			self._PRW_conversion_unit.unset_context(context = u'loinc')
 			return
+
+		self._PRW_conversion_unit.set_context(context = u'loinc', val = loinc)
 
 		info = gmLOINC.loinc2info(loinc = loinc)
 		if len(info) == 0:
@@ -1859,9 +1895,12 @@ limit 50"""
 			lab = pk_org,
 			abbrev = self._PRW_abbrev.GetValue().strip(),
 			name = self._PRW_name.GetValue().strip(),
-			unit = gmTools.none_if(self._PRW_conversion_unit.GetValue().strip(), u'')
+			unit = gmTools.coalesce (
+				self._PRW_conversion_unit.GetData(),
+				self._PRW_conversion_unit.GetValue()
+			).strip()
 		)
-		tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
+		tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
 		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		tt.save()
 
@@ -1881,8 +1920,11 @@ limit 50"""
 		self.data['pk_test_org'] = pk_org
 		self.data['abbrev'] = self._PRW_abbrev.GetValue().strip()
 		self.data['name'] = self._PRW_name.GetValue().strip()
-		self.data['conversion_unit'] = gmTools.none_if(self._PRW_conversion_unit.GetValue().strip(), u'')
-		self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
+		self.data['conversion_unit'] = gmTools.coalesce (
+			self._PRW_conversion_unit.GetData(),
+			self._PRW_conversion_unit.GetValue()
+		).strip()
+		self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
 		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		self.data.save()
 
@@ -1890,16 +1932,18 @@ limit 50"""
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_name.SetText(u'', None, True)
+		self._on_name_lost_focus()
 		self._PRW_abbrev.SetText(u'', None, True)
 		self._PRW_conversion_unit.SetText(u'', None, True)
 		self._PRW_loinc.SetText(u'', None, True)
-		self._TCTRL_loinc_info.SetValue(u'')
+		self._on_loinc_lost_focus()
 		self._TCTRL_comment_type.SetValue(u'')
 		self._PRW_test_org.SetText(u'', None, True)
 		self._TCTRL_comment_org.SetValue(u'')
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_name.SetText(self.data['name'], self.data['name'], True)
+		self._on_name_lost_focus()
 		self._PRW_abbrev.SetText(self.data['abbrev'], self.data['abbrev'], True)
 		self._PRW_conversion_unit.SetText (
 			gmTools.coalesce(self.data['conversion_unit'], u''),
@@ -1911,7 +1955,7 @@ limit 50"""
 			self.data['loinc'],
 			True
 		)
-		self._TCTRL_loinc_info.SetValue(u'')			# FIXME: properly set
+		self._on_loinc_lost_focus()
 		self._TCTRL_comment_type.SetValue(gmTools.coalesce(self.data['comment_type'], u''))
 		self._PRW_test_org.SetText (
 			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['internal_name_org']),
@@ -1934,33 +1978,119 @@ class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-select distinct val_unit,
-	val_unit, val_unit
-from clin.v_test_results
-where
-	(
-		val_unit %(fragment_condition)s
-			or
-		conversion_unit %(fragment_condition)s
-	)
-	%(ctxt_test_name)s
-	%(ctxt_test_pk)s
-order by val_unit
-limit 25"""
+
+SELECT DISTINCT ON (data) data, unit FROM (
+
+	SELECT rank, data, unit FROM (
+
+		(
+		-- via clin.v_test_results.pk_type (for types already used in results)
+		SELECT
+			val_unit as data,
+			val_unit || ' (' || name_tt || ')' as unit,
+			1 as rank
+		FROM
+			clin.v_test_results
+		WHERE
+			(
+				val_unit %(fragment_condition)s
+					OR
+				conversion_unit %(fragment_condition)s
+			)
+			%(ctxt_type_pk)s
+			%(ctxt_test_name)s
+
+		) UNION ALL (
+
+		-- via clin.test_type (for types not yet used in results)
+		SELECT
+			conversion_unit as data,
+			conversion_unit || ' (' || name || ')' as unit,
+			2 as rank
+		FROM
+			clin.test_type
+		WHERE
+			conversion_unit %(fragment_condition)s
+			%(ctxt_ctt)s
+
+		) UNION ALL (
+
+		-- via ref.loinc.ipcc_units
+		SELECT
+			ipcc_units as data,
+			ipcc_units || ' (' || term || ')' as unit,
+			3 as rank
+		FROM
+			ref.loinc
+		WHERE
+			ipcc_units %(fragment_condition)s
+			%(ctxt_loinc)s
+			%(ctxt_loinc_term)s
+
+		) UNION ALL (
+
+		-- via ref.loinc.submitted_units
+		SELECT
+			submitted_units as data,
+			submitted_units || ' (' || term || ')'  as unit,
+			3 as rank
+		FROM
+			ref.loinc
+		WHERE
+			submitted_units %(fragment_condition)s
+			%(ctxt_loinc)s
+			%(ctxt_loinc_term)s
+
+		) UNION ALL (
+
+		-- via ref.loinc.example_units
+		SELECT
+			example_units as data,
+			example_units || ' (' || term || ')'  as unit,
+			3 as rank
+		FROM
+			ref.loinc
+		WHERE
+			example_units %(fragment_condition)s
+			%(ctxt_loinc)s
+			%(ctxt_loinc_term)s
+		)
+
+	) as all_matching_units
+
+	WHERE data IS NOT NULL
+	ORDER BY rank
+
+) as ranked_matching_units
+
+LIMIT 50"""
 
 		ctxt = {
-			'ctxt_test_name': {
-				'where_part': u'and %(test)s in (name_tt, name_meta, code_tt, abbrev_meta)',
-				'placeholder': u'test'
-			},
-			'ctxt_test_pk': {
-				'where_part': u'and pk_test_type = %(pk_type)s',
+			'ctxt_type_pk': {
+				'where_part': u'AND pk_test_type = %(pk_type)s',
 				'placeholder': u'pk_type'
+			},
+			'ctxt_test_name': {
+				'where_part': u'AND %(test_name)s IN (name_tt, name_meta, code_tt, abbrev_meta)',
+				'placeholder': u'test_name'
+			},
+			'ctxt_ctt': {
+				'where_part': u'AND %(test_name)s IN (name, code, abbrev)',
+				'placeholder': u'test_name'
+			},
+			'ctxt_loinc': {
+				'where_part': u'AND code = %(loinc)s',
+				'placeholder': u'loinc'
+			},
+			'ctxt_loinc_term': {
+				'where_part': u'AND term ~* %(test_name)s',
+				'placeholder': u'test_name'
 			}
 		}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=ctxt)
 		mp.setThresholds(1, 2, 4)
+		#mp.print_queries = True
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -1969,7 +2099,7 @@ limit 25"""
 		self.matcher = mp
 		self.SetToolTipString(_('Select the unit of the test result.'))
 		self.selection_only = False
-
+		self.phrase_separators = u'[;|]+'
 #================================================================
 
 #================================================================
