@@ -364,6 +364,7 @@ class db_server:
 
 		self.conn.cookie = 'db_server.__connect_superuser_to_srv_template'
 
+		# verify encoding
 		curs = self.conn.cursor()
 		curs.execute(u"select setting from pg_settings where name = 'lc_ctype'")
 		data = curs.fetchall()
@@ -374,12 +375,21 @@ class db_server:
 			_log.warning('while this cluster setting allows to store databases')
 			_log.warning('in any encoding as is it does not allow for locale')
 			_log.warning('sorting etc, hence it is not recommended for use')
+			_log.warning('(although it will, technically, work)')
 		elif not (lc_ctype.endswith('.utf-8') or lc_ctype.endswith('.utf8')):
 			_log.error('LC_CTYPE does not end in .UTF-8 or .UTF8')
-			_log.error('cluster encoding incompatible with utf8 encoded databases but')
-			_log.error('for GNUmed installation the cluster must accept this encoding')
-			_log.error('you may need to re-initdb or create a new cluster')
-			return None
+			curs.execute(u"show server_encoding")
+			data = curs.fetchall()
+			srv_enc = data[0][0]
+			_log.info('server_encoding is [%s]', srv_enc)
+			srv_enc = srv_enc.lower()
+			if not srv_enc in ['utf8', 'utf-8']:
+				_log.error('cluster encoding incompatible with utf8 encoded databases but')
+				_log.error('for GNUmed installation the cluster must accept this encoding')
+				_log.error('you may need to re-initdb or create a new cluster')
+				return None
+			_log.info('server encoding seems compatible despite not being reported in LC_CTYPE')
+
 		# make sure we get english messages
 		curs.execute(u"set lc_messages to 'C'")
 		curs.close()
