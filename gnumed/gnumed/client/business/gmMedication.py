@@ -910,25 +910,54 @@ def delete_substance_intake(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
 #------------------------------------------------------------
+def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
+
+	tex =  u'\n{\\small\n'
+	tex += u'\\noindent %s\n' % _('Additional notes')
+	tex += u'\n'
+	tex += u'\\noindent \\begin{tabular}{|l|l|l|l|}\n'
+	tex += u'\\hline\n'
+	tex += u'%s & %s & %s & \\\\ \n' % (_('Substance'), _('Strength'), _('Brand'))
+	tex += u'\\hline\n'
+	tex += u'%s\n'
+	tex += u'\n'
+	tex += u'\\end{tabular}\n'
+	tex += u'}\n'
+
+	current_meds = emr.get_current_substance_intake (
+		include_inactive = False,
+		include_unapproved = False,
+		order_by = u'brand, substance'
+	)
+
+	# create lines
+	lines = []
+	for med in current_meds:
+
+		lines.append(u'%s & %s & %s %s & {\\scriptsize %s} \\\\ \n \\hline \n' % (
+			med['substance'],
+			gmTools.coalesce(med['strength'], u''),
+			gmTools.coalesce(med['brand'], u''),
+			med['preparation'],
+			gmTools.coalesce(med['notes'], u'')
+		))
+
+	return tex % u' \n'.join(lines)
+
+#------------------------------------------------------------
 def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex = u"""\\noindent %s {\\tiny (%s)}{\\tiny \\par}
-
-\\noindent \\begin{tabular}{|l|l|l|}
-\\hline
-%s & %s & {\\scriptsize %s} \\\\
-\\hline
-
-\\hline
-%%s
-
-\\end{tabular}""" % (
-			_('Medication list'),
-			_('ordered by brand'),
-			_('Drug'),
-			_('Regimen'),
-			_('Substances')
-	)
+	tex =  u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
+	tex += u'\n'
+	tex += u'\\noindent \\begin{tabular}{|l|l|}\n'
+	tex += u'\\hline\n'
+	tex += u'%s & %s \\\\ \n' % (_('Drug'), _('Regimen'))
+	tex += u'\\hline\n'
+	tex += u'\n'
+	tex += u'\\hline\n'
+	tex += u'%s\n'
+	tex += u'\n'
+	tex += u'\\end{tabular}\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -944,22 +973,21 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		try:
 			line_data[identifier]
 		except KeyError:
-			line_data[identifier] = {'brand': u'', 'substances': [], 'preparation': u'', 'schedule': u'', 'aims': [], 'notes': []}
+			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'aims': [], 'strengths': []}
 
 		line_data[identifier]['brand'] = identifier
-		line_data[identifier]['substances'].append(u'%s%s' % (med['substance'], gmTools.coalesce(med['strength'], u'', u' %s')))
+		if med['strength'] is not None:
+			line_data[identifier]['strengths'].append(med['strength'].strip())
 		line_data[identifier]['preparation'] = med['preparation']
 		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
 		if med['aim'] not in line_data[identifier]['aims']:
 			line_data[identifier]['aims'].append(med['aim'])
-		if med['notes'] not in line_data[identifier]['notes']:
-			line_data[identifier]['notes'].append(med['notes'])
 
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'%s %s & %s & {\\scriptsize %s} \\\\'
-	line2_template = u' & \\multicolumn{2}{l|}{{\\scriptsize %s}} \\\\'
+	line1_template = u'%s %s & %s \\\\'
+	line2_template = u' & {\\scriptsize %s\\par} \\\\'
 
 	for med in current_meds:
 		identifier = gmTools.coalesce(med['brand'], med['substance'])
@@ -972,15 +1000,24 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		lines.append (line1_template % (
 			line_data[identifier]['brand'],
 			line_data[identifier]['preparation'],
-			line_data[identifier]['schedule'],
-			u', '.join(line_data[identifier]['substances'])
+			line_data[identifier]['schedule']
 		))
 
-		for aim in line_data[identifier]['aims']:
-			lines.append(line2_template % aim)
-
-		for note in line_data[identifier]['notes']:
-			lines.append(line2_template % note)
+		strengths = u'/'.join(line_data[identifier]['strengths'])
+		if strengths == u'':
+			template = u' & {\\scriptsize %s\\par} \\\\'
+			for aim in line_data[identifier]['aims']:
+				lines.append(template % aim)
+		else:
+			if len(line_data[identifier]['aims']) == 0:
+				template = u'%s & \\\\'
+				lines.append(template % strengths)
+			else:
+				template = u'%s & {\\scriptsize %s\\par} \\\\'
+				lines.append(template % (strengths, line_data[identifier]['aims'][0]))
+				template = u' & {\\scriptsize %s\\par} \\\\'
+				for aim in line_data[identifier]['aims'][1:]:
+					lines.append(template % aim)
 
 		lines.append(u'\\hline')
 

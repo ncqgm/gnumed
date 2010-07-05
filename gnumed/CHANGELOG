@@ -11,6 +11,7 @@
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook: "after_soap_modified"
 NEW: placeholder: "current_meds_table::latex"
+NEW: placeholder: "current_meds_notes::latex"
 NEW: placeholder: "lab_table::latex"
 NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
@@ -41,6 +42,7 @@ IMPROVED: much smarter result units phrasewheel
 IMPROVED: DOB validity check when creating new person
 IMPROVED: better layout of configuration listing
 IMPROVED: medication formatting
+IMPROVED: current medication patient handout [thanks C.Hilbert]
 
 ------------------------------------------------
 # rel-0-7-patches

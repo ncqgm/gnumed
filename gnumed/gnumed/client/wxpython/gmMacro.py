@@ -53,6 +53,7 @@ known_variant_placeholders = [
 	u'gender_mapper',			# "data" holds: value for male // value for female
 	u'current_meds',			# "data" holds: line template
 	u'current_meds_table',		# "data" holds: format, options
+	u'current_meds_notes',		# "data" holds: format, options
 	u'lab_table',				# "data" holds: format (currently "latex" only)
 	u'today',					# "data" holds: strftime format
 	u'tex_escape',				# "data" holds: string to escape
@@ -424,6 +425,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		_log.error('no known current medications table formatting style in [%]', data)
 		return _('unknown current medication table formatting style')
+	#--------------------------------------------------------
+	def _get_variant_current_meds_notes(self, data=None):
+
+		options = data.split('//')
+
+		if u'latex' in options:
+			return gmMedication.format_substance_intake_notes (
+				emr = self.pat.get_emr(),
+				output_format = u'latex',
+				table_type = u'by-brand'
+			)
+
+		_log.error('no known current medications notes formatting style in [%]', data)
+		return _('unknown current medication notes formatting style')
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
 
