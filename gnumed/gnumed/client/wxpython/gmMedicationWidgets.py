@@ -907,7 +907,10 @@ def configure_medication_list_template(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	template = gmFormWidgets.manage_form_templates(parent = parent)
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		template_types = ['current medication list']
+	)
 	option = u'form_templates.medication_list'
 
 	if template is None:

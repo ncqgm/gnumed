@@ -209,22 +209,27 @@ def get_form_template(name_long=None, external_version=None):
 
 	return cFormTemplate(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
-def get_form_templates(engine=None, active_only=False):
+def get_form_templates(engine=None, active_only=False, template_types=None, excluded_types=None):
 	"""Load form templates."""
 
 	args = {'eng': engine, 'in_use': active_only}
+	where_parts = [u'1 = 1']
 
-	where_parts = []
 	if engine is not None:
 		where_parts.append(u'engine = %(eng)s')
 
 	if active_only:
-		where_parts.append(u'in_use is True')
+		where_parts.append(u'in_use IS true')
 
-	if len(where_parts) == 0:
-		cmd = u"select * from ref.v_paperwork_templates order by in_use desc, name_long"
-	else:
-		cmd = u"select * from ref.v_paperwork_templates where %s order by in_use desc, name_long" % u'and'.join(where_parts)
+	if template_types is not None:
+		args['incl_types'] = tuple(template_types)
+		where_parts.append(u'template_type IN %(incl_types)s')
+
+	if excluded_types is not None:
+		args['excl_types'] = tuple(excluded_types)
+		where_parts.append(u'template_type NOT IN %(excl_types)s')
+
+	cmd = u"SELECT * FROM ref.v_paperwork_templates WHERE %s ORDER BY in_use desc, name_long" % u'\nAND '.join(where_parts)
 
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': cmd, 'args': args}],

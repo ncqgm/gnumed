@@ -43,6 +43,7 @@ IMPROVED: DOB validity check when creating new person
 IMPROVED: better layout of configuration listing
 IMPROVED: medication formatting
 IMPROVED: current medication patient handout [thanks C.Hilbert]
+IMPROVED: pre-filter form template selection list based on purpose of showing
 
 ------------------------------------------------
 # rel-0-7-patches
