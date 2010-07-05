@@ -941,7 +941,9 @@ class database:
 			return True
 
 		script_base_dir = cfg_get(self.section, "script base directory")
-		script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
+		# doesn't work on MacOSX:
+		#script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
+		script_base_dir = os.path.normcase(os.path.normpath(os.path.join('.', script_base_dir)))
 
 		for import_script in import_scripts:
 			try:

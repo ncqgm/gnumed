@@ -526,6 +526,7 @@ IMPROVED: bootstrapper now better detects utf8 ctype
 	13.6 -> 13.7
 
 NEW: improved detection of unicode support in server encoding
+NEW: work around os.getcwd() permission problem on Mac
 
 	13.5 -> 13.6
 
