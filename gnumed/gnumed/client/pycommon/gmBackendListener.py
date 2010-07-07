@@ -121,7 +121,7 @@ class gmBackendListener(gmBorg.cBorg):
 	def __register_interests(self):
 
 		# determine patient-specific notifications
-		cmd = u'select distinct on (signal) signal from gm.notifying_tables where carries_identity_pk is True'
+		cmd = u'SELECT DISTINCT ON (signal) signal FROM gm.notifying_tables WHERE carries_identity_pk IS true'
 		self._conn_lock.acquire(1)
 		self._cursor.execute(cmd)
 		self._conn_lock.release()
@@ -218,23 +218,47 @@ class gmBackendListener(gmBorg.cBorg):
 	# the actual thread code
 	#-------------------------------
 	def _process_notifications(self):
+
+		# get a cursor for this thread
+		self._conn_lock.acquire(1)
+		try:
+			self._cursor_in_thread = self._conn.cursor()
+		finally:
+			self._conn_lock.release()
+
+		# loop until quitting
 		_have_quit_lock = None
 		while not _have_quit_lock:
+
+			# quitting ?
 			if self._quit_lock.acquire(0):
 				break
+
 			# wait at most self._poll_interval for new data
 			self._conn_lock.acquire(1)
-			ready_input_sockets = select.select([self._conn_fd], [], [], self._poll_interval)[0]
-			self._conn_lock.release()
+			try:
+				ready_input_sockets = select.select([self._conn_fd], [], [], self._poll_interval)[0]
+			finally:
+				self._conn_lock.release()
+
 			# any input available ?
 			if len(ready_input_sockets) == 0:
 				# no, select.select() timed out
 				# give others a chance to grab the conn lock (eg listen/unlisten)
 				time.sleep(0.3)
 				continue
+
 			# data available, wait for it to fully arrive
-			while not self._cursor.isready():
-				pass
+#			while not self._cursor.isready():
+#				pass
+			# replace by conn.poll() when psycopg2 2.2 becomes standard
+			self._conn_lock.acquire(1)
+			try:
+				self._cursor_in_thread.execute(u'SELECT 1')
+				self._cursor_in_thread.fetchall()
+			finally:
+				self._conn_lock.release()
+
 			# any notifications ?
 			while len(self._conn.notifies) > 0:
 				# if self._quit_lock can be acquired we may be in
