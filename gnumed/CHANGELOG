@@ -44,6 +44,7 @@ IMPROVED: better layout of configuration listing
 IMPROVED: medication formatting
 IMPROVED: current medication patient handout [thanks C.Hilbert]
 IMPROVED: pre-filter form template selection list based on purpose of showing
+IMPROVED: default config file for running from tarball
 
 ------------------------------------------------
 # rel-0-7-patches
