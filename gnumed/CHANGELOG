@@ -548,6 +548,7 @@ IMPROVED: try to make su compatible with both MacOSX and Linux
 
 NEW: improved detection of unicode support in server encoding
 NEW: work around os.getcwd() permission problem on Mac
+FIX: even more robust gmPsql.py unicode logging [thanks E.Kuznetsov]
 
 	13.5 -> 13.6
 
