@@ -527,6 +527,7 @@ IMPROVED: bootstrapper now better detects utf8 ctype
 
 NEW: improved detection of unicode support in server encoding
 NEW: work around os.getcwd() permission problem on Mac
+FIX: even more robust gmPsql.py unicode logging [thanks E.Kuznetsov]
 
 	13.5 -> 13.6
 
