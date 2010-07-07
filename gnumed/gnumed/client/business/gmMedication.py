@@ -243,7 +243,7 @@ class cDrugDataSourceInterface(object):
 	def import_drugs(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def check_drug_interactions(self):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
@@ -352,7 +352,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		# .external_code_type: u'FR-CIS'
 		# .external_cod: the CIS value
 	#--------------------------------------------------------
-	def check_drug_interactions(self):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
@@ -539,27 +539,27 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		return new_drugs, new_substances
 	#--------------------------------------------------------
-	def check_drug_interactions(self, pzn_list=None, substances=None):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		"""For this to work the BDT interaction check must be configured in the MMI."""
 
-		if pzn_list is None:
+		if drug_ids_list is None:
 			if substances is None:
 				return
 			if len(substances) < 2:
 				return
-			pzn_list = [ (s.external_code_type, s.external_code) for s in substances ]
-			pzn_list = [ code_value for code_type, code_value in pzn_list if (code_value is not None) and (code_type == u'DE-PZN')]
+			drug_ids_list = [ (s.external_code_type, s.external_code) for s in substances ]
+			drug_ids_list = [ code_value for code_type, code_value in drug_ids_list if (code_value is not None) and (code_type == u'DE-PZN')]
 
 		else:
-			if len(pzn_list) < 2:
+			if len(drug_ids_list) < 2:
 				return
 
-		if pzn_list < 2:
+		if drug_ids_list < 2:
 			return
 
 		bdt_file = codecs.open(filename = self.interactions_filename, mode = 'wb', encoding = cGelbeListeWindowsInterface.default_encoding)
 
-		for pzn in pzn_list:
+		for pzn in drug_ids_list:
 			pzn = pzn.strip()
 			lng = cGelbeListeWindowsInterface.bdt_line_base_length + len(pzn)
 			bdt_file.write(cGelbeListeWindowsInterface.bdt_line_template % (lng, pzn))
@@ -1223,7 +1223,7 @@ if __name__ == "__main__":
 		# Metoprolol + Hct vs Citalopram
 		diclofenac = '7587712'
 		phenprocoumon = '4421744'
-		mmi.check_drug_interactions(pzn_list = [diclofenac, phenprocoumon])
+		mmi.check_drug_interactions(drug_ids_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
 	def test_create_substance_intake():
 		drug = create_substance_intake (

@@ -50,6 +50,7 @@ IMPROVED: pre-filter form template selection list based on purpose of showing
 ------------------------------------------------
 
 FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
+FIX: check_drug_interactions() failed with FreeDIAMS [thanks J.Busser]
 
 	0.7.6
 
