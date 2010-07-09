@@ -34,6 +34,7 @@ IMPROVED: DOB validity check when creating new person
 
 FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
 FIX: check_drug_interactions() failed with FreeDIAMS [thanks J.Busser]
+FIX: be more careful around changing CWD when creating document from LaTeX [thanks S.Hilbert]
 
 	0.7.6
 
