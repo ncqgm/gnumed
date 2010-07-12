@@ -1,8 +1,6 @@
 import unittest
 import jsonrpclib
 
-from GNumed.pycommon import gmPG2
-
 class TestJsonServer(unittest.TestCase):
 	def test_login(self):
 		s = jsonrpclib.ServerProxy("http://127.0.0.1:8080/services", verbose=0)
