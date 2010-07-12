@@ -7,21 +7,21 @@ import wx
 class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmDemographicsWidgets
+        from Gnumed.wxpython import gmPersonContactWidgets
 
         # begin wxGlade: wxgGenericAddressEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_type = gmDemographicsWidgets.cAddressTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_zip = gmDemographicsWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_street = gmDemographicsWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_type = gmPersonContactWidgets.cAddressTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_zip = gmPersonContactWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_street = gmPersonContactWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_notes_street = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_number = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_subunit = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_urb = gmDemographicsWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_suburb = gmDemographicsWidgets.cSuburbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_state = gmDemographicsWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_country = gmDemographicsWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_urb = gmPersonContactWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_suburb = gmPersonContactWidgets.cSuburbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_state = gmPersonContactWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_notes_subunit = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()

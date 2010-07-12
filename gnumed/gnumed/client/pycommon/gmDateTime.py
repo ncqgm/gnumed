@@ -195,6 +195,10 @@ def init():
 def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
+#---------------------------------------------------------------------------
+def wx_now_here(wx=None):
+	"""Returns NOW @ HERE (IOW, in the local timezone."""
+	return py_dt2wxDate(py_dt = pydt_now_here(), wx = wx)
 #===========================================================================
 # wxPython conversions
 #---------------------------------------------------------------------------

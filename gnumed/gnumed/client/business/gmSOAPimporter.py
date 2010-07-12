@@ -24,18 +24,12 @@ This script is designed for importing GNUmed SOAP input "bundles".
 			  Its 'episode_id' must always be supplied.
 """
 #===============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.24 2009-12-21 14:59:31 ncq Exp $
 __version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # stdlib
 import sys, re, logging
-
-
-# 3rd party
-import mx.DateTime as mxDT
 
 
 # GnuMed

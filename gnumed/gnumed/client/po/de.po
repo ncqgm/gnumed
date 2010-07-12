@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-06-12 22:02+CEST\n"
-"PO-Revision-Date: 2010-06-12 22:02+0100\n"
+"POT-Creation-Date: 2010-07-01 23:26+CEST\n"
+"PO-Revision-Date: 2010-07-01 17:45+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -159,6 +159,7 @@ msgid ""
 "Test results: %(results)s\n"
 "Hospital stays: %(stays)s\n"
 "Procedures: %(procedures)s\n"
+"Vaccinations: %(vaccinations)s\n"
 msgstr ""
 "Medizinische Probleme: %(problems)s\n"
 "Konsultationen: %(encounters)s\n"
@@ -168,6 +169,7 @@ msgstr ""
 "Testergebnisse: %(results)s\n"
 "Krankenhausaufenthalte: %(stays)s\n"
 "Maßnahmen: %(procedures)s\n"
+"Impfungen: %(vaccinations)s\n"
 
 msgid ""
 "EMR Statistics\n"
@@ -223,14 +225,11 @@ msgstr " (zuletzt überprüft %s)"
 msgid "unknown reaction"
 msgstr "unbekannte Reaktion"
 
+msgid "Vaccinations"
+msgstr "Impfungen"
+
 msgid "allergies/intolerances"
 msgstr "Allergien/Unverträglichkeiten"
-
-msgid "ERROR: cannot retrieve vaccinated indications"
-msgstr "ERROR: kann beimpfte Indikationen nicht laden"
-
-msgid "no vaccinations recorded"
-msgstr "keine Impfungen vermerkt"
 
 msgid ""
 "%s\n"
@@ -373,6 +372,9 @@ msgstr "Dokumente: %s"
 
 msgid "Measurements and Results: %s"
 msgstr "Messungen und Ergebnisse: %s"
+
+msgid "Vaccinations:"
+msgstr "Impfungen:"
 
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
@@ -615,6 +617,9 @@ msgstr "Kann Nachrichten für den Mitarbeiter nicht aus der Datenbank laden."
 msgid ""
 "An error occurred while retrieving provider inbox messages from the database."
 msgstr "Kann Nachrichten für den Mitarbeiter nicht aus der Datenbank laden."
+
+msgid "vaccine"
+msgstr "Impfstoff"
 
 msgid "internal error, check log"
 msgstr "interner Fehler, Log kontrollieren"
@@ -2571,6 +2576,9 @@ msgstr "Details zur Messung"
 msgid "Test"
 msgstr "Test"
 
+msgid "LOINC"
+msgstr "LOINC"
+
 msgid "Units"
 msgstr "Einheit"
 
@@ -2663,9 +2671,6 @@ msgstr "Abkürzung"
 
 msgid "Unit"
 msgstr "Einheit"
-
-msgid "LOINC"
-msgstr "LOINC"
 
 msgid "&Your unsigned"
 msgstr "&Meine unsignierten"
@@ -3868,6 +3873,296 @@ msgstr "Hotline"
 msgid "Log file"
 msgstr "Log-Datei"
 
+msgid "Anamnestic"
+msgstr "Anamnestisch"
+
+msgid " + "
+msgstr ""
+
+msgid ""
+"Check this if - within the SOAP classification - you want to mark the entry "
+"as Subjective rather than Plan."
+msgstr ""
+"Markieren Sie dieses Feld, wenn die Impfung als Anamnese anstelle von "
+"Procedere gespeichert werden soll."
+
+msgid ""
+"The vaccine used, if known.\n"
+"\n"
+"If unknown check off the indications which were vaccinated against."
+msgstr ""
+"Der Impfstoff, sofern bekannt.\n"
+"\n"
+"Markieren Sie die Impfkrankheiten, falls der Impfstoff nicht bekannt ist."
+
+msgid "Add a vaccine to GNUmed."
+msgstr "Einen Impfstoff zu GNUmed hinzufügen."
+
+msgid "The batch number of the vaccine."
+msgstr "Die Chargennummer des Impfstoffs."
+
+msgid ""
+"Select an episode to file this vaccination under.\n"
+"\n"
+"If you do not select one it will be filed under \"prevention\".\n"
+"\n"
+"Alternatively, type the name for a new episode."
+msgstr ""
+"Wählen Sie eine Episode für diese Impfung.\n"
+"\n"
+"Wenn Sie keine Episode wählen, wird die Impfung unter \"Prävention\" "
+"gespeichert.\n"
+"\n"
+"Sie können aber auch den Namen für eine neue Episode eingeben."
+
+msgid "The injection site, if known."
+msgstr "Der Injektionsort, sofern bekant."
+
+msgid "The provider who administered the vaccine, if known."
+msgstr "Der Mitarbeiter, der die Impfung verabreicht hat, sofern bekannt."
+
+msgid "Record any adverse reactions to this vaccine."
+msgstr "Vermerken Sie hier etwaige Impfreaktionen."
+
+msgid "Report this event as an adverse drug reaction."
+msgstr "Als unübliche Impfreaktion melden."
+
+msgid "Any comment you may wish to relate to this vaccination."
+msgstr "Ein Kommentar zu dieser Impfung."
+
+msgid "Date given"
+msgstr "Impfdatum"
+
+msgid "Vaccine ..."
+msgstr "Impfstoff ..."
+
+msgid ""
+"... or ...\n"
+"\n"
+"vaccinated against"
+msgstr ""
+"... oder ...\n"
+"\n"
+"geimpft gegen"
+
+msgid "Batch №"
+msgstr "Charge"
+
+msgid "Site"
+msgstr "Stelle"
+
+msgid "Given by"
+msgstr "Impfarzt"
+
+msgid "Tetanus"
+msgstr ""
+
+msgid "Measles"
+msgstr "Masern"
+
+msgid "Diphtheria"
+msgstr "Diphtherie"
+
+msgid "Mumps"
+msgstr "Mumps"
+
+msgid "Influenza"
+msgstr ""
+
+msgid "A"
+msgstr "D"
+
+msgid "C"
+msgstr ""
+
+msgid "Hep A"
+msgstr ""
+
+msgid "Pertussis"
+msgstr ""
+
+msgid "Rubella"
+msgstr "Röteln"
+
+msgid "Pneumococc"
+msgstr "Pneumokokk"
+
+msgid "W"
+msgstr ""
+
+msgid "Y"
+msgstr ""
+
+msgid "Cholera"
+msgstr ""
+
+msgid "Poliomyelitis"
+msgstr ""
+
+msgid "Varicella"
+msgstr "Varizellen"
+
+msgid "Cox (Q)"
+msgstr "Cox (Q)"
+
+msgid "Tick Encep"
+msgstr "FSME"
+
+msgid "Typhoid"
+msgstr "Typhus"
+
+msgid "HiB"
+msgstr "HiB"
+
+msgid "H1N1"
+msgstr ""
+
+msgid "Jap B"
+msgstr "Jap B"
+
+msgid "Rotavirus"
+msgstr ""
+
+msgid "Hep B"
+msgstr ""
+
+msgid "HPV"
+msgstr ""
+
+msgid "Tuberculosis"
+msgstr "Tuberkulose"
+
+msgid "Rabies"
+msgstr "Tollwut"
+
+msgid "Yellow fever"
+msgstr "Gelbfieber"
+
+msgid "Anthrax"
+msgstr ""
+
+msgid "Plague"
+msgstr "Pest"
+
+msgid "Smallpox"
+msgstr "Variola"
+
+msgid "Regardless of childhood/adult toxoid content."
+msgstr "Unabhängig vom Toxoid-Inhalt (Kinder/Erwachsene)."
+
+msgid "Seasonal influenza"
+msgstr "Saisonale Influenza"
+
+msgid "Meningococcus A"
+msgstr "A-Meningokokken"
+
+msgid "Meningococcus C"
+msgstr "C-Meningokokken"
+
+msgid "Pneumococcus"
+msgstr "Pneumokokken"
+
+msgid "Meningococcus W"
+msgstr "W-Meningokokken"
+
+msgid "Meningococcus Y"
+msgstr "Y-Meningokokken"
+
+msgid "Varicella zoster (shingles)"
+msgstr "Varizella zoster (Windpocken)"
+
+msgid "Coxiella burnetii (Q fever)"
+msgstr "Coxiella burnetii (Q-Fieber)"
+
+msgid "Tick-borne meningoencephalitis"
+msgstr "Zecken-Meningoenzephalitis (FSME)"
+
+msgid "Salmonella typhi (typhoid)"
+msgstr "Salmonella typhi (Typhus)"
+
+msgid "HiB: Haemophilus influenzae B"
+msgstr "HiB: Haemophilus influenzae B"
+
+msgid "H1N1 influenza"
+msgstr "H1N1-Influenza"
+
+msgid "Japanese B encephalitis"
+msgstr "Japanische B-Enzephalitis"
+
+msgid "Human papilloma virus"
+msgstr "Humanes Papillomvirus"
+
+msgid "Bacillus anthracis"
+msgstr ""
+
+msgid "Yersinia pestis"
+msgstr ""
+
+msgid "Variola virus"
+msgstr "Variolavirus (Smallpox)"
+
+msgid "<--Resp-->"
+msgstr "<--Atmung-->"
+
+msgid "<--Neuro-->"
+msgstr "←ZNS/PNS→"
+
+msgid "<--GI-->"
+msgstr "<-Magen-Darm->"
+
+msgid "Other:"
+msgstr "Sonstige:"
+
+msgid "Live"
+msgstr "Lebendimpfstoff"
+
+msgid "Fake"
+msgstr "unecht"
+
+msgid ""
+"The route by which this vaccine is to be administered.\n"
+"\n"
+"Typically one of i.m., s.c., or orally."
+msgstr ""
+"Der Weg, auf welchem der Impfstoff verabreicht wird.\n"
+"\n"
+"Üblicherweise i.m., s.c., oder oral."
+
+msgid "Check if this is a live attenuated vaccine."
+msgstr "Handelt es sich um einen Lebendimpfstoff ?"
+
+msgid "Whether this is an actual brand or a generic, fake vaccine."
+msgstr ""
+"Handelt es sich um einen echten Impfstoff oder und einen generischen, "
+"erfundenen ?"
+
+msgid "The ATC for this vaccine."
+msgstr "Der ATC für diesen Impfstoff."
+
+msgid "The minimum age at which this vaccine should be given."
+msgstr "Das Mindestalter für die Gabe dieses Impfstoffs."
+
+msgid "The maximum age at which this vaccine should be given."
+msgstr "Das Höchstalter für die Gabe diese Impfstoffs."
+
+msgid "Any comment you may wish to relate to this vaccine."
+msgstr "Ein Kommentar zu diesem Impfstoff."
+
+msgid "Route"
+msgstr "Weg"
+
+msgid "Protects from"
+msgstr "Schützt vor"
+
+msgid "ATC"
+msgstr "ATC"
+
+msgid "Age range"
+msgstr "Altersbereich"
+
+msgid "→"
+msgstr ""
+
 msgid "Template"
 msgstr "Vorlage"
 
@@ -3981,17 +4276,14 @@ msgstr "Eine xDT-Datei laden."
 msgid "No vaccines were chosen"
 msgstr "keine Impfstoffe gewählt"
 
-msgid "Batch"
-msgstr "Charge"
-
 msgid "Sequence"
 msgstr "Sequenz"
 
-msgid "Site"
-msgstr "Stelle"
-
 msgid "Vaccinator"
 msgstr "Impfarzt"
+
+msgid "Batch"
+msgstr "Charge"
 
 msgid "Vaccine"
 msgstr "Impfstoff"
@@ -4597,79 +4889,6 @@ msgstr "Kann Eingabe nicht in einen Zeitpunkt übersetzen."
 msgid "enter time here"
 msgstr "Zeitpunkt eingeben"
 
-msgid "Select the default country for new persons.\n"
-msgstr "Wählen Sie das Heimatland für neue Personen vor.\n"
-
-msgid "Type or select a country."
-msgstr "Tippen oder wählen Sie ein Land/einen Staat."
-
-msgid "Select the default region/province/state/territory for new persons.\n"
-msgstr "Wählen Sie das Bundesland für neue Personen vor.\n"
-
-msgid "Adding province"
-msgstr "Bundesland hinzufügen"
-
-msgid "Editing province"
-msgstr "Bundesland bearbeiten"
-
-msgid ""
-"Are you sure you want to delete this province ?\n"
-"\n"
-"Deletion will only work if this province is not\n"
-"yet in use in any patient addresses."
-msgstr ""
-"Wollen Sie dieses Bundesland wirklich löschen ?\n"
-"\n"
-"Ein Bundesland kann auch nur dann gelöscht werden,\n"
-"wenn es noch in keiner Adresse verwendet wird."
-
-msgid ""
-"Also delete any towns/cities/villages known\n"
-"to be situated in this state as long as\n"
-"no patients are recorded to live there."
-msgstr ""
-"Auch Ortschaften löschen, die in diesem\n"
-"Bundesland liegen, sofern sie noch in keiner\n"
-"Patientenadresse verwendet werden."
-
-msgid "Deleting province"
-msgstr "Bundesland löschen"
-
-msgid "delete related townships"
-msgstr "zugehörige Ortschaften löschen"
-
-msgid "Delete province and possibly related townships."
-msgstr "Bundesland und zugehörige Ortschaften löschen."
-
-msgid "Yes, delete"
-msgstr "Ja, löschen"
-
-msgid "No, do NOT delete anything."
-msgstr "Nein, nichts löschen."
-
-msgid ""
-"\n"
-"This list shows the provinces known to GNUmed.\n"
-"\n"
-"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
-"\"county\", \"region\", \"territory\", or some such term.\n"
-"\n"
-"Select the province you want to edit !\n"
-msgstr ""
-"\n"
-"Diese Liste zeigt die GNUmed bekannten Bundesländer.\n"
-"\n"
-"In Ihrer Sprache heißt \"Bundesland\" eventuell \"Staat\", \"Kanton\",\n"
-"\"Bezirk\", \"Provinz\", \"Region\", \"Territorium\" oder ähnliches.\n"
-"\n"
-"Wählen Sie das zu bearbeitende Bundesland !\n"
-
-msgid "Editing provinces ..."
-msgstr "Bearbeite Bundesländer ..."
-
-msgid "Type or select a state/region/province/territory."
-msgstr "Wählen oder tippen Sie ein Bundesland (oder Äquivalent) ein."
-
 msgid "Today's KOrganizer appointments ..."
 msgstr "Heutige Termine aus KOrganizer ..."
 
@@ -4707,6 +4926,9 @@ msgstr ""
 msgid "Editing primary occupation"
 msgstr "Den Hauptberuf des Patienten bearbeiten"
 
+msgid "Type or select an occupation."
+msgstr "Tippen oder wählen Sie einen Beruf."
+
 msgid ""
 "Are you sure you really, positively want\n"
 "to disable the following person ?\n"
@@ -4736,107 +4958,6 @@ msgstr "Patient deaktivieren"
 msgid "Disabling patient"
 msgstr "Patient deaktivieren"
 
-msgid "List of known addresses."
-msgstr "Liste der bekannten Adressen."
-
-msgid "Street info"
-msgstr "Zusatz Straße"
-
-msgid "Subunit"
-msgstr "Unternummer"
-
-msgid "Suburb"
-msgstr "Ortsteil"
-
-msgid "Adding new address"
-msgstr "Neue Adresse hinzufügen"
-
-msgid "Editing address"
-msgstr "Adresse bearbeiten"
-
-msgid ""
-"Are you sure you want to remove this\n"
-"address from the patient's addresses ?\n"
-"\n"
-"The address itself will not be deleted\n"
-"but it will no longer be associated with\n"
-"this patient."
-msgstr ""
-"Sind Sie sicher, daß diese Adresse aus den\n"
-"Kontakten dieses Patienten entfernt werden soll ?\n"
-"\n"
-"Die Adresse wird nicht tatsächlich gelöscht, sondern\n"
-"nicht mehr dem Patienten zugeordnet."
-
-msgid "Removing address"
-msgstr "Adresse entfernen"
-
-msgid ""
-"Cannot save address.\n"
-"\n"
-"Does the state [%s]\n"
-"exist in country [%s] ?"
-msgstr ""
-"Kann Adresse nicht speichern.\n"
-"\n"
-"Existiert die Region [%s]\n"
-"im Land [%s] ?"
-
-msgid "Saving address"
-msgstr "Adresse speichern"
-
-msgid "Address details must be filled in completely or not at all."
-msgstr "Adressangaben müssen komplett oder gar nicht eingegeben werden."
-
-msgid "Saving contact data"
-msgstr "Kontaktdaten speichern."
-
-msgid "Select an address by postcode or street name."
-msgstr "Wählen Sie eine Adresse anhand von Postleitzahl oder Straße."
-
-msgid "Select the type of address."
-msgstr "Wählen Sie den Typ der Adresse."
-
-msgid "Type or select a zip code (postcode)."
-msgstr "Tippen oder wählen Sie eine Postleitzahl."
-
-msgid "Type or select a street."
-msgstr "Tippen oder wählen Sie eine Straße."
-
-msgid "Type or select the suburb."
-msgstr "Tippen oder wählen Sie einen Ortsteil."
-
-msgid "Type or select a city/town/village/dwelling."
-msgstr "Tippen oder wählen Sie einen Ort."
-
-msgid "Select the type of communications channel."
-msgstr "Wählen Sie den Typ des Kommunikationskanals."
-
-msgid "Cannot save communications channel."
-msgstr "Kann Kommunikationskanal nicht speichern."
-
-msgid "List of known communication channels."
-msgstr "Liste der bekannten Kommunikationskanäle."
-
-msgid "confidential"
-msgstr "vertraulich"
-
-msgid "Adding new communications channel"
-msgstr "Einen Kommunikationskanal hinzufügen"
-
-msgid "Editing communications channel"
-msgstr "Einen Kommunikationskanal ändern"
-
-msgid ""
-"Are you sure this patient can no longer\n"
-"be contacted via this channel ?"
-msgstr ""
-"Sind Sie sicher, daß dieser Patient nicht\n"
-"mehr auf diesem Weg erreicht werden kann?"
-
-msgid "Removing communication channel"
-msgstr "Einen Kommunikationskanal entfernen"
-
 msgid "Type or select a last name (family name/surname)."
 msgstr "Tippen oder wählen Sie einen Familien-/Nachnamen."
 
@@ -4856,9 +4977,6 @@ msgid ""
 msgstr ""
 "Tippen oder wählen Sie einen Titel. Beachten Sie, daß der Titel zur Person "
 "gehört, nicht zu einem bestimmten Namen dieser Person !"
-
-msgid "Type or select an occupation."
-msgstr "Tippen oder wählen Sie einen Beruf."
 
 msgid "issued by"
 msgstr "ausgegeben von"
@@ -4949,8 +5067,38 @@ msgstr "Vorname muß eingegeben werden."
 msgid "Must select gender."
 msgstr "Geschlecht muß gewählt werden."
 
-msgid "Cannot use this date of birth. Does it lie before 1900 ?"
-msgstr "Kann dieses Geburtsdatum nicht verwenden. Liegt es vor 1900 ?"
+msgid ""
+"DOB: %s\n"
+"\n"
+"While this is a valid point in time Python does\n"
+"not know how to deal with it.\n"
+"\n"
+"We suggest using January 1st 1901 instead and adding\n"
+"the true date of birth to the patient comment.\n"
+"\n"
+"Sorry for the inconvenience %s"
+msgstr ""
+"Geb.: %s\n"
+"\n"
+"Obwohl es sich um einen gültigen Zeitpunkt handelt,\n"
+"kann Python damit nicht umgehen.\n"
+"\n"
+"Wir empfehlen, den 1.Januar 1901 zu verwenden und das\n"
+"tatsächliche Geburtsdatum im Patientenkommentar zu vermerken.\n"
+"\n"
+" %s"
+
+msgid ""
+"DOB: %s\n"
+"\n"
+"Date of birth in the future !"
+msgstr ""
+"Geb.: %s\n"
+"\n"
+"Geburtsdatum liegt in der Zukunft !"
+
+msgid "Registering new person"
+msgstr "Neue Person anlegen"
 
 msgid ""
 "Are you sure you want to register this person\n"
@@ -4959,9 +5107,6 @@ msgid ""
 "This can be useful for temporary staff members\n"
 "but will provoke nag screens if this person\n"
 "becomes a patient.\n"
-"\n"
-"Note that the date of birth cannot technically\n"
-"be before 1900, either :-(\n"
 msgstr ""
 "Wollen Sie diese Person wirklich ohne gültiges\n"
 "Geburtsdatum aufnehmen ?\n"
@@ -4969,15 +5114,6 @@ msgstr ""
 "Dies kann bei Angestellten hilfreich sein. GNUmed wird\n"
 "wird jedoch auf das fehlende Geburtsdatum hinweisen,\n"
 "sobald diese Person als Patient verwendet werden soll.\n"
-"\n"
-"Aus technischen Gründen kann das Geburtsdatum auch\n"
-"nicht vor 1900 liegen :-(\n"
-
-msgid "Registering new person"
-msgstr "Neue Person anlegen"
-
-msgid "The year of birth must lie after 1900."
-msgstr "Das Geburtsjahr muß nach 1900 liegen."
 
 msgid ""
 "To properly create an address, all the related fields must be filled in."
@@ -4990,6 +5126,9 @@ msgstr "Pflichtfelder"
 
 msgid "This field must contain an item selected from the dropdown list."
 msgstr "Dieses Feld muß einen Eintrag aus der Dropdown-Liste enthalten."
+
+msgid "Saving address"
+msgstr "Adresse speichern"
 
 msgid ""
 "Cannot save this address.\n"
@@ -5823,6 +5962,9 @@ msgstr "Löschen einer Episode"
 msgid "Delete the episode if possible (it must be completely empty)."
 msgstr "Die Episode löschen, falls möglich (muß vollständig leer sein)."
 
+msgid "Yes, delete"
+msgstr "Ja, löschen"
+
 msgid "Cancel and do NOT delete the episode."
 msgstr "Abbrechen und die Episode NICHT löschen."
 
@@ -5911,11 +6053,11 @@ msgstr ""
 msgid "Editing performed procedures ..."
 msgstr "Bearbeite Maßnahmen ..."
 
-msgid "When"
-msgstr "Wann"
-
 msgid "Where"
 msgstr "Wo"
+
+msgid "When"
+msgstr "Wann"
 
 msgid "Adding a procedure"
 msgstr "Maßnahme hinzufügen"
@@ -6149,6 +6291,9 @@ msgstr "Grunderkrankung bearbeiten"
 msgid "Select the health issues you are interested in ..."
 msgstr "Wählen Sie die Grunderkrankungen, die von Interesse sind ..."
 
+msgid "confidential"
+msgstr "vertraulich"
+
 msgid "relevant"
 msgstr "relevant"
 
@@ -6376,6 +6521,26 @@ msgstr ""
 "Installieren Sie die fehlenden Module nach,\n"
 "denn sonst werden einige Funktionen von\n"
 "GNUmed nicht verfügbar sein."
+
+msgid "Lost connection"
+msgstr "Verbindung verloren"
+
+msgid ""
+"Since you were last working in GNUmed,\n"
+"your database connection timed out.\n"
+"\n"
+"This GNUmed session is now expired.\n"
+"\n"
+"You will have to close this client and\n"
+"restart a new GNUmed session."
+msgstr ""
+"Seit Sie zuletzt mit GNUmed gearbeitet\n"
+"haben, wurde die Datenbankverbindung beendet.\n"
+"\n"
+"Diese GNUmed-Sitzung ist damit abgelaufen.\n"
+"\n"
+"Sie müssen dieses GNUmed-Fenster schließen\n"
+"und GNUmed neu starten."
 
 msgid ""
 "Please enter a short note on what you\n"
@@ -6787,6 +6952,12 @@ msgstr "UAW-URL"
 msgid "URL for reporting Adverse Drug Reactions."
 msgstr "Webseite für die Meldung von Unerwünschten Arzneimittelwirkungen."
 
+msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
+msgstr "Webseite für die Meldung von Impfreaktionen."
+
+msgid "vaccADR URL"
+msgstr "Impf-UAW-URL"
+
 msgid "Set the command for calling the visual progress note editor."
 msgstr "Den Editor für Bildnotizen einstellen."
 
@@ -6939,6 +7110,18 @@ msgstr "Bekannte Impfstoffe auflisten."
 msgid "Vaccines"
 msgstr "Impfstoffe"
 
+msgid "Create fake vaccines"
+msgstr "Unechte Impfstoffe anlegen"
+
+msgid "Re-create fake generic vaccines."
+msgstr "Unechte Impfungstoffe neu erzeugen."
+
+msgid "Immunizables"
+msgstr "Impfkrankheiten"
+
+msgid "Show conditions known to be preventable by vaccination."
+msgstr "Zeige Krankheiten, die durch Impfung verhindert werden können."
+
 msgid "&Users ..."
 msgstr "&Nutzer ..."
 
@@ -7065,6 +7248,12 @@ msgstr "&Meßwert(e)"
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr "Meßergebnisse für den aktiven Patienten erfassen."
 
+msgid "&Vaccination(s)"
+msgstr "&Impfung(en)"
+
+msgid "Add (a) vaccination(s) for the current patient."
+msgstr "Impfungen für den aktiven Patienten erfassen."
+
 msgid "Start a new encounter for the active patient right now."
 msgstr "Sofort einen neuen Kontakt für den aktiven Patienten beginnen."
 
@@ -7166,6 +7355,12 @@ msgstr "Zeige eine Seite mit Querverweisen zu nützlichem medizinischem Inhalt."
 
 msgid "&Office"
 msgstr "P&raxis"
+
+msgid "Audit trail"
+msgstr "Änderungsprotokoll"
+
+msgid "Display database audit trail."
+msgstr "Zeige Änderungsprotokoll der Datenbank."
 
 msgid "GNUmed wiki"
 msgstr "GNUmed-Wiki"
@@ -7436,6 +7631,21 @@ msgstr ""
 "\n"
 "Sie können das Feld leerlassen. Wenn Sie eine URL\n"
 "eingeben wollen, muß diese momentan erreichbar sein."
+
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse vaccination reaction (vADR).\n"
+"\n"
+"If you set it to a specific address that URL must be\n"
+"accessible now. If you leave it empty it will fall back\n"
+"to the URL for reporting other adverse drug reactions."
+msgstr ""
+"GNUmed öffnet mit dieser Adresse eine Webseite, auf der\n"
+"Sie Impfreaktionen melden können.\n"
+"\n"
+"Wenn Sie eine URL eingeben wollen, muß diese momentan\n"
+"erreichbar sein. Wenn Sie das Feld leer lassen, wird die\n"
+"Adresse für Unerwünschte Arzneimittelwirkungen verwendet."
 
 msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
@@ -7935,6 +8145,9 @@ msgstr "Kann Krankenhausaufenthalte nicht verwalten. Kein Patient aktiv."
 
 msgid "Cannot edit occupation. No active patient."
 msgstr "Kann Beruf nicht ändern. Kein Patient aktiv."
+
+msgid "Cannot add vaccinations. No active patient."
+msgstr "Kann Impfung nicht eintragen. Kein Patient aktiv."
 
 msgid "Cannot add measurement. No active patient."
 msgstr "Kann Messungen nicht eintragen. Kein Patient aktiv."
@@ -8749,9 +8962,6 @@ msgstr "Zeige ATC-Codes."
 msgid "Term"
 msgstr "Ausdruck"
 
-msgid "Route"
-msgstr "Weg"
-
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
@@ -8771,9 +8981,6 @@ msgstr ""
 
 msgid "Showing branded drugs."
 msgstr "Zeige Medikamente."
-
-msgid "ATC"
-msgstr "ATC"
 
 msgid ""
 "\n"
@@ -9733,6 +9940,171 @@ msgstr "(%s Patienten)"
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr "Kann nicht zur Warteliste hinzufügen: kein Patient aktiviert."
 
+msgid "Select the default country for new persons.\n"
+msgstr "Wählen Sie das Heimatland für neue Personen vor.\n"
+
+msgid "Type or select a country."
+msgstr "Tippen oder wählen Sie ein Land/einen Staat."
+
+msgid "Select the default region/province/state/territory for new persons.\n"
+msgstr "Wählen Sie das Bundesland für neue Personen vor.\n"
+
+msgid "Adding province"
+msgstr "Bundesland hinzufügen"
+
+msgid "Editing province"
+msgstr "Bundesland bearbeiten"
+
+msgid ""
+"Are you sure you want to delete this province ?\n"
+"\n"
+"Deletion will only work if this province is not\n"
+"yet in use in any patient addresses."
+msgstr ""
+"Wollen Sie dieses Bundesland wirklich löschen ?\n"
+"\n"
+"Ein Bundesland kann auch nur dann gelöscht werden,\n"
+"wenn es noch in keiner Adresse verwendet wird."
+
+msgid ""
+"Also delete any towns/cities/villages known\n"
+"to be situated in this state as long as\n"
+"no patients are recorded to live there."
+msgstr ""
+"Auch Ortschaften löschen, die in diesem\n"
+"Bundesland liegen, sofern sie noch in keiner\n"
+"Patientenadresse verwendet werden."
+
+msgid "Deleting province"
+msgstr "Bundesland löschen"
+
+msgid "delete related townships"
+msgstr "zugehörige Ortschaften löschen"
+
+msgid "Delete province and possibly related townships."
+msgstr "Bundesland und zugehörige Ortschaften löschen."
+
+msgid "No, do NOT delete anything."
+msgstr "Nein, nichts löschen."
+
+msgid ""
+"\n"
+"This list shows the provinces known to GNUmed.\n"
+"\n"
+"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
+"\"county\", \"region\", \"territory\", or some such term.\n"
+"\n"
+"Select the province you want to edit !\n"
+msgstr ""
+"\n"
+"Diese Liste zeigt die GNUmed bekannten Bundesländer.\n"
+"\n"
+"In Ihrer Sprache heißt \"Bundesland\" eventuell \"Staat\", \"Kanton\",\n"
+"\"Bezirk\", \"Provinz\", \"Region\", \"Territorium\" oder ähnliches.\n"
+"\n"
+"Wählen Sie das zu bearbeitende Bundesland !\n"
+
+msgid "Editing provinces ..."
+msgstr "Bearbeite Bundesländer ..."
+
+msgid "Type or select a state/region/province/territory."
+msgstr "Wählen oder tippen Sie ein Bundesland (oder Äquivalent) ein."
+
+msgid "List of known addresses."
+msgstr "Liste der bekannten Adressen."
+
+msgid "Street info"
+msgstr "Zusatz Straße"
+
+msgid "Subunit"
+msgstr "Unternummer"
+
+msgid "Suburb"
+msgstr "Ortsteil"
+
+msgid "Adding new address"
+msgstr "Neue Adresse hinzufügen"
+
+msgid "Editing address"
+msgstr "Adresse bearbeiten"
+
+msgid ""
+"Are you sure you want to remove this\n"
+"address from the patient's addresses ?\n"
+"\n"
+"The address itself will not be deleted\n"
+"but it will no longer be associated with\n"
+"this patient."
+msgstr ""
+"Sind Sie sicher, daß diese Adresse aus den\n"
+"Kontakten dieses Patienten entfernt werden soll ?\n"
+"\n"
+"Die Adresse wird nicht tatsächlich gelöscht, sondern\n"
+"nicht mehr dem Patienten zugeordnet."
+
+msgid "Removing address"
+msgstr "Adresse entfernen"
+
+msgid ""
+"Cannot save address.\n"
+"\n"
+"Does the state [%s]\n"
+"exist in country [%s] ?"
+msgstr ""
+"Kann Adresse nicht speichern.\n"
+"\n"
+"Existiert die Region [%s]\n"
+"im Land [%s] ?"
+
+msgid "Address details must be filled in completely or not at all."
+msgstr "Adressangaben müssen komplett oder gar nicht eingegeben werden."
+
+msgid "Saving contact data"
+msgstr "Kontaktdaten speichern."
+
+msgid "Select an address by postcode or street name."
+msgstr "Wählen Sie eine Adresse anhand von Postleitzahl oder Straße."
+
+msgid "Select the type of address."
+msgstr "Wählen Sie den Typ der Adresse."
+
+msgid "Type or select a zip code (postcode)."
+msgstr "Tippen oder wählen Sie eine Postleitzahl."
+
+msgid "Type or select a street."
+msgstr "Tippen oder wählen Sie eine Straße."
+
+msgid "Type or select the suburb."
+msgstr "Tippen oder wählen Sie einen Ortsteil."
+
+msgid "Type or select a city/town/village/dwelling."
+msgstr "Tippen oder wählen Sie einen Ort."
+
+msgid "Select the type of communications channel."
+msgstr "Wählen Sie den Typ des Kommunikationskanals."
+
+msgid "Cannot save communications channel."
+msgstr "Kann Kommunikationskanal nicht speichern."
+
+msgid "List of known communication channels."
+msgstr "Liste der bekannten Kommunikationskanäle."
+
+msgid "Adding new communications channel"
+msgstr "Einen Kommunikationskanal hinzufügen"
+
+msgid "Editing communications channel"
+msgstr "Einen Kommunikationskanal ändern"
+
+msgid ""
+"Are you sure this patient can no longer\n"
+"be contacted via this channel ?"
+msgstr ""
+"Sind Sie sicher, daß dieser Patient nicht\n"
+"mehr auf diesem Weg erreicht werden kann?"
+
+msgid "Removing communication channel"
+msgstr "Einen Kommunikationskanal entfernen"
+
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
 "Sie müssen entweder einen Wert aus der Liste wählen oder einen identischen "
@@ -9853,6 +10225,21 @@ msgstr "Öffentlich"
 msgid "Select a healthcare provider."
 msgstr "Einen Arzt wählen"
 
+msgid "GNUmed database audit log ..."
+msgstr "Änderungsprotokoll der GNUmed-Datenbank ..."
+
+msgid "Event"
+msgstr "Ereignis"
+
+msgid "Revisions"
+msgstr "Revisionen"
+
+msgid "Table"
+msgstr "Tabelle"
+
+msgid "Who"
+msgstr "Wer"
+
 msgid "Cannot delete the active workplace."
 msgstr "Kann aktiven Arbeitsplatz nicht löschen."
 
@@ -9948,7 +10335,7 @@ msgid ""
 "\n"
 " [%s]\n"
 msgstr ""
-"GNUmed kennt keine Doppelklic-Aktion für\n"
+"GNUmed kennt keine (Doppelklick-)Aktion für\n"
 "Nachrichten mit Kategorie und Typ:\n"
 "\n"
 " [%s]\n"
@@ -10253,6 +10640,44 @@ msgstr "zuletzt überprüft %s\n"
 msgid "Comment (%s): %%s"
 msgstr "Kommentar (%s): %%s"
 
+msgid ""
+"\n"
+"Conditions preventable by vaccination as currently known to GNUmed.\n"
+msgstr ""
+"\n"
+"GNUmed als durch Impfung verhinderbar bekannte Krankheiten.\n"
+
+msgid "Showing vaccination preventable conditions."
+msgstr "Zeige durch Impfung verhinderbare Krankheiten."
+
+msgid "ATCs: multi-condition vaccines"
+msgstr "ATCs: Kombinationsimpfstoffe"
+
+msgid "ATCs: single-condition vaccines"
+msgstr "ATCs: Einfachimpfstoffe"
+
+msgid "Adding new vaccine"
+msgstr "Impfstoff hinzufügen"
+
+msgid "Editing vaccine"
+msgstr "Impfstoff bearbeiten"
+
+msgid ""
+"Cannot delete vaccine\n"
+"\n"
+" %s - %s (#%s)\n"
+"\n"
+"It is probably documented in a vaccination."
+msgstr ""
+"Kann Impfstoff nicht löschen\n"
+"\n"
+" %s - %s (#%s)\n"
+"\n"
+"Er wurde wohl bei einer Impfung dokumentiert."
+
+msgid "Deleting vaccine"
+msgstr "Impfung löschen"
+
 msgid "fake"
 msgstr "unecht"
 
@@ -10266,65 +10691,36 @@ msgstr ""
 msgid "Showing vaccines."
 msgstr "Zeige Impfstoffe."
 
-msgid "Age range"
-msgstr "Altersbereich"
+msgid "Enter or select the batch/lot number of the vaccine used."
+msgstr "Die Chargennummer des verwendeten Impfstoffes eingeben oder auswählen."
 
-msgid "Live"
-msgstr "Lebendimpfstoff"
+msgid "Adding new vaccination"
+msgstr "Impfung hinzufügen"
 
-msgid "Date given"
-msgstr "Impfdatum"
+msgid "Editing vaccination"
+msgstr "Impfung bearbeiten"
 
-msgid "Serial #"
-msgstr "Charge"
-
-msgid "Site injected"
-msgstr "Injektionsort"
-
-msgid "Cannot save vaccination: %s"
-msgstr "Kann Impfung nicht speichern: %s"
-
-msgid "Cannot save new vaccination: %s"
-msgstr "Kann neue Impfung nicht speichern: %s"
-
-msgid "Vaccination saved."
-msgstr "Impfung abgespeichert"
-
-msgid "shot: %s, %s, %s"
-msgstr "Impfung: %s, %s, %s"
-
-msgid "Cannot queue new vaccination."
+msgid ""
+"\n"
+"Complete vaccination history for this patient.\n"
 msgstr ""
+"\n"
+"Vollständige Impfhistorie für diesen Patienten.\n"
 
-msgid "Vaccination queued for saving."
-msgstr ""
+msgid "Showing vaccinations."
+msgstr "Zeige Impfungen."
 
-msgid "Cannot update vaccination: %s"
-msgstr "Kann Impfung nicht speichern: %s"
+msgid "Intended to protect from"
+msgstr "Soll schützen vor"
 
-msgid "Vaccination updated."
-msgstr "Impfdaten geändert."
-
-msgid "left/right deltoid"
-msgstr "OA rechts/links"
-
-msgid "was due: %s, delayed because:"
-msgstr "war fällig: %s, verschoben wegen:"
-
-msgid "booster: was due: %s, delayed because:"
-msgstr "Booster: war fällig: %s, verschoben wegen:"
-
-msgid "booster"
-msgstr "Booster"
+msgid "prevention"
+msgstr "Prävention"
 
 msgid "  IMMUNISATIONS  "
 msgstr "IMPFUNGEN"
 
 msgid "Indications"
 msgstr "Indikationen"
-
-msgid "Vaccinations"
-msgstr "Impfungen"
 
 msgid "Active Schedules"
 msgstr "aktive Impfpläne"
@@ -10625,6 +11021,12 @@ msgstr "Kartei - Journal"
 msgid "Chronological &journal"
 msgstr "chronologisches &Journal"
 
+msgid "Template Plugin"
+msgstr "Beispielplugin"
+
+msgid "Show &ExamplePlugin"
+msgstr "Zeige Beispielplugin"
+
 msgid "Appointments"
 msgstr "Termine"
 
@@ -10666,6 +11068,9 @@ msgstr "&Personalien"
 
 msgid "Progress notes"
 msgstr "Verlaufsnotizen"
+
+msgid "Show &Plugintemplate"
+msgstr "Beispielplugin zeigen"
 
 msgid "Inbox"
 msgstr "Posteingang"
@@ -10949,6 +11354,54 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Cannot use this date of birth. Does it lie before 1900 ?"
+#~ msgstr "Kann dieses Geburtsdatum nicht verwenden. Liegt es vor 1900 ?"
+
+#~ msgid "The year of birth must lie after 1900."
+#~ msgstr "Das Geburtsjahr muß nach 1900 liegen."
+
+#~ msgid "Serial #"
+#~ msgstr "Charge"
+
+#~ msgid "Site injected"
+#~ msgstr "Injektionsort"
+
+#~ msgid "Cannot save vaccination: %s"
+#~ msgstr "Kann Impfung nicht speichern: %s"
+
+#~ msgid "Cannot save new vaccination: %s"
+#~ msgstr "Kann neue Impfung nicht speichern: %s"
+
+#~ msgid "Vaccination saved."
+#~ msgstr "Impfung abgespeichert"
+
+#~ msgid "shot: %s, %s, %s"
+#~ msgstr "Impfung: %s, %s, %s"
+
+#~ msgid "Cannot update vaccination: %s"
+#~ msgstr "Kann Impfung nicht speichern: %s"
+
+#~ msgid "Vaccination updated."
+#~ msgstr "Impfdaten geändert."
+
+#~ msgid "left/right deltoid"
+#~ msgstr "OA rechts/links"
+
+#~ msgid "was due: %s, delayed because:"
+#~ msgstr "war fällig: %s, verschoben wegen:"
+
+#~ msgid "booster: was due: %s, delayed because:"
+#~ msgstr "Booster: war fällig: %s, verschoben wegen:"
+
+#~ msgid "booster"
+#~ msgstr "Booster"
+
+#~ msgid "ERROR: cannot retrieve vaccinated indications"
+#~ msgstr "ERROR: kann beimpfte Indikationen nicht laden"
+
+#~ msgid "no vaccinations recorded"
+#~ msgstr "keine Impfungen vermerkt"
+
 #~ msgid "Cannot add patient address."
 #~ msgstr "Kann Patientenadresse nicht hinzufügen."
 
@@ -11039,9 +11492,6 @@ msgstr "erstmals"
 
 #~ msgid "Obj"
 #~ msgstr "Bef"
-
-#~ msgid "A"
-#~ msgstr "D"
 
 #~ msgid "P"
 #~ msgstr "T"
@@ -11432,9 +11882,6 @@ msgstr "erstmals"
 #, fuzzy
 #~ msgid "&Admissions"
 #~ msgstr "&Verwaltung"
-
-#~ msgid "EMR dump"
-#~ msgstr "Kartei - roh"
 
 #~ msgid "simple EMR text viewer"
 #~ msgstr "einfache Karteianzeige"
@@ -11932,9 +12379,6 @@ msgstr "erstmals"
 
 #~ msgid "The address is no longer associated with this patient."
 #~ msgstr "Die Adresse ist diesem Patienten nicht länger zugeordnet."
-
-#~ msgid "The communication paths known for this patient."
-#~ msgstr "Die für diesen Patienten bekannten Kommunikationsmittel."
 
 #~ msgid "The communications path is no longer associated with this patient."
 #~ msgstr "Das Kommunikationsmittel trifft für diesen Patienten nicht mehr zu."
@@ -12760,9 +13204,6 @@ msgstr "erstmals"
 
 #~ msgid "in %d week(s) (on a %s)"
 #~ msgstr "in %d Woche(n) (an einem %s)"
-
-#~ msgid "seen by"
-#~ msgstr "Kollege"
 
 #~ msgid "Display document metadata here."
 #~ msgstr "Metadaten hier anzeigen."

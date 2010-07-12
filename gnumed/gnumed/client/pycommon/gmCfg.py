@@ -42,7 +42,12 @@ _log.info(__version__)
 # it will already be in many databases
 cfg_DEFAULT = "xxxDEFAULTxxx"
 #==================================================================
-def get_all_options():
+def get_all_options(order_by=None):
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
 
 	cmd = u"""
 SELECT * FROM (
@@ -78,7 +83,7 @@ FROM
 	cfg.v_cfg_options vco JOIN cfg.cfg_data cd ON (vco.pk_cfg_item = cd.fk_item)
 
 ) as option_list
-ORDER BY option"""
+%s""" % order_by
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 

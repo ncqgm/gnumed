@@ -1382,7 +1382,7 @@ def edit_health_issue(parent=None, issue=None):
 	ea = cHealthIssueEditAreaPnl(parent = parent, id = -1)
 	ea.data = issue
 	ea.mode = gmTools.coalesce(issue, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (issue is not None))
 	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -1566,7 +1566,7 @@ class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEd
 
 		# FIXME: include more sources: coding systems/other database columns
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"select distinct on (description) description, description from clin.health_issue where description %(fragment_condition)s limit 50"]
+			queries = [u"SELECT DISTINCT ON (description) description, description FROM clin.health_issue WHERE description %(fragment_condition)s LIMIT 50"]
 		)
 		mp.setThresholds(1, 3, 5)
 		self._PRW_condition.matcher = mp

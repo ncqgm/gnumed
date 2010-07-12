@@ -30,7 +30,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 		parent = wx.GetApp().GetTopWindow()
 
 	# 1) get template
-	template = manage_form_templates(parent = parent)
+	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note'])
 	if template is None:
 		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'))
 		return None
@@ -155,7 +155,7 @@ def print_doc_from_ooo_template(template=None):
 
 	return True
 #------------------------------------------------------------
-def manage_form_templates(parent=None):
+def manage_form_templates(parent=None, template_types=None, active_only=False, excluded_types=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -185,7 +185,7 @@ def manage_form_templates(parent=None):
 		return False
 	#-------------------------
 	def refresh(lctrl):
-		templates = gmForms.get_form_templates(active_only = False)
+		templates = gmForms.get_form_templates(active_only = active_only, template_types = template_types, excluded_types = excluded_types)
 		lctrl.set_string_items(items = [ [t['name_long'], t['external_version'], gmForms.form_engine_names[t['engine']]] for t in templates ])
 		lctrl.set_data(data = templates)
 	#-------------------------
@@ -205,7 +205,7 @@ def manage_form_templates(parent=None):
 def create_new_letter(parent=None):
 
 	# 1) have user select template
-	template = manage_form_templates(parent = parent)
+	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note'])
 	if template is None:
 		return
 

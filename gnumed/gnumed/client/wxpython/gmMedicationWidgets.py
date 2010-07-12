@@ -719,7 +719,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_duration.SetText(u'', None)
 		self._PRW_aim.SetText(u'', None)
 		self._PRW_notes.SetText(u'', None)
-		self._PRW_episode.SetData(None)
+		self._PRW_episode.SetText(u'', None)
 
 		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
@@ -769,15 +769,6 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
-
-		self._PRW_substance.SetText(u'', None)
-		self._PRW_strength.SetText(u'', None)
-		self._PRW_notes.SetText(u'', None)
-
-		self.__refresh_brand_and_components()
-		self.__refresh_allergies()
-
-		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
@@ -916,7 +907,10 @@ def configure_medication_list_template(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	template = gmFormWidgets.manage_form_templates(parent = parent)
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		template_types = ['current medication list']
+	)
 	option = u'form_templates.medication_list'
 
 	if template is None:

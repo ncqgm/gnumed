@@ -12,6 +12,17 @@ from Gnumed.pycommon import gmPG2
 #--------------------------------------------------------------
 def run(conn=None):
 
+	# medication list
+	gmPG2.file2bytea (
+		query = u"""
+update ref.paperwork_templates
+set data = %(data)s::bytea
+where name_long = 'Current medication list (GNUmed default)'
+""",
+		filename = os.path.join('..', 'sql', 'v13-v14', 'data', 'GNUmed-default_medication_list_template.tex'),
+		conn = conn
+	)
+
 	# referral letter
 	gmPG2.file2bytea (
 		query = u"""

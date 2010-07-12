@@ -322,7 +322,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>0</option>
-                        <object class="gmDemographicsWidgets.cAddressPhraseWheel" name="_PRW_address_searcher" base="EditTextCtrl">
+                        <object class="gmPersonContactWidgets.cAddressPhraseWheel" name="_PRW_address_searcher" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n\nThat address - or a new address created from any modifications below - will be used as the person's "home" address.\nnYou can also just enter the relevant information into the corresponding fields without searching for an existing address.</tooltip>
                         </object>
@@ -341,7 +341,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>0</option>
-                        <object class="gmDemographicsWidgets.cZipcodePhraseWheel" name="_PRW_zip" base="EditTextCtrl">
+                        <object class="gmPersonContactWidgets.cZipcodePhraseWheel" name="_PRW_zip" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>Primary address: zip/postal code</tooltip>
                         </object>
@@ -360,7 +360,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>0</option>
-                        <object class="gmDemographicsWidgets.cStreetPhraseWheel" name="_PRW_street" base="EditTextCtrl">
+                        <object class="gmStreetWidgets.cStreetPhraseWheel" name="_PRW_street" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>Primary address: name of street</tooltip>
                         </object>
@@ -398,7 +398,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>0</option>
-                        <object class="gmDemographicsWidgets.cUrbPhraseWheel" name="_PRW_urb" base="EditTextCtrl">
+                        <object class="gmPersonContactWidgets.cUrbPhraseWheel" name="_PRW_urb" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>Primary address: city/town/village/dwelling/...</tooltip>
                         </object>
@@ -417,7 +417,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>0</option>
-                        <object class="gmDemographicsWidgets.cStateSelectionPhraseWheel" name="_PRW_region" base="EditTextCtrl">
+                        <object class="gmPersonContactWidgets.cStateSelectionPhraseWheel" name="_PRW_region" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>Primary address: state/province/county/...</tooltip>
                         </object>
@@ -436,7 +436,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>0</option>
-                        <object class="gmDemographicsWidgets.cCountryPhraseWheel" name="_PRW_country" base="EditTextCtrl">
+                        <object class="gmPersonContactWidgets.cCountryPhraseWheel" name="_PRW_country" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>Primary address: country of residence</tooltip>
                         </object>

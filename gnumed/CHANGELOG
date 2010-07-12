@@ -11,16 +11,22 @@
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook: "after_soap_modified"
 NEW: placeholder: "current_meds_table::latex"
+NEW: placeholder: "current_meds_notes::latex"
 NEW: placeholder: "lab_table::latex"
 NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
 NEW: score: bacterial UTI algorithm
+NEW: report: patients taking drug X
 NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
 NEW: support emergency contact
 NEW: support comment directly on identity
 NEW: Add button to report ADR from within current substances plugin.
 NEW: list view of database audit trail
 NEW: management of vaccinations
+NEW: templates for writing a plugin [thanks S.Hilbert]
+NEW: on Windows try to switch to "DejaVu Sans" font for improved unicode display
+NEW: demonstrable path to get up and running on Macintosh [thanks J.Busser]
+NEW: useful error dialog when database connection lost
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
@@ -32,16 +38,30 @@ IMPROVED: show date-generated in patient picture tooltip
 IMPROVED: much better icon [thanks J.Jaarsveld]
 IMPROVED: show comment/emergency contact in patient search control tooltip
 IMPROVED: re-add encounters to auditing
+IMPROVED: show loinc info for test in test results EA
+IMPROVED: much smarter result units phrasewheel
+IMPROVED: DOB validity check when creating new person
+IMPROVED: better layout of configuration listing
+IMPROVED: medication formatting
+IMPROVED: current medication patient handout [thanks C.Hilbert]
+IMPROVED: pre-filter form template selection list based on purpose of showing
+IMPROVED: default config file for running from tarball
 
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
+
+FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
+FIX: check_drug_interactions() failed with FreeDIAMS [thanks J.Busser]
 
 	0.7.6
 
 FIX: faulty variable access when detecting OOo UNO bridge [thanks S.Hilbert]
 FIX: fail on "allergy_state" placeholder when date-last-checked not available [thanks Marc]
 FIX: fail to properly log non-ascii PostgreSQL messages on ASCII configured Pythons [thanks E.Kuznetsov]
+FIX: faulty access to PG connection filedescriptor when polling for notifications [thanks J.Busser]
+FIX: exception when aborting person creation while adding new staff [thanks Manuel]
+FIX: def_country undefined when def_region not set
 
 	0.7.5
 
@@ -526,6 +546,12 @@ IMPROVED: try to make su compatible with both MacOSX and Linux
 ------------------------------------------------
 # gnumed_v13
 ------------------------------------------------
+
+	13.6 -> 13.7
+
+NEW: improved detection of unicode support in server encoding
+NEW: work around os.getcwd() permission problem on Mac
+FIX: even more robust gmPsql.py unicode logging [thanks E.Kuznetsov]
 
 	13.5 -> 13.6
 
