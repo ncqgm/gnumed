@@ -945,7 +945,14 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 #					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
 
 		emr = self.__pat.get_emr()
-		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
+		saved = self._NB_soap_editors.save_all_editors (
+			emr = emr,
+			episode_name_candidates = [
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+			]
+		)
+		if not saved:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 		return True
 	#--------------------------------------------------------
@@ -1026,10 +1033,24 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_save_all_button_pressed(self, event):
 		self.save_encounter()
-		emr = self.__pat.get_emr()
-		if not self._NB_soap_editors.save_all_editors(emr = emr, rfe = self._TCTRL_rfe.GetValue().strip(), aoe = self._TCTRL_aoe.GetValue().strip()):
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
+		time.sleep(0.3)
 		event.Skip()
+		wx.SafeYield()
+
+		wx.CallAfter(self._save_all_button_pressed_bottom_half)
+		wx.SafeYield()
+	#--------------------------------------------------------
+	def _save_all_button_pressed_bottom_half(self):
+		emr = self.__pat.get_emr()
+		saved = self._NB_soap_editors.save_all_editors (
+			emr = emr,
+			episode_name_candidates = [
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+			]
+		)
+		if not saved:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 	#--------------------------------------------------------
 	def _on_save_encounter_button_pressed(self, event):
 		self.save_encounter()
@@ -1039,8 +1060,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		emr = self.__pat.get_emr()
 		self._NB_soap_editors.save_current_editor (
 			emr = emr,
-			rfe = self._TCTRL_rfe.GetValue().strip(),
-			aoe = self._TCTRL_aoe.GetValue().strip()
+			episode_name_candidates = [
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+			]
 		)
 		event.Skip()
 	#--------------------------------------------------------
@@ -1192,12 +1215,12 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 	#--------------------------------------------------------
-	def save_current_editor(self, emr=None, rfe=None, aoe=None):
+	def save_current_editor(self, emr=None, episode_name_candidates=None):
 
 		page_idx = self.GetSelection()
 		page = self.GetPage(page_idx)
 
-		if not page.save(emr = emr, rfe = rfe, aoe = aoe):
+		if not page.save(emr = emr, episode_name_candidates = episode_name_candidates):
 			return
 
 		self.DeletePage(page_idx)
@@ -1220,14 +1243,24 @@ class cSoapNoteInputNotebook(wx.Notebook):
 
 		return True
 	#--------------------------------------------------------
-	def save_all_editors(self, emr=None, rfe=None, aoe=None):
+	def save_all_editors(self, emr=None, episode_name_candidates=None):
+
+		_log.debug('saving editors: %s', self.GetPageCount())
 
 		all_closed = True
-		for page_idx in range(self.GetPageCount()):
+		for page_idx in range((self.GetPageCount() - 1), 0, -1):
+			_log.debug('#%s of %s', page_idx, self.GetPageCount())
+			try:
+				self.ChangeSelection(page_idx)
+				_log.debug('editor raised')
+			except:
+				_log.exception('cannot raise editor')
 			page = self.GetPage(page_idx)
-			if page.save(emr = emr, rfe = rfe, aoe = aoe):
+			if page.save(emr = emr, episode_name_candidates = episode_name_candidates):
+				_log.debug('saved, deleting now')
 				self.DeletePage(page_idx)
 			else:
+				_log.debug('not saved, not deleting')
 				all_closed = False
 
 		# always keep one unassociated editor open
@@ -1273,7 +1306,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		for field in self.fields:
 			field.SetValue(u'')
 	#--------------------------------------------------------
-	def save(self, emr=None, rfe=None, aoe=None):
+	def save(self, emr=None, episode_name_candidates=None):
 
 		if self.empty:
 			return True
@@ -1281,13 +1314,12 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		# new unassociated episode
 		if (self.problem is None) or (self.problem['type'] == 'issue'):
 
-			epi_name = gmTools.coalesce (
-				aoe,
-				gmTools.coalesce (
-					rfe,
-					u''
-				)
-			).strip().replace('\r', '//').replace('\n', '//')
+			episode_name_candidates.append(u'')
+			for candidate in episode_name_candidates:
+				if candidate is None:
+					continue
+				epi_name = candidate.strip().replace('\r', '//').replace('\n', '//')
+				break
 
 			dlg = wx.TextEntryDialog (
 				parent = self,
