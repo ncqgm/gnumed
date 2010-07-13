@@ -1254,7 +1254,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
 	"""Get a new connection.
 
-	This assumes the locale system has been initialzied
+	This assumes the locale system has been initialized
 	unless an encoding is specified.
 	"""
 	# FIXME: support pooled on RW, too
