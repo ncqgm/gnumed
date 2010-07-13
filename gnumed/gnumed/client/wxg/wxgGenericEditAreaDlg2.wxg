@@ -54,7 +54,7 @@
                         <border>3</border>
                         <option>0</option>
                         <object class="wxButton" name="_BTN_forward" base="EditButton">
-                            <label>&amp;Next...</label>
+                            <label>Add &amp;another</label>
                             <tooltip>Save data into database and clear fields for another value.</tooltip>
                             <events>
                                 <handler event="EVT_BUTTON">_on_forward_button_pressed</handler>
