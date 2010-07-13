@@ -537,6 +537,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v14
 ------------------------------------------------
 
+NEW: gm-set_gm-dbo_passowrd
+
 FIX: during upgrade nullify empty clin.health_issue.laterality
 FIX: properly use pg_dump: no more -d DATABASE [thanks S.Hilbert]
 
