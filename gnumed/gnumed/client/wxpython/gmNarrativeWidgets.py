@@ -1223,7 +1223,10 @@ class cSoapNoteInputNotebook(wx.Notebook):
 	def save_all_editors(self, emr=None, rfe=None, aoe=None):
 
 		all_closed = True
-		for page_idx in range(self.GetPageCount()):
+		#for page_idx in range(self.GetPageCount()):
+		for page_idx in range((self.GetPageCount() - 1), 0, -1):
+			try: self.ChangeSelection(page_idx)
+			except: pass
 			page = self.GetPage(page_idx)
 			if page.save(emr = emr, rfe = rfe, aoe = aoe):
 				self.DeletePage(page_idx)
