@@ -734,7 +734,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				duration = (
 					case
 						when %(is_long_term)s is True then null
-						else gm.nullify_empty_string(%(duration)s)
+						else %(duration)s
 					end
 				)::interval,
 

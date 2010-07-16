@@ -558,7 +558,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 				else:
 					self._PRW_duration.display_as_valid(True)
 
-		end = self._DP_discontinued.GetValue(as_pydt = True)
+		end = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
 		if end is not None:
 			start = self._DP_started.GetValue(as_pydt = True)
 			if start > end:
@@ -592,8 +592,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		)
 
 		intake['strength'] = self._PRW_strength.GetValue()
-		intake['started'] = self._DP_started.GetValue(as_pydt = True)
-		intake['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True)
+		intake['started'] = self._DP_started.GetValue(as_pydt = True, invalid_as_none = True)
+		intake['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
 		if intake['discontinued'] is None:
 			intake['discontinue_reason'] = None
 		else:
@@ -669,8 +669,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		else:
 			self.data['pk_substance'] = self._PRW_substance.GetData()
 
-		self.data['started'] = self._DP_started.GetValue(as_pydt=True)
-		self.data['discontinued'] = self._DP_discontinued.GetValue(as_pydt=True)
+		self.data['started'] = self._DP_started.GetValue(as_pydt = True, invalid_as_none = True)
+		self.data['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
 		if self.data['discontinued'] is None:
 			self.data['discontinue_reason'] = None
 		else:
