@@ -81,6 +81,7 @@ postgresql_version = None			# accuracy: major.minor
 
 __ro_conn_pool = None
 
+auto_request_login_params = True
 # =======================================================================
 # global data
 # =======================================================================
@@ -349,17 +350,19 @@ def __request_login_params_gui_wx():
 	return login
 #---------------------------------------------------
 def request_login_params():
-	"""Request login parameters for database connection.
-	"""
+	"""Request login parameters for database connection."""
+	# do we auto-request parameters at all ?
+	if not auto_request_login_params:
+		raise Exception('Cannot request login parameters.')
+
 	# are we inside X ?
 	# (if we aren't wxGTK will crash hard at
 	# C-level with "can't open Display")
 	if os.environ.has_key('DISPLAY'):
-		# try GUI
-		try:
-			return __request_login_params_gui_wx()
-		except:
-			pass
+		# try wxPython GUI
+		try: return __request_login_params_gui_wx()
+		except: pass
+
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
 	return __request_login_params_tui()
