@@ -3,7 +3,7 @@
 #====================================================
 # license: GPL
 #====================================================
-CLIENTREV="0.7.6"
+CLIENTREV="0.7.7"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
 SRVREV="13.6"
