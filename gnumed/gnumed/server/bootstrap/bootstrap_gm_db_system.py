@@ -282,7 +282,7 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					print "I need the password for the GNUmed database user [%s]." % self.name
+					print "I need the password for the database user [%s]." % self.name
 					self.password = getpass.getpass("Please type the password: ")
 				else:
 					_log.warning('cannot get password for database user [%s]', self.name)
@@ -454,12 +454,13 @@ class db_server:
 			return True
 
 		print_msg ((
-"""The database owner will be created.
+"""The database owner [%s] will be created.
+
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
 
-Make sure to remember the password for later use.
-"""))
+Make sure to remember the password for later use !
+""") % name)
 		_dbowner = user(anAlias = dbowner_alias)
 
 		cmd = 'create user "%s" with password \'%s\' createdb createrole in group "%s", "gm-logins"' % (_dbowner.name, _dbowner.password, self.auth_group)
@@ -911,6 +912,7 @@ class database:
 		if not found_holy_line:
 			_log.info('did not find standard GNUmed authentication directive in pg_hba.conf')
 			_log.info('regex: %s' % holy_pattern)
+			_log.info('bootstrapping is likely to have succeeded but clients probably cannot connect yet')
 			print_msg('==> sanity checking PostgreSQL authentication settings ...')
 			print_msg('')
 			print_msg('Note that even after successfully bootstrapping the GNUmed ')
