@@ -716,6 +716,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
 		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
 
+		item = menu_debugging.Append(-1, _('Email log file'), _('Send the log file to the authors for help.'))
+		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
+
 		ID = wx.NewId()
 		menu_debugging.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
 		wx.EVT_MENU(self, ID, self.__on_display_bugtracker)
@@ -2140,6 +2143,9 @@ class gmTopLevelFrame(wx.Frame):
 		gmLog2.flush()
 		shutil.copy2(gmLog2._logfile_name, new_name)
 		gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
+	#----------------------------------------------
+	def __on_email_log_file(self, evt):
+		gmExceptionHandlingWidgets.mail_log(parent = self)
 	#----------------------------------------------
 	# GNUmed /
 	#----------------------------------------------
