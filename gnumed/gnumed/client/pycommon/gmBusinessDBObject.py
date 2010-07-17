@@ -129,7 +129,7 @@ __version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys, copy, types, inspect, logging
+import sys, copy, types, inspect, logging, datetime
 
 
 if __name__ == '__main__':
@@ -452,6 +452,53 @@ class cBusinessDBObject(object):
 			self.original_payload[field] = self._payload[self._idx[field]]
 
 		return (True, None)
+
+#============================================================
+def jsonclasshintify(obj):
+	# this should eventually be somewhere else
+	""" turn the data into a list of dicts, adding "class hints".
+		all objects get turned into dictionaries which the other end
+		will interpret as "object", via the __jsonclass__ hint,
+		as specified by the JSONRPC protocol standard.
+	"""
+	if isinstance(obj, list):
+		return map(jsonclasshintify, obj)
+	elif isinstance(obj, gmPG2.dbapi.tz.FixedOffsetTimezone):
+		# this will get decoded as "from jsonobjproxy import {clsname}"
+		# at the remote (client) end.
+		res = {'__jsonclass__': ["jsonobjproxy.FixedOffsetTimezone"]}
+		res['name'] = obj._name
+		res['offset'] = jsonclasshintify(obj._offset)
+		return res
+	elif isinstance(obj, datetime.timedelta):
+		# this will get decoded as "from jsonobjproxy import {clsname}"
+		# at the remote (client) end.
+		res = {'__jsonclass__': ["jsonobjproxy.TimeDelta"]}
+		res['days'] = obj.days
+		res['seconds'] = obj.seconds
+		res['microseconds'] = obj.microseconds
+		return res
+	elif isinstance(obj, datetime.datetime):
+		# this will get decoded as "from jsonobjproxy import {clsname}"
+		# at the remote (client) end.
+		res = {'__jsonclass__': ["jsonobjproxy.DateTime"]}
+		res['year'] = obj.year
+		res['month'] = obj.month
+		res['day'] = obj.day
+		res['hour'] = obj.hour
+		res['minute'] = obj.minute
+		res['second'] = obj.second
+		res['microsecond'] = obj.microsecond
+		res['tzinfo'] = jsonclasshintify(obj.tzinfo)
+		return res
+	elif isinstance(obj, cBusinessDBObject):
+		# this will get decoded as "from jsonobjproxy import {clsname}"
+		# at the remote (client) end.
+		res = {'__jsonclass__': ["jsonobjproxy.%s" % obj.__class__.__name__]}
+		for k in obj.get_fields():
+			res[k] = jsonclasshintify(obj[k])
+		return res
+	return obj
 #============================================================
 if __name__ == '__main__':
 
@@ -484,6 +531,7 @@ if __name__ == '__main__':
 	}
 	obj = cTestObj(row=data)
 	#print obj['wrong_field']
+	#print jsonclasshintify(obj)
 	obj['wrong_field'] = 1
 
 #============================================================
