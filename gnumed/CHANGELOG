@@ -48,6 +48,7 @@ IMPROVED: medication formatting
 IMPROVED: current medication patient handout [thanks C.Hilbert]
 IMPROVED: pre-filter form template selection list based on purpose of showing
 IMPROVED: default config file for running from tarball
+IMPROVED: better support FreeDiams (0.4.2 now in Debian)
 
 ------------------------------------------------
 # rel-0-7-patches

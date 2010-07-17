@@ -251,17 +251,15 @@ class cDrugDataSourceInterface(object):
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	"""http://ericmaeker.fr/FreeMedForms/di-manual/ligne_commandes.html"""
-
-	version = u'FreeDiams v0.3.0 interface'
+	version = u'FreeDiams v0.4.2 interface'
 	default_encoding = 'utf8'
 	default_dob_format = '%d/%m/%Y'
 
 	map_gender2mf = {
 		'm': u'M',
 		'f': u'F',
-		'tf': u'F',
-		'tm': u'M',
+		'tf': u'H',
+		'tm': u'H',
 		'h': u'H'
 	}
 	#--------------------------------------------------------
@@ -275,7 +273,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	def get_data_source_version(self):
 		#> Coded. Available next release
 		#> Use --version or -version or -v
-		return u'0.3.0'
+		return u'0.4.2'
 		# ~/.freediams/config.ini: [License] -> AcceptedVersion=....
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
@@ -288,11 +286,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False):
-		"""	--medintux : définit une utilisation spécifique à MedinTux.
-			--exchange="xxx" : définit le fichier d'échange entre les deux applications.
-			--chrono : Chronomètres diverses fonctions du testeur d'interactions (proposé à des fins de déboggage)
-			--transmit-dosage = non documenté.
-		"""
+		"""http://ericmaeker.fr/FreeMedForms/di-manual/ligne_commandes.html"""
+
 		found, cmd = gmShellAPI.find_first_binary(binaries = [
 			self.custom_path_to_binary,
 			r'/usr/bin/freediams',
@@ -308,22 +303,14 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		# make sure csv file exists
 		open(self.__exchange_filename, 'wb').close()
-		args = u'--exchange="%s"' % self.__exchange_filename
+		#args = u'--exchange="%s" --blockpatientdatas="1"' % self.__exchange_filename
+		args = u'--blockpatientdatas="1"'
 
 		if self.patient is not None:
-
-			args += u' --patientname="%(firstnames)s %(lastnames)s"' % self.patient.get_active_name()
-
+			args += u' --patientname="\'%(firstnames)s\'" --patientsurname="\'%(lastnames)s\'"' % self.patient.get_active_name()
 			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
-
 			if self.patient['dob'] is not None:
-				args += u' --dateofbirth="%s"' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
-
-			# FIXME: search by LOINC code and add
-			# --weight="dd" : définit le poids du patient (en kg)
-			# --size="ddd" : définit la taille du patient (en cm)
-			# --clcr="dd.d" : définit la clairance de la créatinine du patient (en ml/min)
-			# --creatinin="dd" : définit la créatininémie du patient (en mg/l)
+				args += u' --dateofbirth="\'%s\'"' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
 
 		cmd = r'%s %s' % (cmd, args)
 
@@ -652,7 +639,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 drug_data_source_interfaces = {
 	'Deutschland: Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
 	'Deutschland: Gelbe Liste/MMI (WINE)': cGelbeListeWineInterface,
-	'France: FreeDiams': cFreeDiamsInterface
+	'FreeDiams (France, US, Canada)': cFreeDiamsInterface
 }
 #============================================================
 # substances in use across all patients
