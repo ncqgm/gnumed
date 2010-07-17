@@ -1,4 +1,4 @@
-"""GnuMed database object business class.
+"""GNUmed database object business class.
 
 Overview
 --------
@@ -346,7 +346,10 @@ class cBusinessDBObject(object):
 		return self._is_modified
 	#--------------------------------------------------------
 	def get_fields(self):
-		return self._idx.keys()
+		try:
+			return self._idx.keys()
+		except AttributeError:
+			return 'nascent [%s @ %s], cannot return keys' %(self.__class__.__name__, id(self))
 	#--------------------------------------------------------
 	def get_updatable_fields(self):
 		return self.__class__._updatable_fields
