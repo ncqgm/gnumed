@@ -8,6 +8,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
 from cStringIO import StringIO
+from pprint import pprint
 
 
 if __name__ == '__main__':
@@ -731,6 +732,7 @@ if __name__ == '__main__':
 		for doc in docs:
 			print type(doc), doc
 			print doc.parts
+		pprint(gmBusinessDBObject.jsonclasshintify(docs))
 	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
