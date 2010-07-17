@@ -107,7 +107,8 @@ _known_long_options = [
 
 _known_ui_types = [
 	u'web',
-	u'wxp'
+	u'wxp',
+	u'pxweb'
 ]
 
 import_error_sermon = """
@@ -510,12 +511,11 @@ setup_cfg()
 setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
-setup_backend()
-
 
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
 if ui_type == u'wxp':
+	setup_backend()
 	from Gnumed.wxpython import gmGuiMain
 	profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
 	if profile_file is not None:
@@ -526,7 +526,17 @@ if ui_type == u'wxp':
 		gmGuiMain.main()
 elif ui_type == u'web':
 	from Gnumed.CherryPy import gmGuiWeb
+	setup_backend()
 	gmGuiWeb.main()
+
+elif ui_type == u'pxweb':
+	from Gnumed.ProxiedWeb import gmGuiWeb
+	gmPG2.auto_request_login_params = False
+	setup_backend()
+	gmGuiWeb.main()
+
+else:
+	setup_backend()
 
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
