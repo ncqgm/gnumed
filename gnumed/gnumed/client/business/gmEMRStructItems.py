@@ -1425,18 +1425,24 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = u"select * from clin.v_pat_procedures where pk_procedure = %s"
 	_cmds_store_payload = [
-		u"""update clin.procedure set
+		u"""UPDATE clin.procedure SET
 				clin_when = %(clin_when)s,
-				clin_where = gm.nullify_empty_string(%(clin_where)s),
+				clin_where = NULLIF (
+					COALESCE (
+						%(pk_hospital_stay)s::TEXT,
+						gm.nullify_empty_string(%(clin_where)s)
+					),
+					%(pk_hospital_stay)s::TEXT
+				),
 				narrative = gm.nullify_empty_string(%(performed_procedure)s),
 				fk_hospital_stay = %(pk_hospital_stay)s,
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s
-			where
-				pk = %(pk_procedure)s and
+			WHERE
+				pk = %(pk_procedure)s AND
 				xmin = %(xmin_procedure)s
-		""",
-		u"""select xmin_procedure from clin.v_pat_procedures where pk_procedure = %(pk_procedure)s"""
+			RETURNING xmin as xmin_procedure"""
+#		,u"""select xmin_procedure from clin.v_pat_procedures where pk_procedure = %(pk_procedure)s"""
 	]
 	_updatable_fields = [
 		'clin_when',
@@ -1487,20 +1493,20 @@ def create_performed_procedure(encounter=None, episode=None, location=None, hosp
 
 	queries = [{
 		'cmd': u"""
-insert into clin.procedure (
-	fk_encounter,
-	fk_episode,
-	clin_where,
-	fk_hospital_stay,
-	narrative
-) values (
-	%(enc)s,
-	%(epi)s,
-	gm.nullify_empty_string(%(loc)s),
-	%(stay)s,
-	%(proc)s
-)
-returning pk""",
+			INSERT INTO clin.procedure (
+				fk_encounter,
+				fk_episode,
+				clin_where,
+				fk_hospital_stay,
+				narrative
+			) VALUES (
+				%(enc)s,
+				%(epi)s,
+				gm.nullify_empty_string(%(loc)s),
+				%(stay)s,
+				gm.nullify_empty_string(%(proc)s)
+			)
+			RETURNING pk""",
 		'args': {'enc': encounter, 'epi': episode, 'loc': location, 'stay': hospital_stay, 'proc': procedure}
 	}]
 

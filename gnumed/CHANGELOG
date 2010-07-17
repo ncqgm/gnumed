@@ -53,6 +53,9 @@ IMPROVED: default config file for running from tarball
 
 FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
 FIX: check_drug_interactions() failed with FreeDIAMS [thanks J.Busser]
+FIX: be more careful around changing CWD when creating document from LaTeX [thanks S.Hilbert]
+FIX: exception when save-all'ing multiple notelets [thanks S.Reus, J.Busser]
+FIX: exception when saving medication where is_long_term is true [thanks J.Busser]
 
 	0.7.6
 
@@ -535,6 +538,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v14
 ------------------------------------------------
+
+NEW: gm-set_gm-dbo_passowrd
 
 FIX: during upgrade nullify empty clin.health_issue.laterality
 FIX: properly use pg_dump: no more -d DATABASE [thanks S.Hilbert]

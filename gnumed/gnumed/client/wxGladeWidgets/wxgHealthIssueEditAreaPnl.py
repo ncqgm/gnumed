@@ -40,7 +40,7 @@ class wxgHealthIssueEditAreaPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._PRW_condition.SetToolTipString(_("Enter the condition (health issue/past history item) here. Keep it short but precise."))
         self._PRW_grouping.SetToolTipString(_("Here you can add arbitrary text which will be used for sorting health issues in the tree."))
-        self._TCTRL_notes.SetToolTipString(_("Clinical narrative of any kind can be added (but not altered) here. This can be done at inception, and/or later. Each is treated as a Soap note entry (Subjective)."))
+        self._TCTRL_notes.SetToolTipString(_("Clinical narrative of any kind can be added (but not altered) here. This can be done at inception, and/or later. Each is treated as a subjective (\"S\"oap) note entry."))
         self._PRW_age_noted.SetToolTipString(_("Enter the age in years when this condition was diagnosed. Setting this will adjust the \"in the year\" field accordingly."))
         self._PRW_year_noted.SetToolTipString(_("Enter the year when this condition was diagnosed. Setting this will adjust the \"at age\" field accordingly."))
         self._ChBOX_active.SetToolTipString(_("Check if this is an active, ongoing problem."))

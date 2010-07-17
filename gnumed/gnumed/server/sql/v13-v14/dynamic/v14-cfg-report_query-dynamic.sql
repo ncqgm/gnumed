@@ -23,7 +23,7 @@ insert into cfg.report_query (label, cmd) values (
 	vpsi.strength,
 	vpsi.brand,
 	vpsi.preparation,
-	to_char(vpsi.started, ''MM/YYYY''),
+	to_char(vpsi.started, ''MM/YYYY'') as started,
 	vpsi.seems_inactive,
 	vpsi.atc_substance,
 	vpsi.atc_brand,
