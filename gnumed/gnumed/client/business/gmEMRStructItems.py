@@ -187,6 +187,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['age_noted']] is None:
 			return u'<???>'
 
+		# since we've already got an interval we are bound to use it,
+		# further transformation will only introduce more errors,
+		# later we can improve this deeper inside
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
 	#--------------------------------------------------------
 	def _get_laterality_description(self):

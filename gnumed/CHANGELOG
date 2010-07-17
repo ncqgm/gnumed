@@ -34,6 +34,7 @@ IMPROVED: rename client/locale/ to client/po/ and adjust to that
 IMPROVED: when enabling --debug during unhandled exception try harder to log the exception in question
 IMPROVED: more robust acquiring of data from image sources
 IMPROVED: more medically-sound interval formatting
+IMPROVED: another, more expected, way of calculating patient age
 IMPROVED: edit non-name identity parts *directly* in demographics plugin (no popup needed)
 IMPROVED: show date-generated in patient picture tooltip
 IMPROVED: much better icon [thanks J.Jaarsveld]
