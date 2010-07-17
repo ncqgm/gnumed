@@ -726,7 +726,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 						when (
 							(%(is_long_term)s is False)
 								and
-							(gm.is_null_or_blank_string(%(duration)s) is True)
+							(%(duration)s is NULL)
 						) is True then null
 						else %(is_long_term)s
 					end
