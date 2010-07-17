@@ -359,6 +359,196 @@ def format_interval_medically(interval=None):
 		return '0:%02d' % int(minutes)
 	return "%s.%ss" % (int(minutes), int(seconds))
 #---------------------------------------------------------------------------
+def calculate_apparent_age(start=None, end=None):
+	"""The result of this is a tuple (years, ..., seconds) as one would
+	'expect' a date to look like, that is, simple differences between
+	the fields.
+
+	No need for 100/400 years leap days rule	because 2000 WAS a leap year.
+
+	This does not take into account time zones which may
+	shift the result by one day.
+
+	<start> and <end> must by python datetime instances
+	<end> is assumed to be "now" if not given
+	"""
+	if end is None:
+		end = pyDT.datetime.now(gmCurrentLocalTimezone)
+
+	if end < start:
+		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> %s' % (end, start))
+
+	if end == start:
+		years = months = days = hours = minutes = seconds = 0
+		return (years, months, days, hours, minutes, seconds)
+
+	# years
+	years = end.year - start.year
+	end = end.replace(year = start.year)
+	if end < start:
+		years = years - 1
+
+	# months
+	if end.month == start.month:
+		months = 0
+	else:
+		months = end.month - start.month
+		if months < 0:
+			months = months + 12
+		end = end.replace(month = start.month)
+		if end < start:
+			months = months - 1
+
+	# days
+	if end.day == start.day:
+		days = 0
+	else:
+		days = end.day - start.day
+		if days < 0:
+			days = days + gregorian_month_length[start.month]
+		end = end.replace(day = start.day)
+		if end < start:
+			days = days - 1
+
+	# hours
+	if end.hour == start.hour:
+		hours = 0
+	else:
+		hours = end.hour - start.hour
+		if hours < 0:
+			hours = hours + 24
+		end = end.replace(hour = start.hour)
+		if end < start:
+			hours = hours - 1
+
+	# minutes
+	if end.minute == start.minute:
+		minutes = 0
+	else:
+		minutes = end.minute - start.minute
+		if minutes < 0:
+			minutes = minutes + 60
+		end = end.replace(minute = start.minute)
+		if end < start:
+			minutes = minutes - 1
+
+	# seconds
+	if end.second == start.second:
+		seconds = 0
+	else:
+		seconds = end.second - start.second
+		if seconds < 0:
+			seconds = seconds + 60
+		end = end.replace(second = start.second)
+		if end < start:
+			seconds = seconds - 1
+
+	return (years, months, days, hours, minutes, seconds)
+#---------------------------------------------------------------------------
+def format_apparent_age_medically(age=None):
+	"""<age> must be a tuple as created by calculate_apparent_age()"""
+
+	(years, months, days, hours, minutes, seconds) = age
+
+	# more than 1 year ?
+	if years > 1:
+		if months == 0:
+			return u'%s%s' % (
+				years,
+				_('y::year_abbreviation').replace('::year_abbreviation', u'')
+			)
+		return u'%s%s %s%s' % (
+			years,
+			_('y::year_abbreviation').replace('::year_abbreviation', u''),
+			months,
+			_('m::month_abbreviation').replace('::month_abbreviation', u'')
+		)
+
+	# more than 1 month ?
+	if months > 1:
+		if days == 0:
+			return u'%s%s' % (
+				months,
+				_('mo::month_only_abbreviation').replace('::month_only_abbreviation', u'')
+			)
+
+		result = u'%s%s' % (
+			months,
+			_('m::month_abbreviation').replace('::month_abbreviation', u'')
+		)
+
+		weeks, days = divmod(days, 7)
+		if int(weeks) != 0:
+			result += u'%s%s' % (
+				int(weeks),
+				_('w::week_abbreviation').replace('::week_abbreviation', u'')
+			)
+		if int(days) != 0:
+			result += u'%s%s' % (
+				int(days),
+				_('d::day_abbreviation').replace('::day_abbreviation', u'')
+			)
+
+		return result
+
+	# between 7 days and 1 month
+	if days > 7:
+		return u"%s%s" % (
+			days,
+			_('d::day_abbreviation').replace('::day_abbreviation', u'')
+		)
+
+	# between 1 and 7 days ?
+	if days > 0:
+		if hours == 0:
+			return u'%s%s' % (
+				days,
+				_('d::day_abbreviation').replace('::day_abbreviation', u'')
+			)
+		return u'%s%s (%s%s)' % (
+			days,
+			_('d::day_abbreviation').replace('::day_abbreviation', u''),
+			hours,
+			_('h::hour_abbreviation').replace('::hour_abbreviation', u'')
+		)
+
+	# between 5 hours and 1 day
+	if hours > 5:
+		return u'%s%s' % (
+			hours,
+			_('h::hour_abbreviation').replace('::hour_abbreviation', u'')
+		)
+
+	# between 1 and 5 hours
+	if hours > 1:
+		if minutes == 0:
+			return u'%s%s' % (
+				hours,
+				_('h::hour_abbreviation').replace('::hour_abbreviation', u'')
+			)
+		return u'%s:%02d' % (
+			hours,
+			minutes
+		)
+
+	# between 5 and 60 minutes
+	if minutes > 5:
+		return u"0:%02d" % minutes
+
+	# less than 5 minutes
+	if minutes == 0:
+		return u'%s%s' % (
+			seconds,
+			_('s::second_abbreviation').replace('::second_abbreviation', u'')
+		)
+	if seconds == 0:
+		return u"0:%02d" % minutes
+	return "%s.%s%s" % (
+		minutes,
+		seconds,
+		_('s::second_abbreviation').replace('::second_abbreviation', u'')
+	)
+#---------------------------------------------------------------------------
 def str2interval(str_interval=None):
 
 	unit_keys = {
@@ -1339,6 +1529,14 @@ if __name__ == '__main__':
 		print "fts           :", fts
 		print "fts.get_pydt():", fts.get_pydt()
 	#-------------------------------------------------
+	def test_calculate_apparent_age():
+		start = pydt_now_here().replace(year = 1974).replace(month = 10).replace(day = 23)
+		print calculate_apparent_age(start = start)
+		print format_apparent_age_medically(calculate_apparent_age(start = start))
+		start = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 13)
+		print calculate_apparent_age(start = start)
+		print format_apparent_age_medically(calculate_apparent_age(start = start))
+	#-------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == "test":
 
 		# GNUmed libs
@@ -1353,6 +1551,7 @@ if __name__ == '__main__':
 		#test_get_pydt()
 		#test_str2interval()
 		#test_format_interval()
-		test_format_interval_medically()
+		#test_format_interval_medically()
+		test_calculate_apparent_age()
 
 #===========================================================================

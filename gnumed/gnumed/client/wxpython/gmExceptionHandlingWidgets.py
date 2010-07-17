@@ -68,7 +68,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 	# try to ignore those, they come about from async handling
 	# as Robin tells us
 	if t == wx._core.PyDeadObjectError:
-		_log.warning('continuing and hoping for the best')
+		_log2.warning('continuing and hoping for the best')
 		return
 
 	# failed import ?

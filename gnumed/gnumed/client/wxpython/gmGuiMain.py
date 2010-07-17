@@ -550,7 +550,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_occupation, item)
 
-		item = menu_emr_edit.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
+		item = menu_emr_edit.Append(-1, _('&Hospitalizations'), _('Manage hospital stays.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
 
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
@@ -2987,6 +2987,7 @@ class gmApp(wx.App):
 			_log.info('running on GTK (probably Linux)')
 		elif wx.Platform == '__WXMAC__':
 			_log.info('running on Mac OS')
+			wx.SystemOptions.SetOptionInt('mac.textcontrol-use-spell-checker', 1)
 		else:
 			_log.info('running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------

@@ -122,7 +122,6 @@ echo "============"
 # external tools
 mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
-cp -R ../../external-tools/gm-install_freediams ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_loinc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-print_doc ./gnumed-client.$CLIENTREV/external-tools/
@@ -307,6 +306,8 @@ cp -R ../../server/gm-move_backups_offsite.sh ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
 
+cp -R ../../external-tools/gm-set_gm-dbo_password ./gnumed-client.$CLIENTREV/server/
+
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/server/
 
 
@@ -330,6 +331,7 @@ cp -R ../../client/doc/man-pages/gm-backup_data.8 ./gnumed-client.$CLIENTREV/ser
 cp -R ../../client/doc/man-pages/gm-backup_database.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-adjust_db_settings.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-set_gm-dbo_password.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/server/doc/
 
 

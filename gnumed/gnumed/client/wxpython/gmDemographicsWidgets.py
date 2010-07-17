@@ -328,7 +328,7 @@ order by issuer limit 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Type or select an occupation."))
+		self.SetToolTipString(_("Type or select an ID issuer."))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #------------------------------------------------------------
@@ -2040,6 +2040,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 
 	identity = property(_get_identity, _set_identity)
 #============================================================
+# old occupation widgets
 #============================================================
 # FIXME: support multiple occupations
 # FIXME: redo with wxGlade

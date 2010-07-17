@@ -741,23 +741,26 @@ class cLaTeXForm(cFormEngine):
 		_log.debug('CWD: [%s]', old_cwd)
 
 		gmTools.mkdir(sandbox_dir)
+
 		os.chdir(sandbox_dir)
+		try:
+			sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
+			shutil.move(self.instance_filename, sandboxed_instance_filename)
 
-		sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
-		shutil.move(self.instance_filename, sandboxed_instance_filename)
+			# LaTeX can need up to three runs to get cross-references et al right
+			if platform.system() == 'Windows':
+				cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
+			else:
+				cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
+			for run in [1, 2, 3]:
+				if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+					_log.error('problem running pdflatex, cannot generate form output')
+					gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
+					os.chdir(old_cwd)
+					return None
+		finally:
+			os.chdir(old_cwd)
 
-		# LaTeX can need up to three runs to get cross-references et al right
-		if platform.system() == 'Windows':
-			cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
-		else:
-			cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
-		for run in [1, 2, 3]:
-			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
-				_log.error('problem running pdflatex, cannot generate form output')
-				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
-				return None
-
-		os.chdir(old_cwd)
 		pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
 		shutil.move(pdf_name, os.path.split(self.instance_filename)[0])
 		pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]

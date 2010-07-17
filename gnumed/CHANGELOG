@@ -16,6 +16,8 @@ NEW: placeholder: "lab_table::latex"
 NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
 NEW: score: bacterial UTI algorithm
+NEW: score: coronary artery disease in primary care
+NEW: report: patients taking drug X
 NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
 NEW: support emergency contact
 NEW: support comment directly on identity
@@ -32,6 +34,7 @@ IMPROVED: rename client/locale/ to client/po/ and adjust to that
 IMPROVED: when enabling --debug during unhandled exception try harder to log the exception in question
 IMPROVED: more robust acquiring of data from image sources
 IMPROVED: more medically-sound interval formatting
+IMPROVED: another, more expected, way of calculating patient age
 IMPROVED: edit non-name identity parts *directly* in demographics plugin (no popup needed)
 IMPROVED: show date-generated in patient picture tooltip
 IMPROVED: much better icon [thanks J.Jaarsveld]
@@ -44,12 +47,18 @@ IMPROVED: better layout of configuration listing
 IMPROVED: medication formatting
 IMPROVED: current medication patient handout [thanks C.Hilbert]
 IMPROVED: pre-filter form template selection list based on purpose of showing
+IMPROVED: default config file for running from tarball
+IMPROVED: better support FreeDiams (0.4.2 now in Debian)
 
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
 
 FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
+FIX: check_drug_interactions() failed with FreeDIAMS [thanks J.Busser]
+FIX: be more careful around changing CWD when creating document from LaTeX [thanks S.Hilbert]
+FIX: exception when save-all'ing multiple notelets [thanks S.Reus, J.Busser]
+FIX: exception when saving medication where is_long_term is true [thanks J.Busser]
 
 	0.7.6
 
@@ -533,6 +542,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v14
 ------------------------------------------------
 
+NEW: gm-set_gm-dbo_passowrd
+
 FIX: during upgrade nullify empty clin.health_issue.laterality
 FIX: properly use pg_dump: no more -d DATABASE [thanks S.Hilbert]
 
@@ -548,6 +559,7 @@ IMPROVED: try to make su compatible with both MacOSX and Linux
 
 NEW: improved detection of unicode support in server encoding
 NEW: work around os.getcwd() permission problem on Mac
+FIX: even more robust gmPsql.py unicode logging [thanks E.Kuznetsov]
 
 	13.5 -> 13.6
 

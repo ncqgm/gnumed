@@ -243,7 +243,7 @@ class cDrugDataSourceInterface(object):
 	def import_drugs(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def check_drug_interactions(self):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
@@ -251,17 +251,15 @@ class cDrugDataSourceInterface(object):
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	"""http://ericmaeker.fr/FreeMedForms/di-manual/ligne_commandes.html"""
-
-	version = u'FreeDiams v0.3.0 interface'
+	version = u'FreeDiams v0.4.2 interface'
 	default_encoding = 'utf8'
 	default_dob_format = '%d/%m/%Y'
 
 	map_gender2mf = {
 		'm': u'M',
 		'f': u'F',
-		'tf': u'F',
-		'tm': u'M',
+		'tf': u'H',
+		'tm': u'H',
 		'h': u'H'
 	}
 	#--------------------------------------------------------
@@ -275,7 +273,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	def get_data_source_version(self):
 		#> Coded. Available next release
 		#> Use --version or -version or -v
-		return u'0.3.0'
+		return u'0.4.2'
 		# ~/.freediams/config.ini: [License] -> AcceptedVersion=....
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
@@ -288,11 +286,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False):
-		"""	--medintux : définit une utilisation spécifique à MedinTux.
-			--exchange="xxx" : définit le fichier d'échange entre les deux applications.
-			--chrono : Chronomètres diverses fonctions du testeur d'interactions (proposé à des fins de déboggage)
-			--transmit-dosage = non documenté.
-		"""
+		"""http://ericmaeker.fr/FreeMedForms/di-manual/ligne_commandes.html"""
+
 		found, cmd = gmShellAPI.find_first_binary(binaries = [
 			self.custom_path_to_binary,
 			r'/usr/bin/freediams',
@@ -308,22 +303,14 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		# make sure csv file exists
 		open(self.__exchange_filename, 'wb').close()
-		args = u'--exchange="%s"' % self.__exchange_filename
+		#args = u'--exchange="%s" --blockpatientdatas="1"' % self.__exchange_filename
+		args = u'--blockpatientdatas="1"'
 
 		if self.patient is not None:
-
-			args += u' --patientname="%(firstnames)s %(lastnames)s"' % self.patient.get_active_name()
-
+			args += u' --patientname="\'%(firstnames)s\'" --patientsurname="\'%(lastnames)s\'"' % self.patient.get_active_name()
 			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
-
 			if self.patient['dob'] is not None:
-				args += u' --dateofbirth="%s"' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
-
-			# FIXME: search by LOINC code and add
-			# --weight="dd" : définit le poids du patient (en kg)
-			# --size="ddd" : définit la taille du patient (en cm)
-			# --clcr="dd.d" : définit la clairance de la créatinine du patient (en ml/min)
-			# --creatinin="dd" : définit la créatininémie du patient (en mg/l)
+				args += u' --dateofbirth="\'%s\'"' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
 
 		cmd = r'%s %s' % (cmd, args)
 
@@ -352,7 +339,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		# .external_code_type: u'FR-CIS'
 		# .external_cod: the CIS value
 	#--------------------------------------------------------
-	def check_drug_interactions(self):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
@@ -539,27 +526,27 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		return new_drugs, new_substances
 	#--------------------------------------------------------
-	def check_drug_interactions(self, pzn_list=None, substances=None):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		"""For this to work the BDT interaction check must be configured in the MMI."""
 
-		if pzn_list is None:
+		if drug_ids_list is None:
 			if substances is None:
 				return
 			if len(substances) < 2:
 				return
-			pzn_list = [ (s.external_code_type, s.external_code) for s in substances ]
-			pzn_list = [ code_value for code_type, code_value in pzn_list if (code_value is not None) and (code_type == u'DE-PZN')]
+			drug_ids_list = [ (s.external_code_type, s.external_code) for s in substances ]
+			drug_ids_list = [ code_value for code_type, code_value in drug_ids_list if (code_value is not None) and (code_type == u'DE-PZN')]
 
 		else:
-			if len(pzn_list) < 2:
+			if len(drug_ids_list) < 2:
 				return
 
-		if pzn_list < 2:
+		if drug_ids_list < 2:
 			return
 
 		bdt_file = codecs.open(filename = self.interactions_filename, mode = 'wb', encoding = cGelbeListeWindowsInterface.default_encoding)
 
-		for pzn in pzn_list:
+		for pzn in drug_ids_list:
 			pzn = pzn.strip()
 			lng = cGelbeListeWindowsInterface.bdt_line_base_length + len(pzn)
 			bdt_file.write(cGelbeListeWindowsInterface.bdt_line_template % (lng, pzn))
@@ -652,7 +639,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 drug_data_source_interfaces = {
 	'Deutschland: Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
 	'Deutschland: Gelbe Liste/MMI (WINE)': cGelbeListeWineInterface,
-	'France: FreeDiams': cFreeDiamsInterface
+	'FreeDiams (France, US, Canada)': cFreeDiamsInterface
 }
 #============================================================
 # substances in use across all patients
@@ -726,7 +713,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 						when (
 							(%(is_long_term)s is False)
 								and
-							(gm.is_null_or_blank_string(%(duration)s) is True)
+							(%(duration)s is NULL)
 						) is True then null
 						else %(is_long_term)s
 					end
@@ -734,7 +721,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				duration = (
 					case
 						when %(is_long_term)s is True then null
-						else gm.nullify_empty_string(%(duration)s)
+						else %(duration)s
 					end
 				)::interval,
 
@@ -1223,7 +1210,7 @@ if __name__ == "__main__":
 		# Metoprolol + Hct vs Citalopram
 		diclofenac = '7587712'
 		phenprocoumon = '4421744'
-		mmi.check_drug_interactions(pzn_list = [diclofenac, phenprocoumon])
+		mmi.check_drug_interactions(drug_ids_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
 	def test_create_substance_intake():
 		drug = create_substance_intake (
