@@ -1513,6 +1513,7 @@ class cEncodingError(dbapi.OperationalError):
 # -----------------------------------------------------------------------
 # Python -> PostgreSQL
 # -----------------------------------------------------------------------
+# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 class cAdapterPyDateTime(object):
 
 	def __init__(self, dt):
@@ -1523,6 +1524,7 @@ class cAdapterPyDateTime(object):
 	def getquoted(self):
 		return _timestamp_template % self.__dt.isoformat()
 
+# remove for 0.9
 # ----------------------------------------------------------------------
 #class cAdapterMxDateTime(object):
 #
@@ -1549,11 +1551,15 @@ class cAdapterPyDateTime(object):
 
 # make sure psycopg2 knows how to handle unicode ...
 # intended to become standard
+# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
+# check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
+
+# remove for 0.9
 try:
 	import mx.DateTime as mxDT
 #	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
