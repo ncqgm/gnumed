@@ -20,7 +20,7 @@ from Gnumed.pycommon import gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson, gmSurgery
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
 from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
-from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmAuthWidgets, gmPersonContactWidgets
 
 
 # constant defs
@@ -2004,7 +2004,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		"""Build patient edition notebook pages."""
 
 		# contacts page
-		new_page = cPersonContactsManagerPnl(self, -1)
+		new_page = gmPersonContactWidgets.cPersonContactsManagerPnl(self, -1)
 		new_page.identity = self.__identity
 		self.AddPage (
 			page = new_page,
