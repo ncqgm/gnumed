@@ -1,2 +1,2 @@
 #!/bin/sh
-pyjsbuild $@ JSONRPCExample
+./pyjsbuild $@ JSONRPCExample

@@ -792,24 +792,422 @@ PYJS_DEPS: ['pyjamas.DOM', 'pyjamas']
 
 --></script>
 <script type="text/javascript"><!--
-/* start module: jsonrpc.json */
-$pyjs.loaded_modules['jsonrpc.json'] = function (__mod_name__) {
-	if($pyjs.loaded_modules['jsonrpc.json'].__was_initialized__) return $pyjs.loaded_modules['jsonrpc.json'];
-	if(typeof $pyjs.loaded_modules['jsonrpc'] == 'undefined' || !$pyjs.loaded_modules['jsonrpc'].__was_initialized__) pyjslib['___import___']('jsonrpc', null);
-	var $module = jsonrpc['json'] = $pyjs.loaded_modules["jsonrpc.json"];
-	jsonrpc['json'].__was_initialized__ = true;
-	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'jsonrpc.json';
-	var __name__ = jsonrpc['json'].__name__ = __mod_name__;
-	var json = jsonrpc['json'];
+/* start module: pyjamas.ui.CellFormatter */
+$pyjs.loaded_modules['pyjamas.ui.CellFormatter'] = function (__mod_name__) {
+	if($pyjs.loaded_modules['pyjamas.ui.CellFormatter'].__was_initialized__) return $pyjs.loaded_modules['pyjamas.ui.CellFormatter'];
+	if(typeof $pyjs.loaded_modules['pyjamas.ui'] == 'undefined' || !$pyjs.loaded_modules['pyjamas.ui'].__was_initialized__) pyjslib['___import___']('pyjamas.ui', null);
+	var $module = pyjamas['ui']['CellFormatter'] = $pyjs.loaded_modules["pyjamas.ui.CellFormatter"];
+	pyjamas['ui']['CellFormatter'].__was_initialized__ = true;
+	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'pyjamas.ui.CellFormatter';
+	var __name__ = pyjamas['ui']['CellFormatter'].__name__ = __mod_name__;
+	var CellFormatter = pyjamas['ui']['CellFormatter'];
 
 
- 	return this;
-}; /* end jsonrpc.json */
+	$module['DOM'] = pyjslib['___import___']('pyjamas.DOM', 'pyjamas.ui', null, false);
+	$module['Factory'] = pyjslib['___import___']('pyjamas.Factory', 'pyjamas.ui', null, false);
+	$module['Applier'] = pyjslib['___import___']('pyjamas.ui.Applier', 'pyjamas.ui', null, false);
+	$module['CellFormatter'] = (function(){
+		var $cls_instance = $pyjs__class_instance('CellFormatter');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '2dd893bc2291a21052923a9dff39646e';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(outer) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+				var kwargs = arguments.length >= 2 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			} else {
+				var self = arguments[0];
+				outer = arguments[1];
+				var kwargs = arguments.length >= 3 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			}
+			if (typeof kwargs == 'undefined') {
+				kwargs = pyjslib['__empty_dict']();
+				if (typeof outer != 'undefined') {
+					if (outer !== null && typeof outer['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = outer;
+						outer = arguments[2];
+					}
+				} else 				if (typeof self != 'undefined') {
+					if (self !== null && typeof self['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = self;
+						self = arguments[2];
+					}
+				} else {
+				}
+			}
+
+			self.outer = outer;
+			$pyjs_kwargs_call($module['Applier'], '__init__', null, kwargs, [{}, self]);
+			return null;
+		}
+	, 1, [null,['kwargs'],['self'],['outer']]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'addStyleName', function(row, column, styleName) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				styleName = arguments[3];
+			}
+
+			self['outer']['prepareCell'](row, column);
+			self['outer']['setStyleName'](self['getElement'](row, column), styleName, true);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['styleName']]);
+		$cls_definition['addStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getElement', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var $attr1,$attr2;
+			self['outer']['checkCellBounds'](row, column);
+			return $module['DOM']['getChild'](self['outer']['rowFormatter']['getRow'](((($attr1=self['outer']['bodyElem']) !== null & ($attr2=self['outer']).__is_instance__) && typeof $attr1 == 'function'?
+						pyjslib['getattr']($attr2, 'bodyElem'):
+						self['outer']['bodyElem']), row), column);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['getElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getStyleName', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+
+			return $module['DOM']['getAttribute'](self['getElement'](row, column), String('className'));
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['getStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isVisible', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var element;
+			element = self['getElement'](row, column);
+			return self['outer']['isVisible'](element);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['isVisible'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'removeStyleName', function(row, column, styleName) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				styleName = arguments[3];
+			}
+
+			self['outer']['checkCellBounds'](row, column);
+			self['outer']['setStyleName'](self['getElement'](row, column), styleName, false);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['styleName']]);
+		$cls_definition['removeStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setAlignment', function(row, column, hAlign, vAlign) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				hAlign = arguments[3];
+				vAlign = arguments[4];
+			}
+
+			self['setHorizontalAlignment'](row, column, hAlign);
+			self['setVerticalAlignment'](row, column, vAlign);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['hAlign'],['vAlign']]);
+		$cls_definition['setAlignment'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setHeight', function(row, column, height) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				height = arguments[3];
+			}
+			var $attr4,element,$attr3;
+			self['outer']['prepareCell'](row, column);
+			element = self['getCellElement'](((($attr3=self['outer']['bodyElem']) !== null & ($attr4=self['outer']).__is_instance__) && typeof $attr3 == 'function'?
+						pyjslib['getattr']($attr4, 'bodyElem'):
+						self['outer']['bodyElem']), row, column);
+			$module['DOM']['setStyleAttribute'](element, String('height'), height);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['height']]);
+		$cls_definition['setHeight'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setHorizontalAlignment', function(row, column, align) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				align = arguments[3];
+			}
+			var $attr5,$attr6,element;
+			self['outer']['prepareCell'](row, column);
+			element = self['getCellElement'](((($attr5=self['outer']['bodyElem']) !== null & ($attr6=self['outer']).__is_instance__) && typeof $attr5 == 'function'?
+						pyjslib['getattr']($attr6, 'bodyElem'):
+						self['outer']['bodyElem']), row, column);
+			$module['DOM']['setAttribute'](element, String('align'), align);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['align']]);
+		$cls_definition['setHorizontalAlignment'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setStyleName', function(row, column, styleName) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				styleName = arguments[3];
+			}
+
+			self['outer']['prepareCell'](row, column);
+			self['setAttr'](row, column, String('className'), styleName);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['styleName']]);
+		$cls_definition['setStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setVerticalAlignment', function(row, column, align) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				align = arguments[3];
+			}
+			var $attr8,$attr7;
+			self['outer']['prepareCell'](row, column);
+			$module['DOM']['setStyleAttribute'](self['getCellElement'](((($attr7=self['outer']['bodyElem']) !== null & ($attr8=self['outer']).__is_instance__) && typeof $attr7 == 'function'?
+						pyjslib['getattr']($attr8, 'bodyElem'):
+						self['outer']['bodyElem']), row, column), String('verticalAlign'), align);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['align']]);
+		$cls_definition['setVerticalAlignment'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setVisible', function(row, column, visible) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				visible = arguments[3];
+			}
+			var element;
+			element = self['ensureElement'](row, column);
+			self['outer']['setVisible'](element, visible);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['visible']]);
+		$cls_definition['setVisible'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setWidth', function(row, column, width) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				width = arguments[3];
+			}
+			var $attr9,$attr10;
+			self['outer']['prepareCell'](row, column);
+			$module['DOM']['setStyleAttribute'](self['getCellElement'](((($attr9=self['outer']['bodyElem']) !== null & ($attr10=self['outer']).__is_instance__) && typeof $attr9 == 'function'?
+						pyjslib['getattr']($attr10, 'bodyElem'):
+						self['outer']['bodyElem']), row, column), String('width'), width);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['width']]);
+		$cls_definition['setWidth'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setWordWrap', function(row, column, wrap) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				wrap = arguments[3];
+			}
+			var wrap_str;
+			self['outer']['prepareCell'](row, column);
+			if (pyjslib['bool'](wrap)) {
+				wrap_str = String('');
+			}
+			else {
+				wrap_str = String('nowrap');
+			}
+			$module['DOM']['setStyleAttribute'](self['getElement'](row, column), String('whiteSpace'), wrap_str);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['wrap']]);
+		$cls_definition['setWordWrap'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getCellElement', function(table, row, col) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				table = arguments[1];
+				row = arguments[2];
+				col = arguments[3];
+			}
+			var $attr16,cols,item,length,$attr14,$attr15,$attr11,$attr13,$attr12;
+			length = ((($attr11=table['rows']['length']) !== null & ($attr12=table['rows']).__is_instance__) && typeof $attr11 == 'function'?
+						pyjslib['getattr']($attr12, 'length'):
+						table['rows']['length']);
+			if (pyjslib['bool']((((pyjslib['cmp'](row, length))|1) == 1))) {
+				return null;
+			}
+			cols = ((($attr13=table['rows']['item'](row)['cells']) !== null & ($attr14=table['rows']['item'](row)).__is_instance__) && typeof $attr13 == 'function'?
+						pyjslib['getattr']($attr14, 'cells'):
+						table['rows']['item'](row)['cells']);
+			length = ((($attr15=cols['length']) !== null & ($attr16=cols).__is_instance__) && typeof $attr15 == 'function'?
+						pyjslib['getattr']($attr16, 'length'):
+						cols['length']);
+			if (pyjslib['bool']((((pyjslib['cmp'](col, length))|1) == 1))) {
+				return null;
+			}
+			item = cols['item'](col);
+			return item;
+		}
+	, 1, [null,null,['self'],['table'],['row'],['col']]);
+		$cls_definition['getCellElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getRawElement', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var $attr18,$attr17;
+			return self['getCellElement'](((($attr17=self['outer']['bodyElem']) !== null & ($attr18=self['outer']).__is_instance__) && typeof $attr17 == 'function'?
+						pyjslib['getattr']($attr18, 'bodyElem'):
+						self['outer']['bodyElem']), row, column);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['getRawElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'ensureElement', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+
+			self['outer']['prepareCell'](row, column);
+			return $module['DOM']['getChild'](self['outer']['rowFormatter']['ensureElement'](row), column);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['ensureElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getStyleAttr', function(row, column, attr) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				attr = arguments[3];
+			}
+			var elem;
+			elem = self['getElement'](row, column);
+			return $module['DOM']['getStyleAttribute'](elem, attr);
+		}
+	, 1, [null,null,['self'],['row'],['column'],['attr']]);
+		$cls_definition['getStyleAttr'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setStyleAttr', function(row, column, attrName, value) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				attrName = arguments[3];
+				value = arguments[4];
+			}
+			var elem;
+			elem = self['getElement'](row, column);
+			$module['DOM']['setStyleAttribute'](elem, attrName, value);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['attrName'],['value']]);
+		$cls_definition['setStyleAttr'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getAttr', function(row, column, attr) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				attr = arguments[3];
+			}
+			var elem;
+			elem = self['getElement'](row, column);
+			return $module['DOM']['getAttribute'](elem, attr);
+		}
+	, 1, [null,null,['self'],['row'],['column'],['attr']]);
+		$cls_definition['getAttr'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setAttr', function(row, column, attrName, value) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				attrName = arguments[3];
+				value = arguments[4];
+			}
+			var elem;
+			elem = self['getElement'](row, column);
+			$module['DOM']['setAttribute'](elem, attrName, value);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['attrName'],['value']]);
+		$cls_definition['setAttr'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['Applier']));
+	})();
+	return this;
+}; /* end pyjamas.ui.CellFormatter */
 
 
-/* end module: jsonrpc.json */
+/* end module: pyjamas.ui.CellFormatter */
 
 
+/*
+PYJS_DEPS: ['pyjamas.DOM', 'pyjamas', 'pyjamas.Factory', 'pyjamas.ui.Applier', 'pyjamas.ui']
+*/
 
 --></script>
 <script type="text/javascript"><!--
@@ -2001,6 +2399,390 @@ PYJS_DEPS: ['pyjamas.DOM', 'pyjamas', 'pyjamas.Factory', 'FocusWidget.FocusWidge
 
 --></script>
 <script type="text/javascript"><!--
+/* start module: pyjamas.ui.Grid */
+$pyjs.loaded_modules['pyjamas.ui.Grid'] = function (__mod_name__) {
+	if($pyjs.loaded_modules['pyjamas.ui.Grid'].__was_initialized__) return $pyjs.loaded_modules['pyjamas.ui.Grid'];
+	if(typeof $pyjs.loaded_modules['pyjamas.ui'] == 'undefined' || !$pyjs.loaded_modules['pyjamas.ui'].__was_initialized__) pyjslib['___import___']('pyjamas.ui', null);
+	var $module = pyjamas['ui']['Grid'] = $pyjs.loaded_modules["pyjamas.ui.Grid"];
+	pyjamas['ui']['Grid'].__was_initialized__ = true;
+	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'pyjamas.ui.Grid';
+	var __name__ = pyjamas['ui']['Grid'].__name__ = __mod_name__;
+	var Grid = pyjamas['ui']['Grid'];
+
+
+	$module['DOM'] = pyjslib['___import___']('pyjamas.DOM', 'pyjamas.ui', null, false);
+	$module['Factory'] = pyjslib['___import___']('pyjamas.Factory', 'pyjamas.ui', null, false);
+	$module['HTMLTable'] = pyjslib['___import___']('HTMLTable.HTMLTable', 'pyjamas.ui', null, false);
+	$module['CellFormatter'] = pyjslib['___import___']('CellFormatter.CellFormatter', 'pyjamas.ui', null, false);
+	$module['RowFormatter'] = pyjslib['___import___']('RowFormatter.RowFormatter', 'pyjamas.ui', null, false);
+	$module['Grid'] = (function(){
+		var $cls_instance = $pyjs__class_instance('Grid');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = 'adb6e9618907c17abd456a1e470af509';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(rows, columns) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+				var kwargs = arguments.length >= 3 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			} else {
+				var self = arguments[0];
+				rows = arguments[1];
+				columns = arguments[2];
+				var kwargs = arguments.length >= 4 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			}
+			if (typeof kwargs == 'undefined') {
+				kwargs = pyjslib['__empty_dict']();
+				if (typeof columns != 'undefined') {
+					if (columns !== null && typeof columns['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = columns;
+						columns = arguments[3];
+					}
+				} else 				if (typeof rows != 'undefined') {
+					if (rows !== null && typeof rows['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = rows;
+						rows = arguments[3];
+					}
+				} else 				if (typeof self != 'undefined') {
+					if (self !== null && typeof self['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = self;
+						self = arguments[3];
+					}
+				} else {
+				}
+			}
+			if (typeof rows == 'undefined') rows=arguments.callee.__args__[3][1];
+			if (typeof columns == 'undefined') columns=arguments.callee.__args__[4][1];
+			var $or1,$or2;
+			self.numColumns = 0;
+			self.numRows = 0;
+			$pyjs_kwargs_call($module['HTMLTable'], '__init__', null, kwargs, [{}, self]);
+			if (pyjslib['bool']((pyjslib['bool']($or1=(pyjslib['cmp'](rows, 0) == 1))?$or1:(pyjslib['cmp'](columns, 0) == 1)))) {
+				self['resize'](rows, columns);
+			}
+			return null;
+		}
+	, 1, [null,['kwargs'],['self'],['rows', 0],['columns', 0]]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'removeRow', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+			var $attr1,$attr2,$sub2,$sub1;
+			$module['HTMLTable']['removeRow'](self, row);
+			self.numRows = (typeof ($sub1=((($attr1=self['numRows']) !== null & ($attr2=self).__is_instance__) && typeof $attr1 == 'function'?
+						pyjslib['getattr']($attr2, 'numRows'):
+						self['numRows']))==typeof ($sub2=1) && (typeof $sub1=='number'||typeof $sub1=='string')?
+				$sub1-$sub2:
+				pyjslib['op_sub']($sub1,$sub2));
+			return null;
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['removeRow'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'resize', function(rows, columns) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				rows = arguments[1];
+				columns = arguments[2];
+			}
+
+			self['resizeColumns'](columns);
+			self['resizeRows'](rows);
+			return null;
+		}
+	, 1, [null,null,['self'],['rows'],['columns']]);
+		$cls_definition['resize'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'resizeColumns', function(columns) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				columns = arguments[1];
+			}
+			var $iter3_array,$iter1_iter,$iter4_type,$iter2_type,$iter4_iter,$iter3_idx,$iter2_iter,$iter3_iter,$iter1_array,$sub3,$sub6,$sub4,$attr9,$attr8,$iter1_nextval,$attr3,$attr5,$attr4,$attr7,$attr6,$iter2_idx,$iter3_type,$attr14,$attr11,$attr10,$attr13,$attr12,$iter2_nextval,$iter1_type,$sub5,i,$iter4_nextval,j,$iter4_idx,$iter1_idx,$iter4_array,$iter3_nextval,$iter2_array;
+			if (pyjslib['bool'](pyjslib['op_eq'](((($attr3=self['numColumns']) !== null & ($attr4=self).__is_instance__) && typeof $attr3 == 'function'?
+						pyjslib['getattr']($attr4, 'numColumns'):
+						self['numColumns']), columns))) {
+				return null;
+			}
+			if (pyjslib['bool']((pyjslib['cmp'](((($attr5=self['numColumns']) !== null & ($attr6=self).__is_instance__) && typeof $attr5 == 'function'?
+						pyjslib['getattr']($attr6, 'numColumns'):
+						self['numColumns']), columns) == 1))) {
+				$iter1_iter = pyjslib['range'](0, ((($attr7=self['numRows']) !== null & ($attr8=self).__is_instance__) && typeof $attr7 == 'function'?
+							pyjslib['getattr']($attr8, 'numRows'):
+							self['numRows']));
+				if (typeof ($iter1_array = $iter1_iter.__array) != 'undefined') {
+					$iter1_type = 0;
+				} else {
+					$iter1_iter = $iter1_iter.__iter__();
+					$iter1_type = typeof ($iter1_array = $iter1_iter.__array) != 'undefined'? 0 : (typeof $iter1_iter.$genfunc == 'function'? 1 : -1);
+				}
+				$iter1_idx = 0;
+				while (typeof ($iter1_nextval=($iter1_type?($iter1_type > 0?$iter1_iter.next(true,false):pyjslib['wrapped_next']($iter1_iter)):$iter1_array[$iter1_idx++])) != 'undefined') {
+					i = $iter1_nextval;
+					$iter2_iter = pyjslib['range']((typeof ($sub3=((($attr9=self['numColumns']) !== null & ($attr10=self).__is_instance__) && typeof $attr9 == 'function'?
+								pyjslib['getattr']($attr10, 'numColumns'):
+								self['numColumns']))==typeof ($sub4=1) && (typeof $sub3=='number'||typeof $sub3=='string')?
+						$sub3-$sub4:
+						pyjslib['op_sub']($sub3,$sub4)), (typeof ($sub5=columns)==typeof ($sub6=1) && (typeof $sub5=='number'||typeof $sub5=='string')?
+						$sub5-$sub6:
+						pyjslib['op_sub']($sub5,$sub6)), (typeof ($usub1=1)=='number'?
+						-$usub1:
+						pyjslib['op_usub']($usub1)));
+					if (typeof ($iter2_array = $iter2_iter.__array) != 'undefined') {
+						$iter2_type = 0;
+					} else {
+						$iter2_iter = $iter2_iter.__iter__();
+						$iter2_type = typeof ($iter2_array = $iter2_iter.__array) != 'undefined'? 0 : (typeof $iter2_iter.$genfunc == 'function'? 1 : -1);
+					}
+					$iter2_idx = 0;
+					while (typeof ($iter2_nextval=($iter2_type?($iter2_type > 0?$iter2_iter.next(true,false):pyjslib['wrapped_next']($iter2_iter)):$iter2_array[$iter2_idx++])) != 'undefined') {
+						j = $iter2_nextval;
+						self['removeCell'](i, j);
+					}
+				}
+			}
+			else {
+				$iter3_iter = pyjslib['range'](((($attr11=self['numRows']) !== null & ($attr12=self).__is_instance__) && typeof $attr11 == 'function'?
+							pyjslib['getattr']($attr12, 'numRows'):
+							self['numRows']));
+				if (typeof ($iter3_array = $iter3_iter.__array) != 'undefined') {
+					$iter3_type = 0;
+				} else {
+					$iter3_iter = $iter3_iter.__iter__();
+					$iter3_type = typeof ($iter3_array = $iter3_iter.__array) != 'undefined'? 0 : (typeof $iter3_iter.$genfunc == 'function'? 1 : -1);
+				}
+				$iter3_idx = 0;
+				while (typeof ($iter3_nextval=($iter3_type?($iter3_type > 0?$iter3_iter.next(true,false):pyjslib['wrapped_next']($iter3_iter)):$iter3_array[$iter3_idx++])) != 'undefined') {
+					i = $iter3_nextval;
+					$iter4_iter = pyjslib['range'](((($attr13=self['numColumns']) !== null & ($attr14=self).__is_instance__) && typeof $attr13 == 'function'?
+								pyjslib['getattr']($attr14, 'numColumns'):
+								self['numColumns']), columns);
+					if (typeof ($iter4_array = $iter4_iter.__array) != 'undefined') {
+						$iter4_type = 0;
+					} else {
+						$iter4_iter = $iter4_iter.__iter__();
+						$iter4_type = typeof ($iter4_array = $iter4_iter.__array) != 'undefined'? 0 : (typeof $iter4_iter.$genfunc == 'function'? 1 : -1);
+					}
+					$iter4_idx = 0;
+					while (typeof ($iter4_nextval=($iter4_type?($iter4_type > 0?$iter4_iter.next(true,false):pyjslib['wrapped_next']($iter4_iter)):$iter4_array[$iter4_idx++])) != 'undefined') {
+						j = $iter4_nextval;
+						self['insertCell'](i, j);
+					}
+				}
+			}
+			self.numColumns = columns;
+			return null;
+		}
+	, 1, [null,null,['self'],['columns']]);
+		$cls_definition['resizeColumns'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'resizeRows', function(rows) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				rows = arguments[1];
+			}
+			var $sub10,$attr23,$sub9,$attr20,$attr21,$attr22,$sub8,$attr19,$attr18,$attr26,$attr15,$attr24,$attr17,$attr16,$sub7,$attr25;
+			if (pyjslib['bool'](pyjslib['op_eq'](((($attr15=self['numRows']) !== null & ($attr16=self).__is_instance__) && typeof $attr15 == 'function'?
+						pyjslib['getattr']($attr16, 'numRows'):
+						self['numRows']), rows))) {
+				return null;
+			}
+			if (pyjslib['bool']((pyjslib['cmp'](((($attr17=self['numRows']) !== null & ($attr18=self).__is_instance__) && typeof $attr17 == 'function'?
+						pyjslib['getattr']($attr18, 'numRows'):
+						self['numRows']), rows) == -1))) {
+				self['addRows'](self['getBodyElement'](), (typeof ($sub7=rows)==typeof ($sub8=((($attr19=self['numRows']) !== null & ($attr20=self).__is_instance__) && typeof $attr19 == 'function'?
+							pyjslib['getattr']($attr20, 'numRows'):
+							self['numRows'])) && (typeof $sub7=='number'||typeof $sub7=='string')?
+					$sub7-$sub8:
+					pyjslib['op_sub']($sub7,$sub8)), ((($attr21=self['numColumns']) !== null & ($attr22=self).__is_instance__) && typeof $attr21 == 'function'?
+							pyjslib['getattr']($attr22, 'numColumns'):
+							self['numColumns']));
+				self.numRows = rows;
+			}
+			else {
+				while (pyjslib['bool']((pyjslib['cmp'](((($attr23=self['numRows']) !== null & ($attr24=self).__is_instance__) && typeof $attr23 == 'function'?
+							pyjslib['getattr']($attr24, 'numRows'):
+							self['numRows']), rows) == 1))) {
+					self['removeRow']((typeof ($sub9=((($attr25=self['numRows']) !== null & ($attr26=self).__is_instance__) && typeof $attr25 == 'function'?
+								pyjslib['getattr']($attr26, 'numRows'):
+								self['numRows']))==typeof ($sub10=1) && (typeof $sub9=='number'||typeof $sub9=='string')?
+						$sub9-$sub10:
+						pyjslib['op_sub']($sub9,$sub10)));
+				}
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['rows']]);
+		$cls_definition['resizeRows'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'createCell', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var td;
+			td = $module['HTMLTable']['createCell'](self);
+			$module['DOM']['setInnerHTML'](td, String('\x26nbsp\x3B'));
+			return td;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['createCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'clearCell', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var b,td;
+			td = self['cellFormatter']['getElement'](row, column);
+			b = $module['HTMLTable']['internalClearCell'](self, td);
+			$module['DOM']['setInnerHTML'](td, String('\x26nbsp\x3B'));
+			return b;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['clearCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'prepareCell', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+
+ 			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['prepareCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'prepareRow', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+
+ 			return null;
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['prepareRow'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getCellCount', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+			var $attr28,$attr27;
+			return ((($attr27=self['numColumns']) !== null & ($attr28=self).__is_instance__) && typeof $attr27 == 'function'?
+						pyjslib['getattr']($attr28, 'numColumns'):
+						self['numColumns']);
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['getCellCount'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getColumnCount', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr29,$attr30;
+			return ((($attr29=self['numColumns']) !== null & ($attr30=self).__is_instance__) && typeof $attr29 == 'function'?
+						pyjslib['getattr']($attr30, 'numColumns'):
+						self['numColumns']);
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getColumnCount'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getRowCount', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr32,$attr31;
+			return ((($attr31=self['numRows']) !== null & ($attr32=self).__is_instance__) && typeof $attr31 == 'function'?
+						pyjslib['getattr']($attr32, 'numRows'):
+						self['numRows']);
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getRowCount'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'addRows', function(table, numRows, columns) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				table = arguments[1];
+				numRows = arguments[2];
+				columns = arguments[3];
+			}
+			var $iter5_nextval,cell,cellNum,$iter5_idx,$iter6_idx,$iter6_type,$iter5_array,rowNum,$iter6_array,$iter5_iter,$iter5_type,td,$iter6_nextval,$iter6_iter,row;
+			td = $module['DOM']['createElement'](String('td'));
+			$module['DOM']['setInnerHTML'](td, String('\x26nbsp\x3B'));
+			row = $module['DOM']['createElement'](String('tr'));
+			$iter5_iter = pyjslib['range'](columns);
+			if (typeof ($iter5_array = $iter5_iter.__array) != 'undefined') {
+				$iter5_type = 0;
+			} else {
+				$iter5_iter = $iter5_iter.__iter__();
+				$iter5_type = typeof ($iter5_array = $iter5_iter.__array) != 'undefined'? 0 : (typeof $iter5_iter.$genfunc == 'function'? 1 : -1);
+			}
+			$iter5_idx = 0;
+			while (typeof ($iter5_nextval=($iter5_type?($iter5_type > 0?$iter5_iter.next(true,false):pyjslib['wrapped_next']($iter5_iter)):$iter5_array[$iter5_idx++])) != 'undefined') {
+				cellNum = $iter5_nextval;
+				cell = td['cloneNode'](true);
+				row['appendChild'](cell);
+			}
+			$iter6_iter = pyjslib['range'](numRows);
+			if (typeof ($iter6_array = $iter6_iter.__array) != 'undefined') {
+				$iter6_type = 0;
+			} else {
+				$iter6_iter = $iter6_iter.__iter__();
+				$iter6_type = typeof ($iter6_array = $iter6_iter.__array) != 'undefined'? 0 : (typeof $iter6_iter.$genfunc == 'function'? 1 : -1);
+			}
+			$iter6_idx = 0;
+			while (typeof ($iter6_nextval=($iter6_type?($iter6_type > 0?$iter6_iter.next(true,false):pyjslib['wrapped_next']($iter6_iter)):$iter6_array[$iter6_idx++])) != 'undefined') {
+				rowNum = $iter6_nextval;
+				table['appendChild'](row['cloneNode'](true));
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['table'],['numRows'],['columns']]);
+		$cls_definition['addRows'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['HTMLTable']));
+	})();
+	$module['Factory']['registerClass'](String('pyjamas.ui.Grid'), $module['Grid']);
+	return this;
+}; /* end pyjamas.ui.Grid */
+
+
+/* end module: pyjamas.ui.Grid */
+
+
+/*
+PYJS_DEPS: ['pyjamas.DOM', 'pyjamas', 'pyjamas.Factory', 'HTMLTable.HTMLTable', 'HTMLTable', 'CellFormatter.CellFormatter', 'CellFormatter', 'RowFormatter.RowFormatter', 'RowFormatter']
+*/
+
+--></script>
+<script type="text/javascript"><!--
 /* start module: pyjamas.ui.RootPanel */
 $pyjs.loaded_modules['pyjamas.ui.RootPanel'] = function (__mod_name__) {
 	if($pyjs.loaded_modules['pyjamas.ui.RootPanel'].__was_initialized__) return $pyjs.loaded_modules['pyjamas.ui.RootPanel'];
@@ -2290,6 +3072,298 @@ $pyjs.loaded_modules['pyjamas.Factory'] = function (__mod_name__) {
 
 /*
 PYJS_DEPS: ['pyjamas.log', 'pyjamas', 'pyjamas.DOM']
+*/
+
+--></script>
+<script type="text/javascript"><!--
+/* start module: jsonobjproxy */
+var jsonobjproxy;
+$pyjs.loaded_modules['jsonobjproxy'] = function (__mod_name__) {
+	if($pyjs.loaded_modules['jsonobjproxy'].__was_initialized__) return $pyjs.loaded_modules['jsonobjproxy'];
+	var $module = jsonobjproxy = $pyjs.loaded_modules["jsonobjproxy"];
+	jsonobjproxy.__was_initialized__ = true;
+	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'jsonobjproxy';
+	var __name__ = jsonobjproxy.__name__ = __mod_name__;
+
+
+	$module['timedelta'] = pyjslib['___import___']('datetime.timedelta', null, null, false);
+	$module['tzinfo'] = pyjslib['___import___']('datetime.tzinfo', null, null, false);
+	$module['datetime'] = pyjslib['___import___']('datetime.datetime', null, null, false);
+	$module['Proxy'] = (function(){
+		var $cls_instance = $pyjs__class_instance('Proxy');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = 'b1e1933d7ed5fbd3c2db49de245feed2';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+				var kwargs = arguments.length >= 1 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			} else {
+				var self = arguments[0];
+				var kwargs = arguments.length >= 2 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			}
+			if (typeof kwargs == 'undefined') {
+				kwargs = pyjslib['__empty_dict']();
+				if (typeof self != 'undefined') {
+					if (self !== null && typeof self['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = self;
+						self = arguments[1];
+					}
+				} else {
+				}
+			}
+			var $iter1_nextval,$iter1_type,v,$iter1_iter,$iter1_array,k,$iter1_idx;
+			$iter1_iter = kwargs['items']();
+			if (typeof ($iter1_array = $iter1_iter.__array) != 'undefined') {
+				$iter1_type = 0;
+			} else {
+				$iter1_iter = $iter1_iter.__iter__();
+				$iter1_type = typeof ($iter1_array = $iter1_iter.__array) != 'undefined'? 0 : (typeof $iter1_iter.$genfunc == 'function'? 1 : -1);
+			}
+			$iter1_idx = 0;
+			while (typeof ($iter1_nextval=($iter1_type?($iter1_type > 0?$iter1_iter.next(true,true):pyjslib['wrapped_next']($iter1_iter)):$iter1_array[$iter1_idx++])) != 'undefined') {
+				k = $iter1_nextval.__array[0];
+				v = $iter1_nextval.__array[1];
+				pyjslib['setattr'](self, k, v);
+			}
+			return null;
+		}
+	, 1, [null,['kwargs'],['self']]);
+		$cls_definition['__init__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array(pyjslib['object']));
+	})();
+	$module['cDocumentType'] = (function(){
+		var $cls_instance = $pyjs__class_instance('cDocumentType');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '0e2a8e5e2a8ed3eef0041bf7fff4fc6c';
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['Proxy']));
+	})();
+	$module['cMedDoc'] = (function(){
+		var $cls_instance = $pyjs__class_instance('cMedDoc');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '5b5b3780e5f894a4cddeeb83c271be3c';
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['Proxy']));
+	})();
+	$module['cMedDocPart'] = (function(){
+		var $cls_instance = $pyjs__class_instance('cMedDocPart');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = 'b7a3908a398a15106171d8d671c168e7';
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['Proxy']));
+	})();
+	$module['TimeDelta'] = (function(){
+		var $cls_instance = $pyjs__class_instance('TimeDelta');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '310b91291240fd8b83083b7975caea0a';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(days, seconds, microseconds, milliseconds, minutes, hours, weeks) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				days = arguments[1];
+				seconds = arguments[2];
+				microseconds = arguments[3];
+				milliseconds = arguments[4];
+				minutes = arguments[5];
+				hours = arguments[6];
+				weeks = arguments[7];
+			}
+			if (typeof days == 'undefined') days=arguments.callee.__args__[3][1];
+			if (typeof seconds == 'undefined') seconds=arguments.callee.__args__[4][1];
+			if (typeof microseconds == 'undefined') microseconds=arguments.callee.__args__[5][1];
+			if (typeof milliseconds == 'undefined') milliseconds=arguments.callee.__args__[6][1];
+			if (typeof minutes == 'undefined') minutes=arguments.callee.__args__[7][1];
+			if (typeof hours == 'undefined') hours=arguments.callee.__args__[8][1];
+			if (typeof weeks == 'undefined') weeks=arguments.callee.__args__[9][1];
+
+			$module['timedelta']['__init__'](self, days, seconds, microseconds, milliseconds, minutes, hours, weeks);
+			return null;
+		}
+	, 1, [null,null,['self'],['days', 0],['seconds', 0],['microseconds', 0],['milliseconds', 0],['minutes', 0],['hours', 0],['weeks', 0]]);
+		$cls_definition['__init__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['timedelta']));
+	})();
+	$module['ZERO'] = $module['TimeDelta'](0);
+	$module['FixedOffsetTimezone'] = (function(){
+		var $cls_instance = $pyjs__class_instance('FixedOffsetTimezone');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = 'ce9be1ce1783a0c09272a8792db29cea';
+		$cls_definition['_name'] = null;
+		$cls_definition['_offset'] = $module['ZERO'];
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(offset, name) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				offset = arguments[1];
+				name = arguments[2];
+			}
+			if (typeof offset == 'undefined') offset=arguments.callee.__args__[3][1];
+			if (typeof name == 'undefined') name=arguments.callee.__args__[4][1];
+			var $attr1,$attr2,$attr4,$attr3;
+			if (pyjslib['bool']((offset !== null))) {
+				self._offset = $pyjs_kwargs_call(null, $module['timedelta'], null, null, [{days:((($attr1=offset['days']) !== null & ($attr2=offset).__is_instance__) && typeof $attr1 == 'function'?
+							pyjslib['getattr']($attr2, 'days'):
+							offset['days']), seconds:((($attr3=offset['seconds']) !== null & ($attr4=offset).__is_instance__) && typeof $attr3 == 'function'?
+							pyjslib['getattr']($attr4, 'seconds'):
+							offset['seconds'])}]);
+			}
+			if (pyjslib['bool']((name !== null))) {
+				self._name = name;
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['offset', null],['name', null]]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'utcoffset', function(dt) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				dt = arguments[1];
+			}
+			var $attr5,$attr6;
+			return ((($attr5=self['_offset']) !== null & ($attr6=self).__is_instance__) && typeof $attr5 == 'function'?
+						pyjslib['getattr']($attr6, '_offset'):
+						self['_offset']);
+		}
+	, 1, [null,null,['self'],['dt']]);
+		$cls_definition['utcoffset'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'tzname', function(dt) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				dt = arguments[1];
+			}
+			var $attr9,$attr8,seconds,minutes,hours,$attr7,$mul2,$add2,$add1,$mul1,$div2,$attr14,$div1,$attr11,$attr10,$attr13,$attr12;
+			if (pyjslib['bool']((((($attr7=self['_name']) !== null & ($attr8=self).__is_instance__) && typeof $attr7 == 'function'?
+						pyjslib['getattr']($attr8, '_name'):
+						self['_name']) !== null))) {
+				return ((($attr9=self['_name']) !== null & ($attr10=self).__is_instance__) && typeof $attr9 == 'function'?
+							pyjslib['getattr']($attr10, '_name'):
+							self['_name']);
+			}
+			else {
+				seconds = (typeof ($add1=((($attr11=self['_offset']['seconds']) !== null & ($attr12=self['_offset']).__is_instance__) && typeof $attr11 == 'function'?
+							pyjslib['getattr']($attr12, 'seconds'):
+							self['_offset']['seconds']))==typeof ($add2=(typeof ($mul1=((($attr13=self['_offset']['days']) !== null & ($attr14=self['_offset']).__is_instance__) && typeof $attr13 == 'function'?
+							pyjslib['getattr']($attr14, 'days'):
+							self['_offset']['days']))==typeof ($mul2=86400) && typeof $mul1=='number'?
+					$mul1*$mul2:
+					pyjslib['op_mul']($mul1,$mul2))) && (typeof $add1=='number'||typeof $add1=='string')?
+					$add1+$add2:
+					pyjslib['op_add']($add1,$add2));
+				var $tupleassign1 = pyjslib['divmod'](seconds, 3600);
+				hours = $tupleassign1.__getitem__(0);
+				seconds = $tupleassign1.__getitem__(1);
+				minutes = (typeof ($div1=seconds)==typeof ($div2=60) && typeof $div1=='number' && $div2 !== 0?
+					$div1/$div2:
+					pyjslib['op_div']($div1,$div2));
+				if (pyjslib['bool'](minutes)) {
+					return pyjslib['sprintf'](String('%+03d:%d'), pyjslib['tuple']([hours, minutes]));
+				}
+				else {
+					return pyjslib['sprintf'](String('%+03d'), hours);
+				}
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['dt']]);
+		$cls_definition['tzname'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'dst', function(dt) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				dt = arguments[1];
+			}
+
+			return $module['ZERO'];
+		}
+	, 1, [null,null,['self'],['dt']]);
+		$cls_definition['dst'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['tzinfo']));
+	})();
+	$module['DateTime'] = (function(){
+		var $cls_instance = $pyjs__class_instance('DateTime');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = 'c15f5b66cb1c34534038e469a913d970';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+				var kwargs = arguments.length >= 1 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			} else {
+				var self = arguments[0];
+				var kwargs = arguments.length >= 2 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			}
+			if (typeof kwargs == 'undefined') {
+				kwargs = pyjslib['__empty_dict']();
+				if (typeof self != 'undefined') {
+					if (self !== null && typeof self['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = self;
+						self = arguments[1];
+					}
+				} else {
+				}
+			}
+			var hour,month,second,microsecond,year,tzinfo,day,minute;
+			year = kwargs['get'](String('year'));
+			month = kwargs['get'](String('month'));
+			day = kwargs['get'](String('day'));
+			hour = kwargs['get'](String('hour'));
+			minute = kwargs['get'](String('minute'));
+			second = kwargs['get'](String('second'));
+			microsecond = kwargs['get'](String('microsecond'));
+			tzinfo = kwargs['get'](String('tzinfo'), null);
+			$module['datetime']['__init__'](self, year, month, day, hour, minute, second, microsecond, tzinfo);
+			return null;
+		}
+	, 1, [null,['kwargs'],['self']]);
+		$cls_definition['__init__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['datetime']));
+	})();
+	return this;
+}; /* end jsonobjproxy */
+
+
+/* end module: jsonobjproxy */
+
+
+/*
+PYJS_DEPS: ['datetime.timedelta', 'datetime', 'datetime.tzinfo', 'datetime.datetime']
 */
 
 --></script>
@@ -3963,6 +5037,1037 @@ return $listcomp4;}();
 /* end module: binascii */
 
 
+
+--></script>
+<script type="text/javascript"><!--
+/* start module: datetime */
+var datetime;
+$pyjs.loaded_modules['datetime'] = function (__mod_name__) {
+	if($pyjs.loaded_modules['datetime'].__was_initialized__) return $pyjs.loaded_modules['datetime'];
+	var $module = datetime = $pyjs.loaded_modules["datetime"];
+	datetime.__was_initialized__ = true;
+	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'datetime';
+	var __name__ = datetime.__name__ = __mod_name__;
+
+
+	$module['__c__days'] = pyjslib['___import___']('time.__c__days', null, null, false);
+	$module['__c__months'] = pyjslib['___import___']('time.__c__months', null, null, false);
+	$module['strftime'] = pyjslib['___import___']('time.strftime', null, null, false);
+	$module['localtime'] = pyjslib['___import___']('time.localtime', null, null, false);
+	$module['gmtime'] = pyjslib['___import___']('time.gmtime', null, null, false);
+	$module['MINYEAR'] = 1;
+	$module['MAXYEAR'] = 1000000;
+	$module['__Jan_01_0001'] = (new Date((new Date('Jan 1 1971')).getTime() - 62167132800000)).getTime();
+	$module['date'] = (function(){
+		var $cls_instance = $pyjs__class_instance('date');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = 'ffa5e68ebf3ba6ce1d01433aa18e1e72';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(year, month, day, d) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				year = arguments[1];
+				month = arguments[2];
+				day = arguments[3];
+				d = arguments[4];
+			}
+			if (typeof d == 'undefined') d=arguments.callee.__args__[6][1];
+			var $add2,$add1;
+			if (pyjslib['bool']((d === null))) {
+				d = new Date(year, month - 1, day, 0, 0, 0, 0);
+			}
+			self._d = d;
+			self.year = d['getFullYear']();
+			self.month = (typeof ($add1=d['getMonth']())==typeof ($add2=1.0) && (typeof $add1=='number'||typeof $add1=='string')?
+				$add1+$add2:
+				pyjslib['op_add']($add1,$add2));
+			self.day = d['getDate']();
+			return null;
+		}
+	, 1, [null,null,['self'],['year'],['month'],['day'],['d', null]]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'today', function() {
+    var self = this.prototype;
+
+			return $pyjs_kwargs_call(null, $module['date'], null, null, [{d:new Date()}]);
+		}
+	, 2, [null,null,['self']]);
+		$cls_definition['today'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'fromtimestamp', function(timestamp) {
+    var self = this.prototype;
+			var d,$mul1,$mul2;
+			d = new Date();
+			d['setTime']((typeof ($mul1=timestamp)==typeof ($mul2=1000.0) && typeof $mul1=='number'?
+				$mul1*$mul2:
+				pyjslib['op_mul']($mul1,$mul2)));
+			return $pyjs_kwargs_call(null, $module['date'], null, null, [{d:d}]);
+		}
+	, 2, [null,null,['self'],['timestamp']]);
+		$cls_definition['fromtimestamp'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'fromordinal', function(ordinal) {
+    var self = this.prototype;
+			var d,$add3,t,$add4,$sub2,$sub1,$mul4,$mul3;
+			t = (typeof ($add3=$module['__Jan_01_0001'])==typeof ($add4=(typeof ($mul3=(typeof ($sub1=ordinal)==typeof ($sub2=1) && (typeof $sub1=='number'||typeof $sub1=='string')?
+				$sub1-$sub2:
+				pyjslib['op_sub']($sub1,$sub2)))==typeof ($mul4=86400000.0) && typeof $mul3=='number'?
+				$mul3*$mul4:
+				pyjslib['op_mul']($mul3,$mul4))) && (typeof $add3=='number'||typeof $add3=='string')?
+				$add3+$add4:
+				pyjslib['op_add']($add3,$add4));
+			d = new Date(t);
+			return $pyjs_kwargs_call(null, $module['date'], null, null, [{d:d}]);
+		}
+	, 2, [null,null,['self'],['ordinal']]);
+		$cls_definition['fromordinal'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'ctime', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return pyjslib['sprintf'](String('%s %s %2d %02d:%02d:%02d %04d'), pyjslib['tuple']([pyjslib['slice']($module['__c__days'].__getitem__(self['_d']['getDay']()), 0, 3), pyjslib['slice']($module['__c__months'].__getitem__(self['_d']['getMonth']()), 0, 3), self['_d']['getDate'](), self['_d']['getHours'](), self['_d']['getMinutes'](), self['_d']['getSeconds'](), self['_d']['getFullYear']()]));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['ctime'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isocalendar', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var isoyear,$assign1,isoweeknr,isoweekday;
+			$assign1 = null;
+			isoyear = $assign1;
+			isoweeknr = $assign1;
+			isoweekday = $assign1;
+
+            var gregdaynumber = function(year, month, day) {
+                var y = year;
+                var m = month;
+                if (month < 3) {
+                    y--;
+                    m += 12;
+                }
+                return Math.floor(365.25 * y) - Math.floor(y / 100) + Math.floor(y / 400) + Math.floor(30.6 * (m + 1)) + day - 62;
+            };
+            
+            var year = this._d.getFullYear();
+            var month = this._d.getMonth();
+            var day = this._d.getDate();
+            var wday = this._d.getDay();
+            
+            isoweekday = ((wday + 6) % 7) + 1;
+            isoyear = year;
+
+            var d0 = gregdaynumber(year, 1, 0);
+            var weekday0 = ((d0 + 4) % 7) + 1;
+
+            var d = gregdaynumber(year, month + 1, day);
+            isoweeknr = Math.floor((d - d0 + weekday0 + 6) / 7) - Math.floor((weekday0 + 3) / 7);
+
+            if ((month == 11) && ((day - isoweekday) > 27)) {
+                isoweeknr = 1;
+                isoyear = isoyear + 1;
+            }
+
+            if ((month == 0) && ((isoweekday - day) > 3)) {
+                d0 = gregdaynumber(year - 1, 1, 0);
+                weekday0 = ((d0 + 4) % 7) + 1;
+                isoweeknr = Math.floor((d - d0 + weekday0 + 6) / 7) - Math.floor((weekday0 + 3) / 7);
+                isoyear--;
+            }
+        
+			return pyjslib['tuple']([isoyear, isoweeknr, isoweekday]);
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['isocalendar'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isoformat', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr1,$attr2,$attr5,$attr4,$attr6,$attr3;
+			return pyjslib['sprintf'](String('%04d-%02d-%02d'), pyjslib['tuple']([((($attr1=self['year']) !== null & ($attr2=self).__is_instance__) && typeof $attr1 == 'function'?
+						pyjslib['getattr']($attr2, 'year'):
+						self['year']), ((($attr3=self['month']) !== null & ($attr4=self).__is_instance__) && typeof $attr3 == 'function'?
+						pyjslib['getattr']($attr4, 'month'):
+						self['month']), ((($attr5=self['day']) !== null & ($attr6=self).__is_instance__) && typeof $attr5 == 'function'?
+						pyjslib['getattr']($attr6, 'day'):
+						self['day'])]));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['isoformat'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isoweekday', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $add5,$mod1,$add7,$mod2,$add6,$add8;
+			return (typeof ($add7=(typeof ($mod1=(typeof ($add5=self['_d']['getDay']())==typeof ($add6=6) && (typeof $add5=='number'||typeof $add5=='string')?
+				$add5+$add6:
+				pyjslib['op_add']($add5,$add6)))==typeof ($mod2=7) && typeof $mod1=='number'?
+				$mod1%$mod2:
+				pyjslib['op_mod']($mod1,$mod2)))==typeof ($add8=1) && (typeof $add7=='number'||typeof $add7=='string')?
+				$add7+$add8:
+				pyjslib['op_add']($add7,$add8));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['isoweekday'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '$$replace', function(year, month, day) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				year = arguments[1];
+				month = arguments[2];
+				day = arguments[3];
+			}
+			if (typeof year == 'undefined') year=arguments.callee.__args__[3][1];
+			if (typeof month == 'undefined') month=arguments.callee.__args__[4][1];
+			if (typeof day == 'undefined') day=arguments.callee.__args__[5][1];
+			var $attr9,$attr8,$attr7,$attr10,$attr11,$attr12;
+			if (pyjslib['bool']((year === null))) {
+				year = ((($attr7=self['year']) !== null & ($attr8=self).__is_instance__) && typeof $attr7 == 'function'?
+							pyjslib['getattr']($attr8, 'year'):
+							self['year']);
+			}
+			if (pyjslib['bool']((month === null))) {
+				month = ((($attr9=self['month']) !== null & ($attr10=self).__is_instance__) && typeof $attr9 == 'function'?
+							pyjslib['getattr']($attr10, 'month'):
+							self['month']);
+			}
+			if (pyjslib['bool']((day === null))) {
+				day = ((($attr11=self['day']) !== null & ($attr12=self).__is_instance__) && typeof $attr11 == 'function'?
+							pyjslib['getattr']($attr12, 'day'):
+							self['day']);
+			}
+			return $module['date'](year, month, day);
+		}
+	, 1, [null,null,['self'],['year', null],['month', null],['day', null]]);
+		$cls_definition['$$replace'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'strftime', function(format) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				format = arguments[1];
+			}
+
+			return $module['strftime'](format, self['timetuple']());
+		}
+	, 1, [null,null,['self'],['format']]);
+		$cls_definition['strftime'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'timetuple', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $div2,tm,$div1,$assign2;
+			tm = $module['localtime'](pyjslib['float_int']((typeof ($div1=self['_d']['getTime']())==typeof ($div2=1000.0) && typeof $div1=='number' && $div2 !== 0?
+				$div1/$div2:
+				pyjslib['op_div']($div1,$div2))));
+			$assign2 = 0;
+			tm.tm_hour = $assign2;
+			tm.tm_min = $assign2;
+			tm.tm_sec = $assign2;
+			return tm;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['timetuple'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'toordinal', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $add10,$sub3,$div3,$add9,$div4,$sub4;
+			return (typeof ($add9=1)==typeof ($add10=pyjslib['float_int']((typeof ($div3=(typeof ($sub3=self['_d']['getTime']())==typeof ($sub4=$module['__Jan_01_0001']) && (typeof $sub3=='number'||typeof $sub3=='string')?
+				$sub3-$sub4:
+				pyjslib['op_sub']($sub3,$sub4)))==typeof ($div4=86400000.0) && typeof $div3=='number' && $div4 !== 0?
+				$div3/$div4:
+				pyjslib['op_div']($div3,$div4)))) && (typeof $add9=='number'||typeof $add9=='string')?
+				$add9+$add10:
+				pyjslib['op_add']($add9,$add10));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['toordinal'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'weekday', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $mod4,$mod3,$add11,$add12;
+			return (typeof ($mod3=(typeof ($add11=self['_d']['getDay']())==typeof ($add12=6) && (typeof $add11=='number'||typeof $add11=='string')?
+				$add11+$add12:
+				pyjslib['op_add']($add11,$add12)))==typeof ($mod4=7) && typeof $mod3=='number'?
+				$mod3%$mod4:
+				pyjslib['op_mod']($mod3,$mod4));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['weekday'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__str__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return self['isoformat']();
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['__str__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__cmp__', function(other) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				other = arguments[1];
+			}
+			var a,b,$or1,$or2;
+			if (pyjslib['bool']((pyjslib['bool']($or1=pyjslib['isinstance'](other, $module['date']))?$or1:pyjslib['isinstance'](other, $module.datetime)))) {
+				a = self['_d']['getTime']();
+				b = other['_d']['getTime']();
+				if (pyjslib['bool']((pyjslib['cmp'](a, b) == -1))) {
+					return (typeof ($usub1=1)=='number'?
+						-$usub1:
+						pyjslib['op_usub']($usub1));
+				}
+				else if (pyjslib['bool'](pyjslib['op_eq'](a, b))) {
+					return 0;
+				}
+			}
+			else {
+				throw (pyjslib['TypeError'](String('expected date or datetime object')));
+			}
+			return 1;
+		}
+	, 1, [null,null,['self'],['other']]);
+		$cls_definition['__cmp__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__add__', function(other) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				other = arguments[1];
+			}
+			var $add14,$attr20,$attr19,$attr18,$add13,$attr15,$attr14,$attr17,$attr16,$attr13;
+			if (pyjslib['bool'](pyjslib['isinstance'](other, $module.timedelta))) {
+				return $module['date'](((($attr13=self['year']) !== null & ($attr14=self).__is_instance__) && typeof $attr13 == 'function'?
+							pyjslib['getattr']($attr14, 'year'):
+							self['year']), ((($attr15=self['month']) !== null & ($attr16=self).__is_instance__) && typeof $attr15 == 'function'?
+							pyjslib['getattr']($attr16, 'month'):
+							self['month']), (typeof ($add13=((($attr17=self['day']) !== null & ($attr18=self).__is_instance__) && typeof $attr17 == 'function'?
+							pyjslib['getattr']($attr18, 'day'):
+							self['day']))==typeof ($add14=((($attr19=other['days']) !== null & ($attr20=other).__is_instance__) && typeof $attr19 == 'function'?
+							pyjslib['getattr']($attr20, 'days'):
+							other['days'])) && (typeof $add13=='number'||typeof $add13=='string')?
+					$add13+$add14:
+					pyjslib['op_add']($add13,$add14)));
+			}
+			else {
+				throw (pyjslib['TypeError'](String('expected timedelta object')));
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['other']]);
+		$cls_definition['__add__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__sub__', function(other) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				other = arguments[1];
+			}
+			var $mod5,$attr21,$mod7,$attr23,$attr24,$attr25,$attr26,$attr27,$attr28,diff,$mod8,$sub7,$sub6,$sub5,$or4,$or3,$sub8,$div8,$div6,$div7,$div5,$attr22,$mod6;
+			if (pyjslib['bool']((pyjslib['bool']($or3=pyjslib['isinstance'](other, $module['date']))?$or3:pyjslib['isinstance'](other, $module.datetime)))) {
+				diff = (typeof ($sub5=self['_d']['getTime']())==typeof ($sub6=other['_d']['getTime']()) && (typeof $sub5=='number'||typeof $sub5=='string')?
+					$sub5-$sub6:
+					pyjslib['op_sub']($sub5,$sub6));
+				return $pyjs_kwargs_call(null, $module.timedelta, null, null, [{milliseconds:(typeof ($mod7=diff)==typeof ($mod8=86400000) && typeof $mod7=='number'?
+					$mod7%$mod8:
+					pyjslib['op_mod']($mod7,$mod8))}, pyjslib['float_int']((typeof ($div5=diff)==typeof ($div6=86400000.0) && typeof $div5=='number' && $div6 !== 0?
+					$div5/$div6:
+					pyjslib['op_div']($div5,$div6))), (typeof ($mod5=pyjslib['float_int']((typeof ($div7=diff)==typeof ($div8=1000.0) && typeof $div7=='number' && $div8 !== 0?
+					$div7/$div8:
+					pyjslib['op_div']($div7,$div8))))==typeof ($mod6=86400) && typeof $mod5=='number'?
+					$mod5%$mod6:
+					pyjslib['op_mod']($mod5,$mod6))]);
+			}
+			else if (pyjslib['bool'](pyjslib['isinstance'](other, $module.timedelta))) {
+				return $module['date'](((($attr21=self['year']) !== null & ($attr22=self).__is_instance__) && typeof $attr21 == 'function'?
+							pyjslib['getattr']($attr22, 'year'):
+							self['year']), ((($attr23=self['month']) !== null & ($attr24=self).__is_instance__) && typeof $attr23 == 'function'?
+							pyjslib['getattr']($attr24, 'month'):
+							self['month']), (typeof ($sub7=((($attr25=self['day']) !== null & ($attr26=self).__is_instance__) && typeof $attr25 == 'function'?
+							pyjslib['getattr']($attr26, 'day'):
+							self['day']))==typeof ($sub8=((($attr27=other['days']) !== null & ($attr28=other).__is_instance__) && typeof $attr27 == 'function'?
+							pyjslib['getattr']($attr28, 'days'):
+							other['days'])) && (typeof $sub7=='number'||typeof $sub7=='string')?
+					$sub7-$sub8:
+					pyjslib['op_sub']($sub7,$sub8)));
+			}
+			else {
+				throw (pyjslib['TypeError'](String('expected date or datetime object')));
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['other']]);
+		$cls_definition['__sub__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array(pyjslib.object));
+	})();
+	$module['time'] = (function(){
+		var $cls_instance = $pyjs__class_instance('time');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = 'f58bcf47ba9d8f486bc0dc21eff7245c';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(hour, minute, second, microsecond, tzinfo, d) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				hour = arguments[1];
+				minute = arguments[2];
+				second = arguments[3];
+				microsecond = arguments[4];
+				tzinfo = arguments[5];
+				d = arguments[6];
+			}
+			if (typeof minute == 'undefined') minute=arguments.callee.__args__[4][1];
+			if (typeof second == 'undefined') second=arguments.callee.__args__[5][1];
+			if (typeof microsecond == 'undefined') microsecond=arguments.callee.__args__[6][1];
+			if (typeof tzinfo == 'undefined') tzinfo=arguments.callee.__args__[7][1];
+			if (typeof d == 'undefined') d=arguments.callee.__args__[8][1];
+			var $mul6,$mul5;
+			if (pyjslib['bool'](!pyjslib['op_eq'](tzinfo, null))) {
+				throw ($module.NontImplementedError(String('tzinfo')));
+			}
+			if (pyjslib['bool']((d === null))) {
+				d = new Date(1970, 1, 1, hour, minute, second, 0.5 + microsecond / 1000.0);
+			}
+			self._d = d;
+			self.hour = d['getHours']();
+			self.minute = d['getMinutes']();
+			self.second = d['getSeconds']();
+			self.microsecond = (typeof ($mul5=d['getMilliseconds']())==typeof ($mul6=1000.0) && typeof $mul5=='number'?
+				$mul5*$mul6:
+				pyjslib['op_mul']($mul5,$mul6));
+			self.tzinfo = null;
+			return null;
+		}
+	, 1, [null,null,['self'],['hour'],['minute', 0],['second', 0],['microsecond', 0],['tzinfo', null],['d', null]]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'dst', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			throw ($module.NontImplementedError(String('dst')));
+			return null;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['dst'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isoformat', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $add15,$add16,$attr33,$attr32,$attr31,$attr30,$attr37,t,$attr35,$attr34,$attr29,$attr38,$attr36;
+			t = pyjslib['sprintf'](String('%02d:%02d:%02d'), pyjslib['tuple']([((($attr29=self['hour']) !== null & ($attr30=self).__is_instance__) && typeof $attr29 == 'function'?
+						pyjslib['getattr']($attr30, 'hour'):
+						self['hour']), ((($attr31=self['minute']) !== null & ($attr32=self).__is_instance__) && typeof $attr31 == 'function'?
+						pyjslib['getattr']($attr32, 'minute'):
+						self['minute']), ((($attr33=self['second']) !== null & ($attr34=self).__is_instance__) && typeof $attr33 == 'function'?
+						pyjslib['getattr']($attr34, 'second'):
+						self['second'])]));
+			if (pyjslib['bool'](((($attr35=self['microsecond']) !== null & ($attr36=self).__is_instance__) && typeof $attr35 == 'function'?
+						pyjslib['getattr']($attr36, 'microsecond'):
+						self['microsecond']))) {
+				t = (typeof ($add15=t)==typeof ($add16=pyjslib['sprintf'](String('.%06d'), ((($attr37=self['microsecond']) !== null & ($attr38=self).__is_instance__) && typeof $attr37 == 'function'?
+							pyjslib['getattr']($attr38, 'microsecond'):
+							self['microsecond']))) && (typeof $add15=='number'||typeof $add15=='string')?
+					$add15+$add16:
+					pyjslib['op_add']($add15,$add16));
+			}
+			return t;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['isoformat'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '$$replace', function(hour, minute, second, microsecond, tzinfo) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				hour = arguments[1];
+				minute = arguments[2];
+				second = arguments[3];
+				microsecond = arguments[4];
+				tzinfo = arguments[5];
+			}
+			if (typeof hour == 'undefined') hour=arguments.callee.__args__[3][1];
+			if (typeof minute == 'undefined') minute=arguments.callee.__args__[4][1];
+			if (typeof second == 'undefined') second=arguments.callee.__args__[5][1];
+			if (typeof microsecond == 'undefined') microsecond=arguments.callee.__args__[6][1];
+			if (typeof tzinfo == 'undefined') tzinfo=arguments.callee.__args__[7][1];
+			var $attr45,$attr44,$attr46,$attr42,$attr43,$attr40,$attr41,$attr39;
+			if (pyjslib['bool'](!pyjslib['op_eq'](tzinfo, null))) {
+				throw ($module.NontImplementedError(String('tzinfo')));
+			}
+			if (pyjslib['bool']((hour === null))) {
+				hour = ((($attr39=self['hour']) !== null & ($attr40=self).__is_instance__) && typeof $attr39 == 'function'?
+							pyjslib['getattr']($attr40, 'hour'):
+							self['hour']);
+			}
+			if (pyjslib['bool']((minute === null))) {
+				minute = ((($attr41=self['minute']) !== null & ($attr42=self).__is_instance__) && typeof $attr41 == 'function'?
+							pyjslib['getattr']($attr42, 'minute'):
+							self['minute']);
+			}
+			if (pyjslib['bool']((second === null))) {
+				second = ((($attr43=self['second']) !== null & ($attr44=self).__is_instance__) && typeof $attr43 == 'function'?
+							pyjslib['getattr']($attr44, 'second'):
+							self['second']);
+			}
+			if (pyjslib['bool']((microsecond === null))) {
+				microsecond = ((($attr45=self['microsecond']) !== null & ($attr46=self).__is_instance__) && typeof $attr45 == 'function'?
+							pyjslib['getattr']($attr46, 'microsecond'):
+							self['microsecond']);
+			}
+			return $module['time'](hour, minute, second, microsecond);
+		}
+	, 1, [null,null,['self'],['hour', null],['minute', null],['second', null],['microsecond', null],['tzinfo', null]]);
+		$cls_definition['$$replace'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'strftime', function(format) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				format = arguments[1];
+			}
+			var $div9,$div10;
+			return $module['strftime'](format, $module['localtime'](pyjslib['float_int']((typeof ($div9=self['_d']['getTime']())==typeof ($div10=1000.0) && typeof $div9=='number' && $div10 !== 0?
+				$div9/$div10:
+				pyjslib['op_div']($div9,$div10)))));
+		}
+	, 1, [null,null,['self'],['format']]);
+		$cls_definition['strftime'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'tzname', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return null;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['tzname'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'utcoffset', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return null;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['utcoffset'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__str__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return self['isoformat']();
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['__str__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array(pyjslib.object));
+	})();
+	$module['datetime'] = (function(){
+		var $cls_instance = $pyjs__class_instance('datetime');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '4178bfcadfc2860ae42ca6583ad76d11';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(year, month, day, hour, minute, second, microsecond, tzinfo, d) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				year = arguments[1];
+				month = arguments[2];
+				day = arguments[3];
+				hour = arguments[4];
+				minute = arguments[5];
+				second = arguments[6];
+				microsecond = arguments[7];
+				tzinfo = arguments[8];
+				d = arguments[9];
+			}
+			if (typeof hour == 'undefined') hour=arguments.callee.__args__[6][1];
+			if (typeof minute == 'undefined') minute=arguments.callee.__args__[7][1];
+			if (typeof second == 'undefined') second=arguments.callee.__args__[8][1];
+			if (typeof microsecond == 'undefined') microsecond=arguments.callee.__args__[9][1];
+			if (typeof tzinfo == 'undefined') tzinfo=arguments.callee.__args__[10][1];
+			if (typeof d == 'undefined') d=arguments.callee.__args__[11][1];
+
+			if (pyjslib['bool']((d === null))) {
+				d = new Date(year, month - 1, day, hour, minute, second, 0.5 + microsecond / 1000.0);
+			}
+			$pyjs_kwargs_call($module['date'], '__init__', null, null, [{d:d}, self]);
+			$pyjs_kwargs_call($module['time'], '__init__', null, null, [{d:d}, self]);
+			return null;
+		}
+	, 1, [null,null,['self'],['year'],['month'],['day'],['hour', 0],['minute', 0],['second', 0],['microsecond', 0],['tzinfo', null],['d', null]]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'combine', function(date, time) {
+    var self = this.prototype;
+			var $attr59,$attr58,$attr51,$attr50,$attr52,$attr55,$attr54,$attr57,$attr56,$attr47,$attr60,$attr53,$attr48,$attr49;
+			return $module['datetime'](((($attr47=date['year']) !== null & ($attr48=date).__is_instance__) && typeof $attr47 == 'function'?
+						pyjslib['getattr']($attr48, 'year'):
+						date['year']), ((($attr49=date['month']) !== null & ($attr50=date).__is_instance__) && typeof $attr49 == 'function'?
+						pyjslib['getattr']($attr50, 'month'):
+						date['month']), ((($attr51=date['day']) !== null & ($attr52=date).__is_instance__) && typeof $attr51 == 'function'?
+						pyjslib['getattr']($attr52, 'day'):
+						date['day']), ((($attr53=time['hour']) !== null & ($attr54=time).__is_instance__) && typeof $attr53 == 'function'?
+						pyjslib['getattr']($attr54, 'hour'):
+						time['hour']), ((($attr55=time['minute']) !== null & ($attr56=time).__is_instance__) && typeof $attr55 == 'function'?
+						pyjslib['getattr']($attr56, 'minute'):
+						time['minute']), ((($attr57=time['second']) !== null & ($attr58=time).__is_instance__) && typeof $attr57 == 'function'?
+						pyjslib['getattr']($attr58, 'second'):
+						time['second']), ((($attr59=time['microsecond']) !== null & ($attr60=time).__is_instance__) && typeof $attr59 == 'function'?
+						pyjslib['getattr']($attr60, 'microsecond'):
+						time['microsecond']));
+		}
+	, 2, [null,null,['self'],['date'],['time']]);
+		$cls_definition['combine'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'fromtimestamp', function(timestamp, tz) {
+    var self = this.prototype;
+			if (typeof tz == 'undefined') tz=arguments.callee.__args__[4][1];
+			var d,$mul8,$mul7;
+			if (pyjslib['bool'](!pyjslib['op_eq'](tz, null))) {
+				throw ($module.NontImplementedError(String('tz')));
+			}
+			d = new Date();
+			d['setTime']((typeof ($mul7=timestamp)==typeof ($mul8=1000.0) && typeof $mul7=='number'?
+				$mul7*$mul8:
+				pyjslib['op_mul']($mul7,$mul8)));
+			return $pyjs_kwargs_call(null, $module['datetime'], null, null, [{d:d}]);
+		}
+	, 2, [null,null,['self'],['timestamp'],['tz', null]]);
+		$cls_definition['fromtimestamp'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'fromordinal', function(ordinal) {
+    var self = this.prototype;
+			var d,$mul10,$sub10,$sub9,$mul9;
+			d = new Date();
+			d['setTime']((typeof ($mul9=(typeof ($sub9=ordinal)==typeof ($sub10=719163.0) && (typeof $sub9=='number'||typeof $sub9=='string')?
+				$sub9-$sub10:
+				pyjslib['op_sub']($sub9,$sub10)))==typeof ($mul10=86400000.0) && typeof $mul9=='number'?
+				$mul9*$mul10:
+				pyjslib['op_mul']($mul9,$mul10)));
+			return $pyjs_kwargs_call(null, $module['datetime'], null, null, [{d:d}]);
+		}
+	, 2, [null,null,['self'],['ordinal']]);
+		$cls_definition['fromordinal'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'now', function(tz) {
+    var self = this.prototype;
+			if (typeof tz == 'undefined') tz=arguments.callee.__args__[3][1];
+
+			if (pyjslib['bool'](!pyjslib['op_eq'](tz, null))) {
+				throw ($module.NontImplementedError(String('tz')));
+			}
+			return $pyjs_kwargs_call(null, $module['datetime'], null, null, [{d:new Date()}]);
+		}
+	, 2, [null,null,['self'],['tz', null]]);
+		$cls_definition['now'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'strptime', function(datestring, format) {
+    var self = this.prototype;
+
+			throw ($module.NontImplementedError(String('strptime')));
+			return null;
+		}
+	, 2, [null,null,['self'],['datestring'],['format']]);
+		$cls_definition['strptime'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'utcfromtimestamp', function(timestamp) {
+    var self = this.prototype;
+			var $attr68,$attr69,$attr64,$attr67,$attr61,$attr62,$attr63,tm,$attr71,$attr65,$attr70,$attr66,$attr72;
+			tm = $module['gmtime'](timestamp);
+			return $module['datetime'](((($attr61=tm['tm_year']) !== null & ($attr62=tm).__is_instance__) && typeof $attr61 == 'function'?
+						pyjslib['getattr']($attr62, 'tm_year'):
+						tm['tm_year']), ((($attr63=tm['tm_mon']) !== null & ($attr64=tm).__is_instance__) && typeof $attr63 == 'function'?
+						pyjslib['getattr']($attr64, 'tm_mon'):
+						tm['tm_mon']), ((($attr65=tm['tm_mday']) !== null & ($attr66=tm).__is_instance__) && typeof $attr65 == 'function'?
+						pyjslib['getattr']($attr66, 'tm_mday'):
+						tm['tm_mday']), ((($attr67=tm['tm_hour']) !== null & ($attr68=tm).__is_instance__) && typeof $attr67 == 'function'?
+						pyjslib['getattr']($attr68, 'tm_hour'):
+						tm['tm_hour']), ((($attr69=tm['tm_min']) !== null & ($attr70=tm).__is_instance__) && typeof $attr69 == 'function'?
+						pyjslib['getattr']($attr70, 'tm_min'):
+						tm['tm_min']), ((($attr71=tm['tm_sec']) !== null & ($attr72=tm).__is_instance__) && typeof $attr71 == 'function'?
+						pyjslib['getattr']($attr72, 'tm_sec'):
+						tm['tm_sec']));
+		}
+	, 2, [null,null,['self'],['timestamp']]);
+		$cls_definition['utcfromtimestamp'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'utcnow', function() {
+    var self = this.prototype;
+			var d,$div12,$div11;
+			d = new Date();
+			return $module['datetime']['utcfromtimestamp'](pyjslib['float_int']((typeof ($div11=d['getTime']())==typeof ($div12=1000.0) && typeof $div11=='number' && $div12 !== 0?
+				$div11/$div12:
+				pyjslib['op_div']($div11,$div12))));
+		}
+	, 2, [null,null,['self']]);
+		$cls_definition['utcnow'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'timetuple', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $div14,$div13;
+			return $module['localtime'](pyjslib['float_int']((typeof ($div13=self['_d']['getTime']())==typeof ($div14=1000.0) && typeof $div13=='number' && $div14 !== 0?
+				$div13/$div14:
+				pyjslib['op_div']($div13,$div14))));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['timetuple'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'astimezone', function(tz) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				tz = arguments[1];
+			}
+
+			throw ($module.NontImplementedError(String('astimezone')));
+			return null;
+		}
+	, 1, [null,null,['self'],['tz']]);
+		$cls_definition['astimezone'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'date', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr78,$attr77,$attr76,$attr74,$attr73,$attr75;
+			return $module['date'](((($attr73=self['year']) !== null & ($attr74=self).__is_instance__) && typeof $attr73 == 'function'?
+						pyjslib['getattr']($attr74, 'year'):
+						self['year']), ((($attr75=self['month']) !== null & ($attr76=self).__is_instance__) && typeof $attr75 == 'function'?
+						pyjslib['getattr']($attr76, 'month'):
+						self['month']), ((($attr77=self['day']) !== null & ($attr78=self).__is_instance__) && typeof $attr77 == 'function'?
+						pyjslib['getattr']($attr78, 'day'):
+						self['day']));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['date'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'time', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr82,$attr83,$attr80,$attr81,$attr86,$attr84,$attr79,$attr85;
+			return $module['time'](((($attr79=self['hour']) !== null & ($attr80=self).__is_instance__) && typeof $attr79 == 'function'?
+						pyjslib['getattr']($attr80, 'hour'):
+						self['hour']), ((($attr81=self['minute']) !== null & ($attr82=self).__is_instance__) && typeof $attr81 == 'function'?
+						pyjslib['getattr']($attr82, 'minute'):
+						self['minute']), ((($attr83=self['second']) !== null & ($attr84=self).__is_instance__) && typeof $attr83 == 'function'?
+						pyjslib['getattr']($attr84, 'second'):
+						self['second']), ((($attr85=self['microsecond']) !== null & ($attr86=self).__is_instance__) && typeof $attr85 == 'function'?
+						pyjslib['getattr']($attr86, 'microsecond'):
+						self['microsecond']));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['time'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '$$replace', function(year, month, day, hour, minute, second, microsecond, tzinfo) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				year = arguments[1];
+				month = arguments[2];
+				day = arguments[3];
+				hour = arguments[4];
+				minute = arguments[5];
+				second = arguments[6];
+				microsecond = arguments[7];
+				tzinfo = arguments[8];
+			}
+			if (typeof year == 'undefined') year=arguments.callee.__args__[3][1];
+			if (typeof month == 'undefined') month=arguments.callee.__args__[4][1];
+			if (typeof day == 'undefined') day=arguments.callee.__args__[5][1];
+			if (typeof hour == 'undefined') hour=arguments.callee.__args__[6][1];
+			if (typeof minute == 'undefined') minute=arguments.callee.__args__[7][1];
+			if (typeof second == 'undefined') second=arguments.callee.__args__[8][1];
+			if (typeof microsecond == 'undefined') microsecond=arguments.callee.__args__[9][1];
+			if (typeof tzinfo == 'undefined') tzinfo=arguments.callee.__args__[10][1];
+			var $attr87,$attr88,$attr89,$attr100,$attr90,$attr95,$attr94,$attr97,$attr96,$attr91,$attr93,$attr92,$attr99,$attr98;
+			if (pyjslib['bool'](!pyjslib['op_eq'](tzinfo, null))) {
+				throw ($module.NontImplementedError(String('tzinfo')));
+			}
+			if (pyjslib['bool']((year === null))) {
+				year = ((($attr87=self['year']) !== null & ($attr88=self).__is_instance__) && typeof $attr87 == 'function'?
+							pyjslib['getattr']($attr88, 'year'):
+							self['year']);
+			}
+			if (pyjslib['bool']((month === null))) {
+				month = ((($attr89=self['month']) !== null & ($attr90=self).__is_instance__) && typeof $attr89 == 'function'?
+							pyjslib['getattr']($attr90, 'month'):
+							self['month']);
+			}
+			if (pyjslib['bool']((day === null))) {
+				day = ((($attr91=self['day']) !== null & ($attr92=self).__is_instance__) && typeof $attr91 == 'function'?
+							pyjslib['getattr']($attr92, 'day'):
+							self['day']);
+			}
+			if (pyjslib['bool']((hour === null))) {
+				hour = ((($attr93=self['hour']) !== null & ($attr94=self).__is_instance__) && typeof $attr93 == 'function'?
+							pyjslib['getattr']($attr94, 'hour'):
+							self['hour']);
+			}
+			if (pyjslib['bool']((minute === null))) {
+				minute = ((($attr95=self['minute']) !== null & ($attr96=self).__is_instance__) && typeof $attr95 == 'function'?
+							pyjslib['getattr']($attr96, 'minute'):
+							self['minute']);
+			}
+			if (pyjslib['bool']((second === null))) {
+				second = ((($attr97=self['second']) !== null & ($attr98=self).__is_instance__) && typeof $attr97 == 'function'?
+							pyjslib['getattr']($attr98, 'second'):
+							self['second']);
+			}
+			if (pyjslib['bool']((microsecond === null))) {
+				microsecond = ((($attr99=self['microsecond']) !== null & ($attr100=self).__is_instance__) && typeof $attr99 == 'function'?
+							pyjslib['getattr']($attr100, 'microsecond'):
+							self['microsecond']);
+			}
+			return $module['datetime'](year, month, day, hour, minute, second, microsecond);
+		}
+	, 1, [null,null,['self'],['year', null],['month', null],['day', null],['hour', null],['minute', null],['second', null],['microsecond', null],['tzinfo', null]]);
+		$cls_definition['$$replace'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'timetz', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			throw ($module.NontImplementedError(String('timetz')));
+			return null;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['timetz'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'utctimetuple', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $div15,$div16;
+			return $module['gmtime']((typeof ($div15=self['_d']['getTime']())==typeof ($div16=1000.0) && typeof $div15=='number' && $div16 !== 0?
+				$div15/$div16:
+				pyjslib['op_div']($div15,$div16)));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['utctimetuple'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isoformat', function(sep) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				sep = arguments[1];
+			}
+			if (typeof sep == 'undefined') sep=arguments.callee.__args__[3][1];
+			var $attr111,$attr110,$attr112,$attr115,$attr114,t,$attr106,$attr107,$attr104,$attr105,$attr102,$attr103,$attr101,$add17,$attr116,$add18,$attr113,$attr108,$attr109;
+			t = pyjslib['sprintf'](String('%04d-%02d-%02d%s%02d:%02d:%02d'), pyjslib['tuple']([((($attr101=self['year']) !== null & ($attr102=self).__is_instance__) && typeof $attr101 == 'function'?
+						pyjslib['getattr']($attr102, 'year'):
+						self['year']), ((($attr103=self['month']) !== null & ($attr104=self).__is_instance__) && typeof $attr103 == 'function'?
+						pyjslib['getattr']($attr104, 'month'):
+						self['month']), ((($attr105=self['day']) !== null & ($attr106=self).__is_instance__) && typeof $attr105 == 'function'?
+						pyjslib['getattr']($attr106, 'day'):
+						self['day']), sep, ((($attr107=self['hour']) !== null & ($attr108=self).__is_instance__) && typeof $attr107 == 'function'?
+						pyjslib['getattr']($attr108, 'hour'):
+						self['hour']), ((($attr109=self['minute']) !== null & ($attr110=self).__is_instance__) && typeof $attr109 == 'function'?
+						pyjslib['getattr']($attr110, 'minute'):
+						self['minute']), ((($attr111=self['second']) !== null & ($attr112=self).__is_instance__) && typeof $attr111 == 'function'?
+						pyjslib['getattr']($attr112, 'second'):
+						self['second'])]));
+			if (pyjslib['bool'](((($attr113=self['microsecond']) !== null & ($attr114=self).__is_instance__) && typeof $attr113 == 'function'?
+						pyjslib['getattr']($attr114, 'microsecond'):
+						self['microsecond']))) {
+				t = (typeof ($add17=t)==typeof ($add18=pyjslib['sprintf'](String('.%06d'), ((($attr115=self['microsecond']) !== null & ($attr116=self).__is_instance__) && typeof $attr115 == 'function'?
+							pyjslib['getattr']($attr116, 'microsecond'):
+							self['microsecond']))) && (typeof $add17=='number'||typeof $add17=='string')?
+					$add17+$add18:
+					pyjslib['op_add']($add17,$add18));
+			}
+			return t;
+		}
+	, 1, [null,null,['self'],['sep', String('T')]]);
+		$cls_definition['isoformat'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__add__', function(other) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				other = arguments[1];
+			}
+			var d;
+			if (pyjslib['bool'](pyjslib['isinstance'](other, $module.timedelta))) {
+				d = new Date(this.year, this.month, this.day + other.days, this.hour + (other.seconds / 3600.0), this.minute + ((other.seconds / 60.0) % 60), this.second + (other.seconds % 60), this.microsecond + other.microseconds);
+				return $pyjs_kwargs_call(null, $module['datetime'], null, null, [{d:d}]);
+			}
+			else {
+				throw (pyjslib['TypeError'](String('expected timedelta object')));
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['other']]);
+		$cls_definition['__add__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__sub__', function(other) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				other = arguments[1];
+			}
+			var $or5,$div20,$or6,$div18,$div19,$mod12,$sub12,$div17,$mod11,d,diff,$mod9,$sub11,$mod10;
+			if (pyjslib['bool']((pyjslib['bool']($or5=pyjslib['isinstance'](other, $module['date']))?$or5:pyjslib['isinstance'](other, $module['datetime'])))) {
+				diff = (typeof ($sub11=self['_d']['getTime']())==typeof ($sub12=other['_d']['getTime']()) && (typeof $sub11=='number'||typeof $sub11=='string')?
+					$sub11-$sub12:
+					pyjslib['op_sub']($sub11,$sub12));
+				return $pyjs_kwargs_call(null, $module.timedelta, null, null, [{milliseconds:(typeof ($mod11=diff)==typeof ($mod12=86400000) && typeof $mod11=='number'?
+					$mod11%$mod12:
+					pyjslib['op_mod']($mod11,$mod12))}, pyjslib['float_int']((typeof ($div17=diff)==typeof ($div18=86400000.0) && typeof $div17=='number' && $div18 !== 0?
+					$div17/$div18:
+					pyjslib['op_div']($div17,$div18))), (typeof ($mod9=pyjslib['float_int']((typeof ($div19=diff)==typeof ($div20=1000.0) && typeof $div19=='number' && $div20 !== 0?
+					$div19/$div20:
+					pyjslib['op_div']($div19,$div20))))==typeof ($mod10=86400) && typeof $mod9=='number'?
+					$mod9%$mod10:
+					pyjslib['op_mod']($mod9,$mod10))]);
+			}
+			else if (pyjslib['bool'](pyjslib['isinstance'](other, $module.timedelta))) {
+				d = new Date(this.year, this.month, this.day - other.days, this.hour - (other.seconds / 3600.0), this.minute - ((other.seconds / 60.0) % 60), this.second - (other.seconds % 60), this.microsecond - other.microseconds);
+				return $pyjs_kwargs_call(null, $module['datetime'], null, null, [{d:d}]);
+			}
+			else {
+				throw (pyjslib['TypeError'](String('expected date or datetime object')));
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['other']]);
+		$cls_definition['__sub__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__str__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return self['isoformat'](String(' '));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['__str__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['date'],$module['time']));
+	})();
+	$module['timedelta'] = (function(){
+		var $cls_instance = $pyjs__class_instance('timedelta');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '5d395ea095454260955ba89825fca984';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(days, seconds, microseconds, milliseconds, minutes, hours, weeks) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				days = arguments[1];
+				seconds = arguments[2];
+				microseconds = arguments[3];
+				milliseconds = arguments[4];
+				minutes = arguments[5];
+				hours = arguments[6];
+				weeks = arguments[7];
+			}
+			if (typeof days == 'undefined') days=arguments.callee.__args__[3][1];
+			if (typeof seconds == 'undefined') seconds=arguments.callee.__args__[4][1];
+			if (typeof microseconds == 'undefined') microseconds=arguments.callee.__args__[5][1];
+			if (typeof milliseconds == 'undefined') milliseconds=arguments.callee.__args__[6][1];
+			if (typeof minutes == 'undefined') minutes=arguments.callee.__args__[7][1];
+			if (typeof hours == 'undefined') hours=arguments.callee.__args__[8][1];
+			if (typeof weeks == 'undefined') weeks=arguments.callee.__args__[9][1];
+			var $add21,$add20,$add22,$add25,$add24,$add26,$add19,$mul17,$mul16,$mul15,$mul14,$mul13,$mul12,$mul11,$mul18,$add23;
+			self.days = (typeof ($add19=(typeof ($mul11=weeks)==typeof ($mul12=7.0) && typeof $mul11=='number'?
+				$mul11*$mul12:
+				pyjslib['op_mul']($mul11,$mul12)))==typeof ($add20=days) && (typeof $add19=='number'||typeof $add19=='string')?
+				$add19+$add20:
+				pyjslib['op_add']($add19,$add20));
+			self.seconds = (typeof ($add23=(typeof ($add21=(typeof ($mul13=hours)==typeof ($mul14=3600.0) && typeof $mul13=='number'?
+				$mul13*$mul14:
+				pyjslib['op_mul']($mul13,$mul14)))==typeof ($add22=(typeof ($mul15=minutes)==typeof ($mul16=60.0) && typeof $mul15=='number'?
+				$mul15*$mul16:
+				pyjslib['op_mul']($mul15,$mul16))) && (typeof $add21=='number'||typeof $add21=='string')?
+				$add21+$add22:
+				pyjslib['op_add']($add21,$add22)))==typeof ($add24=seconds) && (typeof $add23=='number'||typeof $add23=='string')?
+				$add23+$add24:
+				pyjslib['op_add']($add23,$add24));
+			self.microseconds = (typeof ($add25=(typeof ($mul17=milliseconds)==typeof ($mul18=1000.0) && typeof $mul17=='number'?
+				$mul17*$mul18:
+				pyjslib['op_mul']($mul17,$mul18)))==typeof ($add26=microseconds) && (typeof $add25=='number'||typeof $add25=='string')?
+				$add25+$add26:
+				pyjslib['op_add']($add25,$add26));
+			return null;
+		}
+	, 1, [null,null,['self'],['days', 0],['seconds', 0],['microseconds', 0],['milliseconds', 0],['minutes', 0],['hours', 0],['weeks', 0]]);
+		$cls_definition['__init__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array(pyjslib.object));
+	})();
+	$module['tzinfo'] = (function(){
+		var $cls_instance = $pyjs__class_instance('tzinfo');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '766bb84f0ad3f6fc164b7f58044ccf88';
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array(pyjslib['object']));
+	})();
+	$module['date'].min = $module['date'](1, 1, 1);
+	$module['date'].max = $module['date'](9999, 12, 31);
+	$module['date'].resolution = $module['timedelta'](1);
+	$module['time'].min = $module['time'](0, 0);
+	$module['time'].max = $module['time'](23, 59, 59, 999999);
+	$module['time'].resolution = $module['timedelta'](0, 0, 1);
+	$module['datetime'].min = $module['datetime'](1, 1, 1, 0, 0);
+	$module['datetime'].max = $module['datetime'](9999, 12, 31, 23, 59, 59, 999999);
+	$module['datetime'].resolution = $module['timedelta'](0, 0, 1);
+	$module['timedelta'].min = $module['timedelta']((typeof ($usub2=999999999)=='number'?
+		-$usub2:
+		pyjslib['op_usub']($usub2)));
+	$module['timedelta'].max = $pyjs_kwargs_call(null, $module['timedelta'], null, null, [{hours:23, minutes:59, seconds:59, microseconds:999999}, 999999999]);
+	$module['timedelta'].resolution = $module['timedelta'](0, 0, 1);
+	return this;
+}; /* end datetime */
+
+
+/* end module: datetime */
+
+
+/*
+PYJS_DEPS: ['time.__c__days', 'time', 'time.__c__months', 'time.strftime', 'time.localtime', 'time.gmtime']
+*/
 
 --></script>
 <script type="text/javascript"><!--
@@ -17014,6 +19119,522 @@ PYJS_DEPS: ['pyjamas.DOM', 'pyjamas']
 
 --></script>
 <script type="text/javascript"><!--
+/* start module: time */
+var time;
+$pyjs.loaded_modules['time'] = function (__mod_name__) {
+	if($pyjs.loaded_modules['time'].__was_initialized__) return $pyjs.loaded_modules['time'];
+	var $module = time = $pyjs.loaded_modules["time"];
+	time.__was_initialized__ = true;
+	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'time';
+	var __name__ = time.__name__ = __mod_name__;
+
+
+	$module['math'] = pyjslib['___import___']('math', null);
+	$module['timezone'] = 60 * (new Date(new Date().getFullYear(), 0, 1)).getTimezoneOffset();
+	$module['altzone'] = 60 * (new Date(new Date().getFullYear(), 6, 1)).getTimezoneOffset();
+	if (pyjslib['bool']((pyjslib['cmp']($module['altzone'], $module['timezone']) == 1))) {
+		$module['d'] = $module['timezone'];
+		$module['timezone'] = $module['altzone'];
+		$module['altzone'] = $module['d'];
+	}
+	$module['d'] = (new Date(new Date().getFullYear(), 0, 1));
+	$module['d'] = $module['d']['toLocaleString']()['$$split']().__getitem__((typeof ($usub1=1)=='number'?
+		-$usub1:
+		pyjslib['op_usub']($usub1)));
+	if (pyjslib['bool'](pyjslib['op_eq']($module['d'].__getitem__(0), String('(')))) {
+		$module['d'] = pyjslib['slice']($module['d'], 1, (typeof ($usub2=1)=='number'?
+			-$usub2:
+			pyjslib['op_usub']($usub2)));
+	}
+	$module['tzname'] = pyjslib['tuple']([$module['d'], null]);
+	delete $module['d'];
+	$module['__c__days'] = pyjslib['list']([String('Sunday'), String('Monday'), String('Tuesday'), String('Wednesday'), String('Thursday'), String('Friday'), String('Saturday')]);
+	$module['__c__months'] = pyjslib['list']([String('January'), String('February'), String('March'), String('April'), String('May'), String('June'), String('July'), String('August'), String('September'), String('October'), String('November'), String('December')]);
+	$module['time'] = function() {
+
+return new Date().getTime() / 1000.0;
+	};
+	$module['time'].__name__ = 'time';
+
+	$module['time'].__bind_type__ = 0;
+	$module['time'].__args__ = [null,null];
+	$module['struct_time'] = (function(){
+		var $cls_instance = $pyjs__class_instance('struct_time');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '321f7fd0b2fe9533de2feec07ad6e879';
+		$cls_definition['n_fields'] = 9;
+		$cls_definition['n_sequence_fields'] = 9;
+		$cls_definition['n_unnamed_fields'] = 0;
+		$cls_definition['tm_year'] = null;
+		$cls_definition['tm_mon'] = null;
+		$cls_definition['tm_mday'] = null;
+		$cls_definition['tm_hour'] = null;
+		$cls_definition['tm_min'] = null;
+		$cls_definition['tm_sec'] = null;
+		$cls_definition['tm_wday'] = null;
+		$cls_definition['tm_yday'] = null;
+		$cls_definition['tm_isdst'] = null;
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(ttuple) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				ttuple = arguments[1];
+			}
+			if (typeof ttuple == 'undefined') ttuple=arguments.callee.__args__[3][1];
+
+			if (pyjslib['bool'](!pyjslib['bool']((ttuple === null)))) {
+				self.tm_year = ttuple.__getitem__(0);
+				self.tm_mon = ttuple.__getitem__(1);
+				self.tm_mday = ttuple.__getitem__(2);
+				self.tm_hour = ttuple.__getitem__(3);
+				self.tm_min = ttuple.__getitem__(4);
+				self.tm_sec = ttuple.__getitem__(5);
+				self.tm_wday = ttuple.__getitem__(6);
+				self.tm_yday = ttuple.__getitem__(7);
+				self.tm_isdst = ttuple.__getitem__(8);
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['ttuple', null]]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__str__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr9,$attr8,$attr1,$attr2,$attr5,$attr4,$attr7,$attr6,$attr15,$attr18,t,$attr10,$attr14,$attr17,$attr16,$attr11,$attr3,$attr13,$attr12;
+			t = pyjslib['tuple']([((($attr1=self['tm_year']) !== null & ($attr2=self).__is_instance__) && typeof $attr1 == 'function'?
+						pyjslib['getattr']($attr2, 'tm_year'):
+						self['tm_year']), ((($attr3=self['tm_mon']) !== null & ($attr4=self).__is_instance__) && typeof $attr3 == 'function'?
+						pyjslib['getattr']($attr4, 'tm_mon'):
+						self['tm_mon']), ((($attr5=self['tm_mday']) !== null & ($attr6=self).__is_instance__) && typeof $attr5 == 'function'?
+						pyjslib['getattr']($attr6, 'tm_mday'):
+						self['tm_mday']), ((($attr7=self['tm_hour']) !== null & ($attr8=self).__is_instance__) && typeof $attr7 == 'function'?
+						pyjslib['getattr']($attr8, 'tm_hour'):
+						self['tm_hour']), ((($attr9=self['tm_min']) !== null & ($attr10=self).__is_instance__) && typeof $attr9 == 'function'?
+						pyjslib['getattr']($attr10, 'tm_min'):
+						self['tm_min']), ((($attr11=self['tm_sec']) !== null & ($attr12=self).__is_instance__) && typeof $attr11 == 'function'?
+						pyjslib['getattr']($attr12, 'tm_sec'):
+						self['tm_sec']), ((($attr13=self['tm_wday']) !== null & ($attr14=self).__is_instance__) && typeof $attr13 == 'function'?
+						pyjslib['getattr']($attr14, 'tm_wday'):
+						self['tm_wday']), ((($attr15=self['tm_yday']) !== null & ($attr16=self).__is_instance__) && typeof $attr15 == 'function'?
+						pyjslib['getattr']($attr16, 'tm_yday'):
+						self['tm_yday']), ((($attr17=self['tm_isdst']) !== null & ($attr18=self).__is_instance__) && typeof $attr17 == 'function'?
+						pyjslib['getattr']($attr18, 'tm_isdst'):
+						self['tm_isdst'])]);
+			return t['__str__']();
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['__str__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__getitem__', function(idx) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				idx = arguments[1];
+			}
+			var $attr29,$attr33,$attr35,$attr32,$attr34,$attr31,$attr20,$attr21,$attr22,$attr23,$attr19,$attr25,$attr26,$attr27,$attr28,$attr24,$attr30,$attr36;
+			return pyjslib['list']([((($attr19=self['tm_year']) !== null & ($attr20=self).__is_instance__) && typeof $attr19 == 'function'?
+						pyjslib['getattr']($attr20, 'tm_year'):
+						self['tm_year']), ((($attr21=self['tm_mon']) !== null & ($attr22=self).__is_instance__) && typeof $attr21 == 'function'?
+						pyjslib['getattr']($attr22, 'tm_mon'):
+						self['tm_mon']), ((($attr23=self['tm_mday']) !== null & ($attr24=self).__is_instance__) && typeof $attr23 == 'function'?
+						pyjslib['getattr']($attr24, 'tm_mday'):
+						self['tm_mday']), ((($attr25=self['tm_hour']) !== null & ($attr26=self).__is_instance__) && typeof $attr25 == 'function'?
+						pyjslib['getattr']($attr26, 'tm_hour'):
+						self['tm_hour']), ((($attr27=self['tm_min']) !== null & ($attr28=self).__is_instance__) && typeof $attr27 == 'function'?
+						pyjslib['getattr']($attr28, 'tm_min'):
+						self['tm_min']), ((($attr29=self['tm_sec']) !== null & ($attr30=self).__is_instance__) && typeof $attr29 == 'function'?
+						pyjslib['getattr']($attr30, 'tm_sec'):
+						self['tm_sec']), ((($attr31=self['tm_wday']) !== null & ($attr32=self).__is_instance__) && typeof $attr31 == 'function'?
+						pyjslib['getattr']($attr32, 'tm_wday'):
+						self['tm_wday']), ((($attr33=self['tm_yday']) !== null & ($attr34=self).__is_instance__) && typeof $attr33 == 'function'?
+						pyjslib['getattr']($attr34, 'tm_yday'):
+						self['tm_yday']), ((($attr35=self['tm_isdst']) !== null & ($attr36=self).__is_instance__) && typeof $attr35 == 'function'?
+						pyjslib['getattr']($attr36, 'tm_isdst'):
+						self['tm_isdst'])]).__getitem__(idx);
+		}
+	, 1, [null,null,['self'],['idx']]);
+		$cls_definition['__getitem__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__getslice__', function(lower, upper) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				lower = arguments[1];
+				upper = arguments[2];
+			}
+			var $attr51,$attr50,$attr52,$attr54,$attr46,$attr47,$attr44,$attr45,$attr37,$attr43,$attr40,$attr41,$attr42,$attr39,$attr38,$attr53,$attr48,$attr49;
+			return pyjslib['slice'](pyjslib['list']([((($attr37=self['tm_year']) !== null & ($attr38=self).__is_instance__) && typeof $attr37 == 'function'?
+						pyjslib['getattr']($attr38, 'tm_year'):
+						self['tm_year']), ((($attr39=self['tm_mon']) !== null & ($attr40=self).__is_instance__) && typeof $attr39 == 'function'?
+						pyjslib['getattr']($attr40, 'tm_mon'):
+						self['tm_mon']), ((($attr41=self['tm_mday']) !== null & ($attr42=self).__is_instance__) && typeof $attr41 == 'function'?
+						pyjslib['getattr']($attr42, 'tm_mday'):
+						self['tm_mday']), ((($attr43=self['tm_hour']) !== null & ($attr44=self).__is_instance__) && typeof $attr43 == 'function'?
+						pyjslib['getattr']($attr44, 'tm_hour'):
+						self['tm_hour']), ((($attr45=self['tm_min']) !== null & ($attr46=self).__is_instance__) && typeof $attr45 == 'function'?
+						pyjslib['getattr']($attr46, 'tm_min'):
+						self['tm_min']), ((($attr47=self['tm_sec']) !== null & ($attr48=self).__is_instance__) && typeof $attr47 == 'function'?
+						pyjslib['getattr']($attr48, 'tm_sec'):
+						self['tm_sec']), ((($attr49=self['tm_wday']) !== null & ($attr50=self).__is_instance__) && typeof $attr49 == 'function'?
+						pyjslib['getattr']($attr50, 'tm_wday'):
+						self['tm_wday']), ((($attr51=self['tm_yday']) !== null & ($attr52=self).__is_instance__) && typeof $attr51 == 'function'?
+						pyjslib['getattr']($attr52, 'tm_yday'):
+						self['tm_yday']), ((($attr53=self['tm_isdst']) !== null & ($attr54=self).__is_instance__) && typeof $attr53 == 'function'?
+						pyjslib['getattr']($attr54, 'tm_isdst'):
+						self['tm_isdst'])]), lower, upper);
+		}
+	, 1, [null,null,['self'],['lower'],['upper']]);
+		$cls_definition['__getslice__'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array(pyjslib['object']));
+	})();
+	$module['gmtime'] = function(t) {
+		if (typeof t == 'undefined') t=arguments.callee.__args__[2][1];
+		var $div3,$div1,$div2,startOfYear,$add6,$add5,$add2,$add3,tm,$mod1,$add4,$mod2,date,$sub2,$sub1,$add1,$div4;
+		if (pyjslib['bool'](pyjslib['op_eq'](t, null))) {
+			t = $module['time']();
+		}
+		date = new Date(t*1000);
+		tm = $module['struct_time']();
+		tm.tm_year = date['getUTCFullYear']();
+		tm.tm_mon = (typeof ($add1=date['getUTCMonth']())==typeof ($add2=1) && (typeof $add1=='number'||typeof $add1=='string')?
+			$add1+$add2:
+			pyjslib['op_add']($add1,$add2));
+		tm.tm_mday = date['getUTCDate']();
+		tm.tm_hour = date['getUTCHours']();
+		tm.tm_min = date['getUTCMinutes']();
+		tm.tm_sec = date['getUTCSeconds']();
+		tm.tm_wday = (typeof ($mod1=(typeof ($add3=date['getUTCDay']())==typeof ($add4=6) && (typeof $add3=='number'||typeof $add3=='string')?
+			$add3+$add4:
+			pyjslib['op_add']($add3,$add4)))==typeof ($mod2=7) && typeof $mod1=='number'?
+			$mod1%$mod2:
+			pyjslib['op_mod']($mod1,$mod2));
+		tm.tm_isdst = 0;
+		startOfYear = new Date('Jan 1 '+tm.tm_year+' GMT+0000');
+		tm.tm_yday = (typeof ($add5=1)==typeof ($add6=pyjslib['float_int']((typeof ($div3=(typeof ($sub1=t)==typeof ($sub2=(typeof ($div1=startOfYear['getTime']())==typeof ($div2=1000) && typeof $div1=='number' && $div2 !== 0?
+			$div1/$div2:
+			pyjslib['op_div']($div1,$div2))) && (typeof $sub1=='number'||typeof $sub1=='string')?
+			$sub1-$sub2:
+			pyjslib['op_sub']($sub1,$sub2)))==typeof ($div4=86400) && typeof $div3=='number' && $div4 !== 0?
+			$div3/$div4:
+			pyjslib['op_div']($div3,$div4)))) && (typeof $add5=='number'||typeof $add5=='string')?
+			$add5+$add6:
+			pyjslib['op_add']($add5,$add6));
+		return tm;
+	};
+	$module['gmtime'].__name__ = 'gmtime';
+
+	$module['gmtime'].__bind_type__ = 0;
+	$module['gmtime'].__args__ = [null,null,['t', null]];
+	$module['localtime'] = function(t) {
+		if (typeof t == 'undefined') t=arguments.callee.__args__[2][1];
+		var $add18,$mod4,$mod3,$div13,$mul5,$sub8,$div14,$mul3,$add19,$div10,$div11,$div12,$div7,tm,startOfYear,$sub3,dt2,dateOffset,$sub7,$sub6,$sub5,$sub4,startOfDay,$add14,$add15,$div8,$add17,$add10,$add11,$add12,$add13,date,$mul6,dt,$mul4,$div6,$mul2,$mul1,$div5,$add7,startOfYearOffset,$attr55,$add16,$attr56,$div9,$add20,$add8,$add9;
+		if (pyjslib['bool'](pyjslib['op_eq'](t, null))) {
+			t = $module['time']();
+		}
+		date = new Date(t*1000);
+		dateOffset = date['getTimezoneOffset']();
+		tm = $module['struct_time']();
+		tm.tm_year = date['getFullYear']();
+		tm.tm_mon = (typeof ($add7=date['getMonth']())==typeof ($add8=1) && (typeof $add7=='number'||typeof $add7=='string')?
+			$add7+$add8:
+			pyjslib['op_add']($add7,$add8));
+		tm.tm_mday = date['getDate']();
+		tm.tm_hour = date['getHours']();
+		tm.tm_min = date['getMinutes']();
+		tm.tm_sec = date['getSeconds']();
+		tm.tm_wday = (typeof ($mod3=(typeof ($add9=date['getDay']())==typeof ($add10=6) && (typeof $add9=='number'||typeof $add9=='string')?
+			$add9+$add10:
+			pyjslib['op_add']($add9,$add10)))==typeof ($mod4=7) && typeof $mod3=='number'?
+			$mod3%$mod4:
+			pyjslib['op_mod']($mod3,$mod4));
+		tm.tm_isdst = (pyjslib['bool'](pyjslib['op_eq']($module['timezone'], (typeof ($mul1=60)==typeof ($mul2=date['getTimezoneOffset']()) && typeof $mul1=='number'?
+			$mul1*$mul2:
+			pyjslib['op_mul']($mul1,$mul2))))? (0) : (1));
+		startOfYear = new Date(tm.tm_year,0,1);
+		startOfYearOffset = startOfYear['getTimezoneOffset']();
+		startOfDay = new Date(tm.tm_year,tm.tm_mon-1,tm.tm_mday);
+		dt = (typeof ($div5=(typeof ($sub3=startOfDay['getTime']())==typeof ($sub4=startOfYear['getTime']()) && (typeof $sub3=='number'||typeof $sub3=='string')?
+			$sub3-$sub4:
+			pyjslib['op_sub']($sub3,$sub4)))==typeof ($div6=1000) && typeof $div5=='number' && $div6 !== 0?
+			$div5/$div6:
+			pyjslib['op_div']($div5,$div6));
+		dt = (typeof ($add11=dt)==typeof ($add12=(typeof ($mul3=60)==typeof ($mul4=(typeof ($sub5=startOfYearOffset)==typeof ($sub6=dateOffset) && (typeof $sub5=='number'||typeof $sub5=='string')?
+			$sub5-$sub6:
+			pyjslib['op_sub']($sub5,$sub6))) && typeof $mul3=='number'?
+			$mul3*$mul4:
+			pyjslib['op_mul']($mul3,$mul4))) && (typeof $add11=='number'||typeof $add11=='string')?
+			$add11+$add12:
+			pyjslib['op_add']($add11,$add12));
+		tm.tm_yday = (typeof ($add13=1)==typeof ($add14=pyjslib['float_int']((typeof ($div7=dt)==typeof ($div8=86400.0) && typeof $div7=='number' && $div8 !== 0?
+			$div7/$div8:
+			pyjslib['op_div']($div7,$div8)))) && (typeof $add13=='number'||typeof $add13=='string')?
+			$add13+$add14:
+			pyjslib['op_add']($add13,$add14));
+		return tm;
+		if (pyjslib['bool'](!pyjslib['op_eq'](startOfYearOffset, dateOffset))) {
+			tm.tm_yday = (typeof ($add15=((($attr55=tm['tm_yday']) !== null & ($attr56=tm).__is_instance__) && typeof $attr55 == 'function'?
+						pyjslib['getattr']($attr56, 'tm_yday'):
+						tm['tm_yday']))==typeof ($add16=1) && (typeof $add15=='number'||typeof $add15=='string')?
+				$add15+$add16:
+				pyjslib['op_add']($add15,$add16));
+			dt2 = (typeof ($add17=dt)==typeof ($add18=(typeof ($mul5=60)==typeof ($mul6=(typeof ($sub7=startOfYearOffset)==typeof ($sub8=dateOffset) && (typeof $sub7=='number'||typeof $sub7=='string')?
+				$sub7-$sub8:
+				pyjslib['op_sub']($sub7,$sub8))) && typeof $mul5=='number'?
+				$mul5*$mul6:
+				pyjslib['op_mul']($mul5,$mul6))) && (typeof $add17=='number'||typeof $add17=='string')?
+				$add17+$add18:
+				pyjslib['op_add']($add17,$add18));
+			pyjslib['printFunc']([dt, (typeof ($div9=dt)==typeof ($div10=86400.0) && typeof $div9=='number' && $div10 !== 0?
+				$div9/$div10:
+				pyjslib['op_div']($div9,$div10)), pyjslib['tuple']([startOfYearOffset, dateOffset]), dt2, (typeof ($div11=dt2)==typeof ($div12=86400.0) && typeof $div11=='number' && $div12 !== 0?
+				$div11/$div12:
+				pyjslib['op_div']($div11,$div12))], 1);
+			tm.tm_yday = (typeof ($add19=1)==typeof ($add20=pyjslib['float_int']((typeof ($div13=dt2)==typeof ($div14=86400.0) && typeof $div13=='number' && $div14 !== 0?
+				$div13/$div14:
+				pyjslib['op_div']($div13,$div14)))) && (typeof $add19=='number'||typeof $add19=='string')?
+				$add19+$add20:
+				pyjslib['op_add']($add19,$add20));
+		}
+		return tm;
+	};
+	$module['localtime'].__name__ = 'localtime';
+
+	$module['localtime'].__bind_type__ = 0;
+	$module['localtime'].__args__ = [null,null,['t', null]];
+	$module['mktime'] = function(t) {
+		var $mul8,$div17,$div18,tm_sec,$sub13,tm_hour,tm_mday,$sub10,$sub11,tm_year,$mul7,$sub9,tm_mon,$div15,date,$sub12,$sub14,$div16,tm_min;
+		tm_year = t.__getitem__(0);
+		tm_mon = (typeof ($sub9=t.__getitem__(1))==typeof ($sub10=1) && (typeof $sub9=='number'||typeof $sub9=='string')?
+			$sub9-$sub10:
+			pyjslib['op_sub']($sub9,$sub10));
+		tm_mday = t.__getitem__(2);
+		tm_hour = t.__getitem__(3);
+		tm_min = t.__getitem__(4);
+		tm_sec = t.__getitem__(5);
+		date = new Date(tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec);
+		if (pyjslib['bool'](pyjslib['op_eq'](t.__getitem__(8), 0))) {
+			return (typeof ($sub11=(typeof ($div15=date['getTime']())==typeof ($div16=1000) && typeof $div15=='number' && $div16 !== 0?
+				$div15/$div16:
+				pyjslib['op_div']($div15,$div16)))==typeof ($sub12=(typeof ($mul7=60)==typeof ($mul8=date['getTimezoneOffset']()) && typeof $mul7=='number'?
+				$mul7*$mul8:
+				pyjslib['op_mul']($mul7,$mul8))) && (typeof $sub11=='number'||typeof $sub11=='string')?
+				$sub11-$sub12:
+				pyjslib['op_sub']($sub11,$sub12));
+		}
+		return (typeof ($sub13=(typeof ($div17=date['getTime']())==typeof ($div18=1000) && typeof $div17=='number' && $div18 !== 0?
+			$div17/$div18:
+			pyjslib['op_div']($div17,$div18)))==typeof ($sub14=$module['timezone']) && (typeof $sub13=='number'||typeof $sub13=='string')?
+			$sub13-$sub14:
+			pyjslib['op_sub']($sub13,$sub14));
+	};
+	$module['mktime'].__name__ = 'mktime';
+
+	$module['mktime'].__bind_type__ = 0;
+	$module['mktime'].__args__ = [null,null,['t']];
+	$module['strftime'] = function(fmt, t) {
+		if (typeof t == 'undefined') t=arguments.callee.__args__[3][1];
+		var firstMonday,tm_hour,tm_sec,$mod5,$mod6,result,$div19,$add21,remainder,$add22,$add25,$add24,$add26,tm_mon,startOfYear,tm_min,$sub18,format,$and1,$and2,$sub17,$sub16,$sub15,firstWeek,tm_year,tm_yday,date,tm_wday,$div20,tm_mday,weekNo,re_pct,$add23;
+		if (pyjslib['bool']((t === null))) {
+			t = $module['localtime']();
+		}
+		else {
+			if (pyjslib['bool']((pyjslib['bool']($and1=!pyjslib['bool'](pyjslib['isinstance'](t, $module['struct_time'])))?!pyjslib['op_eq'](pyjslib['len'](t), 9):$and1))) {
+				throw (pyjslib['TypeError'](String('argument must be 9-item sequence, not float')));
+			}
+		}
+		tm_year = t.__getitem__(0);
+		tm_mon = t.__getitem__(1);
+		tm_mday = t.__getitem__(2);
+		tm_hour = t.__getitem__(3);
+		tm_min = t.__getitem__(4);
+		tm_sec = t.__getitem__(5);
+		tm_wday = t.__getitem__(6);
+		tm_yday = t.__getitem__(7);
+		date = new Date(tm_year, tm_mon - 1, tm_mday, tm_hour, tm_min, tm_sec);
+		startOfYear = new Date(tm_year,0,1);
+		firstMonday = (typeof ($add23=(typeof ($sub15=1)==typeof ($sub16=(typeof ($mod5=(typeof ($add21=startOfYear['getDay']())==typeof ($add22=6) && (typeof $add21=='number'||typeof $add21=='string')?
+			$add21+$add22:
+			pyjslib['op_add']($add21,$add22)))==typeof ($mod6=7) && typeof $mod5=='number'?
+			$mod5%$mod6:
+			pyjslib['op_mod']($mod5,$mod6))) && (typeof $sub15=='number'||typeof $sub15=='string')?
+			$sub15-$sub16:
+			pyjslib['op_sub']($sub15,$sub16)))==typeof ($add24=7) && (typeof $add23=='number'||typeof $add23=='string')?
+			$add23+$add24:
+			pyjslib['op_add']($add23,$add24));
+		firstWeek = new Date(tm_year,0,firstMonday);
+		weekNo = (typeof ($sub17=date['getTime']())==typeof ($sub18=firstWeek['getTime']()) && (typeof $sub17=='number'||typeof $sub17=='string')?
+			$sub17-$sub18:
+			pyjslib['op_sub']($sub17,$sub18));
+		if (pyjslib['bool']((pyjslib['cmp'](weekNo, 0) == -1))) {
+			weekNo = 0;
+		}
+		else {
+			weekNo = (typeof ($add25=1)==typeof ($add26=pyjslib['float_int']((typeof ($div19=weekNo)==typeof ($div20=604800000) && typeof $div19=='number' && $div20 !== 0?
+				$div19/$div20:
+				pyjslib['op_div']($div19,$div20)))) && (typeof $add25=='number'||typeof $add25=='string')?
+				$add25+$add26:
+				pyjslib['op_add']($add25,$add26));
+		}
+		format = function(c) {
+			var $add29,$add28,$mod11,$mod10,$mod12,$add30,$add27,$mod7,$mod9,$mod8;
+			if (pyjslib['bool'](pyjslib['op_eq'](c, String('%')))) {
+				return String('%');
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('a')))) {
+				throw (pyjslib['NotImplementedError'](pyjslib['sprintf'](String('strftime format character \x27%s\x27'), c)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('A')))) {
+				throw (pyjslib['NotImplementedError'](pyjslib['sprintf'](String('strftime format character \x27%s\x27'), c)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('b')))) {
+				throw (pyjslib['NotImplementedError'](pyjslib['sprintf'](String('strftime format character \x27%s\x27'), c)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('B')))) {
+				throw (pyjslib['NotImplementedError'](pyjslib['sprintf'](String('strftime format character \x27%s\x27'), c)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('c')))) {
+				return date['toLocaleString']();
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('d')))) {
+				return pyjslib['sprintf'](String('%02d'), tm_mday);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('H')))) {
+				return pyjslib['sprintf'](String('%02d'), tm_hour);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('I')))) {
+				return pyjslib['sprintf'](String('%02d'), (typeof ($mod7=tm_hour)==typeof ($mod8=12) && typeof $mod7=='number'?
+					$mod7%$mod8:
+					pyjslib['op_mod']($mod7,$mod8)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('j')))) {
+				return pyjslib['sprintf'](String('%03d'), tm_yday);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('m')))) {
+				return pyjslib['sprintf'](String('%02d'), tm_mon);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('M')))) {
+				return pyjslib['sprintf'](String('%02d'), tm_min);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('p')))) {
+				if (pyjslib['bool']((pyjslib['cmp'](tm_hour, 12) == -1))) {
+					return String('AM');
+				}
+				return String('PM');
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('S')))) {
+				return pyjslib['sprintf'](String('%02d'), tm_sec);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('U')))) {
+				throw (pyjslib['NotImplementedError'](pyjslib['sprintf'](String('strftime format character \x27%s\x27'), c)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('w')))) {
+				return pyjslib['sprintf'](String('%d'), (typeof ($mod9=(typeof ($add27=tm_wday)==typeof ($add28=1) && (typeof $add27=='number'||typeof $add27=='string')?
+					$add27+$add28:
+					pyjslib['op_add']($add27,$add28)))==typeof ($mod10=7) && typeof $mod9=='number'?
+					$mod9%$mod10:
+					pyjslib['op_mod']($mod9,$mod10)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('W')))) {
+				return pyjslib['sprintf'](String('%d'), weekNo);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('x')))) {
+				return pyjslib['sprintf'](String('%s'), date['toLocaleDateString']());
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('X')))) {
+				return pyjslib['sprintf'](String('%s'), date['toLocaleTimeString']());
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('y')))) {
+				return pyjslib['sprintf'](String('%02d'), (typeof ($mod11=tm_year)==typeof ($mod12=100) && typeof $mod11=='number'?
+					$mod11%$mod12:
+					pyjslib['op_mod']($mod11,$mod12)));
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('Y')))) {
+				return pyjslib['sprintf'](String('%04d'), tm_year);
+			}
+			else if (pyjslib['bool'](pyjslib['op_eq'](c, String('Z')))) {
+				throw (pyjslib['NotImplementedError'](pyjslib['sprintf'](String('strftime format character \x27%s\x27'), c)));
+			}
+			return (typeof ($add29=String('%'))==typeof ($add30=c) && (typeof $add29=='number'||typeof $add29=='string')?
+				$add29+$add30:
+				pyjslib['op_add']($add29,$add30));
+		};
+		format.__name__ = 'format';
+
+		format.__bind_type__ = 0;
+		format.__args__ = [null,null,['c']];
+		result = String('');
+		remainder = fmt;
+		re_pct = /([^%]*)%(.)(.*)/;
+var a, fmtChar;
+		while (pyjslib['bool'](remainder)) {
+
+        a = re_pct.exec(remainder);
+        if (!a) {
+            result += remainder;
+            remainder = null;
+        } else {
+            result += a[1];
+            fmtChar = a[2];
+            remainder = a[3];
+            if (typeof fmtChar != 'undefined') {
+                result += format(fmtChar);
+            }
+        }
+        
+		}
+		return result;
+	};
+	$module['strftime'].__name__ = 'strftime';
+
+	$module['strftime'].__bind_type__ = 0;
+	$module['strftime'].__args__ = [null,null,['fmt'],['t', null]];
+	$module['asctime'] = function(t) {
+		if (typeof t == 'undefined') t=arguments.callee.__args__[2][1];
+		var $mod14,$sub19,$mod13,$add32,$add31,$sub20;
+		if (pyjslib['bool'](pyjslib['op_eq'](t, null))) {
+			t = $module['localtime']();
+		}
+		return pyjslib['sprintf'](String('%s %s %02d %02d:%02d:%02d %04d'), pyjslib['tuple']([pyjslib['slice']($module['__c__days'].__getitem__((typeof ($mod13=(typeof ($add31=t.__getitem__(6))==typeof ($add32=1) && (typeof $add31=='number'||typeof $add31=='string')?
+			$add31+$add32:
+			pyjslib['op_add']($add31,$add32)))==typeof ($mod14=7) && typeof $mod13=='number'?
+			$mod13%$mod14:
+			pyjslib['op_mod']($mod13,$mod14))), 0, 3), $module['__c__months'].__getitem__((typeof ($sub19=t.__getitem__(1))==typeof ($sub20=1) && (typeof $sub19=='number'||typeof $sub19=='string')?
+			$sub19-$sub20:
+			pyjslib['op_sub']($sub19,$sub20))), t.__getitem__(2), t.__getitem__(3), t.__getitem__(4), t.__getitem__(5), t.__getitem__(0)]));
+	};
+	$module['asctime'].__name__ = 'asctime';
+
+	$module['asctime'].__bind_type__ = 0;
+	$module['asctime'].__args__ = [null,null,['t', null]];
+	$module['ctime'] = function(t) {
+		if (typeof t == 'undefined') t=arguments.callee.__args__[2][1];
+
+		t = $module['localtime']();
+		return $module['asctime'](t);
+	};
+	$module['ctime'].__name__ = 'ctime';
+
+	$module['ctime'].__bind_type__ = 0;
+	$module['ctime'].__args__ = [null,null,['t', null]];
+	return this;
+}; /* end time */
+
+
+/* end module: time */
+
+
+/*
+PYJS_DEPS: ['math']
+*/
+
+--></script>
+<script type="text/javascript"><!--
 /* start module: pyjamas.DOM */
 $pyjs.loaded_modules['pyjamas.DOM'] = function (__mod_name__) {
 	if($pyjs.loaded_modules['pyjamas.DOM'].__was_initialized__) return $pyjs.loaded_modules['pyjamas.DOM'];
@@ -18879,6 +21500,923 @@ PYJS_DEPS: ['sys', 'pyjamas.Window.onResize', 'pyjamas', 'pyjamas.Window', 'pyja
 
 --></script>
 <script type="text/javascript"><!--
+/* start module: pyjamas.ui.HTMLTable */
+$pyjs.loaded_modules['pyjamas.ui.HTMLTable'] = function (__mod_name__) {
+	if($pyjs.loaded_modules['pyjamas.ui.HTMLTable'].__was_initialized__) return $pyjs.loaded_modules['pyjamas.ui.HTMLTable'];
+	if(typeof $pyjs.loaded_modules['pyjamas.ui'] == 'undefined' || !$pyjs.loaded_modules['pyjamas.ui'].__was_initialized__) pyjslib['___import___']('pyjamas.ui', null);
+	var $module = pyjamas['ui']['HTMLTable'] = $pyjs.loaded_modules["pyjamas.ui.HTMLTable"];
+	pyjamas['ui']['HTMLTable'].__was_initialized__ = true;
+	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'pyjamas.ui.HTMLTable';
+	var __name__ = pyjamas['ui']['HTMLTable'].__name__ = __mod_name__;
+	var HTMLTable = pyjamas['ui']['HTMLTable'];
+
+
+	$module['DOM'] = pyjslib['___import___']('pyjamas.DOM', 'pyjamas.ui', null, false);
+	$module['Factory'] = pyjslib['___import___']('pyjamas.Factory', 'pyjamas.ui', null, false);
+	$module['Panel'] = pyjslib['___import___']('Panel.Panel', 'pyjamas.ui', null, false);
+	$module['Event'] = pyjslib['___import___']('pyjamas.ui.Event', 'pyjamas.ui', null, false);
+	$module['CellFormatter'] = pyjslib['___import___']('CellFormatter.CellFormatter', 'pyjamas.ui', null, false);
+	$module['RowFormatter'] = pyjslib['___import___']('RowFormatter.RowFormatter', 'pyjamas.ui', null, false);
+	$module['widgethash'] = pyjslib['dict']([]);
+	$module['HTMLTable'] = (function(){
+		var $cls_instance = $pyjs__class_instance('HTMLTable');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '8f561f6caf25b7a3e6fb4a69a6d888d9';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+				var kwargs = arguments.length >= 1 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			} else {
+				var self = arguments[0];
+				var kwargs = arguments.length >= 2 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			}
+			if (typeof kwargs == 'undefined') {
+				kwargs = pyjslib['__empty_dict']();
+				if (typeof self != 'undefined') {
+					if (self !== null && typeof self['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = self;
+						self = arguments[1];
+					}
+				} else {
+				}
+			}
+			var $attr9,$attr8,$attr1,$attr2,$attr5,$attr4,$attr7,$attr6,fc,$attr10,$attr14,$attr11,$attr3,$attr13,$attr12;
+			if (pyjslib['bool'](!pyjslib['bool'](kwargs['has_key'](String('CellFormatter'))))) {
+				kwargs.__setitem__(String('CellFormatter'), $module['CellFormatter'](self));
+			}
+			if (pyjslib['bool'](!pyjslib['bool'](kwargs['has_key'](String('RowFormatter'))))) {
+				kwargs.__setitem__(String('RowFormatter'), $module['RowFormatter'](self));
+			}
+			self.tableListeners = pyjslib['list']([]);
+			self.widgetMap = pyjslib['dict']([]);
+			if (pyjslib['bool'](kwargs['has_key'](String('Element')))) {
+				self.tableElem = kwargs['pop'](String('Element'));
+				fc = $module['DOM']['getFirstChild'](((($attr1=self['tableElem']) !== null & ($attr2=self).__is_instance__) && typeof $attr1 == 'function'?
+							pyjslib['getattr']($attr2, 'tableElem'):
+							self['tableElem']));
+				if (pyjslib['bool'](fc)) {
+					self.bodyElem = fc;
+				}
+				else {
+					self.bodyElem = $module['DOM']['createTBody']();
+					$module['DOM']['appendChild'](((($attr3=self['tableElem']) !== null & ($attr4=self).__is_instance__) && typeof $attr3 == 'function'?
+								pyjslib['getattr']($attr4, 'tableElem'):
+								self['tableElem']), ((($attr5=self['bodyElem']) !== null & ($attr6=self).__is_instance__) && typeof $attr5 == 'function'?
+								pyjslib['getattr']($attr6, 'bodyElem'):
+								self['bodyElem']));
+				}
+			}
+			else {
+				self.tableElem = $module['DOM']['createTable']();
+				self.bodyElem = $module['DOM']['createTBody']();
+				$module['DOM']['appendChild'](((($attr7=self['tableElem']) !== null & ($attr8=self).__is_instance__) && typeof $attr7 == 'function'?
+							pyjslib['getattr']($attr8, 'tableElem'):
+							self['tableElem']), ((($attr9=self['bodyElem']) !== null & ($attr10=self).__is_instance__) && typeof $attr9 == 'function'?
+							pyjslib['getattr']($attr10, 'bodyElem'):
+							self['bodyElem']));
+			}
+			self['setElement'](((($attr11=self['tableElem']) !== null & ($attr12=self).__is_instance__) && typeof $attr11 == 'function'?
+						pyjslib['getattr']($attr12, 'tableElem'):
+						self['tableElem']));
+			self['sinkEvents'](((($attr13=$module['Event']['ONCLICK']) !== null & ($attr14=$module['Event']).__is_instance__) && typeof $attr13 == 'function'?
+						pyjslib['getattr']($attr14, 'ONCLICK'):
+						$module['Event']['ONCLICK']));
+			$pyjs_kwargs_call($module['Panel'], '__init__', null, kwargs, [{}, self]);
+			return null;
+		}
+	, 1, [null,['kwargs'],['self']]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'addTableListener', function(listener) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				listener = arguments[1];
+			}
+
+			self['tableListeners']['append'](listener);
+			return null;
+		}
+	, 1, [null,null,['self'],['listener']]);
+		$cls_definition['addTableListener'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'clear', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $iter2_nextval,$iter1_nextval,$iter1_type,$iter2_iter,$iter1_iter,$iter2_idx,$iter1_array,child,$iter2_type,row,col,$iter2_array,$iter1_idx;
+			$iter1_iter = pyjslib['range'](self['getRowCount']());
+			if (typeof ($iter1_array = $iter1_iter.__array) != 'undefined') {
+				$iter1_type = 0;
+			} else {
+				$iter1_iter = $iter1_iter.__iter__();
+				$iter1_type = typeof ($iter1_array = $iter1_iter.__array) != 'undefined'? 0 : (typeof $iter1_iter.$genfunc == 'function'? 1 : -1);
+			}
+			$iter1_idx = 0;
+			while (typeof ($iter1_nextval=($iter1_type?($iter1_type > 0?$iter1_iter.next(true,false):pyjslib['wrapped_next']($iter1_iter)):$iter1_array[$iter1_idx++])) != 'undefined') {
+				row = $iter1_nextval;
+				$iter2_iter = pyjslib['range'](self['getCellCount'](row));
+				if (typeof ($iter2_array = $iter2_iter.__array) != 'undefined') {
+					$iter2_type = 0;
+				} else {
+					$iter2_iter = $iter2_iter.__iter__();
+					$iter2_type = typeof ($iter2_array = $iter2_iter.__array) != 'undefined'? 0 : (typeof $iter2_iter.$genfunc == 'function'? 1 : -1);
+				}
+				$iter2_idx = 0;
+				while (typeof ($iter2_nextval=($iter2_type?($iter2_type > 0?$iter2_iter.next(true,false):pyjslib['wrapped_next']($iter2_iter)):$iter2_array[$iter2_idx++])) != 'undefined') {
+					col = $iter2_nextval;
+					child = self['getWidget'](row, col);
+					if (pyjslib['bool']((child !== null))) {
+						self['removeWidget'](child);
+					}
+				}
+			}
+			return null;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['clear'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'clearCell', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var td;
+			td = self['cellFormatter']['getElement'](row, column);
+			return self['internalClearCell'](td);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['clearCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getCellCount', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+
+			return 0;
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['getCellCount'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getCellFormatter', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr15,$attr16;
+			return ((($attr15=self['cellFormatter']) !== null & ($attr16=self).__is_instance__) && typeof $attr15 == 'function'?
+						pyjslib['getattr']($attr16, 'cellFormatter'):
+						self['cellFormatter']);
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getCellFormatter'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getCellPadding', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr17,$attr18;
+			return $module['DOM']['getIntAttribute'](((($attr17=self['tableElem']) !== null & ($attr18=self).__is_instance__) && typeof $attr17 == 'function'?
+						pyjslib['getattr']($attr18, 'tableElem'):
+						self['tableElem']), String('cellPadding'));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getCellPadding'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getCellSpacing', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr20,$attr19;
+			return $module['DOM']['getIntAttribute'](((($attr19=self['tableElem']) !== null & ($attr20=self).__is_instance__) && typeof $attr19 == 'function'?
+						pyjslib['getattr']($attr20, 'tableElem'):
+						self['tableElem']), String('cellSpacing'));
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getCellSpacing'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getHTML', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var element;
+			element = self['cellFormatter']['getElement'](row, column);
+			return $module['DOM']['getInnerHTML'](element);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['getHTML'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getRowCount', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return 0;
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getRowCount'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getRowFormatter', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr21,$attr22;
+			return ((($attr21=self['rowFormatter']) !== null & ($attr22=self).__is_instance__) && typeof $attr21 == 'function'?
+						pyjslib['getattr']($attr22, 'rowFormatter'):
+						self['rowFormatter']);
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getRowFormatter'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getText', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var element;
+			self['checkCellBounds'](row, column);
+			element = self['cellFormatter']['getElement'](row, column);
+			return $module['DOM']['getInnerText'](element);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['getText'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getWidget', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			if (typeof column == 'undefined') column=arguments.callee.__args__[4][1];
+			var $attr23,$attr24,key;
+			if (pyjslib['bool']((column === null))) {
+				key = self['computeKeyForElement'](row);
+			}
+			else {
+				self['checkCellBounds'](row, column);
+				key = self['computeKey'](row, column);
+			}
+			if (pyjslib['bool']((key === null))) {
+				return null;
+			}
+			return ((($attr23=self['widgetMap']) !== null & ($attr24=self).__is_instance__) && typeof $attr23 == 'function'?
+						pyjslib['getattr']($attr24, 'widgetMap'):
+						self['widgetMap']).__getitem__(key);
+		}
+	, 1, [null,null,['self'],['row'],['column', null]]);
+		$cls_definition['getWidget'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isCellPresent', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var $or4,$or1,$or3,$or2;
+			if (pyjslib['bool']((pyjslib['bool']($or1=(((pyjslib['cmp'](row, self['getRowCount']()))|1) == 1))?$or1:(pyjslib['cmp'](row, 0) == -1)))) {
+				return false;
+			}
+			if (pyjslib['bool']((pyjslib['bool']($or3=(pyjslib['cmp'](column, 0) == -1))?$or3:(((pyjslib['cmp'](column, self['getCellCount'](row)))|1) == 1)))) {
+				return false;
+			}
+			return true;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['isCellPresent'] = $method;
+		$method = $pyjs__bind_method($cls_instance, '__iter__', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return self['widgetMap']['itervalues']();
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['__iter__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'onBrowserEvent', function(event) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				event = arguments[1];
+			}
+			var body,$iter3_idx,column,$iter3_array,tr,listener,$iter3_iter,$iter3_type,td,$iter3_nextval,row;
+			if (pyjslib['bool'](pyjslib['op_eq']($module['DOM']['eventGetType'](event), String('click')))) {
+				td = self['getEventTargetCell'](event);
+				if (pyjslib['bool'](!pyjslib['bool'](td))) {
+					return null;
+				}
+				tr = $module['DOM']['getParent'](td);
+				body = $module['DOM']['getParent'](tr);
+				row = $module['DOM']['getChildIndex'](body, tr);
+				column = $module['DOM']['getChildIndex'](tr, td);
+				$iter3_iter = self['tableListeners'];
+				if (typeof ($iter3_array = $iter3_iter.__array) != 'undefined') {
+					$iter3_type = 0;
+				} else {
+					$iter3_iter = $iter3_iter.__iter__();
+					$iter3_type = typeof ($iter3_array = $iter3_iter.__array) != 'undefined'? 0 : (typeof $iter3_iter.$genfunc == 'function'? 1 : -1);
+				}
+				$iter3_idx = 0;
+				while (typeof ($iter3_nextval=($iter3_type?($iter3_type > 0?$iter3_iter.next(true,false):pyjslib['wrapped_next']($iter3_iter)):$iter3_array[$iter3_idx++])) != 'undefined') {
+					listener = $iter3_nextval;
+					if (pyjslib['bool'](pyjslib['hasattr'](listener, String('onCellClicked')))) {
+						listener['onCellClicked'](self, row, column);
+					}
+					else {
+						listener(self);
+					}
+				}
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['event']]);
+		$cls_definition['onBrowserEvent'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'remove', function(widget) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				widget = arguments[1];
+			}
+
+			if (pyjslib['bool'](!pyjslib['op_eq'](widget['getParent'](), self))) {
+				return false;
+			}
+			self['removeWidget'](widget);
+			return true;
+		}
+	, 1, [null,null,['self'],['widget']]);
+		$cls_definition['remove'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'removeTableListener', function(listener) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				listener = arguments[1];
+			}
+
+			self['tableListeners']['remove'](listener);
+			return null;
+		}
+	, 1, [null,null,['self'],['listener']]);
+		$cls_definition['removeTableListener'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setBorderWidth', function(width) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				width = arguments[1];
+			}
+			var $attr25,$attr26;
+			$module['DOM']['setAttribute'](((($attr25=self['tableElem']) !== null & ($attr26=self).__is_instance__) && typeof $attr25 == 'function'?
+						pyjslib['getattr']($attr26, 'tableElem'):
+						self['tableElem']), String('border'), pyjslib['str'](width));
+			return null;
+		}
+	, 1, [null,null,['self'],['width']]);
+		$cls_definition['setBorderWidth'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setCellPadding', function(padding) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				padding = arguments[1];
+			}
+			var $attr28,$attr27;
+			$module['DOM']['setAttribute'](((($attr27=self['tableElem']) !== null & ($attr28=self).__is_instance__) && typeof $attr27 == 'function'?
+						pyjslib['getattr']($attr28, 'tableElem'):
+						self['tableElem']), String('cellPadding'), pyjslib['str'](padding));
+			return null;
+		}
+	, 1, [null,null,['self'],['padding']]);
+		$cls_definition['setCellPadding'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setCellSpacing', function(spacing) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				spacing = arguments[1];
+			}
+			var $attr29,$attr30;
+			$module['DOM']['setAttribute'](((($attr29=self['tableElem']) !== null & ($attr30=self).__is_instance__) && typeof $attr29 == 'function'?
+						pyjslib['getattr']($attr30, 'tableElem'):
+						self['tableElem']), String('cellSpacing'), pyjslib['str'](spacing));
+			return null;
+		}
+	, 1, [null,null,['self'],['spacing']]);
+		$cls_definition['setCellSpacing'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setHTML', function(row, column, html) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				html = arguments[3];
+			}
+			var td;
+			self['prepareCell'](row, column);
+			td = self['cleanCell'](row, column);
+			if (pyjslib['bool']((html !== null))) {
+				$module['DOM']['setInnerHTML'](td, html);
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['html']]);
+		$cls_definition['setHTML'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setText', function(row, column, text) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				text = arguments[3];
+			}
+			var td;
+			self['prepareCell'](row, column);
+			td = self['cleanCell'](row, column);
+			if (pyjslib['bool']((text !== null))) {
+				$module['DOM']['setInnerText'](td, text);
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['text']]);
+		$cls_definition['setText'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setWidget', function(row, column, widget) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				widget = arguments[3];
+			}
+			var widget_hash,element,$attr32,$attr31,td;
+			self['prepareCell'](row, column);
+			if (pyjslib['bool']((widget === null))) {
+				return null;
+			}
+			widget['removeFromParent']();
+			td = self['cleanCell'](row, column);
+			widget_hash = widget;
+			element = widget['getElement']();
+			$module['widgethash'].__setitem__(element, widget_hash);
+			((($attr31=self['widgetMap']) !== null & ($attr32=self).__is_instance__) && typeof $attr31 == 'function'?
+						pyjslib['getattr']($attr32, 'widgetMap'):
+						self['widgetMap']).__setitem__(widget_hash, widget);
+			self['adopt'](widget, td);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['widget']]);
+		$cls_definition['setWidget'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'cleanCell', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var td;
+			td = self['cellFormatter']['getRawElement'](row, column);
+			self['internalClearCell'](td);
+			return td;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['cleanCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'computeKey', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var element,child;
+			element = self['cellFormatter']['getRawElement'](row, column);
+			child = $module['DOM']['getFirstChild'](element);
+			if (pyjslib['bool']((child === null))) {
+				return null;
+			}
+			return self['computeKeyForElement'](child);
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['computeKey'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'computeKeyForElement', function(widgetElement) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				widgetElement = arguments[1];
+			}
+
+			return $module['widgethash']['get'](widgetElement);
+		}
+	, 1, [null,null,['self'],['widgetElement']]);
+		$cls_definition['computeKeyForElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'removeWidget', function(widget) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				widget = arguments[1];
+			}
+			var $attr33,$attr34,element;
+			self['disown'](widget);
+			element = widget['getElement']();
+			((($attr33=self['widgetMap']) !== null & ($attr34=self).__is_instance__) && typeof $attr33 == 'function'?
+						pyjslib['getattr']($attr34, 'widgetMap'):
+						self['widgetMap']).__delitem__(self['computeKeyForElement'](element));
+			$module['widgethash'].__delitem__(element);
+			return true;
+		}
+	, 1, [null,null,['self'],['widget']]);
+		$cls_definition['removeWidget'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'checkCellBounds', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var cellSize;
+			self['checkRowBounds'](row);
+			cellSize = self['getCellCount'](row);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['checkCellBounds'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'checkRowBounds', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+			var rowSize;
+			rowSize = self['getRowCount']();
+			return null;
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['checkRowBounds'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'createCell', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+
+			return $module['DOM']['createTD']();
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['createCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getBodyElement', function() {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+			}
+			var $attr36,$attr35;
+			return ((($attr35=self['bodyElem']) !== null & ($attr36=self).__is_instance__) && typeof $attr35 == 'function'?
+						pyjslib['getattr']($attr36, 'bodyElem'):
+						self['bodyElem']);
+		}
+	, 1, [null,null,['self']]);
+		$cls_definition['getBodyElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getDOMCellCount', function(element, row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				element = arguments[1];
+				row = arguments[2];
+			}
+			if (typeof row == 'undefined') row=arguments.callee.__args__[4][1];
+			var $attr37,$attr38;
+			if (pyjslib['bool']((row === null))) {
+				return self['getDOMCellCountImpl'](((($attr37=self['bodyElem']) !== null & ($attr38=self).__is_instance__) && typeof $attr37 == 'function'?
+							pyjslib['getattr']($attr38, 'bodyElem'):
+							self['bodyElem']), element);
+			}
+			return self['getDOMCellCountImpl'](element, row);
+		}
+	, 1, [null,null,['self'],['element'],['row', null]]);
+		$cls_definition['getDOMCellCount'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getDOMCellCountImpl', function(element, row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				element = arguments[1];
+				row = arguments[2];
+			}
+			var $attr39,$attr40;
+			return ((($attr39=element['rows']['item'](row)['cells']['length']) !== null & ($attr40=element['rows']['item'](row)['cells']).__is_instance__) && typeof $attr39 == 'function'?
+						pyjslib['getattr']($attr40, 'length'):
+						element['rows']['item'](row)['cells']['length']);
+		}
+	, 1, [null,null,['self'],['element'],['row']]);
+		$cls_definition['getDOMCellCountImpl'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getDOMRowCount', function(element) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				element = arguments[1];
+			}
+			if (typeof element == 'undefined') element=arguments.callee.__args__[3][1];
+			var $attr41,$attr42;
+			if (pyjslib['bool']((element === null))) {
+				element = ((($attr41=self['bodyElem']) !== null & ($attr42=self).__is_instance__) && typeof $attr41 == 'function'?
+							pyjslib['getattr']($attr42, 'bodyElem'):
+							self['bodyElem']);
+			}
+			return self['getDOMRowCountImpl'](element);
+		}
+	, 1, [null,null,['self'],['element', null]]);
+		$cls_definition['getDOMRowCount'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getDOMRowCountImpl', function(element) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				element = arguments[1];
+			}
+			var $attr43,$attr44;
+			return ((($attr43=element['rows']['length']) !== null & ($attr44=element['rows']).__is_instance__) && typeof $attr43 == 'function'?
+						pyjslib['getattr']($attr44, 'length'):
+						element['rows']['length']);
+		}
+	, 1, [null,null,['self'],['element']]);
+		$cls_definition['getDOMRowCountImpl'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getEventTargetCell', function(event) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				event = arguments[1];
+			}
+			var body,tr,$attr46,$attr47,$attr45,td,$attr48;
+			td = $module['DOM']['eventGetTarget'](event);
+			while (pyjslib['bool']((td !== null))) {
+				if (pyjslib['bool'](pyjslib['op_eq']($module['DOM']['getAttribute'](td, String('tagName'))['lower'](), String('td')))) {
+					tr = $module['DOM']['getParent'](td);
+					body = $module['DOM']['getParent'](tr);
+					if (pyjslib['bool']($module['DOM']['compare'](body, ((($attr45=self['bodyElem']) !== null & ($attr46=self).__is_instance__) && typeof $attr45 == 'function'?
+								pyjslib['getattr']($attr46, 'bodyElem'):
+								self['bodyElem'])))) {
+						return td;
+					}
+				}
+				if (pyjslib['bool']($module['DOM']['compare'](td, ((($attr47=self['bodyElem']) !== null & ($attr48=self).__is_instance__) && typeof $attr47 == 'function'?
+							pyjslib['getattr']($attr48, 'bodyElem'):
+							self['bodyElem'])))) {
+					return null;
+				}
+				td = $module['DOM']['getParent'](td);
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['event']]);
+		$cls_definition['getEventTargetCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'insertCell', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var $attr50,tr,td,$attr49;
+			tr = self['rowFormatter']['getRow'](((($attr49=self['bodyElem']) !== null & ($attr50=self).__is_instance__) && typeof $attr49 == 'function'?
+						pyjslib['getattr']($attr50, 'bodyElem'):
+						self['bodyElem']), row);
+			td = self['createCell']();
+			$module['DOM']['insertChild'](tr, td, column);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['insertCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'insertCells', function(row, column, count) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+				count = arguments[3];
+			}
+			var $add2,i,$iter4_nextval,$attr52,tr,$iter4_idx,$attr51,$add1,$iter4_type,$iter4_array,td,$iter4_iter;
+			tr = self['rowFormatter']['getRow'](((($attr51=self['bodyElem']) !== null & ($attr52=self).__is_instance__) && typeof $attr51 == 'function'?
+						pyjslib['getattr']($attr52, 'bodyElem'):
+						self['bodyElem']), row);
+			$iter4_iter = pyjslib['range'](column, (typeof ($add1=column)==typeof ($add2=count) && (typeof $add1=='number'||typeof $add1=='string')?
+				$add1+$add2:
+				pyjslib['op_add']($add1,$add2)));
+			if (typeof ($iter4_array = $iter4_iter.__array) != 'undefined') {
+				$iter4_type = 0;
+			} else {
+				$iter4_iter = $iter4_iter.__iter__();
+				$iter4_type = typeof ($iter4_array = $iter4_iter.__array) != 'undefined'? 0 : (typeof $iter4_iter.$genfunc == 'function'? 1 : -1);
+			}
+			$iter4_idx = 0;
+			while (typeof ($iter4_nextval=($iter4_type?($iter4_type > 0?$iter4_iter.next(true,false):pyjslib['wrapped_next']($iter4_iter)):$iter4_array[$iter4_idx++])) != 'undefined') {
+				i = $iter4_nextval;
+				td = self['createCell']();
+				$module['DOM']['insertChild'](tr, td, i);
+			}
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column'],['count']]);
+		$cls_definition['insertCells'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'insertRow', function(beforeRow) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				beforeRow = arguments[1];
+			}
+			var $attr53,tr,$attr54;
+			if (pyjslib['bool'](!pyjslib['op_eq'](beforeRow, self['getRowCount']()))) {
+				self['checkRowBounds'](beforeRow);
+			}
+			tr = $module['DOM']['createTR']();
+			$module['DOM']['insertChild'](((($attr53=self['bodyElem']) !== null & ($attr54=self).__is_instance__) && typeof $attr53 == 'function'?
+						pyjslib['getattr']($attr54, 'bodyElem'):
+						self['bodyElem']), tr, beforeRow);
+			return beforeRow;
+		}
+	, 1, [null,null,['self'],['beforeRow']]);
+		$cls_definition['insertRow'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'internalClearCell', function(td) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				td = arguments[1];
+			}
+			var widget,maybeChild;
+			maybeChild = $module['DOM']['getFirstChild'](td);
+			widget = null;
+			if (pyjslib['bool']((maybeChild !== null))) {
+				widget = self['getWidget'](maybeChild);
+			}
+			if (pyjslib['bool']((widget !== null))) {
+				self['removeWidget'](widget);
+				return true;
+			}
+			$module['DOM']['setInnerHTML'](td, String(''));
+			return false;
+		}
+	, 1, [null,null,['self'],['td']]);
+		$cls_definition['internalClearCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'prepareCell', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+
+ 			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['prepareCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'prepareRow', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+
+ 			return null;
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['prepareRow'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'removeCell', function(row, column) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				column = arguments[2];
+			}
+			var tr,$attr55,$attr56,td;
+			self['checkCellBounds'](row, column);
+			td = self['cleanCell'](row, column);
+			tr = self['rowFormatter']['getRow'](((($attr55=self['bodyElem']) !== null & ($attr56=self).__is_instance__) && typeof $attr55 == 'function'?
+						pyjslib['getattr']($attr56, 'bodyElem'):
+						self['bodyElem']), row);
+			$module['DOM']['removeChild'](tr, td);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['column']]);
+		$cls_definition['removeCell'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'removeRow', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+			var $iter5_nextval,$attr58,column,$iter5_array,$attr60,$attr57,$iter5_iter,$iter5_idx,$iter5_type,$attr59;
+			$iter5_iter = pyjslib['range'](self['getCellCount'](row));
+			if (typeof ($iter5_array = $iter5_iter.__array) != 'undefined') {
+				$iter5_type = 0;
+			} else {
+				$iter5_iter = $iter5_iter.__iter__();
+				$iter5_type = typeof ($iter5_array = $iter5_iter.__array) != 'undefined'? 0 : (typeof $iter5_iter.$genfunc == 'function'? 1 : -1);
+			}
+			$iter5_idx = 0;
+			while (typeof ($iter5_nextval=($iter5_type?($iter5_type > 0?$iter5_iter.next(true,false):pyjslib['wrapped_next']($iter5_iter)):$iter5_array[$iter5_idx++])) != 'undefined') {
+				column = $iter5_nextval;
+				self['cleanCell'](row, column);
+			}
+			$module['DOM']['removeChild'](((($attr57=self['bodyElem']) !== null & ($attr58=self).__is_instance__) && typeof $attr57 == 'function'?
+						pyjslib['getattr']($attr58, 'bodyElem'):
+						self['bodyElem']), self['rowFormatter']['getRow'](((($attr59=self['bodyElem']) !== null & ($attr60=self).__is_instance__) && typeof $attr59 == 'function'?
+						pyjslib['getattr']($attr60, 'bodyElem'):
+						self['bodyElem']), row));
+			return null;
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['removeRow'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setCellFormatter', function(cellFormatter) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				cellFormatter = arguments[1];
+			}
+
+			self.cellFormatter = cellFormatter;
+			return null;
+		}
+	, 1, [null,null,['self'],['cellFormatter']]);
+		$cls_definition['setCellFormatter'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setRowFormatter', function(rowFormatter) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				rowFormatter = arguments[1];
+			}
+
+			self.rowFormatter = rowFormatter;
+			return null;
+		}
+	, 1, [null,null,['self'],['rowFormatter']]);
+		$cls_definition['setRowFormatter'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['Panel']));
+	})();
+	$module['Factory']['registerClass'](String('pyjamas.ui.HTMLTable'), $module['HTMLTable']);
+	return this;
+}; /* end pyjamas.ui.HTMLTable */
+
+
+/* end module: pyjamas.ui.HTMLTable */
+
+
+/*
+PYJS_DEPS: ['pyjamas.DOM', 'pyjamas', 'pyjamas.Factory', 'Panel.Panel', 'Panel', 'pyjamas.ui.Event', 'pyjamas.ui', 'CellFormatter.CellFormatter', 'CellFormatter', 'RowFormatter.RowFormatter', 'RowFormatter']
+*/
+
+--></script>
+<script type="text/javascript"><!--
 /* start module: dynamic */
 var dynamic;
 $pyjs.loaded_modules['dynamic'] = function (__mod_name__) {
@@ -19325,26 +22863,6 @@ namespace[k] = v;
 /*
 PYJS_DEPS: ['pyjamas.DOM', 'pyjamas', 'sys']
 */
-
---></script>
-<script type="text/javascript"><!--
-/* start module: jsonrpc */
-var jsonrpc;
-$pyjs.loaded_modules['jsonrpc'] = function (__mod_name__) {
-	if($pyjs.loaded_modules['jsonrpc'].__was_initialized__) return $pyjs.loaded_modules['jsonrpc'];
-	var $module = jsonrpc = $pyjs.loaded_modules["jsonrpc"];
-	jsonrpc.__was_initialized__ = true;
-	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'jsonrpc';
-	var __name__ = jsonrpc.__name__ = __mod_name__;
-
-
- 	return this;
-}; /* end jsonrpc */
-
-
-/* end module: jsonrpc */
-
-
 
 --></script>
 <script type="text/javascript"><!--
@@ -21428,7 +24946,7 @@ $pyjs.loaded_modules['pyjamas.JSONParser'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('JSONParser');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = 'ec1ea6d7081b72e3b5848016bdaea6a6';
+		$cls_definition.__md5__ = '6d796040c985362b7069aa7704f8684b';
 		$method = $pyjs__bind_method($cls_instance, 'decode', function(s) {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -21437,7 +24955,7 @@ $pyjs.loaded_modules['pyjamas.JSONParser'] = function (__mod_name__) {
 				s = arguments[1];
 			}
 
-			return self['jsObjectToPy'](self['parseJSON']($module.string));
+			return self['jsObjectToPy'](self['parseJSON'](s));
 		}
 	, 1, [null,null,['self'],['s']]);
 		$cls_definition['decode'] = $method;
@@ -21893,6 +25411,253 @@ $pyjs.loaded_modules['pyjamas.ui.Panel'] = function (__mod_name__) {
 
 /*
 PYJS_DEPS: ['pyjamas.Factory', 'pyjamas', 'pyjamas.DOM', 'Widget.Widget', 'Widget']
+*/
+
+--></script>
+<script type="text/javascript"><!--
+/* start module: pyjamas.ui.RowFormatter */
+$pyjs.loaded_modules['pyjamas.ui.RowFormatter'] = function (__mod_name__) {
+	if($pyjs.loaded_modules['pyjamas.ui.RowFormatter'].__was_initialized__) return $pyjs.loaded_modules['pyjamas.ui.RowFormatter'];
+	if(typeof $pyjs.loaded_modules['pyjamas.ui'] == 'undefined' || !$pyjs.loaded_modules['pyjamas.ui'].__was_initialized__) pyjslib['___import___']('pyjamas.ui', null);
+	var $module = pyjamas['ui']['RowFormatter'] = $pyjs.loaded_modules["pyjamas.ui.RowFormatter"];
+	pyjamas['ui']['RowFormatter'].__was_initialized__ = true;
+	if ((__mod_name__ === null) || (typeof __mod_name__ == 'undefined')) __mod_name__ = 'pyjamas.ui.RowFormatter';
+	var __name__ = pyjamas['ui']['RowFormatter'].__name__ = __mod_name__;
+	var RowFormatter = pyjamas['ui']['RowFormatter'];
+
+
+	$module['DOM'] = pyjslib['___import___']('pyjamas.DOM', 'pyjamas.ui', null, false);
+	$module['Applier'] = pyjslib['___import___']('pyjamas.ui.Applier', 'pyjamas.ui', null, false);
+	$module['RowFormatter'] = (function(){
+		var $cls_instance = $pyjs__class_instance('RowFormatter');
+		var $cls_definition = new Object();
+		var $method;
+		$cls_definition.__md5__ = '79259fc7e926791074ad4a0f8b909b0b';
+		$method = $pyjs__bind_method($cls_instance, '__init__', function(outer) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+				var kwargs = arguments.length >= 2 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			} else {
+				var self = arguments[0];
+				outer = arguments[1];
+				var kwargs = arguments.length >= 3 ? arguments[arguments.length-1] : arguments[arguments.length];
+				if (typeof kwargs != 'object' || kwargs.__name__ != 'dict' || typeof kwargs.$pyjs_is_kwarg == 'undefined') {
+					kwargs = arguments[arguments.length+1];
+				} else {
+					delete kwargs['$pyjs_is_kwarg'];
+				}
+			}
+			if (typeof kwargs == 'undefined') {
+				kwargs = pyjslib['__empty_dict']();
+				if (typeof outer != 'undefined') {
+					if (outer !== null && typeof outer['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = outer;
+						outer = arguments[2];
+					}
+				} else 				if (typeof self != 'undefined') {
+					if (self !== null && typeof self['$pyjs_is_kwarg'] != 'undefined') {
+						kwargs = self;
+						self = arguments[2];
+					}
+				} else {
+				}
+			}
+
+			self.outer = outer;
+			$pyjs_kwargs_call($module['Applier'], '__init__', null, kwargs, [{}, self]);
+			return null;
+		}
+	, 1, [null,['kwargs'],['self'],['outer']]);
+		$cls_definition['__init__'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'addStyleName', function(row, styleName) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				styleName = arguments[2];
+			}
+
+			self['outer']['setStyleName'](self['ensureElement'](row), styleName, true);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['styleName']]);
+		$cls_definition['addStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getElement', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+			var $attr1,$attr2;
+			self['outer']['checkRowBounds'](row);
+			return self['getRow'](((($attr1=self['outer']['bodyElem']) !== null & ($attr2=self['outer']).__is_instance__) && typeof $attr1 == 'function'?
+						pyjslib['getattr']($attr2, 'bodyElem'):
+						self['outer']['bodyElem']), row);
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['getElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getStyleName', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+
+			return $module['DOM']['getAttribute'](self['getElement'](row), String('className'));
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['getStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'isVisible', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+			var element;
+			element = self['getElement'](row);
+			return self['outer']['isVisible'](element);
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['isVisible'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'removeStyleName', function(row, styleName) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				styleName = arguments[2];
+			}
+
+			self['outer']['setStyleName'](self['getElement'](row), styleName, false);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['styleName']]);
+		$cls_definition['removeStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setStyleName', function(row, styleName) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				styleName = arguments[2];
+			}
+			var elem;
+			elem = self['ensureElement'](row);
+			$module['DOM']['setAttribute'](elem, String('className'), styleName);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['styleName']]);
+		$cls_definition['setStyleName'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setVerticalAlign', function(row, align) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				align = arguments[2];
+			}
+
+			$module['DOM']['setStyleAttribute'](self['ensureElement'](row), String('verticalAlign'), align);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['align']]);
+		$cls_definition['setVerticalAlign'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setVisible', function(row, visible) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				visible = arguments[2];
+			}
+			var element;
+			element = self['ensureElement'](row);
+			self['outer']['setVisible'](element, visible);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['visible']]);
+		$cls_definition['setVisible'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'ensureElement', function(row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+			}
+			var $attr4,$attr3;
+			self['outer']['prepareRow'](row);
+			return self['getRow'](((($attr3=self['outer']['bodyElem']) !== null & ($attr4=self['outer']).__is_instance__) && typeof $attr3 == 'function'?
+						pyjslib['getattr']($attr4, 'bodyElem'):
+						self['outer']['bodyElem']), row);
+		}
+	, 1, [null,null,['self'],['row']]);
+		$cls_definition['ensureElement'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'getRow', function(element, row) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				element = arguments[1];
+				row = arguments[2];
+			}
+
+			return element['rows']['item'](row);
+		}
+	, 1, [null,null,['self'],['element'],['row']]);
+		$cls_definition['getRow'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setStyleAttr', function(row, attrName, value) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				attrName = arguments[2];
+				value = arguments[3];
+			}
+			var element;
+			element = self['ensureElement'](row);
+			$module['DOM']['setStyleAttribute'](element, attrName, value);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['attrName'],['value']]);
+		$cls_definition['setStyleAttr'] = $method;
+		$method = $pyjs__bind_method($cls_instance, 'setAttr', function(row, attrName, value) {
+			if (this.__is_instance__ === true) {
+				var self = this;
+			} else {
+				var self = arguments[0];
+				row = arguments[1];
+				attrName = arguments[2];
+				value = arguments[3];
+			}
+			var element;
+			element = self['ensureElement'](row);
+			$module['DOM']['setAttribute'](element, attrName, value);
+			return null;
+		}
+	, 1, [null,null,['self'],['row'],['attrName'],['value']]);
+		$cls_definition['setAttr'] = $method;
+		return $pyjs__class_function($cls_instance, $cls_definition, 
+		                            new Array($module['Applier']));
+	})();
+	return this;
+}; /* end pyjamas.ui.RowFormatter */
+
+
+/* end module: pyjamas.ui.RowFormatter */
+
+
+/*
+PYJS_DEPS: ['pyjamas.DOM', 'pyjamas', 'pyjamas.ui.Applier', 'pyjamas.ui']
 */
 
 --></script>
@@ -22605,8 +26370,8 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 	$module['sys'] = pyjslib['___import___']('sys', 'pyjamas');
 	$module['HTTPRequest'] = pyjslib['___import___']('HTTPRequest.HTTPRequest', 'pyjamas', null, false);
 	try {
-		$module['dumps'] = pyjslib['___import___']('jsonrpc.json.dumps', 'pyjamas', null, false);
-		$module['loads'] = pyjslib['___import___']('jsonrpc.json.loads', 'pyjamas', null, false);
+		$module['dumps'] = pyjslib['___import___']('json.dumps', 'pyjamas', null, false);
+		$module['loads'] = pyjslib['___import___']('json.loads', 'pyjamas', null, false);
 	} catch($pyjs_try_err) {
 		var $pyjs_try_err_name = (typeof $pyjs_try_err.__name__ == 'undefined' ? $pyjs_try_err.name : $pyjs_try_err.__name__ );
 		$pyjs.__last_exception__ = {error: $pyjs_try_err, module: pyjamas.JSONService, try_lineno: 14};
@@ -22622,22 +26387,11 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 				if (($pyjs_try_err_name == pyjslib['ImportError'].__name__)||pyjslib['_isinstance']($pyjs_try_err,pyjslib['ImportError'])) {
 					$pyjs.__last_exception__.except_lineno = 21;
 					$module['err'] = $pyjs_try_err;
-					try {
-						$module['dumps'] = pyjslib['___import___']('json.dumps', 'pyjamas', null, false);
-						$module['loads'] = pyjslib['___import___']('json.loads', 'pyjamas', null, false);
-					} catch($pyjs_try_err) {
-						var $pyjs_try_err_name = (typeof $pyjs_try_err.__name__ == 'undefined' ? $pyjs_try_err.name : $pyjs_try_err.__name__ );
-						$pyjs.__last_exception__ = {error: $pyjs_try_err, module: pyjamas.JSONService, try_lineno: 22};
-						if (($pyjs_try_err_name == pyjslib['ImportError'].__name__)||pyjslib['_isinstance']($pyjs_try_err,pyjslib['ImportError'])) {
-							$pyjs.__last_exception__.except_lineno = 25;
-							$module['err'] = $pyjs_try_err;
-							$module['JSONParser'] = pyjslib['___import___']('pyjamas.JSONParser.JSONParser', 'pyjamas', null, false);
-							$module['parser'] = $module['JSONParser']();
-							$module['dumps'] = pyjslib['getattr']($module['parser'], String('encode'));
-							$module['loads'] = pyjslib['getattr']($module['parser'], String('decodeAsObject'));
-							$module['JSONDecodeException'] = null;
-						} else { throw $pyjs_try_err; }
-					}
+					$module['JSONParser'] = pyjslib['___import___']('pyjamas.JSONParser.JSONParser', 'pyjamas', null, false);
+					$module['parser'] = $module['JSONParser']();
+					$module['dumps'] = pyjslib['getattr']($module['parser'], String('encode'));
+					$module['loads'] = pyjslib['getattr']($module['parser'], String('decodeAsObject'));
+					$module['JSONDecodeException'] = null;
 				} else { throw $pyjs_try_err; }
 			}
 		} else { throw $pyjs_try_err; }
@@ -22646,7 +26400,7 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('JSONServiceError');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = 'e499b1e6d831f174f6e2f77a07f9c62d';
+		$cls_definition.__md5__ = '19f4e82ff379e9d77d83c8f0aeb82a65';
 		return $pyjs__class_function($cls_instance, $cls_definition, 
 		                            new Array(pyjslib['Exception']));
 	})();
@@ -22677,7 +26431,7 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('JSONService');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = '8f5a7dd06d55cbec0536c03600e0f9df';
+		$cls_definition.__md5__ = 'f886728f629cfeb08a48c9154e9ba299';
 		$method = $pyjs__bind_method($cls_instance, '__init__', function(url, handler, headers) {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -22798,7 +26552,7 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('JSONRequestInfo');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = '76feff0bc36c55d900f855e6ccb361fa';
+		$cls_definition.__md5__ = '18145b302fc7d73f3ba1d9786e2385fb';
 		$method = $pyjs__bind_method($cls_instance, '__init__', function(id, method, handler) {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -22831,7 +26585,7 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('JSONResponseTextHandler');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = 'c5cb2d8a706153319178d6082f6c7077';
+		$cls_definition.__md5__ = 'b9cde3f1e2c01d69c1c98155aba972b6';
 		$method = $pyjs__bind_method($cls_instance, '__init__', function(request) {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -22857,9 +26611,9 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 				response = $pyjs_kwargs_call(null, $module['loads'], null, null, [{object_hook:$module['create_object']}, json_str]);
 			} catch($pyjs_try_err) {
 				var $pyjs_try_err_name = (typeof $pyjs_try_err.__name__ == 'undefined' ? $pyjs_try_err.name : $pyjs_try_err.__name__ );
-				$pyjs.__last_exception__ = {error: $pyjs_try_err, module: pyjamas.JSONService, try_lineno: 178};
+				$pyjs.__last_exception__ = {error: $pyjs_try_err, module: pyjamas.JSONService, try_lineno: 174};
 				if (true) {
-					$pyjs.__last_exception__.except_lineno = 182;
+					$pyjs.__last_exception__.except_lineno = 178;
 					err = $pyjs_try_err;
 					error = $pyjs_kwargs_call(null, pyjslib['dict'], null, null, [{code:(typeof ($usub3=32700)=='number'?
 						-$usub3:
@@ -22939,7 +26693,7 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('ServiceProxy');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = '083437fcedee768aff4aed9510337b55';
+		$cls_definition.__md5__ = '1b3b34f37637d69eebfd203bc2c49a97';
 		$method = $pyjs__bind_method($cls_instance, '__init__', function(serviceURL, serviceName, headers) {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -23036,7 +26790,7 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('JSONProxy');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = '3047d375b1dbe24c9e2d786e1dab7d99';
+		$cls_definition.__md5__ = '268b1a10b63edf44f27bc7e8751abe47';
 		$method = $pyjs__bind_method($cls_instance, '__init__', function(url, methods, headers) {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -23101,7 +26855,7 @@ $pyjs.loaded_modules['pyjamas.JSONService'] = function (__mod_name__) {
 
 
 /*
-PYJS_DEPS: ['sys', 'HTTPRequest.HTTPRequest', 'HTTPRequest', 'jsonrpc.json.dumps', 'jsonrpc', 'jsonrpc.json', 'jsonrpc.json.loads', 'simplejson.dumps', 'simplejson', 'simplejson.loads', 'json.dumps', 'json', 'json.loads', 'pyjamas.JSONParser.JSONParser', 'pyjamas', 'pyjamas.JSONParser']
+PYJS_DEPS: ['sys', 'HTTPRequest.HTTPRequest', 'HTTPRequest', 'json.dumps', 'json', 'json.loads', 'simplejson.dumps', 'simplejson', 'simplejson.loads', 'pyjamas.JSONParser.JSONParser', 'pyjamas', 'pyjamas.JSONParser']
 */
 
 --></script>
@@ -23206,41 +26960,44 @@ $pyjs.loaded_modules['JSONRPCExample'] = function (__mod_name__) {
 	$module['VerticalPanel'] = pyjslib['___import___']('pyjamas.ui.VerticalPanel.VerticalPanel', null, null, false);
 	$module['HorizontalPanel'] = pyjslib['___import___']('pyjamas.ui.HorizontalPanel.HorizontalPanel', null, null, false);
 	$module['ListBox'] = pyjslib['___import___']('pyjamas.ui.ListBox.ListBox', null, null, false);
+	$module['Grid'] = pyjslib['___import___']('pyjamas.ui.Grid.Grid', null, null, false);
 	$module['JSONProxy'] = pyjslib['___import___']('pyjamas.JSONService.JSONProxy', null, null, false);
+	$module['jsonobjproxy'] = pyjslib['___import___']('jsonobjproxy', null);
 	$module['JSONRPCExample'] = (function(){
 		var $cls_instance = $pyjs__class_instance('JSONRPCExample');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = '8cd1a9e28e4a536bedcd7c4566c43e8d';
+		$cls_definition.__md5__ = '4f71a316b5e1442e3931ead462335453';
 		$method = $pyjs__bind_method($cls_instance, 'onModuleLoad', function() {
 			if (this.__is_instance__ === true) {
 				var self = this;
 			} else {
 				var self = arguments[0];
 			}
-			var $iter1_iter,$attr20,$attr21,$attr22,buttons,$iter1_array,panel,method,$attr9,$attr8,$iter1_nextval,$attr1,$attr3,$attr2,$attr5,$attr4,$attr7,$attr6,$attr19,$attr18,$attr15,$attr14,$attr17,$attr16,$attr11,$attr10,$attr13,$attr12,info,method_panel,$iter1_type,$iter1_idx;
+			var $iter1_iter,$attr20,$attr21,$attr22,$attr23,$attr24,buttons,$iter1_array,panel,method,$attr9,$attr8,$iter1_nextval,$attr1,$attr3,$attr2,$attr5,$attr4,$attr7,$attr6,$attr19,$attr18,$attr15,$attr14,$attr17,$attr16,$attr11,$attr10,$attr13,$attr12,info,method_panel,$iter1_type,$iter1_idx;
 			self.TEXT_WAITING = String('Waiting for response...');
 			self.TEXT_ERROR = String('Server Error');
 			self.METHOD_ECHO = String('Echo');
-			self.METHOD_REVERSE = String('get schema');
-			self.METHOD_UPPERCASE = String('get doc types');
+			self.METHOD_DOCTYPES = String('get doc types');
+			self.METHOD_UPPERCASE = String('get schema');
 			self.METHOD_LOWERCASE = String('doSomething');
-			self.METHOD_NONEXISTANT = String('Non existant');
+			self.METHOD_GETDOCS = String('get documents');
 			self.methods = pyjslib['list']([((($attr1=self['METHOD_ECHO']) !== null & ($attr2=self).__is_instance__) && typeof $attr1 == 'function'?
 						pyjslib['getattr']($attr2, 'METHOD_ECHO'):
-						self['METHOD_ECHO']), ((($attr3=self['METHOD_REVERSE']) !== null & ($attr4=self).__is_instance__) && typeof $attr3 == 'function'?
-						pyjslib['getattr']($attr4, 'METHOD_REVERSE'):
-						self['METHOD_REVERSE']), ((($attr5=self['METHOD_UPPERCASE']) !== null & ($attr6=self).__is_instance__) && typeof $attr5 == 'function'?
+						self['METHOD_ECHO']), ((($attr3=self['METHOD_DOCTYPES']) !== null & ($attr4=self).__is_instance__) && typeof $attr3 == 'function'?
+						pyjslib['getattr']($attr4, 'METHOD_DOCTYPES'):
+						self['METHOD_DOCTYPES']), ((($attr5=self['METHOD_UPPERCASE']) !== null & ($attr6=self).__is_instance__) && typeof $attr5 == 'function'?
 						pyjslib['getattr']($attr6, 'METHOD_UPPERCASE'):
 						self['METHOD_UPPERCASE']), ((($attr7=self['METHOD_LOWERCASE']) !== null & ($attr8=self).__is_instance__) && typeof $attr7 == 'function'?
 						pyjslib['getattr']($attr8, 'METHOD_LOWERCASE'):
-						self['METHOD_LOWERCASE']), ((($attr9=self['METHOD_NONEXISTANT']) !== null & ($attr10=self).__is_instance__) && typeof $attr9 == 'function'?
-						pyjslib['getattr']($attr10, 'METHOD_NONEXISTANT'):
-						self['METHOD_NONEXISTANT'])]);
+						self['METHOD_LOWERCASE']), ((($attr9=self['METHOD_GETDOCS']) !== null & ($attr10=self).__is_instance__) && typeof $attr9 == 'function'?
+						pyjslib['getattr']($attr10, 'METHOD_GETDOCS'):
+						self['METHOD_GETDOCS'])]);
 			self.remote_py = $module.EchoServicePython();
 			self.status = $module['Label']();
 			self.username = $pyjs_kwargs_call(null, $module['TextBox'], null, null, [{Text:String('any-doc')}]);
 			self.password = $module['TextBox']();
+			self.dockey = $pyjs_kwargs_call(null, $module['TextBox'], null, null, [{Text:String('12')}]);
 			self.method_list = $module['ListBox']();
 			self['method_list']['setName'](String('hello'));
 			self['method_list']['setVisibleItemCount'](1);
@@ -23282,10 +27039,14 @@ $pyjs.loaded_modules['JSONRPCExample'] = function (__mod_name__) {
 			panel['add'](((($attr19=self['password']) !== null & ($attr20=self).__is_instance__) && typeof $attr19 == 'function'?
 						pyjslib['getattr']($attr20, 'password'):
 						self['password']));
+			panel['add']($module['HTML'](String('Document Key:')));
+			panel['add'](((($attr21=self['dockey']) !== null & ($attr22=self).__is_instance__) && typeof $attr21 == 'function'?
+						pyjslib['getattr']($attr22, 'dockey'):
+						self['dockey']));
 			panel['add'](method_panel);
 			panel['add'](buttons);
-			panel['add'](((($attr21=self['status']) !== null & ($attr22=self).__is_instance__) && typeof $attr21 == 'function'?
-						pyjslib['getattr']($attr22, 'status'):
+			panel['add'](((($attr23=self['status']) !== null & ($attr24=self).__is_instance__) && typeof $attr23 == 'function'?
+						pyjslib['getattr']($attr24, 'status'):
 						self['status']));
 			$module['RootPanel']()['add'](panel);
 			return null;
@@ -23299,40 +27060,46 @@ $pyjs.loaded_modules['JSONRPCExample'] = function (__mod_name__) {
 				var self = arguments[0];
 				sender = arguments[1];
 			}
-			var $attr35,$attr36,passwd,$attr34,id,$attr33,$attr32,$attr31,$attr23,$attr24,$attr25,$attr26,$attr27,$attr28,$attr29,$attr30,method,user;
-			self['status']['setText'](((($attr23=self['TEXT_WAITING']) !== null & ($attr24=self).__is_instance__) && typeof $attr23 == 'function'?
-						pyjslib['getattr']($attr24, 'TEXT_WAITING'):
+			var key,$attr26,$attr25,$attr40,$attr27,$attr28,$attr29,id,method,passwd,$attr33,$attr32,$attr31,$attr30,$attr37,$attr36,$attr35,$attr34,$attr39,$attr38,user;
+			self['status']['setText'](((($attr25=self['TEXT_WAITING']) !== null & ($attr26=self).__is_instance__) && typeof $attr25 == 'function'?
+						pyjslib['getattr']($attr26, 'TEXT_WAITING'):
 						self['TEXT_WAITING']));
-			method = ((($attr25=self['methods']) !== null & ($attr26=self).__is_instance__) && typeof $attr25 == 'function'?
-						pyjslib['getattr']($attr26, 'methods'):
+			method = ((($attr27=self['methods']) !== null & ($attr28=self).__is_instance__) && typeof $attr27 == 'function'?
+						pyjslib['getattr']($attr28, 'methods'):
 						self['methods']).__getitem__(self['method_list']['getSelectedIndex']());
-			if (pyjslib['bool'](pyjslib['op_eq'](sender, ((($attr27=self['button_login']) !== null & ($attr28=self).__is_instance__) && typeof $attr27 == 'function'?
-						pyjslib['getattr']($attr28, 'button_login'):
+			if (pyjslib['bool'](pyjslib['op_eq'](sender, ((($attr29=self['button_login']) !== null & ($attr30=self).__is_instance__) && typeof $attr29 == 'function'?
+						pyjslib['getattr']($attr30, 'button_login'):
 						self['button_login'])))) {
 				user = self['username']['getText']();
 				passwd = self['password']['getText']();
 				id = self['remote_py']['login'](user, passwd, self);
 			}
 			else {
-				if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr29=self['METHOD_ECHO']) !== null & ($attr30=self).__is_instance__) && typeof $attr29 == 'function'?
-							pyjslib['getattr']($attr30, 'METHOD_ECHO'):
+				if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr31=self['METHOD_ECHO']) !== null & ($attr32=self).__is_instance__) && typeof $attr31 == 'function'?
+							pyjslib['getattr']($attr32, 'METHOD_ECHO'):
 							self['METHOD_ECHO'])))) {
 					id = self['remote_py']['echo'](String('Hello'), self);
 				}
-				else if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr31=self['METHOD_REVERSE']) !== null & ($attr32=self).__is_instance__) && typeof $attr31 == 'function'?
-							pyjslib['getattr']($attr32, 'METHOD_REVERSE'):
-							self['METHOD_REVERSE'])))) {
+				else if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr33=self['METHOD_DOCTYPES']) !== null & ($attr34=self).__is_instance__) && typeof $attr33 == 'function'?
+							pyjslib['getattr']($attr34, 'METHOD_DOCTYPES'):
+							self['METHOD_DOCTYPES'])))) {
 					id = self['remote_py']['get_doc_types'](self);
 				}
-				else if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr33=self['METHOD_UPPERCASE']) !== null & ($attr34=self).__is_instance__) && typeof $attr33 == 'function'?
-							pyjslib['getattr']($attr34, 'METHOD_UPPERCASE'):
+				else if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr35=self['METHOD_UPPERCASE']) !== null & ($attr36=self).__is_instance__) && typeof $attr35 == 'function'?
+							pyjslib['getattr']($attr36, 'METHOD_UPPERCASE'):
 							self['METHOD_UPPERCASE'])))) {
 					id = self['remote_py']['get_schema_version'](self);
 				}
-				else if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr35=self['METHOD_LOWERCASE']) !== null & ($attr36=self).__is_instance__) && typeof $attr35 == 'function'?
-							pyjslib['getattr']($attr36, 'METHOD_LOWERCASE'):
+				else if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr37=self['METHOD_LOWERCASE']) !== null & ($attr38=self).__is_instance__) && typeof $attr37 == 'function'?
+							pyjslib['getattr']($attr38, 'METHOD_LOWERCASE'):
 							self['METHOD_LOWERCASE'])))) {
 					id = self['remote_py']['doSomething'](self);
+				}
+				else if (pyjslib['bool'](pyjslib['op_eq'](method, ((($attr39=self['METHOD_GETDOCS']) !== null & ($attr40=self).__is_instance__) && typeof $attr39 == 'function'?
+							pyjslib['getattr']($attr40, 'METHOD_GETDOCS'):
+							self['METHOD_GETDOCS'])))) {
+					key = pyjslib['float_int'](self['dockey']['getText']());
+					id = self['remote_py']['get_documents'](key, self);
 				}
 			}
 			return null;
@@ -23347,8 +27114,49 @@ $pyjs.loaded_modules['JSONRPCExample'] = function (__mod_name__) {
 				response = arguments[1];
 				request_info = arguments[2];
 			}
-
-			self['status']['setText'](pyjslib['str'](response));
+			var $attr46,$attr47,$attr44,$attr45,$attr42,$attr43,$attr41,$attr48,row,$iter2_iter,item,$iter2_type,$iter2_idx,grid,$iter2_nextval,$add2,$add3,$add1,$add6,$add7,$add4,$add5,$add8,$iter2_array;
+			if (pyjslib['bool'](pyjslib['op_eq'](((($attr41=request_info['method']) !== null & ($attr42=request_info).__is_instance__) && typeof $attr41 == 'function'?
+						pyjslib['getattr']($attr42, 'method'):
+						request_info['method']), String('get_documents')))) {
+				grid = $module['Grid']();
+				grid['resize']((typeof ($add1=pyjslib['len'](response))==typeof ($add2=1) && (typeof $add1=='number'||typeof $add1=='string')?
+					$add1+$add2:
+					pyjslib['op_add']($add1,$add2)), 8);
+				grid['setHTML'](0, 0, String('Comment'));
+				grid['setHTML'](0, 1, String('Episode'));
+				grid['setHTML'](0, 2, String('When'));
+				$iter2_iter = pyjslib['enumerate'](response);
+				if (typeof ($iter2_array = $iter2_iter.__array) != 'undefined') {
+					$iter2_type = 0;
+				} else {
+					$iter2_iter = $iter2_iter.__iter__();
+					$iter2_type = typeof ($iter2_array = $iter2_iter.__array) != 'undefined'? 0 : (typeof $iter2_iter.$genfunc == 'function'? 1 : -1);
+				}
+				$iter2_idx = 0;
+				while (typeof ($iter2_nextval=($iter2_type?($iter2_type > 0?$iter2_iter.next(true,true):pyjslib['wrapped_next']($iter2_iter)):$iter2_array[$iter2_idx++])) != 'undefined') {
+					row = $iter2_nextval.__array[0];
+					item = $iter2_nextval.__array[1];
+					grid['setHTML']((typeof ($add3=row)==typeof ($add4=1) && (typeof $add3=='number'||typeof $add3=='string')?
+						$add3+$add4:
+						pyjslib['op_add']($add3,$add4)), 0, ((($attr43=item['$$comment']) !== null & ($attr44=item).__is_instance__) && typeof $attr43 == 'function'?
+								pyjslib['getattr']($attr44, '$$comment'):
+								item['$$comment']));
+					grid['setHTML']((typeof ($add5=row)==typeof ($add6=1) && (typeof $add5=='number'||typeof $add5=='string')?
+						$add5+$add6:
+						pyjslib['op_add']($add5,$add6)), 1, ((($attr45=item['episode']) !== null & ($attr46=item).__is_instance__) && typeof $attr45 == 'function'?
+								pyjslib['getattr']($attr46, 'episode'):
+								item['episode']));
+					grid['setHTML']((typeof ($add7=row)==typeof ($add8=1) && (typeof $add7=='number'||typeof $add7=='string')?
+						$add7+$add8:
+						pyjslib['op_add']($add7,$add8)), 2, pyjslib['str'](((($attr47=item['clin_when']) !== null & ($attr48=item).__is_instance__) && typeof $attr47 == 'function'?
+								pyjslib['getattr']($attr48, 'clin_when'):
+								item['clin_when'])));
+				}
+				$module['RootPanel']()['add'](grid);
+			}
+			else {
+				self['status']['setText'](pyjslib['str'](response));
+			}
 			return null;
 		}
 	, 1, [null,null,['self'],['response'],['request_info']]);
@@ -23382,7 +27190,7 @@ $pyjs.loaded_modules['JSONRPCExample'] = function (__mod_name__) {
 		var $cls_instance = $pyjs__class_instance('EchoServicePython');
 		var $cls_definition = new Object();
 		var $method;
-		$cls_definition.__md5__ = 'c69dcd3ceeb0236119ecbde0ad97dce3';
+		$cls_definition.__md5__ = '5acefd115a9a8f1d4e4eb3f43238e749';
 		$method = $pyjs__bind_method($cls_instance, '__init__', function() {
 			if (this.__is_instance__ === true) {
 				var self = this;
@@ -23390,7 +27198,7 @@ $pyjs.loaded_modules['JSONRPCExample'] = function (__mod_name__) {
 				var self = arguments[0];
 			}
 
-			$module['JSONProxy']['__init__'](self, String('/JSON'), pyjslib['list']([String('login'), String('echo'), String('get_doc_types'), String('get_schema_version'), String('doSomething')]));
+			$module['JSONProxy']['__init__'](self, String('/JSON'), pyjslib['list']([String('login'), String('echo'), String('get_doc_types'), String('get_schema_version'), String('get_documents'), String('doSomething')]));
 			return null;
 		}
 	, 1, [null,null,['self']]);
@@ -23412,7 +27220,7 @@ $pyjs.loaded_modules['JSONRPCExample'] = function (__mod_name__) {
 
 
 /*
-PYJS_DEPS: ['pyjd', 'pyjamas.ui.RootPanel.RootPanel', 'pyjamas', 'pyjamas.ui', 'pyjamas.ui.RootPanel', 'pyjamas.ui.TextBox.TextBox', 'pyjamas.ui.TextBox', 'pyjamas.ui.Label.Label', 'pyjamas.ui.Label', 'pyjamas.ui.Button.Button', 'pyjamas.ui.Button', 'pyjamas.ui.HTML.HTML', 'pyjamas.ui.HTML', 'pyjamas.ui.VerticalPanel.VerticalPanel', 'pyjamas.ui.VerticalPanel', 'pyjamas.ui.HorizontalPanel.HorizontalPanel', 'pyjamas.ui.HorizontalPanel', 'pyjamas.ui.ListBox.ListBox', 'pyjamas.ui.ListBox', 'pyjamas.JSONService.JSONProxy', 'pyjamas.JSONService']
+PYJS_DEPS: ['pyjd', 'pyjamas.ui.RootPanel.RootPanel', 'pyjamas', 'pyjamas.ui', 'pyjamas.ui.RootPanel', 'pyjamas.ui.TextBox.TextBox', 'pyjamas.ui.TextBox', 'pyjamas.ui.Label.Label', 'pyjamas.ui.Label', 'pyjamas.ui.Button.Button', 'pyjamas.ui.Button', 'pyjamas.ui.HTML.HTML', 'pyjamas.ui.HTML', 'pyjamas.ui.VerticalPanel.VerticalPanel', 'pyjamas.ui.VerticalPanel', 'pyjamas.ui.HorizontalPanel.HorizontalPanel', 'pyjamas.ui.HorizontalPanel', 'pyjamas.ui.ListBox.ListBox', 'pyjamas.ui.ListBox', 'pyjamas.ui.Grid.Grid', 'pyjamas.ui.Grid', 'pyjamas.JSONService.JSONProxy', 'pyjamas.JSONService', 'jsonobjproxy']
 */
 
 --></script>
@@ -23486,7 +27294,7 @@ function prepare_app() {
         };
         wait();
     }
-    wait_for_loading_modules(app_imported, ['pyjamas.ui','pyjamas.ui.FocusWidget','pyjamas.ui.InnerText','pyjamas.ui.Widget','pyjamas.ui.Label','pyjamas.JSONService','pyjamas.Location','pyjamas.ui.VerticalPanel','sys','pyjamas.JSONParser','pygwt','pyjamas.ui.TextBoxBase','pyjamas','struct','pyjamas.ui.HorizontalPanel','pyjamas.ui.TextBox','pyjamas.ui.Focus','binascii','jsonrpc.json','pyjamas.HTTPRequest','pyjamas.ui.AbsolutePanel','pyjamas.ui.KeyboardListener','math','pyjamas.ui.Event','pyjamas.log','pyjamas.ui.Button','pyjamas.Window','dynamic','pyjamas.ui.Panel','pyjamas.Factory','base64','pyjd','pyjamas.ui.CellPanel','pyjamas.ui.ClickListener','pyjamas.ui.MouseListener','pyjamas.ui.InnerHTML','pyjamas.ui.ComplexPanel','pyjslib','pyjamas.ui.ButtonBase','jsonrpc','pyjamas.ui.RootPanel','JSONRPCExample','pyjamas.DOM','pyjamas.ui.HTML','pyjamas.ui.ListBox','pyjamas.ui.UIObject','pyjamas.ui.FocusListener']);
+    wait_for_loading_modules(app_imported, ['pyjamas.ui','pyjamas.ui.FocusWidget','pyjamas.ui.InnerText','pyjamas.ui.Widget','pyjamas.ui.ClickListener','pyjamas.JSONService','pyjamas.Location','pyjamas.ui.VerticalPanel','sys','pyjamas.JSONParser','pygwt','pyjamas.ui.UIObject','pyjamas.ui.TextBoxBase','pyjamas','struct','pyjamas.ui.HorizontalPanel','pyjamas.ui.RowFormatter','pyjamas.ui.TextBox','pyjamas.ui.Focus','binascii','pyjamas.ui.Label','pyjamas.HTTPRequest','pyjamas.ui.AbsolutePanel','pyjamas.ui.KeyboardListener','pyjamas.ui.Grid','pyjamas.ui.Event','pyjamas.log','pyjamas.ui.Button','pyjamas.Window','dynamic','pyjamas.ui.Panel','pyjamas.Factory','base64','pyjd','pyjamas.ui.CellPanel','datetime','pyjamas.ui.MouseListener','pyjamas.ui.InnerHTML','pyjamas.ui.ComplexPanel','pyjslib','pyjamas.ui.ButtonBase','pyjamas.ui.RootPanel','jsonobjproxy','JSONRPCExample','pyjamas.DOM','math','pyjamas.ui.HTMLTable','time','pyjamas.ui.HTML','pyjamas.ui.ListBox','pyjamas.ui.CellFormatter','pyjamas.ui.FocusListener']);
 }
 
 function pygwtOnLoad(onLoadError, name) {
