@@ -18,7 +18,10 @@ import re, sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webb
 
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
-from Gnumed.pycommon import gmLoginInfo, gmBackendListener, gmTools, gmCfg2, gmI18N, gmDispatcher
+from Gnumed.pycommon import gmLoginInfo, gmBackendListener, gmTools, gmCfg2, gmI18N, gmDispatcher, gmBusinessDBObject
+from Gnumed.pycommon.gmBusinessDBObject import jsonclasshintify
+from Gnumed.pycommon import gmPG2
+from Gnumed.business import gmDocuments
 
 #try:
 #	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -338,6 +341,7 @@ class HTTPServer(SimpleForkingJSONRPCServer):
         self.register_function(self.echo)
         self.register_function(self.login)
         self.register_function(self.get_doc_types)
+        self.register_function(self.get_documents)
         self.register_function(self.get_schema_version)
         self.register_function(self.doSomething)
 
@@ -367,19 +371,16 @@ class HTTPServer(SimpleForkingJSONRPCServer):
         return connected
 
     def get_schema_version(self):
-        from Gnumed.pycommon import gmPG2
         return gmPG2.get_schema_version()
 
+    def get_documents(self, key):
+        doc_folder = gmDocuments.cDocumentFolder(aPKey=key)
+        return jsonclasshintify(doc_folder.get_documents())
+
     def get_doc_types(self):
-        from Gnumed.business import gmDocuments
-        res = []
-        for item in gmDocuments.get_document_types():
-            res.append(str(item))
-        return res
+        return jsonclasshintify(gmDocuments.get_document_types())
 
     def doSomething(self):
-        from Gnumed.pycommon import gmPG2
-        from Gnumed.business import gmDocuments
         msg = 'schema version is:' + gmPG2.get_schema_version() +'\n\n'
         msg2 =''
         for item in gmDocuments.get_document_types():
