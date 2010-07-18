@@ -43,7 +43,7 @@ care of all the pre- and post-GUI runtime environment setup.
  Adjust the PYTHONPATH such that GNUmed can be run from a local source tree.
 --ui=<ui type>
  Start an alternative UI. Defaults to wxPython if not specified.
- Valid values: web (CherryPy), wxp (wxPython)
+ Valid values: chweb (CherryPy), wxp (wxPython), web (ProxiedWeb)
 --version, -V
  Show version information.
 --help, -h, or -?
@@ -107,7 +107,8 @@ _known_long_options = [
 
 _known_ui_types = [
 	u'web',
-	u'wxp'
+	u'wxp',
+	u'chweb'
 ]
 
 import_error_sermon = """
@@ -510,6 +511,8 @@ setup_cfg()
 setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
+if ui_type in [u'web']:
+	gmPG2.auto_request_login_params = False
 setup_backend()
 
 
@@ -525,15 +528,17 @@ if ui_type == u'wxp':
 	else:
 		gmGuiMain.main()
 elif ui_type == u'web':
+	from Gnumed.ProxiedWeb import gmGuiWeb
+	gmGuiWeb.main()
+
+elif ui_type == u'chweb':
 	from Gnumed.CherryPy import gmGuiWeb
 	gmGuiWeb.main()
 
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
-
 
 shutdown_backend()
 _log.info('Normally shutting down as main module.')
 shutdown_logging()
 
 #==========================================================
-
