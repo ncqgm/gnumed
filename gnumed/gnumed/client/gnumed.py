@@ -108,7 +108,7 @@ _known_long_options = [
 _known_ui_types = [
 	u'web',
 	u'wxp',
-	u'pxweb'
+	u'chweb'
 ]
 
 import_error_sermon = """
@@ -525,13 +525,13 @@ if ui_type == u'wxp':
 	else:
 		gmGuiMain.main()
 elif ui_type == u'web':
-	from Gnumed.CherryPy import gmGuiWeb
+	from Gnumed.ProxiedWeb import gmGuiWeb
+	gmPG2.auto_request_login_params = False
 	setup_backend()
 	gmGuiWeb.main()
 
-elif ui_type == u'pxweb':
-	from Gnumed.ProxiedWeb import gmGuiWeb
-	gmPG2.auto_request_login_params = False
+elif ui_type == u'chweb':
+	from Gnumed.CherryPy import gmGuiWeb
 	setup_backend()
 	gmGuiWeb.main()
 
