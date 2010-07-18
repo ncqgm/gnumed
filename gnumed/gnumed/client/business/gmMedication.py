@@ -253,7 +253,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 	version = u'FreeDiams v0.4.2 interface'
 	default_encoding = 'utf8'
-	default_dob_format = '%d/%m/%Y'
+	default_dob_format = '%Y/%m/%d'
 
 	map_gender2mf = {
 		'm': u'M',
@@ -307,10 +307,12 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		args = u'--blockpatientdatas="1"'
 
 		if self.patient is not None:
-			args += u' --patientname="\'%(firstnames)s\'" --patientsurname="\'%(lastnames)s\'"' % self.patient.get_active_name()
+			names = self.patient.get_active_name()
+			args += u' --patientname="%(lastnames)s, %(firstnames)s"' % names
+			args += u' --patientsurname="%(lastnames)s"' % names
 			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
 			if self.patient['dob'] is not None:
-				args += u' --dateofbirth="\'%s\'"' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
+				args += u' --dateofbirth=%s' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
 
 		cmd = r'%s %s' % (cmd, args)
 
