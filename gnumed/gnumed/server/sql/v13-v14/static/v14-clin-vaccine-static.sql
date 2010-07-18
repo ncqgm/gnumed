@@ -18,6 +18,14 @@ alter table clin.vaccine
 alter table audit.log_vaccine
 	add column fk_brand integer;
 
+-- --------------------------------------------------------------
+-- prepare for improved check constraints
+
+update clin.vaccine
+set
+	max_age = '149 years'::interval
+where
+	max_age = '5555 years':: interval;
 
 -- --------------------------------------------------------------
 -- delete a few vaccines

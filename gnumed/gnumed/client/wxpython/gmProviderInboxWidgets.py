@@ -14,7 +14,8 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2, gmExceptions
 from Gnumed.business import gmPerson, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel, gmEditArea, gmAuthWidgets, gmPatSearchWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel
+from Gnumed.wxpython import gmEditArea, gmAuthWidgets, gmPatSearchWidgets, gmVaccWidgets
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl, wxgTextExpansionEditAreaPnl
 
 
@@ -360,7 +361,7 @@ def configure_workplace_plugins(parent=None):
 class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	_item_handlers = {}
-	_patient_msg_types = ['clinical.review docs', 'clinical.review results']
+	_patient_msg_types = ['clinical.review docs', 'clinical.review results', 'clinical.review vaccs']
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
 
@@ -373,6 +374,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		cProviderInboxPnl._item_handlers['clinical.review docs'] = self._goto_doc_review
 		cProviderInboxPnl._item_handlers['clinical.review results'] = self._goto_measurements_review
+		cProviderInboxPnl._item_handlers['clinical.review vaccs'] = self._goto_vaccination_review
 
 		self.__register_interests()
 	#--------------------------------------------------------
@@ -577,7 +579,25 @@ GNUmed for message category and type:
 			return False
 
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
-		return True	
+		return True
+	#--------------------------------------------------------
+	def _goto_vaccination_review(self, pk_context=None, pk_patient=None):
+		wx.BeginBusyCursor()
+		success = gmPatSearchWidgets.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = pk_patient))
+		wx.EndBusyCursor()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				_('Supposedly there are conflicting vaccinations\n'
+				  'for patient [%s]. However, I cannot find\n'
+				  'that patient in the GNUmed database.'
+				) % pk_patient,
+				_('handling provider inbox item')
+			)
+			return False
+
+		wx.CallAfter(gmVaccWidgets.manage_vaccinations)
+
+		return True
 #============================================================
 if __name__ == '__main__':
 

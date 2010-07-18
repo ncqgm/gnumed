@@ -116,6 +116,56 @@ account vital signs and symptoms !
 ');
 
 -- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'score-Naevus_ABCDEF';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-Naevus_ABCDEF',
+'ABCDEF rule for identifying atypical naevi
+------------------------------------------
+
+A: Asymmetry (any shape other than round or oval)
+B: Borders (fading into the surrounding skin)
+C: Color (is multi-coloured)
+D: Diameter (of 5mm or more)
+E: Evolution or Elevation (of formerly flat lesion)
+F: Feeling (itching, stinging, burning) or Funny (Ugly Duckling)
+');
+
+-- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'score-Naevus-Glasgow_7_points';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-Naevus-Glasgow_7_points',
+'Glasgow 7-points checklist for identifying atypical naevi
+---------------------------------------------------------
+
+Major points:
+
+Change in
+
+	- size
+	- shape
+	- colour
+
+Minor points:
+
+	- at least 7mm in diameter
+	- inflammation
+	- oozing / crusting / bleeding
+	- change in sensation
+');
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v14-clin-keyword_expansion-data.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
