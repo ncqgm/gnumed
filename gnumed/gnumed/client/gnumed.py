@@ -512,7 +512,7 @@ setup_ui_type()
 
 from Gnumed.pycommon import gmPG2
 if ui_type in [u'web']:
-gmPG2.auto_request_login_params = False
+	gmPG2.auto_request_login_params = False
 setup_backend()
 
 
