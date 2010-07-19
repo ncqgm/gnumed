@@ -46,7 +46,7 @@ class JSONRPCExample:
         method_panel.setSpacing(8)
 
         self.button_login = Button("Login", self)
-        self.button_action = Button("Do Something", self)
+        self.button_action = Button("Call Service", self)
 
         buttons = HorizontalPanel()
         buttons.add(self.button_login)
@@ -57,8 +57,7 @@ class JSONRPCExample:
         <p>This example demonstrates the calling of server services with
            <a href="http://json-rpc.org/">JSON-RPC</a>.
         </p>
-        <p>Enter some text below, and press a button to send the text
-           to an Echo service on your server. An echo service simply sends the exact same text back that it receives.
+        <p>Choose a service below, and press a the "call service" button to initiate it. An echo service simply sends the exact same text back that it receives.
            </p>"""
         
         panel = VerticalPanel()
@@ -123,10 +122,12 @@ class JSONRPCExample:
             self.status.setText("HTTP error %d: %s" % 
                                 (code, message))
         else:
-            code = errobj['code']
-            self.status.setText("JSONRPC Error %s: %s" %
+		code = errobj['code']
+		if message['message'] == 'Cannot request login parameters.':
+			self.status.setText("You need to log in first")
+		else:
+			self.status.setText("JSONRPC Error %s: %s" %
                                 (code, message))
-
 
 class EchoServicePython(JSONProxy):
     def __init__(self):
