@@ -64,6 +64,87 @@ def manage_vaccination_indications(parent=None):
 		single_selection = True,
 		refresh_callback = refresh
 	)
+#----------------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgVaccinationIndicationsPnl
+
+class cVaccinationIndicationsPnl(wxgVaccinationIndicationsPnl.wxgVaccinationIndicationsPnl):
+
+	def __init__(self, *args, **kwargs):
+
+		wxgVaccinationIndicationsPnl.wxgVaccinationIndicationsPnl.__init__(self, *args, **kwargs)
+
+		self.__indication2field = {
+			u'coxiella burnetii (Q fever)': self._CHBOX_coxq,
+			u'salmonella typhi (typhoid)': self._CHBOX_typhoid,
+			u'varicella (chickenpox, shingles)': self._CHBOX_varicella,
+			u'influenza (seasonal)': self._CHBOX_influenza,
+			u'bacillus anthracis (Anthrax)': self._CHBOX_anthrax,
+			u'human papillomavirus': self._CHBOX_hpv,
+			u'rotavirus': self._CHBOX_rota,
+			u'tuberculosis': self._CHBOX_tuberculosis,
+			u'variola virus (smallpox)': self._CHBOX_smallpox,
+			u'influenza (H1N1)': self._CHBOX_h1n1,
+			u'cholera': self._CHBOX_cholera,
+			u'diphtheria': self._CHBOX_diphtheria,
+			u'haemophilus influenzae b': self._CHBOX_hib,
+			u'hepatitis A': self._CHBOX_hepA,
+			u'hepatitis B': self._CHBOX_hepB,
+			u'japanese B encephalitis': self._CHBOX_japanese,
+			u'measles': self._CHBOX_measles,
+			u'meningococcus A': self._CHBOX_menA,
+			u'meningococcus C': self._CHBOX_menC,
+			u'meningococcus W': self._CHBOX_menW,
+			u'meningococcus Y': self._CHBOX_menY,
+			u'mumps': self._CHBOX_mumps,
+			u'pertussis': self._CHBOX_pertussis,
+			u'pneumococcus': self._CHBOX_pneumococcus,
+			u'poliomyelitis': self._CHBOX_polio,
+			u'rabies': self._CHBOX_rabies,
+			u'rubella': self._CHBOX_rubella,
+			u'tetanus': self._CHBOX_tetanus,
+			u'tick-borne meningoencephalitis': self._CHBOX_fsme,
+			u'yellow fever': self._CHBOX_yellow_fever,
+			u'yersinia pestis': self._CHBOX_yersinia_pestis
+		}
+	#------------------------------------------------------------------
+	def enable_all(self):
+		for field in self.__dict__.keys():
+			if field.startswith('_CHBOX_'):
+				self.__dict__[field].Enable()
+		self.Enable()
+	#------------------------------------------------------------------
+	def disable_all(self):
+		for field in self.__dict__.keys():
+			if field.startswith('_CHBOX_'):
+				self.__dict__[field].Disable()
+		self.Disable()
+	#------------------------------------------------------------------
+	def clear_all(self):
+		for field in self.__dict__.keys():
+			if field.startswith('_CHBOX_'):
+				self.__dict__[field].SetValue(False)
+	#------------------------------------------------------------------
+	def select(self, indications=None):
+		for indication in indications:
+			self.__indication2field[indication].SetValue(True)
+	#------------------------------------------------------------------
+	def _get_selected_indications(self):
+		indications = []
+		for indication in self.__indication2field.keys():
+			if self.__indication2field[indication].IsChecked():
+				indications.append(indication)
+		return indications
+
+	selected_indications = property(_get_selected_indications, lambda x:x)
+	#------------------------------------------------------------------
+	def _get_has_selection(self):
+		for indication in self.__indication2field.keys():
+			if self.__indication2field[indication].IsChecked():
+				return True
+		return False
+
+	has_selection = property(_get_has_selection, lambda x:x)
+
 #======================================================================
 # vaccines related widgets
 #----------------------------------------------------------------------
@@ -289,8 +370,29 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		self.__init_ui()
 	#----------------------------------------------------------------
 	def __init_ui(self):
-		# setup phrasewheels and stuff
+
+		# route
+		query = u"""
+			SELECT DISTINCT ON (abbreviation)
+				id,
+				abbreviation || ' (' || _(description) || ')'
+			FROM
+				clin.vacc_route
+			WHERE
+				abbreviation %(fragment_condition)s
+					OR
+				description %(fragment_condition)s
+			ORDER BY
+				abbreviation
+		"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 3)
+		self._PRW_route.matcher = mp
 		self._PRW_route.selection_only = True
+
+		#self._PRW_atc = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+		#self._PRW_age_min = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+		#self._PRW_age_max = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 
 		self.Layout()
 		self.Fit()
@@ -345,30 +447,103 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 			else:
 				self._PRW_age_max.display_as_valid(True)
 
+		# are we editing ?
+		ask_user = (self.mode == 'edit')
+		# is this vaccine in use ?
+		ask_user = (ask_user and self.data.is_in_use)
+		# a change ...
+		ask_user = ask_user and (
+			# ... of brand ...
+			(self.data['pk_brand'] != self._PRW_route.GetData())
+				or
+			# ... or indications ?
+			(self.data['indications'] != self._PNL_indications.selected_indications)
+		)
+
+		if ask_user:
+			do_it = gmGuiHelpers.gm_show_question (
+				aTitle = _('Saving vaccine'),
+				aMessage = _(
+					u'This vaccine is already in use:\n'
+					u'\n'
+					u' %s\n'
+					u' (%s)\n'
+					u'\n'
+					u'Are you absolutely positively sure that\n'
+					u'you want to edit this vaccine ?  This will\n'
+					u'change the vaccine name or target conditions\n'
+					u'in each patient this vaccine was used in to\n'
+					u'document a vaccination with.\n'
+				)
+			)
+			if not do_it_anyway:
+				has_errors = True
+
 		return (has_errors is False)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
-		data = 1
+		data = gmVaccination.create_vaccine (
+			pk_brand = self._PRW_brand.GetData(),
+			brand_name = self._PRW_brand.GetValue(),
+			indications = self._PNL_indications.selected_indications
+		)
 
-		data[''] = 1
-		data[''] = 1
+		data['pk_route'] = self._PRW_route.GetData()
+		data['is_live'] = self._CHBOX_live.GetValue()
+		val = self._PRW_age_min.GetValue().strip()
+		if val != u'':
+			data['min_age'] = gmDateTime.str2interval(val)
+		val = self._PRW_age_max.GetValue().strip()
+		if val != u'':
+			data['max_age'] = gmDateTime.str2interval(val)
+		val = self._TCTRL_comment.GetValue().strip()
+		if val != u'':
+			data['comment'] = val
 
-		#data.save()
+		data.save()
+
+		drug = data.brand
+		drug['is_fake'] = self._CHBOX_fake.GetValue()
+		val = self._PRW_atc.GetData()
+		if val is not None:
+			if val != u'J07':
+				drug['atc_code'] = val.strip()
+		drug.save()
 
 		# must be done very late or else the property access
 		# will refresh the display such that later field
 		# access will return empty values
-		#self.data = data
-		return False
+		self.data = data
+
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		# update self.data and save the changes
-		self.data[''] = 1
-		self.data[''] = 1
-		self.data[''] = 1
-		#self.data.save()
+
+		drug = self.data.brand
+		drug['description'] = self._PRW_brand.GetValue().strip()
+		drug['is_fake'] = self._CHBOX_fake.GetValue()
+		val = self._PRW_atc.GetData()
+		if val is not None:
+			if val != u'J07':
+				drug['atc_code'] = val.strip()
+		drug.save()
+
+		# the validator already asked for changes so just do it
+		self.data.set_indications(indications = self._PNL_indications.selected_indications)
+
+		self.data['pk_route'] = self._PRW_route.GetData()
+		self.data['is_live'] = self._CHBOX_live.GetValue()
+		val = self._PRW_age_min.GetValue().strip()
+		if val != u'':
+			self.data['min_age'] = gmDateTime.str2interval(val)
+		if val != u'':
+			self.data['max_age'] = gmDateTime.str2interval(val)
+		val = self._TCTRL_comment.GetValue().strip()
+		if val != u'':
+			self.data['comment'] = val
+
+		self.data.save()
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
@@ -381,6 +556,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		self._PRW_age_min.SetText(value = u'', data = None, suppress_smarts = True)
 		self._PRW_age_max.SetText(value = u'', data = None, suppress_smarts = True)
 		self._TCTRL_comment.SetValue(u'')
+
+		self._PRW_brand.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_brand.SetText(value = self.data['vaccine'], data = self.data['pk_brand'])
@@ -404,6 +581,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 				data = self.data['max_age']
 			)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+
+		self._PRW_brand.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -466,87 +645,6 @@ def manage_vaccinations(parent=None):
 		edit_callback = edit,
 		delete_callback = delete
 	)
-#----------------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgVaccinationIndicationsPnl
-
-class cVaccinationIndicationsPnl(wxgVaccinationIndicationsPnl.wxgVaccinationIndicationsPnl):
-
-	def __init__(self, *args, **kwargs):
-
-		wxgVaccinationIndicationsPnl.wxgVaccinationIndicationsPnl.__init__(self, *args, **kwargs)
-
-		self.__indication2field = {
-			u'coxiella burnetii (Q fever)': self._CHBOX_coxq,
-			u'salmonella typhi (typhoid)': self._CHBOX_typhoid,
-			u'varicella (chickenpox, shingles)': self._CHBOX_varicella,
-			u'influenza (seasonal)': self._CHBOX_influenza,
-			u'bacillus anthracis (Anthrax)': self._CHBOX_anthrax,
-			u'human papillomavirus': self._CHBOX_hpv,
-			u'rotavirus': self._CHBOX_rota,
-			u'tuberculosis': self._CHBOX_tuberculosis,
-			u'variola virus (smallpox)': self._CHBOX_smallpox,
-			u'influenza (H1N1)': self._CHBOX_h1n1,
-			u'cholera': self._CHBOX_cholera,
-			u'diphtheria': self._CHBOX_diphtheria,
-			u'haemophilus influenzae b': self._CHBOX_hib,
-			u'hepatitis A': self._CHBOX_hepA,
-			u'hepatitis B': self._CHBOX_hepB,
-			u'japanese B encephalitis': self._CHBOX_japanese,
-			u'measles': self._CHBOX_measles,
-			u'meningococcus A': self._CHBOX_menA,
-			u'meningococcus C': self._CHBOX_menC,
-			u'meningococcus W': self._CHBOX_menW,
-			u'meningococcus Y': self._CHBOX_menY,
-			u'mumps': self._CHBOX_mumps,
-			u'pertussis': self._CHBOX_pertussis,
-			u'pneumococcus': self._CHBOX_pneumococcus,
-			u'poliomyelitis': self._CHBOX_polio,
-			u'rabies': self._CHBOX_rabies,
-			u'rubella': self._CHBOX_rubella,
-			u'tetanus': self._CHBOX_tetanus,
-			u'tick-borne meningoencephalitis': self._CHBOX_fsme,
-			u'yellow fever': self._CHBOX_yellow_fever,
-			u'yersinia pestis': self._CHBOX_yersinia_pestis
-		}
-	#------------------------------------------------------------------
-	def enable_all(self):
-		for field in self.__dict__.keys():
-			if field.startswith('_CHBOX_'):
-				self.__dict__[field].Enable()
-		self.Enable()
-	#------------------------------------------------------------------
-	def disable_all(self):
-		for field in self.__dict__.keys():
-			if field.startswith('_CHBOX_'):
-				self.__dict__[field].Disable()
-		self.Disable()
-	#------------------------------------------------------------------
-	def clear_all(self):
-		for field in self.__dict__.keys():
-			if field.startswith('_CHBOX_'):
-				self.__dict__[field].SetValue(False)
-	#------------------------------------------------------------------
-	def select(self, indications=None):
-		for indication in indications:
-			self.__indication2field[indication].SetValue(True)
-	#------------------------------------------------------------------
-	def _get_selected_indications(self):
-		indications = []
-		for indication in self.__indication2field.keys():
-			if self.__indication2field[indication].IsChecked():
-				indications.append(indication)
-		return indications
-
-	selected_indications = property(_get_selected_indications, lambda x:x)
-	#------------------------------------------------------------------
-	def _get_has_selection(self):
-		for indication in self.__indication2field.keys():
-			if self.__indication2field[indication].IsChecked():
-				return True
-		return False
-
-	has_selection = property(_get_has_selection, lambda x:x)
-
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl
 

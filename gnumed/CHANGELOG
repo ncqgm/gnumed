@@ -17,6 +17,7 @@ NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
 NEW: score: bacterial UTI algorithm
 NEW: score: coronary artery disease in primary care
+NEW: score: ABCDEF & Glasgow-7-points for identifying atypical moles
 NEW: report: patients taking drug X
 NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
 NEW: support emergency contact

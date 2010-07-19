@@ -56,17 +56,55 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	_updatable_fields = [
-		u'id_route',
+		u'pk_route',
 		u'is_live',
 		u'min_age',
 		u'max_age',
 		u'comment',
 		u'pk_brand'
-		# forward fields to brand and include brand in save()
 	]
 	#--------------------------------------------------------
-#	def __init__(self, aPK_obj=None, row=None):
-#		super(cVaccine, self).__init__(aPK_obj = aPK_obj, row = row)
+	def set_indications(self, indications=None, pk_indications=None):
+		queries = [{
+			'cmd': u'DELETE FROM clin.lnk_vaccine2inds WHERE fk_vaccine = %(pk_vacc)s',
+			'args': {'pk_vacc': self._payload[self._idx['pk_vaccine']]}
+		}]
+
+		if pk_indications is None:
+			if set(self._payload[self._idx['indications']]) == set(indications):
+				return
+
+			for ind in indications:
+				queries.append ({
+					'cmd': u"""
+						INSERT INTO clin.lnk_vaccine2inds (
+							fk_vaccine,
+							fk_indication
+						) VALUES (
+							%(pk_vacc)s,
+							(SELECT id FROM clin.vacc_indication WHERE description = %(ind)s)
+						)""",
+					'args': {'pk_vacc': self._payload[self._idx['pk_vaccine']], 'ind': ind}
+				})
+		else:
+			if set(self._payload[self._idx['pk_indications']]) == set(pk_indications):
+				return
+
+			for pk_ind in pk_indications:
+				queries.append ({
+					'cmd': u"""
+						INSERT INTO clin.lnk_vaccine2inds (
+							fk_vaccine,
+							fk_indication
+						) VALUES (
+							%(pk_vacc)s,
+							%(pk_ind)s
+						)""",
+					'args': {'pk_vacc': self._payload[self._idx['pk_vaccine']], 'pk_ind': pk_ind}
+				})
+
+		gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -74,14 +112,23 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		return gmMedication.cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
 
 	brand = property(_get_brand, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_in_use(self):
+		cmd = u'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = %(pk)s)'
+		args = {'pk': self._payload[self._idx['pk_vaccine']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_in_use = property(_get_is_in_use, lambda x:x)
 #------------------------------------------------------------
 def create_vaccine(pk_brand=None, brand_name=None, indications=None):
 
 	if pk_brand is None:
-		_log.debug('creating branded drug [%s %s]', brand_name, preparation)
+		prep = _('vaccine')
+		_log.debug('creating branded drug [%s %s]', brand_name, prep)
 		drug = gmMedication.create_branded_drug (
 			brand_name = brand_name,
-			preparation = _('vaccine'),
+			preparation = prep,
 			return_existing = True
 		)
 		drug['atc_code'] = u'J07'
@@ -93,7 +140,7 @@ def create_vaccine(pk_brand=None, brand_name=None, indications=None):
 
 	for indication in indications:
 		cmd = u"""
-			INSERT INTO into clin.lnk_vaccine2inds (
+			INSERT INTO clin.lnk_vaccine2inds (
 				fk_vaccine,
 				fk_indication
 			) VALUES (
@@ -104,6 +151,7 @@ def create_vaccine(pk_brand=None, brand_name=None, indications=None):
 					lower(description) = lower(%(ind)s)
 				 LIMIT 1
 				)
+			)
 			RETURNING fk_vaccine
 		"""
 		queries.append({'cmd': cmd, 'args': {'ind': indication}})
