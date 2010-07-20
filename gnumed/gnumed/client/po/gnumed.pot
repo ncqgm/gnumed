@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-07-13 12:18+CEST\n"
+"POT-Creation-Date: 2010-07-20 19:18+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,6 +14,30 @@ msgstr ""
 "Content-Transfer-Encoding: ENCODING\n"
 "Generated-By: pygettext.py 1.5\n"
 
+
+msgid "programmer forgot to specify error message"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+
+msgid "generic error message"
+msgstr ""
+
+msgid "programmer forgot to specify info message"
+msgstr ""
+
+msgid "generic info message"
+msgstr ""
+
+msgid "programmer forgot to specify warning"
+msgstr ""
+
+msgid "generic warning message"
+msgstr ""
 
 msgid ""
 "Unable to connect to database:\n"
@@ -762,6 +786,27 @@ msgid "interval_format_tag::weeks::w"
 msgstr ""
 
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "y::year_abbreviation"
+msgstr ""
+
+msgid "m::month_abbreviation"
+msgstr ""
+
+msgid "mo::month_only_abbreviation"
+msgstr ""
+
+msgid "w::week_abbreviation"
+msgstr ""
+
+msgid "d::day_abbreviation"
+msgstr ""
+
+msgid "h::hour_abbreviation"
+msgstr ""
+
+msgid "s::second_abbreviation"
 msgstr ""
 
 msgid "yYaA_keys_year"
@@ -3259,7 +3304,8 @@ msgstr ""
 msgid ""
 "... or ...\n"
 "\n"
-"vaccinated against"
+"vaccinated\n"
+"against"
 msgstr ""
 
 msgid "Batch \342\204\226"
@@ -3463,7 +3509,9 @@ msgstr ""
 msgid "Route"
 msgstr ""
 
-msgid "Protects from"
+msgid ""
+"Protects\n"
+"from"
 msgstr ""
 
 msgid "ATC"
@@ -4950,6 +4998,9 @@ msgstr ""
 msgid "Manage allergies"
 msgstr ""
 
+msgid "Manage vaccinations"
+msgstr ""
+
 msgid "Manage procedures"
 msgstr ""
 
@@ -5608,30 +5659,6 @@ msgstr ""
 msgid "Choose a form template file"
 msgstr ""
 
-msgid "programmer forgot to specify error message"
-msgstr ""
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-
-msgid "generic error message"
-msgstr ""
-
-msgid "programmer forgot to specify info message"
-msgstr ""
-
-msgid "generic info message"
-msgstr ""
-
-msgid "programmer forgot to specify warning"
-msgstr ""
-
-msgid "generic warning message"
-msgstr ""
-
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr ""
 
@@ -6248,6 +6275,12 @@ msgid "Backup log file"
 msgstr ""
 
 msgid "Backup the content of the log to another file."
+msgstr ""
+
+msgid "Email log file"
+msgstr ""
+
+msgid "Send the log file to the authors for help."
 msgstr ""
 
 msgid "Bug tracker"
@@ -7540,6 +7573,18 @@ msgstr ""
 msgid "Showing drug brand components (substances)."
 msgstr ""
 
+msgid "Deleting medication"
+msgstr ""
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
 msgid ""
 "\n"
 "These are the drug brands known to GNUmed.\n"
@@ -8723,6 +8768,12 @@ msgid ""
 "that patient in the GNUmed database."
 msgstr ""
 
+msgid ""
+"Supposedly there are conflicting vaccinations\n"
+"for patient [%s]. However, I cannot find\n"
+"that patient in the GNUmed database."
+msgstr ""
+
 msgid "No action configured for keyword [%s]."
 msgstr ""
 
@@ -8989,6 +9040,23 @@ msgid "Showing vaccines."
 msgstr ""
 
 msgid "Enter or select the batch/lot number of the vaccine used."
+msgstr ""
+
+msgid "Saving vaccine"
+msgstr ""
+
+msgid ""
+"This vaccine is already in use:\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Are you absolutely positively sure that\n"
+"you really want to edit this vaccine ?\n"
+"\n"
+"This will change the vaccine name and/or target\n"
+"conditions in each patient this vaccine was\n"
+"used in to document a vaccination with.\n"
 msgstr ""
 
 msgid "Adding new vaccination"
