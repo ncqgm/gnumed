@@ -76,7 +76,7 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         __szr_vaccine_details.Add(self._PRW_vaccine, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_vaccine_details.Add(self._BTN_add_vaccine, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(__szr_vaccine_details, 1, wx.EXPAND, 0)
-        __lbl_indications = wx.StaticText(self, -1, _("... or ...\n\nvaccinated against"))
+        __lbl_indications = wx.StaticText(self, -1, _("... or ...\n\nvaccinated\nagainst"))
         __lbl_indications.SetForegroundColour(wx.Colour(255, 127, 0))
         _gszr_main.Add(__lbl_indications, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _SZR_indications.Add(self._PNL_indications, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

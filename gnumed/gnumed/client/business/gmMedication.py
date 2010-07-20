@@ -1068,6 +1068,14 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 	components = property(_get_components, lambda x:x)
 	#--------------------------------------------------------
+	def _get_is_vaccine(self):
+		cmd = u'SELECT EXISTS (SELECT 1 FROM clin.vaccine WHERE fk_brand = %(fk_brand)s)'
+		args = {'fk_brand': self._payload[self._idx['pk']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_vaccine = property(_get_is_vaccine, lambda x:x)
+	#--------------------------------------------------------
 	def add_component(self, substance=None, atc=None):
 
 		# normalize atc

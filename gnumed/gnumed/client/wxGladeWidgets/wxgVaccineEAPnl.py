@@ -62,7 +62,7 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
         __szr_route_details.Add(self._CHBOX_live, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_route_details.Add(self._CHBOX_fake, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(__szr_route_details, 1, wx.EXPAND, 0)
-        __lbl_indications = wx.StaticText(self, -1, _("Protects from"))
+        __lbl_indications = wx.StaticText(self, -1, _("Protects\nfrom"))
         __lbl_indications.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_indications, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _SZR_indications.Add(self._PNL_indications, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

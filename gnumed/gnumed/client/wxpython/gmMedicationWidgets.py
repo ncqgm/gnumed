@@ -100,6 +100,19 @@ def manage_branded_drugs(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
 	def delete(brand):
+		if brand.is_vaccine:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Deleting medication'),
+				aMessage = _(
+					'Cannot delete the medication\n'
+					'\n'
+					' "%s" (%s)\n'
+					'\n'
+					'because it is a vaccine. Please delete it\n'
+					'from the vaccine management section !\n'
+				) % (brand['description'], brand['preparation'])
+			)
+			return False
 		gmMedication.delete_branded_drug(brand = brand['pk'])
 		return True
 	#------------------------------------------------------------

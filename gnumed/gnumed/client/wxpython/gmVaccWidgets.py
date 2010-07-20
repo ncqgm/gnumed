@@ -9,7 +9,7 @@ __version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, time, logging
+import sys, time, logging, webbrowser
 
 
 import wx
@@ -418,7 +418,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		if not self._PNL_indications.has_selection:
 			has_errors = True
 
-		if self._PRW_atc.GetValue().strip() == u'':
+		if self._PRW_atc.GetValue().strip() in [u'', u'J07']:
 			self._PRW_atc.display_as_valid(True)
 		else:
 			if self._PRW_atc.GetData() is None:
@@ -466,17 +466,21 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 				aMessage = _(
 					u'This vaccine is already in use:\n'
 					u'\n'
-					u' %s\n'
+					u' "%s"\n'
 					u' (%s)\n'
 					u'\n'
 					u'Are you absolutely positively sure that\n'
-					u'you want to edit this vaccine ?  This will\n'
-					u'change the vaccine name or target conditions\n'
-					u'in each patient this vaccine was used in to\n'
-					u'document a vaccination with.\n'
+					u'you really want to edit this vaccine ?\n'
+					'\n'
+					u'This will change the vaccine name and/or target\n'
+					u'conditions in each patient this vaccine was\n'
+					u'used in to document a vaccination with.\n'
+				) % (
+					self._PRW_brand.GetValue().strip(),
+					u', '.join(self.data['l10n_indications'])
 				)
 			)
-			if not do_it_anyway:
+			if not do_it:
 				has_errors = True
 
 		return (has_errors is False)
@@ -893,6 +897,8 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 
 		self._DP_date_given.SetFocus()
 	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
 	def _on_report_button_pressed(self, event):
 
 		event.Skip()
@@ -915,7 +921,9 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 
 		webbrowser.open(url = url, new = False, autoraise = True)
 	#----------------------------------------------------------------
-
+	def _on_add_vaccine_button_pressed(self, event):
+		edit_vaccine(parent = self, vaccine = None, single_entry = False)
+		# FIXME: could set newly generated vaccine here
 #======================================================================
 #======================================================================
 class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
