@@ -258,7 +258,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__left_extra_button_callback = callback
 		self._BTN_extra_left.SetLabel(label)
 		self._BTN_extra_left.SetToolTipString(tooltip)
-		self._BTN_extra_left.Eanble(True)
+		self._BTN_extra_left.Enable(True)
 		self._BTN_extra_left.Show()
 
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
@@ -275,7 +275,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__middle_extra_button_callback = callback
 		self._BTN_extra_middle.SetLabel(label)
 		self._BTN_extra_middle.SetToolTipString(tooltip)
-		self._BTN_extra_middle.Eanble(True)
+		self._BTN_extra_middle.Enable(True)
 		self._BTN_extra_middle.Show()
 
 	middle_extra_button = property(lambda x:x, _set_middle_extra_button)
@@ -292,7 +292,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.__right_extra_button_callback = callback
 		self._BTN_extra_right.SetLabel(label)
 		self._BTN_extra_right.SetToolTipString(tooltip)
-		self._BTN_extra_right.Eanble(True)
+		self._BTN_extra_right.Enable(True)
 		self._BTN_extra_right.Show()
 
 	right_extra_button = property(lambda x:x, _set_right_extra_button)

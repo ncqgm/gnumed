@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-07-20 19:18+CEST\n"
-"PO-Revision-Date: 2010-07-20 19:50+0100\n"
+"POT-Creation-Date: 2010-07-22 17:10+CEST\n"
+"PO-Revision-Date: 2010-07-22 17:14+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1553,11 +1553,11 @@ msgstr ""
 "\n"
 "Wenn Sie mehr als einen Wirkstoff holen, wird nur der erste davon zum Bearbeiten eingetragen werden."
 
-msgid "The amount of substance per dose."
-msgstr "Die Menge Wirkstoff pro Dosis."
-
 msgid "The preparation the substance comes in."
 msgstr "Die Darreichungsform der Substanz."
+
+msgid "The amount of substance per dose."
+msgstr "Die Menge Wirkstoff pro Dosis."
 
 msgid "Whether this substance is taken by advice."
 msgstr "Ob die Einnahme dieser Substanz gebilligt (bzw sogar empfohlen) wird."
@@ -1601,11 +1601,11 @@ msgstr "Wie lange soll diese Substanz genommen werden."
 msgid "Whether this substance is to be taken for the rest of the patient's life."
 msgstr "Ob es sich um ein Dauermedikament handelt."
 
-msgid "The aim of consuming this substance."
-msgstr "Das Ziel des Gebrauchs dieser Substanz."
-
 msgid "The episode this substance is taken under."
 msgstr "Die Episode, im Rahmen welcher diese Substanz eingenommen wird."
+
+msgid "The aim of consuming this substance."
+msgstr "Das Ziel des Gebrauchs dieser Substanz."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr "Kommentare oder Hinweise zur Einnahme dieser Substanz."
@@ -1628,11 +1628,11 @@ msgstr "Plan"
 msgid "Duration"
 msgstr "Dauer"
 
-msgid "Aim"
-msgstr "Ziel"
-
 msgid "Episode"
 msgstr "Episode"
+
+msgid "Aim"
+msgstr "Ziel"
 
 msgid "Advice"
 msgstr "Hinweis"
@@ -2152,8 +2152,14 @@ msgstr "Den markierten Eintrags ändern."
 msgid "Remove the selected item(s) from the list."
 msgstr "Gewählte Einträge aus der Liste löschen."
 
-msgid "&Delete"
-msgstr "&Löschen"
+msgid "1"
+msgstr "1"
+
+msgid "2"
+msgstr "2"
+
+msgid "3"
+msgstr "3"
 
 msgid ""
 "Select the items you want to work on.\n"
@@ -5706,7 +5712,7 @@ msgid "Start of new encounter"
 msgstr "Neuer Kontakt begonnen"
 
 msgid "Cannot list encounters. No active patient."
-msgstr "Kann Kontakt nicht auflisten. Kein Patient aktiv."
+msgstr "Kann Kontakte nicht auflisten. Kein Patient aktiv."
 
 msgid ""
 "\n"
@@ -6511,6 +6517,12 @@ msgstr "Webseite für die Meldung von Impfreaktionen."
 msgid "vaccADR URL"
 msgstr "Impf-UAW-URL"
 
+msgid "URL for vaccination plans."
+msgstr "URL für Impfpläne."
+
+msgid "Vacc plans URL"
+msgstr "Impfplan-URL"
+
 msgid "Set the command for calling the visual progress note editor."
 msgstr "Den Editor für Bildnotizen einstellen."
 
@@ -7192,6 +7204,19 @@ msgid ""
 msgstr ""
 "GNUmed ruft mit diesem Querverweis ein Lexikon über\n"
 "Labormethoden/Meßverfahren aus der Meßwerttabelle auf.\n"
+"\n"
+"Sie können das Feld leerlassen. Wenn Sie eine URL\n"
+"eingeben wollen, muß diese momentan erreichbar sein."
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+"GNUmed öffnet mit dieser Adresse eine Webseite, auf der\n"
+"Sie die Impfpläne nachlesen können.\n"
 "\n"
 "Sie können das Feld leerlassen. Wenn Sie eine URL\n"
 "eingeben wollen, muß diese momentan erreichbar sein."
@@ -8383,6 +8408,9 @@ msgstr "In &Datei exportieren"
 msgid "Export to &clipboard"
 msgstr "In die &Zwischenablage kopieren"
 
+msgid "&Delete"
+msgstr "&Löschen"
+
 msgid "%s results selected. Too many to list individually."
 msgstr "%s Ergebnisse markiert. Zu viele, um alle einzeln anzuzeigen."
 
@@ -8486,6 +8514,24 @@ msgstr "Zeige ATC-Codes."
 msgid "Term"
 msgstr "Ausdruck"
 
+msgid "Choose an ATC import config file"
+msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
+
+msgid "config files"
+msgstr "Konfigurationsdateien"
+
+msgid "importing ATC reference data"
+msgstr "Import von ATC-Referenzdaten"
+
+msgid "Successfully imported ATC reference data."
+msgstr "ATC-Referenzdaten erfolgreich importiert."
+
+msgid "Importing ATC reference data failed."
+msgstr "Import von ATC-Referenzdaten schlug fehl."
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr "Wählen Sie einen ATC (Anatomisch-Therapeutisch-Chemischen) Code."
+
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
@@ -8567,21 +8613,6 @@ msgstr "Kann Transferdatei [%s] (IFAP <-> GNUmed) nicht anlegen."
 
 msgid "Current medication"
 msgstr "Derzeitige Medikation"
-
-msgid "Choose an ATC import config file"
-msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
-
-msgid "config files"
-msgstr "Konfigurationsdateien"
-
-msgid "importing ATC reference data"
-msgstr "Import von ATC-Referenzdaten"
-
-msgid "Successfully imported ATC reference data."
-msgstr "ATC-Referenzdaten erfolgreich importiert."
-
-msgid "Importing ATC reference data failed."
-msgstr "Import von ATC-Referenzdaten schlug fehl."
 
 msgid "The preparation (form) of the substance the patient is taking."
 msgstr "Die Darreichungs-/Zubereitungsform der Substanz, die vom Patienten eingenommen wird."
@@ -10264,6 +10295,12 @@ msgstr "Zeige Impfungen."
 msgid "Intended to protect from"
 msgstr "Soll schützen vor"
 
+msgid "Open a browser showing vaccination schedules."
+msgstr "Impfpläne im Browser anzeigen."
+
+msgid "Vaccination Plans"
+msgstr "Impfpläne"
+
 msgid "prevention"
 msgstr "Prävention"
 
@@ -10898,6 +10935,8 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "intramuscular"
+#~ msgstr "intramuskulär"
 #~ msgid "&Next..."
 #~ msgstr "&Nächstes..."
 #~ msgid ""

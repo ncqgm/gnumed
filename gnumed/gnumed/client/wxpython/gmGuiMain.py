@@ -351,6 +351,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('vaccADR URL'), _('URL for reporting Adverse Drug Reactions to *vaccines*.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_vaccine_adr_url, item)
 
+		item = menu_cfg_ext_tools.Append(-1, _('Vacc plans URL'), _('URL for vaccination plans.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_vaccination_plans_url, item)
+
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
@@ -1352,6 +1355,32 @@ class gmTopLevelFrame(wx.Frame):
 			option = 'external.urls.measurements_encyclopedia',
 			bias = 'user',
 			default_value = u'http://www.laborlexikon.de',
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_configure_vaccination_plans_url(self, evt):
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, value
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return False, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access a page showing\n'
+				'vaccination schedules.\n'
+				'\n'
+				'You can leave this empty but to set it to a specific\n'
+				'address the URL must be accessible now.'
+			),
+			option = 'external.urls.vaccination_plans',
+			bias = 'user',
+			default_value = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf',
 			validator = is_valid
 		)
 	#----------------------------------------------

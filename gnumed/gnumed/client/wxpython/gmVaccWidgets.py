@@ -611,7 +611,22 @@ def manage_vaccinations(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def browse2schedules(vaccination=None):
+		dbcfg = gmCfg.cCfgSQL()
+		url = dbcfg.get2 (
+			option = 'external.urls.vaccination_plans',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user',
+			default = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf'
+		)
 
+		webbrowser.open (
+			url = url,
+			new = False,
+			autoraise = True
+		)
+		return False
 	#------------------------------------------------------------
 	def edit(vaccination=None):
 		return edit_vaccination(parent = parent, vaccination = vaccination, single_entry = True)
@@ -646,7 +661,8 @@ def manage_vaccinations(parent=None):
 		refresh_callback = refresh,
 		new_callback = edit,
 		edit_callback = edit,
-		delete_callback = delete
+		delete_callback = delete,
+		left_extra_button = (_('Vaccination Plans'), _('Open a browser showing vaccination schedules.'), browse2schedules)
 	)
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl

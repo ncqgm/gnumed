@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-07-20 19:18+CEST\n"
+"POT-Creation-Date: 2010-07-22 17:10+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1439,10 +1439,10 @@ msgid ""
 "Note that if you select more than one substance only the first one will be available for further editing right away."
 msgstr ""
 
-msgid "The amount of substance per dose."
+msgid "The preparation the substance comes in."
 msgstr ""
 
-msgid "The preparation the substance comes in."
+msgid "The amount of substance per dose."
 msgstr ""
 
 msgid "Whether this substance is taken by advice."
@@ -1484,10 +1484,10 @@ msgstr ""
 msgid "Whether this substance is to be taken for the rest of the patient's life."
 msgstr ""
 
-msgid "The aim of consuming this substance."
+msgid "The episode this substance is taken under."
 msgstr ""
 
-msgid "The episode this substance is taken under."
+msgid "The aim of consuming this substance."
 msgstr ""
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
@@ -1511,10 +1511,10 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-msgid "Aim"
+msgid "Episode"
 msgstr ""
 
-msgid "Episode"
+msgid "Aim"
 msgstr ""
 
 msgid "Advice"
@@ -1995,7 +1995,13 @@ msgstr ""
 msgid "Remove the selected item(s) from the list."
 msgstr ""
 
-msgid "&Delete"
+msgid "1"
+msgstr ""
+
+msgid "2"
+msgstr ""
+
+msgid "3"
 msgstr ""
 
 msgid ""
@@ -5851,6 +5857,12 @@ msgstr ""
 msgid "vaccADR URL"
 msgstr ""
 
+msgid "URL for vaccination plans."
+msgstr ""
+
+msgid "Vacc plans URL"
+msgstr ""
+
 msgid "Set the command for calling the visual progress note editor."
 msgstr ""
 
@@ -6470,6 +6482,14 @@ msgstr ""
 msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
@@ -7470,6 +7490,9 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
+msgid "&Delete"
+msgstr ""
+
 msgid "%s results selected. Too many to list individually."
 msgstr ""
 
@@ -7565,6 +7588,24 @@ msgstr ""
 msgid "Term"
 msgstr ""
 
+msgid "Choose an ATC import config file"
+msgstr ""
+
+msgid "config files"
+msgstr ""
+
+msgid "importing ATC reference data"
+msgstr ""
+
+msgid "Successfully imported ATC reference data."
+msgstr ""
+
+msgid "Importing ATC reference data failed."
+msgstr ""
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr ""
+
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
@@ -7628,21 +7669,6 @@ msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
 msgstr ""
 
 msgid "Current medication"
-msgstr ""
-
-msgid "Choose an ATC import config file"
-msgstr ""
-
-msgid "config files"
-msgstr ""
-
-msgid "importing ATC reference data"
-msgstr ""
-
-msgid "Successfully imported ATC reference data."
-msgstr ""
-
-msgid "Importing ATC reference data failed."
 msgstr ""
 
 msgid "The preparation (form) of the substance the patient is taking."
@@ -9074,6 +9100,12 @@ msgid "Showing vaccinations."
 msgstr ""
 
 msgid "Intended to protect from"
+msgstr ""
+
+msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+msgid "Vaccination Plans"
 msgstr ""
 
 msgid "prevention"
