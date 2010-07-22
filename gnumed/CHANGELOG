@@ -6,7 +6,7 @@
 # rel-0-8-patches
 ------------------------------------------------
 
-	0.8.x
+	0.8.0
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook: "after_soap_modified"
