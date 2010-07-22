@@ -34,7 +34,24 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg, wxgGenericListManagerPnl
 
 #================================================================
-def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False, can_return_empty=False, ignore_OK_button=False):
+def get_choices_from_list (
+			parent=None,
+			msg=None,
+			caption=None,
+			choices=None,
+			selections=None,
+			columns=None,
+			data=None,
+			edit_callback=None,
+			new_callback=None,
+			delete_callback=None,
+			refresh_callback=None,
+			single_selection=False,
+			can_return_empty=False,
+			ignore_OK_button=False,
+			left_extra_button=None,
+			middle_extra_button=None,
+			right_extra_button=None):
 	"""Let user select item(s) from a list.
 
 	- edit_callback: (item data)
@@ -52,11 +69,17 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, style = wx.LC_SINGLE_SEL)
 	else:
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
+
 	dlg.refresh_callback = refresh_callback
 	dlg.edit_callback = edit_callback
 	dlg.new_callback = new_callback
 	dlg.delete_callback = delete_callback
+
 	dlg.ignore_OK_button = ignore_OK_button
+	dlg.left_extra_button = left_extra_button
+	dlg.middle_extra_button = middle_extra_button
+	dlg.right_extra_button = right_extra_button
+
 	dlg.set_columns(columns = columns)
 
 	if refresh_callback is None:
@@ -97,6 +120,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._LBL_message.Hide()
 		else:
 			self._LBL_message.SetLabel(msg)
+
+		self.left_extra_button = None
+		self.middle_extra_button = None
+		self.right_extra_button = None
 
 		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
 		self.new_callback = None				# called when NEW button pressed, no argument passed in
@@ -179,6 +206,33 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.refresh_callback(lctrl = self._LCTRL_items)
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
+	def _on_left_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__left_extra_button_callback(item_data):
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
+		self._LCTRL_items.set_column_widths()
+	#------------------------------------------------------------
+	def _on_middle_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__middle_extra_button_callback(item_data):
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
+		self._LCTRL_items.set_column_widths()
+	#------------------------------------------------------------
+	def _on_right_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__right_extra_button_callback(item_data):
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
+		self._LCTRL_items.set_column_widths()
+	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
 	def _set_ignore_OK_button(self, ignored):
@@ -191,6 +245,57 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._BTN_ok.Show()
 
 	ignore_OK_button = property(lambda x:x, _set_ignore_OK_button)
+	#------------------------------------------------------------
+	def _set_left_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_left.Enable(False)
+			self._BTN_extra_left.Hide()
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
+		self.__left_extra_button_callback = callback
+		self._BTN_extra_left.SetLabel(label)
+		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.Eanble(True)
+		self._BTN_extra_left.Show()
+
+	left_extra_button = property(lambda x:x, _set_left_extra_button)
+	#------------------------------------------------------------
+	def _set_middle_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_middle.Enable(False)
+			self._BTN_extra_middle.Hide()
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<middle extra button> callback is not a callable: %s' % callback)
+		self.__middle_extra_button_callback = callback
+		self._BTN_extra_middle.SetLabel(label)
+		self._BTN_extra_middle.SetToolTipString(tooltip)
+		self._BTN_extra_middle.Eanble(True)
+		self._BTN_extra_middle.Show()
+
+	middle_extra_button = property(lambda x:x, _set_middle_extra_button)
+	#------------------------------------------------------------
+	def _set_right_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_right.Enable(False)
+			self._BTN_extra_right.Hide()
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<right extra button> callback is not a callable: %s' % callback)
+		self.__right_extra_button_callback = callback
+		self._BTN_extra_right.SetLabel(label)
+		self._BTN_extra_right.SetToolTipString(tooltip)
+		self._BTN_extra_right.Eanble(True)
+		self._BTN_extra_right.Show()
+
+	right_extra_button = property(lambda x:x, _set_right_extra_button)
 	#------------------------------------------------------------
 	def _get_new_callback(self):
 		return self.__new_callback

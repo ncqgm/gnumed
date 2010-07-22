@@ -796,6 +796,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_brand']])
 		if self._payload[self._idx['external_code_brand']] is not None:
 			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
+		allg['allergene'] = self._payload[self._idx['substance']]
 		allg['generics'] = self._payload[self._idx['substance']]
 
 		allg.save()

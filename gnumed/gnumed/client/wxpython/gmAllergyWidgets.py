@@ -114,7 +114,7 @@ where narrative %(fragment_condition)s
 			accuracy = gmDateTime.acc_days
 		)
 		self._DPRW_date_noted.SetData(data=ts)
-		self._PRW_trigger.SetText(value = self.__allergy['substance'])
+		self._PRW_trigger.SetText(value = self.__allergy['allergene'])
 		self._TCTRL_brand_name.SetValue(self.__allergy['substance'])
 		self._TCTRL_generic.SetValue(gmTools.coalesce(self.__allergy['generics'], ''))
 		self._ChBOX_generic_specific.SetValue(self.__allergy['generic_specific'])
@@ -161,7 +161,7 @@ where narrative %(fragment_condition)s
 
 		# and update it with known data
 		self.__allergy['date'] = self._DPRW_date_noted.GetData().get_pydt()
-		self.__allergy['substance'] = self._PRW_trigger.GetValue().strip()
+		self.__allergy['allergene'] = self._PRW_trigger.GetValue().strip()
 		# FIXME: determine brandname/generic/etc from substance (trigger field)
 		self.__allergy['generic_specific'] = (True and self._ChBOX_generic_specific.GetValue())
 		self.__allergy['reaction'] = self._PRW_reaction.GetValue().strip()

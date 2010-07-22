@@ -362,6 +362,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		- each string is a query
 		- each string must contain: "... where <column> %(fragment_condition)s ..."
 		- each string can contain in the where clause: "... %(<context_key>)s ..."
+		- each query must return (data, label)
 
 	context definitions to be used in the queries
 	example: {'ctxt_country': {'where_part': 'and country = %(country)s', 'placeholder': 'country'}}

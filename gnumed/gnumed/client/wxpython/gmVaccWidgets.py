@@ -390,7 +390,6 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		self._PRW_route.matcher = mp
 		self._PRW_route.selection_only = True
 
-		#self._PRW_atc = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 		#self._PRW_age_min = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 		#self._PRW_age_max = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 
@@ -1197,8 +1196,8 @@ if __name__ == "__main__":
 	if sys.argv[1] != u'test':
 		sys.exit()
 
-	app = wxPyWidgetTester(size = (600, 600))
-	app.SetWidget(cImmunisationsPanel, -1)
+	app = wx.PyWidgetTester(size = (600, 600))
+	app.SetWidget(cATCPhraseWheel, -1)
 	app.MainLoop()
 #======================================================================
 

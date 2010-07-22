@@ -52,6 +52,8 @@ IMPROVED: pre-filter form template selection list based on purpose of showing
 IMPROVED: default config file for running from tarball
 IMPROVED: better support FreeDiams (0.4.2 now in Debian)
 IMPROVED: EMR tree root note context menu
+IMPROVED: generic lists can now have 3 extra buttons
+IMPROVED: use substance rather than brand as allergene when creating allergy from substance intake entry
 
 ------------------------------------------------
 # rel-0-7-patches

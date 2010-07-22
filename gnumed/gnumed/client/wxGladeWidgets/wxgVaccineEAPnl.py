@@ -24,7 +24,7 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
         self._CHBOX_live = wx.CheckBox(self, -1, _("Live"))
         self._CHBOX_fake = wx.CheckBox(self, -1, _("Fake"))
         self._PNL_indications = cVaccinationIndicationsPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
-        self._PRW_atc = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_atc = gmMedicationWidgets.cATCPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_age_min = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_age_max = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
