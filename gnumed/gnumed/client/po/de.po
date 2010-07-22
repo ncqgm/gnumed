@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-07-22 17:10+CEST\n"
-"PO-Revision-Date: 2010-07-22 17:14+0100\n"
+"POT-Creation-Date: 2010-07-22 18:03+CEST\n"
+"PO-Revision-Date: 2010-07-22 18:06+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -3730,13 +3730,13 @@ msgid "Variola virus"
 msgstr "Variolavirus (Smallpox)"
 
 msgid "<--Resp-->"
-msgstr "<--Atmung-->"
+msgstr "←Atmung→"
 
 msgid "<--Neuro-->"
 msgstr "←ZNS/PNS→"
 
 msgid "<--GI-->"
-msgstr "<-Magen-Darm->"
+msgstr "←Magen-Darm→"
 
 msgid "Other:"
 msgstr "Sonstige:"
