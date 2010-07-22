@@ -99,7 +99,8 @@ known_schema_hashes = {
 	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
 	'v11': '03042ae24f3f92877d986fb0a6184d76',
 	'v12': '06183a6616db62257e22814007a8ed07',
-	'v13': 'fab7c1ae408a6530c47f9b5111a0841e'
+	'v13': 'fab7c1ae408a6530c47f9b5111a0841e',
+	'v14': 'e170d543f067d1ea60bfe9076b1560cf'
 }
 
 map_schema_hash2version = {
@@ -114,7 +115,8 @@ map_schema_hash2version = {
 	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
 	'03042ae24f3f92877d986fb0a6184d76': 'v11',
 	'06183a6616db62257e22814007a8ed07': 'v12',
-	'fab7c1ae408a6530c47f9b5111a0841e': 'v13'
+	'fab7c1ae408a6530c47f9b5111a0841e': 'v13',
+	'e170d543f067d1ea60bfe9076b1560cf': 'v14'
 }
 
 map_client_branch2required_db_version = {
@@ -123,7 +125,8 @@ map_client_branch2required_db_version = {
 	u'0.4': u'v10',
 	u'0.5': u'v11',
 	u'0.6': u'v12',
-	u'0.7': u'v13'
+	u'0.7': u'v13',
+	u'0.8': u'v14'
 }
 
 # get columns and data types for a given table
