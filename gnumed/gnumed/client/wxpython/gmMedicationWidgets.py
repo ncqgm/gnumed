@@ -74,7 +74,8 @@ def manage_substances_in_brands(parent=None):
 			s['substance'],
 			gmTools.coalesce(s['atc_substance'], u''),
 			s['preparation'],
-			gmTools.coalesce(s['external_code_brand'], u'', u'%%s [%s]' % s['external_code_type_brand']),
+			#gmTools.coalesce(s['external_code_brand'], u'', u'%%s [%s]' % s['external_code_type_brand']),
+			gmTools.coalesce(s['external_code_brand'], u''),
 			s['pk_substance_in_brand']
 		] for s in substs ]
 		lctrl.set_string_items(items)
