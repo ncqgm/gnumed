@@ -30,6 +30,10 @@ IMPROVED: DOB validity check when creating new person
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.8
+
+FIX: exception on substance listing because ref.v_substance_in_brand does not have external_code_type_brand
+
 	0.7.7
 
 FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
