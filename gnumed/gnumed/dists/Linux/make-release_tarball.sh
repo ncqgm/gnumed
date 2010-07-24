@@ -199,6 +199,7 @@ cp -R ../../client/po/it.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/nb.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/nl.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pl.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pt.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pt_BR.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/po
 
@@ -211,6 +212,7 @@ cd ../../client/po/
 ./create-gnumed_mo.sh nb
 ./create-gnumed_mo.sh nl
 ./create-gnumed_mo.sh pl
+./create-gnumed_mo.sh pt
 ./create-gnumed_mo.sh pt_BR
 ./create-gnumed_mo.sh ru
 cd -
@@ -222,6 +224,7 @@ cp -R ../../client/po/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pt-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 
@@ -495,7 +498,6 @@ find ./ -name '*.pyc' -exec rm -v '{}' ';'
 find ./ -name '*.py~' -exec rm -v '{}' ';'
 find ./ -name 'wxg*.wxg~' -exec rm -v '{}' ';'
 find ./ -name '*.log' -exec rm -v '{}' ';'
-find ./ -name 'gnumed.pot' -exec rm -v '{}' ';'
 find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
 

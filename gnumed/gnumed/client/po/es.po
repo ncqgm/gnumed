@@ -8,7 +8,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
-"POT-Creation-Date: 2010-07-13 12:13+CEST\n"
+"POT-Creation-Date: 2010-07-24 12:19+CEST\n"
 "PO-Revision-Date: 2004-09-22 17:48-0500\n"
 "Last-Translator: fredy <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -18,6 +18,38 @@ msgstr ""
 "Generated-By: pygettext.py 1.4\n"
 "X-Generator: KBabel 1.3.1\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+msgid "programmer forgot to specify error message"
+msgstr "el programador no ha especificado el mensaje de error"
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+"\n"
+"\n"
+"Por favor, para más información consulte el log de error"
+
+#, fuzzy
+msgid "generic error message"
+msgstr "diálogo de error genérico"
+
+#, fuzzy
+msgid "programmer forgot to specify info message"
+msgstr "el programador no ha especificado el mensaje de error"
+
+#, fuzzy
+msgid "generic info message"
+msgstr "diálogo de error genérico"
+
+#, fuzzy
+msgid "programmer forgot to specify warning"
+msgstr "el programador no ha especificado la pregunta"
+
+#, fuzzy
+msgid "generic warning message"
+msgstr "diálogo de error genérico"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -897,6 +929,27 @@ msgstr "interval_format_tag:: semanas:: y"
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag:: dias:: y"
 
+msgid "y::year_abbreviation"
+msgstr ""
+
+msgid "m::month_abbreviation"
+msgstr ""
+
+msgid "mo::month_only_abbreviation"
+msgstr ""
+
+msgid "w::week_abbreviation"
+msgstr ""
+
+msgid "d::day_abbreviation"
+msgstr ""
+
+msgid "h::hour_abbreviation"
+msgstr ""
+
+msgid "s::second_abbreviation"
+msgstr ""
+
 msgid "yYaA_keys_year"
 msgstr "yYaA_llaves_años"
 
@@ -1720,11 +1773,11 @@ msgstr ""
 "Si selecciono mas de una substancia solo la primera estara disponible para "
 "editar inmediatamente."
 
-msgid "The amount of substance per dose."
-msgstr "La cantidad de substancia por dosis."
-
 msgid "The preparation the substance comes in."
 msgstr "La preparacion de la substancia viene en."
+
+msgid "The amount of substance per dose."
+msgstr "La cantidad de substancia por dosis."
 
 msgid "Whether this substance is taken by advice."
 msgstr "Cuando esta substancia es tomada por recomendacion."
@@ -1773,11 +1826,11 @@ msgstr ""
 "Ya sea que esta sustancia debe ser tomada por el resto de la vida del "
 "paciente."
 
-msgid "The aim of consuming this substance."
-msgstr "El objetivo del consumo de esta substancia."
-
 msgid "The episode this substance is taken under."
 msgstr "El episodio de esta sustancia es tomada en virtud."
+
+msgid "The aim of consuming this substance."
+msgstr "El objetivo del consumo de esta substancia."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
@@ -1805,11 +1858,11 @@ msgstr "Horario"
 msgid "Duration"
 msgstr "Operación"
 
-msgid "Aim"
-msgstr "Propósito"
-
 msgid "Episode"
 msgstr "Episodio"
+
+msgid "Aim"
+msgstr "Propósito"
 
 #, fuzzy
 msgid "Advice"
@@ -2433,7 +2486,7 @@ msgid "Cancel editing the data and discard changes."
 msgstr "Cancelar la edicion de datos y descartar cambios."
 
 msgid "Add &another"
-msgstr ""
+msgstr "&Añadir otro"
 
 msgid "Lala !"
 msgstr "Lala !"
@@ -2476,9 +2529,14 @@ msgstr "Editar el item seleccionado."
 msgid "Remove the selected item(s) from the list."
 msgstr "borrar la página seleccionad del documento"
 
-#, fuzzy
-msgid "&Delete"
-msgstr "eliminar"
+msgid "1"
+msgstr ""
+
+msgid "2"
+msgstr ""
+
+msgid "3"
+msgstr ""
 
 msgid ""
 "Select the items you want to work on.\n"
@@ -4175,7 +4233,8 @@ msgstr "Vacuna ..."
 msgid ""
 "... or ...\n"
 "\n"
-"vaccinated against"
+"vaccinated\n"
+"against"
 msgstr ""
 
 msgid "Batch №"
@@ -4219,7 +4278,7 @@ msgid "Rubella"
 msgstr ""
 
 msgid "Pneumococc"
-msgstr ""
+msgstr "Neumococo"
 
 msgid "W"
 msgstr ""
@@ -4258,7 +4317,7 @@ msgid "Rotavirus"
 msgstr "Rotavirus"
 
 msgid "Hep B"
-msgstr ""
+msgstr "Hep B"
 
 msgid "HPV"
 msgstr ""
@@ -4339,7 +4398,7 @@ msgid "<--Resp-->"
 msgstr ""
 
 msgid "<--Neuro-->"
-msgstr ""
+msgstr "<--Neuro-->"
 
 msgid "<--GI-->"
 msgstr ""
@@ -4380,8 +4439,10 @@ msgstr "Cualquier comentario que quiera hacer acerca de esta vacuna."
 msgid "Route"
 msgstr "Ruta"
 
-msgid "Protects from"
-msgstr "Protege de"
+msgid ""
+"Protects\n"
+"from"
+msgstr ""
 
 msgid "ATC"
 msgstr ""
@@ -5621,7 +5682,7 @@ msgid "Select the episode under which to file the document ..."
 msgstr "Seleccione el episodio en que para presentar el documento ..."
 
 msgid "Imported new document from [%s]."
-msgstr ""
+msgstr "Se ha importado un documento nuevo de [%s]."
 
 #, fuzzy
 msgid "Enter a comment on the document."
@@ -6177,6 +6238,9 @@ msgstr "problema de salud: %s"
 msgid "Manage allergies"
 msgstr "Alergias"
 
+msgid "Manage vaccinations"
+msgstr ""
+
 #, fuzzy
 msgid "Manage procedures"
 msgstr "No se puedo guardar la información sobre la alergia"
@@ -6295,6 +6359,8 @@ msgid ""
 "\n"
 "Select the procedure you want to edit !\n"
 msgstr ""
+"\n"
+"Elija el procedimiento que quiere editar\n"
 
 msgid "Editing performed procedures ..."
 msgstr ""
@@ -6328,7 +6394,7 @@ msgstr ""
 "Elija la estancia hospitalaria que quiere editar.\n"
 
 msgid "Editing hospital stays ..."
-msgstr ""
+msgstr "Editando estancias hospitalarias ..."
 
 msgid "Admission"
 msgstr "Admisión"
@@ -6344,7 +6410,7 @@ msgid "Editing a hospital stay"
 msgstr "Editando una estancia hospitalaria"
 
 msgid "Missing admission data. Cannot save hospital stay."
-msgstr ""
+msgstr "Faltan datos de admisión. No se puede grabar la estancia hospitalaria."
 
 msgid ""
 "Discharge date must be empty or later than admission. Cannot save hospital "
@@ -6437,7 +6503,7 @@ msgid "Move episode into existing health issue"
 msgstr ""
 
 msgid "Use existing"
-msgstr ""
+msgstr "Usar el existente"
 
 msgid "Create a new health issue with another name"
 msgstr ""
@@ -6479,10 +6545,10 @@ msgid "Resolving two-running-episodes conflict"
 msgstr ""
 
 msgid "close existing episode \"%s\""
-msgstr ""
+msgstr "cerrar el episodio existente \"%s\""
 
 msgid "old episode"
-msgstr ""
+msgstr "episodio antiguo"
 
 msgid "close moving (new) episode \"%s\""
 msgstr ""
@@ -6588,7 +6654,7 @@ msgid "reset entry"
 msgstr "tratamiento"
 
 msgid "discard entry and cancel"
-msgstr ""
+msgstr "descartar entrada y cancelar"
 
 msgid ""
 "Unspecified error saving data in edit area.\n"
@@ -6694,7 +6760,7 @@ msgid "E-MAIL"
 msgstr "Correo electrónico"
 
 msgid "must have a recipient"
-msgstr ""
+msgstr "ha de tener un recipiente"
 
 #, fuzzy
 msgid "must select address"
@@ -6713,7 +6779,7 @@ msgid "Significant"
 msgstr "Significante"
 
 msgid "Missing GNUmed module"
-msgstr ""
+msgstr "Falta un módulo de GNUmed"
 
 msgid ""
 "GNUmed detected that parts of it are not\n"
@@ -6728,7 +6794,7 @@ msgid ""
 msgstr ""
 
 msgid "Lost connection"
-msgstr ""
+msgstr "Conexión perdida"
 
 msgid ""
 "Since you were last working in GNUmed,\n"
@@ -6808,7 +6874,7 @@ msgid "Calibration"
 msgstr "Calibración"
 
 msgid "No document template selected."
-msgstr ""
+msgstr "No se ha elegido ninguna plantilla de documentos"
 
 msgid ""
 "Error creating printable document.\n"
@@ -6821,7 +6887,7 @@ msgid "Printing document"
 msgstr "mostrando informe"
 
 msgid "Error creating printable document."
-msgstr ""
+msgstr "Error al crear documento imprimible"
 
 #, fuzzy
 msgid "Error printing document (%s)."
@@ -6845,6 +6911,10 @@ msgid ""
 "The UNO bridge module for Python\n"
 "is not installed."
 msgstr ""
+"No se puede conectar con OpenOffice.\n"
+"\n"
+"El módulo puente UNO de Python\n"
+"no está instalado."
 
 msgid "Letter writer"
 msgstr ""
@@ -6887,43 +6957,11 @@ msgid "You must select a template file before saving."
 msgstr "Usted debe seleccionar una página antes de poder verla."
 
 msgid "all files (Windows)"
-msgstr ""
+msgstr "todos los archivos (Windows)"
 
 #, fuzzy
 msgid "Choose a form template file"
 msgstr "Seleccione un archivo xDT"
-
-msgid "programmer forgot to specify error message"
-msgstr "el programador no ha especificado el mensaje de error"
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-"\n"
-"\n"
-"Por favor, para más información consulte el log de error"
-
-#, fuzzy
-msgid "generic error message"
-msgstr "diálogo de error genérico"
-
-#, fuzzy
-msgid "programmer forgot to specify info message"
-msgstr "el programador no ha especificado el mensaje de error"
-
-#, fuzzy
-msgid "generic info message"
-msgstr "diálogo de error genérico"
-
-#, fuzzy
-msgid "programmer forgot to specify warning"
-msgstr "el programador no ha especificado la pregunta"
-
-#, fuzzy
-msgid "generic warning message"
-msgstr "diálogo de error genérico"
 
 #, fuzzy
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
@@ -6952,7 +6990,7 @@ msgid "List all configuration items stored in the database."
 msgstr ""
 
 msgid "List configuration"
-msgstr ""
+msgstr "Lista de configuración"
 
 #, fuzzy
 msgid "Database ..."
@@ -6963,10 +7001,12 @@ msgid "Configure the database language"
 msgstr "comprobando la configuración de idioma de la base de datos"
 
 msgid "Language"
-msgstr ""
+msgstr "Lenguaje"
 
 msgid "Configure the database welcome message (all users)."
 msgstr ""
+"Configurar el mensaje de bienvenida de la base de datos (para todos los "
+"usuarios)."
 
 #, fuzzy
 msgid "Welcome message"
@@ -6983,6 +7023,8 @@ msgstr ""
 
 msgid "Configure the directory to use as scratch space for temporary files."
 msgstr ""
+"Configurar el directorio que se usará como almacén transitorio de archivos "
+"temporales."
 
 msgid "Temporary directory"
 msgstr "Directorio temporal"
@@ -6996,7 +7038,7 @@ msgstr ""
 "Dirección de correo del usuario para el envío de informes de errores, etc."
 
 msgid "User interface ..."
-msgstr ""
+msgstr "Interfaz de usuario..."
 
 #, fuzzy
 msgid "Document handling ..."
@@ -7027,7 +7069,7 @@ msgid "Update handling ..."
 msgstr "Cargando ..."
 
 msgid "Auto-check"
-msgstr ""
+msgstr "Comprobación automática"
 
 msgid "Whether to auto-check for updates at startup."
 msgstr ""
@@ -7128,6 +7170,13 @@ msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
 msgstr "URL para informar de Reacciones Adversas a *vacunas*."
 
 msgid "vaccADR URL"
+msgstr ""
+
+#, fuzzy
+msgid "URL for vaccination plans."
+msgstr "No ha sido posible guardar las vacunaciones: %s"
+
+msgid "Vacc plans URL"
 msgstr ""
 
 msgid "Set the command for calling the visual progress note editor."
@@ -7592,6 +7641,12 @@ msgstr ""
 msgid "Backup the content of the log to another file."
 msgstr ""
 
+msgid "Email log file"
+msgstr ""
+
+msgid "Send the log file to the authors for help."
+msgstr ""
+
 msgid "Bug tracker"
 msgstr ""
 
@@ -7644,7 +7699,7 @@ msgid "About database"
 msgstr "base de datos"
 
 msgid "Show information about the current database."
-msgstr ""
+msgstr "Muestra información acerca de la base de datos actual"
 
 msgid "Raise plugin [%s]."
 msgstr ""
@@ -7654,7 +7709,7 @@ msgid "programmer forgot to specify status message"
 msgstr "el programador no ha especificado el mensaje de alerta"
 
 msgid "The database will be shut down for maintenance in a few minutes."
-msgstr ""
+msgstr "La base de datos se cerrará por mantenimiento en unos pocos minutos."
 
 msgid "Database shutdown warning"
 msgstr ""
@@ -7717,7 +7772,7 @@ msgid "Announcing database maintenance downtime"
 msgstr ""
 
 msgid "Choose temporary directory ..."
-msgstr ""
+msgstr "Elija el directorio temporal..."
 
 msgid ""
 "Some network installations cannot cope with loading\n"
@@ -7795,8 +7850,16 @@ msgid ""
 "address the URL must be accessible now."
 msgstr ""
 
-msgid "The command [%s] is not found. This may or may not be a problem."
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
 msgstr ""
+
+msgid "The command [%s] is not found. This may or may not be a problem."
+msgstr "No se encuentra el comando [%s]. Esto puede o no ser un problema."
 
 msgid ""
 "Enter the shell command with which to start the\n"
@@ -7810,7 +7873,7 @@ msgid ""
 msgstr ""
 
 msgid "The command [%s] is not found."
-msgstr ""
+msgstr "No se encuentra el comando [%s]."
 
 msgid ""
 "Enter the shell command with which to start\n"
@@ -8879,6 +8942,10 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
+#, fuzzy
+msgid "&Delete"
+msgstr "eliminar"
+
 msgid "%s results selected. Too many to list individually."
 msgstr ""
 
@@ -8975,12 +9042,44 @@ msgstr ""
 msgid "Term"
 msgstr ""
 
+#, fuzzy
+msgid "Choose an ATC import config file"
+msgstr "Seleccione un archivo xDT"
+
+#, fuzzy
+msgid "config files"
+msgstr "Opciones de Configuración"
+
+msgid "importing ATC reference data"
+msgstr ""
+
+msgid "Successfully imported ATC reference data."
+msgstr ""
+
+msgid "Importing ATC reference data failed."
+msgstr ""
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr ""
+
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
 msgstr ""
 
 msgid "Showing drug brand components (substances)."
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
 msgstr ""
 
 msgid ""
@@ -9028,23 +9127,6 @@ msgstr ""
 #, fuzzy
 msgid "Current medication"
 msgstr "Indicación"
-
-#, fuzzy
-msgid "Choose an ATC import config file"
-msgstr "Seleccione un archivo xDT"
-
-#, fuzzy
-msgid "config files"
-msgstr "Opciones de Configuración"
-
-msgid "importing ATC reference data"
-msgstr ""
-
-msgid "Successfully imported ATC reference data."
-msgstr ""
-
-msgid "Importing ATC reference data failed."
-msgstr ""
 
 msgid "The preparation (form) of the substance the patient is taking."
 msgstr ""
@@ -10265,6 +10347,12 @@ msgid ""
 "that patient in the GNUmed database."
 msgstr ""
 
+msgid ""
+"Supposedly there are conflicting vaccinations\n"
+"for patient [%s]. However, I cannot find\n"
+"that patient in the GNUmed database."
+msgstr ""
+
 #, fuzzy
 msgid "No action configured for keyword [%s]."
 msgstr "paciente no encontrado: [%s]"
@@ -10557,6 +10645,23 @@ msgstr ""
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
+msgid "Saving vaccine"
+msgstr ""
+
+msgid ""
+"This vaccine is already in use:\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Are you absolutely positively sure that\n"
+"you really want to edit this vaccine ?\n"
+"\n"
+"This will change the vaccine name and/or target\n"
+"conditions in each patient this vaccine was\n"
+"used in to document a vaccination with.\n"
+msgstr ""
+
 msgid "Adding new vaccination"
 msgstr ""
 
@@ -10573,6 +10678,14 @@ msgstr ""
 
 msgid "Intended to protect from"
 msgstr ""
+
+#, fuzzy
+msgid "Open a browser showing vaccination schedules."
+msgstr "No ha sido posible guardar las vacunaciones: %s"
+
+#, fuzzy
+msgid "Vaccination Plans"
+msgstr "Vacunaciones"
 
 msgid "prevention"
 msgstr ""
@@ -11247,6 +11360,9 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera Fecha"
+
+#~ msgid "Protects from"
+#~ msgstr "Protege de"
 
 #~ msgid "ERROR: cannot retrieve vaccinated indications"
 #~ msgstr "ERROR: no ha sido posible obtener información sobre vacunaciones"
