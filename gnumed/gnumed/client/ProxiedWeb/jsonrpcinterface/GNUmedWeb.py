@@ -15,10 +15,10 @@ from pyjamas.JSONService import JSONProxy
 
 import jsonobjproxy # just to get it in for pyjs
 
-connected = False
 #======================================================
 class cMainPanel(VerticalPanel):
-    def __init__(self, **kwargs):
+    def __init__(self, app, **kwargs):
+        self.app = app
         VerticalPanel.__init__(self, **kwargs)
 
         info = """<h2>JSON-RPC Example</h2>
@@ -92,7 +92,8 @@ class cMainPanel(VerticalPanel):
 
     #--------------------------------------------------
     def onRemoteResponse(self, response, request_info):
-        if request_info.method == 'get_documents':
+        method = request_info.method
+        if method == 'get_documents':
             grid = Grid()
             grid.resize(len(response)+1, 8)
             grid.setHTML(0, 0, "Comment")
@@ -128,8 +129,9 @@ class cMainPanel(VerticalPanel):
                                 (code, message))
 
 #======================================================
-class cLoginPanel(VerticalPanel): # ok, think of something better than VerticalPanel!
-    def __init__(self, **kwargs):
+class cLoginPanel(VerticalPanel): 
+    def __init__(self, app, **kwargs):
+        self.app = app
         VerticalPanel.__init__(self, **kwargs)
 
         self.status=Label()
@@ -148,41 +150,32 @@ class cLoginPanel(VerticalPanel): # ok, think of something better than VerticalP
         panel.add(self.button_login)
         panel.add(self.status)
         self.add(panel)
+
     #--------------------------------------------------
     def onClick(self, sender):
         self.status.setText(self.TEXT_WAITING)
 
-        # demonstrate proxy & callMethod()
         if sender == self.button_login:
-            user = self.username.getText()
+            self.button_login.setEnabled(False) # disable whilst checking
+            self.try_user = self.username.getText()
             passwd = self.password.getText() 
-            id = self.remote_py.login(user, passwd, self)
+            self.remote_py.login(self.try_user, passwd, self)
 
     #--------------------------------------------------
     def onRemoteResponse(self, response, request_info):
-        if response:
-            self.status.setText("Login successful: %s" %str(response))
-            global connected 
-            connected = True
-            self.status.setText("Connected status: %s" %str(connected))
-            gmTopLevelLayer().onModuleLoad()
-        else:
-            self.status.setText("Login failed: %s" %str(response))
+        method = request_info.method
 
-        """if request_info.method == 'get_documents':
-            grid = Grid()
-            grid.resize(len(response)+1, 8)
-            grid.setHTML(0, 0, "Comment")
-            grid.setHTML(0, 1, "Episode")
-            grid.setHTML(0, 2, "When")
-            for (row, item) in enumerate(response):
-                grid.setHTML(row+1, 0, item.comment)
-                grid.setHTML(row+1, 1, item.episode)
-                grid.setHTML(row+1, 2, str(item.clin_when))
-            RootPanel().add(grid)
-        else:
-            self.status.setText(str(response))
-        """    
+        if method == 'login':
+            self.button_login.setEnabled(True) # re-enable after response
+            if response:
+                # XXX response should really contain the username
+                self.status.setText("Login successful: %s" %str(response))
+                user = self.try_user
+                self.app.logged_in(user)
+                self.status.setText("Connected as: %s" % user)
+            else:
+                self.status.setText("Login failed: %s" %str(response))
+
     #--------------------------------------------------
     def onRemoteError(self, code, errobj, request_info):
         # onRemoteError gets the HTTP error code or 0 and
@@ -209,20 +202,28 @@ class gmTopLevelLayer:
     
     def onModuleLoad(self):
         self.TEXT_ERROR = "Server Error"
-        self.loginpanel = cLoginPanel(Spacing=8)
-        self.afterloginpanel = cMainPanel(Spacing=8)
+        self.loginpanel = cLoginPanel(self, Spacing=8)
+        self.afterloginpanel = cMainPanel(self, Spacing=8)
 
         self.maindisplay = DockPanel(BorderWidth=1, Padding=8,
                           HorizontalAlignment=HasAlignment.ALIGN_CENTER,
-                          VerticalAlignment=HasAlignment.ALIGN_MIDDLE) # or something
-        if not connected: 
-            self.maindisplay.add(self.loginpanel, DockPanel.CENTER)
-            RootPanel().add(self.maindisplay)
-        else:
-            RootPanel().remove(self.maindisplay)
+                          VerticalAlignment=HasAlignment.ALIGN_MIDDLE) 
+
+        RootPanel().add(self.maindisplay)
+
+        self.logged_out() # start at logged out
+
+    def logged_out(self):
+        self.login_username = None
+        if self.maindisplay.center is not None:
+            self.maindisplay.remove(self.afterloginpanel)
+        self.maindisplay.add(self.loginpanel, DockPanel.CENTER)
+
+    def logged_in(self, username):
+        self.login_username = username
+        if self.maindisplay.center is not None:
             self.maindisplay.remove(self.loginpanel)
-            self.maindisplay.add(self.afterloginpanel, DockPanel.CENTER)
-            RootPanel().add(self.maindisplay)
+        self.maindisplay.add(self.afterloginpanel, DockPanel.CENTER)
 
 #======================================================
 class EchoServicePython(JSONProxy):
