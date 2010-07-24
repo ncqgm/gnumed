@@ -33,6 +33,8 @@ IMPROVED: DOB validity check when creating new person
 	0.7.8
 
 FIX: exception on substance listing because ref.v_substance_in_brand does not have external_code_type_brand
+FIX: exception when printing shutdown message and debugging enabled by previous exception but no log window
+FIX: exception when shutting down backend listener because connection can already be closed
 
 	0.7.7
 

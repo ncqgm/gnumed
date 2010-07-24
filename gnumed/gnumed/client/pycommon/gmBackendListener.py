@@ -199,8 +199,10 @@ class gmBackendListener(gmBorg.cBorg):
 	def __shutdown_connection(self):
 		_log.debug('shutting down connection with backend PID [%s]', self.backend_pid)
 		self._conn_lock.acquire(1)
-		self._conn.rollback()
-		self._conn.close()
+		try:
+			self._conn.rollback()
+			self._conn.close()
+		except: pass				# connection can already be closed :-(
 		self._conn_lock.release()
 	#-------------------------------
 	def __start_thread(self):

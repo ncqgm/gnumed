@@ -2353,8 +2353,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		if _cfg.get(option = 'debug'):
 			print '---=== GNUmed shutdown ===---'
-			print _('You have to manually close this window to finalize shutting down GNUmed.')
-			print _('This is so that you can inspect the console output at your leisure.')
+			try:
+				print _('You have to manually close this window to finalize shutting down GNUmed.')
+				print _('This is so that you can inspect the console output at your leisure.')
+			except UnicodeEncodeError:
+				print 'You have to manually close this window to finalize shutting down GNUmed.'
+				print 'This is so that you can inspect the console output at your leisure.'
 			print '---=== GNUmed shutdown ===---'
 
 		# shutdown GUI exception handling
