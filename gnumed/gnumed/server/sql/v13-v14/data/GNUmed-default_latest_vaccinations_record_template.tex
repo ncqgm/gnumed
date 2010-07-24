@@ -1,18 +1,23 @@
 %------------------------------------------------------------------
 % Author: Karsten Hilbert
 % License: GPL
+%
+% $Id: GNUmed-default_medication_list_template.tex,v 1.6 2010-01-21 08:47:11 ncq Exp $
+% $Revision: 1.6 $
 %------------------------------------------------------------------
 
 \documentclass[english]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8x]{inputenc}
 \usepackage{hyperref}
-%\usepackage{ucs}
+\usepackage{ucs}
 %\usepackage{lmodern}
 %\usepackage{times}
 %\usepackage{amsmath}
-\usepackage[a4paper]{geometry}
-\geometry{verbose,lmargin=2.54cm}
+%\usepackage[a4paper]{geometry}
+\usepackage[a5paper]{geometry}
+%\geometry{verbose,lmargin=2.54cm}
+\geometry{verbose,lmargin=1cm}
 \pagestyle{empty}
 \setlength{\parskip}{\medskipamount}
 \setlength{\parindent}{0pt}
@@ -29,11 +34,11 @@
 
 \begin{document}
 
-\footnotetext {\href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
-\footnotetext {\tiny $<tex_escape::$Id: GNUmed-default_medication_list_template.tex,v 1.6 2010-01-21 08:47:11 ncq Exp $>$}
+\footnotetext {\tiny \href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny default-latest-vaccinations-record template}
 
 \noindent \begin{center}
-{\LARGE Current Medication List}%
+{\LARGE Most Recent Vaccinations}%
 \par\end{center}
 
 \noindent \begin{center}
@@ -53,31 +58,11 @@
 	$<adr_postcode::home>$ $<adr_location::home>$
 }
 
-
 \vspace*{\medskipamount}
 
-$<current_meds_table::latex::>$
-
-$<current_meds_notes::latex::>$
-
-%\noindent Medication list {\tiny (ordered by brand)}{\tiny \par}
-%
-%\noindent \begin{tabular}{|l|l|l|l|}
-%\hline 
-%Drug & Strength & Regimen & Aim \tabularnewline
-%\hline
-%\hline 
-%$ < current_meds::%(brand)s %(preparation)s & %(strength)s & %(schedule)s & {\footnotesize %(aim)s} \tabularnewline {\footnotesize (%(substance)s)} & \multicolumn{3}{l}{{\footnotesize %(notes)s}} \hfill \vline \tabularnewline \hline > $
-%\end{tabular}
-
-% uncomment, if and as needed, the next lines to append text below the table
-%{\footnotesize			% start smaller font
-% <any line(s) of info you wish to be printed immediately below the table>
-%}						% end smaller font
-
+$<latest_vaccs_table::latex::>$
 
 \vfill{}
-
 
 \noindent Known allergies:
 
