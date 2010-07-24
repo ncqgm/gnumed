@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
-"POT-Creation-Date: 2010-07-13 12:18+CEST\n"
+"POT-Creation-Date: 2010-07-24 12:27+CEST\n"
 "PO-Revision-Date: Sat Sep 21 20:21:38 2002\n"
 "Last-Translator: Jean-Philippe LIOT <clinique-alizes@veterinaire.fr>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -17,6 +17,37 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
+
+msgid "programmer forgot to specify error message"
+msgstr "Le programmeur a oublié de spécifier un message d'erreur"
+
+#, fuzzy
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+"\n"
+"\n"
+"Veuillez consulter le log d'erreurs pour plus d'informations ! "
+
+msgid "generic error message"
+msgstr ""
+
+#, fuzzy
+msgid "programmer forgot to specify info message"
+msgstr "Le programmeur a oublié de spécifier un message d'erreur"
+
+#, fuzzy
+msgid "generic info message"
+msgstr "Nom Générique"
+
+#, fuzzy
+msgid "programmer forgot to specify warning"
+msgstr "Le Programmeur a oublié de spécifier une question"
+
+msgid "generic warning message"
+msgstr ""
 
 msgid ""
 "Unable to connect to database:\n"
@@ -897,6 +928,27 @@ msgstr ""
 msgid "interval_format_tag::days::d"
 msgstr ""
 
+msgid "y::year_abbreviation"
+msgstr ""
+
+msgid "m::month_abbreviation"
+msgstr ""
+
+msgid "mo::month_only_abbreviation"
+msgstr ""
+
+msgid "w::week_abbreviation"
+msgstr ""
+
+msgid "d::day_abbreviation"
+msgstr ""
+
+msgid "h::hour_abbreviation"
+msgstr ""
+
+msgid "s::second_abbreviation"
+msgstr ""
+
 msgid "yYaA_keys_year"
 msgstr ""
 
@@ -1727,11 +1779,11 @@ msgid ""
 "available for further editing right away."
 msgstr ""
 
-msgid "The amount of substance per dose."
-msgstr "La quantité de substance par dose."
-
 msgid "The preparation the substance comes in."
 msgstr ""
+
+msgid "The amount of substance per dose."
+msgstr "La quantité de substance par dose."
 
 msgid "Whether this substance is taken by advice."
 msgstr "Si cette substance est prise par avis"
@@ -1774,11 +1826,11 @@ msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
 msgstr ""
 
-msgid "The aim of consuming this substance."
-msgstr ""
-
 msgid "The episode this substance is taken under."
 msgstr "Période pendant laquelle cette substance est consommée."
+
+msgid "The aim of consuming this substance."
+msgstr ""
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
@@ -1805,12 +1857,12 @@ msgstr "Calendrier"
 msgid "Duration"
 msgstr "Operation"
 
-msgid "Aim"
-msgstr "Objectifs"
-
 #, fuzzy
 msgid "Episode"
 msgstr "code postal"
+
+msgid "Aim"
+msgstr "Objectifs"
 
 #, fuzzy
 msgid "Advice"
@@ -2384,8 +2436,14 @@ msgstr ""
 msgid "Remove the selected item(s) from the list."
 msgstr "effacer la page selectionnée du document"
 
-msgid "&Delete"
-msgstr "&Effacer"
+msgid "1"
+msgstr ""
+
+msgid "2"
+msgstr ""
+
+msgid "3"
+msgstr ""
 
 msgid ""
 "Select the items you want to work on.\n"
@@ -3905,7 +3963,8 @@ msgstr ""
 msgid ""
 "... or ...\n"
 "\n"
-"vaccinated against"
+"vaccinated\n"
+"against"
 msgstr ""
 
 msgid "Batch №"
@@ -4110,7 +4169,9 @@ msgstr ""
 msgid "Route"
 msgstr ""
 
-msgid "Protects from"
+msgid ""
+"Protects\n"
+"from"
 msgstr ""
 
 msgid "ATC"
@@ -5780,6 +5841,9 @@ msgstr "Problème de santé: %s"
 msgid "Manage allergies"
 msgstr "Allergies"
 
+msgid "Manage vaccinations"
+msgstr ""
+
 #, fuzzy
 msgid "Manage procedures"
 msgstr "Allergies"
@@ -6503,37 +6567,6 @@ msgstr ""
 msgid "Choose a form template file"
 msgstr "Choisissez un fichier xDT"
 
-msgid "programmer forgot to specify error message"
-msgstr "Le programmeur a oublié de spécifier un message d'erreur"
-
-#, fuzzy
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-"\n"
-"\n"
-"Veuillez consulter le log d'erreurs pour plus d'informations ! "
-
-msgid "generic error message"
-msgstr ""
-
-#, fuzzy
-msgid "programmer forgot to specify info message"
-msgstr "Le programmeur a oublié de spécifier un message d'erreur"
-
-#, fuzzy
-msgid "generic info message"
-msgstr "Nom Générique"
-
-#, fuzzy
-msgid "programmer forgot to specify warning"
-msgstr "Le Programmeur a oublié de spécifier une question"
-
-msgid "generic warning message"
-msgstr ""
-
 #, fuzzy
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "Vous vous loggué en tant que [%s]."
@@ -6736,6 +6769,12 @@ msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
 msgstr ""
 
 msgid "vaccADR URL"
+msgstr ""
+
+msgid "URL for vaccination plans."
+msgstr ""
+
+msgid "Vacc plans URL"
 msgstr ""
 
 msgid "Set the command for calling the visual progress note editor."
@@ -7199,6 +7238,12 @@ msgstr ""
 msgid "Backup the content of the log to another file."
 msgstr ""
 
+msgid "Email log file"
+msgstr ""
+
+msgid "Send the log file to the authors for help."
+msgstr ""
+
 msgid "Bug tracker"
 msgstr ""
 
@@ -7398,6 +7443,14 @@ msgstr ""
 msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
@@ -8469,6 +8522,9 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
+msgid "&Delete"
+msgstr "&Effacer"
+
 msgid "%s results selected. Too many to list individually."
 msgstr ""
 
@@ -8565,12 +8621,44 @@ msgstr ""
 msgid "Term"
 msgstr ""
 
+#, fuzzy
+msgid "Choose an ATC import config file"
+msgstr "Choisissez un fichier xDT"
+
+#, fuzzy
+msgid "config files"
+msgstr "Options de Configuration"
+
+msgid "importing ATC reference data"
+msgstr ""
+
+msgid "Successfully imported ATC reference data."
+msgstr ""
+
+msgid "Importing ATC reference data failed."
+msgstr ""
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr ""
+
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
 msgstr ""
 
 msgid "Showing drug brand components (substances)."
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
 msgstr ""
 
 msgid ""
@@ -8618,23 +8706,6 @@ msgstr ""
 #, fuzzy
 msgid "Current medication"
 msgstr "Indication"
-
-#, fuzzy
-msgid "Choose an ATC import config file"
-msgstr "Choisissez un fichier xDT"
-
-#, fuzzy
-msgid "config files"
-msgstr "Options de Configuration"
-
-msgid "importing ATC reference data"
-msgstr ""
-
-msgid "Successfully imported ATC reference data."
-msgstr ""
-
-msgid "Importing ATC reference data failed."
-msgstr ""
 
 msgid "The preparation (form) of the substance the patient is taking."
 msgstr ""
@@ -9834,6 +9905,12 @@ msgstr ""
 "pour le patient [%s]. Cependant, il est impossible de \n"
 "trouver le patient dans la base de données GNUmed."
 
+msgid ""
+"Supposedly there are conflicting vaccinations\n"
+"for patient [%s]. However, I cannot find\n"
+"that patient in the GNUmed database."
+msgstr ""
+
 msgid "No action configured for keyword [%s]."
 msgstr ""
 
@@ -10131,6 +10208,23 @@ msgstr ""
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
+msgid "Saving vaccine"
+msgstr ""
+
+msgid ""
+"This vaccine is already in use:\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Are you absolutely positively sure that\n"
+"you really want to edit this vaccine ?\n"
+"\n"
+"This will change the vaccine name and/or target\n"
+"conditions in each patient this vaccine was\n"
+"used in to document a vaccination with.\n"
+msgstr ""
+
 msgid "Adding new vaccination"
 msgstr ""
 
@@ -10147,6 +10241,14 @@ msgstr ""
 
 msgid "Intended to protect from"
 msgstr ""
+
+#, fuzzy
+msgid "Open a browser showing vaccination schedules."
+msgstr "aucun calendrier de vaccinations actif"
+
+#, fuzzy
+msgid "Vaccination Plans"
+msgstr "Vaccin pris"
 
 msgid "prevention"
 msgstr ""
