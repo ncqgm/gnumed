@@ -213,6 +213,8 @@ class gmBackendListener(gmBorg.cBorg):
 		try:
 			self._conn.rollback()
 			self._conn.close()
+		except:
+			pass				# connection can already be closed :-(
 		finally:
 			self._conn_lock.release()
 	#-------------------------------
