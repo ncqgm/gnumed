@@ -13,6 +13,7 @@ NEW: hook: "after_soap_modified"
 NEW: placeholder: "current_meds_table::latex"
 NEW: placeholder: "current_meds_notes::latex"
 NEW: placeholder: "lab_table::latex"
+NEW: placeholder: "latest_vaccs_table::latex"
 NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
 NEW: score: bacterial UTI algorithm

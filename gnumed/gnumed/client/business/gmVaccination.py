@@ -298,13 +298,85 @@ def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cVaccination(aPK_obj = rows[0][0])
+
 #------------------------------------------------------------
+
 def delete_vaccination(vaccination=None):
 	cmd = u"""DELETE FROM clin.vaccination WHERE pk = %(pk)s"""
 	args = {'pk': vaccination}
 
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-#============================================================
+
+#------------------------------------------------------------
+
+def format_latest_vaccinations(output_format=u'latex', emr=None):
+
+	_log.debug(u'formatting latest vaccinations into [%s]', output_format)
+
+	vaccs = emr.get_latest_vaccinations()
+
+	if output_format == u'latex':
+		return __format_latest_vaccinations_latex(vaccinations = vaccs)
+
+	msg = _('unknown vaccinations output format [%s]') % output_format
+	_log.error(msg)
+	return msg
+
+#------------------------------------------------------------
+
+def __format_latest_vaccinations_latex(vaccinations=None):
+
+	if len(vaccinations) == 0:
+		return u'\\noindent %s' % _('No vaccinations to format.')
+
+	tex =  u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Latest vaccinations'), _('per target condition'))
+	tex += u'\n'
+	tex += u'\\noindent \\begin{tabular}{|l|l|l|l|l|l|}\n'
+	tex += u'\\hline\n'
+	tex += u'%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize %s\\footnotemark} \\\\ \n' % (
+		_('Target'),
+		_('Last given'),
+		_('Vaccine'),
+		_('Lot \#'),
+		_('S/P'),
+		gmTools.u_sum
+	)
+	tex += u'\\hline\n'
+	tex += u'\n'
+	tex += u'\\hline\n'
+	tex += u'%s'
+	tex += u'\n'
+	tex += u'\\end{tabular}\n'
+	tex += u'\n'
+	tex += u'\\addtocounter{footnote}{-1} \n'
+	tex += u'\\footnotetext{%s} \n' % _('S/P -- "S"ubjective: this vaccination was remembered by the patient. "P"lan: this vaccination was administered in the practice or copied from trustworthy records.')
+	tex += u'\\addtocounter{footnote}{1} \n'
+	tex += u'\\footnotetext{%s -- %s} \n' % (gmTools.u_sum, _('Total number of vaccinations recorded for the corresponding target condition.'))
+	tex += u'\n'
+
+	row_template = u'%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} \\\\ \n'
+	lines = u''
+	targets = sorted(vaccinations.keys())
+	for target in targets:
+		target_count, vacc = vaccinations[target]
+		lines += row_template % (
+			target,
+			vacc['date_given'].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
+			vacc['vaccine'],
+			gmTools.tex_escape_string(vacc['batch_no'].strip()),
+			vacc['soap_cat'].upper(),
+			target_count
+		)
+		if vacc['site'] is not None:
+			lines += u' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par} \\\\ \n' % (_('Injection site'), vacc['site'].strip())
+		if vacc['reaction'] is not None:
+			lines += u' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par} \\\\ \n' % (_('Reaction'), vacc['reaction'].strip())
+		if vacc['comment'] is not None:
+			lines += u' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par} \\\\ \n' % (_('Comment'), vacc['comment'].strip())
+		lines += u'\\hline \n'
+
+	return tex % lines
+
 #============================================================
 #============================================================
 #============================================================
