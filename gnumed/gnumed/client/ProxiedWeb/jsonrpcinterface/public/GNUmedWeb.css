@@ -88,12 +88,6 @@ a:visited {
   cursor: default;
 }
 
-.gwt-MenuBar-horizontal {
-  background-color: #C3D9FF;
-  border: 1px solid #87B3FF;
-  cursor: default;
-}
-
 .gwt-MenuBar .gwt-MenuItem {
   padding: 1px 4px 1px 4px;
   font-size: smaller;
