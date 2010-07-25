@@ -2,8 +2,11 @@ from pyjamas.ui.TextBox import TextBox
 from pyjamas.ui.PasswordTextBox import PasswordTextBox
 from pyjamas.ui.Label import Label
 from pyjamas.ui.Button import Button
+from pyjamas.ui.Image import Image
 from pyjamas.ui.HTML import HTML
 from pyjamas.ui.VerticalPanel import VerticalPanel
+from pyjamas.ui.HorizontalPanel import HorizontalPanel
+from pyjamas.ui.CaptionPanel import CaptionPanel
 
 #======================================================
 class cLoginPanel(VerticalPanel): 
@@ -13,15 +16,33 @@ class cLoginPanel(VerticalPanel):
 
         self.status=Label()
         self.TEXT_WAITING = "Waiting for response..."
-
+        
+        self.lblusername = Label()
+        self.lblusername.setText("username")
         self.username = TextBox(Text="any-doc")
+        self.lblpassword = Label()
+        self.lblpassword.setText("password")
         self.password = PasswordTextBox(Text="")
         self.button_login = Button("Login", self)
+        self.gnumedlogo = Image("images/gnumedlogo.png")
+
+        usernamepanel = HorizontalPanel()
+        usernamepanel.add(self.lblusername)
+        usernamepanel.add(self.username)
+
+        passwdpanel = HorizontalPanel()
+        passwdpanel.add(self.lblpassword)
+        passwdpanel.add(self.password)
+
+        credentialpanel = VerticalPanel()
+        credentialpanel.add(usernamepanel)
+        credentialpanel.add(passwdpanel)
+
+        captionpanel = CaptionPanel("GNUmed Default 0.7.7", credentialpanel)
 
         panel = VerticalPanel()
-
-        panel.add(self.username)
-        panel.add(self.password)
+        panel.add(self.gnumedlogo)
+        panel.add(captionpanel)
         panel.add(self.button_login)
         panel.add(self.status)
         self.add(panel)
