@@ -58,7 +58,7 @@ class cTestPanel(VerticalPanel):
 
         panel = VerticalPanel()
         panel.add(HTML(info))
-        panel.add(HTML("Document Key:"))
+        panel.add(HTML("Primary key of the patient in the database:"))
         panel.add(self.dockey)
         panel.add(method_panel)
         panel.add(buttons)
@@ -97,7 +97,8 @@ class cTestPanel(VerticalPanel):
                 grid.setHTML(row+1, 0, item.comment)
                 grid.setHTML(row+1, 1, item.episode)
                 grid.setHTML(row+1, 2, str(item.clin_when))
-            RootPanel().add(grid)
+            #RootPanel().add(grid)
+            self.add(grid)
         else:
             self.status.setText(str(response))
 

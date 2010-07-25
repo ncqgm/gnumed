@@ -19,10 +19,10 @@ class cMainPanel(VerticalPanel):
 
         # tab panel
         self.fTabs = DecoratedTabPanel(Size=("600px", "100%"))
-        self.fTabs.add(cTestPanel(app), "RPC Test")
-        self.fTabs.add(HTML("Panel 2"), "Option 2")
-        self.fTabs.add(HTML("Panel 3"), "Option 3")
+        self.fTabs.add(HTML("Panel 1"), "Tab 1")
+        self.fTabs.add(HTML("Panel 2"), "Tab2")
         self.fTabs.add(HTML(""), None) # spacer
+        self.fTabs.add(cTestPanel(app), "RPC Test")
         self.fTabs.add(HTML("This is a Test.<br />Tab should be on right"),
                        "Test")
         self.fTabs.selectTab(0)
@@ -41,11 +41,11 @@ class cMainPanel(VerticalPanel):
         subMenu.addItem("<u>Underlined</u>", True, self)
 
         menu0 = MenuBar(True)
-        menu0.addItem("Save", True, self.savecmd)
-        menu0.addItem("Open", True, self.opencmd)
+        menu0.addItem("Go to plugin", True, self.savecmd)
+        menu0.addItem("Preferences", True, self.opencmd)
         menu0.addItem("Logout", True, self.logoutcmd)
         menu1 = MenuBar(True)
-        menu1.addItem("<font color='#FF0000'><b>Apple</b></font>", True, self)
+        menu1.addItem("Register person", True, self)
         menu1.addItem("<font color='#FFFF00'><b>Banana</b></font>", True, self)
         menu1.addItem("<font color='#FFFFFF'><b>Coconut</b></font>", True, self)
         menu1.addItem("<font color='#8B4513'><b>Donut</b></font>", True, self)
@@ -53,10 +53,20 @@ class cMainPanel(VerticalPanel):
         menu2.addItem("Bling", self)
         menu2.addItem("Ginormous", self)
         menu2.addItem("<code>w00t!</code>", True, self)
+        menu3 = MenuBar(True)
+        menu4 = MenuBar(True)
+        menu5 = MenuBar(True)
+        menu6 = MenuBar(True)
+        menu7 = MenuBar(True)
 
-        self.menu.addItem(MenuItem("File", menu0))
-        self.menu.addItem(MenuItem("Fruit", menu1))
-        self.menu.addItem(MenuItem("Term", menu2))
+        self.menu.addItem(MenuItem("GNUmed", menu0))
+        self.menu.addItem(MenuItem("Person", menu1))
+        self.menu.addItem(MenuItem("EMR", menu2))
+        self.menu.addItem(MenuItem("Correspondence", menu3))
+        self.menu.addItem(MenuItem("Tools", menu4))
+        self.menu.addItem(MenuItem("Knowledge", menu5))
+        self.menu.addItem(MenuItem("Office", menu6))
+        self.menu.addItem(MenuItem("Help", menu7))
 
         self.menu.setWidth("100%")
 

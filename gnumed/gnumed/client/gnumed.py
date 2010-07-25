@@ -528,8 +528,8 @@ if ui_type == u'wxp':
 	else:
 		gmGuiMain.main()
 elif ui_type == u'web':
-	from Gnumed.ProxiedWeb import gmGuiWeb
-	gmGuiWeb.main()
+	from Gnumed.ProxiedWeb import gmWebGuiServer
+	gmWebGuiServer.main()
 
 elif ui_type == u'chweb':
 	from Gnumed.CherryPy import gmGuiWeb
