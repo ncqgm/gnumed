@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-07-24 12:29+CEST\n"
+"POT-Creation-Date: 2010-07-26 16:07+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -599,6 +599,48 @@ msgstr ""
 msgid "vaccine"
 msgstr ""
 
+msgid "unknown vaccinations output format [%s]"
+msgstr ""
+
+msgid "No vaccinations to format."
+msgstr ""
+
+msgid "Latest vaccinations"
+msgstr ""
+
+msgid "per target condition"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Last given"
+msgstr ""
+
+msgid "Vaccine"
+msgstr ""
+
+msgid "Lot \\#"
+msgstr ""
+
+msgid "S/P"
+msgstr ""
+
+msgid "S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P\"lan: this vaccination was administered in the practice or copied from trustworthy records."
+msgstr ""
+
+msgid "Total number of vaccinations recorded for the corresponding target condition."
+msgstr ""
+
+msgid "Injection site"
+msgstr ""
+
+msgid "Reaction"
+msgstr ""
+
+msgid "Comment"
+msgstr ""
+
 msgid "internal error, check log"
 msgstr ""
 
@@ -1183,9 +1225,6 @@ msgstr ""
 msgid "Drug Classes"
 msgstr ""
 
-msgid "Reaction"
-msgstr ""
-
 msgid "Reaction Type"
 msgstr ""
 
@@ -1755,9 +1794,6 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-msgid "Comment"
-msgstr ""
-
 msgid "edit encounter details"
 msgstr ""
 
@@ -2260,9 +2296,6 @@ msgstr ""
 msgid "or"
 msgstr ""
 
-msgid "Target"
-msgstr ""
-
 msgid "Group"
 msgstr ""
 
@@ -2487,7 +2520,8 @@ msgid ""
 "Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n"
 "\n"
 "That address - or a new address created from any modifications below - will be used as the person's \"home\" address.\n"
-"nYou can also just enter the relevant information into the corresponding fields without searching for an existing address."
+"\n"
+"You can also just enter the relevant information into the corresponding fields without searching for an existing address."
 msgstr ""
 
 msgid "Primary address: zip/postal code"
@@ -3638,9 +3672,6 @@ msgid "Vaccinator"
 msgstr ""
 
 msgid "Batch"
-msgstr ""
-
-msgid "Vaccine"
 msgstr ""
 
 msgid "Vaccinations by Recommender (X = patient on regime, O = patient not on regime) "
@@ -7139,6 +7170,9 @@ msgid "unknown current medication notes formatting style"
 msgstr ""
 
 msgid "unknown test results table formatting style [%s]"
+msgstr ""
+
+msgid "unknown vaccinations table formatting style [%s]"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
