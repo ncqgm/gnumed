@@ -827,17 +827,17 @@ Vaccinations: %(vaccinations)s
 
 		return filtered_allergies
 	#--------------------------------------------------------
-	def add_allergy(self, substance=None, allg_type=None, encounter_id=None, episode_id=None):
+	def add_allergy(self, allergene=None, allg_type=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
 			encounter_id = self.current_encounter['pk_encounter']
 
 		if episode_id is None:
 			issue = self.add_health_issue(issue_name = _('allergies/intolerances'))
-			epi = self.add_episode(episode_name = substance, pk_health_issue = issue['pk_health_issue'])
+			epi = self.add_episode(episode_name = allergene, pk_health_issue = issue['pk_health_issue'])
 			episode_id = epi['pk_episode']
 
 		new_allergy = gmAllergy.create_allergy (
-			substance = substance,
+			allergene = allergene,
 			allg_type = allg_type,
 			encounter_id = encounter_id,
 			episode_id = episode_id
