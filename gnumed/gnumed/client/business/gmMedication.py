@@ -798,7 +798,11 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['external_code_brand']] is not None:
 			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
 		allg['allergene'] = self._payload[self._idx['substance']]
-		allg['generics'] = u'; '.join([ c['description'] for c in self.containing_drug.components ])
+		comps = [ c['description'] for c in self.containing_drug.components ]
+		if len(comps) == 0:
+			allg['generics'] = self._payload[self._idx['substance']]
+		else:
+			allg['generics'] = u'; '.join(comps)
 
 		allg.save()
 		return allg
