@@ -180,33 +180,24 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id=None):
+def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id=None):
 	"""Creates a new allergy clinical item.
 
-	substance - allergic substance
+	allergene - allergic substance
 	allg_type - allergy or sensitivity, pk or string
 	encounter_id - encounter's primary key
 	episode_id - episode's primary key
 	"""
-	# sanity checks:
-	# 1) any of the args being None should fail the SQL code
-	# 2) do episode/encounter belong to the same patient ?
 	cmd = u"""
-		select pk_patient from clin.v_pat_episodes where pk_episode=%s
-			union
-		select fk_patient from clin.encounter where pk=%s"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [episode_id, encounter_id]}])
-
-	if len(rows) == 0:
-		raise ValueError('error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
-
-	if len(rows) > 1:
-		raise ValueError('episode [%s] and encounter [%s] belong to different patients !?!' % (episode_id, encounter_id))
-
-	pat_id = rows[0][0]
-
-	cmd = u'select pk_allergy from clin.v_pat_allergies where pk_patient=%(pat)s and substance=%(substance)s'
-	args = {'pat': pat_id, 'substance': substance}
+		SELECT pk_allergy
+		FROM clin.v_pat_allergies
+		WHERE
+			pk_patient = (SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s)
+				AND
+			allergene = %(allergene)s
+	"""
+	#args = {'enc': encounter_id, 'substance': substance}
+	args = {'enc': encounter_id, 'allergene': allergene}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) > 0:
 		# don't implicitely change existing data
@@ -217,13 +208,13 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 
 	if type(allg_type) == types.IntType:
 		cmd = u"""
-			insert into clin.allergy (fk_type, fk_encounter, fk_episode, substance)
-			values (%s, %s, %s, %s)"""
+			insert into clin.allergy (fk_type, fk_encounter, fk_episode, allergene, substance)
+			values (%s, %s, %s, %s, %s)"""
 	else:
 		cmd = u"""
-			insert into clin.allergy (fk_type, fk_encounter, fk_episode,  substance)
-			values ((select pk from clin._enum_allergy_type where value = %s), %s, %s, %s)"""
-	queries.append({'cmd': cmd, 'args': [allg_type, encounter_id, episode_id, substance]})
+			insert into clin.allergy (fk_type, fk_encounter, fk_episode,  allergene, substance)
+			values ((select pk from clin._enum_allergy_type where value = %s), %s, %s, %s, %s)"""
+	queries.append({'cmd': cmd, 'args': [allg_type, encounter_id, episode_id, allergene, allergene]})
 
 	cmd = u"select currval('clin.allergy_id_seq')"
 	queries.append({'cmd': cmd})
@@ -246,8 +237,8 @@ if __name__ == '__main__':
 	enc_id = allg['pk_encounter']
 	epi_id = allg['pk_episode']
 	status, allg = create_allergy (
-		substance = 'test substance',
-		allg_type=1,
+		allergene = 'test substance',
+		allg_type = 1,
 		episode_id = epi_id,
 		encounter_id = enc_id
 	)
