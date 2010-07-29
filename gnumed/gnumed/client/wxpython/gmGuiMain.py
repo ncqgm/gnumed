@@ -66,7 +66,7 @@ from Gnumed.wxpython import gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
-from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets
+from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -93,6 +93,18 @@ class gmTopLevelFrame(wx.Frame):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
 		wx.Frame.__init__(self, parent, id, title, size, style = wx.DEFAULT_FRAME_STYLE)
+
+		if wx.Platform == '__WXMSW__':
+			font = self.GetFont()
+			_log.debug('default font is [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+			desired_font_face = u'DejaVu Sans'
+			success = font.SetFaceName(desired_font_face)
+			if success:
+				self.SetFont(font)
+				_log.debug('setting font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+			else:
+				_log.error('cannot set font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), desired_font_face)
+				_log.debug('default font is ', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
@@ -339,6 +351,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('vaccADR URL'), _('URL for reporting Adverse Drug Reactions to *vaccines*.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_vaccine_adr_url, item)
 
+		item = menu_cfg_ext_tools.Append(-1, _('Vacc plans URL'), _('URL for vaccination plans.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_vaccination_plans_url, item)
+
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
@@ -443,7 +458,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
 
-		item = menu_master_data.Append(-1, _('Indications'), _('Show known vaccination indications.'))
+		item = menu_master_data.Append(-1, _('Immunizables'), _('Show conditions known to be preventable by vaccination.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination_indications, item)
 
 		# -- submenu gnumed / users
@@ -538,7 +553,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_occupation, item)
 
-		item = menu_emr_edit.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
+		item = menu_emr_edit.Append(-1, _('&Hospitalizations'), _('Manage hospital stays.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
 
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
@@ -703,6 +718,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
 		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
+
+		item = menu_debugging.Append(-1, _('Email log file'), _('Send the log file to the authors for help.'))
+		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
 
 		ID = wx.NewId()
 		menu_debugging.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
@@ -1283,7 +1301,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.report_ADR',
 			bias = 'user',
-			default_value = u'https://dcgma.org/uaw/meldung.php',
+			default_value = u'https://dcgma.org/uaw/meldung.php',		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -1337,6 +1355,32 @@ class gmTopLevelFrame(wx.Frame):
 			option = 'external.urls.measurements_encyclopedia',
 			bias = 'user',
 			default_value = u'http://www.laborlexikon.de',
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_configure_vaccination_plans_url(self, evt):
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, value
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return False, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access a page showing\n'
+				'vaccination schedules.\n'
+				'\n'
+				'You can leave this empty but to set it to a specific\n'
+				'address the URL must be accessible now.'
+			),
+			option = 'external.urls.vaccination_plans',
+			bias = 'user',
+			default_value = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf',
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -1499,10 +1543,10 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_cfg_default_region(self, evt):
-		gmDemographicsWidgets.configure_default_region()
+		gmPersonContactWidgets.configure_default_region()
 	#----------------------------------------------
 	def __on_cfg_default_country(self, evt):
-		gmDemographicsWidgets.configure_default_country()
+		gmPersonContactWidgets.configure_default_country()
 	#----------------------------------------------
 	def __on_configure_dob_reminder_proximity(self, evt):
 
@@ -2129,6 +2173,9 @@ class gmTopLevelFrame(wx.Frame):
 		shutil.copy2(gmLog2._logfile_name, new_name)
 		gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
 	#----------------------------------------------
+	def __on_email_log_file(self, evt):
+		gmExceptionHandlingWidgets.mail_log(parent = self)
+	#----------------------------------------------
 	# GNUmed /
 	#----------------------------------------------
 	def OnClose(self, event):
@@ -2382,7 +2429,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmEMRStructWidgets.manage_encounter_types(parent=self)
 	#----------------------------------------------
 	def __on_manage_provinces(self, evt):
-		gmDemographicsWidgets.manage_provinces(parent=self)
+		gmPersonContactWidgets.manage_provinces(parent=self)
 	#----------------------------------------------
 	def __on_manage_substances(self, evt):
 		gmMedicationWidgets.manage_substances_in_use(parent = self)
@@ -2481,8 +2528,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		if _cfg.get(option = 'debug'):
 			print '---=== GNUmed shutdown ===---'
-			print _('You have to manually close this window to finalize shutting down GNUmed.')
-			print _('This is so that you can inspect the console output at your leisure.')
+			try:
+				print _('You have to manually close this window to finalize shutting down GNUmed.')
+				print _('This is so that you can inspect the console output at your leisure.')
+			except UnicodeEncodeError:
+				print 'You have to manually close this window to finalize shutting down GNUmed.'
+				print 'This is so that you can inspect the console output at your leisure.'
 			print '---=== GNUmed shutdown ===---'
 
 		# shutdown GUI exception handling
@@ -2975,6 +3026,7 @@ class gmApp(wx.App):
 			_log.info('running on GTK (probably Linux)')
 		elif wx.Platform == '__WXMAC__':
 			_log.info('running on Mac OS')
+			wx.SystemOptions.SetOptionInt('mac.textcontrol-use-spell-checker', 1)
 		else:
 			_log.info('running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------

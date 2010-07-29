@@ -6,28 +6,38 @@
 # rel-0-8-patches
 ------------------------------------------------
 
-	0.8.x
+	0.8.0
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook: "after_soap_modified"
 NEW: placeholder: "current_meds_table::latex"
+NEW: placeholder: "current_meds_notes::latex"
 NEW: placeholder: "lab_table::latex"
+NEW: placeholder: "latest_vaccs_table::latex"
 NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
 NEW: score: bacterial UTI algorithm
+NEW: score: coronary artery disease in primary care
+NEW: score: ABCDEF & Glasgow-7-points for identifying atypical moles
+NEW: report: patients taking drug X
 NEW: graphing of ranges of measurements (user-defined gnuplot scripts)
 NEW: support emergency contact
 NEW: support comment directly on identity
 NEW: Add button to report ADR from within current substances plugin.
 NEW: list view of database audit trail
-NEW: management of vaccinations
+NEW: management of vaccinations and vaccines
 NEW: templates for writing a plugin [thanks S.Hilbert]
+NEW: on Windows try to switch to "DejaVu Sans" font for improved unicode display
+NEW: demonstrable path to get up and running on Macintosh [thanks J.Busser]
+NEW: useful error dialog when database connection lost
+NEW: email log file on demand from menu
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
 IMPROVED: when enabling --debug during unhandled exception try harder to log the exception in question
 IMPROVED: more robust acquiring of data from image sources
 IMPROVED: more medically-sound interval formatting
+IMPROVED: another, more expected, way of calculating patient age
 IMPROVED: edit non-name identity parts *directly* in demographics plugin (no popup needed)
 IMPROVED: show date-generated in patient picture tooltip
 IMPROVED: much better icon [thanks J.Jaarsveld]
@@ -35,10 +45,34 @@ IMPROVED: show comment/emergency contact in patient search control tooltip
 IMPROVED: re-add encounters to auditing
 IMPROVED: show loinc info for test in test results EA
 IMPROVED: much smarter result units phrasewheel
+IMPROVED: DOB validity check when creating new person
+IMPROVED: better layout of configuration listing
+IMPROVED: medication formatting
+IMPROVED: current medication patient handout [thanks C.Hilbert]
+IMPROVED: pre-filter form template selection list based on purpose of showing
+IMPROVED: default config file for running from tarball
+IMPROVED: better support FreeDiams (0.4.2 now in Debian)
+IMPROVED: EMR tree root note context menu
+IMPROVED: generic lists can now have 3 extra buttons
+IMPROVED: use substance rather than brand as allergene when creating allergy from substance intake entry
 
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
+
+	0.7.8
+
+FIX: exception on substance listing because ref.v_substance_in_brand does not have external_code_type_brand
+FIX: exception when printing shutdown message and debugging enabled by previous exception but no log window
+FIX: exception when shutting down backend listener because connection can already be closed
+
+	0.7.7
+
+FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
+FIX: check_drug_interactions() failed with FreeDIAMS [thanks J.Busser]
+FIX: be more careful around changing CWD when creating document from LaTeX [thanks S.Hilbert]
+FIX: exception when save-all'ing multiple notelets [thanks S.Reus, J.Busser]
+FIX: exception when saving medication where is_long_term is true [thanks J.Busser]
 
 	0.7.6
 
@@ -522,6 +556,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v14
 ------------------------------------------------
 
+NEW: gm-set_gm-dbo_passowrd
+
 FIX: during upgrade nullify empty clin.health_issue.laterality
 FIX: properly use pg_dump: no more -d DATABASE [thanks S.Hilbert]
 
@@ -532,6 +568,12 @@ IMPROVED: try to make su compatible with both MacOSX and Linux
 ------------------------------------------------
 # gnumed_v13
 ------------------------------------------------
+
+	13.6 -> 13.7
+
+NEW: improved detection of unicode support in server encoding
+NEW: work around os.getcwd() permission problem on Mac
+FIX: even more robust gmPsql.py unicode logging [thanks E.Kuznetsov]
 
 	13.5 -> 13.6
 

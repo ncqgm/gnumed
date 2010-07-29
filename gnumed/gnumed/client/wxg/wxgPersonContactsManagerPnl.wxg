@@ -13,7 +13,7 @@
                 <flag>wxALL|wxEXPAND</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="gmDemographicsWidgets.cPersonAddressesManagerPnl" name="_PNL_addresses" base="EditPanel" no_custom_class="1">
+                <object class="gmPersonContactWidgets.cPersonAddressesManagerPnl" name="_PNL_addresses" base="EditPanel" no_custom_class="1">
                     <style>wxNO_BORDER|wxTAB_TRAVERSAL</style>
                     <no_custom_class>1</no_custom_class>
                 </object>
@@ -22,7 +22,7 @@
                 <flag>wxALL|wxEXPAND</flag>
                 <border>5</border>
                 <option>1</option>
-                <object class="gmDemographicsWidgets.cPersonCommsManagerPnl" name="_PNL_comms" base="EditPanel" no_custom_class="1">
+                <object class="gmPersonContactWidgets.cPersonCommsManagerPnl" name="_PNL_comms" base="EditPanel" no_custom_class="1">
                     <style>wxNO_BORDER|wxTAB_TRAVERSAL</style>
                     <no_custom_class>1</no_custom_class>
                 </object>

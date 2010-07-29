@@ -16,7 +16,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         wx.Dialog.__init__(self, *args, **kwds)
         self._PNL_ea = wx.ScrolledWindow(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
         self._BTN_save = wx.Button(self, wx.ID_OK, "")
-        self._BTN_forward = wx.Button(self, -1, _("&Next..."))
+        self._BTN_forward = wx.Button(self, -1, _("Add &another"))
         self._BTN_revert = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
@@ -35,6 +35,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgGenericEditAreaDlg2.__set_properties
         self.SetTitle(_("GNUmed generic EditArea dialog"))
+        self.SetSize(wx.DLG_SZE(self, (300, 164)))
         self.SetMinSize((450, 300))
         self._PNL_ea.SetScrollRate(10, 10)
         self._BTN_save.SetToolTipString(_("Save the entered data into the database and close the dialog."))
@@ -64,7 +65,6 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         __szr_buttons.Add(self._BTN_lucky, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
         _szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 5)
         self.SetSizer(_szr_main)
-        _szr_main.Fit(self)
         self.Layout()
         self.Centre()
         # end wxGlade

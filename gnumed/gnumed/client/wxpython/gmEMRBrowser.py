@@ -1,8 +1,6 @@
 """GNUmed patient EMR tree browser.
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.111 2010-01-11 19:44:39 ncq Exp $
 __version__ = "$Revision: 1.111 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
@@ -10,15 +8,19 @@ __license__ = "GPL"
 # std lib
 import sys, types, os.path, StringIO, codecs, logging
 
+
 # 3rd party
 import wx
+
 
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
-from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets, gmNarrativeWidgets, gmPatSearchWidgets
-from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl, wxgSplittedEMRTreeBrowserPnl
+from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
+from Gnumed.wxpython import gmAllergyWidgets, gmNarrativeWidgets, gmPatSearchWidgets
+from Gnumed.wxpython import gmDemographicsWidgets, gmVaccWidgets
+
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
@@ -252,14 +254,30 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# - root node
 		self.__root_context_popup = wx.Menu(title = _('EMR Menu'))
-		# add health issue
+
 		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('create health issue')))
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Create health issue')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
-		# add allergy
+
 		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('manage allergies')))
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage allergies')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
+
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage vaccinations')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_vaccinations)
+
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage procedures')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_procedures)
+
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage hospitalizations')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_hospital_stays)
+
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage occupation')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_occupation)
 
 		self.__root_context_popup.AppendSeparator()
 
@@ -385,6 +403,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if result == wx.ID_YES:
 			self.__populate_tree()
 	#--------------------------------------------------------
+	# issue level
+	#--------------------------------------------------------
 	def __edit_issue(self, event):
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = self.__curr_node_data)
 	#--------------------------------------------------------
@@ -427,6 +447,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			self.Expand(epi)
 			epi, epi_cookie = self.GetNextChild(self.__curr_node, epi_cookie)
 	#--------------------------------------------------------
+	# EMR level
+	#--------------------------------------------------------
 	def __create_issue(self, event):
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)
 	#--------------------------------------------------------
@@ -437,6 +459,18 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			self.__populate_tree()
 		dlg.Destroy()
 		return
+	#--------------------------------------------------------
+	def __manage_procedures(self, event):
+		gmEMRStructWidgets.manage_performed_procedures(parent = self)
+	#--------------------------------------------------------
+	def __manage_hospital_stays(self, event):
+		gmEMRStructWidgets.manage_hospital_stays(parent = self)
+	#--------------------------------------------------------
+	def __manage_occupation(self, event):
+		gmDemographicsWidgets.edit_occupation()
+	#--------------------------------------------------------
+	def __manage_vaccinations(self, event):
+		gmVaccWidgets.manage_vaccinations(parent = self)
 	#--------------------------------------------------------
 	def __expand_to_issue_level(self, evt):
 
@@ -713,6 +747,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		return 0
 #================================================================
+from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl
+
 class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
 	"""A scrollable panel holding an EMR tree.
 
@@ -731,6 +767,8 @@ class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
 		self._emr_tree.refresh()
 		return True
 #============================================================
+from Gnumed.wxGladeWidgets import wxgSplittedEMRTreeBrowserPnl
+
 class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTreeBrowserPnl):
 	"""A splitter window holding an EMR tree.
 
@@ -850,377 +888,3 @@ if __name__ == '__main__':
 	_log.info("closing emr browser...")
 
 #================================================================
-# $Log: gmEMRBrowser.py,v $
-# Revision 1.111  2010-01-11 19:44:39  ncq
-# - cleanup
-#
-# Revision 1.110  2009/11/15 01:05:02  ncq
-# - enable moving SOAP of a list of encounters of an episode
-#
-# Revision 1.109  2009/11/06 15:17:07  ncq
-# - properly promote episode to issue
-# - better tooltips
-#
-# Revision 1.108  2009/10/29 17:21:14  ncq
-# - improved tooltips
-#
-# Revision 1.107  2009/10/20 10:26:21  ncq
-# - tooltips on issue/episode in EMR tree
-#
-# Revision 1.106  2009/09/23 14:34:21  ncq
-# - add promoting episode to issue
-#
-# Revision 1.105  2009/09/01 22:26:56  ncq
-# - use new edit_episode/edit_health_issue
-#
-# Revision 1.104  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.103  2009/05/13 12:19:13  ncq
-# - use improved encounter management
-# - add moving narrative between encounters
-#
-# Revision 1.102  2009/04/16 12:48:31  ncq
-# - edit_progress_notes -> manage_*
-# - use proper formatter when displaying encounter tooltip
-#
-# Revision 1.101  2009/04/05 18:04:46  ncq
-# - support and use grouping
-#
-# Revision 1.100  2009/01/21 18:03:53  ncq
-# - comment on tooltip handling
-#
-# Revision 1.99  2008/12/18 21:27:56  ncq
-# - add editing progress notes from encounter context menu
-#
-# Revision 1.98  2008/12/01 12:37:37  ncq
-# - generate encounter node tooltips
-#
-# Revision 1.97  2008/11/20 19:50:19  ncq
-# - use improved data formatting
-#
-# Revision 1.96  2008/10/12 16:13:23  ncq
-# - rename EMR tree root node, per Jim
-#
-# Revision 1.95  2008/09/02 19:01:11  ncq
-# - adjust to clin health_issue fk_patient drop and related changes
-#
-# Revision 1.94  2008/08/31 18:39:47  ncq
-# - if narrative is added, say a test result with comment, before
-#   the tree was ever displayed (hence not populated) for that patient
-#   there is not yet a currently selected node, so don't update
-#   the narrative display either
-#
-# Revision 1.93  2008/08/15 15:56:38  ncq
-# - properly handle context click on pseudo-issue
-#
-# Revision 1.92  2008/07/28 15:44:39  ncq
-# - context menu based Medistar export for any encounter
-#
-# Revision 1.91  2008/07/14 13:46:11  ncq
-# - better naming of dummy health issue
-#
-# Revision 1.90  2008/07/12 15:31:23  ncq
-# - improved formatting of issue info
-#
-# Revision 1.89  2008/07/07 13:44:33  ncq
-# - current patient .connected
-# - properly sort tree, encounters: most recent on top as per user request
-#
-# Revision 1.88  2008/06/28 18:25:58  ncq
-# - add expand to ... level popup menu items in EMR tree
-#
-# Revision 1.87  2008/05/19 16:23:33  ncq
-# - let EMR format its summary itself
-#
-# Revision 1.86  2008/04/11 12:27:45  ncq
-# - listen to issue/episode/narrative change signals thereby
-#   reducing direct repopulate calls
-# - factor out __update_text_for_selected_node() and
-#   call format() on nodes that have it
-# - rearrange code layout
-#
-# Revision 1.85  2008/03/05 22:30:14  ncq
-# - new style logging
-#
-# Revision 1.84  2008/01/30 14:07:24  ncq
-# - do not use old cfg file support anymore
-#
-# Revision 1.83  2008/01/22 12:20:53  ncq
-# - dummy health issue always on top
-# - auto-scroll to bottom of journal
-#
-# Revision 1.82  2007/12/11 12:49:25  ncq
-# - explicit signal handling
-#
-# Revision 1.81  2007/09/07 10:56:57  ncq
-# - cleanup
-#
-# Revision 1.80  2007/08/29 22:09:10  ncq
-# - narrative widgets factored out
-#
-# Revision 1.79  2007/08/15 14:57:52  ncq
-# - pretty up tree popup menus
-# - add deletion of health issues
-#
-# Revision 1.78  2007/08/12 00:09:07  ncq
-# - no more gmSignals.py
-#
-# Revision 1.77  2007/06/18 20:31:10  ncq
-# - case insensitively sort health issues
-#
-# Revision 1.76  2007/06/10 09:56:54  ncq
-# - actually sort tree items, add sorting for health issues
-#
-# Revision 1.75  2007/05/21 14:48:20  ncq
-# - cleanup
-# - use pat['dirname'], use export/EMR/
-# - unicode output files
-#
-# Revision 1.74  2007/05/21 13:05:25  ncq
-# - catch-all wildcard on UNIX must be *, not *.*
-#
-# Revision 1.73  2007/05/18 13:29:25  ncq
-# - some cleanup
-# - properly support moving narrative between episodes
-#
-# Revision 1.72  2007/05/14 13:11:24  ncq
-# - use statustext() signal
-#
-# Revision 1.71  2007/05/14 10:33:33  ncq
-# - allow deleting episode
-#
-# Revision 1.70  2007/03/18 14:04:00  ncq
-# - add allergy handling to menu and root node of tree
-#
-# Revision 1.69  2007/03/02 15:31:45  ncq
-# - properly repopulation EMR tree and problem list :-)
-#
-# Revision 1.68  2007/02/22 17:41:13  ncq
-# - adjust to gmPerson changes
-#
-# Revision 1.67  2007/02/16 12:51:46  ncq
-# - fix add issue popup on root node as requested by user :-)
-#
-# Revision 1.66  2007/01/16 18:00:59  ncq
-# - cleanup
-# - explicitely sort episodes and encounters by when they were started
-#
-# Revision 1.65  2007/01/15 13:08:55  ncq
-# - remove explicit __relink_episode2issue as episode details editor now does it
-#
-# Revision 1.64  2007/01/13 22:26:55  ncq
-# - remove cruft
-# - mix expansion history into emr tree browser
-#
-# Revision 1.63  2007/01/06 23:41:40  ncq
-# - missing :
-#
-# Revision 1.62  2007/01/04 23:41:36  ncq
-# - use new episode edit area
-#
-# Revision 1.61  2006/12/25 22:50:50  ncq
-# - add editing of consultation details from EMR tree right-click popup menu
-#
-# Revision 1.60  2006/12/13 23:32:41  ncq
-# - emr journal on a diet
-#
-# Revision 1.59  2006/11/24 14:20:44  ncq
-# - used shiny new health issue edit area in issue context menu
-# - refresh tree after editing health issue
-#
-# Revision 1.58  2006/11/24 10:01:31  ncq
-# - gm_beep_statustext() -> gm_statustext()
-#
-# Revision 1.57  2006/11/05 16:02:00  ncq
-# - cleanup
-#
-# Revision 1.56  2006/10/09 12:22:27  ncq
-# - some cleanup
-# - adjust to changed signature of encounter.transfer_clinical_data()
-#
-# Revision 1.55  2006/06/26 13:03:22  ncq
-# - improve menu strings
-# - implement moving episodes among issues
-#
-# Revision 1.54  2006/05/28 20:53:28  ncq
-# - cleanup, fix some variables and typos
-#
-# Revision 1.53  2006/05/28 16:23:10  ncq
-# - cleanup
-# - dedicated cEMRTree akin to cDocTree
-# - wxGladify tree widgets
-#
-# Revision 1.52  2006/05/15 13:35:59  ncq
-# - signal cleanup:
-#   - activating_patient -> pre_patient_selection
-#   - patient_selected -> post_patient_selection
-#
-# Revision 1.51  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.50  2005/12/27 02:52:40  sjtan
-#
-# allow choice of closing old episode, or relinking to old episode, whenever opening a new episode in the present of an already open episode of an issue.
-# Small logic error fixed where the id of the health_issue was passed in as the id of an episode.
-#
-# Revision 1.49  2005/10/18 13:34:00  sjtan
-# after running; small diffs
-#
-# Revision 1.48  2005/10/09 06:42:02  sjtan
-# timely cache update means a complete tree reconstruct can be done quite fast ( currently sized records anyway),
-# so don't use refresh_historical_tree() - need to debug this anyway.
-#
-# Revision 1.47  2005/10/08 12:33:10  sjtan
-# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
-#
-# Revision 1.46  2005/10/04 19:24:53  sjtan
-# browser now remembers expansion state and select state between change of patients, between health issue rename, episode rename or encounter relinking. This helps when reviewing the record more than once in a day.
-#
-# Revision 1.45  2005/10/04 13:09:49  sjtan
-# correct syntax errors; get soap entry working again.
-#
-# Revision 1.44  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.43  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.42  2005/09/27 20:44:58  ncq
-# - wx.wx* -> wx.*
-#
-# Revision 1.41  2005/09/26 18:01:50  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.40  2005/09/24 09:17:28  ncq
-# - some wx2.6 compatibility fixes
-#
-# Revision 1.39  2005/09/11 17:30:02  ncq
-# - cleanup
-#
-# Revision 1.38  2005/09/08 16:57:48  ncq
-# - smaller font in journal display
-#
-# Revision 1.37  2005/07/21 21:00:46  ncq
-# - cleanup, better strings
-#
-# Revision 1.36  2005/07/02 18:20:52  ncq
-# - quite some cleanup
-#
-# Revision 1.35  2005/06/29 18:35:17  cfmoro
-# create encounter from EMR tree. Added FIXME for refactor duplicated code
-#
-# Revision 1.34  2005/06/29 12:53:50  cfmoro
-# Added create issue menu item to root node
-#
-# Revision 1.33  2005/06/23 14:59:43  ncq
-# - cleanup __relink_encounter_data2episode()
-#
-# Revision 1.32  2005/06/20 13:03:38  cfmoro
-# Relink encounter to another episode
-#
-# Revision 1.31  2005/06/15 22:27:20  ncq
-# - allow issue renaming
-#
-# Revision 1.30  2005/06/14 20:26:04  cfmoro
-# refresh tree on unit test startup
-#
-# Revision 1.29  2005/06/14 20:14:16  cfmoro
-# unit testing fix
-#
-# Revision 1.28  2005/06/14 18:57:50  ncq
-# - support renaming an episode
-#
-# Revision 1.27  2005/04/24 14:44:05  ncq
-# - callbacks must be _* not __* or else namespace invisibility will ensue
-#
-# Revision 1.26  2005/04/12 16:19:49  ncq
-# - add cEMRJournalPanel for plugin
-#
-# Revision 1.25  2005/04/05 16:21:54  ncq
-# - a fix by Syan
-# - cleanup
-#
-# Revision 1.24  2005/04/03 20:10:51  ncq
-# - add export_emr_to_ascii()
-#
-# Revision 1.23  2005/04/03 09:15:39  ncq
-# - roll back EMR export button
-#   - my suggestion to place it there wasn't logically sound
-#     and it screwed up changing the right hand window, too
-#
-# Revision 1.22	 2005/04/02 21:37:27  cfmoro
-# Unlinked episodes displayes in EMR tree and dump
-#
-# Revision 1.21	 2005/04/02 20:45:14  cfmoro
-# Implementated	 exporting emr from gui client
-#
-# Revision 1.20	 2005/03/30 22:10:07  ncq
-# - just cleanup
-#
-# Revision 1.19	 2005/03/30 18:59:03  cfmoro
-# Added file selector dialog to emr dump callback function
-#
-# Revision 1.18	 2005/03/30 18:14:56  cfmoro
-# Added emr export button
-#
-# Revision 1.17  2005/03/29 07:27:14  ncq
-# - add missing argument
-#
-# Revision 1.16  2005/03/11 22:52:54  ncq
-# - simplify popup menu use
-#
-# Revision 1.15  2005/03/10 19:51:29  cfmoro
-# Obtained problem from cClinicalRecord on progress notes edition
-#
-# Revision 1.14  2005/03/09 20:00:13  cfmoro
-# Added fixme comment in problem retrieval
-#
-# Revision 1.13  2005/03/09 19:43:21  cfmoro
-# EMR browser edit problem-episodes notes responsible for providing the narrative definitions to cSoapResizingPanel
-#
-# Revision 1.12  2005/03/09 18:31:57  cfmoro
-# As proof of concept: episode editor and notes editor are displayed in the right panel. Just an initial draft, needs feeback a lot of coding yet ;)
-#
-# Revision 1.11  2005/03/09 16:58:09  cfmoro
-# Thanks to Syan code, added contextual menu to emr tree. Linked episode edition action with the responsible dialog
-#
-# Revision 1.10  2005/02/03 20:19:16  ncq
-# - get_demographic_record() -> get_identity()
-#
-# Revision 1.9  2005/02/01 10:16:07  ihaywood
-# refactoring of gmDemographicRecord and follow-on changes as discussed.
-#
-# gmTopPanel moves to gmHorstSpace
-# gmRichardSpace added -- example code at present, haven't even run it myself
-# (waiting on some icon .pngs from Richard)
-#
-# Revision 1.8  2005/01/31 13:02:18  ncq
-# - use ask_for_patient() in gmPerson.py
-#
-# Revision 1.7  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.6  2004/10/31 00:37:13  cfmoro
-# Fixed some method names. Refresh function made public for easy reload, eg. standalone. Refresh browser at startup in standalone mode
-#
-# Revision 1.5  2004/09/06 18:57:27  ncq
-# - Carlos pluginized the lot ! :-)
-# - plus some fixes/tabified it
-#
-# Revision 1.4	2004/09/01 22:01:45	 ncq
-# - actually use Carlos' issue/episode summary code
-#
-# Revision 1.3	2004/08/11 09:46:24	 ncq
-# - now that EMR exporter supports SOAP notes - display them
-#
-# Revision 1.2	2004/07/26 00:09:27	 ncq
-# - Carlos brings us data display for the encounters - can REALLY browse EMR now !
-#
-# Revision 1.1	2004/07/21 12:30:25	 ncq
-# - initial checkin
-#

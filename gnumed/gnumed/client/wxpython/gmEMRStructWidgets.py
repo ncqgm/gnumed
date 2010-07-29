@@ -86,8 +86,6 @@ def manage_performed_procedures(parent=None):
 		refresh_callback = refresh
 	)
 #----------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgProcedureEAPnl
-
 def edit_procedure(parent=None, procedure=None):
 	ea = cProcedureEAPnl(parent = parent, id = -1)
 	ea.data = procedure
@@ -100,6 +98,8 @@ def edit_procedure(parent=None, procedure=None):
 	dlg.Destroy()
 	return False
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgProcedureEAPnl
+
 class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwargs):
@@ -146,18 +146,22 @@ limit 25
 	def _on_hospital_stay_lost_focus(self):
 		if self._PRW_hospital_stay.GetData() is None:
 			self._PRW_hospital_stay.SetText()
+			self._PRW_location.Enable(True)
 			self._PRW_episode.Enable(True)
 		else:
 			self._PRW_location.SetText()
+			self._PRW_location.Enable(False)
 			self._PRW_episode.SetText()
 			self._PRW_episode.Enable(False)
 	#----------------------------------------------------------------
 	def _on_location_lost_focus(self):
 		if self._PRW_location.GetValue().strip() == u'':
-			return
-
-		self._PRW_hospital_stay.SetText()
-		self._PRW_episode.Enable(True)
+			self._PRW_hospital_stay.Enable(True)
+#			self._PRW_episode.Enable(False)
+		else:
+			self._PRW_hospital_stay.SetText()
+			self._PRW_hospital_stay.Enable(False)
+#			self._PRW_episode.Enable(True)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -212,15 +216,18 @@ limit 25
 		emr = pat.get_emr()
 
 		if self._PRW_hospital_stay.GetData() is None:
+			stay = None
 			epi = self._PRW_episode.GetData()
+			loc = self._PRW_location.GetValue().strip()
 		else:
-			stay = gmEMRStructItems.cHospitalStay(aPK_obj = self._PRW_hospital_stay.GetData())
-			epi = stay['pk_episode']
+			stay = self._PRW_hospital_stay.GetData()
+			epi = gmEMRStructItems.cHospitalStay(aPK_obj = stay)['pk_episode']
+			loc = None
 
 		proc = emr.add_performed_procedure (
 			episode = epi,
-			location = self._PRW_location.GetValue().strip(),
-			hospital_stay = self._PRW_hospital_stay.GetData(),
+			location = loc,
+			hospital_stay = stay,
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
 		proc['clin_when'] = self._DPRW_date.data.get_pydt()
@@ -1382,7 +1389,7 @@ def edit_health_issue(parent=None, issue=None):
 	ea = cHealthIssueEditAreaPnl(parent = parent, id = -1)
 	ea.data = issue
 	ea.mode = gmTools.coalesce(issue, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (issue is not None))
 	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
@@ -1566,7 +1573,7 @@ class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEd
 
 		# FIXME: include more sources: coding systems/other database columns
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"select distinct on (description) description, description from clin.health_issue where description %(fragment_condition)s limit 50"]
+			queries = [u"SELECT DISTINCT ON (description) description, description FROM clin.health_issue WHERE description %(fragment_condition)s LIMIT 50"]
 		)
 		mp.setThresholds(1, 3, 5)
 		self._PRW_condition.matcher = mp

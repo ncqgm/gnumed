@@ -81,6 +81,7 @@ postgresql_version = None			# accuracy: major.minor
 
 __ro_conn_pool = None
 
+auto_request_login_params = True
 # =======================================================================
 # global data
 # =======================================================================
@@ -98,7 +99,8 @@ known_schema_hashes = {
 	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
 	'v11': '03042ae24f3f92877d986fb0a6184d76',
 	'v12': '06183a6616db62257e22814007a8ed07',
-	'v13': 'fab7c1ae408a6530c47f9b5111a0841e'
+	'v13': 'fab7c1ae408a6530c47f9b5111a0841e',
+	'v14': 'e170d543f067d1ea60bfe9076b1560cf'
 }
 
 map_schema_hash2version = {
@@ -113,7 +115,8 @@ map_schema_hash2version = {
 	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
 	'03042ae24f3f92877d986fb0a6184d76': 'v11',
 	'06183a6616db62257e22814007a8ed07': 'v12',
-	'fab7c1ae408a6530c47f9b5111a0841e': 'v13'
+	'fab7c1ae408a6530c47f9b5111a0841e': 'v13',
+	'e170d543f067d1ea60bfe9076b1560cf': 'v14'
 }
 
 map_client_branch2required_db_version = {
@@ -122,7 +125,8 @@ map_client_branch2required_db_version = {
 	u'0.4': u'v10',
 	u'0.5': u'v11',
 	u'0.6': u'v12',
-	u'0.7': u'v13'
+	u'0.7': u'v13',
+	u'0.8': u'v14'
 }
 
 # get columns and data types for a given table
@@ -349,17 +353,19 @@ def __request_login_params_gui_wx():
 	return login
 #---------------------------------------------------
 def request_login_params():
-	"""Request login parameters for database connection.
-	"""
+	"""Request login parameters for database connection."""
+	# do we auto-request parameters at all ?
+	if not auto_request_login_params:
+		raise Exception('Cannot request login parameters.')
+
 	# are we inside X ?
 	# (if we aren't wxGTK will crash hard at
 	# C-level with "can't open Display")
 	if os.environ.has_key('DISPLAY'):
-		# try GUI
-		try:
-			return __request_login_params_gui_wx()
-		except:
-			pass
+		# try wxPython GUI
+		try: return __request_login_params_gui_wx()
+		except: pass
+
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
 	return __request_login_params_tui()
@@ -1254,7 +1260,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
 	"""Get a new connection.
 
-	This assumes the locale system has been initialzied
+	This assumes the locale system has been initialized
 	unless an encoding is specified.
 	"""
 	# FIXME: support pooled on RW, too
@@ -1510,6 +1516,7 @@ class cEncodingError(dbapi.OperationalError):
 # -----------------------------------------------------------------------
 # Python -> PostgreSQL
 # -----------------------------------------------------------------------
+# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 class cAdapterPyDateTime(object):
 
 	def __init__(self, dt):
@@ -1520,6 +1527,7 @@ class cAdapterPyDateTime(object):
 	def getquoted(self):
 		return _timestamp_template % self.__dt.isoformat()
 
+# remove for 0.9
 # ----------------------------------------------------------------------
 #class cAdapterMxDateTime(object):
 #
@@ -1546,11 +1554,15 @@ class cAdapterPyDateTime(object):
 
 # make sure psycopg2 knows how to handle unicode ...
 # intended to become standard
+# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
+# check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
+
+# remove for 0.9
 try:
 	import mx.DateTime as mxDT
 #	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)

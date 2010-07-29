@@ -30,7 +30,7 @@ import sys, string, time, copy, locale
 
 
 # 3rd party
-import mx.DateTime as mxDT, psycopg2, logging
+import logging
 
 
 if __name__ == '__main__':
@@ -1256,6 +1256,11 @@ WHERE
 
 		cmd = u'SELECT pk_vaccination, l10n_indication, indication_count FROM clin.v_pat_last_vacc4indication WHERE %s' % u'\nAND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+		# none found
+		if len(rows) == 0:
+			return []
+
 		vpks = [ ind['pk_vaccination'] for ind in rows ]
 		vinds = [ ind['l10n_indication'] for ind in rows ]
 		ind_counts = [ ind['indication_count'] for ind in rows ]

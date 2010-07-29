@@ -282,7 +282,7 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					print "I need the password for the GNUmed database user [%s]." % self.name
+					print "I need the password for the database user [%s]." % self.name
 					self.password = getpass.getpass("Please type the password: ")
 				else:
 					_log.warning('cannot get password for database user [%s]', self.name)
@@ -364,6 +364,7 @@ class db_server:
 
 		self.conn.cookie = 'db_server.__connect_superuser_to_srv_template'
 
+		# verify encoding
 		curs = self.conn.cursor()
 		curs.execute(u"select setting from pg_settings where name = 'lc_ctype'")
 		data = curs.fetchall()
@@ -374,12 +375,21 @@ class db_server:
 			_log.warning('while this cluster setting allows to store databases')
 			_log.warning('in any encoding as is it does not allow for locale')
 			_log.warning('sorting etc, hence it is not recommended for use')
+			_log.warning('(although it will, technically, work)')
 		elif not (lc_ctype.endswith('.utf-8') or lc_ctype.endswith('.utf8')):
 			_log.error('LC_CTYPE does not end in .UTF-8 or .UTF8')
-			_log.error('cluster encoding incompatible with utf8 encoded databases but')
-			_log.error('for GNUmed installation the cluster must accept this encoding')
-			_log.error('you may need to re-initdb or create a new cluster')
-			return None
+			curs.execute(u"show server_encoding")
+			data = curs.fetchall()
+			srv_enc = data[0][0]
+			_log.info('server_encoding is [%s]', srv_enc)
+			srv_enc = srv_enc.lower()
+			if not srv_enc in ['utf8', 'utf-8']:
+				_log.error('cluster encoding incompatible with utf8 encoded databases but')
+				_log.error('for GNUmed installation the cluster must accept this encoding')
+				_log.error('you may need to re-initdb or create a new cluster')
+				return None
+			_log.info('server encoding seems compatible despite not being reported in LC_CTYPE')
+
 		# make sure we get english messages
 		curs.execute(u"set lc_messages to 'C'")
 		curs.close()
@@ -444,12 +454,13 @@ class db_server:
 			return True
 
 		print_msg ((
-"""The database owner will be created.
+"""The database owner [%s] will be created.
+
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
 
-Make sure to remember the password for later use.
-"""))
+Make sure to remember the password for later use !
+""") % name)
 		_dbowner = user(anAlias = dbowner_alias)
 
 		cmd = 'create user "%s" with password \'%s\' createdb createrole in group "%s", "gm-logins"' % (_dbowner.name, _dbowner.password, self.auth_group)
@@ -901,6 +912,7 @@ class database:
 		if not found_holy_line:
 			_log.info('did not find standard GNUmed authentication directive in pg_hba.conf')
 			_log.info('regex: %s' % holy_pattern)
+			_log.info('bootstrapping is likely to have succeeded but clients probably cannot connect yet')
 			print_msg('==> sanity checking PostgreSQL authentication settings ...')
 			print_msg('')
 			print_msg('Note that even after successfully bootstrapping the GNUmed ')
@@ -932,7 +944,9 @@ class database:
 
 		script_base_dir = cfg_get(self.section, "script base directory")
 		script_base_dir = os.path.expanduser(script_base_dir)
-		script_base_dir = os.path.abspath(script_base_dir)
+		# doesn't work on MacOSX:
+		#script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
+		script_base_dir = os.path.normcase(os.path.normpath(os.path.join('.', script_base_dir)))
 
 		for import_script in import_scripts:
 			try:

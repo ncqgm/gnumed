@@ -122,7 +122,6 @@ echo "============"
 # external tools
 mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
-cp -R ../../external-tools/gm-install_freediams ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_loinc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-print_doc ./gnumed-client.$CLIENTREV/external-tools/
@@ -194,16 +193,17 @@ cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/cli
 
 # locale
 mkdir -p ./gnumed-client.$CLIENTREV/client/po/
-cp -R ../../client/po/ca.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/de.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/es.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/fr.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/it.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/nb.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/nl.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/pl.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/pt_BR.po ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/ca.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/de.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/es.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/fr.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/it.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/nb.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/nl.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pl.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pt.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pt_BR.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/po
 
 cd ../../client/po/
 ./create-gnumed_mo.sh ca
@@ -214,19 +214,21 @@ cd ../../client/po/
 ./create-gnumed_mo.sh nb
 ./create-gnumed_mo.sh nl
 ./create-gnumed_mo.sh pl
+./create-gnumed_mo.sh pt
 ./create-gnumed_mo.sh pt_BR
 ./create-gnumed_mo.sh ru
 cd -
 
-cp -R ../../client/po/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
-cp -R ../../client/po/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/locale
+cp -R ../../client/po/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pt-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 
 
 # pycommon
@@ -307,6 +309,8 @@ cp -R ../../server/gm-move_backups_offsite.sh ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
 
+cp -R ../../external-tools/gm-set_gm-dbo_password ./gnumed-client.$CLIENTREV/server/
+
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/server/
 
 
@@ -330,6 +334,7 @@ cp -R ../../client/doc/man-pages/gm-backup_data.8 ./gnumed-client.$CLIENTREV/ser
 cp -R ../../client/doc/man-pages/gm-backup_database.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-adjust_db_settings.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-set_gm-dbo_password.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/server/doc/
 
 
@@ -444,14 +449,12 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/python
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/fixups
 
 cp -R ../../server/sql/v11-v12/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/dynamic
 cp -R ../../server/sql/v11-v12/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/static
 cp -R ../../server/sql/v11-v12/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
 cp -R ../../server/sql/v11-v12/data/* ./gnumed-client.$CLIENTREV/server/sql/v11-v12/data
 cp -R ../../server/sql/v11-v12/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v11-v12/python
-#cp -R ../../server/sql/v11-v12/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/fixups
 
 
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13
@@ -497,7 +500,6 @@ find ./ -name '*.pyc' -exec rm -v '{}' ';'
 find ./ -name '*.py~' -exec rm -v '{}' ';'
 find ./ -name 'wxg*.wxg~' -exec rm -v '{}' ';'
 find ./ -name '*.log' -exec rm -v '{}' ';'
-find ./ -name 'gnumed.pot' -exec rm -v '{}' ';'
 find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
 

@@ -12,7 +12,7 @@ import wx
 class wxgNewPatientEAPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmDemographicsWidgets, gmDateTimeInput
+        from Gnumed.wxpython import gmDemographicsWidgets, gmDateTimeInput, gmPersonContactWidgets
 
         # begin wxGlade: wxgNewPatientEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -24,13 +24,13 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_nickname = gmDemographicsWidgets.cNicknamePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_title = gmDemographicsWidgets.cTitlePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_address_searcher = gmDemographicsWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_zip = gmDemographicsWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_street = gmDemographicsWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_address_searcher = gmPersonContactWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_zip = gmPersonContactWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_street = gmPersonContactWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_number = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_urb = gmDemographicsWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_region = gmDemographicsWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_country = gmDemographicsWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_urb = gmPersonContactWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_region = gmPersonContactWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_phone = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_external_id_type = gmDemographicsWidgets.cExternalIDTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_external_id_value = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
@@ -51,7 +51,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_gender.SetToolTipString(_("Required: gender"))
         self._PRW_nickname.SetToolTipString(_("Optional: nickname (alias, preferred name, call name, warrior name, artist name, pseudonym)"))
         self._PRW_title.SetToolTipString(_("Optional: title (academic or honorary). Note that a title applies to a person, not to a particular name of that person (it will be kept even if the name changes)."))
-        self._PRW_address_searcher.SetToolTipString(_("Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n\nThat address - or a new address created from any modifications below - will be used as the person's \"home\" address.\nnYou can also just enter the relevant information into the corresponding fields without searching for an existing address."))
+        self._PRW_address_searcher.SetToolTipString(_("Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n\nThat address - or a new address created from any modifications below - will be used as the person's \"home\" address.\n\nYou can also just enter the relevant information into the corresponding fields without searching for an existing address."))
         self._PRW_zip.SetToolTipString(_("Primary address: zip/postal code"))
         self._PRW_street.SetToolTipString(_("Primary address: name of street"))
         self._TCTRL_number.SetToolTipString(_("Primary address: number"))

@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>
+            ## The title value from the dictionary!
+            ${title}
+        </title>
+ 
+        ## turning the "cssFiles" array into the appropriate HTML tag
+        #for $cssFile in $cssFiles
+            <link href="${cssFile}" type="text/css" rel="stylesheet">
+        #end for
+    </head>
+    <body>
+	<form action="doLogin" method="post">
+	    <p>Backend</p>
+	    <select name="backend">
+	    <option value="${backend}">${backend}</option>
+	    </select>
+	    <p>Username</p>
+	    <input type="text" name="username" value="" 
+		size="15" maxlength="40"/>
+	    <p>Password</p>
+	    <input type="password" name="password" value="" 
+		size="10" maxlength="40"/>
+	    <p><input type="submit" value="Login"/></p>
+	    <p><input type="reset" value="Clear"/></p>
+	</form>
+        ## turning the "jsFiles" array into the appropriate HTML tag
+        #for $jsFile in $jsFiles
+            <script type="text/javascript" src="${jsFile}"></script>
+        #end for
+    </body>
+</html>

@@ -22,7 +22,11 @@ from Gnumed.wxpython import gmAllergyWidgets
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
+
 #============================================================
+# ATC related widgets
+#============================================================
+
 def browse_atc_reference(parent=None):
 
 	if parent is None:
@@ -54,6 +58,105 @@ def browse_atc_reference(parent=None):
 	)
 
 #============================================================
+
+def update_atc_reference_data():
+
+	dlg = wx.FileDialog (
+		parent = None,
+		message = _('Choose an ATC import config file'),
+		defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+		defaultFile = '',
+		wildcard = "%s (*.conf)|*.conf|%s (*)|*" % (_('config files'), _('all files')),
+		style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+	)
+
+	result = dlg.ShowModal()
+	if result == wx.ID_CANCEL:
+		return
+
+	cfg_file = dlg.GetPath()
+	dlg.Destroy()
+
+	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing ATC reference data'))
+	if conn is None:
+		return False
+
+	wx.BeginBusyCursor()
+
+	if gmATC.atc_import(cfg_fname = cfg_file, conn = conn):
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported ATC reference data.'))
+	else:
+		gmDispatcher.send(signal = 'statustext', msg = _('Importing ATC reference data failed.'), beep = True)
+
+	wx.EndBusyCursor()
+	return True
+
+#============================================================
+
+class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		query = u"""
+
+			SELECT DISTINCT ON (label)
+				atc_code,
+				label
+			FROM (
+
+				SELECT
+					code as atc_code,
+					(code || ': ' || term || coalesce(' (' || ddd || unit || ')', ''))
+						AS label
+				FROM ref.atc
+				WHERE
+					term %(fragment_condition)s
+						OR
+					code %(fragment_condition)s
+
+				UNION ALL
+
+				SELECT
+					atc_code,
+					(atc_code || ': ' || description)
+						AS label
+				FROM ref.substance_in_brand
+				WHERE
+					description %(fragment_condition)s
+						OR
+					atc_code %(fragment_condition)s
+
+				UNION ALL
+
+				SELECT
+					atc_code,
+					(atc_code || ': ' || description || ' (' || preparation || ')')
+						AS label
+				FROM ref.branded_drug
+				WHERE
+					description %(fragment_condition)s
+						OR
+					atc_code %(fragment_condition)s
+
+				-- it would be nice to be able to include clin.vacc_indication but that's hard to do in SQL
+
+			) AS candidates
+
+			ORDER BY label
+			LIMIT 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(1, 2, 4)
+#		mp.word_separators = '[ \t=+&:@]+'
+		self.SetToolTipString(_('Select an ATC (Anatomical-Therapeutic-Chemical) code.'))
+		self.matcher = mp
+		self.selection_only = True
+
+#============================================================
+#============================================================
+
 def manage_substances_in_brands(parent=None):
 
 	if parent is None:
@@ -100,6 +203,19 @@ def manage_branded_drugs(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
 	def delete(brand):
+		if brand.is_vaccine:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Deleting medication'),
+				aMessage = _(
+					'Cannot delete the medication\n'
+					'\n'
+					' "%s" (%s)\n'
+					'\n'
+					'because it is a vaccine. Please delete it\n'
+					'from the vaccine management section !\n'
+				) % (brand['description'], brand['preparation'])
+			)
+			return False
 		gmMedication.delete_branded_drug(brand = brand['pk'])
 		return True
 	#------------------------------------------------------------
@@ -231,6 +347,7 @@ def get_drug_database(parent = None):
 	except KeyError:
 		_log.error('faulty default drug data source configuration: %s', default_db)
 		return None
+
 #============================================================
 def jump_to_drug_database():
 	dbcfg = gmCfg.cCfgSQL()
@@ -241,6 +358,7 @@ def jump_to_drug_database():
 	if pat.connected:
 		drug_db.patient = pat
 	drug_db.switch_to_frontend(blocking = False)
+
 #============================================================
 def jump_to_ifap(import_drugs=False):
 
@@ -311,38 +429,6 @@ def jump_to_ifap(import_drugs=False):
 				emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
 			csv_file.close()
 
-	return True
-#============================================================
-def update_atc_reference_data():
-
-	dlg = wx.FileDialog (
-		parent = None,
-		message = _('Choose an ATC import config file'),
-		defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
-		defaultFile = '',
-		wildcard = "%s (*.conf)|*.conf|%s (*)|*" % (_('config files'), _('all files')),
-		style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
-	)
-
-	result = dlg.ShowModal()
-	if result == wx.ID_CANCEL:
-		return
-
-	cfg_file = dlg.GetPath()
-	dlg.Destroy()
-
-	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing ATC reference data'))
-	if conn is None:
-		return False
-
-	wx.BeginBusyCursor()
-
-	if gmATC.atc_import(cfg_fname = cfg_file, conn = conn):
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported ATC reference data.'))
-	else:
-		gmDispatcher.send(signal = 'statustext', msg = _('Importing ATC reference data failed.'), beep = True)
-
-	wx.EndBusyCursor()
 	return True
 
 #============================================================
@@ -427,7 +513,11 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-			SELECT pk, (coalesce(atc_code || ': ', '') || description || ' (' || preparation || ')') as brand
+			SELECT
+				pk,
+				(
+				 description || ' (' || preparation || ')' || 'coalesce(' [' || atc_code || ']', '')
+				)	AS brand
 			FROM ref.branded_drug
 			WHERE description %(fragment_condition)s
 			ORDER BY brand
@@ -558,7 +648,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 				else:
 					self._PRW_duration.display_as_valid(True)
 
-		end = self._DP_discontinued.GetValue(as_pydt = True)
+		end = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
 		if end is not None:
 			start = self._DP_started.GetValue(as_pydt = True)
 			if start > end:
@@ -592,8 +682,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		)
 
 		intake['strength'] = self._PRW_strength.GetValue()
-		intake['started'] = self._DP_started.GetValue(as_pydt = True)
-		intake['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True)
+		intake['started'] = self._DP_started.GetValue(as_pydt = True, invalid_as_none = True)
+		intake['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
 		if intake['discontinued'] is None:
 			intake['discontinue_reason'] = None
 		else:
@@ -669,8 +759,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		else:
 			self.data['pk_substance'] = self._PRW_substance.GetData()
 
-		self.data['started'] = self._DP_started.GetValue(as_pydt=True)
-		self.data['discontinued'] = self._DP_discontinued.GetValue(as_pydt=True)
+		self.data['started'] = self._DP_started.GetValue(as_pydt = True, invalid_as_none = True)
+		self.data['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
 		if self.data['discontinued'] is None:
 			self.data['discontinue_reason'] = None
 		else:
@@ -719,7 +809,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._PRW_duration.SetText(u'', None)
 		self._PRW_aim.SetText(u'', None)
 		self._PRW_notes.SetText(u'', None)
-		self._PRW_episode.SetData(None)
+		self._PRW_episode.SetText(u'', None)
 
 		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
@@ -769,15 +859,6 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
-
-		self._PRW_substance.SetText(u'', None)
-		self._PRW_strength.SetText(u'', None)
-		self._PRW_notes.SetText(u'', None)
-
-		self.__refresh_brand_and_components()
-		self.__refresh_allergies()
-
-		self._PRW_substance.SetFocus()
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
@@ -916,7 +997,10 @@ def configure_medication_list_template(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	template = gmFormWidgets.manage_form_templates(parent = parent)
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		template_types = ['current medication list']
+	)
 	option = u'form_templates.medication_list'
 
 	if template is None:
@@ -1156,9 +1240,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				atcs = []
 				if med['atc_substance'] is not None:
 					atcs.append(med['atc_substance'])
-				if med['atc_brand'] is not None:
-					atcs.append(med['atc_brand'])
-				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],), brand = med['brand'])
+#				if med['atc_brand'] is not None:
+#					atcs.append(med['atc_brand'])
+#				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],), brand = med['brand'])
+				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],))
 				if allg not in [None, False]:
 					attr = self.GetOrCreateCellAttr(row_idx, 0)
 					if allg['type'] == u'allergy':
@@ -1298,7 +1383,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			option = u'external.urls.report_ADR',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = u'user',
-			default = u'https://dcgma.org/uaw/meldung.php'
+			default = u'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 		)
 
 		webbrowser.open(url = url, new = False, autoraise = True)
@@ -1386,9 +1471,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		atcs = []
 		if entry['atc_substance'] is not None:
 			atcs.append(entry['atc_substance'])
-		if entry['atc_brand'] is not None:
-			atcs.append(entry['atc_brand'])
-		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],), brand = entry['brand'])
+#		if entry['atc_brand'] is not None:
+#			atcs.append(entry['atc_brand'])
+#		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],), brand = entry['brand'])
+		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (entry['substance'],))
 
 		tt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (
@@ -1675,7 +1761,8 @@ if __name__ == '__main__':
 	gmI18N.install_domain(domain = 'gnumed')
 
 	#----------------------------------------
-#	test_*()
-	pass
+	app = wx.PyWidgetTester(size = (600, 600))
+	app.SetWidget(cATCPhraseWheel, -1)
+	app.MainLoop()
 
 #============================================================

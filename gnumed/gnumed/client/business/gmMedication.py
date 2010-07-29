@@ -243,7 +243,7 @@ class cDrugDataSourceInterface(object):
 	def import_drugs(self):
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def check_drug_interactions(self):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
@@ -251,18 +251,15 @@ class cDrugDataSourceInterface(object):
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	"""http://ericmaeker.fr/FreeMedForms/di-manual/ligne_commandes.html"""
-
-	version = u'FreeDiams interface'
+	version = u'FreeDiams v0.4.2 interface'
 	default_encoding = 'utf8'
-	#default_dob_format = '%d/%m/%Y'
 	default_dob_format = '%Y/%m/%d'
 
 	map_gender2mf = {
 		'm': u'M',
 		'f': u'F',
-		'tf': u'F',
-		'tm': u'M',
+		'tf': u'H',
+		'tm': u'H',
 		'h': u'H'
 	}
 	#--------------------------------------------------------
@@ -319,6 +316,14 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		cmd = r'%s %s' % (self.path_to_binary, args)
 
+#		if self.patient is not None:
+#			names = self.patient.get_active_name()
+#			args += u' --patientname="%(lastnames)s, %(firstnames)s"' % names
+#			args += u' --patientsurname="%(lastnames)s"' % names
+#			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
+#			if self.patient['dob'] is not None:
+#				args += u' --dateofbirth=%s' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
+
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the FreeDiams drug database')
 			return False
@@ -344,7 +349,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		# .external_code_type: u'FR-CIS'
 		# .external_cod: the CIS value
 	#--------------------------------------------------------
-	def check_drug_interactions(self):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
@@ -386,6 +391,11 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def __create_gm2fd_file(self):
 
+		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
+		if self.patient is None:
+			xml_file.close()
+			return
+
 		name = self.patient.get_active_name()
 		if self.patient['dob'] is None:
 			dob = u''
@@ -395,7 +405,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		# Eric says the order of same-level nodes does not matter.
 		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
 
-<FreeDiams_In version="0.4.0">
+<FreeDiams_In version="0.4.2">
 	<EMR name="GNUmed" uid="unused"/>
 	<OutFile value="%s" format="html_xml"/>
 	<Ui editmode="select-only" blockPatientDatas="1"/>
@@ -425,7 +435,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		<OutFile value="...." format="xml html html_xml"/>
 -->
 """		% (
-			self.__f2gm_filename,
+			self.__fd2gm_filename,
 			name['lastnames'], name['firstnames'], self.patient.ID, dob, cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
 			u'', u'',		# crea
 			u'', u'',		# weight
@@ -635,27 +645,27 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		return new_drugs, new_substances
 	#--------------------------------------------------------
-	def check_drug_interactions(self, pzn_list=None, substances=None):
+	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		"""For this to work the BDT interaction check must be configured in the MMI."""
 
-		if pzn_list is None:
+		if drug_ids_list is None:
 			if substances is None:
 				return
 			if len(substances) < 2:
 				return
-			pzn_list = [ (s.external_code_type, s.external_code) for s in substances ]
-			pzn_list = [ code_value for code_type, code_value in pzn_list if (code_value is not None) and (code_type == u'DE-PZN')]
+			drug_ids_list = [ (s.external_code_type, s.external_code) for s in substances ]
+			drug_ids_list = [ code_value for code_type, code_value in drug_ids_list if (code_value is not None) and (code_type == u'DE-PZN')]
 
 		else:
-			if len(pzn_list) < 2:
+			if len(drug_ids_list) < 2:
 				return
 
-		if pzn_list < 2:
+		if drug_ids_list < 2:
 			return
 
 		bdt_file = codecs.open(filename = self.interactions_filename, mode = 'wb', encoding = cGelbeListeWindowsInterface.default_encoding)
 
-		for pzn in pzn_list:
+		for pzn in drug_ids_list:
 			pzn = pzn.strip()
 			lng = cGelbeListeWindowsInterface.bdt_line_base_length + len(pzn)
 			bdt_file.write(cGelbeListeWindowsInterface.bdt_line_template % (lng, pzn))
@@ -748,7 +758,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 drug_data_source_interfaces = {
 	'Deutschland: Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
 	'Deutschland: Gelbe Liste/MMI (WINE)': cGelbeListeWineInterface,
-	'France: FreeDiams': cFreeDiamsInterface
+	'FreeDiams (France, US, Canada)': cFreeDiamsInterface
 }
 #============================================================
 # substances in use across all patients
@@ -822,7 +832,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 						when (
 							(%(is_long_term)s is False)
 								and
-							(gm.is_null_or_blank_string(%(duration)s) is True)
+							(%(duration)s is NULL)
 						) is True then null
 						else %(is_long_term)s
 					end
@@ -830,7 +840,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				duration = (
 					case
 						when %(is_long_term)s is True then null
-						else gm.nullify_empty_string(%(duration)s)
+						else %(duration)s
 					end
 				)::interval,
 
@@ -882,7 +892,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.u_right_arrow,
 			duration,
 			self._payload[self._idx['substance']],
-			self._payload[self._idx['strength']],
+			gmTools.coalesce(self._payload[self._idx['strength']], u''),
 			self._payload[self._idx['preparation']],
 			gmTools.bool2subst(self._payload[self._idx['is_currently_active']], _('ongoing'), _('inactive'), _('?ongoing'))
 		)
@@ -903,6 +913,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_brand']])
 		if self._payload[self._idx['external_code_brand']] is not None:
 			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
+		allg['allergene'] = self._payload[self._idx['substance']]
 		allg['generics'] = self._payload[self._idx['substance']]
 
 		allg.save()
@@ -1006,25 +1017,54 @@ def delete_substance_intake(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
 #------------------------------------------------------------
+def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
+
+	tex =  u'\n{\\small\n'
+	tex += u'\\noindent %s\n' % _('Additional notes')
+	tex += u'\n'
+	tex += u'\\noindent \\begin{tabular}{|l|l|l|l|}\n'
+	tex += u'\\hline\n'
+	tex += u'%s & %s & %s & \\\\ \n' % (_('Substance'), _('Strength'), _('Brand'))
+	tex += u'\\hline\n'
+	tex += u'%s\n'
+	tex += u'\n'
+	tex += u'\\end{tabular}\n'
+	tex += u'}\n'
+
+	current_meds = emr.get_current_substance_intake (
+		include_inactive = False,
+		include_unapproved = False,
+		order_by = u'brand, substance'
+	)
+
+	# create lines
+	lines = []
+	for med in current_meds:
+
+		lines.append(u'%s & %s & %s %s & {\\scriptsize %s} \\\\ \n \\hline \n' % (
+			med['substance'],
+			gmTools.coalesce(med['strength'], u''),
+			gmTools.coalesce(med['brand'], u''),
+			med['preparation'],
+			gmTools.coalesce(med['notes'], u'')
+		))
+
+	return tex % u' \n'.join(lines)
+
+#------------------------------------------------------------
 def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex = u"""\\noindent %s {\\tiny (%s)}{\\tiny \\par}
-
-\\noindent \\begin{tabular}{|l|l|l|}
-\\hline
-%s & %s & {\\scriptsize %s} \\\\
-\\hline
-
-\\hline
-%%s
-
-\\end{tabular}""" % (
-			_('Medication list'),
-			_('ordered by brand'),
-			_('Drug'),
-			_('Regimen'),
-			_('Substances')
-	)
+	tex =  u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
+	tex += u'\n'
+	tex += u'\\noindent \\begin{tabular}{|l|l|}\n'
+	tex += u'\\hline\n'
+	tex += u'%s & %s \\\\ \n' % (_('Drug'), _('Regimen'))
+	tex += u'\\hline\n'
+	tex += u'\n'
+	tex += u'\\hline\n'
+	tex += u'%s\n'
+	tex += u'\n'
+	tex += u'\\end{tabular}\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -1040,22 +1080,21 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		try:
 			line_data[identifier]
 		except KeyError:
-			line_data[identifier] = {'brand': u'', 'substances': [], 'preparation': u'', 'schedule': u'', 'aims': [], 'notes': []}
+			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'aims': [], 'strengths': []}
 
 		line_data[identifier]['brand'] = identifier
-		line_data[identifier]['substances'].append(u'%s%s' % (med['substance'], gmTools.coalesce(med['strength'], u'', u' %s')))
+		if med['strength'] is not None:
+			line_data[identifier]['strengths'].append(med['strength'].strip())
 		line_data[identifier]['preparation'] = med['preparation']
 		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
 		if med['aim'] not in line_data[identifier]['aims']:
 			line_data[identifier]['aims'].append(med['aim'])
-		if med['notes'] not in line_data[identifier]['notes']:
-			line_data[identifier]['notes'].append(med['notes'])
 
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'%s %s & %s & {\\scriptsize %s} \\\\'
-	line2_template = u' & \\multicolumn{2}{l|}{{\\scriptsize %s}} \\\\'
+	line1_template = u'%s %s & %s \\\\'
+	line2_template = u' & {\\scriptsize %s\\par} \\\\'
 
 	for med in current_meds:
 		identifier = gmTools.coalesce(med['brand'], med['substance'])
@@ -1068,15 +1107,24 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		lines.append (line1_template % (
 			line_data[identifier]['brand'],
 			line_data[identifier]['preparation'],
-			line_data[identifier]['schedule'],
-			u', '.join(line_data[identifier]['substances'])
+			line_data[identifier]['schedule']
 		))
 
-		for aim in line_data[identifier]['aims']:
-			lines.append(line2_template % aim)
-
-		for note in line_data[identifier]['notes']:
-			lines.append(line2_template % note)
+		strengths = u'/'.join(line_data[identifier]['strengths'])
+		if strengths == u'':
+			template = u' & {\\scriptsize %s\\par} \\\\'
+			for aim in line_data[identifier]['aims']:
+				lines.append(template % aim)
+		else:
+			if len(line_data[identifier]['aims']) == 0:
+				template = u'%s & \\\\'
+				lines.append(template % strengths)
+			else:
+				template = u'%s & {\\scriptsize %s\\par} \\\\'
+				lines.append(template % (strengths, line_data[identifier]['aims'][0]))
+				template = u' & {\\scriptsize %s\\par} \\\\'
+				for aim in line_data[identifier]['aims'][1:]:
+					lines.append(template % aim)
 
 		lines.append(u'\\hline')
 
@@ -1137,6 +1185,14 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		return rows
 
 	components = property(_get_components, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_vaccine(self):
+		cmd = u'SELECT EXISTS (SELECT 1 FROM clin.vaccine WHERE fk_brand = %(fk_brand)s)'
+		args = {'fk_brand': self._payload[self._idx['pk']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_vaccine = property(_get_is_vaccine, lambda x:x)
 	#--------------------------------------------------------
 	def add_component(self, substance=None, atc=None):
 
@@ -1283,7 +1339,7 @@ if __name__ == "__main__":
 		# Metoprolol + Hct vs Citalopram
 		diclofenac = '7587712'
 		phenprocoumon = '4421744'
-		mmi.check_drug_interactions(pzn_list = [diclofenac, phenprocoumon])
+		mmi.check_drug_interactions(drug_ids_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
 	# FreeDiams
 	#--------------------------------------------------------

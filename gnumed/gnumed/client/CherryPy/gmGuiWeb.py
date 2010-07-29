@@ -9,16 +9,25 @@ __version__ = "$Revision: 1 $"
 __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import cherrypy
+import cherrypy                         # importing the CherryPy server library
+from Cheetah.Template import Template   # importing the Cheetah Template engine
+
+try:
+	from json import loads, dumps
+except ImportError:
+	from simplejson import loads, dumps
+
+
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2, re as regex
 
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
 from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N, gmDispatcher
 
 from Gnumed.business import gmDocuments
+from Gnumed.CherryPy import gmGuiHelpersWeb 
 
 #try:
 #	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -104,13 +113,13 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 					)
 				msg = msg % e
 				msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
-				gmGuiHelpers.gm_show_error (
+				gmGuiHelpersWeb.gm_show_error (
 					msg,
 					_('Connecting to backend')
 				)
 			del e
 			continue
-
+			
 		except gmPG2.dbapi.OperationalError, e:
 			_log.error(u"login attempt failed: %s", e)
 			msg = _(
@@ -119,7 +128,7 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 				"Please retry another backend / user / password combination !\n"
 			) % gmPG2.extract_msg_from_pg_exception(e)
 			msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
-			gmGuiHelpers.gm_show_error (
+			gmGuiHelpersWeb.gm_show_error (
 				msg,
 				_('Connecting to backend')
 			)
@@ -147,9 +156,9 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 #			)
 
 #			if require_version:
-			#	gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
+			#	gmGuiHelpersWeb.gm_show_error(msg + msg_fail, _('Verifying database version'))
 #				pass
-			#gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'))
+			#gmGuiHelpersWeb.gm_show_info(msg + msg_override, _('Verifying database version'))
 
 #		# FIXME: make configurable
 #		max_skew = 1		# minutes
@@ -157,14 +166,14 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 #			max_skew = 10
 #		if not gmPG2.sanity_check_time_skew(tolerance = (max_skew * 60)):
 #			if _cfg.get(option = 'debug'):
-#				gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
+#				gmGuiHelpersWeb.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
 #			else:
-#				gmGuiHelpers.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
+#				gmGuiHelpersWeb.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
 #				continue
 
 #		sanity_level, message = gmPG2.sanity_check_database_settings()
 #		if sanity_level != 0:
-#			gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
+#			gmGuiHelpersWeb.gm_show_error((msg_insanity % message), _('Verifying database settings'))
 #			if sanity_level == 2:
 #				continue
 
@@ -318,47 +327,145 @@ class cBackendProfile:
 	pass
 
 #================================================================
+
+def jsonrpchdl():
+	print "before_handler jsonrpc" 
+	# note: wheter req.body is a string or file depends on the content-type!
+	req = cherrypy.request
+	try:
+		size = int(req.headers["Content-Length"])
+	except:
+		size = 1 
+	try:
+		json_string = req.body.read()
+		print "json_string [%s]" % json_string
+		obj = loads(json_string)
+		myparams = {}
+		for key, val in obj.items():
+			mykey = str(key)
+			myparams[mykey] = val
+		req.params = myparams 
+	except:
+		pass
+cherrypy.tools.jsonrpchdl = cherrypy.Tool('before_handler',jsonrpchdl)
+
+PYJSDIR = sys._getframe().f_code.co_filename
+PYJSDIR = os.path.split(os.path.dirname(PYJSDIR))[0]
+PYJSDIR = os.path.join(PYJSDIR, 'pyjamas')
+
+DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
+
 class gmApp:
 
+    @cherrypy.expose
+    def default(self,*args):
+        fname = os.path.join(PYJSDIR,args[0])
+        print "try to return contents of file %s" % fname
+        f = file(fname)
+        s = f.read()
+        return s
+
+    @cherrypy.expose
+    @cherrypy.tools.jsonrpchdl()
+    def services(self, *args, **kwargs):
+        print "echo service"
+        print args
+        print kwargs
+        method = kwargs['method']
+        f = getattr(self,method)
+        res = f(*kwargs['params'])
+        return dumps({'id':kwargs['id'],'result':res,'error':None})
+    def echo(self, text):
+        return text
+    def reverse(self, text):
+        return text[::-1]
+    def uppercase(self, text):
+        return text.upper()
+    def lowercase(self,text):
+        return text.lower()
+
+    def get_schema_version(self):
+        return gmPG2.get_schema_version()
+
+    def get_doc_types(self):
+        res = []
+        for item in gmDocuments.get_document_types():
+            res.append(str(item))
+        return res
+
     def doSomething(self):
-	msg = 'schema version is:' + gmPG2.get_schema_version() +'\n\n'
+	msg = 'schema version is:' + self.get_schema_version() +'\n\n'
 	msg2 =''
 	for item in gmDocuments.get_document_types():
 	    msg2 = msg2 +'\n' + str(item)
 	msg = msg + msg2
-	return msg
+	return "<pre>%s</pre>" %msg
+
+    def login(self, username=None, password=None, backend=None):
+        if backend is None:
+            backend = DEFAULT_BACKEND
+        login_info = GetLoginInfo(username, password, backend)
+        override = _cfg.get(option = '--override-schema-check',
+                            source_order = [('cli', 'return')])
+        cb = _cfg.get(option = 'client_branch')
+        expected_version = gmPG2.map_client_branch2required_db_version[cb]
+        connected = connect_to_database (
+                login_info,
+                expected_version = expected_version,
+                require_version = not override
+            )
+        return connected
 
     def doLogin(self, username=None, password=None, backend=None):
 	login_info = GetLoginInfo(username, password, backend)
-	override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
+	override = _cfg.get(option = '--override-schema-check', 
+			    source_order = [('cli', 'return')])
+	cb = _cfg.get(option = 'client_branch')
+	expected_version = gmPG2.map_client_branch2required_db_version[cb]
 	connected = connect_to_database (
-			login_info,
-			expected_version = gmPG2.map_client_branch2required_db_version[_cfg.get(option = 'client_branch')],
-			require_version = not override
+		login_info,
+		expected_version = expected_version,
+		require_version = not override
 		)
-	msg = self.doSomething()
-	return msg
+	if connected:
+		msg = self.doSomething()
+		return msg
+	else:
+		return 'something went wrong'
 
     doLogin.exposed = True
-
+    
     # ------------------------------------------------------------
     def index(self):
-		# backend is hardcoded for now, make it use drop down list later
-        return """
-        <form action="doLogin" method="post">
-	    <p>Backend</p>
-	    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
-		size="15" maxlength="40"/>
-	    <p>Username</p>
-	    <input type="text" name="username" value="" 
-		size="15" maxlength="40"/>
-	    <p>Password</p>
-	    <input type="password" name="password" value="" 
-		size="10" maxlength="40"/>
-	    <p><input type="submit" value="Login"/></p>
-	    <p><input type="reset" value="Clear"/></p>
-	</form>
-        """
+	# backend is hardcoded for now, make it use drop down list later
+        # building the html out of the Cheetah Template
+        t = Template( file="CherryPy/templates/index.tmpl"
+            # a dictionnary containing values that is going to be inserted in the Template
+            , searchList = {
+                "title" : "Welcome to GNUmed - Login"
+                , "cssFiles" : ["css/ext-all.css", "css/xtheme-gray.css"]
+                , "jsFiles" : ["ext/ext-base.js", "ext/ext-core.js"]
+                , "backend" : "GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
+            }
+        )
+        return str( t )     # returning a string representation of the Template. CherryPy will only let you return strings with an exposed function
+
+        
+        #return """
+        #<form action="doLogin" method="post">
+	#    <p>Backend</p>
+	#    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
+	#	size="15" maxlength="40"/>
+	#    <p>Username</p>
+	#    <input type="text" name="username" value="" 
+	#	size="15" maxlength="40"/>
+	#    <p>Password</p>
+	#    <input type="password" name="password" value="" 
+	#	size="10" maxlength="40"/>
+	#    <p><input type="submit" value="Login"/></p>
+	#    <p><input type="reset" value="Clear"/></p>
+	#</form>
+        #"""
     index.exposed = True
 
 #==========================================================
@@ -371,4 +478,5 @@ def main():
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
 
-	cherrypy.quickstart(gmApp())
+	cherrypy.quickstart(gmApp(), "/",
+		{'global':{'server.socket_port':8080,'log.screen':True}})

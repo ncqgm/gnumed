@@ -120,7 +120,11 @@ def edit_measurement(parent=None, measurement=None, single_entry=False):
 #================================================================
 def plot_measurements(parent=None, tests=None):
 
-	template = gmFormWidgets.manage_form_templates(parent = parent)
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		active_only = True,
+		template_types = [u'gnuplot script']
+	)
 
 	if template is None:
 		gmGuiHelpers.gm_show_error (

@@ -209,22 +209,27 @@ def get_form_template(name_long=None, external_version=None):
 
 	return cFormTemplate(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
-def get_form_templates(engine=None, active_only=False):
+def get_form_templates(engine=None, active_only=False, template_types=None, excluded_types=None):
 	"""Load form templates."""
 
 	args = {'eng': engine, 'in_use': active_only}
+	where_parts = [u'1 = 1']
 
-	where_parts = []
 	if engine is not None:
 		where_parts.append(u'engine = %(eng)s')
 
 	if active_only:
-		where_parts.append(u'in_use is True')
+		where_parts.append(u'in_use IS true')
 
-	if len(where_parts) == 0:
-		cmd = u"select * from ref.v_paperwork_templates order by in_use desc, name_long"
-	else:
-		cmd = u"select * from ref.v_paperwork_templates where %s order by in_use desc, name_long" % u'and'.join(where_parts)
+	if template_types is not None:
+		args['incl_types'] = tuple(template_types)
+		where_parts.append(u'template_type IN %(incl_types)s')
+
+	if excluded_types is not None:
+		args['excl_types'] = tuple(excluded_types)
+		where_parts.append(u'template_type NOT IN %(excl_types)s')
+
+	cmd = u"SELECT * FROM ref.v_paperwork_templates WHERE %s ORDER BY in_use desc, name_long" % u'\nAND '.join(where_parts)
 
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': cmd, 'args': args}],
@@ -736,23 +741,26 @@ class cLaTeXForm(cFormEngine):
 		_log.debug('CWD: [%s]', old_cwd)
 
 		gmTools.mkdir(sandbox_dir)
+
 		os.chdir(sandbox_dir)
+		try:
+			sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
+			shutil.move(self.instance_filename, sandboxed_instance_filename)
 
-		sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
-		shutil.move(self.instance_filename, sandboxed_instance_filename)
+			# LaTeX can need up to three runs to get cross-references et al right
+			if platform.system() == 'Windows':
+				cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
+			else:
+				cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
+			for run in [1, 2, 3]:
+				if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+					_log.error('problem running pdflatex, cannot generate form output')
+					gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
+					os.chdir(old_cwd)
+					return None
+		finally:
+			os.chdir(old_cwd)
 
-		# LaTeX can need up to three runs to get cross-references et al right
-		if platform.system() == 'Windows':
-			cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
-		else:
-			cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
-		for run in [1, 2, 3]:
-			if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
-				_log.error('problem running pdflatex, cannot generate form output')
-				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
-				return None
-
-		os.chdir(old_cwd)
 		pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
 		shutil.move(pdf_name, os.path.split(self.instance_filename)[0])
 		pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]

@@ -44,12 +44,16 @@ create constraint trigger tr_sanity_check_vaccine_has_indications
 ;
 
 
-revoke delete on clin.lnk_vaccine2inds from public, "gm-doctors";
+--revoke delete on clin.lnk_vaccine2inds from public, "gm-doctors";
 
 -- --------------------------------------------------------------
 -- .fk_brand
 comment on column clin.vaccine.fk_brand is
 	'The brand of this vaccine, can be a fake entry in ref.branded_drug.';
+
+alter table clin.vaccine
+	alter column fk_brand
+		set not null;
 
 \unset ON_ERROR_STOP
 alter table clin.vaccine drop constraint vaccine_fk_brand_fkey cascade;
@@ -71,6 +75,10 @@ alter table clin.vaccine drop constraint vaccine_sane_min_age cascade;
 alter table clin.vaccine
 	alter column min_age
 		drop not null;
+
+alter table clin.vaccine
+	alter column min_age
+		drop default;
 
 alter table clin.vaccine
 	add constraint vaccine_sane_min_age
@@ -97,13 +105,15 @@ alter table clin.vaccine
 		drop not null;
 
 alter table clin.vaccine
+	alter column max_age
+		drop default;
+
+alter table clin.vaccine
 	add constraint vaccine_sane_max_age
 		check (
 			(max_age is null)
 				or
 			(max_age < '150 years'::interval)
-				or
-			(max_age = '5555 years'::interval)
 		);
 
 -- --------------------------------------------------------------
@@ -697,6 +707,10 @@ comment on view clin.v_indications4vaccine is
 	'Denormalizes indications per vaccine.';
 
 grant select on clin.v_indications4vaccine to group "gm-public";
+
+-- --------------------------------------------------------------
+
+grant select on clin.vacc_route to group "gm-public";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v14-clin-vaccine-dynamic.sql,v $', '$Revision: 1.3 $');
