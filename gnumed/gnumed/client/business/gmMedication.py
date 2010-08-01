@@ -270,6 +270,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		paths = gmTools.gmPaths()
 		self.__gm2fd_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2freediams.xml')
 		self.__fd2gm_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'freediams2gm.xml')
+		self.__fd4gm_config_file = os.path.join(paths.home_dir, '.gnumed', 'freediams4gm.conf')
 
 		self.path_to_binary = None
 		self.__detect_binary()
@@ -402,48 +403,46 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		else:
 			dob = self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
 
+		emr = self.patient.get_emr()
+		allgs = emr.get_allergies()			# leave out sensitivities ?
+		atcs = [ a['atc_code'] for a in allgs if a['atc_code'] is not None ]
+		inns = [ a['allergene'] for a in allgs ]
+		# this is rather fragile: FreeDiams won't know what type of UID this is
+		uids = [ a['substance_code'] for a in allgs if a['substance_code'] is not None ]
+
 		# Eric says the order of same-level nodes does not matter.
 		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
 
 <FreeDiams_In version="0.4.2">
 	<EMR name="GNUmed" uid="unused"/>
+	<ConfigFile value="%s"/>
 	<OutFile value="%s" format="html_xml"/>
 	<Ui editmode="select-only" blockPatientDatas="1"/>
 	<Patient>
 		<Identity name="%s" surname="%s" uid="%s" dob="%s" gender="%s"/>
-		<Creatinine value="%s" unit="%s"/>
-		<Weight value="%s" unit="%s" />
-		<Height value="%s" unit="%s"/>
-		<InnAllergies value="%s"/>
 		<ATCAllergies value="%s"/>
+		<InnAllergies value="%s"/>
 		<DrugsUidAllergies value="%s"/>
-		<ICD10 value="%s"/>
 	</Patient>
 </FreeDiams_In>
 
 <!--
-		# FIXME: search by LOINC code and add
-
+		<InnIntolerances value=""/>
+		<ATCIntolerances value="B05B"/>
+		<DrugsUidIntolerances value="68586203;62869109"/>
+		# FIXME: search by LOINC code and add (as soon as supported by FreeDiams ...)
 		<Creatinine value="12" unit="mg/l or mmol/l"/>
 		<Weight value="70" unit="kg or pd" />
 		<Height value="170" unit="cm or "/>
-		<InnAllergies value="inn1;inn2;inn3"/>
-		<ATCAllergies value="ATC1;ATC2;ATC3"/>
-		<DrugsUidAllergies value="7655668;876769;656789"/>
 		<ICD10 value="J11.0;A22;Z23"/>
-
-		<OutFile value="...." format="xml html html_xml"/>
 -->
 """		% (
+			self.__fd4gm_config_file,
 			self.__fd2gm_filename,
-			name['lastnames'], name['firstnames'], self.patient.ID, dob, cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
-			u'', u'',		# crea
-			u'', u'',		# weight
-			u'', u'',		# height
-			u'',			# INN allergies
-			u'',			# ATC allergies
-			u'',			# drug ID allergies
-			u''				# ICD 10
+			name['firstnames'], name['lastnames'], self.patient.ID, dob, cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
+			u';'.join(atcs),
+			u';'.join(inns),
+			u';'.join(uids)
 		)
 
 		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
