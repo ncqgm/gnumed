@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-07-13 12:15+CEST\n"
-"PO-Revision-Date: 2010-07-01 17:45+0100\n"
+"POT-Creation-Date: 2010-07-26 16:07+CEST\n"
+"PO-Revision-Date: 2010-07-22 18:06+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -15,6 +15,33 @@ msgstr ""
 "X-Generator: KBabel 0.9.6\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-Language: German\n"
+
+msgid "programmer forgot to specify error message"
+msgstr "Programmierer hat vergessen, Fehler genau anzugeben."
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+"\n"
+"\n"
+"Die Logdatei enthält genauere Angaben !"
+
+msgid "generic error message"
+msgstr "allgemeine Fehlermeldung"
+
+msgid "programmer forgot to specify info message"
+msgstr "Programmierer hat vergessen, Information anzugeben."
+
+msgid "generic info message"
+msgstr "allgemeine Information"
+
+msgid "programmer forgot to specify warning"
+msgstr "Programmierer hat vergessen, Warnung anzugeben."
+
+msgid "generic warning message"
+msgstr "allgemeine Warnmeldung"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -448,11 +475,8 @@ msgstr "Kurzzeit ?"
 msgid "?ongoing"
 msgstr "andauernd ?"
 
-#, fuzzy
 msgid "Additional notes"
-msgstr ""
-"Zusätzliche\n"
-"Angaben"
+msgstr "Zusätzliche Angaben"
 
 msgid "Substance"
 msgstr "Stoff"
@@ -632,6 +656,52 @@ msgstr "Kann Nachrichten für den Mitarbeiter nicht aus der Datenbank laden."
 
 msgid "vaccine"
 msgstr "Impfstoff"
+
+msgid "unknown vaccinations output format [%s]"
+msgstr "unbekanntes Format [%s] für die Ausgabe von Impfungen"
+
+msgid "No vaccinations to format."
+msgstr "Keine Impfungen zu formatieren."
+
+msgid "Latest vaccinations"
+msgstr "Letzte Impfungen"
+
+msgid "per target condition"
+msgstr "pro Impfziel"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Last given"
+msgstr "Zuletzt"
+
+msgid "Vaccine"
+msgstr "Impfstoff"
+
+msgid "Lot \\#"
+msgstr "Charge"
+
+msgid "S/P"
+msgstr "S/P"
+
+msgid ""
+"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
+"\"lan: this vaccination was administered in the practice or copied from "
+"trustworthy records."
+msgstr ""
+
+msgid ""
+"Total number of vaccinations recorded for the corresponding target condition."
+msgstr "Gesamtzahl dokumentierter Impfungen für das jeweilige Impfziel."
+
+msgid "Injection site"
+msgstr "Impfstelle"
+
+msgid "Reaction"
+msgstr "Reaktion"
+
+msgid "Comment"
+msgstr "Kommentar"
 
 msgid "internal error, check log"
 msgstr "interner Fehler, Log kontrollieren"
@@ -841,6 +911,27 @@ msgstr "interval_format_tag::weeks::W"
 
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::T"
+
+msgid "y::year_abbreviation"
+msgstr "J::year_abbreviation"
+
+msgid "m::month_abbreviation"
+msgstr "M::month_abbreviation"
+
+msgid "mo::month_only_abbreviation"
+msgstr "Mo::month_only_abbreviation"
+
+msgid "w::week_abbreviation"
+msgstr "W::week_abbreviation"
+
+msgid "d::day_abbreviation"
+msgstr "T::day_abbreviation"
+
+msgid "h::hour_abbreviation"
+msgstr "h::hour_abbreviation"
+
+msgid "s::second_abbreviation"
+msgstr "s::second_abbreviation"
 
 msgid "yYaA_keys_year"
 msgstr "yYjJaA_keys_year"
@@ -1292,9 +1383,6 @@ msgstr "Generika"
 msgid "Drug Classes"
 msgstr "ATC/Klasse"
 
-msgid "Reaction"
-msgstr "Reaktion"
-
 msgid "Reaction Type"
 msgstr "Reaktionstyp"
 
@@ -1603,11 +1691,11 @@ msgstr ""
 "Wenn Sie mehr als einen Wirkstoff holen, wird nur der erste davon zum "
 "Bearbeiten eingetragen werden."
 
-msgid "The amount of substance per dose."
-msgstr "Die Menge Wirkstoff pro Dosis."
-
 msgid "The preparation the substance comes in."
 msgstr "Die Darreichungsform der Substanz."
+
+msgid "The amount of substance per dose."
+msgstr "Die Menge Wirkstoff pro Dosis."
 
 msgid "Whether this substance is taken by advice."
 msgstr "Ob die Einnahme dieser Substanz gebilligt (bzw sogar empfohlen) wird."
@@ -1654,11 +1742,11 @@ msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
 msgstr "Ob es sich um ein Dauermedikament handelt."
 
-msgid "The aim of consuming this substance."
-msgstr "Das Ziel des Gebrauchs dieser Substanz."
-
 msgid "The episode this substance is taken under."
 msgstr "Die Episode, im Rahmen welcher diese Substanz eingenommen wird."
+
+msgid "The aim of consuming this substance."
+msgstr "Das Ziel des Gebrauchs dieser Substanz."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr "Kommentare oder Hinweise zur Einnahme dieser Substanz."
@@ -1681,11 +1769,11 @@ msgstr "Plan"
 msgid "Duration"
 msgstr "Dauer"
 
-msgid "Aim"
-msgstr "Ziel"
-
 msgid "Episode"
 msgstr "Episode"
+
+msgid "Aim"
+msgstr "Ziel"
 
 msgid "Advice"
 msgstr "Hinweis"
@@ -2006,9 +2094,6 @@ msgstr "Diesen Dialog schließen."
 msgid "Name"
 msgstr "Name"
 
-msgid "Comment"
-msgstr "Kommentar"
-
 msgid "edit encounter details"
 msgstr "Details der Konsultation ändern"
 
@@ -2264,9 +2349,8 @@ msgstr "Die eingegebenen Daten abspeichern."
 msgid "Cancel editing the data and discard changes."
 msgstr "Abbrechen und Änderungen verwerfen."
 
-#, fuzzy
 msgid "Add &another"
-msgstr "&Weitere ..."
+msgstr "&Weitere(r) ..."
 
 msgid "Lala !"
 msgstr "Doch"
@@ -2306,8 +2390,14 @@ msgstr "Den markierten Eintrags ändern."
 msgid "Remove the selected item(s) from the list."
 msgstr "Gewählte Einträge aus der Liste löschen."
 
-msgid "&Delete"
-msgstr "&Löschen"
+msgid "1"
+msgstr "1"
+
+msgid "2"
+msgstr "2"
+
+msgid "3"
+msgstr "3"
 
 msgid ""
 "Select the items you want to work on.\n"
@@ -2377,12 +2467,17 @@ msgid ""
 "Here you can add arbitrary text which will be used for sorting health issues "
 "in the tree."
 msgstr ""
+"Sie können hier beliebigen Text eingeben, der dann zur Sortierung der "
+"Grunderkrankungen verwendet wird."
 
 msgid ""
 "Clinical narrative of any kind can be added (but not altered) here. This can "
 "be done at inception, and/or later. Each is treated as a subjective (\"S"
 "\"oap) note entry."
 msgstr ""
+"Hier können beliebige klinische Notizen hinzugefügt (aber nicht verändert) "
+"werden. Dies kann bei der Erstanlage oder später geschehen. Die Notizen "
+"werden unter Anamnese (\"A\"bdt) eingetragen."
 
 msgid ""
 "Enter the age in years when this condition was diagnosed. Setting this will "
@@ -2431,12 +2526,14 @@ msgstr "Erkrankung"
 msgid "Grouping:"
 msgstr "Gruppierung"
 
-#, fuzzy
 msgid ""
 "Inception or\n"
 "additional\n"
 "notes"
-msgstr "Anfangsnotizen"
+msgstr ""
+"Anfangs-/\n"
+"Zusatz-\n"
+"notizen"
 
 msgid "When Noted"
 msgstr "festgestellt"
@@ -2623,9 +2720,6 @@ msgstr "bis"
 msgid "or"
 msgstr "oder"
 
-msgid "Target"
-msgstr "Ziel"
-
 msgid "Group"
 msgstr "Gruppe"
 
@@ -2715,7 +2809,7 @@ msgid "Technically abnormal"
 msgstr "Außerhalb Normbereich"
 
 msgid "... test results listing goes here ..."
-msgstr ""
+msgstr "... Liste der Testergebnisse hierhin ..."
 
 msgid "Leave as is"
 msgstr "Belassen"
@@ -2912,7 +3006,8 @@ msgid ""
 "\n"
 "That address - or a new address created from any modifications below - will "
 "be used as the person's \"home\" address.\n"
-"nYou can also just enter the relevant information into the corresponding "
+"\n"
+"You can also just enter the relevant information into the corresponding "
 "fields without searching for an existing address."
 msgstr ""
 "Hier können Sie anhand von PLZ oder Straßenname nach einer existierenden "
@@ -3947,11 +4042,13 @@ msgstr "Impfstoff ..."
 msgid ""
 "... or ...\n"
 "\n"
-"vaccinated against"
+"vaccinated\n"
+"against"
 msgstr ""
 "... oder ...\n"
 "\n"
-"geimpft gegen"
+"geimpft\n"
+"gegen"
 
 msgid "Batch №"
 msgstr "Charge"
@@ -4110,13 +4207,13 @@ msgid "Variola virus"
 msgstr "Variolavirus (Smallpox)"
 
 msgid "<--Resp-->"
-msgstr "<--Atmung-->"
+msgstr "←Atmung→"
 
 msgid "<--Neuro-->"
 msgstr "←ZNS/PNS→"
 
 msgid "<--GI-->"
-msgstr "<-Magen-Darm->"
+msgstr "←Magen-Darm→"
 
 msgid "Other:"
 msgstr "Sonstige:"
@@ -4159,8 +4256,12 @@ msgstr "Ein Kommentar zu diesem Impfstoff."
 msgid "Route"
 msgstr "Weg"
 
-msgid "Protects from"
-msgstr "Schützt vor"
+msgid ""
+"Protects\n"
+"from"
+msgstr ""
+"Schützt\n"
+"vor"
 
 msgid "ATC"
 msgstr "ATC"
@@ -4292,9 +4393,6 @@ msgstr "Impfarzt"
 
 msgid "Batch"
 msgstr "Charge"
-
-msgid "Vaccine"
-msgstr "Impfstoff"
 
 msgid ""
 "Vaccinations by Recommender (X = patient on regime, O = patient not on "
@@ -4992,9 +5090,8 @@ msgstr "ausgegeben von"
 msgid "Enter or select a type for the external ID."
 msgstr "Tippen oder wählen Sie den Typ für diese ID."
 
-#, fuzzy
 msgid "Type or select an ID issuer."
-msgstr "Tippen oder wählen Sie einen Titel."
+msgstr "Tippen oder wählen Sie einen Herausgeber für die ID."
 
 msgid "Cannot parse <%s> into proper timestamp."
 msgstr "Kann <%s> nicht in einen Zeitpunkt übersetzen."
@@ -5947,25 +6044,23 @@ msgstr "Bis zur Konsultationsebene aufklappen"
 msgid "EMR Menu"
 msgstr "Menü \"Karteikarte\""
 
-#, fuzzy
 msgid "Create health issue"
 msgstr "Grunderkrankung anlegen"
 
-#, fuzzy
 msgid "Manage allergies"
-msgstr "Allergien dokumentieren"
+msgstr "Allergien verwalten"
 
-#, fuzzy
+msgid "Manage vaccinations"
+msgstr "Impfungen verwalten"
+
 msgid "Manage procedures"
-msgstr "Kann Maßnahme nicht speichern."
+msgstr "Maßnahmen verwalten"
 
-#, fuzzy
 msgid "Manage hospitalizations"
-msgstr "Krankenhausaufenthalte verwalten."
+msgstr "Krankenhausaufenthalte verwalten"
 
-#, fuzzy
 msgid "Manage occupation"
-msgstr "Beruf"
+msgstr "Beruf verwalten"
 
 msgid "Open EMR to ..."
 msgstr "Karteikarte entfalten auf ..."
@@ -6143,7 +6238,7 @@ msgid "Start of new encounter"
 msgstr "Neuer Kontakt begonnen"
 
 msgid "Cannot list encounters. No active patient."
-msgstr "Kann Kontakt nicht auflisten. Kein Patient aktiv."
+msgstr "Kann Kontakte nicht auflisten. Kein Patient aktiv."
 
 msgid ""
 "\n"
@@ -6762,33 +6857,6 @@ msgstr "alle Dateien (Windows)"
 msgid "Choose a form template file"
 msgstr "Wählen Sie eine Datei als Schriftstück-Vorlage."
 
-msgid "programmer forgot to specify error message"
-msgstr "Programmierer hat vergessen, Fehler genau anzugeben."
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-"\n"
-"\n"
-"Die Logdatei enthält genauere Angaben !"
-
-msgid "generic error message"
-msgstr "allgemeine Fehlermeldung"
-
-msgid "programmer forgot to specify info message"
-msgstr "Programmierer hat vergessen, Information anzugeben."
-
-msgid "generic info message"
-msgstr "allgemeine Information"
-
-msgid "programmer forgot to specify warning"
-msgstr "Programmierer hat vergessen, Warnung anzugeben."
-
-msgid "generic warning message"
-msgstr "allgemeine Warnmeldung"
-
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "Sie sind als %s%s.%s (%s) angemeldet. Datenbankkonto <%s>."
 
@@ -6983,6 +7051,12 @@ msgstr "Webseite für die Meldung von Impfreaktionen."
 
 msgid "vaccADR URL"
 msgstr "Impf-UAW-URL"
+
+msgid "URL for vaccination plans."
+msgstr "URL für Impfpläne."
+
+msgid "Vacc plans URL"
+msgstr "Impfplan-URL"
 
 msgid "Set the command for calling the visual progress note editor."
 msgstr "Den Editor für Bildnotizen einstellen."
@@ -7259,7 +7333,6 @@ msgstr "&Beruf"
 msgid "Edit occupation details for the current patient."
 msgstr "Berufsangaben für den aktiven Patienten bearbeiten."
 
-#, fuzzy
 msgid "&Hospitalizations"
 msgstr "Krankenhausaufenthalte"
 
@@ -7430,6 +7503,12 @@ msgstr "Logdatei sichern"
 
 msgid "Backup the content of the log to another file."
 msgstr "Das Log in eine Datei speichern."
+
+msgid "Email log file"
+msgstr "Log emailen"
+
+msgid "Send the log file to the authors for help."
+msgstr "Die Logdatei an die GNUmed-Autoren senden."
 
 msgid "Bug tracker"
 msgstr "Fehlerdatenbank"
@@ -7686,6 +7765,19 @@ msgid ""
 msgstr ""
 "GNUmed ruft mit diesem Querverweis ein Lexikon über\n"
 "Labormethoden/Meßverfahren aus der Meßwerttabelle auf.\n"
+"\n"
+"Sie können das Feld leerlassen. Wenn Sie eine URL\n"
+"eingeben wollen, muß diese momentan erreichbar sein."
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+"GNUmed öffnet mit dieser Adresse eine Webseite, auf der\n"
+"Sie die Impfpläne nachlesen können.\n"
 "\n"
 "Sie können das Feld leerlassen. Wenn Sie eine URL\n"
 "eingeben wollen, muß diese momentan erreichbar sein."
@@ -8533,12 +8625,14 @@ msgstr "keine PLZ für Adresstyp [%s]"
 msgid "unknown current medication table formatting style"
 msgstr "unbekannter Stil für die Medikamententabelle"
 
-#, fuzzy
 msgid "unknown current medication notes formatting style"
-msgstr "unbekannter Stil für die Medikamententabelle"
+msgstr "unbekannter Stil für die Medikamentenhinweise"
 
 msgid "unknown test results table formatting style [%s]"
 msgstr "unbekannter Meßwerttabellenstil [%s]"
+
+msgid "unknown vaccinations table formatting style [%s]"
+msgstr "unbekannter Impftabellenstil [%s]"
 
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
@@ -8892,6 +8986,9 @@ msgstr "In &Datei exportieren"
 msgid "Export to &clipboard"
 msgstr "In die &Zwischenablage kopieren"
 
+msgid "&Delete"
+msgstr "&Löschen"
+
 msgid "%s results selected. Too many to list individually."
 msgstr "%s Ergebnisse markiert. Zu viele, um alle einzeln anzuzeigen."
 
@@ -8996,6 +9093,24 @@ msgstr "Zeige ATC-Codes."
 msgid "Term"
 msgstr "Ausdruck"
 
+msgid "Choose an ATC import config file"
+msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
+
+msgid "config files"
+msgstr "Konfigurationsdateien"
+
+msgid "importing ATC reference data"
+msgstr "Import von ATC-Referenzdaten"
+
+msgid "Successfully imported ATC reference data."
+msgstr "ATC-Referenzdaten erfolgreich importiert."
+
+msgid "Importing ATC reference data failed."
+msgstr "Import von ATC-Referenzdaten schlug fehl."
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr "Wählen Sie einen ATC (Anatomisch-Therapeutisch-Chemischen) Code."
+
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
@@ -9005,6 +9120,24 @@ msgstr ""
 
 msgid "Showing drug brand components (substances)."
 msgstr "Zeige Medikamentenbestandteile (Wirkstoffe)."
+
+msgid "Deleting medication"
+msgstr "Medikament löschen"
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Kann dieses Medikament nicht löschen\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"weil es sich um einen Impfstoff handelt. Löschen\n"
+"Sie Impfstoffe bitte in der Impfverwaltung !\n"
 
 msgid ""
 "\n"
@@ -9059,21 +9192,6 @@ msgstr "Kann Transferdatei [%s] (IFAP <-> GNUmed) nicht anlegen."
 
 msgid "Current medication"
 msgstr "Derzeitige Medikation"
-
-msgid "Choose an ATC import config file"
-msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
-
-msgid "config files"
-msgstr "Konfigurationsdateien"
-
-msgid "importing ATC reference data"
-msgstr "Import von ATC-Referenzdaten"
-
-msgid "Successfully imported ATC reference data."
-msgstr "ATC-Referenzdaten erfolgreich importiert."
-
-msgid "Importing ATC reference data failed."
-msgstr "Import von ATC-Referenzdaten schlug fehl."
 
 msgid "The preparation (form) of the substance the patient is taking."
 msgstr ""
@@ -10420,6 +10538,15 @@ msgstr ""
 "existieren. Dieser Patient kann aber nicht in der\n"
 "GNUmed-Datenbank gefunden werden."
 
+msgid ""
+"Supposedly there are conflicting vaccinations\n"
+"for patient [%s]. However, I cannot find\n"
+"that patient in the GNUmed database."
+msgstr ""
+"Es sollen kollidierende Impfungen für den Patienten [%s]\n"
+"existieren. Dieser Patient kann aber nicht in der\n"
+"GNUmed-Datenbank gefunden werden."
+
 msgid "No action configured for keyword [%s]."
 msgstr "Keine Aktion für Schlüsselwort [%s] eingestellt."
 
@@ -10728,6 +10855,34 @@ msgstr "Zeige Impfstoffe."
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr "Die Chargennummer des verwendeten Impfstoffes eingeben oder auswählen."
 
+msgid "Saving vaccine"
+msgstr "Impfstoff speichern"
+
+msgid ""
+"This vaccine is already in use:\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Are you absolutely positively sure that\n"
+"you really want to edit this vaccine ?\n"
+"\n"
+"This will change the vaccine name and/or target\n"
+"conditions in each patient this vaccine was\n"
+"used in to document a vaccination with.\n"
+msgstr ""
+"Dieser Impfstoff ist bereits in Verwendung:\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Sind Sie sich absolut und wirklich sicher, daß\n"
+"Sie diesen Impfstoff verändern wollen ?\n"
+"\n"
+"Das würde dann Impfstoffbezeichnung und Impf-\n"
+"indikation bei allen Patienten ändern, bei denen\n"
+"die Verwendung dieses Impfstoffs dokumentiert wurde.\n"
+
 msgid "Adding new vaccination"
 msgstr "Impfung hinzufügen"
 
@@ -10746,6 +10901,12 @@ msgstr "Zeige Impfungen."
 
 msgid "Intended to protect from"
 msgstr "Soll schützen vor"
+
+msgid "Open a browser showing vaccination schedules."
+msgstr "Impfpläne im Browser anzeigen."
+
+msgid "Vaccination Plans"
+msgstr "Impfpläne"
 
 msgid "prevention"
 msgstr "Prävention"
@@ -11385,6 +11546,9 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "intramuscular"
+#~ msgstr "intramuskulär"
+
 #~ msgid "&Next..."
 #~ msgstr "&Nächstes..."
 
@@ -11442,9 +11606,6 @@ msgstr "erstmals"
 
 #~ msgid "ERROR: cannot retrieve vaccinated indications"
 #~ msgstr "ERROR: kann beimpfte Indikationen nicht laden"
-
-#~ msgid "no vaccinations recorded"
-#~ msgstr "keine Impfungen vermerkt"
 
 #~ msgid "Cannot add patient address."
 #~ msgstr "Kann Patientenadresse nicht hinzufügen."

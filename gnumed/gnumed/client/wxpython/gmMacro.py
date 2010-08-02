@@ -17,6 +17,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
 from Gnumed.pycommon import gmCfg2, gmDateTime
 from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication, gmPathLab
+from Gnumed.business import gmVaccination
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
 
@@ -55,6 +56,7 @@ known_variant_placeholders = [
 	u'current_meds_table',		# "data" holds: format, options
 	u'current_meds_notes',		# "data" holds: format, options
 	u'lab_table',				# "data" holds: format (currently "latex" only)
+	u'latest_vaccs_table',		# "data" holds: format, options
 	u'today',					# "data" holds: strftime format
 	u'tex_escape',				# "data" holds: string to escape
 	u'allergies',				# "data" holds: line template, one allergy per line
@@ -455,6 +457,18 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		_log.error('no known test results table formatting style in [%s]', data)
 		return _('unknown test results table formatting style [%s]') % data
 	#--------------------------------------------------------
+	def _get_variant_latest_vaccs_table(self, data=None):
+
+		options = data.split('//')
+
+		emr = self.pat.get_emr()
+
+		if u'latex' in options:
+			return gmVaccination.format_latest_vaccinations(output_format = u'latex', emr = emr)
+
+		_log.error('no known vaccinations table formatting style in [%s]', data)
+		return _('unknown vaccinations table formatting style [%s]') % data
+	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
 		if data is None:
@@ -785,6 +799,10 @@ if __name__ == '__main__':
 #			'soap',
 #			'progress_notes',
 #			'date_of_birth'
+		]
+
+		tests = [
+			'$<latest_vaccs_table::latex::>$'
 		]
 
 		pat = gmPerson.ask_for_patient()

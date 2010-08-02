@@ -19,7 +19,7 @@ from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
 from Gnumed.wxpython import gmAllergyWidgets, gmNarrativeWidgets, gmPatSearchWidgets
-from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmDemographicsWidgets, gmVaccWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -264,6 +264,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
 
 		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage vaccinations')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_vaccinations)
+
+		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage procedures')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_procedures)
 
@@ -464,6 +468,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def __manage_occupation(self, event):
 		gmDemographicsWidgets.edit_occupation()
+	#--------------------------------------------------------
+	def __manage_vaccinations(self, event):
+		gmVaccWidgets.manage_vaccinations(parent = self)
 	#--------------------------------------------------------
 	def __expand_to_issue_level(self, evt):
 

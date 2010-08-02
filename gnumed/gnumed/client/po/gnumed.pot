@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-07-13 12:18+CEST\n"
+"POT-Creation-Date: 2010-07-26 16:07+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,6 +14,30 @@ msgstr ""
 "Content-Transfer-Encoding: ENCODING\n"
 "Generated-By: pygettext.py 1.5\n"
 
+
+msgid "programmer forgot to specify error message"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+
+msgid "generic error message"
+msgstr ""
+
+msgid "programmer forgot to specify info message"
+msgstr ""
+
+msgid "generic info message"
+msgstr ""
+
+msgid "programmer forgot to specify warning"
+msgstr ""
+
+msgid "generic warning message"
+msgstr ""
 
 msgid ""
 "Unable to connect to database:\n"
@@ -575,6 +599,48 @@ msgstr ""
 msgid "vaccine"
 msgstr ""
 
+msgid "unknown vaccinations output format [%s]"
+msgstr ""
+
+msgid "No vaccinations to format."
+msgstr ""
+
+msgid "Latest vaccinations"
+msgstr ""
+
+msgid "per target condition"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Last given"
+msgstr ""
+
+msgid "Vaccine"
+msgstr ""
+
+msgid "Lot \\#"
+msgstr ""
+
+msgid "S/P"
+msgstr ""
+
+msgid "S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P\"lan: this vaccination was administered in the practice or copied from trustworthy records."
+msgstr ""
+
+msgid "Total number of vaccinations recorded for the corresponding target condition."
+msgstr ""
+
+msgid "Injection site"
+msgstr ""
+
+msgid "Reaction"
+msgstr ""
+
+msgid "Comment"
+msgstr ""
+
 msgid "internal error, check log"
 msgstr ""
 
@@ -762,6 +828,27 @@ msgid "interval_format_tag::weeks::w"
 msgstr ""
 
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "y::year_abbreviation"
+msgstr ""
+
+msgid "m::month_abbreviation"
+msgstr ""
+
+msgid "mo::month_only_abbreviation"
+msgstr ""
+
+msgid "w::week_abbreviation"
+msgstr ""
+
+msgid "d::day_abbreviation"
+msgstr ""
+
+msgid "h::hour_abbreviation"
+msgstr ""
+
+msgid "s::second_abbreviation"
 msgstr ""
 
 msgid "yYaA_keys_year"
@@ -1138,9 +1225,6 @@ msgstr ""
 msgid "Drug Classes"
 msgstr ""
 
-msgid "Reaction"
-msgstr ""
-
 msgid "Reaction Type"
 msgstr ""
 
@@ -1394,10 +1478,10 @@ msgid ""
 "Note that if you select more than one substance only the first one will be available for further editing right away."
 msgstr ""
 
-msgid "The amount of substance per dose."
+msgid "The preparation the substance comes in."
 msgstr ""
 
-msgid "The preparation the substance comes in."
+msgid "The amount of substance per dose."
 msgstr ""
 
 msgid "Whether this substance is taken by advice."
@@ -1439,10 +1523,10 @@ msgstr ""
 msgid "Whether this substance is to be taken for the rest of the patient's life."
 msgstr ""
 
-msgid "The aim of consuming this substance."
+msgid "The episode this substance is taken under."
 msgstr ""
 
-msgid "The episode this substance is taken under."
+msgid "The aim of consuming this substance."
 msgstr ""
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
@@ -1466,10 +1550,10 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-msgid "Aim"
+msgid "Episode"
 msgstr ""
 
-msgid "Episode"
+msgid "Aim"
 msgstr ""
 
 msgid "Advice"
@@ -1710,9 +1794,6 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-msgid "Comment"
-msgstr ""
-
 msgid "edit encounter details"
 msgstr ""
 
@@ -1950,7 +2031,13 @@ msgstr ""
 msgid "Remove the selected item(s) from the list."
 msgstr ""
 
-msgid "&Delete"
+msgid "1"
+msgstr ""
+
+msgid "2"
+msgstr ""
+
+msgid "3"
 msgstr ""
 
 msgid ""
@@ -2209,9 +2296,6 @@ msgstr ""
 msgid "or"
 msgstr ""
 
-msgid "Target"
-msgstr ""
-
 msgid "Group"
 msgstr ""
 
@@ -2436,7 +2520,8 @@ msgid ""
 "Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n"
 "\n"
 "That address - or a new address created from any modifications below - will be used as the person's \"home\" address.\n"
-"nYou can also just enter the relevant information into the corresponding fields without searching for an existing address."
+"\n"
+"You can also just enter the relevant information into the corresponding fields without searching for an existing address."
 msgstr ""
 
 msgid "Primary address: zip/postal code"
@@ -3259,7 +3344,8 @@ msgstr ""
 msgid ""
 "... or ...\n"
 "\n"
-"vaccinated against"
+"vaccinated\n"
+"against"
 msgstr ""
 
 msgid "Batch \342\204\226"
@@ -3463,7 +3549,9 @@ msgstr ""
 msgid "Route"
 msgstr ""
 
-msgid "Protects from"
+msgid ""
+"Protects\n"
+"from"
 msgstr ""
 
 msgid "ATC"
@@ -3584,9 +3672,6 @@ msgid "Vaccinator"
 msgstr ""
 
 msgid "Batch"
-msgstr ""
-
-msgid "Vaccine"
 msgstr ""
 
 msgid "Vaccinations by Recommender (X = patient on regime, O = patient not on regime) "
@@ -4950,6 +5035,9 @@ msgstr ""
 msgid "Manage allergies"
 msgstr ""
 
+msgid "Manage vaccinations"
+msgstr ""
+
 msgid "Manage procedures"
 msgstr ""
 
@@ -5608,30 +5696,6 @@ msgstr ""
 msgid "Choose a form template file"
 msgstr ""
 
-msgid "programmer forgot to specify error message"
-msgstr ""
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-
-msgid "generic error message"
-msgstr ""
-
-msgid "programmer forgot to specify info message"
-msgstr ""
-
-msgid "generic info message"
-msgstr ""
-
-msgid "programmer forgot to specify warning"
-msgstr ""
-
-msgid "generic warning message"
-msgstr ""
-
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr ""
 
@@ -5822,6 +5886,12 @@ msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
 msgstr ""
 
 msgid "vaccADR URL"
+msgstr ""
+
+msgid "URL for vaccination plans."
+msgstr ""
+
+msgid "Vacc plans URL"
 msgstr ""
 
 msgid "Set the command for calling the visual progress note editor."
@@ -6250,6 +6320,12 @@ msgstr ""
 msgid "Backup the content of the log to another file."
 msgstr ""
 
+msgid "Email log file"
+msgstr ""
+
+msgid "Send the log file to the authors for help."
+msgstr ""
+
 msgid "Bug tracker"
 msgstr ""
 
@@ -6437,6 +6513,14 @@ msgstr ""
 msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
@@ -7088,6 +7172,9 @@ msgstr ""
 msgid "unknown test results table formatting style [%s]"
 msgstr ""
 
+msgid "unknown vaccinations table formatting style [%s]"
+msgstr ""
+
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -7437,6 +7524,9 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
+msgid "&Delete"
+msgstr ""
+
 msgid "%s results selected. Too many to list individually."
 msgstr ""
 
@@ -7532,12 +7622,42 @@ msgstr ""
 msgid "Term"
 msgstr ""
 
+msgid "Choose an ATC import config file"
+msgstr ""
+
+msgid "config files"
+msgstr ""
+
+msgid "importing ATC reference data"
+msgstr ""
+
+msgid "Successfully imported ATC reference data."
+msgstr ""
+
+msgid "Importing ATC reference data failed."
+msgstr ""
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr ""
+
 msgid ""
 "\n"
 "These are the substances in the drug brands known to GNUmed.\n"
 msgstr ""
 
 msgid "Showing drug brand components (substances)."
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
 msgstr ""
 
 msgid ""
@@ -7583,21 +7703,6 @@ msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
 msgstr ""
 
 msgid "Current medication"
-msgstr ""
-
-msgid "Choose an ATC import config file"
-msgstr ""
-
-msgid "config files"
-msgstr ""
-
-msgid "importing ATC reference data"
-msgstr ""
-
-msgid "Successfully imported ATC reference data."
-msgstr ""
-
-msgid "Importing ATC reference data failed."
 msgstr ""
 
 msgid "The preparation (form) of the substance the patient is taking."
@@ -8723,6 +8828,12 @@ msgid ""
 "that patient in the GNUmed database."
 msgstr ""
 
+msgid ""
+"Supposedly there are conflicting vaccinations\n"
+"for patient [%s]. However, I cannot find\n"
+"that patient in the GNUmed database."
+msgstr ""
+
 msgid "No action configured for keyword [%s]."
 msgstr ""
 
@@ -8991,6 +9102,23 @@ msgstr ""
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
+msgid "Saving vaccine"
+msgstr ""
+
+msgid ""
+"This vaccine is already in use:\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Are you absolutely positively sure that\n"
+"you really want to edit this vaccine ?\n"
+"\n"
+"This will change the vaccine name and/or target\n"
+"conditions in each patient this vaccine was\n"
+"used in to document a vaccination with.\n"
+msgstr ""
+
 msgid "Adding new vaccination"
 msgstr ""
 
@@ -9006,6 +9134,12 @@ msgid "Showing vaccinations."
 msgstr ""
 
 msgid "Intended to protect from"
+msgstr ""
+
+msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+msgid "Vaccination Plans"
 msgstr ""
 
 msgid "prevention"

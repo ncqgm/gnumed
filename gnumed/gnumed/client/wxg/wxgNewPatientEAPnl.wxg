@@ -324,7 +324,7 @@
                         <option>0</option>
                         <object class="gmPersonContactWidgets.cAddressPhraseWheel" name="_PRW_address_searcher" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n\nThat address - or a new address created from any modifications below - will be used as the person's "home" address.\nnYou can also just enter the relevant information into the corresponding fields without searching for an existing address.</tooltip>
+                            <tooltip>Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n\nThat address - or a new address created from any modifications below - will be used as the person's "home" address.\n\nYou can also just enter the relevant information into the corresponding fields without searching for an existing address.</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">

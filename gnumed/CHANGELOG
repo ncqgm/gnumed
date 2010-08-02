@@ -6,13 +6,14 @@
 # rel-0-8-patches
 ------------------------------------------------
 
-	0.8.x
+	0.8.0
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook: "after_soap_modified"
 NEW: placeholder: "current_meds_table::latex"
 NEW: placeholder: "current_meds_notes::latex"
 NEW: placeholder: "lab_table::latex"
+NEW: placeholder: "latest_vaccs_table::latex"
 NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
 NEW: score: bacterial UTI algorithm
@@ -24,7 +25,7 @@ NEW: support emergency contact
 NEW: support comment directly on identity
 NEW: Add button to report ADR from within current substances plugin.
 NEW: list view of database audit trail
-NEW: management of vaccinations
+NEW: management of vaccinations and vaccines
 NEW: templates for writing a plugin [thanks S.Hilbert]
 NEW: on Windows try to switch to "DejaVu Sans" font for improved unicode display
 NEW: demonstrable path to get up and running on Macintosh [thanks J.Busser]
@@ -51,10 +52,21 @@ IMPROVED: current medication patient handout [thanks C.Hilbert]
 IMPROVED: pre-filter form template selection list based on purpose of showing
 IMPROVED: default config file for running from tarball
 IMPROVED: better support FreeDiams (0.4.2 now in Debian)
+IMPROVED: EMR tree root note context menu
+IMPROVED: generic lists can now have 3 extra buttons
+IMPROVED: use substance rather than brand as allergene when creating allergy from substance intake entry
 
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
+
+	0.7.8
+
+FIX: exception on substance listing because ref.v_substance_in_brand does not have external_code_type_brand
+FIX: exception when printing shutdown message and debugging enabled by previous exception but no log window
+FIX: exception when shutting down backend listener because connection can already be closed
+
+	0.7.7
 
 FIX: DOB could become today in certain corner cases when creating new person [thanks S.Reus]
 FIX: check_drug_interactions() failed with FreeDIAMS [thanks J.Busser]
