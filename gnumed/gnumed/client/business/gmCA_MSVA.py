@@ -50,6 +50,17 @@ FIRSTNAME           XXLASTNAME                 912345677300BC    196012251234512
 *-- X(n) = Aplhanumeric, left justified, padded with blanks
 *-- 9(n) = Numeric, leading zeros
 
+A0A'b'0A0:
+
+	- standard Canadian postal code format which is 3 characters:
+		- (upper case letter + single digit number + upper case letter)
+		- followed by a breaking space
+		- followed by (number+letter number)
+
+US Zip code:
+
+	- 12345 or 12345-1234
+
 
 """
 #============================================================
