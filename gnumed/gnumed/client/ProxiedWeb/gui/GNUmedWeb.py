@@ -19,9 +19,8 @@ class gmTopLevelLayer:
         self.loginpanel = cLoginPanel(self, Spacing=8)
         self.afterloginpanel = cMainPanel(self, Spacing=8)
 
-        self.maindisplay = DockPanel(BorderWidth=1, Padding=8,
-                          HorizontalAlignment=HasAlignment.ALIGN_CENTER,
-                          VerticalAlignment=HasAlignment.ALIGN_MIDDLE) 
+        self.maindisplay = DockPanel(HorizontalAlignment=HasAlignment.ALIGN_CENTER,
+                          VerticalAlignment=HasAlignment.ALIGN_MIDDLE, BorderWidth=1, Padding=8) 
 
         RootPanel().add(self.maindisplay)
 
@@ -55,7 +54,7 @@ if __name__ == '__main__':
     # for pyjd, set up a web server and load the HTML from there:
     # this convinces the browser engine that the AJAX will be loaded
     # from the same URI base as the URL, it's all a bit messy...
-    pyjd.setup("http://127.0.0.1:8080/ProxiedWeb/jsonrpcinterface/public/GNUmedWeb.html")
+    pyjd.setup("http://127.0.0.1:8080/ProxiedWeb/gui/public/GNUmedWeb.html")
     app = gmTopLevelLayer()
     app.onModuleLoad()
     pyjd.run()
