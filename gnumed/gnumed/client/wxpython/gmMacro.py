@@ -802,7 +802,7 @@ if __name__ == '__main__':
 		]
 
 		tests = [
-			'$<latest_vaccs_table::latex::>$'
+			'$<latest_vaccs_table::latex>$'
 		]
 
 		pat = gmPerson.ask_for_patient()

@@ -22,10 +22,11 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
-from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmCfg2
-from Gnumed.business import gmPerson, gmKVK, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets, gmRegetMixin, gmPhraseWheel, gmEditArea
-from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgMergePatientsDlg
+from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools
+from Gnumed.pycommon import gmDateTime, gmMatchProvider, gmCfg2
+from Gnumed.business import gmPerson, gmKVK, gmSurgery, gmCA_MSVA
+from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets
+from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 
 
 _log = logging.getLogger('gm.person')
@@ -41,6 +42,8 @@ def merge_patients(parent=None):
 	dlg = cMergePatientsDlg(parent, -1)
 	result = dlg.ShowModal()
 #============================================================
+from Gnumed.wxGladeWidgets import wxgMergePatientsDlg
+
 class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -151,6 +154,8 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 		else:
 			self.Close()
 #============================================================
+from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg
+
 class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -222,6 +227,8 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 		else:
 			self.Close()
 #============================================================
+from Gnumed.wxGladeWidgets import wxgSelectPersonDTOFromListDlg
+
 class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -282,7 +289,50 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
+
 #============================================================
+def load_persons_from_ca_msva():
+
+	group = u'CA Medical Manager MSVA'
+
+	src_order = [
+		('explicit', 'append'),
+		('workbase', 'append'),
+		('local', 'append'),
+		('user', 'append'),
+		('system', 'append')
+	]
+	msva_files = _cfg.get (
+		group = group,
+		option = 'filename',
+		source_order = src_order
+	)
+	if msva_files is None:
+		return []
+
+	dtos = []
+	for msva_file in msva_files:
+		try:
+			# FIXME: potentially return several persons per file
+			msva_dtos = gmCA_MSVA.read_persons_from_msva_file(filename = msva_file)
+		except StandardError:
+			gmGuiHelpers.gm_show_error (
+				_(
+				'Cannot load patient from Medical Manager MSVA file\n\n'
+				' [%s]'
+				) % msva_file,
+				_('Activating MSVA patient')
+			)
+			_log.exception('cannot read patient from MSVA file [%s]' % msva_file)
+			continue
+
+		dtos.extend([ {'dto': dto, 'source': dto.source} for dto in msva_dtos ])
+		#dtos.extend([ {'dto': dto} for dto in msva_dtos ])
+
+	return dtos
+
+#============================================================
+
 def load_persons_from_xdt():
 
 	bdt_files = []
@@ -390,7 +440,9 @@ def load_persons_from_xdt():
 		dtos.append({'dto': dto, 'source': gmTools.coalesce(bdt_file['source'], dto.source)})
 
 	return dtos
+
 #============================================================
+
 def load_persons_from_pracsoft_au():
 
 	pracsoft_files = []
@@ -487,6 +539,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 	dtos.extend(load_persons_from_xdt())
 	dtos.extend(load_persons_from_pracsoft_au())
 	dtos.extend(load_persons_from_kvks())
+	dtos.extend(load_persons_from_ca_msva())
 
 	# no external persons
 	if len(dtos) == 0:

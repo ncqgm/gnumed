@@ -167,15 +167,19 @@ class cPatientPicture(wx.StaticBitmap):
 
 		if photo is None:
 			fname = None
+			self.SetToolTipString (_(
+				'Patient picture.\n'
+				'\n'
+				'Right-click for context menu.'
+			))
 #			gmDispatcher.send(signal='statustext', msg=_('Cannot get most recent patient photo from database.'))
 		else:
 			fname = photo.export_to_file()
-
-		self.SetToolTipString (_(
-			'Patient picture (%s).\n'
-			'\n'
-			'Right-click for context menu.'
-		) % photo['date_generated'].strftime('%b %Y'))
+			self.SetToolTipString (_(
+				'Patient picture (%s).\n'
+				'\n'
+				'Right-click for context menu.'
+			) % photo['date_generated'].strftime('%b %Y'))
 
 		return self.__set_pic_from_file(fname)
 	#-----------------------------------------------------------------

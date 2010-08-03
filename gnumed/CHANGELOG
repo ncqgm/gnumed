@@ -31,6 +31,7 @@ NEW: on Windows try to switch to "DejaVu Sans" font for improved unicode display
 NEW: demonstrable path to get up and running on Macintosh [thanks J.Busser]
 NEW: useful error dialog when database connection lost
 NEW: email log file on demand from menu
+NEW: support Canadian MSVA format as external patient source
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
@@ -59,6 +60,10 @@ IMPROVED: use substance rather than brand as allergene when creating allergy fro
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
+
+	0.7.9
+
+FIX: when creating allergy from substance intake entry second try would overwrite first try if same drug brand
 
 	0.7.8
 

@@ -784,20 +784,25 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def turn_into_allergy(self, encounter_id=None, allergy_type='allergy'):
 		allg = gmAllergy.create_allergy (
-			substance = gmTools.coalesce (
-				self._payload[self._idx['brand']],
-				self._payload[self._idx['substance']]
-			),
+			allergene = self._payload[self._idx['substance']],
 			allg_type = allergy_type,
 			episode_id = self._payload[self._idx['pk_episode']],
 			encounter_id = encounter_id
+		)
+		allg['substance'] = gmTools.coalesce (
+			self._payload[self._idx['brand']],
+			self._payload[self._idx['substance']]
 		)
 		allg['reaction'] = self._payload[self._idx['discontinue_reason']]
 		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_brand']])
 		if self._payload[self._idx['external_code_brand']] is not None:
 			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
 		allg['allergene'] = self._payload[self._idx['substance']]
-		allg['generics'] = self._payload[self._idx['substance']]
+		comps = [ c['description'] for c in self.containing_drug.components ]
+		if len(comps) == 0:
+			allg['generics'] = self._payload[self._idx['substance']]
+		else:
+			allg['generics'] = u'; '.join(comps)
 
 		allg.save()
 		return allg
