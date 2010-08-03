@@ -3,7 +3,8 @@ from pyjamas.ui.StackPanel import StackPanel
 from pyjamas.ui.HTML import HTML
 
 class cPatientsummaryPanel(SimplePanel):
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
         SimplePanel.__init__(self)
 
         stack = StackPanel(Width="100%", Height="300px")
@@ -28,3 +29,4 @@ class cPatientsummaryPanel(SimplePanel):
                   "Problem list")
  
         self.add(stack)
+
