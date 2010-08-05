@@ -61,6 +61,23 @@ US Zip code:
 
 	- 12345 or 12345-1234
 
+Dependant # / Carrier ID
+
+I did some checking, and it seems in BC a corner case about
+the "00" being instead "66". The provision to designate
+newborns (as dependent "66" and, in the case of multiple
+births, "64" ... "63") seems now obsoleted by the ability of
+the hospital to log into the provincial system and generate
+a new Personal Health Number. Any such legacy values in
+Medical Manager would not be to drive the slave.
+
+The PHN can therefore be taken as unique *within* carrier
+ID. While the following may be far fetched, there is no
+agreement between Canada's provinces to avoid collisions, so
+it could be possible to exist
+
+ 	BC.CA MOH | Personal Health Number | 90123456780
+ 	ON.CA MOH | Personal Health Number | 90123456780
 
 """
 #============================================================
@@ -107,7 +124,8 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 		)
 		dto.lastnames = gmTools.capitalize(line[22:47].strip(), gmTools.CAPS_FIRST_ONLY)	# should be _NAMES
 
-		dto.external_ids.append({'name': u'BC.CA PHN', 'value': line[47:57], 'issuer': 'BC.CA MOH', 'context': 'p'})
+		province = line[59:61]
+		dto.external_ids.append({'name': u'PHN (%s.CA)' % province, 'value': line[47:57], 'issuer': 'MOH (%s.CA)' % province, 'context': 'p'})
 
 		dob = time.strptime(line[65:73].strip(), MSVA_dob_format)
 		dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
@@ -152,7 +170,7 @@ if __name__ == "__main__":
 		print "dto.dob:", dto.dob, type(dto.dob)
 		print "dto.dob.tz:", dto.dob.tzinfo
 		print "dto.zip: %s dto.urb: %s dto.region: %s" % (dto.zip, dto.urb, dto.region)
-		print "dto.street", dto.street
+		print "dto.street:", dto.street
 		for ext_id in dto.external_ids:
 			print ext_id
 		for comm in dto.comms:
