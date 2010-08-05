@@ -307,7 +307,7 @@ cp -R ../../server/gm-move_backups_offsite.sh ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
 
-cp -R ../../external-tools/gm-set_gm-dbo_password ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-set_gm-dbo_password ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/server/
 
