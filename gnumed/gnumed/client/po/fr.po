@@ -9,10 +9,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
-"POT-Creation-Date: 2010-07-24 12:27+CEST\n"
+"POT-Creation-Date: 2010-08-05 15:29+CEST\n"
 "PO-Revision-Date: Sat Sep 21 20:21:38 2002\n"
 "Last-Translator: Jean-Philippe LIOT <clinique-alizes@veterinaire.fr>\n"
 "Language-Team: FR <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -716,6 +717,52 @@ msgstr ""
 msgid "vaccine"
 msgstr ""
 
+msgid "unknown vaccinations output format [%s]"
+msgstr ""
+
+msgid "No vaccinations to format."
+msgstr ""
+
+msgid "Latest vaccinations"
+msgstr ""
+
+msgid "per target condition"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Last given"
+msgstr ""
+
+msgid "Vaccine"
+msgstr "Vaccination"
+
+msgid "Lot \\#"
+msgstr ""
+
+msgid "S/P"
+msgstr ""
+
+msgid ""
+"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
+"\"lan: this vaccination was administered in the practice or copied from "
+"trustworthy records."
+msgstr ""
+
+msgid ""
+"Total number of vaccinations recorded for the corresponding target condition."
+msgstr ""
+
+msgid "Injection site"
+msgstr ""
+
+msgid "Reaction"
+msgstr "reactions"
+
+msgid "Comment"
+msgstr "commentaire"
+
 msgid "internal error, check log"
 msgstr "erreur interne, vérifiez le journal"
 
@@ -1050,11 +1097,11 @@ msgid "Script must be readable by the calling user: [%s]."
 msgstr "Le script doit être lisible par l'utilisateur: [%s]"
 
 msgid ""
-"Script must be readable by the calling user only (permissions \"0600\"): [%"
-"s]."
+"Script must be readable by the calling user only (permissions \"0600\"): "
+"[%s]."
 msgstr ""
-"Le script doit être lisible par l'utilisateur seulement (permissions \"600"
-"\"): [%s]"
+"Le script doit être lisible par l'utilisateur seulement (permissions "
+"\"600\"): [%s]"
 
 msgid "Error running hook [%s] script."
 msgstr ""
@@ -1412,9 +1459,6 @@ msgstr "Nom Générique"
 #, fuzzy
 msgid "Drug Classes"
 msgstr "Classe de médicament"
-
-msgid "Reaction"
-msgstr "reactions"
 
 #, fuzzy
 msgid "Reaction Type"
@@ -2147,9 +2191,6 @@ msgstr "Fermer le client GnuMed"
 msgid "Name"
 msgstr "Nom"
 
-msgid "Comment"
-msgstr "commentaire"
-
 #, fuzzy
 msgid "edit encounter details"
 msgstr "Details des lettres de référence"
@@ -2741,9 +2782,6 @@ msgstr ""
 msgid "or"
 msgstr "ou"
 
-msgid "Target"
-msgstr ""
-
 msgid "Group"
 msgstr ""
 
@@ -3003,17 +3041,10 @@ msgid ""
 "\n"
 "That address - or a new address created from any modifications below - will "
 "be used as the person's \"home\" address.\n"
-"nYou can also just enter the relevant information into the corresponding "
+"\n"
+"You can also just enter the relevant information into the corresponding "
 "fields without searching for an existing address."
 msgstr ""
-"Vous pouvez ici entrer un code postal ou un nom de rue pour chercher une "
-"adresse existante pour que le formulaire ci-dessous soit rempli d'avance.\n"
-"\n"
-"Cette adresse (ou une nouvelle adresse créée par n'importe quelle "
-"modification ci-dessous) sera utilisée en tant qu'adresse de résidence de la "
-"personne.\n"
-"Vous pouvez aussi entrer les informations dans les champs correspondants "
-"sans chercher une adresse existante."
 
 msgid "Primary address: zip/postal code"
 msgstr ""
@@ -4303,9 +4334,6 @@ msgstr "Vaccination"
 #, fuzzy
 msgid "Batch"
 msgstr "Retour"
-
-msgid "Vaccine"
-msgstr "Vaccination"
 
 msgid ""
 "Vaccinations by Recommender (X = patient on regime, O = patient not on "
@@ -8188,6 +8216,9 @@ msgstr ""
 msgid "unknown test results table formatting style [%s]"
 msgstr ""
 
+msgid "unknown vaccinations table formatting style [%s]"
+msgstr ""
+
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -9252,6 +9283,12 @@ msgid "Administration"
 msgstr "Administrateur"
 
 msgid ""
+"Patient picture.\n"
+"\n"
+"Right-click for context menu."
+msgstr ""
+
+msgid ""
 "Patient picture (%s).\n"
 "\n"
 "Right-click for context menu."
@@ -9333,6 +9370,17 @@ msgstr ""
 #, fuzzy
 msgid "Source"
 msgstr "Voir la source"
+
+#, fuzzy
+msgid ""
+"Cannot load patient from Medical Manager MSVA file\n"
+"\n"
+" [%s]"
+msgstr "Ne peut charger le patient depuis le fichier xDT"
+
+#, fuzzy
+msgid "Activating MSVA patient"
+msgstr "selection du patient"
 
 msgid ""
 "Cannot access BDT file\n"
@@ -9463,8 +9511,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %"
-"(day_now)s)"
+"%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s "
+"%(day_now)s)"
 msgstr ""
 
 msgid "<type here to search patient>"
@@ -10935,6 +10983,25 @@ msgstr "Quantité"
 
 msgid "First Date"
 msgstr "Premiere Date"
+
+#~ msgid ""
+#~ "Here you can enter a postal code or street name to search for an existing "
+#~ "address from which the fields below will be pre-filled.\n"
+#~ "\n"
+#~ "That address - or a new address created from any modifications below - "
+#~ "will be used as the person's \"home\" address.\n"
+#~ "nYou can also just enter the relevant information into the corresponding "
+#~ "fields without searching for an existing address."
+#~ msgstr ""
+#~ "Vous pouvez ici entrer un code postal ou un nom de rue pour chercher une "
+#~ "adresse existante pour que le formulaire ci-dessous soit rempli "
+#~ "d'avance.\n"
+#~ "\n"
+#~ "Cette adresse (ou une nouvelle adresse créée par n'importe quelle "
+#~ "modification ci-dessous) sera utilisée en tant qu'adresse de résidence de "
+#~ "la personne.\n"
+#~ "Vous pouvez aussi entrer les informations dans les champs correspondants "
+#~ "sans chercher une adresse existante."
 
 #, fuzzy
 #~ msgid "no vaccinations recorded"
