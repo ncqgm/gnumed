@@ -19,13 +19,14 @@ INSERT INTO dem.message_inbox (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
 	'Release Notes for GNUmed 0.8.0 (database v14.0)',
-	'GNUmed 0.8.0 Release Notes:
+	'GNUmed 0.8.rc2 Release Notes:
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook: "after_soap_modified"
 NEW: placeholder: "current_meds_table::latex"
 NEW: placeholder: "current_meds_notes::latex"
 NEW: placeholder: "lab_table::latex"
+NEW: placeholder: "latest_vaccs_table::latex"
 NEW: score: Rome diagnostic criteria on obstipation
 NEW: score: Cincinatti Stroke Scale (F.A.S.T.)
 NEW: score: bacterial UTI algorithm
@@ -43,6 +44,7 @@ NEW: on Windows try to switch to "DejaVu Sans" font for improved unicode display
 NEW: demonstrable path to get up and running on Macintosh [thanks J.Busser]
 NEW: useful error dialog when database connection lost
 NEW: email log file on demand from menu
+NEW: support Canadian MSVA format as external patient source
 
 IMPROVED: GNUmed can now import the ARRIBA result as a document
 IMPROVED: rename client/locale/ to client/po/ and adjust to that
