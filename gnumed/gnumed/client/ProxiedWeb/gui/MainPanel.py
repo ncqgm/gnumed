@@ -19,7 +19,7 @@ class cMainPanel(VerticalPanel):
         VerticalPanel.__init__(self, **kwargs)
 
         # tab panel
-        self.fTabs = DecoratedTabPanel(Size=("600px", "100%"))
+        self.fTabs = DecoratedTabPanel(Size=("1024px", "100%"))
         self.fTabs.add(cPatientsummaryPanel(app), "Patient summary")
         self.fTabs.add(HTML("Panel 2"), "Tab2")
         self.fTabs.add(HTML(""), None) # spacer

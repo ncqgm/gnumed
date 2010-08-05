@@ -7,6 +7,7 @@ from pyjamas.ui.HTML import HTML
 from pyjamas.ui.VerticalPanel import VerticalPanel
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
 from pyjamas.ui.CaptionPanel import CaptionPanel
+from pyjamas.ui import HasAlignment
 
 #======================================================
 class cLoginPanel(VerticalPanel): 
@@ -26,21 +27,21 @@ class cLoginPanel(VerticalPanel):
         self.button_login = Button("Login", self)
         self.gnumedlogo = Image("images/gnumedlogo.png")
 
-        usernamepanel = HorizontalPanel()
+        usernamepanel = HorizontalPanel(VerticalAlignment=HasAlignment.ALIGN_MIDDLE)
         usernamepanel.add(self.lblusername)
         usernamepanel.add(self.username)
 
-        passwdpanel = HorizontalPanel()
+        passwdpanel = HorizontalPanel(VerticalAlignment=HasAlignment.ALIGN_MIDDLE)
         passwdpanel.add(self.lblpassword)
         passwdpanel.add(self.password)
 
-        credentialpanel = VerticalPanel()
+        credentialpanel = VerticalPanel(HorizontalAlignment=HasAlignment.ALIGN_CENTER)
         credentialpanel.add(usernamepanel)
         credentialpanel.add(passwdpanel)
 
         captionpanel = CaptionPanel("GNUmed Default 0.7.7", credentialpanel)
 
-        panel = VerticalPanel()
+        panel = VerticalPanel(HorizontalAlignment=HasAlignment.ALIGN_CENTER)
         panel.add(self.gnumedlogo)
         panel.add(captionpanel)
         panel.add(self.button_login)
