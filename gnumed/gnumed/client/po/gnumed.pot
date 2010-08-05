@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-07-26 16:07+CEST\n"
+"POT-Creation-Date: 2010-08-05 15:29+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8235,6 +8235,12 @@ msgid "Administration"
 msgstr ""
 
 msgid ""
+"Patient picture.\n"
+"\n"
+"Right-click for context menu."
+msgstr ""
+
+msgid ""
 "Patient picture (%s).\n"
 "\n"
 "Right-click for context menu."
@@ -8306,6 +8312,15 @@ msgid "found via"
 msgstr ""
 
 msgid "Source"
+msgstr ""
+
+msgid ""
+"Cannot load patient from Medical Manager MSVA file\n"
+"\n"
+" [%s]"
+msgstr ""
+
+msgid "Activating MSVA patient"
 msgstr ""
 
 msgid ""
