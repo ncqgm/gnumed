@@ -9,33 +9,38 @@ from pyjamas.ui.VerticalPanel import VerticalPanel
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
 from pyjamas.ui.ListBox import ListBox
 from pyjamas.ui.Grid import Grid
-from pyjamas.JSONService import JSONProxy
+from pyjamas.ui import HasAlignment
 
-import jsonobjproxy # just to get it in for pyjs
+#======================================================
+class cTestPanel(VerticalPanel):
+    def __init__(self, app, **kwargs):
+        self.app = app
+        VerticalPanel.__init__(self, **kwargs)
 
-class JSONRPCExample:
-    def onModuleLoad(self):
+        info = """<h2>JSON-RPC Example</h2>
+        #<p>This example demonstrates the calling of server services with
+        #   <a href="http://json-rpc.org/">JSON-RPC</a>.
+        #</p>
+        #<p>Choose a service below, and press a the "call service" button to initiate it. An echo service simply sends the exact same text back that it receives.
+        #   </p>"""
+
+        self.status=Label()
+        self.dockey = TextBox(Text="12")
         self.TEXT_WAITING = "Waiting for response..."
-        self.TEXT_ERROR = "Server Error"
+
         self.METHOD_ECHO = "Echo"
         self.METHOD_DOCTYPES = "get doc types"
         self.METHOD_UPPERCASE = "get schema"
         self.METHOD_LOWERCASE = "doSomething"
         self.METHOD_GETDOCS = "get documents"
         self.methods = [self.METHOD_ECHO, self.METHOD_DOCTYPES, 
-                        self.METHOD_UPPERCASE, self.METHOD_LOWERCASE, 
+                     self.METHOD_UPPERCASE, self.METHOD_LOWERCASE, 
                         self.METHOD_GETDOCS]
 
-        self.remote_py = EchoServicePython()
-
-        self.status=Label()
-        self.username = TextBox(Text="any-doc")
-        self.password = TextBox()
-        self.dockey = TextBox(Text="12")
-        
         self.method_list = ListBox()
         self.method_list.setName("hello")
         self.method_list.setVisibleItemCount(1)
+
         for method in self.methods:
             self.method_list.addItem(method)
         self.method_list.setSelectedIndex(0)
@@ -45,58 +50,44 @@ class JSONRPCExample:
         method_panel.add(self.method_list)
         method_panel.setSpacing(8)
 
-        self.button_login = Button("Login", self)
-        self.button_action = Button("Do Something", self)
+        self.button_action = Button("Call Service", self)
 
         buttons = HorizontalPanel()
-        buttons.add(self.button_login)
         buttons.add(self.button_action)
         buttons.setSpacing(8)
-        
-        info = """<h2>JSON-RPC Example</h2>
-        <p>This example demonstrates the calling of server services with
-           <a href="http://json-rpc.org/">JSON-RPC</a>.
-        </p>
-        <p>Enter some text below, and press a button to send the text
-           to an Echo service on your server. An echo service simply sends the exact same text back that it receives.
-           </p>"""
-        
+
         panel = VerticalPanel()
         panel.add(HTML(info))
-        panel.add(self.username)
-        panel.add(self.password)
-        panel.add(HTML("Document Key:"))
+        panel.add(HTML("Primary key of the patient in the database:"))
         panel.add(self.dockey)
         panel.add(method_panel)
         panel.add(buttons)
         panel.add(self.status)
-        
-        RootPanel().add(panel)
+        self.add(panel)
 
+    #--------------------------------------------------
     def onClick(self, sender):
         self.status.setText(self.TEXT_WAITING)
         method = self.methods[self.method_list.getSelectedIndex()]
 
         # demonstrate proxy & callMethod()
-        if sender == self.button_login:
-            user = self.username.getText()
-            passwd = self.password.getText()
-            id = self.remote_py.login(user, passwd, self)
-        else:
+        if sender == self.button_action:
             if method == self.METHOD_ECHO:
-                id = self.remote_py.echo("Hello", self)
+                id = self.app.remote_py.echo("Hello", self)
             elif method == self.METHOD_DOCTYPES:
-                id = self.remote_py.get_doc_types(self)
+                id = self.app.remote_py.get_doc_types(self)
             elif method == self.METHOD_UPPERCASE:
-                id = self.remote_py.get_schema_version(self)
+                id = self.app.remote_py.get_schema_version(self)
             elif method == self.METHOD_LOWERCASE:
-                id = self.remote_py.doSomething(self)
+                id = self.app.remote_py.doSomething(self)
             elif method == self.METHOD_GETDOCS:
                 key = int(self.dockey.getText()) # TODO: check it!
-                id = self.remote_py.get_documents(key, self)
+                id = self.app.remote_py.get_documents(key, self)
 
+    #--------------------------------------------------
     def onRemoteResponse(self, response, request_info):
-        if request_info.method == 'get_documents':
+        method = request_info.method
+        if method == 'get_documents':
             grid = Grid()
             grid.resize(len(response)+1, 8)
             grid.setHTML(0, 0, "Comment")
@@ -106,10 +97,12 @@ class JSONRPCExample:
                 grid.setHTML(row+1, 0, item.comment)
                 grid.setHTML(row+1, 1, item.episode)
                 grid.setHTML(row+1, 2, str(item.clin_when))
-            RootPanel().add(grid)
+            #RootPanel().add(grid)
+            self.add(grid)
         else:
             self.status.setText(str(response))
 
+    #--------------------------------------------------
     def onRemoteError(self, code, errobj, request_info):
         # onRemoteError gets the HTTP error code or 0 and
         # errobj is an jsonrpc 2.0 error dict:
@@ -124,25 +117,9 @@ class JSONRPCExample:
                                 (code, message))
         else:
             code = errobj['code']
-            self.status.setText("JSONRPC Error %s: %s" %
+            if message['message'] == 'Cannot request login parameters.':
+                self.status.setText("You need to log in first")
+            else:
+                self.status.setText("JSONRPC Error %s: %s" %
                                 (code, message))
-
-
-class EchoServicePython(JSONProxy):
-    def __init__(self):
-        JSONProxy.__init__(self, "/JSON",
-                ["login",
-                "echo", "get_doc_types",
-                "get_schema_version",
-                "get_documents",
-                "doSomething"])
-
-if __name__ == '__main__':
-    # for pyjd, set up a web server and load the HTML from there:
-    # this convinces the browser engine that the AJAX will be loaded
-    # from the same URI base as the URL, it's all a bit messy...
-    pyjd.setup("http://127.0.0.1:8080/ProxiedWeb/jsonrpc/public/JSONRPCExample.html")
-    app = JSONRPCExample()
-    app.onModuleLoad()
-    pyjd.run()
 
