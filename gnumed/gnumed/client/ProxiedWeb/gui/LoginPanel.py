@@ -41,7 +41,7 @@ class cLoginPanel(VerticalPanel):
 
         captionpanel = CaptionPanel("GNUmed Default 0.7.7", credentialpanel)
 
-        panel = VerticalPanel(HorizontalAlignment=HasAlignment.ALIGN_CENTER)
+        panel = VerticalPanel()
         panel.add(self.gnumedlogo)
         panel.add(captionpanel)
         panel.add(self.button_login)

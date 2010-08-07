@@ -17,10 +17,10 @@ class gmTopLevelLayer:
         self.TEXT_ERROR = "Server Error"
         self.remote_py = EchoServicePython()
         self.loginpanel = cLoginPanel(self, Spacing=8)
-        self.afterloginpanel = cMainPanel(self, Spacing=8)
+        self.afterloginpanel = cMainPanel(self, Spacing=8, Width="100%")
 
         self.maindisplay = DockPanel(HorizontalAlignment=HasAlignment.ALIGN_CENTER,
-                          VerticalAlignment=HasAlignment.ALIGN_MIDDLE, BorderWidth=1, Padding=8) 
+                          VerticalAlignment=HasAlignment.ALIGN_MIDDLE, BorderWidth=1, Padding=8,Width="100%") 
 
         RootPanel().add(self.maindisplay)
 
