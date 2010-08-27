@@ -2,8 +2,8 @@
 
 # ============================================
 
-PREV_VER="12"
-NEXT_VER="13"
+PREV_VER="13"
+NEXT_VER="14"
 
 INSTALL_BASE=~/".gnumed/server-installation"
 DL_BASE="http://www.gnumed.de/downloads/server"
