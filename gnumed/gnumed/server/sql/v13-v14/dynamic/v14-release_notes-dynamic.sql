@@ -19,7 +19,7 @@ INSERT INTO dem.message_inbox (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
 	'Release Notes for GNUmed 0.8.0 (database v14.0)',
-	'GNUmed 0.8.rc2 Release Notes:
+	'GNUmed 0.8.0 Release Notes:
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.
 NEW: hook: "after_soap_modified"
