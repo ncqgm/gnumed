@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 
-__doc__ = """GNUmed web client launcher.
+__doc__ = """GNUmed web user interface server launcher.
 """
 #==========================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.169 2010-01-31 18:20:41 ncq Exp $
-__version__ = "$Revision: 1 $"
+__version__ = "$Revision: 0.1 $"
 __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-
-from jsonserver import SimpleForkingJSONRPCServer
-
-
 # stdlib
 import re, sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2
+
+# json-rpc
+from jsonserver import SimpleForkingJSONRPCServer
 
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks

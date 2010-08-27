@@ -1259,7 +1259,7 @@ WHERE
 
 		# none found
 		if len(rows) == 0:
-			return []
+			return {}
 
 		vpks = [ ind['pk_vaccination'] for ind in rows ]
 		vinds = [ ind['l10n_indication'] for ind in rows ]
