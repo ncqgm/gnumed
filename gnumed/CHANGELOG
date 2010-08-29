@@ -565,6 +565,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v14
 ------------------------------------------------
 
+	14.0 -> 14.1
+
+NEW: fixup config file for adding array bits to v13 database needed for conversion on PG 8.3
+
+	14.0
+
 NEW: gm-set_gm-dbo_passowrd
 
 FIX: during upgrade nullify empty clin.health_issue.laterality
