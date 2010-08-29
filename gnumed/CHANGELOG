@@ -14,6 +14,10 @@ NEW: support enhanced, file-based FreeDiams API
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.1
+
+FIX: exception when "DejaVu Sans" not found on Windows
+
 	0.8.0
 
 NEW: Add button to lookup drug on www.dosing.de to current substances plugin.

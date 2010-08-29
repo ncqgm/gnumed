@@ -103,8 +103,8 @@ class gmTopLevelFrame(wx.Frame):
 				self.SetFont(font)
 				_log.debug('setting font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
 			else:
+				font = self.GetFont()
 				_log.error('cannot set font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), desired_font_face)
-				_log.debug('default font is ', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
