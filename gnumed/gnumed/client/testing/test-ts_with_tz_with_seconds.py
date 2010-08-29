@@ -1,7 +1,7 @@
 import psycopg2
 print "psycopg2:", psycopg2.__version__
 
-dsn = u'dbname=gnumed_v14 port=5432 user=any-doc password=any-doc sslmode=prefer'
+dsn = u'dbname=gnumed_v15 port=5432 user=any-doc password=any-doc sslmode=prefer'
 
 conn = psycopg2.connect(dsn=dsn)
 curs = conn.cursor()

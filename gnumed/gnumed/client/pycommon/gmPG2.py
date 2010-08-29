@@ -126,7 +126,8 @@ map_client_branch2required_db_version = {
 	u'0.5': u'v11',
 	u'0.6': u'v12',
 	u'0.7': u'v13',
-	u'0.8': u'v14'
+	u'0.8': u'v14',
+	u'0.9': u'v15'
 }
 
 # get columns and data types for a given table
@@ -315,7 +316,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v14]: ", 'gnumed_v14')
+		login.database = __prompted_input("database [gnumed_v15]: ", 'gnumed_v15')
 		login.user = __prompted_input("user name: ", '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
