@@ -416,7 +416,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 <FreeDiams_In version="0.4.2">
 	<EMR name="GNUmed" uid="unused"/>
 	<ConfigFile value="%s"/>
-	<OutFile value="%s" format="html_xml"/>
+	<OutFile value="%s" format="xml"/>			<!-- should be html_xml -->
 	<Ui editmode="select-only" blockPatientDatas="1"/>
 	<Patient>
 		<Identity name="%s" surname="%s" uid="%s" dob="%s" gender="%s"/>
