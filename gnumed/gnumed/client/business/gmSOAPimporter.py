@@ -9,7 +9,7 @@ This script is designed for importing GNUmed SOAP input "bundles".
 	- the dicts in the list are INDEPENDANT of each other
 	- each dict contains information for one new clin_narrative row
 	- each dict has the keys: 'soap', 'types', 'text', 'clin_context'
-		- 'soap':			 
+		- 'soap':
 			- relates to clin_narrative.soap_cat
 		- 'types':
 			- a list of strings
@@ -34,7 +34,7 @@ import sys, re, logging
 
 # GnuMed
 from Gnumed.pycommon import gmExceptions, gmI18N, gmDispatcher
-from Gnumed.business import gmClinNarrative, gmPerson
+from Gnumed.business import gmClinNarrative, gmPerson, gmPersonSearch
 
 
 _log = logging.getLogger('gm.soap')
@@ -55,7 +55,6 @@ class cSOAPImporter:
 	"""
 	Main SOAP importer class
 	"""
-	
 	#-----------------------------------------------------------
 	def __init__(self):
 		pass
@@ -66,7 +65,7 @@ class cSOAPImporter:
 		"""
 		Import supplied GnuMed SOAP input "bundle". For details consult current
 		module's description information.
-		
+
 		@param bundle: GnuMed SOAP input data (as described in module's information)
 		@type bundle: list of dicts
 		"""
@@ -175,7 +174,7 @@ if __name__ == '__main__':
 
 	try:
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
@@ -224,92 +223,3 @@ if __name__ == '__main__':
 
 	_log.info("closing SOAP importer...")
 #================================================================
-# $Log: gmSOAPimporter.py,v $
-# Revision 1.24  2009-12-21 14:59:31  ncq
-# - typo
-#
-# Revision 1.23  2009/09/13 18:25:54  ncq
-# - no more get-active-encounter()
-#
-# Revision 1.22  2008/02/25 17:31:41  ncq
-# - logging cleanup
-#
-# Revision 1.21  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.20  2007/12/23 11:55:21  ncq
-# - cleanup
-#
-# Revision 1.19  2007/12/11 12:59:11  ncq
-# - cleanup and explicit signal handling
-#
-# Revision 1.18  2007/03/08 11:31:08  ncq
-# - just cleanup
-#
-# Revision 1.17  2006/10/31 11:27:15  ncq
-# - remove use of gmPG
-#
-# Revision 1.16  2006/10/25 07:17:40  ncq
-# - no more gmPG
-# - no more cClinItem
-#
-# Revision 1.15  2006/10/23 13:06:54  ncq
-# - vaccs DB object not yet converted
-#
-# Revision 1.14  2006/07/19 21:37:51  ncq
-# - cleanup
-#
-# Revision 1.13  2006/06/17 13:58:39  ncq
-# - cleanup
-#
-# Revision 1.12  2006/05/12 12:05:04  ncq
-# - cleanup
-#
-# Revision 1.11  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.10  2005/10/19 09:14:46  ncq
-# - remove half-baked support for embedded data, now handled elsewhere
-# - general cleanup/doc fixes
-#
-# Revision 1.9  2005/10/11 21:50:33  ncq
-# - create_clin_narrative() should not be aware of emr object
-#
-# Revision 1.8  2005/10/08 12:33:08  sjtan
-# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
-#
-# Revision 1.7  2005/05/17 08:03:30  ncq
-# - cleanup
-#
-# Revision 1.6  2005/04/12 09:59:16  ncq
-# - cleanup
-# - enable actual backend storage
-#
-# Revision 1.5  2005/01/31 13:00:40  ncq
-# - use ask_for_patient() in gmPerson
-#
-# Revision 1.4  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.3  2004/12/20 09:51:28  ncq
-# - tie constants to bundle not importer re naming
-#
-# Revision 1.2  2004/12/19 18:41:55  cfmoro
-# Struct keys made module level constants
-#
-# Revision 1.1  2004/12/18 16:14:13  ncq
-# - moved here from test area
-#
-# Revision 1.7  2004/12/18 16:00:37  ncq
-# - final touch up before moving over
-#
-# Revision 1.6  2004/12/16 17:59:38  cfmoro
-# Encapsulation syntax fixed (_ replaced by __). Using tab indentation, in consistency with the rest of gnumed files
-#
-# Revision 1.5  2004/12/13 19:37:08  ncq
-# - cleanup after review by Carlos
-# - will be moved to main trunk RSN
-#
-#

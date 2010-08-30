@@ -24,7 +24,7 @@ import wx.lib.pubsub as wxps
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg, gmExceptions
-from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
 from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl
@@ -2017,7 +2017,7 @@ if __name__ == '__main__':
 		gmDateTime.init()
 
 		# obtain patient
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)

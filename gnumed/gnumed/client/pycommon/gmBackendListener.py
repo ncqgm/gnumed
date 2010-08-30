@@ -325,7 +325,7 @@ if __name__ == "__main__":
 	notifies = 0
 
 	from Gnumed.pycommon import gmPG2, gmI18N
-	from Gnumed.business import gmPerson
+	from Gnumed.business import gmPerson, gmPersonSearch
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain='gnumed')
@@ -424,7 +424,7 @@ if __name__ == "__main__":
 			print '   - %s' % sig
 
 		while True:
-			pat = gmPerson.ask_for_patient()
+			pat = gmPersonSearch.ask_for_patient()
 			if pat is None:
 				break
 			print "found patient", pat

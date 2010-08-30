@@ -20,7 +20,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N
-from Gnumed.business import gmPerson, gmDataMining
+from Gnumed.business import gmPerson, gmDataMining, gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
 
@@ -65,7 +65,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 			pat_pk = int(pat_data)
 			pat = gmPerson.cIdentity(aPK_obj = pat_pk)
 		except (ValueError, TypeError):
-			searcher = gmPerson.cPatientSearcher_SQL()
+			searcher = gmPersonSearch.cPatientSearcher_SQL()
 			idents = searcher.get_identities(pat_data)
 			if len(idents) == 0:
 				gmDispatcher.send(signal = 'statustext', msg = _('No matching patient found.'))

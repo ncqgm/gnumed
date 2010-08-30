@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
 from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg, gmMatchProvider
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
-from Gnumed.business import gmForms, gmDocuments
+from Gnumed.business import gmForms, gmDocuments, gmPersonSearch
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
@@ -1999,7 +1999,7 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	def test_select_narrative_from_episodes():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative_from_episodes()
@@ -2008,14 +2008,14 @@ if __name__ == '__main__':
 			print sel
 	#----------------------------------------
 	def test_cSoapNoteExpandoEditAreaPnl():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cSoapNoteExpandoEditAreaPnl(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#----------------------------------------
 	def test_cSoapPluginPnl():
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			return
@@ -2032,4 +2032,3 @@ if __name__ == '__main__':
 	#test_cSoapPluginPnl()
 
 #============================================================
-

@@ -90,16 +90,8 @@ if __name__ == "__main__":
 		print "dto.dob.tz:", dto.dob.tzinfo
 		print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
 		print "dto.street", dto.street
-#		searcher = gmPerson.cPatientSearcher_SQL()
+#		searcher = gmPersonSearch.cPatientSearcher_SQL()
 #		ident = searcher.get_identities(dto=dto)[0]
 #		print ident
 
 #==============================================================
-# $Log: gmPracSoftAU.py,v $
-# Revision 1.2  2007-02-13 17:05:22  ncq
-# - slightly better CONST name
-#
-# Revision 1.1  2007/02/05 14:29:04  ncq
-# - read PracSoft PATIENTS.IN file
-#
-#

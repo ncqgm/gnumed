@@ -408,6 +408,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		atcs = [ a['atc_code'] for a in allgs if a['atc_code'] is not None ]
 		inns = [ a['allergene'] for a in allgs ]
 		# this is rather fragile: FreeDiams won't know what type of UID this is
+		# (but it will assume it is of the type of the drug database in use)
 		uids = [ a['substance_code'] for a in allgs if a['substance_code'] is not None ]
 
 		# Eric says the order of same-level nodes does not matter.

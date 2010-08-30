@@ -19,13 +19,16 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 # stdlib
 import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging
 
+
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N, gmLog2
+from Gnumed.pycommon.gmTools import prompted_input
 
 _log = logging.getLogger('gm.db')
 _log.info(__version__)
+
 
 # 3rd party
 try:
@@ -302,12 +305,6 @@ def __detect_client_timezone(conn=None):
 # =======================================================================
 # login API
 # =======================================================================
-def __prompted_input(prompt, default=None):
-	usr_input = raw_input(prompt)
-	if usr_input == '':
-		return default
-	return usr_input
-#---------------------------------------------------
 def __request_login_params_tui():
 	"""Text mode request of database login parameters"""
 	import getpass
@@ -315,12 +312,12 @@ def __request_login_params_tui():
 
 	print "\nPlease enter the required login parameters:"
 	try:
-		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v15]: ", 'gnumed_v15')
-		login.user = __prompted_input("user name: ", '')
+		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
+		login.database = prompted_input(prompt = "database", default = 'gnumed_v15')
+		login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
-		login.port = __prompted_input("port [5432]: ", 5432)
+		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
 		print "user cancelled text mode login dialog"

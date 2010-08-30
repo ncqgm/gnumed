@@ -183,7 +183,7 @@ if __name__ == "__main__":
 			print ext_id
 		for comm in dto.comms:
 			print comm
-#		searcher = gmPerson.cPatientSearcher_SQL()
+#		searcher = gmPersonSearch.cPatientSearcher_SQL()
 #		ident = searcher.get_identities(dto=dto)[0]
 #		print ident
 

@@ -16,7 +16,7 @@ import wx
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
 from Gnumed.wxpython import gmAllergyWidgets, gmNarrativeWidgets, gmPatSearchWidgets
 from Gnumed.wxpython import gmDemographicsWidgets, gmVaccWidgets
@@ -860,7 +860,7 @@ if __name__ == '__main__':
 
 	try:
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)

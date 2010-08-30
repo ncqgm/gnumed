@@ -1,8 +1,9 @@
-"""
-This is a template plugin 
-This is in line with the blog series on developing a plugin for GNUmed
-Read all posts to follow along a step by step guide
-The first thirteen parts are a chronical on a plugin I developed
+""" This is a template plugin.
+
+This is in line with the blog series on developing a plugin
+for GNUmed Read all posts to follow along a step by step
+guide The first thirteen parts are a chronical on a plugin I
+developed:
 
 Part 1:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-1.html
 Part 2:  http://gnumed.blogspot.com/2009/04/gnumed-plugin-development-part-2.html
@@ -107,14 +108,14 @@ class gmExamplePlugin(gmPlugin.cNotebookPlugin):
 if __name__ == '__main__':
 
 	# GNUmed
-	from Gnumed.business import gmPerson
+	from Gnumed.business import gmPersonSearch
 	from Gnumed.wxpython import gmPatSearchWidgets
 
 	_log.info("starting template plugin...")
 
 	try:
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "None patient. Exiting gracefully..."
 			sys.exit(0)
