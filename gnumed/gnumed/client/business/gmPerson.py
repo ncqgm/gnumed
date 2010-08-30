@@ -354,6 +354,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 				deceased = %(deceased)s,
 				emergency_contact = gm.nullify_empty_string(%(emergency_contact)s),
 				fk_emergency_contact = %(pk_emergency_contact)s,
+				fk_primary_provider = %(pk_primary_provider)s,
 				comment = gm.nullify_empty_string(%(comment)s)
 			where
 				pk = %(pk_identity)s and
@@ -372,6 +373,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		'deceased',
 		'emergency_contact',
 		'pk_emergency_contact',
+		'pk_primary_provider',
 		'comment'
 	]
 	#--------------------------------------------------------

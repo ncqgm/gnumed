@@ -8,16 +8,16 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
--- .fk_request
-comment on column clin.test_result.fk_request is
-'The request this result was ordered under if any.';
+-- .fk_primary_provider
+comment on column dem.identity.fk_primary_provider is
+'The doctor within this praxis primarily responsible for this patient.';
 
 
-alter table clin.test_result
-	add foreign key (fk_request)
-		references clin.lab_request(pk)
+alter table dem.identity
+	add foreign key (fk_primary_provider)
+		references dem.staff(pk)
 		on update cascade
 		on delete restrict;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-clin-test_result-dynamic.sql', 'Revision: 1.1');
+select gm.log_script_insertion('v15-dem-identity-dynamic.sql', 'Revision: 1.1');

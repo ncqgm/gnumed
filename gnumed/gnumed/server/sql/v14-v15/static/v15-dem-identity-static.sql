@@ -8,16 +8,12 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
--- .fk_request
-comment on column clin.test_result.fk_request is
-'The request this result was ordered under if any.';
+-- .fk_primary_provider
+alter table dem.identity
+	add column fk_primary_provider integer;
 
-
-alter table clin.test_result
-	add foreign key (fk_request)
-		references clin.lab_request(pk)
-		on update cascade
-		on delete restrict;
+alter table audit.log_identity
+	add column fk_primary_provider integer;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-clin-test_result-dynamic.sql', 'Revision: 1.1');
+select gm.log_script_insertion('v15-dem-identity-static.sql', 'Revision: 1.1');
