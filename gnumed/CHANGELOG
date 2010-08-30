@@ -8,7 +8,8 @@
 
 	0.9.0
 
-NEW: support enhanced, file-based FreeDiams API
+NEW: use much enhanced, file-based FreeDiams API
+NEW: support primary provider on patients along with configurable fallback
 
 IMPROVED: link test results directly to requests for them
 

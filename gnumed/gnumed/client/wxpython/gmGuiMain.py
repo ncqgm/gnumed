@@ -364,6 +364,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
 
+		item = menu_cfg_emr.Append(-1, _('Primary doctor'), _('Select the primary doctor to fall back to for patients without one.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_fallback_primary_provider, item)
+
 		# -- submenu gnumed / config / emr / encounter
 		menu_cfg_encounter = wx.Menu()
 		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
@@ -1639,6 +1642,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_cfg_medication_list_template(self, evt):
 		gmMedicationWidgets.configure_medication_list_template(parent = self)
+	#----------------------------------------------
+	def __on_cfg_fallback_primary_provider(self, evt):
+		gmProviderInboxWidgets.configure_fallback_primary_provider(parent = self)
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
