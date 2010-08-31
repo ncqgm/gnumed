@@ -578,7 +578,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	14.0 -> 14.1
 
-NEW: fixup config file for adding array bits to v13 database needed for conversion on PG 8.3
+NEW: auto-include fixups for missing array functionality on PG 8.3, needed for conversion to v14
 
 	14.0
 
