@@ -10,6 +10,7 @@
 
 NEW: use much enhanced, file-based FreeDiams API
 NEW: support primary provider on patients along with configurable fallback
+NEW: support array of contextual FKs per inbox message
 
 IMPROVED: link test results directly to requests for them
 

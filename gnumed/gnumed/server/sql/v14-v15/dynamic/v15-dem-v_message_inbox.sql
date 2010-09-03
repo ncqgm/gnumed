@@ -9,6 +9,13 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+comment on column dem.message_inbox.ufk_context is
+	'a nullable array of Unchecked Foreign Keys, it is up to
+	 the application to know what this points to, it will
+	 have to make sense within the context of the combination
+	 of staff ID, item type, and comment';
+
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view dem.v_message_inbox cascade;
 \set ON_ERROR_STOP 1
