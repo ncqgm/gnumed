@@ -29,4 +29,3 @@ class cPatientsummaryPanel(SimplePanel):
                   "Problem list")
  
         self.add(stack)
-

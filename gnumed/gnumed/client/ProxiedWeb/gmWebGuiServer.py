@@ -337,6 +337,7 @@ class HTTPServer(SimpleForkingJSONRPCServer):
 
         self.register_function(self.echo)
         self.register_function(self.login)
+        self.register_function(self.search_patient)
         self.register_function(self.get_doc_types)
         self.register_function(self.get_documents)
         self.register_function(self.get_schema_version)
@@ -367,6 +368,80 @@ class HTTPServer(SimpleForkingJSONRPCServer):
             )
         return connected
 
+    def search_patient(self, search_term):
+		from Gnumed.business import gmPerson
+		self.__person_searcher = gmPerson.cPatientSearcher_SQL()
+		# get list of matching ids
+		idents = self.__person_searcher.get_identities(search_term)
+
+		if idents is None:
+			#wx.EndBusyCursor()
+			#gmGuiHelpers.gm_show_info (
+			#	_('Error searching for matching persons.\n\n'
+			#	  'Search term: "%s"'
+			#	) % search_term,
+			#	_('selecting person')
+			#)
+			return None
+
+		_log.info("%s matching person(s) found", len(idents))
+
+		if len(idents) == 0:
+			#wx.EndBusyCursor()
+
+			#dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			#	wx.GetTopLevelParent(self),
+			#	-1,
+			#	caption = _('Selecting patient'),
+			#	question = _(
+			#		'Cannot find any matching patients for the search term\n\n'
+			#		' "%s"\n\n'
+			#		'You may want to try a shorter search term.\n'
+			#	) % search_term,
+			#	button_defs = [
+			#		{'label': _('Go back'), 'tooltip': _('Go back and search again.'), 'default': True},
+			#		{'label': _('Create new'), 'tooltip': _('Create new patient.')}
+			#	]
+			#)
+			#if dlg.ShowModal() != wx.ID_NO:
+			#	return
+
+			#success = gmDemographicsWidgets.create_new_person(activate = True)
+			#if success:
+			#	self.person = gmPerson.gmCurrentPatient()
+			#else:
+			#	self.person = None
+			return None
+
+		# only one matching identity
+		if len(idents) == 1:
+			self.person = idents[0]
+			#wx.EndBusyCursor()
+			return self.person['description']
+
+		# more than one matching identity: let user select from pick list
+		#dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
+		#dlg.set_persons(persons=idents)
+		#wx.EndBusyCursor()
+		#result = dlg.ShowModal()
+		#if result == wx.ID_CANCEL:
+		#	dlg.Destroy()
+		#	return None
+
+		#wx.BeginBusyCursor()
+		#self.person = dlg.get_selected_person()
+		#dlg.Destroy()
+		#wx.EndBusyCursor()
+
+		return None
+
+
+    def get_provider_inbox_data(self):
+	self.provider = gmPerson.gmCurrentProvider()
+	self.__msgs = self.provider.inbox.messages
+	"""convert from objects to dict - maybe that works """
+	return inbox_messages
+
     def get_schema_version(self):
         return gmPG2.get_schema_version()
 
@@ -384,6 +459,7 @@ class HTTPServer(SimpleForkingJSONRPCServer):
             msg2 = msg2 +'\n' + str(item)
         msg = msg + msg2
         return "<pre>%s</pre>" % msg
+    
 
 
 #==========================================================

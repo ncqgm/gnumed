@@ -4,10 +4,12 @@ from pyjamas.ui.HTML import HTML
 from pyjamas.ui.MenuBar import MenuBar
 from pyjamas.ui.MenuItem import MenuItem
 from pyjamas.ui.DecoratorPanel import DecoratedTabPanel
+from pyjamas.ui.Image import Image
 from pyjamas import Window
 
 from TestPanel import cTestPanel
 from PatientsummaryPanel import cPatientsummaryPanel
+from PatientsearchPanel import cPatientsearchPanel
 from OpenCommand import cOpenCommand
 from SaveCommand import cSaveCommand
 from LogoutCommand import cLogoutCommand
@@ -79,12 +81,26 @@ class cMainPanel(VerticalPanel):
         self.menu.addItem(MenuItem("Help", menuHelp))
 
         self.menu.setWidth("100%")
+        
+        self.searchpanel = cPatientsearchPanel(app)
 
         # add tabs and menu
         self.add(self.menu)
+        self.add(self.searchpanel)
         self.add(self.fTabs)
 
+    #--------------------------------------------------
     def execute(self):
         Window.alert("Thank you for selecting a menu item.")
 
 
+    #--------------------------------------------------
+    def onClick(self, sender):
+        self.status.setText(self.TEXT_WAITING)
+
+        if sender == self.button_login:
+            self.button_login.setEnabled(False) # disable whilst checking
+            self.try_user = self.username.getText()
+            passwd = self.password.getText() 
+            self.password.setText("") # reset to blank
+            self.app.remote_py.login(self.try_user, passwd, self)

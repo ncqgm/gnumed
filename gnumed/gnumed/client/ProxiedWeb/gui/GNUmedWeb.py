@@ -47,7 +47,8 @@ class EchoServicePython(JSONProxy):
                 "echo", "get_doc_types",
                 "get_schema_version",
                 "get_documents",
-                "doSomething"])
+                "doSomething",
+                "search_patient"])
 
 #======================================================
 if __name__ == '__main__':
