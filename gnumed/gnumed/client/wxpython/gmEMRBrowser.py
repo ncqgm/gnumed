@@ -138,13 +138,54 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		wx.BeginBusyCursor()
 
-		self.snapshot_expansion()
+#		self.snapshot_expansion()
 
 		# init new tree
 		self.DeleteAllItems()
-		root_item = self.AddRoot(_('EMR of %s') % self.__pat['description'])
+		root_item = self.AddRoot(_('EMR of %(lastnames)s, %(firstnames)s') % self.__pat.get_active_name())
 		self.SetPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
+		self.__root_tooltip = self.__pat['description_gender'] + u'\n'
+		if self.__pat['deceased'] is None:
+			self.__root_tooltip += u' %s  %s (%s)\n\n' % (
+				gmPerson.map_gender2symbol[self.__pat['gender']],
+				self.__pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+				self.__pat['medical_age']
+			)
+		else:
+			template = u' %s  %s - %s (%s)\n\n'
+			self.__root_tooltip += template % (
+				gmPerson.map_gender2symbol[self.__pat['gender']],
+				self.__pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
+				self.__pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding()),
+				self.__pat['medical_age']
+			)
+		self.__root_tooltip += gmTools.coalesce(self.__pat['comment'], u'', u'%s\n\n')
+		doc = self.__pat.primary_provider
+		if doc is not None:
+			self.__root_tooltip += u'%s:\n' % _('Primary provider in this praxis')
+			self.__root_tooltip += u' %s %s %s (%s)%s\n\n' % (
+				gmTools.coalesce(doc['title'], gmPerson.map_gender2salutation(gender = doc['gender'])),
+				doc['firstnames'],
+				doc['lastnames'],
+				doc['short_alias'],
+				gmTools.bool2subst(doc['is_active'], u'', u' [%s]' % _('inactive'))
+			)
+		if not ((self.__pat['emergency_contact'] is None) and (self.__pat['pk_emergency_contact'] is None)):
+			self.__root_tooltip += _('In case of emergency contact:') + u'\n'
+			if self.__pat['emergency_contact'] is not None:
+				self.__root_tooltip += gmTools.wrap (
+					text = u'%s\n' % self.__pat['emergency_contact'],
+					width = 60,
+					initial_indent = u' ',
+					subsequent_indent = u' '
+				)
+			if self.__pat['pk_emergency_contact'] is not None:
+				contact = self.__pat.emergency_contact_in_database
+				self.__root_tooltip += u' %s\n' % contact['description_gender']
+		self.__root_tooltip.strip('\n')
+		if self.__root_tooltip == u'':
+			self.__root_tooltip = u' '
 
 		# have the tree filled by the exporter
 		self.__exporter.get_historical_tree(self)
@@ -154,7 +195,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.Expand(root_item)
 		self.__update_text_for_selected_node()
 
-		self.restore_expansion()
+#		self.restore_expansion()
 
 		wx.EndBusyCursor()
 		return True
@@ -638,8 +679,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			event.SetToolTip(tt)
 
 		else:
-			event.SetToolTip(u' ')
-			#self.SetToolTipString(u'')
+			event.SetToolTip(self.__root_tooltip)
+			#event.SetToolTip(u' ')
+			##self.SetToolTipString(u'')
 
 		# doing this prevents the tooltip from showing at all
 		#event.Skip()

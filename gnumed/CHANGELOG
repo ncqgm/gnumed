@@ -13,6 +13,7 @@ NEW: support primary provider on patients along with configurable fallback
 NEW: support array of contextual FKs per inbox message
 
 IMPROVED: link test results directly to requests for them
+IMPROVED: much better EMR tree root node tooltip
 
 ------------------------------------------------
 # rel-0-8-patches

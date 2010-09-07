@@ -202,18 +202,21 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 	description = property(_get_description, lambda x:x)
 #============================================================
 class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"select * from dem.v_staff where pk_staff=%s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_staff WHERE pk_staff = %s"
 	_cmds_store_payload = [
-		u"""update dem.staff set
+		u"""UPDATE dem.staff SET
 				fk_role = %(pk_role)s,
 				short_alias = %(short_alias)s,
 				comment = gm.nullify_empty_string(%(comment)s),
 				is_active = %(is_active)s,
 				db_user = %(db_user)s
-			where
-				pk=%(pk_staff)s and
-				xmin = %(xmin_staff)s""",
-		u"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
+			WHERE
+				pk = %(pk_staff)s
+					AND
+				xmin = %(xmin_staff)s
+			RETURNING
+				xmin AS xmin_staff"""
+#		,u"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
 	#--------------------------------------------------------
@@ -977,6 +980,13 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def delete_relative(self, relation):
 		# unlink only, don't delete relative itself
 		self.set_relative(None, relation)
+	#--------------------------------------------------------
+	def _get_emergency_contact_from_database(self):
+		if self._payload[self._idx['pk_emergency_contact']] is None:
+			return None
+		return cIdentity(aPK_obj = self._payload[self._idx['pk_emergency_contact']])
+
+	emergency_contact_in_database = property(_get_emergency_contact_from_database, lambda x:x)
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
@@ -1035,6 +1045,13 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#--------------------------------------------------------
 	def delete_message(self, pk=None):
 		return gmProviderInbox.delete_inbox_message(pk = pk)
+	#--------------------------------------------------------
+	def _get_primary_provider(self):
+		if self._payload[self._idx['pk_primary_provider']] is None:
+			return None
+		return cStaff(aPK_obj = self._payload[self._idx['pk_primary_provider']])
+
+	primary_provider = property(_get_primary_provider, lambda x:x)
 	#----------------------------------------------------------------------
 	# convenience
 	#----------------------------------------------------------------------
