@@ -842,7 +842,6 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 					i['name'],
 					i['value'],
 					gmTools.coalesce(i['issuer'], u''),
-					i['context'],
 					gmTools.coalesce(i['comment'], u'')
 				] for i in ids
 			]
@@ -857,7 +856,6 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('ID type'),
 			_('Value'),
 			_('Issuer'),
-			_('Context'),
 			_('Comment')
 		])
 	#--------------------------------------------------------

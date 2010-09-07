@@ -127,7 +127,7 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 		province = line[59:61]
 		value = line[47:57].strip()
 		if value != u'':
-			dto.external_ids.append({'name': u'PHN (%s.CA)' % province, 'value': value, 'issuer': 'MOH (%s.CA)' % province, 'context': 'p'})
+			dto.external_ids.append({'name': u'PHN (%s.CA)' % province, 'value': value, 'issuer': 'MOH (%s.CA)' % province})
 
 		dob = time.strptime(line[65:73].strip(), MSVA_dob_format)
 		dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
@@ -135,7 +135,7 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 
 		value = line[84:92].strip()
 		if value != u'':
-			dto.external_ids.append({'name': u'MM (CA) Chart #', 'value': value, 'issuer': 'Medical Manager (CA) application', 'context': 'p'})
+			dto.external_ids.append({'name': u'MM (CA) Chart #', 'value': value, 'issuer': 'Medical Manager (CA) application'})
 
 		# this is the home address
 		dto.street = u'%s // %s' % (
@@ -153,7 +153,7 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 
 		value = line[198:207].strip()
 		if value != u'':
-			dto.external_ids.append({'name': u'Social Insurance Number', 'value': value, 'issuer': 'Canada', 'context': 'p'})
+			dto.external_ids.append({'name': u'Social Insurance Number', 'value': value, 'issuer': 'Canada'})
 
 		dtos.append(dto)
 

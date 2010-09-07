@@ -43,10 +43,10 @@ def read_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 
 		dto = gmPerson.cDTO_person()
 		dto.external_ids = [
-			{'PracSoft No.': line[0:9].strip(), 'issuer': 'AU PracSoft application', 'context': 'p'},
-			{'CRN': line[166:180].replace(' ', ''), 'issuer': 'Centrelink (AU)', 'context': 'p'},
-			{'DVA': line[180:194].replace(' ', ''), 'issuer': "Department of Veteran's Affairs (AU)", 'context': 'p'},
-			{'AU-Medicare': line[153:166].replace(' ', ''), 'issuer': 'HIC (AU)', 'context': 'p'}
+			{'PracSoft No.': line[0:9].strip(), 'issuer': 'AU PracSoft application'},
+			{'CRN': line[166:180].replace(' ', ''), 'issuer': 'Centrelink (AU)'},
+			{'DVA': line[180:194].replace(' ', ''), 'issuer': "Department of Veteran's Affairs (AU)"},
+			{'AU-Medicare': line[153:166].replace(' ', ''), 'issuer': 'HIC (AU)'}
 		]
 
 		dto.title = gmTools.capitalize(line[9:14].strip(), gmTools.CAPS_FIRST)

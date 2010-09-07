@@ -518,11 +518,10 @@ select exists (
 	# and are not reused (like addresses), so they are
 	# truly added/deleted, not just linked/unlinked
 	#--------------------------------------------------------
-	def add_external_id(self, type_name=None, value=None, issuer=None, comment=None, context=u'p', pk_type=None):
+	def add_external_id(self, type_name=None, value=None, issuer=None, comment=None, pk_type=None):
 		"""Adds an external ID to the patient.
 
 		creates ID type if necessary
-		context hardcoded to 'p' for now
 		"""
 
 		# check for existing ID
@@ -565,14 +564,13 @@ select exists (
 				'type_name': type_name,
 				'pk_type': pk_type,
 				'issuer': issuer,
-				'ctxt': context,
 				'comment': comment
 			}
 
 			if pk_type is None:
 				cmd = u"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values (
 					%(val)s,
-					(select dem.add_external_id_type(%(type_name)s, %(issuer)s, %(ctxt)s)),
+					(select dem.add_external_id_type(%(type_name)s, %(issuer)s)),
 					%(comment)s,
 					%(pat)s
 				)"""
@@ -601,18 +599,17 @@ select exists (
 		"""Edits an existing external ID.
 
 		creates ID type if necessary
-		context hardcoded to 'p' for now
 		"""
 		cmd = u"""
 update dem.lnk_identity2ext_id set
-	fk_origin = (select dem.add_external_id_type(%(type)s, %(issuer)s, %(ctxt)s)),
+	fk_origin = (select dem.add_external_id_type(%(type)s, %(issuer)s)),
 	external_id = %(value)s,
 	comment = %(comment)s
 where id = %(pk)s"""
-		args = {'pk': pk_id, 'ctxt': u'p', 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
+		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
-	def get_external_ids(self, id_type=None, issuer=None, context=None):
+	def get_external_ids(self, id_type=None, issuer=None):
 		where_parts = ['pk_identity = %(pat)s']
 		args = {'pat': self.ID}
 
@@ -623,10 +620,6 @@ where id = %(pk)s"""
 		if issuer is not None:
 			where_parts.append(u'issuer = %(issuer)s')
 			args['issuer'] = issuer.strip()
-
-		if context is not None:
-			where_parts.append(u'context = %(ctxt)s')
-			args['ctxt'] = context.strip()
 
 		cmd = u"select * from dem.v_external_ids4identity where %s" % ' and '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
