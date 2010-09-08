@@ -22,6 +22,7 @@ IMPROVED: much better EMR tree root node tooltip
 	0.8.2
 
 FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+FIX: exception on wrapping long entry in auto-expanding SOAP note field
 
 	0.8.1
 
