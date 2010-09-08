@@ -6,6 +6,10 @@
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.2
+
+FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+
 	0.8.1
 
 FIX: exception when "DejaVu Sans" not found on Windows
