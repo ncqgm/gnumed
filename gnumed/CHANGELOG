@@ -33,6 +33,7 @@ IMPROVED: DOB validity check when creating new person
 	0.7.10
 
 FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+FIX: exception on wrapping long entry in auto-expanding SOAP note field
 
 	0.7.9
 
