@@ -86,6 +86,8 @@ IMPROVED: use substance rather than brand as allergene when creating allergy fro
 	0.7.9
 
 FIX: when creating allergy from substance intake entry second try would overwrite first try if same drug brand
+FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+FIX: exception on wrapping long entry in auto-expanding SOAP note field
 
 	0.7.8
 
