@@ -248,11 +248,18 @@ def get_address_types(identity=None):
 #===================================================================
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"select * from dem.v_pat_addresses where pk_address=%s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_pat_addresses WHERE pk_address = %s"
 	_cmds_store_payload = [
-		u"""update dem.lnk_person_org_address set id_type=%(pk_address_type)s
-			where id=%(pk_lnk_person_org_address)s and xmin=%(xmin_lnk_person_org_address)s""",
-		u"""select xmin from dem.lnk_person_org_address where id=%(pk_lnk_person_org_address)s"""
+		u"""UPDATE dem.lnk_person_org_address SET
+				id_type = %(pk_address_type)s
+			WHERE
+				id = %(pk_lnk_person_org_address)s
+					AND
+				xmin = %(xmin_lnk_person_org_address)s
+			RETURNING
+				xmin AS xmin_lnk_person_org_address
+		"""
+#		,u"""select xmin from dem.lnk_person_org_address where id=%(pk_lnk_person_org_address)s"""
 	]
 	_updatable_fields = ['pk_address_type']
 	#---------------------------------------------------------------
