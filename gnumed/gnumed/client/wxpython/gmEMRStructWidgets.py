@@ -27,10 +27,8 @@ from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDa
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
-from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
@@ -1270,6 +1268,8 @@ limit 30"""
 			self.set_context('pat', patient.ID)
 		return True
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl
+
 class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -1307,6 +1307,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		emr = pat.get_emr()
 
 		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
+		epi['status'] = self._TCTRL_status.GetValue().strip()
 		epi['episode_open'] = not self._CHBOX_closed.IsChecked()
 		epi['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1334,6 +1335,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 	def _save_as_update(self):
 
 		self.data['description'] = self._PRW_description.GetValue().strip()
+		self.data['status'] = self._TCTRL_status.GetValue().strip()
 		self.data['episode_open'] = not self._CHBOX_closed.IsChecked()
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1363,6 +1365,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
+		self._TCTRL_status.SetValue(u'')
 		self._PRW_classification.SetText()
 		self._CHBOX_closed.SetValue(False)
 	#----------------------------------------------------------------
@@ -1374,6 +1377,8 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 			self._PRW_issue.SetText(self.data['health_issue'], data=self.data['pk_health_issue'])
 
 		self._PRW_description.SetText(self.data['description'], data=self.data['description'])
+
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['status'], u''))
 
 		if self.data['diagnostic_certainty_classification'] is not None:
 			self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
@@ -1557,6 +1562,8 @@ class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 			return False
 		return True
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl
+
 class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl):
 	"""Panel encapsulating health issue edit area functionality."""
 
@@ -1622,6 +1629,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
 		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
 
+		self._PRW_year_noted.Enable(True)
+
 		self.data = issue
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -1659,6 +1668,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		issue['laterality'] = side
 
+		issue['status'] = self._TCTRL_status.GetValue().strip()
 		issue['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 		issue['grouping'] = self._PRW_grouping.GetValue().strip()
 		issue['is_active'] = self._ChBOX_active.GetValue()
@@ -1672,17 +1682,10 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		issue.save()
 
-		narr = self._TCTRL_notes.GetValue().strip()
-		if narr != u'':
-			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = issue['pk_health_issue'])
-			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
-
 		self.data = issue
-
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		# update self.data and save the changes
 
 		self.data['description'] = self._PRW_condition.GetValue().strip()
 
@@ -1693,6 +1696,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		self.data['laterality'] = side
 
+		self.data['status'] = self._TCTRL_status.GetValue().strip()
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 		self.data['grouping'] = self._PRW_grouping.GetValue().strip()
 		self.data['is_active'] = bool(self._ChBOX_active.GetValue())
@@ -1706,13 +1710,6 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self.data.save()
 
-		narr = self._TCTRL_notes.GetValue().strip()
-		if narr != '':
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.data['pk_health_issue'])
-			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
-
 		# FIXME: handle is_operation
 		return True
 	#----------------------------------------------------------------
@@ -1722,7 +1719,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._ChBOX_right.SetValue(0)
 		self._PRW_classification.SetText()
 		self._PRW_grouping.SetText()
-		self._TCTRL_notes.SetValue(u'')
+		self._TCTRL_status.SetValue(u'')
 		self._PRW_age_noted.SetText()
 		self._PRW_year_noted.SetText()
 		self._ChBOX_active.SetValue(0)
@@ -1748,7 +1745,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
 		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], u''))
-		self._TCTRL_notes.SetValue('')
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['status'], u''))
 
 		if self.data['age_noted'] is None:
 			self._PRW_age_noted.SetText()

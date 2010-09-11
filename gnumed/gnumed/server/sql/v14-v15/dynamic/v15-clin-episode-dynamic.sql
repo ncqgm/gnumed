@@ -14,7 +14,7 @@ comment on column clin.episode.status is
 
 alter table clin.health_issue
 	add constraint episode_sane_status check (
-		gm.is_null_or_blank_string(status)
+		gm.is_null_or_non_empty_string(status)
 	)
 ;
 

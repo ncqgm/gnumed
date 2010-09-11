@@ -63,6 +63,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description = %(description)s,
+				status = gm.nullify_empty_string(%(status)s),
 				age_noted = %(age_noted)s,
 				laterality = gm.nullify_empty_string(%(laterality)s),
 				grouping = gm.nullify_empty_string(%(grouping)s),
@@ -78,6 +79,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		'description',
+		'status',
 		'grouping',
 		'age_noted',
 		'laterality',
@@ -259,9 +261,19 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				instead = u'',
 				template_initial = u', %s',
 				none_equivalents = [None, u'']
-			),
+			)
 		))
-		lines.append('')
+
+		if self._payload[self._idx['status']] is not None:
+			lines.append(u'')
+			lines.append(gmTools.wrap (
+				text = self._payload[self._idx['status']],
+				width = 60,
+				initial_indent = u'  ',
+				subsequent_indent = u'  '
+			))
+
+		lines.append(u'')
 
 		emr = patient.get_emr()
 
@@ -450,6 +462,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				fk_health_issue = %(pk_health_issue)s,
 				is_open = %(episode_open)s::boolean,
 				description = %(description)s,
+				status = gm.nullify_empty_string(%(status)s),
 				diagnostic_certainty_classification = gm.nullify_empty_string(%(diagnostic_certainty_classification)s)
 			where
 				pk = %(pk_episode)s and
@@ -460,6 +473,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		'pk_health_issue',
 		'episode_open',
 		'description',
+		'status',
 		'diagnostic_certainty_classification'
 	]
 	#--------------------------------------------------------
@@ -606,6 +620,16 @@ from (
 			enc['last_affirmed_original_tz'].strftime('%H:%M'),
 			self._payload[self._idx['pk_encounter']]
 		))
+
+		if self._payload[self._idx['status']] is not None:
+			lines.append(gmTools.wrap (
+					text = self._payload[self._idx['status']],
+					width = 60,
+					initial_indent = u'  ',
+					subsequent_indent = u'  '
+				)
+			)
+			lines.append(u'')
 
 		# encounters
 		emr = patient.get_emr()
