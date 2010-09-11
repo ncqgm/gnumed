@@ -635,12 +635,14 @@ class gmTopLevelFrame(wx.Frame):
 			viewer = u'Aeskulap'
 		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
 			viewer = u'AMIDE'
+		elif gmShellAPI.detect_external_binary(binary = 'dicomscope')[0]:
+			viewer = u'DicomScope'
 		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.info('neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
+			_log.info('neither of OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -1952,7 +1954,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
 			return
 
-		for viewer in ['aeskulap', 'amide', 'xmedcon']:
+		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
 				gmShellAPI.run_command_in_shell(cmd, blocking=False)
