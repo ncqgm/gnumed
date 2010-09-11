@@ -73,9 +73,9 @@ alter table dem.lnk_org2ext_id
 	rename column fk_origin to fk_type;
 
 -- --------------------------------------------------------------
--- dem.org_branch
+-- dem.org_unit
 
-create table dem.org_branch (
+create table dem.org_unit (
 	pk serial primary key,
 	description text,
 	fk_org integer,

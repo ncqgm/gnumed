@@ -39,32 +39,32 @@ alter table dem.org
 ;
 
 -- --------------------------------------------------------------
--- dem.org_branch
-select gm.add_table_for_notifies('dem'::name, 'org_branch'::name);
-select audit.add_table_for_audit('dem'::name, 'org_branch'::name);
+-- dem.org_unit
+select gm.add_table_for_notifies('dem'::name, 'org_unit'::name);
+select audit.add_table_for_audit('dem'::name, 'org_unit'::name);
 
 
-comment on table dem.org_branch is
+comment on table dem.org_unit is
 'Actual branches/departments/offices/... of organisations.';
 
 
 -- .description
-comment on column dem.org_branch.description is
+comment on column dem.org_unit.description is
 'Description (= name) of branch of organisation, such as "Elms Street office of Jim Busser Praxis".';
 
-alter table dem.org_branch
-	add constraint org_branch_sane_description check (
+alter table dem.org_unit
+	add constraint org_unit_sane_description check (
 		gm.is_null_or_blank_string(description) is false
 	)
 ;
 
 
 -- .fk_org
-alter table dem.org_branch
+alter table dem.org_unit
 	alter column fk_org
 		set not null;
 
-alter table dem.org_branch
+alter table dem.org_unit
 	add foreign key (fk_org)
 		references dem.org(pk)
 		on update cascade
@@ -73,11 +73,11 @@ alter table dem.org_branch
 
 
 -- .fk_address
-alter table dem.org_branch
+alter table dem.org_unit
 	alter column fk_address
 		set not null;
 
-alter table dem.org_branch
+alter table dem.org_unit
 	add foreign key (fk_address)
 		references dem.address(id)
 		on update cascade
@@ -87,7 +87,7 @@ alter table dem.org_branch
 
 -- .fk_category
 -- for now, leave this nullable ;-)
-alter table dem.org_branch
+alter table dem.org_unit
 	add foreign key (fk_category)
 		references dem.org_category(pk)
 		on update cascade
@@ -98,7 +98,7 @@ alter table dem.org_branch
 -- permissions
 grant select, insert, update, delete on
 	dem.org
-	, dem.org_branch
+	, dem.org_unit
 	, dem.org_category
 to group "gm-doctors";
 
