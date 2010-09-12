@@ -1,2 +1,3 @@
 #!/bin/sh
-./pyjsbuild $@ JSONRPCExample
+# place symlink to pyjsbuild somewhere in $PATH (~/bin recommended)
+./pyjsbuild $@ GNUmedWeb
