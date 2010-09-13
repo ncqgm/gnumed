@@ -1307,7 +1307,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		emr = pat.get_emr()
 
 		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
-		epi['status'] = self._TCTRL_status.GetValue().strip()
+		epi['summary'] = self._TCTRL_summary.GetValue().strip()
 		epi['episode_open'] = not self._CHBOX_closed.IsChecked()
 		epi['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1335,7 +1335,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 	def _save_as_update(self):
 
 		self.data['description'] = self._PRW_description.GetValue().strip()
-		self.data['status'] = self._TCTRL_status.GetValue().strip()
+		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
 		self.data['episode_open'] = not self._CHBOX_closed.IsChecked()
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1365,7 +1365,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
-		self._TCTRL_status.SetValue(u'')
+		self._TCTRL_summary.SetValue(u'')
 		self._PRW_classification.SetText()
 		self._CHBOX_closed.SetValue(False)
 	#----------------------------------------------------------------
@@ -1378,7 +1378,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		self._PRW_description.SetText(self.data['description'], data=self.data['description'])
 
-		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['status'], u''))
+		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['diagnostic_certainty_classification'] is not None:
 			self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
@@ -1668,7 +1668,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		issue['laterality'] = side
 
-		issue['status'] = self._TCTRL_status.GetValue().strip()
+		issue['summary'] = self._TCTRL_summary.GetValue().strip()
 		issue['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 		issue['grouping'] = self._PRW_grouping.GetValue().strip()
 		issue['is_active'] = self._ChBOX_active.GetValue()
@@ -1696,7 +1696,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		self.data['laterality'] = side
 
-		self.data['status'] = self._TCTRL_status.GetValue().strip()
+		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 		self.data['grouping'] = self._PRW_grouping.GetValue().strip()
 		self.data['is_active'] = bool(self._ChBOX_active.GetValue())
@@ -1719,7 +1719,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._ChBOX_right.SetValue(0)
 		self._PRW_classification.SetText()
 		self._PRW_grouping.SetText()
-		self._TCTRL_status.SetValue(u'')
+		self._TCTRL_summary.SetValue(u'')
 		self._PRW_age_noted.SetText()
 		self._PRW_year_noted.SetText()
 		self._ChBOX_active.SetValue(0)
@@ -1745,7 +1745,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
 		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], u''))
-		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['status'], u''))
+		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['age_noted'] is None:
 			self._PRW_age_noted.SetText()

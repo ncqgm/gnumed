@@ -9,11 +9,11 @@
 
 -- --------------------------------------------------------------
 alter table clin.episode
-	add column status text;
+	add column summary text;
 
 
 alter table audit.log_episode
-	add column status text;
+	add column summary text;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-clin-episode-static.sql', 'Revision: 1.1');

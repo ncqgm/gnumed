@@ -17,7 +17,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         self._PRW_description = gmEMRStructWidgets.cEpisodeDescriptionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_classification = gmEMRStructWidgets.cDiagnosticCertaintyClassificationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_closed = wx.CheckBox(self, -1, _("Closed"))
-        self._TCTRL_status = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.NO_BORDER)
+        self._TCTRL_summary = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -31,7 +31,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         self._PRW_description.SetToolTipString(_("Type or select the description for this episode. It should be a summary for the episode of illness."))
         self._PRW_classification.SetToolTipString(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
         self._CHBOX_closed.SetToolTipString(_("If this box is checked the episode is over. If not it is currently ongoing."))
-        self._TCTRL_status.SetToolTipString(_("The current status of this episode."))
+        self._TCTRL_summary.SetToolTipString(_("The current status or a summary of this episode."))
         # end wxGlade
 
     def __do_layout(self):
@@ -54,9 +54,9 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         __szr_status.Add(self._PRW_classification, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 15)
         __szr_status.Add(self._CHBOX_closed, 1, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(__szr_status, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_status = wx.StaticText(self, -1, _("Current\nstatus"))
-        __gzsr_details.Add(__lbl_status, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __gzsr_details.Add(self._TCTRL_status, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_summary = wx.StaticText(self, -1, _("Summary"))
+        __gzsr_details.Add(__lbl_summary, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gzsr_details.Add(self._TCTRL_summary, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.AddGrowableCol(1)
         __szr_main.Add(__gzsr_details, 1, wx.EXPAND, 0)
         self.SetSizer(__szr_main)

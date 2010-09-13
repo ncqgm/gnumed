@@ -652,7 +652,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				_('closed episode'),
 				'error: episode state is None'
 			) + u'\n'
-			tt += gmTools.coalesce(data['status'], u'', u'\n%s')
+			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
 			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
@@ -676,7 +676,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
 			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
 			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n\n')
-			tt += gmTools.coalesce(data['status'], u'')
+			tt += gmTools.coalesce(data['summary'], u'')
 			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '

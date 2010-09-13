@@ -9,11 +9,11 @@
 
 -- --------------------------------------------------------------
 alter table clin.health_issue
-	add column status text;
+	add column summary text;
 
 
 alter table audit.log_health_issue
-	add column status text;
+	add column summary text;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-clin-health_issue-static.sql', 'Revision: 1.1');

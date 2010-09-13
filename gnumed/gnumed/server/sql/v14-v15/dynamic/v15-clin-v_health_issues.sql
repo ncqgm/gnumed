@@ -19,7 +19,7 @@ select
 		as pk_patient,
 	chi.pk as pk_health_issue,
 	chi.description,
-	chi.status,
+	chi.summary,
 	chi.laterality,
 	chi.age_noted,
 	chi.is_active,

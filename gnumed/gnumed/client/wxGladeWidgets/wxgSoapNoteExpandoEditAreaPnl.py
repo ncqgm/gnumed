@@ -21,6 +21,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         self._TCTRL_sOap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_soAp = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_soaP = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._TCTRL_summary = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -29,6 +30,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._TCTRL_summary.SetToolTipString(_("Here you can modify the cumulative summary of the problem (regardless of whether that is a new one, a health issue, or an episode)."))
         # end wxGlade
 
     def __do_layout(self):
@@ -46,6 +48,11 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         __lbl_soaP = wx.StaticText(self, -1, _("Plan"))
         __szr_main.Add(__lbl_soaP, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
         __szr_main.Add(self._TCTRL_soaP, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
+        _hline_above_summary = wx.StaticLine(self, -1)
+        __szr_main.Add(_hline_above_summary, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
+        __lbl_summary = wx.StaticText(self, -1, _("Problem summary"))
+        __szr_main.Add(__lbl_summary, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
+        __szr_main.Add(self._TCTRL_summary, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade

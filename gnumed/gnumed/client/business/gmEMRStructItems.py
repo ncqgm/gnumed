@@ -63,7 +63,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description = %(description)s,
-				status = gm.nullify_empty_string(%(status)s),
+				summary = gm.nullify_empty_string(%(summary)s),
 				age_noted = %(age_noted)s,
 				laterality = gm.nullify_empty_string(%(laterality)s),
 				grouping = gm.nullify_empty_string(%(grouping)s),
@@ -79,7 +79,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		'description',
-		'status',
+		'summary',
 		'grouping',
 		'age_noted',
 		'laterality',
@@ -253,7 +253,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['age_noted']] is not None:
 			lines.append(_(' Noted at age: %s') % self.age_noted_human_readable())
 
-		lines.append(_(' Status: %s, %s%s') % (
+		lines.append(u' ' + _('Status') + u': %s, %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('active'), _('inactive')),
 			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant')),
 			gmTools.coalesce (
@@ -264,10 +264,10 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			)
 		))
 
-		if self._payload[self._idx['status']] is not None:
+		if self._payload[self._idx['summary']] is not None:
 			lines.append(u'')
 			lines.append(gmTools.wrap (
-				text = self._payload[self._idx['status']],
+				text = self._payload[self._idx['summary']],
 				width = 60,
 				initial_indent = u'  ',
 				subsequent_indent = u'  '
@@ -462,7 +462,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				fk_health_issue = %(pk_health_issue)s,
 				is_open = %(episode_open)s::boolean,
 				description = %(description)s,
-				status = gm.nullify_empty_string(%(status)s),
+				summary = gm.nullify_empty_string(%(summary)s),
 				diagnostic_certainty_classification = gm.nullify_empty_string(%(diagnostic_certainty_classification)s)
 			where
 				pk = %(pk_episode)s and
@@ -473,7 +473,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		'pk_health_issue',
 		'episode_open',
 		'description',
-		'status',
+		'summary',
 		'diagnostic_certainty_classification'
 	]
 	#--------------------------------------------------------
@@ -621,9 +621,9 @@ from (
 			self._payload[self._idx['pk_encounter']]
 		))
 
-		if self._payload[self._idx['status']] is not None:
+		if self._payload[self._idx['summary']] is not None:
 			lines.append(gmTools.wrap (
-					text = self._payload[self._idx['status']],
+					text = self._payload[self._idx['summary']],
 					width = 60,
 					initial_indent = u'  ',
 					subsequent_indent = u'  '

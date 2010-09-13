@@ -54,7 +54,7 @@ select
 			then ' / ' || _('cause of death')
 			else ''
 			end
-		|| coalesce(E'\nStatus:\n' || chi.status, '')
+		|| coalesce(E'\n' || _('Summary') || E':\n' || chi.summary, '')
 		as narrative,
 	chi.fk_encounter
 		as pk_encounter,
@@ -72,8 +72,11 @@ from
 ;
 
 
+select i18n.upd_tx('de_DE', 'Summary', 'Zusammenfassung');
+
+
 grant select on clin.v_health_issues_journal TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v12-clin-v_health_issues_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v15-clin-v_health_issues_journal.sql,v $', '$Revision: 1.1 $');
 
 -- ==============================================================

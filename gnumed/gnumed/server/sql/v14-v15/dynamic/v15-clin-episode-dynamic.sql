@@ -8,13 +8,13 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-comment on column clin.episode.status is
-'Used for tracking the status of this episode.';
+comment on column clin.episode.summary is
+'Used for tracking the summary of this episode.';
 
 
 alter table clin.health_issue
-	add constraint episode_sane_status check (
-		gm.is_null_or_non_empty_string(status)
+	add constraint episode_sane_summary check (
+		gm.is_null_or_non_empty_string(summary)
 	)
 ;
 

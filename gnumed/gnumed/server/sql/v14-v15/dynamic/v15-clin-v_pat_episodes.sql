@@ -19,8 +19,8 @@ select
 		as pk_patient,
 	cep.description
 		as description,
-	cep.status
-		as status,
+	cep.summary
+		as summary,
 	cep.is_open
 		as episode_open,
 	null
@@ -70,8 +70,8 @@ select
 		as pk_patient,
 	cep.description
 		as description,
-	cep.status
-		as status,
+	cep.summary
+		as summary,
 	cep.is_open
 		as episode_open,
 	chi.description
