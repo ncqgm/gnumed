@@ -183,7 +183,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			if self.__pat['pk_emergency_contact'] is not None:
 				contact = self.__pat.emergency_contact_in_database
 				self.__root_tooltip += u' %s\n' % contact['description_gender']
-		self.__root_tooltip.strip('\n')
+		self.__root_tooltip = self.__root_tooltip.strip('\n')
 		if self.__root_tooltip == u'':
 			self.__root_tooltip = u' '
 
@@ -651,7 +651,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				_('ongoing episode'),
 				_('closed episode'),
 				'error: episode state is None'
-			)
+			) + u'\n'
+			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
 			event.SetToolTip(tt)
@@ -673,7 +675,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt += gmTools.bool2subst(data['is_active'], _('active') + u'\n', u'')
 			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
 			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
-			tt += gmTools.coalesce(data['grouping'], u'', _('Grouping: %s'))
+			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n\n')
+			tt += gmTools.coalesce(data['summary'], u'')
+			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
 			event.SetToolTip(tt)
