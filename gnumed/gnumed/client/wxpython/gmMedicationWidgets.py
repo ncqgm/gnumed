@@ -1383,7 +1383,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			option = u'external.urls.report_ADR',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = u'user',
-			default = u'https://dcgma.org/uaw/meldung.php'
+			default = u'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 		)
 
 		webbrowser.open(url = url, new = False, autoraise = True)

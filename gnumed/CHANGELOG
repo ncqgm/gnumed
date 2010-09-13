@@ -3,8 +3,32 @@
 *****************************************************************
 
 ------------------------------------------------
+# rel-0-9-patches
+------------------------------------------------
+
+	0.9.0
+
+NEW: use much enhanced, file-based FreeDiams API
+NEW: support primary provider on patients along with configurable fallback
+NEW: support array of contextual FKs per inbox message
+NEW: support dicomscope as DICOM viewer
+NEW: support summary field on health issues and episodes
+
+IMPROVED: link test results directly to requests for them
+IMPROVED: much better EMR tree root node tooltip
+
+------------------------------------------------
 # rel-0-8-patches
 ------------------------------------------------
+
+	0.8.2
+
+FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+FIX: exception on wrapping long entry in auto-expanding SOAP note field
+
+	0.8.1
+
+FIX: exception when "DejaVu Sans" not found on Windows
 
 	0.8.0
 
@@ -64,6 +88,8 @@ IMPROVED: use substance rather than brand as allergene when creating allergy fro
 	0.7.9
 
 FIX: when creating allergy from substance intake entry second try would overwrite first try if same drug brand
+FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+FIX: exception on wrapping long entry in auto-expanding SOAP note field
 
 	0.7.8
 
@@ -560,6 +586,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v14
 ------------------------------------------------
+
+	14.0 -> 14.1
+
+NEW: auto-include fixups for missing array functionality on PG 8.3, needed for conversion to v14
+
+	14.0
 
 NEW: gm-set_gm-dbo_passowrd
 

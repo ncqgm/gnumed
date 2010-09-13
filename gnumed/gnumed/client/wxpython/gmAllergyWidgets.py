@@ -1,7 +1,5 @@
 """GNUmed allergy related widgets."""
 ############################################################################
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-# $Id: gmAllergyWidgets.py,v 1.36 2010-02-06 21:00:07 ncq Exp $
 __version__ = "$Revision: 1.36 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
@@ -16,7 +14,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmDateTime, gmTools, gmMatchProvider
 from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin, gmPatSearchWidgets
-from Gnumed.business import gmPerson, gmAllergy
+from Gnumed.business import gmPerson, gmAllergy, gmPersonSearch
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
 
 _log = logging.getLogger('gm.ui')
@@ -554,7 +552,7 @@ if __name__ == "__main__":
 	#-----------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			sys.exit(0)
 		gmPatSearchWidgets.set_active_patient(pat)
@@ -566,133 +564,3 @@ if __name__ == "__main__":
 #		app.SetWidget(cAllergyPanel, -1)
 #		app.MainLoop()
 #======================================================================
-# $Log: gmAllergyWidgets.py,v $
-# Revision 1.36  2010-02-06 21:00:07  ncq
-# - do not fail deleting allergy if none selected
-#
-# Revision 1.35  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.34  2008/10/22 12:12:31  ncq
-# - rework allergy manager as per list
-#
-# Revision 1.33  2008/10/12 16:04:28  ncq
-# - rework according to list discussion
-#
-# Revision 1.32  2008/07/07 13:43:16  ncq
-# - current patient .connected
-#
-# Revision 1.31  2008/03/06 18:29:29  ncq
-# - standard lib logging only
-#
-# Revision 1.30  2008/01/30 14:03:41  ncq
-# - use signal names directly
-# - switch to std lib logging
-#
-# Revision 1.29  2008/01/16 19:38:15  ncq
-# - wxMAC doesn't like some Move*InTabOrder()
-#
-# Revision 1.28  2007/10/25 12:19:53  ncq
-# - no more useless allergy update
-#
-# Revision 1.27  2007/09/10 18:35:27  ncq
-# - help wxPython a bit with tab order
-# - fix a faulty variable access
-# - improve test suite
-#
-# Revision 1.26  2007/08/12 00:06:59  ncq
-# - no more gmSignals.py
-#
-# Revision 1.25  2007/07/10 20:28:36  ncq
-# - consolidate install_domain() args
-#
-# Revision 1.24  2007/04/02 18:39:52  ncq
-# - gmFuzzyTimestamp -> gmDateTime
-#
-# Revision 1.23  2007/03/27 09:59:47  ncq
-# - enable spell checker on allergy.reaction
-#
-# Revision 1.22  2007/03/26 16:49:50  ncq
-# - "reaction" can be empty
-#
-# Revision 1.21  2007/03/22 11:04:15  ncq
-# - activate prw match providers
-#
-# Revision 1.20  2007/03/21 08:14:01  ncq
-# - improved allergy manager
-# - cleanup
-#
-# Revision 1.19  2007/03/18 13:57:43  ncq
-# - re-add lost 1.19
-#
-# Revision 1.19  2007/03/12 12:25:15  ncq
-# - add allergy edit area panel/dialog
-# - improved test suite
-#
-# Revision 1.18  2007/02/04 15:49:31  ncq
-# - use SetText() on phrasewheel
-#
-# Revision 1.17  2006/10/25 07:46:44  ncq
-# - Format() -> strftime() since datetime.datetime does not have .Format()
-#
-# Revision 1.16  2006/10/24 13:20:57  ncq
-# - do not import gmPG
-#
-# Revision 1.15  2006/05/15 13:35:59  ncq
-# - signal cleanup:
-#   - activating_patient -> pre_patient_selection
-#   - patient_selected -> post_patient_selection
-#
-# Revision 1.14  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.13  2006/01/03 12:12:03  ncq
-# - make epydoc happy re _()
-#
-# Revision 1.12  2005/12/27 18:46:39  ncq
-# - use gmI18N
-#
-# Revision 1.11  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.10  2005/09/28 15:57:47  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.9  2005/09/26 18:01:50  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.8  2005/09/24 09:17:27  ncq
-# - some wx2.6 compatibility fixes
-#
-# Revision 1.7  2005/03/20 17:49:11  ncq
-# - default for id
-#
-# Revision 1.6  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.5  2004/12/15 21:55:00  ncq
-# - adapt to cleanly separated old/new style edit area
-#
-# Revision 1.4  2004/10/27 12:17:22  ncq
-# - robustify should there not be an active patient
-#
-# Revision 1.3  2004/10/11 20:14:16  ncq
-# - use RegetOnPaintMixin
-# - attach to backend
-# - cleanup, remove cruft
-#
-# Revision 1.2  2004/07/18 20:30:53  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.1  2004/07/17 21:16:38  ncq
-# - cleanup/refactor allergy widgets:
-#   - Horst space plugin added
-#   - Richard space plugin separated out
-#   - plugin independant GUI code aggregated
-#   - allergies edit area factor out from generic edit area file
-#
-#

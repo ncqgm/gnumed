@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2, gmExceptions
 from Gnumed.business import gmPerson, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel
-from Gnumed.wxpython import gmEditArea, gmAuthWidgets, gmPatSearchWidgets, gmVaccWidgets
+from Gnumed.wxpython import gmEditArea, gmAuthWidgets, gmPatSearchWidgets, gmVaccWidgets, gmCfgWidgets
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl, wxgTextExpansionEditAreaPnl
 
 
@@ -164,6 +164,43 @@ def configure_keyword_text_expansion(parent=None):
 		new_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh
+	)
+#============================================================
+def configure_fallback_primary_provider(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	staff = gmPerson.get_staff_list()
+	choices = [ [
+			s[u'short_alias'],
+			u'%s%s %s' % (
+				gmTools.coalesce(s['title'], u'', u'%s '),
+				s['firstnames'],
+				s['lastnames']
+			),
+			s['role'],
+			gmTools.coalesce(s['comment'], u'')
+		]
+		for s in staff
+		if s['is_active'] is True
+	]
+	data = [ s['pk_staff'] for s in staff if s['is_active'] is True ]
+
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _(
+			'\n'
+			'Please select the provider to fall back to in case\n'
+			'no primary provider is configured for a patient.\n'
+		),
+		option = 'patient.fallback_primary_provider',
+		bias = 'user',
+		default_value = None,
+		choices = choices,
+		columns = [_('Alias'), _('Provider'), _('Role'), _('Comment')],
+		data = data,
+		caption = _('Configuring fallback primary provider')
 	)
 #============================================================
 class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):

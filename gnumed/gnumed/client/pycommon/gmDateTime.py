@@ -234,10 +234,11 @@ def wxDate2py_dt(wxDate=None):
 		raise
 #---------------------------------------------------------------------------
 def py_dt2wxDate(py_dt=None, wx=None):
-	wxdt = wx.DateTime()
-	wxdt.SetYear(py_dt.year)
-	wxdt.SetMonth(py_dt.month-1)
-	wxdt.SetDay(py_dt.day)
+	_log.debug(u'setting wx.DateTime from: %s-%s-%s', py_dt.year, py_dt.month, py_dt.day)
+	# Robin Dunn says that for SetYear/*Month/*Day the wx.DateTime MUST already
+	# be valid (by definition) or, put the other way round, you must Set() day,
+	# month, and year at once
+	wxdt = wx.DateTimeFromDMY(py_dt.day, py_dt.month-1, py_dt.year)
 	return wxdt
 #===========================================================================
 # interval related

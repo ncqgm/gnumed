@@ -353,7 +353,7 @@ PYJSDIR = sys._getframe().f_code.co_filename
 PYJSDIR = os.path.split(os.path.dirname(PYJSDIR))[0]
 PYJSDIR = os.path.join(PYJSDIR, 'pyjamas')
 
-DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
+DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v15@)"
 
 class gmApp:
 
@@ -445,7 +445,7 @@ class gmApp:
                 "title" : "Welcome to GNUmed - Login"
                 , "cssFiles" : ["css/ext-all.css", "css/xtheme-gray.css"]
                 , "jsFiles" : ["ext/ext-base.js", "ext/ext-core.js"]
-                , "backend" : "GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
+                , "backend" : "GNUmed database on this machine (Linux/Mac) (gnumed_v15@)"
             }
         )
         return str( t )     # returning a string representation of the Template. CherryPy will only let you return strings with an exposed function
@@ -454,7 +454,7 @@ class gmApp:
         #return """
         #<form action="doLogin" method="post">
 	#    <p>Backend</p>
-	#    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v14@)"
+	#    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v15@)"
 	#	size="15" maxlength="40"/>
 	#    <p>Username</p>
 	#    <input type="text" name="username" value="" 

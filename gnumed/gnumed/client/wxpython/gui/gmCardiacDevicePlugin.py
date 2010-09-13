@@ -1,7 +1,4 @@
-"""
-This is a cardiac device interrogation management plugin 
-"""
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmCardiacDevicePlugin.py,v $
+"""This is a cardiac device interrogation management plugin """
 __version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
@@ -63,14 +60,14 @@ class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 if __name__ == '__main__':
 
 	# GNUmed
-	from Gnumed.business import gmPerson
+	from Gnumed.business import gmPersonSearch
 	from Gnumed.wxpython import gmMeasurementWidgets,gmPatSearchWidgets
 
 	_log.info("starting Notebooked cardiac device input plugin...")
 
 	try:
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "None patient. Exiting gracefully..."
 			sys.exit(0)
@@ -96,31 +93,3 @@ if __name__ == '__main__':
 
 	_log.info("closing Notebooked cardiac device input plugin...")
 #================================================================
-# $Log: gmCardiacDevicePlugin.py,v $
-# Revision 1.9  2009-08-08 21:12:17  ncq
-# - protect against missing keyword argument
-#
-# Revision 1.8  2009/07/02 12:14:25  shilbert
-# - added missing import
-#
-# Revision 1.7  2009/06/29 15:13:25  ncq
-# - improved placement in menu hierarchy
-# - add active letters
-#
-# Revision 1.6  2009/06/04 16:31:24  ncq
-# - use set-active-patient from pat-search-widgets
-#
-# Revision 1.5  2009/04/16 12:51:17  ncq
-# - cleanup
-#
-# Revision 1.4  2009/04/14 18:37:39  shilbert
-# - description updated
-#
-# Revision 1.3  2009/04/13 15:34:55  shilbert
-# - renamed class cCardiacDeviceMeasurmentPnl to cCardiacDevicePluginPnl
-#
-# Revision 1.2  2009/04/12 20:22:12  shilbert
-# - make it run in pywidgettester
-#
-# Revision 1.1  2009/04/09 11:37:37  shilbert
-# - first iteration of cardiac device management plugin

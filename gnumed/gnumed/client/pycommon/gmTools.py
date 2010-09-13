@@ -847,6 +847,34 @@ def tex_escape_string(text=None):
 	text = text.replace('~','\\verb#~#')
 
 	return text
+#---------------------------------------------------------------------------
+def prompted_input(prompt=None, default=None):
+	"""Obtains entry from standard input.
+
+	prompt: Prompt text to display in standard output
+	default: Default value (for user to press enter only)
+	CTRL-C: aborts and returns None
+	"""
+	if prompt is None:
+		msg = u'(CTRL-C aborts)'
+	else:
+		msg = u'%s (CTRL-C aborts)' % prompt
+
+	if default is None:
+		msg = msg + u': '
+	else:
+		msg = u'%s [%s]: ' % (msg, default)
+
+	try:
+		usr_input = raw_input(msg)
+	except KeyboardInterrupt:
+		return None
+
+	if usr_input == '':
+		return default
+
+	return usr_input
+
 #===========================================================================
 # image handling tools
 #---------------------------------------------------------------------------

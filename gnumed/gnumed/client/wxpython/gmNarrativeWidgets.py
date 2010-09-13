@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
 from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg, gmMatchProvider
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
-from Gnumed.business import gmForms, gmDocuments
+from Gnumed.business import gmForms, gmDocuments, gmPersonSearch
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
@@ -733,78 +733,103 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return True
 	#--------------------------------------------------------
+	def __get_soap_for_issue_problem(self, problem=None):
+		soap = u''
+		emr = self.__pat.get_emr()
+		prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
+		if prev_enc is not None:
+			soap += prev_enc.format (
+				issues = [ problem['pk_health_issue'] ],
+				with_soap = True,
+				with_docs = False,
+				with_tests = False,
+				patient = self.__pat,
+				fancy_header = False
+			)
+
+		tmp = emr.active_encounter.format_soap (
+			soap_cats = 'soap',
+			emr = emr,
+			issues = [ problem['pk_health_issue'] ],
+		)
+		if len(tmp) > 0:
+			soap += _('Current encounter:') + u'\n'
+			soap += u'\n'.join(tmp) + u'\n'
+
+		if problem['summary'] is not None:
+			soap += u'\n-- %s ----------\n%s' % (
+				_('Cumulative summary'),
+				gmTools.wrap (
+					text = problem['summary'],
+					width = 45,
+					initial_indent = u' ',
+					subsequent_indent = u' '
+				).strip('\n')
+			)
+
+		return soap
+	#--------------------------------------------------------
+	def __get_soap_for_episode_problem(self, problem=None):
+		soap = u''
+		emr = self.__pat.get_emr()
+		prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
+		if prev_enc is not None:
+			soap += prev_enc.format (
+				episodes = [ problem['pk_episode'] ],
+				with_soap = True,
+				with_docs = False,
+				with_tests = False,
+				patient = self.__pat,
+				fancy_header = False
+			)
+		else:
+			if problem['pk_health_issue'] is not None:
+				prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_health_issue'])
+				if prev_enc is not None:
+					soap += prev_enc.format (
+						with_soap = True,
+						with_docs = False,
+						with_tests = False,
+						patient = self.__pat,
+						issues = [ problem['pk_health_issue'] ],
+						fancy_header = False
+					)
+
+		tmp = emr.active_encounter.format_soap (
+			soap_cats = 'soap',
+			emr = emr,
+			issues = [ problem['pk_health_issue'] ],
+		)
+		if len(tmp) > 0:
+			soap += _('Current encounter:') + u'\n'
+			soap += u'\n'.join(tmp) + u'\n'
+
+		if problem['summary'] is not None:
+			soap += u'\n-- %s ----------\n%s' % (
+				_('Cumulative summary'),
+				gmTools.wrap (
+					text = problem['summary'],
+					width = 45,
+					initial_indent = u' ',
+					subsequent_indent = u' '
+				).strip('\n')
+			)
+
+		return soap
+	#--------------------------------------------------------
 	def __refresh_recent_notes(self, problem=None):
 		"""This refreshes the recent-notes part."""
 
-		if problem is None:
-			soap = u''
-			caption = u'<?>'
+		soap = u''
+		caption = u'<?>'
 
-		elif problem['type'] == u'issue':
-			emr = self.__pat.get_emr()
-			soap = u''
+		if problem['type'] == u'issue':
 			caption = problem['problem'][:35]
-
-			prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
-			if prev_enc is not None:
-				soap += prev_enc.format (
-					with_soap = True,
-					with_docs = False,
-					with_tests = False,
-					patient = self.__pat,
-					issues = [ problem['pk_health_issue'] ],
-					fancy_header = False
-				)
-
-			tmp = emr.active_encounter.format_soap (
-				soap_cats = 'soap',
-				emr = emr,
-				issues = [ problem['pk_health_issue'] ],
-			)
-			if len(tmp) > 0:
-				soap += _('Current encounter:') + u'\n'
-				soap += u'\n'.join(tmp) + u'\n'
+			soap = self.__get_soap_for_issue_problem(problem = problem)
 
 		elif problem['type'] == u'episode':
-			emr = self.__pat.get_emr()
-			soap = u''
 			caption = problem['problem'][:35]
-
-			prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
-			if prev_enc is None:
-				if problem['pk_health_issue'] is not None:
-					prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_health_issue'])
-					if prev_enc is not None:
-						soap += prev_enc.format (
-							with_soap = True,
-							with_docs = False,
-							with_tests = False,
-							patient = self.__pat,
-							issues = [ problem['pk_health_issue'] ],
-							fancy_header = False
-						)
-			else:
-				soap += prev_enc.format (
-					episodes = [ problem['pk_episode'] ],
-					with_soap = True,
-					with_docs = False,
-					with_tests = False,
-					patient = self.__pat,
-					fancy_header = False
-				)
-
-			tmp = emr.active_encounter.format_soap (
-				soap_cats = 'soap',
-				emr = emr,
-				issues = [ problem['pk_health_issue'] ],
-			)
-			if len(tmp) > 0:
-				soap += _('Current encounter:') + u'\n'
-				soap += u'\n'.join(tmp) + u'\n'
-
-		else:
-			soap = u''
-			caption = u'<?>'
+			soap = self.__get_soap_for_episode_problem(problem = problem)
 
 		self._TCTRL_recent_notes.SetValue(soap)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
@@ -1300,18 +1325,25 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			self._TCTRL_soaP
 		]
 
+		if self.problem is not None:
+			if self.problem['summary'] is None:
+				self._TCTRL_summary.SetValue(u'')
+			else:
+				self._TCTRL_summary.SetValue(self.problem['summary'])
+
 		self.__register_interests()
 	#--------------------------------------------------------
 	def clear(self):
 		for field in self.fields:
 			field.SetValue(u'')
+		self._TCTRL_summary.SetValue(u'')
 	#--------------------------------------------------------
 	def save(self, emr=None, episode_name_candidates=None):
 
 		if self.empty:
 			return True
 
-		# new unassociated episode
+		# new unassociated episode (standalone or new-in-issue)
 		if (self.problem is None) or (self.problem['type'] == 'issue'):
 
 			episode_name_candidates.append(u'')
@@ -1339,6 +1371,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 			# create episode
 			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
+			new_episode['summary'] = self._TCTRL_summary.GetValue().strip()
+			new_episode.save()
 
 			if self.problem is not None:
 				issue = emr.problem2issue(self.problem)
@@ -1361,10 +1395,25 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 					)
 
 			epi_id = new_episode['pk_episode']
+
+		# existing episode
 		else:
 			epi_id = self.problem['pk_episode']
 
 		emr.add_notes(notes = self.soap, episode = epi_id)
+
+		# set summary but only if not already set above for an episode
+		# newly created either standalone or within a health issue
+		if self.problem['type'] == 'episode':
+			new_summary = self._TCTRL_summary.GetValue().strip()
+			epi = emr.problem2episode(self.problem)
+			if epi['summary'] is None:
+				epi['summary'] = new_summary
+				epi.save()
+			else:
+				if epi['summary'].strip() != new_summary:
+					epi['summary'] = new_summary
+					epi.save()
 
 		return True
 	#--------------------------------------------------------
@@ -1373,6 +1422,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 	def __register_interests(self):
 		for field in self.fields:
 			wxexpando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
+		wxexpando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_summary, self._TCTRL_summary.GetId(), self._on_expando_needs_layout)
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
 		# need to tell ourselves to re-Layout to refresh scroll bars
@@ -1436,6 +1486,19 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		for field in self.fields:
 			if field.GetValue().strip() != u'':
 				return False
+
+		summary = self._TCTRL_summary.GetValue().strip()
+		if self.problem is None:
+			if summary != u'':
+				return False
+		else:
+			if self.problem['summary'] is None:
+				if summary != u'':
+					return False
+			else:
+				if summary != self.problem['summary'].strip():
+					return False
+
 		return True
 
 	empty = property(_get_empty, lambda x:x)
@@ -1449,6 +1512,38 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
 
 		self.__register_interests()
+	#------------------------------------------------
+	# fixup errors in platform expando.py
+	#------------------------------------------------
+	def _wrapLine(self, line, dc, width):
+
+		if (wx.MAJOR_VERSION > 1) and (wx.MINOR_VERSION > 8):
+			return super(cSoapLineTextCtrl, self)._wrapLine(line, dc, width)
+
+		# THIS FIX LIFTED FROM TRUNK IN SVN:
+		# Estimate where the control will wrap the lines and
+		# return the count of extra lines needed.
+		pte = dc.GetPartialTextExtents(line)
+		width -= wx.SystemSettings.GetMetric(wx.SYS_VSCROLL_X)
+		idx = 0
+		start = 0
+		count = 0
+		spc = -1
+		while idx < len(pte):
+		    if line[idx] == ' ':
+		        spc = idx
+		    if pte[idx] - start > width:
+		        # we've reached the max width, add a new line
+		        count += 1
+		        # did we see a space? if so restart the count at that pos
+		        if spc != -1:
+		            idx = spc + 1
+		            spc = -1
+		        if idx < len(pte):
+		            start = pte[idx]
+		    else:
+		        idx += 1
+		return count
 	#------------------------------------------------
 	# event handling
 	#------------------------------------------------
@@ -1999,7 +2094,7 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	def test_select_narrative_from_episodes():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative_from_episodes()
@@ -2008,14 +2103,14 @@ if __name__ == '__main__':
 			print sel
 	#----------------------------------------
 	def test_cSoapNoteExpandoEditAreaPnl():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cSoapNoteExpandoEditAreaPnl(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#----------------------------------------
 	def test_cSoapPluginPnl():
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			return
@@ -2032,4 +2127,3 @@ if __name__ == '__main__':
 	#test_cSoapPluginPnl()
 
 #============================================================
-

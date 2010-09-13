@@ -1,22 +1,46 @@
-"""
-data objects for organization. Hoping to use the helper class to act as Facade
-for aggregated data objects ? with validation rules. 
-re-used working code form gmClinItem and followed Script Module layout of gmEMRStructItems.
-
-license: GPL"""
+"""Organisation classes"""
 #============================================================
 __version__ = "$Revision: 1.40 $"
+__license__ = "GPL"
 
-from Gnumed.pycommon import gmExceptions, gmBorg, gmPG
-from Gnumed.business import gmDemographicRecord, gmPerson
+#from Gnumed.pycommon import gmExceptions, gmBorg, gmPG
+#from Gnumed.business import gmDemographicRecord, gmPerson
 
-import inspect
+from Gnumed.business import gmBusinessDBObject
 
-if __name__ == '__main__':
-	_ = lambda x:x
 
-_log = logging.getLogger('gm.demos')
+
+
+_log = logging.getLogger('gm.org')
 _log.info(__version__)
+
+
+#============================================================
+_sql_get_org = u'SELECT * FROM dem.v_org_branch WHERE pk_allergy_state = %s'
+
+class cOrg(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = u"select * from clin.v_pat_allergy_state where pk_allergy_state = %s"
+	_cmds_store_payload = [
+		u"""update clin.allergy_state set
+				last_confirmed = %(last_confirmed)s,
+				has_allergy = %(has_allergy)s,
+				comment = %(comment)s
+			where
+				pk = %(pk_allergy_state)s and
+				xmin = %(xmin_allergy_state)s""",
+		u"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
+	]
+	_updatable_fields = [
+		'last_confirmed',		# special value u'now' will set to datetime.datetime.now() in the local time zone
+		'has_allergy',			# verified against allergy_states (see above)
+		'comment'				# u'' maps to None / NULL
+	]
+
+
+#============================================================
+
+
 
 
 attrNames = [ 'name', 'office', 'subtype', 'memo','category', 'phone', 'fax', 'email', 'mobile' ]
@@ -85,92 +109,6 @@ class cCatFinder(gmBorg.cBorg):
 DEPARTMENT = 1
 
 
-
-	
-class cOrg:
-	
-	def __init__(self):
-		pass
-
-	def getId(self):
-		return None
-
-	def setId(self, id): # ? change to non-public
-		pass	
-	
-	def set(self, name, office, subtype, memo, category, phone, fax, email,mobile = ""):
-		pass
-
-	def setAddress(self, number, street, urb, postcode, state, country):
-		pass
-
-	def getAddress(self):
-		return {}
-
-	def __setitem__(self, k, v):
-		pass
-
-	def __getitem__(self, k):
-		return None
-
-
-	def get(self): 
-		return []
-
-	def load(self, pk):
-		return False
-
-	def save(self):
-		return False
-
-
-	def getParent(self):
-		return None
-
-
-
-class cOrgHelper:
-	#-----------------------------
-	# class functions
-	#---------------------------------------------------------------
-	def __init__(self):
-		pass
-
-	def findAllOrganizations(self):
-		return []
-
-	def findOrgsForIds( self,id_list):
-		return []
-
-	def findAllOrganizationPKAndName(self):
-		return [ (0,"") ]
-
-	def updateCache(self,org):
-		pass
-	def cacheContains(self, id):
-		return False
-	
-	def getFromCache(self,id):
-		return None
-
-	def removeFromCache(self, id):
-		return False
-
-	def create(self):
-		return None
-
-	def isOrgPerson(self, org):
-		return False
-
-	def isPerson(self, org):
-		return False
-
-	def setXMLClipboardFormat(self):
-		pass
-
-	def setLineSeparatedClipboardFormat(self):
-		pass
-		
 
 
 

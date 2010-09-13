@@ -17,9 +17,9 @@ set default_transaction_read_only to off;
 begin;
 
 -- =============================================
-select dem.add_external_id_type('PHN', 'BC Medical Services Plan, CA', 'p');
-select dem.add_external_id_type('medical record number', 'fake hospital 1 in BC, CA', 'p');
-select dem.add_external_id_type('medical record number', 'fake hospital 2 in BC, CA', 'p');
+select dem.add_external_id_type('PHN', 'BC Medical Services Plan, CA');
+select dem.add_external_id_type('medical record number', 'fake hospital 1 in BC, CA');
+select dem.add_external_id_type('medical record number', 'fake hospital 2 in BC, CA');
 
 -- =============================================
 -- "APATIENT"

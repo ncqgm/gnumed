@@ -1,8 +1,6 @@
 """GNUmed measurement widgets.
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.17 2009-07-18 19:26:35 shilbert Exp $
 __version__ = "$Revision: 1.17 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -17,7 +15,7 @@ import wx	#, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.business import gmPerson, gmDevices, gmDocuments
+from Gnumed.business import gmPerson, gmDevices, gmDocuments, gmPersonSearch
 from Gnumed.pycommon import gmDispatcher, gmMatchProvider
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
@@ -133,7 +131,7 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------
 	def test_grid():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		app = wx.PyWidgetTester(size = (500, 300))
 		lab_grid = cMeasurementsGrid(parent = app.frame, id = -1)
 		lab_grid.patient = pat
@@ -141,7 +139,7 @@ if __name__ == '__main__':
 		app.MainLoop()
 	#------------------------------------------------------------
 	def test_test_ea_pnl():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
 		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)

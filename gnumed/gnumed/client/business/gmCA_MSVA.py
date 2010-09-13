@@ -125,13 +125,17 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 		dto.lastnames = gmTools.capitalize(line[22:47].strip(), gmTools.CAPS_FIRST_ONLY)	# should be _NAMES
 
 		province = line[59:61]
-		dto.external_ids.append({'name': u'PHN (%s.CA)' % province, 'value': line[47:57], 'issuer': 'MOH (%s.CA)' % province, 'context': 'p'})
+		value = line[47:57].strip()
+		if value != u'':
+			dto.external_ids.append({'name': u'PHN (%s.CA)' % province, 'value': value, 'issuer': 'MOH (%s.CA)' % province})
 
 		dob = time.strptime(line[65:73].strip(), MSVA_dob_format)
 		dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
 		dto.gender = line[83].lower()
 
-		dto.external_ids.append({'name': u'MM (CA) Chart #', 'value': line[84:92].strip(), 'issuer': 'Medical Manager (CA) application', 'context': 'p'})
+		value = line[84:92].strip()
+		if value != u'':
+			dto.external_ids.append({'name': u'MM (CA) Chart #', 'value': value, 'issuer': 'Medical Manager (CA) application'})
 
 		# this is the home address
 		dto.street = u'%s // %s' % (
@@ -146,6 +150,10 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 			{'homephone': line[178:188]},
 			{'workphone': line[188:198]}
 		]
+
+		value = line[198:207].strip()
+		if value != u'':
+			dto.external_ids.append({'name': u'Social Insurance Number', 'value': value, 'issuer': 'Canada'})
 
 		dtos.append(dto)
 
@@ -169,13 +177,13 @@ if __name__ == "__main__":
 		print "DTO:", dto
 		print "dto.dob:", dto.dob, type(dto.dob)
 		print "dto.dob.tz:", dto.dob.tzinfo
-		print "dto.zip: %s dto.urb: %s dto.region: %s" % (dto.zip, dto.urb, dto.region)
+		print "dto.zip / urb / region: %s / %s / %s" % (dto.zip, dto.urb, dto.region)
 		print "dto.street:", dto.street
 		for ext_id in dto.external_ids:
 			print ext_id
 		for comm in dto.comms:
 			print comm
-#		searcher = gmPerson.cPatientSearcher_SQL()
+#		searcher = gmPersonSearch.cPatientSearcher_SQL()
 #		ident = searcher.get_identities(dto=dto)[0]
 #		print ident
 

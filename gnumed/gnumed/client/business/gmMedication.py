@@ -7,7 +7,7 @@ license: GPL
 __version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, logging, csv, codecs, os, re as regex
+import sys, logging, csv, codecs, os, re as regex, subprocess
 
 
 if __name__ == '__main__':
@@ -268,13 +268,32 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		_log.info(cFreeDiamsInterface.version)
 
 		paths = gmTools.gmPaths()
-		self.__exchange_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2freediams.xml')
+		self.__gm2fd_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2freediams.xml')
+		self.__fd2gm_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'freediams2gm.xml')
+		self.__fd4gm_config_file = os.path.join(paths.home_dir, '.gnumed', 'freediams4gm.conf')
+
+		self.path_to_binary = None
+		self.__detect_binary()
 	#--------------------------------------------------------
 	def get_data_source_version(self):
-		#> Coded. Available next release
-		#> Use --version or -version or -v
-		return u'0.4.2'
 		# ~/.freediams/config.ini: [License] -> AcceptedVersion=....
+
+		if not self.__detect_binary():
+			return False
+
+		freediams = subprocess.Popen (
+			args = u'--version',				# --version or -version or -v
+			executable = self.path_to_binary,
+			stdout = subprocess.PIPE,
+			stderr = subprocess.PIPE,
+#			close_fds = True,					# Windows can't do that in conjunction with stdout/stderr = ... :-(
+			universal_newlines = True
+		)
+		data, errors = freediams.communicate()
+		ver = regex.search('FreeDiams\s\d.\d.\d', data).group().split()[1]
+		_log.debug('FreeDiams %s', ver)
+
+		return version
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
 		return create_data_source (
@@ -286,37 +305,27 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False):
-		"""http://ericmaeker.fr/FreeMedForms/di-manual/ligne_commandes.html"""
+		"""http://ericmaeker.fr/FreeMedForms/di-manual/en/html/ligne_commandes.html"""
 
-		found, cmd = gmShellAPI.find_first_binary(binaries = [
-			self.custom_path_to_binary,
-			r'/usr/bin/freediams',
-			r'freediams',
-			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
-			r'c:\programs\freediams\freediams.exe',
-			r'freediams.exe'
-		])
-
-		if not found:
-			_log.error('cannot find FreeDiams binary')
+		if not self.__detect_binary():
 			return False
 
-		# make sure csv file exists
-		open(self.__exchange_filename, 'wb').close()
-		#args = u'--exchange="%s" --blockpatientdatas="1"' % self.__exchange_filename
-		args = u'--blockpatientdatas="1"'
+		self.__create_gm2fd_file()
+		open(self.__fd2gm_filename, 'wb').close()
 
-		if self.patient is not None:
-			names = self.patient.get_active_name()
-			args += u' --patientname="%(lastnames)s, %(firstnames)s"' % names
-			args += u' --patientsurname="%(lastnames)s"' % names
-			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
-			if self.patient['dob'] is not None:
-				args += u' --dateofbirth=%s' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
+		args = u'--exchange-in="%s"' % (self.__gm2fd_filename)
 
-		cmd = r'%s %s' % (cmd, args)
+		cmd = r'%s %s' % (self.path_to_binary, args)
 
-		if not gmShellAPI.run_command_in_shell(command = cmd):
+#		if self.patient is not None:
+#			names = self.patient.get_active_name()
+#			args += u' --patientname="%(lastnames)s, %(firstnames)s"' % names
+#			args += u' --patientsurname="%(lastnames)s"' % names
+#			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
+#			if self.patient['dob'] is not None:
+#				args += u' --dateofbirth=%s' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
+
+		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the FreeDiams drug database')
 			return False
 
@@ -347,6 +356,114 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	def show_info_on_drug(self, drug=None):
 		# pass in CIS
 		self.switch_to_frontend()
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __detect_binary(self):
+
+		if self.path_to_binary is not None:
+			return True
+
+		found, cmd = gmShellAPI.find_first_binary(binaries = [
+			r'/usr/bin/freediams',
+			r'freediams',
+			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
+			r'c:\programs\freediams\freediams.exe',
+			r'freediams.exe'
+		])
+
+		if found:
+			self.path_to_binary = cmd
+			return True
+
+		try:
+			self.custom_path_to_binary
+		except AttributeError:
+			_log.error('cannot find FreeDiams binary, no custom path set')
+			return False
+
+		found, cmd = gmShellAPI.detect_external_binary(binary = self.custom_path_to_binary)
+		if found:
+			self.path_to_binary = cmd
+			return True
+
+		_log.error('cannot find FreeDiams binary')
+		return False
+	#--------------------------------------------------------
+	def __create_gm2fd_file(self):
+
+		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
+		if self.patient is None:
+			xml_file.close()
+			return
+
+		name = self.patient.get_active_name()
+		if self.patient['dob'] is None:
+			dob = u''
+		else:
+			dob = self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
+
+		emr = self.patient.get_emr()
+		allgs = emr.get_allergies()			# leave out sensitivities ?
+		atcs = [ a['atc_code'] for a in allgs if a['atc_code'] is not None ]
+		inns = [ a['allergene'] for a in allgs ]
+		# this is rather fragile: FreeDiams won't know what type of UID this is
+		# (but it will assume it is of the type of the drug database in use)
+		uids = [ a['substance_code'] for a in allgs if a['substance_code'] is not None ]
+
+		# Eric says the order of same-level nodes does not matter.
+		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
+
+<FreeDiams_In version="0.4.2">
+	<EMR name="GNUmed" uid="unused"/>
+	<ConfigFile value="%s"/>
+	<OutFile value="%s" format="html_xml"/>
+	<Ui editmode="select-only" blockPatientDatas="1"/>
+	<Patient>
+		<Identity name="%s" surname="%s" uid="%s" dob="%s" gender="%s"/>
+		<ATCAllergies value="%s"/>
+		<InnAllergies value="%s"/>
+		<DrugsUidAllergies value="%s"/>
+	</Patient>
+</FreeDiams_In>
+
+<!--
+		<InnIntolerances value=""/>
+		<ATCIntolerances value="B05B"/>
+		<DrugsUidIntolerances value="68586203;62869109"/>
+		# FIXME: search by LOINC code and add (as soon as supported by FreeDiams ...)
+		<Creatinine value="12" unit="mg/l or mmol/l"/>
+		<Weight value="70" unit="kg or pd" />
+		<Height value="170" unit="cm or "/>
+		<ICD10 value="J11.0;A22;Z23"/>
+-->
+"""		% (
+			self.__fd4gm_config_file,
+			self.__fd2gm_filename,
+			name['firstnames'], name['lastnames'], self.patient.ID, dob, cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
+			u';'.join(atcs),
+			u';'.join(inns),
+			u';'.join(uids)
+		)
+
+		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
+		xml_file.write(xml)
+		xml_file.close()
+	#--------------------------------------------------------
+	def import_fd2gm_file(self):
+
+#		fixed_xml = codecs.open(gmTools.get_unique_filename(suffix = '.xml', 'w', 'utf-8')
+#		for line in self.__fd2gm_filename:
+
+#		fd2gm = codecs.open(self.__fd2gm_filename, 'rU', 'utf-8')
+
+		from xml.etree import ElementTree as etree
+
+		fd2gm_xml = etree.ElementTree()
+		fd2gm_xml.parse(self.__fd2gm_filename)
+
+		print fd2gm_xml
+
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
@@ -1180,6 +1297,7 @@ if __name__ == "__main__":
 
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
+	from Gnumed.business import gmPerson
 
 	gmI18N.activate_locale()
 #	gmDateTime.init()
@@ -1228,6 +1346,17 @@ if __name__ == "__main__":
 		phenprocoumon = '4421744'
 		mmi.check_drug_interactions(drug_ids_list = [diclofenac, phenprocoumon])
 	#--------------------------------------------------------
+	# FreeDiams
+	#--------------------------------------------------------
+	def test_fd_switch_to():
+		gmPerson.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = 12))
+		fd = cFreeDiamsInterface()
+		fd.patient = gmPerson.gmCurrentPatient()
+		fd.switch_to_frontend(blocking = True)
+		fd.import_fd2gm_file()
+	#--------------------------------------------------------
+	# generic
+	#--------------------------------------------------------
 	def test_create_substance_intake():
 		drug = create_substance_intake (
 			substance = u'Whiskey',
@@ -1249,7 +1378,8 @@ if __name__ == "__main__":
 	#test_mmi_select_drugs()
 	#test_mmi_import_substances()
 	#test_mmi_import_drugs()
+	test_fd_switch_to()
 	#test_interaction_check()
 	#test_create_substance_intake()
-	test_show_components()
+	#test_show_components()
 #============================================================

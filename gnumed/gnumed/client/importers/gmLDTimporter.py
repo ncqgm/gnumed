@@ -35,7 +35,7 @@ import glob, os.path, sys, tempfile, fileinput, time, copy, random, shutil
 
 
 from Gnumed.pycommon import gmCfg, gmLoginInfo, gmExceptions, gmI18N
-from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson
+from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson, gmPersonSearch
 
 import mx.DateTime as mxDT
 
@@ -490,7 +490,7 @@ class cLDTImporter:
 				_log.Log(gmLog.lErr, 'Kann lab_request nicht automatisch erzeugen.')
 				return None
 			# find patient
-			searcher = gmPerson.cPatientSearcher_SQL()
+			searcher = gmPersonSearch.cPatientSearcher_SQL()
 			pat_ids = searcher.get_patient_ids(search_dict=pat_ldt)
 			print "must use dto, not search_dict"
 			if len(pat_ids) == 0:

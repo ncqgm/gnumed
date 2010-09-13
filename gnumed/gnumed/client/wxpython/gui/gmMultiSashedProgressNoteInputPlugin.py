@@ -50,16 +50,16 @@ if __name__ == "__main__":
 
     import wx
 
-    from Gnumed.business import gmPerson
+    from Gnumed.business import gmPersonSearch
 
     _log.info("starting multisashed progress notes input plugin...")
 
     try:
         # make sure we have a db connection
         pool = gmPG.ConnectionPool()
-        
+
         # obtain patient
-        patient = gmPerson.ask_for_patient()
+        patient = gmPersonSearch.ask_for_patient()
         if patient is None:
             print "None patient. Exiting gracefully..."
             sys.exit(0)
@@ -91,50 +91,3 @@ if __name__ == "__main__":
     _log.info("closing multisashed progress notes input plugin...")
 
 #======================================================================
-# $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.15  2009-06-04 16:31:24  ncq
-# - use set-active-patient from pat-search-widgets
-#
-# Revision 1.14  2009/04/12 20:15:14  shilbert
-# - various indentation errors in standalone mode fixed
-#
-# Revision 1.13  2008/03/06 18:32:31  ncq
-# - standard lib logging only
-#
-# Revision 1.12  2008/01/27 21:21:59  ncq
-# - no more gmCfg
-#
-# Revision 1.11  2007/10/12 07:28:25  ncq
-# - lots of import related cleanup
-#
-# Revision 1.10  2007/03/08 11:54:44  ncq
-# - cleanup
-#
-# Revision 1.9  2006/10/25 07:23:30  ncq
-# - no gmPG no more
-#
-# Revision 1.8  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.7  2005/09/26 18:01:52  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.6  2005/05/12 15:13:28  ncq
-# - cleanup
-#
-# Revision 1.5  2005/05/08 21:44:08  ncq
-# - cleanup
-#
-# Revision 1.4  2005/03/29 07:34:20  ncq
-# - improve naming
-#
-# Revision 1.3  2005/03/18 16:48:42  cfmoro
-# Fixes to integrate multisash notes input plugin in wxclient
-#
-# Revision 1.2  2005/03/16 18:37:57  cfmoro
-# Log cvs history
-#

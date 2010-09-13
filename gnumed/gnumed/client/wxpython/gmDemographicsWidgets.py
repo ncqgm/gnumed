@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmCfg
 from Gnumed.pycommon import gmDateTime, gmShellAPI
-from Gnumed.business import gmDemographicRecord, gmPerson, gmSurgery
+from Gnumed.business import gmDemographicRecord, gmPerson, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
 from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
 from Gnumed.wxpython import gmAuthWidgets, gmPersonContactWidgets
@@ -842,7 +842,6 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 					i['name'],
 					i['value'],
 					gmTools.coalesce(i['issuer'], u''),
-					i['context'],
 					gmTools.coalesce(i['comment'], u'')
 				] for i in ids
 			]
@@ -857,7 +856,6 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('ID type'),
 			_('Value'),
 			_('Issuer'),
-			_('Context'),
 			_('Comment')
 		])
 	#--------------------------------------------------------
@@ -965,6 +963,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 		wxgPersonSocialNetworkManagerPnl.wxgPersonSocialNetworkManagerPnl.__init__(self, *args, **kwargs)
 
 		self.__identity = None
+		self._PRW_provider.selection_only = False
 		self.refresh()
 	#--------------------------------------------------------
 	# external API
@@ -977,6 +976,8 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 			self._TCTRL_er_contact.SetValue(u'')
 			self._TCTRL_person.person = None
 			self._TCTRL_person.SetToolTipString(tt)
+
+			self._PRW_provider.SetText(value = u'', data = None)
 			return
 
 		self._TCTRL_er_contact.SetValue(gmTools.coalesce(self.__identity['emergency_contact'], u''))
@@ -999,6 +1000,14 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 			self._TCTRL_person.person = None
 
 		self._TCTRL_person.SetToolTipString(tt)
+
+		print "refreshing provider"
+		print self.__identity
+		print self.__identity['pk_primary_provider']
+		if self.__identity['pk_primary_provider'] is None:
+			self._PRW_provider.SetText(value = u'', data = None)
+		else:
+			self._PRW_provider.SetData(data = self.__identity['pk_primary_provider'])
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1018,6 +1027,11 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 			self.__identity['emergency_contact'] = self._TCTRL_er_contact.GetValue().strip()
 			if self._TCTRL_person.person is not None:
 				self.__identity['pk_emergency_contact'] = self._TCTRL_person.person.ID
+			if self._PRW_provider.GetValue().strip == u'':
+				self.__identity['pk_primary_provider'] = None
+			else:
+				self.__identity['pk_primary_provider'] = self._PRW_provider.GetData()
+
 			self.__identity.save()
 
 		event.Skip()
@@ -2223,7 +2237,7 @@ if __name__ == "__main__":
 		app.MainLoop()
 	#--------------------------------------------------------
 	def activate_patient():
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)

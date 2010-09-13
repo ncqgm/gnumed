@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmDispatcher
 from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI, gmMimeLib, gmLog2
-from Gnumed.business import gmPerson, gmSurgery
+from Gnumed.business import gmPerson, gmSurgery, gmPersonSearch
 
 
 _log = logging.getLogger('gm.forms')
@@ -1262,7 +1262,7 @@ if __name__ == '__main__':
 		doc.dispose()		# closes and disposes of the OOo window
 	#--------------------------------------------------------
 	def test_cOOoLetter():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
 		gmPerson.set_active_patient(patient = pat)
@@ -1289,7 +1289,7 @@ if __name__ == '__main__':
 		template.update_template_from_file(filename = sys.argv[3])
 	#--------------------------------------------------------
 	def test_latex_form():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
 		gmPerson.set_active_patient(patient = pat)

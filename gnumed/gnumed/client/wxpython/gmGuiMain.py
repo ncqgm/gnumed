@@ -103,8 +103,8 @@ class gmTopLevelFrame(wx.Frame):
 				self.SetFont(font)
 				_log.debug('setting font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
 			else:
+				font = self.GetFont()
 				_log.error('cannot set font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), desired_font_face)
-				_log.debug('default font is ', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
@@ -363,6 +363,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
+
+		item = menu_cfg_emr.Append(-1, _('Primary doctor'), _('Select the primary doctor to fall back to for patients without one.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_fallback_primary_provider, item)
 
 		# -- submenu gnumed / config / emr / encounter
 		menu_cfg_encounter = wx.Menu()
@@ -632,12 +635,14 @@ class gmTopLevelFrame(wx.Frame):
 			viewer = u'Aeskulap'
 		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
 			viewer = u'AMIDE'
+		elif gmShellAPI.detect_external_binary(binary = 'dicomscope')[0]:
+			viewer = u'DicomScope'
 		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.info('neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
+			_log.info('neither of OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -1301,7 +1306,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.report_ADR',
 			bias = 'user',
-			default_value = u'https://dcgma.org/uaw/meldung.php',
+			default_value = u'https://dcgma.org/uaw/meldung.php',		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -1640,6 +1645,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_cfg_medication_list_template(self, evt):
 		gmMedicationWidgets.configure_medication_list_template(parent = self)
 	#----------------------------------------------
+	def __on_cfg_fallback_primary_provider(self, evt):
+		gmProviderInboxWidgets.configure_fallback_primary_provider(parent = self)
+	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
 
@@ -1946,7 +1954,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
 			return
 
-		for viewer in ['aeskulap', 'amide', 'xmedcon']:
+		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
 				gmShellAPI.run_command_in_shell(cmd, blocking=False)

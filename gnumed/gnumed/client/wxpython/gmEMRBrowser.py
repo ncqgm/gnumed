@@ -16,7 +16,7 @@ import wx
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
 from Gnumed.wxpython import gmAllergyWidgets, gmNarrativeWidgets, gmPatSearchWidgets
 from Gnumed.wxpython import gmDemographicsWidgets, gmVaccWidgets
@@ -138,13 +138,54 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		wx.BeginBusyCursor()
 
-		self.snapshot_expansion()
+#		self.snapshot_expansion()
 
 		# init new tree
 		self.DeleteAllItems()
-		root_item = self.AddRoot(_('EMR of %s') % self.__pat['description'])
+		root_item = self.AddRoot(_('EMR of %(lastnames)s, %(firstnames)s') % self.__pat.get_active_name())
 		self.SetPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
+		self.__root_tooltip = self.__pat['description_gender'] + u'\n'
+		if self.__pat['deceased'] is None:
+			self.__root_tooltip += u' %s  %s (%s)\n\n' % (
+				gmPerson.map_gender2symbol[self.__pat['gender']],
+				self.__pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+				self.__pat['medical_age']
+			)
+		else:
+			template = u' %s  %s - %s (%s)\n\n'
+			self.__root_tooltip += template % (
+				gmPerson.map_gender2symbol[self.__pat['gender']],
+				self.__pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
+				self.__pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding()),
+				self.__pat['medical_age']
+			)
+		self.__root_tooltip += gmTools.coalesce(self.__pat['comment'], u'', u'%s\n\n')
+		doc = self.__pat.primary_provider
+		if doc is not None:
+			self.__root_tooltip += u'%s:\n' % _('Primary provider in this praxis')
+			self.__root_tooltip += u' %s %s %s (%s)%s\n\n' % (
+				gmTools.coalesce(doc['title'], gmPerson.map_gender2salutation(gender = doc['gender'])),
+				doc['firstnames'],
+				doc['lastnames'],
+				doc['short_alias'],
+				gmTools.bool2subst(doc['is_active'], u'', u' [%s]' % _('inactive'))
+			)
+		if not ((self.__pat['emergency_contact'] is None) and (self.__pat['pk_emergency_contact'] is None)):
+			self.__root_tooltip += _('In case of emergency contact:') + u'\n'
+			if self.__pat['emergency_contact'] is not None:
+				self.__root_tooltip += gmTools.wrap (
+					text = u'%s\n' % self.__pat['emergency_contact'],
+					width = 60,
+					initial_indent = u' ',
+					subsequent_indent = u' '
+				)
+			if self.__pat['pk_emergency_contact'] is not None:
+				contact = self.__pat.emergency_contact_in_database
+				self.__root_tooltip += u' %s\n' % contact['description_gender']
+		self.__root_tooltip = self.__root_tooltip.strip('\n')
+		if self.__root_tooltip == u'':
+			self.__root_tooltip = u' '
 
 		# have the tree filled by the exporter
 		self.__exporter.get_historical_tree(self)
@@ -154,7 +195,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.Expand(root_item)
 		self.__update_text_for_selected_node()
 
-		self.restore_expansion()
+#		self.restore_expansion()
 
 		wx.EndBusyCursor()
 		return True
@@ -610,7 +651,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				_('ongoing episode'),
 				_('closed episode'),
 				'error: episode state is None'
-			)
+			) + u'\n'
+			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
 			event.SetToolTip(tt)
@@ -632,14 +675,17 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt += gmTools.bool2subst(data['is_active'], _('active') + u'\n', u'')
 			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
 			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
-			tt += gmTools.coalesce(data['grouping'], u'', _('Grouping: %s'))
+			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n\n')
+			tt += gmTools.coalesce(data['summary'], u'')
+			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
 			event.SetToolTip(tt)
 
 		else:
-			event.SetToolTip(u' ')
-			#self.SetToolTipString(u'')
+			event.SetToolTip(self.__root_tooltip)
+			#event.SetToolTip(u' ')
+			##self.SetToolTipString(u'')
 
 		# doing this prevents the tooltip from showing at all
 		#event.Skip()
@@ -860,7 +906,7 @@ if __name__ == '__main__':
 
 	try:
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
