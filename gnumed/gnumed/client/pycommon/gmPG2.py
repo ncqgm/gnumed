@@ -1138,6 +1138,56 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	conn_close()
 
 	return (data, col_idx)
+#------------------------------------------------------------------------
+def run_insert(link_obj=None, schema=None, table=None, fields=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
+	"""Generates SQL for an INSERT query.
+
+	fields: list of field names to insert into
+	values: dict of values keyed by field
+	"""
+	if schema is None:
+		schema = u'public'
+
+	if set(fields) != set(values.keys()):
+#	if len(fields) != len(values):
+		_log.error(u'fields and values do not match:')
+		_log.error(fields)
+		_log.error(values.keys())
+		raise ArgumentError(u'fields and values do not match')
+
+	val_snippets = []
+	for field in fields:
+		val_snippets.append(u'%%(%s)s' % field)
+
+	if returning is None:
+		returning = u''
+		return_data = False
+	else:
+		returning = u'\n\tRETURNING\n\t\t%s' % u', '.join(returning)
+		return_data = True
+
+	cmd = u"""\nINSERT INTO quote_ident(%s.%s) (
+		quote_ident(%s)
+	) VALUES (
+		%s
+	)%s""" % (
+		schema,
+		table,
+		u'),\n\t\tquote_ident('.join(fields),
+		u',\n\t\t'.join(val_snippets),
+		returning
+	)
+
+	_log.debug(u'running SQL: >>>%s<<<', cmd)
+
+	return run_rw_queries (
+		link_obj = link_obj,
+		queries = [{'cmd': cmd, 'args': values}],
+		end_tx = end_tx,
+		return_data = return_data,
+		get_col_idx = get_col_idx,
+		verbose = verbose
+	)
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
