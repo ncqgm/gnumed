@@ -1139,22 +1139,15 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 	return (data, col_idx)
 #------------------------------------------------------------------------
-def run_insert(link_obj=None, schema=None, table=None, fields=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
+def run_insert(link_obj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
 	"""Generates SQL for an INSERT query.
 
-	fields: list of field names to insert into
-	values: dict of values keyed by field
+	values: dict of values keyed by field to insert them into
 	"""
 	if schema is None:
 		schema = u'public'
 
-	if set(fields) != set(values.keys()):
-#	if len(fields) != len(values):
-		_log.error(u'fields and values do not match:')
-		_log.error(fields)
-		_log.error(values.keys())
-		raise ArgumentError(u'fields and values do not match')
-
+	fields = values.keys()		# that way val_snippets and fields really should end up in the same order
 	val_snippets = []
 	for field in fields:
 		val_snippets.append(u'%%(%s)s' % field)
