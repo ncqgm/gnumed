@@ -669,7 +669,7 @@ msgid "S/P"
 msgstr "S/P"
 
 msgid "S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P\"lan: this vaccination was administered in the practice or copied from trustworthy records."
-msgstr "A/T -- \"\A\"namnese: diese Impfung berichtete der Patient aus dem Gedächtnis. \"T\"herapie: diese Impfung wurde hier in der Praxis verabreicht oder vertrauenswürdigen Unterlagen entnommen."
+msgstr "A/T -- \"A\"namnese: diese Impfung berichtete der Patient aus dem Gedächtnis. \"T\"herapie: diese Impfung wurde hier in der Praxis verabreicht oder vertrauenswürdigen Unterlagen entnommen."
 
 msgid "Total number of vaccinations recorded for the corresponding target condition."
 msgstr "Gesamtzahl dokumentierter Impfungen für das jeweilige Impfziel."
