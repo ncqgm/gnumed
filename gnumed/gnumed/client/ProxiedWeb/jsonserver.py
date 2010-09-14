@@ -28,6 +28,9 @@ try:
 except ImportError:
     from StringIO import StringIO
 
+class CloseConnection(Exception):
+    pass
+
 
 ###
 ### Server code
@@ -48,10 +51,16 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
             id     = req['id']
             print "decoded and about to call. pid:", os.getpid(), method, params
 
-            if dispatch_method is not None:
-                result = dispatch_method(method, params)
-            else:
-                result = self._dispatch(method, params)
+            close_connection = False
+            try:
+                if dispatch_method is not None:
+                    result = dispatch_method(method, params)
+                else:
+                    result = self._dispatch(method, params)
+            except CloseConnection, e:
+                close_connection = True
+                result = e.args[0]
+            print "result", close_connection, result
             response = dict(id=id, result=result, error=None)
         except:
             extpe, exv, extrc = sys.exc_info()
@@ -60,14 +69,15 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
                        traceback=''.join(traceback.format_tb(extrc)))
             response = dict(id=id, result=None, error=err)
         try:
-            return cjson.encode(response)
+            print "response", response
+            return (cjson.encode(response), close_connection)
         except:
             extpe, exv, extrc = sys.exc_info()
             err = dict(type=str(extpe),
                        message=str(exv),
                        traceback=''.join(traceback.format_tb(extrc)))
             response = dict(id=id, result=None, error=err)
-            return cjson.encode(response)
+            return (cjson.encode(response), close_connection)
 
 
 class SimpleJSONRPCRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -253,25 +263,27 @@ class SimpleJSONRPCRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             # SimpleXMLRPCDispatcher. To maintain backwards compatibility,
             # check to see if a subclass implements _dispatch and dispatch
             # using that method if present.
-            response = self.server._marshaled_dispatch(
-                    data, getattr(self, '_dispatch', None)
-                )
+            response, close_connection = self.server._marshaled_dispatch(
+                                data, getattr(self, '_dispatch', None)
+                                                                        )
         except: # This should only happen if the module is buggy
             # internal error, report as HTTP server error
             self.send_response(500)
             self.end_headers()
-        else:
-            # got a valid JSONRPC response
-            self.send_response(200)
-            self.send_header("Content-type", "text/x-json")
-            self.send_header("Connection", "keep-alive")
-            self.send_header("Content-length", str(len(response)))
-            self.end_headers()
-            print "response", repr(response)
-            self.wfile.write(response)
+            return
+        # got a valid JSONRPC response
+        self.send_response(200)
+        self.send_header("Content-type", "text/x-json")
+        self.send_header("Connection", "keep-alive")
+        self.send_header("Content-length", str(len(response)))
+        self.end_headers()
+        print "response", repr(response)
+        self.wfile.write(response)
 
-            self.wfile.flush()
-            print "flushed"
+        self.wfile.flush()
+        print "flushed"
+        if close_connection:
+            self.connection.shutdown(1)
 
     def report_404 (self):
             # Report a 404 error

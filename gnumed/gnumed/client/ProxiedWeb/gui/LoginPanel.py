@@ -1,78 +1,50 @@
-from pyjamas.ui.TextBox import TextBox
-from pyjamas.ui.PasswordTextBox import PasswordTextBox
-from pyjamas.ui.Label import Label
-from pyjamas.ui.Button import Button
-from pyjamas.ui.Image import Image
-from pyjamas.ui.HTML import HTML
-from pyjamas.ui.VerticalPanel import VerticalPanel
-from pyjamas.ui.HorizontalPanel import HorizontalPanel
-from pyjamas.ui.CaptionPanel import CaptionPanel
-from pyjamas.ui import HasAlignment
+from pyjamas.builder.Builder import Builder, HTTPUILoader
+import GMWevents
+import Remote
 
 #======================================================
-class cLoginPanel(VerticalPanel): 
-    def __init__(self, app, **kwargs):
-        self.app = app
-        VerticalPanel.__init__(self, **kwargs)
-
-        self.status=Label()
+class cLoginPanel: 
+    def __init__(self):
+        self.lp = None
         self.TEXT_WAITING = "Waiting for response..."
-        
-        self.lblusername = Label()
-        self.lblusername.setText("username")
-        self.username = TextBox(Text="any-doc")
-        self.lblpassword = Label()
-        self.lblpassword.setText("password")
-        self.password = PasswordTextBox(Text="")
-        self.button_login = Button("Login", self)
-        self.gnumedlogo = Image("images/gnumedlogo.png")
+        HTTPUILoader(self).load("gnumedweb.xml") # calls onUILoaded when done
 
-        usernamepanel = HorizontalPanel(VerticalAlignment=HasAlignment.ALIGN_MIDDLE)
-        usernamepanel.add(self.lblusername)
-        usernamepanel.add(self.username)
+    def onUILoaded(self, text):
+        self.b = Builder(text)
+        self.lp = self.b.createInstance("LoginPanel", self)
+        GMWevents.events.onLoginEvent(self, None, False) # indicate logged out
 
-        passwdpanel = HorizontalPanel(VerticalAlignment=HasAlignment.ALIGN_MIDDLE)
-        passwdpanel.add(self.lblpassword)
-        passwdpanel.add(self.password)
+    def setStatus(self, txt):
+        if self.lp is not None:
+            self.lp.status.setText(txt)
 
-        credentialpanel = VerticalPanel(HorizontalAlignment=HasAlignment.ALIGN_CENTER)
-        credentialpanel.add(usernamepanel)
-        credentialpanel.add(passwdpanel)
-
-        captionpanel = CaptionPanel("GNUmed Default 0.7.7", credentialpanel)
-
-        panel = VerticalPanel()
-        panel.add(self.gnumedlogo)
-        panel.add(captionpanel)
-        panel.add(self.button_login)
-        panel.add(self.status)
-        self.add(panel)
+    def getPanel(self):
+        return self.lp
 
     #--------------------------------------------------
-    def onClick(self, sender):
-        self.status.setText(self.TEXT_WAITING)
+    def onLoginClicked(self, sender):
+        self.setStatus(self.TEXT_WAITING)
 
-        if sender == self.button_login:
-            self.button_login.setEnabled(False) # disable whilst checking
-            self.try_user = self.username.getText()
-            passwd = self.password.getText() 
-            self.password.setText("") # reset to blank
-            self.app.remote_py.login(self.try_user, passwd, self)
+        self.lp.button_login.setEnabled(False) # disable whilst checking
+        self.try_user = self.lp.CaptionPanel1.Grid1.username.getText()
+        passwd = self.lp.CaptionPanel1.Grid1.password.getText() 
+        self.lp.CaptionPanel1.Grid1.password.setText("") # reset to blank
+        Remote.svc.login(self.try_user, passwd, self)
 
     #--------------------------------------------------
     def onRemoteResponse(self, response, request_info):
         method = request_info.method
 
         if method == 'login':
-            self.button_login.setEnabled(True) # re-enable after response
+            self.lp.button_login.setEnabled(True) # re-enable after response
             if response:
                 # XXX response should really contain the username
-                self.status.setText("Login successful: %s" %str(response))
+                self.setStatus("Login successful: %s" %str(response))
                 user = self.try_user
-                self.app.logged_in(user)
-                self.status.setText("Connected as: %s" % user)
+                GMWevents.events.onLoginEvent(self, user, True) 
+                self.setStatus("Connected as: %s" % user)
             else:
-                self.status.setText("Login failed: %s" %str(response))
+                self.setStatus("Login failed: %s" %str(response))
 
     #--------------------------------------------------
     def onRemoteError(self, code, errobj, request_info):
@@ -84,14 +56,15 @@ class cLoginPanel(VerticalPanel):
         #       'data' : extra-error-data
         #     }
         message = errobj['message']
+        self.lp.button_login.setEnabled(True) # re-enable after response
         if code != 0:
-            self.status.setText("HTTP error %d: %s" % 
+            self.setStatus("HTTP error %d: %s" % 
                                 (code, message))
         else:
             code = errobj['code']
             if message['message'] == 'Cannot request login parameters.':
-                self.status.setText("You need to log in first")
+                self.setStatus("You need to log in first")
             else:
-                self.status.setText("JSONRPC Error %s: %s" %
+                self.setStatus("JSONRPC Error %s: %s" %
                                 (code, message))
 

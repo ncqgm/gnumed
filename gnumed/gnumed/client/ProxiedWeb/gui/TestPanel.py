@@ -11,10 +11,11 @@ from pyjamas.ui.ListBox import ListBox
 from pyjamas.ui.Grid import Grid
 from pyjamas.ui import HasAlignment
 
+import Remote
+
 #======================================================
 class cTestPanel(VerticalPanel):
-    def __init__(self, app, **kwargs):
-        self.app = app
+    def __init__(self, **kwargs):
         VerticalPanel.__init__(self, **kwargs)
 
         info = """<h2>JSON-RPC Example</h2>
@@ -31,10 +32,10 @@ class cTestPanel(VerticalPanel):
         self.METHOD_ECHO = "Echo"
         self.METHOD_DOCTYPES = "get doc types"
         self.METHOD_UPPERCASE = "get schema"
-        self.METHOD_LOWERCASE = "doSomething"
+        self.METHOD_GETINBOX = "get inbox"
         self.METHOD_GETDOCS = "get documents"
         self.methods = [self.METHOD_ECHO, self.METHOD_DOCTYPES, 
-                     self.METHOD_UPPERCASE, self.METHOD_LOWERCASE, 
+                     self.METHOD_UPPERCASE, self.METHOD_GETINBOX, 
                         self.METHOD_GETDOCS]
 
         self.method_list = ListBox()
@@ -73,16 +74,16 @@ class cTestPanel(VerticalPanel):
         # demonstrate proxy & callMethod()
         if sender == self.button_action:
             if method == self.METHOD_ECHO:
-                id = self.app.remote_py.echo("Hello", self)
+                id = Remote.svc.echo("Hello", self)
             elif method == self.METHOD_DOCTYPES:
-                id = self.app.remote_py.get_doc_types(self)
+                id = Remote.svc.get_doc_types(self)
             elif method == self.METHOD_UPPERCASE:
-                id = self.app.remote_py.get_schema_version(self)
-            elif method == self.METHOD_LOWERCASE:
-                id = self.app.remote_py.doSomething(self)
+                id = Remote.svc.get_schema_version(self)
+            elif method == self.METHOD_GETINBOX:
+                id = Remote.svc.get_provider_inbox_data(self)
             elif method == self.METHOD_GETDOCS:
                 key = int(self.dockey.getText()) # TODO: check it!
-                id = self.app.remote_py.get_documents(key, self)
+                id = Remote.svc.get_documents(key, self)
 
     #--------------------------------------------------
     def onRemoteResponse(self, response, request_info):
@@ -117,7 +118,7 @@ class cTestPanel(VerticalPanel):
                                 (code, message))
         else:
             code = errobj['code']
-            if message['message'] == 'Cannot request login parameters.':
+            if message == 'Cannot request login parameters.':
                 self.status.setText("You need to log in first")
             else:
                 self.status.setText("JSONRPC Error %s: %s" %

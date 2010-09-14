@@ -4,8 +4,11 @@ from pyjamas.ui.HTML import HTML
 from pyjamas.ui.MenuBar import MenuBar
 from pyjamas.ui.MenuItem import MenuItem
 from pyjamas.ui.DecoratorPanel import DecoratedTabPanel
-from pyjamas.ui.Image import Image
 from pyjamas import Window
+
+from pyjamas.builder.Builder import Builder, HTTPUILoader
+import GMWevents
+import Remote
 
 from TestPanel import cTestPanel
 from PatientsummaryPanel import cPatientsummaryPanel
@@ -15,92 +18,31 @@ from SaveCommand import cSaveCommand
 from LogoutCommand import cLogoutCommand
 
 #======================================================
-class cMainPanel(VerticalPanel):
-    def __init__(self, app, **kwargs):
-        self.app = app
-        VerticalPanel.__init__(self, **kwargs)
+class cMainPanel(cOpenCommand, cSaveCommand, cLogoutCommand):
+
+    def __init__(self):
+
+        HTTPUILoader(self).load("gnumedweb.xml") # calls onUILoaded when done
+
+    def onUILoaded(self, text):
+        self.b = Builder(text)
+        self.mp = self.b.createInstance("MainPanel", self)
 
         # tab panel
-        self.fTabs = DecoratedTabPanel(Size=("1024px", "100%"))
-        self.fTabs.add(cPatientsummaryPanel(app), "Patient summary")
-        self.fTabs.add(HTML("Panel 2"), "Tab2")
-        self.fTabs.add(HTML(""), None) # spacer
-        self.fTabs.add(cTestPanel(app), "RPC Test")
-        self.fTabs.add(HTML("This is a Test.<br />Tab should be on right"),
+        self.mp.fTabs.add(cPatientsummaryPanel(), "Patient summary")
+        self.mp.fTabs.add(HTML("Panel 2"), "Tab2")
+        self.mp.fTabs.add(HTML(""), None) # spacer
+        self.mp.fTabs.add(cTestPanel(), "RPC Test")
+        self.mp.fTabs.add(HTML("This is a Test.<br />Tab should be on right"),
                        "Test")
-        self.fTabs.selectTab(0)
+        self.mp.fTabs.selectTab(0)
 
-        # commands
-        self.savecmd = cSaveCommand(app)
-        self.opencmd = cOpenCommand(app)
-        self.logoutcmd = cLogoutCommand(app)
+        self.searchpanel = cPatientsearchPanel()
+        self.mp.insert(self.searchpanel, 1)
 
-        # menu
-        self.menu = MenuBar()
+    def getPanel(self):
+        return self.mp
 
-        menuGNUmed = MenuBar(True)
-        subMenuGoToPlugin = MenuBar(True)
-        subMenuGoToPlugin.addItem("Patient summary", True, self)
-        subMenuGoToPlugin.addItem("<strike>Strikethrough</strike>", True, self)
-        subMenuGoToPlugin.addItem("<u>Underlined</u>", True, self)
-        menuGNUmed.addItem(MenuItem("Go to plugin",subMenuGoToPlugin))
-        menuGNUmed.addItem("Preferences", True, self.opencmd)
-        menuGNUmed.addItem("Logout", True, self.logoutcmd)
-        
-        menuPerson = MenuBar(True)
-        menuPerson.addItem("Register person", True, self)
-        menuPerson.addItem("<font color='#FFFF00'><b>Banana</b></font>", True, self)
-        menuPerson.addItem("<font color='#FFFFFF'><b>Coconut</b></font>", True, self)
-        menuPerson.addItem("<font color='#8B4513'><b>Donut</b></font>", True, self)
+    def onMenuItemRegisterPerson(self):
+        print "TODO: register person"
 
-        menuEMR = MenuBar(True)
-        menuEMR.addItem("Bling", self)
-        menuEMR.addItem("Ginormous", self)
-        menuEMR.addItem("<code>w00t!</code>", True, self)
-
-        menuCorrespondence = MenuBar(True)
-        subMenu = MenuBar(True)
-        subMenu.addItem("<code>Code</code>", True, self)
-        subMenu.addItem("<strike>Strikethrough</strike>", True, self)
-        subMenu.addItem("<u>Underlined</u>", True, self)
-        menuCorrespondence.addItem(MenuItem("Submenu",subMenu))
-        
-        menuTools = MenuBar(True)
-        menuKnowledge = MenuBar(True)
-        menuOffice = MenuBar(True)
-        menuHelp = MenuBar(True)
-
-
-        self.menu.addItem(MenuItem("GNUmed", menuGNUmed))
-        self.menu.addItem(MenuItem("Person", menuPerson))
-        self.menu.addItem(MenuItem("EMR", menuEMR))
-        self.menu.addItem(MenuItem("Correspondence", menuCorrespondence))
-        self.menu.addItem(MenuItem("Tools", menuTools))
-        self.menu.addItem(MenuItem("Knowledge", menuKnowledge))
-        self.menu.addItem(MenuItem("Office", menuOffice))
-        self.menu.addItem(MenuItem("Help", menuHelp))
-
-        self.menu.setWidth("100%")
-        
-        self.searchpanel = cPatientsearchPanel(app)
-
-        # add tabs and menu
-        self.add(self.menu)
-        self.add(self.searchpanel)
-        self.add(self.fTabs)
-
-    #--------------------------------------------------
-    def execute(self):
-        Window.alert("Thank you for selecting a menu item.")
-
-
-    #--------------------------------------------------
-    def onClick(self, sender):
-        self.status.setText(self.TEXT_WAITING)
-
-        if sender == self.button_login:
-            self.button_login.setEnabled(False) # disable whilst checking
-            self.try_user = self.username.getText()
-            passwd = self.password.getText() 
-            self.password.setText("") # reset to blank
-            self.app.remote_py.login(self.try_user, passwd, self)

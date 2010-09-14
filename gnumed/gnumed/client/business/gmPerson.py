@@ -937,7 +937,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				karyotype,
 				pupic,
 				pk_marital_status,
-				marital_status,+
+				marital_status,
 				xmin_identity,
 				preferred
 			from

@@ -8,38 +8,55 @@ from pyjamas.ui.Label import Label
 from pyjamas.ui.Button import Button
 
 from WebguiHelpers import cSimplePopup
+from PatientSelectDialog import cPatientSelector
+
+
+import Remote
+import GMWevents
 
 #======================================================
 class cPatientsearchPanel(HorizontalPanel):
-    def __init__(self, app, **kwargs):
-        self.app = app
+    def __init__(self, **kwargs):
+        GMWevents.events.addPatientSelectedListener(self)
         HorizontalPanel.__init__(self, **kwargs)
 
-	self.patientphoto = Image("images/empty-face-in-bust.png")
-	self.searchbox = TextBox(Text="<search patient here>")
-	self.search_button = Button("Search", self)
-	self.lblcave= Label()
+        self.patientphoto = Image("images/empty-face-in-bust.png")
+        self.searchbox = TextBox(Text="<search patient here>")
+        self.search_button = Button("Search", self)
+        self.lblcave= Label()
         self.lblcave.setText("cave")
         self.allergybox = TextBox(Text = "allergies")
-	self.add(self.patientphoto)
-	self.add(self.searchbox)
-	self.add(self.search_button)
-	self.add(self.lblcave)
-	self.add(self.allergybox)
+        self.add(self.patientphoto)
+        self.add(self.searchbox)
+        self.add(self.search_button)
+        self.add(self.lblcave)
+        self.add(self.allergybox)
         
     #--------------------------------------------------
     def onClick(self, sender):
 
         # demonstrate proxy & callMethod()
         if sender == self.search_button:
-		search_term = self.searchbox.getText()
-                id = self.app.remote_py.search_patient(self, search_term)
+            search_term = self.searchbox.getText()
+            id = Remote.svc.search_patient(self, search_term)
 
     #--------------------------------------------------
     def onRemoteResponse(self, response, request_info):
         method = request_info.method
         if method == 'search_patient':
-		self.searchbox.setText(str(response))
+            if isinstance(response, list):
+                GMWevents.events.onPatientSelectedEvent(self, None) 
+                selector = cPatientSelector(response)
+                return
+
+            # notify listeners of patient details
+            GMWevents.events.onPatientSelectedEvent(self, response)
+
+    #--------------------------------------------------
+    def onPatientSelected(self, sender, patient):
+        if patient is None:
+            return
+        self.searchbox.setText(patient.description)
 
     #--------------------------------------------------
     def onRemoteError(self, code, errobj, request_info):
@@ -55,7 +72,7 @@ class cPatientsearchPanel(HorizontalPanel):
             #self.status.setText("HTTP error %d: %s" % 
             #                    (code, message))
             msg = "HTTP error %d: %s" % (code, message)
-            self.popup = cSimplePopup(app, contents = msg)
+            self.popup = cSimplePopup(msg)
         else:
             code = errobj['code']
             #if message['message'] == 'Cannot request login parameters.':
@@ -64,4 +81,5 @@ class cPatientsearchPanel(HorizontalPanel):
             #    self.status.setText("JSONRPC Error %s: %s" %
             #                    (code, message))
             msg = ("JSONRPC Error %s: %s" % (code, message))
-            self.popup = cSimplePopup(app, contents = msg)
+            self.popup = cSimplePopup(msg)
+

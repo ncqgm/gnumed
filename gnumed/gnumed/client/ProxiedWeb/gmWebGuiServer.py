@@ -8,22 +8,26 @@ __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # stdlib
-import re, sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2
+import re, sys, time, os, cPickle, zlib, locale, os.path
+import datetime as pyDT, webbrowser, shutil, logging, urllib2
 
 # json-rpc
-from jsonserver import SimpleForkingJSONRPCServer
+from jsonserver import SimpleForkingJSONRPCServer, CloseConnection
 
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
-from Gnumed.pycommon import gmLoginInfo, gmBackendListener, gmTools, gmCfg2, gmI18N, gmDispatcher, gmBusinessDBObject
+from Gnumed.pycommon import gmLoginInfo, gmBackendListener, gmTools, gmCfg2
+from Gnumed.pycommon import gmCfg2, gmI18N, gmDispatcher, gmBusinessDBObject
 from Gnumed.pycommon.gmBusinessDBObject import jsonclasshintify
 from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmPerson
+from Gnumed.business import gmProviderInbox
 
 #try:
-#	_('dummy-no-need-to-translate-but-make-epydoc-happy')
+#   _('dummy-no-need-to-translate-but-make-epydoc-happy')
 #except NameError:
-#	_ = lambda x:x
+#   _ = lambda x:x
 
 _cfg = gmCfg2.gmCfgData()
 _provider = None
@@ -132,46 +136,46 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
         gmPG2.set_default_login(login = login)
         #gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
 
-#		compatible = gmPG2.database_schema_compatible(version = expected_version)
-#		if compatible or not require_version:
+#       compatible = gmPG2.database_schema_compatible(version = expected_version)
+#       if compatible or not require_version:
             #dlg.panel.save_state()
-#			continue
+#           continue
 
-#		if not compatible:
-#			connected_db_version = gmPG2.get_schema_version()
-#			msg = msg_generic % (
-#				client_version,
-#				connected_db_version,
-#				expected_version,
-#				gmTools.coalesce(login.host, '<localhost>'),
-#				login.database,
-#				login.user
-#			)
+#       if not compatible:
+#           connected_db_version = gmPG2.get_schema_version()
+#           msg = msg_generic % (
+#               client_version,
+#               connected_db_version,
+#               expected_version,
+#               gmTools.coalesce(login.host, '<localhost>'),
+#               login.database,
+#               login.user
+#           )
 
-#			if require_version:
-            #	gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
-#				pass
+#           if require_version:
+            #   gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
+#               pass
             #gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'))
 
-#		# FIXME: make configurable
-#		max_skew = 1		# minutes
-#		if _cfg.get(option = 'debug'):
-#			max_skew = 10
-#		if not gmPG2.sanity_check_time_skew(tolerance = (max_skew * 60)):
-#			if _cfg.get(option = 'debug'):
-#				gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
-#			else:
-#				gmGuiHelpers.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
-#				continue
+#       # FIXME: make configurable
+#       max_skew = 1        # minutes
+#       if _cfg.get(option = 'debug'):
+#           max_skew = 10
+#       if not gmPG2.sanity_check_time_skew(tolerance = (max_skew * 60)):
+#           if _cfg.get(option = 'debug'):
+#               gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
+#           else:
+#               gmGuiHelpers.gm_show_error(msg_time_skew_fail % max_skew, _('Verifying database settings'))
+#               continue
 
-#		sanity_level, message = gmPG2.sanity_check_database_settings()
-#		if sanity_level != 0:
-#			gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
-#			if sanity_level == 2:
-#				continue
+#       sanity_level, message = gmPG2.sanity_check_database_settings()
+#       if sanity_level != 0:
+#           gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
+#           if sanity_level == 2:
+#               continue
 
-#		gmExceptionHandlingWidgets.set_is_public_database(login.public_db)
-#		gmExceptionHandlingWidgets.set_helpdesk(login.helpdesk)
+#       gmExceptionHandlingWidgets.set_is_public_database(login.public_db)
+#       gmExceptionHandlingWidgets.set_helpdesk(login.helpdesk)
 
         listener = gmBackendListener.gmBackendListener(conn = conn)
         break
@@ -184,92 +188,92 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 #internal helper functions
 #----------------------------------------------------
 def __get_backend_profiles():
-		"""Get server profiles from the configuration files.
+        """Get server profiles from the configuration files.
 
-		1) from system-wide file
-		2) from user file
+        1) from system-wide file
+        2) from user file
 
-		Profiles in the user file which have the same name
-		as a profile in the system file will override the
-		system file.
-		"""
-		# find active profiles
-		src_order = [
-			(u'explicit', u'extend'),
-			(u'system', u'extend'),
-			(u'user', u'extend'),
-			(u'workbase', u'extend')
-		]
+        Profiles in the user file which have the same name
+        as a profile in the system file will override the
+        system file.
+        """
+        # find active profiles
+        src_order = [
+            (u'explicit', u'extend'),
+            (u'system', u'extend'),
+            (u'user', u'extend'),
+            (u'workbase', u'extend')
+        ]
 
-		profile_names = gmTools.coalesce (
-			_cfg.get(group = u'backend', option = u'profiles', source_order = src_order),
-			[]
-		)
+        profile_names = gmTools.coalesce (
+            _cfg.get(group = u'backend', option = u'profiles', source_order = src_order),
+            []
+        )
 
-		# find data for active profiles
-		src_order = [
-			(u'explicit', u'return'),
-			(u'workbase', u'return'),
-			(u'user', u'return'),
-			(u'system', u'return')
-		]
+        # find data for active profiles
+        src_order = [
+            (u'explicit', u'return'),
+            (u'workbase', u'return'),
+            (u'user', u'return'),
+            (u'system', u'return')
+        ]
 
-		profiles = {}
+        profiles = {}
 
-		for profile_name in profile_names:
-			# FIXME: once the profile has been found always use the corresponding source !
-			# FIXME: maybe not or else we cannot override parts of the profile
-			profile = cBackendProfile()
-			profile_section = 'profile %s' % profile_name
+        for profile_name in profile_names:
+            # FIXME: once the profile has been found always use the corresponding source !
+            # FIXME: maybe not or else we cannot override parts of the profile
+            profile = cBackendProfile()
+            profile_section = 'profile %s' % profile_name
 
-			profile.name = profile_name
-			profile.host = gmTools.coalesce(_cfg.get(profile_section, u'host', src_order), u'').strip()
-			port = gmTools.coalesce(_cfg.get(profile_section, u'port', src_order), 5432)
-			try:
-				profile.port = int(port)
-				if profile.port < 1024:
-					raise ValueError('refusing to use priviledged port (< 1024)')
-			except ValueError:
-				_log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name)
-				continue
-			profile.database = gmTools.coalesce(_cfg.get(profile_section, u'database', src_order), u'').strip()
-			if profile.database == u'':
-				_log.warning('database name not specified, skipping profile [%s]', profile_name)
-				continue
-			profile.encoding = gmTools.coalesce(_cfg.get(profile_section, u'encoding', src_order), u'UTF8')
-			profile.public_db = bool(_cfg.get(profile_section, u'public/open access', src_order))
-			profile.helpdesk = _cfg.get(profile_section, u'help desk', src_order)
+            profile.name = profile_name
+            profile.host = gmTools.coalesce(_cfg.get(profile_section, u'host', src_order), u'').strip()
+            port = gmTools.coalesce(_cfg.get(profile_section, u'port', src_order), 5432)
+            try:
+                profile.port = int(port)
+                if profile.port < 1024:
+                    raise ValueError('refusing to use priviledged port (< 1024)')
+            except ValueError:
+                _log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name)
+                continue
+            profile.database = gmTools.coalesce(_cfg.get(profile_section, u'database', src_order), u'').strip()
+            if profile.database == u'':
+                _log.warning('database name not specified, skipping profile [%s]', profile_name)
+                continue
+            profile.encoding = gmTools.coalesce(_cfg.get(profile_section, u'encoding', src_order), u'UTF8')
+            profile.public_db = bool(_cfg.get(profile_section, u'public/open access', src_order))
+            profile.helpdesk = _cfg.get(profile_section, u'help desk', src_order)
 
-			label = u'%s (%s@%s)' % (profile_name, profile.database, profile.host)
-			profiles[label] = profile
+            label = u'%s (%s@%s)' % (profile_name, profile.database, profile.host)
+            profiles[label] = profile
 
-		# sort out profiles with incompatible database versions if not --debug
-		# NOTE: this essentially hardcodes the database name in production ...
-		if not (_cfg.get(option = 'debug') or current_db_name.endswith('_devel')):
-			profiles2remove = []
-			for label in profiles:
-				if profiles[label].database != current_db_name:
-					profiles2remove.append(label)
-			for label in profiles2remove:
-				del profiles[label]
+        # sort out profiles with incompatible database versions if not --debug
+        # NOTE: this essentially hardcodes the database name in production ...
+        if not (_cfg.get(option = 'debug') or current_db_name.endswith('_devel')):
+            profiles2remove = []
+            for label in profiles:
+                if profiles[label].database != current_db_name:
+                    profiles2remove.append(label)
+            for label in profiles2remove:
+                del profiles[label]
 
-		if len(profiles) == 0:
-			host = u'salaam.homeunix.com'
-			label = u'public GNUmed database (%s@%s)' % (current_db_name, host)
-			profiles[label] = cBackendProfile()
-			profiles[label].name = label
-			profiles[label].host = host
-			profiles[label].port = 5432
-			profiles[label].database = current_db_name
-			profiles[label].encoding = u'UTF8'
-			profiles[label].public_db = True
-			profiles[label].helpdesk = u'http://wiki.gnumed.de'
+        if len(profiles) == 0:
+            host = u'salaam.homeunix.com'
+            label = u'public GNUmed database (%s@%s)' % (current_db_name, host)
+            profiles[label] = cBackendProfile()
+            profiles[label].name = label
+            profiles[label].host = host
+            profiles[label].port = 5432
+            profiles[label].database = current_db_name
+            profiles[label].encoding = u'UTF8'
+            profiles[label].public_db = True
+            profiles[label].helpdesk = u'http://wiki.gnumed.de'
 
-		return profiles
+        return profiles
 
 # ------------------------------------------------------------
 def GetLoginInfo(username=None, password=None, backend=None ):
-	
+    
     # username is provided through the web interface
     # password is provided
     # we need the profile
@@ -306,19 +310,19 @@ def GetLoginInfo(username=None, password=None, backend=None ):
     
 #----------------------------------------------
 def _signal_debugging_monitor(*args, **kwargs):
-		try:
-			kwargs['originated_in_database']
-			print '==> got notification from database "%s":' % kwargs['signal']
-		except KeyError:
-			print '==> received signal from client: "%s"' % kwargs['signal']
+        try:
+            kwargs['originated_in_database']
+            print '==> got notification from database "%s":' % kwargs['signal']
+        except KeyError:
+            print '==> received signal from client: "%s"' % kwargs['signal']
 
-		del kwargs['signal']
-		for key in kwargs.keys():
-			print '    [%s]: %s' % (key, kwargs[key])
+        del kwargs['signal']
+        for key in kwargs.keys():
+            print '    [%s]: %s' % (key, kwargs[key])
 
 #================================================================
 class cBackendProfile:
-	pass
+    pass
 
 #================================================================
 
@@ -337,7 +341,10 @@ class HTTPServer(SimpleForkingJSONRPCServer):
 
         self.register_function(self.echo)
         self.register_function(self.login)
+        self.register_function(self.logout)
         self.register_function(self.search_patient)
+        self.register_function(self.get_provider_inbox_data)
+        self.register_function(self.get_patient_messages)
         self.register_function(self.get_doc_types)
         self.register_function(self.get_documents)
         self.register_function(self.get_schema_version)
@@ -368,79 +375,40 @@ class HTTPServer(SimpleForkingJSONRPCServer):
             )
         return connected
 
+    def logout(self):
+        """ return value is in the exception
+        """
+        raise CloseConnection(True)
+
     def search_patient(self, search_term):
-		from Gnumed.business import gmPerson
-		self.__person_searcher = gmPerson.cPatientSearcher_SQL()
-		# get list of matching ids
-		idents = self.__person_searcher.get_identities(search_term)
+        from Gnumed.business import gmPerson
+        self.__person_searcher = gmPerson.cPatientSearcher_SQL()
+        # get list of matching ids
+        idents = self.__person_searcher.get_identities(search_term)
 
-		if idents is None:
-			#wx.EndBusyCursor()
-			#gmGuiHelpers.gm_show_info (
-			#	_('Error searching for matching persons.\n\n'
-			#	  'Search term: "%s"'
-			#	) % search_term,
-			#	_('selecting person')
-			#)
-			return None
+        if idents is None:
+            idents = []
 
-		_log.info("%s matching person(s) found", len(idents))
+        _log.info("%s matching person(s) found", len(idents))
 
-		if len(idents) == 0:
-			#wx.EndBusyCursor()
+        # only one matching identity
+        if len(idents) == 1:
+            self.person = idents[0]
+            return jsonclasshintify(self.person)
 
-			#dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-			#	wx.GetTopLevelParent(self),
-			#	-1,
-			#	caption = _('Selecting patient'),
-			#	question = _(
-			#		'Cannot find any matching patients for the search term\n\n'
-			#		' "%s"\n\n'
-			#		'You may want to try a shorter search term.\n'
-			#	) % search_term,
-			#	button_defs = [
-			#		{'label': _('Go back'), 'tooltip': _('Go back and search again.'), 'default': True},
-			#		{'label': _('Create new'), 'tooltip': _('Create new patient.')}
-			#	]
-			#)
-			#if dlg.ShowModal() != wx.ID_NO:
-			#	return
+        # ambiguous - return available choices, to be able to choose from them.
+        self.person = None
+        return jsonclasshintify(idents)
 
-			#success = gmDemographicsWidgets.create_new_person(activate = True)
-			#if success:
-			#	self.person = gmPerson.gmCurrentPatient()
-			#else:
-			#	self.person = None
-			return None
-
-		# only one matching identity
-		if len(idents) == 1:
-			self.person = idents[0]
-			#wx.EndBusyCursor()
-			return self.person['description']
-
-		# more than one matching identity: let user select from pick list
-		#dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
-		#dlg.set_persons(persons=idents)
-		#wx.EndBusyCursor()
-		#result = dlg.ShowModal()
-		#if result == wx.ID_CANCEL:
-		#	dlg.Destroy()
-		#	return None
-
-		#wx.BeginBusyCursor()
-		#self.person = dlg.get_selected_person()
-		#dlg.Destroy()
-		#wx.EndBusyCursor()
-
-		return None
-
+    def get_patient_messages(self, pk_patient):
+        messages = gmProviderInbox.get_inbox_messages(pk_patient=pk_patient)
+        return jsonclasshintify(messages)
 
     def get_provider_inbox_data(self):
-	self.provider = gmPerson.gmCurrentProvider()
-	self.__msgs = self.provider.inbox.messages
-	"""convert from objects to dict - maybe that works """
-	return inbox_messages
+        self.provider = gmPerson.gmCurrentProvider(provider=gmPerson.cStaff())
+        inbox = gmProviderInbox.cProviderInbox()
+        self.__msgs = inbox.messages
+        return jsonclasshintify(inbox.messages)
 
     def get_schema_version(self):
         return gmPG2.get_schema_version()
@@ -460,7 +428,6 @@ class HTTPServer(SimpleForkingJSONRPCServer):
         msg = msg + msg2
         return "<pre>%s</pre>" % msg
     
-
 
 #==========================================================
 # main - launch the GNUmed web client

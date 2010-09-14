@@ -1,7 +1,10 @@
 # GNUmed .gitignore file
 
 # Python compiled bytecode
-*.pyc
+*.py?
+
+# vi swap files
+.*.sw?
 
 
 # log files

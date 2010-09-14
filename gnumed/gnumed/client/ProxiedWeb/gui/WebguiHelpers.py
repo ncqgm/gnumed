@@ -1,16 +1,17 @@
 from pyjamas.ui.PopupPanel import PopupPanel
+from pyjamas.ui.HTML import HTML
 
 #======================================================
 class cSimplePopup(PopupPanel):
-    def __init__(self, app, contents, **kwargs):
-        self.app = app
-        contents = contents
-        contents.addClickListener(getattr(self, "onClick"))
+    def __init__(self, txt, **kwargs):
+        txt = HTML(txt)
+        txt.addClickListener(self)
 
-        PopupPanel.__init__(self, autoHide=True, **kwargs)
-        self.add(content)
-        self.setStyleName("showcase-popup")
+        PopupPanel.__init__(self, autoHide=True, StyleName="showcase-popup",
+                            **kwargs)
+        self.add(txt)
         self.show()
         
     def onClick(self, sender=None):
-	self.hide()
+        self.hide()
+

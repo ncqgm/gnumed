@@ -1,4 +1,4 @@
-from datetime import timedelta, tzinfo, datetime
+from datetime import timedelta, tzinfo, datetime, time
 
 class Proxy(object):
     def __init__(self, **kwargs):
@@ -8,7 +8,16 @@ class Proxy(object):
 class cDocumentType(Proxy):
     pass
 
+class cPersonName(Proxy):
+    pass
+
+class cIdentity(Proxy):
+    pass
+
 class cMedDoc(Proxy):
+    pass
+
+class cInboxMessage(Proxy):
     pass
 
 class cMedDocPart(Proxy):
@@ -61,6 +70,15 @@ class FixedOffsetTimezone(tzinfo):
     def dst(self, dt):
         return ZERO
 
+
+class Time(time):
+    def __init__(self, **kwargs):
+        hour = kwargs.get('hour')
+        minute = kwargs.get('minute')
+        second = kwargs.get('second')
+        microsecond = kwargs.get('microsecond')
+        tzinfo = kwargs.get('tzinfo', None)
+        time.__init__(self, hour, minute, second, microsecond, tzinfo)
 
 class DateTime(datetime):
     def __init__(self, **kwargs):
