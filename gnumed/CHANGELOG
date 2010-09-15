@@ -24,6 +24,7 @@ IMPROVED: much better EMR tree root node tooltip
 	0.8.3
 
 FIX: missing gmHooks import when _on_soap_modified is invoked
+FIX: exception due to faulty SQL in branded drug phrasewheel match provider
 
 	0.8.2
 
