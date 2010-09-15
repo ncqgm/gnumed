@@ -6,6 +6,10 @@
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.3
+
+FIX: missing gmHooks import when _on_soap_modified is invoked
+
 	0.8.2
 
 FIX: assertion on Windows when creating timestamps piecemeal in new-patient
