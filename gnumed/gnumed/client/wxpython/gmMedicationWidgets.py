@@ -515,9 +515,8 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		query = u"""
 			SELECT
 				pk,
-				(
-				 description || ' (' || preparation || ')' || 'coalesce(' [' || atc_code || ']', '')
-				)	AS brand
+				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
+					AS brand
 			FROM ref.branded_drug
 			WHERE description %(fragment_condition)s
 			ORDER BY brand
