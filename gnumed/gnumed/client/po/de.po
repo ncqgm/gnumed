@@ -4076,7 +4076,7 @@ msgid "Influenza"
 msgstr ""
 
 msgid "A"
-msgstr "D"
+msgstr ""
 
 msgid "C"
 msgstr ""
