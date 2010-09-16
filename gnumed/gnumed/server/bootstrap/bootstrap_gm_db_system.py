@@ -873,6 +873,7 @@ class database:
 	def check_holy_auth_line(self):
 
 		holy_pattern = 'local.*samegroup.*\+gm-logins'
+		holy_pattern_inactive = '#\s*local.*samegroup.*\+gm-logins'
 
 		conn = connect (
 			self.server.name,
@@ -910,8 +911,21 @@ class database:
 				break
 
 		if not found_holy_line:
-			_log.info('did not find standard GNUmed authentication directive in pg_hba.conf')
+			_log.info('did not find active standard GNUmed authentication directive in pg_hba.conf')
 			_log.info('regex: %s' % holy_pattern)
+
+			found_holy_line_inactive = False
+			for line in fileinput.input(hba_file):
+				if regex.match(holy_pattern_inactive, line) is not None:
+					found_holy_line_inactive = True
+					_log.info('found inactive standard GNUmed authentication directive in pg_hba.conf')
+					_log.info('[%s]', line)
+					_log.info('it may still be in the wrong place, though, so double-check if clients cannot connect')
+					break
+			if not found_holy_line_inactive:
+				_log.info('did not find inactive standard GNUmed authentication directive in pg_hba.conf either')
+				_log.info('regex: %s' % holy_pattern_inactive)
+
 			_log.info('bootstrapping is likely to have succeeded but clients probably cannot connect yet')
 			print_msg('==> sanity checking PostgreSQL authentication settings ...')
 			print_msg('')
@@ -920,7 +934,7 @@ class database:
 			print_msg('allow GNUmed clients to connect to it.')
 			print_msg('')
 			print_msg('In many standard PostgreSQL installations this amounts to')
-			print_msg('adding the authentication directive:')
+			print_msg('adding (or uncommenting) the authentication directive:')
 			print_msg('')
 			print_msg('  "local   samegroup   +gm-logins   md5"')
 			print_msg('')

@@ -25,6 +25,7 @@ IMPROVED: much better EMR tree root node tooltip
 
 FIX: missing gmHooks import when _on_soap_modified is invoked
 FIX: exception due to faulty SQL in branded drug phrasewheel match provider
+FIX: faulty German translation of (menigococcus) "A" to (menigococcus) "D"
 
 	0.8.2
 
@@ -587,6 +588,14 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 *****************************************************************
 # database
 *****************************************************************
+
+------------------------------------------------
+# gnumed_v15
+------------------------------------------------
+
+	15.0
+
+IMPROVED: bootstrapper now detects commented out authentication directive [thanks Vid]
 
 ------------------------------------------------
 # gnumed_v14

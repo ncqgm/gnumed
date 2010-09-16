@@ -44,6 +44,6 @@ comment on function i18n._(text, text) is
  will fallback to "xx" if xx_XX does not exist';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-i18n-dynamic.sql,v $', '$Revision: 1.5 $');
+select gm.log_script_insertion('$RCSfile: v15-i18n-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
