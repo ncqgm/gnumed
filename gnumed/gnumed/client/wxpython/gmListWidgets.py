@@ -181,7 +181,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
@@ -191,7 +195,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
@@ -204,7 +212,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
@@ -213,7 +225,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
@@ -222,7 +238,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	def _on_right_extra_button_pressed(self, event):
@@ -231,7 +251,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 	#------------------------------------------------------------
 	# properties
@@ -362,7 +386,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		return self.__refresh_callback
 
 	def _set_refresh_callback_helper(self):
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 
 	def _set_refresh_callback(self, callback):
@@ -440,7 +468,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		item = self._LCTRL_items.get_selected_item_data(only_one=True)
@@ -450,7 +482,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def _on_remove_button_pressed(self, event):
 		item = self._LCTRL_items.get_selected_item_data(only_one=True)
@@ -460,7 +496,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			return
 		if self.refresh_callback is None:
 			return
-		self.refresh_callback(lctrl = self._LCTRL_items)
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------

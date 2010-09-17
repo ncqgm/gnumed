@@ -220,7 +220,7 @@ def manage_translations(parent=None, language=None):
 		if not gmTools.send_mail (
 			auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
 			sender = u'GNUmed Client <gnumed@gmx.net>',
-			receiver = [u'gnumed-devel@gnu.org'],
+			receiver = [u'gnumed-bugs@gnu.org'],
 			subject = u'<contribution>: database translation',
 			message = u'These are database string translations contributed by a GNUmed user.\n\n\tThe GNUmed Client',
 			encoding = gmI18N.get_encoding(),
