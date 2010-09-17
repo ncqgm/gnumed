@@ -597,11 +597,13 @@ def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 	ea.data = vaccination
 	ea.mode = gmTools.coalesce(vaccination, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
-	dlg.SetTitle(gmTools.coalesce(vaccination, _('Adding new vaccination'), _('Editing vaccination')))
+	dlg.SetTitle(gmTools.coalesce(vaccination, _('Adding new vaccinations'), _('Editing vaccination')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
 	dlg.Destroy()
+	if not single_entry:
+		return True
 	return False
 #----------------------------------------------------------------------
 def manage_vaccinations(parent=None):
@@ -629,7 +631,7 @@ def manage_vaccinations(parent=None):
 		return False
 	#------------------------------------------------------------
 	def edit(vaccination=None):
-		return edit_vaccination(parent = parent, vaccination = vaccination, single_entry = True)
+		return edit_vaccination(parent = parent, vaccination = vaccination, single_entry = (vaccination is not None))
 	#------------------------------------------------------------
 	def delete(vaccination=None):
 		gmVaccination.delete_vaccination(vaccination = vaccination['pk_vaccination'])
@@ -850,7 +852,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._DP_date_given.SetValue(gmDateTime.pydt_now_here())
-		self._CHBOX_anamnestic.SetValue(True)
+		self._CHBOX_anamnestic.SetValue(False)
 		self._PRW_vaccine.SetText(value = u'', data = None, suppress_smarts = True)
 
 		self._PNL_indications.clear_all()
@@ -892,8 +894,9 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self._DP_date_given.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		self._DP_date_given.SetValue(gmDateTime.pydt_now_here())
-		self._CHBOX_anamnestic.SetValue(True)
+		#self._DP_date_given.SetValue(gmDateTime.pydt_now_here())
+		self._DP_date_given.SetValue(self.data['date_given'])
+		#self._CHBOX_anamnestic.SetValue(False)
 		self._PRW_vaccine.SetText(value = self.data['vaccine'], data = self.data['pk_vaccine'])
 
 		self._PNL_indications.clear_all()
