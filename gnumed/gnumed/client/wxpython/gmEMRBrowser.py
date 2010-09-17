@@ -228,7 +228,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		else:
 			emr = self.__pat.get_emr()
-			txt = emr.format_summary()
+			txt = emr.format_summary(dob = self.__pat['dob'])
 
 		self.__narr_display.Clear()
 		self.__narr_display.WriteText(txt)

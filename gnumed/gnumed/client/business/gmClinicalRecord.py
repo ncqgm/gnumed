@@ -710,7 +710,7 @@ Procedures: %(procedures)s
 Vaccinations: %(vaccinations)s
 """			) % self.get_statistics()
 	#--------------------------------------------------------
-	def format_summary(self):
+	def format_summary(self, dob=None):
 
 		stats = self.get_statistics()
 		first = self.get_first_encounter()
@@ -762,11 +762,15 @@ Vaccinations: %(vaccinations)s
 		inds = sorted(vaccs.keys())
 		for ind in inds:
 			ind_count, vacc = vaccs[ind]
-			txt += u' %s (%s%s): %s (%s %s%s%s)\n' % (
+			txt += u' %s (%s%s): %s @ %s (%s %s%s%s)\n' % (
 				ind,
 				gmTools.u_sum,
 				ind_count,
 				vacc['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding()),
+				gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age (
+					start = dob,
+					end = vacc['date_given']
+				)),
 				vacc['vaccine'],
 				gmTools.u_left_double_angle_quote,
 				vacc['batch_no'],
