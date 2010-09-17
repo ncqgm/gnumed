@@ -1517,7 +1517,210 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		raise NotImplementedError('[%s]: not expected to be used' % self.__class__.__name__)
+
 #============================================================
+# patient demographics editing classes
+#============================================================
+class cPersonDemographicsEditorNb(wx.Notebook):
+	"""Notebook displaying demographics editing pages:
+
+		- Identity
+		- Contacts (addresses, phone numbers, etc)
+		- Social Network (significant others, GP, etc)
+
+	Does NOT act on/listen to the current patient.
+	"""
+	#--------------------------------------------------------
+	def __init__(self, parent, id):
+
+		wx.Notebook.__init__ (
+			self,
+			parent = parent,
+			id = id,
+			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER,
+			name = self.__class__.__name__
+		)
+
+		self.__identity = None
+		self.__do_layout()
+		self.SetSelection(0)
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	def refresh(self):
+		"""Populate fields in pages with data from model."""
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx)
+			page.identity = self.__identity
+
+		return True
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __do_layout(self):
+		"""Build patient edition notebook pages."""
+
+		# contacts page
+		new_page = gmPersonContactWidgets.cPersonContactsManagerPnl(self, -1)
+		new_page.identity = self.__identity
+		self.AddPage (
+			page = new_page,
+			text = _('Contacts'),
+			select = True
+		)
+
+		# identity page
+		new_page = cPersonIdentityManagerPnl(self, -1)
+		new_page.identity = self.__identity
+		self.AddPage (
+			page = new_page,
+			text = _('Identity'),
+			select = False
+		)
+
+		# social network page
+		new_page = cPersonSocialNetworkManagerPnl(self, -1)
+		new_page.identity = self.__identity
+		self.AddPage (
+			page = new_page,
+			text = _('Social Network'),
+			select = False
+		)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+
+	identity = property(_get_identity, _set_identity)
+#============================================================
+# old occupation widgets
+#============================================================
+# FIXME: support multiple occupations
+# FIXME: redo with wxGlade
+
+class cPatOccupationsPanel(wx.Panel):
+	"""Page containing patient occupations edition fields.
+	"""
+	def __init__(self, parent, id, ident=None):
+		"""
+		Creates a new instance of BasicPatDetailsPage
+		@param parent - The parent widget
+		@type parent - A wx.Window instance
+		@param id - The widget id
+		@type id - An integer
+		"""
+		wx.Panel.__init__(self, parent, id)
+		self.__ident = ident
+		self.__do_layout()
+	#--------------------------------------------------------
+	def __do_layout(self):
+		PNL_form = wx.Panel(self, -1)
+		# occupation
+		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
+		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
+		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+		# known since
+		STT_occupation_updated = wx.StaticText(PNL_form, -1, _('Last updated'))
+		self.TTC_occupation_updated = wx.TextCtrl(PNL_form, -1, style = wx.TE_READONLY)
+
+		# layout input widgets
+		SZR_input = wx.FlexGridSizer(cols = 2, rows = 5, vgap = 4, hgap = 4)
+		SZR_input.AddGrowableCol(1)				
+		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
+		SZR_input.Add(STT_occupation_updated, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_occupation_updated, 1, wx.EXPAND)
+		PNL_form.SetSizerAndFit(SZR_input)
+
+		# layout page
+		SZR_main = wx.BoxSizer(wx.VERTICAL)
+		SZR_main.Add(PNL_form, 1, wx.EXPAND)
+		self.SetSizer(SZR_main)
+	#--------------------------------------------------------
+	def set_identity(self, identity):
+		return self.refresh(identity=identity)
+	#--------------------------------------------------------
+	def refresh(self, identity=None):
+		if identity is not None:
+			self.__ident = identity
+		jobs = self.__ident.get_occupations()
+		if len(jobs) > 0:
+			self.PRW_occupation.SetText(jobs[0]['l10n_occupation'])
+			self.TTC_occupation_updated.SetValue(jobs[0]['modified_when'].strftime('%m/%Y'))
+		return True
+	#--------------------------------------------------------
+	def save(self):
+		if self.PRW_occupation.IsModified():
+			new_job = self.PRW_occupation.GetValue().strip()
+			jobs = self.__ident.get_occupations()
+			for job in jobs:
+				if job['l10n_occupation'] == new_job:
+					continue
+				self.__ident.unlink_occupation(occupation = job['l10n_occupation'])
+			self.__ident.link_occupation(occupation = new_job)
+		return True
+#============================================================
+class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
+	"""Patient demographics plugin for main notebook.
+
+	Hosts another notebook with pages for Identity, Contacts, etc.
+
+	Acts on/listens to the currently active patient.
+	"""
+	#--------------------------------------------------------
+	def __init__(self, parent, id):
+		wx.Panel.__init__ (self, parent = parent, id = id, style = wx.NO_BORDER)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__do_layout()
+		self.__register_interests()
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __do_layout(self):
+		"""Arrange widgets."""
+		self.__patient_notebook = cPersonDemographicsEditorNb(self, -1)
+
+		szr_main = wx.BoxSizer(wx.VERTICAL)
+		szr_main.Add(self.__patient_notebook, 1, wx.EXPAND)
+		self.SetSizerAndFit(szr_main)
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+	#--------------------------------------------------------
+	def _on_pre_patient_selection(self):
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		"""Populate fields in pages with data from model."""
+		pat = gmPerson.gmCurrentPatient()
+		if pat.connected:
+			self.__patient_notebook.identity = pat
+		else:
+			self.__patient_notebook.identity = None
+		self.__patient_notebook.refresh()
+		return True
+
+
+#============================================================
+#============================================================
+#============================================================
+#============================================================
+# outdated, delete soon:
 # new-patient wizard classes
 #============================================================
 class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
@@ -1669,7 +1872,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		PNL_form.SetSizerAndFit(SZR_input)
 
 		# layout page
-		SZR_main = gmGuiHelpers.makePageTitle(self, self.__title)
+		SZR_main = makePageTitle(self, self.__title)
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
 	#--------------------------------------------------------
 	# event handling
@@ -1707,6 +1910,23 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.PRW_state.set_context(context=u'zip', val=zip_code)
 		self.PRW_country.set_context(context=u'zip', val=zip_code)
 		return True
+#============================================================
+def makePageTitle(wizPg, title):
+	"""
+	Utility function to create the main sizer of a wizard's page.
+
+	@param wizPg The wizard page widget
+	@type wizPg A wx.WizardPageSimple instance	
+	@param title The wizard page's descriptive title
+	@type title A StringType instance		
+	"""
+	sizer = wx.BoxSizer(wx.VERTICAL)
+	wizPg.SetSizer(sizer)
+	title = wx.StaticText(wizPg, -1, title)
+	title.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
+	sizer.Add(title, 0, wx.ALIGN_CENTRE|wx.ALL, 2)
+	sizer.Add(wx.StaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
+	return sizer
 #============================================================
 class cNewPatientWizard(wx.wizard.Wizard):
 	"""
@@ -1974,202 +2194,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			self.form_DTD['comment'] = _pnl_form.TCTRL_comment.GetValue()
 		except:
 			return False
-		return True
-#============================================================
-# patient demographics editing classes
-#============================================================
-class cPersonDemographicsEditorNb(wx.Notebook):
-	"""Notebook displaying demographics editing pages:
-
-		- Identity
-		- Contacts (addresses, phone numbers, etc)
-		- Social Network (significant others, GP, etc)
-
-	Does NOT act on/listen to the current patient.
-	"""
-	#--------------------------------------------------------
-	def __init__(self, parent, id):
-
-		wx.Notebook.__init__ (
-			self,
-			parent = parent,
-			id = id,
-			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER,
-			name = self.__class__.__name__
-		)
-
-		self.__identity = None
-		self.__do_layout()
-		self.SetSelection(0)
-	#--------------------------------------------------------
-	# public API
-	#--------------------------------------------------------
-	def refresh(self):
-		"""Populate fields in pages with data from model."""
-		for page_idx in range(self.GetPageCount()):
-			page = self.GetPage(page_idx)
-			page.identity = self.__identity
-
-		return True
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __do_layout(self):
-		"""Build patient edition notebook pages."""
-
-		# contacts page
-		new_page = gmPersonContactWidgets.cPersonContactsManagerPnl(self, -1)
-		new_page.identity = self.__identity
-		self.AddPage (
-			page = new_page,
-			text = _('Contacts'),
-			select = True
-		)
-
-		# identity page
-		new_page = cPersonIdentityManagerPnl(self, -1)
-		new_page.identity = self.__identity
-		self.AddPage (
-			page = new_page,
-			text = _('Identity'),
-			select = False
-		)
-
-		# social network page
-		new_page = cPersonSocialNetworkManagerPnl(self, -1)
-		new_page.identity = self.__identity
-		self.AddPage (
-			page = new_page,
-			text = _('Social Network'),
-			select = False
-		)
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_identity(self):
-		return self.__identity
-
-	def _set_identity(self, identity):
-		self.__identity = identity
-
-	identity = property(_get_identity, _set_identity)
-#============================================================
-# old occupation widgets
-#============================================================
-# FIXME: support multiple occupations
-# FIXME: redo with wxGlade
-
-class cPatOccupationsPanel(wx.Panel):
-	"""Page containing patient occupations edition fields.
-	"""
-	def __init__(self, parent, id, ident=None):
-		"""
-		Creates a new instance of BasicPatDetailsPage
-		@param parent - The parent widget
-		@type parent - A wx.Window instance
-		@param id - The widget id
-		@type id - An integer
-		"""
-		wx.Panel.__init__(self, parent, id)
-		self.__ident = ident
-		self.__do_layout()
-	#--------------------------------------------------------
-	def __do_layout(self):
-		PNL_form = wx.Panel(self, -1)
-		# occupation
-		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
-		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
-		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
-		# known since
-		STT_occupation_updated = wx.StaticText(PNL_form, -1, _('Last updated'))
-		self.TTC_occupation_updated = wx.TextCtrl(PNL_form, -1, style = wx.TE_READONLY)
-
-		# layout input widgets
-		SZR_input = wx.FlexGridSizer(cols = 2, rows = 5, vgap = 4, hgap = 4)
-		SZR_input.AddGrowableCol(1)				
-		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
-		SZR_input.Add(STT_occupation_updated, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_occupation_updated, 1, wx.EXPAND)
-		PNL_form.SetSizerAndFit(SZR_input)
-
-		# layout page
-		SZR_main = wx.BoxSizer(wx.VERTICAL)
-		SZR_main.Add(PNL_form, 1, wx.EXPAND)
-		self.SetSizer(SZR_main)
-	#--------------------------------------------------------
-	def set_identity(self, identity):
-		return self.refresh(identity=identity)
-	#--------------------------------------------------------
-	def refresh(self, identity=None):
-		if identity is not None:
-			self.__ident = identity
-		jobs = self.__ident.get_occupations()
-		if len(jobs) > 0:
-			self.PRW_occupation.SetText(jobs[0]['l10n_occupation'])
-			self.TTC_occupation_updated.SetValue(jobs[0]['modified_when'].strftime('%m/%Y'))
-		return True
-	#--------------------------------------------------------
-	def save(self):
-		if self.PRW_occupation.IsModified():
-			new_job = self.PRW_occupation.GetValue().strip()
-			jobs = self.__ident.get_occupations()
-			for job in jobs:
-				if job['l10n_occupation'] == new_job:
-					continue
-				self.__ident.unlink_occupation(occupation = job['l10n_occupation'])
-			self.__ident.link_occupation(occupation = new_job)
-		return True
-#============================================================
-class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
-	"""Patient demographics plugin for main notebook.
-
-	Hosts another notebook with pages for Identity, Contacts, etc.
-
-	Acts on/listens to the currently active patient.
-	"""
-	#--------------------------------------------------------
-	def __init__(self, parent, id):
-		wx.Panel.__init__ (self, parent = parent, id = id, style = wx.NO_BORDER)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__do_layout()
-		self.__register_interests()
-	#--------------------------------------------------------
-	# public API
-	#--------------------------------------------------------
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __do_layout(self):
-		"""Arrange widgets."""
-		self.__patient_notebook = cPersonDemographicsEditorNb(self, -1)
-
-		szr_main = wx.BoxSizer(wx.VERTICAL)
-		szr_main.Add(self.__patient_notebook, 1, wx.EXPAND)
-		self.SetSizerAndFit(szr_main)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		self._schedule_data_reget()
-	#--------------------------------------------------------
-	def _on_post_patient_selection(self):
-		self._schedule_data_reget()
-	#--------------------------------------------------------
-	# reget mixin API
-	#--------------------------------------------------------
-	def _populate_with_data(self):
-		"""Populate fields in pages with data from model."""
-		pat = gmPerson.gmCurrentPatient()
-		if pat.connected:
-			self.__patient_notebook.identity = pat
-		else:
-			self.__patient_notebook.identity = None
-		self.__patient_notebook.refresh()
 		return True
 #============================================================
 class TestWizardPanel(wx.Panel):   

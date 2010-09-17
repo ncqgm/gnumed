@@ -67,6 +67,8 @@ from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHan
 from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
+from Gnumed.wxpython import gmI18nWidgets
+
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -416,6 +418,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
+
+		item = menu_master_data.Append(-1, _('&Translations (DB)'), _('Manage string translations in the database.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_translations, item)
 
 		menu_master_data.AppendSeparator()
 
@@ -2432,6 +2437,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_text_expansion(self, evt):
 		gmProviderInboxWidgets.configure_keyword_text_expansion(parent=self)
+	#----------------------------------------------
+	def __on_manage_translations(self, evt):
+		gmI18nWidgets.manage_translations(parent = self)
 	#----------------------------------------------
 	def __on_manage_encounter_types(self, evt):
 		gmEMRStructWidgets.manage_encounter_types(parent=self)

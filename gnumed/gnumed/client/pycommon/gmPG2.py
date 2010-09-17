@@ -613,17 +613,135 @@ def get_col_names(link_obj=None, schema='public', table=None):
 	for row in rows:
 		cols.append(row[0])
 	return cols
+
+#------------------------------------------------------------------------
+# i18n functions
+#------------------------------------------------------------------------
+def export_translations_from_database(filename=None):
+	tx_file = codecs.open(filename, 'wb', 'utf8')
+	tx_file.write(u'-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
+	tx_file.write(u'-- - contains translations for each of [%s]\n' % u', '.join(get_translation_languages()))
+	tx_file.write(u'-- - user language is set to [%s]\n\n' % get_current_user_language())
+	tx_file.write(u'-- Please email this file to <gnumed-devel@gnu.org>.\n')
+	tx_file.write(u'-- ----------------------------------------------------------------------------------------------\n\n')
+	tx_file.write(u'set default_transaction_read_only to off\n\n')
+	tx_file.write(u'\\unset ON_ERROR_STOP\n\n')
+
+	cmd = u'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	for row in rows:
+		line = u"select i18n.upd_tx(quote_literal(E'%s'), quote_literal(E'%s'), quote_literal(E'%s'));\n" % (
+			row['lang'].replace("'", "\\'"),
+			row['orig'].replace("'", "\\'"),
+			row['trans'].replace("'", "\\'")
+		)
+		tx_file.write(line)
+	tx_file.write(u'\n')
+
+	tx_file.write(u'\set ON_ERROR_STOP 1\n')
+	tx_file.close()
+
+	return True
+#------------------------------------------------------------------------
+def delete_translation_from_database(link_obj=None, language=None, original=None):
+	cmd = u'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'
+	args = {'lang': language, 'orig': original}
+	run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = False, end_tx = True)
+	return True
+
+#------------------------------------------------------------------------
+def update_translation_in_database(language=None, original=None, translation=None):
+	cmd = u'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
+	args = {'lang': language, 'orig': original, 'trans': translation}
+	run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = False)
+	return args
+
 #------------------------------------------------------------------------
 def get_translation_languages():
 	rows, idx = run_ro_queries (
 		queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 	)
 	return [ r[0] for r in rows ]
+
+#------------------------------------------------------------------------
+def get_database_translations(language=None, order_by=None):
+
+	args = {'lang': language}
+	_log.debug('language [%s]', language)
+
+	if order_by is None:
+		order_by = u'ORDER BY %s' % order_by
+	else:
+		order_by = u'ORDER BY lang, orig'
+
+	if language is None:
+		cmd = u"""
+		SELECT DISTINCT ON (orig, lang)
+			lang, orig, trans
+		FROM ((
+
+			-- strings stored as translation keys whether translated or not
+			SELECT
+				NULL as lang,
+				ik.orig,
+				NULL AS trans
+			FROM
+				i18n.keys ik
+
+		) UNION ALL (
+
+			-- already translated strings
+			SELECT
+				it.lang,
+				it.orig,
+				it.trans
+			FROM
+				i18n.translations it
+
+		)) as translatable_strings
+		%s""" % order_by
+	else:
+		cmd = u"""
+		SELECT DISTINCT ON (orig, lang)
+			lang, orig, trans
+		FROM ((
+
+			-- strings stored as translation keys whether translated or not
+			SELECT
+				%%(lang)s as lang,
+				ik.orig,
+				i18n._(ik.orig, %%(lang)s) AS trans
+			FROM
+				i18n.keys ik
+
+		) UNION ALL (
+
+			-- already translated strings
+			SELECT
+				%%(lang)s as lang,
+				it.orig,
+				i18n._(it.orig, %%(lang)s) AS trans
+			FROM
+				i18n.translations it
+
+		)) AS translatable_strings
+		%s""" % order_by
+
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if rows is None:
+		_log.error('no translatable strings found')
+	else:
+		_log.debug('%s translatable strings found', len(rows))
+
+	return rows
+
 #------------------------------------------------------------------------
 def get_current_user_language():
 	cmd = u'select i18n.get_curr_lang()'
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
 	return rows[0][0]
+
 #------------------------------------------------------------------------
 def set_user_language(user=None, language=None):
 	"""Set the user language in the database.

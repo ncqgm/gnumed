@@ -13,6 +13,7 @@ NEW: support primary provider on patients along with configurable fallback
 NEW: support array of contextual FKs per inbox message
 NEW: support dicomscope as DICOM viewer
 NEW: support summary field on health issues and episodes
+NEW: translate database strings from within client and contribute translations
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip

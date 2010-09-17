@@ -12,8 +12,6 @@ TODO:
 	http://trac.flipturn.org/browser/trunk/peppy/lib/column_autosize.py
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.37 2010-02-06 21:37:26 ncq Exp $
 __version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -54,10 +52,13 @@ def get_choices_from_list (
 			right_extra_button=None):
 	"""Let user select item(s) from a list.
 
-	- edit_callback: (item data)
 	- new_callback: ()
+	- edit_callback: (item data)
 	- delete_callback: (item data)
 	- refresh_callback: (listctrl)
+
+	- left/middle/right_extra_button: (label, tooltip, <callback>)
+		<callback> is called with item_data as the only argument
 
 	returns None if cancelled
 	returns list (may be empty) of selected items
@@ -87,7 +88,7 @@ def get_choices_from_list (
 		dlg.set_column_widths()
 
 	if data is not None:
-		dlg.set_data(data=data)						# can override data set if refresh_callback is not None
+		dlg.set_data(data = data)					# can override data set if refresh_callback is not None
 
 	if selections is not None:
 		dlg.set_selections(selections = selections)
@@ -573,6 +574,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.Select(0, on = 0)
 		for idx in selections:
 			self.Select(idx = idx, on = 1)
+			#self.SetItemState(idx, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 	#------------------------------------------------------------
 	# getters
 	#------------------------------------------------------------
@@ -676,132 +678,4 @@ if __name__ == '__main__':
 		#test_wxMultiChoiceDialog()
 
 #================================================================
-# $Log: gmListWidgets.py,v $
-# Revision 1.37  2010-02-06 21:37:26  ncq
-# - support ignoring OK button
-#
-# Revision 1.36  2010/01/31 18:17:33  ncq
-# - make refresh callback setting smarter: set column widths after setting items
-#
-# Revision 1.35  2010/01/21 08:43:23  ncq
-# - somewhat support setting col widths within get-choice-from-list
-#
-# Revision 1.34  2009/11/28 18:30:07  ncq
-# - hide disabled buttons/show enabled ones
-#
-# Revision 1.33  2009/06/29 15:07:58  ncq
-# - disable edit/delete buttons when setting items to None or []
-#
-# Revision 1.32  2009/06/20 12:45:22  ncq
-# - call refresh from refresh property setter if callable and not None
-#
-# Revision 1.31  2009/06/11 12:37:25  ncq
-# - much simplified initial setup of list ctrls
-#
-# Revision 1.30  2009/06/04 16:32:01  ncq
-# - use refresh from init if available to simplify external setup code
-#
-# Revision 1.29  2009/04/16 12:49:47  ncq
-# - more sanity checks regarding action callbacks
-#
-# Revision 1.28  2009/01/17 23:07:29  ncq
-# - support remembering previous widths policy
-#
-# Revision 1.27  2009/01/15 11:39:59  ncq
-# - cleanup
-#
-# Revision 1.26  2008/12/25 16:55:36  ncq
-# - allow returniny empty list = no item selected if desired
-#
-# Revision 1.25  2008/08/06 13:22:14  ncq
-# - fix detection of item list type
-#
-# Revision 1.24  2008/07/24 14:00:18  ncq
-# - better comments
-# - resize columns after list refreshing in generic list selector
-# - differentiate between iterables and non-iterables by means of
-#   an exception rather than checking for type.ListType in set_string_items
-#
-# Revision 1.23  2008/05/31 16:33:07  ncq
-# - add TODO with URL
-#
-# Revision 1.22  2008/02/26 16:28:04  ncq
-# - when auto-setting col widths in lists w/o items use header as width ;-)
-#
-# Revision 1.21  2007/11/28 22:37:00  ncq
-# - robustify in the absence of selected values
-#
-# Revision 1.20  2007/11/23 23:34:39  ncq
-# - when explicitely setting the selections deselect the
-#   0th-index item selected by default
-#
-# Revision 1.19  2007/11/17 16:38:13  ncq
-# - cGenericListManagerPnl
-#
-# Revision 1.18  2007/10/08 12:56:02  ncq
-# - document callbacks
-# - protect against self.__data being None in get(_selected)_item_data()
-#
-# Revision 1.17  2007/09/24 18:37:08  ncq
-# - get_column_labels()
-#
-# Revision 1.16  2007/09/20 19:10:15  ncq
-# - carefully handle list item insertion - handle both list
-#   of lists and list of strings
-#
-# Revision 1.15  2007/09/07 22:38:04  ncq
-# - remove Fit() call since it's counterproductive for the list
-#
-# Revision 1.14  2007/09/02 20:54:26  ncq
-# - remove cruft
-# - support refresh_callback
-#
-# Revision 1.13  2007/08/31 23:05:05  ncq
-# - fix single selection list
-#
-# Revision 1.12  2007/08/29 14:41:54  ncq
-# - no more singular get_choice_from_list()
-# - support add/delete callbacks in generic list selector
-#
-# Revision 1.11  2007/08/20 16:22:51  ncq
-# - make get_choice(s)_from_list() more generic
-# - cleanup, improved test
-# - support edit button and message in generic list selector
-#
-# Revision 1.10  2007/07/22 09:26:25  ncq
-# - new get_choice_from_list()
-#
-# Revision 1.9  2007/07/09 12:45:47  ncq
-# - fix unicode()ing in set_string_items(): can't use (..., errors='replace') :-(
-# - factor out cPatientListingCtrl into gmDataMiningWidgets.py
-#
-# Revision 1.8  2007/07/07 12:42:00  ncq
-# - set_string_items now applies unicode() to all item members
-# - cPatientListingCtrl and test suite
-#
-# Revision 1.7  2007/06/28 12:38:15  ncq
-# - fix logic reversal in get_selected_*()
-#
-# Revision 1.6  2007/06/18 20:33:56  ncq
-# - add get_choice(s)_from_list()
-# - add cGenericListSelectorDlg
-# - add set_string_items()/set_selections()/get_selected_items()
-# - improve test suite
-#
-# Revision 1.5  2007/06/12 16:03:02  ncq
-# - properly get rid of all columns in set_columns()
-#
-# Revision 1.4  2007/04/09 18:51:47  ncq
-# - add support for multiple selections and auto-setting the widths
-#
-# Revision 1.3  2007/03/18 14:09:31  ncq
-# - add set_columns() and set_column_widths()
-#
-# Revision 1.2  2006/12/11 20:50:45  ncq
-# - get_selected_item_data()
-# - deselect_selected_item()
-#
-# Revision 1.1  2006/07/23 20:34:50  ncq
-# - list controls and widgets
-#
 #

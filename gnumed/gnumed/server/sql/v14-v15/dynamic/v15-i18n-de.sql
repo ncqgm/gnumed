@@ -15,6 +15,7 @@ select i18n.upd_tx('de', 'meningococcus Y', 'Meningokokken Typ Y');
 
 select i18n.upd_tx('de', 'tuberculosis', 'Tuberkulose');
 select i18n.upd_tx('de', 'salmonella typhi (typhoid)', 'Salmonella typhi (Typhus)');
+select i18n.upd_tx('de', 'influenza (seasonal)', 'Influenza (sais.)');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v15-i18n-de.sql,v $', '$Revision: 1. $');
