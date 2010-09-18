@@ -23,6 +23,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmPerson
 from Gnumed.business import gmProviderInbox
+from Gnumed.business import gmPersonSearch
 
 #try:
 #   _('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -381,8 +382,8 @@ class HTTPServer(SimpleForkingJSONRPCServer):
         raise CloseConnection(True)
 
     def search_patient(self, search_term):
-        from Gnumed.business import gmPerson
-        self.__person_searcher = gmPerson.cPatientSearcher_SQL()
+        
+        self.__person_searcher = gmPersonSearch.cPatientSearcher_SQL()
         # get list of matching ids
         idents = self.__person_searcher.get_identities(search_term)
 
