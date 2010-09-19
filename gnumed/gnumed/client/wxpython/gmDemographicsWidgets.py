@@ -495,7 +495,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_dob.Refresh()
 
-		if not self._DP_dod.is_valid_timestamp(allow_none=True):
+		if not self._DP_dod.is_valid_timestamp(allow_none = True, invalid_as_none = True):
 			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
 			self._DP_dod.SetFocus()
 			has_error = True
@@ -516,7 +516,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.data['dob'] = self._PRW_dob.GetData().get_pydt()
 
 		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
-		self.data['deceased'] = self._DP_dod.GetValue(as_pydt = True)
+		self.data['deceased'] = self._DP_dod.GetValue(as_pydt = True, invalid_as_none = True)
 		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 
 		self.data.save()
@@ -596,7 +596,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		else:
 			self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
 		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
-		self.__identity['deceased'] = self._DP_dod.GetValue(as_pydt = True)
+		self.__identity['deceased'] = self._DP_dod.GetValue(as_pydt = True, invalid_as_none = True)
 		self.__identity.save_payload()
 
 		active = self._CHBOX_active.GetValue()
@@ -665,7 +665,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_dob.Refresh()
 
-		if not self._DP_dod.is_valid_timestamp():
+		if not self._DP_dod.is_valid_timestamp(allow_none = True, invalid_as_none = True):
 			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
 			self._DP_dod.SetBackgroundColour('pink')
 			self._DP_dod.Refresh()
