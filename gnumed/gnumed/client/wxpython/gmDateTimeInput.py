@@ -205,8 +205,8 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 	#----------------------------------------------
 	# def convenience wrapper
 	#----------------------------------------------
-	def is_valid_timestamp(self, allow_none=True):
-		val = self.GetValue(as_pydt = False, invalid_as_none = False)
+	def is_valid_timestamp(self, allow_none=True, invalid_as_none=False):
+		val = self.GetValue(as_pydt = False, invalid_as_none = invalid_as_none)
 
 		if val is None:
 			if allow_none:
