@@ -18,8 +18,15 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.8.2 (database v14.2)',
-	'GNUmed 0.8.2 Release Notes:
+	'Release Notes for GNUmed 0.8.3 (database v14.3)',
+	'GNUmed 0.8.3 Release Notes:
+
+	0.8.3
+
+FIX: missing gmHooks import when _on_soap_modified is invoked
+FIX: exception due to faulty SQL in branded drug phrasewheel match provider
+FIX: faulty German translation of (menigococcus) "A" to (menigococcus) "D"
+FIX: subtle bug with validating date_deceased preventing demographics editing
 
 	0.8.2
 
