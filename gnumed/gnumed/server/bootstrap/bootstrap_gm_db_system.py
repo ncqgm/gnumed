@@ -357,7 +357,7 @@ class db_server:
 			if self.conn.closed == 0:
 				self.conn.close()
 
-		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
+		self.conn = connect(self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
 		if self.conn is None:
 			_log.error('Cannot connect.')
 			return None
