@@ -19,7 +19,9 @@ comment on table staging.lab_request is
 'Used to stage lab requests (from hl7 files, currently).';
 
 
+
 grant select, insert, update, delete on staging.lab_request to group "gm-doctors";
+
 
 
 alter table staging.lab_request
@@ -27,9 +29,23 @@ alter table staging.lab_request
 		set default 'p'::text;
 
 
+
 alter table staging.lab_request
 	alter column fk_incoming_data_unmatched
-		set default NULL;
+		set not NULL;
+
+
+
+alter table staging.lab_request
+	alter column fk_test_org
+		set not NULL;
+
+alter table staging.lab_request
+	add foreign key (fk_test_org)
+		references clin.test_org(pk)
+		on update cascade
+		on delete restrict;
+
 
 
 --alter table staging.lab_request
@@ -42,14 +58,17 @@ alter table staging.lab_request
 	);
 
 
+
 alter table staging.lab_request
 	alter column fk_requestor
 		set default NULL;
 
 
-alter table staging.lab_request
-	alter column orig_requestor
-		set default NULL;
+
+--alter table staging.lab_request
+--	alter column orig_requestor
+--		set default NULL;
+
 
 
 alter table staging.lab_request
@@ -62,26 +81,31 @@ alter table staging.lab_request
 	);
 
 
+
 alter table staging.lab_request
 	alter column is_pending
 		set NOT NULL;
+
 
 
 alter table staging.lab_request
 	alter column is_pending
 		set default true;
 
-
 -- --------------------------------------------------------------
 comment on table staging.test_result is
 'Used to stage test results (from hl7 files, currently).';
 
+
+
 grant select, insert, update, delete on staging.test_result to group "gm-doctors";
+
 
 
 alter table staging.test_result
 	alter column soap_cat
 		set default 'p'::text;
+
 
 
 -- should be FK, actually
@@ -90,9 +114,11 @@ alter table staging.test_result
 		set NOT NULL;
 
 
+
 alter table staging.test_result
 	alter column fk_intended_reviewer
 		set default null;
+
 
 
 alter table staging.test_result
@@ -100,10 +126,12 @@ alter table staging.test_result
 		set default null;
 
 
+
 alter table staging.test_result
 	add constraint staging_numval_needs_unit check (
 		(((val_num IS NOT NULL) AND (btrim(COALESCE(val_unit, ''::text)) <> ''::text)) OR (val_num IS NULL))
 	);
+
 
 
 alter table staging.test_result
@@ -115,6 +143,11 @@ alter table staging.test_result
 		)
 	);
 
+
+
+alter table staging.test_result
+	alter column fk_request
+		set NOT NULL;
 
 alter table staging.test_result
 	add foreign key (fk_request)
