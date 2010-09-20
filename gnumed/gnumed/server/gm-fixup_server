@@ -1,17 +1,14 @@
 #!/bin/sh
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-fixup_server,v $
-# $Id: gm-fixup_server,v 1.1 2009-05-04 09:46:02 ncq Exp $
-#
-# author: Andreas Tille, Karsten Hilbert
-# license: GPL v2
-#
 # This wrapper is intended to be installed into a systemwide
 # admin-only executable directory such as "/usr/sbin/"
 #
 # It should be run as root and will call the upstream script
 # to actually apply fixes to an existing database.
+#
+# author: Andreas Tille, Karsten Hilbert
+# license: GPL v2
 #
 #==============================================================
 # those probably need some adjustment from package maintainers:
@@ -27,8 +24,3 @@ cd ${GM_SERVER_DIR}
 ./fixup-db.sh $@
 
 #==============================================================
-# $Log: gm-fixup_server,v $
-# Revision 1.1  2009-05-04 09:46:02  ncq
-# - new
-#
-#

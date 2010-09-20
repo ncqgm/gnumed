@@ -1,16 +1,14 @@
 #!/bin/bash
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-restore_data.sh,v $
-# $Id: gm-restore_data.sh,v 1.1 2008-11-03 10:20:13 ncq Exp $
-#
-# author: Karsten Hilbert
-# license: GPL v2
-#
 # This script tries to restore a GNUmed database from a
 # data-only backup. It tries to be very conservative. It is
 # intended for interactive use and will have to be adjusted
 # to your needs.
+#
+# author: Karsten Hilbert
+# license: GPL v2
+#
 #==============================================================
 
 
@@ -117,8 +115,7 @@ BACKUP=`basename ${BACKUP} .tar`
 echo ""
 echo "==> Restoring GNUmed data ..."
 LOG="${LOG_BASE}/restoring-data-${TARGET_DATABASE}-${TS}.log"
-# FIXME: when 8.2 becomes standard use --single-transaction
-sudo -u postgres psql -p ${GM_PORT} -d ${TARGET_DATABASE} -f ${BACKUP}-data_only.sql &> ${LOG}
+sudo -u postgres psql -p ${GM_PORT} -d ${TARGET_DATABASE} --single-transaction -f ${BACKUP}-data_only.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore data. Aborting."
 	echo "           see: ${LOG}"
@@ -148,8 +145,3 @@ cd -
 exit 0
 
 #==============================================================
-# $Log: gm-restore_data.sh,v $
-# Revision 1.1  2008-11-03 10:20:13  ncq
-# - first version trying to restore data only
-#
-#
