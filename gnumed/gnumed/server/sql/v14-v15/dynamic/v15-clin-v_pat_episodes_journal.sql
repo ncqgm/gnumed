@@ -15,11 +15,13 @@ drop view clin.v_pat_episodes_journal cascade;
 
 create view clin.v_pat_episodes_journal as
 select
-	(select fk_patient from clin.encounter where pk = cep.fk_encounter)
+--	(select fk_patient from clin.encounter where pk = cep.fk_encounter)
+	cenc.fk_patient
 		as pk_patient,
 	cep.modified_when
 		as modified_when,
-	cep.modified_when
+--	cep.modified_when
+	cenc.started
 		as clin_when,
 	coalesce (
 		(select short_alias from dem.staff where db_user = cep.modified_by),
@@ -49,6 +51,9 @@ select
 	cep.row_version
 from
 	clin.episode cep
+		inner join
+	clin.encounter cenc
+		on cep.fk_encounter = cenc.pk
 ;
 
 

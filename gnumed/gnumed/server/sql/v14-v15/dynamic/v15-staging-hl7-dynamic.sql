@@ -52,6 +52,10 @@ alter table staging.lab_request
 --	alter column request_id
 --		set NOT NULL;
 
+\unset ON_ERROR_STOP
+alter table staging.lab_request drop constraint staging_request_sane_request_id cascade;
+\set ON_ERROR_STOP 1
+
 alter table staging.lab_request
 	add constraint staging_request_sane_request_id check (
 		(gm.is_null_or_blank_string(request_id) is False)
@@ -74,6 +78,10 @@ alter table staging.lab_request
 alter table staging.lab_request
 	alter column request_status
 		set NOT NULL;
+
+\unset ON_ERROR_STOP
+alter table staging.lab_request drop constraint staging_request_sane_status cascade;
+\set ON_ERROR_STOP 1
 
 alter table staging.lab_request
 	add constraint staging_request_sane_status check (
@@ -127,6 +135,10 @@ alter table staging.test_result
 
 
 
+\unset ON_ERROR_STOP
+alter table staging.test_result drop constraint staging_numval_needs_unit cascade;
+\set ON_ERROR_STOP 1
+
 alter table staging.test_result
 	add constraint staging_numval_needs_unit check (
 		(((val_num IS NOT NULL) AND (btrim(COALESCE(val_unit, ''::text)) <> ''::text)) OR (val_num IS NULL))
@@ -134,8 +146,12 @@ alter table staging.test_result
 
 
 
+\unset ON_ERROR_STOP
+alter table staging.test_result drop constraint staging_sane_value cascade;
+\set ON_ERROR_STOP 1
+
 alter table staging.test_result
-	add constraint staging_sane_test_result check (
+	add constraint staging_sane_value check (
 		(
 			((val_num IS NOT NULL) OR (val_alpha IS NOT NULL))
 				OR

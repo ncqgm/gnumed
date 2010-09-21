@@ -15,7 +15,8 @@ drop view clin.v_health_issues_journal cascade;
 
 create view clin.v_health_issues_journal as
 select
-	(select fk_patient from clin.encounter where pk = chi.fk_encounter)
+--	(select fk_patient from clin.encounter where pk = chi.fk_encounter)
+	cenc.fk_patient
 		as pk_patient,
 	chi.modified_when
 		as modified_when,
@@ -24,7 +25,8 @@ select
 		 from dem.identity
 		 where pk = (select fk_patient from clin.encounter where pk = chi.fk_encounter)
 		),
-		(select clin.encounter.started from clin.encounter where pk = chi.fk_encounter)
+--		(select clin.encounter.started from clin.encounter where pk = chi.fk_encounter)
+		cenc.started
 	)
 		as clin_when,
 	coalesce (
@@ -69,6 +71,9 @@ select
 	chi.row_version
 from
 	clin.health_issue chi
+		inner join
+	clin.encounter cenc
+		on chi.fk_encounter = cenc.pk
 ;
 
 
