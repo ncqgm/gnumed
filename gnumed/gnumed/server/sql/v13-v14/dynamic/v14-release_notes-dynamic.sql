@@ -25,7 +25,7 @@ INSERT INTO dem.message_inbox (
 
 FIX: missing gmHooks import when _on_soap_modified is invoked
 FIX: exception due to faulty SQL in branded drug phrasewheel match provider
-FIX: faulty German translation of (menigococcus) "A" to (menigococcus) "D"
+FIX: faulty German translation of (meningococcus) "A" to (meningococcus) "D"
 FIX: subtle bug with validating date_deceased preventing demographics editing
 
 	0.8.2
