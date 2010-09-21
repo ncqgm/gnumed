@@ -738,6 +738,7 @@ Vaccinations: %(vaccinations)s
 		txt += _(' %s documents\n') % stats['documents']
 		txt += _(' %s test results\n') % stats['results']
 		txt += _(' %s hospital stays\n') % stats['stays']
+		# FIXME: perhaps only count "ongoing ones"
 		txt += _(' %s performed procedures\n\n') % stats['procedures']
 
 		txt += _('Allergies and Intolerances\n\n')

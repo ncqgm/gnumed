@@ -2048,6 +2048,15 @@ if __name__ == "__main__":
 		for line in get_schema_revision_history():
 			print u' - '.join(line)
 	#--------------------------------------------------------------------
+	def test_run_query():
+		gmDateTime.init()
+		args = {'dt': gmDateTime.pydt_max_here()}
+		cmd = u"select %(dt)s"
+
+		#cmd = u"select 'infinity'::timestamp with time zone"
+		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		print rows
+	#--------------------------------------------------------------------
 	# run tests
 	#test_file2bytea()
 	#test_get_connection()
@@ -2063,6 +2072,7 @@ if __name__ == "__main__":
 	#test_keyword_expansion()
 	#test_get_foreign_key_details()
 	#test_set_user_language()
-	test_get_schema_revision_history()
+	#test_get_schema_revision_history()
+	test_run_query()
 
 # ======================================================================

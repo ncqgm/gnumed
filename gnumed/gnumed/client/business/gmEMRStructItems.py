@@ -1453,7 +1453,9 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from clin.v_pat_procedures where pk_procedure = %s"
 	_cmds_store_payload = [
 		u"""UPDATE clin.procedure SET
+				soap_cat = 'p',
 				clin_when = %(clin_when)s,
+				clin_end = %(clin_end)s,
 				clin_where = NULLIF (
 					COALESCE (
 						%(pk_hospital_stay)s::TEXT,
@@ -1469,10 +1471,10 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 				pk = %(pk_procedure)s AND
 				xmin = %(xmin_procedure)s
 			RETURNING xmin as xmin_procedure"""
-#		,u"""select xmin_procedure from clin.v_pat_procedures where pk_procedure = %(pk_procedure)s"""
 	]
 	_updatable_fields = [
 		'clin_when',
+		'clin_end',
 		'clin_where',
 		'performed_procedure',
 		'pk_hospital_stay',
@@ -1492,9 +1494,16 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_episode=True):
 
-		line = u'%s%s (%s): %s' % (
+		end = self._payload[self._idx['clin_end']]
+		if end is None:
+			end = u''
+		else:
+			end = u' - %s' % end.strftime('%Y %b %d').decode(gmI18N.get_encoding())
+
+		line = u'%s%s%s (%s): %s' % (
 			(u' ' * left_margin),
 			self._payload[self._idx['clin_when']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
+			end,
 			self._payload[self._idx['clin_where']],
 			self._payload[self._idx['performed_procedure']]
 		)
@@ -1523,12 +1532,14 @@ def create_performed_procedure(encounter=None, episode=None, location=None, hosp
 			INSERT INTO clin.procedure (
 				fk_encounter,
 				fk_episode,
+				soap_cat,
 				clin_where,
 				fk_hospital_stay,
 				narrative
 			) VALUES (
 				%(enc)s,
 				%(epi)s,
+				'p',
 				gm.nullify_empty_string(%(loc)s),
 				%(stay)s,
 				gm.nullify_empty_string(%(proc)s)

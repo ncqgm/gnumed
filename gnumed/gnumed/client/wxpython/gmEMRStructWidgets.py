@@ -112,6 +112,8 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 	def __init_ui(self):
 		self._PRW_hospital_stay.add_callback_on_lose_focus(callback = self._on_hospital_stay_lost_focus)
 		self._PRW_location.add_callback_on_lose_focus(callback = self._on_location_lost_focus)
+		self._DPRW_date.add_callback_on_lose_focus(callback = self._on_start_lost_focus)
+		self._DPRW_end.add_callback_on_lose_focus(callback = self._on_end_lost_focus)
 
 		# location
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -142,15 +144,18 @@ limit 25
 		self._PRW_procedure.matcher = mp
 	#----------------------------------------------------------------
 	def _on_hospital_stay_lost_focus(self):
-		if self._PRW_hospital_stay.GetData() is None:
+		stay = self._PRW_hospital_stay.GetData()
+		if stay is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_location.Enable(True)
 			self._PRW_episode.Enable(True)
+			self._LBL_hospital_details.SetLabel(u'')
 		else:
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
 			self._PRW_episode.SetText()
 			self._PRW_episode.Enable(False)
+			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = stay).format())
 	#----------------------------------------------------------------
 	def _on_location_lost_focus(self):
 		if self._PRW_location.GetValue().strip() == u'':
@@ -160,6 +165,41 @@ limit 25
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
 #			self._PRW_episode.Enable(True)
+	#----------------------------------------------------------------
+	def _on_start_lost_focus(self):
+		if not self._DPRW_date.is_valid_timestamp():
+			return
+		end = self._DPRW_end.GetData()
+		if end is None:
+			return
+		end = end.get_pydt()
+		start = self._DPRW_date.GetData().get_pydt()
+		if start < end:
+			return
+		self._DPRW_date.display_as_valid(False)
+	#----------------------------------------------------------------
+	def _on_end_lost_focus(self):
+		end = self._DPRW_end.GetData()
+		if end is None:
+			self._CHBOX_ongoing.Enable(True)
+			self._DPRW_end.display_as_valid(True)
+		else:
+			end = end.get_pydt()
+			start = self._DPRW_date.GetData()
+			if start is None:
+				self._DPRW_end.display_as_valid(True)
+			else:
+				start = start.get_pydt()
+				if end > start:
+					self._DPRW_end.display_as_valid(True)
+				else:
+					self._DPRW_end.display_as_valid(False)
+			self._CHBOX_ongoing.Enable(False)
+			now = gmDateTime.pydt_now_here()
+			if end > now:
+				self._CHBOX_ongoing.SetValue(True)
+			else:
+				self._CHBOX_ongoing.SetValue(False)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -222,6 +262,15 @@ limit 25
 			epi = gmEMRStructItems.cHospitalStay(aPK_obj = stay)['pk_episode']
 			loc = None
 
+		if self._DPRW_end.GetData() is None:
+			if self._CHBOX_ongoing.IsChecked():
+				#end = gmDateTime.pydt_max_here()
+				end = u'infinity'
+			else:
+				end = None
+		else:
+			end = end.get_pydt()
+
 		proc = emr.add_performed_procedure (
 			episode = epi,
 			location = loc,
@@ -229,6 +278,7 @@ limit 25
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
 		proc['clin_when'] = self._DPRW_date.data.get_pydt()
+		proc['clin_end'] = end
 		proc.save()
 
 		self.data = proc
@@ -237,6 +287,16 @@ limit 25
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['clin_when'] = self._DPRW_date.data.get_pydt()
+
+		if self._DPRW_end.GetData() is None:
+			if self._CHBOX_ongoing.IsChecked():
+				#end = gmDateTime.pydt_max_here()
+				end = u'infinity'
+			else:
+				end = None
+		else:
+			end = end.get_pydt()
+		self.data['clin_end'] = end
 
 		if self._PRW_hospital_stay.GetData() is None:
 			self.data['pk_hospital_stay'] = None
@@ -255,26 +315,42 @@ limit 25
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._DPRW_date.SetText()
+		self._DPRW_end.SetText()
 		self._PRW_hospital_stay.SetText()
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
 
-		self._DPRW_date.SetFocus()
+		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._DPRW_date.SetData(data = self.data['clin_when'])
+		if self.data['clin_end'] is None:
+			self._DPRW_end.SetText()
+			self._CHBOX_ongoing.Enable(True)
+		else:
+			self._DPRW_end.SetData(data = self.data['clin_end'])
+			self._CHBOX_ongoing.Enable(False)
+			now = gmDateTime.pydt_now_here()
+			now = gmDateTime.pydt_now_here()
+			if self.data['clin_end'] > now:
+				self._CHBOX_ongoing.SetValue(True)
+			else:
+				self._CHBOX_ongoing.SetValue(False)
+
 		self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 		self._PRW_procedure.SetText(value = self.data['performed_procedure'], data = self.data['performed_procedure'])
 
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
+			self._LBL_hospital_details.SetLabel(u'')
 			self._PRW_location.SetText(value = self.data['clin_where'], data = self.data['clin_where'])
 		else:
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
+			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = stay).format())
 			self._PRW_location.SetText()
 
-		self._DPRW_date.SetFocus()
+		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -286,11 +362,30 @@ limit 25
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
 			self._PRW_location.SetText()
 
-		self._DPRW_date.SetFocus()
+		self._PRW_procedure.SetFocus()
+	#----------------------------------------------------------------
+	# event handlers
 	#----------------------------------------------------------------
 	def _on_add_hospital_stay_button_pressed(self, evt):
+		# FIXME: this would benefit from setting the created stay
 		edit_hospital_stay(parent = self.GetParent())
 		evt.Skip()
+	#----------------------------------------------------------------
+	def _on_ongoing_checkbox_checked(self, event):
+		if self._CHBOX_ongoing.IsChecked():
+			end = self._DPRW_end.GetData()
+			if end is None:
+				self._DPRW_end.display_as_valid(True)
+			else:
+				end = end.get_pydt()
+				now = gmDateTime.pydt_now_here()
+				if end > now:
+					self._DPRW_end.display_as_valid(True)
+				else:
+					self._DPRW_end.display_as_valid(False)
+		else:
+			self._DPRW_end.is_valid_timestamp()
+		event.Skip()
 #================================================================
 # hospital stay related widgets/functions
 #----------------------------------------------------------------

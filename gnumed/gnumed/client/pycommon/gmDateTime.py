@@ -196,6 +196,9 @@ def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
 #---------------------------------------------------------------------------
+def pydt_max_here():
+	return pyDT.datetime.max.replace(tzinfo = gmCurrentLocalTimezone)
+#---------------------------------------------------------------------------
 def wx_now_here(wx=None):
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return py_dt2wxDate(py_dt = pydt_now_here(), wx = wx)
