@@ -608,6 +608,10 @@ IMPROVED: bootstrapper now detects commented out authentication directive [thank
 # gnumed_v14
 ------------------------------------------------
 
+	14.2 -> 14.3
+
+FIX: check for vaccination dupes looking at all patients rather than the relevant one only
+
 	14.0 -> 14.1
 
 NEW: auto-include fixups for missing array functionality on PG 8.3, needed for conversion to v14
