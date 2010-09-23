@@ -21,6 +21,7 @@ IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip
 IMPROVED: improved adding of vaccinations
 IMPROVED: now listing episodes/health issues at time of creation in EMR journal
+IMPROVED: Boesner score now has internationally usable name: "Marburg CHD score"
 
 ------------------------------------------------
 # rel-0-8-patches
@@ -606,6 +607,10 @@ IMPROVED: bootstrapper now detects commented out authentication directive [thank
 ------------------------------------------------
 # gnumed_v14
 ------------------------------------------------
+
+	14.2 -> 14.3
+
+FIX: check for vaccination dupes looking at all patients rather than the relevant one only
 
 	14.0 -> 14.1
 

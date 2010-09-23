@@ -10,13 +10,9 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
--- list discussion showed that we do want to be able to document
--- non-conformant and clinically "wrong" vaccinations (such as
--- two tetanus boosters within 1 week) -- but we can still do
--- something about it ...
+-- the trigger function failed to properly look at previous
+-- vaccinations of the relevant patient only, so fix that
 
-
--- eventually add the trigger to warn on potential dupes
 \unset ON_ERROR_STOP
 drop function clin.trf_warn_on_duplicate_vaccinations() cascade;
 \set ON_ERROR_STOP 1
@@ -95,7 +91,7 @@ BEGIN
 				comment,
 				data,
 				importance,
-				ufk_context,
+--				ufk_context,
 				fk_patient
 			) values (
 				_pk_current_provider,
@@ -103,7 +99,7 @@ BEGIN
 				_(''Two vaccinations with overlapping target conditions recorded within one week of each other !''),
 				msg,
 				1,
-				ARRAY[_NEW_vaccination.pk_vaccination,_prev_vaccination.pk_vaccination],
+--				ARRAY[NEW.pk, _prev_vacc_loop_record.pk],
 				_NEW_pk_patient
 			);
 
@@ -117,7 +113,7 @@ BEGIN
 						comment,
 						data,
 						importance,
-						ufk_context,
+--						ufk_context,
 						fk_patient
 					) values (
 						NEW.fk_provider,
@@ -125,7 +121,7 @@ BEGIN
 						_(''Two vaccinations with overlapping target conditions recorded within one week of each other !''),
 						msg,
 						1,
-						ARRAY[_NEW_vaccination.pk_vaccination,_prev_vaccination.pk_vaccination],
+--						ARRAY[NEW.pk, _prev_vacc_loop_record.pk],
 						_NEW_pk_patient
 					);
 				end if;

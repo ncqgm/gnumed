@@ -150,16 +150,16 @@ BEGIN
 	-- loop over ...
 	for _prev_vacc_loop_record in
 		-- ... vaccinations ...
-		SELECT * FROM clin.vaccination
+		SELECT * FROM clin.vaccination cv
 		WHERE
 			-- ... of this patient ...
-			NEW.fk_encounter in (select pk from clin.encounter where fk_patient = _NEW_pk_patient)
+			cv.fk_encounter in (select pk from clin.encounter where fk_patient = _NEW_pk_patient)
 				AND
 			-- ... within 7 days of the vaccination date ...
-			clin_when BETWEEN (NEW.clin_when - ''7 days''::interval) AND (NEW.clin_when + ''7 days''::interval)
+			cv.clin_when BETWEEN (NEW.clin_when - ''7 days''::interval) AND (NEW.clin_when + ''7 days''::interval)
 				AND
 			-- ... not the vaccination we just INSERTed/UPDATEed
-			pk != NEW.pk
+			cv.pk != NEW.pk
 	loop
 
 		select * into _indication_collision from ((
