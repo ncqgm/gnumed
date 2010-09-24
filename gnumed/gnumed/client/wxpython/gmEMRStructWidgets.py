@@ -436,6 +436,14 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 				)
 				return False
 
+		if self._PRW_episode.GetValue().strip() == u'':
+			self._PRW_episode.display_as_valid(False)
+			wxps.Publisher().sendMessage (
+				topic = 'statustext',
+				data = {'msg': _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), 'beep': True}
+			)
+			return False
+
 		return True
 	#----------------------------------------------------------------
 	def _save_as_new(self):

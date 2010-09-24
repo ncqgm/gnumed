@@ -77,6 +77,10 @@ IMPROVED: use substance rather than brand as allergene when creating allergy fro
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.10
+
+FIX: exception on trying to create hospital stay w/o episode [thanks devm]
+
 	0.7.9
 
 FIX: when creating allergy from substance intake entry second try would overwrite first try if same drug brand
