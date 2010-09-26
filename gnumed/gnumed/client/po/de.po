@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-09-13 16:36+CEST\n"
-"PO-Revision-Date: 2010-09-13 18:13+0100\n"
+"POT-Creation-Date: 2010-09-26 22:09+CEST\n"
+"PO-Revision-Date: 2010-09-26 23:11+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -1828,6 +1828,24 @@ msgstr ""
 "Befehl\n"
 "(SQL)"
 
+msgid "Original string as found in the database. Usually in English."
+msgstr "Ursprüngliche Zeichenkette aus der Datenbank. Üblicherweise auf Englisch."
+
+msgid "Enter your translation here."
+msgstr "Geben Sie Ihre Übersetzung hier ein."
+
+msgid "Enter the language code here. You need either the two letter or the four letter ISO code. When entering four letter codes use the format xx_XX, such as de_DE."
+msgstr "Geben Sie Sprachcode ein. Sie brauchen entweder den 2er- oder den 4er-ISO-Code. Für 4er-Codes verwenden Sie das Format xx_XX, z.B. de_DE."
+
+msgid "String"
+msgstr "Zeichenkette"
+
+msgid "Translation"
+msgstr "Übersetzung"
+
+msgid "Language"
+msgstr "Sprache"
+
 msgid "Edit Document Types"
 msgstr "Dokumententypen editieren"
 
@@ -3279,6 +3297,9 @@ msgstr "Hier können Sie die Zusammenfassung zum Problem bearbeiten (egal, ob es
 msgid "Problem summary"
 msgstr "Zusammenfassung zum Problem"
 
+msgid "tab1"
+msgstr ""
+
 msgid "Most recent notes on above problem"
 msgstr "Letzte Notizen zum obigen Problem"
 
@@ -3309,6 +3330,9 @@ msgstr ""
 msgid "&Save"
 msgstr "&Speichern"
 
+msgid "&Image"
+msgstr "&Skizze"
+
 msgid "Save &all"
 msgstr " &Alle speichern"
 
@@ -3335,11 +3359,11 @@ msgstr "Grunderkrankungen zeigen, die als medizinisch nicht relevant markiert si
 msgid "This shows the list of active problems, They include open episodes as well as active health issues."
 msgstr "Die Liste der aktiven Probleme. Diese umfassen die laufenden Episoden und die aktiven Grunderkrankungen."
 
+msgid "Add a visual progress note for this episode."
+msgstr "Eine Bildnotiz zu dieser Episode erzeugen."
+
 msgid "Purpose ..."
 msgstr "BU ..."
-
-msgid "tab1"
-msgstr ""
 
 msgid "... summary"
 msgstr "... BE"
@@ -4339,6 +4363,24 @@ msgstr "Die Option <%s> auf <Nein> setzen."
 msgid "Abort the dialog and do not change the current setting."
 msgstr "Die Auswahl beenden und die jetzige Einstellung belassen."
 
+msgid "Coded terms known to GNUmed."
+msgstr "Die GNUmed bekannten codierten Worte."
+
+msgid "Showing coded terms."
+msgstr "Codierte Worte zeigen."
+
+msgid "Coding system details"
+msgstr "Codesystem-Details"
+
+msgid "System"
+msgstr "System"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Term"
+msgstr "Ausdruck"
+
 msgid "Encrypt"
 msgstr "Verschlüsseln"
 
@@ -4771,6 +4813,18 @@ msgstr ""
 "\n"
 "Sie müssen Sie später im Personalien-Modul nachtragen.\n"
 
+msgid "Contacts"
+msgstr "Kontakte"
+
+msgid "Social Network"
+msgstr "Soziales Netz"
+
+msgid "primary occupation of the patient"
+msgstr "der Hauptberuf des Patienten"
+
+msgid "Last updated"
+msgstr "zuletzt geändert"
+
 msgid "Required: surname/given name/first name"
 msgstr "Pflichtfeld: Vorname"
 
@@ -4834,18 +4888,6 @@ msgstr ""
 "\n"
 "Sie müssen die Adressdetails nun im Stammdatenmodul\n"
 "eintragen."
-
-msgid "Contacts"
-msgstr "Kontakte"
-
-msgid "Social Network"
-msgstr "Soziales Netz"
-
-msgid "primary occupation of the patient"
-msgstr "der Hauptberuf des Patienten"
-
-msgid "Last updated"
-msgstr "zuletzt geändert"
 
 msgid "Adult"
 msgstr "Erwachsene"
@@ -5000,9 +5042,6 @@ msgstr "Geben Sie einen Kommentar zu diesem Dokument ein."
 
 msgid "In use"
 msgstr "In Verwendung"
-
-msgid "Translation"
-msgstr "Übersetzung"
 
 msgid "User defined"
 msgstr "Vor Ort angelegt"
@@ -5727,6 +5766,9 @@ msgstr "Einweisungsdatum fehlt. Kann Einweisung nicht speichern."
 msgid "Discharge date must be empty or later than admission. Cannot save hospital stay."
 msgstr "Entlassungsdatum muß leer bleiben oder nach dem Einweisungsdatum liegen. Kann Einweisung nicht speichern."
 
+msgid "Must select an episode or enter a name for a new one. Cannot save hospital stay."
+msgstr "Eine Episode muß ausgewählt oder eine Bezeichnung für eine neue gewählt werden. Kann KH-Aufenthalt nicht speichern."
+
 msgid "Started a new encounter for the active patient."
 msgstr "Für den aktiven Patienten wurde ein neuer Kontakt begonnen."
 
@@ -6339,9 +6381,6 @@ msgstr ""
 msgid "Select letter or form template."
 msgstr "Die Brief- oder Formularvorlage wählen."
 
-msgid "Version"
-msgstr "Version"
-
 msgid "You must select a template file before saving."
 msgstr "Vor dem Speichern müssen Sie eine Vorlagedatei geladen haben."
 
@@ -6383,9 +6422,6 @@ msgstr "Datenbank ..."
 
 msgid "Configure the database language"
 msgstr "Einstellen der Datenbanksprache"
-
-msgid "Language"
-msgstr "Sprache"
 
 msgid "Configure the database welcome message (all users)."
 msgstr "Ändern der Begrüßung durch die Datenbank (alle Benutzer)."
@@ -6635,6 +6671,18 @@ msgstr "&Textmakros"
 
 msgid "Manage keyword based text expansion macros."
 msgstr "Bearbeiten der Textmakros."
+
+msgid "&Translations (DB)"
+msgstr "&Übersetzungen (DB)"
+
+msgid "Manage string translations in the database."
+msgstr "Zeichenkettenübersetzungen in der Datenbank verwalten."
+
+msgid "Browse codes with coded terms."
+msgstr "Codes mit Codetext durchsehen."
+
+msgid "Codes"
+msgstr "Codes"
 
 msgid "&Encounter types"
 msgstr "&Konsultationstypen"
@@ -7911,6 +7959,63 @@ msgstr "Kann Modul nicht aufrufen. Kein Patient aktiv."
 msgid "add plugin ..."
 msgstr "lade Modul ..."
 
+msgid "Adding new translation"
+msgstr "Neue Übersetzung hinzufügen"
+
+msgid "Editing translation"
+msgstr "Übersetzung bearbeiten"
+
+msgid "Selecting language for translation"
+msgstr "Sprache für Übersetzung wählen"
+
+msgid "Please select the language the translations for which you want to work on."
+msgstr "Wählen Sie den Code für die Sprache, in welche Sie übersetzen wollen."
+
+msgid ""
+"Are you sure you want to delete the translation of:\n"
+"\n"
+"%s\n"
+"\n"
+"into [%s] as:\n"
+"\n"
+"%s\n"
+"\n"
+"?  (Note that you must know the database administrator password !)\n"
+msgstr ""
+"Sind Sie sicher, daß Sie die Übersetzung von:\n"
+"\n"
+"%s\n"
+"\n"
+"in die Sprache [%s] als:\n"
+"\n"
+"%s\n"
+"\n"
+"löschen wollen ? (Sie benötigen das Administratorpasswort !)\n"
+
+msgid "Deleting translation from database"
+msgstr "Übersetzung aus Datenbank löschen"
+
+msgid "deleting a translation"
+msgstr "Übersetzung löschen"
+
+msgid "Contributing translations"
+msgstr "Übersetzungen beitragen"
+
+msgid "Do you want to contribute your translations to the GNUmed project ?"
+msgstr "Wollen Sie Ihre Übersetzungen mit der GNUmed-Gemeinde teilen ?"
+
+msgid "Unable to send mail. Cannot contribute translations to GNUmed community."
+msgstr "Kann keine E-Mail senden und somit die Übersetzungen nicht der GNUmed-Gemeinschaft zusenden."
+
+msgid "Showing translatable database strings for all languages."
+msgstr "Übersetzbare Zeichenketten aus der Datenbank für alle Sprachen zeigen."
+
+msgid "Showing translatable database strings for target language [%s]."
+msgstr "Übersetzbare Zeichenketten aus der Datenbank für Sprache [%s] zeigen."
+
+msgid "Contribute translations to GNUmed community by email."
+msgstr "Übersetzungen per E-Mail mit der GNUmed-Gemeinde teilen."
+
 msgid "choose which lab will process the probe with the specified ID"
 msgstr "Labor wählen, an welches das Material geschickt wird"
 
@@ -8543,9 +8648,6 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr "Zeige ATC-Codes."
 
-msgid "Term"
-msgstr "Ausdruck"
-
 msgid "Choose an ATC import config file"
 msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
 
@@ -9118,6 +9220,12 @@ msgstr ""
 "beim Aufruf von GNUmed durch den Dateinamen\n"
 "der Vorlage ersetzt."
 
+msgid "Choose file to use as template for new visual progress note"
+msgstr "Wählen Sie eine Datei als Vorlage für die neue Bildnotiz"
+
+msgid "Cannot export visual progress note template for [%s]."
+msgstr "Kann Bildnotiz-Vorlage [%s] nicht exportieren."
+
 msgid "Cannot export visual progress note to file."
 msgstr "Kann Bildnotiz nicht in eine Datei exportieren."
 
@@ -9157,24 +9265,41 @@ msgid "Saving visual progress note"
 msgstr "Speichere Bildnotiz"
 
 msgid ""
-"This visual progress note was created from a\n"
-"template in the database rather than from a file\n"
-"but the image was not modified at all.\n"
+"You either created a visual progress note from a template\n"
+"in the database (rather than from a file on disk) or you\n"
+"edited an existing visual progress note.\n"
 "\n"
-"Do you want to still save the unmodified\n"
-"image as a visual progress note into the\n"
-"EMR of the patient ?"
+"The template/original was not modified at all, however.\n"
+"\n"
+"Do you still want to save the unmodified image as a\n"
+"visual progress note into the EMR of the patient ?\n"
 msgstr ""
-"Diese Bildnotiz wurde nicht aus einer Datei,\n"
-"sondern aus einer Vorlage in der Datenbank\n"
-"erzeugt. Das Bild wurde aber nicht verändert.\n"
+"Sie haben diese Bildnotiz entweder aus einer Vorlage aus\n"
+"der Datenbank (anstelle aus einer Datei) erzeugt oder Sie\n"
+"haben eine existierende Bildnotiz bearbeitet.\n"
 "\n"
-"Wollen Sie das unveränderte Vorlagebild trotz-\n"
-"dem als Bildnotiz in der Kartei des Patienten\n"
-"abspeichern ?"
+"Die Vorlage/Vornotiz wurde aber nicht verändert.\n"
+"\n"
+"Wollen Sie das unveränderte Bild trotzdem als Bildnotiz\n"
+"in der Karteikarte des Patienten speichern ?\n"
 
 msgid "visual progress notes"
 msgstr "Bildnotizen"
+
+msgid ""
+"Episode: %s\n"
+"Created: %s\n"
+" %s\n"
+"\n"
+"Single-click: view/edit\n"
+"Delete: use document tree"
+msgstr ""
+"Episode: %s\n"
+"Erstellt: %s\n"
+" %s\n"
+"\n"
+"Einfachklick: zeigen/bearbeiten\n"
+"Löschen: im Dokumentenbaum"
 
 msgid "Sketches"
 msgstr "Skizzen"
@@ -9184,9 +9309,6 @@ msgstr "Keine Bilder in der Bildnotiz."
 
 msgid "Cannot load visual progress note from [%s]."
 msgstr "Kann Bildnotiz nicht aus [%s] laden."
-
-msgid "Cannot export visual progress note template for [%s]."
-msgstr "Kann Bildnotiz-Vorlage [%s] nicht exportieren."
 
 msgid "Choose a visual progress note template file"
 msgstr "Wählen Sie eine Datei als Bildnotiz-Vorlage."
@@ -9926,6 +10048,12 @@ msgstr ""
 msgid "Plugins"
 msgstr "Module"
 
+msgid "Enter a name for the new workplace !"
+msgstr "Geben Sie dem neuen Arbeitsplatz einen aussagekräftigen Namen !"
+
+msgid "Cloning workplace"
+msgstr "Arbeitsplatz klonen"
+
 msgid ""
 "\n"
 "Select the workplace to configure below.\n"
@@ -9936,6 +10064,12 @@ msgstr ""
 "Wählen Sie den zu konfigurierenden Arbeitsplatz aus.\n"
 "\n"
 "Der aktive Arbeitsplatz ist vorselektiert.\n"
+
+msgid "Clone"
+msgstr "Klonen"
+
+msgid "Clone the selected workplace"
+msgstr "Den gewählten Arbeitsplatz clonen"
 
 msgid "category"
 msgstr "Kategorie"
@@ -10344,8 +10478,8 @@ msgstr ""
 "indikation bei allen Patienten ändern, bei denen\n"
 "die Verwendung dieses Impfstoffs dokumentiert wurde.\n"
 
-msgid "Adding new vaccination"
-msgstr "Impfung hinzufügen"
+msgid "Adding new vaccinations"
+msgstr "Neue Impfungen hinzufügen"
 
 msgid "Editing vaccination"
 msgstr "Impfung bearbeiten"
@@ -11322,8 +11456,6 @@ msgstr "erstmals"
 #~ msgstr "Bereich:"
 #~ msgid "Editing encounter types ..."
 #~ msgstr "Bearbeite Konsultationstypen ..."
-#~ msgid "System type"
-#~ msgstr "Systemname"
 #~ msgid "Clinical context"
 #~ msgstr "Medizinischer Kontext"
 #~ msgid "Note"
