@@ -13,6 +13,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython.gmNarrativeWidgets import cSoapLineTextCtrl
+        from Gnumed.wxpython.gmNarrativeWidgets import cVisualSoapPresenterPnl
 
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -21,6 +22,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         self._TCTRL_sOap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_soAp = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_soaP = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._PNL_visual_soap = cVisualSoapPresenterPnl(self, -1)
         self._TCTRL_summary = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
 
         self.__set_properties()
@@ -48,6 +50,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         __lbl_soaP = wx.StaticText(self, -1, _("Plan"))
         __szr_main.Add(__lbl_soaP, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
         __szr_main.Add(self._TCTRL_soaP, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
+        __szr_main.Add(self._PNL_visual_soap, 0, wx.EXPAND, 0)
         _hline_above_summary = wx.StaticLine(self, -1)
         __szr_main.Add(_hline_above_summary, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
         __lbl_summary = wx.StaticText(self, -1, _("Problem summary"))

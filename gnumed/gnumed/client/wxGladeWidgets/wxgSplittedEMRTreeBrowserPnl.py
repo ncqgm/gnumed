@@ -9,6 +9,7 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmEMRBrowser
+        from Gnumed.wxpython import gmNarrativeWidgets
 
         # begin wxGlade: wxgSplittedEMRTreeBrowserPnl.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
@@ -18,6 +19,7 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
         self.__pnl_left_side = wx.Panel(self._splitter_browser, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
         self._pnl_emr_tree = gmEMRBrowser.cScrolledEMRTreePnl(self.__pnl_left_side, -1)
         self._TCTRL_item_details = wx.TextCtrl(self.__pnl_right_side, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._PNL_visual_soap = gmNarrativeWidgets.cVisualSoapPresenterPnl(self.__pnl_right_side, -1, style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -34,21 +36,14 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
         __szr_right_side = wx.BoxSizer(wx.VERTICAL)
         __szr_left_side = wx.BoxSizer(wx.VERTICAL)
         __szr_left_side.Add(self._pnl_emr_tree, 1, wx.EXPAND, 0)
-        self.__pnl_left_side.SetAutoLayout(True)
         self.__pnl_left_side.SetSizer(__szr_left_side)
-        __szr_left_side.Fit(self.__pnl_left_side)
-        __szr_left_side.SetSizeHints(self.__pnl_left_side)
-        __szr_right_side.Add(self._TCTRL_item_details, 1, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
-        self.__pnl_right_side.SetAutoLayout(True)
+        __szr_right_side.Add(self._TCTRL_item_details, 1, wx.EXPAND, 0)
+        __szr_right_side.Add(self._PNL_visual_soap, 0, wx.EXPAND, 0)
         self.__pnl_right_side.SetSizer(__szr_right_side)
-        __szr_right_side.Fit(self.__pnl_right_side)
-        __szr_right_side.SetSizeHints(self.__pnl_right_side)
         self._splitter_browser.SplitVertically(self.__pnl_left_side, self.__pnl_right_side)
         __szr_main.Add(self._splitter_browser, 1, wx.EXPAND, 0)
-        self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
-        __szr_main.SetSizeHints(self)
         # end wxGlade
 
 # end of class wxgSplittedEMRTreeBrowserPnl

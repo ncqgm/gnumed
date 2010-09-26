@@ -20,6 +20,7 @@ _log = logging.getLogger('gm.docs')
 _log.info(__version__)
 
 MUGSHOT=26
+DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE = u'visual progress note'
 #============================================================
 class cDocumentFolder:
 	"""Represents a folder with medical documents for a single patient."""
@@ -121,6 +122,13 @@ class cDocumentFolder:
 			doc_ids.append(row[0])
 		return doc_ids
 	#--------------------------------------------------------
+	def get_visual_progress_notes(self, episodes=None, encounter=None):
+		return self.get_documents (
+			doc_type = DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
+			episodes = episodes,
+			encounter = encounter
+		)
+	#--------------------------------------------------------
 	def get_documents(self, doc_type=None, episodes=None, encounter=None):
 		"""Return list of documents."""
 
@@ -138,7 +146,7 @@ class cDocumentFolder:
 			except (TypeError, ValueError):
 				where_parts.append(u'pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
 
-		if (episodes is not None) and (len(episodes) != 0):
+		if (episodes is not None) and (len(episodes) > 0):
 			where_parts.append(u'pk_episode IN %(epi)s')
 			args['epi'] = tuple(episodes)
 
@@ -146,7 +154,6 @@ class cDocumentFolder:
 			where_parts.append(u'pk_encounter = %(enc)s')
 
 		cmd = u"%s\nORDER BY clin_when" % (_sql_fetch_document_fields % u' AND '.join(where_parts))
-
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		return [ cMedDoc(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
