@@ -1803,13 +1803,14 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 				_log.debug('visual progress note (template) not modified')
 				# ask user to decide
 				msg = _(
-					u'This visual progress note was created from a\n'
-					u'template in the database rather than from a file\n'
-					u'but the image was not modified at all.\n'
+					u'You either created a visual progress note from a template\n'
+					u'in the database (rather than from a file on disk) or you\n'
+					u'edited an existing visual progress note.\n'
 					u'\n'
-					u'Do you want to still save the unmodified\n'
-					u'image as a visual progress note into the\n'
-					u'EMR of the patient ?'
+					u'The template/original was not modified at all, however.\n'
+					u'\n'
+					u'Do you still want to save the unmodified image as a\n'
+					u'new visual progress note into the EMR of the patient ?\n'
 				)
 				save_unmodified = gmGuiHelpers.gm_show_question (
 					msg,
@@ -1890,12 +1891,13 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 		self.clear()
 		if document_folder is not None:
 			soap_docs = document_folder.get_visual_progress_notes(episodes = episodes, encounter = encounter)
-			if len(soap_docs) != 0:
+			if len(soap_docs) > 0:
 				for soap_doc in soap_docs:
 					parts = soap_doc.parts
 					if len(parts) == 0:
 						continue
-					fname = parts[0].export_to_file()
+					part = parts[0]
+					fname = part.export_to_file()
 					if fname is None:
 						continue
 					img = gmGuiHelpers.file2scaled_image (
@@ -1903,11 +1905,26 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 						height = 30
 					)
 					bmp = wx.StaticBitmap(self, -1, img, style = wx.NO_BORDER)
-					tip = agw_stt.SuperToolTip(fname)
-					tip.SetTarget(bmp)
-					print tip
-					#bmp.tip = tip
-#					bmp.SetToolTipString(fname)
+#					tip = agw_stt.SuperToolTip(fname)
+					#print tip
+#					tip.SetTarget(bmp)
+#					bmp.tip = tip
+					tt = _(
+						'Episode: %s\n'
+						'Created: %s\n'
+						' %s\n'
+						'\n'
+						'Single-click: view/edit\n'
+						'Delete: use document tree'
+					) % (
+						part['episode'],
+						part['date_generated'].strftime('%Y-%m-%d'),
+						gmTools.coalesce(part['doc_comment'], u'').strip()
+					)
+					bmp.SetToolTipString(tt)
+					bmp.doc_part = part
+					bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
+					# FIXME: add context menu for Delete/Clone/Add/Configure
 					self._SZR_soap.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
 					self.__bitmaps.append(bmp)
 
@@ -1919,6 +1936,14 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 		for bmp in self.__bitmaps:
 			bmp.Destroy()
 		self.__bitmaps = []
+	#--------------------------------------------------------
+	def _on_bitmap_leftclicked(self, evt):
+		print "editing visual progress note"
+		wx.CallAfter (
+			edit_visual_progress_note,
+			doc_part = evt.GetEventObject().doc_part,
+			discard_unmodified = True
+		)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgVisualSoapPnl
 
