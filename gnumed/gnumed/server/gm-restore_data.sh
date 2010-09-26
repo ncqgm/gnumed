@@ -47,7 +47,7 @@ fi
 
 echo ""
 echo "==> Testing target database status ..."
-if test `sudo -u postgres psql -l | grep ${TARGET_DB} | wc -l` -eq 0 ; then
+if test `sudo -u postgres psql -l -p ${GM_PORT} | grep ${TARGET_DB} | wc -l` -eq 0 ; then
 	echo "    ERROR: Target database ${TARGET_DB} does not exist. Aborting."
 	echo ""
 	echo "    This database must contain the GNUmed schema of the proper"
