@@ -1001,9 +1001,6 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 
 		self._TCTRL_person.SetToolTipString(tt)
 
-		print "refreshing provider"
-		print self.__identity
-		print self.__identity['pk_primary_provider']
 		if self.__identity['pk_primary_provider'] is None:
 			self._PRW_provider.SetText(value = u'', data = None)
 		else:

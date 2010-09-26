@@ -3200,6 +3200,7 @@ def main():
 		)
 		_log.debug('wx.lib.pubsub signal monitor activated')
 
+	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered

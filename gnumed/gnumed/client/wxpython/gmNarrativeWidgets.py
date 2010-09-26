@@ -15,11 +15,19 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
 from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg, gmMatchProvider
+
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
 from Gnumed.business import gmForms, gmDocuments, gmPersonSearch
-from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
-from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
+
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmDocumentWidgets
+
 from Gnumed.exporters import gmPatientExporter
 
 
@@ -1003,6 +1011,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __on_current_encounter_switched(self):
 		self.__refresh_encounter()
 	#--------------------------------------------------------
+	# problem list specific events
+	#--------------------------------------------------------
 	def _on_problem_focused(self, event):
 		"""Show related note at the bottom."""
 		pass
@@ -1041,6 +1051,14 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		event.Skip()
 		return False
 	#--------------------------------------------------------
+	def _on_show_closed_episodes_checked(self, event):
+		self.__refresh_problem_list()
+	#--------------------------------------------------------
+	def _on_irrelevant_issues_checked(self, event):
+		self.__refresh_problem_list()
+	#--------------------------------------------------------
+	# SOAP editor specific buttons
+	#--------------------------------------------------------
 	def _on_discard_editor_button_pressed(self, event):
 		self._NB_soap_editors.close_current_editor()
 		event.Skip()
@@ -1053,31 +1071,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._NB_soap_editors.clear_current_editor()
 		event.Skip()
 	#--------------------------------------------------------
-	def _on_save_all_button_pressed(self, event):
-		self.save_encounter()
-		time.sleep(0.3)
-		event.Skip()
-		wx.SafeYield()
-
-		wx.CallAfter(self._save_all_button_pressed_bottom_half)
-		wx.SafeYield()
-	#--------------------------------------------------------
-	def _save_all_button_pressed_bottom_half(self):
-		emr = self.__pat.get_emr()
-		saved = self._NB_soap_editors.save_all_editors (
-			emr = emr,
-			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
-			]
-		)
-		if not saved:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
-	#--------------------------------------------------------
-	def _on_save_encounter_button_pressed(self, event):
-		self.save_encounter()
-		event.Skip()
-	#--------------------------------------------------------
 	def _on_save_note_button_pressed(self, event):
 		emr = self.__pat.get_emr()
 		self._NB_soap_editors.save_current_editor (
@@ -1087,6 +1080,17 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
 			]
 		)
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_image_button_pressed(self, event):
+		emr = self.__pat.get_emr()
+		self._NB_soap_editors.add_visual_progress_note_to_current_problem()
+		event.Skip()
+	#--------------------------------------------------------
+	# encounter specific buttons
+	#--------------------------------------------------------
+	def _on_save_encounter_button_pressed(self, event):
+		self.save_encounter()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_encounter_button_pressed(self, event):
@@ -1113,11 +1117,28 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		wx.CallAfter(gmEMRStructWidgets.start_new_encounter, emr = emr)
 	#--------------------------------------------------------
-	def _on_show_closed_episodes_checked(self, event):
-		self.__refresh_problem_list()
+	# other buttons
 	#--------------------------------------------------------
-	def _on_irrelevant_issues_checked(self, event):
-		self.__refresh_problem_list()
+	def _on_save_all_button_pressed(self, event):
+		self.save_encounter()
+		time.sleep(0.3)
+		event.Skip()
+		wx.SafeYield()
+
+		wx.CallAfter(self._save_all_button_pressed_bottom_half)
+		wx.SafeYield()
+	#--------------------------------------------------------
+	def _save_all_button_pressed_bottom_half(self):
+		emr = self.__pat.get_emr()
+		saved = self._NB_soap_editors.save_all_editors (
+			emr = emr,
+			episode_name_candidates = [
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+			]
+		)
+		if not saved:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1304,6 +1325,11 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		page_idx = self.GetSelection()
 		page = self.GetPage(page_idx)
 		page.refresh()
+	#--------------------------------------------------------
+	def add_visual_progress_note_to_current_problem(self):
+		page_idx = self.GetSelection()
+		page = self.GetPage(page_idx)
+		page.add_visual_progress_note()
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSoapNoteExpandoEditAreaPnl
 
@@ -1374,12 +1400,35 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		self._TCTRL_summary.SetValue(u'')
 		self._PNL_visual_soap.clear()
 	#--------------------------------------------------------
+	def add_visual_progress_note(self):
+		fname, discard_unmodified = select_visual_progress_note_template(parent = self)
+		if fname is None:
+			return False
+
+		if self.problem is None:
+			issue = None
+			episode = None
+		elif self.problem['type'] == 'issue':
+			issue = self.problem['pk_health_issue']
+			episode = None
+		else:
+			issue = self.problem['pk_health_issue']
+			episode = gmEMRStructItems.problem2episode(self.problem)
+
+		wx.CallAfter (
+			edit_visual_progress_note,
+			filename = fname,
+			episode = episode,
+			discard_unmodified = discard_unmodified,
+			health_issue = issue
+		)
+	#--------------------------------------------------------
 	def save(self, emr=None, episode_name_candidates=None):
 
 		if self.empty:
 			return True
 
-		# new unassociated episode (standalone or new-in-issue)
+		# new episode (standalone=unassociated or new-in-issue)
 		if (self.problem is None) or (self.problem['type'] == 'issue'):
 
 			episode_name_candidates.append(u'')
@@ -1731,7 +1780,62 @@ def configure_visual_progress_note_editor():
 		validator = is_valid
 	)
 #============================================================
-def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None):
+def select_file_as_visual_progress_note_template(parent=None):
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = _('Choose file to use as template for new visual progress note'),
+		defaultDir = os.path.expanduser('~'),
+		defaultFile = '',
+		#wildcard = "%s (*)|*|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
+		style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+	)
+	result = dlg.ShowModal()
+
+	if result == wx.ID_CANCEL:
+		dlg.Destroy()
+		return None
+
+	full_filename = dlg.GetPath()
+	dlg.Hide()
+	dlg.Destroy()
+	return full_filename
+#------------------------------------------------------------
+def select_visual_progress_note_template(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# 1) select from template
+	from Gnumed.wxpython import gmFormWidgets
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		template_types = [gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE],
+		active_only = True
+	)
+
+	# 2) select from disk file
+	if template is None:
+		fname = select_file_as_visual_progress_note_template(parent = parent)
+		if fname is None:
+			return (None, None)
+		# create a copy of the picked file -- don't modify the original
+		ext = os.path.splitext(fname)[1]
+		tmp_name = gmTools.get_unique_filename(suffix = ext)
+		_log.debug('visual progress note from file: [%s] -> [%s]', fname, tmp_name)
+		shutil.copy2(fname, tmp_name)
+		return (tmp_name, False)
+
+	filename = template.export_to_file()
+	if filename is None:
+		gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
+		return (None, None)
+	return (filename, True)
+
+#------------------------------------------------------------
+def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None, health_issue=None):
 	"""This assumes <filename> contains an image which can be handled by the configured image editor."""
 
 	if doc_part is not None:
@@ -1810,7 +1914,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 					u'The template/original was not modified at all, however.\n'
 					u'\n'
 					u'Do you still want to save the unmodified image as a\n'
-					u'new visual progress note into the EMR of the patient ?\n'
+					u'visual progress note into the EMR of the patient ?\n'
 				)
 				save_unmodified = gmGuiHelpers.gm_show_question (
 					msg,
@@ -1826,9 +1930,11 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		return None
 
 	if not isinstance(episode, gmEMRStructItems.cEpisode):
+		if episode is None:
+			episode = _('visual progress notes')
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-		episode = emr.add_episode(episode_name = episode.strip(), is_open = False)
+		episode = emr.add_episode(episode_name = episode.strip(), pk_health_issue = health_issue, is_open = False)
 
 	doc = gmDocumentWidgets.save_file_as_new_document (
 		filename = filename,
@@ -1938,7 +2044,6 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 		self.__bitmaps = []
 	#--------------------------------------------------------
 	def _on_bitmap_leftclicked(self, evt):
-		print "editing visual progress note"
 		wx.CallAfter (
 			edit_visual_progress_note,
 			doc_part = evt.GetEventObject().doc_part,
