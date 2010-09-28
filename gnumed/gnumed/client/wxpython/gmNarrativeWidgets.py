@@ -7,8 +7,9 @@ import sys, logging, os, os.path, time, re as regex, shutil
 
 
 import wx
-import wx.lib.expando as wxexpando
+import wx.lib.expando as wx_expando
 import wx.lib.agw.supertooltip as agw_stt
+import wx.lib.statbmp as wx_genstatbmp
 
 
 if __name__ == '__main__':
@@ -1506,8 +1507,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 	#--------------------------------------------------------
 	def __register_interests(self):
 		for field in self.fields:
-			wxexpando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
-		wxexpando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_summary, self._TCTRL_summary.GetId(), self._on_expando_needs_layout)
+			wx_expando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
+		wx_expando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_summary, self._TCTRL_summary.GetId(), self._on_expando_needs_layout)
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
 		# need to tell ourselves to re-Layout to refresh scroll bars
@@ -1588,11 +1589,11 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 	empty = property(_get_empty, lambda x:x)
 #============================================================
-class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
+class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 
 	def __init__(self, *args, **kwargs):
 
-		wxexpando.ExpandoTextCtrl.__init__(self, *args, **kwargs)
+		wx_expando.ExpandoTextCtrl.__init__(self, *args, **kwargs)
 
 		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
 
@@ -1643,7 +1644,7 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 		wx.CallAfter(self._after_on_focus)
 	#--------------------------------------------------------
 	def _after_on_focus(self):
-		evt = wx.PyCommandEvent(wxexpando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
+		evt = wx.PyCommandEvent(wx_expando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
 		evt.SetEventObject(self)
 		evt.height = None
 		evt.numLines = None
@@ -2006,28 +2007,31 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 					fname = part.export_to_file()
 					if fname is None:
 						continue
+
+					# create bitmap
 					img = gmGuiHelpers.file2scaled_image (
 						filename = fname,
 						height = 30
 					)
-					bmp = wx.StaticBitmap(self, -1, img, style = wx.NO_BORDER)
-#					tip = agw_stt.SuperToolTip(fname)
-					#print tip
-#					tip.SetTarget(bmp)
-#					bmp.tip = tip
-					tt = _(
-						'Episode: %s\n'
-						'Created: %s\n'
-						' %s\n'
-						'\n'
-						'Single-click: view/edit\n'
-						'Delete: use document tree'
-					) % (
-						part['episode'],
-						part['date_generated'].strftime('%Y-%m-%d'),
-						gmTools.coalesce(part['doc_comment'], u'').strip()
+					#bmp = wx.StaticBitmap(self, -1, img, style = wx.NO_BORDER)
+					bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
+
+					# create tooltip
+					img = gmGuiHelpers.file2scaled_image (
+						filename = fname,
+						height = 150
 					)
-					bmp.SetToolTipString(tt)
+					tip = agw_stt.SuperToolTip (
+						u'',
+						bodyImage = img,
+						header = _('Created: %s') % part['date_generated'].strftime('%Y %B %d').encode(gmI18N.get_encoding()),
+						footer = gmTools.coalesce(part['doc_comment'], u'').strip()
+					)
+					tip.SetTopGradientColor('white')
+					tip.SetMiddleGradientColor('white')
+					tip.SetBottomGradientColor('white')
+					tip.SetTarget(bmp)
+
 					bmp.doc_part = part
 					bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
 					# FIXME: add context menu for Delete/Clone/Add/Configure
