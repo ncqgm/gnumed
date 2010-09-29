@@ -14,16 +14,21 @@ __version__ = "$Revision: 1.106 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import os
+import os, logging
 
 
 import wx
 
 
-from Gnumed.pycommon import gmPG2, gmTools, gmI18N
-from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmI18N
 
+
+_log = logging.getLogger('gm.main')
 # ========================================================================
+from Gnumed.wxGladeWidgets import wxg2ButtonQuestionDlg
+
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -96,6 +101,8 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 		else:
 			self.Close()
 # ========================================================================
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg
+
 class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -216,6 +223,7 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self._TCTRL_text.SetValue(self.original_text)
 # ========================================================================
 from Gnumed.business import gmSurgery
+from Gnumed.wxGladeWidgets import wxgGreetingEditorDlg
 
 class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 
@@ -337,6 +345,26 @@ class cFileDropTarget(wx.FileDropTarget):
 	#-----------------------------------------------
 	def OnDropFiles(self, x, y, filenames):
 		self.target.add_filenames(filenames)
+# ========================================================================
+def file2scaled_image(filename=None, height=100):
+	img_data = None
+	bitmap = None
+	rescaled_height = height
+	try:
+		img_data = wx.Image(filename, wx.BITMAP_TYPE_ANY)
+		current_width = img_data.GetWidth()
+		current_height = img_data.GetHeight()
+		rescaled_width = (current_width / current_height) * rescaled_height
+		img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
+		bitmap = wx.BitmapFromImage(img_data)
+		del img_data
+	except StandardError:
+		_log.exception('cannot load visual progress note from [%s]', filename)
+		del img_data
+		del bitmap
+		return None
+
+	return bitmap
 # ========================================================================
 def gm_show_error(aMessage = None, aTitle = None):
 	if aMessage is None:

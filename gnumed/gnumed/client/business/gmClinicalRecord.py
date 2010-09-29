@@ -230,7 +230,7 @@ SELECT fk_encounter from
 
 		return stays
 	#--------------------------------------------------------
-	# Narrative API
+	# API: narrative
 	#--------------------------------------------------------
 	def add_notes(self, notes=None, episode=None):
 
@@ -1109,48 +1109,13 @@ WHERE
 		return problems
 	#--------------------------------------------------------
 	def problem2episode(self, problem=None):
-		"""
-		Retrieve the cEpisode instance equivalent to the given problem.
-		The problem's type attribute must be 'episode'
-
-		@param problem: The problem to retrieve its related episode for
-		@type problem: A gmEMRStructItems.cProblem instance
-		"""
-		if isinstance(problem, gmEMRStructItems.cProblem) and (problem['type'] == 'episode'):
-			return self.get_episodes(id_list=[problem['pk_episode']])[0]
-
-		if isinstance(problem, gmEMRStructItems.cEpisode):
-			return problem
-
-		raise TypeError('cannot convert [%s] to episode' % problem)
+		return gmEMRStructItems.problem2episode(problem = problem)
 	#--------------------------------------------------------
 	def problem2issue(self, problem=None):
-		"""
-		Retrieve the cIssue instance equivalent to the given problem.
-		The problem's type attribute must be 'issue'.
-
-		@param problem: The problem to retrieve the corresponding issue for
-		@type problem: A gmEMRStructItems.cProblem instance
-		"""
-		if isinstance(problem, gmEMRStructItems.cProblem) and (problem['type'] == 'issue'):
-			return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
-
-		if isinstance(problem, gmEMRStructItems.cHealthIssue):
-			return problem
-
-		raise TypeError('cannot convert [%s] to health issue' % problem)
+		return gmEMRStructItems.problem2issue(problem = problem)
 	#--------------------------------------------------------
 	def reclass_problem(self, problem):
-		"""Transform given problem into either episode or health issue instance.
-		"""
-		if not isinstance(problem, gmEMRStructItems.cProblem):
-			_log.debug(str(problem))
-			raise TypeError, 'cannot reclass [%s] instance to problem' % type(problem)
-		if problem['type'] == 'episode':
-			return self.get_episodes(id_list=[problem['pk_episode']])[0]
-		if problem['type'] == 'issue':
-			return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
-		return None
+		return gmEMRStructItems.reclass_problem(problem = problem)
 	#--------------------------------------------------------
 	# health issues API
 	#--------------------------------------------------------

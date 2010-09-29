@@ -120,7 +120,7 @@ if test -z ${TARGET_DB} ; then
 	echo "    ERROR: Backup does not create target database ${TARGET_DB}. Aborting."
 	exit 1
 fi
-if test `sudo -u postgres psql -l | grep ${TARGET_DB} | wc -l` -ne 0 ; then
+if test `sudo -u postgres psql -l -p ${GM_PORT} | grep ${TARGET_DB} | wc -l` -ne 0 ; then
 	echo "    ERROR: Target database ${TARGET_DB} already exists. Aborting."
 	exit 1
 fi

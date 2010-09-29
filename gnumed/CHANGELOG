@@ -22,6 +22,7 @@ IMPROVED: much better EMR tree root node tooltip
 IMPROVED: improved adding of vaccinations
 IMPROVED: now listing episodes/health issues at time of creation in EMR journal
 IMPROVED: Boesner score now has internationally usable name: "Marburg CHD score"
+IMPROVED: much better integration of visual progress notes
 
 ------------------------------------------------
 # rel-0-8-patches
@@ -97,6 +98,10 @@ IMPROVED: use substance rather than brand as allergene when creating allergy fro
 ------------------------------------------------
 # rel-0-7-patches
 ------------------------------------------------
+
+	0.7.10
+
+FIX: exception on trying to create hospital stay w/o episode [thanks devm]
 
 	0.7.9
 
