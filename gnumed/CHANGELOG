@@ -28,6 +28,11 @@ IMPROVED: much better integration of visual progress notes
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.4
+
+FIX: exception on trying to create hospital stay w/o episode [thanks devm]
+FIX: exception on calculate_apparent_age(start=March 31st, end=February): invalid day for month [thanks S.Reus]
+
 	0.8.3
 
 FIX: missing gmHooks import when _on_soap_modified is invoked
