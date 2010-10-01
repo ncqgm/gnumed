@@ -586,6 +586,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v14
 ------------------------------------------------
 
+	14.3 -> 14.4
+
+FIX: bootstrapping: properly drop constraints on gm.notifying_tables during v9 -> v10
+
 	14.2 -> 14.3
 
 FIX: check for vaccination dupes looking at all patients rather than the relevant one only
