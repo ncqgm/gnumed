@@ -18,8 +18,13 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.8.3 (database v14.3)',
-	'GNUmed 0.8.3 Release Notes:
+	'Release Notes for GNUmed 0.8.4 (database v14.4)',
+	'GNUmed 0.8.4/14.4 Release Notes:
+
+	0.8.4
+
+FIX: exception on trying to create hospital stay w/o episode [thanks devm]
+FIX: exception on calculate_apparent_age(start=March 31st, end=February): invalid day for month [thanks S.Reus]
 
 	0.8.3
 
@@ -36,6 +41,21 @@ FIX: exception on wrapping long entry in auto-expanding SOAP note field
 	0.8.1
 
 FIX: exception when "DejaVu Sans" not found on Windows
+
+---------------------------------------------------------------
+
+	14.3 -> 14.4
+
+FIX: bootstrapping: properly drop constraints on gm.notifying_tables during v9 -> v10
+
+	14.2 -> 14.3
+
+FIX: check for vaccination dupes looking at all patients rather than the relevant one only
+
+	14.0 -> 14.1
+
+NEW: auto-include fixups for missing array functionality on PG 8.3, needed for conversion to v14
+
 ');
 
 -- --------------------------------------------------------------
