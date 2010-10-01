@@ -5,21 +5,20 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-gm-notifying_tables-dynamic.sql,v 1.1 2009-01-17 22:57:40 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 -- ==============================================================
+\unset ON_ERROR_STOP
 alter table gm.notifying_tables
 	drop constraint notifying_tables_schema_name_key cascade;
+alter table gm.notifying_tables
+	drop constraint unique_entry cascade;
+\set ON_ERROR_STOP 1
 
 alter table gm.notifying_tables
 	add constraint unique_entry
 		unique(schema_name, table_name, signal);
-
 
 -- --------------------------------------------------------------
 create or replace function gm.add_table_for_notifies(name, name, name)
@@ -80,11 +79,6 @@ comment on function gm.add_table_for_notifies (name, name) is
 grant select on gm.notifying_tables to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-gm-notifying_tables-dynamic.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v10-gm-notifying_tables-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
--- $Log: v10-gm-notifying_tables-dynamic.sql,v $
--- Revision 1.1  2009-01-17 22:57:40  ncq
--- - new
---
---
