@@ -63,7 +63,19 @@ def manage_performed_procedures(parent=None):
 
 		items = [
 			[
-				p['clin_when'].strftime('%Y-%m-%d'),
+				u'%s%s' % (
+					p['clin_when'].strftime('%Y-%m-%d'),
+					gmTools.bool2subst (
+						p['is_ongoing'],
+						_(' (ongoing)'),
+						gmTools.coalesce (
+							initial = p['clin_end'],
+							instead = u'',
+							template_initial = u' - %s',
+							function_initial = ('strftime', u'%Y-%m-%d')
+						)
+					)
+				),
 				p['clin_where'],
 				p['episode'],
 				p['performed_procedure']
@@ -164,6 +176,7 @@ limit 25
 		else:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
+			self._PRW_hospital_stay.display_as_valid(True)
 #			self._PRW_episode.Enable(True)
 	#----------------------------------------------------------------
 	def _on_start_lost_focus(self):
@@ -184,7 +197,13 @@ limit 25
 			self._CHBOX_ongoing.Enable(True)
 			self._DPRW_end.display_as_valid(True)
 		else:
+			self._CHBOX_ongoing.Enable(False)
 			end = end.get_pydt()
+			now = gmDateTime.pydt_now_here()
+			if end > now:
+				self._CHBOX_ongoing.SetValue(True)
+			else:
+				self._CHBOX_ongoing.SetValue(False)
 			start = self._DPRW_date.GetData()
 			if start is None:
 				self._DPRW_end.display_as_valid(True)
@@ -194,12 +213,6 @@ limit 25
 					self._DPRW_end.display_as_valid(True)
 				else:
 					self._DPRW_end.display_as_valid(False)
-			self._CHBOX_ongoing.Enable(False)
-			now = gmDateTime.pydt_now_here()
-			if end > now:
-				self._CHBOX_ongoing.SetValue(True)
-			else:
-				self._CHBOX_ongoing.SetValue(False)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -212,6 +225,22 @@ limit 25
 			has_errors = True
 		else:
 			self._DPRW_date.display_as_valid(True)
+
+		end = self._DPRW_end.GetData()
+		self._DPRW_end.display_as_valid(True)
+		if end is not None:
+			end = end.get_pydt()
+			start = self._DPRW_end.GetData()
+			if start is not None:
+				start = start.get_pydt()
+				if end < start:
+					has_errors = True
+					self._DPRW_end.display_as_valid(False)
+			if self._CHBOX_ongoing.IsChecked():
+				now = gmDateTime.pydt_now_here()
+				if end < now:
+					has_errors = True
+					self._DPRW_end.display_as_valid(False)
 
 		if self._PRW_hospital_stay.GetData() is None:
 			if self._PRW_episode.GetData() is None:
@@ -262,23 +291,16 @@ limit 25
 			epi = gmEMRStructItems.cHospitalStay(aPK_obj = stay)['pk_episode']
 			loc = None
 
-		if self._DPRW_end.GetData() is None:
-			if self._CHBOX_ongoing.IsChecked():
-				#end = gmDateTime.pydt_max_here()
-				end = u'infinity'
-			else:
-				end = None
-		else:
-			end = end.get_pydt()
-
 		proc = emr.add_performed_procedure (
 			episode = epi,
 			location = loc,
 			hospital_stay = stay,
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
+
 		proc['clin_when'] = self._DPRW_date.data.get_pydt()
-		proc['clin_end'] = end
+		proc['clin_end'] = self._DPRW_end.GetData().get_pydt()
+		proc['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 		proc.save()
 
 		self.data = proc
@@ -287,16 +309,8 @@ limit 25
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['clin_when'] = self._DPRW_date.data.get_pydt()
-
-		if self._DPRW_end.GetData() is None:
-			if self._CHBOX_ongoing.IsChecked():
-				#end = gmDateTime.pydt_max_here()
-				end = u'infinity'
-			else:
-				end = None
-		else:
-			end = end.get_pydt()
-		self.data['clin_end'] = end
+		self.data['clin_end'] = self._DPRW_end.GetData().get_pydt()
+		self.data['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 
 		if self._PRW_hospital_stay.GetData() is None:
 			self.data['pk_hospital_stay'] = None
@@ -316,6 +330,8 @@ limit 25
 	def _refresh_as_new(self):
 		self._DPRW_date.SetText()
 		self._DPRW_end.SetText()
+		self._CHBOX_ongoing.SetValue(False)
+		self._CHBOX_ongoing.Enable(True)
 		self._PRW_hospital_stay.SetText()
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
@@ -328,16 +344,15 @@ limit 25
 		if self.data['clin_end'] is None:
 			self._DPRW_end.SetText()
 			self._CHBOX_ongoing.Enable(True)
+			self._CHBOX_ongoing.SetValue(self.data['is_ongoing'])
 		else:
 			self._DPRW_end.SetData(data = self.data['clin_end'])
 			self._CHBOX_ongoing.Enable(False)
-			now = gmDateTime.pydt_now_here()
 			now = gmDateTime.pydt_now_here()
 			if self.data['clin_end'] > now:
 				self._CHBOX_ongoing.SetValue(True)
 			else:
 				self._CHBOX_ongoing.SetValue(False)
-
 		self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 		self._PRW_procedure.SetText(value = self.data['performed_procedure'], data = self.data['performed_procedure'])
 

@@ -17,5 +17,16 @@ alter table audit.log_procedure
 	add column clin_end
 		timestamp with time zone;
 
+
+
+-- .is_ongoing
+alter table clin.procedure
+	add column is_ongoing
+		boolean;
+
+alter table audit.log_procedure
+	add column is_ongoing
+		boolean;
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-clin-procedure-static.sql', 'Revision: 1.1');

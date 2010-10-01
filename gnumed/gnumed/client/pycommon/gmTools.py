@@ -678,7 +678,7 @@ def none_if(value=None, none_equivalent=None):
 		return None
 	return value
 #---------------------------------------------------------------------------
-def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None):
+def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None, function_initial=None):
 	"""Modelled after the SQL coalesce function.
 
 	To be used to simplify constructs like:
@@ -710,6 +710,11 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 			return instead
 
 		return template_instead % instead
+
+	if function_initial is not None:
+		funcname, args = function_initial
+		func = getattr(initial, funcname)
+		initial = func(args)
 
 	if template_initial is None:
 		return initial
@@ -990,6 +995,10 @@ if __name__ == '__main__':
 					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
 	#-----------------------------------------------------------------------
 	def test_coalesce():
+
+		import datetime as dt
+		print coalesce(initial = dt.datetime.now(), template_initial = u'-- %s --', function_initial = ('strftime', u'%Y-%m-%d'))
+
 		print 'testing coalesce()'
 		print "------------------"
 		tests = [
@@ -1216,12 +1225,12 @@ second line\n
 		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
 	#-----------------------------------------------------------------------
 	#test_check_for_update()
-	#test_coalesce()
+	test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
-	test_gmPaths()
+	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()

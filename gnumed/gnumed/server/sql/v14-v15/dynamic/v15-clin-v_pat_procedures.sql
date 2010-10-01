@@ -25,6 +25,7 @@ select
 	cpr.soap_cat,
 	cpr.clin_when,
 	cpr.clin_end,
+	cpr.is_ongoing,
 	cpr.narrative
 		as performed_procedure,
 	coalesce (
@@ -93,7 +94,14 @@ select
 				(select chs.narrative from clin.hospital_stay chs where cpr.fk_hospital_stay = chs.pk),
 				cpr.clin_where
 			)
-			|| coalesce(', ' || _('until') || ' ' || to_char(cpr.clin_end, 'YYYY Mon DD'))
+			|| coalesce (
+				', ' || _('until') || ' ' || to_char(cpr.clin_end, 'YYYY Mon DD'),
+				case
+					when (is_ongoing is True)
+						then ', ' || _('ongoing')
+						else ''
+				end
+			)
 		|| ')'
 		as narrative,
 	cpr.fk_encounter

@@ -1557,6 +1557,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 				soap_cat = 'p',
 				clin_when = %(clin_when)s,
 				clin_end = %(clin_end)s,
+				is_ongoing = %(is_ongoing)s,
 				clin_where = NULLIF (
 					COALESCE (
 						%(pk_hospital_stay)s::TEXT,
@@ -1576,6 +1577,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'clin_when',
 		'clin_end',
+		'is_ongoing',
 		'clin_where',
 		'performed_procedure',
 		'pk_hospital_stay',
@@ -1595,13 +1597,16 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_episode=True):
 
-		end = self._payload[self._idx['clin_end']]
-		if end is None:
-			end = u''
+		if self._payload[self._idx['is_ongoing']]:
+			end = _(' (ongoing)')
 		else:
-			end = u' - %s' % end.strftime('%Y %b %d').decode(gmI18N.get_encoding())
+			end = self._payload[self._idx['clin_end']]
+			if end is None:
+				end = u''
+			else:
+				end = u' - %s' % end.strftime('%Y %b %d').decode(gmI18N.get_encoding())
 
-		line = u'%s%s%s (%s): %s' % (
+		line = u'%s%s%s, %s: %s' % (
 			(u' ' * left_margin),
 			self._payload[self._idx['clin_when']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
 			end,
