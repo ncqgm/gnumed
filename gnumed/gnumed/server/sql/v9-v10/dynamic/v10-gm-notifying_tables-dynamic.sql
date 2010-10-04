@@ -12,6 +12,9 @@
 \unset ON_ERROR_STOP
 alter table gm.notifying_tables
 	drop constraint notifying_tables_schema_name_key cascade;
+-- this is what PG 9.0 uses as the default constraint name:
+alter table gm.notifying_tables
+	drop constraint notifying_tables_schema_name_table_name_key cascade;
 alter table gm.notifying_tables
 	drop constraint unique_entry cascade;
 \set ON_ERROR_STOP 1
