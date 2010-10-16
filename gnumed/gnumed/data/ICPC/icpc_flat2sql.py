@@ -49,11 +49,11 @@ select i18n.upd_tx('de', 'Diagnosis, disease', 'Diagnosen, Krankheiten');
 
 -- --------------------------------------------------------------
 \\unset ON_ERROR_STOP
-drop table staging.icpc2 cascade;
+drop table staging.icpc cascade;
 \set ON_ERROR_STOP 1
 
-create table staging.icpc2 (
-	icpc2 text,
+create table staging.icpc (
+	icpc text,
 	component integer,
 	chapter text,
 	term text,
@@ -177,14 +177,14 @@ Again, all the ICPC2 data is provided for NON-COMMERCIAL USE ONLY !
 
 -- ----------------------------------------------------
 -- insert data
-delete from ref.icpc2
+delete from ref.icpc
 where
 	fk_data_source = (
 		select pk from ref.data_source where name_short = 'ICPC' and version = '2e-3.0-GM-2004' and lang = 'de'
 );
 
 
-insert into ref.icpc2 (
+insert into ref.icpc (
 	code,
 	term,
 	comment,
@@ -198,7 +198,7 @@ insert into ref.icpc2 (
 	fk_chapter,
 	fk_data_source
 ) select
-	icpc2,
+	icpc,
 	term,
 	notes,
 	NULL,
@@ -211,13 +211,13 @@ insert into ref.icpc2 (
 	chapter,
 	(select pk from ref.data_source where name_short = 'ICPC' and version = '2e-3.0-GM-2004' and lang = 'de')
   from
-	staging.icpc2
+	staging.icpc
 ;
 
 
 -- delete staging data
-delete from staging.icpc2;
-drop table staging.icpc2 cascade;
+delete from staging.icpc;
+drop table staging.icpc cascade;
 
 -- ----------------------------------------------------
 """ % (record_separator, record_separator, record_separator)
@@ -225,7 +225,7 @@ drop table staging.icpc2 cascade;
 record_start = u'/stammdatei/body/ICPC_liste/ICPC_stammsatz/ICPC_code/@V='
 
 line_starts = {
-	u'/stammdatei/body/ICPC_liste/ICPC_stammsatz/ICPC_code/@V=': u'icpc2',
+	u'/stammdatei/body/ICPC_liste/ICPC_stammsatz/ICPC_code/@V=': u'icpc',
 	u'/stammdatei/body/ICPC_liste/ICPC_stammsatz/komponentennummer/@V=': u'component',
 	u'/stammdatei/body/ICPC_liste/ICPC_stammsatz/kapitel/@V=': u'chapter',
 	u'/stammdatei/body/ICPC_liste/ICPC_stammsatz/bezeichnung/@V=': u'term',
@@ -244,15 +244,15 @@ line_starts_to_append = [
 	u'/stammdatei/body/ICPC_liste/ICPC_stammsatz/verweisliste/verweis/ICPC_code/@V='
 ]
 
-SQL_INSERT = u'INSERT INTO staging.icpc2 (icpc2, component, chapter, term, icd10, incl, excl, crit, notes, see_also) VALUES (%s);\n'
-SQL_INSERT = SQL_INSERT % (u"%(icpc2)s, %(component)s::smallint, %(chapter)s, quote_literal(%(term)s), quote_nullable(%(icd10)s), quote_nullable(%(incl)s), quote_nullable(%(excl)s), quote_nullable(%(crit)s), quote_nullable(%(notes)s), quote_nullable(%(see_also)s)")
+SQL_INSERT = u'INSERT INTO staging.icpc (icpc, component, chapter, term, icd10, incl, excl, crit, notes, see_also) VALUES (%s);\n'
+SQL_INSERT = SQL_INSERT % (u"%(icpc)s, %(component)s::smallint, %(chapter)s, %(term)s, %(icd10)s, %(incl)s, %(excl)s, %(crit)s, %(notes)s, %(see_also)s")
 
 #================================================================================
 NULL = u'NULL'
 
 def init_record():
 	return {
-		u'icpc2': NULL,
+		u'icpc': NULL,
 		u'component': NULL,
 		u'chapter': NULL,
 		u'term': NULL,
@@ -282,8 +282,7 @@ for line in infile:
 	for line_start, sql_field in line_starts.items():
 		if line.startswith(line_start):
 			known_line = True
-			val = line[len(line_start):].replace(u"'", u"\\'")
-#			val = u"E'%s'" % 
+			val = line[len(line_start):].replace(u"'", u"''")
 			if current_record[sql_field] == NULL:
 				current_record[sql_field] = u"'%s'" % val
 			else:
@@ -301,6 +300,7 @@ for line in infile:
 
 infile.close()
 
+outfile.write(SQL_INSERT % current_record)
 outfile.write(SQL_SCRIPT_END)
 outfile.close()
 
