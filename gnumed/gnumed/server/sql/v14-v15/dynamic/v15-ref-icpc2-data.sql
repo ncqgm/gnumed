@@ -1512,7 +1512,7 @@ Copyright notices from the WONCA pages:
 Policy on copyright, licensing and translations
 
 
-The copyright of ICPC, both in hard copy and in electronic form, is owned by Wonca.  
+The copyright of ICPC, both in hard copy and in electronic form, is owned by Wonca.
 
 The non-commercial user is free to use ICPC-2e.
 
