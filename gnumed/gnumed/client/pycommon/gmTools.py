@@ -547,13 +547,17 @@ def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 #	for line in unicode_csv_data:
 #		yield line.encode('utf-8')
 
+default_csv_reader_rest_key = u'list_of_values_of_unknown_fields'
+
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
+
 	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
 	try:
 		is_dict_reader = kwargs['dict']
 		del kwargs['dict']
 		if is_dict_reader is not True:
 			raise KeyError
+		kwargs['restkey'] = default_csv_reader_rest_key
 		csv_reader = csv.DictReader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 	except KeyError:
 		is_dict_reader = False
@@ -563,7 +567,16 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 		# decode ENCODING back to Unicode, cell by cell:
 		if is_dict_reader:
 			for key in row.keys():
-				row[key] = unicode(row[key], encoding)
+				if key == default_csv_reader_rest_key:
+					old_data = row[key]
+					new_data = []
+					for val in old_data:
+						new_data.append(unicode(val, encoding))
+					row[key] = new_data
+					if default_csv_reader_rest_key not in csv_reader.fieldnames:
+						csv_reader.fieldnames.append(default_csv_reader_rest_key)
+				else:
+					row[key] = unicode(row[key], encoding)
 			yield row
 		else:
 			yield [ unicode(cell, encoding) for cell in row ]

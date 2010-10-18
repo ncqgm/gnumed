@@ -220,6 +220,11 @@ class cGelbeListeCSVFile(object):
 		if truncate:
 			try: os.open(self.filename, 'wb').close
 			except: pass
+	#--------------------------------------------------------
+	def _get_has_unknown_fields(self):
+		return (gmTools.default_csv_reader_rest_key in self.csv_fieldnames)
+
+	has_unknown_fields = property(_get_has_unknown_fields, lambda x:x)
 #============================================================
 class cDrugDataSourceInterface(object):
 
@@ -1315,7 +1320,12 @@ if __name__ == "__main__":
 			print '"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn'])
 			for stoff in drug['wirkstoffe']:
 				print " Wirkstoff:", stoff
-			print drug
+			raw_input()
+			if mmi_file.has_unknown_fields is not None:
+				print "has extra data under [%s]" % gmTools.default_csv_reader_rest_key
+			for key in mmi_file.csv_fieldnames:
+				print key, '->', drug[key]
+			raw_input()
 		mmi_file.close()
 	#--------------------------------------------------------
 	def test_mmi_switch_to():
@@ -1373,12 +1383,12 @@ if __name__ == "__main__":
 		print drug.components
 	#--------------------------------------------------------
 	#test_MMI_interface()
-	#test_MMI_file()
+	test_MMI_file()
 	#test_mmi_switch_to()
 	#test_mmi_select_drugs()
 	#test_mmi_import_substances()
 	#test_mmi_import_drugs()
-	test_fd_switch_to()
+	#test_fd_switch_to()
 	#test_interaction_check()
 	#test_create_substance_intake()
 	#test_show_components()
