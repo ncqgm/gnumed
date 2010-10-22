@@ -14,6 +14,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools, gmI18N
 from Gnumed.business import gmClinNarrative
+#from Gnumed.business import gmPerson
 
 
 _log = logging.getLogger('gm.emr')
@@ -63,6 +64,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description = %(description)s,
+				summary = gm.nullify_empty_string(%(summary)s),
 				age_noted = %(age_noted)s,
 				laterality = gm.nullify_empty_string(%(laterality)s),
 				grouping = gm.nullify_empty_string(%(grouping)s),
@@ -78,6 +80,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		'description',
+		'summary',
 		'grouping',
 		'age_noted',
 		'laterality',
@@ -119,6 +122,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for issue renaming.
 
@@ -143,7 +148,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return True
 	#--------------------------------------------------------
 	def get_episodes(self):
-		cmd = u"select * from clin.v_pat_episodes where pk_health_issue = %(pk)s"
+		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = True)
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 	#--------------------------------------------------------
@@ -192,19 +197,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		# later we can improve this deeper inside
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
 	#--------------------------------------------------------
-	def _get_laterality_description(self):
-		try:
-			return laterality2str[self._payload[self._idx['laterality']]]
-		except KeyError:
-			return u'<???>'
-
-	laterality_description = property(_get_laterality_description, lambda x:x)
-	#--------------------------------------------------------
-	def _get_diagnostic_certainty_description(self):
-		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
-
-	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
-	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
@@ -251,7 +243,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['age_noted']] is not None:
 			lines.append(_(' Noted at age: %s') % self.age_noted_human_readable())
 
-		lines.append(_(' Status: %s, %s%s') % (
+		lines.append(u' ' + _('Status') + u': %s, %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('active'), _('inactive')),
 			gmTools.bool2subst(self._payload[self._idx['clinically_relevant']], _('clinically relevant'), _('not clinically relevant')),
 			gmTools.coalesce (
@@ -259,9 +251,19 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				instead = u'',
 				template_initial = u', %s',
 				none_equivalents = [None, u'']
-			),
+			)
 		))
-		lines.append('')
+
+		if self._payload[self._idx['summary']] is not None:
+			lines.append(u'')
+			lines.append(gmTools.wrap (
+				text = self._payload[self._idx['summary']],
+				width = 60,
+				initial_indent = u'  ',
+				subsequent_indent = u'  '
+			))
+
+		lines.append(u'')
 
 		emr = patient.get_emr()
 
@@ -377,6 +379,39 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	episodes = property(get_episodes, lambda x:x)
+	#--------------------------------------------------------
+	open_episode = property(get_open_episode, lambda x:x)
+	#--------------------------------------------------------
+	def _get_latest_episode(self):
+		cmd = u"""SELECT
+			coalesce (
+				(SELECT pk FROM clin.episode WHERE fk_health_issue = %(issue)s AND is_open IS TRUE),
+				(SELECT pk FROM clin.v_pat_episodes WHERE fk_health_issue = %(issue)s ORDER BY last_affirmed DESC limit 1)
+		)"""
+		args = {'issue': self.pk_obj}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 0:
+			return None
+		return cEpisode(aPK_obj = rows[0][0])
+
+	latest_episode = property(_get_latest_episode, lambda x:x)
+	#--------------------------------------------------------
+	def _get_laterality_description(self):
+		try:
+			return laterality2str[self._payload[self._idx['laterality']]]
+		except KeyError:
+			return u'<???>'
+
+	laterality_description = property(_get_laterality_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_diagnostic_certainty_description(self):
+		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
+
+	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 #============================================================
 def create_health_issue(description=None, encounter=None, patient=None):
 	"""Creates a new health issue for a given patient.
@@ -450,6 +485,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				fk_health_issue = %(pk_health_issue)s,
 				is_open = %(episode_open)s::boolean,
 				description = %(description)s,
+				summary = gm.nullify_empty_string(%(summary)s),
 				diagnostic_certainty_classification = gm.nullify_empty_string(%(diagnostic_certainty_classification)s)
 			where
 				pk = %(pk_episode)s and
@@ -460,6 +496,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		'pk_health_issue',
 		'episode_open',
 		'description',
+		'summary',
 		'diagnostic_certainty_classification'
 	]
 	#--------------------------------------------------------
@@ -606,6 +643,16 @@ from (
 			enc['last_affirmed_original_tz'].strftime('%H:%M'),
 			self._payload[self._idx['pk_encounter']]
 		))
+
+		if self._payload[self._idx['summary']] is not None:
+			lines.append(gmTools.wrap (
+					text = self._payload[self._idx['summary']],
+					width = 60,
+					initial_indent = u'  ',
+					subsequent_indent = u'  '
+				)
+			)
+			lines.append(u'')
 
 		# encounters
 		emr = patient.get_emr()
@@ -1341,13 +1388,91 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['type']] != 'episode':
 			_log.error('cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
-		return cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
+		return cEpisode(aPK_obj = self._payload[self._idx['pk_episode']])
+	#--------------------------------------------------------
+	def get_visual_progress_notes(self, encounter_id=None):
+
+		if self._payload[self._idx['type']] == u'issue':
+			episodes = [ cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']]).latest_episode ]
+			#xxxxxxxxxxxxx
+
+		emr = patient.get_emr()
+
+		doc_folder = gmDocuments.cDocumentFolder(aPKey = patient.ID)
+		return doc_folder.get_visual_progress_notes (
+			health_issue = self._payload[self._idx['pk_health_issue']],
+			episode = self._payload[self._idx['pk_episode']]
+		)
+	#--------------------------------------------------------
+	# properties
 	#--------------------------------------------------------
 	# doubles as 'diagnostic_certainty_description' getter:
 	def get_diagnostic_certainty_description(self):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(get_diagnostic_certainty_description, lambda x:x)
+#-----------------------------------------------------------
+def problem2episode(problem=None):
+	"""Retrieve the cEpisode instance equivalent to the given problem.
+
+	The problem's type attribute must be 'episode'
+
+	@param problem: The problem to retrieve its related episode for
+	@type problem: A gmEMRStructItems.cProblem instance
+	"""
+	if isinstance(problem, cEpisode):
+		return problem
+
+	exc = TypeError('cannot convert [%s] to episode' % problem)
+
+	if not isinstance(problem, cProblem):
+		raise exc
+
+	if problem['type'] != 'episode':
+		raise exc
+
+	return cEpisode(aPK_obj = problem['pk_episode'])
+#-----------------------------------------------------------
+def problem2issue(problem=None):
+	"""Retrieve the cIssue instance equivalent to the given problem.
+
+	The problem's type attribute must be 'issue'.
+
+	@param problem: The problem to retrieve the corresponding issue for
+	@type problem: A gmEMRStructItems.cProblem instance
+	"""
+	if isinstance(problem, cHealthIssue):
+		return problem
+
+	exc = TypeError('cannot convert [%s] to health issue' % problem)
+
+	if not isinstance(problem, cProblem):
+		raise exc
+
+	if  problem['type'] != 'issue':
+		raise exc
+
+	return cHealthIssue(aPK_obj = problem['pk_health_issue'])
+#-----------------------------------------------------------
+def reclass_problem(self, problem=None):
+	"""Transform given problem into either episode or health issue instance.
+	"""
+	if isinstance(problem, (cEpisode, cHealthIssue)):
+		return problem
+
+	exc = TypeError('cannot reclass [%s] instance to either episode or health issue' % type(problem))
+
+	if not isinstance(problem, cProblem):
+		_log.debug(u'%s' % problem)
+		raise exc
+
+	if problem['type'] == 'episode':
+		return cEpisode(aPK_obj = problem['pk_episode'])
+
+	if problem['type'] == 'issue':
+		return cHealthIssue(aPK_obj = problem['pk_health_issue'])
+
+	raise exc
 #============================================================
 class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
@@ -1429,7 +1554,10 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from clin.v_pat_procedures where pk_procedure = %s"
 	_cmds_store_payload = [
 		u"""UPDATE clin.procedure SET
+				soap_cat = 'p',
 				clin_when = %(clin_when)s,
+				clin_end = %(clin_end)s,
+				is_ongoing = %(is_ongoing)s,
 				clin_where = NULLIF (
 					COALESCE (
 						%(pk_hospital_stay)s::TEXT,
@@ -1445,10 +1573,11 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 				pk = %(pk_procedure)s AND
 				xmin = %(xmin_procedure)s
 			RETURNING xmin as xmin_procedure"""
-#		,u"""select xmin_procedure from clin.v_pat_procedures where pk_procedure = %(pk_procedure)s"""
 	]
 	_updatable_fields = [
 		'clin_when',
+		'clin_end',
+		'is_ongoing',
 		'clin_where',
 		'performed_procedure',
 		'pk_hospital_stay',
@@ -1468,9 +1597,19 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_episode=True):
 
-		line = u'%s%s (%s): %s' % (
+		if self._payload[self._idx['is_ongoing']]:
+			end = _(' (ongoing)')
+		else:
+			end = self._payload[self._idx['clin_end']]
+			if end is None:
+				end = u''
+			else:
+				end = u' - %s' % end.strftime('%Y %b %d').decode(gmI18N.get_encoding())
+
+		line = u'%s%s%s, %s: %s' % (
 			(u' ' * left_margin),
 			self._payload[self._idx['clin_when']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
+			end,
 			self._payload[self._idx['clin_where']],
 			self._payload[self._idx['performed_procedure']]
 		)
@@ -1499,12 +1638,14 @@ def create_performed_procedure(encounter=None, episode=None, location=None, hosp
 			INSERT INTO clin.procedure (
 				fk_encounter,
 				fk_episode,
+				soap_cat,
 				clin_where,
 				fk_hospital_stay,
 				narrative
 			) VALUES (
 				%(enc)s,
 				%(epi)s,
+				'p',
 				gm.nullify_empty_string(%(loc)s),
 				%(stay)s,
 				gm.nullify_empty_string(%(proc)s)

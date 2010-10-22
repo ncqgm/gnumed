@@ -67,6 +67,8 @@ from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHan
 from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
+from Gnumed.wxpython import gmI18nWidgets, gmCodingWidgets
+
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -417,6 +419,12 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
 
+		item = menu_master_data.Append(-1, _('&Translations (DB)'), _('Manage string translations in the database.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_translations, item)
+
+		item = menu_master_data.Append(-1, _('Codes'), _('Browse codes with coded terms.'))
+		self.Bind(wx.EVT_MENU, self.__on_browse_coded_terms, item)
+
 		menu_master_data.AppendSeparator()
 
 		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter types.'))
@@ -635,12 +643,14 @@ class gmTopLevelFrame(wx.Frame):
 			viewer = u'Aeskulap'
 		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
 			viewer = u'AMIDE'
+		elif gmShellAPI.detect_external_binary(binary = 'dicomscope')[0]:
+			viewer = u'DicomScope'
 		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.info('neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
+			_log.info('neither of OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -1952,7 +1962,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
 			return
 
-		for viewer in ['aeskulap', 'amide', 'xmedcon']:
+		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
 				gmShellAPI.run_command_in_shell(cmd, blocking=False)
@@ -2429,7 +2439,13 @@ class gmTopLevelFrame(wx.Frame):
 		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_manage_text_expansion(self, evt):
-		gmProviderInboxWidgets.configure_keyword_text_expansion(parent=self)
+		gmProviderInboxWidgets.configure_keyword_text_expansion(parent = self)
+	#----------------------------------------------
+	def __on_manage_translations(self, evt):
+		gmI18nWidgets.manage_translations(parent = self)
+	#----------------------------------------------
+	def __on_browse_coded_terms(self, evt):
+		gmCodingWidgets.browse_coded_terms(parent = self)
 	#----------------------------------------------
 	def __on_manage_encounter_types(self, evt):
 		gmEMRStructWidgets.manage_encounter_types(parent=self)
@@ -3184,6 +3200,7 @@ def main():
 		)
 		_log.debug('wx.lib.pubsub signal monitor activated')
 
+	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered

@@ -258,6 +258,7 @@ def show_audit_trail(parent=None):
 
 #============================================================
 # FIXME: this should be moved elsewhere !
+#------------------------------------------------------------
 def configure_workplace_plugins(parent=None):
 
 	if parent is None:
@@ -368,6 +369,39 @@ def configure_workplace_plugins(parent=None):
 
 		return True
 	#-----------------------------------
+	def clone(workplace=None):
+		if workplace is None:
+			return False
+
+		new_name = wx.GetTextFromUser (
+			message = _('Enter a name for the new workplace !'),
+			caption = _('Cloning workplace'),
+			default_value = u'%s-2' % workplace,
+			parent = parent
+		).strip()
+
+		if new_name == u'':
+			return False
+
+		dbcfg = gmCfg.cCfgSQL()
+		opt = u'horstspace.notebook.plugin_load_order'
+
+		plugins = dbcfg.get2 (
+			option = opt,
+			workplace = workplace,
+			bias = 'workplace'
+		)
+
+		dbcfg.set (
+			option = opt,
+			value = plugins,
+			workplace = new_name
+		)
+
+		# FIXME: clone cfg, too
+
+		return True
+	#-----------------------------------
 	def refresh(lctrl):
 		workplaces = gmSurgery.gmCurrentPractice().workplaces
 		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
@@ -392,7 +426,8 @@ def configure_workplace_plugins(parent=None):
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = edit,
-		delete_callback = delete
+		delete_callback = delete,
+		left_extra_button = (_('Clone'), _('Clone the selected workplace'), clone)
 	)
 #============================================================
 class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):

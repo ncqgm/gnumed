@@ -30,10 +30,6 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 	#-------------------------------------------------
 	def GetWidget(self, parent):
 		self._widget = gmEMRBrowser.cSplittedEMRTreeBrowserPnl(parent, -1)
-#		self._widget = gmEMRBrowser.cEMRBrowserPanel(parent, -1)
-#		self._widget = gmEMRBrowser.cScrolledEMRTreePnl(parent, -1)
-#		from Gnumed.wxpython import gmDocumentWidgets
-#		self._widget = gmDocumentWidgets.cSelectablySortedDocTreePnl(parent, -1)
 		return self._widget
 	#-------------------------------------------------
 	def MenuInfo(self):

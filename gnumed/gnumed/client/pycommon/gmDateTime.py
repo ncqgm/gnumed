@@ -196,6 +196,9 @@ def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
 #---------------------------------------------------------------------------
+def pydt_max_here():
+	return pyDT.datetime.max.replace(tzinfo = gmCurrentLocalTimezone)
+#---------------------------------------------------------------------------
 def wx_now_here(wx=None):
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return py_dt2wxDate(py_dt = pydt_now_here(), wx = wx)
@@ -396,7 +399,10 @@ def calculate_apparent_age(start=None, end=None):
 		months = end.month - start.month
 		if months < 0:
 			months = months + 12
-		end = end.replace(month = start.month)
+		if end.day > gregorian_month_length[start.month]:
+			end = end.replace(month = start.month, day = gregorian_month_length[start.month])
+		else:
+			end = end.replace(month = start.month)
 		if end < start:
 			months = months - 1
 
@@ -1537,6 +1543,10 @@ if __name__ == '__main__':
 		start = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 13)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		start = pydt_now_here().replace(year = 1979).replace(month = 2, day = 2)
+		end = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 31)
+		print calculate_apparent_age(start = start, end = end)
 	#-------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == "test":
 

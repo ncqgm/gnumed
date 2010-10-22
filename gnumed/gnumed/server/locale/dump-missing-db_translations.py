@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	if rows is None:
 		_log.error('cannot retrieve untranslated strings')
 		sys.exit('cannot retrieve untranslated strings')
-	if len(rows) is None:
+	if len(rows) == 0:
 		_log.error('no untranslated strings available')
 		print "nothing to translate"
 		sys.exit(0)

@@ -25,6 +25,7 @@ fi ;
 # tell libpq-based tools about the non-default port, if any
 if test -n "${GM_DB_PORT}" ; then
 	PORT_DEF="-p ${GM_DB_PORT}"
+	export PGPORT="${GM_DB_PORT}"
 else
 	PORT_DEF=""
 fi ;
@@ -48,7 +49,7 @@ echo_msg "with the name \"gnumed_v${VER}\"."
 # better safe than sorry
 ALL_PREV_VERS="${VERSIONS_TO_DROP} ${PREV_VER} ${VER}"
 for DB_VER in ${ALL_PREV_VERS} ; do
-	VER_EXISTS=`su -c "psql -l" -l postgres | grep gnumed_v${DB_VER}`
+	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep gnumed_v${DB_VER}`
 	if test "${VER_EXISTS}" != "" ; then
 		echo ""
 		echo "-----------------------------------------------"
