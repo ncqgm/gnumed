@@ -6,6 +6,10 @@
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.5
+
+FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
+
 	0.8.4
 
 FIX: exception on trying to create hospital stay w/o episode [thanks devm]
@@ -585,6 +589,11 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v14
 ------------------------------------------------
+
+	14.4 -> 14.5
+
+FIX: no more regex_flavor in PostgreSQL 9.0 (gm-adjust_db_settings)
+IMPROVED: gm-restore_database
 
 	14.3 -> 14.4
 
