@@ -84,6 +84,6 @@ create table dem.org_unit (
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.10 $');
+select gm.log_script_insertion('v15-dem-org_handling-static.sql', 'Revision: 1.10');
 
 -- ==============================================================

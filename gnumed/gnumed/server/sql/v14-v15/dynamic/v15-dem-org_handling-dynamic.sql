@@ -132,12 +132,116 @@ alter table dem.lnk_org2ext_id
 ;
 
 -- --------------------------------------------------------------
--- remember to handle dependant objects possibly dropped by CASCADE
---\unset ON_ERROR_STOP
---drop forgot_to_edit_drops cascade;
---\set ON_ERROR_STOP 1
+\unset ON_ERROR_STOP
+drop view dem.v_org cascade;
+drop view dem.v_org_units cascade;
+\set ON_ERROR_STOP 1
+
+
+
+create view dem.v_org as
+select
+	org.pk
+		as pk_org,
+	org.description
+		as organisation,
+	doc.description
+		as category,
+	_(doc.description)
+		as l10n_category,
+	org.fk_category
+		as pk_category_org
+from
+	dem.org org
+		left join dem.org_category doc on (org.fk_category = doc.pk)
+;
+
+
+
+create view dem.v_org_units as
+
+select
+	dou.pk
+		as pk_org_unit,
+	dvo.organisation,
+	dou.description
+		as unit,
+	dvo.category
+		as organisation_category,
+	_(dvo.category)
+		as l10n_organisation_category,
+	doc.description
+		as unit_category,
+	_(doc.description)
+		as l10n_unit_category,
+	dvo.pk_org,
+	dvo.pk_category_org,
+	dou.fk_category
+		as pk_category_unit,
+	dou.fk_address
+		as pk_address
+from
+	dem.org_unit dou
+		left join dem.v_org dvo on (dou.fk_org = dvo.pk_org)
+			left join dem.org_category doc on (dou.fk_category = doc.pk)
+;
+
+
+
+grant select on
+	dem.v_org,
+	dem.v_org_units
+to group "gm-public";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.10 $');
+\unset ON_ERROR_STOP
+
+insert into dem.org_category (description) values ('Government');
+insert into dem.org_category (description) values ('Hospital');
+insert into dem.org_category (description) values ('Ward');
+
+
+
+insert into dem.org (description, fk_category) values (
+	'Ministry of Public Health',
+	(select pk from dem.org_category where description = 'Government')
+);
+
+insert into dem.org (description, fk_category) values (
+	'Starfleet Central',
+	(select pk from dem.org_category where description = 'Hospital')
+);
+
+
+
+select dem.create_address('117', 'Golden Gate Drive', 'SF 278 CA', 'San Francisco', 'CA', 'US', NULL);
+select dem.create_address('1', 'Deck 7', 'NCC-1701-E', 'San Francisco', 'CA', 'US', NULL);
+
+
+
+insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
+	'Ward A-II',
+	(select pk from dem.org where description = 'Starfleet Central'),
+	(select pk from dem.org_category where description = 'Ward'),
+	(select pk_address from dem.v_address where street = 'Golden Gate Drive' and postcode = 'SF 278 CA')
+);
+
+insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
+	'Enterprise Sickbay Ward',
+	(select pk from dem.org where description = 'Starfleet Central'),
+	(select pk from dem.org_category where description = 'Ward'),
+	(select pk_address from dem.v_address where street = 'Deck 7' and postcode = 'NCC-1701-E')
+);
+
+\set ON_ERROR_STOP 1
+
+
+
+select i18n.upd_tx('de', 'Ministry of Public Health', 'Gesundheitsministerium');
+select i18n.upd_tx('de', 'Hospital', 'Krankenhaus');
+select i18n.upd_tx('de', 'Ward', 'Station');
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v15-dem-org_handling-dynamic.sql', '1.2');
 
 -- ==============================================================
