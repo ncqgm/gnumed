@@ -6,9 +6,12 @@
 # for interactive use and will have to be adjusted to your
 # needs.
 #
+# Note that for some reason it doesn't work when the backup
+# file you intend to use is a link to the actual backup.
+# Use the full path instead.
+#
 # author: Karsten Hilbert
 # license: GPL v2
-#
 #==============================================================
 
 
@@ -82,19 +85,22 @@ echo ""
 echo "==> Unpacking backup file ..."
 BACKUP=${WORK_DIR}/`basename ${BACKUP}`
 if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
+	echo " => Decompressing (from bzip2) ..."
 	bunzip2 -v ${BACKUP}
 	if test $? -ne 0 ; then
-		echo "    ERROR: Cannot unpack (bzip2) backup file. Aborting."
+		echo "    ERROR: Cannot decompress bzip2 backup file. Aborting."
 		exit 1
 	fi
 	BACKUP=`basename ${BACKUP} .bz2`
 fi
+echo " => Extracting (from tarball) ..."
 tar -xvvf ${BACKUP}
 if test $? -ne 0 ; then
-	echo "    ERROR: Cannot unpack (tar) backup file. Aborting."
+	echo "    ERROR: Cannot unpack tarball backup file. Aborting."
 	exit 1
 fi
 BACKUP=`basename ${BACKUP} .tar`
+rm ${BACKUP}.tar
 
 
 echo ""
@@ -133,10 +139,10 @@ sudo -u postgres psql -e -E -p ${GM_PORT} --single-transaction -f ${BACKUP}-role
 if test $? -ne 0 ; then
 	echo "    ERROR: Failed to restore roles. Aborting."
 	echo "           see: ${LOG}"
-	sudo -u postgres chmod 0666 ${LOG}
+	chmod 0666 ${LOG}
 	exit 1
 fi
-sudo -u postgres chmod 0666 ${LOG}
+chmod 0666 ${LOG}
 
 
 echo ""
@@ -146,10 +152,10 @@ sudo -u postgres psql -p ${GM_PORT} --single-transaction -f ${BACKUP}-database.s
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore database. Aborting."
 	echo "           see: ${LOG}"
-	sudo -u postgres chmod 0666 ${LOG}
+	chmod 0666 ${LOG}
 	exit 1
 fi
-sudo -u postgres chmod 0666 ${LOG}
+chmod 0666 ${LOG}
 
 
 echo ""
@@ -159,7 +165,7 @@ echo "==> Analyzing database ${TARGET_DB} ..."
 # we need to update statistics to get decent performance
 LOG="${LOG_BASE}/analyzing-database-${TS}.log"
 sudo -u postgres vacuumdb -v -z -d ${TARGET_DB} -p ${GM_PORT} &> ${LOG}
-sudo -u postgres chmod 0666 ${LOG}
+chmod 0666 ${LOG}
 
 
 echo ""
@@ -167,6 +173,20 @@ echo "==> Cleaning up ..."
 rm -vf ${WORK_DIR}/*
 rmdir -v ${WORK_DIR}
 cd -
+
+
+echo ""
+echo "You may need to adjust the PostgreSQL database access permissions."
+echo "Please edit /etc/postgresql/x.y/main/pg_hba.conf as needed."
+echo ""
+echo "Typically you will need a line like this:"
+echo ""
+echo " local   samegroup   +gm-logins   md5"
+echo ""
+echo "For details refer to the GNUmed documentation at:"
+echo ""
+echo " http://wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+echo ""
 
 
 exit 0
