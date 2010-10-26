@@ -25,6 +25,7 @@ IMPROVED: Boesner score now has internationally usable name: "Marburg CHD score"
 IMPROVED: much better integration of visual progress notes
 IMPROVED: procedures now support a duration and an "ongoing" state
 IMPROVED: adjust to modified API of MMI/Gelbe Liste
+IMPROVED: master data management interface
 
 ------------------------------------------------
 # rel-0-8-patches
