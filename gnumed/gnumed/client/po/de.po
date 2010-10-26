@@ -6751,13 +6751,13 @@ msgid "Vaccines"
 msgstr "Impfstoffe"
 
 msgid "Create fake vaccines"
-msgstr "Unechte Impfstoffe anlegen"
+msgstr "Pseudo-Impfstoffe anlegen"
 
 msgid "Re-create fake generic vaccines."
-msgstr "Unechte Impfungstoffe neu erzeugen."
+msgstr "Pseudo-Impfungstoffe neu erzeugen."
 
 msgid "Immunizables"
-msgstr "Impfkrankheiten"
+msgstr "Impfindikationen"
 
 msgid "Show conditions known to be preventable by vaccination."
 msgstr "Zeige Krankheiten, die durch Impfung verhindert werden können."
