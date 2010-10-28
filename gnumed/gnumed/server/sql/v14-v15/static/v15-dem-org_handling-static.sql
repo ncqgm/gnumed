@@ -45,36 +45,7 @@ from
 drop table dem.org_old cascade;
 
 -- --------------------------------------------------------------
--- dem.lnk_org2comm
-
-alter table dem.lnk_org2comm
-	rename column id to pk;
-
-
-alter table dem.lnk_org2comm
-	rename column id_org to fk_org;
-
-
-alter table dem.lnk_org2comm
-	rename column id_type to fk_type;
-
--- --------------------------------------------------------------
--- dem.lnk_org2ext_id
-
-alter table dem.lnk_org2ext_id
-	rename column id to pk;
-
-
-alter table dem.lnk_org2ext_id
-	rename column id_org to fk_org;
-
-
-alter table dem.lnk_org2ext_id
-	rename column fk_origin to fk_type;
-
--- --------------------------------------------------------------
 -- dem.org_unit
-
 create table dem.org_unit (
 	pk serial primary key,
 	description text,
@@ -82,6 +53,31 @@ create table dem.org_unit (
 	fk_address integer,
 	fk_category integer
 ) inherits (audit.audit_fields);
+
+-- --------------------------------------------------------------
+-- dem.lnk_org_unit2comm
+create table dem.lnk_org_unit2comm (
+	pk serial primary key,
+	fk_org_unit integer,
+	url text,
+	fk_type integer,
+	is_confidential boolean
+) inherits (audit.audit_fields);
+
+-- --------------------------------------------------------------
+-- dem.lnk_org_unit2ext_id
+create table dem.lnk_org_unit2ext_id (
+	pk serial primary key,
+	fk_org_unit integer,
+	external_id text,
+	fk_type integer,
+	comment text
+) inherits (audit.audit_fields);
+
+-- --------------------------------------------------------------
+
+drop table dem.lnk_org2comm cascade;
+drop table dem.lnk_org2ext_id cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-dem-org_handling-static.sql', 'Revision: 1.10');
