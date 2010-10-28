@@ -25,10 +25,15 @@ IMPROVED: Boesner score now has internationally usable name: "Marburg CHD score"
 IMPROVED: much better integration of visual progress notes
 IMPROVED: procedures now support a duration and an "ongoing" state
 IMPROVED: adjust to modified API of MMI/Gelbe Liste
+IMPROVED: master data management interface
 
 ------------------------------------------------
 # rel-0-8-patches
 ------------------------------------------------
+
+	0.8.5
+
+FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
 
 	0.8.4
 
@@ -614,11 +619,18 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	15.0
 
+NEW: script to fingerprint GNUmed databases
+
 IMPROVED: bootstrapper now detects commented out authentication directive [thanks Vid]
 
 ------------------------------------------------
 # gnumed_v14
 ------------------------------------------------
+
+	14.4 -> 14.5
+
+FIX: no more regex_flavor in PostgreSQL 9.0 (gm-adjust_db_settings)
+IMPROVED: gm-restore_database
 
 	14.3 -> 14.4
 

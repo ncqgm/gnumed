@@ -1572,7 +1572,7 @@ def sanity_check_database_settings():
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
-		u'regex_flavor': [u'advanced', u'query breakage', False],
+		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}

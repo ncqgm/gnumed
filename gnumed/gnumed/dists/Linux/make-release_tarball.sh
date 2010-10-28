@@ -297,6 +297,7 @@ cp -R ../../server/gm-bootstrap_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-upgrade_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-fixup_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-adjust_db_settings.sh ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-fingerprint_db.py ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../server/gm-backup_database.sh ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-restore_database.sh ./gnumed-client.$CLIENTREV/server/

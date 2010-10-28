@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-09-26 22:09+CEST\n"
+"POT-Creation-Date: 2010-10-26 13:32+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -399,6 +399,9 @@ msgid "daylight savings time in effect"
 msgstr ""
 
 msgid "Documents:"
+msgstr ""
+
+msgid " (ongoing)"
 msgstr ""
 
 msgid "error with placeholder [%s]"
@@ -2762,13 +2765,22 @@ msgstr ""
 msgid "Waist"
 msgstr ""
 
+msgid "Ongoing"
+msgstr ""
+
+msgid "The actual procedure performed on the patient."
+msgstr ""
+
 msgid "When did this procedure take place ?"
 msgstr ""
 
-msgid "During which hospital stay was this procedure performed."
+msgid ""
+"When did this procedure end ?\n"
+"\n"
+"Leave empty for ongoing or \"one-off\" procedures without a significant duration."
 msgstr ""
 
-msgid "Add a hospital stay."
+msgid "Select if procedure is ongoing (say, desensibilization)."
 msgstr ""
 
 msgid ""
@@ -2783,13 +2795,16 @@ msgid ""
 "Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
 msgstr ""
 
-msgid "The actual procedure performed on the patient."
+msgid "During which hospital stay was this procedure performed."
 msgstr ""
 
-msgid "Hospital stay"
+msgid "Add a hospital stay."
 msgstr ""
 
-msgid "... or ..."
+msgid "Procedure"
+msgstr ""
+
+msgid "End"
 msgstr ""
 
 msgid "Location"
@@ -2798,7 +2813,10 @@ msgstr ""
 msgid "and Episode"
 msgstr ""
 
-msgid "Procedure"
+msgid "... or ..."
+msgstr ""
+
+msgid "Hospital stay"
 msgstr ""
 
 msgid "Programmer must override this text."
@@ -5990,70 +6008,10 @@ msgstr ""
 msgid "&Master data ..."
 msgstr ""
 
-msgid "Manage the plugins to load per workplace."
+msgid "Manage lists"
 msgstr ""
 
-msgid "Workplace profiles"
-msgstr ""
-
-msgid "&Document types"
-msgstr ""
-
-msgid "Manage the document types available in the system."
-msgstr ""
-
-msgid "&Form templates"
-msgstr ""
-
-msgid "Manage templates for forms and letters."
-msgstr ""
-
-msgid "&Text expansions"
-msgstr ""
-
-msgid "Manage keyword based text expansion macros."
-msgstr ""
-
-msgid "&Translations (DB)"
-msgstr ""
-
-msgid "Manage string translations in the database."
-msgstr ""
-
-msgid "Browse codes with coded terms."
-msgstr ""
-
-msgid "Codes"
-msgstr ""
-
-msgid "&Encounter types"
-msgstr ""
-
-msgid "Manage encounter types."
-msgstr ""
-
-msgid "&Provinces"
-msgstr ""
-
-msgid "Manage provinces (counties, territories, ...)."
-msgstr ""
-
-msgid "Manage substances in use."
-msgstr ""
-
-msgid "Substances"
-msgstr ""
-
-msgid "Drugs"
-msgstr ""
-
-msgid "Manage branded drugs."
-msgstr ""
-
-msgid "Drug components"
-msgstr ""
-
-msgid "Manage components of branded drugs."
+msgid "Manage various lists of master data."
 msgstr ""
 
 msgid "Install ATC reference data."
@@ -6062,46 +6020,16 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
-msgid "Diagnostic orgs"
-msgstr ""
-
-msgid "Manage diagnostic organisations (path labs etc)."
-msgstr ""
-
-msgid "&Test types"
-msgstr ""
-
-msgid "Manage test/measurement types."
-msgstr ""
-
-msgid "&Meta test types"
-msgstr ""
-
-msgid "Show meta test/measurement types."
-msgstr ""
-
 msgid "Download and install LOINC reference data."
 msgstr ""
 
 msgid "Update LOINC"
 msgstr ""
 
-msgid "Show known vaccines."
-msgstr ""
-
-msgid "Vaccines"
-msgstr ""
-
 msgid "Create fake vaccines"
 msgstr ""
 
 msgid "Re-create fake generic vaccines."
-msgstr ""
-
-msgid "Immunizables"
-msgstr ""
-
-msgid "Show conditions known to be preventable by vaccination."
 msgstr ""
 
 msgid "&Users ..."
@@ -6846,6 +6774,63 @@ msgid ""
 "Note that if a viewer is configured to not block\n"
 "GNUmed during document display the review dialog\n"
 "will actually appear in parallel to the viewer."
+msgstr ""
+
+msgid "Document templates (forms, letters, plots, ...)"
+msgstr ""
+
+msgid "Document types"
+msgstr ""
+
+msgid "Keyword based text expansion macros"
+msgstr ""
+
+msgid "String translations in the database"
+msgstr ""
+
+msgid "Codes and their respective terms"
+msgstr ""
+
+msgid "Encounter types"
+msgstr ""
+
+msgid "Provinces (counties, territories, states, regions, ...)"
+msgstr ""
+
+msgid "Workplace profiles (which plugins to load)"
+msgstr ""
+
+msgid "Substances in use (taken by patients)"
+msgstr ""
+
+msgid "Branded drugs (as marketed)"
+msgstr ""
+
+msgid "Components of (substances in) branded drugs"
+msgstr ""
+
+msgid "Organisations"
+msgstr ""
+
+msgid "Diagnostic organisations (path labs, ...)"
+msgstr ""
+
+msgid "Test/measurement types"
+msgstr ""
+
+msgid "Meta test/measurement types"
+msgstr ""
+
+msgid "Vaccines"
+msgstr ""
+
+msgid "Vaccination targets (conditions known to be preventable by vaccination)"
+msgstr ""
+
+msgid "Master data management"
+msgstr ""
+
+msgid "Select the list you want to manage:"
 msgstr ""
 
 msgid "No DICOM viewer found."
@@ -8274,13 +8259,7 @@ msgstr ""
 msgid "visual progress notes"
 msgstr ""
 
-msgid ""
-"Episode: %s\n"
-"Created: %s\n"
-" %s\n"
-"\n"
-"Single-click: view/edit\n"
-"Delete: use document tree"
+msgid "Created: %s"
 msgstr ""
 
 msgid "Sketches"

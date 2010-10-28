@@ -60,8 +60,16 @@ def get_choices_from_list (
 	- left/middle/right_extra_button: (label, tooltip, <callback>)
 		<callback> is called with item_data as the only argument
 
-	returns None if cancelled
-	returns list (may be empty) of selected items
+	returns:
+		on [CANCEL]: None
+		on [OK]:
+			if any items selected:
+				list of selected items
+			else:
+				if can_return_empty is True:
+					empty list
+				else:
+					None
 	"""
 	if caption is None:
 		caption = _('generic multi choice dialog')
@@ -347,8 +355,6 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 	def _set_edit_callback(self, callback):
 		if callback is not None:
-			if self.refresh_callback is None:
-				raise ValueError('refresh callback must be set before edit callback can be set')
 			if not callable(callback):
 				raise ValueError('<edit> callback is not a callable: %s' % callback)
 		self.__edit_callback = callback

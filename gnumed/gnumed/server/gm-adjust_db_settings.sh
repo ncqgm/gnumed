@@ -46,15 +46,16 @@ echo "begin;" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set default_transaction_read_only to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set lc_messages to 'C';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set check_function_bodies to 'on';" >> $SQL_FILE
+echo "-- < PG 9.0 only:"
+echo "--alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
 echo "-- cannot be set after server start:" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set allow_system_table_mods to 'off';" >> $SQL_FILE
-echo "-- (only needed for HIPAA compliance)" >> $SQL_FILE
+echo "-- (only needed for HIPAA compliance):" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set log_connections to 'on';" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set log_disconnections to 'on';" >> $SQL_FILE
 
