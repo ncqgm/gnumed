@@ -68,6 +68,7 @@ from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidge
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
 from Gnumed.wxpython import gmI18nWidgets, gmCodingWidgets
+from Gnumed.wxpython import gmOrganizationWidgets
 
 
 try:
@@ -1910,7 +1911,7 @@ class gmTopLevelFrame(wx.Frame):
 			'substances_in_brands',
 			'vaccines',
 			'vacc_indications',
-			'orgs',
+			'org_units',
 			'labs',
 			'test_types',
 			'meta_test_types'
@@ -1928,21 +1929,16 @@ class gmTopLevelFrame(wx.Frame):
 			'substances': _('Substances in use (taken by patients)'),
 			'drugs': _('Branded drugs (as marketed)'),
 			'substances_in_brands': _('Components of (substances in) branded drugs'),
-			'orgs': _('Organisations'),
-			'labs': _('Diagnostic organisations (path labs, ...)'),
+			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
+			'labs': _('Diagnostic organizations (path labs, ...)'),
 			'test_types': _('Test/measurement types'),
 			'meta_test_types': _('Meta test/measurement types'),
 			'vaccines': _('Vaccines'),
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)')
 		}
 
-		#---------------------------------
-		def manage_orgs(parent):
-			print "managing organisations"
-		#---------------------------------
-
 		map_list2handler = {
-			'orgs': manage_orgs,
+			'org_units': gmOrganizationWidgets.manage_org_units,
 			'form_templates': gmFormWidgets.manage_form_templates,
 			'doc_types': gmDocumentWidgets.manage_document_types,
 			'text_expansions': gmProviderInboxWidgets.configure_keyword_text_expansion,

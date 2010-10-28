@@ -15,12 +15,12 @@ select audit.add_table_for_audit('dem'::name, 'org'::name);
 
 
 comment on table dem.org is
-'Organisations at a conceptual level.';
+'Organizations at a conceptual level.';
 
 
 -- .description
 comment on column dem.org.description is
-'High-level, conceptual description (= name) of organisation, such as "University of Manchester".';
+'High-level, conceptual description (= name) of organization, such as "University of Manchester".';
 
 \unset ON_ERROR_STOP
 alter table dem.org drop constraint org_sane_description cascade;
@@ -49,12 +49,12 @@ select audit.add_table_for_audit('dem'::name, 'org_unit'::name);
 
 
 comment on table dem.org_unit is
-'Actual branches/departments/offices/... of organisations.';
+'Actual branches/departments/offices/... of organizations.';
 
 
 -- .description
 comment on column dem.org_unit.description is
-'Description (= name) of branch of organisation, such as "Elms Street office of Jim Busser Praxis".';
+'Description (= name) of branch of organization, such as "Elms Street office of Jim Busser Praxis".';
 
 \unset ON_ERROR_STOP
 alter table dem.org_unit drop constraint org_unit_sane_description cascade;
@@ -87,9 +87,9 @@ alter table dem.org_unit
 
 
 -- .fk_address
-alter table dem.org_unit
-	alter column fk_address
-		set not null;
+--alter table dem.org_unit
+--	alter column fk_address
+--		set not null;
 
 alter table dem.org_unit
 	add foreign key (fk_address)
@@ -112,8 +112,11 @@ alter table dem.org_unit
 -- permissions
 grant select, insert, update, delete on
 	dem.org
+	, dem.org_pk_seq
 	, dem.org_unit
+	, dem.org_unit_pk_seq
 	, dem.org_category
+	, dem.org_category_id_seq
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
@@ -258,25 +261,27 @@ grant select, insert, update, delete on dem.lnk_org_unit2ext_id to group "gm-pub
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-drop view dem.v_org cascade;
+drop view dem.v_orgs cascade;
 drop view dem.v_org_units cascade;
 drop view dem.lnk_org2address cascade;
 \set ON_ERROR_STOP 1
 
 
 
-create view dem.v_org as
+create view dem.v_orgs as
 select
 	org.pk
 		as pk_org,
 	org.description
-		as organisation,
+		as organization,
 	doc.description
 		as category,
 	_(doc.description)
 		as l10n_category,
 	org.fk_category
-		as pk_category_org
+		as pk_category_org,
+	org.xmin
+		as xmin_org
 from
 	dem.org org
 		left join dem.org_category doc on (org.fk_category = doc.pk)
@@ -289,13 +294,13 @@ create view dem.v_org_units as
 select
 	dou.pk
 		as pk_org_unit,
-	dvo.organisation,
+	dvo.organization,
 	dou.description
 		as unit,
 	dvo.category
-		as organisation_category,
+		as organization_category,
 	_(dvo.category)
-		as l10n_organisation_category,
+		as l10n_organization_category,
 	doc.description
 		as unit_category,
 	_(doc.description)
@@ -305,17 +310,19 @@ select
 	dou.fk_category
 		as pk_category_unit,
 	dou.fk_address
-		as pk_address
+		as pk_address,
+	dou.xmin
+		as xmin_org_unit
 from
 	dem.org_unit dou
-		left join dem.v_org dvo on (dou.fk_org = dvo.pk_org)
+		left join dem.v_orgs dvo on (dou.fk_org = dvo.pk_org)
 			left join dem.org_category doc on (dou.fk_category = doc.pk)
 ;
 
 
 
 grant select on
-	dem.v_org,
+	dem.v_orgs,
 	dem.v_org_units
 to group "gm-public";
 

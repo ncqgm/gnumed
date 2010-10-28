@@ -1,46 +1,128 @@
-"""Organisation classes"""
+"""Organization classes
+
+author: Karsten Hilbert et al
+"""
 #============================================================
-__version__ = "$Revision: 1.40 $"
 __license__ = "GPL"
 
-#from Gnumed.pycommon import gmExceptions, gmBorg, gmPG
-#from Gnumed.business import gmDemographicRecord, gmPerson
 
-from Gnumed.business import gmBusinessDBObject
+import sys, logging
 
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmBusinessDBObject
 
 
 _log = logging.getLogger('gm.org')
-_log.info(__version__)
-
-
 #============================================================
-_sql_get_org = u'SELECT * FROM dem.v_org_branch WHERE pk_allergy_state = %s'
+# organization API
+#------------------------------------------------------------
+_SQL_get_org = u'SELECT * FROM dem.v_orgs WHERE %s'
 
 class cOrg(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"select * from clin.v_pat_allergy_state where pk_allergy_state = %s"
+	_cmd_fetch_payload = _SQL_get_org % u'pk_org = %s'
 	_cmds_store_payload = [
-		u"""update clin.allergy_state set
-				last_confirmed = %(last_confirmed)s,
-				has_allergy = %(has_allergy)s,
-				comment = %(comment)s
-			where
-				pk = %(pk_allergy_state)s and
-				xmin = %(xmin_allergy_state)s""",
-		u"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
+		u"""UPDATE dem.org SET
+				description = %(organization)s,
+				fk_category = %(pk_category_org)s,
+			WHERE
+				pk = %(pk_org)s
+					AND
+				xmin = %(xmin_org)s
+			RETURNING
+				xmin AS xmin_org"""
 	]
 	_updatable_fields = [
-		'last_confirmed',		# special value u'now' will set to datetime.datetime.now() in the local time zone
-		'has_allergy',			# verified against allergy_states (see above)
-		'comment'				# u'' maps to None / NULL
+		u'organization',
+		u'pk_category_org'
+	]
+#------------------------------------------------------------
+def create_org(organization=None, category=None):
+
+	args = {'desc': organization, 'cat': category}
+	cmd = u'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk'
+	if isinstance(category, basestring):
+		cmd = cmd % u'(SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
+	else:
+		cmd = cmd % u'%(cat)s'
+
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+
+	return cOrg(aPK_obj = rows[0][0])
+#============================================================
+# organizational units API
+#------------------------------------------------------------
+_SQL_get_org_unit = u'SELECT * FROM dem.v_org_units WHERE %s'
+
+class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_get_org_unit % u'pk_org_unit = %s'
+	_cmds_store_payload = [
+		u"""UPDATE dem.org_unit SET
+				description = %(unit)s,
+				fk_org = %(pk_org)s,
+				fk_category = %(pk_category_unit)s,
+				fk_address = %(pk_address)s
+			WHERE
+				pk = %(pk_org_unit)s
+					AND
+				xmin = %(xmin_org_unit)s
+			RETURNING
+				xmin AS xmin_org_unit"""
+	]
+	_updatable_fields = [
+		u'unit',
+		u'pk_org',
+		u'pk_category_unit',
+		u'pk_address'
 	]
 
+#------------------------------------------------------------
+def create_org_unit(pk_organization=None, unit=None):
 
+	args = {'desc': unit, 'pk_org': pk_organization}
+	cmd = u'INSERT INTO dem.org_unit (description, fk_org) VALUES (%(desc)s, %(pk_org)s) RETURNING pk'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+
+	return cOrgUnit(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def get_org_units(order_by=None):
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
+
+	cmd = _SQL_get_org_unit % (u'TRUE %s' % order_by)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+
+	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org_unit'}) for r in rows ]
+
+#======================================================================
+# main
+#----------------------------------------------------------------------
+if __name__ == "__main__":
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
+
+	for unit in get_org_units():
+		print unit
+
+	sys.exit(0)
 #============================================================
-
-
+#============================================================
+#============================================================
+# old stuff below, disregard
+#============================================================
+#============================================================
 
 
 attrNames = [ 'name', 'office', 'subtype', 'memo','category', 'phone', 'fax', 'email', 'mobile' ]
@@ -62,10 +144,11 @@ workAddressType = 2 # seems constant for gnumed schema in any language
 
 #addressTypes = gmDemographicRecord.getAddressTypes()
 
-class cCatFinder(gmBorg.cBorg):
+#class cCatFinder(gmBorg.cBorg):
+class cCatFinder:
 
 	def __init__(self, categoryType = None, pkCol = 'id', nameCol = 'description'):
-		gmBorg.cBorg.__init__(self)
+		#gmBorg.cBorg.__init__(self)
 		if not self.__dict__.has_key("categories"):
 			self.categories = {}
 		
@@ -112,11 +195,12 @@ DEPARTMENT = 1
 
 
 
-class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
+#class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
+class cOrgHelperImpl1():
 
 	def __init__(self):
-		gmBorg.cBorg.__init__(self)
-		cOrgHelper.__init__(self)
+#		gmBorg.cBorg.__init__(self)
+#		cOrgHelper.__init__(self)
 		self._cache = {}
 		self.setLineSeparatedClipboardFormat()
 	
@@ -1956,168 +2040,4 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
          pwheel.set_context("postcode", postcode)
          return True
 
-#===========================================================
-# $Log: gmOrganization.py,v $
-# Revision 1.40  2009-10-21 08:55:41  ncq
-# - cleanup
-#
-# Revision 1.39  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.38  2008/01/11 16:08:07  ncq
-# - first/last -> first-/lastnames
-#
-# Revision 1.37  2007/12/02 20:56:37  ncq
-# - adjust to table changes
-#
-# Revision 1.36  2007/07/17 10:38:06  ncq
-# - fix some epydoc related stuff
-#
-# Revision 1.35  2006/07/19 20:25:00  ncq
-# - gmPyCompat.py is history
-#
-# Revision 1.34  2006/01/07 17:40:56  ncq
-# - lots of schema qualification
-#
-# Revision 1.33  2005/06/07 10:15:47  ncq
-# - setContext -> set_context
-#
-# Revision 1.32  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.31  2005/01/12 14:47:48  ncq
-# - in DB speak the database owner is customarily called dbo, hence use that
-#
-# Revision 1.30  2004/06/21 16:01:55  ncq
-# - cleanup, trying to make epydoc fix do the right thing
-#
-# Revision 1.29  2004/06/21 15:08:45  sjtan
-#
-# fixup for epydoc, remove global module scope database access.
-#
-# Revision 1.28  2004/06/21 14:48:26  sjtan
-#
-# restored some methods that gmContacts depends on, after they were booted
-# out from gmDemographicRecord with no home to go , works again ;
-# removed cCatFinder('occupation') instantiating in main module scope
-# which was a source of complaint , as it still will lazy load anyway.
-#
-# Revision 1.27  2004/06/01 15:11:56  sjtan
-#
-# cut ctrl-x and paste ctrl-v, works through clipboard, so can paste name/address info onto
-# text editors (oowriter, kwrite tried out). Drag and drop doesn't work to outside apps.
-# List displays at last updated position after load_all_orgs() called. removed
-# old display data listing on list org display button press, because cutting and pasting
-# persons to these items loses  persons. Only saves top-level orgs if there is a valid
-# category value in category field.
-#
-# Revision 1.26  2004/06/01 07:15:05  ncq
-# - made cPerson into "private" class _cPersonMarker (as per the comment)
-#   such that never ever even the slighest confusion will arise whether to
-#   use that "class" or the cPerson in gmPatient.py
-#
-# Revision 1.25  2004/05/31 14:24:19  sjtan
-#
-# intra-list cut and paste implemented. Not using wxClipboard ( could paste textified person
-# into clipboard ). Now the GP can be moved out of the Engineering department , but he may not be happy ;)
-#
-# Revision 1.24  2004/05/30 13:02:49  sjtan
-#
-# test help; need drag and drop to correct erroneous person-org relationships.
-#
-# Revision 1.23  2004/05/30 11:08:17  sjtan
-#
-# fixup clean_test_org to include delete from lnk_job2person ...
-#
-# Revision 1.22  2004/05/30 03:50:41  sjtan
-#
-# gmContacts can create/update org, one level of sub-org, org persons, sub-org persons.
-# pre-alpha or alpha ? Needs cache tune-up .
-#
-# Revision 1.21  2004/05/29 08:22:07  sjtan
-#
-# indented to put all test code in __name__=__main__ block.
-#
-# Revision 1.20  2004/05/28 15:13:53  sjtan
-#
-# one level of sub orgs done ; can enter departments; category stays as hospital.
-#
-# Revision 1.19  2004/05/28 13:19:23  ncq
-# - Syan, can't we move all test related code
-#   into if __name__ == '__main__' ?
-#
-# Revision 1.18  2004/05/28 04:29:53  sjtan
-#
-# gui test case option; should setup/teardown ok if correct logins.
-#
-# Revision 1.17  2004/05/28 01:20:14  sjtan
-#
-# cleanup script would probably work for comm_channel if left out org.del_shallow()
-# in test runs.
-#
-# Revision 1.16  2004/05/26 18:21:38  sjtan
-#
-# add org , save  toolbar buttons linked,  list select linked, needs testing,
-# must have 'hospital' if table org_category.
-#
-# Revision 1.15  2004/05/25 14:10:45  sjtan
-#
-# cleanup temp persons as well.
-#
-# Revision 1.14  2004/05/25 13:32:45  sjtan
-#
-# cleanup, obsolete removed.
-#
-# Revision 1.13  2004/05/24 21:09:01  ncq
-# - cleanup
-#
-# Revision 1.12  2004/05/24 05:49:59  sjtan
-#
-# test case working for gmDemographicRecord_SQL linking/unlinking; local and remote tested.
-#
-# Revision 1.11  2004/05/24 03:34:56  sjtan
-#
-# tested local and remote test case; setup/pulldown for test case is within test case.
-#
-# Revision 1.10  2004/05/24 00:32:24  sjtan
-#
-# don't want to increment the sequence number for a temporary org_category, as there is no way
-# of restoring it.
-#
-# Revision 1.9  2004/05/23 15:27:56  sjtan
-#
-# allow test case to run without sql test data script for org tables.
-#
-# Revision 1.8  2004/05/23 15:22:41  sjtan
-#
-# allow Unit testcase to run in naive database, by allowing temporary org_category creation/deletion.
-#
-# Revision 1.7  2004/05/23 13:27:51  sjtan
-#
-# refactored so getting n orgs using a finder operation will make 3 sql calls
-# instead of n x 3 calls (reduce network traffic). Test case expanded, and
-# cleanup option for running unit test case added.
-#
-# Revision 1.6  2004/05/23 11:26:19  sjtan
-#
-# getPk() now getId() , more consistent with other modules.
-#
-# Revision 1.5  2004/05/22 10:31:29  ncq
-# - == None -> is None
-#
-# Revision 1.4  2004/05/21 15:39:22  sjtan
-#
-# passed unit test for save, load, shallow_del, save again, update and save.
-#
-# Revision 1.3  2004/05/20 15:37:12  sjtan
-#
-# pre-test version of gmOrganization connecting to current org tables. Needs
-# unit testing, and then handling of subOrgs and organizational people
-# linking. Some cut and paste of linkAddress from gmDemographicRecord. Not
-# for use .
-#
-# Revision 1.2  2004/05/16 13:05:14  ncq
-# - remove methods that violate the basic rules for
-#   clinical items (eg no creation via clin item objects)
-# - cleanup
-#
+#======================================================================
