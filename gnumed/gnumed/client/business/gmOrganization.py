@@ -52,6 +52,19 @@ def create_org(organization=None, category=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cOrg(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def get_orgs(order_by=None):
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
+
+	cmd = _SQL_get_org % (u'TRUE %s' % order_by)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+
+	return [ cOrg(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org'}) for r in rows ]
+
 #============================================================
 # organizational units API
 #------------------------------------------------------------

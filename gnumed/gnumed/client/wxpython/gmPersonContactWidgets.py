@@ -413,6 +413,50 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 #============================================================
 # address phrasewheels and widgets
 #============================================================
+def manage_addresses(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		adrs = gmDemographicRecord.get_addresses(order_by = u'l10n_country, urb, street, number, subunit')
+		items = [ [
+				a['street'],
+				gmTools.coalesce(a['notes_street'], u''),
+				a['number'],
+				gmTools.coalesce(a['subunit'], u''),
+				a['postcode'],
+				a['urb'],
+				gmTools.coalesce(a['suburb'], u''),
+				a['l10n_state'],
+				a['l10n_country'],
+				gmTools.coalesce(a['notes_subunit'], u'')
+			] for a in adrs
+		]
+		lctrl.set_string_items(items)
+		lctrl.set_data(adrs)
+
+	#------------------------------------------------------------
+	cols = [
+		_('Street'),
+		_('Street info'),
+		_('Number'),
+		_('Subunit'),
+		_('Postal code'),
+		_('Place'),
+		_('Suburb'),
+		_('Region'),
+		_('Country'),
+		_('Comment')
+	]
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		caption = _('Showing addresses registered in GNUmed.'),
+		columns = cols,
+		single_selection = True,
+		refresh_callback = refresh
+	)
+#============================================================
 class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing a person's addresses.
 

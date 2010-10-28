@@ -354,7 +354,9 @@ insert into dem.org (description, fk_category) values (
 
 
 select dem.create_address('117', 'Golden Gate Drive', 'SF 278 CA', 'San Francisco', 'CA', 'US', NULL);
-select dem.create_address('1', 'Deck 7', 'NCC-1701-E', 'San Francisco', 'CA', 'US', NULL);
+select dem.create_address('31', 'Galley 4a', 'NCC-1701-E', 'Starship Enterprise', 'CA', 'US', NULL);
+update dem.street set suburb = 'Deck 7' where name = 'Galley 4a';
+update dem.address set addendum = 'typically in Space' where street = 'Galley 4a' and postcode = 'NCC-1701-E';
 
 
 
@@ -369,7 +371,7 @@ insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
 	'Enterprise Sickbay',
 	(select pk from dem.org where description = 'Starfleet Central'),
 	(select pk from dem.org_category where description = 'Ward'),
-	(select pk_address from dem.v_address where street = 'Deck 7' and postcode = 'NCC-1701-E')
+	(select pk_address from dem.v_address where street = 'Galley 7-4a' and postcode = 'NCC-1701-E')
 );
 
 \set ON_ERROR_STOP 1

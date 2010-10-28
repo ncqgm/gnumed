@@ -40,13 +40,9 @@ def manage_org_units(parent=None):
 				u['l10n_unit_category'],
 				u['l10n_organization_category']
 			),
-			u'%s%s' % (
+			u'%s (%s)' % (
 				u['organization'],
-				gmTools.coalesce (
-					u['l10n_organization_category'],
-					u'',
-					u' (%s)'
-				)
+				u['l10n_organization_category']
 			),
 			u['unit']
 		] for u in units ]
@@ -59,6 +55,27 @@ def manage_org_units(parent=None):
 		msg = _('\nUnits (sites, parts, departments, branches, ...) of organizations registered in GNUmed.\n'),
 		caption = _('Showing organizational units.'),
 		columns = [ _('Category'), _('Organization'), _('Organizational Unit') ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
+
+#======================================================================
+def manage_orgs(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		orgs = gmOrganization.get_orgs(order_by = 'l10n_category, organization')
+		items = [ [o['l10n_category'], o['organization']] for o in orgs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(orgs)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nOrganizations registered in GNUmed.\n'),
+		caption = _('Showing organizations.'),
+		columns = [ _('Category'), _('Organization') ],
 		single_selection = True,
 		refresh_callback = refresh
 	)

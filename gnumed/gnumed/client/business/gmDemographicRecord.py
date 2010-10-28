@@ -245,6 +245,18 @@ def get_address_types(identity=None):
 	cmd = u'select id as pk, name, _(name) as l10n_name from dem.address_type'
 	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd}])
 	return rows
+#------------------------------------------------------------
+def get_addresses(order_by=None):
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
+
+	cmd = u"SELECT * FROM dem.v_address %s" % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': u'pk_address'}) for r in rows ]
+
 #===================================================================
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 

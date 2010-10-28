@@ -1911,10 +1911,12 @@ class gmTopLevelFrame(wx.Frame):
 			'substances_in_brands',
 			'vaccines',
 			'vacc_indications',
+			'test_types',
+			'meta_test_types',
+			'orgs',
 			'org_units',
 			'labs',
-			'test_types',
-			'meta_test_types'
+			'adr'
 		]
 
 		master_data_list_names = {
@@ -1934,7 +1936,9 @@ class gmTopLevelFrame(wx.Frame):
 			'test_types': _('Test/measurement types'),
 			'meta_test_types': _('Meta test/measurement types'),
 			'vaccines': _('Vaccines'),
-			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)')
+			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
+			'orgs': _('Organizations'),
+			'adr': _('Addresses (likely slow)')
 		}
 
 		map_list2handler = {
@@ -1954,7 +1958,9 @@ class gmTopLevelFrame(wx.Frame):
 			'test_types': gmMeasurementWidgets.manage_measurement_types,
 			'meta_test_types': gmMeasurementWidgets.manage_meta_test_types,
 			'vaccines': gmVaccWidgets.manage_vaccines,
-			'vacc_indications': gmVaccWidgets.manage_vaccination_indications
+			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
+			'orgs': gmOrganizationWidgets.manage_orgs,
+			'adr': gmPersonContactWidgets.manage_addresses
 		}
 
 		#---------------------------------
