@@ -619,6 +619,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	15.0
 
+NEW: script to fingerprint GNUmed databases
+
 IMPROVED: bootstrapper now detects commented out authentication directive [thanks Vid]
 
 ------------------------------------------------
