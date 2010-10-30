@@ -4,9 +4,9 @@
 # - command line options:
 #   - "quiet"
 
-VER="14"
-PREV_VER="13"
-VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12"
+VER="15"
+PREV_VER="14"
+VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12 13"
 QUIET="$1"
 
 
@@ -52,19 +52,17 @@ for DB_VER in ${ALL_PREV_VERS} ; do
 	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep gnumed_v${DB_VER}`
 	if test "${VER_EXISTS}" != "" ; then
 		echo ""
-		echo "-----------------------------------------------"
-		echo "At least one of the GNUmed databases among"
-		echo ""
-		echo " [${ALL_PREV_VERS}]"
-		echo ""
-		echo "already exists.  Note that during bootstrapping"
-		echo "those databases will be OVERWRITTEN !"
+		echo "------------------------------------------------"
+		echo "The database \"gnumed_v${DB_VER}\" already exists."
+
+		echo "Note that during bootstrapping this"
+		echo "database will be OVERWRITTEN !"
 		echo ""
 		echo "Do you really intend to bootstrap or did you"
 		echo "rather want to *upgrade* from v${PREV_VER} to v${VER} ?"
 		echo ""
-		echo "(For upgrading you should run the upgrade"
-		echo " script instead.)"
+		echo "(For upgrading you should run the"
+		echo " upgrade script instead.)"
 		echo ""
 		echo "Continue bootstrapping (deletes databases) ? "
 		echo ""
