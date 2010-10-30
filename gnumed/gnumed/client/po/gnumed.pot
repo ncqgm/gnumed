@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-10-26 13:32+CEST\n"
+"POT-Creation-Date: 2010-10-28 16:07+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6809,10 +6809,10 @@ msgstr ""
 msgid "Components of (substances in) branded drugs"
 msgstr ""
 
-msgid "Organisations"
+msgid "Units of organizations (branches, sites, departments, parts, ..."
 msgstr ""
 
-msgid "Diagnostic organisations (path labs, ...)"
+msgid "Diagnostic organizations (path labs, ...)"
 msgstr ""
 
 msgid "Test/measurement types"
@@ -8291,6 +8291,23 @@ msgstr ""
 msgid "Deleting visual progress note"
 msgstr ""
 
+msgid ""
+"\n"
+"Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.\n"
+msgstr ""
+
+msgid "Showing organizational units."
+msgstr ""
+
+msgid "Organization"
+msgstr ""
+
+msgid "Organizational Unit"
+msgstr ""
+
+msgid "Category"
+msgstr ""
+
 msgid "Refresh from database"
 msgstr ""
 
@@ -9382,9 +9399,6 @@ msgid "Office"
 msgstr ""
 
 msgid "Zip"
-msgstr ""
-
-msgid "Category"
 msgstr ""
 
 msgid "User1"
