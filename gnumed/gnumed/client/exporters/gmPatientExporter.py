@@ -25,7 +25,7 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmExceptions, gmNull, gmPG2, gmTools
-from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmDemographicRecord, gmClinNarrative
+from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmDemographicRecord, gmClinNarrative, gmPersonSearch
 
 
 _log = logging.getLogger('gm.export')
@@ -1133,11 +1133,11 @@ def run():
     patient = None
     patient_id = None
     patient_term = None
-    pat_searcher = gmPerson.cPatientSearcher_SQL()
+    pat_searcher = gmPersonSearch.cPatientSearcher_SQL()
 
     # App execution loop
     while patient_term != 'bye':
-        patient = gmPerson.ask_for_patient()
+        patient = gmPersonSearch.ask_for_patient()
         if patient is None:
             break
         # FIXME: needed ?
@@ -1170,9 +1170,9 @@ if __name__ == "__main__":
 	def export_journal():
 
 		print "Exporting EMR journal(s) ..."
-		pat_searcher = gmPerson.cPatientSearcher_SQL()
+		pat_searcher = gmPersonSearch.cPatientSearcher_SQL()
 		while True:
-			patient = gmPerson.ask_for_patient()
+			patient = gmPersonSearch.ask_for_patient()
 			if patient is None:
 				break
 

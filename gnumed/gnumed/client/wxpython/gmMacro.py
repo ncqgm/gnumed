@@ -16,8 +16,8 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
 from Gnumed.pycommon import gmCfg2, gmDateTime
-from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication, gmPathLab
-from Gnumed.business import gmVaccination
+from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication, gmPathLab, gmPersonSearch
+from Gnumed.business import gmVaccination, gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
 
@@ -630,7 +630,7 @@ class cMacroPrimitives:
 		if self.__pat.locked:
 			_log.error('patient is already locked')
 			return (0, _('already locked into a patient'))
-		searcher = gmPerson.cPatientSearcher_SQL()
+		searcher = gmPersonSearch.cPatientSearcher_SQL()
 		if type(search_params) == types.DictType:
 			idents = searcher.get_identities(search_dict=search_params)
 			print "must use dto, not search_dict"
@@ -740,7 +740,7 @@ if __name__ == '__main__':
 		for placeholder in ['a', 'b']:
 			print handler[placeholder]
 
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
 
@@ -805,7 +805,7 @@ if __name__ == '__main__':
 			'$<latest_vaccs_table::latex>$'
 		]
 
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
 

@@ -478,6 +478,16 @@ def jsonclasshintify(obj):
 		res['seconds'] = obj.seconds
 		res['microseconds'] = obj.microseconds
 		return res
+	elif isinstance(obj, datetime.time):
+		# this will get decoded as "from jsonobjproxy import {clsname}"
+		# at the remote (client) end.
+		res = {'__jsonclass__': ["jsonobjproxy.Time"]}
+		res['hour'] = obj.hour
+		res['minute'] = obj.minute
+		res['second'] = obj.second
+		res['microsecond'] = obj.microsecond
+		res['tzinfo'] = jsonclasshintify(obj.tzinfo)
+		return res
 	elif isinstance(obj, datetime.datetime):
 		# this will get decoded as "from jsonobjproxy import {clsname}"
 		# at the remote (client) end.
@@ -496,9 +506,21 @@ def jsonclasshintify(obj):
 		# at the remote (client) end.
 		res = {'__jsonclass__': ["jsonobjproxy.%s" % obj.__class__.__name__]}
 		for k in obj.get_fields():
-			res[k] = jsonclasshintify(obj[k])
+			t = jsonclasshintify(obj[k])
+			res[k] = t
+		print "props", res, dir(obj)
+		for attribute in dir(obj):
+			if not attribute.startswith("get_"):
+				continue
+			k = attribute[4:]
+			if res.has_key(k):
+				continue
+			getter = getattr(obj, attribute, None)
+			if callable(getter):
+				res[k] = jsonclasshintify(getter())
 		return res
 	return obj
+
 #============================================================
 if __name__ == '__main__':
 

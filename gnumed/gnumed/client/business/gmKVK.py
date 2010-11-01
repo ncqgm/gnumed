@@ -155,8 +155,7 @@ select pk_identity from dem.v_external_ids4identity where
 			type_name = insurance_number_external_id_type_egk,
 			value = self.insuree_number,
 			issuer = issuer_template % (self.insurance_company, self.insurance_number),
-			comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse',
-			context = u'p'
+			comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse'
 		)
 		# address
 		street = self.street
@@ -290,8 +289,7 @@ select pk_identity from dem.v_external_ids4identity where
 			type_name = insurance_number_external_id_type,
 			value = self.insuree_number,
 			issuer = issuer_template % (self.insurance_company, self.insurance_number),
-			comment = u'Nummer des Versicherten bei der Krankenkasse',
-			context = u'p'
+			comment = u'Nummer des Versicherten bei der Krankenkasse'
 		)
 		# address
 		street = self.street

@@ -50,13 +50,13 @@ if __name__ == "__main__":
     import wx
 
     from Gnumed.exporters import gmPatientExporter
-    from Gnumed.business import gmPerson
+    from Gnumed.business import gmPersonSearch
 
     _log.info("starting emr journal plugin...")
 
     try:
         # obtain patient
-        patient = gmPerson.ask_for_patient()
+        patient = gmPersonSearch.ask_for_patient()
         if patient is None:
             print "None patient. Exiting gracefully..."
             sys.exit(0)
@@ -84,54 +84,3 @@ if __name__ == "__main__":
     _log.info("closing emr journal plugin...")
 
 #======================================================================
-# $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.15  2010-02-07 15:18:35  ncq
-# - put this in EMR rather then EMR / Show as as per Jim
-#
-# Revision 1.14  2009/06/29 15:13:25  ncq
-# - improved placement in menu hierarchy
-# - add active letters
-#
-# Revision 1.13  2009/06/04 16:31:24  ncq
-# - use set-active-patient from pat-search-widgets
-#
-# Revision 1.12  2008/03/06 18:32:30  ncq
-# - standard lib logging only
-#
-# Revision 1.11  2008/01/27 21:21:59  ncq
-# - no more gmCfg
-#
-# Revision 1.10  2007/10/21 20:25:43  ncq
-# - fix syntax error
-#
-# Revision 1.9  2007/10/12 07:28:24  ncq
-# - lots of import related cleanup
-#
-# Revision 1.8  2006/10/31 16:06:19  ncq
-# - no more gmPG
-#
-# Revision 1.7  2006/10/25 07:23:30  ncq
-# - no gmPG no more
-#
-# Revision 1.6  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.5  2005/12/27 19:05:36  ncq
-# - use gmI18N
-#
-# Revision 1.4  2005/10/03 13:59:59  sjtan
-# indentation errors
-#
-# Revision 1.3  2005/09/26 18:01:52  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.2  2005/06/07 20:56:56  ncq
-# - take advantage of improved EMR menu
-#
-# Revision 1.1  2005/04/12 16:26:33  ncq
-# - added Journal style EMR display plugin
-#

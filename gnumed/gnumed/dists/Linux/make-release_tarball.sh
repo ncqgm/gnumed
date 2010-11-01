@@ -297,6 +297,7 @@ cp -R ../../server/gm-bootstrap_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-upgrade_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-fixup_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-adjust_db_settings.sh ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-fingerprint_db.py ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../server/gm-backup_database.sh ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-restore_database.sh ./gnumed-client.$CLIENTREV/server/
@@ -479,14 +480,14 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
 
 cp -R ../../server/sql/v13-v14/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
 cp -R ../../server/sql/v13-v14/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
 #cp -R ../../server/sql/v13-v14/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
 cp -R ../../server/sql/v13-v14/data/* ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
 cp -R ../../server/sql/v13-v14/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
-#cp -R ../../server/sql/v13-v14/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
+cp -R ../../server/sql/v13-v14/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
 
 #----------------------------------
 # weed out unnecessary stuff

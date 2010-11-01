@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools
 from Gnumed.pycommon import gmDateTime, gmMatchProvider, gmCfg2
-from Gnumed.business import gmPerson, gmKVK, gmSurgery, gmCA_MSVA
+from Gnumed.business import gmPerson, gmKVK, gmSurgery, gmCA_MSVA, gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 
@@ -656,7 +656,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		self.SetToolTipString(self._tt_search_hints)
 
 		# FIXME: set query generator
-		self.__person_searcher = gmPerson.cPatientSearcher_SQL()
+		self.__person_searcher = gmPersonSearch.cPatientSearcher_SQL()
 
 		self._prev_search_term = None
 		self.__prev_idents = []

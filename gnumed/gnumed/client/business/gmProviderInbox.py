@@ -57,7 +57,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_patient',
 		u'pk_type',
 		u'comment',
-		u'pk_context',
+#		u'pk_context',
 		u'data',
 		u'importance'
 	]
@@ -98,41 +98,6 @@ class cProviderInbox:
 			self.__provider_id = gmPerson.gmCurrentProvider()['pk_staff']
 		else:
 			self.__provider_id = provider_id
-	#--------------------------------------------------------
-	def _get_messages_old(self):
-		cmd = u"""
-select
-	importance,
-	l10n_category,
-	l10n_type,
-	comment,
-	category,
-	type,
-	pk_context,
-	data,
-	pk_message_inbox,
-	received_when,
-	pk_patient
-from dem.v_message_inbox
-where pk_staff = %s
-order by importance desc, received_when desc"""
-		try:
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__provider_id]}])
-		except:
-			return [[
-				1,
-				_('error'),
-				_('error'),
-				_('unable to get provider inbox messages from database'),
-				'error',
-				'error',
-				None,
-				_('An error occurred while retrieving provider inbox messages from the database.'),
-				None,
-				None,
-				None
-			]]
-		return rows
 	#--------------------------------------------------------
 	def _get_messages(self):
 		return get_inbox_messages(pk_staff = self.__provider_id)

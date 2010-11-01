@@ -1,17 +1,14 @@
 #!/bin/sh
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-upgrade_server,v $
-# $Id: gm-upgrade_server,v 1.1 2009-01-06 18:29:57 ncq Exp $
-#
-# author: Andreas Tille, Karsten Hilbert
-# license: GPL v2
-#
 # This wrapper is intended to be installed into a systemwide
 # admin-only executable directory such as "/usr/sbin/"
 #
 # It should be run as root and will call the upstream script
 # to actually upgrade an existing database.
+#
+# author: Andreas Tille, Karsten Hilbert
+# license: GPL v2
 #
 #==============================================================
 # those probably need some adjustment from package maintainers:
@@ -27,8 +24,3 @@ cd ${GM_SERVER_DIR}
 ./upgrade-db.sh $@
 
 #==============================================================
-# $Log: gm-upgrade_server,v $
-# Revision 1.1  2009-01-06 18:29:57  ncq
-# - new
-#
-#

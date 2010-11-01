@@ -13,7 +13,7 @@ import wx, wx.grid, wx.lib.hyperlink
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC, gmForms
+from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC, gmForms, gmPersonSearch
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg, gmShellAPI
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxpython import gmAuthWidgets, gmPatSearchWidgets, gmFormWidgets
@@ -2314,7 +2314,7 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------
 	def test_grid():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		app = wx.PyWidgetTester(size = (500, 300))
 		lab_grid = cMeasurementsGrid(parent = app.frame, id = -1)
 		lab_grid.patient = pat
@@ -2322,7 +2322,7 @@ if __name__ == '__main__':
 		app.MainLoop()
 	#------------------------------------------------------------
 	def test_test_ea_pnl():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
 		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)

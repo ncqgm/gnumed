@@ -59,7 +59,7 @@ fi
 
 
 # sanity check
-if ! su -c 'psql -t -l' -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+if ! su -c 'psql -t -l -p ${GM_PORT}' -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
 	echo "The configuration in ${CONF} is set to backup"
 	echo "the GNUmed database ${GM_DATABASE}. This"
 	echo "database does not exist, however. Aborting."
@@ -79,7 +79,7 @@ if test "${HAS_HIGHER_VER}" = "t" ; then
 	echo "Backing up database ${GM_DATABASE}. However,"
 	echo "a newer database seems to exist:"
 	echo ""
-	sudo -u postgres psql -l | grep gnumed_v
+	sudo -u postgres psql -l -p ${GM_PORT} | grep gnumed_v
 	echo ""
 	echo "Make sure you really want to backup the old database !"
 fi ;

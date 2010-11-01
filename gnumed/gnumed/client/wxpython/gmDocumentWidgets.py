@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
 from Gnumed.business import gmPerson, gmDocuments, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
-from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
+from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
 
 
 _log = logging.getLogger('gm.ui')
@@ -191,6 +191,19 @@ limit 25"""],
 
 		self.SetToolTipString(_('Enter a comment on the document.'))
 #============================================================
+# document type widgets
+#============================================================
+def manage_document_types(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#dlg = gmDocumentWidgets.cEditDocumentTypesDlg(parent = self, id=-1)
+	dlg = cEditDocumentTypesDlg(parent = parent)
+	dlg.ShowModal()
+#============================================================
+from Gnumed.wxGladeWidgets import wxgEditDocumentTypesDlg
+
 class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 	"""A dialog showing a cEditDocumentTypesPnl."""
 
@@ -198,6 +211,8 @@ class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 		wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg.__init__(self, *args, **kwargs)
 
 #============================================================
+from Gnumed.wxGladeWidgets import wxgEditDocumentTypesPnl
+
 class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	"""A panel grouping together fields to edit the list of document types."""
 

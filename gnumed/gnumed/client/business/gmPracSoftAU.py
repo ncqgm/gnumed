@@ -43,10 +43,10 @@ def read_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 
 		dto = gmPerson.cDTO_person()
 		dto.external_ids = [
-			{'PracSoft No.': line[0:9].strip(), 'issuer': 'AU PracSoft application', 'context': 'p'},
-			{'CRN': line[166:180].replace(' ', ''), 'issuer': 'Centrelink (AU)', 'context': 'p'},
-			{'DVA': line[180:194].replace(' ', ''), 'issuer': "Department of Veteran's Affairs (AU)", 'context': 'p'},
-			{'AU-Medicare': line[153:166].replace(' ', ''), 'issuer': 'HIC (AU)', 'context': 'p'}
+			{'PracSoft No.': line[0:9].strip(), 'issuer': 'AU PracSoft application'},
+			{'CRN': line[166:180].replace(' ', ''), 'issuer': 'Centrelink (AU)'},
+			{'DVA': line[180:194].replace(' ', ''), 'issuer': "Department of Veteran's Affairs (AU)"},
+			{'AU-Medicare': line[153:166].replace(' ', ''), 'issuer': 'HIC (AU)'}
 		]
 
 		dto.title = gmTools.capitalize(line[9:14].strip(), gmTools.CAPS_FIRST)
@@ -90,16 +90,8 @@ if __name__ == "__main__":
 		print "dto.dob.tz:", dto.dob.tzinfo
 		print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
 		print "dto.street", dto.street
-#		searcher = gmPerson.cPatientSearcher_SQL()
+#		searcher = gmPersonSearch.cPatientSearcher_SQL()
 #		ident = searcher.get_identities(dto=dto)[0]
 #		print ident
 
 #==============================================================
-# $Log: gmPracSoftAU.py,v $
-# Revision 1.2  2007-02-13 17:05:22  ncq
-# - slightly better CONST name
-#
-# Revision 1.1  2007/02/05 14:29:04  ncq
-# - read PracSoft PATIENTS.IN file
-#
-#

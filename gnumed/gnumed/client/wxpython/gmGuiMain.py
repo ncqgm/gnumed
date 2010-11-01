@@ -67,6 +67,9 @@ from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHan
 from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
+from Gnumed.wxpython import gmI18nWidgets, gmCodingWidgets
+from Gnumed.wxpython import gmOrganizationWidgets
+
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -200,6 +203,11 @@ class gmTopLevelFrame(wx.Frame):
 		"""Create the main menu entries.
 
 		Individual entries are farmed out to the modules.
+
+		menu item template:
+
+		item = menu_emr_edit.Append(-1, _(''), _(''))
+		self.Bind(wx.EVT_MENU, self__on_, item)
 		"""
 		global wx
 		self.mainmenu = wx.MenuBar()
@@ -364,6 +372,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
 
+		item = menu_cfg_emr.Append(-1, _('Primary doctor'), _('Select the primary doctor to fall back to for patients without one.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_fallback_primary_provider, item)
+
 		# -- submenu gnumed / config / emr / encounter
 		menu_cfg_encounter = wx.Menu()
 		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
@@ -400,66 +411,17 @@ class gmTopLevelFrame(wx.Frame):
 		menu_master_data = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('&Master data ...'), menu_master_data)
 
-		item = menu_master_data.Append(-1, _('Workplace profiles'), _('Manage the plugins to load per workplace.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_workplace, item)
-
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('&Document types'), _('Manage the document types available in the system.'))
-		self.Bind(wx.EVT_MENU, self.__on_edit_doc_types, item)
-
-		item = menu_master_data.Append(-1, _('&Form templates'), _('Manage templates for forms and letters.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_form_templates, item)
-
-		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
-
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter types.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
-
-		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_provinces, item)
-
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('Substances'), _('Manage substances in use.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_substances, item)
-
-		item = menu_master_data.Append(-1, _('Drugs'), _('Manage branded drugs.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_branded_drugs, item)
-
-		item = menu_master_data.Append(-1, _('Drug components'), _('Manage components of branded drugs.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_substances_in_brands, item)
+		item = menu_master_data.Append(-1, _('Manage lists'), _('Manage various lists of master data.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_master_data, item)
 
 		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
 
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('Diagnostic orgs'), _('Manage diagnostic organisations (path labs etc).'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_test_orgs, item)
-
-		item = menu_master_data.Append(-1, _('&Test types'), _('Manage test/measurement types.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_test_types, item)
-
-		item = menu_master_data.Append(-1, _('&Meta test types'), _('Show meta test/measurement types.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_meta_test_types, item)
-
 		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
 
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('Vaccines'), _('Show known vaccines.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_vaccines, item)
-
 		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
-
-		item = menu_master_data.Append(-1, _('Immunizables'), _('Show conditions known to be preventable by vaccination.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_vaccination_indications, item)
 
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
@@ -485,9 +447,6 @@ class gmTopLevelFrame(wx.Frame):
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
-
-#		item = menu_patient.Append(-1, _('Register new (old style)'), _("Register a new person with this practice"))
-#		self.Bind(wx.EVT_MENU, self.__on_create_patient, item)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
 		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create person from an external source.'))
@@ -565,9 +524,6 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Vaccination(s)'), _('Add (a) vaccination(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
 
-#		item = menu_emr_edit.Append(-1, )
-#		self.Bind(wx.EVT_MENU, , item)
-
 		# -- EMR, again
 
 #		# - start new encounter
@@ -632,12 +588,14 @@ class gmTopLevelFrame(wx.Frame):
 			viewer = u'Aeskulap'
 		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
 			viewer = u'AMIDE'
+		elif gmShellAPI.detect_external_binary(binary = 'dicomscope')[0]:
+			viewer = u'DicomScope'
 		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.info('neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
+			_log.info('neither of OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -1026,9 +984,6 @@ class gmTopLevelFrame(wx.Frame):
 			return True
 		#gmFormWidgets.create_new_letter(parent = self)
 		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True, cleanup = _cfg.get(option = 'debug'))
-	#----------------------------------------------
-	def __on_manage_form_templates(self, evt):
-		gmFormWidgets.manage_form_templates(parent = self)
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------
@@ -1640,6 +1595,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_cfg_medication_list_template(self, evt):
 		gmMedicationWidgets.configure_medication_list_template(parent = self)
 	#----------------------------------------------
+	def __on_cfg_fallback_primary_provider(self, evt):
+		gmProviderInboxWidgets.configure_fallback_primary_provider(parent = self)
+	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
 
@@ -1797,9 +1755,6 @@ class gmTopLevelFrame(wx.Frame):
 		gmExceptionHandlingWidgets.set_sender_email(email)
 		dlg.Destroy()
 	#----------------------------------------------
-	def __on_configure_workplace(self, evt):
-		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
-	#----------------------------------------------
 	def __on_configure_update_check(self, evt):
 		gmCfgWidgets.configure_boolean_option (
 			question = _(
@@ -1940,13 +1895,99 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
+	def __on_manage_master_data(self, evt):
+
+		master_data_lists = [
+			'workplaces',
+			'doc_types',
+			'form_templates',
+			'text_expansions',
+			'db_translations',
+			'codes',
+			'enc_types',
+			'provinces',
+			'drugs',
+			'substances',
+			'substances_in_brands',
+			'vaccines',
+			'vacc_indications',
+			'test_types',
+			'meta_test_types',
+			'orgs',
+			'org_units',
+			'labs',
+			'adr'
+		]
+
+		master_data_list_names = {
+			'form_templates': _('Document templates (forms, letters, plots, ...)'),
+			'doc_types': _('Document types'),
+			'text_expansions': _('Keyword based text expansion macros'),
+			'db_translations': _('String translations in the database'),
+			'codes': _('Codes and their respective terms'),
+			'enc_types': _('Encounter types'),
+			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
+			'workplaces': _('Workplace profiles (which plugins to load)'),
+			'substances': _('Substances in use (taken by patients)'),
+			'drugs': _('Branded drugs (as marketed)'),
+			'substances_in_brands': _('Components of (substances in) branded drugs'),
+			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
+			'labs': _('Diagnostic organizations (path labs, ...)'),
+			'test_types': _('Test/measurement types'),
+			'meta_test_types': _('Meta test/measurement types'),
+			'vaccines': _('Vaccines'),
+			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
+			'orgs': _('Organizations'),
+			'adr': _('Addresses (likely slow)')
+		}
+
+		map_list2handler = {
+			'org_units': gmOrganizationWidgets.manage_org_units,
+			'form_templates': gmFormWidgets.manage_form_templates,
+			'doc_types': gmDocumentWidgets.manage_document_types,
+			'text_expansions': gmProviderInboxWidgets.configure_keyword_text_expansion,
+			'db_translations': gmI18nWidgets.manage_translations,
+			'codes': gmCodingWidgets.browse_coded_terms,
+			'enc_types': gmEMRStructWidgets.manage_encounter_types,
+			'provinces': gmPersonContactWidgets.manage_provinces,
+			'workplaces': gmProviderInboxWidgets.configure_workplace_plugins,
+			'substances': gmMedicationWidgets.manage_substances_in_use,
+			'drugs': gmMedicationWidgets.manage_branded_drugs,
+			'substances_in_brands': gmMedicationWidgets.manage_substances_in_brands,
+			'labs': gmMeasurementWidgets.manage_measurement_orgs,
+			'test_types': gmMeasurementWidgets.manage_measurement_types,
+			'meta_test_types': gmMeasurementWidgets.manage_meta_test_types,
+			'vaccines': gmVaccWidgets.manage_vaccines,
+			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
+			'orgs': gmOrganizationWidgets.manage_orgs,
+			'adr': gmPersonContactWidgets.manage_addresses
+		}
+
+		#---------------------------------
+		def edit(item):
+			try: map_list2handler[item](parent = self)
+			except KeyError: pass
+			return False
+		#---------------------------------
+
+		gmListWidgets.get_choices_from_list (
+			parent = self,
+			caption = _('Master data management'),
+			choices = [ master_data_list_names[lst] for lst in master_data_lists],
+			data = master_data_lists,
+			columns = [_('Select the list you want to manage:')],
+			edit_callback = edit,
+			single_selection = True,
+			ignore_OK_button = True
+		)
+	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
 			return
 
-		for viewer in ['aeskulap', 'amide', 'xmedcon']:
+		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
 				gmShellAPI.run_command_in_shell(cmd, blocking=False)
@@ -2382,12 +2423,6 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_create_new_patient(self, evt):
 		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
 	#----------------------------------------------
-#	def __on_create_patient(self, event):
-#		"""Launch create patient wizard.
-#		"""
-#		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-#		wiz.RunWizard(activate=True)
-	#----------------------------------------------
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2418,48 +2453,11 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = gmStaffWidgets.cEditStaffListDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
-	def __on_edit_doc_types(self, event):
-		dlg = gmDocumentWidgets.cEditDocumentTypesDlg(parent=self, id=-1)
-		dlg.ShowModal()
-	#----------------------------------------------
-	def __on_manage_text_expansion(self, evt):
-		gmProviderInboxWidgets.configure_keyword_text_expansion(parent=self)
-	#----------------------------------------------
-	def __on_manage_encounter_types(self, evt):
-		gmEMRStructWidgets.manage_encounter_types(parent=self)
-	#----------------------------------------------
-	def __on_manage_provinces(self, evt):
-		gmPersonContactWidgets.manage_provinces(parent=self)
-	#----------------------------------------------
-	def __on_manage_substances(self, evt):
-		gmMedicationWidgets.manage_substances_in_use(parent = self)
-	#----------------------------------------------
-	def __on_manage_branded_drugs(self, evt):
-		gmMedicationWidgets.manage_branded_drugs(parent = self)
-	#----------------------------------------------
-	def __on_manage_substances_in_brands(self, evt):
-		gmMedicationWidgets.manage_substances_in_brands(parent = self)
-	#----------------------------------------------
-	def __on_manage_test_orgs(self, evt):
-		gmMeasurementWidgets.manage_measurement_orgs(parent = self)
-	#----------------------------------------------
-	def __on_manage_test_types(self, evt):
-		gmMeasurementWidgets.manage_measurement_types(parent = self)
-	#----------------------------------------------
-	def __on_manage_meta_test_types(self, evt):
-		gmMeasurementWidgets.manage_meta_test_types(parent = self)
-	#----------------------------------------------
 	def __on_update_loinc(self, evt):
 		gmMeasurementWidgets.update_loinc_reference_data()
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
 		gmMedicationWidgets.update_atc_reference_data()
-	#----------------------------------------------
-	def __on_manage_vaccines(self, evt):
-		gmVaccWidgets.manage_vaccines(parent = self)
-	#----------------------------------------------
-	def __on_manage_vaccination_indications(self, evt):
-		gmVaccWidgets.manage_vaccination_indications(parent = self)
 	#----------------------------------------------
 	def __on_generate_vaccines(self, evt):
 		wx.BeginBusyCursor()
@@ -2572,15 +2570,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-#			title = pat['title']
-#			if title is None:
-#				title = ''
-#			else:
-#				title = title[:4]
-
 			args['pat'] = u'%s %s %s (%s) #%d' % (
 				gmTools.coalesce(pat['title'], u'', u'%.4s'),
-				#title,
 				pat['firstnames'],
 				pat['lastnames'],
 				pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
@@ -2674,7 +2665,7 @@ class gmApp(wx.App):
 				return False
 
 		# FIXME: load last position from backend
-		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440))
+		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640, 440))
 		frame.CentreOnScreen(wx.BOTH)
 		self.SetTopWindow(frame)
 		frame.Show(True)
@@ -3178,6 +3169,7 @@ def main():
 		)
 		_log.debug('wx.lib.pubsub signal monitor activated')
 
+	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered

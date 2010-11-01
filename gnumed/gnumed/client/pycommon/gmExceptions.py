@@ -116,33 +116,3 @@ class InvalidInputError(Exception):
 		return self.errmsg
 
 #=====================================================================
-# $Log: gmExceptions.py,v $
-# Revision 1.9  2007-05-14 10:32:07  ncq
-# - add exception DatabaseObjectInUseError
-#
-# Revision 1.8  2006/11/24 09:51:00  ncq
-# - don't blindly str() self.errmsg as this may not actually be possible (easily, with encodings)
-#
-# Revision 1.7  2006/10/10 07:27:34  ncq
-# - no more ClinItem exceptions
-#
-# Revision 1.6  2004/10/11 19:07:36  ncq
-# - add exceptions for business db class
-#
-# Revision 1.5  2004/06/02 12:51:45  ncq
-# - add exceptions tailored to cClinItem __set/getitem__()
-#   errors as per Syan's suggestion
-#
-# Revision 1.4  2004/05/08 17:31:31  ncq
-# - add NoSuchClinItemError
-#
-# Revision 1.3  2004/03/27 04:37:01  ihaywood
-# lnk_person2address now lnk_person_org_address
-# sundry bugfixes
-#
-# Revision 1.2  2004/03/10 00:14:04  ncq
-# - fix imports
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#

@@ -24,13 +24,11 @@ import wx.lib.pubsub as wxps
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg, gmExceptions
-from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
-from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
@@ -65,7 +63,19 @@ def manage_performed_procedures(parent=None):
 
 		items = [
 			[
-				p['clin_when'].strftime('%Y-%m-%d'),
+				u'%s%s' % (
+					p['clin_when'].strftime('%Y-%m-%d'),
+					gmTools.bool2subst (
+						p['is_ongoing'],
+						_(' (ongoing)'),
+						gmTools.coalesce (
+							initial = p['clin_end'],
+							instead = u'',
+							template_initial = u' - %s',
+							function_initial = ('strftime', u'%Y-%m-%d')
+						)
+					)
+				),
 				p['clin_where'],
 				p['episode'],
 				p['performed_procedure']
@@ -114,6 +124,8 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 	def __init_ui(self):
 		self._PRW_hospital_stay.add_callback_on_lose_focus(callback = self._on_hospital_stay_lost_focus)
 		self._PRW_location.add_callback_on_lose_focus(callback = self._on_location_lost_focus)
+		self._DPRW_date.add_callback_on_lose_focus(callback = self._on_start_lost_focus)
+		self._DPRW_end.add_callback_on_lose_focus(callback = self._on_end_lost_focus)
 
 		# location
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -144,15 +156,18 @@ limit 25
 		self._PRW_procedure.matcher = mp
 	#----------------------------------------------------------------
 	def _on_hospital_stay_lost_focus(self):
-		if self._PRW_hospital_stay.GetData() is None:
+		stay = self._PRW_hospital_stay.GetData()
+		if stay is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_location.Enable(True)
 			self._PRW_episode.Enable(True)
+			self._LBL_hospital_details.SetLabel(u'')
 		else:
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
 			self._PRW_episode.SetText()
 			self._PRW_episode.Enable(False)
+			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = stay).format())
 	#----------------------------------------------------------------
 	def _on_location_lost_focus(self):
 		if self._PRW_location.GetValue().strip() == u'':
@@ -161,7 +176,43 @@ limit 25
 		else:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
+			self._PRW_hospital_stay.display_as_valid(True)
 #			self._PRW_episode.Enable(True)
+	#----------------------------------------------------------------
+	def _on_start_lost_focus(self):
+		if not self._DPRW_date.is_valid_timestamp():
+			return
+		end = self._DPRW_end.GetData()
+		if end is None:
+			return
+		end = end.get_pydt()
+		start = self._DPRW_date.GetData().get_pydt()
+		if start < end:
+			return
+		self._DPRW_date.display_as_valid(False)
+	#----------------------------------------------------------------
+	def _on_end_lost_focus(self):
+		end = self._DPRW_end.GetData()
+		if end is None:
+			self._CHBOX_ongoing.Enable(True)
+			self._DPRW_end.display_as_valid(True)
+		else:
+			self._CHBOX_ongoing.Enable(False)
+			end = end.get_pydt()
+			now = gmDateTime.pydt_now_here()
+			if end > now:
+				self._CHBOX_ongoing.SetValue(True)
+			else:
+				self._CHBOX_ongoing.SetValue(False)
+			start = self._DPRW_date.GetData()
+			if start is None:
+				self._DPRW_end.display_as_valid(True)
+			else:
+				start = start.get_pydt()
+				if end > start:
+					self._DPRW_end.display_as_valid(True)
+				else:
+					self._DPRW_end.display_as_valid(False)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -174,6 +225,22 @@ limit 25
 			has_errors = True
 		else:
 			self._DPRW_date.display_as_valid(True)
+
+		end = self._DPRW_end.GetData()
+		self._DPRW_end.display_as_valid(True)
+		if end is not None:
+			end = end.get_pydt()
+			start = self._DPRW_end.GetData()
+			if start is not None:
+				start = start.get_pydt()
+				if end < start:
+					has_errors = True
+					self._DPRW_end.display_as_valid(False)
+			if self._CHBOX_ongoing.IsChecked():
+				now = gmDateTime.pydt_now_here()
+				if end < now:
+					has_errors = True
+					self._DPRW_end.display_as_valid(False)
 
 		if self._PRW_hospital_stay.GetData() is None:
 			if self._PRW_episode.GetData() is None:
@@ -230,7 +297,10 @@ limit 25
 			hospital_stay = stay,
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
+
 		proc['clin_when'] = self._DPRW_date.data.get_pydt()
+		proc['clin_end'] = self._DPRW_end.GetData().get_pydt()
+		proc['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 		proc.save()
 
 		self.data = proc
@@ -239,6 +309,8 @@ limit 25
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['clin_when'] = self._DPRW_date.data.get_pydt()
+		self.data['clin_end'] = self._DPRW_end.GetData().get_pydt()
+		self.data['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 
 		if self._PRW_hospital_stay.GetData() is None:
 			self.data['pk_hospital_stay'] = None
@@ -257,26 +329,43 @@ limit 25
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._DPRW_date.SetText()
+		self._DPRW_end.SetText()
+		self._CHBOX_ongoing.SetValue(False)
+		self._CHBOX_ongoing.Enable(True)
 		self._PRW_hospital_stay.SetText()
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
 
-		self._DPRW_date.SetFocus()
+		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._DPRW_date.SetData(data = self.data['clin_when'])
+		if self.data['clin_end'] is None:
+			self._DPRW_end.SetText()
+			self._CHBOX_ongoing.Enable(True)
+			self._CHBOX_ongoing.SetValue(self.data['is_ongoing'])
+		else:
+			self._DPRW_end.SetData(data = self.data['clin_end'])
+			self._CHBOX_ongoing.Enable(False)
+			now = gmDateTime.pydt_now_here()
+			if self.data['clin_end'] > now:
+				self._CHBOX_ongoing.SetValue(True)
+			else:
+				self._CHBOX_ongoing.SetValue(False)
 		self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 		self._PRW_procedure.SetText(value = self.data['performed_procedure'], data = self.data['performed_procedure'])
 
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
+			self._LBL_hospital_details.SetLabel(u'')
 			self._PRW_location.SetText(value = self.data['clin_where'], data = self.data['clin_where'])
 		else:
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
+			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = stay).format())
 			self._PRW_location.SetText()
 
-		self._DPRW_date.SetFocus()
+		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -288,11 +377,30 @@ limit 25
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
 			self._PRW_location.SetText()
 
-		self._DPRW_date.SetFocus()
+		self._PRW_procedure.SetFocus()
+	#----------------------------------------------------------------
+	# event handlers
 	#----------------------------------------------------------------
 	def _on_add_hospital_stay_button_pressed(self, evt):
+		# FIXME: this would benefit from setting the created stay
 		edit_hospital_stay(parent = self.GetParent())
 		evt.Skip()
+	#----------------------------------------------------------------
+	def _on_ongoing_checkbox_checked(self, event):
+		if self._CHBOX_ongoing.IsChecked():
+			end = self._DPRW_end.GetData()
+			if end is None:
+				self._DPRW_end.display_as_valid(True)
+			else:
+				end = end.get_pydt()
+				now = gmDateTime.pydt_now_here()
+				if end > now:
+					self._DPRW_end.display_as_valid(True)
+				else:
+					self._DPRW_end.display_as_valid(False)
+		else:
+			self._DPRW_end.is_valid_timestamp()
+		event.Skip()
 #================================================================
 # hospital stay related widgets/functions
 #----------------------------------------------------------------
@@ -435,6 +543,14 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 					data = {'msg': _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), 'beep': True}
 				)
 				return False
+
+		if self._PRW_episode.GetValue().strip() == u'':
+			self._PRW_episode.display_as_valid(False)
+			wxps.Publisher().sendMessage (
+				topic = 'statustext',
+				data = {'msg': _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), 'beep': True}
+			)
+			return False
 
 		return True
 	#----------------------------------------------------------------
@@ -1270,6 +1386,8 @@ limit 30"""
 			self.set_context('pat', patient.ID)
 		return True
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl
+
 class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -1307,6 +1425,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		emr = pat.get_emr()
 
 		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
+		epi['summary'] = self._TCTRL_summary.GetValue().strip()
 		epi['episode_open'] = not self._CHBOX_closed.IsChecked()
 		epi['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1334,6 +1453,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 	def _save_as_update(self):
 
 		self.data['description'] = self._PRW_description.GetValue().strip()
+		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
 		self.data['episode_open'] = not self._CHBOX_closed.IsChecked()
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1363,6 +1483,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
+		self._TCTRL_summary.SetValue(u'')
 		self._PRW_classification.SetText()
 		self._CHBOX_closed.SetValue(False)
 	#----------------------------------------------------------------
@@ -1374,6 +1495,8 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 			self._PRW_issue.SetText(self.data['health_issue'], data=self.data['pk_health_issue'])
 
 		self._PRW_description.SetText(self.data['description'], data=self.data['description'])
+
+		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['diagnostic_certainty_classification'] is not None:
 			self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
@@ -1557,6 +1680,8 @@ class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 			return False
 		return True
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl
+
 class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl):
 	"""Panel encapsulating health issue edit area functionality."""
 
@@ -1622,6 +1747,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
 		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
 
+		self._PRW_year_noted.Enable(True)
+
 		self.data = issue
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -1659,6 +1786,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		issue['laterality'] = side
 
+		issue['summary'] = self._TCTRL_summary.GetValue().strip()
 		issue['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 		issue['grouping'] = self._PRW_grouping.GetValue().strip()
 		issue['is_active'] = self._ChBOX_active.GetValue()
@@ -1672,17 +1800,10 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		issue.save()
 
-		narr = self._TCTRL_notes.GetValue().strip()
-		if narr != u'':
-			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = issue['pk_health_issue'])
-			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
-
 		self.data = issue
-
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		# update self.data and save the changes
 
 		self.data['description'] = self._PRW_condition.GetValue().strip()
 
@@ -1693,6 +1814,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		self.data['laterality'] = side
 
+		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 		self.data['grouping'] = self._PRW_grouping.GetValue().strip()
 		self.data['is_active'] = bool(self._ChBOX_active.GetValue())
@@ -1706,13 +1828,6 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self.data.save()
 
-		narr = self._TCTRL_notes.GetValue().strip()
-		if narr != '':
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('inception notes'), pk_health_issue = self.data['pk_health_issue'])
-			emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
-
 		# FIXME: handle is_operation
 		return True
 	#----------------------------------------------------------------
@@ -1722,7 +1837,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._ChBOX_right.SetValue(0)
 		self._PRW_classification.SetText()
 		self._PRW_grouping.SetText()
-		self._TCTRL_notes.SetValue(u'')
+		self._TCTRL_summary.SetValue(u'')
 		self._PRW_age_noted.SetText()
 		self._PRW_year_noted.SetText()
 		self._ChBOX_active.SetValue(0)
@@ -1748,7 +1863,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
 		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], u''))
-		self._TCTRL_notes.SetValue('')
+		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['age_noted'] is None:
 			self._PRW_age_noted.SetText()
@@ -2017,7 +2132,7 @@ if __name__ == '__main__':
 		gmDateTime.init()
 
 		# obtain patient
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)

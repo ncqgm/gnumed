@@ -322,7 +322,8 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				fk_intended_reviewer = %(pk_intended_reviewer)s,
 				fk_encounter = %(pk_encounter)s,
 				fk_episode = %(pk_episode)s,
-				fk_type = %(pk_test_type)s
+				fk_type = %(pk_test_type)s,
+				fk_request = %(pk_request)s
 			where
 				pk = %(pk_test_result)s and
 				xmin = %(xmin_test_result)s""",
@@ -349,7 +350,8 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'pk_intended_reviewer',
 		'pk_encounter',
 		'pk_episode',
-		'pk_test_type'
+		'pk_test_type',
+		'pk_request'
 	]
 	#--------------------------------------------------------
 	def format(self, with_review=True, with_comments=True, date_format='%Y-%m-%d %H:%M'):

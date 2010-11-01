@@ -4,8 +4,6 @@ This encapsulates some of the XDT data into
 objects for easy access.
 """
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.33 2009-05-04 11:39:47 ncq Exp $
 __version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
@@ -429,122 +427,9 @@ if __name__ == "__main__":
 #	print "dto.dob.tz:", dto.dob.tzinfo
 #	print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
 #	print "dto.street", dto.street
-#	searcher = gmPerson.cPatientSearcher_SQL()
+#	searcher = gmPersonSearch.cPatientSearcher_SQL()
 #	ident = searcher.get_identities(dto=dto)[0]
 #	print ident
 ##	print ident.get_medical_age()
 
 #==============================================================
-# $Log: gmXdtObjects.py,v $
-# Revision 1.33  2009-05-04 11:39:47  ncq
-# - md5 is gone
-#
-# Revision 1.32  2009/02/18 13:43:38  ncq
-# - get_unique_filename API change
-#
-# Revision 1.31  2009/02/05 21:16:59  ncq
-# - start supporting importing LDT
-#
-# Revision 1.30  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.29  2007/07/11 21:05:10  ncq
-# - use gmTools.get_unique_filename()
-#
-# Revision 1.28  2007/06/28 12:34:35  ncq
-# - handle GDT source field, too
-# - safer detection of subsequent records
-# - improved date parsing logic
-#
-# Revision 1.27  2007/05/21 13:04:29  ncq
-# - start class cDTO_xdt_person
-#
-# Revision 1.26  2007/02/22 17:28:45  ncq
-# - improve test suite
-#
-# Revision 1.25  2007/01/21 12:20:45  ncq
-# - add determine_xdt_encoding()
-#
-# Revision 1.24  2007/01/16 17:57:54  ncq
-# - improve test suite
-#
-# Revision 1.23  2007/01/16 13:43:10  ncq
-# - use gmDateTime.gmCurrentLocalTimezone for dto.dob
-#
-# Revision 1.22  2007/01/16 12:13:30  ncq
-# - dto.dob now requires datetime.datetime
-# - improve test suite
-#
-# Revision 1.21  2007/01/16 10:26:29  ncq
-# - open xdt file in utf8 even for encoding detection since
-#   it can still contain umlauts et al
-# - fix zipurb vs zip + urb handling
-#
-# Revision 1.20  2007/01/04 23:09:38  ncq
-# - support explicit DOB format in xDT files
-#
-# Revision 1.19  2006/12/11 18:53:43  ncq
-# - make read_person_from_xdt() recognize address data
-#
-# Revision 1.18  2006/10/30 16:42:27  ncq
-# - use more gmXdtMappings
-#
-# Revision 1.17  2006/10/08 10:48:28  ncq
-# - teach xdt reader to derive encoding from gdt 6301 record
-#
-# Revision 1.16  2006/09/13 07:54:32  ncq
-# - clean up imports
-# - handle source encoding in read_person_from_xdt()
-#
-# Revision 1.15  2006/09/12 17:19:53  ncq
-# - xDT files have the gender in upper or lower case, so normalize to lower
-#
-# Revision 1.14  2006/07/22 11:01:00  ncq
-# - make gender optional
-#
-# Revision 1.13  2006/07/19 20:43:59  ncq
-# - remove cXDTPatient
-#
-# Revision 1.12  2006/07/17 18:02:50  ncq
-# - cleanup, improve testing
-# - add read_person_from_xdt() and use gmPerson.cDTO_person()
-#
-# Revision 1.11  2006/07/13 21:00:32  ncq
-# - cleanup gender mappings
-# - streamline cXdtPatient and improve test harness
-#
-# Revision 1.10  2006/05/12 12:05:04  ncq
-# - cleanup
-#
-# Revision 1.9	2004/03/20 19:45:49  ncq
-# - rename gender map
-#
-# Revision 1.8	2004/03/18 11:05:00  shilbert
-# - fixed xDT-parsing in standalone mode
-#
-# Revision 1.7	2004/02/25 09:46:20  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.6	2003/11/17 10:56:35  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1	2003/10/23 06:02:38  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.5	2003/08/28 18:54:32  shilbert
-# - corrected some minor glitches
-#
-# Revision 1.4	2003/08/27 14:58:58  ncq
-# - added helpers written by shilbert for XdtViewer
-#
-# Revision 1.3	2003/04/19 22:56:03  ncq
-# - speed up __load_data(), better encapsulate xdt file maps
-#
-# Revision 1.2	2003/02/18 02:43:16  ncq
-# - rearranged __getitem__ to check self.__data last
-#
-# Revision 1.1	2003/02/17 23:33:14  ncq
-# - first version
-#

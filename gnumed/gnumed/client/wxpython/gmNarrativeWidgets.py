@@ -7,18 +7,28 @@ import sys, logging, os, os.path, time, re as regex, shutil
 
 
 import wx
-import wx.lib.expando as wxexpando
+import wx.lib.expando as wx_expando
+import wx.lib.agw.supertooltip as agw_stt
+import wx.lib.statbmp as wx_genstatbmp
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
 from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg, gmMatchProvider
+
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
-from Gnumed.business import gmForms, gmDocuments
-from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets, gmRegetMixin
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmPatSearchWidgets
-from Gnumed.wxpython import gmCfgWidgets, gmDocumentWidgets
+from Gnumed.business import gmForms, gmDocuments, gmPersonSearch
+
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmDocumentWidgets
+
 from Gnumed.exporters import gmPatientExporter
 
 
@@ -580,7 +590,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	- previous notes
 	- notebook with progress note editors
 	- encounter details fields
-	- visual soap area
 
 	Listens to patient change signals, thus acts on the current patient.
 	"""
@@ -632,7 +641,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._splitter_main.SetSashGravity(0.5)
 		self._splitter_left.SetSashGravity(0.5)
 		self._splitter_right.SetSashGravity(1.0)
-		self._splitter_soap.SetSashGravity(0.75)
+#		self._splitter_soap.SetSashGravity(0.75)
 
 		splitter_size = self._splitter_main.GetSizeTuple()[0]
 		self._splitter_main.SetSashPosition(splitter_size * 3 / 10, True)
@@ -643,8 +652,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		splitter_size = self._splitter_right.GetSizeTuple()[1]
 		self._splitter_right.SetSashPosition(splitter_size * 15 / 20, True)
 
-		splitter_size = self._splitter_soap.GetSizeTuple()[0]
-		self._splitter_soap.SetSashPosition(splitter_size * 3 / 4, True)
+#		splitter_size = self._splitter_soap.GetSizeTuple()[0]
+#		self._splitter_soap.SetSashPosition(splitter_size * 3 / 4, True)
 
 		self._NB_soap_editors.DeleteAllPages()
 	#--------------------------------------------------------
@@ -665,12 +674,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._NB_soap_editors.DeleteAllPages()
 		self._NB_soap_editors.add_editor()
 
-		self._PNL_visual_soap.clear()
-
 		self._lbl_hints.SetLabel(u'')
-	#--------------------------------------------------------
-	def __refresh_visual_soaps(self):
-		self._PNL_visual_soap.refresh()
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
 		"""Update health problems list.
@@ -733,78 +737,106 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return True
 	#--------------------------------------------------------
+	def __get_soap_for_issue_problem(self, problem=None):
+		soap = u''
+		emr = self.__pat.get_emr()
+		prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
+		if prev_enc is not None:
+			soap += prev_enc.format (
+				issues = [ problem['pk_health_issue'] ],
+				with_soap = True,
+				with_docs = False,
+				with_tests = False,
+				patient = self.__pat,
+				fancy_header = False
+			)
+
+		tmp = emr.active_encounter.format_soap (
+			soap_cats = 'soap',
+			emr = emr,
+			issues = [ problem['pk_health_issue'] ],
+		)
+		if len(tmp) > 0:
+			soap += _('Current encounter:') + u'\n'
+			soap += u'\n'.join(tmp) + u'\n'
+
+		if problem['summary'] is not None:
+			soap += u'\n-- %s ----------\n%s' % (
+				_('Cumulative summary'),
+				gmTools.wrap (
+					text = problem['summary'],
+					width = 45,
+					initial_indent = u' ',
+					subsequent_indent = u' '
+				).strip('\n')
+			)
+
+		return soap
+	#--------------------------------------------------------
+	def __get_soap_for_episode_problem(self, problem=None):
+		soap = u''
+		emr = self.__pat.get_emr()
+		prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
+		if prev_enc is not None:
+			soap += prev_enc.format (
+				episodes = [ problem['pk_episode'] ],
+				with_soap = True,
+				with_docs = False,
+				with_tests = False,
+				patient = self.__pat,
+				fancy_header = False
+			)
+		else:
+			if problem['pk_health_issue'] is not None:
+				prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_health_issue'])
+				if prev_enc is not None:
+					soap += prev_enc.format (
+						with_soap = True,
+						with_docs = False,
+						with_tests = False,
+						patient = self.__pat,
+						issues = [ problem['pk_health_issue'] ],
+						fancy_header = False
+					)
+
+		tmp = emr.active_encounter.format_soap (
+			soap_cats = 'soap',
+			emr = emr,
+			issues = [ problem['pk_health_issue'] ],
+		)
+		if len(tmp) > 0:
+			soap += _('Current encounter:') + u'\n'
+			soap += u'\n'.join(tmp) + u'\n'
+
+		if problem['summary'] is not None:
+			soap += u'\n-- %s ----------\n%s' % (
+				_('Cumulative summary'),
+				gmTools.wrap (
+					text = problem['summary'],
+					width = 45,
+					initial_indent = u' ',
+					subsequent_indent = u' '
+				).strip('\n')
+			)
+
+		return soap
+	#--------------------------------------------------------
+	def __refresh_current_editor(self):
+		self._NB_soap_editors.refresh_current_editor()
+	#--------------------------------------------------------
 	def __refresh_recent_notes(self, problem=None):
 		"""This refreshes the recent-notes part."""
 
-		if problem is None:
-			soap = u''
-			caption = u'<?>'
+		soap = u''
+		caption = u'<?>'
 
-		elif problem['type'] == u'issue':
-			emr = self.__pat.get_emr()
-			soap = u''
+		if problem['type'] == u'issue':
 			caption = problem['problem'][:35]
-
-			prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
-			if prev_enc is not None:
-				soap += prev_enc.format (
-					with_soap = True,
-					with_docs = False,
-					with_tests = False,
-					patient = self.__pat,
-					issues = [ problem['pk_health_issue'] ],
-					fancy_header = False
-				)
-
-			tmp = emr.active_encounter.format_soap (
-				soap_cats = 'soap',
-				emr = emr,
-				issues = [ problem['pk_health_issue'] ],
-			)
-			if len(tmp) > 0:
-				soap += _('Current encounter:') + u'\n'
-				soap += u'\n'.join(tmp) + u'\n'
+			soap = self.__get_soap_for_issue_problem(problem = problem)
 
 		elif problem['type'] == u'episode':
-			emr = self.__pat.get_emr()
-			soap = u''
 			caption = problem['problem'][:35]
-
-			prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
-			if prev_enc is None:
-				if problem['pk_health_issue'] is not None:
-					prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_health_issue'])
-					if prev_enc is not None:
-						soap += prev_enc.format (
-							with_soap = True,
-							with_docs = False,
-							with_tests = False,
-							patient = self.__pat,
-							issues = [ problem['pk_health_issue'] ],
-							fancy_header = False
-						)
-			else:
-				soap += prev_enc.format (
-					episodes = [ problem['pk_episode'] ],
-					with_soap = True,
-					with_docs = False,
-					with_tests = False,
-					patient = self.__pat,
-					fancy_header = False
-				)
-
-			tmp = emr.active_encounter.format_soap (
-				soap_cats = 'soap',
-				emr = emr,
-				issues = [ problem['pk_health_issue'] ],
-			)
-			if len(tmp) > 0:
-				soap += _('Current encounter:') + u'\n'
-				soap += u'\n'.join(tmp) + u'\n'
-
-		else:
-			soap = u''
-			caption = u'<?>'
+			soap = self.__get_soap_for_episode_problem(problem = problem)
 
 		self._TCTRL_recent_notes.SetValue(soap)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
@@ -819,8 +851,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		return True
 	#--------------------------------------------------------
 	def __refresh_encounter(self):
-		"""Update encounter fields.
-		"""
+		"""Update encounter fields."""
+
 		emr = self.__pat.get_emr()
 		enc = emr.active_encounter
 		self._PRW_encounter_type.SetText(value = enc['l10n_type'], data = enc['pk_type'])
@@ -966,7 +998,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_doc_mod_db(self):
-		wx.CallAfter(self.__refresh_visual_soaps)
+		wx.CallAfter(self.__refresh_current_editor)
 	#--------------------------------------------------------
 	def _on_episode_issue_mod_db(self):
 		wx.CallAfter(self._schedule_data_reget)
@@ -979,7 +1011,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def __on_current_encounter_switched(self):
 		self.__refresh_encounter()
-		self.__refresh_visual_soaps()
+	#--------------------------------------------------------
+	# problem list specific events
 	#--------------------------------------------------------
 	def _on_problem_focused(self, event):
 		"""Show related note at the bottom."""
@@ -1019,6 +1052,14 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		event.Skip()
 		return False
 	#--------------------------------------------------------
+	def _on_show_closed_episodes_checked(self, event):
+		self.__refresh_problem_list()
+	#--------------------------------------------------------
+	def _on_irrelevant_issues_checked(self, event):
+		self.__refresh_problem_list()
+	#--------------------------------------------------------
+	# SOAP editor specific buttons
+	#--------------------------------------------------------
 	def _on_discard_editor_button_pressed(self, event):
 		self._NB_soap_editors.close_current_editor()
 		event.Skip()
@@ -1031,31 +1072,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._NB_soap_editors.clear_current_editor()
 		event.Skip()
 	#--------------------------------------------------------
-	def _on_save_all_button_pressed(self, event):
-		self.save_encounter()
-		time.sleep(0.3)
-		event.Skip()
-		wx.SafeYield()
-
-		wx.CallAfter(self._save_all_button_pressed_bottom_half)
-		wx.SafeYield()
-	#--------------------------------------------------------
-	def _save_all_button_pressed_bottom_half(self):
-		emr = self.__pat.get_emr()
-		saved = self._NB_soap_editors.save_all_editors (
-			emr = emr,
-			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
-			]
-		)
-		if not saved:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
-	#--------------------------------------------------------
-	def _on_save_encounter_button_pressed(self, event):
-		self.save_encounter()
-		event.Skip()
-	#--------------------------------------------------------
 	def _on_save_note_button_pressed(self, event):
 		emr = self.__pat.get_emr()
 		self._NB_soap_editors.save_current_editor (
@@ -1065,6 +1081,17 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
 			]
 		)
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_image_button_pressed(self, event):
+		emr = self.__pat.get_emr()
+		self._NB_soap_editors.add_visual_progress_note_to_current_problem()
+		event.Skip()
+	#--------------------------------------------------------
+	# encounter specific buttons
+	#--------------------------------------------------------
+	def _on_save_encounter_button_pressed(self, event):
+		self.save_encounter()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_new_encounter_button_pressed(self, event):
@@ -1091,18 +1118,34 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		wx.CallAfter(gmEMRStructWidgets.start_new_encounter, emr = emr)
 	#--------------------------------------------------------
-	def _on_show_closed_episodes_checked(self, event):
-		self.__refresh_problem_list()
+	# other buttons
 	#--------------------------------------------------------
-	def _on_irrelevant_issues_checked(self, event):
-		self.__refresh_problem_list()
+	def _on_save_all_button_pressed(self, event):
+		self.save_encounter()
+		time.sleep(0.3)
+		event.Skip()
+		wx.SafeYield()
+
+		wx.CallAfter(self._save_all_button_pressed_bottom_half)
+		wx.SafeYield()
+	#--------------------------------------------------------
+	def _save_all_button_pressed_bottom_half(self):
+		emr = self.__pat.get_emr()
+		saved = self._NB_soap_editors.save_all_editors (
+			emr = emr,
+			episode_name_candidates = [
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+			]
+		)
+		if not saved:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
 		self.__refresh_problem_list()
 		self.__refresh_encounter()
-		self.__refresh_visual_soaps()
 		return True
 #============================================================
 class cSoapNoteInputNotebook(wx.Notebook):
@@ -1278,6 +1321,16 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		page_idx = self.GetSelection()
 		page = self.GetPage(page_idx)
 		return page.problem
+	#--------------------------------------------------------
+	def refresh_current_editor(self):
+		page_idx = self.GetSelection()
+		page = self.GetPage(page_idx)
+		page.refresh()
+	#--------------------------------------------------------
+	def add_visual_progress_note_to_current_problem(self):
+		page_idx = self.GetSelection()
+		page = self.GetPage(page_idx)
+		page.add_visual_progress_note()
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSoapNoteExpandoEditAreaPnl
 
@@ -1300,18 +1353,83 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			self._TCTRL_soaP
 		]
 
+		self.__init_ui()
 		self.__register_interests()
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self.refresh_summary()
+		if self.problem is not None:
+			if self.problem['summary'] is None:
+				self._TCTRL_summary.SetValue(u'')
+		self.refresh_visual_soap()
+	#--------------------------------------------------------
+	def refresh(self):
+		self.refresh_summary()
+		self.refresh_visual_soap()
+	#--------------------------------------------------------
+	def refresh_summary(self):
+		if self.problem is None:
+			return
+		if self.problem['summary'] is None:
+			self._TCTRL_summary.SetValue(u'')
+		else:
+			self._TCTRL_summary.SetValue(self.problem['summary'])
+	#--------------------------------------------------------
+	def refresh_visual_soap(self):
+		if self.problem is None:
+			self._PNL_visual_soap.refresh(document_folder = None)
+			return
+
+		if self.problem['type'] == u'issue':
+			self._PNL_visual_soap.refresh(document_folder = None)
+			return
+
+		if self.problem['type'] == u'episode':
+			pat = gmPerson.gmCurrentPatient()
+			doc_folder = pat.get_document_folder()
+			emr = pat.get_emr()
+			self._PNL_visual_soap.refresh (
+				document_folder = doc_folder,
+				episodes = [self.problem['pk_episode']],
+				encounter = emr.active_encounter['pk_encounter']
+			)
+			return
 	#--------------------------------------------------------
 	def clear(self):
 		for field in self.fields:
 			field.SetValue(u'')
+		self._TCTRL_summary.SetValue(u'')
+		self._PNL_visual_soap.clear()
+	#--------------------------------------------------------
+	def add_visual_progress_note(self):
+		fname, discard_unmodified = select_visual_progress_note_template(parent = self)
+		if fname is None:
+			return False
+
+		if self.problem is None:
+			issue = None
+			episode = None
+		elif self.problem['type'] == 'issue':
+			issue = self.problem['pk_health_issue']
+			episode = None
+		else:
+			issue = self.problem['pk_health_issue']
+			episode = gmEMRStructItems.problem2episode(self.problem)
+
+		wx.CallAfter (
+			edit_visual_progress_note,
+			filename = fname,
+			episode = episode,
+			discard_unmodified = discard_unmodified,
+			health_issue = issue
+		)
 	#--------------------------------------------------------
 	def save(self, emr=None, episode_name_candidates=None):
 
 		if self.empty:
 			return True
 
-		# new unassociated episode
+		# new episode (standalone=unassociated or new-in-issue)
 		if (self.problem is None) or (self.problem['type'] == 'issue'):
 
 			episode_name_candidates.append(u'')
@@ -1339,6 +1457,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 			# create episode
 			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
+			new_episode['summary'] = self._TCTRL_summary.GetValue().strip()
+			new_episode.save()
 
 			if self.problem is not None:
 				issue = emr.problem2issue(self.problem)
@@ -1361,10 +1481,25 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 					)
 
 			epi_id = new_episode['pk_episode']
+
+		# existing episode
 		else:
 			epi_id = self.problem['pk_episode']
 
 		emr.add_notes(notes = self.soap, episode = epi_id)
+
+		# set summary but only if not already set above for an episode
+		# newly created either standalone or within a health issue
+		if self.problem['type'] == 'episode':
+			new_summary = self._TCTRL_summary.GetValue().strip()
+			epi = emr.problem2episode(self.problem)
+			if epi['summary'] is None:
+				epi['summary'] = new_summary
+				epi.save()
+			else:
+				if epi['summary'].strip() != new_summary:
+					epi['summary'] = new_summary
+					epi.save()
 
 		return True
 	#--------------------------------------------------------
@@ -1372,7 +1507,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 	#--------------------------------------------------------
 	def __register_interests(self):
 		for field in self.fields:
-			wxexpando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
+			wx_expando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
+		wx_expando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_summary, self._TCTRL_summary.GetId(), self._on_expando_needs_layout)
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
 		# need to tell ourselves to re-Layout to refresh scroll bars
@@ -1436,19 +1572,64 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		for field in self.fields:
 			if field.GetValue().strip() != u'':
 				return False
+
+		summary = self._TCTRL_summary.GetValue().strip()
+		if self.problem is None:
+			if summary != u'':
+				return False
+		else:
+			if self.problem['summary'] is None:
+				if summary != u'':
+					return False
+			else:
+				if summary != self.problem['summary'].strip():
+					return False
+
 		return True
 
 	empty = property(_get_empty, lambda x:x)
 #============================================================
-class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
+class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 
 	def __init__(self, *args, **kwargs):
 
-		wxexpando.ExpandoTextCtrl.__init__(self, *args, **kwargs)
+		wx_expando.ExpandoTextCtrl.__init__(self, *args, **kwargs)
 
 		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
 
 		self.__register_interests()
+	#------------------------------------------------
+	# fixup errors in platform expando.py
+	#------------------------------------------------
+	def _wrapLine(self, line, dc, width):
+
+		if (wx.MAJOR_VERSION > 1) and (wx.MINOR_VERSION > 8):
+			return super(cSoapLineTextCtrl, self)._wrapLine(line, dc, width)
+
+		# THIS FIX LIFTED FROM TRUNK IN SVN:
+		# Estimate where the control will wrap the lines and
+		# return the count of extra lines needed.
+		pte = dc.GetPartialTextExtents(line)
+		width -= wx.SystemSettings.GetMetric(wx.SYS_VSCROLL_X)
+		idx = 0
+		start = 0
+		count = 0
+		spc = -1
+		while idx < len(pte):
+		    if line[idx] == ' ':
+		        spc = idx
+		    if pte[idx] - start > width:
+		        # we've reached the max width, add a new line
+		        count += 1
+		        # did we see a space? if so restart the count at that pos
+		        if spc != -1:
+		            idx = spc + 1
+		            spc = -1
+		        if idx < len(pte):
+		            start = pte[idx]
+		    else:
+		        idx += 1
+		return count
 	#------------------------------------------------
 	# event handling
 	#------------------------------------------------
@@ -1463,7 +1644,7 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 		wx.CallAfter(self._after_on_focus)
 	#--------------------------------------------------------
 	def _after_on_focus(self):
-		evt = wx.PyCommandEvent(wxexpando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
+		evt = wx.PyCommandEvent(wx_expando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
 		evt.SetEventObject(self)
 		evt.height = None
 		evt.numLines = None
@@ -1554,9 +1735,6 @@ class cSoapLineTextCtrl(wxexpando.ExpandoTextCtrl):
 #============================================================
 # visual progress notes
 #============================================================
-visual_progress_note_document_type = u'visual progress note'
-
-#============================================================
 def configure_visual_progress_note_editor():
 
 	def is_valid(value):
@@ -1603,7 +1781,62 @@ def configure_visual_progress_note_editor():
 		validator = is_valid
 	)
 #============================================================
-def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None):
+def select_file_as_visual_progress_note_template(parent=None):
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = _('Choose file to use as template for new visual progress note'),
+		defaultDir = os.path.expanduser('~'),
+		defaultFile = '',
+		#wildcard = "%s (*)|*|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
+		style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+	)
+	result = dlg.ShowModal()
+
+	if result == wx.ID_CANCEL:
+		dlg.Destroy()
+		return None
+
+	full_filename = dlg.GetPath()
+	dlg.Hide()
+	dlg.Destroy()
+	return full_filename
+#------------------------------------------------------------
+def select_visual_progress_note_template(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# 1) select from template
+	from Gnumed.wxpython import gmFormWidgets
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		template_types = [gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE],
+		active_only = True
+	)
+
+	# 2) select from disk file
+	if template is None:
+		fname = select_file_as_visual_progress_note_template(parent = parent)
+		if fname is None:
+			return (None, None)
+		# create a copy of the picked file -- don't modify the original
+		ext = os.path.splitext(fname)[1]
+		tmp_name = gmTools.get_unique_filename(suffix = ext)
+		_log.debug('visual progress note from file: [%s] -> [%s]', fname, tmp_name)
+		shutil.copy2(fname, tmp_name)
+		return (tmp_name, False)
+
+	filename = template.export_to_file()
+	if filename is None:
+		gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
+		return (None, None)
+	return (filename, True)
+
+#------------------------------------------------------------
+def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None, health_issue=None):
 	"""This assumes <filename> contains an image which can be handled by the configured image editor."""
 
 	if doc_part is not None:
@@ -1675,13 +1908,14 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 				_log.debug('visual progress note (template) not modified')
 				# ask user to decide
 				msg = _(
-					u'This visual progress note was created from a\n'
-					u'template in the database rather than from a file\n'
-					u'but the image was not modified at all.\n'
+					u'You either created a visual progress note from a template\n'
+					u'in the database (rather than from a file on disk) or you\n'
+					u'edited an existing visual progress note.\n'
 					u'\n'
-					u'Do you want to still save the unmodified\n'
-					u'image as a visual progress note into the\n'
-					u'EMR of the patient ?'
+					u'The template/original was not modified at all, however.\n'
+					u'\n'
+					u'Do you still want to save the unmodified image as a\n'
+					u'visual progress note into the EMR of the patient ?\n'
 				)
 				save_unmodified = gmGuiHelpers.gm_show_question (
 					msg,
@@ -1697,13 +1931,15 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		return None
 
 	if not isinstance(episode, gmEMRStructItems.cEpisode):
+		if episode is None:
+			episode = _('visual progress notes')
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-		episode = emr.add_episode(episode_name = episode.strip(), is_open = False)
+		episode = emr.add_episode(episode_name = episode.strip(), pk_health_issue = health_issue, is_open = False)
 
 	doc = gmDocumentWidgets.save_file_as_new_document (
 		filename = filename,
-		document_type = visual_progress_note_document_type,
+		document_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
 		episode = episode,
 		unlock_patient = True
 	)
@@ -1732,7 +1968,7 @@ WHERE
 	)
 ORDER BY name_short
 LIMIT 15
-"""	% visual_progress_note_document_type
+"""	% gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		mp.setThresholds(2, 3, 5)
@@ -1745,6 +1981,78 @@ LIMIT 15
 			return None
 
 		return gmForms.cFormTemplate(aPK_obj = self.data)
+#============================================================
+from Gnumed.wxGladeWidgets import wxgVisualSoapPresenterPnl
+
+class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl.__init__(self, *args, **kwargs)
+		self._SZR_soap = self.GetSizer()
+		self.__bitmaps = []
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, document_folder=None, episodes=None, encounter=None):
+
+		self.clear()
+		if document_folder is not None:
+			soap_docs = document_folder.get_visual_progress_notes(episodes = episodes, encounter = encounter)
+			if len(soap_docs) > 0:
+				for soap_doc in soap_docs:
+					parts = soap_doc.parts
+					if len(parts) == 0:
+						continue
+					part = parts[0]
+					fname = part.export_to_file()
+					if fname is None:
+						continue
+
+					# create bitmap
+					img = gmGuiHelpers.file2scaled_image (
+						filename = fname,
+						height = 30
+					)
+					#bmp = wx.StaticBitmap(self, -1, img, style = wx.NO_BORDER)
+					bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
+
+					# create tooltip
+					img = gmGuiHelpers.file2scaled_image (
+						filename = fname,
+						height = 150
+					)
+					tip = agw_stt.SuperToolTip (
+						u'',
+						bodyImage = img,
+						header = _('Created: %s') % part['date_generated'].strftime('%Y %B %d').encode(gmI18N.get_encoding()),
+						footer = gmTools.coalesce(part['doc_comment'], u'').strip()
+					)
+					tip.SetTopGradientColor('white')
+					tip.SetMiddleGradientColor('white')
+					tip.SetBottomGradientColor('white')
+					tip.SetTarget(bmp)
+
+					bmp.doc_part = part
+					bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
+					# FIXME: add context menu for Delete/Clone/Add/Configure
+					self._SZR_soap.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
+					self.__bitmaps.append(bmp)
+
+		self.GetParent().Layout()
+	#--------------------------------------------------------
+	def clear(self):
+		while self._SZR_soap.Detach(0):
+			pass
+		for bmp in self.__bitmaps:
+			bmp.Destroy()
+		self.__bitmaps = []
+	#--------------------------------------------------------
+	def _on_bitmap_leftclicked(self, evt):
+		wx.CallAfter (
+			edit_visual_progress_note,
+			doc_part = evt.GetEventObject().doc_part,
+			discard_unmodified = True
+		)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgVisualSoapPnl
 
@@ -1782,7 +2090,7 @@ class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
 
 		folder = patient.get_document_folder()
 		soap_docs = folder.get_documents (
-			doc_type = visual_progress_note_document_type,
+			doc_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
 			encounter = encounter['pk_encounter']
 		)
 
@@ -1999,7 +2307,7 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	def test_select_narrative_from_episodes():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative_from_episodes()
@@ -2008,14 +2316,14 @@ if __name__ == '__main__':
 			print sel
 	#----------------------------------------
 	def test_cSoapNoteExpandoEditAreaPnl():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cSoapNoteExpandoEditAreaPnl(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#----------------------------------------
 	def test_cSoapPluginPnl():
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			return
@@ -2032,4 +2340,3 @@ if __name__ == '__main__':
 	#test_cSoapPluginPnl()
 
 #============================================================
-

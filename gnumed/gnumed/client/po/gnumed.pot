@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-08-27 12:46+CEST\n"
+"POT-Creation-Date: 2010-10-28 16:07+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -298,7 +298,7 @@ msgstr ""
 msgid " Noted at age: %s"
 msgstr ""
 
-msgid " Status: %s, %s%s"
+msgid "Status"
 msgstr ""
 
 msgid "not clinically relevant"
@@ -399,6 +399,9 @@ msgid "daylight savings time in effect"
 msgstr ""
 
 msgid "Documents:"
+msgstr ""
+
+msgid " (ongoing)"
 msgstr ""
 
 msgid "error with placeholder [%s]"
@@ -524,6 +527,12 @@ msgstr ""
 msgid "Cannot merge active patient into another patient."
 msgstr ""
 
+msgid "Mr"
+msgstr ""
+
+msgid "Mrs"
+msgstr ""
+
 msgid "internal patient ID"
 msgstr ""
 
@@ -579,21 +588,6 @@ msgid "date of birth/death"
 msgstr ""
 
 msgid "full name"
-msgstr ""
-
-msgid "Mr"
-msgstr ""
-
-msgid "Mrs"
-msgstr ""
-
-msgid "error"
-msgstr ""
-
-msgid "unable to get provider inbox messages from database"
-msgstr ""
-
-msgid "An error occurred while retrieving provider inbox messages from the database."
 msgstr ""
 
 msgid "vaccine"
@@ -1699,6 +1693,24 @@ msgid ""
 "(SQL)"
 msgstr ""
 
+msgid "Original string as found in the database. Usually in English."
+msgstr ""
+
+msgid "Enter your translation here."
+msgstr ""
+
+msgid "Enter the language code here. You need either the two letter or the four letter ISO code. When entering four letter codes use the format xx_XX, such as de_DE."
+msgstr ""
+
+msgid "String"
+msgstr ""
+
+msgid "Translation"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
 msgid "Edit Document Types"
 msgstr ""
 
@@ -1848,6 +1860,9 @@ msgstr ""
 msgid "If this box is checked the episode is over. If not it is currently ongoing."
 msgstr ""
 
+msgid "The current status or a summary of this episode."
+msgstr ""
+
 msgid "Patient"
 msgstr ""
 
@@ -1933,9 +1948,6 @@ msgid "Options"
 msgstr ""
 
 msgid "Processed by:"
-msgstr ""
-
-msgid "Status"
 msgstr ""
 
 msgid "Last modified:"
@@ -2089,7 +2101,7 @@ msgstr ""
 msgid "Here you can add arbitrary text which will be used for sorting health issues in the tree."
 msgstr ""
 
-msgid "Clinical narrative of any kind can be added (but not altered) here. This can be done at inception, and/or later. Each is treated as a subjective (\"S\"oap) note entry."
+msgid "The current status or a summary of the issue."
 msgstr ""
 
 msgid "Enter the age in years when this condition was diagnosed. Setting this will adjust the \"in the year\" field accordingly."
@@ -2117,12 +2129,6 @@ msgid "Condition"
 msgstr ""
 
 msgid "Grouping:"
-msgstr ""
-
-msgid ""
-"Inception or\n"
-"additional\n"
-"notes"
 msgstr ""
 
 msgid "When Noted"
@@ -2617,6 +2623,9 @@ msgstr ""
 msgid "Emergency contact"
 msgstr ""
 
+msgid "Primary doctor"
+msgstr ""
+
 msgid "Schock index"
 msgstr ""
 
@@ -2756,13 +2765,22 @@ msgstr ""
 msgid "Waist"
 msgstr ""
 
+msgid "Ongoing"
+msgstr ""
+
+msgid "The actual procedure performed on the patient."
+msgstr ""
+
 msgid "When did this procedure take place ?"
 msgstr ""
 
-msgid "During which hospital stay was this procedure performed."
+msgid ""
+"When did this procedure end ?\n"
+"\n"
+"Leave empty for ongoing or \"one-off\" procedures without a significant duration."
 msgstr ""
 
-msgid "Add a hospital stay."
+msgid "Select if procedure is ongoing (say, desensibilization)."
 msgstr ""
 
 msgid ""
@@ -2777,13 +2795,16 @@ msgid ""
 "Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
 msgstr ""
 
-msgid "The actual procedure performed on the patient."
+msgid "During which hospital stay was this procedure performed."
 msgstr ""
 
-msgid "Hospital stay"
+msgid "Add a hospital stay."
 msgstr ""
 
-msgid "... or ..."
+msgid "Procedure"
+msgstr ""
+
+msgid "End"
 msgstr ""
 
 msgid "Location"
@@ -2792,7 +2813,10 @@ msgstr ""
 msgid "and Episode"
 msgstr ""
 
-msgid "Procedure"
+msgid "... or ..."
+msgstr ""
+
+msgid "Hospital stay"
 msgstr ""
 
 msgid "Programmer must override this text."
@@ -3065,6 +3089,15 @@ msgstr ""
 msgid "Sort documents by"
 msgstr ""
 
+msgid "Here you can modify the cumulative summary of the problem (regardless of whether that is a new one, a health issue, or an episode)."
+msgstr ""
+
+msgid "Problem summary"
+msgstr ""
+
+msgid "tab1"
+msgstr ""
+
 msgid "Most recent notes on above problem"
 msgstr ""
 
@@ -3095,6 +3128,9 @@ msgstr ""
 msgid "&Save"
 msgstr ""
 
+msgid "&Image"
+msgstr ""
+
 msgid "Save &all"
 msgstr ""
 
@@ -3121,10 +3157,10 @@ msgstr ""
 msgid "This shows the list of active problems, They include open episodes as well as active health issues."
 msgstr ""
 
-msgid "Purpose ..."
+msgid "Add a visual progress note for this episode."
 msgstr ""
 
-msgid "tab1"
+msgid "Purpose ..."
 msgstr ""
 
 msgid "... summary"
@@ -3991,6 +4027,24 @@ msgstr ""
 msgid "Abort the dialog and do not change the current setting."
 msgstr ""
 
+msgid "Coded terms known to GNUmed."
+msgstr ""
+
+msgid "Showing coded terms."
+msgstr ""
+
+msgid "Coding system details"
+msgstr ""
+
+msgid "System"
+msgstr ""
+
+msgid "Version"
+msgstr ""
+
+msgid "Term"
+msgstr ""
+
 msgid "Encrypt"
 msgstr ""
 
@@ -4352,6 +4406,18 @@ msgid ""
 "You will have to add it via the Demographics plugin.\n"
 msgstr ""
 
+msgid "Contacts"
+msgstr ""
+
+msgid "Social Network"
+msgstr ""
+
+msgid "primary occupation of the patient"
+msgstr ""
+
+msgid "Last updated"
+msgstr ""
+
 msgid "Required: surname/given name/first name"
 msgstr ""
 
@@ -4406,18 +4472,6 @@ msgid ""
 "\n"
 "You will need to add the address details in the\n"
 "demographics module."
-msgstr ""
-
-msgid "Contacts"
-msgstr ""
-
-msgid "Social Network"
-msgstr ""
-
-msgid "primary occupation of the patient"
-msgstr ""
-
-msgid "Last updated"
 msgstr ""
 
 msgid "Adult"
@@ -4573,9 +4627,6 @@ msgid "Enter a comment on the document."
 msgstr ""
 
 msgid "In use"
-msgstr ""
-
-msgid "Translation"
 msgstr ""
 
 msgid "User defined"
@@ -4984,7 +5035,13 @@ msgstr ""
 msgid "Cannot load clinical narrative. No active patient."
 msgstr ""
 
-msgid "EMR of %s"
+msgid "EMR of %(lastnames)s, %(firstnames)s"
+msgstr ""
+
+msgid "Primary provider in this praxis"
+msgstr ""
+
+msgid "In case of emergency contact:"
 msgstr ""
 
 msgid ""
@@ -5186,6 +5243,9 @@ msgstr ""
 msgid "Discharge date must be empty or later than admission. Cannot save hospital stay."
 msgstr ""
 
+msgid "Must select an episode or enter a name for a new one. Cannot save hospital stay."
+msgstr ""
+
 msgid "Started a new encounter for the active patient."
 msgstr ""
 
@@ -5355,9 +5415,6 @@ msgid ""
 msgstr ""
 
 msgid "Selecting health issue"
-msgstr ""
-
-msgid "inception notes"
 msgstr ""
 
 msgid "Cannot parse [%s] into valid interval."
@@ -5684,9 +5741,6 @@ msgstr ""
 msgid "Select letter or form template."
 msgstr ""
 
-msgid "Version"
-msgstr ""
-
 msgid "You must select a template file before saving."
 msgstr ""
 
@@ -5727,9 +5781,6 @@ msgid "Database ..."
 msgstr ""
 
 msgid "Configure the database language"
-msgstr ""
-
-msgid "Language"
 msgstr ""
 
 msgid "Configure the database welcome message (all users)."
@@ -5909,6 +5960,9 @@ msgstr ""
 msgid "Select the template for printing a medication list."
 msgstr ""
 
+msgid "Select the primary doctor to fall back to for patients without one."
+msgstr ""
+
 msgid "Encounter ..."
 msgstr ""
 
@@ -5954,58 +6008,10 @@ msgstr ""
 msgid "&Master data ..."
 msgstr ""
 
-msgid "Manage the plugins to load per workplace."
+msgid "Manage lists"
 msgstr ""
 
-msgid "Workplace profiles"
-msgstr ""
-
-msgid "&Document types"
-msgstr ""
-
-msgid "Manage the document types available in the system."
-msgstr ""
-
-msgid "&Form templates"
-msgstr ""
-
-msgid "Manage templates for forms and letters."
-msgstr ""
-
-msgid "&Text expansions"
-msgstr ""
-
-msgid "Manage keyword based text expansion macros."
-msgstr ""
-
-msgid "&Encounter types"
-msgstr ""
-
-msgid "Manage encounter types."
-msgstr ""
-
-msgid "&Provinces"
-msgstr ""
-
-msgid "Manage provinces (counties, territories, ...)."
-msgstr ""
-
-msgid "Manage substances in use."
-msgstr ""
-
-msgid "Substances"
-msgstr ""
-
-msgid "Drugs"
-msgstr ""
-
-msgid "Manage branded drugs."
-msgstr ""
-
-msgid "Drug components"
-msgstr ""
-
-msgid "Manage components of branded drugs."
+msgid "Manage various lists of master data."
 msgstr ""
 
 msgid "Install ATC reference data."
@@ -6014,46 +6020,16 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
-msgid "Diagnostic orgs"
-msgstr ""
-
-msgid "Manage diagnostic organisations (path labs etc)."
-msgstr ""
-
-msgid "&Test types"
-msgstr ""
-
-msgid "Manage test/measurement types."
-msgstr ""
-
-msgid "&Meta test types"
-msgstr ""
-
-msgid "Show meta test/measurement types."
-msgstr ""
-
 msgid "Download and install LOINC reference data."
 msgstr ""
 
 msgid "Update LOINC"
 msgstr ""
 
-msgid "Show known vaccines."
-msgstr ""
-
-msgid "Vaccines"
-msgstr ""
-
 msgid "Create fake vaccines"
 msgstr ""
 
 msgid "Re-create fake generic vaccines."
-msgstr ""
-
-msgid "Immunizables"
-msgstr ""
-
-msgid "Show conditions known to be preventable by vaccination."
 msgstr ""
 
 msgid "&Users ..."
@@ -6800,6 +6776,63 @@ msgid ""
 "will actually appear in parallel to the viewer."
 msgstr ""
 
+msgid "Document templates (forms, letters, plots, ...)"
+msgstr ""
+
+msgid "Document types"
+msgstr ""
+
+msgid "Keyword based text expansion macros"
+msgstr ""
+
+msgid "String translations in the database"
+msgstr ""
+
+msgid "Codes and their respective terms"
+msgstr ""
+
+msgid "Encounter types"
+msgstr ""
+
+msgid "Provinces (counties, territories, states, regions, ...)"
+msgstr ""
+
+msgid "Workplace profiles (which plugins to load)"
+msgstr ""
+
+msgid "Substances in use (taken by patients)"
+msgstr ""
+
+msgid "Branded drugs (as marketed)"
+msgstr ""
+
+msgid "Components of (substances in) branded drugs"
+msgstr ""
+
+msgid "Units of organizations (branches, sites, departments, parts, ..."
+msgstr ""
+
+msgid "Diagnostic organizations (path labs, ...)"
+msgstr ""
+
+msgid "Test/measurement types"
+msgstr ""
+
+msgid "Meta test/measurement types"
+msgstr ""
+
+msgid "Vaccines"
+msgstr ""
+
+msgid "Vaccination targets (conditions known to be preventable by vaccination)"
+msgstr ""
+
+msgid "Master data management"
+msgstr ""
+
+msgid "Select the list you want to manage:"
+msgstr ""
+
 msgid "No DICOM viewer found."
 msgstr ""
 
@@ -7005,6 +7038,54 @@ msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
 msgid "add plugin ..."
+msgstr ""
+
+msgid "Adding new translation"
+msgstr ""
+
+msgid "Editing translation"
+msgstr ""
+
+msgid "Selecting language for translation"
+msgstr ""
+
+msgid "Please select the language the translations for which you want to work on."
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete the translation of:\n"
+"\n"
+"%s\n"
+"\n"
+"into [%s] as:\n"
+"\n"
+"%s\n"
+"\n"
+"?  (Note that you must know the database administrator password !)\n"
+msgstr ""
+
+msgid "Deleting translation from database"
+msgstr ""
+
+msgid "deleting a translation"
+msgstr ""
+
+msgid "Contributing translations"
+msgstr ""
+
+msgid "Do you want to contribute your translations to the GNUmed project ?"
+msgstr ""
+
+msgid "Unable to send mail. Cannot contribute translations to GNUmed community."
+msgstr ""
+
+msgid "Showing translatable database strings for all languages."
+msgstr ""
+
+msgid "Showing translatable database strings for target language [%s]."
+msgstr ""
+
+msgid "Contribute translations to GNUmed community by email."
 msgstr ""
 
 msgid "choose which lab will process the probe with the specified ID"
@@ -7619,9 +7700,6 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr ""
 
-msgid "Term"
-msgstr ""
-
 msgid "Choose an ATC import config file"
 msgstr ""
 
@@ -8027,6 +8105,9 @@ msgstr ""
 msgid "Current encounter:"
 msgstr ""
 
+msgid "Cumulative summary"
+msgstr ""
+
 msgid "Most recent notes on %s%s%s"
 msgstr ""
 
@@ -8130,6 +8211,12 @@ msgid ""
 "note template."
 msgstr ""
 
+msgid "Choose file to use as template for new visual progress note"
+msgstr ""
+
+msgid "Cannot export visual progress note template for [%s]."
+msgstr ""
+
 msgid "Cannot export visual progress note to file."
 msgstr ""
 
@@ -8159,16 +8246,20 @@ msgid "Saving visual progress note"
 msgstr ""
 
 msgid ""
-"This visual progress note was created from a\n"
-"template in the database rather than from a file\n"
-"but the image was not modified at all.\n"
+"You either created a visual progress note from a template\n"
+"in the database (rather than from a file on disk) or you\n"
+"edited an existing visual progress note.\n"
 "\n"
-"Do you want to still save the unmodified\n"
-"image as a visual progress note into the\n"
-"EMR of the patient ?"
+"The template/original was not modified at all, however.\n"
+"\n"
+"Do you still want to save the unmodified image as a\n"
+"visual progress note into the EMR of the patient ?\n"
 msgstr ""
 
 msgid "visual progress notes"
+msgstr ""
+
+msgid "Created: %s"
 msgstr ""
 
 msgid "Sketches"
@@ -8178,9 +8269,6 @@ msgid "No images in visual progress note."
 msgstr ""
 
 msgid "Cannot load visual progress note from [%s]."
-msgstr ""
-
-msgid "Cannot export visual progress note template for [%s]."
 msgstr ""
 
 msgid "Choose a visual progress note template file"
@@ -8201,6 +8289,23 @@ msgid "Are you sure you want to delete the visual progress note ?"
 msgstr ""
 
 msgid "Deleting visual progress note"
+msgstr ""
+
+msgid ""
+"\n"
+"Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.\n"
+msgstr ""
+
+msgid "Showing organizational units."
+msgstr ""
+
+msgid "Organization"
+msgstr ""
+
+msgid "Organizational Unit"
+msgstr ""
+
+msgid "Category"
 msgstr ""
 
 msgid "Refresh from database"
@@ -8433,9 +8538,6 @@ msgid "<type here to search patient>"
 msgstr ""
 
 msgid "%(name)s (locked)"
-msgstr ""
-
-msgid "In case of emergency contact:"
 msgstr ""
 
 msgid "Cannot add to waiting list. Missing essential input."
@@ -8710,6 +8812,18 @@ msgstr ""
 msgid "Public"
 msgstr ""
 
+msgid ""
+"\n"
+"Please select the provider to fall back to in case\n"
+"no primary provider is configured for a patient.\n"
+msgstr ""
+
+msgid "Provider"
+msgstr ""
+
+msgid "Configuring fallback primary provider"
+msgstr ""
+
 msgid "Select a healthcare provider."
 msgstr ""
 
@@ -8780,11 +8894,23 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
+msgid "Enter a name for the new workplace !"
+msgstr ""
+
+msgid "Cloning workplace"
+msgstr ""
+
 msgid ""
 "\n"
 "Select the workplace to configure below.\n"
 "\n"
 "The currently active workplace is preselected.\n"
+msgstr ""
+
+msgid "Clone"
+msgstr ""
+
+msgid "Clone the selected workplace"
 msgstr ""
 
 msgid "category"
@@ -9134,7 +9260,7 @@ msgid ""
 "used in to document a vaccination with.\n"
 msgstr ""
 
-msgid "Adding new vaccination"
+msgid "Adding new vaccinations"
 msgstr ""
 
 msgid "Editing vaccination"
@@ -9273,9 +9399,6 @@ msgid "Office"
 msgstr ""
 
 msgid "Zip"
-msgstr ""
-
-msgid "Category"
 msgstr ""
 
 msgid "User1"

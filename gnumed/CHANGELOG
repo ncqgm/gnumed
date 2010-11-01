@@ -8,11 +8,50 @@
 
 	0.9.0
 
-NEW: support enhanced, file-based FreeDiams API
+NEW: use much enhanced, file-based FreeDiams API
+NEW: support primary provider on patients along with configurable fallback
+NEW: support array of contextual FKs per inbox message
+NEW: support dicomscope as DICOM viewer
+NEW: support summary field on health issues and episodes
+NEW: translate database strings from within client and contribute translations
+NEW: simplistic coding systems browser
+NEW: cloning of workplaces
+
+IMPROVED: link test results directly to requests for them
+IMPROVED: much better EMR tree root node tooltip
+IMPROVED: improved adding of vaccinations
+IMPROVED: now listing episodes/health issues at time of creation in EMR journal
+IMPROVED: Boesner score now has internationally usable name: "Marburg CHD score"
+IMPROVED: much better integration of visual progress notes
+IMPROVED: procedures now support a duration and an "ongoing" state
+IMPROVED: adjust to modified API of MMI/Gelbe Liste
+IMPROVED: master data management interface
+IMPROVED: fix "Current Substance Intake" edit area usability glitches (schedule, substance, preparation)
 
 ------------------------------------------------
 # rel-0-8-patches
 ------------------------------------------------
+
+	0.8.5
+
+FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
+
+	0.8.4
+
+FIX: exception on trying to create hospital stay w/o episode [thanks devm]
+FIX: exception on calculate_apparent_age(start=March 31st, end=February): invalid day for month [thanks S.Reus]
+
+	0.8.3
+
+FIX: missing gmHooks import when _on_soap_modified is invoked
+FIX: exception due to faulty SQL in branded drug phrasewheel match provider
+FIX: faulty German translation of (meningococcus) "A" to (meningococcus) "D"
+FIX: subtle bug with validating date_deceased preventing demographics editing
+
+	0.8.2
+
+FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+FIX: exception on wrapping long entry in auto-expanding SOAP note field
 
 	0.8.1
 
@@ -73,9 +112,15 @@ IMPROVED: use substance rather than brand as allergene when creating allergy fro
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.10
+
+FIX: exception on trying to create hospital stay w/o episode [thanks devm]
+
 	0.7.9
 
 FIX: when creating allergy from substance intake entry second try would overwrite first try if same drug brand
+FIX: assertion on Windows when creating timestamps piecemeal in new-patient
+FIX: exception on wrapping long entry in auto-expanding SOAP note field
 
 	0.7.8
 
@@ -570,8 +615,37 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 *****************************************************************
 
 ------------------------------------------------
+# gnumed_v15
+------------------------------------------------
+
+	15.0
+
+NEW: script to fingerprint GNUmed databases
+
+IMPROVED: bootstrapper now detects commented out authentication directive [thanks Vid]
+
+------------------------------------------------
 # gnumed_v14
 ------------------------------------------------
+
+	14.4 -> 14.5
+
+FIX: no more regex_flavor in PostgreSQL 9.0 (gm-adjust_db_settings)
+IMPROVED: gm-restore_database
+
+	14.3 -> 14.4
+
+FIX: bootstrapping: properly drop constraints on gm.notifying_tables during v9 -> v10
+
+	14.2 -> 14.3
+
+FIX: check for vaccination dupes looking at all patients rather than the relevant one only
+
+	14.0 -> 14.1
+
+NEW: auto-include fixups for missing array functionality on PG 8.3, needed for conversion to v14
+
+	14.0
 
 NEW: gm-set_gm-dbo_passowrd
 

@@ -19,13 +19,16 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 # stdlib
 import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging
 
+
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N, gmLog2
+from Gnumed.pycommon.gmTools import prompted_input
 
 _log = logging.getLogger('gm.db')
 _log.info(__version__)
+
 
 # 3rd party
 try:
@@ -126,7 +129,8 @@ map_client_branch2required_db_version = {
 	u'0.5': u'v11',
 	u'0.6': u'v12',
 	u'0.7': u'v13',
-	u'0.8': u'v14'
+	u'0.8': u'v14',
+	u'0.9': u'v15'
 }
 
 # get columns and data types for a given table
@@ -301,12 +305,6 @@ def __detect_client_timezone(conn=None):
 # =======================================================================
 # login API
 # =======================================================================
-def __prompted_input(prompt, default=None):
-	usr_input = raw_input(prompt)
-	if usr_input == '':
-		return default
-	return usr_input
-#---------------------------------------------------
 def __request_login_params_tui():
 	"""Text mode request of database login parameters"""
 	import getpass
@@ -314,12 +312,12 @@ def __request_login_params_tui():
 
 	print "\nPlease enter the required login parameters:"
 	try:
-		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v14]: ", 'gnumed_v14')
-		login.user = __prompted_input("user name: ", '')
+		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
+		login.database = prompted_input(prompt = "database", default = 'gnumed_v15')
+		login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
-		login.port = __prompted_input("port [5432]: ", 5432)
+		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
 		print "user cancelled text mode login dialog"
@@ -615,17 +613,135 @@ def get_col_names(link_obj=None, schema='public', table=None):
 	for row in rows:
 		cols.append(row[0])
 	return cols
+
+#------------------------------------------------------------------------
+# i18n functions
+#------------------------------------------------------------------------
+def export_translations_from_database(filename=None):
+	tx_file = codecs.open(filename, 'wb', 'utf8')
+	tx_file.write(u'-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
+	tx_file.write(u'-- - contains translations for each of [%s]\n' % u', '.join(get_translation_languages()))
+	tx_file.write(u'-- - user language is set to [%s]\n\n' % get_current_user_language())
+	tx_file.write(u'-- Please email this file to <gnumed-devel@gnu.org>.\n')
+	tx_file.write(u'-- ----------------------------------------------------------------------------------------------\n\n')
+	tx_file.write(u'set default_transaction_read_only to off\n\n')
+	tx_file.write(u'\\unset ON_ERROR_STOP\n\n')
+
+	cmd = u'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	for row in rows:
+		line = u"select i18n.upd_tx(quote_literal(E'%s'), quote_literal(E'%s'), quote_literal(E'%s'));\n" % (
+			row['lang'].replace("'", "\\'"),
+			row['orig'].replace("'", "\\'"),
+			row['trans'].replace("'", "\\'")
+		)
+		tx_file.write(line)
+	tx_file.write(u'\n')
+
+	tx_file.write(u'\set ON_ERROR_STOP 1\n')
+	tx_file.close()
+
+	return True
+#------------------------------------------------------------------------
+def delete_translation_from_database(link_obj=None, language=None, original=None):
+	cmd = u'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'
+	args = {'lang': language, 'orig': original}
+	run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = False, end_tx = True)
+	return True
+
+#------------------------------------------------------------------------
+def update_translation_in_database(language=None, original=None, translation=None):
+	cmd = u'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
+	args = {'lang': language, 'orig': original, 'trans': translation}
+	run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = False)
+	return args
+
 #------------------------------------------------------------------------
 def get_translation_languages():
 	rows, idx = run_ro_queries (
 		queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 	)
 	return [ r[0] for r in rows ]
+
+#------------------------------------------------------------------------
+def get_database_translations(language=None, order_by=None):
+
+	args = {'lang': language}
+	_log.debug('language [%s]', language)
+
+	if order_by is None:
+		order_by = u'ORDER BY %s' % order_by
+	else:
+		order_by = u'ORDER BY lang, orig'
+
+	if language is None:
+		cmd = u"""
+		SELECT DISTINCT ON (orig, lang)
+			lang, orig, trans
+		FROM ((
+
+			-- strings stored as translation keys whether translated or not
+			SELECT
+				NULL as lang,
+				ik.orig,
+				NULL AS trans
+			FROM
+				i18n.keys ik
+
+		) UNION ALL (
+
+			-- already translated strings
+			SELECT
+				it.lang,
+				it.orig,
+				it.trans
+			FROM
+				i18n.translations it
+
+		)) as translatable_strings
+		%s""" % order_by
+	else:
+		cmd = u"""
+		SELECT DISTINCT ON (orig, lang)
+			lang, orig, trans
+		FROM ((
+
+			-- strings stored as translation keys whether translated or not
+			SELECT
+				%%(lang)s as lang,
+				ik.orig,
+				i18n._(ik.orig, %%(lang)s) AS trans
+			FROM
+				i18n.keys ik
+
+		) UNION ALL (
+
+			-- already translated strings
+			SELECT
+				%%(lang)s as lang,
+				it.orig,
+				i18n._(it.orig, %%(lang)s) AS trans
+			FROM
+				i18n.translations it
+
+		)) AS translatable_strings
+		%s""" % order_by
+
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if rows is None:
+		_log.error('no translatable strings found')
+	else:
+		_log.debug('%s translatable strings found', len(rows))
+
+	return rows
+
 #------------------------------------------------------------------------
 def get_current_user_language():
 	cmd = u'select i18n.get_curr_lang()'
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
 	return rows[0][0]
+
 #------------------------------------------------------------------------
 def set_user_language(user=None, language=None):
 	"""Set the user language in the database.
@@ -1140,6 +1256,49 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	conn_close()
 
 	return (data, col_idx)
+#------------------------------------------------------------------------
+def run_insert(link_obj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
+	"""Generates SQL for an INSERT query.
+
+	values: dict of values keyed by field to insert them into
+	"""
+	if schema is None:
+		schema = u'public'
+
+	fields = values.keys()		# that way val_snippets and fields really should end up in the same order
+	val_snippets = []
+	for field in fields:
+		val_snippets.append(u'%%(%s)s' % field)
+
+	if returning is None:
+		returning = u''
+		return_data = False
+	else:
+		returning = u'\n\tRETURNING\n\t\t%s' % u', '.join(returning)
+		return_data = True
+
+	cmd = u"""\nINSERT INTO quote_ident(%s.%s) (
+		quote_ident(%s)
+	) VALUES (
+		%s
+	)%s""" % (
+		schema,
+		table,
+		u'),\n\t\tquote_ident('.join(fields),
+		u',\n\t\t'.join(val_snippets),
+		returning
+	)
+
+	_log.debug(u'running SQL: >>>%s<<<', cmd)
+
+	return run_rw_queries (
+		link_obj = link_obj,
+		queries = [{'cmd': cmd, 'args': values}],
+		end_tx = end_tx,
+		return_data = return_data,
+		get_col_idx = get_col_idx,
+		verbose = verbose
+	)
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
@@ -1413,7 +1572,7 @@ def sanity_check_database_settings():
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
-		u'regex_flavor': [u'advanced', u'query breakage', False],
+		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}
@@ -1889,6 +2048,15 @@ if __name__ == "__main__":
 		for line in get_schema_revision_history():
 			print u' - '.join(line)
 	#--------------------------------------------------------------------
+	def test_run_query():
+		gmDateTime.init()
+		args = {'dt': gmDateTime.pydt_max_here()}
+		cmd = u"select %(dt)s"
+
+		#cmd = u"select 'infinity'::timestamp with time zone"
+		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		print rows
+	#--------------------------------------------------------------------
 	# run tests
 	#test_file2bytea()
 	#test_get_connection()
@@ -1904,6 +2072,7 @@ if __name__ == "__main__":
 	#test_keyword_expansion()
 	#test_get_foreign_key_details()
 	#test_set_user_language()
-	test_get_schema_revision_history()
+	#test_get_schema_revision_history()
+	test_run_query()
 
 # ======================================================================

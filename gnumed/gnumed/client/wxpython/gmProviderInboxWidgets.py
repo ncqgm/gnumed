@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmCfg, gmPG2, gmExceptions
 from Gnumed.business import gmPerson, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin, gmPhraseWheel
-from Gnumed.wxpython import gmEditArea, gmAuthWidgets, gmPatSearchWidgets, gmVaccWidgets
+from Gnumed.wxpython import gmEditArea, gmAuthWidgets, gmPatSearchWidgets, gmVaccWidgets, gmCfgWidgets
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl, wxgTextExpansionEditAreaPnl
 
 
@@ -166,6 +166,43 @@ def configure_keyword_text_expansion(parent=None):
 		refresh_callback = refresh
 	)
 #============================================================
+def configure_fallback_primary_provider(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	staff = gmPerson.get_staff_list()
+	choices = [ [
+			s[u'short_alias'],
+			u'%s%s %s' % (
+				gmTools.coalesce(s['title'], u'', u'%s '),
+				s['firstnames'],
+				s['lastnames']
+			),
+			s['role'],
+			gmTools.coalesce(s['comment'], u'')
+		]
+		for s in staff
+		if s['is_active'] is True
+	]
+	data = [ s['pk_staff'] for s in staff if s['is_active'] is True ]
+
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _(
+			'\n'
+			'Please select the provider to fall back to in case\n'
+			'no primary provider is configured for a patient.\n'
+		),
+		option = 'patient.fallback_primary_provider',
+		bias = 'user',
+		default_value = None,
+		choices = choices,
+		columns = [_('Alias'), _('Provider'), _('Role'), _('Comment')],
+		data = data,
+		caption = _('Configuring fallback primary provider')
+	)
+#============================================================
 class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -221,6 +258,7 @@ def show_audit_trail(parent=None):
 
 #============================================================
 # FIXME: this should be moved elsewhere !
+#------------------------------------------------------------
 def configure_workplace_plugins(parent=None):
 
 	if parent is None:
@@ -331,6 +369,39 @@ def configure_workplace_plugins(parent=None):
 
 		return True
 	#-----------------------------------
+	def clone(workplace=None):
+		if workplace is None:
+			return False
+
+		new_name = wx.GetTextFromUser (
+			message = _('Enter a name for the new workplace !'),
+			caption = _('Cloning workplace'),
+			default_value = u'%s-2' % workplace,
+			parent = parent
+		).strip()
+
+		if new_name == u'':
+			return False
+
+		dbcfg = gmCfg.cCfgSQL()
+		opt = u'horstspace.notebook.plugin_load_order'
+
+		plugins = dbcfg.get2 (
+			option = opt,
+			workplace = workplace,
+			bias = 'workplace'
+		)
+
+		dbcfg.set (
+			option = opt,
+			value = plugins,
+			workplace = new_name
+		)
+
+		# FIXME: clone cfg, too
+
+		return True
+	#-----------------------------------
 	def refresh(lctrl):
 		workplaces = gmSurgery.gmCurrentPractice().workplaces
 		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
@@ -355,7 +426,8 @@ def configure_workplace_plugins(parent=None):
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = edit,
-		delete_callback = delete
+		delete_callback = delete,
+		left_extra_button = (_('Clone'), _('Clone the selected workplace'), clone)
 	)
 #============================================================
 class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):

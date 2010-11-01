@@ -13,6 +13,7 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmPatSearchWidgets
+        from Gnumed.wxpython import gmProviderInboxWidgets
 
         # begin wxGlade: wxgPersonSocialNetworkManagerPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -21,6 +22,7 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
         self._BTN_remove_contact = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
         self._BTN_activate_contact = wx.Button(self, -1, _("Activate"), style=wx.BU_EXACTFIT)
         self._TCTRL_er_contact = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._PRW_provider = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
 
         self.__set_properties()
@@ -53,6 +55,9 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
         __gzsr_details.Add(__szr_db_link, 1, wx.EXPAND, 0)
         __gzsr_details.Add((20, 20), 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(self._TCTRL_er_contact, 1, wx.EXPAND, 0)
+        _lbl_primary_doc = wx.StaticText(self, -1, _("Primary doctor"))
+        __gzsr_details.Add(_lbl_primary_doc, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gzsr_details.Add(self._PRW_provider, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.AddGrowableCol(1)
         __szr_main.Add(__gzsr_details, 1, wx.BOTTOM|wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

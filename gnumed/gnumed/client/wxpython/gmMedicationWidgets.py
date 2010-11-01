@@ -439,9 +439,11 @@ class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-SELECT schedule as sched, schedule
+SELECT DISTINCT ON (sched)
+	schedule as sched,
+	schedule
 FROM clin.substance_intake
-where schedule %(fragment_condition)s
+WHERE schedule %(fragment_condition)s
 ORDER BY sched
 LIMIT 50"""
 
@@ -459,15 +461,17 @@ class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 (
-	SELECT preparation as prep, preparation
+	SELECT DISTINCT ON (preparation)
+		preparation as prep, preparation
 	FROM ref.branded_drug
-	where preparation %(fragment_condition)s
-) union (
-	SELECT preparation as prep, preparation
+	WHERE preparation %(fragment_condition)s
+) UNION (
+	SELECT DISTINCT ON (preparation)
+		preparation as prep, preparation
 	FROM clin.substance_intake
-	where preparation %(fragment_condition)s
+	WHERE preparation %(fragment_condition)s
 )
-order by prep
+ORDER BY prep
 limit 30"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
@@ -483,23 +487,38 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 (
-	SELECT pk, (coalesce(atc_code || ': ', '') || description) as subst
+	SELECT
+		pk::text,
+		description as subst
+		--(description || coalesce(' [' || atc_code || ']', '')) as subst
 	FROM clin.consumed_substance
 	WHERE description %(fragment_condition)s
-) union (
-	SELECT NULL, (coalesce(atc_code || ': ', '') || description) as subst
+
+) UNION (
+
+	SELECT
+		description,
+		description as subst
+		--NULL,
+		--(description || coalesce(' [' || atc_code || ']', '')) as subst
 	FROM ref.substance_in_brand
 	WHERE description %(fragment_condition)s
-) union (
-	SELECT NULL, (atc || ': ' || term) as subst
+
+) UNION (
+
+	SELECT
+		term,
+		term as subst
+		--NULL,
+		--(term || ' [' || atc || ']') as subst
 	FROM ref.v_atc
 	WHERE
 		is_group_code IS FALSE
 			AND
 		term %(fragment_condition)s
 )
-order by subst
-limit 50"""
+ORDER BY subst
+LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
@@ -507,6 +526,16 @@ limit 50"""
 		self.SetToolTipString(_('The INN / substance the patient is taking.'))
 		self.matcher = mp
 		self.selection_only = False
+	#---------------------------------------------------------
+	def GetData(self, can_create=False, as_instance=False):
+
+		if self.data is None:
+			try:
+				int(self.data)
+			except ValueError:
+				self.data = None
+
+		return super(cSubstancePhraseWheel, self).GetData(can_create = can_create, as_instance = as_instance)
 #============================================================
 class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -515,9 +544,8 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		query = u"""
 			SELECT
 				pk,
-				(
-				 description || ' (' || preparation || ')' || 'coalesce(' [' || atc_code || ']', '')
-				)	AS brand
+				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
+					AS brand
 			FROM ref.branded_drug
 			WHERE description %(fragment_condition)s
 			ORDER BY brand
@@ -804,7 +832,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	def _refresh_as_new(self):
 		self._PRW_substance.SetText(u'', None)
 		self._PRW_strength.SetText(u'', None)
-#		self._PRW_preparation.SetText(u'', None)
+		self._PRW_preparation.SetText(u'', None)
 		self._PRW_schedule.SetText(u'', None)
 		self._PRW_duration.SetText(u'', None)
 		self._PRW_aim.SetText(u'', None)
@@ -827,6 +855,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self._PRW_substance.SetText(self.data['substance'], self.data['pk_substance'])
 		self._PRW_strength.SetText(gmTools.coalesce(self.data['strength'], u''), self.data['strength'])
+		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
 
 		if self.data['is_long_term']:
 	 		self._CHBOX_long_term.SetValue(True)
