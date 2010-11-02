@@ -256,7 +256,7 @@ class cDrugDataSourceInterface(object):
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	version = u'FreeDiams v0.4.2 interface'
+	version = u'FreeDiams v0.5.0 interface'
 	default_encoding = 'utf8'
 	default_dob_format = '%Y/%m/%d'
 
@@ -319,17 +319,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		open(self.__fd2gm_filename, 'wb').close()
 
 		args = u'--exchange-in="%s"' % (self.__gm2fd_filename)
-
 		cmd = r'%s %s' % (self.path_to_binary, args)
-
-#		if self.patient is not None:
-#			names = self.patient.get_active_name()
-#			args += u' --patientname="%(lastnames)s, %(firstnames)s"' % names
-#			args += u' --patientsurname="%(lastnames)s"' % names
-#			args += u' --gender=%s' % cFreeDiamsInterface.map_gender2mf[self.patient['gender']]
-#			if self.patient['dob'] is not None:
-#				args += u' --dateofbirth=%s' % self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
-
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the FreeDiams drug database')
 			return False
@@ -395,6 +385,30 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		_log.error('cannot find FreeDiams binary')
 		return False
 	#--------------------------------------------------------
+	def __create_prescription_file(self):
+
+		u"""<?xml version = "1.0" encoding = "UTF-8"?>
+
+<FreeDiams>
+	<!-- <DrugsDatabaseName>FR_AFSSAPS</DrugsDatabaseName> -->
+	<FullPrescription version="0.4.0">
+	</FullPrescription>
+</FreeDiams>
+"""
+
+		drug_snippet = u"""
+		<Prescription>
+			<OnlyForTest>True</OnlyForTest>
+			<Drug_UID>%s</Drug_UID>
+		</Prescription>
+"""
+
+		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
+		if self.patient is None:
+			xml_file.close()
+			return
+
+	#--------------------------------------------------------
 	def __create_gm2fd_file(self):
 
 		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
@@ -409,33 +423,53 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			dob = self.patient['dob'].strftime(cFreeDiamsInterface.default_dob_format)
 
 		emr = self.patient.get_emr()
-		allgs = emr.get_allergies()			# leave out sensitivities ?
-		atcs = [ a['atc_code'] for a in allgs if a['atc_code'] is not None ]
-		inns = [ a['allergene'] for a in allgs ]
+		allgs = emr.get_allergies()
+		atc_allgs = [
+			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == u'allergy'))
+		]
+		atc_sens = [
+			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == u'sensitivity'))
+		]
+		inn_allgs = [ a['allergene'] for a in allgs if a['type'] == u'allergy' ]
+		inn_sens = [ a['allergene'] for a in allgs if a['type'] == u'sensitivity' ]
 		# this is rather fragile: FreeDiams won't know what type of UID this is
 		# (but it will assume it is of the type of the drug database in use)
-		uids = [ a['substance_code'] for a in allgs if a['substance_code'] is not None ]
+		uid_allgs = [
+			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == u'allergy'))
+		]
+		uid_sens = [
+			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == u'sensitivity'))
+		]
 
 		# Eric says the order of same-level nodes does not matter.
 		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
 
-<FreeDiams_In version="0.4.2">
+<FreeDiams_In version="0.5.0">
 	<EMR name="GNUmed" uid="unused"/>
 	<ConfigFile value="%s"/>
-	<OutFile value="%s" format="xml"/>			<!-- should be html_xml -->
+	<ExchangeOut value="%s" format="xml"/>				<!-- should be html_xml -->
+	<!-- <DrugsDatabase uid="can be set to a specific DB"/> -->
 	<Ui editmode="select-only" blockPatientDatas="1"/>
 	<Patient>
-		<Identity name="%s" surname="%s" uid="%s" dob="%s" gender="%s"/>
+		<Identity
+			  lastnames="%s"
+			  firstnames="%s"
+			  uid="%s"
+			  dob="%s"
+			  gender="%s"
+		/>
 		<ATCAllergies value="%s"/>
+		<ATCIntolerances value="%s"/>
+
 		<InnAllergies value="%s"/>
+		<InnIntolerances value="%s"/>
+
 		<DrugsUidAllergies value="%s"/>
+		<DrugsUidIntolerances value="%s"/>
 	</Patient>
 </FreeDiams_In>
 
 <!--
-		<InnIntolerances value=""/>
-		<ATCIntolerances value="B05B"/>
-		<DrugsUidIntolerances value="68586203;62869109"/>
 		# FIXME: search by LOINC code and add (as soon as supported by FreeDiams ...)
 		<Creatinine value="12" unit="mg/l or mmol/l"/>
 		<Weight value="70" unit="kg or pd" />
@@ -445,10 +479,17 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 """		% (
 			self.__fd4gm_config_file,
 			self.__fd2gm_filename,
-			name['firstnames'], name['lastnames'], self.patient.ID, dob, cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
-			u';'.join(atcs),
-			u';'.join(inns),
-			u';'.join(uids)
+			name['lastnames'],
+			name['firstnames'],
+			self.patient.ID,
+			dob,
+			cFreeDiamsInterface.map_gender2mf[self.patient['gender']],
+			u';'.join(atc_allgs),
+			u';'.join(atc_sens),
+			u';'.join(inn_allgs),
+			u';'.join(inn_sens),
+			u';'.join(uid_allgs),
+			u';'.join(uid_sens)
 		)
 
 		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
@@ -1382,13 +1423,18 @@ if __name__ == "__main__":
 		print drug
 		print drug.components
 	#--------------------------------------------------------
+	# MMI/Gelbe Liste
 	#test_MMI_interface()
-	test_MMI_file()
+	#test_MMI_file()
 	#test_mmi_switch_to()
 	#test_mmi_select_drugs()
 	#test_mmi_import_substances()
 	#test_mmi_import_drugs()
-	#test_fd_switch_to()
+
+	# FreeDiams
+	test_fd_switch_to()
+
+	# generic
 	#test_interaction_check()
 	#test_create_substance_intake()
 	#test_show_components()
