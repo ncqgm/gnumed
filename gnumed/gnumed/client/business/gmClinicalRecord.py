@@ -1578,7 +1578,7 @@ WHERE
 		)
 		cmd = u"""
 			SELECT pk_encounter
-			from clin.v_most_recent_encounters
+			FROM clin.v_most_recent_encounters
 			WHERE
 				pk_patient = %s
 					and
@@ -1600,6 +1600,10 @@ WHERE
 			False: no "fairly recent" encounter, create new one
 	    	True: success
 		"""
+		if _func_ask_user is None:
+			_log.debug('cannot ask user for guidance, not looking for fairly recent encounter')
+			return False
+
 		cfg_db = gmCfg.cCfgSQL()
 		min_ttl = cfg_db.get2 (
 			option = u'encounter.minimum_ttl',
@@ -1615,11 +1619,11 @@ WHERE
 		)
 		cmd = u"""
 			SELECT pk_encounter
-			from clin.v_most_recent_encounters
+			FROM clin.v_most_recent_encounters
 			WHERE
 				pk_patient=%s
-					and
-				last_affirmed between (now() - %s::interval) and (now() - %s::interval)"""
+					AND
+				last_affirmed BETWEEN (now() - %s::interval) AND (now() - %s::interval)"""
 		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
@@ -1629,7 +1633,7 @@ WHERE
 		# ask user whether to attach or not
 		cmd = u"""
 			SELECT title, firstnames, lastnames, gender, dob
-			from dem.v_basic_person WHERE pk_identity=%s"""
+			FROM dem.v_basic_person WHERE pk_identity=%s"""
 		pats, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		pat = pats[0]
 		pat_str = u'%s %s %s (%s), %s  [#%s]' % (
