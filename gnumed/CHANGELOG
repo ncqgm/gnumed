@@ -27,6 +27,7 @@ IMPROVED: procedures now support a duration and an "ongoing" state
 IMPROVED: adjust to modified API of MMI/Gelbe Liste
 IMPROVED: master data management interface
 IMPROVED: fix "Current Substance Intake" edit area usability glitches (schedule, substance, preparation)
+IMPROVED: find gm-print_doc in git tree, too
 
 ------------------------------------------------
 # rel-0-8-patches
