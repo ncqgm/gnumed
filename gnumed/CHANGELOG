@@ -9,6 +9,7 @@
 	0.8.5
 
 FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
+FIX: exception after adding patient to waiting list
 
 	0.8.4
 
