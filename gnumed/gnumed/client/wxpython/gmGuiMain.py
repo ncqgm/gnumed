@@ -1236,41 +1236,46 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_adr_url(self, evt):
 
+		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+		german_default = u'https://dcgma.org/uaw/meldung.php'
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
 				'GNUmed will use this URL to access a website which lets\n'
 				'you report an adverse drug reaction (ADR).\n'
 				'\n'
-				'You can leave this empty but to set it to a specific\n'
+				'You can leave this empty, too.\n'
 				'address the URL must be accessible now.'
 			),
 			option = 'external.urls.report_ADR',
 			bias = 'user',
-			default_value = u'https://dcgma.org/uaw/meldung.php',		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
 	def __on_configure_vaccine_adr_url(self, evt):
 
+		german_default = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -1283,21 +1288,23 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.report_vaccine_ADR',
 			bias = 'user',
-			default_value = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
 	def __on_configure_measurements_url(self, evt):
 
+		german_default = u'http://www.laborlexikon.de',
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -1309,21 +1316,23 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.measurements_encyclopedia',
 			bias = 'user',
-			default_value = u'http://www.laborlexikon.de',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
 	def __on_configure_vaccination_plans_url(self, evt):
 
+		german_default = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf'
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -1335,7 +1344,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.vaccination_plans',
 			bias = 'user',
-			default_value = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
