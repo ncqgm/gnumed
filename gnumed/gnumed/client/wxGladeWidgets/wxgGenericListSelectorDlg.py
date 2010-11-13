@@ -49,7 +49,7 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         self._BTN_new.Enable(False)
         self._BTN_edit.SetToolTipString(_("Edit the (first or only) item selected in the list above."))
         self._BTN_edit.Enable(False)
-        self._BTN_delete.SetToolTipString(_("Delete the (first or only) item selected in the list above."))
+        self._BTN_delete.SetToolTipString(_("Delete - if possible - the (first or only) item selected in the list above."))
         self._BTN_delete.Enable(False)
         self._BTN_extra_left.Enable(False)
         self._BTN_extra_middle.Enable(False)

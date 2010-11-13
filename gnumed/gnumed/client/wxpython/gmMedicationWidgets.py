@@ -264,15 +264,15 @@ def manage_substances_in_use(parent=None):
 		gmMedication.delete_used_substance(substance = substance['pk'])
 		return True
 	#------------------------------------------------------------
-	def new():
-		drug_db = get_drug_database(parent = parent)
-
-		if drug_db is None:
-			return False
-
-		drug_db.import_drugs()
-
-		return True
+#	def new():
+#		drug_db = get_drug_database(parent = parent)
+#
+#		if drug_db is None:
+#			return False
+#
+#		drug_db.import_drugs()
+#
+#		return True
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		substs = gmMedication.get_substances_in_use()
@@ -284,7 +284,7 @@ def manage_substances_in_use(parent=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(substs)
 	#------------------------------------------------------------
-	msg = _('\nThese are the substances currently or previously\nconsumed across all patients.\n')
+	msg = _('Substances currently or previously consumed across all patients.')
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -293,7 +293,7 @@ def manage_substances_in_use(parent=None):
 		columns = [_('Name'), _('ATC'), u'#'],
 		single_selection = True,
 		refresh_callback = refresh,
-		new_callback = new,
+		#new_callback = new,
 		#edit_callback = edit,
 		delete_callback = delete
 	)
