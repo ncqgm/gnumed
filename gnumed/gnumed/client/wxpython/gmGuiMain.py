@@ -1253,8 +1253,8 @@ class gmTopLevelFrame(wx.Frame):
 				'GNUmed will use this URL to access a website which lets\n'
 				'you report an adverse drug reaction (ADR).\n'
 				'\n'
-				'You can leave this empty, too.\n'
-				'address the URL must be accessible now.'
+				'If you leave this empty it will fall back\n'
+				'to an URL for reporting ADRs in Germany.'
 			),
 			option = 'external.urls.report_ADR',
 			bias = 'user',

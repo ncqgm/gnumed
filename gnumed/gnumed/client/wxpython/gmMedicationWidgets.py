@@ -997,22 +997,42 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 def delete_substance_intake(parent=None, substance=None):
 
 	subst = gmMedication.cSubstanceIntakeEntry(aPK_obj = substance)
-
 	msg = _(
+		'\n'
 		'[%s]\n'
 		'\n'
 		'It may be prudent to edit before deletion the details\n'
 		'of this substance intake entry so as to leave behind\n'
 		'some indication of why it was deleted.\n'
-		'\n'
-		'Skip editing and really remove substance intake entry\n'
-		'from the current medication list immediately ?\n'
 	) % subst.format()
 
-	delete_it = gmGuiHelpers.gm_show_question (
-		aMessage = msg,
-		aTitle = _('Deleting medication / substance intake')
+	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+		parent,
+		-1,
+		caption = _('Deleting medication / substance intake'),
+		question = msg,
+		button_defs = [
+			{'label': _('&Edit+Delete'), 'tooltip': _('Allow editing of substance intake entry before deletion.'), 'default': True},
+			{'label': _('&Delete'), 'tooltip': _('Delete immediately without editing first.')},
+			{'label': _('&Cancel'), 'tooltip': _('Abort. Do not delete or edit substance intake entry.')}
+		]
 	)
+
+	edit_first = dlg.ShowModal()
+	dlg.Destroy()
+
+	if edit_first == wx.ID_CANCEL:
+		return
+
+	if edit_first == wx.ID_YES:
+		edit_intake_of_substance(parent = parent, substance = subst)
+		delete_it = gmGuiHelpers.gm_show_question (
+			aMessage = _('Now delete substance intake entry ?'),
+			aTitle = _('Deleting medication / substance intake')
+		)
+	else:
+		delete_it = True
+
 	if not delete_it:
 		return
 

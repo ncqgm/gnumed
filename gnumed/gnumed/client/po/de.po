@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-10-28 16:07+CEST\n"
-"PO-Revision-Date: 2010-10-28 16:12+0100\n"
+"POT-Creation-Date: 2010-11-15 16:34+CET\n"
+"PO-Revision-Date: 2010-11-15 16:37+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -669,7 +669,7 @@ msgid "Lot \\#"
 msgstr "Charge"
 
 msgid "S/P"
-msgstr "S/P"
+msgstr "A/T"
 
 msgid "S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P\"lan: this vaccination was administered in the practice or copied from trustworthy records."
 msgstr "A/T -- \"A\"namnese: diese Impfung berichtete der Patient aus dem Gedächtnis. \"T\"herapie: diese Impfung wurde hier in der Praxis verabreicht oder vertrauenswürdigen Unterlagen entnommen."
@@ -2231,8 +2231,8 @@ msgstr "Der Liste einen neuen Eintrag hinzufügen."
 msgid "Edit the (first or only) item selected in the list above."
 msgstr "Den (ersten bzw einzigen) oben in der Liste markierten Eintrag editieren."
 
-msgid "Delete the (first or only) item selected in the list above."
-msgstr "Den (ersten bzw einzigen) oben in der Liste markierten Eintrag löschen."
+msgid "Delete - if possible - the (first or only) item selected in the list above."
+msgstr "Den (ersten bzw einzigen) oben in der Liste markierten Eintrag löschen (falls möglich)."
 
 msgid "Database welcome message editor"
 msgstr "Editor für die Datenbankbegrüßung"
@@ -7179,14 +7179,14 @@ msgid ""
 "GNUmed will use this URL to access a website which lets\n"
 "you report an adverse drug reaction (ADR).\n"
 "\n"
-"You can leave this empty but to set it to a specific\n"
-"address the URL must be accessible now."
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
 msgstr ""
 "GNUmed öffnet mit dieser Adresse eine Webseite, auf der\n"
-"Sie Unerwünschte Arzneimittelwirkungen melden können.\n"
+"Sie Unerwünschte Arzneimittelwirkungen (UAW) melden können.\n"
 "\n"
-"Sie können das Feld leerlassen. Wenn Sie eine URL\n"
-"eingeben wollen, muß diese momentan erreichbar sein."
+"Wenn Sie das Feld leerlassen, wird eine für Deutschland\n"
+"gültige Adresse eingestellt."
 
 msgid ""
 "GNUmed will use this URL to access a website which lets\n"
@@ -7656,56 +7656,62 @@ msgstr ""
 "der Dokumentenanzeige nicht blockiert ist, erscheint der\n"
 "Signierdialog parallel zum Dokument."
 
+msgid "Addresses (likely slow)"
+msgstr "Adressen (langsam)"
+
+msgid "Branded drugs (as marketed)"
+msgstr "Medikamente (Produkte)"
+
+msgid "Codes and their respective terms"
+msgstr "Codes und dazugehörige Termini."
+
+msgid "Diagnostic organizations (path labs, ...)"
+msgstr "Labore/Meßfirmen"
+
+msgid "Components of (substances in) branded drugs"
+msgstr "Wirkstoffe der handelsüblichen Medikamente"
+
 msgid "Document templates (forms, letters, plots, ...)"
 msgstr "Dokumentenvorlagen (Briefe, Formulare, Plots, ...)"
 
 msgid "Document types"
 msgstr "Dokumententypen"
 
-msgid "Keyword based text expansion macros"
-msgstr "Textmakros (schlüsselwortbasiert)"
-
-msgid "String translations in the database"
-msgstr "Zeichenkettenübersetzungen in der Datenbank"
-
-msgid "Codes and their respective terms"
-msgstr "Codes und dazugehörige Termini."
-
 msgid "Encounter types"
 msgstr "Konsultationstypen"
 
-msgid "Provinces (counties, territories, states, regions, ...)"
-msgstr "Bundesländer (Provinzen, Staaten, Regionen, ...)"
-
-msgid "Workplace profiles (which plugins to load)"
-msgstr "Arbeitsplatz-Profile (Laden welcher Plugins)"
-
-msgid "Substances in use (taken by patients)"
-msgstr "Verwendete Substanzen (Einnahme durch Patienten)"
-
-msgid "Branded drugs (as marketed)"
-msgstr "Medikamente (Produkte)"
-
-msgid "Components of (substances in) branded drugs"
-msgstr "Wirkstoffe der handelsüblichen Medikamente"
-
-msgid "Units of organizations (branches, sites, departments, parts, ..."
-msgstr "Teile von Einrichtungen (Niederlassungen, Abteilungen, Filialen, ...)"
-
-msgid "Diagnostic organizations (path labs, ...)"
-msgstr "Labore/Meßfirmen"
-
-msgid "Test/measurement types"
-msgstr "Meßverfahren"
+msgid "Keyword based text expansion macros"
+msgstr "Textmakros (schlüsselwortbasiert)"
 
 msgid "Meta test/measurement types"
 msgstr "Meta-Meßverfahren"
 
-msgid "Vaccines"
-msgstr "Impfstoffe"
+msgid "Organizations"
+msgstr "Organisationen"
+
+msgid "Provinces (counties, territories, states, regions, ...)"
+msgstr "Bundesländer (Provinzen, Staaten, Regionen, ...)"
+
+msgid "String translations in the database"
+msgstr "Zeichenkettenübersetzungen in der Datenbank"
+
+msgid "Substances in use (taken by patients)"
+msgstr "Verwendete Substanzen (Einnahme durch Patienten)"
+
+msgid "Test/measurement types"
+msgstr "Meßverfahren"
+
+msgid "Units of organizations (branches, sites, departments, parts, ..."
+msgstr "Teile von Einrichtungen (Niederlassungen, Abteilungen, Filialen, ...)"
 
 msgid "Vaccination targets (conditions known to be preventable by vaccination)"
 msgstr "Impfindikationen (Krankheiten, die durch Impfung verhindert werden können)"
+
+msgid "Vaccines"
+msgstr "Impfstoffe"
+
+msgid "Workplace profiles (which plugins to load)"
+msgstr "Arbeitsplatz-Profile (Laden welcher Plugins)"
 
 msgid "Master data management"
 msgstr "Stammdatenverwaltung"
@@ -8692,14 +8698,8 @@ msgstr ""
 msgid "Showing branded drugs."
 msgstr "Zeige Medikamente."
 
-msgid ""
-"\n"
-"These are the substances currently or previously\n"
-"consumed across all patients.\n"
-msgstr ""
-"\n"
-"Diese Substanzen (Wirkstoffe) werden momentan oder\n"
-"wurden jemals von Patienten eingenommen.\n"
+msgid "Substances currently or previously consumed across all patients."
+msgstr "Substanzen (Wirkstoffe), die bislang von Patienten eingenommen wurden."
 
 msgid "Showing consumed substances."
 msgstr "Zeige Substanzen (Wirkstoffe)."
@@ -8764,18 +8764,37 @@ msgid "not tolerated:"
 msgstr "nicht vertragen:"
 
 msgid ""
-"Do you really want to remove this substance intake ?\n"
 "\n"
-"It may be prudent to edit the details first so as to\n"
-"leave behind some indication of why it was deleted.\n"
+"[%s]\n"
+"\n"
+"It may be prudent to edit before deletion the details\n"
+"of this substance intake entry so as to leave behind\n"
+"some indication of why it was deleted.\n"
 msgstr ""
-"Wollen Sie diese Substanzeinnahme jetzt löschen ?\n"
 "\n"
-"Es kann sinnvoll sein, zuvor einen Hinweis auf den\n"
-"Grund der Löschung in die Details einzufügen.\n"
+"[%s]\n"
+"\n"
+"Es kann sinnvoll sein, vor dem Löschen dieser\n"
+"Medikation / Substanzeinnahme einen Hinweis auf\n"
+"den Grund der Löschung einzufügen.\n"
 
 msgid "Deleting medication / substance intake"
 msgstr "Medikation / Substanzeinnahme löschen"
+
+msgid "&Edit+Delete"
+msgstr "&Bearbeiten+Löschen"
+
+msgid "Allow editing of substance intake entry before deletion."
+msgstr "Die Medikation / Substanzeinnahme vor dem Löschen noch bearbeiten."
+
+msgid "Delete immediately without editing first."
+msgstr "Sofort löschen ohne vorheriges Bearbeiten."
+
+msgid "Abort. Do not delete or edit substance intake entry."
+msgstr "Abbrechen. Die Medikation / Substanzeinnahme weder löschen noch bearbeiten."
+
+msgid "Now delete substance intake entry ?"
+msgstr "Diese Medikation / Substanzeinnahme jetzt löschen ?"
 
 msgid "Adding substance intake"
 msgstr "Substanzeinnahme dokumentieren"
@@ -9321,14 +9340,24 @@ msgstr ""
 msgid "Showing organizational units."
 msgstr "Zeige Abteilungen."
 
-msgid "Organization"
-msgstr "Organisation"
-
 msgid "Organizational Unit"
 msgstr "Abteilung"
 
+msgid "Organization"
+msgstr "Organisation"
+
 msgid "Category"
 msgstr "Kategorie"
+
+msgid ""
+"\n"
+"Organizations registered in GNUmed.\n"
+msgstr ""
+"\n"
+"In GNUmed registrierte Organisationen.\n"
+
+msgid "Showing organizations."
+msgstr "Zeige Organisationen."
 
 msgid "Refresh from database"
 msgstr "Neu laden"
@@ -9740,9 +9769,6 @@ msgstr "Bearbeite Bundesländer ..."
 msgid "Type or select a state/region/province/territory."
 msgstr "Wählen oder tippen Sie ein Bundesland (oder Äquivalent) ein."
 
-msgid "List of known addresses."
-msgstr "Liste der bekannten Adressen."
-
 msgid "Street info"
 msgstr "Zusatz Straße"
 
@@ -9751,6 +9777,12 @@ msgstr "Unternummer"
 
 msgid "Suburb"
 msgstr "Ortsteil"
+
+msgid "Showing addresses registered in GNUmed."
+msgstr "Zeige Adressen, die in GNUmed registriert sind."
+
+msgid "List of known addresses."
+msgstr "Liste der bekannten Adressen."
 
 msgid "Adding new address"
 msgstr "Neue Adresse hinzufügen"

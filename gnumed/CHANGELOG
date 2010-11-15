@@ -31,6 +31,7 @@ IMPROVED: find gm-print_doc in git tree, too
 IMPROVED: relax URL sanity checks since Web 2.0 confuses all but the most sophisticated browsers
 IMPROVED: default server profile names in gnumed.conf example
 IMPROVED: alpha-sort list of master data lists as per mailing list
+IMPROVED: much saner "deletion of substance intake entry" workflow
 
 ------------------------------------------------
 # rel-0-8-patches
