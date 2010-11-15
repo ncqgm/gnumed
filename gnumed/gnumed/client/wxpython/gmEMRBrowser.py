@@ -448,9 +448,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, event):
 		node_data = self.GetPyData(self.__curr_node)
-		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=node_data)
-		dlg.ShowModal()
-		dlg.Destroy()
+		gmEMRStructWidgets.edit_encounter(parent = self, encounter = node_data)
 		self.__populate_tree()
 	#--------------------------------------------------------
 	def __relink_encounter_data2episode(self, event):

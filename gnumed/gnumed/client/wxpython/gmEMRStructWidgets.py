@@ -27,7 +27,6 @@ from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDa
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
 
 
@@ -615,6 +614,8 @@ def start_new_encounter(emr=None):
 		_('Start of new encounter')
 	)
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEncounterEditAreaDlg
+
 def edit_encounter(parent=None, encounter=None):
 
 	if parent is None:
@@ -877,6 +878,8 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 #	def __register_interests(self):
 #		return
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl
+
 class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):

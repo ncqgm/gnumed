@@ -967,8 +967,7 @@ class gmTopLevelFrame(wx.Frame):
 					enc_summary += '%s; ' % epi['description']
 				enc['assessment_of_encounter'] = enc_summary
 
-		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent = self, encounter = enc)
-		dlg.ShowModal()
+		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
 
 		return True
 	#----------------------------------------------
