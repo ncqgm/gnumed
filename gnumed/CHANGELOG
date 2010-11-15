@@ -41,6 +41,7 @@ IMPROVED: alpha-sort list of master data lists as per mailing list
 FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
 FIX: exception after adding patient to waiting list [thanks JB]
 FIX: properly refresh encounter list after editing one [thanks JB]
+FIX: rectify confusing message when deleting meds [thanks JB]
 
 	0.8.4
 

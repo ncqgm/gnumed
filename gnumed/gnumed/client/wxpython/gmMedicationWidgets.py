@@ -995,13 +995,22 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self.__refresh_allergies()
 #============================================================
 def delete_substance_intake(parent=None, substance=None):
+
+	subst = gmMedication.cSubstanceIntakeEntry(aPK_obj = substance)
+
+	msg = _(
+		'[%s]\n'
+		'\n'
+		'It may be prudent to edit before deletion the details\n'
+		'of this substance intake entry so as to leave behind\n'
+		'some indication of why it was deleted.\n'
+		'\n'
+		'Skip editing and really remove substance intake entry\n'
+		'from the current medication list immediately ?\n'
+	) % subst.format()
+
 	delete_it = gmGuiHelpers.gm_show_question (
-		aMessage = _(
-			'Do you really want to remove this substance intake ?\n'
-			'\n'
-			'It may be prudent to edit the details first so as to\n'
-			'leave behind some indication of why it was deleted.\n'
-		),
+		aMessage = msg,
 		aTitle = _('Deleting medication / substance intake')
 	)
 	if not delete_it:
