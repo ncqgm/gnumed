@@ -508,13 +508,16 @@ def start_new_encounter(emr=None):
 	)
 #----------------------------------------------------------------
 def edit_encounter(parent=None, encounter=None):
-
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	# FIXME: use generic dialog 2
 	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter)
-	dlg.ShowModal()
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
 #----------------------------------------------------------------
 def select_encounters(parent=None, patient=None, single_selection=True, encounters=None):
 
