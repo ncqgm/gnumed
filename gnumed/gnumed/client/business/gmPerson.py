@@ -17,7 +17,9 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools
-from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime, gmLog2
+from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmHooks
 from Gnumed.business import gmDocuments, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 
@@ -1430,34 +1432,28 @@ def create_name(pk_person, firstnames, lastnames, active=False):
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
 
-	cmd1 = u"""insert into dem.identity (gender, dob) values (%s, %s)"""
-
+	cmd1 = u"""INSERT INTO dem.identity (gender, dob) VALUES (%s, %s)"""
 	cmd2 = u"""
-insert into dem.names (
+INSERT INTO dem.names (
 	id_identity, lastnames, firstnames
-) values (
+) VALUES (
 	currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx')
-)"""
-
+) RETURNING id_identity"""
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
 			{'cmd': cmd1, 'args': [gender, dob]},
-			{'cmd': cmd2, 'args': [lastnames, firstnames]},
-			{'cmd': u"select currval('dem.identity_pk_seq')"}
+			{'cmd': cmd2, 'args': [lastnames, firstnames]}
 		],
 		return_data = True
 	)
-	return cIdentity(aPK_obj=rows[0][0])
+	ident = cIdentity(aPK_obj=rows[0][0])
+	gmHooks.run_hook_script(hook = u'post_person_creation')
+	return ident
 #============================================================
 def create_dummy_identity():
-	cmd1 = u"insert into dem.identity(gender) values('xxxDEFAULTxxx')"
-	cmd2 = u"select currval('dem.identity_pk_seq')"
-
+	cmd = u"INSERT INTO dem.identity(gender) VALUES ('xxxDEFAULTxxx') RETURNING pk"
 	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': cmd1},
-			{'cmd': cmd2}
-		],
+		queries = [{'cmd': cmd}],
 		return_data = True
 	)
 	return gmDemographicRecord.cIdentity(aPK_obj = rows[0][0])

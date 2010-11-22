@@ -42,6 +42,7 @@ from Gnumed.pycommon import gmDispatcher, gmTools
 # ========================================================================
 known_hooks = [
 	u'post_patient_activation',
+	u'post_person_creation',
 
 	u'shutdown-post-GUI',
 	u'startup-after-GUI-init',
