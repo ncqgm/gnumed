@@ -1099,7 +1099,7 @@ def delete_substance_intake(parent=None, substance=None):
 		'\n'
 		'[%s]\n'
 		'\n'
-		'It may be prudent to edit before deletion the details\n'
+		'It may be prudent to edit (before deletion) the details\n'
 		'of this substance intake entry so as to leave behind\n'
 		'some indication of why it was deleted.\n'
 	) % subst.format()
@@ -1110,7 +1110,7 @@ def delete_substance_intake(parent=None, substance=None):
 		caption = _('Deleting medication / substance intake'),
 		question = msg,
 		button_defs = [
-			{'label': _('&Edit+Delete'), 'tooltip': _('Allow editing of substance intake entry before deletion.'), 'default': True},
+			{'label': _('&Edit'), 'tooltip': _('Allow editing of substance intake entry before deletion.'), 'default': True},
 			{'label': _('&Delete'), 'tooltip': _('Delete immediately without editing first.')},
 			{'label': _('&Cancel'), 'tooltip': _('Abort. Do not delete or edit substance intake entry.')}
 		]
