@@ -557,11 +557,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-
-		stay = gmEMRStructItems.create_hospital_stay (
-			encounter = emr.active_encounter['pk_encounter'],
-			episode = self._PRW_episode.GetData(can_create = True)
-		)
+		stay = emr.add_hospital_stay(episode = self._PRW_episode.GetData(can_create = True))
 		stay['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
 		stay['admission'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_admission.GetValue())
 		if self._DP_discharge.GetValue().IsValid():
