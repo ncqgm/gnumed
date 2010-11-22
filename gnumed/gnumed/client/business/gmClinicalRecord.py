@@ -230,6 +230,12 @@ SELECT fk_encounter from
 
 		return stays
 	#--------------------------------------------------------
+	def add_hospital_stay(self, episode=None):
+		return gmEMRStructItems.create_hospital_stay (
+			encounter = self.current_encounter['pk_encounter'],
+			episode = episode
+		)
+	#--------------------------------------------------------
 	# API: narrative
 	#--------------------------------------------------------
 	def add_notes(self, notes=None, episode=None):
