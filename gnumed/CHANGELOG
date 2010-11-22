@@ -32,6 +32,7 @@ IMPROVED: relax URL sanity checks since Web 2.0 confuses all but the most sophis
 IMPROVED: default server profile names in gnumed.conf example
 IMPROVED: alpha-sort list of master data lists as per mailing list
 IMPROVED: much saner "deletion of substance intake entry" workflow
+IMPROVED: external patient sources now generically import external IDs/comm channels/addresses
 
 ------------------------------------------------
 # rel-0-8-patches

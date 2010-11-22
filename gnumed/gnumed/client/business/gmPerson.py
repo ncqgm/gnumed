@@ -30,10 +30,14 @@ __gender_idx = None
 __gender2salutation_map = None
 
 #============================================================
+# FIXME: make this work as a mapping type, too
 class cDTO_person(object):
 
-	# FIXME: make this work as a mapping type, too
-
+	def __init__(self):
+		self.identity = None
+		self.external_ids = []
+		self.comm_channels = []
+		self.addresses = []
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -104,20 +108,104 @@ where pk_identity in (
 		return identities
 	#--------------------------------------------------------
 	def import_into_database(self):
-		"""Imports self into the database.
+		"""Imports self into the database."""
 
-		Child classes can override this to provide more extensive import.
-		"""
-		ident = create_identity (
+		self.identity = create_identity (
 			firstnames = self.firstnames,
 			lastnames = self.lastnames,
 			gender = self.gender,
 			dob = self.dob
 		)
-		return ident
+
+		for ext_id in self.external_ids:
+			try:
+				self.identity.add_external_id (
+					type_name = ext_id['name'],
+					value = ext_id['value'],
+					issuer = ext_id['issuer'],
+					comment = ext_id['comment']
+				)
+			except StandardError:
+				_log.exception('cannot import <external ID> from external data source')
+				_log.log_stack_trace()
+
+		for comm in self.comm_channels:
+			try:
+				self.identity.link_comm_channel (
+					comm_medium = comm['channel'],
+					url = comm['url']
+				)
+			except StandardError:
+				_log.exception('cannot import <comm channel> from external data source')
+				_log.log_stack_trace()
+
+		for adr in self.addresses:
+			try:
+				self.identity.link_address (
+					number = adr['number'],
+					street = adr['street'],
+					postcode = adr['zip'],
+					urb = adr['urb'],
+					state = adr['region'],
+					country = adr['country']
+				)
+			except StandardError:
+				_log.exception('cannot import <address> from external data source')
+				_log.log_stack_trace()
+
+		return self.identity
 	#--------------------------------------------------------
 	def import_extra_data(self, *args, **kwargs):
 		pass
+	#--------------------------------------------------------
+	def remember_external_id(self, name=None, value=None, issuer=None, comment=None):
+		value = value.strip()
+		if value == u'':
+			return
+		name = name.strip()
+		if name == u'':
+			raise ArgumentError(_('<name> cannot be empty'))
+		issuer = issuer.strip()
+		if issuer == u'':
+			raise ArgumentError(_('<issuer> cannot be empty'))
+		self.external_ids.append({'name': name, 'value': value, 'issuer': issuer, 'comment': comment})
+	#--------------------------------------------------------
+	def remember_comm_channel(self, channel=None, url=None):
+		url = url.strip()
+		if url == u'':
+			return
+		channel = channel.strip()
+		if channel == u'':
+			raise ArgumentError(_('<channel> cannot be empty'))
+		self.comm_channels.append({'channel': channel, 'url': url})
+	#--------------------------------------------------------
+	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None):
+		number = number.strip()
+		if number == u'':
+			raise ArgumentError(_('<number> cannot be empty'))
+		street = street.strip()
+		if street == u'':
+			raise ArgumentError(_('<street> cannot be empty'))
+		urb = urb.strip()
+		if urb == u'':
+			raise ArgumentError(_('<urb> cannot be empty'))
+		zip = zip.strip()
+		if zip == u'':
+			raise ArgumentError(_('<zip> cannot be empty'))
+		country = country.strip()
+		if country == u'':
+			raise ArgumentError(_('<country> cannot be empty'))
+		region = region.strip()
+		if region == u'':
+			region = u'??'
+		self.addresses.append ({
+			u'number': number,
+			u'street': street,
+			u'zip': zip,
+			u'urb': urb,
+			u'region': region,
+			u'country': country
+		})
 	#--------------------------------------------------------
 	# customizing behaviour
 	#--------------------------------------------------------
