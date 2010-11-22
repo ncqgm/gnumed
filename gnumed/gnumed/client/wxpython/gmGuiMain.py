@@ -445,11 +445,11 @@ class gmTopLevelFrame(wx.Frame):
 		menu_patient = wx.Menu()
 
 		ID_CREATE_PATIENT = wx.NewId()
-		menu_patient.Append(ID_CREATE_PATIENT, _('Register person'), _("Register a new person with GNUmed"))
+		menu_patient.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create person from an external source.'))
+		menu_patient.Append(ID_LOAD_EXT_PAT, _('&Load external'), _('Load and possibly create person from an external source.'))
 		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
 
 		ID_DEL_PAT = wx.NewId()
