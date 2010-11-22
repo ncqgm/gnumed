@@ -73,20 +73,23 @@ class cDTO_person(object):
 
 		if self.dob is not None:
 			where_snippets.append(u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s)")
-			args['dob'] = self.dob
+			args['dob'] = self.dob.replace(hour = 23, minute = 59, second = 59)
 
 		if self.gender is not None:
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 
 		cmd = u"""
-select *, '%s' as match_type from dem.v_basic_person
-where pk_identity in (
-	select id_identity from dem.names where %s
-) order by lastnames, firstnames, dob""" % (
-	_('external patient source (name, gender, date of birth)'),
-	' and '.join(where_snippets)
-)
+SELECT *, '%s' AS match_type
+FROM dem.v_basic_person
+WHERE
+	pk_identity IN (
+		SELECT pk_identity FROM dem.v_person_names WHERE %s
+	)
+ORDER BY lastnames, firstnames, dob""" % (
+		_('external patient source (name, gender, date of birth)'),
+		' AND '.join(where_snippets)
+		)
 
 		try:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
@@ -96,6 +99,7 @@ where pk_identity in (
 			rows = []
 
 		if len(rows) == 0:
+			_log.debug('no candidate identity matches found')
 			if not can_create:
 				return []
 			ident = self.import_into_database()
@@ -116,6 +120,9 @@ where pk_identity in (
 			gender = self.gender,
 			dob = self.dob
 		)
+
+		if self.identity is None:
+			return None
 
 		for ext_id in self.external_ids:
 			try:
