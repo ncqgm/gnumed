@@ -678,7 +678,7 @@ def none_if(value=None, none_equivalent=None):
 		return None
 	return value
 #---------------------------------------------------------------------------
-def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None):
+def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None, function_initial=None):
 	"""Modelled after the SQL coalesce function.
 
 	To be used to simplify constructs like:
@@ -693,9 +693,55 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 	@type initial: any Python type, must have a __str__ method if template_initial is not None
 	@param instead: the value to be returned if <initial> is None
 	@type instead: any Python type, must have a __str__ method if template_instead is not None
-	@param template_initial: if <initial> is returned replace the value into this template, must contain one <%s> 
+	@param template_initial: if <initial> is returned replace the value into this template, must contain one <%s>
 	@type template_initial: string or None
-	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s> 
+	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s>
+	@type template_instead: string or None
+
+	Ideas:
+		- list of insteads: initial, [instead, template], [instead, template], [instead, template], template_initial, ...
+	"""
+	if none_equivalents is None:
+		none_equivalents = [None]
+
+	if initial in none_equivalents:
+
+		if template_instead is None:
+			return instead
+
+		return template_instead % instead
+
+	if function_initial is not None:
+		funcname, args = function_initial
+		func = getattr(initial, funcname)
+		initial = func(args)
+
+	if template_initial is None:
+		return initial
+
+	try:
+		return template_initial % initial
+	except TypeError:
+		return template_initial
+#---------------------------------------------------------------------------
+def old_coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None):
+	"""Modelled after the SQL coalesce function.
+
+	To be used to simplify constructs like:
+
+		if initial is None (or in none_equivalents):
+			real_value = (template_instead % instead) or instead
+		else:
+			real_value = (template_initial % initial) or initial
+		print real_value
+
+	@param initial: the value to be tested for <None>
+	@type initial: any Python type, must have a __str__ method if template_initial is not None
+	@param instead: the value to be returned if <initial> is None
+	@type instead: any Python type, must have a __str__ method if template_instead is not None
+	@param template_initial: if <initial> is returned replace the value into this template, must contain one <%s>
+	@type template_initial: string or None
+	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s>
 	@type template_instead: string or None
 
 	Ideas:
