@@ -19,7 +19,15 @@ INSERT INTO dem.message_inbox (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
 	'Release Notes for GNUmed 0.8.4 (database v14.4)',
-	'GNUmed 0.8.4/14.4 Release Notes:
+	'GNUmed 0.8.5/14.5 Release Notes:
+
+	0.8.5
+
+FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
+FIX: exception after adding patient to waiting list [thanks JB]
+FIX: properly refresh encounter list after editing one [thanks JB]
+FIX: rectify confusing message when deleting meds [thanks JB]
+FIX: properly set PYTHONPATH [thanks Debian Squeeze and JB]
 
 	0.8.4
 
