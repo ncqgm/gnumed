@@ -6,8 +6,6 @@ API crystallize from actual use in true XP fashion.
 license: GPL
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.106 2010-01-31 18:12:53 ncq Exp $
 __version__ = "$Revision: 1.106 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
@@ -343,7 +341,7 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 	return cCommChannel(row = {'pk_field': 'pk_lnk_identity2comm', 'data': rows[0], 'idx': idx})
 #-------------------------------------------------------------------
 def delete_comm_channel(pk=None, pk_patient=None):
-	cmd = u"delete from dem.lnk_identity2comm where pk = %(pk)s and fk_identity = %(pat)s"
+	cmd = u"DELETE FROM dem.lnk_identity2comm WHERE pk = %(pk)s AND fk_identity = %(pat)s"
 	args = {'pk': pk, 'pat': pk_patient}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #-------------------------------------------------------------------

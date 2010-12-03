@@ -27,7 +27,6 @@ from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDa
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
 
 
@@ -558,11 +557,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-
-		stay = gmEMRStructItems.create_hospital_stay (
-			encounter = emr.active_encounter['pk_encounter'],
-			episode = self._PRW_episode.GetData(can_create = True)
-		)
+		stay = emr.add_hospital_stay(episode = self._PRW_episode.GetData(can_create = True))
 		stay['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
 		stay['admission'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_admission.GetValue())
 		if self._DP_discharge.GetValue().IsValid():
@@ -615,14 +610,19 @@ def start_new_encounter(emr=None):
 		_('Start of new encounter')
 	)
 #----------------------------------------------------------------
-def edit_encounter(parent=None, encounter=None):
+from Gnumed.wxGladeWidgets import wxgEncounterEditAreaDlg
 
+def edit_encounter(parent=None, encounter=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	# FIXME: use generic dialog 2
 	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter)
-	dlg.ShowModal()
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
 #----------------------------------------------------------------
 def select_encounters(parent=None, patient=None, single_selection=True, encounters=None):
 
@@ -877,6 +877,8 @@ class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEdit
 #	def __register_interests(self):
 #		return
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl
+
 class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):

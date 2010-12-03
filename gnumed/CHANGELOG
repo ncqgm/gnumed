@@ -16,6 +16,7 @@ NEW: support summary field on health issues and episodes
 NEW: translate database strings from within client and contribute translations
 NEW: simplistic coding systems browser
 NEW: cloning of workplaces
+NEW: hook "post_person_creation"
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip
@@ -27,6 +28,13 @@ IMPROVED: procedures now support a duration and an "ongoing" state
 IMPROVED: adjust to modified API of MMI/Gelbe Liste
 IMPROVED: master data management interface
 IMPROVED: fix "Current Substance Intake" edit area usability glitches (schedule, substance, preparation)
+IMPROVED: find gm-print_doc in git tree, too
+IMPROVED: relax URL sanity checks since Web 2.0 confuses all but the most sophisticated browsers
+IMPROVED: default server profile names in gnumed.conf example
+IMPROVED: alpha-sort list of master data lists as per mailing list
+IMPROVED: much saner "deletion of substance intake entry" workflow
+IMPROVED: external patient sources now generically import external IDs/comm channels/addresses
+IMPROVED: fix detection of existing patient when loading from external source
 
 ------------------------------------------------
 # rel-0-8-patches
@@ -35,6 +43,10 @@ IMPROVED: fix "Current Substance Intake" edit area usability glitches (schedule,
 	0.8.5
 
 FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
+FIX: exception after adding patient to waiting list [thanks JB]
+FIX: properly refresh encounter list after editing one [thanks JB]
+FIX: rectify confusing message when deleting meds [thanks JB]
+FIX: properly set PYTHONPATH [thanks Debian Squeeze]
 
 	0.8.4
 

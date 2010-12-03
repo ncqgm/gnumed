@@ -1518,12 +1518,10 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 #-----------------------------------------------------------
 def get_patient_hospital_stays(patient=None):
 
-	queries = [
-		{
-		'cmd': u'select * from clin.v_pat_hospital_stays where pk_patient = %(pat)s order by admission',
+	queries = [{
+		'cmd': u'SELECT * FROM clin.v_pat_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission',
 		'args': {'pat': patient}
-		}
-	]
+	}]
 
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 
@@ -1531,20 +1529,16 @@ def get_patient_hospital_stays(patient=None):
 #-----------------------------------------------------------
 def create_hospital_stay(encounter=None, episode=None):
 
-	queries = [
-		{
-		 'cmd': u'insert into clin.hospital_stay (fk_encounter, fk_episode) values (%(enc)s, %(epi)s)',
+	queries = [{
+		 'cmd': u'INSERT INTO clin.hospital_stay (fk_encounter, fk_episode) VALUES (%(enc)s, %(epi)s) RETURNING pk',
 		 'args': {'enc': encounter, 'epi': episode}
-		},
-		{'cmd': u"select currval('clin.hospital_stay_pk_seq')"}
-	]
-
+	}]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 
 	return cHospitalStay(aPK_obj = rows[0][0])
 #-----------------------------------------------------------
 def delete_hospital_stay(stay=None):
-	cmd = u'delete from clin.hospital_stay where pk = %(pk)s'
+	cmd = u'DELETE FROM clin.hospital_stay WHERE pk = %(pk)s'
 	args = {'pk': stay}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True

@@ -17,7 +17,9 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools
-from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime, gmLog2
+from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmHooks
 from Gnumed.business import gmDocuments, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 
@@ -30,10 +32,14 @@ __gender_idx = None
 __gender2salutation_map = None
 
 #============================================================
+# FIXME: make this work as a mapping type, too
 class cDTO_person(object):
 
-	# FIXME: make this work as a mapping type, too
-
+	def __init__(self):
+		self.identity = None
+		self.external_ids = []
+		self.comm_channels = []
+		self.addresses = []
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -69,20 +75,23 @@ class cDTO_person(object):
 
 		if self.dob is not None:
 			where_snippets.append(u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s)")
-			args['dob'] = self.dob
+			args['dob'] = self.dob.replace(hour = 23, minute = 59, second = 59)
 
 		if self.gender is not None:
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 
 		cmd = u"""
-select *, '%s' as match_type from dem.v_basic_person
-where pk_identity in (
-	select id_identity from dem.names where %s
-) order by lastnames, firstnames, dob""" % (
-	_('external patient source (name, gender, date of birth)'),
-	' and '.join(where_snippets)
-)
+SELECT *, '%s' AS match_type
+FROM dem.v_basic_person
+WHERE
+	pk_identity IN (
+		SELECT pk_identity FROM dem.v_person_names WHERE %s
+	)
+ORDER BY lastnames, firstnames, dob""" % (
+		_('external patient source (name, gender, date of birth)'),
+		' AND '.join(where_snippets)
+		)
 
 		try:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
@@ -92,6 +101,7 @@ where pk_identity in (
 			rows = []
 
 		if len(rows) == 0:
+			_log.debug('no candidate identity matches found')
 			if not can_create:
 				return []
 			ident = self.import_into_database()
@@ -104,20 +114,107 @@ where pk_identity in (
 		return identities
 	#--------------------------------------------------------
 	def import_into_database(self):
-		"""Imports self into the database.
+		"""Imports self into the database."""
 
-		Child classes can override this to provide more extensive import.
-		"""
-		ident = create_identity (
+		self.identity = create_identity (
 			firstnames = self.firstnames,
 			lastnames = self.lastnames,
 			gender = self.gender,
 			dob = self.dob
 		)
-		return ident
+
+		if self.identity is None:
+			return None
+
+		for ext_id in self.external_ids:
+			try:
+				self.identity.add_external_id (
+					type_name = ext_id['name'],
+					value = ext_id['value'],
+					issuer = ext_id['issuer'],
+					comment = ext_id['comment']
+				)
+			except StandardError:
+				_log.exception('cannot import <external ID> from external data source')
+				_log.log_stack_trace()
+
+		for comm in self.comm_channels:
+			try:
+				self.identity.link_comm_channel (
+					comm_medium = comm['channel'],
+					url = comm['url']
+				)
+			except StandardError:
+				_log.exception('cannot import <comm channel> from external data source')
+				_log.log_stack_trace()
+
+		for adr in self.addresses:
+			try:
+				self.identity.link_address (
+					number = adr['number'],
+					street = adr['street'],
+					postcode = adr['zip'],
+					urb = adr['urb'],
+					state = adr['region'],
+					country = adr['country']
+				)
+			except StandardError:
+				_log.exception('cannot import <address> from external data source')
+				_log.log_stack_trace()
+
+		return self.identity
 	#--------------------------------------------------------
 	def import_extra_data(self, *args, **kwargs):
 		pass
+	#--------------------------------------------------------
+	def remember_external_id(self, name=None, value=None, issuer=None, comment=None):
+		value = value.strip()
+		if value == u'':
+			return
+		name = name.strip()
+		if name == u'':
+			raise ArgumentError(_('<name> cannot be empty'))
+		issuer = issuer.strip()
+		if issuer == u'':
+			raise ArgumentError(_('<issuer> cannot be empty'))
+		self.external_ids.append({'name': name, 'value': value, 'issuer': issuer, 'comment': comment})
+	#--------------------------------------------------------
+	def remember_comm_channel(self, channel=None, url=None):
+		url = url.strip()
+		if url == u'':
+			return
+		channel = channel.strip()
+		if channel == u'':
+			raise ArgumentError(_('<channel> cannot be empty'))
+		self.comm_channels.append({'channel': channel, 'url': url})
+	#--------------------------------------------------------
+	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None):
+		number = number.strip()
+		if number == u'':
+			raise ArgumentError(_('<number> cannot be empty'))
+		street = street.strip()
+		if street == u'':
+			raise ArgumentError(_('<street> cannot be empty'))
+		urb = urb.strip()
+		if urb == u'':
+			raise ArgumentError(_('<urb> cannot be empty'))
+		zip = zip.strip()
+		if zip == u'':
+			raise ArgumentError(_('<zip> cannot be empty'))
+		country = country.strip()
+		if country == u'':
+			raise ArgumentError(_('<country> cannot be empty'))
+		region = region.strip()
+		if region == u'':
+			region = u'??'
+		self.addresses.append ({
+			u'number': number,
+			u'street': street,
+			u'zip': zip,
+			u'urb': urb,
+			u'region': region,
+			u'country': country
+		})
 	#--------------------------------------------------------
 	# customizing behaviour
 	#--------------------------------------------------------
@@ -1335,34 +1432,28 @@ def create_name(pk_person, firstnames, lastnames, active=False):
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
 
-	cmd1 = u"""insert into dem.identity (gender, dob) values (%s, %s)"""
-
+	cmd1 = u"""INSERT INTO dem.identity (gender, dob) VALUES (%s, %s)"""
 	cmd2 = u"""
-insert into dem.names (
+INSERT INTO dem.names (
 	id_identity, lastnames, firstnames
-) values (
+) VALUES (
 	currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx')
-)"""
-
+) RETURNING id_identity"""
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
 			{'cmd': cmd1, 'args': [gender, dob]},
-			{'cmd': cmd2, 'args': [lastnames, firstnames]},
-			{'cmd': u"select currval('dem.identity_pk_seq')"}
+			{'cmd': cmd2, 'args': [lastnames, firstnames]}
 		],
 		return_data = True
 	)
-	return cIdentity(aPK_obj=rows[0][0])
+	ident = cIdentity(aPK_obj=rows[0][0])
+	gmHooks.run_hook_script(hook = u'post_person_creation')
+	return ident
 #============================================================
 def create_dummy_identity():
-	cmd1 = u"insert into dem.identity(gender) values('xxxDEFAULTxxx')"
-	cmd2 = u"select currval('dem.identity_pk_seq')"
-
+	cmd = u"INSERT INTO dem.identity(gender) VALUES ('xxxDEFAULTxxx') RETURNING pk"
 	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': cmd1},
-			{'cmd': cmd2}
-		],
+		queries = [{'cmd': cmd}],
 		return_data = True
 	)
 	return gmDemographicRecord.cIdentity(aPK_obj = rows[0][0])

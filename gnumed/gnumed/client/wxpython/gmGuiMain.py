@@ -445,11 +445,11 @@ class gmTopLevelFrame(wx.Frame):
 		menu_patient = wx.Menu()
 
 		ID_CREATE_PATIENT = wx.NewId()
-		menu_patient.Append(ID_CREATE_PATIENT, _('Register person'), _("Register a new person with GNUmed"))
+		menu_patient.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create person from an external source.'))
+		menu_patient.Append(ID_LOAD_EXT_PAT, _('&Load external'), _('Load and possibly create person from an external source.'))
 		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
 
 		ID_DEL_PAT = wx.NewId()
@@ -967,8 +967,7 @@ class gmTopLevelFrame(wx.Frame):
 					enc_summary += '%s; ' % epi['description']
 				enc['assessment_of_encounter'] = enc_summary
 
-		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent = self, encounter = enc)
-		dlg.ShowModal()
+		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
 
 		return True
 	#----------------------------------------------
@@ -1236,41 +1235,46 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_adr_url(self, evt):
 
+		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+		german_default = u'https://dcgma.org/uaw/meldung.php'
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
 				'GNUmed will use this URL to access a website which lets\n'
 				'you report an adverse drug reaction (ADR).\n'
 				'\n'
-				'You can leave this empty but to set it to a specific\n'
-				'address the URL must be accessible now.'
+				'If you leave this empty it will fall back\n'
+				'to an URL for reporting ADRs in Germany.'
 			),
 			option = 'external.urls.report_ADR',
 			bias = 'user',
-			default_value = u'https://dcgma.org/uaw/meldung.php',		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
 	def __on_configure_vaccine_adr_url(self, evt):
 
+		german_default = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -1283,21 +1287,23 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.report_vaccine_ADR',
 			bias = 'user',
-			default_value = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
 	def __on_configure_measurements_url(self, evt):
 
+		german_default = u'http://www.laborlexikon.de',
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -1309,21 +1315,23 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.measurements_encyclopedia',
 			bias = 'user',
-			default_value = u'http://www.laborlexikon.de',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
 	def __on_configure_vaccination_plans_url(self, evt):
 
+		german_default = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf'
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -1335,7 +1343,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.vaccination_plans',
 			bias = 'user',
-			default_value = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -1898,47 +1906,47 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_master_data(self, evt):
 
 		master_data_lists = [
-			'workplaces',
-			'doc_types',
-			'form_templates',
-			'text_expansions',
-			'db_translations',
-			'codes',
-			'enc_types',
-			'provinces',
+			'adr',
 			'drugs',
-			'substances',
+			'codes',
+			'labs',
 			'substances_in_brands',
-			'vaccines',
-			'vacc_indications',
-			'test_types',
+			'form_templates',
+			'doc_types',
+			'enc_types',
+			'text_expansions',
 			'meta_test_types',
 			'orgs',
+			'provinces',
+			'db_translations',
+			'substances',
+			'test_types',
 			'org_units',
-			'labs',
-			'adr'
+			'vacc_indications',
+			'vaccines',
+			'workplaces'
 		]
 
 		master_data_list_names = {
+			'adr': _('Addresses (likely slow)'),
+			'drugs': _('Branded drugs (as marketed)'),
+			'codes': _('Codes and their respective terms'),
+			'labs': _('Diagnostic organizations (path labs, ...)'),
+			'substances_in_brands': _('Components of (substances in) branded drugs'),
 			'form_templates': _('Document templates (forms, letters, plots, ...)'),
 			'doc_types': _('Document types'),
-			'text_expansions': _('Keyword based text expansion macros'),
-			'db_translations': _('String translations in the database'),
-			'codes': _('Codes and their respective terms'),
 			'enc_types': _('Encounter types'),
-			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
-			'workplaces': _('Workplace profiles (which plugins to load)'),
-			'substances': _('Substances in use (taken by patients)'),
-			'drugs': _('Branded drugs (as marketed)'),
-			'substances_in_brands': _('Components of (substances in) branded drugs'),
-			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
-			'labs': _('Diagnostic organizations (path labs, ...)'),
-			'test_types': _('Test/measurement types'),
+			'text_expansions': _('Keyword based text expansion macros'),
 			'meta_test_types': _('Meta test/measurement types'),
-			'vaccines': _('Vaccines'),
-			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
 			'orgs': _('Organizations'),
-			'adr': _('Addresses (likely slow)')
+			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
+			'db_translations': _('String translations in the database'),
+			'substances': _('Substances in use (taken by patients)'),
+			'test_types': _('Test/measurement types'),
+			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
+			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
+			'vaccines': _('Vaccines'),
+			'workplaces': _('Workplace profiles (which plugins to load)')
 		}
 
 		map_list2handler = {

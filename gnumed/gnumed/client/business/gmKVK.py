@@ -150,6 +150,8 @@ select pk_identity from dem.v_external_ids4identity where
 		return old_idents
 	#--------------------------------------------------------
 	def import_extra_data(self, identity=None, *args, **kwargs):
+		# FIXME: rather use remember_external_id()
+
 		# Versicherungsnummer
 		identity.add_external_id (
 			type_name = insurance_number_external_id_type_egk,

@@ -1791,8 +1791,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, evt):
 		enc = gmEMRStructItems.cEncounter(aPK_obj=self.__curr_node_data['pk_encounter'])
-		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
-		dlg.ShowModal()
+		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):
 

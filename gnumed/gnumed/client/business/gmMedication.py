@@ -815,7 +815,7 @@ def get_substances_in_use():
 	return rows
 #------------------------------------------------------------
 def get_substance_by_pk(pk=None):
-	cmd = u'select * from clin.consumed_substance WHERE pk = %(pk)s'
+	cmd = u'SELECT * FROM clin.consumed_substance WHERE pk = %(pk)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
 	if len(rows) == 0:
 		return None

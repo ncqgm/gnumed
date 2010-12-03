@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-10-28 16:07+CEST\n"
+"POT-Creation-Date: 2010-11-15 16:34+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2070,7 +2070,7 @@ msgstr ""
 msgid "Edit the (first or only) item selected in the list above."
 msgstr ""
 
-msgid "Delete the (first or only) item selected in the list above."
+msgid "Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
 
 msgid "Database welcome message editor"
@@ -6473,8 +6473,8 @@ msgid ""
 "GNUmed will use this URL to access a website which lets\n"
 "you report an adverse drug reaction (ADR).\n"
 "\n"
-"You can leave this empty but to set it to a specific\n"
-"address the URL must be accessible now."
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
 msgstr ""
 
 msgid ""
@@ -6776,55 +6776,61 @@ msgid ""
 "will actually appear in parallel to the viewer."
 msgstr ""
 
+msgid "Addresses (likely slow)"
+msgstr ""
+
+msgid "Branded drugs (as marketed)"
+msgstr ""
+
+msgid "Codes and their respective terms"
+msgstr ""
+
+msgid "Diagnostic organizations (path labs, ...)"
+msgstr ""
+
+msgid "Components of (substances in) branded drugs"
+msgstr ""
+
 msgid "Document templates (forms, letters, plots, ...)"
 msgstr ""
 
 msgid "Document types"
 msgstr ""
 
-msgid "Keyword based text expansion macros"
-msgstr ""
-
-msgid "String translations in the database"
-msgstr ""
-
-msgid "Codes and their respective terms"
-msgstr ""
-
 msgid "Encounter types"
 msgstr ""
 
-msgid "Provinces (counties, territories, states, regions, ...)"
-msgstr ""
-
-msgid "Workplace profiles (which plugins to load)"
-msgstr ""
-
-msgid "Substances in use (taken by patients)"
-msgstr ""
-
-msgid "Branded drugs (as marketed)"
-msgstr ""
-
-msgid "Components of (substances in) branded drugs"
-msgstr ""
-
-msgid "Units of organizations (branches, sites, departments, parts, ..."
-msgstr ""
-
-msgid "Diagnostic organizations (path labs, ...)"
-msgstr ""
-
-msgid "Test/measurement types"
+msgid "Keyword based text expansion macros"
 msgstr ""
 
 msgid "Meta test/measurement types"
 msgstr ""
 
-msgid "Vaccines"
+msgid "Organizations"
+msgstr ""
+
+msgid "Provinces (counties, territories, states, regions, ...)"
+msgstr ""
+
+msgid "String translations in the database"
+msgstr ""
+
+msgid "Substances in use (taken by patients)"
+msgstr ""
+
+msgid "Test/measurement types"
+msgstr ""
+
+msgid "Units of organizations (branches, sites, departments, parts, ..."
 msgstr ""
 
 msgid "Vaccination targets (conditions known to be preventable by vaccination)"
+msgstr ""
+
+msgid "Vaccines"
+msgstr ""
+
+msgid "Workplace profiles (which plugins to load)"
 msgstr ""
 
 msgid "Master data management"
@@ -7746,10 +7752,7 @@ msgstr ""
 msgid "Showing branded drugs."
 msgstr ""
 
-msgid ""
-"\n"
-"These are the substances currently or previously\n"
-"consumed across all patients.\n"
+msgid "Substances currently or previously consumed across all patients."
 msgstr ""
 
 msgid "Showing consumed substances."
@@ -7813,13 +7816,30 @@ msgid "not tolerated:"
 msgstr ""
 
 msgid ""
-"Do you really want to remove this substance intake ?\n"
 "\n"
-"It may be prudent to edit the details first so as to\n"
-"leave behind some indication of why it was deleted.\n"
+"[%s]\n"
+"\n"
+"It may be prudent to edit before deletion the details\n"
+"of this substance intake entry so as to leave behind\n"
+"some indication of why it was deleted.\n"
 msgstr ""
 
 msgid "Deleting medication / substance intake"
+msgstr ""
+
+msgid "&Edit+Delete"
+msgstr ""
+
+msgid "Allow editing of substance intake entry before deletion."
+msgstr ""
+
+msgid "Delete immediately without editing first."
+msgstr ""
+
+msgid "Abort. Do not delete or edit substance intake entry."
+msgstr ""
+
+msgid "Now delete substance intake entry ?"
 msgstr ""
 
 msgid "Adding substance intake"
@@ -8299,13 +8319,21 @@ msgstr ""
 msgid "Showing organizational units."
 msgstr ""
 
-msgid "Organization"
-msgstr ""
-
 msgid "Organizational Unit"
 msgstr ""
 
+msgid "Organization"
+msgstr ""
+
 msgid "Category"
+msgstr ""
+
+msgid ""
+"\n"
+"Organizations registered in GNUmed.\n"
+msgstr ""
+
+msgid "Showing organizations."
 msgstr ""
 
 msgid "Refresh from database"
@@ -8619,9 +8647,6 @@ msgstr ""
 msgid "Type or select a state/region/province/territory."
 msgstr ""
 
-msgid "List of known addresses."
-msgstr ""
-
 msgid "Street info"
 msgstr ""
 
@@ -8629,6 +8654,12 @@ msgid "Subunit"
 msgstr ""
 
 msgid "Suburb"
+msgstr ""
+
+msgid "Showing addresses registered in GNUmed."
+msgstr ""
+
+msgid "List of known addresses."
 msgstr ""
 
 msgid "Adding new address"

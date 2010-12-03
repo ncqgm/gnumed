@@ -1155,7 +1155,7 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 			zone = gmTools.none_if(self._PRW_zone.GetValue().strip(), u'')
 		)
 		# dummy:
-		self.data = {'pk_identity': None, 'comment': None, 'waiting_zone': None, 'urgency': 0}
+		self.data = {'pk_identity': self._PRW_patient.person.ID, 'comment': None, 'waiting_zone': None, 'urgency': 0}
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
@@ -1224,7 +1224,15 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				p['urgency'],
 				p['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
-				p['dob'],
+				gmTools.coalesce (
+					gmTools.coalesce (
+						p['dob'],
+						u'',
+						function_initial = ('strftime', u'%d %b %Y')
+					),
+					u'',
+					function_initial = ('decode', gmI18N.get_encoding())
+				),
 				gmTools.coalesce(p['comment'], u'')
 			  ] for p in pats
 			]

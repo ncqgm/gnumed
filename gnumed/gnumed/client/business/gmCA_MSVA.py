@@ -116,7 +116,6 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 
 		dto = gmPerson.cDTO_person()
 		dto.source = u'Med.Manager/CA'
-		dto.external_ids = []
 
 		dto.firstnames = u'%s %s' % (
 			gmTools.capitalize(line[:20].strip(), gmTools.CAPS_FIRST_ONLY),		# should be _NAMES
@@ -125,35 +124,45 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 		dto.lastnames = gmTools.capitalize(line[22:47].strip(), gmTools.CAPS_FIRST_ONLY)	# should be _NAMES
 
 		province = line[59:61]
-		value = line[47:57].strip()
-		if value != u'':
-			dto.external_ids.append({'name': u'PHN (%s.CA)' % province, 'value': value, 'issuer': 'MOH (%s.CA)' % province})
+		dto.remember_external_id (
+			name = u'PHN (%s.CA)' % province,
+			value = line[47:57],
+			issuer = u'MOH (%s.CA)' % province
+		)
 
 		dob = time.strptime(line[65:73].strip(), MSVA_dob_format)
 		dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
 		dto.gender = line[83].lower()
 
-		value = line[84:92].strip()
-		if value != u'':
-			dto.external_ids.append({'name': u'MM (CA) Chart #', 'value': value, 'issuer': 'Medical Manager (CA) application'})
+		dto.remember_external_id (
+			name = u'MM (CA) Chart #',
+			value = line[84:92],
+			issuer = u'Medical Manager (CA) application'
+		)
 
 		# this is the home address
-		dto.street = u'%s // %s' % (
+		street = u'%s // %s' % (
 			gmTools.capitalize(line[92:117].strip(), gmTools.CAPS_FIRST),
 			gmTools.capitalize(line[117:142].strip(), gmTools.CAPS_FIRST)
 		)
-		dto.urb = line[142:167].strip()
-		dto.region = line[167:169].strip()
-		dto.zip = line[169:178].strip()
+		dto.remember_address (
+			number = '?',
+			street = street,
+			urb = line[142:167],
+			region = line[167:169],				# or "province"
+			zip = line[169:178],
+			country = 'CA'
+		)
 
-		dto.comms = [					# types must correspond to GNUmed database comm type
-			{'homephone': line[178:188]},
-			{'workphone': line[188:198]}
-		]
+		# channel types must correspond to GNUmed database comm type
+		dto.remember_comm_channel(channel = u'homephone', url = line[178:188])
+		dto.remember_comm_channel(channel = u'workphone', url = line[188:198])
 
-		value = line[198:207].strip()
-		if value != u'':
-			dto.external_ids.append({'name': u'Social Insurance Number', 'value': value, 'issuer': 'Canada'})
+		dto.remember_external_id (
+			name = u'Social Insurance Number',
+			value = line[198:207],
+			issuer = u'Canada'
+		)
 
 		dtos.append(dto)
 

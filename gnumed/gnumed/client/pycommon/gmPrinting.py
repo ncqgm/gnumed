@@ -1,24 +1,17 @@
 """GNUmed printing."""
 # =======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPrinting.py,v $
-# $Id: gmPrinting.py,v 1.4 2010-01-03 18:16:47 ncq Exp $
 __version__ = "$Revision: 1.4 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # =======================================================================
-import logging, sys
+import logging, sys, os
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmLog2
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-
-
 from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.printing')
@@ -39,7 +32,10 @@ def print_file_by_shellscript(filename=None, jobtype=None):
 		print "unregistered print job type <%s>" % jobtype
 		_log.warning('print job type "%s" not registered')
 
-	candidates = [u'gm-print_doc', u'gm-print_doc.bat']
+	paths = gmTools.gmPaths()
+	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-print_doc')
+
+	candidates = [u'gm-print_doc', u'gm-print_doc.bat', local_script, u'gm-print_doc.bat']
 	args = u' %s %s' % (jobtype, filename)
 
 	success = gmShellAPI.run_first_available_in_shell (
@@ -59,26 +55,22 @@ def print_file_by_shellscript(filename=None, jobtype=None):
 #------------------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+
 	def test_print_file():
 		return print_file_by_shellscript (filename = sys.argv[2], jobtype = sys.argv[3])
 	#--------------------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		print test_print_file()
+
+	print test_print_file()
 
 # =======================================================================
-# $Log: gmPrinting.py,v $
-# Revision 1.4  2010-01-03 18:16:47  ncq
-# - much streamlined
-#
-# Revision 1.3  2010/01/01 21:19:20  ncq
-# - print job types registry
-#
-# Revision 1.2  2009/12/25 21:42:52  ncq
-# - gm_print* -> gm-print*
-# - no more .sh
-# - proper argument order for shell script
-#
-# Revision 1.1  2009/12/25 19:04:50  ncq
-# - new code
-#
-#
