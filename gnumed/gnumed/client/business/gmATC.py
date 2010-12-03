@@ -6,8 +6,6 @@ http://who.no
 license: GPL
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.7 2010-02-06 20:43:22 ncq Exp $
 __version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -44,9 +42,7 @@ def propagate_atc(substance=None, atc=None):
 
 	args = {'atc': atc, 'term': substance.strip()}
 	queries = [
-		{'cmd': u"UPDATE ref.substance_in_brand SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
-		 'args': args},
-		{'cmd': u"UPDATE clin.consumed_substance SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		{'cmd': u"UPDATE ref.consumable_substance SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
 		 'args': args},
 		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
 		 'args': args}
@@ -69,15 +65,11 @@ def text2atc(text=None, fuzzy=False):
 				WHERE term ilike %(term)s AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
-				FROM ref.substance_in_brand
+				FROM ref.consumable_substance
 				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.branded_drug
-				WHERE description ilike %(term)s AND atc_code IS NOT NULL
-					UNION
-				SELECT atc_code, null, null
-				FROM clin.consumed_substance
 				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
@@ -92,15 +84,11 @@ def text2atc(text=None, fuzzy=False):
 				WHERE lower(term) = %(term)s AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
-				FROM ref.substance_in_brand
+				FROM ref.consumable_substance
 				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.branded_drug
-				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
-					UNION
-				SELECT atc_code, null, null
-				FROM clin.consumed_substance
 				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
@@ -323,26 +311,3 @@ if __name__ == "__main__":
 	#test_get_reference_atcs()
 
 #============================================================
-# $Log: gmATC.py,v $
-# Revision 1.7  2010-02-06 20:43:22  ncq
-# - atc2ddd / get-reference-atcs
-#
-# Revision 1.6  2009/12/01 21:47:02  ncq
-# - make ATC propatation smarter
-#
-# Revision 1.5  2009/11/29 19:58:36  ncq
-# - propagate-atc
-#
-# Revision 1.4  2009/11/28 18:12:02  ncq
-# - text2atc() and test
-#
-# Revision 1.3  2009/10/21 20:32:45  ncq
-# - cleanup
-#
-# Revision 1.2  2009/06/10 20:59:12  ncq
-# - data file must be in the same directory as conf file
-#
-# Revision 1.1  2009/06/04 16:42:54  ncq
-# - first version
-#
-#

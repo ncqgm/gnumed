@@ -1909,8 +1909,9 @@ class gmTopLevelFrame(wx.Frame):
 			'adr',
 			'drugs',
 			'codes',
-			'labs',
 			'substances_in_brands',
+			'substances',
+			'labs',
 			'form_templates',
 			'doc_types',
 			'enc_types',
@@ -1919,7 +1920,6 @@ class gmTopLevelFrame(wx.Frame):
 			'orgs',
 			'provinces',
 			'db_translations',
-			'substances',
 			'test_types',
 			'org_units',
 			'vacc_indications',
@@ -1931,8 +1931,8 @@ class gmTopLevelFrame(wx.Frame):
 			'adr': _('Addresses (likely slow)'),
 			'drugs': _('Branded drugs (as marketed)'),
 			'codes': _('Codes and their respective terms'),
+			'substances_in_brands': _('Components of branded drugs (substances in brands)'),
 			'labs': _('Diagnostic organizations (path labs, ...)'),
-			'substances_in_brands': _('Components of (substances in) branded drugs'),
 			'form_templates': _('Document templates (forms, letters, plots, ...)'),
 			'doc_types': _('Document types'),
 			'enc_types': _('Encounter types'),
@@ -1941,12 +1941,12 @@ class gmTopLevelFrame(wx.Frame):
 			'orgs': _('Organizations'),
 			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
 			'db_translations': _('String translations in the database'),
-			'substances': _('Substances in use (taken by patients)'),
 			'test_types': _('Test/measurement types'),
 			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
 			'vaccines': _('Vaccines'),
-			'workplaces': _('Workplace profiles (which plugins to load)')
+			'workplaces': _('Workplace profiles (which plugins to load)'),
+			'substances': _('Consumable substances')
 		}
 
 		map_list2handler = {
@@ -1959,16 +1959,16 @@ class gmTopLevelFrame(wx.Frame):
 			'enc_types': gmEMRStructWidgets.manage_encounter_types,
 			'provinces': gmPersonContactWidgets.manage_provinces,
 			'workplaces': gmProviderInboxWidgets.configure_workplace_plugins,
-			'substances': gmMedicationWidgets.manage_substances_in_use,
 			'drugs': gmMedicationWidgets.manage_branded_drugs,
-			'substances_in_brands': gmMedicationWidgets.manage_substances_in_brands,
+			'substances_in_brands': gmMedicationWidgets.manage_drug_components,
 			'labs': gmMeasurementWidgets.manage_measurement_orgs,
 			'test_types': gmMeasurementWidgets.manage_measurement_types,
 			'meta_test_types': gmMeasurementWidgets.manage_meta_test_types,
 			'vaccines': gmVaccWidgets.manage_vaccines,
 			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
 			'orgs': gmOrganizationWidgets.manage_orgs,
-			'adr': gmPersonContactWidgets.manage_addresses
+			'adr': gmPersonContactWidgets.manage_addresses,
+			'substances': gmMedicationWidgets.manage_consumable_substances
 		}
 
 		#---------------------------------

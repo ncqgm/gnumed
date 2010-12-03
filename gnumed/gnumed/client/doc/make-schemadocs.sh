@@ -4,6 +4,7 @@
 # author: Karsten.Hilbert@gmx.net
 
 DB_LIST="gnumed_v13 gnumed_v14 gnumed_v15"
+#DB_LIST="$1"
 
 export PGUSER="gm-dbo"
 

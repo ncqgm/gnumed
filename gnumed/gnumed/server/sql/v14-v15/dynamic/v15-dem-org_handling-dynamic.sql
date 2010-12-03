@@ -356,7 +356,11 @@ insert into dem.org (description, fk_category) values (
 select dem.create_address('117', 'Golden Gate Drive', 'SF 278 CA', 'San Francisco', 'CA', 'US', NULL);
 select dem.create_address('31', 'Galley 4a', 'NCC-1701-E', 'Starship Enterprise', 'CA', 'US', NULL);
 update dem.street set suburb = 'Deck 7' where name = 'Galley 4a';
-update dem.address set addendum = 'typically in Space' where street = 'Galley 4a' and postcode = 'NCC-1701-E';
+update dem.address set
+	addendum = 'typically in Space'
+where id_street = (
+	select id from dem.street where name = 'Galley 4a' and postcode = 'NCC-1701-E'
+);
 
 
 

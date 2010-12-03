@@ -632,7 +632,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			if len(drug['wirkstoffe']) == 1:
 				atc = drug['atc']
 			for wirkstoff in drug['wirkstoffe']:
-				new_substances.append(create_used_substance(substance = wirkstoff, atc = atc))
+				new_substances.append(create_consumable_substance(substance = wirkstoff, atc = atc))
 
 		selected_drugs.close()
 
@@ -687,7 +687,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			if len(entry['wirkstoffe']) == 1:
 				atc = entry['atc']
 			for wirkstoff in entry['wirkstoffe']:
-				new_substances.append(create_used_substance(substance = wirkstoff, atc = atc))
+				new_substances.append(create_consumable_substance(substance = wirkstoff, atc = atc))
 
 		return new_drugs, new_substances
 	#--------------------------------------------------------
@@ -809,63 +809,135 @@ drug_data_source_interfaces = {
 #============================================================
 # substances in use across all patients
 #------------------------------------------------------------
-def get_substances_in_use():
-	cmd = u'select * from clin.consumed_substance order by description'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	return rows
+_SQL_get_consumable_substance = u"""
+	SELECT *, xmin
+	FROM ref.consumable_substance
+	WHERE %s
+"""
+
+class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_get_consumable_substance % u"pk = %s"
+	_cmds_store_payload = [
+		u"""UPDATE ref.consumable_substance SET
+				description = %(description)s,
+				atc_code = gm.nullify_empty_string(%(atc_code)s)
+			WHERE
+				pk = %(pk)s
+					AND
+				xmin = %(xmin)s
+					AND
+				-- must not currently be used with a patient directly
+				NOT EXISTS (
+					SELECT 1
+					FROM clin.substance_intake
+					WHERE
+						fk_drug_component IS NULL
+							AND
+						fk_substance = %(pk)s
+					LIMIT 1
+				)
+					AND
+				-- must not currently be used with a patient indirectly, either
+				NOT EXISTS (
+					SELECT 1
+					FROM clin.substance_intake
+					WHERE
+						fk_drug_component IS NOT NULL
+							AND
+						fk_drug_component = (
+							SELECT r_ls2b.pk
+							FROM ref.lnk_substance2brand r_ls2b
+							WHERE fk_substance = %(pk)s
+						)
+					LIMIT 1
+				)
+--				-- must not currently be used with a branded drug
+--				-- (but this would make it rather hard fixing branded drugs which contain only this substance)
+--				NOT EXISTS (
+--					SELECT 1
+--					FROM ref.lnk_substance2brand
+--					WHERE fk_substance = %(pk)s
+--					LIMIT 1
+--				)
+			RETURNING
+				xmin
+		"""
+	]
+	_updatable_fields = [
+		u'description',
+		u'atc_code'
+	]
 #------------------------------------------------------------
-def get_substance_by_pk(pk=None):
-	cmd = u'SELECT * FROM clin.consumed_substance WHERE pk = %(pk)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
-	if len(rows) == 0:
-		return None
-	return rows[0]
+def get_consumable_substances(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+	cmd = _SQL_get_consumable_substance % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cConsumableSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
 #------------------------------------------------------------
-def create_used_substance(substance=None, atc=None):
+def create_consumable_substance(substance=None, atc=None):
 
 	substance = substance.strip()
-
 	if atc is not None:
 		atc = atc.strip()
-
 	args = {'desc': substance, 'atc': atc}
 
-	cmd = u'select pk, atc_code, description from clin.consumed_substance where description = %(desc)s'
+	cmd = u'SELECT pk FROM ref.consumable_substance WHERE description = %(desc)s'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
-		cmd = u'insert into clin.consumed_substance (description, atc_code) values (%(desc)s, gm.nullify_empty_string(%(atc)s)) returning pk, atc_code, description'
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		cmd = u"""
+			INSERT INTO ref.consumable_substance (description, atc_code) VALUES (
+				%(desc)s,
+				gm.nullify_empty_string(%(atc)s)
+			) RETURNING pk"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
 
 	gmATC.propagate_atc(substance = substance, atc = atc)
 
-	row = rows[0]
-	# unfortunately not a real dict so no setting stuff by keyword
-	#row['atc_code'] = args['atc']
-	row[1] = args['atc']
-	return row
+	return cConsumableSubstance(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
-def delete_used_substance(substance=None):
+def delete_consumable_substance(substance=None):
 	args = {'pk': substance}
 	cmd = u"""
-delete from clin.consumed_substance
-where
-	pk = %(pk)s and not exists (
-		select 1 from clin.substance_intake
-		where fk_substance = %(pk)s
+DELETE FROM ref.consumable_substance
+WHERE
+	pk = %(pk)s
+		AND
+
+	-- must not currently be used with a patient
+	NOT EXISTS (
+		SELECT 1
+		FROM clin.v_pat_substance_intake
+		WHERE pk_substance = %(pk)s
+		LIMIT 1
+	)
+		AND
+
+	-- must not currently be used with a branded drug
+	NOT EXISTS (
+		SELECT 1
+		FROM ref.lnk_substance2brand
+		WHERE fk_substance = %(pk)s
+		LIMIT 1
 	)"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
 #============================================================
 class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by a patient."""
 
-	_cmd_fetch_payload = u"select * from clin.v_pat_substance_intake where pk_substance_intake = %s"
+	_cmd_fetch_payload = u"SELECT * FROM clin.v_pat_substance_intake WHERE pk_substance_intake = %s"
 	_cmds_store_payload = [
-		u"""update clin.substance_intake set
+		u"""UPDATE clin.substance_intake SET
 				clin_when = %(started)s,
 				discontinued = %(discontinued)s,
 				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
-				strength = gm.nullify_empty_string(%(strength)s),
+				amount = %(amount)s,
+				unit = %(unit)s,
 				preparation = %(preparation)s,
 				schedule = gm.nullify_empty_string(%(schedule)s),
 				aim = gm.nullify_empty_string(%(aim)s),
@@ -890,13 +962,14 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 					end
 				)::interval,
 
-				fk_brand = %(pk_brand)s,
+				fk_drug_component = %(pk_drug_component)s,
 				fk_substance = %(pk_substance)s,
 				fk_episode = %(pk_episode)s
-			where
-				pk = %(pk_substance_intake)s and
+			WHERE
+				pk = %(pk_substance_intake)s
+					AND
 				xmin = %(xmin_substance_intake)s
-			returning
+			RETURNING
 				xmin as xmin_substance_intake
 		"""
 	]
@@ -905,14 +978,15 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'discontinued',
 		u'discontinue_reason',
 		u'preparation',
-		u'strength',
+		u'amount',
+		u'unit',
 		u'intake_is_approved_of',
 		u'schedule',
 		u'duration',
 		u'aim',
 		u'is_long_term',
 		u'notes',
-		u'pk_brand',
+		u'pk_drug_component',
 		u'pk_substance',
 		u'pk_episode'
 	]
@@ -932,13 +1006,14 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				accuracy_wanted = gmDateTime.acc_days
 			)
 
-		line = u'%s%s (%s %s): %s %s %s (%s)' % (
+		line = u'%s%s (%s %s): %s %s%s %s (%s)' % (
 			u' ' * left_margin,
 			self._payload[self._idx['started']].strftime(date_format),
 			gmTools.u_right_arrow,
 			duration,
 			self._payload[self._idx['substance']],
-			gmTools.coalesce(self._payload[self._idx['strength']], u''),
+			self._payload[self._idx['amount']],
+			self._payload[self._idx['unit']],
 			self._payload[self._idx['preparation']],
 			gmTools.bool2subst(self._payload[self._idx['is_currently_active']], _('ongoing'), _('inactive'), _('?ongoing'))
 		)
@@ -1036,31 +1111,47 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
-def create_substance_intake(substance=None, atc=None, encounter=None, episode=None, preparation=None):
+def create_substance_intake(substance=None, drug_component=None, atc=None, encounter=None, episode=None, preparation=None):
 
 	args = {
 		'enc': encounter,
 		'epi': episode,
 		'prep': preparation,
-		'subst': create_used_substance(substance = substance, atc = atc)['pk']
+		'comp': drug_component,
+		'subst': create_consumable_substance(substance = substance, atc = atc)['pk']
 	}
 
-	cmd = u"""
-insert into clin.substance_intake (
-	fk_encounter,
-	fk_episode,
-	fk_substance,
-	preparation,
-	intake_is_approved_of
-) values (
-	%(enc)s,
-	%(epi)s,
-	%(subst)s,
-	gm.nullify_empty_string(%(prep)s),
-	False
-)
-returning pk
-"""
+	if drug_component is None:
+		cmd = u"""
+		INSERT INTO clin.substance_intake (
+			fk_encounter,
+			fk_episode,
+			fk_substance,
+			preparation,
+			intake_is_approved_of
+		) VALUES (
+			%(enc)s,
+			%(epi)s,
+			%(subst)s,
+			gm.nullify_empty_string(%(prep)s),
+			False
+		)
+		RETURNING pk"""
+	else:
+		cmd = u"""
+		INSERT INTO clin.substance_intake (
+			fk_encounter,
+			fk_episode,
+			fk_drug_component,
+			intake_is_approved_of
+		) VALUES (
+			%(enc)s,
+			%(epi)s,
+			%(comp)s,
+			False
+		)
+		RETURNING pk"""
+
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
 #------------------------------------------------------------
@@ -1092,9 +1183,10 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	lines = []
 	for med in current_meds:
 
-		lines.append(u'%s & %s & %s %s & {\\scriptsize %s} \\\\ \n \\hline \n' % (
+		lines.append(u'%s & %s%s & %s %s & {\\scriptsize %s} \\\\ \n \\hline \n' % (
 			med['substance'],
-			gmTools.coalesce(med['strength'], u''),
+			med['amount'],
+			med['unit'],
 			gmTools.coalesce(med['brand'], u''),
 			med['preparation'],
 			gmTools.coalesce(med['notes'], u'')
@@ -1134,8 +1226,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'aims': [], 'strengths': []}
 
 		line_data[identifier]['brand'] = identifier
-		if med['strength'] is not None:
-			line_data[identifier]['strengths'].append(med['strength'].strip())
+		line_data[identifier]['strengths'].append(u'%s%s' % (med['amount'].strip(), med['unit'].strip()))
 		line_data[identifier]['preparation'] = med['preparation']
 		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
 		if med['aim'] not in line_data[identifier]['aims']:
@@ -1181,12 +1272,57 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 
 	return tex % u' \n'.join(lines)
 #============================================================
+_SQL_get_drug_components = u'SELECT * FROM ref.v_drug_components WHERE %s'
+
+class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_get_drug_components % u'pk_component = %s'
+	_cmds_store_payload = [
+		u"""UPDATE ref.lnk_substance2brand SET
+				fk_brand = %(pk_brand)s,
+				fk_substance = %(pk_consumable_substance)s,
+				amount = %(amount)s,
+				unit = gm.nullify_empty_string(%(unit)s)
+			WHERE
+				NOT EXISTS (
+					SELECT 1
+					FROM clin.substance_intake
+					WHERE fk_drug_component = %(pk_component)s
+					LIMIT 1
+				)
+					AND
+				pk = %(pk_component)s
+					AND
+				xmin = %(xmin_lnk_substance2brand)s
+			RETURNING
+				xmin AS xmin_lnk_substance2brand
+		"""
+	]
+	_updatable_fields = [
+		u'pk_brand',
+		u'pk_consumable_substance',
+		u'amount',
+		u'unit'
+	]
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_containing_drug(self):
+		return cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
+
+	containing_drug = property(_get_containing_drug, lambda x:x)
+#------------------------------------------------------------
+def get_drug_components():
+	cmd = _SQL_get_drug_components % u'true ORDER BY brand, substance'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
+#============================================================
 class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a drug as marketed by a manufacturer."""
 
-	_cmd_fetch_payload = u"select *, xmin from ref.branded_drug where pk = %s"
+	_cmd_fetch_payload = u"SELECT * FROM ref.v_branded_drugs WHERE pk_brand = %s"
 	_cmds_store_payload = [
-		u"""update ref.branded_drug set
+		u"""UPDATE ref.branded_drug SET
 				description = %(description)s,
 				preparation = %(preparation)s,
 				atc_code = gm.nullify_empty_string(%(atc_code)s),
@@ -1194,11 +1330,12 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 				external_code_type = gm.nullify_empty_string(%(external_code_type)s),
 				is_fake = %(is_fake)s,
 				fk_data_source = %(fk_data_source)s
-			where
-				pk = %(pk)s and
-				xmin = %(xmin)s
-			returning
-				xmin
+			WHERE
+				pk = %(pk_brand)s
+					AND
+				xmin = %(xmin_branded_drug)s
+			RETURNING
+				xmin AS xmin_branded_drug
 		"""
 	]
 	_updatable_fields = [
@@ -1210,6 +1347,71 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		u'external_code_type',
 		u'fk_data_source'
 	]
+	#--------------------------------------------------------
+	def add_component(self, substance=None, atc=None, amount=None, unit=None):
+
+		consumable = create_consumable_substance(substance = substance, atc = atc)['pk']
+
+		args = {
+			'brand': self.pk_obj,
+			'subst': consumable['description'],
+			'atc': consumable['atc_code'],
+			'pk_subst': consumable['pk'],
+			'amount': amount,
+			'unit': unit
+		}
+
+		# already exists ?
+		cmd = u"""
+			SELECT pk
+			FROM ref.v_drug_components
+			WHERE
+				pk_brand = %(brand)s
+					AND
+				((
+					(substance = %(subst)s)
+						OR
+					(atc_substance = %(atc)s)
+						OR
+					(pk_consumable_substance = %(pk_subst)s)
+				) IS TRUE)
+		"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+		if len(rows) > 0:
+			return
+
+		# create it
+		cmd = u"""
+			INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance, amount, unit)
+			VALUES (%(brand)s, %(pk_subst)s, %(amount)s, %(unit)s)
+		"""
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#------------------------------------------------------------
+	def remove_component(self, substance=None):
+		if len(self._payload[self._idx['components']]) == 1:
+			_log.error('cannot remove the only component of a drug')
+			return False
+
+		args = {'brand': self.pk_obj, 'comp': substance}
+		cmd = u"""
+			DELETE FROM ref.lnk_substance2brand
+			WHERE
+				fk_brand = %(brand)s
+					AND
+				fk_substance = %(comp)s
+					AND
+				NOT EXISTS (
+					SELECT 1
+					FROM clin.substance_intake
+					WHERE fk_drug_component = %(comp)s
+					LIMIT 1
+				)
+		"""
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	# properties
 	#--------------------------------------------------------
 	def _get_external_code(self):
 		if self._payload[self._idx['external_code']] is None:
@@ -1230,8 +1432,8 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	external_code_type = property(_get_external_code_type, lambda x:x)
 	#--------------------------------------------------------
 	def _get_components(self):
-		cmd = u'select * from ref.substance_in_brand where fk_brand = %(brand)s'
-		args = {'brand': self._payload[self._idx['pk']]}
+		cmd = u'SELECT * FROM ref.v_drug_components WHERE pk_brand = %(brand)s'
+		args = {'brand': self._payload[self._idx['pk_brand']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 
@@ -1239,56 +1441,15 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_is_vaccine(self):
 		cmd = u'SELECT EXISTS (SELECT 1 FROM clin.vaccine WHERE fk_brand = %(fk_brand)s)'
-		args = {'fk_brand': self._payload[self._idx['pk']]}
+		args = {'fk_brand': self._payload[self._idx['pk_brand']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
 	is_vaccine = property(_get_is_vaccine, lambda x:x)
-	#--------------------------------------------------------
-	def add_component(self, substance=None, atc=None):
-
-		# normalize atc
-		atc = gmATC.propagate_atc(substance = substance, atc = atc)
-
-		args = {
-			'brand': self.pk_obj,
-			'desc': substance,
-			'atc': atc
-		}
-
-		# already exists ?
-		cmd = u"""
-			SELECT pk
-			FROM ref.substance_in_brand
-			WHERE
-				fk_brand = %(brand)s
-					AND
-				((description = %(desc)s) OR ((atc_code = %(atc)s) IS TRUE))
-			"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		if len(rows) > 0:
-			return
-
-		# create it
-		cmd = u"""
-			INSERT INTO ref.substance_in_brand (fk_brand, description, atc_code)
-			VALUES (%(brand)s, %(desc)s, %(atc)s)
-		"""
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	#------------------------------------------------------------
-	def remove_component(substance=None):
-		delete_component_from_branded_drug(brand = self.pk_obj, component = substance)
-#------------------------------------------------------------
-def get_substances_in_brands():
-	cmd = u'SELECT * FROM ref.v_substance_in_brand ORDER BY brand, substance'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
-	return rows
 #------------------------------------------------------------
 def get_branded_drugs():
-
 	cmd = u'SELECT pk FROM ref.branded_drug ORDER BY description'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
-
 	return [ cBrandedDrug(aPK_obj = r['pk']) for r in rows ]
 #------------------------------------------------------------
 def get_drug_by_brand(brand_name=None, preparation=None):
@@ -1310,26 +1471,31 @@ def create_branded_drug(brand_name=None, preparation=None, return_existing=False
 	if preparation.strip() == u'':
 		preparation = _('units')
 
-	drug = get_drug_by_brand(brand_name = brand_name, preparation = preparation)
-
-	if drug is not None:
-		if return_existing:
+	if return_existing:
+		drug = get_drug_by_brand(brand_name = brand_name, preparation = preparation)
+		if drug is not None:
 			return drug
-		return None
 
-	cmd = u'insert into ref.branded_drug (description, preparation) values (%(brand)s, %(prep)s) returning pk'
+	cmd = u'INSERT INTO ref.branded_drug (description, preparation) VALUES (%(brand)s, %(prep)s) RETURNING pk'
 	args = {'brand': brand_name, 'prep': preparation}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	return cBrandedDrug(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
 def delete_branded_drug(brand=None):
-	cmd = u'delete from ref.branded_drug where pk = %(pk)s'
+	cmd = u"""
+		DELETE FROM ref.branded_drug
+		WHERE
+			pk = %(pk)s
+				AND
+			NOT EXISTS (
+				SELECT 1
+				FROM clin.v_pat_substance_intake
+				WHERE pk_brand = %(pk)s
+				LIMIT 1
+			)
+	"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': brand}}])
-#------------------------------------------------------------
-def delete_component_from_branded_drug(brand=None, component=None):
-	cmd = u'delete from ref.substance_in_brand where fk_brand = %(brand)s and pk = %(comp)s'
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'brand': brand, 'comp': component}}])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1423,6 +1589,10 @@ if __name__ == "__main__":
 		print drug
 		print drug.components
 	#--------------------------------------------------------
+	def test_get_consumable_substances():
+		for s in get_consumable_substances():
+			print s
+	#--------------------------------------------------------
 	# MMI/Gelbe Liste
 	#test_MMI_interface()
 	#test_MMI_file()
@@ -1438,4 +1608,5 @@ if __name__ == "__main__":
 	#test_interaction_check()
 	#test_create_substance_intake()
 	#test_show_components()
+	test_get_consumable_substances()
 #============================================================

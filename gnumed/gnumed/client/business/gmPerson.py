@@ -173,10 +173,10 @@ ORDER BY lastnames, firstnames, dob""" % (
 			return
 		name = name.strip()
 		if name == u'':
-			raise ArgumentError(_('<name> cannot be empty'))
+			raise ValueError(_('<name> cannot be empty'))
 		issuer = issuer.strip()
 		if issuer == u'':
-			raise ArgumentError(_('<issuer> cannot be empty'))
+			raise ValueError(_('<issuer> cannot be empty'))
 		self.external_ids.append({'name': name, 'value': value, 'issuer': issuer, 'comment': comment})
 	#--------------------------------------------------------
 	def remember_comm_channel(self, channel=None, url=None):
@@ -185,25 +185,25 @@ ORDER BY lastnames, firstnames, dob""" % (
 			return
 		channel = channel.strip()
 		if channel == u'':
-			raise ArgumentError(_('<channel> cannot be empty'))
+			raise ValueError(_('<channel> cannot be empty'))
 		self.comm_channels.append({'channel': channel, 'url': url})
 	#--------------------------------------------------------
 	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None):
 		number = number.strip()
 		if number == u'':
-			raise ArgumentError(_('<number> cannot be empty'))
+			raise ValueError(_('<number> cannot be empty'))
 		street = street.strip()
 		if street == u'':
-			raise ArgumentError(_('<street> cannot be empty'))
+			raise ValueError(_('<street> cannot be empty'))
 		urb = urb.strip()
 		if urb == u'':
-			raise ArgumentError(_('<urb> cannot be empty'))
+			raise ValueError(_('<urb> cannot be empty'))
 		zip = zip.strip()
 		if zip == u'':
-			raise ArgumentError(_('<zip> cannot be empty'))
+			raise ValueError(_('<zip> cannot be empty'))
 		country = country.strip()
 		if country == u'':
-			raise ArgumentError(_('<country> cannot be empty'))
+			raise ValueError(_('<country> cannot be empty'))
 		region = region.strip()
 		if region == u'':
 			region = u'??'

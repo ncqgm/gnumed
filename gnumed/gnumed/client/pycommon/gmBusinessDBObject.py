@@ -428,6 +428,13 @@ class cBusinessDBObject(object):
 			get_col_idx = True
 		)
 
+		# this can happen if:
+		# - someone else updated the row so XMIN does not match anymore
+		# - the PK went away (rows was deleted from under us)
+		# - another WHERE condition of the UPDATE did not produce any rows to update
+		if len(rows) == 0:
+			return (False, (u'cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj)))
+
 		# update cached XMIN values (should be in first-and-only result row of last query)
 		row = rows[0]
 		for key in idx:

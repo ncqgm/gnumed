@@ -2101,7 +2101,7 @@ LIMIT 50"""
 			**kwargs
 		)
 		self.matcher = mp
-		self.SetToolTipString(_('Select the unit of the test result.'))
+		self.SetToolTipString(_('Select the desired unit for the amount or measurement.'))
 		self.selection_only = False
 		self.phrase_separators = u'[;|]+'
 #================================================================

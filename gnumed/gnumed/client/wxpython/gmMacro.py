@@ -880,7 +880,7 @@ if __name__ == '__main__':
 
 			'\\noindent Patient: $<lastname>$, $<firstname>$',
 			'$<allergies::%(descriptor)s & %(l10n_type)s & {\\footnotesize %(reaction)s} \tabularnewline \hline >$',
-			'$<current_meds::		\item[%(substance)s] {\\footnotesize (%(brand)s)} %(preparation)s %(strength)s: %(schedule)s >$'
+			'$<current_meds::		\item[%(substance)s] {\\footnotesize (%(brand)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s >$'
 		]
 
 		tests = [
