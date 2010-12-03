@@ -207,7 +207,7 @@ def wx_now_here(wx=None):
 #---------------------------------------------------------------------------
 def wxDate2py_dt(wxDate=None):
 	if not wxDate.IsValid():
-		raise ArgumentError (u'invalid wxDate: %s-%s-%s %s:%s %s.%s',
+		raise ValueError (u'invalid wxDate: %s-%s-%s %s:%s %s.%s',
 			wxDate.GetYear(),
 			wxDate.GetMonth(),
 			wxDate.GetDay(),

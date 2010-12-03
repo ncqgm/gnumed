@@ -6,7 +6,6 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-
 set check_function_bodies to 1;
 --set default_transaction_read_only to off;
 
@@ -29,8 +28,7 @@ select
 	r_bd.preparation,
 	r_cs.description
 		as substance,
-	r_ls2b.amount::text
-		as strength,
+	r_ls2b.amount,
 	r_ls2b.unit
 		as unit,
 
@@ -126,8 +124,8 @@ select
 	c_si.preparation,
 	r_cs.description
 		as substance,
-	c_si.strength,
-	null
+	c_si.amount,
+	c_si.unit
 		as unit,
 	r_cs.atc_code
 		as atc_substance,

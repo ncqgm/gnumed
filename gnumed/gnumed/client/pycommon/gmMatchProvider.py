@@ -272,7 +272,7 @@ class cMatchProvider_Func(cMatchProvider):
 		"""get_candidates() must return a list of strings."""
 		if get_candidates is None:
 			_log.error('must define function to retrieve match candidates list')
-			raise ArgumentError('must define function to retrieve match candidates list')
+			raise ValueError('must define function to retrieve match candidates list')
 
 		self._get_candidates = get_candidates
 		cMatchProvider.__init__(self)

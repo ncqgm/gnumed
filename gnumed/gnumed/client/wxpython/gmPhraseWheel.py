@@ -410,7 +410,7 @@ class cPhraseWheel(wx.TextCtrl):
 		elif valid is False:
 			self.SetBackgroundColour(color_prw_invalid)
 		else:
-			raise ArgumentError(u'<valid> must be True or False')
+			raise ValueError(u'<valid> must be True or False')
 		self.Refresh()
 	#--------------------------------------------------------
 	# internal API

@@ -373,7 +373,7 @@ class gmPaths(gmBorg.cBorg):
 	system_app_data_dir = property(_get_system_app_data_dir, _set_system_app_data_dir)
 	#--------------------------------------
 	def _set_home_dir(self, path):
-		raise ArgumentError('invalid to set home dir')
+		raise ValueError('invalid to set home dir')
 
 	def _get_home_dir(self):
 		if self.__home_dir is not None:

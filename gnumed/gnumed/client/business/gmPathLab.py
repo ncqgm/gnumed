@@ -172,7 +172,7 @@ def get_measurement_types(order_by=None):
 def find_measurement_type(lab=None, abbrev=None, name=None):
 
 		if (abbrev is None) and (name is None):
-			raise ArgumentError('must have <abbrev> and/or <name> set')
+			raise ValueError('must have <abbrev> and/or <name> set')
 
 		where_snippets = []
 

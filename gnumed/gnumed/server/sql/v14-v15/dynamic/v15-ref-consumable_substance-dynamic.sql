@@ -6,6 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
+set check_function_bodies to 'on';
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
@@ -97,15 +98,72 @@ where
 ;
 
 -- --------------------------------------------------------------
+-- MUST protect from changing if in use directly or indirectly
+\unset ON_ERROR_STOP
+drop function ref.trf_do_not_update_substance_if_taken_by_patient() cascade;
+\set ON_ERROR_STOP 1
+
+create or replace function ref.trf_do_not_update_substance_if_taken_by_patient()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_msg text;
+BEGIN
+	if OLD.description = NEW.description then
+		return NEW;
+	end if;
+
+	_msg := ''[ref.trf_do_not_update_substance_if_taken_by_patient]: as long as substance <%> is taken by a patient you cannot modify it'', OLD.description;
+
+	perform 1 from clin.substance_intake c_si
+	where c_si.fk_substance = OLD.pk
+	limit 1;
+
+	if FOUND then
+		raise exception ''%'', _msg;
+	end if;
+
+	perform 1
+	from clin.substance_intake c_si
+	where c_si.fk_drug_component = (
+		select r_ls2b.pk
+		from ref.lnk_substance2brand r_ls2b
+		where r_ls2b.fk_substance = OLD.pk
+	)
+	limit 1;
+
+	if FOUND then
+		raise exception ''%'', _msg;
+	end if;
+
+	return NEW;
+END;';
+
+comment on function ref.trf_do_not_update_substance_if_taken_by_patient() is
+'If this substance is taken by any patient do not modify it (description).';
+
+create trigger tr_do_not_update_substance_if_taken_by_patient
+	before update
+	on ref.consumable_substance
+	for each row execute procedure ref.trf_do_not_update_substance_if_taken_by_patient()
+;
+
+-- --------------------------------------------------------------
 -- sample data
 \unset ON_ERROR_STOP
 insert into ref.consumable_substance (
 	description,
 	atc_code
-) values (
-	'Ibuprofen',
-	'M01AE01'
-);
+) values
+	('Ibuprofen', 'M01AE01'),
+	('tobacco', 'N07BA01'),
+	('nicotine', 'N07BA01'),
+	('alcohol', 'V03AB16'),
+	('Tabak', 'N07BA01'),
+	('Nikotin', 'N07BA01'),
+	('Alkohol', 'V03AB16')
+;
 \set ON_ERROR_STOP 1
 
 

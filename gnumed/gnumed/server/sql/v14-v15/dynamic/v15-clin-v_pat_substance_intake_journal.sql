@@ -135,7 +135,7 @@ select
 
 		|| ' ' || r_cs.description								-- Metoprolol
 		|| coalesce(' [' || r_cs.atc_code || '] ', ' ')			-- [ATC]
-		|| c_si.strength || ' '									-- 100mg
+		|| c_si.amount || c_si.unit || ' '						-- 100mg
 		|| c_si.preparation										-- tab
 		|| coalesce(' ' || c_si.schedule, '')					-- 1-0-0
 		|| ', ' || to_char(c_si.clin_when, 'YYYY-MM-DD')		-- 2009-03-01

@@ -16,6 +16,7 @@ comment on column clin.substance_intake.fk_drug_component is
 
 \unset ON_ERROR_STOP
 alter table clin.substance_intake drop constraint substance_intake_fk_drug_component_fkey cascade;
+drop function audit.ft_upd_substance_intake() cascade;
 \set ON_ERROR_STOP 1
 
 alter table clin.substance_intake
@@ -39,6 +40,59 @@ update clin.substance_intake set
 where
 	fk_brand is not null
 ;
+-- --------------------------------------------------------------
+-- .amount
+comment on column clin.substance_intake.amount is
+	'The amount of substance the patient is taking.';
+
+
+-- unset amount if pointing to a drug
+update clin.substance_intake set
+	amount = null
+where
+	--fk_brand is not null
+	fk_drug_component is not null
+;
+
+
+\unset ON_ERROR_STOP
+alter table clin.substance_intake drop constraint clin_intake_sane_amount cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.substance_intake
+	add constraint clin_intake_sane_amount
+		check (
+			((fk_drug_component is null) and (amount > 0))
+				or
+			((fk_drug_component is not null) and (amount is null))
+		);
+
+-- --------------------------------------------------------------
+-- .unit
+comment on column clin.substance_intake.unit is
+	'The unit of the amount of substance the patient is taking.';
+
+
+-- if pointing to a drug: unset unit
+update clin.substance_intake set
+	unit = null
+where
+--	fk_brand is not null
+	fk_drug_component is not null
+;
+
+
+\unset ON_ERROR_STOP
+alter table clin.substance_intake drop constraint clin_intake_sane_unit cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.substance_intake
+	add constraint clin_intake_sane_unit
+		check (
+			((fk_drug_component is null) and (gm.is_null_or_blank_string(unit) is False))
+				or
+			((fk_drug_component is not null) and (unit is null))
+		);
 
 -- --------------------------------------------------------------
 -- INSERT
@@ -285,7 +339,7 @@ create constraint trigger tr_delete_intake_must_unlink_all_drug_components
 comment on column clin.substance_intake.fk_substance is
 'Links to a substance the patient is taking.
 
-*********************************************
+********************************************* 
 DO NOT TRY TO USE THIS TO FIND OUT THE BRAND.
 
 IT WILL BE WRONG.
@@ -362,27 +416,6 @@ alter table clin.substance_intake
 		);
 
 -- --------------------------------------------------------------
--- .strength
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint clin_subst_intake_sane_strength cascade;
-alter table clin.substance_intake drop constraint sane_strength cascade;
-\set ON_ERROR_STOP 1
-
-update clin.substance_intake set
-	strength = null
-where
-	fk_drug_component is not null
-;
-
-alter table clin.substance_intake
-	add constraint clin_subst_intake_sane_strength
-		check (
-			((fk_drug_component is null) and (strength is not null))
-				or
-			((fk_drug_component is not null) and (strength is null))
-		);
-
--- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 alter table clin.substance_intake drop column fk_brand cascade;
 drop table clin.consumed_substance cascade;
@@ -393,6 +426,13 @@ where
 	aat.schema = 'clin'
 		and
 	aat.table_name = 'consumed_substance'
+;
+
+delete from gm.notifying_tables gnt
+where
+	gnt.schema_name = 'clin'
+		and
+	gnt.table_name = 'consumed_substance'
 ;
 
 -- --------------------------------------------------------------

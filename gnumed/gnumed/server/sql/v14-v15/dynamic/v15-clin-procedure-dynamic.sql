@@ -31,7 +31,7 @@ comment on column clin.procedure.clin_end is
 
 
 \unset ON_ERROR_STOP
-drop constraint procedure_sane_end cascade;
+alter table clin.procedure drop constraint procedure_sane_end cascade;
 \set ON_ERROR_STOP 1
 
 
