@@ -768,7 +768,11 @@ drug_data_source_interfaces = {
 #============================================================
 # substances in use across all patients
 #------------------------------------------------------------
-_SQL_get_consumable_substance = u"SELECT *, xmin FROM ref.consumable_substance WHERE %s"
+_SQL_get_consumable_substance = u"""
+	SELECT *, xmin
+	FROM ref.consumable_substance
+	WHERE %s
+"""
 
 class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 
@@ -1235,7 +1239,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""UPDATE ref.lnk_substance2brand SET
 				fk_brand = %(pk_brand)s,
-				fk_substance = %(pk_substance)s,
+				fk_substance = %(pk_consumable_substance)s,
 				amount = %(amount)s,
 				unit = gm.nullify_empty_string(%(unit)s)
 			WHERE
@@ -1255,7 +1259,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		u'pk_brand',
-		u'pk_substance',
+		u'pk_consumable_substance',
 		u'amount',
 		u'unit'
 	]

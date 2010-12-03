@@ -38,6 +38,11 @@ select
 		as external_code_type_brand,
 	r_bd.is_fake
 		as is_fake_brand,
+	exists (
+		select 1 from clin.substance_intake c_si
+		where c_si.fk_drug_component = r_ls2b.pk
+		limit 1
+	)	as is_in_use,
 	r_ls2b.fk_brand
 		as pk_brand,
 	r_cs.pk

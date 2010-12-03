@@ -4,7 +4,7 @@
 __version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import logging, sys, os.path, webbrowser
+import logging, sys, os.path, webbrowser, decimal
 
 
 import wx, wx.grid
@@ -305,6 +305,9 @@ def manage_drug_components(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	#------------------------------------------------------------
+	def edit(component=None):
+		return edit_drug_component(parent = parent, drug_component = component, single_entry = (component is not None))
+	#------------------------------------------------------------
 	def delete(component):
 		return component.containing_drug.remove_component(substance = component['pk_component'])
 	#------------------------------------------------------------
@@ -329,11 +332,143 @@ def manage_drug_components(parent=None):
 		caption = _('Showing drug brand components.'),
 		columns = [_('Brand'), _('Substance'), _('Strength'), _('Preparation'), _('Code'), u'#'],
 		single_selection = True,
-		#new_callback = new,
-		#edit_callback = edit,
+		#new_callback = edit,
+		edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh
 	)
+#------------------------------------------------------------
+def edit_drug_component(parent=None, drug_component=None, single_entry=False):
+	ea = cDrugComponentEAPnl(parent = parent, id = -1)
+	ea.data = drug_component
+	ea.mode = gmTools.coalesce(drug_component, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(drug_component, _('Adding new drug component'), _('Editing drug component')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+#------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgDrugComponentEAPnl
+
+class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['component']
+			del kwargs['component']
+		except KeyError:
+			data = None
+
+		wxgDrugComponentEAPnl.wxgDrugComponentEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		if self.data is not None:
+			if self.data['is_in_use']:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug component. It is in use.'), beep = True)
+				return False
+
+		validity = True
+
+		if self._PRW_substance.GetData() is None:
+			validity = False
+			self._PRW_substance.display_as_valid(False)
+		else:
+			self._PRW_substance.display_as_valid(True)
+
+		val = self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1)
+		try:
+			decimal.Decimal(val)
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
+		except:
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
+
+		if self._PRW_unit.GetValue().strip() == u'':
+			validity = False
+			self._PRW_unit.display_as_valid(False)
+		else:
+			self._PRW_unit.display_as_valid(True)
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save drug component. Invalid or missing essential input.'))
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = 1
+		data[''] = 1
+		data[''] = 1
+#		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+#		self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['pk_consumable_substance'] = self._PRW_substance.GetData(can_create = True)
+		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1))
+		self.data['unit'] = self._PRW_unit.GetValue().strip()
+		return self.data.save()
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_brand.SetValue(u'')
+		self._TCTRL_components.SetValue(u'')
+		self._TCTRL_codes.SetValue(u'')
+		self._PRW_substance.SetText(u'', None)
+		self._TCTRL_amount.SetValue(u'')
+		self._PRW_unit.SetText(u'', None)
+
+		self._PRW_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_brand.SetValue(u'%s (%s)' % (self.data['brand'], self.data['preparation']))
+		self._TCTRL_components.SetValue(u' / '.join(self.data.containing_drug['components']))
+		details = []
+		if self.data['atc_brand'] is not None:
+			details.append(u'ATC: %s' % self.data['atc_brand'])
+		if self.data['external_code_brand'] is not None:
+			details.append(u'%s: %s' % (self.data['external_code_type_brand'], self.data['external_code_brand']))
+		self._TCTRL_codes.SetValue(u'; '.join(details))
+
+		self._PRW_substance.SetText(self.data['substance'], self.data['pk_consumable_substance'])
+		self._TCTRL_amount.SetValue(u'%s' % self.data['amount'])
+		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
+
+		self._PRW_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		#self._PRW_brand.SetText(u'', None)
+		#self._TCTRL_prep.SetValue(u'')
+		#self._TCTRL_brand_details.SetValue(u'')
+		self._PRW_substance.SetText(u'', None)
+		self._TCTRL_amount.SetValue(u'')
+		self._PRW_unit.SetText(u'', None)
+
+		self._PRW_substance.SetFocus()
+#============================================================
+# branded drugs API
 #============================================================
 def manage_branded_drugs(parent=None):
 
@@ -583,7 +718,7 @@ limit 30"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The preparation (form) of the substance the patient is taking.'))
+		self.SetToolTipString(_('The preparation (form) of the substance or brand.'))
 		self.matcher = mp
 		self.selection_only = False
 #============================================================
@@ -597,17 +732,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		pk::text,
 		description as subst
 		--(description || coalesce(' [' || atc_code || ']', '')) as subst
-	FROM clin.consumed_substance
-	WHERE description %(fragment_condition)s
-
-) UNION (
-
-	SELECT
-		description,
-		description as subst
-		--NULL,
-		--(description || coalesce(' [' || atc_code || ']', '')) as subst
-	FROM ref.substance_in_brand
+	FROM ref.consumable_substance
 	WHERE description %(fragment_condition)s
 
 ) UNION (
@@ -629,7 +754,7 @@ LIMIT 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The INN / substance the patient is taking.'))
+		self.SetToolTipString(_('The INN / substance in question.'))
 		self.matcher = mp
 		self.selection_only = False
 	#---------------------------------------------------------
@@ -660,7 +785,7 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The brand name of the drug the patient is taking.'))
+		self.SetToolTipString(_('The brand name of the drug.'))
 		self.matcher = mp
 		self.selection_only = False
 
