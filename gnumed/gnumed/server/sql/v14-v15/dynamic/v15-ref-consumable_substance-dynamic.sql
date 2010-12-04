@@ -54,7 +54,10 @@ alter table ref.consumable_substance
 
 -- grants
 grant select, insert, update, delete on
-	ref.consumable_substance,
+	ref.consumable_substance
+to group "gm-doctors";
+
+grant select, select, update on
 	ref.consumable_substance_pk_seq
 to group "gm-doctors";
 

@@ -253,6 +253,9 @@ class cDrugDataSourceInterface(object):
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
 		raise NotImplementedError
+	#--------------------------------------------------------
+	def show_info_on_substance(self, substance=None):
+		raise NotImplementedError
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
@@ -295,8 +298,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			universal_newlines = True
 		)
 		data, errors = freediams.communicate()
-		ver = regex.search('FreeDiams\s\d.\d.\d', data).group().split()[1]
-		_log.debug('FreeDiams %s', ver)
+		version = regex.search('FreeDiams\s\d.\d.\d', data).group().split()[1]
+		_log.debug('FreeDiams %s', version)
 
 		return version
 	#--------------------------------------------------------
@@ -340,15 +343,20 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			CIP if you want to specify the packaging of the drug (30 pills
 			thermoformed tablet...) -- actually not really usefull for french
 			doctors.
+			# .external_code_type: u'FR-CIS'
+			# .external_cod: the CIS value
 		"""
-		self.switch_to_frontend()
-		# .external_code_type: u'FR-CIS'
-		# .external_cod: the CIS value
+		self.switch_to_frontend(blocking = True)
+		self.import_fd2gm_file()
 	#--------------------------------------------------------
 	def check_drug_interactions(self, drug_ids_list=None, substances=None):
 		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
+		# pass in CIS
+		self.switch_to_frontend()
+	#--------------------------------------------------------
+	def show_info_on_substance(self, substance=None):
 		# pass in CIS
 		self.switch_to_frontend()
 	#--------------------------------------------------------
@@ -412,7 +420,34 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	def __create_gm2fd_file(self):
 
 		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
+
+		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Eric says the order of same-level nodes does not matter. -->
+
+<FreeDiams_In version="0.5.0">
+	<EMR name="GNUmed" uid="unused"/>
+	<ConfigFile value="%s"/>
+	<ExchangeOut value="%s" format="xml"/>				<!-- should perhaps better be html_xml ? -->
+	<!-- <DrugsDatabase uid="can be set to a specific DB"/> -->
+	<Ui editmode="select-only" blockPatientDatas="1"/>
+	%%s
+</FreeDiams_In>
+
+<!--
+		# FIXME: search by LOINC code and add (as soon as supported by FreeDiams ...)
+		<Creatinine value="12" unit="mg/l or mmol/l"/>
+		<Weight value="70" unit="kg or pd" />
+		<Height value="170" unit="cm or "/>
+		<ICD10 value="J11.0;A22;Z23"/>
+-->
+"""		% (
+			self.__fd4gm_config_file,
+			self.__fd2gm_filename
+		)
+
 		if self.patient is None:
+			xml_file.write(xml % u'')
 			xml_file.close()
 			return
 
@@ -441,16 +476,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == u'sensitivity'))
 		]
 
-		# Eric says the order of same-level nodes does not matter.
-		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
-
-<FreeDiams_In version="0.5.0">
-	<EMR name="GNUmed" uid="unused"/>
-	<ConfigFile value="%s"/>
-	<ExchangeOut value="%s" format="xml"/>				<!-- should be html_xml -->
-	<!-- <DrugsDatabase uid="can be set to a specific DB"/> -->
-	<Ui editmode="select-only" blockPatientDatas="1"/>
-	<Patient>
+		patient_xml = u"""<Patient>
 		<Identity
 			  lastnames="%s"
 			  firstnames="%s"
@@ -467,18 +493,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		<DrugsUidAllergies value="%s"/>
 		<DrugsUidIntolerances value="%s"/>
 	</Patient>
-</FreeDiams_In>
-
-<!--
-		# FIXME: search by LOINC code and add (as soon as supported by FreeDiams ...)
-		<Creatinine value="12" unit="mg/l or mmol/l"/>
-		<Weight value="70" unit="kg or pd" />
-		<Height value="170" unit="cm or "/>
-		<ICD10 value="J11.0;A22;Z23"/>
--->
 """		% (
-			self.__fd4gm_config_file,
-			self.__fd2gm_filename,
 			name['lastnames'],
 			name['firstnames'],
 			self.patient.ID,
@@ -492,24 +507,55 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			u';'.join(uid_sens)
 		)
 
-		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
-		xml_file.write(xml)
+		xml_file.write(xml % patient_xml)
 		xml_file.close()
 	#--------------------------------------------------------
 	def import_fd2gm_file(self):
 
-#		fixed_xml = codecs.open(gmTools.get_unique_filename(suffix = '.xml', 'w', 'utf-8')
-#		for line in self.__fd2gm_filename:
-
-#		fd2gm = codecs.open(self.__fd2gm_filename, 'rU', 'utf-8')
-
 		from xml.etree import ElementTree as etree
-
 		fd2gm_xml = etree.ElementTree()
 		fd2gm_xml.parse(self.__fd2gm_filename)
 
-		print fd2gm_xml
+		data_src_pk = self.create_data_source_entry()
 
+		db_id = fd2gm_xml.find('DrugsDatabaseName').text.strip()
+		drugs = fd2gm_xml.findall('FullPrescription/Prescription')
+		for drug in drugs:
+			drug_name = drug.find('DrugName').text.replace(', )', ')').strip()
+			drug_uid = drug.find('Drug_UID').text.strip()
+			drug_form = drug.find('DrugForm').text.strip()
+			#drug_atc = drug.find('DrugATC').text.strip()			# asked Eric to include
+
+			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
+			# update fields
+			new_drug['is_fake_brand'] = False
+			#new_drug['atc'] = drug_atc
+			new_drug['external_code_type'] = u'FreeDiams::%s' % db_id
+			new_drug['external_code'] = drug_uid
+			new_drug['pk_data_source'] = data_src_pk
+			new_drug.save()
+
+			components = drug.getiterator('Composition')
+			for comp in components:
+
+				subst = comp.attrib['molecularName'].strip()
+				inn = comp.attrib['inn'].strip()
+				if inn != u'':
+					create_consumable_substance(substance = inn, atc = None)
+					if subst == u'':
+						subst = inn
+
+				amount = regex.match(r'\d+[.,]{0,1}\d*', comp.attrib['strenght'].strip())			# sic, typo
+				if amount is None:
+					amount = 99999
+				else:
+					amount = amount.group()
+
+				unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', comp.attrib['strenght'].strip()).strip()	# sic, typo
+				if unit == u'':
+					unit = u'*?*'
+
+				new_drug.add_component(substance = subst, atc = None, amount = amount, unit = unit)
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
@@ -720,6 +766,9 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		self.switch_to_frontend(blocking = False)
 	#--------------------------------------------------------
+	def show_info_on_drug(self, drug=None):
+		self.switch_to_frontend(blocking = True)
+	#--------------------------------------------------------
 	def show_info_on_substance(self, substance=None):
 
 		cmd = None
@@ -885,7 +934,7 @@ def create_consumable_substance(substance=None, atc=None):
 		atc = atc.strip()
 	args = {'desc': substance, 'atc': atc}
 
-	cmd = u'SELECT pk FROM ref.consumable_substance WHERE description = %(desc)s'
+	cmd = u'SELECT pk FROM ref.consumable_substance WHERE lower(description) = lower(%(desc)s)'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
@@ -1323,13 +1372,13 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM ref.v_branded_drugs WHERE pk_brand = %s"
 	_cmds_store_payload = [
 		u"""UPDATE ref.branded_drug SET
-				description = %(description)s,
+				description = %(brand)s,
 				preparation = %(preparation)s,
-				atc_code = gm.nullify_empty_string(%(atc_code)s),
+				atc_code = gm.nullify_empty_string(%(atc)s),
 				external_code = gm.nullify_empty_string(%(external_code)s),
 				external_code_type = gm.nullify_empty_string(%(external_code_type)s),
-				is_fake = %(is_fake)s,
-				fk_data_source = %(fk_data_source)s
+				is_fake = %(is_fake_brand)s,
+				fk_data_source = %(pk_data_source)s
 			WHERE
 				pk = %(pk_brand)s
 					AND
@@ -1339,18 +1388,18 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		u'description',
+		u'brand',
 		u'preparation',
-		u'atc_code',
-		u'is_fake',
+		u'atc',
+		u'is_fake_brand',
 		u'external_code',
 		u'external_code_type',
-		u'fk_data_source'
+		u'pk_data_source'
 	]
 	#--------------------------------------------------------
 	def add_component(self, substance=None, atc=None, amount=None, unit=None):
 
-		consumable = create_consumable_substance(substance = substance, atc = atc)['pk']
+		consumable = create_consumable_substance(substance = substance, atc = atc)
 
 		args = {
 			'brand': self.pk_obj,
@@ -1363,13 +1412,13 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 		# already exists ?
 		cmd = u"""
-			SELECT pk
+			SELECT pk_component
 			FROM ref.v_drug_components
 			WHERE
 				pk_brand = %(brand)s
 					AND
 				((
-					(substance = %(subst)s)
+					(lower(substance) = lower(%(subst)s))
 						OR
 					(atc_substance = %(atc)s)
 						OR
@@ -1455,7 +1504,7 @@ def get_branded_drugs():
 def get_drug_by_brand(brand_name=None, preparation=None):
 	args = {'brand': brand_name, 'prep': preparation}
 
-	cmd = u'SELECT pk FROM ref.branded_drug WHERE description = %(brand)s AND preparation = %(prep)s'
+	cmd = u'SELECT pk FROM ref.branded_drug WHERE lower(description) = lower(%(brand)s) AND lower(preparation) = lower(%(prep)s)'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	if len(rows) == 0:
@@ -1608,5 +1657,5 @@ if __name__ == "__main__":
 	#test_interaction_check()
 	#test_create_substance_intake()
 	#test_show_components()
-	test_get_consumable_substances()
+	#test_get_consumable_substances()
 #============================================================

@@ -21,6 +21,11 @@ comment on table ref.lnk_substance2brand is
 grant select, insert, update, delete on
 	ref.lnk_substance2brand
 to group "gm-doctors";
+
+grant select, select, update on
+	ref.lnk_substance2brand_pk_seq
+to group "gm-doctors";
+
 -- --------------------------------------------------------------
 -- .fk_brand
 \unset ON_ERROR_STOP

@@ -177,7 +177,7 @@ def manage_consumable_substances(parent=None):
 		substs = gmMedication.get_consumable_substances(order_by = 'description')
 		items = [ [
 			s['description'],
-			s['atc_code'],
+			gmTools.coalesce(s['atc_code'], u''),
 			s['pk']
 		] for s in substs ]
 		lctrl.set_string_items(items)
@@ -584,20 +584,22 @@ def get_drug_database(parent = None):
 			return None
 
 	try:
-		return gmMedication.drug_data_source_interfaces[default_db]()
+		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 	except KeyError:
 		_log.error('faulty default drug data source configuration: %s', default_db)
 		return None
 
+	pat = gmPerson.gmCurrentPatient()
+	if pat.connected:
+		drug_db.patient = pat
+
+	return drug_db
 #============================================================
 def jump_to_drug_database():
 	dbcfg = gmCfg.cCfgSQL()
 	drug_db = get_drug_database()
 	if drug_db is None:
 		return
-	pat = gmPerson.gmCurrentPatient()
-	if pat.connected:
-		drug_db.patient = pat
 	drug_db.switch_to_frontend(blocking = False)
 
 #============================================================
