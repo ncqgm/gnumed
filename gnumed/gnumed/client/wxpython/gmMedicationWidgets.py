@@ -24,521 +24,6 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
 #============================================================
-# ATC related widgets
-#============================================================
-
-def browse_atc_reference(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		atcs = gmATC.get_reference_atcs()
-
-		items = [ [
-			a['atc'],
-			a['term'],
-			u'%s' % gmTools.coalesce(a['ddd'], u''),
-			gmTools.coalesce(a['unit'], u''),
-			gmTools.coalesce(a['administrative_route'], u''),
-			gmTools.coalesce(a['comment'], u''),
-			a['version'],
-			a['lang']
-		] for a in atcs ]
-		lctrl.set_string_items(items)
-		lctrl.set_data(atcs)
-	#------------------------------------------------------------
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = _('\nThe ATC codes as known to GNUmed.\n'),
-		caption = _('Showing ATC codes.'),
-		columns = [ u'ATC', _('Term'), u'DDD', _('Unit'), _(u'Route'), _('Comment'), _('Version'), _('Language') ],
-		single_selection = True,
-		refresh_callback = refresh
-	)
-
-#============================================================
-
-def update_atc_reference_data():
-
-	dlg = wx.FileDialog (
-		parent = None,
-		message = _('Choose an ATC import config file'),
-		defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
-		defaultFile = '',
-		wildcard = "%s (*.conf)|*.conf|%s (*)|*" % (_('config files'), _('all files')),
-		style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
-	)
-
-	result = dlg.ShowModal()
-	if result == wx.ID_CANCEL:
-		return
-
-	cfg_file = dlg.GetPath()
-	dlg.Destroy()
-
-	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing ATC reference data'))
-	if conn is None:
-		return False
-
-	wx.BeginBusyCursor()
-
-	if gmATC.atc_import(cfg_fname = cfg_file, conn = conn):
-		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported ATC reference data.'))
-	else:
-		gmDispatcher.send(signal = 'statustext', msg = _('Importing ATC reference data failed.'), beep = True)
-
-	wx.EndBusyCursor()
-	return True
-
-#============================================================
-
-class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-
-		query = u"""
-
-			SELECT DISTINCT ON (label)
-				atc_code,
-				label
-			FROM (
-
-				SELECT
-					code as atc_code,
-					(code || ': ' || term || coalesce(' (' || ddd || unit || ')', ''))
-						AS label
-				FROM ref.atc
-				WHERE
-					term %(fragment_condition)s
-						OR
-					code %(fragment_condition)s
-
-				UNION ALL
-
-				SELECT
-					atc_code,
-					(atc_code || ': ' || description)
-						AS label
-				FROM ref.substance_in_brand
-				WHERE
-					description %(fragment_condition)s
-						OR
-					atc_code %(fragment_condition)s
-
-				UNION ALL
-
-				SELECT
-					atc_code,
-					(atc_code || ': ' || description || ' (' || preparation || ')')
-						AS label
-				FROM ref.branded_drug
-				WHERE
-					description %(fragment_condition)s
-						OR
-					atc_code %(fragment_condition)s
-
-				-- it would be nice to be able to include clin.vacc_indication but that's hard to do in SQL
-
-			) AS candidates
-
-			ORDER BY label
-			LIMIT 50"""
-
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
-		mp.setThresholds(1, 2, 4)
-#		mp.word_separators = '[ \t=+&:@]+'
-		self.SetToolTipString(_('Select an ATC (Anatomical-Therapeutic-Chemical) code.'))
-		self.matcher = mp
-		self.selection_only = True
-
-#============================================================
-def manage_consumable_substances(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-	#------------------------------------------------------------
-	def add_from_db(substance):
-		drug_db = get_drug_database(parent = parent)
-		if drug_db is None:
-			return False
-		drug_db.import_drugs()
-		return True
-	#------------------------------------------------------------
-	def edit(substance=None):
-		return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
-	#------------------------------------------------------------
-	def delete(substance):
-		return gmMedication.delete_consumable_substance(substance = substance['pk'])
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		substs = gmMedication.get_consumable_substances(order_by = 'description')
-		items = [ [
-			s['description'],
-			gmTools.coalesce(s['atc_code'], u''),
-			s['pk']
-		] for s in substs ]
-		lctrl.set_string_items(items)
-		lctrl.set_data(substs)
-	#------------------------------------------------------------
-	msg = _('\nThese are the consumable substances registered with GNUmed.\n')
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = _('Showing consumable substances.'),
-		columns = [_('Substance'), 'ATC', u'#'],
-		single_selection = True,
-		new_callback = edit,
-		edit_callback = edit,
-		delete_callback = delete,
-		refresh_callback = refresh,
-		left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
-	)
-#------------------------------------------------------------
-def edit_consumable_substance(parent=None, substance=None, single_entry=False):
-	ea = cConsumableSubstanceEAPnl(parent = parent, id = -1)
-	ea.data = substance
-	ea.mode = gmTools.coalesce(substance, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
-	dlg.SetTitle(gmTools.coalesce(substance, _('Adding new consumable substance'), _('Editing consumable substance')))
-	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
-		return True
-	dlg.Destroy()
-	return False
-#------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgConsumableSubstanceEAPnl
-
-class cConsumableSubstanceEAPnl(wxgConsumableSubstanceEAPnl.wxgConsumableSubstanceEAPnl, gmEditArea.cGenericEditAreaMixin):
-
-	def __init__(self, *args, **kwargs):
-
-		try:
-			data = kwargs['substance']
-			del kwargs['substance']
-		except KeyError:
-			data = None
-
-		wxgConsumableSubstanceEAPnl.wxgConsumableSubstanceEAPnl.__init__(self, *args, **kwargs)
-		gmEditArea.cGenericEditAreaMixin.__init__(self)
-
-		# Code using this mixin should set mode and data
-		# after instantiating the class:
-		self.mode = 'new'
-		self.data = data
-		if data is not None:
-			self.mode = 'edit'
-
-#		self.__init_ui()
-	#----------------------------------------------------------------
-#	def __init_ui(self):
-#		self._PRW_atc.selection_only = False
-	#----------------------------------------------------------------
-	# generic Edit Area mixin API
-	#----------------------------------------------------------------
-	def _valid_for_save(self):
-
-		validity = True
-
-		if self._TCTRL_substance.GetValue().strip() == u'':
-			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = False)
-		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = True)
-
-		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. Must enter substance name.'))
-
-		return validity
-	#----------------------------------------------------------------
-	def _save_as_new(self):
-		data = gmMedication.create_consumable_substance (
-			substance = self._TCTRL_substance.GetValue().strip(),
-			atc = self._PRW_atc.GetData()
-		)
-		success, data = data.save()
-		if not success:
-			err, msg = data
-			_log.error(err)
-			_log.error(msg)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. %s') % msg, beep = True)
-			return False
-
-		self.data = data
-		return True
-	#----------------------------------------------------------------
-	def _save_as_update(self):
-		self.data['description'] = self._TCTRL_substance.GetValue().strip()
-		self.data['atc_code'] = self._PRW_atc.GetData()
-		success, data = self.data.save()
-
-		if not success:
-			err, msg = data
-			_log.error(err)
-			_log.error(msg)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. %s') % msg, beep = True)
-			return False
-
-		return True
-	#----------------------------------------------------------------
-	def _refresh_as_new(self):
-		self._TCTRL_substance.SetValue(u'')
-		self._PRW_atc.SetText(u'', None)
-
-		self._TCTRL_substance.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_from_existing(self):
-		self._TCTRL_substance.SetValue(self.data['description'])
-		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc_code'], u''), self.data['atc_code'])
-
-		self._TCTRL_substance.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_as_new_from_existing(self):
-		self._refresh_as_new()
-#============================================================
-def manage_drug_components(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	#------------------------------------------------------------
-	def edit(component=None):
-		return edit_drug_component(parent = parent, drug_component = component, single_entry = (component is not None))
-	#------------------------------------------------------------
-	def delete(component):
-		return component.containing_drug.remove_component(substance = component['pk_component'])
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		comps = gmMedication.get_drug_components()
-		items = [ [
-			u'%s%s' % (c['brand'], gmTools.coalesce(c['atc_brand'], u'', u' [%s]')),
-			u'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], u'', u' [%s]')),
-			u'%s%s' % (c['amount'], c['unit']),
-			c['preparation'],
-			gmTools.coalesce(c['external_code_brand'], u'', u'%%s [%s]' % c['external_code_type_brand']),
-			c['pk_component']
-		] for c in comps ]
-		lctrl.set_string_items(items)
-		lctrl.set_data(comps)
-	#------------------------------------------------------------
-	msg = _('\nThese are the components in the drug brands known to GNUmed.\n')
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = _('Showing drug brand components.'),
-		columns = [_('Brand'), _('Substance'), _('Strength'), _('Preparation'), _('Code'), u'#'],
-		single_selection = True,
-		#new_callback = edit,
-		edit_callback = edit,
-		delete_callback = delete,
-		refresh_callback = refresh
-	)
-#------------------------------------------------------------
-def edit_drug_component(parent=None, drug_component=None, single_entry=False):
-	ea = cDrugComponentEAPnl(parent = parent, id = -1)
-	ea.data = drug_component
-	ea.mode = gmTools.coalesce(drug_component, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
-	dlg.SetTitle(gmTools.coalesce(drug_component, _('Adding new drug component'), _('Editing drug component')))
-	if dlg.ShowModal() == wx.ID_OK:
-		dlg.Destroy()
-		return True
-	dlg.Destroy()
-	return False
-#------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgDrugComponentEAPnl
-
-class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditArea.cGenericEditAreaMixin):
-
-	def __init__(self, *args, **kwargs):
-
-		try:
-			data = kwargs['component']
-			del kwargs['component']
-		except KeyError:
-			data = None
-
-		wxgDrugComponentEAPnl.wxgDrugComponentEAPnl.__init__(self, *args, **kwargs)
-		gmEditArea.cGenericEditAreaMixin.__init__(self)
-
-		# Code using this mixin should set mode and data
-		# after instantiating the class:
-		self.mode = 'new'
-		self.data = data
-		if data is not None:
-			self.mode = 'edit'
-
-		#self.__init_ui()
-	#----------------------------------------------------------------
-#	def __init_ui(self):
-#		# adjust phrasewheels etc
-	#----------------------------------------------------------------
-	# generic Edit Area mixin API
-	#----------------------------------------------------------------
-	def _valid_for_save(self):
-		if self.data is not None:
-			if self.data['is_in_use']:
-				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug component. It is in use.'), beep = True)
-				return False
-
-		validity = True
-
-		if self._PRW_substance.GetData() is None:
-			validity = False
-			self._PRW_substance.display_as_valid(False)
-		else:
-			self._PRW_substance.display_as_valid(True)
-
-		val = self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1)
-		try:
-			decimal.Decimal(val)
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
-		except:
-			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
-
-		if self._PRW_unit.GetValue().strip() == u'':
-			validity = False
-			self._PRW_unit.display_as_valid(False)
-		else:
-			self._PRW_unit.display_as_valid(True)
-
-		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save drug component. Invalid or missing essential input.'))
-
-		return validity
-	#----------------------------------------------------------------
-	def _save_as_new(self):
-		# save the data as a new instance
-		data = 1
-		data[''] = 1
-		data[''] = 1
-#		data.save()
-
-		# must be done very late or else the property access
-		# will refresh the display such that later field
-		# access will return empty values
-#		self.data = data
-		return False
-		return True
-	#----------------------------------------------------------------
-	def _save_as_update(self):
-		self.data['pk_consumable_substance'] = self._PRW_substance.GetData(can_create = True)
-		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1))
-		self.data['unit'] = self._PRW_unit.GetValue().strip()
-		return self.data.save()
-	#----------------------------------------------------------------
-	def _refresh_as_new(self):
-		self._TCTRL_brand.SetValue(u'')
-		self._TCTRL_components.SetValue(u'')
-		self._TCTRL_codes.SetValue(u'')
-		self._PRW_substance.SetText(u'', None)
-		self._TCTRL_amount.SetValue(u'')
-		self._PRW_unit.SetText(u'', None)
-
-		self._PRW_substance.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_from_existing(self):
-		self._TCTRL_brand.SetValue(u'%s (%s)' % (self.data['brand'], self.data['preparation']))
-		self._TCTRL_components.SetValue(u' / '.join(self.data.containing_drug['components']))
-		details = []
-		if self.data['atc_brand'] is not None:
-			details.append(u'ATC: %s' % self.data['atc_brand'])
-		if self.data['external_code_brand'] is not None:
-			details.append(u'%s: %s' % (self.data['external_code_type_brand'], self.data['external_code_brand']))
-		self._TCTRL_codes.SetValue(u'; '.join(details))
-
-		self._PRW_substance.SetText(self.data['substance'], self.data['pk_consumable_substance'])
-		self._TCTRL_amount.SetValue(u'%s' % self.data['amount'])
-		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
-
-		self._PRW_substance.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_as_new_from_existing(self):
-		#self._PRW_brand.SetText(u'', None)
-		#self._TCTRL_prep.SetValue(u'')
-		#self._TCTRL_brand_details.SetValue(u'')
-		self._PRW_substance.SetText(u'', None)
-		self._TCTRL_amount.SetValue(u'')
-		self._PRW_unit.SetText(u'', None)
-
-		self._PRW_substance.SetFocus()
-#============================================================
-# branded drugs API
-#============================================================
-def manage_branded_drugs(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-	#------------------------------------------------------------
-	def add_from_db(brand):
-		drug_db = get_drug_database(parent = parent)
-		if drug_db is None:
-			return False
-		drug_db.import_drugs()
-		return True
-	#------------------------------------------------------------
-	def delete(brand):
-		if brand.is_vaccine:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _('Deleting medication'),
-				aMessage = _(
-					'Cannot delete the medication\n'
-					'\n'
-					' "%s" (%s)\n'
-					'\n'
-					'because it is a vaccine. Please delete it\n'
-					'from the vaccine management section !\n'
-				) % (brand['brand'], brand['preparation'])
-			)
-			return False
-		gmMedication.delete_branded_drug(brand = brand['pk_brand'])
-		return True
-	#------------------------------------------------------------
-	def new():
-		# FIXME: needs EA
-
-		drug_db = get_drug_database(parent = parent)
-		if drug_db is None:
-			return False
-		drug_db.import_drugs()
-		return True
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		drugs = gmMedication.get_branded_drugs()
-		items = [ [
-			u'%s%s' % (
-				d['brand'],
-				gmTools.bool2subst(d['is_fake_brand'], ' (%s)' % _('fake'), u'')
-			),
-			d['preparation'],
-			gmTools.coalesce(d['atc'], u''),
-			gmTools.coalesce(d['components'], u''),
-			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
-			d['pk_brand']
-		] for d in drugs ]
-		lctrl.set_string_items(items)
-		lctrl.set_data(drugs)
-	#------------------------------------------------------------
-	msg = _('\nThese are the drug brands known to GNUmed.\n')
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = _('Showing branded drugs.'),
-		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), u'#'],
-		single_selection = True,
-		refresh_callback = refresh,
-		#new_callback = new,
-		#edit_callback = edit,
-		delete_callback = delete,
-		left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
-	)
-#============================================================
 # generic drug database access
 #============================================================
 def configure_drug_data_source(parent=None):
@@ -675,28 +160,459 @@ def jump_to_ifap(import_drugs=False):
 	return True
 
 #============================================================
-# current substance intake handling
+# ATC related widgets
 #============================================================
-class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+def browse_atc_reference(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		atcs = gmATC.get_reference_atcs()
+
+		items = [ [
+			a['atc'],
+			a['term'],
+			u'%s' % gmTools.coalesce(a['ddd'], u''),
+			gmTools.coalesce(a['unit'], u''),
+			gmTools.coalesce(a['administrative_route'], u''),
+			gmTools.coalesce(a['comment'], u''),
+			a['version'],
+			a['lang']
+		] for a in atcs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(atcs)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nThe ATC codes as known to GNUmed.\n'),
+		caption = _('Showing ATC codes.'),
+		columns = [ u'ATC', _('Term'), u'DDD', _('Unit'), _(u'Route'), _('Comment'), _('Version'), _('Language') ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
+
+#============================================================
+
+def update_atc_reference_data():
+
+	dlg = wx.FileDialog (
+		parent = None,
+		message = _('Choose an ATC import config file'),
+		defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+		defaultFile = '',
+		wildcard = "%s (*.conf)|*.conf|%s (*)|*" % (_('config files'), _('all files')),
+		style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+	)
+
+	result = dlg.ShowModal()
+	if result == wx.ID_CANCEL:
+		return
+
+	cfg_file = dlg.GetPath()
+	dlg.Destroy()
+
+	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('importing ATC reference data'))
+	if conn is None:
+		return False
+
+	wx.BeginBusyCursor()
+
+	if gmATC.atc_import(cfg_fname = cfg_file, conn = conn):
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported ATC reference data.'))
+	else:
+		gmDispatcher.send(signal = 'statustext', msg = _('Importing ATC reference data failed.'), beep = True)
+
+	wx.EndBusyCursor()
+	return True
+
+#============================================================
+
+class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
 		query = u"""
-SELECT DISTINCT ON (sched)
-	schedule as sched,
-	schedule
-FROM clin.substance_intake
-WHERE schedule %(fragment_condition)s
-ORDER BY sched
-LIMIT 50"""
+
+			SELECT DISTINCT ON (label)
+				atc_code,
+				label
+			FROM (
+
+				SELECT
+					code as atc_code,
+					(code || ': ' || term || coalesce(' (' || ddd || unit || ')', ''))
+						AS label
+				FROM ref.atc
+				WHERE
+					term %(fragment_condition)s
+						OR
+					code %(fragment_condition)s
+
+				UNION ALL
+
+				SELECT
+					atc_code,
+					(atc_code || ': ' || description)
+						AS label
+				FROM ref.consumable_substance
+				WHERE
+					description %(fragment_condition)s
+						OR
+					atc_code %(fragment_condition)s
+
+				UNION ALL
+
+				SELECT
+					atc_code,
+					(atc_code || ': ' || description || ' (' || preparation || ')')
+						AS label
+				FROM ref.branded_drug
+				WHERE
+					description %(fragment_condition)s
+						OR
+					atc_code %(fragment_condition)s
+
+				-- it would be nice to be able to include clin.vacc_indication but that's hard to do in SQL
+
+			) AS candidates
+
+			ORDER BY label
+			LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
-		mp.word_separators = '[ \t=+&:@]+'
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The schedule for taking this substance.'))
+#		mp.word_separators = '[ \t=+&:@]+'
+		self.SetToolTipString(_('Select an ATC (Anatomical-Therapeutic-Chemical) code.'))
 		self.matcher = mp
-		self.selection_only = False
+		self.selection_only = True
+
+#============================================================
+# consumable substances widgets
+#------------------------------------------------------------
+def manage_consumable_substances(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def add_from_db(substance):
+		drug_db = get_drug_database(parent = parent)
+		if drug_db is None:
+			return False
+		drug_db.import_drugs()
+		return True
+	#------------------------------------------------------------
+	def edit(substance=None):
+		return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+	#------------------------------------------------------------
+	def delete(substance):
+		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		substs = gmMedication.get_consumable_substances(order_by = 'description')
+		items = [ [
+			s['description'],
+			gmTools.coalesce(s['atc_code'], u''),
+			s['pk']
+		] for s in substs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(substs)
+	#------------------------------------------------------------
+	msg = _('\nThese are the consumable substances registered with GNUmed.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing consumable substances.'),
+		columns = [_('Substance'), 'ATC', u'#'],
+		single_selection = True,
+		new_callback = edit,
+		edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh,
+		left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
+	)
+
+#------------------------------------------------------------
+def edit_consumable_substance(parent=None, substance=None, single_entry=False):
+	ea = cConsumableSubstanceEAPnl(parent = parent, id = -1)
+	ea.data = substance
+	ea.mode = gmTools.coalesce(substance, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(substance, _('Adding new consumable substance'), _('Editing consumable substance')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgConsumableSubstanceEAPnl
+
+class cConsumableSubstanceEAPnl(wxgConsumableSubstanceEAPnl.wxgConsumableSubstanceEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['substance']
+			del kwargs['substance']
+		except KeyError:
+			data = None
+
+		wxgConsumableSubstanceEAPnl.wxgConsumableSubstanceEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+#		self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		self._PRW_atc.selection_only = False
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		validity = True
+
+		if self._TCTRL_substance.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = False)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = True)
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. Must enter substance name.'))
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		data = gmMedication.create_consumable_substance (
+			substance = self._TCTRL_substance.GetValue().strip(),
+			atc = self._PRW_atc.GetData()
+		)
+		success, data = data.save()
+		if not success:
+			err, msg = data
+			_log.error(err)
+			_log.error(msg)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. %s') % msg, beep = True)
+			return False
+
+		self.data = data
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['description'] = self._TCTRL_substance.GetValue().strip()
+		self.data['atc_code'] = self._PRW_atc.GetData()
+		success, data = self.data.save()
+
+		if not success:
+			err, msg = data
+			_log.error(err)
+			_log.error(msg)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. %s') % msg, beep = True)
+			return False
+
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_substance.SetValue(u'')
+		self._PRW_atc.SetText(u'', None)
+
+		self._TCTRL_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_substance.SetValue(self.data['description'])
+		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc_code'], u''), self.data['atc_code'])
+
+		self._TCTRL_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+
+#============================================================
+# drug component widgets
+#------------------------------------------------------------
+def manage_drug_components(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def edit(component=None):
+		return edit_drug_component(parent = parent, drug_component = component, single_entry = (component is not None))
+	#------------------------------------------------------------
+	def delete(component):
+		return component.containing_drug.remove_component(substance = component['pk_component'])
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		comps = gmMedication.get_drug_components()
+		items = [ [
+			u'%s%s' % (c['brand'], gmTools.coalesce(c['atc_brand'], u'', u' [%s]')),
+			u'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], u'', u' [%s]')),
+			u'%s%s' % (c['amount'], c['unit']),
+			c['preparation'],
+			gmTools.coalesce(c['external_code_brand'], u'', u'%%s [%s]' % c['external_code_type_brand']),
+			c['pk_component']
+		] for c in comps ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(comps)
+	#------------------------------------------------------------
+	msg = _('\nThese are the components in the drug brands known to GNUmed.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing drug brand components.'),
+		columns = [_('Brand'), _('Substance'), _('Strength'), _('Preparation'), _('Code'), u'#'],
+		single_selection = True,
+		#new_callback = edit,
+		edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
+	)
+
+#------------------------------------------------------------
+def edit_drug_component(parent=None, drug_component=None, single_entry=False):
+	ea = cDrugComponentEAPnl(parent = parent, id = -1)
+	ea.data = drug_component
+	ea.mode = gmTools.coalesce(drug_component, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(drug_component, _('Adding new drug component'), _('Editing drug component')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgDrugComponentEAPnl
+
+class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['component']
+			del kwargs['component']
+		except KeyError:
+			data = None
+
+		wxgDrugComponentEAPnl.wxgDrugComponentEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		if self.data is not None:
+			if self.data['is_in_use']:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug component. It is in use.'), beep = True)
+				return False
+
+		validity = True
+
+		if self._PRW_substance.GetData() is None:
+			validity = False
+			self._PRW_substance.display_as_valid(False)
+		else:
+			self._PRW_substance.display_as_valid(True)
+
+		val = self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1)
+		try:
+			decimal.Decimal(val)
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
+		except:
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
+
+		if self._PRW_unit.GetValue().strip() == u'':
+			validity = False
+			self._PRW_unit.display_as_valid(False)
+		else:
+			self._PRW_unit.display_as_valid(True)
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save drug component. Invalid or missing essential input.'))
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = 1
+		data[''] = 1
+		data[''] = 1
+#		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+#		self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['pk_consumable_substance'] = self._PRW_substance.GetData(can_create = True)
+		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1))
+		self.data['unit'] = self._PRW_unit.GetValue().strip()
+		return self.data.save()
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_brand.SetValue(u'')
+		self._TCTRL_components.SetValue(u'')
+		self._TCTRL_codes.SetValue(u'')
+		self._PRW_substance.SetText(u'', None)
+		self._TCTRL_amount.SetValue(u'')
+		self._PRW_unit.SetText(u'', None)
+
+		self._PRW_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_brand.SetValue(u'%s (%s)' % (self.data['brand'], self.data['preparation']))
+		self._TCTRL_components.SetValue(u' / '.join(self.data.containing_drug['components']))
+		details = []
+		if self.data['atc_brand'] is not None:
+			details.append(u'ATC: %s' % self.data['atc_brand'])
+		if self.data['external_code_brand'] is not None:
+			details.append(u'%s: %s' % (self.data['external_code_type_brand'], self.data['external_code_brand']))
+		self._TCTRL_codes.SetValue(u'; '.join(details))
+
+		self._PRW_substance.SetText(self.data['substance'], self.data['pk_consumable_substance'])
+		self._TCTRL_amount.SetValue(u'%s' % self.data['amount'])
+		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
+
+		self._PRW_substance.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		#self._PRW_brand.SetText(u'', None)
+		#self._TCTRL_prep.SetValue(u'')
+		#self._TCTRL_brand_details.SetValue(u'')
+		self._PRW_substance.SetText(u'', None)
+		self._TCTRL_amount.SetValue(u'')
+		self._PRW_unit.SetText(u'', None)
+
+		self._PRW_substance.SetFocus()
+
 #============================================================
 class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -756,7 +672,7 @@ LIMIT 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The INN / substance in question.'))
+		self.SetToolTipString(_('The preparation (form) of the substance or brand in question.'))
 		self.matcher = mp
 		self.selection_only = False
 	#---------------------------------------------------------
@@ -769,6 +685,222 @@ LIMIT 50"""
 				self.data = None
 
 		return super(cSubstancePhraseWheel, self).GetData(can_create = can_create, as_instance = as_instance)
+
+#============================================================
+# branded drugs widgets
+#------------------------------------------------------------
+def manage_branded_drugs(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def add_from_db(brand):
+		drug_db = get_drug_database(parent = parent)
+		if drug_db is None:
+			return False
+		drug_db.import_drugs()
+		return True
+	#------------------------------------------------------------
+	def edit(brand=None):
+		if brand is None:
+			return edit_branded_drug(parent = parent, branded_drug = brand, single_entry = False)
+
+		if brand.is_vaccine:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Editing medication'),
+				aMessage = _(
+					'Cannot edit the medication\n'
+					'\n'
+					' "%s" (%s)\n'
+					'\n'
+					'because it is a vaccine. Please edit it\n'
+					'from the vaccine management section !\n'
+				) % (brand['brand'], brand['preparation'])
+			)
+			return False
+
+		return edit_branded_drug(parent = parent, branded_drug = brand, single_entry = True)
+	#------------------------------------------------------------
+	def delete(brand):
+		if brand.is_vaccine:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Deleting medication'),
+				aMessage = _(
+					'Cannot delete the medication\n'
+					'\n'
+					' "%s" (%s)\n'
+					'\n'
+					'because it is a vaccine. Please delete it\n'
+					'from the vaccine management section !\n'
+				) % (brand['brand'], brand['preparation'])
+			)
+			return False
+		gmMedication.delete_branded_drug(brand = brand['pk_brand'])
+		return True
+	#------------------------------------------------------------
+	def new():
+		# FIXME: needs EA
+
+		drug_db = get_drug_database(parent = parent)
+		if drug_db is None:
+			return False
+		drug_db.import_drugs()
+		return True
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		drugs = gmMedication.get_branded_drugs()
+		items = [ [
+			u'%s%s' % (
+				d['brand'],
+				gmTools.bool2subst(d['is_fake_brand'], ' (%s)' % _('fake'), u'')
+			),
+			d['preparation'],
+			gmTools.coalesce(d['atc'], u''),
+			gmTools.coalesce(d['components'], u''),
+			gmTools.coalesce(d['external_code'], u'', u'%%s [%s]' % d['external_code_type']),
+			d['pk_brand']
+		] for d in drugs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(drugs)
+	#------------------------------------------------------------
+	msg = _('\nThese are the drug brands known to GNUmed.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing branded drugs.'),
+		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), u'#'],
+		single_selection = True,
+		refresh_callback = refresh,
+		new_callback = edit,
+		edit_callback = edit,
+		delete_callback = delete,
+		left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
+	)
+
+#------------------------------------------------------------
+def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
+	ea = cBrandedDrugEAPnl(parent = parent, id = -1)
+	ea.data = branded_drug
+	ea.mode = gmTools.coalesce(branded_drug, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(branded_drug, _('Adding new drug brand'), _('Editing drug brand')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgBrandedDrugEAPnl
+
+class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['drug']
+			del kwargs['drug']
+		except KeyError:
+			data = None
+
+		wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+		# adjust external type PRW
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		if self.data is not None:
+			if self.data['is_in_use']:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug brand. It is in use.'), beep = True)
+				return False
+
+		validity = True
+
+		if self._PRW_brand.GetData() is None:
+			validity = False
+			self._PRW_brand.display_as_valid(False)
+		else:
+			self._PRW_brand.display_as_valid(True)
+
+
+		if self._PRW_preparation.GetValue().strip() == u'':
+			validity = False
+			self._PRW_preparation.display_as_valid(False)
+		else:
+			self._PRW_preparation.display_as_valid(True)
+
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = 1
+
+		data[''] = 1
+		data[''] = 1
+
+		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+		self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+		self.data[''] = 1
+		self.data[''] = 1
+		self.data[''] = 1
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_brand.SetText(u'', None)
+		self._PRW_preparation.SetText(u'', None)
+		self._CHBOX_is_fake.SetValue(False)
+		self._TCTRL_components.SetValue(u'')
+		self._PRW_atc.SetText(u'', None)
+		self._TCTRL_external_code.SetValue(u'')
+		self._PRW_external_code_type.SetText(u'', None)
+
+		self._PRW_brand.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_brand.SetText(self.data['brand'], self.data['pk_brand'])
+		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
+		self._CHBOX_is_fake.SetValue(self.data['is_fake_brand'])
+		comps = u';\n'.join(self.data['components'])
+		self._TCTRL_components.SetValue(comps)
+		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
+		self._TCTRL_external_code.SetValue(gmTools.coalesce(self.data['external_code'], u''))
+		t = gmTools.coalesce(self.data['external_code_type'], u'')
+		self._PRW_external_code_type.SetText(t, t)
+
+		self._PRW_brand.SetFocus()
+	#----------------------------------------------------------------
+
 #============================================================
 class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -788,6 +920,30 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.SetToolTipString(_('The brand name of the drug.'))
+		self.matcher = mp
+		self.selection_only = False
+
+#============================================================
+# current substance intake widgets
+#------------------------------------------------------------
+class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+SELECT DISTINCT ON (sched)
+	schedule as sched,
+	schedule
+FROM clin.substance_intake
+WHERE schedule %(fragment_condition)s
+ORDER BY sched
+LIMIT 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(1, 2, 4)
+		mp.word_separators = '[ \t=+&:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('The schedule for taking this substance.'))
 		self.matcher = mp
 		self.selection_only = False
 
@@ -1382,6 +1538,7 @@ def edit_intake_of_substance(parent = None, substance=None):
 		return True
 	dlg.Destroy()
 	return False
+
 #============================================================
 # current substances grid
 #------------------------------------------------------------

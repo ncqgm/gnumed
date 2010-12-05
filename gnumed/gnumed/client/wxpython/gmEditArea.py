@@ -62,10 +62,10 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
-		data = 
+		data = gmXXXX.create_xxxx()
 
-		data[''] = 
-		data[''] = 
+		data[''] = 1
+		data[''] = 1
 
 		data.save()
 
@@ -78,19 +78,19 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		# update self.data and save the changes
-		self.data[''] = 
-		self.data[''] = 
-		self.data[''] = 
+		self.data[''] = 1
+		self.data[''] = 1
+		self.data[''] = 1
 		self.data.save()
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		pass
 	#----------------------------------------------------------------
-	def _refresh_from_existing(self):
-		pass
-	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
 		pass
 	#----------------------------------------------------------------
 	"""
