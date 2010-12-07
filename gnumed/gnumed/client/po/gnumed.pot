@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-11-15 16:34+CET\n"
+"POT-Creation-Date: 2010-12-07 15:53+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -410,6 +410,9 @@ msgstr ""
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
 msgstr ""
 
+msgid "Sandboxed PDF output file cannot be moved."
+msgstr ""
+
 msgid "PDF output file cannot be opened."
 msgstr ""
 
@@ -519,6 +522,30 @@ msgid "error retrieving unreviewed lab results"
 msgstr ""
 
 msgid "external patient source (name, gender, date of birth)"
+msgstr ""
+
+msgid "<name> cannot be empty"
+msgstr ""
+
+msgid "<issuer> cannot be empty"
+msgstr ""
+
+msgid "<channel> cannot be empty"
+msgstr ""
+
+msgid "<number> cannot be empty"
+msgstr ""
+
+msgid "<street> cannot be empty"
+msgstr ""
+
+msgid "<urb> cannot be empty"
+msgstr ""
+
+msgid "<zip> cannot be empty"
+msgstr ""
+
+msgid "<country> cannot be empty"
 msgstr ""
 
 msgid "** DOB unknown **"
@@ -810,6 +837,9 @@ msgid ""
 msgstr ""
 
 msgid "unknown test status [%s]"
+msgstr ""
+
+msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
 msgid "interval_format_tag::years::y"
@@ -1297,6 +1327,53 @@ msgstr ""
 msgid "Comment:"
 msgstr ""
 
+msgid "Fake brand"
+msgstr ""
+
+msgid "&+"
+msgstr ""
+
+msgid "&-"
+msgstr ""
+
+msgid "Mark as a fake (not really existing) brand."
+msgstr ""
+
+msgid "Add a component to this drug."
+msgstr ""
+
+msgid "Remove a component from this drug."
+msgstr ""
+
+msgid ""
+"An external code for this drug.\n"
+"\n"
+"In most cases either a national drug identifier or the ID of this drug in an external database.\n"
+"\n"
+"In any case, GNUmed will never actively do anything with this code apart from display and making it available when passing this drug to external applications."
+msgstr ""
+
+msgid "The type of the external code of this drug, if any."
+msgstr ""
+
+msgid "Brand name"
+msgstr ""
+
+msgid "Preparation"
+msgstr ""
+
+msgid "Components"
+msgstr ""
+
+msgid "ATC code"
+msgstr ""
+
+msgid "External code"
+msgstr ""
+
+msgid "Type:"
+msgstr ""
+
 msgid "Previous Encounters"
 msgstr ""
 
@@ -1454,6 +1531,18 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
+msgid ""
+"Enter the name of the consumable substance.\n"
+"\n"
+"Examples:\n"
+"- metoprolol\n"
+"- tobacco\n"
+"- alcohol\n"
+"- marihuana\n"
+"- aloe vera\n"
+"- ibuprofen"
+msgstr ""
+
 msgid "+"
 msgstr ""
 
@@ -1463,22 +1552,10 @@ msgstr ""
 msgid "Per plan"
 msgstr ""
 
+msgid "... Reason"
+msgstr ""
+
 msgid "Long-term"
-msgstr ""
-
-msgid ""
-"Get substances from an external drug database.\n"
-"\n"
-"Note that if you select more than one substance only the first one will be available for further editing right away."
-msgstr ""
-
-msgid "The preparation the substance comes in."
-msgstr ""
-
-msgid "The amount of substance per dose."
-msgstr ""
-
-msgid "Whether this substance is taken by advice."
 msgstr ""
 
 msgid "The brand name of the drug the patient is taking."
@@ -1493,7 +1570,22 @@ msgstr ""
 msgid "The active ingredients of this brand."
 msgstr ""
 
+msgid ""
+"Get substances from an external drug database.\n"
+"\n"
+"Note that if you select more than one substance only the first one will be available for further editing right away."
+msgstr ""
+
+msgid "The preparation the substance comes in."
+msgstr ""
+
+msgid "The amount of substance per dose."
+msgstr ""
+
 msgid "When was this substance started to be consumed."
+msgstr ""
+
+msgid "Whether this substance is taken by advice."
 msgstr ""
 
 msgid "When was intake of this substance discontinued ?"
@@ -1526,16 +1618,13 @@ msgstr ""
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
 
-msgid "Preparation"
+msgid "... or ..."
 msgstr ""
 
 msgid "Started"
 msgstr ""
 
 msgid "Discontinued"
-msgstr ""
-
-msgid "Reason"
 msgstr ""
 
 msgid "Schedule"
@@ -1709,6 +1798,21 @@ msgid "Translation"
 msgstr ""
 
 msgid "Language"
+msgstr ""
+
+msgid ""
+"The numeric amount of substance per dose in brand.\n"
+"\n"
+"Examples:\n"
+"- 100mg per tablet: amount = 100, unit = mg(/tablet)\n"
+"- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n"
+"- 5mg/ml solution: amount = 5, unit = mg/ml"
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "Unit"
 msgstr ""
 
 msgid "Edit Document Types"
@@ -2344,9 +2448,6 @@ msgstr ""
 msgid "Abbreviation"
 msgstr ""
 
-msgid "Unit"
-msgstr ""
-
 msgid "&Your unsigned"
 msgstr ""
 
@@ -2813,9 +2914,6 @@ msgstr ""
 msgid "and Episode"
 msgstr ""
 
-msgid "... or ..."
-msgstr ""
-
 msgid "Hospital stay"
 msgstr ""
 
@@ -3036,9 +3134,6 @@ msgid "Start over (discards current data)."
 msgstr ""
 
 msgid "Associate to episode:"
-msgstr ""
-
-msgid "Type:"
 msgstr ""
 
 msgid "Date of creation:"
@@ -5231,6 +5326,9 @@ msgstr ""
 msgid "Discharge"
 msgstr ""
 
+msgid "Reason"
+msgstr ""
+
 msgid "Adding a hospital stay"
 msgstr ""
 
@@ -6053,16 +6151,16 @@ msgstr ""
 msgid "E&xit\tAlt-X"
 msgstr ""
 
+msgid "&Register person"
+msgstr ""
+
 msgid "Register a new person with GNUmed"
 msgstr ""
 
-msgid "Register person"
+msgid "&Load external"
 msgstr ""
 
 msgid "Load and possibly create person from an external source."
-msgstr ""
-
-msgid "Load external"
 msgstr ""
 
 msgid "Deactivate (exclude from search) person record in database."
@@ -6785,10 +6883,10 @@ msgstr ""
 msgid "Codes and their respective terms"
 msgstr ""
 
-msgid "Diagnostic organizations (path labs, ...)"
+msgid "Components of branded drugs (substances in brands)"
 msgstr ""
 
-msgid "Components of (substances in) branded drugs"
+msgid "Diagnostic organizations (path labs, ...)"
 msgstr ""
 
 msgid "Document templates (forms, letters, plots, ...)"
@@ -6815,9 +6913,6 @@ msgstr ""
 msgid "String translations in the database"
 msgstr ""
 
-msgid "Substances in use (taken by patients)"
-msgstr ""
-
 msgid "Test/measurement types"
 msgstr ""
 
@@ -6831,6 +6926,9 @@ msgid "Vaccines"
 msgstr ""
 
 msgid "Workplace profiles (which plugins to load)"
+msgstr ""
+
+msgid "Consumable substances"
 msgstr ""
 
 msgid "Master data management"
@@ -7662,7 +7760,7 @@ msgstr ""
 msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
-msgid "Select the unit of the test result."
+msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
 msgid "Select an indicator for the level of abnormality."
@@ -7700,66 +7798,6 @@ msgstr ""
 
 msgid ""
 "\n"
-"The ATC codes as known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing ATC codes."
-msgstr ""
-
-msgid "Choose an ATC import config file"
-msgstr ""
-
-msgid "config files"
-msgstr ""
-
-msgid "importing ATC reference data"
-msgstr ""
-
-msgid "Successfully imported ATC reference data."
-msgstr ""
-
-msgid "Importing ATC reference data failed."
-msgstr ""
-
-msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
-msgstr ""
-
-msgid ""
-"\n"
-"These are the substances in the drug brands known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing drug brand components (substances)."
-msgstr ""
-
-msgid "Deleting medication"
-msgstr ""
-
-msgid ""
-"Cannot delete the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
-msgstr ""
-
-msgid ""
-"\n"
-"These are the drug brands known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing branded drugs."
-msgstr ""
-
-msgid "Substances currently or previously consumed across all patients."
-msgstr ""
-
-msgid "Showing consumed substances."
-msgstr ""
-
-msgid ""
-"\n"
 "Please select the default drug data source from the list below.\n"
 "\n"
 "Note that to actually use it you need to have the database installed, too."
@@ -7786,10 +7824,132 @@ msgstr ""
 msgid "Current medication"
 msgstr ""
 
-msgid "The preparation (form) of the substance the patient is taking."
+msgid ""
+"\n"
+"The ATC codes as known to GNUmed.\n"
 msgstr ""
 
-msgid "The INN / substance the patient is taking."
+msgid "Showing ATC codes."
+msgstr ""
+
+msgid "Choose an ATC import config file"
+msgstr ""
+
+msgid "config files"
+msgstr ""
+
+msgid "importing ATC reference data"
+msgstr ""
+
+msgid "Successfully imported ATC reference data."
+msgstr ""
+
+msgid "Importing ATC reference data failed."
+msgstr ""
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr ""
+
+msgid ""
+"\n"
+"These are the consumable substances registered with GNUmed.\n"
+msgstr ""
+
+msgid "Showing consumable substances."
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid "Import consumable substances from a drug database."
+msgstr ""
+
+msgid "Adding new consumable substance"
+msgstr ""
+
+msgid "Editing consumable substance"
+msgstr ""
+
+msgid "Cannot save consumable substance. Must enter substance name."
+msgstr ""
+
+msgid "Cannot save consumable substance. %s"
+msgstr ""
+
+msgid ""
+"\n"
+"These are the components in the drug brands known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing drug brand components."
+msgstr ""
+
+msgid "Adding new drug component"
+msgstr ""
+
+msgid "Editing drug component"
+msgstr ""
+
+msgid "Cannot edit drug component. It is in use."
+msgstr ""
+
+msgid "Cannot save drug component. Invalid or missing essential input."
+msgstr ""
+
+msgid "The preparation (form) of the substance or brand."
+msgstr ""
+
+msgid "The preparation (form) of the substance or brand in question."
+msgstr ""
+
+msgid "Editing medication"
+msgstr ""
+
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid "fake"
+msgstr ""
+
+msgid ""
+"\n"
+"These are the drug brands known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing branded drugs."
+msgstr ""
+
+msgid "Adding new drug brand"
+msgstr ""
+
+msgid "Editing drug brand"
+msgstr ""
+
+msgid "Cannot edit drug brand. It is in use."
+msgstr ""
+
+msgid "Cannot save branded drug. Invalid or missing essential input."
+msgstr ""
+
+msgid "The brand name of the drug."
 msgstr ""
 
 msgid "never"
@@ -7819,15 +7979,12 @@ msgid ""
 "\n"
 "[%s]\n"
 "\n"
-"It may be prudent to edit before deletion the details\n"
+"It may be prudent to edit (before deletion) the details\n"
 "of this substance intake entry so as to leave behind\n"
 "some indication of why it was deleted.\n"
 msgstr ""
 
 msgid "Deleting medication / substance intake"
-msgstr ""
-
-msgid "&Edit+Delete"
 msgstr ""
 
 msgid "Allow editing of substance intake entry before deletion."
@@ -7917,7 +8074,7 @@ msgid ""
 "Preparation: %s\n"
 msgstr ""
 
-msgid "Amount per dose: %s"
+msgid "Amount per dose: %s%s"
 msgstr ""
 
 msgid ""
@@ -9260,9 +9417,6 @@ msgstr ""
 msgid "Deleting vaccine"
 msgstr ""
 
-msgid "fake"
-msgstr ""
-
 msgid ""
 "\n"
 "The vaccines currently known to GNUmed.\n"
@@ -9574,9 +9728,6 @@ msgid "Search by"
 msgstr ""
 
 msgid "Any"
-msgstr ""
-
-msgid "Brand name"
 msgstr ""
 
 msgid "Generic name"

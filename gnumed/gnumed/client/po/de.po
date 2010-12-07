@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-11-15 16:34+CET\n"
-"PO-Revision-Date: 2010-11-15 16:37+0100\n"
+"POT-Creation-Date: 2010-12-07 15:53+CET\n"
+"PO-Revision-Date: 2010-12-07 16:39+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -461,6 +461,9 @@ msgstr "ungültiger Platzhalter [%s]"
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
 msgstr "Fehler mit pdflatex. Kann LaTeX template nicht in PDF umwandeln."
 
+msgid "Sandboxed PDF output file cannot be moved."
+msgstr "PDF-Datei im Sandkasten kann nicht geöffnet werden."
+
 msgid "PDF output file cannot be opened."
 msgstr "PDF-Datei kann nicht geöffnet werden."
 
@@ -571,6 +574,30 @@ msgstr "Fehler beim Laden ungesichteter Werte"
 
 msgid "external patient source (name, gender, date of birth)"
 msgstr "externe Patientenquelle (Name, Geschlecht, Geburtsdatum)"
+
+msgid "<name> cannot be empty"
+msgstr "<name> darf nicht leer sein"
+
+msgid "<issuer> cannot be empty"
+msgstr "<issuer> darf nicht leer sein"
+
+msgid "<channel> cannot be empty"
+msgstr "<channel> darf nicht leer sein"
+
+msgid "<number> cannot be empty"
+msgstr "<number> darf nicht leer sein"
+
+msgid "<street> cannot be empty"
+msgstr "<street> darf nicht leer sein"
+
+msgid "<urb> cannot be empty"
+msgstr "<urb> darf nicht leer sein"
+
+msgid "<zip> cannot be empty"
+msgstr "<zip> darf nicht leer sein"
+
+msgid "<country> cannot be empty"
+msgstr "<country> darf nicht leer sein"
 
 msgid "** DOB unknown **"
 msgstr "** Geburtsdatum unbekannt **"
@@ -881,6 +908,9 @@ msgstr ""
 
 msgid "unknown test status [%s]"
 msgstr "unbekannter Teststatus [%s]"
+
+msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
+msgstr "[%s:%s]: Zeile nicht geändert (nichts zurückgeliefert), Zeile in Benutzung ?"
 
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::J"
@@ -1401,6 +1431,58 @@ msgstr "Setzen auf:"
 msgid "Comment:"
 msgstr "Kommentar:"
 
+msgid "Fake brand"
+msgstr "Pseudoprodukt"
+
+msgid "&+"
+msgstr ""
+
+msgid "&-"
+msgstr ""
+
+msgid "Mark as a fake (not really existing) brand."
+msgstr "Als Pseudoprodukt markieren."
+
+msgid "Add a component to this drug."
+msgstr "Diesem Medikament eine Substanz hinzufügen."
+
+msgid "Remove a component from this drug."
+msgstr "Eine Substanz aus dem Medikament entfernen."
+
+msgid ""
+"An external code for this drug.\n"
+"\n"
+"In most cases either a national drug identifier or the ID of this drug in an external database.\n"
+"\n"
+"In any case, GNUmed will never actively do anything with this code apart from display and making it available when passing this drug to external applications."
+msgstr ""
+"Eine externe ID für dieses Medikament.\n"
+"\n"
+"Zumeist eine nationale Medikamenten-ID oder die ID des Medikaments in einer externen Datenbank.\n"
+"\n"
+"GNUmed verwendet diese ID nicht aktiv. Sie wird lediglich angezeigt und bei der Übergabe dieses Medikaments an externe Programme verfügbar gemacht."
+
+msgid "The type of the external code of this drug, if any."
+msgstr "Typ der externen ID dieses Medikaments."
+
+msgid "Brand name"
+msgstr "Handelsname"
+
+msgid "Preparation"
+msgstr "Darreichungsform"
+
+msgid "Components"
+msgstr "Bestandteile"
+
+msgid "ATC code"
+msgstr "ATC-Code"
+
+msgid "External code"
+msgstr "Externe ID"
+
+msgid "Type:"
+msgstr "Typ:"
+
 msgid "Previous Encounters"
 msgstr "Bisherige Kontakte"
 
@@ -1566,6 +1648,27 @@ msgstr "Wert"
 msgid "Address"
 msgstr "Adresse"
 
+msgid ""
+"Enter the name of the consumable substance.\n"
+"\n"
+"Examples:\n"
+"- metoprolol\n"
+"- tobacco\n"
+"- alcohol\n"
+"- marihuana\n"
+"- aloe vera\n"
+"- ibuprofen"
+msgstr ""
+"Geben Sie die Substanzbezeichnung ein.\n"
+"\n"
+"Beispiele:\n"
+"- Metoprolol\n"
+"- Tabak (Nikotin)\n"
+"- Alkohol\n"
+"- Marihuana\n"
+"- Aloe Vera\n"
+"- Ibuprofen"
+
 msgid "+"
 msgstr "+"
 
@@ -1575,26 +1678,11 @@ msgstr "Gebilligt"
 msgid "Per plan"
 msgstr "Planmäßig"
 
+msgid "... Reason"
+msgstr "... Grund"
+
 msgid "Long-term"
 msgstr "Langzeit"
-
-msgid ""
-"Get substances from an external drug database.\n"
-"\n"
-"Note that if you select more than one substance only the first one will be available for further editing right away."
-msgstr ""
-"Wirkstoffe aus einer externen Datenbank holen.\n"
-"\n"
-"Wenn Sie mehr als einen Wirkstoff holen, wird nur der erste davon zum Bearbeiten eingetragen werden."
-
-msgid "The preparation the substance comes in."
-msgstr "Die Darreichungsform der Substanz."
-
-msgid "The amount of substance per dose."
-msgstr "Die Menge Wirkstoff pro Dosis."
-
-msgid "Whether this substance is taken by advice."
-msgstr "Ob die Einnahme dieser Substanz gebilligt (bzw sogar empfohlen) wird."
 
 msgid "The brand name of the drug the patient is taking."
 msgstr "Der Handelsname des Medikaments, das vom Patienten eingenommen wird."
@@ -1611,8 +1699,26 @@ msgstr ""
 msgid "The active ingredients of this brand."
 msgstr "Die aktiven Wirkstoffe dieses Medikaments."
 
+msgid ""
+"Get substances from an external drug database.\n"
+"\n"
+"Note that if you select more than one substance only the first one will be available for further editing right away."
+msgstr ""
+"Wirkstoffe aus einer externen Datenbank holen.\n"
+"\n"
+"Wenn Sie mehr als einen Wirkstoff holen, wird nur der erste davon zum Bearbeiten eingetragen werden."
+
+msgid "The preparation the substance comes in."
+msgstr "Die Darreichungsform der Substanz."
+
+msgid "The amount of substance per dose."
+msgstr "Die Menge Wirkstoff pro Dosis."
+
 msgid "When was this substance started to be consumed."
 msgstr "Seit wann wird diese Substanz konsumiert."
+
+msgid "Whether this substance is taken by advice."
+msgstr "Ob die Einnahme dieser Substanz gebilligt (bzw sogar empfohlen) wird."
 
 msgid "When was intake of this substance discontinued ?"
 msgstr "Wann wurde die Einnahme dieser Substanz beendet ?"
@@ -1644,17 +1750,14 @@ msgstr "Das Ziel des Gebrauchs dieser Substanz."
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr "Kommentare oder Hinweise zur Einnahme dieser Substanz."
 
-msgid "Preparation"
-msgstr "Darreichungsform"
+msgid "... or ..."
+msgstr "... oder ..."
 
 msgid "Started"
 msgstr "Beginn"
 
 msgid "Discontinued"
 msgstr "Beendet"
-
-msgid "Reason"
-msgstr "Grund"
 
 msgid "Schedule"
 msgstr "Plan"
@@ -1848,6 +1951,27 @@ msgstr "Übersetzung"
 
 msgid "Language"
 msgstr "Sprache"
+
+msgid ""
+"The numeric amount of substance per dose in brand.\n"
+"\n"
+"Examples:\n"
+"- 100mg per tablet: amount = 100, unit = mg(/tablet)\n"
+"- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n"
+"- 5mg/ml solution: amount = 5, unit = mg/ml"
+msgstr ""
+"Die Menge des Medikamentenbestandteils in Zahlen.\n"
+"\n"
+"Beispiele:\n"
+"- 100mg pro Tablette: Menge = 100, Einheit = mg(/Tablette)\n"
+"- 10mg/Ampulle: Menge = 10, Einheit = mg(/Ampulle)\n"
+"- 5mg/ml Lösung: Menge = 5, Einheit = mg/ml"
+
+msgid "Amount"
+msgstr "Menge"
+
+msgid "Unit"
+msgstr "Einheit"
 
 msgid "Edit Document Types"
 msgstr "Dokumententypen editieren"
@@ -2518,9 +2642,6 @@ msgstr "Ein Kommentar zu diesem Labor/dieser Meßfirma."
 msgid "Abbreviation"
 msgstr "Abkürzung"
 
-msgid "Unit"
-msgstr "Einheit"
-
 msgid "&Your unsigned"
 msgstr "&Meine unsignierten"
 
@@ -3027,9 +3148,6 @@ msgstr "Ort"
 msgid "and Episode"
 msgstr "und Episode"
 
-msgid "... or ..."
-msgstr "... oder ..."
-
 msgid "Hospital stay"
 msgstr "Krankenhausaufenthalt"
 
@@ -3260,9 +3378,6 @@ msgstr "Neu beginnen (verwirft die aktuellen Daten)."
 
 msgid "Associate to episode:"
 msgstr "Zugehörige Episode:"
-
-msgid "Type:"
-msgstr "Typ:"
 
 msgid "Date of creation:"
 msgstr "Erstellungsdatum:"
@@ -5775,6 +5890,9 @@ msgstr "Einweisung"
 msgid "Discharge"
 msgstr "Entlassung"
 
+msgid "Reason"
+msgstr "Grund"
+
 msgid "Adding a hospital stay"
 msgstr "Einen Krankenhausaufenthalt hinzufügen"
 
@@ -6714,17 +6832,17 @@ msgstr "Dieses GNUmed-Fenster schließen."
 msgid "E&xit\tAlt-X"
 msgstr "E&xit\tAlt-X"
 
+msgid "&Register person"
+msgstr "Person &registrieren"
+
 msgid "Register a new person with GNUmed"
 msgstr "Neue Person in GNUmed anlegen"
 
-msgid "Register person"
-msgstr "Neue Person anlegen"
+msgid "&Load external"
+msgstr "Von extern &laden"
 
 msgid "Load and possibly create person from an external source."
 msgstr "Aus einer externen Quelle laden und ggf. anlegen."
-
-msgid "Load external"
-msgstr "Von extern laden"
 
 msgid "Deactivate (exclude from search) person record in database."
 msgstr "Person in der Datenbank deaktivieren."
@@ -7665,11 +7783,11 @@ msgstr "Medikamente (Produkte)"
 msgid "Codes and their respective terms"
 msgstr "Codes und dazugehörige Termini."
 
+msgid "Components of branded drugs (substances in brands)"
+msgstr "Bestandteile der handelsüblichen Medikamente"
+
 msgid "Diagnostic organizations (path labs, ...)"
 msgstr "Labore/Meßfirmen"
-
-msgid "Components of (substances in) branded drugs"
-msgstr "Wirkstoffe der handelsüblichen Medikamente"
 
 msgid "Document templates (forms, letters, plots, ...)"
 msgstr "Dokumentenvorlagen (Briefe, Formulare, Plots, ...)"
@@ -7695,9 +7813,6 @@ msgstr "Bundesländer (Provinzen, Staaten, Regionen, ...)"
 msgid "String translations in the database"
 msgstr "Zeichenkettenübersetzungen in der Datenbank"
 
-msgid "Substances in use (taken by patients)"
-msgstr "Verwendete Substanzen (Einnahme durch Patienten)"
-
 msgid "Test/measurement types"
 msgstr "Meßverfahren"
 
@@ -7712,6 +7827,9 @@ msgstr "Impfstoffe"
 
 msgid "Workplace profiles (which plugins to load)"
 msgstr "Arbeitsplatz-Profile (Laden welcher Plugins)"
+
+msgid "Consumable substances"
+msgstr "Einsetzbare Substanzen."
 
 msgid "Master data management"
 msgstr "Stammdatenverwaltung"
@@ -8593,8 +8711,8 @@ msgstr "Wählen Sie den Typ der Messung."
 msgid "The name of the path lab/diagnostic organisation."
 msgstr "Der Name des Labors/der Meßfirma."
 
-msgid "Select the unit of the test result."
-msgstr "Wählen Sie die Einheiten für das Ergebnis."
+msgid "Select the desired unit for the amount or measurement."
+msgstr "Wählen Sie die Einheit für Menge oder Meßergebnis."
 
 msgid "Select an indicator for the level of abnormality."
 msgstr "Wählen Sie einen Indikator für den Grad der Abnormität des Ergebnisses."
@@ -8634,78 +8752,6 @@ msgstr "Zeige Meta-Meßverfahren ..."
 
 msgid ""
 "\n"
-"The ATC codes as known to GNUmed.\n"
-msgstr ""
-"\n"
-"Die GNUmed bekannten ATC-Codes.\n"
-
-msgid "Showing ATC codes."
-msgstr "Zeige ATC-Codes."
-
-msgid "Choose an ATC import config file"
-msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
-
-msgid "config files"
-msgstr "Konfigurationsdateien"
-
-msgid "importing ATC reference data"
-msgstr "Import von ATC-Referenzdaten"
-
-msgid "Successfully imported ATC reference data."
-msgstr "ATC-Referenzdaten erfolgreich importiert."
-
-msgid "Importing ATC reference data failed."
-msgstr "Import von ATC-Referenzdaten schlug fehl."
-
-msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
-msgstr "Wählen Sie einen ATC (Anatomisch-Therapeutisch-Chemischen) Code."
-
-msgid ""
-"\n"
-"These are the substances in the drug brands known to GNUmed.\n"
-msgstr ""
-"\n"
-"Diese Medikamentenbestandteile sind derzeit in GNUmed hinterlegt.\n"
-
-msgid "Showing drug brand components (substances)."
-msgstr "Zeige Medikamentenbestandteile (Wirkstoffe)."
-
-msgid "Deleting medication"
-msgstr "Medikament löschen"
-
-msgid ""
-"Cannot delete the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
-msgstr ""
-"Kann dieses Medikament nicht löschen\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"weil es sich um einen Impfstoff handelt. Löschen\n"
-"Sie Impfstoffe bitte in der Impfverwaltung !\n"
-
-msgid ""
-"\n"
-"These are the drug brands known to GNUmed.\n"
-msgstr ""
-"\n"
-"Die derzeit in GNUmed hinterlegten, handelsüblichen Medikamente.\n"
-
-msgid "Showing branded drugs."
-msgstr "Zeige Medikamente."
-
-msgid "Substances currently or previously consumed across all patients."
-msgstr "Substanzen (Wirkstoffe), die bislang von Patienten eingenommen wurden."
-
-msgid "Showing consumed substances."
-msgstr "Zeige Substanzen (Wirkstoffe)."
-
-msgid ""
-"\n"
 "Please select the default drug data source from the list below.\n"
 "\n"
 "Note that to actually use it you need to have the database installed, too."
@@ -8736,11 +8782,153 @@ msgstr "Kann Transferdatei [%s] (IFAP <-> GNUmed) nicht anlegen."
 msgid "Current medication"
 msgstr "Derzeitige Medikation"
 
-msgid "The preparation (form) of the substance the patient is taking."
-msgstr "Die Darreichungs-/Zubereitungsform der Substanz, die vom Patienten eingenommen wird."
+msgid ""
+"\n"
+"The ATC codes as known to GNUmed.\n"
+msgstr ""
+"\n"
+"Die GNUmed bekannten ATC-Codes.\n"
 
-msgid "The INN / substance the patient is taking."
-msgstr "Die Substanz / INN, die vom Patienten eingenommen wird."
+msgid "Showing ATC codes."
+msgstr "Zeige ATC-Codes."
+
+msgid "Choose an ATC import config file"
+msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
+
+msgid "config files"
+msgstr "Konfigurationsdateien"
+
+msgid "importing ATC reference data"
+msgstr "Import von ATC-Referenzdaten"
+
+msgid "Successfully imported ATC reference data."
+msgstr "ATC-Referenzdaten erfolgreich importiert."
+
+msgid "Importing ATC reference data failed."
+msgstr "Import von ATC-Referenzdaten schlug fehl."
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr "Wählen Sie einen ATC (Anatomisch-Therapeutisch-Chemischen) Code."
+
+msgid ""
+"\n"
+"These are the consumable substances registered with GNUmed.\n"
+msgstr ""
+"\n"
+"Diese Substanzen sind derzeit in GNUmed hinterlegt.\n"
+
+msgid "Showing consumable substances."
+msgstr "Zeige Substanzen (Wirkstoffe)."
+
+msgid "Import"
+msgstr ""
+
+msgid "Import consumable substances from a drug database."
+msgstr "Substanzen aus externer Datenbank holen."
+
+msgid "Adding new consumable substance"
+msgstr "Neue Substanz hinzufügen"
+
+msgid "Editing consumable substance"
+msgstr "Substanz bearbeiten"
+
+msgid "Cannot save consumable substance. Must enter substance name."
+msgstr "Kann Substanz nicht speichern. Es fehlt der Substanzname."
+
+msgid "Cannot save consumable substance. %s"
+msgstr "Kann Substanz nicht speichern. %s"
+
+msgid ""
+"\n"
+"These are the components in the drug brands known to GNUmed.\n"
+msgstr ""
+"\n"
+"Diese Medikamentenbestandteile sind derzeit in GNUmed hinterlegt.\n"
+
+msgid "Showing drug brand components."
+msgstr "Zeige Medikamentenbestandteile (Wirkstoffe)."
+
+msgid "Adding new drug component"
+msgstr "Medikamentenbestandteil hinzufügen"
+
+msgid "Editing drug component"
+msgstr "Medikamentenbestandteil bearbeiten"
+
+msgid "Cannot edit drug component. It is in use."
+msgstr "Kann Medikamentenbestandteil nicht verändern. Das Medikament ist in Benutzung."
+
+msgid "Cannot save drug component. Invalid or missing essential input."
+msgstr "Kann Medikamentenbestandteil nicht speichern. Ungültige oder fehlende Angaben."
+
+msgid "The preparation (form) of the substance or brand."
+msgstr "Die Darreichungs-/Zubereitungsform der Substanz/des Medikaments."
+
+msgid "The preparation (form) of the substance or brand in question."
+msgstr "Die Darreichungs-/Zubereitungsform der Substanz/des Medikaments."
+
+msgid "Editing medication"
+msgstr "Bearbeite Medikation"
+
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Kann den Impfstoff\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"nicht verändern. Bearbeiten Sie\n"
+"Impfstoffe bitte in der Impfverwaltung !\n"
+
+msgid "Deleting medication"
+msgstr "Medikament löschen"
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Kann dieses Medikament nicht löschen\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"weil es sich um einen Impfstoff handelt. Löschen\n"
+"Sie Impfstoffe bitte in der Impfverwaltung !\n"
+
+msgid "fake"
+msgstr "unecht"
+
+msgid ""
+"\n"
+"These are the drug brands known to GNUmed.\n"
+msgstr ""
+"\n"
+"Die derzeit in GNUmed hinterlegten, handelsüblichen Medikamente.\n"
+
+msgid "Showing branded drugs."
+msgstr "Zeige Medikamente."
+
+msgid "Adding new drug brand"
+msgstr "Füge neues Medikament hinzu"
+
+msgid "Editing drug brand"
+msgstr "Bearbeite Medikament"
+
+msgid "Cannot edit drug brand. It is in use."
+msgstr "Kann Medikament nicht verändern. Es ist in Benutzung."
+
+msgid "Cannot save branded drug. Invalid or missing essential input."
+msgstr "Kann Medikament nicht speichert. Ungültige oder fehlende Angaben."
+
+msgid "The brand name of the drug."
+msgstr "Der Handelsname des Medikaments."
 
 msgid "never"
 msgstr "nie"
@@ -8767,7 +8955,7 @@ msgid ""
 "\n"
 "[%s]\n"
 "\n"
-"It may be prudent to edit before deletion the details\n"
+"It may be prudent to edit (before deletion) the details\n"
 "of this substance intake entry so as to leave behind\n"
 "some indication of why it was deleted.\n"
 msgstr ""
@@ -8780,9 +8968,6 @@ msgstr ""
 
 msgid "Deleting medication / substance intake"
 msgstr "Medikation / Substanzeinnahme löschen"
-
-msgid "&Edit+Delete"
-msgstr "&Bearbeiten+Löschen"
 
 msgid "Allow editing of substance intake entry before deletion."
 msgstr "Die Medikation / Substanzeinnahme vor dem Löschen noch bearbeiten."
@@ -8868,8 +9053,8 @@ msgstr "Substanz: %s   [#%s]\n"
 msgid "Preparation: %s\n"
 msgstr "Darreichungsform: %s\n"
 
-msgid "Amount per dose: %s"
-msgstr "Menge pro Dosis: %s"
+msgid "Amount per dose: %s%s"
+msgstr "Menge pro Dosis: %s%s"
 
 msgid " ATC (substance): %s\n"
 msgstr " ATC (Wirkstoff): %s\n"
@@ -10461,9 +10646,6 @@ msgstr ""
 msgid "Deleting vaccine"
 msgstr "Impfung löschen"
 
-msgid "fake"
-msgstr "unecht"
-
 msgid ""
 "\n"
 "The vaccines currently known to GNUmed.\n"
@@ -10798,9 +10980,6 @@ msgstr "Suche anhand"
 
 msgid "Any"
 msgstr "Irgendeine"
-
-msgid "Brand name"
-msgstr "Handelsname"
 
 msgid "Generic name"
 msgstr "Freiname"
@@ -11161,6 +11340,15 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Substances in use (taken by patients)"
+#~ msgstr "Verwendete Substanzen (Einnahme durch Patienten)"
+#~ msgid "Substances currently or previously consumed across all patients."
+#~ msgstr ""
+#~ "Substanzen (Wirkstoffe), die bislang von Patienten eingenommen wurden."
+#~ msgid "The INN / substance the patient is taking."
+#~ msgstr "Die Substanz / INN, die vom Patienten eingenommen wird."
+#~ msgid "&Edit+Delete"
+#~ msgstr "&Bearbeiten+Löschen"
 #~ msgid "Organisations"
 #~ msgstr "Organisationen"
 #~ msgid "Manage the plugins to load per workplace."
@@ -11189,8 +11377,6 @@ msgstr "erstmals"
 #~ msgstr "Medikamente"
 #~ msgid "Manage branded drugs."
 #~ msgstr "Medikamente verwalten."
-#~ msgid "Drug components"
-#~ msgstr "Medikamentenbestandteile"
 #~ msgid "Diagnostic orgs"
 #~ msgstr "Labore etc."
 #~ msgid "&Test types"
@@ -11267,8 +11453,6 @@ msgstr "erstmals"
 #~ msgstr "Charge"
 #~ msgid "Site injected"
 #~ msgstr "Injektionsort"
-#~ msgid "Cannot save vaccination: %s"
-#~ msgstr "Kann Impfung nicht speichern: %s"
 #~ msgid "Cannot save new vaccination: %s"
 #~ msgstr "Kann neue Impfung nicht speichern: %s"
 #~ msgid "Vaccination saved."
@@ -11422,8 +11606,6 @@ msgstr "erstmals"
 #~ "\n"
 #~ "GNUmed kann diesen Typ nicht verarbeiten.\n"
 #~ "Nachricht verbleibt im Posteingang."
-#~ msgid "Get substances from an external drug database."
-#~ msgstr "Substanzen aus externer Datenbank holen."
 #~ msgid "Group substances by episode for which they are taken."
 #~ msgstr ""
 #~ "Wirkstoffe nach Problemen gruppieren, wegen welcher sie eingenommen "
@@ -11454,8 +11636,6 @@ msgstr "erstmals"
 #~ "Anmeldedaten erneut oder brechen Sie ab."
 #~ msgid "This field can only contain digits."
 #~ msgstr "Dieses Feld darf nur Ziffern enthalten."
-#~ msgid "This field cannot be empty."
-#~ msgstr "Dieses Feld darf nicht leer sein."
 #~ msgid "edit episode details"
 #~ msgstr "Details der Episode .ändern"
 #~ msgid "Save/Update"
@@ -12383,8 +12563,6 @@ msgstr "erstmals"
 #~ "Sie wählten die folgenden Medikamente im \"ifap index PRAXIS "
 #~ "(Windows)\":\n"
 #~ "\n"
-#~ msgid "listing drugs"
-#~ msgstr "zeige Medikamente"
 #~ msgid "rename episode"
 #~ msgstr "Episode umbenennen"
 #~ msgid ""
