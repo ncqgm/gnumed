@@ -84,7 +84,7 @@ def find_first_binary(binaries=None):
 
 	return (found, binary)
 #===========================================================================
-def run_command_in_shell(command=None, blocking=False):
+def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=None):
 	"""Runs a command in a subshell via standard-C system().
 
 	<command>
@@ -93,8 +93,12 @@ def run_command_in_shell(command=None, blocking=False):
 		This will make the code *block* until the shell command exits.
 		It will likely only work on UNIX shells where "cmd &" makes sense.
 	"""
+	if acceptable_return_codes is None:
+		acceptable_return_codes = [0]
+
 	_log.debug('shell command >>>%s<<<', command)
 	_log.debug('blocking: %s', blocking)
+	_log.debug('acceptable return codes: %s', str(acceptable_return_codes))
 
 	# FIXME: command should be checked for shell exploits
 	command = command.strip()
@@ -138,7 +142,7 @@ def run_command_in_shell(command=None, blocking=False):
 	_log.debug('exited via exit(): %s', os.WIFEXITED(ret_val))
 	if os.WIFEXITED(ret_val):
 		_log.debug('exit code: [%s]', os.WEXITSTATUS(ret_val))
-		exited_normally = (os.WEXITSTATUS(ret_val) == 0)
+		exited_normally = (os.WEXITSTATUS(ret_val) in acceptable_return_codes)
 		_log.debug('normal exit: %s', exited_normally)
 	_log.debug('dumped core: %s', os.WCOREDUMP(ret_val))
 	_log.debug('stopped by signal: %s', os.WIFSIGNALED(ret_val))

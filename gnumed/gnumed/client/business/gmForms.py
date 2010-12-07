@@ -753,7 +753,7 @@ class cLaTeXForm(cFormEngine):
 			else:
 				cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
 			for run in [1, 2, 3]:
-				if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+				if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True, acceptable_return_codes = [0, 1]):
 					_log.error('problem running pdflatex, cannot generate form output')
 					gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 					os.chdir(old_cwd)
@@ -761,9 +761,16 @@ class cLaTeXForm(cFormEngine):
 		finally:
 			os.chdir(old_cwd)
 
-		pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
-		shutil.move(pdf_name, os.path.split(self.instance_filename)[0])
-		pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
+		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
+		target_dir = os.path.split(self.instance_filename)[0]
+		try:
+			shutil.move(sandboxed_pdf_name, target_dir)
+		except IOError:
+			_log.exception('cannot move sandboxed PDF: %s -> %s', sandboxed_pdf_name, target_dir)
+			gmDispatcher.send(signal = 'statustext', msg = _('Sandboxed PDF output file cannot be moved.'), beep = True)
+			return None
+
+		final_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
 
 		# cleanup LaTeX sandbox ?
 		if cleanup:
@@ -772,13 +779,13 @@ class cLaTeXForm(cFormEngine):
 			os.rmdir(sandbox_dir)
 
 		try:
-			open(pdf_name, 'r').close()
-			return pdf_name
+			open(final_pdf_name, 'r').close()
 		except IOError:
-			_log.exception('cannot open target PDF: %s', pdf_name)
+			_log.exception('cannot open target PDF: %s', final_pdf_name)
+			gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
+			return None
 
-		gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
-		return None
+		return final_pdf_name
 	#--------------------------------------------------------
 	def cleanup(self):
 		try:

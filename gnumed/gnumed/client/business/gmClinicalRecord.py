@@ -319,6 +319,53 @@ SELECT fk_encounter from
 
 		return filtered_narrative
 	#--------------------------------------------------------
+	def get_as_journal(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None):
+
+		if order_by is None:
+			order_by = u'ORDER BY date, pk_episode, scr, src_table'
+		else:
+			order_by = u'ORDER BY %s' % order_by
+
+		where_parts = [u'pk_patient = %(pat)s']
+		args = {'pat': self.pk_patient}
+
+		if soap_cats is not None:
+			# work around bug in psycopg2 not being able to properly
+			# adapt None to NULL inside tuples
+			if None in soap_cats:
+				where_parts.append(u'((vemrj.soap_cat IN %(soap_cat)s) OR (vemrj.soap_cat IS NULL))')
+				soap_cats.remove(None)
+			else:
+				where_parts.append(u'vemrj.soap_cat IN %(soap_cat)s')
+			args['soap_cat'] = tuple(soap_cats)
+
+		# FIXME: implement more constraints
+
+		cmd = u"""
+			SELECT
+				to_char(vemrj.clin_when, 'YYYY-MM-DD') AS date,
+				vemrj.clin_when,
+				coalesce(vemrj.soap_cat, '') as soap_cat,
+				vemrj.narrative,
+				vemrj.src_table,
+
+				(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = vemrj.soap_cat) AS scr,
+
+				vemrj.modified_when,
+				to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified,
+				vemrj.modified_by,
+				vemrj.row_version
+			FROM clin.v_emr_journal vemrj
+			WHERE
+				%s
+			%s""" % (
+				u'\n\t\t\t\t\tAND\n\t\t\t\t'.join(where_parts),
+				order_by
+			)
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+	#--------------------------------------------------------
 	def search_narrative_simple(self, search_term=''):
 
 		search_term = search_term.strip()
@@ -2204,8 +2251,15 @@ if __name__ == "__main__":
 		emr = cClinicalRecord(aPKey = 12)
 		print emr.is_allergic_to(atcs = tuple(sys.argv[2:]), inns = tuple(sys.argv[2:]), brand = sys.argv[2])
 	#-----------------------------------------
+	def test_get_as_journal():
+		emr = cClinicalRecord(aPKey = 12)
+		for journal_line in emr.get_as_journal():
+			#print journal_line.keys()
+			print u'%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s' % journal_line
+			print ""
+	#-----------------------------------------
 	#test_allergy_state()
-	test_is_allergic_to()
+	#test_is_allergic_to()
 
 	#test_get_test_names()
 	#test_get_dates_for_results()
@@ -2218,6 +2272,7 @@ if __name__ == "__main__":
 	#test_get_most_recent_episode()
 	#test_get_almost_recent_encounter()
 	#test_get_meds()
+	test_get_as_journal()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

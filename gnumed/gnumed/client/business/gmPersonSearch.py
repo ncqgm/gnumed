@@ -39,7 +39,7 @@ class cPatientSearcher_SQL:
 		identities = self.get_identities(search_term, a_locale, dto)
 		if identities is None:
 			return None
-		return [cPatient(aPK_obj=ident['pk_identity']) for ident in identities]
+		return [ gmPerson.cPatient(aPK_obj=ident['pk_identity']) for ident in identities ]
 	#--------------------------------------------------------
 	def get_identities(self, search_term = None, a_locale = None, dto = None):
 		"""Get patient identity objects for given parameters.

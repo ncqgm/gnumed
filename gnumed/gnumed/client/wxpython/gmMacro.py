@@ -45,7 +45,14 @@ known_placeholders = [
 # those must satisfy the pattern "$name::args::optional length$" when used
 known_variant_placeholders = [
 	u'soap',
-	u'progress_notes',
+	u'progress_notes',			# "data" holds: categories//template
+								# 	categories: string with "soap ", " " == None == admin
+								#	template: u'something %s something'		(do not include // in template !)
+	u'emr_journal',				# "data" holds: categories//template//<line length>//<target format>
+								# 	categories: string with "soap ", " " == None == admin
+								#	template: u'something %s something'		(do not include // in template !)
+								#	line length: the length of individual lines, not the total placeholder length
+								#	target format: "tex" or anything else, if "tex", data will be tex-escaped
 	u'date_of_birth',
 	u'adr_street',				# "data" holds: type of address
 	u'adr_number',
@@ -151,18 +158,18 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return None
 
 		# variable placeholders
-		parts = placeholder.split('::', 2)
+		parts = placeholder.split('::')
 		if len(parts) == 2:
 			name, data = parts
 			lng = None
-		elif len(parts) == 3:
+		if len(parts) == 3:
 			name, data, lng = parts
 			try:
 				lng = int(lng)
 			except:
 				_log.exception('placeholder length definition error: %s, discarding length', original_placeholder)
 				lng = None
-		else:
+		if len(parts) > 3:
 			_log.warning('invalid placeholder layout: %s', original_placeholder)
 			if self.debug:
 				return self.invalid_placeholder_template % original_placeholder
@@ -288,28 +295,107 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# variant handlers
 	#--------------------------------------------------------
+	def _get_variant_emr_journal(self, data=None):
+		# default: all categories, neutral template
+		cats = list(u'soap').append(None)
+		template = u'%s'
+		interactive = True
+		line_length = 9999
+		target_format = None
+
+		if data is not None:
+			data_parts = data.split('//')
+
+			# part[0]: categories
+			cats = []
+			# ' ' -> None == admin
+			for c in list(data_parts[0]):
+				if c == u' ':
+					c = None
+				cats.append(c)
+			# '' -> SOAP + None
+			if cats == u'':
+				cats = cats = list(u'soap').append(None)
+
+			# part[1]: template
+			if len(data_parts) > 0:
+				template = data_parts[1]
+
+			# part[2]: line length
+			if len(data_parts) > 1:
+				try:
+					line_length = int(data_parts[2])
+				except:
+					line_length = 9999
+
+			# part[3]: output format
+			if len(data_parts) > 2:
+				target_format = data_parts[3]
+
+		# FIXME: will need to be a generator later on
+		narr = self.pat.get_emr().get_as_journal(soap_cats = cats)
+
+		if len(narr) == 0:
+			return u''
+
+		if target_format == u'tex':
+			keys = narr[0].keys()
+			lines = []
+			line_dict = {}
+			for n in narr:
+				for key in keys:
+					if isinstance(n[key], basestring):
+						line_dict[key] = gmTools.tex_escape_string(text = n[key])
+						continue
+					line_dict[key] = n[key]
+				try:
+					lines.append((template % line_dict)[:line_length])
+				except KeyError:
+					return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
+		else:
+			try:
+				lines = [ (template % n)[:line_length] for n in narr ]
+			except KeyError:
+				return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+
+		return u'\n'.join(lines)
+	#--------------------------------------------------------
 	def _get_variant_progress_notes(self, data=None):
 		return self._get_variant_soap(data=data)
 	#--------------------------------------------------------
 	def _get_variant_soap(self, data=None):
-		if data is None:
-			cats = list(data)
-			template = u'%s'
-		else:
-			parts = data.split('//', 2)
-			if len(parts) == 1:
-				cats = list(parts)
-				template = u'%s'
-			else:
-				cats = list(parts[0])
-				template = parts[1]
+
+		# default: all categories, neutral template
+		cats = list(u'soap').append(None)
+		template = u'%s'
+
+		if data is not None:
+			data_parts = data.split('//')
+
+			# part[0]: categories
+			cats = []
+			# ' ' -> None == admin
+			for c in list(data_parts[0]):
+				if c == u' ':
+					c = None
+				cats.append(c)
+			# '' -> SOAP + None
+			if cats == u'':
+				cats = cats = list(u'soap').append(None)
+
+			# part[1]: template
+			if len(data_parts) > 0:
+				template = data_parts[1]
 
 		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
 
 		if len(narr) == 0:
 			return u''
 
-		narr = [ template % n['narrative'] for n in narr ]
+		try:
+			narr = [ template % n['narrative'] for n in narr ]
+		except KeyError:
+			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
@@ -907,11 +993,28 @@ if __name__ == '__main__':
 				print ' => "%s"' % p
 			print " "
 	#--------------------------------------------------------
+	def test_placeholder():
+
+		ph = u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::'
+
+		handler = gmPlaceholderHandler()
+		handler.debug = True
+
+		pat = gmPersonSearch.ask_for_patient()
+		if pat is None:
+			return
+
+		gmPatSearchWidgets.set_active_patient(patient = pat)
+
+		app = wx.PyWidgetTester(size = (200, 50))
+		print u'%s => %s' % (ph, handler[ph])
+	#--------------------------------------------------------
 
 	#test_placeholders()
-	test_new_variant_placeholders()
+	#test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()
+	test_placeholder()
 
 #=====================================================================
 

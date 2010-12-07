@@ -17,6 +17,8 @@ NEW: translate database strings from within client and contribute translations
 NEW: simplistic coding systems browser
 NEW: cloning of workplaces
 NEW: hook "post_person_creation"
+NEW: placeholder: "emr_journal::soap//%(narrative)s//255//tex::9999"
+NEW: LaTeX template: chronological EMR journal
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip
