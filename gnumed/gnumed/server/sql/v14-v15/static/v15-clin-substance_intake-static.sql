@@ -60,7 +60,7 @@ alter table audit.log_substance_intake
 -- if not pointing to a drug: extract amount from .strength
 update clin.substance_intake set
 	amount = coalesce (
-		(select trim((regexp_matches(trim(strength), E'\\d+[.,]{0,1}\\d*'))[1]))::decimal,
+		(select replace(trim((regexp_matches(trim(strength), E'\\d+[.,]{0,1}\\d*'))[1]), ',', '.'))::decimal,
 		99999.2
 	)
 where

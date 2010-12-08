@@ -319,10 +319,10 @@ SELECT fk_encounter from
 
 		return filtered_narrative
 	#--------------------------------------------------------
-	def get_as_journal(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None):
+	def get_as_journal(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None):
 
 		if order_by is None:
-			order_by = u'ORDER BY date, pk_episode, scr, src_table'
+			order_by = u'ORDER BY vemrj.clin_when, vemrj.pk_episode, scr, vemrj.src_table'
 		else:
 			order_by = u'ORDER BY %s' % order_by
 
@@ -338,6 +338,9 @@ SELECT fk_encounter from
 			else:
 				where_parts.append(u'vemrj.soap_cat IN %(soap_cat)s')
 			args['soap_cat'] = tuple(soap_cats)
+
+		if time_range is not None:
+			where_parts.append(u"vemrj.clin_when > (now() - '%s days'::interval)" % time_range)
 
 		# FIXME: implement more constraints
 

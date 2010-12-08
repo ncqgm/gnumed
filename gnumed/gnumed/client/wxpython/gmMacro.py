@@ -47,11 +47,14 @@ known_variant_placeholders = [
 	u'soap',
 	u'progress_notes',			# "data" holds: categories//template
 								# 	categories: string with "soap ", " " == None == admin
-								#	template: u'something %s something'		(do not include // in template !)
-	u'emr_journal',				# "data" holds: categories//template//<line length>//<target format>
-								# 	categories: string with "soap ", " " == None == admin
-								#	template: u'something %s something'		(do not include // in template !)
-								#	line length: the length of individual lines, not the total placeholder length
+								#	template:	u'something %s something'		(do not include // in template !)
+	u'emr_journal',				# "data" format:   <categories>//<template>//<line length>//<time range>//<target format>
+								#	categories:	   string with any of "s", "o", "a", "p", " ";
+								#				   (" " == None == admin category)
+								#	template:	   something %s something else
+								#				   (Do not include // in the template !)
+								#	line length:   the length of individual lines, not the total placeholder length
+								#	time range:	   the number of weeks going back in time
 								#	target format: "tex" or anything else, if "tex", data will be tex-escaped
 	u'date_of_birth',
 	u'adr_street',				# "data" holds: type of address
@@ -302,6 +305,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		interactive = True
 		line_length = 9999
 		target_format = None
+		time_range = None
 
 		if data is not None:
 			data_parts = data.split('//')
@@ -328,12 +332,19 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				except:
 					line_length = 9999
 
-			# part[3]: output format
+			# part[3]: weeks going back in time
 			if len(data_parts) > 2:
-				target_format = data_parts[3]
+				try:
+					time_range = 7 * int(data_parts[3])
+				except:
+					time_range = None
+
+			# part[4]: output format
+			if len(data_parts) > 3:
+				target_format = data_parts[4]
 
 		# FIXME: will need to be a generator later on
-		narr = self.pat.get_emr().get_as_journal(soap_cats = cats)
+		narr = self.pat.get_emr().get_as_journal(soap_cats = cats, time_range = time_range)
 
 		if len(narr) == 0:
 			return u''

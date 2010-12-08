@@ -112,13 +112,13 @@ alter table ref.lnk_substance2brand
 
 
 
-\unset ON_ERROR_STOP
-alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_amount_unit_uniq_per_subst cascade;
-\set ON_ERROR_STOP 1
-
-alter table ref.lnk_substance2brand
-	add constraint ref_lnk_s2b_amount_unit_uniq_per_subst
-		unique (fk_substance, amount, unit);
+--\unset ON_ERROR_STOP
+--alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_amount_unit_uniq_per_subst cascade;
+--\set ON_ERROR_STOP 1
+--
+--alter table ref.lnk_substance2brand
+--	add constraint ref_lnk_s2b_amount_unit_uniq_per_subst
+--		unique (fk_substance, amount, unit);
 
 -- --------------------------------------------------------------
 -- must not devoid non-fake brands of all components
@@ -275,6 +275,8 @@ insert into ref.lnk_substance2brand (
 from
 	ref.substance_in_brand rsib
 ;
+
+
 
 -- ... clin.consumed_substance
 insert into ref.lnk_substance2brand (
