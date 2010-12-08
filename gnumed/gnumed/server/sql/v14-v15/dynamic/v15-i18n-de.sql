@@ -18,6 +18,17 @@ select i18n.upd_tx('de', 'salmonella typhi (typhoid)', 'Salmonella typhi (Typhus
 select i18n.upd_tx('de', 'influenza (seasonal)', 'Influenza (sais.)');
 
 -- --------------------------------------------------------------
+insert into dem.country (
+	code,
+	name
+) values (
+	'RS',
+	'Serbia'
+);
+
+select i18n.upd_tx('de', 'Serbia', 'Serbien');
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v15-i18n-de.sql,v $', '$Revision: 1. $');
 
 -- ==============================================================
