@@ -28,8 +28,8 @@ select
 	r_bd.preparation,
 	r_cs.description
 		as substance,
-	r_ls2b.amount,
-	r_ls2b.unit
+	r_cs.amount,
+	r_cs.unit
 		as unit,
 
 	r_cs.atc_code
@@ -124,8 +124,8 @@ select
 	c_si.preparation,
 	r_cs.description
 		as substance,
-	c_si.amount,
-	c_si.unit
+	r_cs.amount,
+	r_cs.unit
 		as unit,
 	r_cs.atc_code
 		as atc_substance,

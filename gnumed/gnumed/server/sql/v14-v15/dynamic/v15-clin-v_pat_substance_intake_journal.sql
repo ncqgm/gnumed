@@ -47,8 +47,8 @@ select
 
 		|| ' ' || r_cs.description								-- Metoprolol
 		|| coalesce(' [' || r_cs.atc_code || '] ', ' ')			-- [ATC]
-		|| r_ls2b.amount::text									-- 100
-		|| r_ls2b.unit || ' '									-- mg
+		|| r_cs.amount::text									-- 100
+		|| r_cs.unit || ' '										-- mg
 		|| r_bd.preparation										-- tab
 		|| coalesce(' ' || c_si.schedule, '')					-- 1-0-0
 		|| ', ' || to_char(c_si.clin_when, 'YYYY-MM-DD')		-- 2009-03-01
@@ -135,7 +135,7 @@ select
 
 		|| ' ' || r_cs.description								-- Metoprolol
 		|| coalesce(' [' || r_cs.atc_code || '] ', ' ')			-- [ATC]
-		|| c_si.amount || c_si.unit || ' '						-- 100mg
+		|| r_cs.amount || r_cs.unit || ' '						-- 100mg
 		|| c_si.preparation										-- tab
 		|| coalesce(' ' || c_si.schedule, '')					-- 1-0-0
 		|| ', ' || to_char(c_si.clin_when, 'YYYY-MM-DD')		-- 2009-03-01

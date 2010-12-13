@@ -31,7 +31,7 @@ select
 	r_bd.is_fake
 		as is_fake_brand,
 
-	(select array_agg(r_cs.description || '::' || r_ls2b.amount || '::' || r_ls2b.unit || '::' || coalesce(r_cs.atc_code, ''))
+	(select array_agg(r_cs.description || '::' || r_cs.amount || '::' || r_cs.unit || '::' || coalesce(r_cs.atc_code, ''))
 	 from
 	 	ref.lnk_substance2brand r_ls2b
 	 		inner join ref.consumable_substance r_cs on (r_ls2b.fk_substance = r_cs.pk)

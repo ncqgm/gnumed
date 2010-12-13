@@ -19,25 +19,20 @@ comment on table ref.consumable_substance is
 'lists substances that are consumable by patients,
  whether or not linked to a branded drug';
 
-
-
+-- --------------------------------------------------------------
 -- .description
 comment on column ref.consumable_substance.description is
 	'The substance name.';
 
 \unset ON_ERROR_STOP
 alter table ref.consumable_substance drop constraint ref_subst_sane_desc cascade;
-drop index ref.idx_subst_description cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.consumable_substance
 	add constraint ref_subst_sane_desc
 		check (gm.is_null_or_blank_string(description) is False);
 
-create unique index idx_subst_description on ref.consumable_substance(description);
-
-
-
+-- --------------------------------------------------------------
 -- .atc_code
 comment on column ref.consumable_substance.atc_code is
 	'The Anatomic Therapeutic Chemical code for this substance.';
@@ -50,8 +45,48 @@ alter table ref.consumable_substance
 	add constraint ref_subst_sane_atc
 		check (gm.is_null_or_non_empty_string(atc_code) is True);
 
+-- --------------------------------------------------------------
+-- .amount
+comment on column ref.consumable_substance.amount is
+	'The amount of substance.';
+
+\unset ON_ERROR_STOP
+alter table ref.consumable_substance drop constraint ref_consumable_sane_amount cascade;
+\set ON_ERROR_STOP 1
+
+alter table ref.consumable_substance
+	alter column amount
+		set not null;
+
+alter table ref.consumable_substance
+	add constraint ref_consumable_sane_amount
+		check (amount > 0);
+
+-- --------------------------------------------------------------
+-- .unit
+comment on column ref.consumable_substance.unit is
+	'The unit of the amount of substance.';
+
+\unset ON_ERROR_STOP
+alter table ref.consumable_substance drop constraint ref_consumable_sane_unit cascade;
+\set ON_ERROR_STOP 1
+
+alter table ref.consumable_substance
+	add constraint ref_consumable_sane_unit
+		check (gm.is_null_or_blank_string(unit) is False);
+
+-- --------------------------------------------------------------
+-- table constraints
+\unset ON_ERROR_STOP
+alter table ref.consumable_substance drop constraint ref_consumable_uniq_subst_amount_unit cascade;
+\set ON_ERROR_STOP 1
+
+alter table ref.consumable_substance
+	add constraint ref_consumable_uniq_subst_amount_unit
+		unique(description, amount, unit);
 
 
+-- --------------------------------------------------------------
 -- grants
 grant select, insert, update, delete on
 	ref.consumable_substance
@@ -61,42 +96,82 @@ grant select, select, update on
 	ref.consumable_substance_pk_seq
 to group "gm-doctors";
 
-
-
 -- --------------------------------------------------------------
 -- transfer old substances from ...
 
 -- ... clin.consumed_substance
 insert into ref.consumable_substance (
 	description,
-	atc_code
+	atc_code,
+	amount,
+	unit
 ) select
 	description,
-	atc_code
+	atc_code,
+	coalesce (
+		(select csi.tmp_amount from clin.substance_intake csi where csi.fk_substance = ccs.pk),
+		99999.3
+	),
+	coalesce (
+		(select csi.tmp_unit from clin.substance_intake csi where csi.fk_substance = ccs.pk),
+		'*?* (3)'
+	)
 from
 	clin.consumed_substance ccs
 where
 	not exists (
 		select 1
 		from ref.consumable_substance rcs
-		where rcs.description = ccs.description
+		where
+			rcs.description = ccs.description
+				and
+			amount = coalesce (
+				(select csi.tmp_amount from clin.substance_intake csi where csi.fk_substance = ccs.pk),
+				99999.3
+			)
+				and
+			unit = coalesce (
+				(select csi.tmp_unit from clin.substance_intake csi where csi.fk_substance = ccs.pk),
+				'*?* (3)'
+			)
 	)
 ;
 
 -- ... ref.substance_in_brand
 insert into ref.consumable_substance (
 	description,
-	atc_code
+	atc_code,
+	amount,
+	unit
 ) select
 	rsib.description,
-	rsib.atc_code
+	rsib.atc_code,
+	coalesce (
+		(select csi.tmp_amount from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
+		99999.4
+	),
+	coalesce (
+		(select csi.tmp_unit from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
+		'*?* (4)'
+	)
 from
 	ref.substance_in_brand rsib
 where
 	not exists (
 		select 1
 		from ref.consumable_substance rcs
-		where rcs.description = rsib.description
+		where
+			rcs.description = rsib.description
+				and
+			amount = coalesce (
+				(select csi.tmp_amount from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
+				99999.4
+			)
+				and
+			unit = coalesce (
+				(select csi.tmp_unit from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
+				'*?* (4)'
+			)
 	)
 ;
 
@@ -114,7 +189,11 @@ DECLARE
 	_msg text;
 BEGIN
 	if OLD.description = NEW.description then
-		return NEW;
+		if OLD.amount = NEW.amount then
+			if OLD.unit = NEW.unit then
+				return NEW;
+			end if;
+		end if;
 	end if;
 
 	_msg := ''[ref.trf_do_not_update_substance_if_taken_by_patient]: as long as substance <%> is taken by a patient you cannot modify it'', OLD.description;
@@ -144,7 +223,7 @@ BEGIN
 END;';
 
 comment on function ref.trf_do_not_update_substance_if_taken_by_patient() is
-'If this substance is taken by any patient do not modify it (description).';
+'If this substance is taken by any patient do not modify it (description, amount, unit).';
 
 create trigger tr_do_not_update_substance_if_taken_by_patient
 	before update
@@ -157,15 +236,17 @@ create trigger tr_do_not_update_substance_if_taken_by_patient
 \unset ON_ERROR_STOP
 insert into ref.consumable_substance (
 	description,
-	atc_code
+	atc_code,
+	amount,
+	unit
 ) values
-	('Ibuprofen', 'M01AE01'),
-	('tobacco', 'N07BA01'),
-	('nicotine', 'N07BA01'),
-	('alcohol', 'V03AB16'),
-	('Tabak', 'N07BA01'),
-	('Nikotin', 'N07BA01'),
-	('Alkohol', 'V03AB16')
+	('Ibuprofen', 'M01AE01', 600, 'mg'),
+	('tobacco', 'N07BA01', 1, 'pack'),
+	('nicotine', 'N07BA01', 1, 'pack'),
+	('alcohol', 'V03AB16', 1, 'glass'),
+	('Tabak', 'N07BA01', 1, 'Schachtel'),
+	('Nikotin', 'N07BA01', 1, 'Schachtel'),
+	('Alkohol', 'V03AB16', 1, 'Glas')
 ;
 \set ON_ERROR_STOP 1
 
@@ -175,10 +256,14 @@ delete from ref.consumable_substance where description like '%-Starship';
 
 insert into ref.consumable_substance (
 	description,
-	atc_code
+	atc_code,
+	amount,
+	unit
 ) values (
 	'Ibuprofen-Starship',
-	'M01AE01'
+	'M01AE01',
+	800,
+	'mg'
 );
 
 
