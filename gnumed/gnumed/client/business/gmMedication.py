@@ -7,7 +7,8 @@ license: GPL
 __version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, logging, csv, codecs, os, re as regex, subprocess
+import sys, logging, csv, codecs, os, re as regex, subprocess, decimal
+from xml.etree import ElementTree as etree
 
 
 if __name__ == '__main__':
@@ -350,14 +351,31 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		self.import_fd2gm_file()
 	#--------------------------------------------------------
 	def check_drug_interactions(self, drug_ids_list=None, substances=None):
-		self.switch_to_frontend()
+
+		if substances is None:
+			return
+		if len(substances) < 2:
+			return
+		drug_ids_list = [ (s.external_code_type, s.external_code) for s in substances ]
+		drug_ids_list = [ (code_value, code_type) for code_type, code_value in drug_ids_list if (code_value is not None)]
+
+		if drug_ids_list < 2:
+			return
+
+		self.__create_prescription_file(drug_ids_list = drug_ids_list)
+		self.switch_to_frontend(blocking = False)
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
-		# pass in CIS
+		if drug is None:
+			return
 		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def show_info_on_substance(self, substance=None):
-		# pass in CIS
+		if substance is None:
+			return
+		self.__create_prescription_file (
+			drug_ids_list = [(substance.external_code, substance.external_code_type)]
+		)
 		self.switch_to_frontend()
 	#--------------------------------------------------------
 	# internal helpers
@@ -393,29 +411,39 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		_log.error('cannot find FreeDiams binary')
 		return False
 	#--------------------------------------------------------
-	def __create_prescription_file(self):
+	def __create_prescription_file(self, drug_ids_list=None):
 
-		u"""<?xml version = "1.0" encoding = "UTF-8"?>
+		xml = u"""<?xml version = "1.0" encoding = "UTF-8"?>
 
 <FreeDiams>
-	<!-- <DrugsDatabaseName>FR_AFSSAPS</DrugsDatabaseName> -->
+	<DrugsDatabaseName>%s</DrugsDatabaseName>
 	<FullPrescription version="0.4.0">
+
+		%s
+
 	</FullPrescription>
 </FreeDiams>
 """
-
-		drug_snippet = u"""
-		<Prescription>
+		drug_snippet = u"""<Prescription>
 			<OnlyForTest>True</OnlyForTest>
 			<Drug_UID>%s</Drug_UID>
-		</Prescription>
-"""
+			<!-- <Drug_UID_type>%s</Drug_UID_type> -->
+		</Prescription>"""
 
-		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
-		if self.patient is None:
-			xml_file.close()
-			return
+		xml_file = codecs.open(self.__fd2gm_filename, 'wb', 'utf8')
 
+		last_db_id = u'CA_HCDPD'
+		drug_snippets = []
+		for drug_id, db_id in drug_ids_list:
+			last_db_id = db_id.replace(u'FreeDiams::', u'')
+			drug_snippets.append(drug_snippet % (drug_id, last_db_id))
+
+		xml_file.write(xml % (
+			last_db_id,
+			u'\n\t\t'.join(drug_snippets)
+		))
+
+		xml_file.close()
 	#--------------------------------------------------------
 	def __create_gm2fd_file(self):
 
@@ -512,7 +540,6 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def import_fd2gm_file(self):
 
-		from xml.etree import ElementTree as etree
 		fd2gm_xml = etree.ElementTree()
 		fd2gm_xml.parse(self.__fd2gm_filename)
 
@@ -539,11 +566,6 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			for comp in components:
 
 				subst = comp.attrib['molecularName'].strip()
-				inn = comp.attrib['inn'].strip()
-				if inn != u'':
-					create_consumable_substance(substance = inn, atc = None)
-					if subst == u'':
-						subst = inn
 
 				amount = regex.match(r'\d+[.,]{0,1}\d*', comp.attrib['strenght'].strip())			# sic, typo
 				if amount is None:
@@ -554,6 +576,12 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', comp.attrib['strenght'].strip()).strip()	# sic, typo
 				if unit == u'':
 					unit = u'*?*'
+
+				inn = comp.attrib['inn'].strip()
+				if inn != u'':
+					create_consumable_substance(substance = inn, atc = None, amount = amount, unit = unit)
+					if subst == u'':
+						subst = inn
 
 				new_drug.add_component(substance = subst, atc = None, amount = amount, unit = unit)
 #============================================================
@@ -678,7 +706,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			if len(drug['wirkstoffe']) == 1:
 				atc = drug['atc']
 			for wirkstoff in drug['wirkstoffe']:
-				new_substances.append(create_consumable_substance(substance = wirkstoff, atc = atc))
+				new_substances.append(create_consumable_substance(substance = wirkstoff, atc = atc, amount = amount, unit = unit))
 
 		selected_drugs.close()
 
@@ -733,7 +761,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			if len(entry['wirkstoffe']) == 1:
 				atc = entry['atc']
 			for wirkstoff in entry['wirkstoffe']:
-				new_substances.append(create_consumable_substance(substance = wirkstoff, atc = atc))
+				new_substances.append(create_consumable_substance(substance = wirkstoff, atc = atc, amount = amount, unit = unit))
 
 		return new_drugs, new_substances
 	#--------------------------------------------------------
@@ -856,6 +884,7 @@ drug_data_source_interfaces = {
 	'FreeDiams (France, US, Canada)': cFreeDiamsInterface
 }
 #============================================================
+#============================================================
 # substances in use across all patients
 #------------------------------------------------------------
 _SQL_get_consumable_substance = u"""
@@ -870,7 +899,9 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""UPDATE ref.consumable_substance SET
 				description = %(description)s,
-				atc_code = gm.nullify_empty_string(%(atc_code)s)
+				atc_code = gm.nullify_empty_string(%(atc_code)s),
+				amount = %(amount)s,
+				unit = gm.nullify_empty_string(%(unit)s)
 			WHERE
 				pk = %(pk)s
 					AND
@@ -915,7 +946,9 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		u'description',
-		u'atc_code'
+		u'atc_code',
+		u'amount',
+		u'unit'
 	]
 #------------------------------------------------------------
 def get_consumable_substances(order_by=None):
@@ -927,21 +960,35 @@ def get_consumable_substances(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cConsumableSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
 #------------------------------------------------------------
-def create_consumable_substance(substance=None, atc=None):
+def create_consumable_substance(substance=None, atc=None, amount=None, unit=None):
 
-	substance = substance.strip()
+	substance = substance
 	if atc is not None:
 		atc = atc.strip()
-	args = {'desc': substance, 'atc': atc}
-
-	cmd = u'SELECT pk FROM ref.consumable_substance WHERE lower(description) = lower(%(desc)s)'
+	args = {
+		'desc': substance.strip(),
+		'amount': decimal.Decimal(amount),
+		'unit': unit.strip(),
+		'atc': atc
+	}
+	cmd = u"""
+		SELECT pk FROM ref.consumable_substance
+		WHERE
+			lower(description) = lower(%(desc)s)
+				AND
+			amount = %(amount)s
+				AND
+			unit = %(unit)s
+		"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		cmd = u"""
-			INSERT INTO ref.consumable_substance (description, atc_code) VALUES (
+			INSERT INTO ref.consumable_substance (description, atc_code, amount, unit) VALUES (
 				%(desc)s,
-				gm.nullify_empty_string(%(atc)s)
+				gm.nullify_empty_string(%(atc)s),
+				%(amount)s,
+				gm.nullify_empty_string(%(unit)s)
 			) RETURNING pk"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
 
@@ -985,8 +1032,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				clin_when = %(started)s,
 				discontinued = %(discontinued)s,
 				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
-				amount = %(amount)s,
-				unit = %(unit)s,
 				preparation = %(preparation)s,
 				schedule = gm.nullify_empty_string(%(schedule)s),
 				aim = gm.nullify_empty_string(%(aim)s),
@@ -1027,8 +1072,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'discontinued',
 		u'discontinue_reason',
 		u'preparation',
-		u'amount',
-		u'unit',
 		u'intake_is_approved_of',
 		u'schedule',
 		u'duration',
@@ -1160,14 +1203,14 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
-def create_substance_intake(substance=None, drug_component=None, atc=None, encounter=None, episode=None, preparation=None):
+def create_substance_intake(substance=None, drug_component=None, atc=None, encounter=None, episode=None, preparation=None, amount=None, unit=None):
 
 	args = {
 		'enc': encounter,
 		'epi': episode,
 		'prep': preparation,
 		'comp': drug_component,
-		'subst': create_consumable_substance(substance = substance, atc = atc)['pk']
+		'subst': create_consumable_substance(substance = substance, atc = atc, amount = amount, unit = unit)['pk']
 	}
 
 	if drug_component is None:
@@ -1175,15 +1218,15 @@ def create_substance_intake(substance=None, drug_component=None, atc=None, encou
 		INSERT INTO clin.substance_intake (
 			fk_encounter,
 			fk_episode,
+			intake_is_approved_of,
 			fk_substance,
-			preparation,
-			intake_is_approved_of
+			preparation
 		) VALUES (
 			%(enc)s,
 			%(epi)s,
+			False,
 			%(subst)s,
-			gm.nullify_empty_string(%(prep)s),
-			False
+			gm.nullify_empty_string(%(prep)s)
 		)
 		RETURNING pk"""
 	else:
@@ -1191,13 +1234,13 @@ def create_substance_intake(substance=None, drug_component=None, atc=None, encou
 		INSERT INTO clin.substance_intake (
 			fk_encounter,
 			fk_episode,
-			fk_drug_component,
-			intake_is_approved_of
+			intake_is_approved_of.
+			fk_drug_component
 		) VALUES (
 			%(enc)s,
 			%(epi)s,
-			%(comp)s,
-			False
+			False,
+			%(comp)s
 		)
 		RETURNING pk"""
 
@@ -1329,9 +1372,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""UPDATE ref.lnk_substance2brand SET
 				fk_brand = %(pk_brand)s,
-				fk_substance = %(pk_consumable_substance)s,
-				amount = %(amount)s,
-				unit = gm.nullify_empty_string(%(unit)s)
+				fk_substance = %(pk_consumable_substance)s
 			WHERE
 				NOT EXISTS (
 					SELECT 1
@@ -1349,9 +1390,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		u'pk_brand',
-		u'pk_consumable_substance',
-		u'amount',
-		u'unit'
+		u'pk_consumable_substance'
 	]
 	#--------------------------------------------------------
 	# properties
@@ -1399,15 +1438,13 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_component(self, substance=None, atc=None, amount=None, unit=None):
 
-		consumable = create_consumable_substance(substance = substance, atc = atc)
+		consumable = create_consumable_substance(substance = substance, atc = atc, amount = amount, unit = unit)
 
 		args = {
 			'brand': self.pk_obj,
 			'subst': consumable['description'],
 			'atc': consumable['atc_code'],
-			'pk_subst': consumable['pk'],
-			'amount': amount,
-			'unit': unit
+			'pk_subst': consumable['pk']
 		}
 
 		# already exists ?
@@ -1432,8 +1469,8 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 		# create it
 		cmd = u"""
-			INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance, amount, unit)
-			VALUES (%(brand)s, %(pk_subst)s, %(amount)s, %(unit)s)
+			INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance)
+			VALUES (%(brand)s, %(pk_subst)s)
 		"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#------------------------------------------------------------
@@ -1621,6 +1658,12 @@ if __name__ == "__main__":
 		fd.switch_to_frontend(blocking = True)
 		fd.import_fd2gm_file()
 	#--------------------------------------------------------
+	def test_fd_show_interactions():
+		gmPerson.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = 12))
+		fd = cFreeDiamsInterface()
+		fd.patient = gmPerson.gmCurrentPatient()
+		fd.check_drug_interactions(substances = fd.patient.get_emr().get_current_substance_intake(include_unapproved = True))
+	#--------------------------------------------------------
 	# generic
 	#--------------------------------------------------------
 	def test_create_substance_intake():
@@ -1651,7 +1694,8 @@ if __name__ == "__main__":
 	#test_mmi_import_drugs()
 
 	# FreeDiams
-	test_fd_switch_to()
+	#test_fd_switch_to()
+	test_fd_show_interactions()
 
 	# generic
 	#test_interaction_check()
