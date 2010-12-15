@@ -279,7 +279,7 @@ class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				-- it would be nice to be able to include clin.vacc_indication but that's hard to do in SQL
 
 			) AS candidates
-
+			WHERE atc_code IS NOT NULL
 			ORDER BY label
 			LIMIT 50"""
 
@@ -309,12 +309,18 @@ def manage_consumable_substances(parent=None):
 		return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
 	#------------------------------------------------------------
 	def delete(substance):
+		if substance.is_in_use_by_patients:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
+			return False
+
 		return gmMedication.delete_consumable_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		substs = gmMedication.get_consumable_substances(order_by = 'description')
 		items = [ [
 			s['description'],
+			s['amount'],
+			s['unit'],
 			gmTools.coalesce(s['atc_code'], u''),
 			s['pk']
 		] for s in substs ]
@@ -327,7 +333,7 @@ def manage_consumable_substances(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing consumable substances.'),
-		columns = [_('Substance'), 'ATC', u'#'],
+		columns = [_('Substance'), _('Amount'), _('Unit'), 'ATC', u'#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -338,6 +344,12 @@ def manage_consumable_substances(parent=None):
 
 #------------------------------------------------------------
 def edit_consumable_substance(parent=None, substance=None, single_entry=False):
+
+	if substance is not None:
+		if substance.is_in_use_by_patients:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit this substance. It is in use.'), beep = True)
+			return False
+
 	ea = cConsumableSubstanceEAPnl(parent = parent, id = -1)
 	ea.data = substance
 	ea.mode = gmTools.coalesce(substance, 'new', 'edit')
@@ -386,20 +398,38 @@ class cConsumableSubstanceEAPnl(wxgConsumableSubstanceEAPnl.wxgConsumableSubstan
 		if self._TCTRL_substance.GetValue().strip() == u'':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = False)
+			self._TCTRL_substance.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_substance, valid = True)
 
+		try:
+			decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', '.'))
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
+		except (TypeError, decimal.InvalidOperation):
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
+			self._TCTRL_amount.SetFocus()
+
+		if self._PRW_unit.GetValue().strip() == u'':
+			validity = False
+			self._PRW_unit.display_as_valid(valid = False)
+			self._TCTRL_substance.SetFocus()
+		else:
+			self._PRW_unit.display_as_valid(valid = True)
+
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. Must enter substance name.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. Missing essential input.'))
 
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		data = gmMedication.create_consumable_substance (
+		subst = gmMedication.create_consumable_substance (
 			substance = self._TCTRL_substance.GetValue().strip(),
-			atc = self._PRW_atc.GetData()
+			atc = self._PRW_atc.GetData(),
+			amount = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', '.')),
+			unit = gmTools.coalesce(self._PRW_unit.GetData(), self._PRW_unit.GetValue().strip(), function_initial = ('strip', None))
 		)
-		success, data = data.save()
+		success, data = subst.save()
 		if not success:
 			err, msg = data
 			_log.error(err)
@@ -407,12 +437,14 @@ class cConsumableSubstanceEAPnl(wxgConsumableSubstanceEAPnl.wxgConsumableSubstan
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save consumable substance. %s') % msg, beep = True)
 			return False
 
-		self.data = data
+		self.data = subst
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['description'] = self._TCTRL_substance.GetValue().strip()
 		self.data['atc_code'] = self._PRW_atc.GetData()
+		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', '.'))
+		self.data['unit'] = gmTools.coalesce(self._PRW_unit.GetData(), self._PRW_unit.GetValue().strip(), function_initial = ('strip', None))
 		success, data = self.data.save()
 
 		if not success:
@@ -426,12 +458,16 @@ class cConsumableSubstanceEAPnl(wxgConsumableSubstanceEAPnl.wxgConsumableSubstan
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._TCTRL_substance.SetValue(u'')
+		self._TCTRL_amount.SetValue(u'')
+		self._PRW_unit.SetText(u'', None)
 		self._PRW_atc.SetText(u'', None)
 
 		self._TCTRL_substance.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_substance.SetValue(self.data['description'])
+		self._TCTRL_amount.SetValue(u'%s' % self.data['amount'])
+		self._PRW_unit.SetText(self.data['unit'], self.data['unit'])
 		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc_code'], u''), self.data['atc_code'])
 
 		self._TCTRL_substance.SetFocus()
@@ -449,9 +485,14 @@ def manage_drug_components(parent=None):
 
 	#------------------------------------------------------------
 	def edit(component=None):
-		return edit_drug_component(parent = parent, drug_component = component, single_entry = (component is not None))
+		substance = gmMedication.cConsumableSubstance(aPK_obj = component['pk_consumable_substance'])
+		return edit_consumable_substance(parent = parent, substance = substance, single_entry = True)
 	#------------------------------------------------------------
 	def delete(component):
+		if component.is_in_use_by_patients:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot remove this component from the drug. It is in use.'), beep = True)
+			return False
+
 		return component.containing_drug.remove_component(substance = component['pk_component'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
@@ -817,7 +858,6 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		#self.__init_ui()
 	#----------------------------------------------------------------
 #	def __init_ui(self):
-#		# adjust phrasewheels etc
 		# adjust external type PRW
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -856,7 +896,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		data[''] = 1
 		data[''] = 1
 
-		data.save()
+		#data.save()
 
 		# must be done very late or else the property access
 		# will refresh the display such that later field
@@ -870,7 +910,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		self.data[''] = 1
 		self.data[''] = 1
 		self.data[''] = 1
-		self.data.save()
+		#self.data.save()
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
@@ -891,7 +931,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		self._PRW_brand.SetText(self.data['brand'], self.data['pk_brand'])
 		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
 		self._CHBOX_is_fake.SetValue(self.data['is_fake_brand'])
-		comps = u';\n'.join(self.data['components'])
+		comps = u'- %s' % u'\n- '.join(self.data['components'])
 		self._TCTRL_components.SetValue(comps)
 		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
 		self._TCTRL_external_code.SetValue(gmTools.coalesce(self.data['external_code'], u''))
@@ -1138,7 +1178,9 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 			intake = emr.add_substance_intake (
 				substance = subst,
 				episode = epi,
-				preparation = prep
+				preparation = prep,
+				amount = None,				# FIXME
+				unit = None
 			)
 			intake['strength'] = strength
 			intake['started'] = self._DP_started.GetValue(as_pydt = True, invalid_as_none = True)
@@ -1210,6 +1252,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	def _save_as_update(self):
 
 		if self._PRW_substance.GetData() is None:
+			raise NotImplementedError('need to add amount/unit')
 			self.data['pk_substance'] = gmMedication.create_consumable_substance (
 				substance = self._PRW_substance.GetValue().strip()
 			)['pk']

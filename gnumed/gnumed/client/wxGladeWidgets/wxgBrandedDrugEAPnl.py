@@ -22,8 +22,7 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
         self._PRW_preparation = gmMedicationWidgets.cSubstancePreparationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_is_fake = wx.CheckBox(self, -1, _("Fake brand"))
         self._TCTRL_components = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
-        self._BTN_add_component = wx.Button(self, -1, _("&+"), style=wx.BU_EXACTFIT)
-        self._BTN_remove_component = wx.Button(self, -1, _("&-"), style=wx.BU_EXACTFIT)
+        self._BTN_manage_components = wx.Button(self, -1, _("&Manage"), style=wx.BU_EXACTFIT)
         self._PRW_atc = gmMedicationWidgets.cATCPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_external_code = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._PRW_external_code_type = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
@@ -31,8 +30,7 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_BUTTON, self._on_add_component_button_pressed, self._BTN_add_component)
-        self.Bind(wx.EVT_BUTTON, self._on_remove_component_button_pressed, self._BTN_remove_component)
+        self.Bind(wx.EVT_BUTTON, self._on_manage_components_button_pressed, self._BTN_manage_components)
         # end wxGlade
 
     def __set_properties(self):
@@ -41,8 +39,7 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
         self._CHBOX_is_fake.SetForegroundColour(wx.Colour(255, 127, 0))
         self._CHBOX_is_fake.SetToolTipString(_("Mark as a fake (not really existing) brand."))
         self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._BTN_add_component.SetToolTipString(_("Add a component to this drug."))
-        self._BTN_remove_component.SetToolTipString(_("Remove a component from this drug."))
+        self._BTN_manage_components.SetToolTipString(_("Manage the components of this drug."))
         self._TCTRL_external_code.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_external_code.SetToolTipString(_("An external code for this drug.\n\nIn most cases either a national drug identifier or the ID of this drug in an external database.\n\nIn any case, GNUmed will never actively do anything with this code apart from display and making it available when passing this drug to external applications."))
         self._PRW_external_code_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
@@ -51,10 +48,8 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgBrandedDrugEAPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(5, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(6, 2, 1, 3)
         __szr_external_code = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_components = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_buttons = wx.BoxSizer(wx.VERTICAL)
         __szr_prep = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_brand = wx.StaticText(self, -1, _("Brand name"))
         __lbl_brand.SetForegroundColour(wx.Colour(255, 0, 0))
@@ -69,11 +64,9 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
         __lbl_components = wx.StaticText(self, -1, _("Components"))
         __lbl_components.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_components, 0, wx.TOP, 3)
-        __szr_components.Add(self._TCTRL_components, 1, wx.RIGHT|wx.EXPAND, 5)
-        __szr_buttons.Add(self._BTN_add_component, 0, wx.BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 5)
-        __szr_buttons.Add(self._BTN_remove_component, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
-        __szr_components.Add(__szr_buttons, 0, 0, 0)
-        _gszr_main.Add(__szr_components, 1, wx.TOP|wx.EXPAND, 3)
+        _gszr_main.Add(self._TCTRL_components, 1, wx.RIGHT|wx.EXPAND, 5)
+        _gszr_main.Add((20, 20), 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._BTN_manage_components, 0, wx.TOP|wx.BOTTOM|wx.ALIGN_CENTER_HORIZONTAL, 3)
         __lbl_atc = wx.StaticText(self, -1, _("ATC code"))
         _gszr_main.Add(__lbl_atc, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_atc, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -96,6 +89,10 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
 
     def _on_remove_component_button_pressed(self, event): # wxGlade: wxgBrandedDrugEAPnl.<event_handler>
         print "Event handler `_on_remove_component_button_pressed' not implemented!"
+        event.Skip()
+
+    def _on_manage_components_button_pressed(self, event): # wxGlade: wxgBrandedDrugEAPnl.<event_handler>
+        print "Event handler `_on_manage_components_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgBrandedDrugEAPnl

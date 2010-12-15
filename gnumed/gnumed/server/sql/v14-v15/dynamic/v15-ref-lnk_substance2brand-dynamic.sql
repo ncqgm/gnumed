@@ -182,10 +182,8 @@ create trigger tr_do_not_update_component_if_taken_by_patient
 ;
 
 -- --------------------------------------------------------------
--- test data
-delete from ref.branded_drug
-where
-	description like '% Starship Enterprises';
+-- Enterprise pain killer
+delete from ref.branded_drug where description like '% Starship Enterprises';
 
 insert into ref.branded_drug (
 	description,
@@ -212,6 +210,48 @@ insert into ref.lnk_substance2brand (
 	(select pk from ref.branded_drug where description = 'IbuStrong Starship Enterprises'),
 	(select pk from ref.consumable_substance where description = 'Ibuprofen-Starship')
 );
+
+-- --------------------------------------------------------------
+-- f6 East German cigarettes
+delete from ref.branded_drug where description like 'f6 Zigaretten';
+
+insert into ref.branded_drug (
+	description,
+	preparation,
+	is_fake,
+	external_code,
+	external_code_type
+) values (
+	'f6 Zigaretten',
+	'Zigarette',
+	False,
+	'4023500714150',
+	'DE::EAN'
+);
+
+delete from ref.lnk_substance2brand
+where
+	fk_brand = (
+		select pk from ref.branded_drug where description = 'f6 Zigaretten'
+	);
+
+insert into ref.lnk_substance2brand (
+	fk_brand,
+	fk_substance
+) values
+	(
+		(select pk from ref.branded_drug where description = 'f6 Zigaretten'),
+		(select pk from ref.consumable_substance where description = 'Nikotin' and amount = 0.8 and unit = 'mg')
+	),
+	(
+		(select pk from ref.branded_drug where description = 'f6 Zigaretten'),
+		(select pk from ref.consumable_substance where description = 'Teer' and amount = 10 and unit = 'mg')
+	),
+	(
+		(select pk from ref.branded_drug where description = 'f6 Zigaretten'),
+		(select pk from ref.consumable_substance where description = 'Kohlenmonoxid' and amount = 10 and unit = 'mg')
+	)
+;
 
 -- --------------------------------------------------------------
 -- transfer old components of brands from ...

@@ -539,7 +539,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		xml_file.close()
 	#--------------------------------------------------------
 	def import_fd2gm_file(self):
-
+		"""
+			If returning textual prescriptions (say, drugs which FreeDiams
+			did not know) then "IsTextual" will be True and UID will be -1.
+		"""
 		fd2gm_xml = etree.ElementTree()
 		fd2gm_xml.parse(self.__fd2gm_filename)
 
@@ -950,6 +953,70 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 		u'amount',
 		u'unit'
 	]
+	#--------------------------------------------------------
+	def save_payload(self, conn=None):
+		success, data = super(self.__class__, self).save_payload(conn = conn)
+
+		if not success:
+			return (success, data)
+
+		if self._payload[self._idx['atc_code']] is not None:
+			atc = self._payload[self._idx['atc_code']].strip()
+			if atc != u'':
+				gmATC.propagate_atc (
+					substance = self._payload[self._idx['description']].strip(),
+					atc = atc
+				)
+
+		return (success, data)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_is_in_use_by_patients(self):
+		cmd = u"""
+			SELECT
+				EXISTS (
+					SELECT 1
+					FROM clin.substance_intake
+					WHERE
+						fk_drug_component IS NULL
+							AND
+						fk_substance = %(pk)s
+					LIMIT 1
+				) OR EXISTS (
+					SELECT 1
+					FROM clin.substance_intake
+					WHERE
+						fk_drug_component IS NOT NULL
+							AND
+						fk_drug_component = (
+							SELECT r_ls2b.pk
+							FROM ref.lnk_substance2brand r_ls2b
+							WHERE fk_substance = %(pk)s
+						)
+					LIMIT 1
+				)"""
+		args = {'pk': self.pk_obj}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_drug_component(self):
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1
+				FROM ref.lnk_substance2brand
+				WHERE fk_substance = %(pk)s
+				LIMIT 1
+			)"""
+		args = {'pk': self.pk_obj}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_drug_component = property(_get_is_drug_component, lambda x:x)
 #------------------------------------------------------------
 def get_consumable_substances(order_by=None):
 	if order_by is None:
@@ -965,6 +1032,7 @@ def create_consumable_substance(substance=None, atc=None, amount=None, unit=None
 	substance = substance
 	if atc is not None:
 		atc = atc.strip()
+
 	args = {
 		'desc': substance.strip(),
 		'amount': decimal.Decimal(amount),
@@ -990,7 +1058,7 @@ def create_consumable_substance(substance=None, atc=None, amount=None, unit=None
 				%(amount)s,
 				gm.nullify_empty_string(%(unit)s)
 			) RETURNING pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	gmATC.propagate_atc(substance = substance, atc = atc)
 
@@ -1399,6 +1467,11 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		return cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
 
 	containing_drug = property(_get_containing_drug, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_in_use_by_patients(self):
+		return self._payload[self._idx['is_in_use']]
+
+	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
 #------------------------------------------------------------
 def get_drug_components():
 	cmd = _SQL_get_drug_components % u'true ORDER BY brand, substance'
@@ -1435,6 +1508,22 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		u'external_code_type',
 		u'pk_data_source'
 	]
+	#--------------------------------------------------------
+	def save_payload(self, conn=None):
+		success, data = super(self.__class__, self).save_payload(conn = conn)
+
+		if not success:
+			return (success, data)
+
+		if self._payload[self._idx['atc']] is not None:
+			atc = self._payload[self._idx['atc']].strip()
+			if atc != u'':
+				gmATC.propagate_atc (
+					substance = self._payload[self._idx['brand']].strip(),
+					atc = atc
+				)
+
+		return (success, data)
 	#--------------------------------------------------------
 	def add_component(self, substance=None, atc=None, amount=None, unit=None):
 

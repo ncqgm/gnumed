@@ -42,9 +42,9 @@ def propagate_atc(substance=None, atc=None):
 
 	args = {'atc': atc, 'term': substance.strip()}
 	queries = [
-		{'cmd': u"UPDATE ref.consumable_substance SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		{'cmd': u"UPDATE ref.consumable_substance SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args},
-		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args}
 	]
 	gmPG2.run_rw_queries(queries = queries)
@@ -81,15 +81,15 @@ def text2atc(text=None, fuzzy=False):
 			FROM (
 				SELECT atc as atc_code, is_group_code, pk_data_source
 				FROM ref.v_atc
-				WHERE lower(term) = %(term)s AND atc IS NOT NULL
+				WHERE lower(term) = lower(%(term)s) AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.consumable_substance
-				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
+				WHERE lower(description) = lower(%(term)s) AND atc_code IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.branded_drug
-				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
+				WHERE lower(description) = lower(%(term)s) AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
 		"""

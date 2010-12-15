@@ -196,7 +196,7 @@ BEGIN
 		end if;
 	end if;
 
-	_msg := ''[ref.trf_do_not_update_substance_if_taken_by_patient]: as long as substance <%> is taken by a patient you cannot modify it'', OLD.description;
+	_msg := ''[ref.trf_do_not_update_substance_if_taken_by_patient]: as long as substance <'' || OLD.description || ''> is taken by a patient you cannot modify it'';
 
 	perform 1 from clin.substance_intake c_si
 	where c_si.fk_substance = OLD.pk
@@ -246,7 +246,10 @@ insert into ref.consumable_substance (
 	('alcohol', 'V03AB16', 1, 'glass'),
 	('Tabak', 'N07BA01', 1, 'Schachtel'),
 	('Nikotin', 'N07BA01', 1, 'Schachtel'),
-	('Alkohol', 'V03AB16', 1, 'Glas')
+	('Alkohol', 'V03AB16', 1, 'Glas'),
+	('Nikotin', 'N07BA01', 0.8, 'mg'),
+	('Teer', 'D05AA', 10, 'mg'),
+	('Kohlenmonoxid', NULL, 10, 'mg')
 ;
 \set ON_ERROR_STOP 1
 
@@ -264,22 +267,6 @@ insert into ref.consumable_substance (
 	'M01AE01',
 	800,
 	'mg'
-);
-
-
-
-delete from ref.branded_drug where description like '% Starship Enterprises';
-
-insert into ref.branded_drug (
-	description,
-	preparation,
-	atc_code,
-	is_fake
-) values (
-	'IbuStrong Starship Enterprises',
-	'tablet',
-	'M01AE01',
-	True
 );
 
 -- --------------------------------------------------------------

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-12-07 15:53+CET\n"
+"POT-Creation-Date: 2010-12-15 21:57+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1330,19 +1330,13 @@ msgstr ""
 msgid "Fake brand"
 msgstr ""
 
-msgid "&+"
-msgstr ""
-
-msgid "&-"
+msgid "&Manage"
 msgstr ""
 
 msgid "Mark as a fake (not really existing) brand."
 msgstr ""
 
-msgid "Add a component to this drug."
-msgstr ""
-
-msgid "Remove a component from this drug."
+msgid "Manage the components of this drug."
 msgstr ""
 
 msgid ""
@@ -1541,6 +1535,15 @@ msgid ""
 "- marihuana\n"
 "- aloe vera\n"
 "- ibuprofen"
+msgstr ""
+
+msgid "Enter the amount of substance."
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "Unit:"
 msgstr ""
 
 msgid "+"
@@ -1807,9 +1810,6 @@ msgid ""
 "- 100mg per tablet: amount = 100, unit = mg(/tablet)\n"
 "- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n"
 "- 5mg/ml solution: amount = 5, unit = mg/ml"
-msgstr ""
-
-msgid "Amount"
 msgstr ""
 
 msgid "Unit"
@@ -2085,9 +2085,6 @@ msgid "Directions"
 msgstr ""
 
 msgid "Number"
-msgstr ""
-
-msgid "Unit:"
 msgstr ""
 
 msgid "Town"
@@ -7850,6 +7847,9 @@ msgstr ""
 msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
 msgstr ""
 
+msgid "Cannot delete this substance. It is in use."
+msgstr ""
+
 msgid ""
 "\n"
 "These are the consumable substances registered with GNUmed.\n"
@@ -7864,16 +7864,22 @@ msgstr ""
 msgid "Import consumable substances from a drug database."
 msgstr ""
 
+msgid "Cannot edit this substance. It is in use."
+msgstr ""
+
 msgid "Adding new consumable substance"
 msgstr ""
 
 msgid "Editing consumable substance"
 msgstr ""
 
-msgid "Cannot save consumable substance. Must enter substance name."
+msgid "Cannot save consumable substance. Missing essential input."
 msgstr ""
 
 msgid "Cannot save consumable substance. %s"
+msgstr ""
+
+msgid "Cannot remove this component from the drug. It is in use."
 msgstr ""
 
 msgid ""
