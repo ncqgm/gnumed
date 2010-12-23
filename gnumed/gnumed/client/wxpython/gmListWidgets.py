@@ -26,12 +26,13 @@ import wx.lib.mixins.listctrl as listmixins
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson
 from Gnumed.pycommon import gmTools, gmDispatcher
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg, wxgGenericListManagerPnl
 
 #================================================================
+# FIXME: configurable callback on double-click action
+
 def get_choices_from_list (
 			parent=None,
 			msg=None,
@@ -115,6 +116,8 @@ def get_choices_from_list (
 #----------------------------------------------------------------
 class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDlg):
 	"""A dialog holding a list and a few buttons to act on the items."""
+
+	# FIXME: configurable callback on double-click action
 
 	def __init__(self, *args, **kwargs):
 
@@ -519,7 +522,119 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	new_callback = property(_get_new_callback, _set_new_callback)
 #================================================================
+from Gnumed.wxGladeWidgets import wxgItemPickerDlg
+
+class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			msg = kwargs['msg']
+			del kwargs['msg']
+		except KeyError:
+			msg = None
+
+		wxgItemPickerDlg.wxgItemPickerDlg.__init__(self, *args, **kwargs)
+
+		if msg is None:
+			self._LBL_msg.Hide()
+		else:
+			self._LBL_msg.SetLabel(msg)
+
+		self._LCTRL_left.activate_callback = self.__pick_selected
+		#self._LCTRL_left.item_tooltip_callback = self.__on_get_item_tooltip
+	#------------------------------------------------------------
+	# external API
+	#------------------------------------------------------------
+	def set_columns(self, columns=None, columns_right=None):
+		self._LCTRL_left.set_columns(columns = columns)
+		if columns_right is None:
+			self._LCTRL_right.set_columns(columns = columns)
+		else:
+			if len(columns_right) < len(columns):
+				cols = columns
+			else:
+				cols = columns_right[:len(columns)]
+			self._LCTRL_right.set_columns(columns = cols)
+	#------------------------------------------------------------
+	def set_string_items(self, items = None):
+		self._LCTRL_left.set_string_items(items = items)
+		self._LCTRL_left.set_column_widths()
+		self._LCTRL_right.set_string_items()
+
+		self._BTN_left2right.Enable(False)
+		self._BTN_right2left.Enable(False)
+	#------------------------------------------------------------
+	def set_selections(self, selections = None):
+		self._LCTRL_left.set_selections(selections = selections)
+	#------------------------------------------------------------
+#	def set_picks(self, selections = None):
+#		self._LCTRL_left.set_selections(selections = selections)
+#		self._LCTRL_right.set_string_items()
+#		self.__pick_selected()
+	#------------------------------------------------------------
+	def set_data(self, data = None):
+		self._LCTRL_left.set_data(data = data)
+	#------------------------------------------------------------
+	def get_picks(self):
+		return self._LCTRL_right.get_item_data()
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def __pick_selected(self, event=None):
+		if self._LCTRL_left.get_selected_items(only_one = True) == -1:
+			return
+
+		tmp = self._LCTRL_right.get_string_items()
+		tmp.extend(self._LCTRL_left.get_selected_string_items(only_one = False))
+		self._LCTRL_right.set_string_items(items = tmp)
+
+		tmp = self._LCTRL_right.get_item_data()
+		if tmp is None:
+			self._LCTRL_right.set_data(data = self._LCTRL_left.get_selected_item_data(only_one = False))
+		else:
+			tmp.extend(self._LCTRL_left.get_selected_item_data(only_one = False))
+			self._LCTRL_right.set_data(data = tmp)
+
+		del tmp
+
+		self._LCTRL_right.set_column_widths()
+	#------------------------------------------------------------
+	def __remove_selected_picks(self):
+		if self._LCTRL_right.get_selected_items(only_one = True) == -1:
+			return
+
+		for item_idx in self._LCTRL_right.get_selected_items(only_one = False):
+			self._LCTRL_right.remove_item(item_idx)
+
+		if self._LCTRL_right.GetItemCount() == 0:
+			self._BTN_right2left.Enable(False)
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_left_list_item_selected(self, event):
+		self._BTN_left2right.Enable(True)
+	#------------------------------------------------------------
+	def _on_left_list_item_deselected(self, event):
+		if self._LCTRL_left.get_selected_items(only_one = True) == -1:
+			self._BTN_left2right.Enable(False)
+	#------------------------------------------------------------
+	def _on_right_list_item_selected(self, event):
+		self._BTN_right2left.Enable(True)
+	#------------------------------------------------------------
+	def _on_right_list_item_deselected(self, event):
+		if self._LCTRL_right.get_selected_items(only_one = True) == -1:
+			self._BTN_right2left.Enable(False)
+	#------------------------------------------------------------
+	def _on_button_left2right_pressed(self, event):
+		self.__pick_selected()
+	#------------------------------------------------------------
+	def _on_button_right2left_pressed(self, event):
+		self.__remove_selected_picks()
+#================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
+
+	# FIXME: searching by typing
 
 	def __init__(self, *args, **kwargs):
 
@@ -535,6 +650,14 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		self.__widths = None
 		self.__data = None
+		self.__activate_callback = None
+
+		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
+		self.__item_tooltip_callback = None
+		self.__tt_last_item = None
+		self.__tt_static_part = _("""Select the items you want to work on.
+
+A discontinuous selection may depend on your holding down a platform-dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-shift> or <ctrl-alt>) while clicking.""")
 	#------------------------------------------------------------
 	# setters
 	#------------------------------------------------------------
@@ -544,6 +667,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		Note that this will (have to) delete the items.
 		"""
 		self.ClearAll()
+		self.__tt_last_item = None
 		if columns is None:
 			return
 		for idx in range(len(columns)):
@@ -585,6 +709,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		self.DeleteAllItems()
 		self.__data = items
+		self.__tt_last_item = None
 
 		if items is None:
 			return
@@ -615,6 +740,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def set_data(self, data = None):
 		"""<data must be a list corresponding to the item indices>"""
 		self.__data = data
+		self.__tt_last_item = None
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
 		self.Select(0, on = 0)
@@ -631,11 +757,15 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			labels.append(col.GetText())
 		return labels
 	#------------------------------------------------------------
-	def get_item_data(self, item_idx = None):
-		if self.__data is None:	# this isn't entirely clean
-			return None
-
-		return self.__data[item_idx]
+	def get_item(self, item_idx=None):
+		if item_idx is not None:
+			return self.GetItem(item_idx)
+	#------------------------------------------------------------
+	def get_items(self):
+		return [ self.GetItem(item_idx) for item_idx in range(self.GetItemCount()) ]
+	#------------------------------------------------------------
+	def get_string_items(self):
+		return [ self.GetItemText(item_idx) for item_idx in range(self.GetItemCount()) ]
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
 
@@ -649,6 +779,28 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			idx = self.GetNextSelected(idx)
 
 		return items
+	#------------------------------------------------------------
+	def get_selected_string_items(self, only_one=False):
+
+		if self.__is_single_selection or only_one:
+			return self.GetItemText(self.GetFirstSelected())
+
+		items = []
+		idx = self.GetFirstSelected()
+		while idx != -1:
+			items.append(self.GetItemText(idx))
+			idx = self.GetNextSelected(idx)
+
+		return items
+	#------------------------------------------------------------
+	def get_item_data(self, item_idx = None):
+		if self.__data is None:	# this isn't entirely clean
+			return None
+
+		if item_idx is not None:
+			return self.__data[item_idx]
+
+		return [ self.__data[item_idx] for item_idx in range(self.GetItemCount()) ]
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
 
@@ -672,10 +824,74 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	#------------------------------------------------------------
 	def deselect_selected_item(self):
 		self.Select(idx = self.GetFirstSelected(), on = 0)
+	#------------------------------------------------------------
+	def remove_item(self, item_idx=None):
+		self.DeleteItem(item_idx)
+		if self.__data is not None:
+			del self.__data[item_idx]
+		self.__tt_last_item = None
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_list_item_activated(self, event):
+		event.Skip()
+		if self.__activate_callback is not None:
+			self.__activate_callback(event)
+	#------------------------------------------------------------
+	def _on_mouse_motion(self, event):
+		item_idx, where = self.HitTest(wx.Point(event.X, event.Y))
+
+		if self.__tt_last_item == item_idx:
+			return
+
+		self.__tt_last_item = item_idx
+
+		if item_idx == -1:
+			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		dyna_tt = None
+		if self.__item_tooltip_callback is not None:
+			dyna_tt = self.__item_tooltip_callback(item_idx)
+
+		if dyna_tt is None:
+			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		self.SetToolTipString(dyna_tt)
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _get_activate_callback(self):
+		return self.__activate_callback
+
+	def _set_activate_callback(self, callback):
+		if callback is None:
+			self.Unbind(wx.EVT_LIST_ITEM_ACTIVATED)
+		else:
+			if not callable(callback):
+				raise ValueError('<activate> callback is not a callable: %s' % callback)
+			self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated)
+		self.__activate_callback = callback
+
+	activate_callback = property(_get_activate_callback, _set_activate_callback)
+	#------------------------------------------------------------
+	def _set_item_tooltip_callback(self, callback):
+		if not callable(callback):
+			raise ValueError('<item_tooltip> callback is not a callable: %s' % callback)
+		self.__item_tooltip_callback = callback
+
+	item_tooltip_callback = property(lambda x:x, _set_item_tooltip_callback)
 #================================================================
 # main
 #----------------------------------------------------------------
 if __name__ == '__main__':
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
@@ -719,9 +935,19 @@ if __name__ == '__main__':
 		print "chosen:"
 		print chosen
 	#------------------------------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		test_get_choices_from_list()
-		#test_wxMultiChoiceDialog()
+	def test_item_picker_dlg():
+		app = wx.PyWidgetTester(size = (200, 50))
+		dlg = cItemPickerDlg(None, -1, msg = 'Pick a few items:')
+		dlg.set_columns(['Plugins'], ['Load in workplace', 'dummy'])
+		#dlg.set_columns(['Plugins'], [])
+		dlg.set_string_items(['patient', 'emr', 'docs'])
+		result = dlg.ShowModal()
+		print result
+		print dlg.get_picks()
+	#------------------------------------------------------------
+	#test_get_choices_from_list()
+	#test_wxMultiChoiceDialog()
+	test_item_picker_dlg()
 
 #================================================================
 #

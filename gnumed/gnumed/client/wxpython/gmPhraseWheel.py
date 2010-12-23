@@ -157,6 +157,9 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 #much slower and usually unecesary.  There are many other examples but trust
 #me one needs both
 #-----
+
+# FIXME: support dynamic tooltip part based on selection
+# FIXME: support selection-only-or-empty
 class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
