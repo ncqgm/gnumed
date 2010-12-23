@@ -37,6 +37,7 @@ IMPROVED: alpha-sort list of master data lists as per mailing list
 IMPROVED: much saner "deletion of substance intake entry" workflow
 IMPROVED: external patient sources now generically import external IDs/comm channels/addresses
 IMPROVED: fix detection of existing patient when loading from external source
+IMPROVED: workplace plugin configuration using item picker
 
 ------------------------------------------------
 # rel-0-8-patches

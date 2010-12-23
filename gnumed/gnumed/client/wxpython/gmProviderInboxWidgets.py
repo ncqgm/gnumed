@@ -306,6 +306,69 @@ def configure_workplace_plugins(parent=None):
 	#-----------------------------------
 	def edit(workplace=None):
 
+		dbcfg = gmCfg.cCfgSQL()
+
+		if workplace is None:
+			dlg = wx.TextEntryDialog (
+				parent = parent,
+				message = _('Enter a descriptive name for the new workplace:'),
+				caption = _('Configuring GNUmed workplaces ...'),
+				defaultValue = u'',
+				style = wx.OK | wx.CENTRE
+			)
+			dlg.ShowModal()
+			workplace = dlg.GetValue().strip()
+			if workplace == u'':
+				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
+				return False
+			curr_plugins = []
+		else:
+			curr_plugins = gmTools.coalesce(dbcfg.get2 (
+				option = u'horstspace.notebook.plugin_load_order',
+				workplace = workplace,
+				bias = 'workplace'
+				), []
+			)
+
+		msg = _(
+			'Pick the plugin(s) to be loaded the next time the client is restarted under the workplace:\n'
+			'\n'
+			'    [%s]\n'
+		) % workplace
+
+		picker = gmListWidgets.cItemPickerDlg (
+			parent,
+			-1,
+			title = _('Configuring workplace plugins ...'),
+			msg = msg
+		)
+		picker.set_columns(['Available plugins'], ['Active plugins'])
+		available_plugins = gmPlugin.get_installed_plugins(plugin_dir = 'gui')
+		picker.set_choices(available_plugins)
+		picker.set_picks(picks = curr_plugins)
+		btn_pressed = picker.ShowModal()
+		if btn_pressed != wx.ID_OK:
+			picker.Destroy()
+			return False
+
+		new_plugins = picker.get_picks()
+		picker.Destroy()
+		if new_plugins == curr_plugins:
+			return True
+
+		if new_plugins is None:
+			return True
+
+		dbcfg.set (
+			option = u'horstspace.notebook.plugin_load_order',
+			value = new_plugins,
+			workplace = workplace
+		)
+
+		return True
+	#-----------------------------------
+	def edit_old(workplace=None):
+
 		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
 
 		dbcfg = gmCfg.cCfgSQL()
@@ -673,6 +736,12 @@ GNUmed for message category and type:
 #============================================================
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
@@ -685,8 +754,8 @@ if __name__ == '__main__':
 		app.SetWidget(cProviderInboxPnl, -1)
 		app.MainLoop()
 
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		#test_configure_wp_plugins()
-		test_message_inbox()
+
+	test_configure_wp_plugins()
+	#test_message_inbox()
 
 #============================================================

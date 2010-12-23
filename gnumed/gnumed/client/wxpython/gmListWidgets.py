@@ -543,6 +543,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		self._LCTRL_left.activate_callback = self.__pick_selected
 		#self._LCTRL_left.item_tooltip_callback = self.__on_get_item_tooltip
+		self._LCTRL_left.SetFocus()
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
@@ -568,10 +569,16 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	def set_selections(self, selections = None):
 		self._LCTRL_left.set_selections(selections = selections)
 	#------------------------------------------------------------
-#	def set_picks(self, selections = None):
-#		self._LCTRL_left.set_selections(selections = selections)
-#		self._LCTRL_right.set_string_items()
-#		self.__pick_selected()
+	def set_choices(self, choices=None, data=None):
+		self.set_string_items(items = choices)
+		if data is not None:
+			self.set_data(data = data)
+	#------------------------------------------------------------
+	def set_picks(self, picks=None, data=None):
+		self._LCTRL_right.set_string_items(picks)
+		self._LCTRL_right.set_column_widths()
+		if data is not None:
+			self._LCTRL_right.set_data(data = data)
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_left.set_data(data = data)
