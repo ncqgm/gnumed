@@ -38,7 +38,6 @@ class wxgItemPickerDlg(wx.Dialog):
 
     def __set_properties(self):
         # begin wxGlade: wxgItemPickerDlg.__set_properties
-        self.SetTitle(_("GNUmed generic item picker"))
         self.SetSize((600, 350))
         self._BTN_left2right.SetToolTipString(_("Move selected items from left to right."))
         self._BTN_left2right.Enable(False)
