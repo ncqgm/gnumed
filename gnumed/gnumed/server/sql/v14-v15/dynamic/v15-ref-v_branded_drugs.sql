@@ -35,8 +35,9 @@ select
 	 from
 	 	ref.lnk_substance2brand r_ls2b
 	 		inner join ref.consumable_substance r_cs on (r_ls2b.fk_substance = r_cs.pk)
-	 	where r_ls2b.fk_brand = r_bd.pk
+	 where r_ls2b.fk_brand = r_bd.pk
 	) as components,
+
 	exists (
 		select 1
 		from clin.substance_intake c_si
@@ -47,6 +48,16 @@ select
 		)
 		limit 1
 	)	as is_in_use,
+
+	(select array_agg(r_ls2b.pk)
+	 from ref.lnk_substance2brand r_ls2b
+	 where r_ls2b.fk_brand = r_bd.pk
+	) as pk_components,
+
+	(select array_agg(r_ls2b.fk_substance)
+	 from ref.lnk_substance2brand r_ls2b
+	 where r_ls2b.fk_brand = r_bd.pk
+	) as pk_substances,
 
 	r_bd.fk_data_source
 		as pk_data_source,

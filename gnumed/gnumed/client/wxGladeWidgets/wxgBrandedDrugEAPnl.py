@@ -83,14 +83,6 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
         _gszr_main.AddGrowableCol(1)
         # end wxGlade
 
-    def _on_add_component_button_pressed(self, event): # wxGlade: wxgBrandedDrugEAPnl.<event_handler>
-        print "Event handler `_on_add_component_button_pressed' not implemented!"
-        event.Skip()
-
-    def _on_remove_component_button_pressed(self, event): # wxGlade: wxgBrandedDrugEAPnl.<event_handler>
-        print "Event handler `_on_remove_component_button_pressed' not implemented!"
-        event.Skip()
-
     def _on_manage_components_button_pressed(self, event): # wxGlade: wxgBrandedDrugEAPnl.<event_handler>
         print "Event handler `_on_manage_components_button_pressed' not implemented"
         event.Skip()

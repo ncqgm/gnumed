@@ -1196,7 +1196,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['external_code_brand']] is not None:
 			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
 		allg['allergene'] = self._payload[self._idx['substance']]
-		comps = [ c['description'] for c in self.containing_drug.components ]
+		comps = [ c['substance'] for c in self.containing_drug.components ]
 		if len(comps) == 0:
 			allg['generics'] = self._payload[self._idx['substance']]
 		else:
@@ -1472,6 +1472,11 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		return self._payload[self._idx['is_in_use']]
 
 	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+	#--------------------------------------------------------
+	def _get_substance(self):
+		return cConsumableSubstance(aPK_obj = self._payload[self._idx['pk_consumable_substance']])
+
+	substance =  property(_get_substance, lambda x:x)
 #------------------------------------------------------------
 def get_drug_components():
 	cmd = _SQL_get_drug_components % u'true ORDER BY brand, substance'
@@ -1525,18 +1530,37 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 		return (success, data)
 	#--------------------------------------------------------
-	def add_component(self, substance=None, atc=None, amount=None, unit=None):
+	def set_substances_as_components(self, substances=None):
 
-		consumable = create_consumable_substance(substance = substance, atc = atc, amount = amount, unit = unit)
+		if self._payload[self._idx['is_in_use']]:
+			return False
+
+		args = {'brand': self._payload[self._idx['pk_brand']]}
+
+		queries = [{'cmd': u"DELETE FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s", 'args': args}]
+		cmd = u'INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance) VALUES (%%(brand)s, %s)'
+		for s in substances:
+			queries.append({'cmd': cmd % s['pk'], 'args': args})
+
+		gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
+
+		return True
+	#--------------------------------------------------------
+	def add_component(self, substance=None, atc=None, amount=None, unit=None, pk_substance=None):
 
 		args = {
 			'brand': self.pk_obj,
 			'subst': consumable['description'],
 			'atc': consumable['atc_code'],
-			'pk_subst': consumable['pk']
+			'pk_subst': pk_substance
 		}
 
-		# already exists ?
+		if pk_substance is None:
+			consumable = create_consumable_substance(substance = substance, atc = atc, amount = amount, unit = unit)
+			args['pk_subst'] = consumable['pk']
+
+		# already a component
 		cmd = u"""
 			SELECT pk_component
 			FROM ref.v_drug_components
@@ -1546,7 +1570,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 				((
 					(lower(substance) = lower(%(subst)s))
 						OR
-					(atc_substance = %(atc)s)
+					(lower(atc_substance) = lower(%(atc)s))
 						OR
 					(pk_consumable_substance = %(pk_subst)s)
 				) IS TRUE)
@@ -1607,10 +1631,10 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	external_code_type = property(_get_external_code_type, lambda x:x)
 	#--------------------------------------------------------
 	def _get_components(self):
-		cmd = u'SELECT * FROM ref.v_drug_components WHERE pk_brand = %(brand)s'
+		cmd = _SQL_get_drug_components % u'pk_brand = %(brand)s'
 		args = {'brand': self._payload[self._idx['pk_brand']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
 
 	components = property(_get_components, lambda x:x)
 	#--------------------------------------------------------
