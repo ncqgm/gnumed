@@ -1638,6 +1638,16 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 
 	components = property(_get_components, lambda x:x)
 	#--------------------------------------------------------
+	def _get_components_as_substances(self):
+		if self._payload[self._idx['pk_substances']] is None:
+			return []
+		cmd = _SQL_get_consumable_substance % u'pk IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_substances']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ cConsumableSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+
+	components_as_substances = property(_get_components_as_substances, lambda x:x)
+	#--------------------------------------------------------
 	def _get_is_vaccine(self):
 		cmd = u'SELECT EXISTS (SELECT 1 FROM clin.vaccine WHERE fk_brand = %(fk_brand)s)'
 		args = {'fk_brand': self._payload[self._idx['pk_brand']]}
@@ -1682,6 +1692,25 @@ def create_branded_drug(brand_name=None, preparation=None, return_existing=False
 	return cBrandedDrug(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
 def delete_branded_drug(brand=None):
+	queries = []
+	args = {'pk': brand}
+
+	# delete components
+	cmd = u"""
+		DELETE FROM ref.lnk_substance2brand
+		WHERE
+			fk_brand = %(pk)s
+				AND
+			NOT EXISTS (
+				SELECT 1
+				FROM clin.v_pat_substance_intake
+				WHERE pk_brand = %(pk)s
+				LIMIT 1
+			)
+	"""
+	queries.append({'cmd': cmd, 'args': args})
+
+	# delete drug
 	cmd = u"""
 		DELETE FROM ref.branded_drug
 		WHERE
@@ -1694,7 +1723,9 @@ def delete_branded_drug(brand=None):
 				LIMIT 1
 			)
 	"""
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': brand}}])
+	queries.append({'cmd': cmd, 'args': args})
+
+	gmPG2.run_rw_queries(queries = queries)
 #============================================================
 # main
 #------------------------------------------------------------

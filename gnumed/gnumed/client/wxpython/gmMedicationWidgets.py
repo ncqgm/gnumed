@@ -755,6 +755,20 @@ LIMIT 50"""
 #------------------------------------------------------------
 def manage_components_of_branded_drug(parent=None, brand=None):
 
+	if brand is not None:
+		if brand['is_in_use']:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Managing components of a drug'),
+				aMessage = _(
+					'Cannot manage the components of the branded drug product\n'
+					'\n'
+					' "%s" (%s)\n'
+					'\n'
+					'because it is currently taken by patients.\n'
+				) % (brand['brand'], brand['preparation'])
+			)
+			return False
+	#--------------------------------------------------------
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	#--------------------------------------------------------
@@ -859,7 +873,7 @@ def manage_branded_drugs(parent=None):
 		return True
 	#------------------------------------------------------------
 	def new():
-		return edit_branded_drug(parent = parent, branded_drug = brand, single_entry = False)
+		return edit_branded_drug(parent = parent, branded_drug = None, single_entry = False)
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		drugs = gmMedication.get_branded_drugs()
@@ -897,6 +911,20 @@ def manage_branded_drugs(parent=None):
 
 #------------------------------------------------------------
 def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
+	if branded_drug is not None:
+		if branded_drug['is_in_use']:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Editing drug'),
+				aMessage = _(
+					'Cannot edit the branded drug product\n'
+					'\n'
+					' "%s" (%s)\n'
+					'\n'
+					'because it is currently taken by patients.\n'
+				) % (branded_drug['brand'], branded_drug['preparation'])
+			)
+			return False
+
 	ea = cBrandedDrugEAPnl(parent = parent, id = -1)
 	ea.data = branded_drug
 	ea.mode = gmTools.coalesce(branded_drug, 'new', 'edit')
@@ -924,14 +952,11 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		# Code using this mixin should set mode and data
-		# after instantiating the class:
 		self.mode = 'new'
 		self.data = data
-		self.__pk_components = []
 		if data is not None:
 			self.mode = 'edit'
-			self.__pk_substances = data['pk_substances']
+			self.__component_substances = data.components_as_substances
 
 		#self.__init_ui()
 	#----------------------------------------------------------------
@@ -955,7 +980,6 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		else:
 			self._PRW_brand.display_as_valid(True)
 
-
 		if self._PRW_preparation.GetValue().strip() == u'':
 			validity = False
 			self._PRW_preparation.display_as_valid(False)
@@ -968,24 +992,37 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		data = 1
 
-		data[''] = 1
-		data[''] = 1
+		drug = gmMedication.create_branded_drug (
+			brand_name = self._PRW_brand.GetValue().strip(),
+			preparation = gmTools.coalesce (
+				self._PRW_preparation.GetData(),
+				self._PRW_preparation.GetValue()
+			).strip(),
+			return_existing = True
+		)
+		drug['is_fake_brand'] = self._CHBOX_is_fake.GetValue()
+		drug['atc'] = self._PRW_atc.GetData()
+		code = self._TCTRL_external_code.GetValue().strip()
+		if code != u'':
+			drug['external_code'] = code
+			drug['external_code_type'] = self._PRW_external_code_type.GetData().strip()
 
-		#data.save()
+		drug.save()
 
-		# must be done very late or else the property access
-		# will refresh the display such that later field
-		# access will return empty values
-		self.data = data
-		return False
+		if len(self.__component_substances) > 0:
+			drug.set_substances_as_components(substances = self.__component_substances)
+
+		self.data = drug
+
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['brand'] = self._PRW_brand.GetValue().strip()
-		self.data['preparation'] = self._PRW_preparation.GetData().strip()
+		self.data['preparation'] = gmTools.coalesce (
+			self._PRW_preparation.GetData(),
+			self._PRW_preparation.GetValue()
+		).strip()
 		self.data['is_fake_brand'] = self._CHBOX_is_fake.GetValue()
 		self.data['atc'] = self._PRW_atc.GetData()
 		code = self._TCTRL_external_code.GetValue().strip()
@@ -1011,7 +1048,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 
 		self._PRW_brand.SetFocus()
 
-		self.__pk_substances = []
+		self.__component_substances = []
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -1020,7 +1057,9 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		self._PRW_brand.SetText(self.data['brand'], self.data['pk_brand'])
 		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
 		self._CHBOX_is_fake.SetValue(self.data['is_fake_brand'])
-		comps = u'- %s' % u'\n- '.join(self.data['components'])
+		comps = u''
+		if self.data['components'] is not None:
+			comps = u'- %s' % u'\n- '.join(self.data['components'])
 		self._TCTRL_components.SetValue(comps)
 		self._PRW_atc.SetText(gmTools.coalesce(self.data['atc'], u''), self.data['atc'])
 		self._TCTRL_external_code.SetValue(gmTools.coalesce(self.data['external_code'], u''))
@@ -1029,7 +1068,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 
 		self._PRW_brand.SetFocus()
 
-		self.__pk_substances = self.data['pk_substances']
+		self.__component_substances = self.data.components_as_substances
 	#----------------------------------------------------------------
 	# event handler
 	#----------------------------------------------------------------
@@ -1037,12 +1076,10 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		event.Skip()
 		OKed, substs = manage_components_of_branded_drug(parent = self, brand = self.data)
 		if OKed is True:
-			if self.data is None:
-				self.__pk_substances = [ s['pk'] for s in substs ]
+			self.__component_substances = substs
+			comps = u''
+			if len(substs) > 0:
 				comps = u'- %s' % u'\n- '.join([ u'%s %s%s' % (s['description'], s['amount'], s['unit']) for s in substs ])
-			else:
-				self.__pk_substances = self.data['pk_substances']
-				comps = u'- %s' % u'\n- '.join(self.data['components'])
 			self._TCTRL_components.SetValue(comps)
 #============================================================
 class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):

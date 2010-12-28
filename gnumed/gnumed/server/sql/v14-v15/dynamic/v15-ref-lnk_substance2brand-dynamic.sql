@@ -40,7 +40,7 @@ alter table ref.lnk_substance2brand
 	add foreign key (fk_brand)
 		references ref.branded_drug(pk)
 		on update cascade
-		on delete cascade;
+		on delete restrict;
 
 \unset ON_ERROR_STOP
 drop index ref.idx_lnk_s2b_fk_brand cascade;
@@ -91,15 +91,20 @@ create or replace function ref.trf_true_brands_must_have_components()
 	language 'plpgsql'
 	as '
 DECLARE
+	_brand_is_deleted boolean;
 	_is_fake_brand boolean;
 	_has_other_components boolean;
 BEGIN
+	-- if an UPDATE does NOT move the component to another drug
+	-- there WILL be at least one component left
 	if TG_OP = ''UPDATE'' then
 		if NEW.fk_brand = OLD.fk_brand then
 			return NEW;
 		end if;
 	end if;
 
+
+	-- fake drugs may become devoid of components
 	select
 		is_fake into _is_fake_brand
 	from
@@ -107,31 +112,45 @@ BEGIN
 	where
 		pk = OLD.fk_brand
 	;
-
 	if _is_fake_brand is TRUE then
-		return NEW;
+		return OLD;
 	end if;
 
+
+	-- DELETEs may proceed if the drug has been deleted, too
+	if TG_OP = ''DELETE'' then
+		select not exists (
+			select 1 from ref.branded_drug
+			where pk = OLD.fk_brand
+		) into _brand_is_deleted;
+		if _brand_is_deleted is TRUE then
+			return OLD;
+		end if;
+	end if;
+
+
+	-- if there are other components left after the
+	-- UPDATE or DELETE everything is fine
 	select exists (
-		select 1
-		from ref.lnk_substance2brand
+		select 1 from ref.lnk_substance2brand
 		where
 			fk_brand = OLD.fk_brand
 				and
 			fk_substance != OLD.fk_substance
+		limit 1
 	) into _has_other_components;
-
 	if _has_other_components is TRUE then
-		return NEW;
+		return OLD;
 	end if;
+
 
 	raise exception ''[ref.trf_true_brands_must_have_components::%] brand must have components (brand <%> component <%>)'', TG_OP, OLD.fk_brand, OLD.fk_substance;
 
-	return NEW;
+	return OLD;
 END;';
 
 comment on function ref.trf_true_brands_must_have_components() is
-	'There must always be at least one component for any non-fake branded drug.';
+	'There must always be at least one component for any existing non-fake branded drug.';
 
 create constraint trigger tr_true_brands_must_have_components
 	after update or delete
