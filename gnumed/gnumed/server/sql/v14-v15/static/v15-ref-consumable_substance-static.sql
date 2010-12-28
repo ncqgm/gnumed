@@ -12,7 +12,9 @@
 create table ref.consumable_substance (
 	pk serial primary key,
 	description text,
-	atc_code text
+	atc_code text,
+	amount decimal,
+	unit text
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------

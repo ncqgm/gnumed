@@ -22,9 +22,9 @@ select
 		as brand,
 	r_cs.description
 		as substance,
-	r_ls2b.amount
+	r_cs.amount
 		as amount,
-	r_ls2b.unit
+	r_cs.unit
 		as unit,
 	r_bd.preparation
 		as preparation,

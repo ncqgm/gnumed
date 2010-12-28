@@ -27,16 +27,13 @@ where
 ;
 
 -- --------------------------------------------------------------
--- .unit
+-- .tmp_unit
 alter table clin.substance_intake
-	add column unit text;
-
-alter table audit.log_substance_intake
-	add column unit text;
+	add column tmp_unit text;
 
 -- if not pointing to a drug: extract unit from .strength
 update clin.substance_intake set
-	unit = coalesce (
+	tmp_unit = coalesce (
 		trim(regexp_replace(trim(strength), E'\\d+[.,]{0,1}\\d*', '')),
 		'*?*'
 	)
@@ -45,21 +42,18 @@ where
 
 -- if .unit is empty, set it to default
 update clin.substance_intake set
-	unit = '*?*'
+	tmp_unit = '*?*'
 where
-	trim(unit) = '';
+	trim(tmp_unit) = '';
 
 -- --------------------------------------------------------------
 -- .amount
 alter table clin.substance_intake
-	add column amount decimal;
-
-alter table audit.log_substance_intake
-	add column amount decimal;
+	add column tmp_amount decimal;
 
 -- if not pointing to a drug: extract amount from .strength
 update clin.substance_intake set
-	amount = coalesce (
+	tmp_amount = coalesce (
 		(select replace(trim((regexp_matches(trim(strength), E'\\d+[.,]{0,1}\\d*'))[1]), ',', '.'))::decimal,
 		99999.2
 	)
@@ -68,6 +62,9 @@ where
 
 -- --------------------------------------------------------------
 alter table clin.substance_intake
+	drop column strength cascade;
+
+alter table audit.log_substance_intake
 	drop column strength cascade;
 
 -- --------------------------------------------------------------

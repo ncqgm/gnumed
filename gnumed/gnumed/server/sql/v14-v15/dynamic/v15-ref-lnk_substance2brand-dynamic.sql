@@ -40,7 +40,7 @@ alter table ref.lnk_substance2brand
 	add foreign key (fk_brand)
 		references ref.branded_drug(pk)
 		on update cascade
-		on delete cascade;
+		on delete restrict;
 
 \unset ON_ERROR_STOP
 drop index ref.idx_lnk_s2b_fk_brand cascade;
@@ -71,36 +71,6 @@ drop index ref.idx_lnk_s2b_fk_substance cascade;
 create index idx_lnk_s2b_fk_substance on ref.lnk_substance2brand(fk_substance);
 
 -- --------------------------------------------------------------
--- .amount
-comment on column ref.lnk_substance2brand.amount is
-	'The amount of substance in the linked branded drug.';
-
-\unset ON_ERROR_STOP
-alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_sane_amount cascade;
-\set ON_ERROR_STOP 1
-
-alter table ref.lnk_substance2brand
-	alter column amount
-		set not null;
-
-alter table ref.lnk_substance2brand
-	add constraint ref_lnk_s2b_sane_amount
-		check (amount > 0);
-
--- --------------------------------------------------------------
--- .unit
-comment on column ref.lnk_substance2brand.unit is
-	'The unit of the amount of substance linked to the branded drug.';
-
-\unset ON_ERROR_STOP
-alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_sane_unit cascade;
-\set ON_ERROR_STOP 1
-
-alter table ref.lnk_substance2brand
-	add constraint ref_lnk_s2b_sane_unit
-		check (gm.is_null_or_blank_string(unit) is False);
-
--- --------------------------------------------------------------
 -- table constraints
 \unset ON_ERROR_STOP
 alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_subst_uniq_per_brand cascade;
@@ -109,16 +79,6 @@ alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_subst_uniq_per_b
 alter table ref.lnk_substance2brand
 	add constraint ref_lnk_s2b_subst_uniq_per_brand
 		unique(fk_brand, fk_substance);
-
-
-
---\unset ON_ERROR_STOP
---alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_amount_unit_uniq_per_subst cascade;
---\set ON_ERROR_STOP 1
---
---alter table ref.lnk_substance2brand
---	add constraint ref_lnk_s2b_amount_unit_uniq_per_subst
---		unique (fk_substance, amount, unit);
 
 -- --------------------------------------------------------------
 -- must not devoid non-fake brands of all components
@@ -131,15 +91,20 @@ create or replace function ref.trf_true_brands_must_have_components()
 	language 'plpgsql'
 	as '
 DECLARE
+	_brand_is_deleted boolean;
 	_is_fake_brand boolean;
 	_has_other_components boolean;
 BEGIN
+	-- if an UPDATE does NOT move the component to another drug
+	-- there WILL be at least one component left
 	if TG_OP = ''UPDATE'' then
 		if NEW.fk_brand = OLD.fk_brand then
 			return NEW;
 		end if;
 	end if;
 
+
+	-- fake drugs may become devoid of components
 	select
 		is_fake into _is_fake_brand
 	from
@@ -147,31 +112,45 @@ BEGIN
 	where
 		pk = OLD.fk_brand
 	;
-
 	if _is_fake_brand is TRUE then
-		return NEW;
+		return OLD;
 	end if;
 
+
+	-- DELETEs may proceed if the drug has been deleted, too
+	if TG_OP = ''DELETE'' then
+		select not exists (
+			select 1 from ref.branded_drug
+			where pk = OLD.fk_brand
+		) into _brand_is_deleted;
+		if _brand_is_deleted is TRUE then
+			return OLD;
+		end if;
+	end if;
+
+
+	-- if there are other components left after the
+	-- UPDATE or DELETE everything is fine
 	select exists (
-		select 1
-		from ref.lnk_substance2brand
+		select 1 from ref.lnk_substance2brand
 		where
 			fk_brand = OLD.fk_brand
 				and
 			fk_substance != OLD.fk_substance
+		limit 1
 	) into _has_other_components;
-
 	if _has_other_components is TRUE then
-		return NEW;
+		return OLD;
 	end if;
+
 
 	raise exception ''[ref.trf_true_brands_must_have_components::%] brand must have components (brand <%> component <%>)'', TG_OP, OLD.fk_brand, OLD.fk_substance;
 
-	return NEW;
+	return OLD;
 END;';
 
 comment on function ref.trf_true_brands_must_have_components() is
-	'There must always be at least one component for any non-fake branded drug.';
+	'There must always be at least one component for any existing non-fake branded drug.';
 
 create constraint trigger tr_true_brands_must_have_components
 	after update or delete
@@ -191,8 +170,13 @@ create or replace function ref.trf_do_not_update_component_if_taken_by_patient()
 	returns trigger
 	language 'plpgsql'
 	as '
-DECLARE
 BEGIN
+	if OLD.fk_brand = NEW.fk_brand then
+		if OLD.fk_substance = NEW.fk_substance then
+			return NEW;
+		end if;
+	end if;
+
 	perform 1 from clin.substance_intake c_si
 	where c_si.fk_drug_component = OLD.pk
 	limit 1;
@@ -217,10 +201,8 @@ create trigger tr_do_not_update_component_if_taken_by_patient
 ;
 
 -- --------------------------------------------------------------
--- test data
-delete from ref.branded_drug
-where
-	description like '% Starship Enterprises';
+-- Enterprise pain killer
+delete from ref.branded_drug where description like '% Starship Enterprises';
 
 insert into ref.branded_drug (
 	description,
@@ -242,15 +224,53 @@ where
 
 insert into ref.lnk_substance2brand (
 	fk_brand,
-	fk_substance,
-	amount,
-	unit
+	fk_substance
 ) values (
 	(select pk from ref.branded_drug where description = 'IbuStrong Starship Enterprises'),
-	(select pk from ref.consumable_substance where description = 'Ibuprofen-Starship'),
-	800,
-	'mg/tablet'
+	(select pk from ref.consumable_substance where description = 'Ibuprofen-Starship')
 );
+
+-- --------------------------------------------------------------
+-- f6 East German cigarettes
+delete from ref.branded_drug where description like 'f6 Zigaretten';
+
+insert into ref.branded_drug (
+	description,
+	preparation,
+	is_fake,
+	external_code,
+	external_code_type
+) values (
+	'f6 Zigaretten',
+	'Zigarette',
+	False,
+	'4023500714150',
+	'DE::EAN'
+);
+
+delete from ref.lnk_substance2brand
+where
+	fk_brand = (
+		select pk from ref.branded_drug where description = 'f6 Zigaretten'
+	);
+
+insert into ref.lnk_substance2brand (
+	fk_brand,
+	fk_substance
+) values
+	(
+		(select pk from ref.branded_drug where description = 'f6 Zigaretten'),
+		(select pk from ref.consumable_substance where description = 'Nikotin' and amount = 0.8 and unit = 'mg')
+	),
+	(
+		(select pk from ref.branded_drug where description = 'f6 Zigaretten'),
+		(select pk from ref.consumable_substance where description = 'Teer' and amount = 10 and unit = 'mg')
+	),
+	(
+		(select pk from ref.branded_drug where description = 'f6 Zigaretten'),
+		(select pk from ref.consumable_substance where description = 'Kohlenmonoxid' and amount = 10 and unit = 'mg')
+	)
+;
 
 -- --------------------------------------------------------------
 -- transfer old components of brands from ...
@@ -258,20 +278,10 @@ insert into ref.lnk_substance2brand (
 -- ... ref.substance_in_brand
 insert into ref.lnk_substance2brand (
 	fk_brand,
-	fk_substance,
-	amount,
-	unit
+	fk_substance
 ) select
 	rsib.fk_brand,
-	(select rcs.pk from ref.consumable_substance rcs where rcs.description = rsib.description),
-	coalesce (
-		(select amount from clin.substance_intake where fk_brand = rsib.fk_brand),
-		99999.3
-	),
-	coalesce (
-		(select unit from clin.substance_intake where fk_brand = rsib.fk_brand),
-		'*?* (3)'
-	)
+	(select rcs.pk from ref.consumable_substance rcs where rcs.description = rsib.description)
 from
 	ref.substance_in_brand rsib
 ;
@@ -281,53 +291,16 @@ from
 -- ... clin.consumed_substance
 insert into ref.lnk_substance2brand (
 	fk_brand,
-	fk_substance,
-	amount,
-	unit
+	fk_substance
 ) select
 	csi.fk_brand,
-	(select rcs.pk from ref.consumable_substance rcs where rcs.description = ccs.description),
-	-- amount:
-	coalesce(csi.amount, 99999.4),
-	-- unit:
-	coalesce(csi.unit, '*?* (4)')
+	(select rcs.pk from ref.consumable_substance rcs where rcs.description = ccs.description)
 from
 	clin.substance_intake csi
 		left join clin.consumed_substance ccs on (ccs.pk = csi.fk_substance)
 where
 	csi.fk_brand is not null
 ;
-
--- --------------------------------------------------------------
--- cleanup
-\unset ON_ERROR_STOP
-drop view ref.v_substance_in_brand cascade;
-alter table ref.substance_in_brand drop column fk_brand cascade;
-alter table ref.substance_in_brand drop column description cascade;
-alter table ref.substance_in_brand drop column atc_code cascade;
-\set ON_ERROR_STOP 1
-
-truncate ref.substance_in_brand cascade;
-comment on table ref.substance_in_brand is 'Remove this table in gnumed_v16';
-revoke all on ref.substance_in_brand from "gm-doctors", "gm-public";
-
-delete from audit.audited_tables aat
-where
-	aat.schema = 'ref'
-		and
-	aat.table_name = 'substance_in_brand'
-;
-
-delete from gm.notifying_tables gnt
-where
-	gnt.schema_name = 'ref'
-		and
-	gnt.table_name = 'substance_in_brand'
-;
-
-\unset ON_ERROR_STOP
-drop table ref.substance_in_brand cascade;
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-ref-lnk_substance2brand-dynamic.sql', 'Revision: 1.1');

@@ -50,13 +50,15 @@ def get_choices_from_list (
 			ignore_OK_button=False,
 			left_extra_button=None,
 			middle_extra_button=None,
-			right_extra_button=None):
+			right_extra_button=None,
+			list_tooltip_callback=None):
 	"""Let user select item(s) from a list.
 
 	- new_callback: ()
 	- edit_callback: (item data)
 	- delete_callback: (item data)
 	- refresh_callback: (listctrl)
+	- list_tooltip_callback: (item data)
 
 	- left/middle/right_extra_button: (label, tooltip, <callback>)
 		<callback> is called with item_data as the only argument
@@ -84,6 +86,7 @@ def get_choices_from_list (
 	dlg.edit_callback = edit_callback
 	dlg.new_callback = new_callback
 	dlg.delete_callback = delete_callback
+	dlg.list_tooltip_callback = list_tooltip_callback
 
 	dlg.ignore_OK_button = ignore_OK_button
 	dlg.left_extra_button = left_extra_button
@@ -411,6 +414,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.CallAfter(self._set_refresh_callback_helper)
 
 	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
+	#------------------------------------------------------------
+	def _set_list_tooltip_callback(self, callback):
+		self._LCTRL_items.item_tooltip_callback = callback
+
+	list_tooltip_callback = property(lambda x:x, _set_list_tooltip_callback)
 #================================================================
 class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	"""A panel holding a generic multi-column list and action buttions."""
@@ -543,6 +551,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		self._LCTRL_left.activate_callback = self.__pick_selected
 		#self._LCTRL_left.item_tooltip_callback = self.__on_get_item_tooltip
+
 		self._LCTRL_left.SetFocus()
 	#------------------------------------------------------------
 	# external API
@@ -592,18 +601,19 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		if self._LCTRL_left.get_selected_items(only_one = True) == -1:
 			return
 
-		tmp = self._LCTRL_right.get_string_items()
-		tmp.extend(self._LCTRL_left.get_selected_string_items(only_one = False))
-		self._LCTRL_right.set_string_items(items = tmp)
+		right_items = self._LCTRL_right.get_string_items()
+		right_data = self._LCTRL_right.get_item_data()
 
-		tmp = self._LCTRL_right.get_item_data()
-		if tmp is None:
+		right_items.extend(self._LCTRL_left.get_selected_string_items(only_one = False))
+		self._LCTRL_right.set_string_items(items = right_items)
+		del right_items
+
+		if right_data is None:
 			self._LCTRL_right.set_data(data = self._LCTRL_left.get_selected_item_data(only_one = False))
 		else:
-			tmp.extend(self._LCTRL_left.get_selected_item_data(only_one = False))
-			self._LCTRL_right.set_data(data = tmp)
-
-		del tmp
+			right_data.extend(self._LCTRL_left.get_selected_item_data(only_one = False))
+			self._LCTRL_right.set_data(data = right_data)
+		del right_data
 
 		self._LCTRL_right.set_column_widths()
 	#------------------------------------------------------------
@@ -859,7 +869,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		dyna_tt = None
 		if self.__item_tooltip_callback is not None:
-			dyna_tt = self.__item_tooltip_callback(item_idx)
+			dyna_tt = self.__item_tooltip_callback(self.__data[item_idx])
 
 		if dyna_tt is None:
 			self.SetToolTipString(self.__tt_static_part)
@@ -884,8 +894,9 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
 	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
-		if not callable(callback):
-			raise ValueError('<item_tooltip> callback is not a callable: %s' % callback)
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<item_tooltip> callback is not a callable: %s' % callback)
 		self.__item_tooltip_callback = callback
 
 	item_tooltip_callback = property(lambda x:x, _set_item_tooltip_callback)

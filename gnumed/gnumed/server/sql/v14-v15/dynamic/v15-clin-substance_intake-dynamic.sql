@@ -41,60 +41,6 @@ where
 	fk_brand is not null
 ;
 -- --------------------------------------------------------------
--- .amount
-comment on column clin.substance_intake.amount is
-	'The amount of substance the patient is taking.';
-
-
--- unset amount if pointing to a drug
-update clin.substance_intake set
-	amount = null
-where
-	--fk_brand is not null
-	fk_drug_component is not null
-;
-
-
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint clin_intake_sane_amount cascade;
-\set ON_ERROR_STOP 1
-
-alter table clin.substance_intake
-	add constraint clin_intake_sane_amount
-		check (
-			((fk_drug_component is null) and (amount > 0))
-				or
-			((fk_drug_component is not null) and (amount is null))
-		);
-
--- --------------------------------------------------------------
--- .unit
-comment on column clin.substance_intake.unit is
-	'The unit of the amount of substance the patient is taking.';
-
-
--- if pointing to a drug: unset unit
-update clin.substance_intake set
-	unit = null
-where
---	fk_brand is not null
-	fk_drug_component is not null
-;
-
-
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint clin_intake_sane_unit cascade;
-\set ON_ERROR_STOP 1
-
-alter table clin.substance_intake
-	add constraint clin_intake_sane_unit
-		check (
-			((fk_drug_component is null) and (gm.is_null_or_blank_string(unit) is False))
-				or
-			((fk_drug_component is not null) and (unit is null))
-		);
-
--- --------------------------------------------------------------
 -- INSERT
 \unset ON_ERROR_STOP
 drop function ref.trf_insert_intake_must_link_all_drug_components() cascade;
@@ -416,24 +362,13 @@ alter table clin.substance_intake
 		);
 
 -- --------------------------------------------------------------
+-- cleanup
 \unset ON_ERROR_STOP
+alter table clin.substance_intake drop column tmp_unit cascade;
+alter table clin.substance_intake drop column tmp_amount cascade;
 alter table clin.substance_intake drop column fk_brand cascade;
-drop table clin.consumed_substance cascade;
+alter table audit.log_substance_intake drop column fk_brand cascade;
 \set ON_ERROR_STOP 1
-
-delete from audit.audited_tables aat
-where
-	aat.schema = 'clin'
-		and
-	aat.table_name = 'consumed_substance'
-;
-
-delete from gm.notifying_tables gnt
-where
-	gnt.schema_name = 'clin'
-		and
-	gnt.table_name = 'consumed_substance'
-;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-clin-substance_intake-dynamic.sql', 'Revision: 1.1');

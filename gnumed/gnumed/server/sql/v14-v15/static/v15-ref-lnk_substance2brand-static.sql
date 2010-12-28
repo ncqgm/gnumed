@@ -12,9 +12,7 @@
 create table ref.lnk_substance2brand (
 	pk serial primary key,
 	fk_brand integer,
-	fk_substance integer,
-	amount decimal,
-	unit text
+	fk_substance integer
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------

@@ -1242,13 +1242,15 @@ WHERE
 
 		return meds
 	#--------------------------------------------------------
-	def add_substance_intake(self, substance=None, atc=None, episode=None, preparation=None):
+	def add_substance_intake(self, substance=None, atc=None, episode=None, preparation=None, amount=None, unit=None):
 		return gmMedication.create_substance_intake (
 			substance = substance,
 			atc = atc,
 			encounter = self.current_encounter['pk_encounter'],
 			episode = episode,
-			preparation = preparation
+			preparation = preparation,
+			amount = amount,
+			unit = unit
 		)
 	#--------------------------------------------------------
 	# vaccinations API
