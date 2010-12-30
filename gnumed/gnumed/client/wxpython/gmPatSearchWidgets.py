@@ -1228,7 +1228,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 					gmTools.coalesce (
 						p['dob'],
 						u'',
-						function_initial = ('strftime', u'%d %b %Y')
+						function_initial = ('strftime', '%d %b %Y')
 					),
 					u'',
 					function_initial = ('decode', gmI18N.get_encoding())
