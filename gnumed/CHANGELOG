@@ -6,6 +6,10 @@
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.6
+
+FIX: strftime() cannot take unicode argument when refreshing waiting list [thanks JB]
+
 	0.8.5
 
 FIX: PostgreSQL 9.0 does not need "regex_flavor" anymore
