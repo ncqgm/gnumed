@@ -27,6 +27,136 @@ from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 _log = logging.getLogger('gm.ui')
 
 #============================================================
+class cDateMatchProvider(gmMatchProvider.cMatchProvider):
+	def __init__(self):
+
+		gmMatchProvider.cMatchProvider.__init__(self)
+
+		self.setThresholds(aPhrase = 1, aWord = 998, aSubstring = 999)
+		self.word_separators = None
+#		self.ignored_chars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	# base class API
+	#--------------------------------------------------------
+	# internal matching algorithms
+	#
+	# if we end up here:
+	#	- aFragment will not be "None"
+	#   - aFragment will be lower case
+	#	- we _do_ deliver matches (whether we find any is a different story)
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+		matches = gmDateTime.str2pydt_matches(str2parse = aFragment.strip())
+		if len(matches) > 0:
+			return (True, matches)
+		else:
+			return (False, [])
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+		return self.getMatchesByPhrase(aFragment)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+		return self.getMatchesByPhrase(aFragment)
+	#--------------------------------------------------------
+	def getAllMatches(self):
+		"""Return all items."""
+		# FIXME: popup calendar to pick from
+		return (False, [])
+#============================================================
+class cDateInputCtrl2(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		self.matcher = cDateMatchProvider()
+		self.phrase_separators = None
+		self.selection_only = True
+		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __text2timestamp(self, val=None):
+
+		if val is None:
+			val = self.GetValue().strip()
+
+		success, matches = self.matcher.getMatchesByPhrase(val)
+
+		if len(matches) == 1:
+			return matches[0]['data']
+
+		return None
+	#--------------------------------------------------------
+	# phrasewheel internal API
+	#--------------------------------------------------------
+	def _on_lose_focus(self, event):
+		# are we valid ?
+		if self.data is None:
+			# no, so try
+			self.data = self.__text2timestamp()
+
+		# let the base class do its thing
+		super(self.__class__, self)._on_lose_focus(event)
+	#--------------------------------------------------------
+	def _picklist_selection2display_string(self):
+		data = self._picklist.GetSelectedItemData()
+		if data is not None:
+			return data.format_accurately()
+		return self._picklist.get_selected_item_label()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def SetValue(self, value):
+
+		if isinstance(value, pyDT.datetime):
+			self.SetText(data = value, suppress_smarts = True)
+			return
+
+		if value is None:
+			value = u''
+
+		super(self.__class__, self).SetValue(value)
+	#--------------------------------------------------------
+	def SetText(self, value=u'', data=None, suppress_smarts=False):
+
+		if data is not None:
+			if isinstance(data, gmDateTime.cFuzzyTimestamp):
+				data = data.timestamp
+			if value.strip() == u'':
+				value = data.strftime('%Y-%m-%d')
+
+		super(self.__class__, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
+	#--------------------------------------------------------
+	def SetData(self, data=None):
+		if data is None:
+			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
+		else:
+			if isinstance(data, gmDateTime.cFuzzyTimestamp):
+				data = data.timestamp
+			super(self.__class__, self).SetText(value = data.strftime('%Y-%m-%d'), data = data)
+	#--------------------------------------------------------
+	def is_valid_timestamp(self):
+		if self.data is not None:
+			return True
+
+		# skip empty value
+		if self.GetValue().strip() == u'':
+			return True
+
+		self.data = self.__text2timestamp()
+		if self.data is None:
+			return False
+
+		return True
+
+#============================================================
 class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def __init__(self):
 		self.__allow_past = 1
@@ -91,7 +221,6 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			val = self.GetValue().strip()
 
 		success, matches = self.matcher.getMatchesByPhrase(val)
-		#matches = gmDateTime.str2fuzzy_timestamp_matches(str2parse=val)
 		if len(matches) == 1:
 			return matches[0]['data']
 

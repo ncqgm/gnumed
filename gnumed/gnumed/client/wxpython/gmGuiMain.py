@@ -2892,6 +2892,7 @@ class gmApp(wx.App):
 
 			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 				None,
+				#self.GetTopWindow(),				# freezes
 				-1,
 				caption = _('Verifying database'),
 				question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),

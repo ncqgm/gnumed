@@ -1523,7 +1523,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 
 		- Identity
 		- Contacts (addresses, phone numbers, etc)
-		- Social Network (significant others, GP, etc)
+		- Social network (significant others, GP, etc)
 
 	Does NOT act on/listen to the current patient.
 	"""
@@ -1580,7 +1580,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		new_page.identity = self.__identity
 		self.AddPage (
 			page = new_page,
-			text = _('Social Network'),
+			text = _('Social network'),
 			select = False
 		)
 	#--------------------------------------------------------
