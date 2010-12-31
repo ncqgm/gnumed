@@ -192,6 +192,43 @@ def init():
 		name = current_local_iso_numeric_timezone_string
 	)
 #===========================================================================
+# mxDateTime conversions
+#---------------------------------------------------------------------------
+def mxdt2py_dt(mxDateTime):
+
+	if isinstance(mxDateTime, pyDT.datetime):
+		return mxDateTime
+
+	if dst_currently_in_effect:
+		tz = cFixedOffsetTimezone (
+			offset = ((time.altzone * -1) / 60),
+			name = str(mxDateTime.gmtoffset()).replace(',', '.')
+		)
+	else:
+		tz = cFixedOffsetTimezone (
+			offset = ((time.timezone * -1) / 60),
+			name = str(mxDateTime.gmtoffset()).replace(',', '.')
+		)
+
+	try:
+		return pyDT.datetime (
+			year = mxDateTime.year,
+			month = mxDateTime.month,
+			day = mxDateTime.day,
+			tzinfo = tz
+		)
+	except:
+		_log.debug (u'error converting mx.DateTime.DateTime to Python: %s-%s-%s %s:%s %s.%s',
+			mxDateTime.year,
+			mxDateTime.month,
+			mxDateTime.day,
+			mxDateTime.hour,
+			mxDateTime.minute,
+			mxDateTime.second,
+			mxDateTime.tz
+		)
+		raise
+#===========================================================================
 def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
@@ -641,9 +678,550 @@ def str2interval(str_interval=None):
 		return pyDT.timedelta(days = ((months * avg_days_per_gregorian_month) + (weeks * days_per_week)))
 
 	return None
-
 #===========================================================================
-# string -> timestamp parsers
+# string -> date parser
+#---------------------------------------------------------------------------
+def __single_char2py_dt(str2parse, trigger_chars=None):
+	"""This matches on single characters.
+
+	Spaces and tabs are discarded.
+
+	Default is 'dmy':
+		d - toDay
+		m - toMorrow	Someone please suggest a synonym !
+		y - Yesterday
+
+	This also defines the significance of the order of the characters.
+	"""
+	if trigger_chars is None:
+		trigger_chars = _('dmy (single character date triggers)')[:3].lower()
+
+	str2parse = str2parse.strip().lower()
+
+	if len(str2parse) != 1:
+		return []
+
+	if str2parse not in trigger_chars:
+		return []
+
+	now = mxDT.now()
+	enc = gmI18N.get_encoding()
+
+	# today
+	if str2parse == trigger_chars[0]:
+		return [{
+			'data': mxdt2py_dt(now),
+			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d').decode(enc)
+		}]
+
+	# tomorrow
+	if str2parse == trigger_chars[1]:
+		ts = now + mxDT.RelativeDateTime(days = +1)
+		return [{
+			'data': mxdt2py_dt(ts),
+			'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
+		}]
+
+	# yesterday
+	if str2parse == trigger_chars[2]:
+		ts = now + mxDT.RelativeDateTime(days = -1)
+		return [{
+			'data': mxdt2py_dt(ts),
+			'label': _('yesterday (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
+		}]
+
+	return []
+#---------------------------------------------------------------------------
+def __single_dot2py_dt(str2parse):
+	"""Expand fragments containing a single dot.
+
+	Standard colloquial date format in Germany: day.month.year
+
+	"14."
+		- the 14th of the current month
+		- the 14th of next month
+	"-14."
+		- the 14th of last month
+	"""
+	str2parse = str2parse.strip()
+
+	if not str2parse.endswith(u'.'):
+		return []
+
+	str2parse = str2parse[:-1]
+	try:
+		day_val = int(str2parse)
+	except ValueError:
+		return []
+
+	if (day_val < -31) or (day_val > 31) or (day_val == 0):
+		return []
+
+	now = mxDT.now()
+	enc = gmI18N.get_encoding()
+	matches = []
+
+	# day X of last month only
+	if day_val < 0:
+		ts = now + mxDT.RelativeDateTime(day = abs(day_val), months = -1)
+		if abs(day_val) <= gregorian_month_length[ts.month]:
+			matches.append ({
+				'data': mxdt2py_dt(ts),
+				'label': _('%s-%s-%s: a %s last month') % (ts.year, ts.month, ts.day, ts.strftime('%A').decode(enc))
+			})
+
+	# day X of this month
+	if day_val > 0:
+		ts = now + mxDT.RelativeDateTime(day = day_val)
+		if day_val <= gregorian_month_length[ts.month]:
+			matches.append ({
+				'data': mxdt2py_dt(ts),
+				'label': _('%s-%s-%s: a %s this month') % (ts.year, ts.month, ts.day, ts.strftime('%A').decode(enc))
+			})
+
+	# day X of next month
+	if day_val > 0:
+		ts = now + mxDT.RelativeDateTime(day = day_val, months = +1)
+		if day_val <= gregorian_month_length[ts.month]:
+			matches.append ({
+				'data': mxdt2py_dt(ts),
+				'label': _('%s-%s-%s: a %s next month') % (ts.year, ts.month, ts.day, ts.strftime('%A').decode(enc))
+			})
+
+	# day X of last month
+	if day_val > 0:
+		ts = now + mxDT.RelativeDateTime(day = day_val, months = -1)
+		if day_val <= gregorian_month_length[ts.month]:
+			matches.append ({
+				'data': mxdt2py_dt(ts),
+				'label': _('%s-%s-%s: a %s last month') % (ts.year, ts.month, ts.day, ts.strftime('%A').decode(enc))
+			})
+
+	return matches
+#---------------------------------------------------------------------------
+def __single_slash2py_dt(str2parse):
+	"""Expand fragments containing a single slash.
+
+	"5/"
+		- 2005/					(2000 - 2025)
+		- 1995/					(1990 - 1999)
+		- Mai/current year
+		- Mai/next year
+		- Mai/last year
+		- Mai/200x
+		- Mai/20xx
+		- Mai/199x
+		- Mai/198x
+		- Mai/197x
+		- Mai/19xx
+
+	5/1999
+	6/2004
+	"""
+	str2parse = str2parse.strip()
+
+	now = mxDT.now()
+
+	# 5/1999
+	if regex.match(r"^\d{1,2}(\s|\t)*/+(\s|\t)*\d{4}$", str2parse, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(r'\d+', str2parse, flags = regex.LOCALE | regex.UNICODE)
+		ts = now + mxDT.RelativeDateTime(year = int(parts[1]), month = int(parts[0]))
+		return [{
+			'data': mxdt2py_dt(ts),
+			'label': ts.strftime('%Y-%m-%d').decode(enc)
+		}]
+
+	matches = []
+	# 5/
+	if regex.match(r"^\d{1,2}(\s|\t)*/+$", str2parse, flags = regex.LOCALE | regex.UNICODE):
+		val = int(str2parse[:-1].strip())
+
+		# "55/" -> "1955"
+		if val < 100 and val >= 0:
+			matches.append ({
+				'data': None,
+				'label': '%s-' % (val + 1900)
+			})
+
+		# "11/" -> "2011"
+		if val < 26 and val >= 0:
+			matches.append ({
+				'data': None,
+				'label': '%s-' % (val + 2000)
+			})
+
+		# "5/" -> "1995"
+		if val < 10 and val >= 0:
+			matches.append ({
+				'data': None,
+				'label': '%s-' % (val + 1990)
+			})
+
+		if val < 13 and val > 0:
+			# "11/" -> "11/this year"
+			matches.append ({
+				'data': None,
+				'label': '%s-%.2d-' % (now.year, val)
+			})
+			# "11/" -> "11/next year"
+			ts = now + mxDT.RelativeDateTime(years = 1)
+			matches.append ({
+				'data': None,
+				'label': '%s-%.2d-' % (ts.year, val)
+			})
+			# "11/" -> "11/last year"
+			ts = now + mxDT.RelativeDateTime(years = -1)
+			matches.append ({
+				'data': None,
+				'label': '%s-%.2d-' % (ts.year, val)
+			})
+			# "11/" -> "201?-11-"
+			matches.append ({
+				'data': None,
+				'label': '201?-%.2d-' % val
+			})
+			# "11/" -> "200?-11-"
+			matches.append ({
+				'data': None,
+				'label': '200?-%.2d-' % val
+			})
+			# "11/" -> "20??-11-"
+			matches.append ({
+				'data': None,
+				'label': '20??-%.2d-' % val
+			})
+			# "11/" -> "199?-11-"
+			matches.append ({
+				'data': None,
+				'label': '199?-%.2d-' % val
+			})
+			# "11/" -> "198?-11-"
+			matches.append ({
+				'data': None,
+				'label': '198?-%.2d-' % val
+			})
+			# "11/" -> "198?-11-"
+			matches.append ({
+				'data': None,
+				'label': '197?-%.2d-' % val
+			})
+			# "11/" -> "19??-11-"
+			matches.append ({
+				'data': None,
+				'label': '19??-%.2d-' % val
+			})
+
+	return matches
+#---------------------------------------------------------------------------
+def __numbers_only2py_dt(str2parse):
+	"""This matches on single numbers.
+
+	Spaces or tabs are discarded.
+	"""
+	try:
+		val = int(str2parse.strip())
+	except ValueError:
+		return []
+
+	# strftime() returns str but in the localized encoding,
+	# so we may need to decode that to unicode
+	enc = gmI18N.get_encoding()
+	now = mxDT.now()
+
+	matches = []
+
+	# that year
+	if (1850 < val) and (val < 2100):
+		ts = now + mxDT.RelativeDateTime(year = val)
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': ts.strftime('%Y-%m-%d')
+		})
+
+	# day X of this month
+	if (val > 0) and (val <= gregorian_month_length[now.month]):
+		ts = now + mxDT.RelativeDateTime(day = val)
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%d. of %s (this month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
+		})
+
+	# day X of next month
+	ts = now + mxDT.RelativeDateTime(months = 1, day = val)
+	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%d. of %s (next month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
+		})
+
+	# day X of last month
+	ts = now + mxDT.RelativeDateTime(months = -1, day = val)
+	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%d. of %s (last month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
+		})
+
+	# X days from now
+	if val <= 400:				# more than a year ahead in days ?? nah !
+		ts = now + mxDT.RelativeDateTime(days = val)
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('in %d day(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+		})
+
+	# X weeks from now
+	if val <= 50:				# pregnancy takes about 40 weeks :-)
+		ts = now + mxDT.RelativeDateTime(weeks = val)
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('in %d week(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+		})
+
+	# month X of ...
+	if (val < 13) and (val > 0):
+		# ... this year
+		ts = now + mxDT.RelativeDateTime(month = val)
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%s (%s this year)') % (ts.strftime('%Y-%m-%d'), ts.strftime('%B').decode(enc))
+		})
+
+		# ... next year
+		ts = now + mxDT.RelativeDateTime(years = 1, month = val)
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%s (%s next year)') % (ts.strftime('%Y-%m-%d'), ts.strftime('%B').decode(enc))
+		})
+
+		# ... last year
+		ts = now + mxDT.RelativeDateTime(years = -1, month = val)
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%s (%s last year)') % (ts.strftime('%Y-%m-%d'), ts.strftime('%B').decode(enc))
+		})
+
+		# fragment expansion
+		matches.append ({
+			'data': None,
+			'label': '200?-%s' % val
+		})
+		matches.append ({
+			'data': None,
+			'label': '199?-%s' % val
+		})
+		matches.append ({
+			'data': None,
+			'label': '198?-%s' % val
+		})
+		matches.append ({
+			'data': None,
+			'label': '19??-%s' % val
+		})
+
+	# day X of ...
+	if val < 8:
+		# ... this week
+		ts = now + mxDT.RelativeDateTime(weekday = (val-1, 0))
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%s this week (%s of %s)') % (ts.strftime('%A').decode(enc), ts.day, ts.strftime('%B').decode(enc))
+		})
+
+		# ... next week
+		ts = now + mxDT.RelativeDateTime(weeks = +1, weekday = (val-1, 0))
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%s next week (%s of %s)') % (ts.strftime('%A').decode(enc), ts.day, ts.strftime('%B').decode(enc))
+		})
+
+		# ... last week
+		ts = now + mxDT.RelativeDateTime(weeks = -1, weekday = (val-1, 0))
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%s last week (%s of %s)') % (ts.strftime('%A').decode(enc), ts.day, ts.strftime('%B').decode(enc))
+		})
+
+	if val < 100:
+		matches.append ({
+			'data': None,
+			'label': '%s-' % (1900 + val)
+		})
+
+	if val == 201:
+		tmp = {
+			'data': mxdt2py_dt(now),
+			'label': now.strftime('%Y-%m-%d')
+		}
+		matches.append(tmp)
+		matches.append ({
+			'data': None,
+			'label': now.strftime('%Y-%m')
+		})
+		matches.append ({
+			'data': None,
+			'label': now.strftime('%Y')
+		})
+		matches.append ({
+			'data': None,
+			'label': '%s-' % (now.year + 1)
+		})
+		matches.append ({
+			'data': None,
+			'label': '%s-' % (now.year - 1)
+		})
+
+	if val < 200 and val >= 190:
+		for i in range(10):
+			matches.append ({
+				'data': None,
+				'label': '%s%s-' % (val, i)
+			})
+
+	return matches
+#---------------------------------------------------------------------------
+def __explicit_offset2py_dt(str2parse, offset_chars=None):
+	"""
+			Default is 'hdwmy':
+			h - hours
+			d - days
+			w - weeks
+			m - months
+			y - years
+
+		This also defines the significance of the order of the characters.
+	"""
+	if offset_chars is None:
+		offset_chars = _('hdwmy (single character date offset triggers)')[:5].lower()
+
+	str2parse = str2parse.strip()
+
+	# "+/-XXd/w/m/t"
+	if not regex.match(r"^(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[%s]$" % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
+		return []
+
+	# into the past ?
+	if str2parse.startswith(u'-'):
+		is_future = False
+		str2parse = str2parse[1:].strip()
+	else:
+		is_future = True
+		str2parse = str2parse.replace(u'+', u'').strip()
+
+	val = int(regex.findall(u'\d{1,2}', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
+	offset_char = regex.findall(u'[%s]' % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE)[0].lower()
+
+	now = mxDT.now()
+	enc = gmI18N.get_encoding()
+
+	ts = None
+	# hours
+	if offset_char == offset_chars[0]:
+		if is_future:
+			ts = now + mxDT.RelativeDateTime(hours = val)
+			label = _('in %d hour(s): %s') % (val, ts.strftime('%H:%M'))
+		else:
+			ts = now - mxDT.RelativeDateTime(hours = val)
+			label = _('%d hour(s) ago: %s') % (val, ts.strftime('%H:%M'))
+	# days
+	elif offset_char == offset_chars[1]:
+		if is_future:
+			ts = now + mxDT.RelativeDateTime(days = val)
+			label = _('in %d day(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+		else:
+			ts = now - mxDT.RelativeDateTime(days = val)
+			label = _('%d day(s) ago: %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+	# weeks
+	elif offset_char == offset_chars[2]:
+		if is_future:
+			ts = now + mxDT.RelativeDateTime(weeks = val)
+			label = _('in %d week(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+		else:
+			ts = now - mxDT.RelativeDateTime(weeks = val)
+			label = _('%d week(s) ago: %s)') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+	# months
+	elif offset_char == offset_chars[3]:
+		if is_future:
+			ts = now + mxDT.RelativeDateTime(months = val)
+			label = _('in %d month(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+		else:
+			ts = now - mxDT.RelativeDateTime(months = val)
+			label = _('%d month(s) ago: %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+	# years
+	elif offset_char == offset_chars[4]:
+		if is_future:
+			ts = now + mxDT.RelativeDateTime(years = val)
+			label = _('in %d year(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+		else:
+			ts = now - mxDT.RelativeDateTime(years = val)
+			label = _('%d year(s) ago: %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+
+	if ts is None:
+		return []
+
+	return [{
+		'data': mxdt2py_dt(ts),
+		'label': label
+	}]
+#---------------------------------------------------------------------------
+def str2pydt_matches(str2parse=None, patterns=None):
+	"""Turn a string into candidate dates and auto-completions the user is likely to type.
+
+	You MUST have called locale.setlocale(locale.LC_ALL, '')
+	somewhere in your code previously.
+
+	@param patterns: list of time.strptime compatible date pattern
+	@type patterns: list
+	"""
+	matches = []
+	matches.extend(__single_dot2py_dt(str2parse))
+	matches.extend(__numbers_only2py_dt(str2parse))
+	matches.extend(__single_slash2py_dt(str2parse))
+	matches.extend(__single_char2py_dt(str2parse))
+	matches.extend(__explicit_offset2py_dt(str2parse))
+
+	# try mxDT parsers
+	try:
+		date = mxDT.Parser.DateFromString (
+			text = str2parse,
+			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
+		)
+		# FIXME: convert to python datetime
+		matches.append ({
+			'data': mxdt2py_dt(date),
+			'label': date.strftime('%Y-%m-%d')
+		})
+	except (ValueError, mxDT.RangeError):
+		pass
+
+	# apply explicit patterns
+	if patterns is None:
+		patterns = []
+
+	patterns.append('%Y.%m.%d')
+	patterns.append('%Y/%m/%d')
+	patterns.append('%Y-%m-%d')
+
+	for pattern in patterns:
+		try:
+			date = pyDT.datetime.strptime(str2parse, pattern)
+			matches.append ({
+				'data': mxdt2py_dt(date),
+				'label': date.strftime('%Y-%m-%d')
+			})
+		except AttributeError:
+			# strptime() only available starting with Python 2.5
+			break
+		except OverflowError:
+			# time.mktime() cannot handle dates older than a platform-dependant limit :-(
+			continue
+		except ValueError:
+			# C-level overflow
+			continue
+
+	return matches
+#===========================================================================
+# string -> timestamp parser
 #---------------------------------------------------------------------------
 def __explicit_offset(str2parse, offset_chars=None):
 	"""
@@ -1372,6 +1950,13 @@ class cFuzzyTimestamp:
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != "test":
+		sys.exit()
+
+	#-----------------------------------------------------------------------
 	intervals_as_str = [
 		'7', '12', ' 12', '12 ', ' 12 ', '	12	', '0', '~12', '~ 12', ' ~ 12', '	~	12 ',
 		'12a', '12 a', '12	a', '12j', '12J', '12y', '12Y', '	~ 	12	a	 ', '~0a',
@@ -1548,21 +2133,34 @@ if __name__ == '__main__':
 		end = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 31)
 		print calculate_apparent_age(start = start, end = end)
 	#-------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == "test":
+	def test_str2pydt():
+		print "testing function str2pydt_matches"
+		print "---------------------------------"
 
-		# GNUmed libs
-		gmI18N.activate_locale()
-		gmI18N.install_domain('gnumed')
+		val = None
+		while val != 'exit':
+			val = raw_input('Enter date fragment ("exit" quits): ')
+			matches = str2pydt_matches(str2parse = val)
+			for match in matches:
+				print 'label shown  :', match['label']
+				print 'data attached:', match['data']
+				print ""
+			print "---------------"
+	#-------------------------------------------------
+	# GNUmed libs
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 
-		init()
+	init()
 
-		#test_date_time()
-		#test_str2fuzzy_timestamp_matches()
-		#test_cFuzzyTimeStamp()
-		#test_get_pydt()
-		#test_str2interval()
-		#test_format_interval()
-		#test_format_interval_medically()
-		test_calculate_apparent_age()
+	#test_date_time()
+	#test_str2fuzzy_timestamp_matches()
+	#test_cFuzzyTimeStamp()
+	#test_get_pydt()
+	#test_str2interval()
+	#test_format_interval()
+	#test_format_interval_medically()
+	#test_calculate_apparent_age()
+	test_str2pydt()
 
 #===========================================================================
