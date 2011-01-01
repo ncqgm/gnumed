@@ -97,83 +97,157 @@ grant select, select, update on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
--- transfer old substances from ...
-
--- ... clin.consumed_substance
+-- sample data
+\unset ON_ERROR_STOP
 insert into ref.consumable_substance (
 	description,
 	atc_code,
 	amount,
 	unit
-) select
-	description,
-	atc_code,
-	coalesce (
-		(select csi.tmp_amount from clin.substance_intake csi where csi.fk_substance = ccs.pk),
-		99999.3
-	),
-	coalesce (
-		(select csi.tmp_unit from clin.substance_intake csi where csi.fk_substance = ccs.pk),
-		'*?* (3)'
-	)
-from
-	clin.consumed_substance ccs
-where
-	not exists (
-		select 1
-		from ref.consumable_substance rcs
-		where
-			rcs.description = ccs.description
-				and
-			amount = coalesce (
-				(select csi.tmp_amount from clin.substance_intake csi where csi.fk_substance = ccs.pk),
-				99999.3
-			)
-				and
-			unit = coalesce (
-				(select csi.tmp_unit from clin.substance_intake csi where csi.fk_substance = ccs.pk),
-				'*?* (3)'
-			)
-	)
+) values
+	('Ibuprofen', 'M01AE01', 600, 'mg'),
+	('tobacco', 'N07BA01', 1, 'pack'),
+	('nicotine', 'N07BA01', 1, 'pack'),
+	('alcohol', 'V03AB16', 1, 'glass'),
+	('Tabak', 'N07BA01', 1, 'Schachtel'),
+	('Nikotin', 'N07BA01', 1, 'Schachtel'),
+	('Alkohol', 'V03AB16', 1, 'Glas'),
+	('Nikotin', 'N07BA01', 0.8, 'mg'),
+	('Teer', 'D05AA', 10, 'mg'),
+	('Kohlenmonoxid', NULL, 10, 'mg')
 ;
+\set ON_ERROR_STOP 1
 
--- ... ref.substance_in_brand
+
+
+delete from ref.consumable_substance where description like '%-Starship';
+
 insert into ref.consumable_substance (
 	description,
 	atc_code,
 	amount,
 	unit
-) select
-	rsib.description,
-	rsib.atc_code,
-	coalesce (
-		(select csi.tmp_amount from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
-		99999.4
-	),
-	coalesce (
-		(select csi.tmp_unit from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
-		'*?* (4)'
-	)
-from
-	ref.substance_in_brand rsib
-where
-	not exists (
-		select 1
-		from ref.consumable_substance rcs
+) values (
+	'Ibuprofen-Starship',
+	'M01AE01',
+	800,
+	'mg'
+);
+
+-- --------------------------------------------------------------
+-- generate clin.consumable_substance entries from v14 database knowledge
+\unset ON_ERROR_STOP
+drop function tmp_transfer_consumable_substances() cascade;
+\set ON_ERROR_STOP 1
+
+
+create or replace function tmp_transfer_consumable_substances()
+	returns boolean
+	language 'plpgsql'
+	as '
+DECLARE
+	_prev_record record;
+BEGIN
+
+	-- 1) clin.consumed_substance
+	raise notice ''creating ref.consumable_substance rows from clin.consumed_substance'';
+
+	for _prev_record in
+		SELECT * FROM clin.consumed_substance ccs JOIN clin.substance_intake csi ON (csi.fk_substance = ccs.pk)
+	loop
+
+		if _prev_record.tmp_amount is NULL then
+			_prev_record.tmp_amount := 99999.3;
+		end if;
+
+		if _prev_record.tmp_unit is NULL then
+			_prev_record.tmp_amount := ''*?* (clin.consumed_substance)'';
+		end if;
+
+		raise notice ''transferring % (% %)'', _prev_record.description, _prev_record.tmp_amount, _prev_record.tmp_unit;
+
+		-- already exists ?
+		perform 1 from ref.consumable_substance rcs
 		where
-			rcs.description = rsib.description
+			rcs.description = _prev_record.description
 				and
-			amount = coalesce (
-				(select csi.tmp_amount from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
-				99999.4
-			)
+			rcs.amount = _prev_record.tmp_amount
 				and
-			unit = coalesce (
-				(select csi.tmp_unit from clin.substance_intake csi where csi.fk_brand = rsib.fk_brand),
-				'*?* (4)'
-			)
-	)
-;
+			rcs.unit = _prev_record.tmp_unit;
+
+		if found then
+			raise notice ''already exists'';
+			continue;
+		end if;
+
+		insert into ref.consumable_substance (
+			description,
+			atc_code,
+			amount,
+			unit
+		) values (
+			_prev_record.description,
+			_prev_record.atc_code,
+			_prev_record.tmp_amount,
+			_prev_record.tmp_unit
+		);
+
+	end loop;
+
+
+	-- 2) ref.substance_in_brand
+	raise notice ''creating ref.consumable_substance rows from ref.substance_in_brand'';
+
+	for _prev_record in
+		SELECT * FROM ref.substance_in_brand rsib JOIN clin.substance_intake csi ON (csi.fk_brand = rsib.fk_brand)
+	loop
+
+		if _prev_record.tmp_amount is NULL then
+			_prev_record.tmp_amount := 99999.4;
+		end if;
+
+		if _prev_record.tmp_unit is NULL then
+			_prev_record.tmp_amount := ''*?* (ref.substance_in_brand)'';
+		end if;
+
+		raise notice ''transferring % (% %)'', _prev_record.description, _prev_record.tmp_amount, _prev_record.tmp_unit;
+
+		-- already exists ?
+		perform 1 from ref.consumable_substance rcs
+		where
+			rcs.description = _prev_record.description
+				and
+			rcs.amount = _prev_record.tmp_amount
+				and
+			rcs.unit = _prev_record.tmp_unit;
+
+		if found then
+			raise notice ''already exists'';
+			continue;
+		end if;
+
+		insert into ref.consumable_substance (
+			description,
+			atc_code,
+			amount,
+			unit
+		) values (
+			_prev_record.description,
+			_prev_record.atc_code,
+			_prev_record.tmp_amount,
+			_prev_record.tmp_unit
+		);
+
+	end loop;
+
+	return True;
+END;';
+
+
+select tmp_transfer_consumable_substances();
+
+
+drop function tmp_transfer_consumable_substances() cascade;
 
 -- --------------------------------------------------------------
 -- MUST protect from changing if in use directly or indirectly
@@ -230,44 +304,6 @@ create trigger tr_do_not_update_substance_if_taken_by_patient
 	on ref.consumable_substance
 	for each row execute procedure ref.trf_do_not_update_substance_if_taken_by_patient()
 ;
-
--- --------------------------------------------------------------
--- sample data
-\unset ON_ERROR_STOP
-insert into ref.consumable_substance (
-	description,
-	atc_code,
-	amount,
-	unit
-) values
-	('Ibuprofen', 'M01AE01', 600, 'mg'),
-	('tobacco', 'N07BA01', 1, 'pack'),
-	('nicotine', 'N07BA01', 1, 'pack'),
-	('alcohol', 'V03AB16', 1, 'glass'),
-	('Tabak', 'N07BA01', 1, 'Schachtel'),
-	('Nikotin', 'N07BA01', 1, 'Schachtel'),
-	('Alkohol', 'V03AB16', 1, 'Glas'),
-	('Nikotin', 'N07BA01', 0.8, 'mg'),
-	('Teer', 'D05AA', 10, 'mg'),
-	('Kohlenmonoxid', NULL, 10, 'mg')
-;
-\set ON_ERROR_STOP 1
-
-
-
-delete from ref.consumable_substance where description like '%-Starship';
-
-insert into ref.consumable_substance (
-	description,
-	atc_code,
-	amount,
-	unit
-) values (
-	'Ibuprofen-Starship',
-	'M01AE01',
-	800,
-	'mg'
-);
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v12-ref-consumable_substance-dynamic.sql', 'Revision: 1.1');

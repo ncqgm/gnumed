@@ -273,34 +273,138 @@ insert into ref.lnk_substance2brand (
 ;
 
 -- --------------------------------------------------------------
--- transfer old components of brands from ...
-
--- ... ref.substance_in_brand
-insert into ref.lnk_substance2brand (
-	fk_brand,
-	fk_substance
-) select
-	rsib.fk_brand,
-	(select rcs.pk from ref.consumable_substance rcs where rcs.description = rsib.description)
-from
-	ref.substance_in_brand rsib
-;
+-- generate ref.lnk_substance2brand entries from v14 database knowledge
+\unset ON_ERROR_STOP
+drop function tmp_transfer_drug_components() cascade;
+\set ON_ERROR_STOP 1
 
 
+create or replace function tmp_transfer_drug_components()
+	returns boolean
+	language 'plpgsql'
+	as '
+DECLARE
+	_prev_record record;
+BEGIN
 
--- ... clin.consumed_substance
-insert into ref.lnk_substance2brand (
-	fk_brand,
-	fk_substance
-) select
-	csi.fk_brand,
-	(select rcs.pk from ref.consumable_substance rcs where rcs.description = ccs.description)
-from
-	clin.substance_intake csi
-		left join clin.consumed_substance ccs on (ccs.pk = csi.fk_substance)
-where
-	csi.fk_brand is not null
-;
+	-- 1) clin.consumed_substance
+	raise notice ''creating ref.lnk_substance2brand rows from clin.consumed_substance'';
+
+	for _prev_record in
+		SELECT
+			*,
+			ccs.description as substance,
+			rbd.description as brand
+		FROM ref.branded_drug rbd
+			JOIN clin.substance_intake csi ON (csi.fk_brand = rbd.pk)
+				JOIN clin.consumed_substance ccs ON (ccs.pk = csi.fk_substance)
+		WHERE
+			csi.fk_brand is not null
+	loop
+
+		if _prev_record.tmp_amount is NULL then
+			_prev_record.tmp_amount := 99999.4;
+		end if;
+
+		if _prev_record.tmp_unit is NULL then
+			_prev_record.tmp_amount := ''*?* (ref.substance_in_brand)'';
+		end if;
+
+		raise notice ''linking % (% %) to %'', _prev_record.substance, _prev_record.tmp_amount, _prev_record.tmp_unit, _prev_record.brand;
+
+		perform 1 from ref.lnk_substance2brand
+		where
+			fk_brand = _prev_record.fk_brand
+				and
+			fk_substance = (
+				select pk from ref.consumable_substance
+				where
+					description = _prev_record.substance
+						and
+					amount = _prev_record.tmp_amount
+						and
+					unit = _prev_record.tmp_unit
+			)
+		;
+
+		if found then
+			raise notice ''already exists'';
+			continue;
+		end if;
+
+		insert into ref.lnk_substance2brand (
+			fk_brand,
+			fk_substance
+		) values (
+			_prev_record.fk_brand,
+			(
+				select pk from ref.consumable_substance
+				where
+					description = _prev_record.substance
+						and
+					amount = _prev_record.tmp_amount
+						and
+					unit = _prev_record.tmp_unit
+			)
+		);
+	end loop;
+
+
+--	-- 2) ref.substance_in_brand
+--	raise notice ''creating ref.lnk_substance2brand rows from ref.substance_in_brand'';
+--
+--	for _prev_record in
+--		SELECT
+--			*,
+--			rsib.description as substance,
+--			rbd.description as brand
+--		FROM ref.branded_drug rbd
+--			JOIN ref.substance_in_brand rsib ON (rsib.fk_brand = rbd.pk)
+--	loop
+--
+--		raise notice ''linking % to %'', _prev_record.substance, _prev_record.brand;
+--
+--		perform 1 from ref.lnk_substance2brand
+--		where
+--			fk_brand = _prev_record.fk_brand
+--				and
+--			fk_substance = (
+--				select pk from ref.consumable_substance
+--				where
+--					description = _prev_record.substance
+--			)
+--		;
+--
+--		if found then
+--			raise notice ''already exists'';
+--			continue;
+--		end if;
+--
+--		insert into ref.lnk_substance2brand (
+--			fk_brand,
+--			fk_substance
+--		) values (
+--			_prev_record.fk_brand,
+--			(
+--				select pk from ref.consumable_substance
+--				where
+--					description = _prev_record.substance
+--						and
+--					amount = _prev_record.tmp_amount
+--						and
+--					unit = _prev_record.tmp_unit
+--			)
+--		);
+--	end loop;
+
+	return True;
+END;';
+
+
+select tmp_transfer_drug_components();
+
+
+drop function tmp_transfer_drug_components() cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-ref-lnk_substance2brand-dynamic.sql', 'Revision: 1.1');
