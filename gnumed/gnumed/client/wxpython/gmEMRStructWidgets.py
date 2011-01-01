@@ -299,7 +299,10 @@ limit 25
 		)
 
 		proc['clin_when'] = self._DPRW_date.data.get_pydt()
-		proc['clin_end'] = self._DPRW_end.GetData().get_pydt()
+		if self._DPRW_end.GetData() is None:
+			proc['clin_end'] = None
+		else:
+			proc['clin_end'] = self._DPRW_end.GetData().get_pydt()
 		proc['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 		proc.save()
 
@@ -309,7 +312,12 @@ limit 25
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['clin_when'] = self._DPRW_date.data.get_pydt()
-		self.data['clin_end'] = self._DPRW_end.GetData().get_pydt()
+
+		if self._DPRW_end.GetData() is None:
+			self.data['clin_end'] = None
+		else:
+			self.data['clin_end'] = self._DPRW_end.GetData().get_pydt()
+
 		self.data['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 
 		if self._PRW_hospital_stay.GetData() is None:
@@ -362,7 +370,7 @@ limit 25
 			self._PRW_location.SetText(value = self.data['clin_where'], data = self.data['clin_where'])
 		else:
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
-			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = stay).format())
+			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
 
 		self._PRW_procedure.SetFocus()
