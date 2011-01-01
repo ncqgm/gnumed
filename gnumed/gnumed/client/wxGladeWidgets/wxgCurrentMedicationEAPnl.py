@@ -24,15 +24,16 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._LBL_component = wx.StaticText(self, -1, _("Component"))
         self._PRW_component = gmMedicationWidgets.cDrugComponentPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_brand = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
+        self._LBL_or = wx.StaticText(self, -1, _("... or ..."))
         self._TCTRL_brand_ingredients = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
         self._LBL_substance = wx.StaticText(self, -1, _("Substance"))
         self._PRW_substance = gmMedicationWidgets.cSubstancePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_substance = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._LBL_preparation = wx.StaticText(self, -1, _("Preparation"))
         self._PRW_preparation = gmMedicationWidgets.cSubstancePreparationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._DP_started = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_SHOWCENTURY)
+        self._DP_started = gmDateTimeInput.cDateInputCtrl2(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_approved = wx.CheckBox(self, -1, _("Approved of"))
-        self._DP_discontinued = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
+        self._DP_discontinued = gmDateTimeInput.cDateInputCtrl2(self, -1, "", style=wx.NO_BORDER)
         self._BTN_discontinued_as_planned = wx.Button(self, -1, _("Per plan"), style=wx.BU_EXACTFIT)
         self._LBL_reason = wx.StaticText(self, -1, _("... Reason"))
         self._PRW_discontinue_reason = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -49,7 +50,6 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
         self.Bind(wx.EVT_BUTTON, self._on_manage_brands_button_pressed, self._BTN_database_brand)
         self.Bind(wx.EVT_BUTTON, self._on_manage_substances_button_pressed, self._BTN_database_substance)
-        self.Bind(wx.EVT_DATE_CHANGED, self._on_discontinued_date_changed, self._DP_discontinued)
         self.Bind(wx.EVT_BUTTON, self._on_discontinued_as_planned_button_pressed, self._BTN_discontinued_as_planned)
         self.Bind(wx.EVT_CHECKBOX, self._on_chbox_is_allergy_checked, self._CHBOX_is_allergy)
         self.Bind(wx.EVT_CHECKBOX, self._on_chbox_long_term_checked, self._CHBOX_long_term)
@@ -101,8 +101,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         __szr_component.Add(self._PRW_component, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_component.Add(self._BTN_database_brand, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(__szr_component, 1, wx.EXPAND, 0)
-        __lbl_or = wx.StaticText(self, -1, _("... or ..."))
-        _gszr_main.Add(__lbl_or, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._LBL_or, 0, wx.ALIGN_BOTTOM, 0)
         _gszr_main.Add(self._TCTRL_brand_ingredients, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._LBL_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_substance.Add(self._PRW_substance, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -116,14 +115,14 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         __lbl_started = wx.StaticText(self, -1, _("Started"))
         __lbl_started.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_started, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_started.Add(self._DP_started, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
-        __szr_started.Add(self._CHBOX_approved, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_started.Add(self._DP_started, 4, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_started.Add(self._CHBOX_approved, 1, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_started.Add((20, 20), 1, wx.EXPAND, 0)
         _gszr_main.Add(__szr_started, 1, wx.EXPAND, 0)
         __lbl_discontinued = wx.StaticText(self, -1, _("Discontinued"))
         _gszr_main.Add(__lbl_discontinued, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_discontinued_date.Add(self._DP_discontinued, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
-        __szr_discontinued_date.Add(self._BTN_discontinued_as_planned, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_discontinued_date.Add(self._DP_discontinued, 4, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_discontinued_date.Add(self._BTN_discontinued_as_planned, 1, wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_discontinued_date.Add((20, 20), 1, wx.EXPAND, 0)
         _gszr_main.Add(__szr_discontinued_date, 1, wx.EXPAND, 0)
         _gszr_main.Add(self._LBL_reason, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -157,14 +156,6 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def _on_chbox_long_term_checked(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
         print "Event handler `_on_chbox_long_term_checked' not implemented"
-        event.Skip()
-
-    def _on_get_brand_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
-        print "Event handler `_on_get_brand_button_pressed' not implemented"
-        event.Skip()
-
-    def _on_get_substance_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
-        print "Event handler `_on_get_substance_button_pressed' not implemented"
         event.Skip()
 
     def _on_discontinued_as_planned_button_pressed(self, event): # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>

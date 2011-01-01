@@ -413,6 +413,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def __create_prescription_file(self, drug_ids_list=None):
 
+		# FIXME: pass in more data
+
 		xml = u"""<?xml version = "1.0" encoding = "UTF-8"?>
 
 <FreeDiams>
@@ -435,8 +437,9 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		last_db_id = u'CA_HCDPD'
 		drug_snippets = []
 		for drug_id, db_id in drug_ids_list:
-			last_db_id = db_id.replace(u'FreeDiams::', u'')
-			drug_snippets.append(drug_snippet % (drug_id, last_db_id))
+			if db_id is not None:
+				last_db_id = db_id.replace(u'FreeDiams::', u'')
+				drug_snippets.append(drug_snippet % (drug_id, last_db_id))
 
 		xml_file.write(xml % (
 			last_db_id,
@@ -1271,7 +1274,51 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
-def create_substance_intake(substance=None, drug_component=None, atc=None, encounter=None, episode=None, preparation=None, amount=None, unit=None):
+def create_substance_intake(pk_substance=None, pk_component=None, preparation=None, encounter=None, episode=None):
+
+	args = {
+		'enc': encounter,
+		'epi': episode,
+		'comp': pk_component,
+		'subst': pk_substance,
+		'prep': preparation
+	}
+
+	if pk_component is None:
+		cmd = u"""
+			INSERT INTO clin.substance_intake (
+				fk_encounter,
+				fk_episode,
+				intake_is_approved_of,
+				fk_substance,
+				preparation
+			) VALUES (
+				%(enc)s,
+				%(epi)s,
+				False,
+				%(subst)s,
+				%(prep)s
+			)
+			RETURNING pk"""
+	else:
+		cmd = u"""
+			INSERT INTO clin.substance_intake (
+				fk_encounter,
+				fk_episode,
+				intake_is_approved_of,
+				fk_drug_component
+			) VALUES (
+				%(enc)s,
+				%(epi)s,
+				False,
+				%(comp)s
+			)
+			RETURNING pk"""
+
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def create_substance_intake_old(substance=None, drug_component=None, atc=None, encounter=None, episode=None, preparation=None, amount=None, unit=None):
 
 	args = {
 		'enc': encounter,
@@ -1813,10 +1860,8 @@ if __name__ == "__main__":
 	def test_create_substance_intake():
 		drug = create_substance_intake (
 			substance = u'Whiskey',
-			atc = u'no ATC available',
 			encounter = 1,
-			episode = 1,
-			preparation = 'a nice glass'
+			episode = 1
 		)
 		print drug
 	#--------------------------------------------------------
