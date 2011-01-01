@@ -122,6 +122,7 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 	#----------------------------------------------------------------
 	def __init_ui(self):
 		self._PRW_hospital_stay.add_callback_on_lose_focus(callback = self._on_hospital_stay_lost_focus)
+		self._PRW_hospital_stay.set_context(context = 'pat', val = gmPerson.gmCurrentPatient().ID)
 		self._PRW_location.add_callback_on_lose_focus(callback = self._on_location_lost_focus)
 		self._DPRW_date.add_callback_on_lose_focus(callback = self._on_start_lost_focus)
 		self._DPRW_end.add_callback_on_lose_focus(callback = self._on_end_lost_focus)

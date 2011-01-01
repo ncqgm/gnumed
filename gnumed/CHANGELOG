@@ -49,6 +49,7 @@ IMPROVED: workplace plugin configuration using item picker
 	0.8.6
 
 FIX: strftime() cannot take unicode argument when refreshing waiting list [thanks JB]
+FIX: constrain hospital stay PRW to current patient in procedure EA
 
 	0.8.5
 
