@@ -963,19 +963,31 @@ def __numbers_only2py_dt(str2parse):
 		})
 
 	# X days from now
-	if val <= 400:				# more than a year ahead in days ?? nah !
+	if (val > 0) and (val <= 400):				# more than a year ahead in days ?? nah !
 		ts = now + mxDT.RelativeDateTime(days = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('in %d day(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
 		})
+	if (val < 0) and (val >= -400):				# more than a year back in days ?? nah !
+		ts = now - mxDT.RelativeDateTime(days = abs(val))
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%d day(s) ago: %s') % (abs(val), ts.strftime('%A, %Y-%m-%d').decode(enc))
+		})
 
 	# X weeks from now
-	if val <= 50:				# pregnancy takes about 40 weeks :-)
+	if (val > 0) and (val <= 50):				# pregnancy takes about 40 weeks :-)
 		ts = now + mxDT.RelativeDateTime(weeks = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('in %d week(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+		})
+	if (val < 0) and (val >= -50):				# pregnancy takes about 40 weeks :-)
+		ts = now - mxDT.RelativeDateTime(weeks = abs(val))
+		matches.append ({
+			'data': mxdt2py_dt(ts),
+			'label': _('%d week(s) ago: %s') % (abs(val), ts.strftime('%A, %Y-%m-%d').decode(enc))
 		})
 
 	# month X of ...
@@ -1020,7 +1032,7 @@ def __numbers_only2py_dt(str2parse):
 		})
 
 	# day X of ...
-	if val < 8:
+	if (val < 8) and (val > 0):
 		# ... this week
 		ts = now + mxDT.RelativeDateTime(weekday = (val-1, 0))
 		matches.append ({
@@ -1042,7 +1054,7 @@ def __numbers_only2py_dt(str2parse):
 			'label': _('%s last week (%s of %s)') % (ts.strftime('%A').decode(enc), ts.day, ts.strftime('%B').decode(enc))
 		})
 
-	if val < 100:
+	if (val < 100) and (val > 0):
 		matches.append ({
 			'data': None,
 			'label': '%s-' % (1900 + val)
