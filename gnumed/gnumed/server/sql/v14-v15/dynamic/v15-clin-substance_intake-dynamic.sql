@@ -306,11 +306,15 @@ update clin.substance_intake set
 	fk_substance = (
 		select rcs.pk									-- "new" pk
 		from ref.consumable_substance rcs
-		where rcs.description = (						-- with description =
-			select ccs.description						-- "old" description
-			from clin.consumed_substance ccs
-			where ccs.pk = fk_substance
-		)
+		where
+			rcs.description = (						-- with description =
+				select ccs.description						-- "old" description
+				from clin.consumed_substance ccs
+				where ccs.pk = fk_substance
+			)	and
+			rcs.amount = tmp_amount
+				and
+			rcs.unit = tmp_unit
 	)
 where
 	fk_drug_component is null
