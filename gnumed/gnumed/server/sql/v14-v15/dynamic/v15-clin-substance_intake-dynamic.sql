@@ -34,7 +34,10 @@ update clin.substance_intake set
 				select pk from ref.consumable_substance r_cs where
 					r_cs.description = (
 						select description from clin.consumed_substance c_cs where c_cs.pk = clin.substance_intake.fk_substance
-					)
+					)	and
+					r_cs.amount = tmp_amount
+						and
+					r_cs.unit = tmp_unit
 			)
 	)
 where
