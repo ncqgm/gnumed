@@ -35,7 +35,14 @@ alter table ref.consumable_substance
 -- --------------------------------------------------------------
 -- .atc_code
 comment on column ref.consumable_substance.atc_code is
-	'The Anatomic Therapeutic Chemical code for this substance.';
+'(One) Anatomic Therapeutic Chemical code for this substance.
+
+Note that substances can have *several* ATC codes assigned
+to it by the WHO denoting different therapeutic uses and/or
+local application formulations.
+
+This code can *only* be used to *identify* the substance,
+not the use/application formulation thereof.';
 
 \unset ON_ERROR_STOP
 alter table ref.consumable_substance drop constraint ref_subst_sane_atc cascade;
