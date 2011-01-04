@@ -25,7 +25,9 @@ import wx.calendar
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 
 _log = logging.getLogger('gm.ui')
@@ -137,7 +139,7 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 
 		return matches
 #============================================================
-class cDateInputCtrl2(gmPhraseWheel.cPhraseWheel):
+class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
@@ -145,8 +147,8 @@ class cDateInputCtrl2(gmPhraseWheel.cPhraseWheel):
 
 		self.matcher = cDateMatchProvider()
 		self.phrase_separators = None
-		self.selection_only = True
-		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
+#		self.selection_only = True
+#		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -201,14 +203,20 @@ class cDateInputCtrl2(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 
+		# <ALT-F4> -> calendar
 		if event.AltDown() is False:
 			keycode = event.GetKeyCode()
 			if keycode == wx.WXK_F4:
 				self.__pick_from_calendar()
 				return
 
-		if self.GetValue().strip() != u'':
-			super(self.__class__, self)._on_key_down(event)
+		super(self.__class__, self)._on_key_down(event)
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.data is None:
+			return u''
+
+		return self.data.strftime('%A, %d. %B %Y (%x)').decode(gmI18N.get_encoding())
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -240,6 +248,12 @@ class cDateInputCtrl2(gmPhraseWheel.cPhraseWheel):
 			if isinstance(data, gmDateTime.cFuzzyTimestamp):
 				data = data.timestamp
 			super(self.__class__, self).SetText(value = data.strftime('%Y-%m-%d'), data = data)
+	#--------------------------------------------------------
+	def GetData(self):
+		if self.data is None:
+			self.data = self.__text2timestamp()
+
+		return super(self.__class__, self).GetData()
 	#--------------------------------------------------------
 	def is_valid_timestamp(self):
 		if self.data is not None:
@@ -467,7 +481,6 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 if __name__ == '__main__':
 
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		from Gnumed.pycommon import gmI18N
 		gmI18N.activate_locale()
 		gmI18N.install_domain(domain='gnumed')
 		gmDateTime.init()
