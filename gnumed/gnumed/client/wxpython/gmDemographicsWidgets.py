@@ -579,7 +579,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		)
 		self._PRW_gender.SetData(self.__name['gender'])
 		self._CHBOX_active.SetValue(self.__name['active_name'])
-		self._DP_dod.SetValue(self.__identity['deceased'])
+		self._PRW_dod.SetText(data = self.__identity['deceased'])
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.__name['comment'], u''))
 		# FIXME: clear fields
 #		else:
@@ -596,7 +596,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		else:
 			self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
 		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
-		self.__identity['deceased'] = self._DP_dod.GetValue(as_pydt = True, invalid_as_none = True)
+		self.__identity['deceased'] = self._PRW_dod.GetData()
 		self.__identity.save_payload()
 
 		active = self._CHBOX_active.GetValue()
@@ -646,52 +646,42 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		has_error = False
 
 		if self._PRW_gender.GetData() is None:
-			self._PRW_gender.SetBackgroundColour('pink')
-			self._PRW_gender.Refresh()
+			self._PRW_gender.display_as_valid(False)
 			self._PRW_gender.SetFocus()
 			has_error = True
 		else:
-			self._PRW_gender.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_gender.Refresh()
+			self._PRW_gender.display_as_valid(True)
 
 		if not self._PRW_dob.is_valid_timestamp():
 			val = self._PRW_dob.GetValue().strip()
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
-			self._PRW_dob.SetBackgroundColour('pink')
-			self._PRW_dob.Refresh()
+			self._PRW_dob.display_as_valid(False)
 			self._PRW_dob.SetFocus()
 			has_error = True
 		else:
-			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_dob.Refresh()
+			self._PRW_dob.display_as_valid(True)
 
-		if not self._DP_dod.is_valid_timestamp(allow_none = True, invalid_as_none = True):
+		if not self._PRW_dod.is_valid_timestamp():
 			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
-			self._DP_dod.SetBackgroundColour('pink')
-			self._DP_dod.Refresh()
-			self._DP_dod.SetFocus()
+			self._PRW_dod.display_as_valid(False)
+			self._PRW_dod.SetFocus()
 			has_error = True
 		else:
-			self._DP_dod.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._DP_dod.Refresh()
+			self._PRW_dod.display_as_valid(True)
 
 		if self._PRW_lastname.GetValue().strip() == u'':
-			self._PRW_lastname.SetBackgroundColour('pink')
-			self._PRW_lastname.Refresh()
+			self._PRW_lastname.display_as_valid(False)
 			self._PRW_lastname.SetFocus()
 			has_error = True
 		else:
-			self._PRW_lastname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_lastname.Refresh()
+			self._PRW_lastname.display_as_valid(True)
 
 		if self._PRW_firstname.GetValue().strip() == u'':
-			self._PRW_firstname.SetBackgroundColour('pink')
-			self._PRW_firstname.Refresh()
+			self._PRW_firstname.display_as_valid(False)
 			self._PRW_firstname.SetFocus()
 			has_error = True
 		else:
-			self._PRW_firstname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_firstname.Refresh()
+			self._PRW_firstname.display_as_valid(True)
 
 		return (has_error is False)
 #------------------------------------------------------------
@@ -750,6 +740,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Preferred Name'),
 			_('Comment')
 		])
+		self._BTN_edit.SetLabel(_('Clone and &edit'))
 	#--------------------------------------------------------
 	def _add_name(self):
 		ea = cNameGenderDOBEditAreaPnl(self, -1, name = self.__identity.get_active_name())
@@ -764,7 +755,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _edit_name(self, name):
 		ea = cNameGenderDOBEditAreaPnl(self, -1, name = name)
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
-		dlg.SetTitle(_('Editing name'))
+		dlg.SetTitle(_('Cloning name'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.Destroy()
 			return True
