@@ -158,7 +158,6 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 #me one needs both
 #-----
 
-# FIXME: support dynamic tooltip part based on selection
 # FIXME: support selection-only-or-empty
 class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
@@ -231,6 +230,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.input2match = ''
 		self.left_part = ''
 		self.right_part = ''
+		self.__static_tt = None
 		self.data = None
 
 		self._on_selection_callbacks = []
@@ -336,7 +336,7 @@ class cPhraseWheel(wx.TextCtrl):
 	def GetData(self, can_create=False, as_instance=False):
 		"""Retrieve the data associated with the displayed string.
 
-			_create_data() must set self.data if possible
+			_create_data() must set self.data if possible (successful)
 		"""
 		if self.data is None:
 			if can_create:
@@ -677,11 +677,63 @@ class cPhraseWheel(wx.TextCtrl):
 	def _create_data(self):
 		raise NotImplementedError('[%s]: cannot create data object' % self.__class__.__name__)
 	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		# by default do not support dynamic tooltip parts
+		return None
+	#--------------------------------------------------------
+	def __get_data_tooltip(self):
+		"""Calculate dynamic tooltip part based on data item.
+
+		- called via ._set_data() each time property .data (-> .__data) is set
+		- hence also called the first time data is set
+		- the static tooltip can be set any number of ways before that
+		- only when data is first set does the dynamic part become relevant
+		- hence it is sufficient to remember the static part when .data is
+		  set for the first time
+		"""
+
+		if self.__static_tt is None:
+			if self.ToolTip is None:
+				self.__static_tt = u''
+			else:
+				self.__static_tt = self.ToolTip.Tip
+
+		return self._get_data_tooltip()
+	#--------------------------------------------------------
+	def __reset_tooltip(self):
+
+		data_tt = self.__get_data_tooltip()
+		if data_tt is None:
+			return
+
+		if self.__static_tt == u'':
+			tt = data_tt
+		else:
+			if data_tt.strip() == u'':
+				tt = self.__static_tt
+			else:
+				tt = u'%s\n\n--------------------------------\n\n%s' % (
+					data_tt,
+					self.__static_tt
+				)
+		self.SetToolTipString(tt)
+	#--------------------------------------------------------
 	def __char_is_allowed(self, char=None):
 		# if undefined accept all chars
 		if self.accepted_chars is None:
 			return True
 		return (self.__accepted_chars.match(char) is not None)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_data(self):
+		return self.__data
+
+	def _set_data(self, data):
+		self.__data = data
+		wx.CallAfter(self.__reset_tooltip)
+
+	data = property(_get_data, _set_data)
 	#--------------------------------------------------------
 	def _set_accepted_chars(self, accepted_chars=None):
 		if accepted_chars is None:

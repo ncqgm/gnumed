@@ -358,6 +358,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	return True
 #===========================================================================
 _encoding_mismatch_already_logged = False
+_current_encoding = None
 
 def get_encoding():
 	"""Try to get a sane encoding.
@@ -372,23 +373,32 @@ def get_encoding():
 		  when no other encoding was specified
 		- ascii by default
 		- can be set in site.py and sitecustomize.py
-	<locale.getpreferredencoding()>
-		- what the current locale would *recommend* using
-		  as the encoding for text conversion
 	<locale.getlocale()[1]>
 		- what the current locale is *actually* using
 		  as the encoding for text conversion
+	<locale.getpreferredencoding()>
+		- what the current locale would *recommend* using
+		  as the encoding for text conversion
 	"""
+	global _current_encoding
+	if _current_encoding is not None:
+		return _current_encoding
+
 	enc = sys.getdefaultencoding()
 	if enc != 'ascii':
-		return enc
+		_current_encoding = enc
+		return _current_encoding
+
 	enc = locale.getlocale()[1]
 	if enc is not None:
-		return enc
+		_current_encoding = enc
+		return _current_encoding
+
 	global _encoding_mismatch_already_logged
 	if not _encoding_mismatch_already_logged:
 		_log.debug('*actual* encoding of locale is None, using encoding *recommended* by locale')
 		_encoding_mismatch_already_logged = True
+
 	return locale.getpreferredencoding(do_setlocale=False)
 #===========================================================================
 # Main
