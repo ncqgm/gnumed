@@ -494,8 +494,8 @@ def format_apparent_age_medically(age=None):
 
 	(years, months, days, hours, minutes, seconds) = age
 
-	# more than 1 year ?
-	if years > 1:
+	# at least 1 year ?
+	if years > 0:
 		if months == 0:
 			return u'%s%s' % (
 				years,
@@ -2137,6 +2137,7 @@ if __name__ == '__main__':
 		start = pydt_now_here().replace(year = 1974).replace(month = 10).replace(day = 23)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
+
 		start = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 13)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
@@ -2144,6 +2145,9 @@ if __name__ == '__main__':
 		start = pydt_now_here().replace(year = 1979).replace(month = 2, day = 2)
 		end = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 31)
 		print calculate_apparent_age(start = start, end = end)
+
+		start = pydt_now_here().replace(year = 2009).replace(month = 7, day = 21)
+		print format_apparent_age_medically(calculate_apparent_age(start = start))
 	#-------------------------------------------------
 	def test_str2pydt():
 		print "testing function str2pydt_matches"

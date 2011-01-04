@@ -51,6 +51,7 @@ IMPROVED: in phrasewheel support dynamic part of tooltip based on selected item 
 
 FIX: strftime() cannot take unicode argument when refreshing waiting list [thanks JB]
 FIX: constrain hospital stay PRW to current patient in procedure EA
+FIX: faulty medically sound formatting of apparent age when between 1 and 2 years of age [thanks Wildfang]
 
 	0.8.5
 
