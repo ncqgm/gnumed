@@ -18,8 +18,15 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.8.4 (database v14.4)',
-	'GNUmed 0.8.5/14.5 Release Notes:
+	'Release Notes for GNUmed 0.8.6 (database v14.6)',
+	'GNUmed 0.8.6/14.6 Release Notes:
+
+	0.8.6
+
+FIX: strftime() cannot take unicode argument when refreshing waiting list [thanks JB]
+FIX: constrain hospital stay PRW to current patient in procedure EA
+FIX: faulty medically sound formatting of apparent age when between 1 and 2 years of age [thanks Wildfang]
+FIX: insufficient check of start/end field value when editing encounter details [thanks S.Reus]
 
 	0.8.5
 
@@ -51,6 +58,15 @@ FIX: exception on wrapping long entry in auto-expanding SOAP note field
 FIX: exception when "DejaVu Sans" not found on Windows
 
 ---------------------------------------------------------------
+
+	14.5 -> 14.6
+
+FIX: quoting in script to set gm-dbo password [thanks vbanait@gmail.com]
+
+	14.4 -> 14.5
+
+FIX: no more regex_flavor in PostgreSQL 9.0 (gm-adjust_db_settings)
+IMPROVED: gm-restore_database
 
 	14.3 -> 14.4
 
