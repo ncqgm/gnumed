@@ -959,11 +959,11 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_encounter_type.Refresh()
 
-		if not self._PRW_start.is_valid_timestamp():
+		if (not self._PRW_start.is_valid_timestamp()) or (self._PRW_start.GetValue().strip() == u''):
 			self._PRW_start.SetFocus()
 			return False
 
-		if not self._PRW_end.is_valid_timestamp():
+		if (not self._PRW_end.is_valid_timestamp()) or (self._PRW_end.GetValue().strip() == u''):
 			self._PRW_end.SetFocus()
 			return False
 
