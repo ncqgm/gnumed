@@ -131,12 +131,29 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
 u"""
-select distinct on (clin_where) clin_where, clin_where
-from clin.procedure
-where clin_where %(fragment_condition)s
-order by clin_where
-limit 25
-"""			]
+SELECT DISTINCT ON (data) data, location
+FROM (
+	SELECT
+		clin_where as data,
+		clin_where as location
+	FROM
+		clin.procedure
+	WHERE
+		clin_where %(fragment_condition)s
+
+		UNION ALL
+
+	SELECT
+		narrative as data,
+		narrative as location
+	FROM
+		clin.hospital_stay
+	WHERE
+		narrative %(fragment_condition)s
+) as union_result
+ORDER BY data
+LIMIT 25"""
+			]
 		)
 		mp.setThresholds(2, 4, 6)
 		self._PRW_location.matcher = mp

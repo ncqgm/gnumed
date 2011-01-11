@@ -42,6 +42,7 @@ IMPROVED: external patient sources now generically import external IDs/comm chan
 IMPROVED: fix detection of existing patient when loading from external source
 IMPROVED: workplace plugin configuration using item picker
 IMPROVED: in phrasewheel support dynamic part of tooltip based on selected item data
+IMPROVED: location PRW in procedure EA: re-use hospitals from hospital stays
 
 ------------------------------------------------
 # rel-0-8-patches
