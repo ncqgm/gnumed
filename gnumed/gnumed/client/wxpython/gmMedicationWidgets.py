@@ -1133,7 +1133,7 @@ LIMIT 50"""
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentMedicationEAPnl
 
-class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl, gmEditArea.cGenericEditAreaMixin):
+class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwargs):
 
@@ -1190,10 +1190,10 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		validity = True
 
 		has_component = (self._PRW_component.GetData() is not None)
-		has_substance = (self._PRW_substance.GetValue().strip() == u'')
+		has_substance = (self._PRW_substance.GetValue().strip() != u'')
 
 		# must have either brand or substance
-		if not (has_component or has_substance):
+		if (has_component is False) and (has_substance is False):
 			self._PRW_substance.display_as_valid(False)
 			self._PRW_component.display_as_valid(False)
 			validity = False
@@ -1231,9 +1231,9 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 #					self._PRW_duration.display_as_valid(True)
 
 		# end must be > start if at all
-		end = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
+		end = self._DP_discontinued.GetData()
 		if end is not None:
-			start = self._DP_started.GetValue(as_pydt = True)
+			start = self._DP_started.GetData()
 			if start > end:
 				self._DP_started.display_as_valid(False)
 				self._DP_discontinued.display_as_valid(False)
@@ -1252,53 +1252,37 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		emr = gmPerson.gmCurrentPatient().get_emr()
 		epi = self._PRW_episode.GetData(can_create = True)
 
-		intakes = []
 		if self._PRW_substance.GetData() is None:
-			# create intakes for all components of the drug the
-			# selected component is a member of
-			comp = gmMedication.cDrugComponent(aPK_obj = self._PRW_component.GetData())
-			brand = comp.containing_drug
-			for pk in brand['pk_components']:
-				intakes.append(emr.add_substance_intake (
-					pk_component = pk,
-					episode = epi
-				))
+			# auto-creates all components as intakes
+			intake = emr.add_substance_intake (
+				pk_component = self._PRW_component.GetData(),
+				episode = epi
+			)
 		else:
-			# create intake for this one substance
-			intakes.append(emr.add_substance_intake (
+			intake = emr.add_substance_intake (
 				pk_substance = self._PRW_substance.GetData(),
 				episode = epi,
 				preparation = self._PRW_preparation.GetValue().strip()
-			))
+			)
 
-		# now loop over intakes
-		entered_intake = None
-		for intake in intakes:
-			intake['started'] = self._DP_started.GetValue(as_pydt = True, invalid_as_none = True)
-			intake['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
-			if intake['discontinued'] is None:
-				intake['discontinue_reason'] = None
-			else:
-				intake['discontinue_reason'] = self._PRW_discontinue_reason().GetValue().strip()
-			intake['schedule'] = self._PRW_schedule.GetValue().strip()
-			intake['aim'] = self._PRW_aim.GetValue().strip()
-			intake['notes'] = self._PRW_notes.GetValue().strip()
-			intake['is_long_term'] = self._CHBOX_long_term.IsChecked()
-			intake['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
-			if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
-				intake['duration'] = None
-			else:
-				intake['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
-			intake.save()
+		intake['started'] = self._DP_started.GetData()
+		intake['discontinued'] = self._DP_discontinued.GetData()
+		if intake['discontinued'] is None:
+			intake['discontinue_reason'] = None
+		else:
+			intake['discontinue_reason'] = self._PRW_discontinue_reason.GetValue().strip()
+		intake['schedule'] = self._PRW_schedule.GetValue().strip()
+		intake['aim'] = self._PRW_aim.GetValue().strip()
+		intake['notes'] = self._PRW_notes.GetValue().strip()
+		intake['is_long_term'] = self._CHBOX_long_term.IsChecked()
+		intake['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
+		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
+			intake['duration'] = None
+		else:
+			intake['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+		intake.save()
 
-			if intake['pk_brand'] is None:
-				if intake['pk_substance'] == self._PRW_substance.GetData():
-					entered_intake = intake
-			else:
-				if intake['pk_substance'] == self._PRW_component.GetData():
-					entered_intake = intake
-
-		self.data = entered_intake
+		self.data = intake
 
 #		if self._CHBOX_is_allergy.IsChecked():
 #			if brand is None:
@@ -1313,45 +1297,29 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
-#		if self._PRW_substance.GetData() is None:
-#			raise NotImplementedError('need to add amount/unit')
-#			self.data['pk_substance'] = gmMedication.create_consumable_substance (
-#				substance = self._PRW_substance.GetValue().strip()
-#			)['pk']
-#		else:
-#			self.data['pk_substance'] = self._PRW_substance.GetData()
-
-		self.data['started'] = self._DP_started.GetValue(as_pydt = True, invalid_as_none = True)
-		self.data['discontinued'] = self._DP_discontinued.GetValue(as_pydt = True, invalid_as_none = True)
+		# auto-applies to all components of drug if any:
+		self.data['started'] = self._DP_started.GetData()
+		self.data['discontinued'] = self._DP_discontinued.GetData()
 		if self.data['discontinued'] is None:
 			self.data['discontinue_reason'] = None
 		else:
 			self.data['discontinue_reason'] = self._PRW_discontinue_reason.GetValue().strip()
-		self.data['preparation'] = self._PRW_preparation.GetValue()
-		self.data['strength'] = self._PRW_strength.GetValue()
 		self.data['schedule'] = self._PRW_schedule.GetValue()
-		self.data['aim'] = self._PRW_aim.GetValue()
-		self.data['notes'] = self._PRW_notes.GetValue()
 		self.data['is_long_term'] = self._CHBOX_long_term.IsChecked()
 		self.data['intake_is_approved_of'] = self._CHBOX_approved.IsChecked()
-		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
-
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			self.data['duration'] = None
 		else:
 			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
 
-#		if self._PRW_component.GetData() is None:
-#			desc = self._PRW_component.GetValue().strip()
-#			if desc != u'':
-#				# create or get brand
-#				self.data['pk_brand'] = gmMedication.create_branded_drug (
-#					brand_name = desc,
-#					preparation = self._PRW_preparation.GetValue().strip(),
-#					return_existing = True
-#				)['pk']
-#		else:
-#			self.data['pk_brand'] = self._PRW_component.GetData()
+		# applies to non-component substances only
+		self.data['preparation'] = self._PRW_preparation.GetValue()
+
+		# per-component
+		self.data['aim'] = self._PRW_aim.GetValue()
+		self.data['notes'] = self._PRW_notes.GetValue()
+		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
+
 
 		self.data.save()
 
@@ -1382,8 +1350,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
 
-		self._DP_started.SetValue(gmDateTime.pydt_now_here())
-		self._DP_discontinued.SetValue(None)
+		self._DP_started.SetData(gmDateTime.pydt_now_here())
+		self._DP_discontinued.SetData(None)
 		self._PRW_discontinue_reason.SetValue(u'')
 
 		self.__refresh_allergies()
@@ -1422,8 +1390,8 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self._CHBOX_approved.SetValue(self.data['intake_is_approved_of'])
 
-		self._DP_started.SetValue(self.data['started'])
-		self._DP_discontinued.SetValue(self.data['discontinued'])
+		self._DP_started.SetData(self.data['started'])
+		self._DP_discontinued.SetData(self.data['discontinued'])
 		self._PRW_discontinue_reason.SetValue(gmTools.coalesce(self.data['discontinue_reason'], u''))
 
 		self.__refresh_allergies()
@@ -1446,7 +1414,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 	def __refresh_from_existing_component(self):
 		self._PRW_component.SetText (
 			u'%s %s%s (%s)' % (self.data['substance'], self.data['amount'], self.data['unit'], self.data['brand']),
-			self.data['pk_substance']
+			self.data['pk_drug_component']
 		)
 
 		brand = gmMedication.cBrandedDrug(aPK_obj = self.data['pk_brand'])
@@ -1507,7 +1475,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 			self._TCTRL_brand_ingredients.SetValue(u'')
 	#----------------------------------------------------------------
 	def _on_discontinued_date_changed(self, event):
-		if self._DP_discontinued.GetValue() is None:
+		if self._DP_discontinued.GetData() is None:
 			self._PRW_discontinue_reason.Enable(False)
 			self._CHBOX_is_allergy.Enable(False)
 			#self._LBL_reason.Enable(False)
@@ -1534,7 +1502,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 			# the plan hasn't ended so [Per plan] can't apply ;-)
 			if planned_end > now:
 				return
-			self._DP_discontinued.SetValue(planned_end)
+			self._DP_discontinued.SetData(planned_end)
 			self._PRW_discontinue_reason.Enable(True)
 			self._PRW_discontinue_reason.SetValue(u'')
 			self._CHBOX_is_allergy.Enable(True)
@@ -1546,7 +1514,7 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 			if self.data['started'] > now:
 				return
 
-		self._DP_discontinued.SetValue(now)
+		self._DP_discontinued.SetData(now)
 		self._PRW_discontinue_reason.Enable(True)
 		self._PRW_discontinue_reason.SetValue(u'')
 		self._CHBOX_is_allergy.Enable(True)
@@ -1618,7 +1586,7 @@ def delete_substance_intake(parent=None, substance=None):
 	gmMedication.delete_substance_intake(substance = substance)
 #------------------------------------------------------------
 def edit_intake_of_substance(parent = None, substance=None):
-	ea = cCurrentMedicationEAPnl(parent = parent, id = -1, substance = substance)
+	ea = cSubstanceIntakeEAPnl(parent = parent, id = -1, substance = substance)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (substance is not None))
 	dlg.SetTitle(gmTools.coalesce(substance, _('Adding substance intake'), _('Editing substance intake')))
 	if dlg.ShowModal() == wx.ID_OK:

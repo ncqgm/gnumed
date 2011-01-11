@@ -206,7 +206,7 @@ class cPhraseWheel(wx.TextCtrl):
 		down pick list is shown
 	@type picklist_delay: integer (milliseconds)
 	"""
-	def __init__ (self, parent=None, id=-1, value='', *args, **kwargs):
+	def __init__ (self, parent=None, id=-1, *args, **kwargs):
 
 		# behaviour
 		self.matcher = None
@@ -231,7 +231,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.left_part = ''
 		self.right_part = ''
 		self.__static_tt = None
-		self.data = None
+		self.__data = None
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
@@ -681,7 +681,7 @@ class cPhraseWheel(wx.TextCtrl):
 		# by default do not support dynamic tooltip parts
 		return None
 	#--------------------------------------------------------
-	def __get_data_tooltip(self):
+	def __reset_tooltip(self):
 		"""Calculate dynamic tooltip part based on data item.
 
 		- called via ._set_data() each time property .data (-> .__data) is set
@@ -691,18 +691,13 @@ class cPhraseWheel(wx.TextCtrl):
 		- hence it is sufficient to remember the static part when .data is
 		  set for the first time
 		"""
-
 		if self.__static_tt is None:
 			if self.ToolTip is None:
 				self.__static_tt = u''
 			else:
 				self.__static_tt = self.ToolTip.Tip
 
-		return self._get_data_tooltip()
-	#--------------------------------------------------------
-	def __reset_tooltip(self):
-
-		data_tt = self.__get_data_tooltip()
+		data_tt = self._get_data_tooltip()
 		if data_tt is None:
 			return
 
@@ -731,7 +726,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 	def _set_data(self, data):
 		self.__data = data
-		wx.CallAfter(self.__reset_tooltip)
+		self.__reset_tooltip()
 
 	data = property(_get_data, _set_data)
 	#--------------------------------------------------------

@@ -6,7 +6,27 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop index ref.idx_branded_drug_uniq_brand_no_code cascade;
+drop index ref.idx_branded_drug_uniq_brand_w_code cascade;
+\set ON_ERROR_STOP 1
+
+
+create unique index idx_branded_drug_uniq_brand_no_code
+	on ref.branded_drug (description, preparation)
+	where ref.branded_drug.external_code is NULL;
+
+create unique index idx_branded_drug_uniq_brand_w_code
+	on ref.branded_drug (description, preparation, external_code, external_code_type)
+	where ref.branded_drug.external_code is not NULL;
+
+
+\unset ON_ERROR_STOP
+alter table ref.branded_drug drop constraint unique_brand cascade;
+\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP

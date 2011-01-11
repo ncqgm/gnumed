@@ -193,7 +193,7 @@
                                 <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <border>10</border>
                                 <option>4</option>
-                                <object class="gmDateTimeInput.cDateInputCtrl2" name="_DP_started" base="EditTextCtrl">
+                                <object class="gmDateTimeInput.cDateInputPhraseWheel" name="_DP_started" base="EditTextCtrl">
                                     <style>wxNO_BORDER</style>
                                     <tooltip>When was this substance started to be consumed.</tooltip>
                                 </object>
@@ -238,7 +238,7 @@
                                 <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <border>10</border>
                                 <option>4</option>
-                                <object class="gmDateTimeInput.cDateInputCtrl2" name="_DP_discontinued" base="EditTextCtrl">
+                                <object class="gmDateTimeInput.cDateInputPhraseWheel" name="_DP_discontinued" base="EditTextCtrl">
                                     <style>wxNO_BORDER</style>
                                     <tooltip>When was intake of this substance discontinued ?</tooltip>
                                 </object>

@@ -84,8 +84,10 @@ select
 		as pk_brand,
 	r_bd.fk_data_source
 		as pk_data_source,
-	r_cs.pk
+	r_ls2b.fk_substance
 		as pk_substance,
+	r_ls2b.pk
+		as pk_drug_component,
 	c_si.fk_encounter
 		as pk_encounter,
 	c_si.fk_episode
@@ -181,6 +183,8 @@ select
 		as pk_data_source,
 	r_cs.pk
 		as pk_substance,
+	null
+		as pk_drug_component,
 	c_si.fk_encounter
 		as pk_encounter,
 	c_si.fk_episode

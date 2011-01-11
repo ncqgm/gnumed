@@ -17,6 +17,9 @@ select i18n.upd_tx('de', 'tuberculosis', 'Tuberkulose');
 select i18n.upd_tx('de', 'salmonella typhi (typhoid)', 'Salmonella typhi (Typhus)');
 select i18n.upd_tx('de', 'influenza (seasonal)', 'Influenza (sais.)');
 
+select i18n.upd_tx('de', 'Deletion of', 'Löschung:');
+select i18n.upd_tx('de', 'Medication history', 'Medikamentenanamnese');
+
 -- --------------------------------------------------------------
 insert into dem.country (
 	code,

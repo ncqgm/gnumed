@@ -1103,13 +1103,19 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				clin_when = %(started)s,
 				discontinued = %(discontinued)s,
 				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
-				preparation = %(preparation)s,
 				schedule = gm.nullify_empty_string(%(schedule)s),
 				aim = gm.nullify_empty_string(%(aim)s),
 				narrative = gm.nullify_empty_string(%(notes)s),
 				intake_is_approved_of = %(intake_is_approved_of)s,
+				fk_episode = %(pk_episode)s,
 
-				-- is_long_term = %(is_long_term)s,
+				preparation = (
+					case
+						when %(pk_brand)s is NULL then %(preparation)s
+						else NULL
+					end
+				)::text,
+
 				is_long_term = (
 					case
 						when (
@@ -1120,16 +1126,13 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 						else %(is_long_term)s
 					end
 				)::boolean,
+
 				duration = (
 					case
 						when %(is_long_term)s is True then null
 						else %(duration)s
 					end
-				)::interval,
-
-				fk_drug_component = %(pk_drug_component)s,
-				fk_substance = %(pk_substance)s,
-				fk_episode = %(pk_episode)s
+				)::interval
 			WHERE
 				pk = %(pk_substance_intake)s
 					AND
@@ -1149,8 +1152,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'aim',
 		u'is_long_term',
 		u'notes',
-		u'pk_drug_component',
-		u'pk_substance',
 		u'pk_episode'
 	]
 	#--------------------------------------------------------
@@ -1314,50 +1315,6 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 				%(comp)s
 			)
 			RETURNING pk"""
-
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
-#------------------------------------------------------------
-def create_substance_intake_old(substance=None, drug_component=None, atc=None, encounter=None, episode=None, preparation=None, amount=None, unit=None):
-
-	args = {
-		'enc': encounter,
-		'epi': episode,
-		'prep': preparation,
-		'comp': drug_component,
-		'subst': create_consumable_substance(substance = substance, atc = atc, amount = amount, unit = unit)['pk']
-	}
-
-	if drug_component is None:
-		cmd = u"""
-		INSERT INTO clin.substance_intake (
-			fk_encounter,
-			fk_episode,
-			intake_is_approved_of,
-			fk_substance,
-			preparation
-		) VALUES (
-			%(enc)s,
-			%(epi)s,
-			False,
-			%(subst)s,
-			gm.nullify_empty_string(%(prep)s)
-		)
-		RETURNING pk"""
-	else:
-		cmd = u"""
-		INSERT INTO clin.substance_intake (
-			fk_encounter,
-			fk_episode,
-			intake_is_approved_of.
-			fk_drug_component
-		) VALUES (
-			%(enc)s,
-			%(epi)s,
-			False,
-			%(comp)s
-		)
-		RETURNING pk"""
 
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
@@ -1859,7 +1816,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_create_substance_intake():
 		drug = create_substance_intake (
-			substance = u'Whiskey',
+			pk_component = 2,
 			encounter = 1,
 			episode = 1
 		)
@@ -1874,6 +1831,7 @@ if __name__ == "__main__":
 		for s in get_consumable_substances():
 			print s
 	#--------------------------------------------------------
+	#--------------------------------------------------------
 	# MMI/Gelbe Liste
 	#test_MMI_interface()
 	#test_MMI_file()
@@ -1884,11 +1842,11 @@ if __name__ == "__main__":
 
 	# FreeDiams
 	#test_fd_switch_to()
-	test_fd_show_interactions()
+	#test_fd_show_interactions()
 
 	# generic
 	#test_interaction_check()
-	#test_create_substance_intake()
+	test_create_substance_intake()
 	#test_show_components()
 	#test_get_consumable_substances()
 #============================================================
