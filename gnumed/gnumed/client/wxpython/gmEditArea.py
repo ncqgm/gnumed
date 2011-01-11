@@ -325,11 +325,11 @@ class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 #====================================================================
 #====================================================================
 #====================================================================
-import time
+#import time
 
-from Gnumed.business import gmPerson, gmDemographicRecord
+#from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.pycommon import gmGuiBroker
-from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
+#from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 _gb = gmGuiBroker.GuiBroker()
 
@@ -1458,7 +1458,8 @@ class gmPastHistoryEditArea(gmEditArea):
 		try:
 			birthyear = int(str(self._patient['dob']).split('-')[0]) 
 		except:
-			birthyear = time.localtime()[0]
+#			birthyear = time.localtime()[0]
+			birthyear = 1
 		
 		return birthyear
 		
@@ -1475,7 +1476,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			"notes1": "",
 			"notes2": "",
 			"age": "",
-			"year": str(time.localtime()[0]),
+			#"year": str(time.localtime()[0]),
 			"progress": "",
 			"active": 1,
 			"operation": 0,
@@ -1489,7 +1490,8 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getDefaultAge(self):
 		try:
-			return	time.localtime()[0] - self._patient.getBirthYear()
+			#return	time.localtime()[0] - self._patient.getBirthYear()
+			return 1
 		except:
 			return 0
 
