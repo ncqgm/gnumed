@@ -610,7 +610,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
 		self.Bind(wx.EVT_MENU, self.__on_acs_risk_assessment, item)
 
-		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment.'))
+		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
 		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
 
 		self.menu_tools.AppendSeparator()
