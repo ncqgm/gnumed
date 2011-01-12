@@ -254,14 +254,17 @@ ORDER BY lastnames, firstnames, dob""" % (
 		return getattr(self, attr)
 #============================================================
 class cPersonName(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"select * from dem.v_person_names where pk_name = %s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_person_names WHERE pk_name = %s"
 	_cmds_store_payload = [
-		u"""update dem.names set
-			active = False
-		where
-			%(active_name)s is True	and			-- act only when needed and only
-			id_identity = %(pk_identity)s and	-- on names of this identity
-			active is True and					-- which are active
+		u"""UPDATE dem.names SET
+			active = FALSE
+		WHERE
+			%(active_name)s IS TRUE				-- act only when needed and only
+				AND
+			id_identity = %(pk_identity)s		-- on names of this identity
+				AND
+			active IS TRUE						-- which are active
+				AND
 			id != %(pk_name)s					-- but NOT *this* name
 			""",
 		u"""update dem.names set
@@ -552,9 +555,11 @@ select exists (
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
 	#--------------------------------------------------------
-	def get_formatted_dob(self, format='%x', encoding=None):
+	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
 		if self._payload[self._idx['dob']] is None:
-			return _('** DOB unknown **')
+			if none_string is None:
+				return _('** DOB unknown **')
+			return none_string
 
 		if encoding is None:
 			encoding = gmI18N.get_encoding()

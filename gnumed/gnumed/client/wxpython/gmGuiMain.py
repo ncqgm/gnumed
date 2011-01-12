@@ -57,6 +57,7 @@ from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2
 
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.business import gmVaccination
+from Gnumed.business import gmArriba
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -608,6 +609,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
 		self.Bind(wx.EVT_MENU, self.__on_acs_risk_assessment, item)
+
+		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment.'))
+		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
 
 		self.menu_tools.AppendSeparator()
 
@@ -2003,6 +2007,35 @@ class gmTopLevelFrame(wx.Frame):
 
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
 	#----------------------------------------------
+	def __on_arriba(self, evt):
+		curr_pat = gmPerson.gmCurrentPatient()
+
+		arriba = gmArriba.cArriba()
+		if not arriba.run(patient = curr_pat, debug = _cfg.get(option = 'debug')):
+			return
+
+		# FIXME: try to find patient
+		if curr_pat is None:
+			return
+
+		if arriba.pdf_result is None:
+			return
+
+		doc = gmDocumentWidgets.save_file_as_new_document (
+			parent = self,
+			filename = arriba.pdf_result,
+			document_type = _('risk assessment')
+		)
+
+		try: os.remove(arriba.pdf_result)
+		except StandardError: _log.exception('cannot remove [%s]', arriba.pdf_result)
+
+		if doc is None:
+			return
+
+		doc['comment'] = u'arriba: %s' % _('cardiovascular risk assessment')
+		doc.save()
+	#----------------------------------------------
 	def __on_acs_risk_assessment(self, evt):
 
 		dbcfg = gmCfg.cCfgSQL()
@@ -2034,7 +2067,7 @@ class gmTopLevelFrame(wx.Frame):
 				open(pdf).close()
 			except:
 				_log.exception('error accessing [%s]', pdf)
-				gmDispatcher.send(signal = u'statustext', msg = _('There was a problem accessing the ARRIBA result in [%s] !') % pdf, beep = True)
+				gmDispatcher.send(signal = u'statustext', msg = _('There was a problem accessing the [arriba] result in [%s] !') % pdf, beep = True)
 				continue
 
 			doc = gmDocumentWidgets.save_file_as_new_document (
@@ -2050,7 +2083,7 @@ class gmTopLevelFrame(wx.Frame):
 
 			if doc is None:
 				continue
-			doc['comment'] = u'ARRIBA: %s' % _('cardiovascular risk assessment')
+			doc['comment'] = u'arriba: %s' % _('cardiovascular risk assessment')
 			doc.save()
 
 		return

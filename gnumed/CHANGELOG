@@ -43,6 +43,7 @@ IMPROVED: fix detection of existing patient when loading from external source
 IMPROVED: workplace plugin configuration using item picker
 IMPROVED: in phrasewheel support dynamic part of tooltip based on selected item data
 IMPROVED: location PRW in procedure EA: re-use hospitals from hospital stays
+IMPROVED: support arriba 2.2.2 and its new file-based API
 
 ------------------------------------------------
 # rel-0-8-patches
