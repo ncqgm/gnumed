@@ -711,37 +711,13 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
-(
-	SELECT
-		pk::text,
-		(description || ' ' || amount || unit) as subst
-		--(description || coalesce(' [' || atc_code || ']', '')) as subst
-	FROM ref.consumable_substance
-	WHERE description %(fragment_condition)s
-
-) UNION (
-
-	SELECT
-		term,
-		term as subst
-		--NULL,
-		--(term || ' [' || atc || ']') as subst
-	FROM ref.v_atc
-	WHERE
-		is_group_code IS FALSE
-			AND
-		term %(fragment_condition)s
-)
-ORDER BY subst
-LIMIT 50"""
-
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp = gmMedication.cSubstanceMatchProvider(queries = u'')		# dummy query
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The preparation (form) of the substance or brand in question.'))
+		self.SetToolTipString(_('The substance with optional strength.'))
 		self.matcher = mp
 		self.selection_only = False
+		self.phrase_separators = None
 	#---------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False):
 
@@ -2363,7 +2339,8 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	app = wx.PyWidgetTester(size = (600, 600))
-	app.SetWidget(cATCPhraseWheel, -1)
+	#app.SetWidget(cATCPhraseWheel, -1)
+	app.SetWidget(cSubstancePhraseWheel, -1)
 	app.MainLoop()
 
 #============================================================

@@ -15,6 +15,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools
 from Gnumed.pycommon import gmDispatcher, gmDateTime, gmHooks
+from Gnumed.pycommon import gmMatchProvider
 from Gnumed.business import gmATC, gmAllergy
 
 
@@ -1093,6 +1094,99 @@ WHERE
 	)"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+#------------------------------------------------------------
+class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+	_query1 = u"""
+		(
+			SELECT
+				pk::text,
+				(description || ' ' || amount || unit) as subst
+			FROM ref.consumable_substance
+			WHERE description %(fragment_condition)s
+
+		) UNION (
+
+			SELECT
+				term,
+				term as subst
+					FROM ref.v_atc
+			WHERE
+				is_group_code IS FALSE
+					AND
+				term %(fragment_condition)s
+		)
+		ORDER BY subst
+		LIMIT 50"""
+
+	_query2 = u"""
+		SELECT
+			pk::text,
+			(description || ' ' || amount || unit) as subst
+		FROM ref.consumable_substance
+		WHERE
+			%(fragment_condition)s
+		ORDER BY subst
+		LIMIT 50"""
+
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+
+		if cSubstanceMatchProvider._pattern.match(aFragment):
+			self._queries = [cSubstanceMatchProvider._query2]
+			fragment_condition = """description ILIKE %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [cSubstanceMatchProvider._query1]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+
+		if cSubstanceMatchProvider._pattern.match(aFragment):
+			self._queries = [cSubstanceMatchProvider._query2]
+
+			desc = regex.sub(r'\s*\d+$', u'', aFragment)
+			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
+
+			fragment_condition = """description ~* %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+
+			self._args['desc'] = u"( %s)|(^%s)" % (desc, desc)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [cSubstanceMatchProvider._query1]
+			fragment_condition = u"~* %(fragment)s"
+			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
+			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
+
+		return self._find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+
+		if cSubstanceMatchProvider._pattern.match(aFragment):
+			self._queries = [cSubstanceMatchProvider._query2]
+			fragment_condition = """description ILIKE %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [cSubstanceMatchProvider._query1]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%%%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
 #============================================================
 class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by a patient."""

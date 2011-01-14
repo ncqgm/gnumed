@@ -394,7 +394,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		fragment_condition = u"ILIKE %(fragment)s"
 		self._args['fragment'] = u"%s%%" % aFragment
 
-		return self.__find_matches(fragment_condition)
+		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -403,7 +403,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 		self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
 
-		return self.__find_matches(fragment_condition)
+		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -411,13 +411,15 @@ class cMatchProvider_SQL2(cMatchProvider):
 		fragment_condition = u"ILIKE %(fragment)s"
 		self._args['fragment'] = u"%%%s%%" % aFragment
 
-		return self.__find_matches(fragment_condition)
+		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
 		return self.getMatchesBySubstr(u'')
 	#--------------------------------------------------------
-	def __find_matches(self, fragment_condition):
+	def _find_matches(self, fragment_condition):
+		if self.print_queries:
+			print "----------------------"
 		matches = []
 		for query in self._queries:
 			where_fragments = {'fragment_condition': fragment_condition}
@@ -430,9 +432,9 @@ class cMatchProvider_SQL2(cMatchProvider):
 					# we do have a context value for this key, so add the where condition
 					where_fragments[context_key] = where_part
 					if self.print_queries:
-						print placeholder
-						print where_part
-						print self._context_vals[placeholder]
+						print "ctxt ph:", placeholder
+						print "ctxt where:", where_part
+						print "ctxt val:", self._context_vals[placeholder]
 				except KeyError:
 					# we don't have a context value for this key, so skip the where condition
 					where_fragments[context_key] = u''
@@ -440,10 +442,10 @@ class cMatchProvider_SQL2(cMatchProvider):
 			cmd = query % where_fragments
 
 			if self.print_queries:
-				print self.__class__.__name__
-				print self._context_vals
-				print self._args
-				print cmd
+				print "class:", self.__class__.__name__
+				print "ctxt:", self._context_vals
+				print "args:", self._args
+				print "query:", cmd
 
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}])
