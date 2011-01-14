@@ -45,6 +45,7 @@ class cArriba(object):
 	def __init__(self):
 		self.path_to_binary = None
 		self.pdf_result = None
+		self.xml_result = None
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -112,13 +113,13 @@ class cArriba(object):
 
 		fname_cfg = gmTools.get_unique_filename(prefix = 'gm2arriba-', suffix = '.xml')
 		fname_status = gmTools.get_unique_filename(prefix = 'arriba2gm_status-', suffix = '.xml')
-		fname_result_xml = gmTools.get_unique_filename(prefix = 'arriba2gm_result-', suffix = '.xml')
+		self.xml_result = gmTools.get_unique_filename(prefix = 'arriba2gm_result-', suffix = '.xml')
 		self.pdf_result = gmTools.get_unique_filename(prefix = 'arriba2gm_result-', suffix = '.pdf')
 		xml_file = codecs.open(fname_cfg, 'wb', 'utf8', 'replace')
 		xml_file.write (xml % (
 			pat_xml,
 			fname_status,
-			fname_result_xml,
+			self.xml_result,
 			self.pdf_result
 		))
 		xml_file.close()

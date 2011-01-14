@@ -14,13 +14,13 @@ class cPersonName(Proxy):
 class cIdentity(Proxy):
     pass
 
-class cMedDoc(Proxy):
+class cDocument(Proxy):
     pass
 
 class cInboxMessage(Proxy):
     pass
 
-class cMedDocPart(Proxy):
+class cDocumentPart(Proxy):
     pass
 
 class TimeDelta(timedelta):

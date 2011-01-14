@@ -69,7 +69,7 @@ class cDocumentFolder:
 		if len(rows) == 0:
 			_log.info('no mugshots available for patient [%s]' % self.pk_patient)
 			return None
-		mugshot = cMedDocPart(aPK_obj=rows[0][0])
+		mugshot = cDocumentPart(aPK_obj=rows[0][0])
 		return mugshot
 	#--------------------------------------------------------
 	def get_mugshot_list(self, latest_only=True):
@@ -156,14 +156,14 @@ class cDocumentFolder:
 		cmd = u"%s\nORDER BY clin_when" % (_sql_fetch_document_fields % u' AND '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
-		return [ cMedDoc(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
+		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None):
 		return create_document(document_type = document_type, encounter = encounter, episode = episode)
 #============================================================
 _sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
 
-class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
+class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
 
 	_cmd_fetch_payload = _sql_fetch_document_part_fields % u"pk_obj = %s"
@@ -243,7 +243,7 @@ order by
 		return rows
 	#--------------------------------------------------------
 	def get_containing_document(self):
-		return cMedDoc(aPK_obj = self._payload[self._idx['pk_doc']])
+		return cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
 	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
@@ -345,7 +345,7 @@ where
 #============================================================
 _sql_fetch_document_fields = u"select * from blobs.v_doc_med where %s"
 
-class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
+class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
 
 	_cmd_fetch_payload = _sql_fetch_document_fields % u"pk_doc = %s"
@@ -374,7 +374,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		try: del self.__has_unreviewed_parts
 		except AttributeError: pass
 
-		return super(cMedDoc, self).refetch_payload(ignore_changes = ignore_changes)
+		return super(cDocument, self).refetch_payload(ignore_changes = ignore_changes)
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
 		"""Get document descriptions.
@@ -408,7 +408,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	def _get_parts(self):
 		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
-		return [ cMedDocPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
+		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
 
 	parts = property(_get_parts, lambda x:x)
 	#--------------------------------------------------------
@@ -433,7 +433,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		)
 		# init document part instance
 		pk_part = rows[0][0]
-		new_part = cMedDocPart(aPK_obj = pk_part)
+		new_part = cDocumentPart(aPK_obj = pk_part)
 		if not new_part.update_data_from_file(fname=file):
 			_log.error('cannot import binary data from [%s] into document part' % file)
 			gmPG2.run_rw_queries (
@@ -526,7 +526,7 @@ def create_document(document_type=None, encounter=None, episode=None):
 		return_data = True
 	)
 	doc_id = rows[0][0]
-	doc = cMedDoc(aPK_obj = doc_id)
+	doc = cDocument(aPK_obj = doc_id)
 	return doc
 #------------------------------------------------------------
 def search_for_document(patient_id=None, type_id=None):
@@ -548,7 +548,7 @@ def search_for_document(patient_id=None, type_id=None):
 
 	docs = []
 	for row in rows:
-		docs.append(cMedDoc(row[0]))
+		docs.append(cDocument(row[0]))
 	return docs
 #------------------------------------------------------------
 def delete_document(document_id=None, encounter_id=None):

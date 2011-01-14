@@ -2035,6 +2035,20 @@ class gmTopLevelFrame(wx.Frame):
 
 		doc['comment'] = u'arriba: %s' % _('cardiovascular risk assessment')
 		doc.save()
+
+		try:
+			open(arriba.xml_result).close()
+			part = doc.add_part(file = arriba.xml_result)
+		except StandardError:
+			_log.exception('error accessing [%s]', arriba.xml_result)
+			gmDispatcher.send(signal = u'statustext', msg = _('[arriba] XML result not found in [%s]') % arriba.xml_result, beep = False)
+
+		if part is None:
+			return
+
+		part['obj_comment'] = u'XML-Daten'
+		part['filename'] = u'arriba-result.xml'
+		part.save()
 	#----------------------------------------------
 	def __on_acs_risk_assessment(self, evt):
 

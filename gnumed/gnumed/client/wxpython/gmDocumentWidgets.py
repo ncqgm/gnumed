@@ -394,16 +394,16 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		del kwds['part']
 		wxgReviewDocPartDlg.wxgReviewDocPartDlg.__init__(self, *args, **kwds)
 
-		if isinstance(part, gmDocuments.cMedDocPart):
+		if isinstance(part, gmDocuments.cDocumentPart):
 			self.__part = part
 			self.__doc = self.__part.get_containing_document()
 			self.__reviewing_doc = False
-		elif isinstance(part, gmDocuments.cMedDoc):
+		elif isinstance(part, gmDocuments.cDocument):
 			self.__doc = part
 			self.__part = self.__doc.parts[0]
 			self.__reviewing_doc = True
 		else:
-			raise ValueError('<part> must be gmDocuments.cMedDoc or gmDocuments.cMedDocPart instance, got <%s>' % type(part))
+			raise ValueError('<part> must be gmDocuments.cDocument or gmDocuments.cDocumentPart instance, got <%s>' % type(part))
 
 		self.__init_ui_data()
 	#--------------------------------------------------------
@@ -1140,7 +1140,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		node = self.GetSelection()
 		node_data = self.GetPyData(node)
 
-		if not isinstance(node_data, gmDocuments.cMedDocPart):
+		if not isinstance(node_data, gmDocuments.cDocumentPart):
 			return True
 
 		self.__display_part(part = node_data)
@@ -1417,7 +1417,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		data2 = self.GetPyData(node2)
 
 		# doc node
-		if isinstance(data1, gmDocuments.cMedDoc):
+		if isinstance(data1, gmDocuments.cDocument):
 
 			date_field = 'clin_when'
 			#date_field = 'modified_when'
@@ -1477,7 +1477,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				return 1
 
 		# part node
-		if isinstance(data1, gmDocuments.cMedDocPart):
+		if isinstance(data1, gmDocuments.cDocumentPart):
 			# compare sequence IDs (= "page" numbers)
 			# FIXME: wrong order ?
 			if data1['seq_idx'] < data2['seq_idx']:
@@ -1532,7 +1532,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return None
 
 		# expand/collapse documents on activation
-		if isinstance(node_data, gmDocuments.cMedDoc):
+		if isinstance(node_data, gmDocuments.cDocument):
 			self.Toggle(node)
 			return True
 
@@ -1554,11 +1554,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return None
 
 		# documents
-		if isinstance(self.__curr_node_data, gmDocuments.cMedDoc):
+		if isinstance(self.__curr_node_data, gmDocuments.cDocument):
 			self.__handle_doc_context()
 
 		# parts
-		if isinstance(self.__curr_node_data, gmDocuments.cMedDocPart):
+		if isinstance(self.__curr_node_data, gmDocuments.cDocumentPart):
 			self.__handle_part_context()
 
 		del self.__curr_node_data
