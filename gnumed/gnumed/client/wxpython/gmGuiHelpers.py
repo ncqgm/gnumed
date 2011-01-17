@@ -14,11 +14,16 @@ __version__ = "$Revision: 1.106 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import os, logging
+import os
+import logging
+import sys
 
 
 import wx
 
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -353,13 +358,17 @@ def file2scaled_image(filename=None, height=100):
 	try:
 		img_data = wx.Image(filename, wx.BITMAP_TYPE_ANY)
 		current_width = img_data.GetWidth()
+		if current_width == 0:
+			current_width = 1
 		current_height = img_data.GetHeight()
+		if current_height == 0:
+			current_height = 1
 		rescaled_width = (current_width / current_height) * rescaled_height
 		img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
 		bitmap = wx.BitmapFromImage(img_data)
 		del img_data
 	except StandardError:
-		_log.exception('cannot load visual progress note from [%s]', filename)
+		_log.exception('cannot load image from [%s]', filename)
 		del img_data
 		del bitmap
 		return None
@@ -441,3 +450,17 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 	else:
 		return None
 #======================================================================
+
+if __name__ == '__main__':
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	app = wx.App()
+	img = file2scaled_image(filename = sys.argv[2])
+	print img
+	print img.Height
+	print img.Width
