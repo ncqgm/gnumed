@@ -6,6 +6,10 @@
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.7
+
+FIX: incompatible transport formatting of bytea between pre-9.0 libpq and 9.0+ PG server [thanks D.Varrazzo]
+
 	0.8.6
 
 FIX: strftime() cannot take unicode argument when refreshing waiting list [thanks JB]
