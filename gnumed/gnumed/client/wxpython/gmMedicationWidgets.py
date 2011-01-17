@@ -613,7 +613,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['pk_consumable_substance'] = self._PRW_substance.GetData(can_create = True)
+		self.data['pk_consumable_substance'] = self._PRW_substance.GetData()
 		self.data['amount'] = decimal.Decimal(self._TCTRL_amount.GetValue().strip().replace(',', u'.', 1))
 		self.data['unit'] = self._PRW_unit.GetValue().strip()
 		return self.data.save()
@@ -659,26 +659,12 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		query = u"""
-			SELECT DISTINCT ON (component)
-				pk_component,
-				(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-					AS component
-			FROM ref.v_drug_components
-			WHERE
-				substance %(fragment_condition)s
-					OR
-				brand %(fragment_condition)s
-			ORDER BY component
-			LIMIT 50
-		"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp = gmMedication.cDrugComponentMatchProvider()
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('A drug component.'))
+		self.SetToolTipString(_('A drug component with optional strength.'))
 		self.matcher = mp
 		self.selection_only = False
-
 #============================================================
 #============================================================
 class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -711,24 +697,13 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		mp = gmMedication.cSubstanceMatchProvider(queries = u'')		# dummy query
+		mp = gmMedication.cSubstanceMatchProvider()
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.SetToolTipString(_('The substance with optional strength.'))
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None
-	#---------------------------------------------------------
-	def GetData(self, can_create=False, as_instance=False):
-
-		if self.data is not None:
-			try:
-				int(self.data)
-			except ValueError:
-				self.data = None
-
-		return super(cSubstancePhraseWheel, self).GetData(can_create = can_create, as_instance = as_instance)
-
 #============================================================
 # branded drugs widgets
 #------------------------------------------------------------
@@ -1296,7 +1271,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self.data['notes'] = self._PRW_notes.GetValue()
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
 
-
 		self.data.save()
 
 #		if self._CHBOX_is_allergy.IsChecked():
@@ -1700,7 +1674,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__prev_tooltip_row = None
 		self.__prev_cell_0 = None
 		self.__grouping_mode = u'episode'
-		self.__filter_show_unapproved = False
+		self.__filter_show_unapproved = True
 		self.__filter_show_inactive = False
 
 		self.__grouping2col_labels = {

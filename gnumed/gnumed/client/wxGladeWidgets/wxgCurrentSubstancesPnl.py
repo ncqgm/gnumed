@@ -59,6 +59,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._RBTN_brand.SetToolTipString(_("Sort entries by \"brand\", then \"substance\", then \"started\".\n\nThus each substance will only appear once unless it is really taken in more than one preparation."))
         self._CHBOX_show_inactive.SetToolTipString(_("Whether to show inactive substances, too, or only those which are assumed to currently be active."))
         self._CHBOX_show_unapproved.SetToolTipString(_("Whether to show all substances or only those the intake of which is approved of."))
+        self._CHBOX_show_unapproved.SetValue(1)
         self._BTN_add.SetToolTipString(_("Add a substance."))
         self._BTN_edit.SetToolTipString(_("Edit the selected substance intake entry."))
         self._BTN_delete.SetToolTipString(_("Remove a substance from the list."))

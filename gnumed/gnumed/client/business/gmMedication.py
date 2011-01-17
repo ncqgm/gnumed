@@ -1099,27 +1099,13 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
 	_query1 = u"""
-		(
-			SELECT
-				pk::text,
-				(description || ' ' || amount || unit) as subst
-			FROM ref.consumable_substance
-			WHERE description %(fragment_condition)s
-
-		) UNION (
-
-			SELECT
-				term,
-				term as subst
-					FROM ref.v_atc
-			WHERE
-				is_group_code IS FALSE
-					AND
-				term %(fragment_condition)s
-		)
+		SELECT
+			pk::text,
+			(description || ' ' || amount || unit) as subst
+		FROM ref.consumable_substance
+		WHERE description %(fragment_condition)s
 		ORDER BY subst
 		LIMIT 50"""
-
 	_query2 = u"""
 		SELECT
 			pk::text,
@@ -1580,6 +1566,91 @@ def get_drug_components():
 	cmd = _SQL_get_drug_components % u'true ORDER BY brand, substance'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
+#------------------------------------------------------------
+class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+	_query_desc_only = u"""
+		SELECT DISTINCT ON (component)
+			pk_component,
+			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
+				AS component
+		FROM ref.v_drug_components
+		WHERE
+			substance %(fragment_condition)s
+				OR
+			brand %(fragment_condition)s
+		ORDER BY component
+		LIMIT 50"""
+	_query_desc_and_amount = u"""
+
+		SELECT DISTINCT ON (component)
+			pk_component,
+			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
+				AS component
+		FROM ref.v_drug_components
+		WHERE
+			%(fragment_condition)s
+		ORDER BY component
+		LIMIT 50"""
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+
+		if cDrugComponentMatchProvider._pattern.match(aFragment):
+			self._queries = [cDrugComponentMatchProvider._query_desc_and_amount]
+			fragment_condition = """(substance ILIKE %(desc)s OR brand ILIKE %(desc)s)
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [cDrugComponentMatchProvider._query_desc_only]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+
+		if cDrugComponentMatchProvider._pattern.match(aFragment):
+			self._queries = [cDrugComponentMatchProvider._query_desc_and_amount]
+
+			desc = regex.sub(r'\s*\d+$', u'', aFragment)
+			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
+
+			fragment_condition = """(substance ~* %(desc)s OR brand ~* %(desc)s)
+				AND
+			amount::text ILIKE %(amount)s"""
+
+			self._args['desc'] = u"( %s)|(^%s)" % (desc, desc)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [cDrugComponentMatchProvider._query_desc_only]
+			fragment_condition = u"~* %(fragment)s"
+			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
+			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
+
+		return self._find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+
+		if cDrugComponentMatchProvider._pattern.match(aFragment):
+			self._queries = [cDrugComponentMatchProvider._query_desc_and_amount]
+			fragment_condition = """(substance ILIKE %(desc)s OR brand ILIKE %(desc)s)
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [cDrugComponentMatchProvider._query_desc_only]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%%%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
+
 #============================================================
 class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a drug as marketed by a manufacturer."""
