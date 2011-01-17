@@ -1449,7 +1449,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		_log.warning('for this to work properly the application MUST have called locale.setlocale() before')
 
 	# set connection properties
-	# 1) client encoding
+	# - client encoding
 	try:
 		conn.set_client_encoding(encoding)
 	except dbapi.OperationalError:
@@ -1458,7 +1458,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 			raise cEncodingError, (encoding, v), tb
 		raise
 
-	# 2) transaction isolation level
+	# - transaction isolation level
 	if readonly:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 		iso_level = u'read committed'
@@ -1470,25 +1470,44 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	curs = conn.cursor()
 
-	# client time zone
+	# - client time zone
 	curs.execute(_sql_set_timezone, [_default_client_timezone])
 
-	# datestyle
+	# - datestyle
 	# regarding DMY/YMD handling: since we force *input* to
 	# ISO, too, the DMY/YMD setting is not needed
 	cmd = "set datestyle to 'ISO'"
 	curs.execute(cmd)
 
-	# SQL inheritance mode
+	# - SQL inheritance mode
 	cmd = 'set sql_inheritance to on'
 	curs.execute(cmd)
 
-	# version string
+	# - version string
 	global postgresql_version_string
 	if postgresql_version_string is None:
 		curs.execute('select version()')
 		postgresql_version_string = curs.fetchone()['version']
 		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
+
+	conn.commit()
+
+	# FIXME: remove this whole affair once either 9.0 is standard (Ubuntu 10 LTS is
+	# FIXME: PG 8.4, however!) or else when psycopg2 supports a workaround
+	#
+	# - bytea data format
+	# PG 9.0 switched to - by default - using "hex" rather than "escape",
+	# however, psycopg2's linked with a pre-9.0 libpq do assume "escape"
+	# as the transmission mode for bytea output,
+	# so try to set this setting back to "escape",
+	# if that's not possible the reason will be that PG < 9.0 does not support
+	# that setting - which also means we don't need it and can ignore the
+	# failure
+	cmd = "set bytea_output to 'escape'"
+	try:
+		curs.execute(cmd)
+	except dbapi.ProgrammingError:
+		_log.exception('cannot set bytea_output format')
 
 	curs.close()
 	conn.commit()
