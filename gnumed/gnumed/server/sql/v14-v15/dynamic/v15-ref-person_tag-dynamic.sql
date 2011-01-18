@@ -69,4 +69,37 @@ alter table ref.person_tag
 		set not null;
 
 -- --------------------------------------------------------------
+-- test data
+insert into ref.person_tag (
+	description,
+	short_description,
+	image
+) values (
+	'Occupation: astronaut',
+	'Astronaut',
+	'to be imported'
+);
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop view ref.v_person_tags_no_data cascade;
+\set ON_ERROR_STOP 1
+
+create view ref.v_person_tags_no_data as
+
+select
+	pk
+		as pk_person_tag,
+	description,
+	short_description,
+	xmin
+from
+	ref.person_tag
+;
+
+grant select on
+	ref.v_person_tags_no_data
+to group "gm-doctors";
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v15-ref-person_tag-dynamic.sql', 'Revision: 1.1');

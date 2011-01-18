@@ -61,4 +61,37 @@ alter table dem.identity_tag
 ;
 
 -- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop view dem.v_identity_tags cascade;
+\set ON_ERROR_STOP 1
+
+create view dem.v_identity_tags as
+
+select
+	dit.fk_identity
+		as pk_identity,
+	rpt.description
+		as description,
+	rpt.short_description
+		as short_description,
+	dit.comment
+		as comment,
+
+	dit.pk
+		as pk_identity_tag,
+	rpt.pk
+		as pk_person_tag,
+
+	dit.xmin
+		as xmin_identity_tag
+from
+	dem.identity_tag dit
+		left join ref.person_tag rpt on (dit.fk_tag = rpt.pk)
+;
+
+grant select on
+	dem.v_identity_tags
+to group "gm-doctors";
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v15-dem-identity_tag-dynamic.sql', 'Revision: 1.0');

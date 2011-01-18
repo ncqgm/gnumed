@@ -225,12 +225,8 @@ def show_audit_trail(parent=None):
 
 	#-----------------------------------
 	def refresh(lctrl):
-
 		cmd = u'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
-
-
-
 		lctrl.set_string_items (
 			[ [
 				r['event_when'],
@@ -245,7 +241,6 @@ def show_audit_trail(parent=None):
 				r['pk_audit']
 			] for r in rows ]
 		)
-		#lctrl.set_selections(selections = sels)
 	#-----------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
