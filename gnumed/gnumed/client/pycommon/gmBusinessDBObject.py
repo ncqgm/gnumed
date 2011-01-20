@@ -173,6 +173,86 @@ class cBusinessDBObject(object):
 	<_updatable_fields>
 		- a list of fields available for update via object['field']
 
+
+	A template for new child classes:
+
+#------------------------------------------------------------
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmPG2
+
+#============================================================
+# description
+#------------------------------------------------------------
+_SQL_get_XXX = u\"""
+	SELECT *, (xmin as) xmin_XXX
+	FROM XXX.v_XXX
+	WHERE %s
+\"""
+
+class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
+	_cmds_store_payload = [
+		u\"""
+			UPDATE xxx.xxx SET
+				xxx = %(xxx)s,
+				xxx = gm.nullify_empty_string(%(xxx)s)
+			WHERE
+				pk = %(xxx)s
+					AND
+				xmin = %(xmin_XXX)s
+			RETURNING
+				pk,
+				xmin as xmin_XXX
+		\"""
+	]
+	_updatable_fields = [
+		u'xxx',
+		u'xxx'
+	]
+#------------------------------------------------------------
+def get_XXX(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = 'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_XXX % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'xxx'}) for r in rows ]
+#------------------------------------------------------------
+def create_xxx(xxx=None, xxx=None):
+
+	args = {
+		u'xxx': xxx,
+		u'xxx': xxx
+	}
+	cmd = u\"""
+		INSERT INTO xxx.xxx (
+			xxx,
+			xxx
+		) VALUES (
+			%(xxx)s,
+			%(xxx)s,
+			gm.nullify_empty_string(%(xxx)s)
+		)
+		RETURING pk
+	\"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cXxxXxx(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_xxx(xxx=None):
+	args = {'pk': xxx}
+	cmd = u\"""
+		DELETE FROM xxx.xxx
+		WHERE pk = %(pk)s
+	\"""
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+#------------------------------------------------------------
+
+
 	"""
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
@@ -564,4 +644,3 @@ if __name__ == '__main__':
 	obj['wrong_field'] = 1
 
 #============================================================
-
