@@ -103,21 +103,24 @@ create view dem.v_identity_tags as
 select
 	dit.fk_identity
 		as pk_identity,
-	rpt.description
+	rti.description
 		as description,
 	dit.comment
 		as comment,
-
+	rti.filename
+		as filename,
+	octet_length(COALESCE(rti.image, ''::bytea))
+		as image_size,
 	dit.pk
 		as pk_identity_tag,
-	rpt.pk
+	rti.pk
 		as pk_tag_image,
 
 	dit.xmin
 		as xmin_identity_tag
 from
 	dem.identity_tag dit
-		left join ref.tag_image rpt on (dit.fk_tag = rpt.pk)
+		left join ref.tag_image rti on (dit.fk_tag = rti.pk)
 ;
 
 grant select on

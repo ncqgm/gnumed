@@ -43,6 +43,19 @@ alter table ref.tag_image
 		unique(description);
 
 -- --------------------------------------------------------------
+-- .filename
+comment on column ref.tag_image.filename is 'An example filename, mainly for preserving the file suffix. Set during import, suffix used during export.';
+
+\unset ON_ERROR_STOP
+alter table ref.tag_image drop constraint ref_tag_image_sane_filename cascade;
+\set ON_ERROR_STOP 1
+
+alter table ref.tag_image
+	add constraint ref_tag_image_sane_filename check (
+		gm.is_null_or_non_empty_string(filename) is True
+	);
+
+-- --------------------------------------------------------------
 -- .image
 comment on column ref.tag_image.image is 'An image showing the meaning of the tag.';
 
@@ -54,9 +67,11 @@ alter table ref.tag_image
 -- test data
 insert into ref.tag_image (
 	description,
+	filename,
 	image
 ) values (
 	'Occupation: astronaut',
+	'astronaut.png',
 	'to be imported'
 );
 
@@ -73,6 +88,9 @@ select
 	rti.description,
 	_(rti.description)
 		as l10n_description,
+	rti.filename,
+	octet_length(COALESCE(rti.image, ''::bytea))
+		as size,
 	exists (select 1 from dem.identity_tag dit where dit.fk_tag = rti.pk limit 1)
 		as is_in_use,
 	rti.xmin

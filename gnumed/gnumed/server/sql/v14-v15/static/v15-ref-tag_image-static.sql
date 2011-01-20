@@ -12,6 +12,7 @@
 create table ref.tag_image (
 	pk serial primary key,
 	description text,
+	filename text,
 	image bytea
 ) inherits (audit.audit_fields);
 

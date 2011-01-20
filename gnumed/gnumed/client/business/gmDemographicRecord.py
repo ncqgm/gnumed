@@ -10,18 +10,148 @@ __version__ = "$Revision: 1.106 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
-import sys, os.path, time, string, logging
+import sys
+import os
+import os.path
+import logging
 
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmBusinessDBObject, gmPG2, gmTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.business')
 _log.info(__version__)
 
+#============================================================
+# text+image tags
+#------------------------------------------------------------
+_SQL_get_tag_image = u"""
+	SELECT *, xmin as xmin_tag_image
+	FROM ref.v_tag_images_no_data
+	WHERE %s
+"""
+
+class cTagImage(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_get_tag_image % u"pk_tag_image = %s"
+	_cmds_store_payload = [
+		u"""
+			UPDATE ref.tag_image SET
+				description = gm.nullify_empty_string(%(description)s),
+				filename = gm.nullify_empty_string(%(filename)s)
+			WHERE
+				pk = %(pk_tag_image)s
+					AND
+				xmin = %(xmin_tag_image)s
+			RETURNING
+				pk,
+				xmin as xmin_tag_image
+		"""
+	]
+	_updatable_fields = [u'description', u'filename']
+	#--------------------------------------------------------
+	def export_image_to_file(self, aChunkSize=0, filename=None):
+
+		if self._payload[self._idx['size']] == 0:
+			return None
+
+		if filename is None:
+			suffix = None
+			# preserve original filename extension if available
+			if self._payload[self._idx['filename']] is not None:
+				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
+				suffix = suffix.strip()
+				if suffix == u'':
+					suffix = None
+			# get unique filename
+			filename = gmTools.get_unique_filename (
+				prefix = 'gm-tag_image-',
+				suffix = suffix
+			)
+
+		success = gmPG2.bytea2file (
+			data_query = {
+				'cmd': u'SELECT substring(image from %(start)s for %(size)s) FROM ref.tag_image WHERE pk = %(pk)s',
+				'args': {'pk': self.pk_obj}
+			},
+			filename = filename,
+			chunk_size = aChunkSize,
+			data_size = self._payload[self._idx['size']]
+		)
+
+		if success:
+			return filename
+
+		return None
+	#--------------------------------------------------------
+	def update_image_from_file(self, filename=None):
+		# sanity check
+		if not (os.access(filename, os.R_OK) and os.path.isfile(filename)):
+			_log.error('[%s] is not a readable file' % filename)
+			return False
+
+		gmPG2.file2bytea (
+			query = u"UPDATE ref.tag_image SET image = %(data)s::bytea WHERE pk = %(pk)s",
+			filename = filename,
+			args = {'pk': self.pk_obj}
+		)
+
+		# must update XMIN now ...
+		self.refetch_payload()
+		return True
+#------------------------------------------------------------
+def get_tag_images(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = 'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_tag_image % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cTagImage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_tag_image'}) for r in rows ]
+#------------------------------------------------------------
+def create_tag_image(description=None):
+
+	args = {u'desc': description, u'img': u'missing image data'}
+	cmd = u"""
+		INSERT INTO ref.tag_image (
+			description,
+			image
+		) VALUES (
+			%(desc)s,
+			%(img)s
+		)
+		RETURING pk
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cTagImage(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_tag_image(tag_image=None):
+	args = {'pk': tag_image}
+	cmd = u"""
+		DELETE FROM ref.tag_image
+		WHERE
+			pk = %(pk)s
+				AND
+			NOT EXISTS (
+				SELECT 1
+				FROM dem.identity_tag
+				WHERE fk_tag = %(pk)s
+				LIMIT 1
+			)
+		RETURNING 1
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	if len(rows) == 0:
+		return False
+	return True
 #============================================================
 def get_countries():
 	cmd = u"""
@@ -575,6 +705,9 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		sys.exit()
 
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	import random
 	#--------------------------------------------------------
 	def test_address_exists():
@@ -632,15 +765,30 @@ if __name__ == "__main__":
 		region = raw_input("Please enter a region: ")
 		print "country for region [%s] is: %s" % (region, get_country_for_region(region = region))
 	#--------------------------------------------------------
-	if sys.argv[1] != 'test':
-		sys.exit()
+	def test_delete_tag():
+		if delete_tag_image(tag_image = 9999):
+			print "deleted tag 9999"
+		else:
+			print "did not delete tag 9999"
+		if delete_tag_image(tag_image = 1):
+			print "deleted tag 1"
+		else:
+			print "did not delete tag 1"
+	#--------------------------------------------------------
+	def test_tag_images():
+		tag = cTagImage(aPK_obj = 1)
+		print tag
+		print get_tag_images()
+	#--------------------------------------------------------
 
 	#gmPG2.get_connection()
 
 	#test_address_exists()
 	#test_create_address()
 	#test_get_countries()
-	test_get_country_for_region()
+	#test_get_country_for_region()
+	#test_delete_tag()
+	test_tag_images()
 
 	sys.exit()
 
