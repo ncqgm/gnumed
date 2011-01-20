@@ -15,7 +15,7 @@ def run(conn=None):
 	# emr journal
 	gmPG2.file2bytea (
 		query = u"""
-UPDATE ref.person_tag
+UPDATE ref.tag_image
 SET image = %(data)s::bytea
 WHERE description = 'Occupation: astronaut'
 """,

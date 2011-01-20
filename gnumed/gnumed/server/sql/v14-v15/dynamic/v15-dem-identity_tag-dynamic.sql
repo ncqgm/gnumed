@@ -44,7 +44,7 @@ alter table dem.identity_tag
 
 alter table dem.identity_tag
 	add foreign key (fk_tag)
-		references ref.person_tag(pk)
+		references ref.tag_image(pk)
 		on update cascade
 		on delete restrict;
 
@@ -61,6 +61,39 @@ alter table dem.identity_tag
 ;
 
 -- --------------------------------------------------------------
+-- table constraints
+\unset ON_ERROR_STOP
+alter table dem.identity_tag drop constraint dem_identity_tag_uniq_tag cascade;
+\set ON_ERROR_STOP 1
+
+alter table dem.identity_tag
+	add constraint dem_identity_tag_uniq_tag
+		unique(fk_identity, fk_tag)
+;
+
+-- --------------------------------------------------------------
+-- --------------------------------------------------------------
+-- test data
+delete from dem.identity_tag where
+	fk_identity = (select pk_identity from dem.v_basic_person where lastnames = 'Kirk' and firstnames = 'James Tiberius')
+		and
+	fk_tag = (select pk from ref.tag_image where description = 'Occupation: astronaut')
+;
+
+\unset ON_ERROR_STOP
+insert into dem.identity_tag (
+	fk_identity,
+	fk_tag,
+	comment
+) values (
+	(select pk_identity from dem.v_basic_person where lastnames = 'Kirk' and firstnames = 'James Tiberius'),
+	(select pk from ref.tag_image where description = 'Occupation: astronaut'),
+	'communicate via intercom only'
+);
+\set ON_ERROR_STOP 1
+
+-- --------------------------------------------------------------
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view dem.v_identity_tags cascade;
 \set ON_ERROR_STOP 1
@@ -72,21 +105,19 @@ select
 		as pk_identity,
 	rpt.description
 		as description,
-	rpt.short_description
-		as short_description,
 	dit.comment
 		as comment,
 
 	dit.pk
 		as pk_identity_tag,
 	rpt.pk
-		as pk_person_tag,
+		as pk_tag_image,
 
 	dit.xmin
 		as xmin_identity_tag
 from
 	dem.identity_tag dit
-		left join ref.person_tag rpt on (dit.fk_tag = rpt.pk)
+		left join ref.tag_image rpt on (dit.fk_tag = rpt.pk)
 ;
 
 grant select on

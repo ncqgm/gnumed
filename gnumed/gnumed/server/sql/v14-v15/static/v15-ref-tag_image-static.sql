@@ -9,14 +9,13 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-create table ref.person_tag (
+create table ref.tag_image (
 	pk serial primary key,
 	description text,
-	short_description text,
 	image bytea
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-ref-person_tag-static.sql', 'Revision: 1.1');
+select gm.log_script_insertion('v15-ref-tag_image-static.sql', 'Revision: 1.1');
 
 -- ==============================================================
