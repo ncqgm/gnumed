@@ -5,11 +5,18 @@ __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import sys, os, codecs, re as regex, logging
+import sys
+import sys
+import codecs
+import re as regex
+import logging
+import webbrowser
+import os
 
 
 import wx
 import wx.wizard
+import wx.lib.imagebrowser as wx_imagebrowser
 
 
 # GNUmed specific
@@ -32,6 +39,204 @@ try:
 except NameError:
 	_ = lambda x:x
 
+#============================================================
+# image tags related widgets
+#------------------------------------------------------------
+def edit_tag_image(parent=None, tag_image=None, single_entry=False):
+	if tag_image is not None:
+		if tag_image['is_in_use']:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Editing tag'),
+				aMessage = _(
+					'Cannot edit the image tag\n'
+					'\n'
+					' "%s"\n'
+					'\n'
+					'because it is currently in use.\n'
+				) % tag_image['l10n_description']
+			)
+			return False
+
+	ea = cTagImageEAPnl(parent = parent, id = -1)
+	ea.data = tag_image
+	ea.mode = gmTools.coalesce(tag_image, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(tag_image, _('Adding new tag'), _('Editing tag')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+#------------------------------------------------------------
+def manage_tag_images(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def go_to_openclipart_org(tag_image):
+		webbrowser.open (
+			url = u'http://www.openclipart.org',
+			new = False,
+			autoraise = True
+		)
+		return True
+	#------------------------------------------------------------
+	def edit(tag_image=None):
+		return edit_tag_image(parent = parent, tag_image = tag_image, single_entry = (tag_image is not None))
+	#------------------------------------------------------------
+	def delete(tag):
+		if tag['is_in_use']:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this tag. It is in use.'), beep = True)
+			return False
+
+		return gmDemographicRecord.delete_tag_image(tag_image = tag['pk_tag_image'])
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		tags = gmDemographicRecord.get_tag_images(order_by = u'l10n_description')
+		items = [ [
+			t['l10n_description'],
+			gmTools.bool2subst(t['is_in_use'], u'X', u''),
+			u'%s' % t['size'],
+			t['pk_tag_image']
+		] for t in tags ]
+		lctrl.set_string_items(items)
+		lctrl.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE])
+		lctrl.set_data(tags)
+	#------------------------------------------------------------
+	msg = _('\nTags with images registered with GNUmed.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing tags with images.'),
+		columns = [_('Tag name'), _('In use'), _('Image size'), u'#'],
+		single_selection = True,
+		new_callback = edit,
+		edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh,
+		left_extra_button = (_('WWW'), _('Go to www.openclipart.org for images.'), go_to_openclipart_org)
+	)
+
+#------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgTagImageEAPnl
+
+class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['tag_image']
+			del kwargs['tag_image']
+		except KeyError:
+			data = None
+
+		wxgTagImageEAPnl.wxgTagImageEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		self.__selected_image_file = None
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		valid = True
+
+		if self.mode == u'new':
+			if self.__selected_image_file is None:
+				valid = False
+				gmDispatcher.send(signal = 'statustext', msg = _('Must pick an image file for a new tag.'), beep = True)
+				self._BTN_pick_image.SetFocus()
+
+		if self.__selected_image_file is not None:
+			try:
+				open(self.__selected_image_file).close()
+			except StandardError:
+				valid = False
+				self.__selected_image_file = None
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot open the image file [%s].') % self.__selected_image_file, beep = True)
+				self._BTN_pick_image.SetFocus()
+
+		if self._TCTRL_description.GetValue().strip() == u'':
+			valid = False
+			self.display_tctrl_as_valid(self._TCTRL_description, False)
+			self._TCTRL_description.SetFocus()
+		else:
+			self.display_tctrl_as_valid(self._TCTRL_description, True)
+
+		return (valid is True)
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = gmDemographicRecord.create_tag_image(description = self._TCTRL_description.GetValue().strip())
+		data['filename'] = self._TCTRL_filename.GetValue().strip()
+		data.save()
+		data.update_image_from_file(filename = self.__selected_image_file)
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+		self.data = data
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+		self.data['description'] = self._TCTRL_description.GetValue().strip()
+		self.data['filename'] = self._TCTRL_filename.GetValue().strip()
+		self.data.save()
+
+		if self.__selected_image_file is not None:
+			open(self.__selected_image_file).close()
+			self.data.update_image_from_file(filename = self.__selected_image_file)
+			self.__selected_image_file = None
+
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_description.SetValue(u'')
+		self._TCTRL_filename.SetValue(u'')
+		self._BMP_image.SetBitmap(bitmap = wx.EmptyBitmap(100, 100))
+
+		self.__selected_image_file = None
+
+		self._TCTRL_description.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_description.SetValue(self.data['l10n_description'])
+		self._TCTRL_filename.SetValue(gmTools.coalesce(self.data['filename'], u''))
+		fname = self.data.export_image2file()
+		if fname is None:
+			self._BMP_image.SetBitmap(bitmap = wx.EmptyBitmap(100, 100))
+		else:
+			self._BMP_image.SetBitmap(bitmap = gmGuiHelpers.file2scaled_image(filename = fname, height = 100))
+
+		self.__selected_image_file = None
+
+		self._TCTRL_description.SetFocus()
+	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
+	def _on_pick_image_button_pressed(self, event):
+		paths = gmTools.gmPaths()
+		img_dlg = wx_imagebrowser.ImageDialog(parent = self, set_dir = paths.home_dir)
+		img_dlg.Centre()
+		if img_dlg.ShowModal() != wx.ID_OK:
+			return
+
+		self.__selected_image_file = img_dlg.GetFile()
+		self._BMP_image.SetBitmap(bitmap = gmGuiHelpers.file2scaled_image(filename = self.__selected_image_file, height = 100))
+		fdir, fname = os.path.split(self.__selected_image_file)
+		self._TCTRL_filename.SetValue(fname)
 #============================================================
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):

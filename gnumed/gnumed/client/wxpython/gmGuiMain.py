@@ -1909,6 +1909,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_manage_master_data(self, evt):
 
+		# this is how it is sorted
 		master_data_lists = [
 			'adr',
 			'drugs',
@@ -1924,6 +1925,7 @@ class gmTopLevelFrame(wx.Frame):
 			'orgs',
 			'provinces',
 			'db_translations',
+			'tag_images',
 			'test_types',
 			'org_units',
 			'vacc_indications',
@@ -1945,6 +1947,7 @@ class gmTopLevelFrame(wx.Frame):
 			'orgs': _('Organizations'),
 			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
 			'db_translations': _('String translations in the database'),
+			'tag_images': _('Tag images'),
 			'test_types': _('Test/measurement types'),
 			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
@@ -1972,7 +1975,8 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
 			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmPersonContactWidgets.manage_addresses,
-			'substances': gmMedicationWidgets.manage_consumable_substances
+			'substances': gmMedicationWidgets.manage_consumable_substances,
+			'tag_images': gmDemographicsWidgets.manage_tag_images
 		}
 
 		#---------------------------------

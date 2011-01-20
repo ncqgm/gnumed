@@ -1460,9 +1460,9 @@ class gmPastHistoryEditArea(gmEditArea):
 		except:
 #			birthyear = time.localtime()[0]
 			birthyear = 1
-		
+
 		return birthyear
-		
+
 	def _yearKillFocus( self, event):	
 		event.Skip()	
 		try:
@@ -1499,8 +1499,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		values = gmPastHistoryEditArea.__init_values
 		values["age"] = str( self._getDefaultAge())
 		return values 
-		
-		
+
 	def _save_data(self):
 		clinical = self._patient.get_emr().get_past_history()
 		if self.getDataId() is None:

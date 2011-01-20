@@ -31,11 +31,7 @@ _log.info(__version__)
 #============================================================
 # text+image tags
 #------------------------------------------------------------
-_SQL_get_tag_image = u"""
-	SELECT *, xmin as xmin_tag_image
-	FROM ref.v_tag_images_no_data
-	WHERE %s
-"""
+_SQL_get_tag_image = u"SELECT * FROM ref.v_tag_images_no_data WHERE %s"
 
 class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 
@@ -50,13 +46,13 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 					AND
 				xmin = %(xmin_tag_image)s
 			RETURNING
-				pk,
+				pk as pk_tag_image,
 				xmin as xmin_tag_image
 		"""
 	]
 	_updatable_fields = [u'description', u'filename']
 	#--------------------------------------------------------
-	def export_image_to_file(self, aChunkSize=0, filename=None):
+	def export_image2file(self, aChunkSize=0, filename=None):
 
 		if self._payload[self._idx['size']] == 0:
 			return None
@@ -118,16 +114,16 @@ def get_tag_images(order_by=None):
 #------------------------------------------------------------
 def create_tag_image(description=None):
 
-	args = {u'desc': description, u'img': u'missing image data'}
+	args = {u'desc': description, u'img': u''}
 	cmd = u"""
 		INSERT INTO ref.tag_image (
 			description,
 			image
 		) VALUES (
 			%(desc)s,
-			%(img)s
+			%(img)s::bytea
 		)
-		RETURING pk
+		RETURNING pk
 	"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
@@ -251,12 +247,12 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	"""
 	_cmd_fetch_payload = u"select * from dem.v_address where pk_address=%s"
 	_cmds_store_payload = [
-		u"""update dem.address set
+		u"""UPDATE dem.address SET
 				aux_street = %(notes_street)s,
 				subunit = %(subunit)s,
 				addendum = %(notes_subunit)s,
 				lat_lon = %(lat_lon_street)s
-			where id=%(pk_address)s and xmin=%(xmin_address)s""",
+			WHERE id = %(pk_address)s AND xmin = %(xmin_address)s""",
 		u"select xmin as xmin_address from dem.address where id=%(pk_address)s"
 	]
 	_updatable_fields = ['notes_street', 'subunit', 'notes_subunit', 'lat_lon_address']

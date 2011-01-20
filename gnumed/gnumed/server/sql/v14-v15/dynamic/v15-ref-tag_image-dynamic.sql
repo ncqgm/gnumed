@@ -72,7 +72,7 @@ insert into ref.tag_image (
 ) values (
 	'Occupation: astronaut',
 	'astronaut.png',
-	'to be imported'
+	''
 );
 
 -- --------------------------------------------------------------
@@ -94,6 +94,7 @@ select
 	exists (select 1 from dem.identity_tag dit where dit.fk_tag = rti.pk limit 1)
 		as is_in_use,
 	rti.xmin
+		as xmin_tag_image
 from
 	ref.tag_image rti
 ;
