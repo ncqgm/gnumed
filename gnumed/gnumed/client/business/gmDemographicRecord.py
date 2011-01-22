@@ -148,6 +148,107 @@ def delete_tag_image(tag_image=None):
 	if len(rows) == 0:
 		return False
 	return True
+
+#============================================================
+_SQL_get_identity_tags = u"""SELECT * FROM dem.v_identity_tags WHERE %s"""
+
+class cIdentityTag(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_get_identity_tags % u"pk_XXX = %s"
+	_cmds_store_payload = [
+		u"""
+			UPDATE dem.identity_tag SET
+				fk_tag = %(pk_tag_image)s,
+				comment = gm.nullify_empty_string(%(comment)s)
+			WHERE
+				pk = %(pk_identity_tag)s
+					AND
+				xmin = %(xmin_identity_tag)s
+			RETURNING
+				pk as pk_identity_tag,
+				xmin as xmin_identity_tag
+		"""
+	]
+	_updatable_fields = [u'fk_tag',	u'comment']
+	#--------------------------------------------------------
+	def export_image2file(self, aChunkSize=0, filename=None):
+
+		if self._payload[self._idx['image_size']] == 0:
+			return None
+
+		if filename is None:
+			suffix = None
+			# preserve original filename extension if available
+			if self._payload[self._idx['filename']] is not None:
+				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
+				suffix = suffix.strip()
+				if suffix == u'':
+					suffix = None
+			# get unique filename
+			filename = gmTools.get_unique_filename (
+				prefix = 'gm-identity_tag-',
+				suffix = suffix
+			)
+
+		exported = gmPG2.bytea2file (
+			data_query = {
+				'cmd': u'SELECT substring(image from %(start)s for %(size)s) FROM ref.tag_image WHERE pk = %(pk)s',
+				'args': {'pk': self._payload[self._idx['pk_tag_image']]}
+			},
+			filename = filename,
+			chunk_size = aChunkSize,
+			data_size = self._payload[self._idx['image_size']]
+		)
+		if exported:
+			return filename
+
+		return None
+#------------------------------------------------------------
+def get_identity_tags(patient=None, order_by=None):
+
+	args = {u'pat': patient}
+
+	if patient is None:
+		where = u'true'
+	else:
+		where = u'pk_identity = %(pat)s'
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
+
+	cmd = _SQL_get_identity_tags % (u'%s %s' % (where, order_by))
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cIdentityTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
+#------------------------------------------------------------
+def create_identity_tag(tag=None, identity=None):
+
+	args = {
+		u'tag': tag,
+		u'identity': identity
+	}
+	cmd = u"""
+		INSERT INTO dem.identity_tag (
+			fk_tag,
+			fk_identity
+		) VALUES (
+			%(tag)s,
+			%(identity)s
+		)
+		RETURNING pk
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cIdentityTag(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_identity_tag(tag=None):
+	args = {'pk': tag}
+	cmd = u"DELETE FROM dem.identity_tag WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+
+#============================================================
 #============================================================
 def get_countries():
 	cmd = u"""

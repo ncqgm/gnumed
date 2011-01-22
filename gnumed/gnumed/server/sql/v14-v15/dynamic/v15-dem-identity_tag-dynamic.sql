@@ -105,6 +105,8 @@ select
 		as pk_identity,
 	rti.description
 		as description,
+	_(rti.description)
+		as l10n_description,
 	dit.comment
 		as comment,
 	rti.filename
@@ -115,7 +117,6 @@ select
 		as pk_identity_tag,
 	rti.pk
 		as pk_tag_image,
-
 	dit.xmin
 		as xmin_identity_tag
 from

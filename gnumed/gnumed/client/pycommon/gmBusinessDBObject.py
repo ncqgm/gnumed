@@ -215,7 +215,7 @@ def get_XXX(order_by=None):
 	if order_by is None:
 		order_by = u'true'
 	else:
-		order_by = 'true ORDER BY %s' % order_by
+		order_by = u'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_XXX % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
@@ -230,13 +230,14 @@ def create_xxx(xxx=None, xxx=None):
 	cmd = u\"""
 		INSERT INTO xxx.xxx (
 			xxx,
+			xxx,
 			xxx
 		) VALUES (
 			%(xxx)s,
 			%(xxx)s,
 			gm.nullify_empty_string(%(xxx)s)
 		)
-		RETURING pk
+		RETURNING pk
 	\"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
@@ -244,10 +245,7 @@ def create_xxx(xxx=None, xxx=None):
 #------------------------------------------------------------
 def delete_xxx(xxx=None):
 	args = {'pk': xxx}
-	cmd = u\"""
-		DELETE FROM xxx.xxx
-		WHERE pk = %(pk)s
-	\"""
+	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 #------------------------------------------------------------

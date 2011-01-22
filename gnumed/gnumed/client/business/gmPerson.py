@@ -614,6 +614,9 @@ select exists (
 		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
+	def get_tags(self, order_by=None):
+		return gmDemographicRecord.get_identity_tags(patient = self.ID, order_by = order_by)
+	#--------------------------------------------------------
 	# external ID API
 	#
 	# since external IDs are not treated as first class

@@ -17,6 +17,7 @@ import os
 import wx
 import wx.wizard
 import wx.lib.imagebrowser as wx_imagebrowser
+import wx.lib.statbmp as wx_genstatbmp
 
 
 # GNUmed specific
@@ -237,6 +238,100 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		self._BMP_image.SetBitmap(bitmap = gmGuiHelpers.file2scaled_image(filename = self.__selected_image_file, height = 100))
 		fdir, fname = os.path.split(self.__selected_image_file)
 		self._TCTRL_filename.SetValue(fname)
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgVisualSoapPresenterPnl
+
+class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl.__init__(self, *args, **kwargs)
+		self._SZR_bitmaps = self.GetSizer()
+		self.__bitmaps = []
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, patient):
+
+		self.clear()
+
+		for tag in patient.get_tags(order_by = u'l10n_description'):
+			fname = tag.export_image2file()
+			if fname is None:
+				_log.warning('cannot export image data of tag [%s]', tag['l10n_description'])
+				continue
+			img = gmGuiHelpers.file2scaled_image(filename = fname, height = 20)
+			bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
+			bmp.SetToolTipString(u'%s%s' % (
+				tag['l10n_description'],
+				gmTools.coalesce(tag['comment'], u'', u'\n\n%s')
+			))
+			bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
+			# FIXME: add context menu for Delete/Clone/Add/Configure
+			self._SZR_bitmaps.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM, 2)		# | wx.EXPAND
+			self.__bitmaps.append(bmp)
+
+		self.GetParent().Layout()
+
+#		if document_folder is not None:
+#			soap_docs = document_folder.get_visual_progress_notes(episodes = episodes, encounter = encounter)
+#			if len(soap_docs) > 0:
+#				for soap_doc in soap_docs:
+#					parts = soap_doc.parts
+#					if len(parts) == 0:
+#						continue
+#					part = parts[0]
+#					fname = part.export_to_file()
+#					if fname is None:
+#						continue
+#
+#					# create bitmap
+#					img = gmGuiHelpers.file2scaled_image (
+#						filename = fname,
+#						height = 30
+#					)
+#					#bmp = wx.StaticBitmap(self, -1, img, style = wx.NO_BORDER)
+#					bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
+#
+#					# create tooltip
+#					img = gmGuiHelpers.file2scaled_image (
+#						filename = fname,
+#						height = 150
+#					)
+#					tip = agw_stt.SuperToolTip (
+#						u'',
+#						bodyImage = img,
+#						header = _('Created: %s') % part['date_generated'].strftime('%Y %B %d').encode(gmI18N.get_encoding()),
+#						footer = gmTools.coalesce(part['doc_comment'], u'').strip()
+#					)
+#					tip.SetTopGradientColor('white')
+#					tip.SetMiddleGradientColor('white')
+#					tip.SetBottomGradientColor('white')
+#					tip.SetTarget(bmp)
+#
+#					bmp.doc_part = part
+#					bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
+#					# FIXME: add context menu for Delete/Clone/Add/Configure
+#					self._SZR_bitmaps.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
+#					self.__bitmaps.append(bmp)
+#
+#		self.GetParent().Layout()
+	#--------------------------------------------------------
+	def clear(self):
+		while self._SZR_bitmaps.Detach(0):
+			pass
+		for bmp in self.__bitmaps:
+			bmp.Destroy()
+		self.__bitmaps = []
+	#--------------------------------------------------------
+	def _on_bitmap_leftclicked(self, evt):
+		pass
+#		wx.CallAfter (
+#			edit_visual_progress_note,
+#			doc_part = evt.GetEventObject().doc_part,
+#			discard_unmodified = True
+#		)
+
 #============================================================
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
