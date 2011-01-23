@@ -154,7 +154,7 @@ _SQL_get_identity_tags = u"""SELECT * FROM dem.v_identity_tags WHERE %s"""
 
 class cIdentityTag(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_identity_tags % u"pk_XXX = %s"
+	_cmd_fetch_payload = _SQL_get_identity_tags % u"pk_identity_tag = %s"
 	_cmds_store_payload = [
 		u"""
 			UPDATE dem.identity_tag SET
@@ -203,51 +203,6 @@ class cIdentityTag(gmBusinessDBObject.cBusinessDBObject):
 			return filename
 
 		return None
-#------------------------------------------------------------
-def get_identity_tags(patient=None, order_by=None):
-
-	args = {u'pat': patient}
-
-	if patient is None:
-		where = u'true'
-	else:
-		where = u'pk_identity = %(pat)s'
-
-	if order_by is None:
-		order_by = u''
-	else:
-		order_by = u'ORDER BY %s' % order_by
-
-	cmd = _SQL_get_identity_tags % (u'%s %s' % (where, order_by))
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return [ cIdentityTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
-#------------------------------------------------------------
-def create_identity_tag(tag=None, identity=None):
-
-	args = {
-		u'tag': tag,
-		u'identity': identity
-	}
-	cmd = u"""
-		INSERT INTO dem.identity_tag (
-			fk_tag,
-			fk_identity
-		) VALUES (
-			%(tag)s,
-			%(identity)s
-		)
-		RETURNING pk
-	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-
-	return cIdentityTag(aPK_obj = rows[0]['pk'])
-#------------------------------------------------------------
-def delete_identity_tag(tag=None):
-	args = {'pk': tag}
-	cmd = u"DELETE FROM dem.identity_tag WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	return True
-
 #============================================================
 #============================================================
 def get_countries():

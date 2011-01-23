@@ -615,7 +615,45 @@ select exists (
 		return True
 	#--------------------------------------------------------
 	def get_tags(self, order_by=None):
-		return gmDemographicRecord.get_identity_tags(patient = self.ID, order_by = order_by)
+		if order_by is None:
+			order_by = u''
+		else:
+			order_by = u'ORDER BY %s' % order_by
+
+		cmd = gmDemographicRecord._SQL_get_identity_tags % (u'pk_identity = %%(pat)s %s' % order_by)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {u'pat': self.ID}}], get_col_idx = True)
+
+		return [ gmDemographicRecord.cIdentityTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
+	#--------------------------------------------------------
+	def add_tag(self, tag):
+		args = {
+			u'tag': tag,
+			u'identity': self.ID
+		}
+
+		# already exists ?
+		cmd = u"SELECT pk FROM dem.identity_tag WHERE fk_tag = %(tag)s AND fk_identity = %(identity)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) > 0:
+			return gmDemographicRecord.cIdentityTag(aPK_obj = rows[0]['pk'])
+
+		# no, add
+		cmd = u"""
+			INSERT INTO dem.identity_tag (
+				fk_tag,
+				fk_identity
+			) VALUES (
+				%(tag)s,
+				%(identity)s
+			)
+			RETURNING pk
+		"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+		return gmDemographicRecord.cIdentityTag(aPK_obj = rows[0]['pk'])
+	#--------------------------------------------------------
+	def remove_tag(self, tag):
+		cmd = u"DELETE FROM dem.identity_tag WHERE pk = %(pk)s"
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': tag}}])
 	#--------------------------------------------------------
 	# external ID API
 	#

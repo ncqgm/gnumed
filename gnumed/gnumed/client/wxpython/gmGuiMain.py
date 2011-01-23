@@ -443,38 +443,41 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
 		# -- menu "Person" ---------------------------
-		menu_patient = wx.Menu()
+		menu_person = wx.Menu()
 
 		ID_CREATE_PATIENT = wx.NewId()
-		menu_patient.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
+		menu_person.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
 		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_patient.Append(ID_LOAD_EXT_PAT, _('&Load external'), _('Load and possibly create person from an external source.'))
+		menu_person.Append(ID_LOAD_EXT_PAT, _('&Load external'), _('Load and possibly create person from an external source.'))
 		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
 
+		item = menu_person.Append(-1, _('Add &tag'), _('Add a text/image tag to this person.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_tag2person, item)
+
 		ID_DEL_PAT = wx.NewId()
-		menu_patient.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
+		menu_person.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
-		item = menu_patient.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
+		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
 		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
 
-		menu_patient.AppendSeparator()
+		menu_person.AppendSeparator()
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
-		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
+		menu_person.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
 
 		# FIXME: temporary until external program framework is active
 		ID = wx.NewId()
-		menu_patient.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
+		menu_person.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
 		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
 
-		menu_patient.AppendSeparator()
+		menu_person.AppendSeparator()
 
-		self.mainmenu.Append(menu_patient, '&Person')
-		self.__gb['main.patientmenu'] = menu_patient
+		self.mainmenu.Append(menu_person, '&Person')
+		self.__gb['main.patientmenu'] = menu_person
 
 		# -- menu "EMR" ---------------------------
 		menu_emr = wx.Menu()
@@ -1923,9 +1926,9 @@ class gmTopLevelFrame(wx.Frame):
 			'text_expansions',
 			'meta_test_types',
 			'orgs',
+			'patient_tags',
 			'provinces',
 			'db_translations',
-			'tag_images',
 			'test_types',
 			'org_units',
 			'vacc_indications',
@@ -1945,9 +1948,9 @@ class gmTopLevelFrame(wx.Frame):
 			'text_expansions': _('Keyword based text expansion macros'),
 			'meta_test_types': _('Meta test/measurement types'),
 			'orgs': _('Organizations'),
+			'patient_tags': _('Patient tags'),
 			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
 			'db_translations': _('String translations in the database'),
-			'tag_images': _('Tag images'),
 			'test_types': _('Test/measurement types'),
 			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
@@ -1976,7 +1979,7 @@ class gmTopLevelFrame(wx.Frame):
 			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmPersonContactWidgets.manage_addresses,
 			'substances': gmMedicationWidgets.manage_consumable_substances,
-			'tag_images': gmDemographicsWidgets.manage_tag_images
+			'patient_tags': gmDemographicsWidgets.manage_tag_images
 		}
 
 		#---------------------------------
@@ -2457,6 +2460,38 @@ class gmTopLevelFrame(wx.Frame):
 			soap_cats = u'soap',
 			encounter = None			# IOW, the current one
 		)
+	#----------------------------------------------
+	def __on_add_tag2person(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add tag to person. No active patient.'))
+			return
+
+		tag = gmDemographicsWidgets.manage_tag_images(parent = self)
+		if tag is None:
+			return
+
+		tag = curr_pat.add_tag(tag['pk_tag_image'])
+		msg = _('Edit the comment on tag [%s]') % tag['l10n_description']
+		comment = wx.GetTextFromUser (
+			message = msg,
+			caption = _('Editing tag comment'),
+			default_value = gmTools.coalesce(tag['comment'], u''),
+			parent = self
+		)
+
+		if comment == u'':
+			return
+
+		if comment.strip() == tag['comment']:
+			return
+
+		if comment == u' ':
+			tag['comment'] = None
+		else:
+			tag['comment'] = comment.strip()
+
+		tag.save()
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
 		dbcfg = gmCfg.cCfgSQL()

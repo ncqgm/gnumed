@@ -25,7 +25,12 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmCfg
 from Gnumed.pycommon import gmDateTime, gmShellAPI
-from Gnumed.business import gmDemographicRecord, gmPerson, gmSurgery, gmPersonSearch
+
+from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmPerson
+
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
 from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
 from Gnumed.wxpython import gmAuthWidgets, gmPersonContactWidgets
@@ -106,7 +111,7 @@ def manage_tag_images(parent=None):
 	#------------------------------------------------------------
 	msg = _('\nTags with images registered with GNUmed.\n')
 
-	gmListWidgets.get_choices_from_list (
+	tag = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = msg,
 		caption = _('Showing tags with images.'),
@@ -119,6 +124,7 @@ def manage_tag_images(parent=None):
 		left_extra_button = (_('WWW'), _('Go to www.openclipart.org for images.'), go_to_openclipart_org)
 	)
 
+	return tag
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgTagImageEAPnl
 
@@ -248,6 +254,14 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 		wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl.__init__(self, *args, **kwargs)
 		self._SZR_bitmaps = self.GetSizer()
 		self.__bitmaps = []
+
+		self.__context_popup = wx.Menu()
+
+		item = self.__context_popup.Append(-1, _('&Edit comment'))
+		self.Bind(wx.EVT_MENU, self.__edit_tag, item)
+
+		item = self.__context_popup.Append(-1, _('&Remove tag'))
+		self.Bind(wx.EVT_MENU, self.__remove_tag, item)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -266,56 +280,13 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 				tag['l10n_description'],
 				gmTools.coalesce(tag['comment'], u'', u'\n\n%s')
 			))
-			bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
+			bmp.tag = tag
+			bmp.Bind(wx.EVT_RIGHT_UP, self._on_bitmap_rightclicked)
 			# FIXME: add context menu for Delete/Clone/Add/Configure
-			self._SZR_bitmaps.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM, 2)		# | wx.EXPAND
+			self._SZR_bitmaps.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM, 1)		# | wx.EXPAND
 			self.__bitmaps.append(bmp)
 
 		self.GetParent().Layout()
-
-#		if document_folder is not None:
-#			soap_docs = document_folder.get_visual_progress_notes(episodes = episodes, encounter = encounter)
-#			if len(soap_docs) > 0:
-#				for soap_doc in soap_docs:
-#					parts = soap_doc.parts
-#					if len(parts) == 0:
-#						continue
-#					part = parts[0]
-#					fname = part.export_to_file()
-#					if fname is None:
-#						continue
-#
-#					# create bitmap
-#					img = gmGuiHelpers.file2scaled_image (
-#						filename = fname,
-#						height = 30
-#					)
-#					#bmp = wx.StaticBitmap(self, -1, img, style = wx.NO_BORDER)
-#					bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
-#
-#					# create tooltip
-#					img = gmGuiHelpers.file2scaled_image (
-#						filename = fname,
-#						height = 150
-#					)
-#					tip = agw_stt.SuperToolTip (
-#						u'',
-#						bodyImage = img,
-#						header = _('Created: %s') % part['date_generated'].strftime('%Y %B %d').encode(gmI18N.get_encoding()),
-#						footer = gmTools.coalesce(part['doc_comment'], u'').strip()
-#					)
-#					tip.SetTopGradientColor('white')
-#					tip.SetMiddleGradientColor('white')
-#					tip.SetBottomGradientColor('white')
-#					tip.SetTarget(bmp)
-#
-#					bmp.doc_part = part
-#					bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
-#					# FIXME: add context menu for Delete/Clone/Add/Configure
-#					self._SZR_bitmaps.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
-#					self.__bitmaps.append(bmp)
-#
-#		self.GetParent().Layout()
 	#--------------------------------------------------------
 	def clear(self):
 		while self._SZR_bitmaps.Detach(0):
@@ -324,14 +295,47 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 			bmp.Destroy()
 		self.__bitmaps = []
 	#--------------------------------------------------------
-	def _on_bitmap_leftclicked(self, evt):
-		pass
-#		wx.CallAfter (
-#			edit_visual_progress_note,
-#			doc_part = evt.GetEventObject().doc_part,
-#			discard_unmodified = True
-#		)
+	# internal helpers
+	#--------------------------------------------------------
+	def __remove_tag(self, evt):
+		if self.__current_tag is None:
+			return
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
+		pat.remove_tag(tag = self.__current_tag['pk_identity_tag'])
+	#--------------------------------------------------------
+	def __edit_tag(self, evt):
+		if self.__current_tag is None:
+			return
 
+		msg = _('Edit the comment on tag [%s]') % self.__current_tag['l10n_description']
+		comment = wx.GetTextFromUser (
+			message = msg,
+			caption = _('Editing tag comment'),
+			default_value = gmTools.coalesce(self.__current_tag['comment'], u''),
+			parent = self
+		)
+
+		if comment == u'':
+			return
+
+		if comment.strip() == self.__current_tag['comment']:
+			return
+
+		if comment == u' ':
+			self.__current_tag['comment'] = None
+		else:
+			self.__current_tag['comment'] = comment.strip()
+
+		self.__current_tag.save()
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_bitmap_rightclicked(self, evt):
+		self.__current_tag = evt.GetEventObject().tag
+		self.PopupMenu(self.__context_popup, pos = wx.DefaultPosition)
+		self.__current_tag = None
 #============================================================
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
