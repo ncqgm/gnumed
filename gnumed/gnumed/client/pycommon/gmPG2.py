@@ -976,6 +976,14 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	_log.debug('chunks to retrieve: [%s]' % needed_chunks)
 	_log.debug('remainder to retrieve: [%s] bytes' % remainder)
 
+	# try setting "bytea_output"
+	# - fails if not necessary
+	# - succeeds if necessary
+	try:
+		run_ro_queries(link_obj = conn, queries = [{'cmd': u"set bytea_output to 'escape'"}])
+	except dbapi.ProgrammingError:
+		_log.debug('failed to set bytea_output to "escacpe", not necessary')
+
 	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
 	# no, since bytea is binary,
