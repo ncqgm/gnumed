@@ -85,6 +85,11 @@ def manage_tag_images(parent=None):
 			new = False,
 			autoraise = True
 		)
+		webbrowser.open (
+			url = u'http://www.google.com',
+			new = False,
+			autoraise = True
+		)
 		return True
 	#------------------------------------------------------------
 	def edit(tag_image=None):
@@ -141,8 +146,6 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		wxgTagImageEAPnl.wxgTagImageEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		# Code using this mixin should set mode and data
-		# after instantiating the class:
 		self.mode = 'new'
 		self.data = data
 		if data is not None:

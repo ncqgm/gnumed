@@ -20,6 +20,14 @@ select i18n.upd_tx('de', 'influenza (seasonal)', 'Influenza (sais.)');
 select i18n.upd_tx('de', 'Deletion of', 'Löschung:');
 select i18n.upd_tx('de', 'Medication history', 'Medikamentenanamnese');
 
+select i18n.upd_tx('de', 'smokes', 'raucht');
+select i18n.upd_tx('de', 'often late', 'oft zu spät');
+select i18n.upd_tx('de', 'Extra care !', 'Vorsicht');
+select i18n.upd_tx('de', 'mobility impairment', 'Gehbehinderung');
+select i18n.upd_tx('de', 'minor depression', 'depressoid');
+select i18n.upd_tx('de', 'major depression', 'Depression');
+select i18n.upd_tx('de', 'choleric', 'cholerisch');
+
 -- --------------------------------------------------------------
 insert into dem.country (
 	code,
@@ -32,6 +40,6 @@ insert into dem.country (
 select i18n.upd_tx('de', 'Serbia', 'Serbien');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v15-i18n-de.sql,v $', '$Revision: 1. $');
+select gm.log_script_insertion('v15-i18n-de.sql', 'Revision: 1.1');
 
 -- ==============================================================

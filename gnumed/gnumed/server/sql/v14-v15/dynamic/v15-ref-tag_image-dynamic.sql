@@ -75,6 +75,76 @@ insert into ref.tag_image (
 	''
 );
 
+insert into ref.tag_image (
+	description,
+	filename,
+	image
+) values (
+	'smokes',
+	'Anonymous_aiga_smoking.png',
+	''
+);
+
+insert into ref.tag_image (
+	description,
+	filename,
+	image
+) values (
+	'often late',
+	'CoD_fsfe_Pocket_watch_icon.png',
+	''
+);
+
+insert into ref.tag_image (
+	description,
+	filename,
+	image
+) values (
+	'Extra care !',
+	'eastshores_Warning_Notification.png',
+	''
+);
+
+insert into ref.tag_image (
+	description,
+	filename,
+	image
+) values (
+	'mobility impairment',
+	'schoolfreeware_WheelChair_Sign.png',
+	''
+);
+
+insert into ref.tag_image (
+	description,
+	filename,
+	image
+) values (
+	'minor depression',
+	'weather-few-clouds.png',
+	''
+);
+
+insert into ref.tag_image (
+	description,
+	filename,
+	image
+) values (
+	'major depression',
+	'weather-showers-scattered.png',
+	''
+);
+
+insert into ref.tag_image (
+	description,
+	filename,
+	image
+) values (
+	'choleric',
+	'weather-storm.png',
+	''
+);
+
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view ref.v_tag_images_no_data cascade;
