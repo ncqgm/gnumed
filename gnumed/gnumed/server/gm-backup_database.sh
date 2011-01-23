@@ -73,12 +73,13 @@ else
 fi;
 
 if test "${HAS_HIGHER_VER}" = "t" ; then
-	echo "Backing up database ${GM_DATABASE}. However,"
-	echo "a newer database seems to exist:"
+	echo "Backing up database ${GM_DATABASE}."
+	echo ""
+	echo "However, a newer database seems to exist:"
 	echo ""
 	sudo -u postgres psql -l -p ${GM_PORT} | grep gnumed_v
 	echo ""
-	echo "Make sure you really want to backup the old database !"
+	echo "Make sure you really want to backup the older database !"
 fi ;
 
 
