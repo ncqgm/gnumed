@@ -1515,7 +1515,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	try:
 		curs.execute(cmd)
 	except dbapi.ProgrammingError:
-		_log.exception('cannot set bytea_output format')
+		_log.error('cannot set bytea_output format')
 
 	curs.close()
 	conn.commit()

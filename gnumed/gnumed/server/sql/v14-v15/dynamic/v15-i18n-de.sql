@@ -28,6 +28,8 @@ select i18n.upd_tx('de', 'minor depression', 'depressoid');
 select i18n.upd_tx('de', 'major depression', 'Depression');
 select i18n.upd_tx('de', 'choleric', 'cholerisch');
 
+select i18n.upd_tx('de', 'prescription', 'Rezept');
+
 -- --------------------------------------------------------------
 insert into dem.country (
 	code,

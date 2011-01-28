@@ -228,6 +228,7 @@ class gmPaths(gmBorg.cBorg):
 	.user_config_dir
 	.system_config_dir
 	.system_app_data_dir
+	.tmp_dir (only readable)
 	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.
@@ -286,6 +287,18 @@ class gmPaths(gmBorg.cBorg):
 		except ValueError:
 			self.system_app_data_dir = self.local_base_dir
 
+		# temporary directory
+		try:
+			self.__tmp_dir_already_set
+			_log.debug('temp dir already set')
+		except AttributeError:
+			tmp_base = os.path.join(tempfile.gettempdir(), app_name)
+			mkdir(tmp_base)
+			_log.info('previous temp dir: %s', tempfile.gettempdir())
+			tempfile.tempdir = tmp_base
+			_log.info('intermediate temp dir: %s', tempfile.gettempdir())
+			self.tmp_dir = tempfile.mkdtemp(prefix = r'gm-')
+
 		self.__log_paths()
 		if wx is None:
 			return True
@@ -333,6 +346,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('user-specific config dir: %s', self.user_config_dir)
 		_log.debug('system-wide config dir: %s', self.system_config_dir)
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
+		_log.debug('temporary dir: %s', self.tmp_dir)
 	#--------------------------------------
 	# properties
 	#--------------------------------------
@@ -402,6 +416,21 @@ class gmPaths(gmBorg.cBorg):
 		return self.__home_dir
 
 	home_dir = property(_get_home_dir, _set_home_dir)
+	#--------------------------------------
+	def _set_tmp_dir(self, path):
+		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
+			msg = '[%s:tmp_dir]: invalid path [%s]' % (self.__class__.__name__, path)
+			_log.error(msg)
+			raise ValueError(msg)
+		_log.debug('previous temp dir: %s', tempfile.gettempdir())
+		self.__tmp_dir = path
+		tempfile.tempdir = self.__tmp_dir
+		self.__tmp_dir_already_set = True
+
+	def _get_tmp_dir(self):
+		return self.__tmp_dir
+
+	tmp_dir = property(_get_tmp_dir, _set_tmp_dir)
 #===========================================================================
 def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='quoted-printable', attachments=None):
 
@@ -469,49 +498,6 @@ def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, 
 	refused = session.sendmail(sender, receiver, msg.getvalue())
 	session.quit()
 	msg.close()
-	if len(refused) != 0:
-		_log.error("refused recipients: %s" % refused)
-		return False
-
-	return True
-#-------------------------------------------------------------------------------
-def send_mail_old(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='latin1'):
-	"""Send an E-Mail.
-
-	<debug>: see smtplib.set_debuglevel()
-	<auth>: {'user': ..., 'password': ...}
-	<receiver>: a list of email addresses
-	"""
-	if message is None:
-		return False
-	message = message.lstrip().lstrip('\r\n').lstrip()
-
-	if sender is None:
-		sender = default_mail_sender
-
-	if receiver is None:
-		receiver = [default_mail_receiver]
-
-	if server is None:
-		server = default_mail_server
-
-	if subject is None:
-		subject = u'gmTools.py: send_mail() test'
-
-	body = u"""From: %s
-To: %s
-Subject: %s
-
-%s
-""" % (sender, u', '.join(receiver), subject[:50].replace('\r', '/').replace('\n', '/'), message)
-
-	import smtplib
-	session = smtplib.SMTP(server)
-	session.set_debuglevel(debug)
-	if auth is not None:
-		session.login(auth['user'], auth['password'])
-	refused = session.sendmail(sender, receiver, body.encode(encoding))
-	session.quit()
 	if len(refused) != 0:
 		_log.error("refused recipients: %s" % refused)
 		return False
@@ -849,8 +835,15 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 
 	return text
 #---------------------------------------------------------------------------
+def xml_escape_string(text=None):
+	"""check for special XML characters and transform them"""
+
+	text = text.replace(u'&', u'&amp;')
+
+	return text
+#---------------------------------------------------------------------------
 def tex_escape_string(text=None):
-	"""check for special latex-characters and transform them"""
+	"""check for special LaTeX characters and transform them"""
 
 	text = text.replace(u'\\', u'$\\backslash$')
 	text = text.replace(u'{', u'\\{')
@@ -1118,6 +1111,7 @@ This is a test mail from the gmTools.py module.
 		print "local      base dir:", paths.local_base_dir
 		print "system app data dir:", paths.system_app_data_dir
 		print "working directory  :", paths.working_dir
+		print "temp directory     :", paths.tmp_dir
 	#-----------------------------------------------------------------------
 	def test_none_if():
 		print "testing none_if()"

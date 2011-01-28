@@ -1944,6 +1944,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		webbrowser.open(url = url, new = False, autoraise = True)
 	#------------------------------------------------------------
+	def prescribe(self):
+		drug_db = get_drug_database()
+		if drug_db is None:
+			return
+
+		drug_db.reviewer = gmPerson.gmCurrentProvider()
+		drug_db.prescribe()
+	#------------------------------------------------------------
 	def check_interactions(self):
 
 		if len(self.__row_data) == 0:
@@ -1954,9 +1962,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		if len(self.get_selected_rows()) > 1:
-			drug_db.check_drug_interactions(substances = self.get_selected_data())
+			drug_db.check_interactions(substance_intakes = self.get_selected_data())
 		else:
-			drug_db.check_drug_interactions(substances = self.__row_data.values())
+			drug_db.check_interactions(substance_intakes = self.__row_data.values())
 	#------------------------------------------------------------
 	def add_substance(self):
 		edit_intake_of_substance(parent = self, substance = None)
@@ -2295,6 +2303,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_adr_button_pressed(self, event):
 		self._grid_substances.report_ADR()
+	#--------------------------------------------------------
+	def _on_rx_button_pressed(self, event):
+		self._grid_substances.prescribe()
 #============================================================
 # main
 #------------------------------------------------------------

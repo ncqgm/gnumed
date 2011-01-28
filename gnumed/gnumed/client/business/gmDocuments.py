@@ -21,6 +21,7 @@ _log.info(__version__)
 
 MUGSHOT=26
 DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE = u'visual progress note'
+DOCUMENT_TYPE_PRESCRIPTION = u'prescription'
 #============================================================
 class cDocumentFolder:
 	"""Represents a folder with medical documents for a single patient."""
@@ -62,6 +63,32 @@ class cDocumentFolder:
 		return True
 	#--------------------------------------------------------
 	# API
+	#--------------------------------------------------------
+	def get_latest_freediams_prescription(self):
+		cmd = u"""
+			SELECT pk_doc
+			FROM blobs.v_doc_med
+			WHERE
+				pk_patient = %(pat)s
+					AND
+				type = %(typ)s
+					AND
+				ext_ref = %(ref)s
+			ORDER BY
+				clin_when DESC
+			LIMIT 1
+		"""
+		args = {
+			'pat': self.pk_patient,
+			'typ': DOCUMENT_TYPE_PRESCRIPTION,
+			'ref': u'FreeDiams'
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if len(rows) == 0:
+			_log.info('no FreeDiams prescription available for patient [%s]' % self.pk_patient)
+			return None
+		prescription = cDocument(aPK_obj = rows[0][0])
+		return prescription
 	#--------------------------------------------------------
 	def get_latest_mugshot(self):
 		cmd = u"select pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
@@ -449,7 +476,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		new_parts = []
 
 		for filename in files:
-			new_part = self.add_part(file=filename)
+			new_part = self.add_part(file = filename)
 			if new_part is None:
 				msg = 'cannot instantiate document part object'
 				_log.error(msg)
@@ -516,17 +543,27 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 def create_document(document_type=None, encounter=None, episode=None):
 	"""Returns new document instance or raises an exception.
 	"""
-	cmd1 = u"""insert into blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s)"""
-	cmd2 = u"""select currval('blobs.doc_med_pk_seq')"""
-	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': cmd1, 'args': {'type': document_type, 'enc': encounter, 'epi': episode}},
-			{'cmd': cmd2}
-		],
-		return_data = True
-	)
-	doc_id = rows[0][0]
-	doc = cDocument(aPK_obj = doc_id)
+	cmd = u"""INSERT INTO blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s) RETURNING pk"""
+	try:
+		int(document_type)
+	except ValueError:
+		cmd = u"""
+			INSERT INTO blobs.doc_med (
+				fk_type,
+				fk_encounter,
+				fk_episode
+			) VALUES (
+				coalesce (
+					(SELECT pk from blobs.doc_type bdt where bdt.name = %(type)s),
+					(SELECT pk from blobs.doc_type bdt where _(bdt.name) = %(type)s)
+				),
+				%(enc)s,
+				%(epi)s
+			) RETURNING pk"""
+
+	args = {'type': document_type, 'enc': encounter, 'epi': episode}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	doc = cDocument(aPK_obj = rows[0][0])
 	return doc
 #------------------------------------------------------------
 def search_for_document(patient_id=None, type_id=None):

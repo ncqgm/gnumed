@@ -20,7 +20,9 @@ from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, 
 from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmHooks
-from Gnumed.business import gmDocuments, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
+
+from Gnumed.business import gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
+from Gnumed.business.gmDocuments import cDocumentFolder
 
 
 _log = logging.getLogger('gm.person')
@@ -316,7 +318,6 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				xmin = %(xmin_staff)s
 			RETURNING
 				xmin AS xmin_staff"""
-#		,u"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
 	#--------------------------------------------------------
@@ -1261,7 +1262,7 @@ class cPatient(cIdentity):
 		except KeyError:
 			pass
 
-		self.__db_cache['document folder'] = gmDocuments.cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
+		self.__db_cache['document folder'] = cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['document folder']
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):
