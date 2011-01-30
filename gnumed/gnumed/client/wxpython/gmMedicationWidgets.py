@@ -72,7 +72,14 @@ def get_drug_database(parent = None):
 		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 	except KeyError:
 		_log.error('faulty default drug data source configuration: %s', default_db)
-		return None
+		configure_drug_data_source(parent = parent)
+		default_db = dbcfg.get2 (
+			option = 'external.drug_data.default_source',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace'
+		)
+		if default_db is None:
+			return None
 
 	pat = gmPerson.gmCurrentPatient()
 	if pat.connected:
@@ -1343,6 +1350,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._DP_started.SetData(self.data['started'])
 		self._DP_discontinued.SetData(self.data['discontinued'])
 		self._PRW_discontinue_reason.SetValue(gmTools.coalesce(self.data['discontinue_reason'], u''))
+		if self.data['discontinued'] is not None:
+			self._PRW_discontinue_reason.Enable()
 
 		self.__refresh_allergies()
 
@@ -1428,11 +1437,9 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if self._DP_discontinued.GetData() is None:
 			self._PRW_discontinue_reason.Enable(False)
 			self._CHBOX_is_allergy.Enable(False)
-			#self._LBL_reason.Enable(False)
 		else:
 			self._PRW_discontinue_reason.Enable(True)
 			self._CHBOX_is_allergy.Enable(True)
-			#self._LBL_reason.Enable(True)
 	#----------------------------------------------------------------
 	def _on_manage_brands_button_pressed(self, event):
 		manage_branded_drugs(parent = self)
@@ -1684,7 +1691,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Dose'),
 				_('Schedule'),
 				_('Started'),
-				_('Duration'),
+				_('Duration / Until'),
 				_('Brand')
 			],
 			u'brand': [
@@ -1693,7 +1700,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Substance'),
 				_('Dose'),
 				_('Started'),
-				_('Duration'),
+				_('Duration / Until'),
 				_('Episode')
 			]
 		}
@@ -1815,11 +1822,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			if self.__grouping_mode == u'episode':
 				if med['pk_episode'] is None:
 					self.__prev_cell_0 = None
-					self.SetCellValue(row_idx, 0, gmTools.u_diameter)
+					epi = gmTools.u_diameter
 				else:
-					if self.__prev_cell_0 != med['episode']:
+					if self.__prev_cell_0 == med['episode']:
+						epi = u''
+					else:
 						self.__prev_cell_0 = med['episode']
-						self.SetCellValue(row_idx, 0, gmTools.coalesce(med['episode'], u''))
+						epi = gmTools.coalesce(med['episode'], u'')
+				self.SetCellValue(row_idx, 0, gmTools.wrap(text = epi, width = 40))
 
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s%s' % (med['amount'], med['unit']))
@@ -1829,31 +1839,38 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				if med['is_long_term']:
 					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
 				else:
-					if med['duration'] is None:
-						self.SetCellValue(row_idx, 5, u'')
+					if med['discontinued'] is None:
+						if med['duration'] is None:
+							self.SetCellValue(row_idx, 5, u'')
+						else:
+							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
 					else:
-						self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_brand'] is None:
-					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+					brand = u''
 				else:
 					if med['fake_brand']:
-						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+						brand = gmTools.coalesce(med['brand'], u'', _('%s (fake)'))
 					else:
-						self.SetCellValue(row_idx, 6, gmTools.coalesce(med['brand'], u''))
+						brand = gmTools.coalesce(med['brand'], u'')
+				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
 
 			elif self.__grouping_mode == u'brand':
 
 				if med['pk_brand'] is None:
 					self.__prev_cell_0 = None
-					self.SetCellValue(row_idx, 0, gmTools.u_diameter)
+					brand = gmTools.u_diameter
 				else:
-					if self.__prev_cell_0 != med['brand']:
+					if self.__prev_cell_0 == med['brand']:
+						brand = u''
+					else:
 						self.__prev_cell_0 = med['brand']
 						if med['fake_brand']:
-							self.SetCellValue(row_idx, 0, gmTools.coalesce(med['brand'], u'', _('%s (fake)')))
+							brand = gmTools.coalesce(med['brand'], u'', _('%s (fake)'))
 						else:
-							self.SetCellValue(row_idx, 0, gmTools.coalesce(med['brand'], u''))
+							brand = gmTools.coalesce(med['brand'], u'')
+				self.SetCellValue(row_idx, 0, gmTools.wrap(text = brand, width = 35))
 
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 2, med['substance'])
@@ -1863,15 +1880,19 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				if med['is_long_term']:
 					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
 				else:
-					if med['duration'] is None:
-						self.SetCellValue(row_idx, 5, u'')
+					if med['discontinued'] is None:
+						if med['duration'] is None:
+							self.SetCellValue(row_idx, 5, u'')
+						else:
+							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
 					else:
-						self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_episode'] is None:
-					self.SetCellValue(row_idx, 6, u'')
+					epi = u''
 				else:
-					self.SetCellValue(row_idx, 6, gmTools.coalesce(med['episode'], u''))
+					epi = gmTools.coalesce(med['episode'], u'')
+				self.SetCellValue(row_idx, 6, gmTools.wrap(text = epi, width = 40))
 
 			else:
 				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
@@ -1885,6 +1906,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 
+		self.AutoSize()
 		self.EndBatch()
 	#------------------------------------------------------------
 	def empty_grid(self):
@@ -1913,7 +1935,11 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if drug_db is None:
 			return
 
-		drug_db.show_info_on_substance(substance = self.get_selected_data()[0])
+		intake = self.get_selected_data()[0]		# just in case
+		if intake['brand'] is None:
+			drug_db.show_info_on_substance(substance_intake = intake)
+		else:
+			drug_db.show_info_on_drug(substance_intake = intake)
 	#------------------------------------------------------------
 	def show_renal_insufficiency_info(self):
 

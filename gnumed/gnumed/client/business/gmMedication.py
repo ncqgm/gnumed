@@ -259,27 +259,24 @@ class cDrugDataSourceInterface(object):
 	def switch_to_frontend(self, blocking=False):
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def select_drugs(self):
-		raise NotImplementedError
-	#--------------------------------------------------------
 	def import_drugs(self):
-		raise NotImplementedError
+		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def check_interactions(self, substance_intakes=None):
 		self.switch_to_frontend()
 	#--------------------------------------------------------
-	def show_info_on_drug(self, drug=None):
-		raise NotImplementedError
+	def show_info_on_drug(self, substance_intake=None):
+		self.switch_to_frontend()
 	#--------------------------------------------------------
-	def show_info_on_substance(self, substance=None):
-		raise NotImplementedError
+	def show_info_on_substance(self, substance_intake=None):
+		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def prescribe(self, substance_intakes=None):
 		self.switch_to_frontend()
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	version = u'FreeDiams v0.5.0 interface'
+	version = u'FreeDiams v0.5.4 interface'
 	default_encoding = 'utf8'
 	default_dob_format = '%Y/%m/%d'
 
@@ -350,12 +347,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			_log.error('problem switching to the FreeDiams drug database')
 			return False
 
-		self.import_fd2gm_file_as_drugs()
+		if blocking == True:
+			self.import_fd2gm_file_as_drugs()
 
 		return True
-	#--------------------------------------------------------
-	def select_drugs(self):
-		self.switch_to_frontend()
 	#--------------------------------------------------------
 	def import_drugs(self):
 		self.switch_to_frontend(blocking = True)
@@ -367,27 +362,24 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			return
 
 		self.__create_prescription_file(substance_intakes = substance_intakes)
-		self.switch_to_frontend(blocking = False)
+		self.switch_to_frontend(mode = 'interactions', blocking = False)
 	#--------------------------------------------------------
-	def show_info_on_drug(self, drug=None):
-		if drug is None:
+	def show_info_on_drug(self, substance_intake=None):
+		if substance_intake is None:
 			return
-		self.switch_to_frontend()
+
+		self.__create_prescription_file(substance_intakes = [substance_intake])
+		self.switch_to_frontend(mode = 'interactions', blocking = False)
 	#--------------------------------------------------------
-	def show_info_on_substance(self, substance=None):
-		if substance is None:
-			return
-		self.__create_prescription_file (
-			drug_ids_list = [(substance.external_code, substance.external_code_type)]
-		)
-		self.switch_to_frontend()
+	def show_info_on_substance(self, substance_intake=None):
+		self.show_info_on_drug(substance_intake = substance_intake)
 	#--------------------------------------------------------
 	def prescribe(self, substance_intakes=None):
 		if substance_intakes is None:
 			if not self.__export_latest_prescription():
-				self.__create_prescription_file(mode = 'prescription')
+				self.__create_prescription_file()
 		else:
-			self.__create_prescription_file(substance_intakes = substance_intakes, mode = 'prescription')
+			self.__create_prescription_file(substance_intakes = substance_intakes)
 
 		self.switch_to_frontend(mode = 'prescription', blocking = True)
 		self.import_fd2gm_file_as_prescription()
@@ -446,7 +438,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		return False
 	#--------------------------------------------------------
-	def __create_prescription_file(self, substance_intakes=None, mode=u'interactions'):
+	def __create_prescription_file(self, substance_intakes=None):
 		"""FreeDiams calls this exchange-out or prescription file.
 
 			CIS stands for Unique Speciality Identifier (eg bisoprolol 5 mg, gel).
@@ -621,12 +613,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Eric says the order of same-level nodes does not matter. -->
-
 <FreeDiams_In version="0.5.0">
 	<EMR name="GNUmed" uid="unused"/>
 	<ConfigFile value="%s"/>
-	<ExchangeOut value="%s" format="xml"/>				<!-- should perhaps better be html_xml ? -->
+	<ExchangeOut value="%s" format="xml"/>
 	<!-- <DrugsDatabase uid="can be set to a specific DB"/> -->
 	<Ui editmode="%s" blockPatientDatas="1"/>
 	%%s
@@ -919,7 +909,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		return True
 	#--------------------------------------------------------
-	def select_drugs(self, filename=None):
+	def __let_user_select_drugs(self):
 
 		# better to clean up interactions file
 		open(self.interactions_filename, 'wb').close()
@@ -931,7 +921,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def import_drugs_as_substances(self):
 
-		selected_drugs = self.select_drugs()
+		selected_drugs = self.__let_user_select_drugs()
 		if selected_drugs is None:
 			return None
 
@@ -950,7 +940,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def import_drugs(self):
 
-		selected_drugs = self.select_drugs()
+		selected_drugs = self.__let_user_select_drugs()
 		if selected_drugs is None:
 			return None
 
@@ -1117,8 +1107,9 @@ class cIfapInterface(cDrugDataSourceInterface):
 drug_data_source_interfaces = {
 	'Deutschland: Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
 	'Deutschland: Gelbe Liste/MMI (WINE)': cGelbeListeWineInterface,
-	'FreeDiams (France, US, Canada)': cFreeDiamsInterface
+	'FreeDiams (FR, US, CA, ZA)': cFreeDiamsInterface
 }
+
 #============================================================
 #============================================================
 # substances in use across all patients
@@ -1699,7 +1690,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'aims': [], 'strengths': []}
 
 		line_data[identifier]['brand'] = identifier
-		line_data[identifier]['strengths'].append(u'%s%s' % (med['amount'].strip(), med['unit'].strip()))
+		line_data[identifier]['strengths'].append(u'%s%s' % (med['amount'], med['unit'].strip()))
 		line_data[identifier]['preparation'] = med['preparation']
 		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
 		if med['aim'] not in line_data[identifier]['aims']:
@@ -2167,9 +2158,9 @@ if __name__ == "__main__":
 		mmi = cGelbeListeWineInterface()
 		mmi.switch_to_frontend(blocking = False)
 	#--------------------------------------------------------
-	def test_mmi_select_drugs():
+	def test_mmi_let_user_select_drugs():
 		mmi = cGelbeListeWineInterface()
-		mmi_file = mmi.select_drugs()
+		mmi_file = mmi.__let_user_select_drugs()
 		for drug in mmi_file:
 			print "-------------"
 			print '"%s" (ATC: %s / PZN: %s)' % (drug['name'], drug['atc'], drug['pzn'])
@@ -2230,7 +2221,7 @@ if __name__ == "__main__":
 	#test_MMI_interface()
 	#test_MMI_file()
 	#test_mmi_switch_to()
-	#test_mmi_select_drugs()
+	#test_mmi_let_user_select_drugs()
 	#test_mmi_import_substances()
 	#test_mmi_import_drugs()
 

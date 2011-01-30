@@ -30,7 +30,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_info = wx.Button(self, -1, _("Info"), style=wx.BU_EXACTFIT)
         self._BTN_kidneys = wx.Button(self, -1, _("Kidney"), style=wx.BU_EXACTFIT)
         self._BTN_interactions = wx.Button(self, -1, _("&Interactions?"), style=wx.BU_EXACTFIT)
-        self._BTN_rx = wx.Button(self, -1, _("Rx"), style=wx.BU_EXACTFIT)
+        self._BTN_rx = wx.Button(self, -1, _(u"℞"), style=wx.BU_EXACTFIT)
         self._BTN_adr = wx.Button(self, -1, _("ADR"), style=wx.BU_EXACTFIT)
         self._BTN_print = wx.Button(self, wx.ID_PRINT, "", style=wx.BU_EXACTFIT)
 
@@ -69,7 +69,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_info.SetToolTipString(_("Show in-depth information on the selected substance if available."))
         self._BTN_kidneys.SetToolTipString(_("Show information on handling of drugs in presence of renal insufficiency."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
-        self._BTN_rx.SetToolTipString(_("Generate a prescription."))
+        self._BTN_rx.SetToolTipString(_("Write a prescription based on either of\n\n- the selected lines\n- a copy of the most recent prescription"))
         self._BTN_adr.SetToolTipString(_("Report an Adverse Drug Reaction."))
         self._BTN_print.SetToolTipString(_("Print the medication list."))
         # end wxGlade

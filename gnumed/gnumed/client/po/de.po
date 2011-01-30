@@ -9664,7 +9664,7 @@ msgid " (short-term)"
 msgstr " (kurzzeitig)"
 
 msgid " Discontinued %s\n"
-msgstr " Beended %s\n"
+msgstr " Beendet %s\n"
 
 msgid " Reason: %s\n"
 msgstr " Grund: %s\n"
