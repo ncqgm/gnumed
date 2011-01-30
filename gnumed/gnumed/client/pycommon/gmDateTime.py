@@ -1150,7 +1150,7 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 			label = _('in %d week(s): %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
 		else:
 			ts = now - mxDT.RelativeDateTime(weeks = val)
-			label = _('%d week(s) ago: %s)') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
+			label = _('%d week(s) ago: %s') % (val, ts.strftime('%A, %Y-%m-%d').decode(enc))
 	# months
 	elif offset_char == offset_chars[3]:
 		if is_future:

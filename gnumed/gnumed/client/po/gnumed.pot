@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-12-15 21:57+CET\n"
+"POT-Creation-Date: 2011-01-30 20:07+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,6 +90,12 @@ msgid "*does* have allergies"
 msgstr ""
 
 msgid "ERROR: unknown allergy state [%s]"
+msgstr ""
+
+msgid "Cannot run [arriba] !"
+msgstr ""
+
+msgid "No [arriba] result found in [%s]."
 msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -419,6 +425,17 @@ msgstr ""
 msgid "Error running gnuplot. Cannot plot data."
 msgstr ""
 
+msgid "Medication history"
+msgstr ""
+
+msgid ""
+"\n"
+" Take: %s"
+msgstr ""
+
+msgid "Take: %s"
+msgstr ""
+
 msgid "long-term"
 msgstr ""
 
@@ -437,10 +454,10 @@ msgstr ""
 msgid "Substance"
 msgstr ""
 
-msgid "Strength"
+msgid "Brand"
 msgstr ""
 
-msgid "Brand"
+msgid "Strength"
 msgstr ""
 
 msgid "Medication list"
@@ -890,7 +907,85 @@ msgstr ""
 msgid "hH_keys_hour"
 msgstr ""
 
+msgid "dmy (single character date triggers)"
+msgstr ""
+
+msgid "today (%s)"
+msgstr ""
+
+msgid "tomorrow (%s)"
+msgstr ""
+
+msgid "yesterday (%s)"
+msgstr ""
+
+msgid "%s-%s-%s: a %s last month"
+msgstr ""
+
+msgid "%s-%s-%s: a %s this month"
+msgstr ""
+
+msgid "%s-%s-%s: a %s next month"
+msgstr ""
+
+msgid "%d. of %s (this month): a %s"
+msgstr ""
+
+msgid "%d. of %s (next month): a %s"
+msgstr ""
+
+msgid "%d. of %s (last month): a %s"
+msgstr ""
+
+msgid "in %d day(s): %s"
+msgstr ""
+
+msgid "%d day(s) ago: %s"
+msgstr ""
+
+msgid "in %d week(s): %s"
+msgstr ""
+
+msgid "%d week(s) ago: %s"
+msgstr ""
+
+msgid "%s (%s this year)"
+msgstr ""
+
+msgid "%s (%s next year)"
+msgstr ""
+
+msgid "%s (%s last year)"
+msgstr ""
+
+msgid "%s this week (%s of %s)"
+msgstr ""
+
+msgid "%s next week (%s of %s)"
+msgstr ""
+
+msgid "%s last week (%s of %s)"
+msgstr ""
+
 msgid "hdwmy (single character date offset triggers)"
+msgstr ""
+
+msgid "in %d hour(s): %s"
+msgstr ""
+
+msgid "%d hour(s) ago: %s"
+msgstr ""
+
+msgid "in %d month(s): %s"
+msgstr ""
+
+msgid "%d month(s) ago: %s"
+msgstr ""
+
+msgid "in %d year(s): %s"
+msgstr ""
+
+msgid "%d year(s) ago: %s"
 msgstr ""
 
 msgid "in %d hour(s) - %s"
@@ -929,15 +1024,6 @@ msgstr ""
 msgid "right now (%s, %s)"
 msgstr ""
 
-msgid "today (%s)"
-msgstr ""
-
-msgid "tomorrow (%s)"
-msgstr ""
-
-msgid "yesterday (%s)"
-msgstr ""
-
 msgid "%d. of %s (this month) - a %s"
 msgstr ""
 
@@ -945,24 +1031,6 @@ msgid "%d. of %s (next month) - a %s"
 msgstr ""
 
 msgid "%d. of %s (last month) - a %s"
-msgstr ""
-
-msgid "%s (%s this year)"
-msgstr ""
-
-msgid "%s (%s next year)"
-msgstr ""
-
-msgid "%s (%s last year)"
-msgstr ""
-
-msgid "%s this week (%s of %s)"
-msgstr ""
-
-msgid "%s next week (%s of %s)"
-msgstr ""
-
-msgid "%s last week (%s of %s)"
 msgstr ""
 
 msgid "No product information available."
@@ -1546,7 +1614,13 @@ msgstr ""
 msgid "Unit:"
 msgstr ""
 
+msgid "Component"
+msgstr ""
+
 msgid "+"
+msgstr ""
+
+msgid "... or ..."
 msgstr ""
 
 msgid "Approved of"
@@ -1561,28 +1635,19 @@ msgstr ""
 msgid "Long-term"
 msgstr ""
 
-msgid "The brand name of the drug the patient is taking."
+msgid "A component of a drug brand the patient is taking."
 msgstr ""
 
-msgid ""
-"Get brand(s) from an external drug database.\n"
-"\n"
-"Note that if you select more than one only the first will be available for further editing right away."
+msgid "Manage drug brands."
 msgstr ""
 
 msgid "The active ingredients of this brand."
 msgstr ""
 
-msgid ""
-"Get substances from an external drug database.\n"
-"\n"
-"Note that if you select more than one substance only the first one will be available for further editing right away."
+msgid "Manage consumable substances."
 msgstr ""
 
 msgid "The preparation the substance comes in."
-msgstr ""
-
-msgid "The amount of substance per dose."
 msgstr ""
 
 msgid "When was this substance started to be consumed."
@@ -1619,9 +1684,6 @@ msgid "The aim of consuming this substance."
 msgstr ""
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
-msgstr ""
-
-msgid "... or ..."
 msgstr ""
 
 msgid "Started"
@@ -1661,6 +1723,9 @@ msgid "Kidney"
 msgstr ""
 
 msgid "&Interactions?"
+msgstr ""
+
+msgid "\342\204\236"
 msgstr ""
 
 msgid "ADR"
@@ -1703,6 +1768,13 @@ msgid ""
 "Check for interactions between selected drugs.\n"
 "\n"
 "Includes all drugs if none selected."
+msgstr ""
+
+msgid ""
+"Write a prescription based on either of\n"
+"\n"
+"- the selected lines\n"
+"- a copy of the most recent prescription"
 msgstr ""
 
 msgid "Report an Adverse Drug Reaction."
@@ -2283,6 +2355,24 @@ msgstr ""
 msgid "Health issue selector"
 msgstr ""
 
+msgid "label_1"
+msgstr ""
+
+msgid ">>>"
+msgstr ""
+
+msgid "<<<"
+msgstr ""
+
+msgid "Move selected items from left to right."
+msgstr ""
+
+msgid "Move selected items from right to left."
+msgstr ""
+
+msgid "Cancel picking items."
+msgstr ""
+
 msgid "&Sign as:"
 msgstr ""
 
@@ -2578,10 +2668,13 @@ msgstr ""
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
-msgid "Check this to make this the currently active name."
+msgid "Active name"
 msgstr ""
 
 msgid "Enter a comment relevant to this name (such as \"before marriage\")."
+msgstr ""
+
+msgid "Check this to make this the currently active name."
 msgstr ""
 
 msgid "First name"
@@ -3304,6 +3397,36 @@ msgid "Required: A short signature for this staff member such as the concatenate
 msgstr ""
 
 msgid "Optional: A free-text comment on this staff member."
+msgstr ""
+
+msgid "&Pick"
+msgstr ""
+
+msgid ""
+"A name for the tag.\n"
+"\n"
+"Note that there cannot be two tags with the same name."
+msgstr ""
+
+msgid "An example file name for this image. Mainly used for deriving a suitable file extension."
+msgstr ""
+
+msgid ""
+"The image to use for the tag.\n"
+"\n"
+"Do not use a big image because the tag will be downscaled anyway."
+msgstr ""
+
+msgid "Pick the file from which to load the tag image."
+msgstr ""
+
+msgid "Tag name"
+msgstr ""
+
+msgid "File name"
+msgstr ""
+
+msgid "Image"
 msgstr ""
 
 msgid "&Me only"
@@ -4287,10 +4410,68 @@ msgstr ""
 msgid "Found %s results."
 msgstr ""
 
+msgid "Pick a date ..."
+msgstr ""
+
 msgid "Cannot interpret input as timestamp."
 msgstr ""
 
 msgid "enter time here"
+msgstr ""
+
+msgid "Editing tag"
+msgstr ""
+
+msgid ""
+"Cannot edit the image tag\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"because it is currently in use.\n"
+msgstr ""
+
+msgid "Adding new tag"
+msgstr ""
+
+msgid "Cannot delete this tag. It is in use."
+msgstr ""
+
+msgid ""
+"\n"
+"Tags with images registered with GNUmed.\n"
+msgstr ""
+
+msgid "Showing tags with images."
+msgstr ""
+
+msgid "Image size"
+msgstr ""
+
+msgid "In use"
+msgstr ""
+
+msgid "Go to www.openclipart.org for images."
+msgstr ""
+
+msgid "WWW"
+msgstr ""
+
+msgid "Must pick an image file for a new tag."
+msgstr ""
+
+msgid "Cannot open the image file [%s]."
+msgstr ""
+
+msgid "&Edit comment"
+msgstr ""
+
+msgid "&Remove tag"
+msgstr ""
+
+msgid "Edit the comment on tag [%s]"
+msgstr ""
+
+msgid "Editing tag comment"
 msgstr ""
 
 msgid "Today's KOrganizer appointments ..."
@@ -4386,10 +4567,13 @@ msgstr ""
 msgid "Preferred Name"
 msgstr ""
 
+msgid "Clone and &edit"
+msgstr ""
+
 msgid "Adding new name"
 msgstr ""
 
-msgid "Editing name"
+msgid "Cloning name"
 msgstr ""
 
 msgid "Cannot delete the only name of a person."
@@ -4501,7 +4685,7 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
-msgid "Social Network"
+msgid "Social network"
 msgstr ""
 
 msgid "primary occupation of the patient"
@@ -4716,9 +4900,6 @@ msgid "Imported new document from [%s]."
 msgstr ""
 
 msgid "Enter a comment on the document."
-msgstr ""
-
-msgid "In use"
 msgstr ""
 
 msgid "User defined"
@@ -6160,6 +6341,12 @@ msgstr ""
 msgid "Load and possibly create person from an external source."
 msgstr ""
 
+msgid "Add &tag"
+msgstr ""
+
+msgid "Add a text/image tag to this person."
+msgstr ""
+
 msgid "Deactivate (exclude from search) person record in database."
 msgstr ""
 
@@ -6320,6 +6507,12 @@ msgid "Acute coronary syndrome/stroke risk assessment."
 msgstr ""
 
 msgid "MI/stroke risk"
+msgstr ""
+
+msgid "arriba"
+msgstr ""
+
+msgid "arriba: cardiovascular risk assessment (%s)."
 msgstr ""
 
 msgid "&Knowledge"
@@ -6904,6 +7097,9 @@ msgstr ""
 msgid "Organizations"
 msgstr ""
 
+msgid "Patient tags"
+msgstr ""
+
 msgid "Provinces (counties, territories, states, regions, ...)"
 msgstr ""
 
@@ -6937,16 +7133,22 @@ msgstr ""
 msgid "No DICOM viewer found."
 msgstr ""
 
+msgid "risk assessment"
+msgstr ""
+
+msgid "cardiovascular risk assessment"
+msgstr ""
+
+msgid "[arriba] XML result not found in [%s]"
+msgstr ""
+
 msgid "ACS risk assessment calculator not configured."
 msgstr ""
 
 msgid "Cannot run [%s] !"
 msgstr ""
 
-msgid "There was a problem accessing the ARRIBA result in [%s] !"
-msgstr ""
-
-msgid "cardiovascular risk assessment"
+msgid "There was a problem accessing the [arriba] result in [%s] !"
 msgstr ""
 
 msgid "Saved screenshot to file [%s]."
@@ -7013,6 +7215,9 @@ msgid "EMR journal export"
 msgstr ""
 
 msgid "Successfully exported EMR as chronological journal into file [%s]."
+msgstr ""
+
+msgid "Cannot add tag to person. No active patient."
 msgstr ""
 
 msgid "Cannot export patient as GDT. No active patient."
@@ -7858,10 +8063,10 @@ msgstr ""
 msgid "Showing consumable substances."
 msgstr ""
 
-msgid "Import"
+msgid "Import consumable substances from a drug database."
 msgstr ""
 
-msgid "Import consumable substances from a drug database."
+msgid "Import"
 msgstr ""
 
 msgid "Cannot edit this substance. It is in use."
@@ -7902,10 +8107,53 @@ msgstr ""
 msgid "Cannot save drug component. Invalid or missing essential input."
 msgstr ""
 
+msgid "A drug component with optional strength."
+msgstr ""
+
 msgid "The preparation (form) of the substance or brand."
 msgstr ""
 
-msgid "The preparation (form) of the substance or brand in question."
+msgid "The substance with optional strength."
+msgstr ""
+
+msgid "Managing components of a drug"
+msgstr ""
+
+msgid ""
+"Cannot manage the components of the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+
+msgid "Pick the substances which are components of this drug."
+msgstr ""
+
+msgid "Components of drug"
+msgstr ""
+
+msgid ""
+"Adjust the components of \"%s\"\n"
+"\n"
+"The drug must contain at least one component. Any given\n"
+"substance can only be included once per drug."
+msgstr ""
+
+msgid "Managing components of a drug ..."
+msgstr ""
+
+msgid "in use"
+msgstr ""
+
+msgid "not in use"
+msgstr ""
+
+msgid "fake"
+msgstr ""
+
+msgid ""
+"ATC: %s\n"
 msgstr ""
 
 msgid "Editing medication"
@@ -7932,15 +8180,26 @@ msgid ""
 "from the vaccine management section !\n"
 msgstr ""
 
-msgid "fake"
-msgstr ""
-
 msgid ""
 "\n"
 "These are the drug brands known to GNUmed.\n"
 msgstr ""
 
 msgid "Showing branded drugs."
+msgstr ""
+
+msgid "Import substances and brands from a drug database."
+msgstr ""
+
+msgid "Editing drug"
+msgstr ""
+
+msgid ""
+"Cannot edit the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
 msgstr ""
 
 msgid "Adding new drug brand"
@@ -8039,6 +8298,9 @@ msgid "medication list printed from template [%s - %s]"
 msgstr ""
 
 msgid "Dose"
+msgstr ""
+
+msgid "Duration / Until"
 msgstr ""
 
 msgid "%s (fake)"
@@ -9075,6 +9337,15 @@ msgid "Configuring GNUmed workplaces ..."
 msgstr ""
 
 msgid "Cannot save a new workplace without a name."
+msgstr ""
+
+msgid ""
+"Pick the plugin(s) to be loaded the next time the client is restarted under the workplace:\n"
+"\n"
+"    [%s]\n"
+msgstr ""
+
+msgid "Configuring workplace plugins ..."
 msgstr ""
 
 msgid ""

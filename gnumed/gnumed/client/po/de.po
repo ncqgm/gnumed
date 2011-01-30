@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2010-12-15 21:57+CET\n"
-"PO-Revision-Date: 2010-12-07 16:39+0100\n"
+"POT-Creation-Date: 2011-01-30 20:07+CET\n"
+"PO-Revision-Date: 2011-01-30 20:04+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -125,6 +125,12 @@ msgstr "*hat* Allergien"
 
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "FEHLER: fehlerhafter Allergiestatus [%s]"
+
+msgid "Cannot run [arriba] !"
+msgstr "Kann [arriba] nicht ausführen !"
+
+msgid "No [arriba] result found in [%s]."
+msgstr "Kein [arriba]-Ergebnis in [%s] zu finden."
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr ""
@@ -470,6 +476,19 @@ msgstr "PDF-Datei kann nicht geöffnet werden."
 msgid "Error running gnuplot. Cannot plot data."
 msgstr "Fehler mit gnuplot. Kann Meßwerte nicht darstellen."
 
+msgid "Medication history"
+msgstr "Medikamentenhistorie"
+
+msgid ""
+"\n"
+" Take: %s"
+msgstr ""
+"\n"
+" Nimm: %s"
+
+msgid "Take: %s"
+msgstr "Nimm: %s"
+
 msgid "long-term"
 msgstr "Langzeit"
 
@@ -488,11 +507,11 @@ msgstr "Zusätzliche Angaben"
 msgid "Substance"
 msgstr "Stoff"
 
-msgid "Strength"
-msgstr "Stärke"
-
 msgid "Brand"
 msgstr "Handelsname"
+
+msgid "Strength"
+msgstr "Stärke"
 
 msgid "Medication list"
 msgstr "Medikamentenliste"
@@ -976,8 +995,86 @@ msgstr "tTdD_keys_day"
 msgid "hH_keys_hour"
 msgstr "hH_keys_hour"
 
+msgid "dmy (single character date triggers)"
+msgstr "hmg (heute, morgen, gestern)"
+
+msgid "today (%s)"
+msgstr "heute (%s)"
+
+msgid "tomorrow (%s)"
+msgstr "morgen (%s)"
+
+msgid "yesterday (%s)"
+msgstr "gestern (%s)"
+
+msgid "%s-%s-%s: a %s last month"
+msgstr "%s-%s-%s: a %s vorigen Monat"
+
+msgid "%s-%s-%s: a %s this month"
+msgstr "%s-%s-%s: a %s diesen Monat"
+
+msgid "%s-%s-%s: a %s next month"
+msgstr "%s-%s-%s: a %s nächsten Monat"
+
+msgid "%d. of %s (this month): a %s"
+msgstr "%d. %s (dieser Monat): ein %s"
+
+msgid "%d. of %s (next month): a %s"
+msgstr "%d. %s (nächster Monat): ein %s"
+
+msgid "%d. of %s (last month): a %s"
+msgstr "%d. %s (voriger Monat): ein %s"
+
+msgid "in %d day(s): %s"
+msgstr "in %d Tag(en): %s"
+
+msgid "%d day(s) ago: %s"
+msgstr "vor %d Tag(en): %s"
+
+msgid "in %d week(s): %s"
+msgstr "in %d Woche(n): %s"
+
+msgid "%d week(s) ago: %s"
+msgstr "vor %d Woche(n): %s"
+
+msgid "%s (%s this year)"
+msgstr "%s (%s diesen Jahres)"
+
+msgid "%s (%s next year)"
+msgstr "%s (%s nächsten Jahres)"
+
+msgid "%s (%s last year)"
+msgstr "%s (%s letzten Jahres)"
+
+msgid "%s this week (%s of %s)"
+msgstr "%s dieser Woche (der %s.%s)"
+
+msgid "%s next week (%s of %s)"
+msgstr "%s nächster Woche (der %s.%s)"
+
+msgid "%s last week (%s of %s)"
+msgstr "%s letzter Woche (der %s.%s)"
+
 msgid "hdwmy (single character date offset triggers)"
 msgstr "stwmj (Stunden, Tage, Wochen, Monate, Jahre)"
+
+msgid "in %d hour(s): %s"
+msgstr "in %d Stunde(n): %s"
+
+msgid "%d hour(s) ago: %s"
+msgstr "vor %d Stunde(n): %s"
+
+msgid "in %d month(s): %s"
+msgstr "in %d Monat(en): %s"
+
+msgid "%d month(s) ago: %s"
+msgstr "vor %d Monat(en): %s"
+
+msgid "in %d year(s): %s"
+msgstr "in %d Jahr(en): %s"
+
+msgid "%d year(s) ago: %s"
+msgstr "vor %d Jahr(en): %s"
 
 msgid "in %d hour(s) - %s"
 msgstr "in %d Stunde(n) - %s"
@@ -1015,15 +1112,6 @@ msgstr "jhmg (jetzt, heute, morgen, gestern)"
 msgid "right now (%s, %s)"
 msgstr "genau jetzt (%s, %s)"
 
-msgid "today (%s)"
-msgstr "heute (%s)"
-
-msgid "tomorrow (%s)"
-msgstr "morgen (%s)"
-
-msgid "yesterday (%s)"
-msgstr "gestern (%s)"
-
 msgid "%d. of %s (this month) - a %s"
 msgstr "%d. %s (dieser Monat) - ein %s"
 
@@ -1032,24 +1120,6 @@ msgstr "%d. %s (nächster Monat) - ein %s"
 
 msgid "%d. of %s (last month) - a %s"
 msgstr "%d. %s (letzter Monat) - ein %s"
-
-msgid "%s (%s this year)"
-msgstr "%s (%s diesen Jahres)"
-
-msgid "%s (%s next year)"
-msgstr "%s (%s nächsten Jahres)"
-
-msgid "%s (%s last year)"
-msgstr "%s (%s letzten Jahres)"
-
-msgid "%s this week (%s of %s)"
-msgstr "%s dieser Woche (der %s.%s)"
-
-msgid "%s next week (%s of %s)"
-msgstr "%s nächster Woche (der %s.%s)"
-
-msgid "%s last week (%s of %s)"
-msgstr "%s letzter Woche (der %s.%s)"
 
 msgid "No product information available."
 msgstr "Keine Produktinformation verfügbar."
@@ -1777,8 +1847,14 @@ msgstr "Menge"
 msgid "Unit:"
 msgstr "Unternummer:"
 
+msgid "Component"
+msgstr "Bestandteil"
+
 msgid "+"
 msgstr "+"
+
+msgid "... or ..."
+msgstr "... oder ..."
 
 msgid "Approved of"
 msgstr "Gebilligt"
@@ -1792,39 +1868,20 @@ msgstr "... Grund"
 msgid "Long-term"
 msgstr "Langzeit"
 
-msgid "The brand name of the drug the patient is taking."
-msgstr "Der Handelsname des Medikaments, das vom Patienten eingenommen wird."
+msgid "A component of a drug brand the patient is taking."
+msgstr "Ein Bestandteil eines Medikaments des Patienten."
 
-msgid ""
-"Get brand(s) from an external drug database.\n"
-"\n"
-"Note that if you select more than one only the first will be available for "
-"further editing right away."
-msgstr ""
-"Medikamente aus einer externen Datenbank holen.\n"
-"\n"
-"Falls Sie mehr als ein Medikament zur Übernahme auswählen, wird jedoch "
-"erstmal nur das erste zum Bearbeiten angezeigt."
+msgid "Manage drug brands."
+msgstr "Medikamente verwalten."
 
 msgid "The active ingredients of this brand."
 msgstr "Die aktiven Wirkstoffe dieses Medikaments."
 
-msgid ""
-"Get substances from an external drug database.\n"
-"\n"
-"Note that if you select more than one substance only the first one will be "
-"available for further editing right away."
-msgstr ""
-"Wirkstoffe aus einer externen Datenbank holen.\n"
-"\n"
-"Wenn Sie mehr als einen Wirkstoff holen, wird nur der erste davon zum "
-"Bearbeiten eingetragen werden."
+msgid "Manage consumable substances."
+msgstr "Wirkstoffe verwalten."
 
 msgid "The preparation the substance comes in."
 msgstr "Die Darreichungsform der Substanz."
-
-msgid "The amount of substance per dose."
-msgstr "Die Menge Wirkstoff pro Dosis."
 
 msgid "When was this substance started to be consumed."
 msgstr "Seit wann wird diese Substanz konsumiert."
@@ -1862,9 +1919,6 @@ msgstr "Das Ziel des Gebrauchs dieser Substanz."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr "Kommentare oder Hinweise zur Einnahme dieser Substanz."
-
-msgid "... or ..."
-msgstr "... oder ..."
 
 msgid "Started"
 msgstr "Beginn"
@@ -1904,6 +1958,9 @@ msgstr "Niere"
 
 msgid "&Interactions?"
 msgstr "&Interaktionen ?"
+
+msgid "℞"
+msgstr ""
 
 msgid "ADR"
 msgstr "UAW"
@@ -1967,6 +2024,17 @@ msgstr ""
 "Die markierten Einträge auf Interaktionen prüfen.\n"
 "\n"
 "Schließt alle ein, wenn keine markiert sind."
+
+msgid ""
+"Write a prescription based on either of\n"
+"\n"
+"- the selected lines\n"
+"- a copy of the most recent prescription"
+msgstr ""
+"Ein Rezept schreiben, basierend auf\n"
+"\n"
+"- den markierten Einträgen\n"
+"- einer Kopie des letzten Rezepts"
 
 msgid "Report an Adverse Drug Reaction."
 msgstr "Eine Unerwünschte Arzneimittelwirkung (Nebenwirkung) melden."
@@ -2721,6 +2789,24 @@ msgstr "OK"
 msgid "Health issue selector"
 msgstr "Wahl einer Grunderkrankung"
 
+msgid "label_1"
+msgstr ""
+
+msgid ">>>"
+msgstr ""
+
+msgid "<<<"
+msgstr ""
+
+msgid "Move selected items from left to right."
+msgstr "Gewählte Einträge von links nach rechts verschieben."
+
+msgid "Move selected items from right to left."
+msgstr "Gewählte Einträge von rechts nach links verschieben."
+
+msgid "Cancel picking items."
+msgstr "Auswahl abbrechen."
+
 msgid "&Sign as:"
 msgstr "&Unterschreiben:"
 
@@ -3080,11 +3166,14 @@ msgstr ""
 msgid "Generic multi line text entry dialog"
 msgstr "allgemeiner Texteingabedialog"
 
-msgid "Check this to make this the currently active name."
-msgstr "Hier ankreuzen, um den gegenwärtig benutzten Namen zu markieren."
+msgid "Active name"
+msgstr "Aktiver Name"
 
 msgid "Enter a comment relevant to this name (such as \"before marriage\")."
 msgstr "Geben Sie einen Kommentar zu diesem Namen ein (z.B. \"Geburtsname\")."
+
+msgid "Check this to make this the currently active name."
+msgstr "Hier ankreuzen, um den gegenwärtig benutzten Namen zu markieren."
 
 msgid "First name"
 msgstr "Vorname"
@@ -3963,6 +4052,47 @@ msgstr ""
 
 msgid "Optional: A free-text comment on this staff member."
 msgstr "Optional: Ein freier Kommentar zu diesem Mitarbeiter."
+
+msgid "&Pick"
+msgstr "&Wählen"
+
+msgid ""
+"A name for the tag.\n"
+"\n"
+"Note that there cannot be two tags with the same name."
+msgstr ""
+"Ein Name für das Symbol.\n"
+"\n"
+"Jedes Symbol muß einen eigenen Namen tragen."
+
+msgid ""
+"An example file name for this image. Mainly used for deriving a suitable "
+"file extension."
+msgstr ""
+"Ein beispielhafter Dateiname für das Bild. Wird hauptsächlich zur Ableitung "
+"einer geeigneten Dateiendung benutzt."
+
+msgid ""
+"The image to use for the tag.\n"
+"\n"
+"Do not use a big image because the tag will be downscaled anyway."
+msgstr ""
+"Das Bild zu diesem Symbol.\n"
+"\n"
+"Verwenden Sie eher kleinere Bilder, weil ohnehin nur eine Miniversion "
+"angezeigt wird."
+
+msgid "Pick the file from which to load the tag image."
+msgstr "Wählen Sie die Bilddatei aus."
+
+msgid "Tag name"
+msgstr "Symbolname"
+
+msgid "File name"
+msgstr "Dateiname"
+
+msgid "Image"
+msgstr "Bild"
 
 msgid "&Me only"
 msgstr "&Privat"
@@ -5171,11 +5301,75 @@ msgstr "Diese Analyse erbrachte keine Ergebnisse."
 msgid "Found %s results."
 msgstr "%s Ergebnisse gefunden."
 
+msgid "Pick a date ..."
+msgstr "Wählen Sie in Datum ..."
+
 msgid "Cannot interpret input as timestamp."
 msgstr "Kann Eingabe nicht in einen Zeitpunkt übersetzen."
 
 msgid "enter time here"
 msgstr "Zeitpunkt eingeben"
+
+msgid "Editing tag"
+msgstr "Symbol bearbeiten"
+
+msgid ""
+"Cannot edit the image tag\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"because it is currently in use.\n"
+msgstr ""
+"Kann das Bildsymbol\n"
+" \"%s\"\n"
+"\n"
+"nicht löschen, da es in Benutzung ist.\n"
+
+msgid "Adding new tag"
+msgstr "Neues Symbol hinzufügen"
+
+msgid "Cannot delete this tag. It is in use."
+msgstr "Kann Symbol nicht löschen, da es verwendet wird."
+
+msgid ""
+"\n"
+"Tags with images registered with GNUmed.\n"
+msgstr ""
+"\n"
+"In GNUmed registrierte Bildsymbole.\n"
+
+msgid "Showing tags with images."
+msgstr "Zeige Bildsymbole."
+
+msgid "Image size"
+msgstr "Bildgröße"
+
+msgid "In use"
+msgstr "In Verwendung"
+
+msgid "Go to www.openclipart.org for images."
+msgstr "Bilder bei www.openclipart.org aufrufen."
+
+msgid "WWW"
+msgstr "WWW"
+
+msgid "Must pick an image file for a new tag."
+msgstr "Für das neue Symbol muß ein Bild gewählt werden."
+
+msgid "Cannot open the image file [%s]."
+msgstr "Kann Bilddatei nicht öffnen: [%s]."
+
+msgid "&Edit comment"
+msgstr "Kommentar &bearbeiten"
+
+msgid "&Remove tag"
+msgstr "Symbol &entfernen"
+
+msgid "Edit the comment on tag [%s]"
+msgstr "Den Kommentar zum Symbol [%s] bearbeiten"
+
+msgid "Editing tag comment"
+msgstr "Symbolkommentar bearbeiten"
 
 msgid "Today's KOrganizer appointments ..."
 msgstr "Heutige Termine aus KOrganizer ..."
@@ -5290,11 +5484,14 @@ msgstr "Vorname(n)"
 msgid "Preferred Name"
 msgstr "Rufname"
 
+msgid "Clone and &edit"
+msgstr "Kopieren und &bearbeiten"
+
 msgid "Adding new name"
 msgstr "Neuen Namen hinzufügen"
 
-msgid "Editing name"
-msgstr "Name bearbeiten"
+msgid "Cloning name"
+msgstr "Namen kopieren"
 
 msgid "Cannot delete the only name of a person."
 msgstr "Kann den einzigen Patientennamen nicht löschen."
@@ -5442,7 +5639,7 @@ msgstr ""
 msgid "Contacts"
 msgstr "Kontakte"
 
-msgid "Social Network"
+msgid "Social network"
 msgstr "Soziales Netz"
 
 msgid "primary occupation of the patient"
@@ -5667,9 +5864,6 @@ msgstr "Neues Dokument [%s] eingelesen."
 
 msgid "Enter a comment on the document."
 msgstr "Geben Sie einen Kommentar zu diesem Dokument ein."
-
-msgid "In use"
-msgstr "In Verwendung"
 
 msgid "User defined"
 msgstr "Vor Ort angelegt"
@@ -7371,6 +7565,12 @@ msgstr "Von extern &laden"
 msgid "Load and possibly create person from an external source."
 msgstr "Aus einer externen Quelle laden und ggf. anlegen."
 
+msgid "Add &tag"
+msgstr "&Symbol hinzufügen"
+
+msgid "Add a text/image tag to this person."
+msgstr "Eine Symbolmarkierung zum Patienten hinzufügen."
+
 msgid "Deactivate (exclude from search) person record in database."
 msgstr "Person in der Datenbank deaktivieren."
 
@@ -7547,6 +7747,12 @@ msgstr "Herzinfarkt-/Schlaganfallrisiko berechnen."
 
 msgid "MI/stroke risk"
 msgstr "AMI/Apoplex-Risiko"
+
+msgid "arriba"
+msgstr "arriba"
+
+msgid "arriba: cardiovascular risk assessment (%s)."
+msgstr "arriba: Herz-Kreislauf-Risiko-Berechnung (%s)."
 
 msgid "&Knowledge"
 msgstr "&Wissen"
@@ -8360,6 +8566,9 @@ msgstr "Meta-Meßverfahren"
 msgid "Organizations"
 msgstr "Organisationen"
 
+msgid "Patient tags"
+msgstr "Patientensymbole"
+
 msgid "Provinces (counties, territories, states, regions, ...)"
 msgstr "Bundesländer (Provinzen, Staaten, Regionen, ...)"
 
@@ -8394,17 +8603,23 @@ msgstr "Wählen Sie die Liste, die Sie bearbeiten wollen:"
 msgid "No DICOM viewer found."
 msgstr "Kein DICOM-Viewer gefunden."
 
+msgid "risk assessment"
+msgstr "Risikoabschätzung"
+
+msgid "cardiovascular risk assessment"
+msgstr "Herz-Kreislauf-Risiko-Berechnung"
+
+msgid "[arriba] XML result not found in [%s]"
+msgstr "[arriba]-Ergebnis-XML in [%s] nicht gefunden"
+
 msgid "ACS risk assessment calculator not configured."
 msgstr "AMI-Risikorechner nicht eingerichtet."
 
 msgid "Cannot run [%s] !"
 msgstr "Kann [%s] nicht ausführen !"
 
-msgid "There was a problem accessing the ARRIBA result in [%s] !"
-msgstr "Problem beim Zugriff auf das ARRIBA-Ergebnis in [%s] !"
-
-msgid "cardiovascular risk assessment"
-msgstr "Herz-Kreislauf-Risiko-Berechnung"
+msgid "There was a problem accessing the [arriba] result in [%s] !"
+msgstr "Problem beim Zugriff auf das [arriba]-Ergebnis in [%s] !"
 
 msgid "Saved screenshot to file [%s]."
 msgstr "BIldschirmphoto in Datei [%s] gespeichert."
@@ -8471,6 +8686,9 @@ msgstr "Journalexport der Karteikarte"
 
 msgid "Successfully exported EMR as chronological journal into file [%s]."
 msgstr "Karteikarte als chronologisches Journal in Datei [%s] exportiert."
+
+msgid "Cannot add tag to person. No active patient."
+msgstr "Kann Symbol nicht hinzufügen. Kein Patient aktiv."
 
 msgid "Cannot export patient as GDT. No active patient."
 msgstr "Kann Patient nicht als GDT exportieren. Kein Patient aktiv."
@@ -9391,11 +9609,11 @@ msgstr ""
 msgid "Showing consumable substances."
 msgstr "Zeige Substanzen (Wirkstoffe)."
 
-msgid "Import"
-msgstr ""
-
 msgid "Import consumable substances from a drug database."
 msgstr "Substanzen aus externer Datenbank holen."
+
+msgid "Import"
+msgstr "Import"
 
 msgid "Cannot edit this substance. It is in use."
 msgstr "Kann Substanz nicht verändern. Es ist in Benutzung."
@@ -9443,11 +9661,62 @@ msgstr ""
 "Kann Medikamentenbestandteil nicht speichern. Ungültige oder fehlende "
 "Angaben."
 
+msgid "A drug component with optional strength."
+msgstr "Ein Arzneibestandteil, optional mit Dosis."
+
 msgid "The preparation (form) of the substance or brand."
 msgstr "Die Darreichungs-/Zubereitungsform der Substanz/des Medikaments."
 
-msgid "The preparation (form) of the substance or brand in question."
-msgstr "Die Darreichungs-/Zubereitungsform der Substanz/des Medikaments."
+msgid "The substance with optional strength."
+msgstr "Der Wirkstoff, optional mit Dosisangabe."
+
+msgid "Managing components of a drug"
+msgstr "Die Bestandteile eines Medikaments verwalten"
+
+msgid ""
+"Cannot manage the components of the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+"Kann die Bestandteile des Arzneiprodukts\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"nicht verwalten, da es derzeit von Patienten eingenommen wird.\n"
+
+msgid "Pick the substances which are components of this drug."
+msgstr "Wählen Sie die Bestandteile des Arzneiprodukts."
+
+msgid "Components of drug"
+msgstr "Arzneibestandteile"
+
+msgid ""
+"Adjust the components of \"%s\"\n"
+"\n"
+"The drug must contain at least one component. Any given\n"
+"substance can only be included once per drug."
+msgstr ""
+"Anpassen der Bestandteile von \"%s\"\n"
+"\n"
+"Das Medikament muß mindestens einen Bestandteil enthalten.\n"
+"Jeder Bestandteil kann nur einmal enthalten sein."
+
+msgid "Managing components of a drug ..."
+msgstr "Die Bestandteile eines Medikaments verwalten..."
+
+msgid "in use"
+msgstr "in Gebrauch"
+
+msgid "not in use"
+msgstr "nicht in Gebrauch"
+
+msgid "fake"
+msgstr "unecht"
+
+msgid "ATC: %s\n"
+msgstr "ATC: %s\n"
 
 msgid "Editing medication"
 msgstr "Bearbeite Medikation"
@@ -9485,9 +9754,6 @@ msgstr ""
 "weil es sich um einen Impfstoff handelt. Löschen\n"
 "Sie Impfstoffe bitte in der Impfverwaltung !\n"
 
-msgid "fake"
-msgstr "unecht"
-
 msgid ""
 "\n"
 "These are the drug brands known to GNUmed.\n"
@@ -9497,6 +9763,25 @@ msgstr ""
 
 msgid "Showing branded drugs."
 msgstr "Zeige Medikamente."
+
+msgid "Import substances and brands from a drug database."
+msgstr "Substanzen und Medikamente aus einer Datenbank importieren."
+
+msgid "Editing drug"
+msgstr "Medikament bearbeiten"
+
+msgid ""
+"Cannot edit the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+"Kann das Arzneiprodukt\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"nicht bearbeiten, da es in Gebrauch ist.\n"
 
 msgid "Adding new drug brand"
 msgstr "Füge neues Medikament hinzu"
@@ -9601,6 +9886,9 @@ msgstr "Medikamentenliste nach Vorlage [%s - %s] gedruckt"
 
 msgid "Dose"
 msgstr "Dosis"
+
+msgid "Duration / Until"
+msgstr "Dauer / Bis"
 
 msgid "%s (fake)"
 msgstr "% (unecht)"
@@ -10846,6 +11134,20 @@ msgid "Cannot save a new workplace without a name."
 msgstr "Kann neuen Arbeitsplatz nicht ohne Namen speichern."
 
 msgid ""
+"Pick the plugin(s) to be loaded the next time the client is restarted under "
+"the workplace:\n"
+"\n"
+"    [%s]\n"
+msgstr ""
+"Wählen Sie die Module, die beim nächsten GNUmed-Start in folgenden "
+"Arbeitsplatz geladen werden:\n"
+"\n"
+"    [%s]\n"
+
+msgid "Configuring workplace plugins ..."
+msgstr "Konfiguration der GNUmed-Arbeitsplätze ..."
+
+msgid ""
 "\n"
 "Select the plugin(s) to be loaded the next time\n"
 "the client is restarted under the workplace:\n"
@@ -11956,6 +12258,37 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "%d week(s) ago: %s)"
+#~ msgstr "vor %d Woche(n): %s"
+
+#~ msgid ""
+#~ "Get brand(s) from an external drug database.\n"
+#~ "\n"
+#~ "Note that if you select more than one only the first will be available "
+#~ "for further editing right away."
+#~ msgstr ""
+#~ "Medikamente aus einer externen Datenbank holen.\n"
+#~ "\n"
+#~ "Falls Sie mehr als ein Medikament zur Übernahme auswählen, wird jedoch "
+#~ "erstmal nur das erste zum Bearbeiten angezeigt."
+
+#~ msgid ""
+#~ "Get substances from an external drug database.\n"
+#~ "\n"
+#~ "Note that if you select more than one substance only the first one will "
+#~ "be available for further editing right away."
+#~ msgstr ""
+#~ "Wirkstoffe aus einer externen Datenbank holen.\n"
+#~ "\n"
+#~ "Wenn Sie mehr als einen Wirkstoff holen, wird nur der erste davon zum "
+#~ "Bearbeiten eingetragen werden."
+
+#~ msgid "The amount of substance per dose."
+#~ msgstr "Die Menge Wirkstoff pro Dosis."
+
+#~ msgid "The preparation (form) of the substance or brand in question."
+#~ msgstr "Die Darreichungs-/Zubereitungsform der Substanz/des Medikaments."
+
 #~ msgid "Remove a component from this drug."
 #~ msgstr "Eine Substanz aus dem Medikament entfernen."
 
@@ -11965,9 +12298,6 @@ msgstr "erstmals"
 #~ msgid "Substances currently or previously consumed across all patients."
 #~ msgstr ""
 #~ "Substanzen (Wirkstoffe), die bislang von Patienten eingenommen wurden."
-
-#~ msgid "The INN / substance the patient is taking."
-#~ msgstr "Die Substanz / INN, die vom Patienten eingenommen wird."
 
 #~ msgid "&Edit+Delete"
 #~ msgstr "&Bearbeiten+Löschen"
@@ -12453,9 +12783,6 @@ msgstr "erstmals"
 #~ msgid "Edit &demographics"
 #~ msgstr "&Personalien ändern"
 
-#~ msgid "Edit patient comment."
-#~ msgstr "Patientenkommentar bearbeiten."
-
 #~ msgid "Zone:"
 #~ msgstr "Bereich:"
 
@@ -12604,9 +12931,6 @@ msgstr "erstmals"
 
 #~ msgid "Register new"
 #~ msgstr "&Neu anlegen"
-
-#~ msgid "Patient details"
-#~ msgstr "Personalien"
 
 #, fuzzy
 #~ msgid "&Admissions"
