@@ -47,6 +47,7 @@ IMPROVED: location PRW in procedure EA: re-use hospitals from hospital stays
 IMPROVED: support arriba 2.2.2 and its new file-based API
 IMPROVED: substance intake grid: display unapproved by default
 IMPROVED: default temporary directory now /tmp/gnumed/gm-<unique ID>/ per GNUmed instance
+IMPROVED: menu structure creation such that accelerator keys work more reliably
 
 ------------------------------------------------
 # rel-0-8-patches
