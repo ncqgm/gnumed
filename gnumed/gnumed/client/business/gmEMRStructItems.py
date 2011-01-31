@@ -14,7 +14,6 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools, gmI18N
 from Gnumed.business import gmClinNarrative
-#from Gnumed.business import gmPerson
 
 
 _log = logging.getLogger('gm.emr')
@@ -196,6 +195,48 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		# further transformation will only introduce more errors,
 		# later we can improve this deeper inside
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
+	#--------------------------------------------------------
+	def format_as_journal(self, left_margin=0, date_format='%Y-%m-%d'):
+		rows = gmClinNarrative.get_as_journal (
+			issues = (self.pk_obj,),
+			order_by = u'pk_episode, clin_when, scr, src_table'
+		)
+
+		if len(rows) == 0:
+			return u''
+
+		lines = []
+		prev_epi = None
+		for row in rows:
+			if row['pk_episode'] != prev_epi:
+				lines.append(u'')
+				prev_epi = row['pk_episode']
+
+			when = row['clin_when'].strftime(date_format)
+
+			if row['row_version'] == 0:
+				row_ver = u''
+			else:
+				row_ver = u'v%s: ' % row['row_version']
+
+			lines.append(u'-- %10.10s: %s (%s, %s%s) --' % (
+				when,
+				gmClinNarrative.soap_cat2l10n_str[row['real_soap_cat']],
+				row['modified_by'],
+				row_ver,
+				row['date_modified']
+			))
+
+			lines.append(gmTools.wrap (
+				text = row['narrative'],
+				width = 60,
+				initial_indent = u'  ',
+				subsequent_indent = u'  '
+			))
+
+		left_margin = u' ' * left_margin
+		eol_w_margin = u'\n%s' % left_margin
+		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
@@ -609,6 +650,48 @@ from (
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
+	def format_as_journal(self, left_margin=0, date_format='%Y-%m-%d'):
+		rows = gmClinNarrative.get_as_journal (
+			episodes = (self.pk_obj,),
+			order_by = u'pk_encounter, clin_when, scr, src_table'
+		)
+
+		if len(rows) == 0:
+			return u''
+
+		lines = []
+		prev_enc = None
+		for row in rows:
+			if row['pk_encounter'] != prev_enc:
+				lines.append(u'')
+				prev_epi = row['pk_encounter']
+
+			when = row['clin_when'].strftime(date_format)
+
+			if row['row_version'] == 0:
+				row_ver = u''
+			else:
+				row_ver = u'v%s: ' % row['row_version']
+
+			lines.append(u'-- %10.10s: %s (%s, %s%s) --' % (
+				when,
+				gmClinNarrative.soap_cat2l10n_str[row['real_soap_cat']],
+				row['modified_by'],
+				row_ver,
+				row['date_modified']
+			))
+
+			lines.append(gmTools.wrap (
+				text = row['narrative'],
+				width = 60,
+				initial_indent = u'  ',
+				subsequent_indent = u'  '
+			))
+
+		left_margin = u' ' * left_margin
+		eol_w_margin = u'\n%s' % left_margin
+		return left_margin + eol_w_margin.join(lines) + u'\n'
+	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None):
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
@@ -852,6 +935,7 @@ def episode2problem(episode=None, allow_closed=False):
 #============================================================
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter."""
+
 	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter = %s"
 	_cmds_store_payload = [
 		u"""update clin.encounter set
@@ -1041,6 +1125,33 @@ limit 1
 
 		return rows[0][0]
 	#--------------------------------------------------------
+	def get_episodes(self, exclude=None):
+		cmd = u"""
+SELECT * FROM clin.v_pat_episodes
+WHERE
+	pk_episode IN (
+
+		SELECT DISTINCT fk_episode
+		FROM clin.clin_root_item
+		WHERE fk_encounter = %%(enc)s
+
+			UNION
+
+		SELECT DISTINCT fk_episode
+		FROM blobs.doc_med
+		WHERE fk_encounter = %%(enc)s
+	)
+	%s
+"""
+		args = {'enc': self.pk_obj}
+		if exclude is not None:
+			cmd = cmd % u'AND pk_episode NOT IN %(excluded)s'
+			args['excluded'] = tuple(exclude)
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
+	#--------------------------------------------------------
 	def format_soap(self, episodes=None, left_margin=0, soap_cats='soap', emr=None, issues=None):
 
 		lines = []
@@ -1073,8 +1184,11 @@ limit 1
 
 		return lines
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True):
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False):
+		""" Format an encounter.
 
+		with_co_encountlet_hints: whether to display which *other* episodes were discussed during this encounter
+		"""
 		lines = []
 
 		if fancy_header:
@@ -1100,14 +1214,11 @@ limit 1
 				gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
 			))
 
-			lines.append(u'%s: %s' % (
-				_('RFE'),
-				gmTools.coalesce(self._payload[self._idx['reason_for_encounter']], u'')
-			))
-			lines.append(u'%s: %s' % (
-				_('AOE'),
-				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'')
-			))
+			if self._payload[self._idx['reason_for_encounter']] is not None:
+				lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+
+			if self._payload[self._idx['assessment_of_encounter']] is not None:
+				lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
 
 		else:
 			lines.append(u'%s%s: %s - %s%s' % (
@@ -1183,7 +1294,7 @@ limit 1
 			)
 
 			if len(docs) > 0:
-				lines.append('')
+				lines.append(u'')
 				lines.append(_('Documents:'))
 
 			for d in docs:
@@ -1195,6 +1306,21 @@ limit 1
 				))
 
 			del docs
+
+		# co-encountlets
+		if with_co_encountlet_hints:
+			if episodes is not None:
+				other_epis = self.get_episodes(exclude = episodes)
+				if len(other_epis) > 0:
+					lines.append(u'')
+					lines.append(_('%s other episodes touched upon during this encounter:') % len(other_epis))
+				for epi in other_epis:
+					lines.append(u' %s%s%s%s' % (
+						gmTools.u_left_double_angle_quote,
+						epi['description'],
+						gmTools.u_right_double_angle_quote,
+						gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+					))
 
 		eol_w_margin = u'\n%s' % (u' ' * left_margin)
 		return u'%s\n' % eol_w_margin.join(lines)
@@ -1700,6 +1826,7 @@ if __name__ == '__main__':
 		h_issue.close_expired_episode(ttl=7300)
 		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 		print h_issue
+		print h_issue.format_as_journal()
 	#--------------------------------------------------------	
 	def test_episode():
 		print "\nepisode test"
@@ -1769,9 +1896,9 @@ if __name__ == '__main__':
 	#test_episode()
 	#test_problem()
 	#test_encounter()
-	#test_health_issue()
+	test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
-	test_diagnostic_certainty_classification_map()
+	#test_diagnostic_certainty_classification_map()
 #============================================================
 

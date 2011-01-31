@@ -41,7 +41,10 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools, gmDateTime
-from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPathLab
+from Gnumed.business import gmAllergy
+from Gnumed.business import gmPathLab
+from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmMedication, gmVaccination
 
 
@@ -320,54 +323,18 @@ SELECT fk_encounter from
 		return filtered_narrative
 	#--------------------------------------------------------
 	def get_as_journal(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None):
-
-		if order_by is None:
-			order_by = u'ORDER BY vemrj.clin_when, vemrj.pk_episode, scr, vemrj.src_table'
-		else:
-			order_by = u'ORDER BY %s' % order_by
-
-		where_parts = [u'pk_patient = %(pat)s']
-		args = {'pat': self.pk_patient}
-
-		if soap_cats is not None:
-			# work around bug in psycopg2 not being able to properly
-			# adapt None to NULL inside tuples
-			if None in soap_cats:
-				where_parts.append(u'((vemrj.soap_cat IN %(soap_cat)s) OR (vemrj.soap_cat IS NULL))')
-				soap_cats.remove(None)
-			else:
-				where_parts.append(u'vemrj.soap_cat IN %(soap_cat)s')
-			args['soap_cat'] = tuple(soap_cats)
-
-		if time_range is not None:
-			where_parts.append(u"vemrj.clin_when > (now() - '%s days'::interval)" % time_range)
-
-		# FIXME: implement more constraints
-
-		cmd = u"""
-			SELECT
-				to_char(vemrj.clin_when, 'YYYY-MM-DD') AS date,
-				vemrj.clin_when,
-				coalesce(vemrj.soap_cat, '') as soap_cat,
-				vemrj.narrative,
-				vemrj.src_table,
-
-				(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = vemrj.soap_cat) AS scr,
-
-				vemrj.modified_when,
-				to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified,
-				vemrj.modified_by,
-				vemrj.row_version
-			FROM clin.v_emr_journal vemrj
-			WHERE
-				%s
-			%s""" % (
-				u'\n\t\t\t\t\tAND\n\t\t\t\t'.join(where_parts),
-				order_by
-			)
-
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+		return gmClinNarrative.get_as_journal (
+			patient = self.pk_patient,
+			since = since,
+			until = until,
+			encounters = encounters,
+			episodes = episodes,
+			issues = issues,
+			soap_cats = soap_cats,
+			providers = providers,
+			order_by = order_by,
+			time_range = time_range
+		)
 	#--------------------------------------------------------
 	def search_narrative_simple(self, search_term=''):
 

@@ -6,7 +6,7 @@ __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.ne
 __license__ = "GPL"
 
 # std lib
-import sys, types, os.path, StringIO, codecs, logging
+import sys, os.path, StringIO, codecs, logging
 
 
 # 3rd party
@@ -87,12 +87,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		gmGuiHelpers.cTreeExpansionHistoryMixin.__init__(self)
 
-		try:
-			self.__narr_display = kwds['narr_display']
-			del kwds['narr_display']
-		except KeyError:
-			self.__narr_display = None
-
+		self.__details_display = None
+		self.__details_display_mode = u'details'				# "details" or "journal"
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__curr_node = None
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
@@ -115,7 +111,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		return True
 	#--------------------------------------------------------
 	def set_narrative_display(self, narrative_display=None):
-		self.__narr_display = narrative_display
+		self.__details_display = narrative_display
 	#--------------------------------------------------------
 	def set_image_display(self, image_display=None):
 		self.__img_display = image_display
@@ -207,7 +203,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __update_text_for_selected_node(self):
 		"""Displays information for the selected tree node."""
 
-		if self.__narr_display is None:
+		if self.__details_display is None:
 			self.__img_display.clear()
 			return
 
@@ -218,21 +214,27 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		node_data = self.GetPyData(self.__curr_node)
 		doc_folder = self.__pat.get_document_folder()
 
-		# update displayed details
-		if isinstance(node_data, (gmEMRStructItems.cHealthIssue, types.DictType)):
-			# FIXME: turn into real dummy issue
-			if node_data['pk_health_issue'] is None:
-				txt = _('Pool of unassociated episodes:\n\n  "%s"') % node_data['description']
-				self.__img_display.clear()
-			else:
+		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+			if self.__details_display_mode == u'details':
 				txt = node_data.format(left_margin=1, patient = self.__pat)
-				self.__img_display.refresh (
-					document_folder = doc_folder,
-					episodes = [ epi['pk_episode'] for epi in node_data.episodes ]
-				)
+			else:
+				txt = node_data.format_as_journal(left_margin = 1)
+
+			self.__img_display.refresh (
+				document_folder = doc_folder,
+				episodes = [ epi['pk_episode'] for epi in node_data.episodes ]
+			)
+
+		elif isinstance(node_data, type({})):
+			# FIXME: turn into real dummy issue
+			txt = _('Pool of unassociated episodes:\n\n  "%s"') % node_data['description']
+			self.__img_display.clear()
 
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
-			txt = node_data.format(left_margin = 1, patient = self.__pat)
+			if self.__details_display_mode == u'details':
+				txt = node_data.format(left_margin = 1, patient = self.__pat)
+			else:
+				txt = node_data.format_as_journal(left_margin = 1)
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [node_data['pk_episode']]
@@ -244,7 +246,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				episodes = [epi['pk_episode']],
 				with_soap = True,
 				left_margin = 1,
-				patient = self.__pat
+				patient = self.__pat,
+				with_co_encountlet_hints = True
 			)
 			self.__img_display.refresh (
 				document_folder = doc_folder,
@@ -257,8 +260,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			txt = emr.format_summary(dob = self.__pat['dob'])
 			self.__img_display.clear()
 
-		self.__narr_display.Clear()
-		self.__narr_display.WriteText(txt)
+		self.__details_display.Clear()
+		self.__details_display.WriteText(txt)
 	#--------------------------------------------------------
 	def __make_popup_menus(self):
 
@@ -758,7 +761,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		item1 = self.GetPyData(node1)
 		item2 = self.GetPyData(node2)
 
-		# encounters: reverse chron
+		# encounters: reverse chronologically
 		if isinstance(item1, gmEMRStructItems.cEncounter):
 			if item1['started'] == item2['started']:
 				return 0
@@ -766,7 +769,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				return -1
 			return 1
 
-		# episodes: chron
+		# episodes: chronologically
 		if isinstance(item1, gmEMRStructItems.cEpisode):
 			start1 = item1.get_access_range()[0]
 			start2 = item2.get_access_range()[0]
@@ -817,6 +820,21 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			return -1
 
 		return 0
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_details_display_mode(self):
+		return self.__details_display_mode
+
+	def _set_details_display_mode(self, mode):
+		if mode not in [u'details', u'journal']:
+			raise ValueError('details display mode must be one of "details", "journal"')
+		if self.__details_display_mode == mode:
+			return
+		self.__details_display_mode = mode
+		self.__update_text_for_selected_node()
+
+	details_display_mode = property(_get_details_display_mode, _set_details_display_mode)
 #================================================================
 from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl
 
@@ -829,10 +847,6 @@ class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
 	"""
 	def __init__(self, *args, **kwds):
 		wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl.__init__(self, *args, **kwds)
-#		self.__register_interests()
-	#--------------------------------------------------------
-#	def __register_interests(self):
-#		gmDispatcher.connect(signal= u'post_patient_selection', receiver=self.repopulate_ui)
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._emr_tree.refresh()
@@ -858,10 +872,22 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 	#--------------------------------------------------------
+	# event handler
+	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		if self.GetParent().GetCurrentPage() == self:
 			self.repopulate_ui()
 		return True
+	#--------------------------------------------------------
+	def _on_show_details_selected(self, event):
+		#event.Skip()
+		self._pnl_emr_tree._emr_tree.details_display_mode = u'details'
+	#--------------------------------------------------------
+	def _on_show_journal_selected(self, event):
+		#event.Skip()
+		self._pnl_emr_tree._emr_tree.details_display_mode = u'journal'
+	#--------------------------------------------------------
+	# external API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		"""Fills UI with data."""
