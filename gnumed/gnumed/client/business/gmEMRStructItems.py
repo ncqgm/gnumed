@@ -206,6 +206,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			return u''
 
 		lines = []
+
+		lines.append(_('Clinical data generated during encounters under this health issue:'))
+
 		prev_epi = None
 		for row in rows:
 			if row['pk_episode'] != prev_epi:
@@ -660,6 +663,9 @@ from (
 			return u''
 
 		lines = []
+
+		lines.append(_('Clinical data generated during encounters within this episode:'))
+
 		prev_enc = None
 		for row in rows:
 			if row['pk_encounter'] != prev_enc:
