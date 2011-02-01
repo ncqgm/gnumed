@@ -57,7 +57,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__set_properties
-        self.SetMinSize((610, 475))
+        self.SetMinSize((650, 525))
         self.SetScrollRate(10, 10)
         self._LBL_component.SetForegroundColour(wx.Colour(255, 0, 0))
         self._PRW_component.SetToolTipString(_("A component of a drug brand the patient is taking."))
