@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-01-30 20:07+CET\n"
+"POT-Creation-Date: 2011-02-07 18:07+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -289,6 +289,9 @@ msgstr ""
 msgid "right"
 msgstr ""
 
+msgid "Clinical data generated during encounters under this health issue:"
+msgstr ""
+
 msgid "Health Issue %s%s%s%s   [#%s]"
 msgstr ""
 
@@ -358,6 +361,9 @@ msgstr ""
 msgid "Unattributed episodes"
 msgstr ""
 
+msgid "Clinical data generated during encounters within this episode:"
+msgstr ""
+
 msgid ""
 "Episode %s%s%s (%s%s)   [#%s]\n"
 msgstr ""
@@ -405,6 +411,9 @@ msgid "daylight savings time in effect"
 msgstr ""
 
 msgid "Documents:"
+msgstr ""
+
+msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 msgid " (ongoing)"
@@ -3357,6 +3366,21 @@ msgstr ""
 msgid "Encounter:"
 msgstr ""
 
+msgid "Details"
+msgstr ""
+
+msgid "Journal"
+msgstr ""
+
+msgid "Show formatted item details."
+msgstr ""
+
+msgid "Show item journal."
+msgstr ""
+
+msgid "Show:"
+msgstr ""
+
 msgid "Edit staff details"
 msgstr ""
 
@@ -3461,9 +3485,6 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
-msgstr ""
-
-msgid "Details"
 msgstr ""
 
 msgid "<Please supply your email address here !>"
@@ -6044,16 +6065,10 @@ msgstr ""
 msgid "Announce downtime"
 msgstr ""
 
-msgid "Preferences ..."
-msgstr ""
-
 msgid "List all configuration items stored in the database."
 msgstr ""
 
 msgid "List configuration"
-msgstr ""
-
-msgid "Database ..."
 msgstr ""
 
 msgid "Configure the database language"
@@ -6065,7 +6080,7 @@ msgstr ""
 msgid "Welcome message"
 msgstr ""
 
-msgid "Client parameters ..."
+msgid "Database ..."
 msgstr ""
 
 msgid "Configure the chunk size used when exporting BLOBs from the database."
@@ -6086,10 +6101,7 @@ msgstr ""
 msgid "The email address of the user for sending bug reports, etc."
 msgstr ""
 
-msgid "User interface ..."
-msgstr ""
-
-msgid "Document handling ..."
+msgid "Client parameters ..."
 msgstr ""
 
 msgid "Configure review dialog after document display."
@@ -6110,7 +6122,7 @@ msgstr ""
 msgid "Whether to allow saving documents without parts."
 msgstr ""
 
-msgid "Update handling ..."
+msgid "Document handling ..."
 msgstr ""
 
 msgid "Auto-check"
@@ -6131,7 +6143,7 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-msgid "Person ..."
+msgid "Update handling ..."
 msgstr ""
 
 msgid "Birthday reminder"
@@ -6164,7 +6176,7 @@ msgstr ""
 msgid "Default country"
 msgstr ""
 
-msgid "Progress notes handling ..."
+msgid "Person ..."
 msgstr ""
 
 msgid "Configure opening multiple new episodes on a patient at once."
@@ -6173,7 +6185,10 @@ msgstr ""
 msgid "Multiple new episodes"
 msgstr ""
 
-msgid "External tools ..."
+msgid "Progress notes handling ..."
+msgstr ""
+
+msgid "User interface ..."
 msgstr ""
 
 msgid "MI/stroke risk calc cmd"
@@ -6227,7 +6242,7 @@ msgstr ""
 msgid "Visual SOAP editor"
 msgstr ""
 
-msgid "EMR ..."
+msgid "External tools ..."
 msgstr ""
 
 msgid "Medication list template"
@@ -6237,9 +6252,6 @@ msgid "Select the template for printing a medication list."
 msgstr ""
 
 msgid "Select the primary doctor to fall back to for patients without one."
-msgstr ""
-
-msgid "Encounter ..."
 msgstr ""
 
 msgid "Edit encounter details on changing of patients."
@@ -6272,7 +6284,7 @@ msgstr ""
 msgid "Default type for new encounters."
 msgstr ""
 
-msgid "Episode ..."
+msgid "Encounter ..."
 msgstr ""
 
 msgid "Dormancy"
@@ -6281,7 +6293,13 @@ msgstr ""
 msgid "Maximum length of dormancy after which an episode will be considered closed."
 msgstr ""
 
-msgid "&Master data ..."
+msgid "Episode ..."
+msgstr ""
+
+msgid "EMR ..."
+msgstr ""
+
+msgid "Preferences ..."
 msgstr ""
 
 msgid "Manage lists"
@@ -6308,7 +6326,7 @@ msgstr ""
 msgid "Re-create fake generic vaccines."
 msgstr ""
 
-msgid "&Users ..."
+msgid "&Master data ..."
 msgstr ""
 
 msgid "&Add user"
@@ -6321,6 +6339,9 @@ msgid "&Edit users"
 msgstr ""
 
 msgid "Edit the list of GNUmed users"
+msgstr ""
+
+msgid "&Users ..."
 msgstr ""
 
 msgid "Close this GNUmed client."
@@ -6371,13 +6392,10 @@ msgstr ""
 msgid "Export to GDT"
 msgstr ""
 
-msgid "&EMR"
+msgid "Show a high-level summary of the EMR."
 msgstr ""
 
 msgid "Show as ..."
-msgstr ""
-
-msgid "Show a high-level summary of the EMR."
 msgstr ""
 
 msgid "Search for data in the EMR of the active patient"
@@ -6390,9 +6408,6 @@ msgid "Search all EMRs"
 msgstr ""
 
 msgid "Search for data across the EMRs of all patients"
-msgstr ""
-
-msgid "&Add / Edit ..."
 msgstr ""
 
 msgid "&Past history (health issue / PMH)"
@@ -6443,6 +6458,9 @@ msgstr ""
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr ""
 
+msgid "&Add / Edit ..."
+msgstr ""
+
 msgid "Start a new encounter for the active patient right now."
 msgstr ""
 
@@ -6455,16 +6473,10 @@ msgstr ""
 msgid "List all encounters including empty ones."
 msgstr ""
 
-msgid "Export as ..."
-msgstr ""
-
 msgid "Text document"
 msgstr ""
 
 msgid "Export the EMR of the active patient into a text file"
-msgstr ""
-
-msgid "Journal"
 msgstr ""
 
 msgid "Export the EMR of the active patient as a chronological journal into a text file"
@@ -6476,6 +6488,12 @@ msgstr ""
 msgid "GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file."
 msgstr ""
 
+msgid "Export as ..."
+msgstr ""
+
+msgid "&EMR"
+msgstr ""
+
 msgid "&Write letter"
 msgstr ""
 
@@ -6483,9 +6501,6 @@ msgid "Write a letter for the current patient."
 msgstr ""
 
 msgid "&Correspondence"
-msgstr ""
-
-msgid "&Tools"
 msgstr ""
 
 msgid "no viewer installed"
@@ -6515,16 +6530,16 @@ msgstr ""
 msgid "arriba: cardiovascular risk assessment (%s)."
 msgstr ""
 
-msgid "&Knowledge"
-msgstr ""
-
-msgid "&Drug Resources"
+msgid "&Tools"
 msgstr ""
 
 msgid "&Database"
 msgstr ""
 
 msgid "Jump to the drug database configured as the default."
+msgstr ""
+
+msgid "&Drug Resources"
 msgstr ""
 
 msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
@@ -6536,13 +6551,16 @@ msgstr ""
 msgid "Show a page of links to useful medical content."
 msgstr ""
 
-msgid "&Office"
+msgid "&Knowledge"
 msgstr ""
 
 msgid "Audit trail"
 msgstr ""
 
 msgid "Display database audit trail."
+msgstr ""
+
+msgid "&Office"
 msgstr ""
 
 msgid "GNUmed wiki"
@@ -6561,9 +6579,6 @@ msgid "Menu reference (www)"
 msgstr ""
 
 msgid "View the reference for menu items on the web."
-msgstr ""
-
-msgid "Debugging ..."
 msgstr ""
 
 msgid "Save a screenshot of this GNUmed client."
@@ -6624,6 +6639,9 @@ msgid "Invoke inspector"
 msgstr ""
 
 msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
+msgstr ""
+
+msgid "Debugging ..."
 msgstr ""
 
 msgid "About GNUmed"

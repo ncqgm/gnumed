@@ -195,6 +195,7 @@ cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/cli
 mkdir -p ./gnumed-client.$CLIENTREV/client/po/
 cp -R ../../client/po/ca.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/de.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/el.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/es.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/fr.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/it.po ./gnumed-client.$CLIENTREV/client/po
@@ -208,6 +209,7 @@ cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/po
 cd ../../client/po/
 ./create-gnumed_mo.sh ca
 ./create-gnumed_mo.sh de
+./create-gnumed_mo.sh el
 ./create-gnumed_mo.sh es
 ./create-gnumed_mo.sh fr
 ./create-gnumed_mo.sh it
@@ -220,6 +222,7 @@ cd ../../client/po/
 cd -
 
 cp -R ../../client/po/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/el-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/po

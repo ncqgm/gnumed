@@ -22,6 +22,7 @@ NEW: LaTeX template: chronological EMR journal
 NEW: full manual management of substances/drug components/branded drugs
 NEW: implement our own date picker
 NEW: implement searchable tags with image/name/comment on patients
+NEW: Greek translation
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip
@@ -49,6 +50,7 @@ IMPROVED: substance intake grid: display unapproved by default
 IMPROVED: default temporary directory now /tmp/gnumed/gm-<unique ID>/ per GNUmed instance
 IMPROVED: menu structure creation such that accelerator keys work more reliably
 IMPROVED: EMR tree can now display selective chronological journal on issues and episodes
+IMPROVED: existing translations
 
 ------------------------------------------------
 # rel-0-8-patches
