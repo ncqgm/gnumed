@@ -41,52 +41,129 @@ def set_is_public_database(value):
 	global _is_public_database
 	_is_public_database = value
 #-------------------------------------------------------------------------
+# exception handlers
+#-------------------------------------------------------------------------
+def __ignore_dead_objects_from_async(t, v, tb):
+
+	if t != wx._core.PyDeadObjectError:
+		return False
+
+	# try to ignore those, they come about from doing
+	# async work in wx as Robin tells us
+	_log2.warning('continuing and hoping for the best')
+	return True
+#-------------------------------------------------------------------------
+def __handle_exceptions_on_shutdown(t, v, tb):
+
+	if not application_is_closing:
+		return False
+
+	# dead object error ?
+	if t == wx._core.PyDeadObjectError:
+		return True
+
+	gmLog2.log_stack_trace()
+	return True
+#-------------------------------------------------------------------------
+def __handle_import_error(t, v, tb):
+
+	if t != exceptions.ImportError:
+		return False
+
+	_log2.error('module [%s] not installed', v)
+	gmGuiHelpers.gm_show_error (
+		aTitle = _('Missing GNUmed module'),
+		aMessage = _(
+			'GNUmed detected that parts of it are not\n'
+			'properly installed. The following message\n'
+			'names the missing part:\n'
+			'\n'
+			' "%s"\n'
+			'\n'
+			'Please make sure to get the missing\n'
+			'parts installed. Otherwise some of the\n'
+			'functionality will not be accessible.'
+		) % v
+	)
+	return True
+#-------------------------------------------------------------------------
+def __handle_ctrl_c(t, v, tb):
+
+	if t != KeyboardInterrupt:
+		return False
+
+	print "<Ctrl-C>: Shutting down ..."
+	top_win = wx.GetApp().GetTopWindow()
+	wx.CallAfter(top_win.Close)
+	return True
+#-------------------------------------------------------------------------
+def __handle_lost_db_connection(t, v, tb):
+
+	if t not in [gmPG2.dbapi.OperationalError, gmPG2.dbapi.InterfaceError]:
+		return False
+
+	try:
+		msg = gmPG2.extract_msg_from_pg_exception(exc = v)
+	except:
+		msg = u'cannot extract message from PostgreSQL exception'
+		print msg
+		print v
+		return False
+
+	conn_lost = False
+
+	if t == gmPG2.dbapi.OperationalError:
+		conn_lost = (
+			('erver' in msg)
+				and
+			(('term' in msg) or ('abnorm' in msg) or ('end' in msg))
+		)
+
+	if t == gmPG2.dbapi.InterfaceError:
+		conn_lost = (
+			('onnect' in msg)
+				and
+			(('close' in msg) or ('end' in msg))
+		)
+
+	if not conn_lost:
+		return False
+
+	_log2.error('lost connection')
+	gmLog2.log_stack_trace()
+	gmLog2.flush()
+	gmGuiHelpers.gm_show_error (
+		aTitle = _('Lost connection'),
+		aMessage = _(
+			'Since you were last working in GNUmed,\n'
+			'your database connection timed out.\n'
+			'\n'
+			'This GNUmed session is now expired.\n'
+			'\n'
+			'You will have to close this client and\n'
+			'restart a new GNUmed session.'
+		)
+	)
+	return True
+#-------------------------------------------------------------------------
 def handle_uncaught_exception_wx(t, v, tb):
 
 	_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
 
-	# Strg-C ?
-	if t == KeyboardInterrupt:
-		print "<Ctrl-C>: Shutting down ..."
-		top_win = wx.GetApp().GetTopWindow()
-		wx.CallAfter(top_win.Close)
+	if __handle_ctrl_c(t, v, tb):
 		return
 
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
 	except: pass
 
-	# exception on shutdown ?
-	if application_is_closing:
-		# dead object error ?
-		if t == wx._core.PyDeadObjectError:
-			return
-		gmLog2.log_stack_trace()
+	if __handle_exceptions_on_shutdown(t, v, tb):
 		return
 
-	# try to ignore those, they come about from async handling
-	# as Robin tells us
-	if t == wx._core.PyDeadObjectError:
-		_log2.warning('continuing and hoping for the best')
+	if __ignore_dead_objects_from_async(t, v, tb):
 		return
 
-	# failed import ?
-	if t == exceptions.ImportError:
-		_log2.error('module [%s] not installed', v)
-		gmGuiHelpers.gm_show_error (
-			aTitle = _('Missing GNUmed module'),
-			aMessage = _(
-				'GNUmed detected that parts of it are not\n'
-				'properly installed. The following message\n'
-				'names the missing part:\n'
-				'\n'
-				' "%s"\n'
-				'\n'
-				'Please make sure to get the missing\n'
-				'parts installed. Otherwise some of the\n'
-				'functionality will not be accessible.'
-			) % v
-		)
+	if __handle_import_error(t, v, tb):
 		return
 
 	# other exceptions
@@ -98,44 +175,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 		root_logger.setLevel(logging.DEBUG)
 		_log2.debug('unhandled exception caught:', exc_info = (t, v, tb))
 
-	# lost connection ?
-	try:
-		msg = gmPG2.extract_msg_from_pg_exception(exc = v)
-	except:
-		msg = u'cannot extract message from PostgreSQL exception'
-		print msg
-		print v
-
-	conn_loss_on_operational_error = (
-		(t == gmPG2.dbapi.OperationalError)
-			and
-		('erver' in msg)
-			and
-		(('term' in msg) or ('abnorm' in msg) or ('end' in msg))
-	)
-	conn_loss_on_interface_error = (
-		(t == gmPG2.dbapi.InterfaceError)
-			and
-		('onnect' in msg)
-			and
-		(('close' in msg) or ('end' in msg))
-	)
-	if (conn_loss_on_operational_error or conn_loss_on_interface_error):
-		_log2.error('lost connection')
-		gmLog2.log_stack_trace()
-		gmLog2.flush()
-		gmGuiHelpers.gm_show_error (
-			aTitle = _('Lost connection'),
-			aMessage = _(
-				'Since you were last working in GNUmed,\n'
-				'your database connection timed out.\n'
-				'\n'
-				'This GNUmed session is now expired.\n'
-				'\n'
-				'You will have to close this client and\n'
-				'restart a new GNUmed session.'
-			)
-		)
+	if __handle_lost_db_connection(t, v, tb):
 		return
 
 	gmLog2.log_stack_trace()
@@ -386,147 +426,6 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		)
 
 		evt.Skip()
-
-#		comment = self._TCTRL_comment.GetValue()
-#		if (comment is None) or (comment.strip() == u''):
-#			comment = wx.GetTextFromUser (
-#				message = _(
-#					'Please enter a short note on what you\n'
-#					'were about to do in GNUmed:'
-#				),
-#				caption = _('Sending bug report'),
-#				parent = self
-#			)
-#			if comment.strip() == u'':
-#				comment = u'<user did not comment on bug report>'
-#
-#		receivers = regex.findall (
-#			'[\S]+@[\S]+',
-#			self._TCTRL_helpdesk.GetValue().strip(),
-#			flags = regex.UNICODE | regex.LOCALE
-#		)
-#		if len(receivers) == 0:
-#			if _is_public_database:
-#				receivers = [u'gnumed-bugs@gnu.org']
-#
-#		receiver_string = wx.GetTextFromUser (
-#			message = _(
-#				'Edit the list of email addresses to send the\n'
-#				'bug report to (separate addresses by spaces).\n'
-#				'\n'
-#				'Note that <gnumed-bugs@gnu.org> refers to\n'
-#				'the public (!) GNUmed bugs mailing list.'
-#			),
-#			caption = _('Sending bug report'),
-#			default_value = ','.join(receivers),
-#			parent = self
-#		)
-#		if receiver_string.strip() == u'':
-#			evt.Skip()
-#			return
-#
-#		receivers = regex.findall (
-#			'[\S]+@[\S]+',
-#			receiver_string,
-#			flags = regex.UNICODE | regex.LOCALE
-#		)
-#
-#		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-#			self,
-#			-1,
-#			caption = _('Sending bug report'),
-#			question = _(
-#				'Your bug report will be sent to:\n'
-#				'\n'
-#				'%s\n'
-#				'\n'
-#				'Make sure you have reviewed the log file for potentially\n'
-#				'sensitive information before sending out the bug report.\n'
-#				'\n'
-#				'Note that emailing the report may take a while depending\n'
-#				'on the speed of your internet connection.\n'
-#			) % u'\n'.join(receivers),
-#			button_defs = [
-#				{'label': _('Send report'), 'tooltip': _('Yes, send the bug report.')},
-#				{'label': _('Cancel'), 'tooltip': _('No, do not send the bug report.')}
-#			],
-#			show_checkbox = True,
-#			checkbox_msg = _('include log file in bug report')
-#		)
-#		dlg._CHBOX_dont_ask_again.SetValue(_is_public_database)
-#		go_ahead = dlg.ShowModal()
-#		if go_ahead == wx.ID_NO:
-#			dlg.Destroy()
-#			evt.Skip()
-#			return
-#
-#		include_log = dlg._CHBOX_dont_ask_again.GetValue()
-#		if not _is_public_database:
-#			if include_log:
-#				result = gmGuiHelpers.gm_show_question (
-#					_(
-#						'The database you are connected to is marked as\n'
-#						'"in-production with controlled access".\n'
-#						'\n'
-#						'You indicated that you want to include the log\n'
-#						'file in your bug report. While this is often\n'
-#						'useful for debugging the log file might contain\n'
-#						'bits of patient data which must not be sent out\n'
-#						'without de-identification.\n'
-#						'\n'
-#						'Please confirm that you want to include the log !'
-#					),
-#					_('Sending bug report')
-#				)
-#				include_log = (result is True)
-#
-#		sender_email = gmTools.coalesce(self._TCTRL_sender.GetValue(), _('<not supplied>'))
-#		msg = u"""\
-#Report sent via GNUmed's handler for unexpected exceptions.
-#
-#user comment  : %s
-#
-#client version: %s
-#
-#system account: %s
-#staff member  : %s
-#sender email  : %s
-#
-# # enable Launchpad bug tracking
-# affects gnumed
-# tag automatic-report
-# importance medium
-#
-#""" % (comment, _client_version, _local_account, _staff_name, sender_email)
-#		if include_log:
-#			_log2.error(comment)
-#			_log2.warning('syncing log file for emailing')
-#			gmLog2.flush()
-#			attachments = [ [_logfile_name, 'text/plain', 'quoted-printable'] ]
-#		else:
-#			attachments = None
-#
-#		dlg.Destroy()
-#
-#		wx.BeginBusyCursor()
-#		try:
-#			gmTools.send_mail (
-#				sender = '%s <%s>' % (_staff_name, gmTools.default_mail_sender),
-#				receiver = receivers,
-#				subject = u'<bug>: %s' % comment,
-#				message = msg,
-#				encoding = gmI18N.get_encoding(),
-#				server = gmTools.default_mail_server,
-#				auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
-#				attachments = attachments
-#			)
-#			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
-#		except:
-#			_log2.exception('cannot send bug report')
-#			gmDispatcher.send(signal='statustext', msg = _('Bug report COULD NOT be emailed.'))
-#		wx.EndBusyCursor()
-#
-#		evt.Skip()
 	#------------------------------------------
 	def _on_view_log_button_pressed(self, evt):
 		from Gnumed.pycommon import gmMimeLib
