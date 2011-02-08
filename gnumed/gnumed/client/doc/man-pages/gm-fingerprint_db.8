@@ -1,0 +1,33 @@
+.TH GM-FINGERPRINT_DB 8 "2011 Feb 8th" "GNUmed server fingerprint database"
+
+.SH NAME
+.B gm-fingerprint_db
+- GNUmed server fingerprint database
+
+.SH SYNOPSIS
+.B gm-fingerprint_db
+.I <target database>
+.I <gm-dbo password>
+
+.I <target database>:
+a GNUmed database (such as "gnumed_VERSION")
+
+.I <gm-dbo password>
+the password for the databse owner <gm-dbo>
+
+.SH DESCRIPTION
+The
+.B gm-fingerprint_db
+script can be used to fingerprint a GNUmed database
+in order to aid identifying particular databases
+or verifying database transfers (not upgrades).
+
+.SH EXAMPLE
+
+Fingerprint the database gnumed_v15:
+
+.B gm-fingerprint_db
+gnumed_v15 secret-password
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert <karsten.hilbert@gmx.net>.
