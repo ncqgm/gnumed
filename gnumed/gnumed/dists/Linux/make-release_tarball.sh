@@ -301,6 +301,7 @@ cp -R ../../server/gm-upgrade_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-fixup_server ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-adjust_db_settings.sh ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-fingerprint_db.py ./gnumed-client.$CLIENTREV/server/
+cp -R ../../server/gm-dump_schema.sh ./gnumed-client.$CLIENTREV/server/
 
 cp -R ../../server/gm-backup_database.sh ./gnumed-client.$CLIENTREV/server/
 cp -R ../../server/gm-restore_database.sh ./gnumed-client.$CLIENTREV/server/
@@ -336,9 +337,11 @@ cp -R ../../client/doc/man-pages/gm-upgrade_server.8 ./gnumed-client.$CLIENTREV/
 cp -R ../../client/doc/man-pages/gm-fixup_server.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-backup_data.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-backup_database.8 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-dump_schema.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-adjust_db_settings.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ../../client/doc/man-pages/gm-set_gm-dbo_password.8 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-fingerprint_db.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/server/doc/
 
 
