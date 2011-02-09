@@ -1723,6 +1723,9 @@ limit 50"""
 		lab = gmPathLab.create_test_org(name = self.GetValue().strip())
 		self.SetText(value = lab['internal_name'], data = lab['pk'])
 		return
+	#------------------------------------------------------------
+	def _data2instance(self):
+		return gmPathLab.cTestOrg(aPK_obj = self.data)
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementTypeEAPnl
 
@@ -2230,7 +2233,7 @@ class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEdit
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
-		data = self._PRW_name.GetData(can_create = True)
+		data = self._PRW_name.GetData(can_create = True, as_instance = True)
 
 		data['contact'] = self._TCTRL_contact.GetValue().strip()
 		data['comment'] = self._TCTRL_comment.GetValue().strip()

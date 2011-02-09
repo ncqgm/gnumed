@@ -59,6 +59,7 @@ IMPROVED: existing translations
 	0.8.7
 
 FIX: incompatible transport formatting of bytea between pre-9.0 libpq and 9.0+ PG server [thanks D.Varrazzo]
+FIX: exception on adding a diagnostic org (path lab)
 
 	0.8.6
 
