@@ -276,6 +276,7 @@ Please enter the password for <gm-dbo>:""") % procedure,
 			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
 			aTitle = procedure
 		)
+		gmPG2.log_database_access(action = u'failed to connect as database owner for [%s]' % procedure)
 		return None
 
 	return conn

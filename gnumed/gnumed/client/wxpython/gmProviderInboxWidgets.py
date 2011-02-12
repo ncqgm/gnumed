@@ -223,10 +223,14 @@ def show_audit_trail(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('showing audit trail'))
+	if conn is None:
+		return False
+
 	#-----------------------------------
 	def refresh(lctrl):
 		cmd = u'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}], get_col_idx = False)
 		lctrl.set_string_items (
 			[ [
 				r['event_when'],

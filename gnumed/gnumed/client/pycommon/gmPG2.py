@@ -1285,14 +1285,14 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 		returning = u'\n\tRETURNING\n\t\t%s' % u', '.join(returning)
 		return_data = True
 
-	cmd = u"""\nINSERT INTO quote_ident(%s.%s) (
-		quote_ident(%s)
+	cmd = u"""\nINSERT INTO %s.%s (
+		%s
 	) VALUES (
 		%s
 	)%s""" % (
 		schema,
 		table,
-		u'),\n\t\tquote_ident('.join(fields),
+		u',\n\t\t'.join(fields),
 		u',\n\t\t'.join(val_snippets),
 		returning
 	)
@@ -1536,6 +1536,14 @@ def __noop():
 #-----------------------------------------------------------------------
 def _raise_exception_on_ro_conn_close():
 	raise TypeError(u'close() called on read-only connection')
+#-----------------------------------------------------------------------
+def log_database_access(action=None):
+	run_insert (
+		schema = u'gm',
+		table = u'access_log',
+		values = {u'user_action': action},
+		end_tx = True
+	)
 #-----------------------------------------------------------------------
 def sanity_check_time_skew(tolerance=60):
 	"""Check server time and local time to be within

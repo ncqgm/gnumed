@@ -77,6 +77,15 @@ create or replace function gm.add_table_for_notifies(name, name)
 ;
 
 -- --------------------------------------------------------------
+grant insert on
+	gm.access_log
+to group "gm-public";
+
+grant usage on
+	gm.access_log_pk_seq
+to group "gm-public";
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v15-gm-register_notifying_table.sql', 'Revision: 1.0');
 
 -- ==============================================================
