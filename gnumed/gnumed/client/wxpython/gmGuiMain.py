@@ -70,6 +70,7 @@ from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasur
 from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
 from Gnumed.wxpython import gmI18nWidgets, gmCodingWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
+from Gnumed.wxpython import gmAuthWidgets
 
 
 try:
@@ -443,6 +444,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_users.Append(-1, _('&Edit users'), _('Edit the list of GNUmed users'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_staff_list, item)
+
+		item = menu_users.Append(-1, _('&Change DB owner PWD'), _('Change the password of the GNUmed database owner'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_gmdbowner_password, item)
 
 		menu_gnumed.AppendMenu(wx.NewId(), _('&Users ...'), menu_users)
 
@@ -2562,6 +2566,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_edit_staff_list(self, event):
 		dlg = gmStaffWidgets.cEditStaffListDlg(parent=self, id=-1)
 		dlg.ShowModal()
+	#----------------------------------------------
+	def __on_edit_gmdbowner_password(self, evt):
+		gmAuthWidgets.change_gmdbowner_password()
 	#----------------------------------------------
 	def __on_update_loinc(self, evt):
 		gmMeasurementWidgets.update_loinc_reference_data()

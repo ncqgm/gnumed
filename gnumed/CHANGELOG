@@ -24,6 +24,7 @@ NEW: implement our own date picker
 NEW: implement searchable tags with image/name/comment on patients
 NEW: Greek translation
 NEW: log failed gm-dbo database access in database during restricted procedures
+NEW: change gm-dbo password from client
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip

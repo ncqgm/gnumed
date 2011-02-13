@@ -244,42 +244,102 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 	return connected
 #================================================================
-def get_dbowner_connection(procedure=None, dbo_password=None):
+def get_dbowner_connection(procedure=None, dbo_password=None, dbo_account=u'gm-dbo'):
 	if procedure is None:
 		procedure = _('<restricted procedure>')
 
 	# 1) get password for gm-dbo
 	if dbo_password is None:
-		pwd_gm_dbo = wx.GetPasswordFromUser (
+		dbo_password = wx.GetPasswordFromUser (
 			message = _("""
  [%s]
 
 This is a restricted procedure. We need the
-password for the GNUmed database owner.
+current password for the GNUmed database owner.
 
-Please enter the password for <gm-dbo>:""") % procedure,
+Please enter the current password for <%s>:""") % (
+				procedure,
+				dbo_account
+			),
 			caption = procedure
 		)
-		if pwd_gm_dbo == '':
+		if dbo_password == '':
 			return None
-	else:
-		pwd_gm_dbo = dbo_password
 
 	# 2) connect as gm-dbo
 	login = gmPG2.get_default_login()
-	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user='gm-dbo', password=pwd_gm_dbo)
+	dsn = gmPG2.make_psycopg2_dsn (
+		database = login.database,
+		host = login.host,
+		port = login.port,
+		user = dbo_account,
+		password = dbo_password
+	)
 	try:
-		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True, pooled=False)
+		conn = gmPG2.get_connection (
+			dsn = dsn,
+			readonly = False,
+			verbose = True,
+			pooled = False
+		)
 	except:
 		_log.exception('cannot connect')
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
+			aMessage = _('Cannot connect as the GNUmed database owner <%s>.') % dbo_account,
 			aTitle = procedure
 		)
 		gmPG2.log_database_access(action = u'failed to connect as database owner for [%s]' % procedure)
 		return None
 
 	return conn
+#================================================================
+def change_gmdbowner_password():
+
+	title = _(u'Changing GNUmed database owner password')
+
+	dbo_account = wx.GetTextFromUser (
+		message = _(u"Enter the account name of the GNUmed database owner:"),
+		caption = title,
+		default_value = u''
+	)
+
+	if dbo_account.strip() == u'':
+		return False
+
+	dbo_conn = get_dbowner_connection (
+		procedure = title,
+		dbo_account = dbo_account
+	)
+	if dbo_conn is None:
+		return False
+
+	dbo_pwd_new_1 = wx.GetPasswordFromUser (
+		message = _(u"Enter the NEW password for the GNUmed database owner:"),
+		caption = title
+	)
+	if dbo_pwd_new_1.strip() == u'':
+		return False
+
+	dbo_pwd_new_2 = wx.GetPasswordFromUser (
+		message = _(u"""Enter the NEW password for the GNUmed database owner, again.
+
+(This will protect you from typos.)
+		"""),
+		caption = title
+	)
+	if dbo_pwd_new_2.strip() == u'':
+		return False
+
+	if dbo_pwd_new_1 != dbo_pwd_new_2:
+		return False
+
+	cmd = u"""ALTER ROLE "%s" ENCRYPTED PASSWORD '%s';""" % (
+		dbo_account,
+		dbo_pwd_new_2
+	)
+	gmPG2.run_rw_queries(link_obj = dbo_conn, queries = [{'cmd': cmd}], end_tx = True)
+
+	return True
 #================================================================
 class cBackendProfile:
 	pass
