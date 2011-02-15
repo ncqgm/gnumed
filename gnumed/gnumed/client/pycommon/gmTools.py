@@ -788,6 +788,29 @@ def input2decimal(initial=None):
 	except (TypeError, decimal.InvalidOperation):
 		return False, val
 #---------------------------------------------------------------------------
+def input2int(initial=None, minval=None, maxval=None):
+
+	val = initial
+
+	# string ? -> "," to "."
+	if isinstance(val, basestring):
+		val = val.replace(',', '.', 1)
+		val = val.strip()
+
+	try:
+		int_val = int(val)
+	except (TypeError, ValueError):
+		return False, val
+
+	if minval is not None:
+		if int_val < minval:
+			return False, val
+	if maxval is not None:
+		if int_val > maxval:
+			return False, val
+
+	return True, int_val
+#---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
 	and most spaces in the text. Expects that existing line

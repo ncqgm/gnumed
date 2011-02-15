@@ -10,6 +10,12 @@ set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- ==============================================================
+create or replace function gm.xid2int(xid)
+	returns integer
+	language 'sql'
+	as 'select $1::text::integer;';
+
+-- ==============================================================
 create or replace function gm.register_notifying_table(name, name, name)
 	returns boolean
 	language 'plpgsql'

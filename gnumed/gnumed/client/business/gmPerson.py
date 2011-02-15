@@ -1188,7 +1188,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	messages = property(_get_messages, _set_messages)
 	#--------------------------------------------------------
 	def delete_message(self, pk=None):
-		return gmProviderInbox.delete_inbox_message(pk = pk)
+		return gmProviderInbox.delete_inbox_message(inbox_message = pk)
 	#--------------------------------------------------------
 	def _get_primary_provider(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:

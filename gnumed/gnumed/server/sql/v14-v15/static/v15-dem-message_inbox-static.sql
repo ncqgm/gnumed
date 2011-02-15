@@ -31,6 +31,12 @@ alter table dem.message_inbox
 alter table audit.log_message_inbox
 	drop column ufk_context;
 
+-- .importance
+alter table dem.message_inbox
+	alter column importance
+		set not null;
+
+
 alter table audit.log_message_inbox
 	rename column ufk_context_array to ufk_context;
 

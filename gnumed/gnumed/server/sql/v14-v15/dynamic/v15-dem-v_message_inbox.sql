@@ -9,11 +9,24 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+select gm.register_notifying_table('dem', 'message_inbox', 'message_inbox_generic');
+
 comment on column dem.message_inbox.ufk_context is
 	'a nullable array of Unchecked Foreign Keys, it is up to
 	 the application to know what this points to, it will
 	 have to make sense within the context of the combination
 	 of staff ID, item type, and comment';
+
+-- --------------------------------------------------------------
+grant select, insert, update, delete on
+	dem.inbox_item_type,
+	dem.inbox_item_category
+to group "gm-public";
+
+grant usage, select on
+	dem.inbox_item_type_pk_seq,
+	dem.inbox_item_category_pk_seq
+to group "gm-public";
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -39,7 +52,7 @@ select
 	mi.data
 		as data,
 	mi.pk
-		as pk_message_inbox,
+		as pk_inbox_message,
 	mi.fk_staff
 		as pk_staff,
 	vit.pk_category,
@@ -48,7 +61,9 @@ select
 	mi.fk_patient
 		as pk_patient,
 	false
-		as is_virtual
+		as is_virtual,
+	gm.xid2int(mi.xmin)
+		as xmin_message_inbox
 from
 	dem.message_inbox mi,
 	dem.v_inbox_item_type vit
@@ -80,12 +95,12 @@ select
 	 	dn.active is True
 	)
 	 	as comment,
-	NULL
+	NULL::integer[]
 		as pk_context,
-	NULL
+	NULL::text
 		as data,
-	NULL
-		as pk_message_inbox,
+	NULL::integer
+		as pk_inbox_message,
 	vo4dnd.pk_intended_reviewer
 		as pk_staff,
 	(select pk_category from dem.v_inbox_item_type where type = 'review docs')
@@ -94,7 +109,9 @@ select
 		as pk_type,
 	vo4dnd.pk_patient as pk_patient,
 	true
-		as is_virtual
+		as is_virtual,
+	NULL::integer
+		as xmin_message_inbox
 from
 	blobs.v_obj4doc_no_data vo4dnd
 where
@@ -125,12 +142,12 @@ select
 	 	dn.active is True
 	)
 		as comment,
-	NULL
+	NULL::integer[]
 		as pk_context,
-	NULL
+	NULL::text
 		as data,
-	NULL
-		as pk_message_inbox,
+	NULL::integer
+		as pk_inbox_message,
 	vtr.pk_intended_reviewer
 		as pk_staff,
 	(select pk_category from dem.v_inbox_item_type where type = 'review results')
@@ -139,7 +156,9 @@ select
 		as pk_type,
 	vtr.pk_patient as pk_patient,
 	true
-		as is_virtual
+		as is_virtual,
+	NULL::integer
+		as xmin_message_inbox
 from
 	clin.v_test_results vtr
 where
@@ -176,12 +195,12 @@ select
 	 	dn.active is True
 	)
 		as comment,
-	NULL
+	NULL::integer[]
 		as pk_context,
-	NULL
+	NULL::text
 		as data,
-	NULL
-		as pk_message_inbox,
+	NULL::integer
+		as pk_inbox_message,
 	vtr.pk_intended_reviewer
 		as pk_staff,
 	(select pk_category from dem.v_inbox_item_type where type = 'review results')
@@ -190,7 +209,9 @@ select
 		as pk_type,
 	vtr.pk_patient as pk_patient,
 	true
-		as is_virtual
+		as is_virtual,
+	NULL::integer
+		as xmin_message_inbox
 from
 	clin.v_test_results vtr
 where
@@ -213,6 +234,6 @@ Using UNION makes sure we get the right level of uniqueness.';
 grant select on dem.v_message_inbox to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v15-dem-v_message_inbox.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('v15-dem-v_message_inbox.sql', '1.1');
 
 -- ==============================================================
