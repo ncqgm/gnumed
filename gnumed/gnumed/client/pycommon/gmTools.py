@@ -49,8 +49,8 @@ u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
 u_ellipsis = u'\u2026'
-u_left_arrow = u'\u2190'					# -->
-u_right_arrow = u'\u2192'					# <--
+u_left_arrow = u'\u2190'					# <--
+u_right_arrow = u'\u2192'					# -->
 u_sum = u'\u2211'
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
@@ -787,6 +787,29 @@ def input2decimal(initial=None):
 		return True, d
 	except (TypeError, decimal.InvalidOperation):
 		return False, val
+#---------------------------------------------------------------------------
+def input2int(initial=None, minval=None, maxval=None):
+
+	val = initial
+
+	# string ? -> "," to "."
+	if isinstance(val, basestring):
+		val = val.replace(',', '.', 1)
+		val = val.strip()
+
+	try:
+		int_val = int(val)
+	except (TypeError, ValueError):
+		return False, val
+
+	if minval is not None:
+		if int_val < minval:
+			return False, val
+	if maxval is not None:
+		if int_val > maxval:
+			return False, val
+
+	return True, int_val
 #---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks

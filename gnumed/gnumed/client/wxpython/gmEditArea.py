@@ -57,15 +57,31 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
+		# remove when implemented:
 		return False
-		return True
+
+		validity = True
+
+		if self._TCTRL_xxx.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = False)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = True)
+
+		if self._PRW_xxx.GetData() is None:
+			validity = False
+			self._PRW_xxx.display_as_valid(False)
+		else:
+			self._PRW_xxx.display_as_valid(True)
+
+		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
 		data = gmXXXX.create_xxxx()
 
-		data[''] = 1
-		data[''] = 1
+		data[''] = self._
+		data[''] = self._
 
 		data.save()
 
@@ -78,9 +94,9 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		# update self.data and save the changes
-		self.data[''] = 1
-		self.data[''] = 1
-		self.data[''] = 1
+		self.data[''] = self._TCTRL_xxx.GetValue().strip()
+		self.data[''] = self._PRW_xxx.GetData()
+		self.data[''] = self._CHBOX_xxx.GetValue()
 		self.data.save()
 		return True
 	#----------------------------------------------------------------
@@ -163,23 +179,34 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		"""Invoked from the generic edit area dialog.
 
 		Invokes
-			_refresh_as_new
-			_refresh_from_existing
-			_refresh_as_new_from_existing
+			_refresh_as_new()
+			_refresh_from_existing()
+			_refresh_as_new_from_existing()
 		on the implementing edit area as needed.
+
+		Then calls _valid_for_save().
 		"""
 		if self.__mode == 'new':
-			return self._refresh_as_new()
+			result = self._refresh_as_new()
+			self._valid_for_save()
+			return result
 		elif self.__mode == 'edit':
-			return self._refresh_from_existing()
+			result = self._refresh_from_existing()
+			return result
 		elif self.__mode == 'new_from_existing':
-			return self._refresh_as_new_from_existing()
+			result = self._refresh_as_new_from_existing()
+			self._valid_for_save()
+			return result
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
 	#----------------------------------------------------------------
 	def display_tctrl_as_valid(self, tctrl=None, valid=None):
 		tctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
 		tctrl.Refresh()
+	#----------------------------------------------------------------
+	def display_ctrl_as_valid(self, ctrl=None, valid=None):
+		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
+		ctrl.Refresh()
 #====================================================================
 class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	"""Dialog for parenting edit area panels with save/clear/next/cancel"""

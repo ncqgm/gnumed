@@ -20,6 +20,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         self._msg_welcome = wx.StaticText(self, -1, _("Programmer must override this text."))
         self._RBTN_all_messages = wx.RadioButton(self, -1, _("All"), style=wx.RB_GROUP)
         self._RBTN_active_patient = wx.RadioButton(self, -1, _("Active-patient related"))
+        self._BTN_add = wx.Button(self, -1, _("&Add"), style=wx.BU_EXACTFIT)
         self._LCTRL_provider_inbox = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
         self._TXT_inbox_item_comment = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.TE_LINEWRAP|wx.TE_WORDWRAP)
 
@@ -28,6 +29,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 
         self.Bind(wx.EVT_RADIOBUTTON, self._on_all_messages_radiobutton_selected, self._RBTN_all_messages)
         self.Bind(wx.EVT_RADIOBUTTON, self._on_active_patient_radiobutton_selected, self._RBTN_active_patient)
+        self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._lst_item_selected, self._LCTRL_provider_inbox)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._lst_item_activated, self._LCTRL_provider_inbox)
         self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self._lst_item_focused, self._LCTRL_provider_inbox)
@@ -41,6 +43,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         self._RBTN_all_messages.SetValue(1)
         self._RBTN_active_patient.SetToolTipString(_("Show those of your messages which are related to the active patient."))
         self._RBTN_active_patient.Enable(False)
+        self._BTN_add.SetToolTipString(_("Add a new message."))
         self._LCTRL_provider_inbox.SetFocus()
         self._TXT_inbox_item_comment.SetToolTipString(_("This shows the entirety of the selected message in your Inbox."))
         self._TXT_inbox_item_comment.Enable(False)
@@ -55,11 +58,13 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         __szr_main.Add(__line_top, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
         __lbl_filters = wx.StaticText(self, -1, _("Show messages:"))
         __szr_filters.Add(__lbl_filters, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_filters.Add(self._RBTN_all_messages, 0, wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL, 5)
-        __szr_filters.Add(self._RBTN_active_patient, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
+        __szr_filters.Add(self._RBTN_all_messages, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_filters.Add(self._RBTN_active_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_filters.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_filters.Add(self._BTN_add, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_main.Add(__szr_filters, 0, wx.BOTTOM|wx.EXPAND, 5)
-        __szr_main.Add(self._LCTRL_provider_inbox, 1, wx.EXPAND, 0)
-        __szr_main.Add(self._TXT_inbox_item_comment, 0, wx.EXPAND, 0)
+        __szr_main.Add(self._LCTRL_provider_inbox, 3, wx.EXPAND, 0)
+        __szr_main.Add(self._TXT_inbox_item_comment, 1, wx.EXPAND, 0)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
@@ -86,6 +91,10 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 
     def _on_all_messages_radiobutton_selected(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
         print "Event handler `_on_all_messages_radiobutton_selected' not implemented"
+        event.Skip()
+
+    def _on_add_button_pressed(self, event): # wxGlade: wxgProviderInboxPnl.<event_handler>
+        print "Event handler `_on_add_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgProviderInboxPnl

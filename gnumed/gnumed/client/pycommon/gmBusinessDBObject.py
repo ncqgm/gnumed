@@ -184,7 +184,7 @@ from Gnumed.pycommon import gmPG2
 # description
 #------------------------------------------------------------
 _SQL_get_XXX = u\"""
-	SELECT *, (xmin as) xmin_XXX
+	SELECT *, (xmin AS xmin_XXX)
 	FROM XXX.v_XXX
 	WHERE %s
 \"""
@@ -194,18 +194,19 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
 	_cmds_store_payload = [
 		u\"""
-			UPDATE xxx.xxx SET
-				xxx = %(xxx)s,
+			UPDATE xxx.xxx SET								-- typically the underlying table name
+				xxx = %(xxx)s,								-- typically "table_col = %(view_col)s"
 				xxx = gm.nullify_empty_string(%(xxx)s)
 			WHERE
 				pk = %(xxx)s
 					AND
 				xmin = %(xmin_XXX)s
 			RETURNING
-				pk,
+				pk as pk_XXX,
 				xmin as xmin_XXX
 		\"""
 	]
+	# view columns:
 	_updatable_fields = [
 		u'xxx',
 		u'xxx'
