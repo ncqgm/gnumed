@@ -419,6 +419,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._LCTRL_items.item_tooltip_callback = callback
 
 	list_tooltip_callback = property(lambda x:x, _set_list_tooltip_callback)
+	#def _get_tooltip(self, item):		# inside class
+	#def _get_tooltip(item):			# outside class
 #================================================================
 class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	"""A panel holding a generic multi-column list and action buttions."""

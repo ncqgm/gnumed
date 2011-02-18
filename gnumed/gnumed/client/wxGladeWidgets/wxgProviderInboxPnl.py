@@ -63,8 +63,8 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
         __szr_filters.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_filters.Add(self._BTN_add, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_main.Add(__szr_filters, 0, wx.BOTTOM|wx.EXPAND, 5)
-        __szr_main.Add(self._LCTRL_provider_inbox, 1, wx.EXPAND, 0)
-        __szr_main.Add(self._TXT_inbox_item_comment, 0, wx.EXPAND, 0)
+        __szr_main.Add(self._LCTRL_provider_inbox, 3, wx.EXPAND, 0)
+        __szr_main.Add(self._TXT_inbox_item_comment, 1, wx.EXPAND, 0)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade

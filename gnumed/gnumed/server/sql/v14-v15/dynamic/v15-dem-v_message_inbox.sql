@@ -39,6 +39,11 @@ create view dem.v_message_inbox as
 select
 	mi.modified_when
 		as received_when,
+	coalesce (
+		(select short_alias from dem.staff where db_user = mi.modified_by),
+		'<' || mi.modified_by || '>'
+	)
+		as modified_by,
 	(select short_alias from dem.staff where dem.staff.pk = mi.fk_staff)
 		as provider,
 	mi.importance,
@@ -74,6 +79,7 @@ union
 
 select
 	now() as received_when,
+	'<system>' as modified_by,
 	(select short_alias from dem.staff where dem.staff.pk = vo4dnd.pk_intended_reviewer)
 		as provider,
 	0	as importance,
@@ -121,6 +127,7 @@ union
 
 select
 	now() as received_when,
+	vtr.modified_by as modified_by,
 	(select short_alias from dem.staff where dem.staff.pk = vtr.pk_intended_reviewer)
 		as provider,
 	0	as importance,
@@ -174,6 +181,7 @@ union
 
 select
 	now() as received_when,
+	vtr.modified_by as modified_by,
 	(select short_alias from dem.staff where dem.staff.pk = vtr.pk_intended_reviewer)
 		as provider,
 	1	as importance,

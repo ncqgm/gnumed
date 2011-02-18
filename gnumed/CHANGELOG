@@ -23,6 +23,7 @@ NEW: full manual management of substances/drug components/branded drugs
 NEW: implement our own date picker
 NEW: implement searchable tags with image/name/comment on patients
 NEW: Greek translation
+NEW: implement leaving a message for oneself/other providers
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip

@@ -535,7 +535,16 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 4)
 		self.matcher = mp
 		self.SetToolTipString(_('Select a message type.'))
-		self.selection_only = True
+	#----------------------------------------------------------------
+	def _create_data(self):
+		if self.data is not None:
+			return
+
+		val = self.GetValue().strip()
+		if val == u'':
+			return
+
+		self.data = gmProviderInbox.create_inbox_item_type(message_type = val)
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgInboxMessageEAPnl
 
@@ -559,15 +568,30 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		if data is not None:
 			self.mode = 'edit'
 
-		#self.__init_ui()
+		self.__init_ui()
 	#----------------------------------------------------------------
-#	def __init_ui(self):
-#		pass
+	def __init_ui(self):
+		if not gmPerson.gmCurrentPatient().connected:
+			self._CHBOX_active_patient.SetValue(False)
+			self._CHBOX_active_patient.Enable(False)
+			self._PRW_patient.Enable(True)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
 		validity = True
+
+		if self._TCTRL_subject.GetValue().strip() == u'':
+			validity = False
+			self.display_ctrl_as_valid(ctrl = self._TCTRL_subject, valid = False)
+		else:
+			self.display_ctrl_as_valid(ctrl = self._TCTRL_subject, valid = True)
+
+		if self._PRW_type.GetValue().strip() == u'':
+			validity = False
+			self._PRW_type.display_as_valid(False)
+		else:
+			self._PRW_type.display_as_valid(True)
 
 		missing_receiver = (
 			(self._CHBOX_send_to_me.IsChecked() is False)
@@ -583,36 +607,19 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 
 		if missing_receiver and missing_patient:
 			validity = False
-			self.display_tctrl_as_valid(tctrl = self._CHBOX_send_to_me, valid = False)
+			self.display_ctrl_as_valid(ctrl = self._CHBOX_send_to_me, valid = False)
 			self._PRW_receiver.display_as_valid(False)
-			self.display_tctrl_as_valid(tctrl = self._CHBOX_active_patient, valid = False)
-			self.display_tctrl_as_valid(tctrl = self._PRW_patient, valid = False)
+			self.display_ctrl_as_valid(ctrl = self._CHBOX_active_patient, valid = False)
+			self.display_ctrl_as_valid(ctrl = self._PRW_patient, valid = False)
 		else:
-			self.display_tctrl_as_valid(tctrl = self._CHBOX_send_to_me, valid = True)
+			self.display_ctrl_as_valid(ctrl = self._CHBOX_send_to_me, valid = True)
 			self._PRW_receiver.display_as_valid(True)
-			self.display_tctrl_as_valid(tctrl = self._CHBOX_active_patient, valid = True)
-			self.display_tctrl_as_valid(tctrl = self._PRW_patient, valid = True)
-
-		if self._TCTRL_subject.GetValue().strip() == u'':
-			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_subject, valid = False)
-		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_subject, valid = True)
-
-		if self._PRW_type.GetData() is None:
-			validity = False
-			self._PRW_type.display_as_valid(False)
-		else:
-			self._PRW_type.display_as_valid(True)
+			self.display_ctrl_as_valid(ctrl = self._CHBOX_active_patient, valid = True)
+			self.display_ctrl_as_valid(ctrl = self._PRW_patient, valid = True)
 
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-
-		if self._PRW_type.GetData() is None:
-			typ = self._PRW_type.GetValue().strip()
-		else:
-			typ = self._PRW_type.GetData()
 
 		pat_id = None
 		if self._CHBOX_active_patient.GetValue() is True:
@@ -621,57 +628,52 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			if self._PRW_patient.person is not None:
 				pat_id = self._PRW_patient.person.ID
 
-		receivers = []
-		if self._PRW_receiver.GetData() is not None:
-			receivers.append(self._PRW_receiver.GetData())
-
+		receiver = None
 		if self._CHBOX_send_to_me.IsChecked():
-			curr_prov = gmPerson.gmCurrentProvider()
-			receivers.append(curr_prov['pk_staff'])
+			receiver = gmPerson.gmCurrentProvider()['pk_staff']
+		else:
+			if self._PRW_receiver.GetData() is not None:
+				receiver = self._PRW_receiver.GetData()
+
+		msg = gmProviderInbox.create_inbox_message (
+			patient = pat_id,
+			staff = receiver,
+			message_type = self._PRW_type.GetData(can_create = True),
+			subject = self._TCTRL_subject.GetValue().strip()
+		)
+
+		msg['data'] = self._TCTRL_message.GetValue().strip()
 
 		if self._RBTN_normal.GetValue() is True:
-			importance = 0
+			msg['importance'] = 0
 		elif self._RBTN_high.GetValue() is True:
-			importance = 1
+			msg['importance'] = 1
 		else:
-			importance = -1
+			msg['importance'] = -1
 
-		if len(receivers) == 0:
-			data = gmProviderInbox.create_inbox_message (
-				patient = pat_id,
-				message_type = typ,
-				subject = self._TCTRL_subject.GetValue().strip()
-			)
-			data['data'] = self._TCTRL_message.GetValue().strip()
-			data['importance'] = importance
-			data.save()
-		else:
-			for staff in receivers:
-				data = gmProviderInbox.create_inbox_message (
-					patient = pat_id,
-					staff = staff,
-					message_type = typ,
-					subject = self._TCTRL_subject.GetValue().strip()
-				)
-				data['data'] = self._TCTRL_message.GetValue().strip()
-				data['importance'] = importance
-				data.save()
-
-		self.data = data
-
+		msg.save()
+		self.data = msg
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
+		self.data['comment'] = self._TCTRL_subject.GetValue().strip()
+		self.data['pk_type'] = self._PRW_type.GetData(can_create = True)
+
 		if self._CHBOX_send_to_me.IsChecked():
-			curr_prov = gmPerson.gmCurrentProvider()
-			self.data['pk_staff'] = curr_prov['pk_staff']
+			self.data['pk_staff'] = gmPerson.gmCurrentProvider()['pk_staff']
 		else:
 			self.data['pk_staff'] = self._PRW_receiver.GetData()
 
-		self.data['pk_type'] = self._PRW_type.GetData()
-		self.data['comment'] = self._TCTRL_subject.GetValue().strip()
 		self.data['data'] = self._TCTRL_message.GetValue().strip()
+
+		if self._CHBOX_active_patient.GetValue() is True:
+			self.data['pk_patient'] = gmPerson.gmCurrentPatient().ID
+		else:
+			if self._PRW_patient.person is None:
+				self.data['pk_patient'] = None
+			else:
+				self.data['pk_patient'] = self._PRW_patient.person.ID
 
 		if self._RBTN_normal.GetValue() is True:
 			self.data['importance'] = 0
@@ -680,33 +682,30 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		else:
 			self.data['importance'] = -1
 
-		if self._CHBOX_active_patient.GetValue() is True:
-			curr_pat = gmPerson.gmCurrentPatient()
-			self.data['pk_patient'] = curr_pat.ID
-		else:
-			if self._PRW_patient.person is not None:
-				self.data['pk_patient'] = self._PRW_patient.person.ID
-
 		self.data.save()
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._CHBOX_send_to_me.SetValue(True)
-		self._PRW_receiver.SetText(value = u'', data = None)
 		self._TCTRL_subject.SetValue(u'')
-		self._TCTRL_message.SetValue(u'')
 		self._PRW_type.SetText(value = u'', data = None)
+		self._CHBOX_send_to_me.SetValue(True)
+		self._PRW_receiver.Enable(False)
+		self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+		self._TCTRL_message.SetValue(u'')
 		self._RBTN_normal.SetValue(True)
 		self._RBTN_high.SetValue(False)
 		self._RBTN_low.SetValue(False)
-		self._CHBOX_active_patient.SetValue(False)
-		self._PRW_patient.person = None
-		self._PRW_patient.Enable(True)
 
-		curr_pat = gmPerson.gmCurrentPatient()
-		if curr_pat.is_connected:
+		self._PRW_patient.person = None
+
+		if gmPerson.gmCurrentPatient().connected:
+			self._CHBOX_active_patient.Enable(True)
 			self._CHBOX_active_patient.SetValue(True)
 			self._PRW_patient.Enable(False)
+		else:
+			self._CHBOX_active_patient.Enable(False)
+			self._CHBOX_active_patient.SetValue(False)
+			self._PRW_patient.Enable(True)
 
 		self._TCTRL_subject.SetFocus()
 	#----------------------------------------------------------------
@@ -715,30 +714,41 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 
+		self._TCTRL_subject.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._PRW_type.SetData(data = self.data['pk_type'])
+
 		curr_prov = gmPerson.gmCurrentProvider()
 		curr_pat = gmPerson.gmCurrentPatient()
 
 		if curr_prov['pk_staff'] == self.data['pk_staff']:
 			self._CHBOX_send_to_me.SetValue(True)
-			self._PRW_receiver.SetText(value = u'', data = None)
+			self._PRW_receiver.Enable(False)
+			self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
 		else:
 			self._CHBOX_send_to_me.SetValue(False)
-			self._PRW_receiver.SetText(data = self.data['pk_staff'])
+			self._PRW_receiver.Enable(True)
+			self._PRW_receiver.SetData(data = self.data['pk_staff'])
 
-		self._TCTRL_subject.SetValue(gmTools.coalesce(self.data['comment'], u''))
 		self._TCTRL_message.SetValue(gmTools.coalesce(self.data['data'], u''))
-		self._PRW_type.SetData(data = self.data['pk_type'])
 
-		self._CHBOX_active_patient.SetValue(False)
-		if self.data['pk_patient'] is None:
-			self._PRW_patient.person = None
-		else:
-			self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
-		self._PRW_patient.Enable(True)
-		if curr_pat.is_connected:
+		if curr_pat.connected:
+			self._CHBOX_active_patient.Enable(True)
 			if curr_pat.ID == self.data['pk_patient']:
 				self._CHBOX_active_patient.SetValue(True)
 				self._PRW_patient.Enable(False)
+				self._PRW_patient.person = None
+			else:
+				self._CHBOX_active_patient.SetValue(False)
+				self._PRW_patient.Enable(True)
+				self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+		else:
+			self._CHBOX_active_patient.Enable(False)
+			self._CHBOX_active_patient.SetValue(False)
+			self._PRW_patient.Enable(True)
+			if self.data['pk_patient'] is None:
+				self._PRW_patient.person = None
+			else:
+				self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
 
 		self._RBTN_normal.SetValue(False)
 		self._RBTN_high.SetValue(False)
@@ -750,11 +760,22 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 
 		self._TCTRL_subject.SetFocus()
 	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
 	def _on_active_patient_checked(self, event):
-		if self._CHBOX_active_patient.GetValue() is True:
+		if self._CHBOX_active_patient.IsChecked():
 			self._PRW_patient.Enable(False)
+			self._PRW_patient.person = None
 		else:
 			self._PRW_patient.Enable(True)
+	#----------------------------------------------------------------
+	def _on_send_to_me_checked(self, event):
+		if self._CHBOX_send_to_me.IsChecked():
+			self._PRW_receiver.Enable(False)
+			self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+		else:
+			self._PRW_receiver.Enable(True)
+			self._PRW_receiver.SetText(value = u'', data = None)
 #============================================================
 def edit_inbox_message(parent=None, message=None, single_entry=True):
 
@@ -791,6 +812,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		cProviderInboxPnl._item_handlers['clinical.review docs'] = self._goto_doc_review
 		cProviderInboxPnl._item_handlers['clinical.review results'] = self._goto_measurements_review
+		cProviderInboxPnl._item_handlers['clinical.review lab'] = self._goto_measurements_review
 		cProviderInboxPnl._item_handlers['clinical.review vaccs'] = self._goto_vaccination_review
 
 		self.__register_interests()
@@ -813,7 +835,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_provider_inbox.set_columns([u'', _('date'), _('category'), _('type'), _('message')])
+		self._LCTRL_provider_inbox.set_columns([u'', _('Sent'), _('Category'), _('Type'), _('Message')])
 
 		msg = _('\n Inbox of %(title)s %(lname)s.\n') % {
 			'title': gmTools.coalesce (
@@ -822,6 +844,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			),
 			'lname': self.provider['lastnames']
 		}
+
+		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
 
 		self._msg_welcome.SetLabel(msg)
 
@@ -915,15 +939,22 @@ GNUmed for message category and type:
 
 		# build menu
 		menu = wx.Menu(title = _('Inbox Message menu'))
-		# - delete message
-		if not self.__focussed_msg['is_virtual']:
-			ID = wx.NewId()
-			menu.AppendItem(wx.MenuItem(menu, ID, _('Delete message')))
-			wx.EVT_MENU(menu, ID, self._on_delete_focussed_msg)
 
+		if not self.__focussed_msg['is_virtual']:
+			# - delete message
 			ID = wx.NewId()
-			menu.AppendItem(wx.MenuItem(menu, ID, _('Edit message')))
+			menu.AppendItem(wx.MenuItem(menu, ID, _('Delete')))
+			wx.EVT_MENU(menu, ID, self._on_delete_focussed_msg)
+			# - edit message
+			ID = wx.NewId()
+			menu.AppendItem(wx.MenuItem(menu, ID, _('Edit')))
 			wx.EVT_MENU(menu, ID, self._on_edit_focussed_msg)
+
+#		if self.__focussed_msg['pk_staff'] is not None:
+#			# - distribute to other providers
+#			ID = wx.NewId()
+#			menu.AppendItem(wx.MenuItem(menu, ID, _('Distribute')))
+#			wx.EVT_MENU(menu, ID, self._on_distribute_focussed_msg)
 
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
@@ -942,6 +973,43 @@ GNUmed for message category and type:
 	def _on_add_button_pressed(self, event):
 		edit_inbox_message(parent = self, message = None, single_entry = False)
 	#--------------------------------------------------------
+	def _get_msg_tooltip(self, msg):
+		tt = u'%s: %s%s\n' % (
+			msg['received_when'].strftime('%A, %Y %B %d, %H:%M').decode(gmI18N.get_encoding()),
+			gmTools.bool2subst(msg['is_virtual'], _('virtual message'), _('message')),
+			gmTools.coalesce(msg['pk_inbox_message'], u'', u' #%s ')
+		)
+
+		tt += u'%s: %s\n' % (
+			msg['l10n_category'],
+			msg['l10n_type']
+		)
+
+		tt += u'%s %s %s\n' % (
+			msg['modified_by'],
+			gmTools.u_right_arrow,
+			gmTools.coalesce(msg['provider'], _('everyone'))
+		)
+
+		tt += u'\n%s%s%s\n\n' % (
+			gmTools.u_left_double_angle_quote,
+			msg['comment'],
+			gmTools.u_right_double_angle_quote
+		)
+
+		tt += gmTools.coalesce (
+			msg['pk_patient'],
+			u'',
+			u'%s\n\n' % _('Patient #%s')
+		)
+
+		if msg['data'] is not None:
+			tt += msg['data'][:150]
+			if len(msg['data']) > 150:
+				tt += gmTools.u_ellipsis
+
+		return tt
+	#--------------------------------------------------------
 	# item handlers
 	#--------------------------------------------------------
 	def _on_delete_focussed_msg(self, evt):
@@ -959,6 +1027,13 @@ GNUmed for message category and type:
 			gmDispatcher.send(signal = 'statustext', msg = _('This message cannot be edited because it is virtual.'))
 			return False
 		edit_inbox_message(parent = self, message = self.__focussed_msg, single_entry = True)
+		return True
+	#--------------------------------------------------------
+	def _on_distribute_focussed_msg(self, evt):
+		if self.__focussed_msg['pk_staff'] is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('This message is already visible to all providers.'))
+			return False
+		print "now distributing"
 		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None, pk_patient=None):

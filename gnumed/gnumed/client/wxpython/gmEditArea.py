@@ -192,10 +192,11 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			return result
 		elif self.__mode == 'edit':
 			result = self._refresh_from_existing()
-			self._valid_for_save()
 			return result
 		elif self.__mode == 'new_from_existing':
-			return self._refresh_as_new_from_existing()
+			result = self._refresh_as_new_from_existing()
+			self._valid_for_save()
+			return result
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
 	#----------------------------------------------------------------

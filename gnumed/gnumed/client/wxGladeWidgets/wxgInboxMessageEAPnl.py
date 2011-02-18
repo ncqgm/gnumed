@@ -20,7 +20,7 @@ class wxgInboxMessageEAPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._TCTRL_subject = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_type = gmProviderInboxWidgets.cMessageTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._CHBOX_send_to_me = wx.CheckBox(self, -1, _(u"&Myself … and/or:"))
+        self._CHBOX_send_to_me = wx.CheckBox(self, -1, _(u"&Myself … or:"))
         self._PRW_receiver = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_active_patient = wx.CheckBox(self, -1, _(u"&Active … or:"))
         self._PRW_patient = gmPatSearchWidgets.cPersonSearchCtrl(self, -1, "", style=wx.NO_BORDER)
@@ -32,6 +32,7 @@ class wxgInboxMessageEAPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_CHECKBOX, self._on_send_to_me_checked, self._CHBOX_send_to_me)
         self.Bind(wx.EVT_CHECKBOX, self._on_active_patient_checked, self._CHBOX_active_patient)
         # end wxGlade
 
@@ -97,6 +98,10 @@ class wxgInboxMessageEAPnl(wx.ScrolledWindow):
 
     def _on_active_patient_checked(self, event): # wxGlade: wxgInboxMessageEAPnl.<event_handler>
         print "Event handler `_on_active_patient_checked' not implemented!"
+        event.Skip()
+
+    def _on_send_to_me_checked(self, event): # wxGlade: wxgInboxMessageEAPnl.<event_handler>
+        print "Event handler `_on_send_to_me_checked' not implemented"
         event.Skip()
 
 # end of class wxgInboxMessageEAPnl
