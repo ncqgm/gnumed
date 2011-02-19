@@ -10,7 +10,7 @@ import pyPgSQL.PgSQL as dbapi
 
 __license__ = "GPL"
 dsn = "::gnumed_v9:any-doc:any-doc"
-#dsn = "salaam.homeunix.com:5432:gnumed_v2:any-doc:any-doc"
+#dsn = "publicdb.gnumed.de:5432:gnumed_v2:any-doc:any-doc"
 fname = sys.argv[1]
 encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
 
@@ -103,7 +103,7 @@ log.close()
 # - port 5432, again
 #
 # Revision 1.4  2007/05/22 13:34:49  ncq
-# - port 5433 on salaam
+# - port 5433 on publicdb.gnumed.de
 #
 # Revision 1.3  2006/09/01 15:23:13  ncq
 # - decrease dependancy on external libraries

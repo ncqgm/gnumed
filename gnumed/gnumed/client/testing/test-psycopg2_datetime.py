@@ -49,7 +49,7 @@ except ImportError:
 	_log.warning('cannot import mx.DateTime')
 #=======================================================================
 
-dsn = u'dbname=gnumed_v9 host=salaam.homeunix.com port=5432 user=any-doc password=any-doc sslmode=prefer'
+dsn = u'dbname=gnumed_v9 host=publicdb.gnumed.de port=5432 user=any-doc password=any-doc sslmode=prefer'
 print dsn
 
 import psycopg2.extras

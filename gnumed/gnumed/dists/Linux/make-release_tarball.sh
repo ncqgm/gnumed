@@ -261,7 +261,7 @@ cd -
 echo "downloading the API documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/api/
 cd ./gnumed-client.$CLIENTREV/client/doc/api/
-wget -v -r -k -np -nd http://salaam.homeunix.com/~ncq/gnumed/api/
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/api/
 cd -
 
 
@@ -269,8 +269,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget -v -r -k -np -nd http://salaam.homeunix.com/~ncq/gnumed/schema/release/gnumed-schema.html
-wget -v -r -k -np -nd http://salaam.homeunix.com/~ncq/gnumed/schema/release/gnumed-schema-no_audit.dot
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/release/gnumed-schema.html
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/release/gnumed-schema-no_audit.dot
 cd -
 
 

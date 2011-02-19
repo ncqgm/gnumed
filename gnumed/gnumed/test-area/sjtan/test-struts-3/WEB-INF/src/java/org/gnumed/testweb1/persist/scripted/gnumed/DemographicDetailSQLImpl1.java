@@ -1132,7 +1132,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 			String selectDetailNamesAddress = "select * from v_basic_person p " +
 			"left join lnk_person_org_address l on (p.pk_identity = l.id_identity) " +
 			"left join v_basic_address a on (l.id_address = a.id) " +
-		// can't access salaam to change view, so resort to application selection of comms.
+		// can't access publicdb.gnumed.de to change view, so resort to application selection of comms.
 		// "left join v_person_comms_flat vc on vc.id = p.id " +
 			"where p.pk_identity= ? ";
             

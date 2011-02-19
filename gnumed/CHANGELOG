@@ -30,6 +30,10 @@ IMPROVED: DOB validity check when creating new person
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.11
+
+FIX: pointed everything to publicdb.gnumed.de
+
 	0.7.10
 
 FIX: exception on trying to create hospital stay w/o episode [thanks devm]

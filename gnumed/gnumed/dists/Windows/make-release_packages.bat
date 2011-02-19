@@ -20,7 +20,7 @@ rem # extracting copy of user manual (Wiki)           #
 rem #                                                 #
 rem ###################################################
 
-rem c:\tools\wget -v http://salaam.homeunix.com/gm-manual/Main.TWikiGuest_Gnumed.zip
+rem c:\tools\wget -v http://publicdb.gnumed.de/gm-manual/Main.TWikiGuest_Gnumed.zip
 rem c:\tools\unzip Main.TWikiGuest_Gnumed.zip -d user-manual
 
 rem copy user-manual\Release-01.html user-manual\index.html 
