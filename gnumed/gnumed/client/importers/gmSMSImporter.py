@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
 	login = cLogin()
 	login.database = u'gnumed_v9'
-	login.host = u'salaam.homeunix.com'
+	login.host = u'publicdb.gnumed.de'
 	login.port = 5432
 	login.user = u'any-doc'
 	login.password = u'any-doc'

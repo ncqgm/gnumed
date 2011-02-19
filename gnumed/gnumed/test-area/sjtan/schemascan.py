@@ -12,7 +12,7 @@ import binascii
 """
 #credentials = "hherb.com:gnumed:any-doc:any-doc"
 #credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
-#credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
+#credentials = "publicdb.gnumed.de::gnumed:any-doc:any-doc"
 credentials = "127.0.0.1::gnumed:gm-dbo:pass"
 
 class SchemaScan:
