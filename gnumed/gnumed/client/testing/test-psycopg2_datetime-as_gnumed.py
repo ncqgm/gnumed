@@ -20,7 +20,7 @@ class login:
 
 l = login()
 l.database = 'gnumed_v9'
-l.host = 'salaam.homeunix.com'
+l.host = 'publicdb.gnumed.de'
 l.port = '5432'
 l.user = 'any-doc'
 l.password = 'any-doc'

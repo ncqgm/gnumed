@@ -10,7 +10,7 @@ import psycopg2 as dbapi
 
 __license__ = "GPL"
 dsn = "dbname=gnumed_v9 user=any-doc password=any-doc"
-#dsn = "host=salaam.homeunix.com port=5432 dbname=gnumed_v2 user=any-doc password=any-doc"
+#dsn = "host=publicdb.gnumed.de port=5432 dbname=gnumed_v2 user=any-doc password=any-doc"
 fname = sys.argv[1]
 encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
 
@@ -96,7 +96,7 @@ log.close()
 # - port 5432, again
 #
 # Revision 1.2  2007/05/22 13:34:48  ncq
-# - port 5433 on salaam
+# - port 5433 on publicdb.gnumed.de
 #
 # Revision 1.1  2006/09/01 15:25:43  ncq
 # - first version for psycopg2

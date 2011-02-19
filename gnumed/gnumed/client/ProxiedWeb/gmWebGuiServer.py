@@ -254,7 +254,7 @@ def __get_backend_profiles():
 				del profiles[label]
 
 		if len(profiles) == 0:
-			host = u'salaam.homeunix.com'
+			host = u'publicdb.gnumed.de'
 			label = u'public GNUmed database (%s@%s)' % (current_db_name, host)
 			profiles[label] = cBackendProfile()
 			profiles[label].name = label
