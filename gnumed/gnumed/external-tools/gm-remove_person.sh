@@ -59,10 +59,15 @@ cat <<-EOF
 	begin;
 
 	-- delete data
-	delete from clin.lab_request where fk_encounter in (
+	delete from clin.clin_root_item where fk_encounter in (
 	    select pk from clin.encounter where fk_patient = ${PERSON_PK}
 	);
-
+	--delete from clin.lab_request where fk_encounter in (
+	--    select pk from clin.encounter where fk_patient = ${PERSON_PK}
+	--);
+	--delete from clin.clin_hx_family where fk_encounter in (
+	--    select pk from clin.encounter where fk_patient = ${PERSON_PK}
+	--);
 
 	-- delete episodes
 	delete from clin.episode where fk_encounter in (
