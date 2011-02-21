@@ -157,6 +157,11 @@ IMPROVED: use substance rather than brand as allergene when creating allergy fro
 # rel-0-7-patches
 ------------------------------------------------
 
+	0.7.11
+
+FIX: pointed everything to publicdb.gnumed.de
+FIX: refuse to connect to salaam.homeunix*
+
 	0.7.10
 
 FIX: exception on trying to create hospital stay w/o episode [thanks devm]
