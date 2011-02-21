@@ -33,6 +33,7 @@ IMPROVED: DOB validity check when creating new person
 	0.7.11
 
 FIX: pointed everything to publicdb.gnumed.de
+FIX: refuse to connect to salaam.homeunix*
 
 	0.7.10
 
