@@ -291,7 +291,7 @@ SELECT fk_encounter from
 			order by date, soap_rank
 		"""
 
-		#xxxxxxxxxxxxxxxx
+		##########################
 		# support row_version in narrative for display in tree
 
 		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
@@ -2028,6 +2028,26 @@ order by clin_when desc, pk_episode, unified_name"""
 		)
 
 		return tr
+	#------------------------------------------------------------------
+	def get_bmi(self):
+
+		cfg_db = gmCfg.cCfgSQL()
+
+		mass_loincs = cfg_db.get2 (
+			option = u'lab.body_mass_loincs',
+			workplace = _here.active_workplace,
+			bias = u'user',
+			default = []
+		)
+
+		height_loincs = cfg_db.get2 (
+			option = u'lab.body_height_loincs',
+			workplace = _here.active_workplace,
+			bias = u'user',
+			default = []
+		)
+
+		return gmPathLab.calculate_bmi(mass = mass, height = height)	# age = age
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	def get_lab_results(self, limit=None, since=None, until=None, encounters=None, episodes=None, issues=None):

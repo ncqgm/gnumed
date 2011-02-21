@@ -5,7 +5,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import types, sys, logging, codecs
+import types, sys, logging, codecs, decimal
 
 
 if __name__ == '__main__':
@@ -1234,6 +1234,36 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 			trailer = most_recent[-1:]
 			return '%s%s' % (header, chr(ord(trailer) + 1))
 #============================================================
+def calculate_bmi(mass=None, height=None, age=None):
+	"""Calculate BMI.
+
+	mass: kg
+	height: cm
+	age: not yet used
+
+	returns:
+		(True/False, data)
+		True: data = (bmi, lower_normal, upper_normal)
+		False: data = error message
+	"""
+	converted, mass = gmTools.input2decimal(mass)
+	if not converted:
+		return False, u'mass: cannot convert <%s> to Decimal' % mass
+
+	converted, height = gmTools.input2decimal(height)
+	if not converted:
+		return False, u'height: cannot convert <%s> to Decimal' % height
+
+	approx_surface = (height / decimal.Decimal(100))**2
+	bmi = mass / approx_surface
+
+	print mass, height, '->', approx_surface, '->', bmi
+
+	lower_normal_mass = 20.0 * approx_surface
+	upper_normal_mass = 25.0 * approx_surface
+
+	return True, (bmi, lower_normal_mass, upper_normal_mass)
+#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -1353,7 +1383,15 @@ if __name__ == '__main__':
 		]
 		print format_test_results(results = results)
 	#--------------------------------------------------------
+	def test_calculate_bmi():
+		done, data = calculate_bmi(mass = sys.argv[2], height = sys.argv[3])
+		bmi, low, high = data
 
+		print "BMI:", bmi
+		print "low:", low, "kg"
+		print "hi :", high, "kg"
+
+	#--------------------------------------------------------
 
 	#test_result()
 	#test_create_test_result()
@@ -1366,7 +1404,8 @@ if __name__ == '__main__':
 	#test_pending()
 	#test_meta_test_type()
 	#test_test_type()
-	test_format_test_results()
+	#test_format_test_results()
+	test_calculate_bmi()
 
 #============================================================
 
