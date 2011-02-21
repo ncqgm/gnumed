@@ -1192,6 +1192,9 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	if dsn is None:
 		dsn = get_default_dsn()
 
+	if u'host=salaam.homeunix' in dsn:
+		raise ValueError('The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.')
+
 	try:
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 	except dbapi.OperationalError, e:
