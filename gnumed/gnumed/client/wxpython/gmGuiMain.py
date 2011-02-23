@@ -1009,7 +1009,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 		#gmFormWidgets.create_new_letter(parent = self)
-		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True, cleanup = _cfg.get(option = 'debug'))
+		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True)
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------

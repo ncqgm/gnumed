@@ -1583,7 +1583,7 @@ def configure_medication_list_template(parent=None):
 
 	return template
 #------------------------------------------------------------
-def print_medication_list(parent=None, cleanup=True):
+def print_medication_list(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -1635,9 +1635,7 @@ def print_medication_list(parent=None, cleanup=True):
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
 	meds_list.substitute_placeholders(data_source = ph)
-	pdf_name = meds_list.generate_output(cleanup = cleanup)
-	if cleanup:
-		meds_list.cleanup()
+	pdf_name = meds_list.generate_output()
 	if pdf_name is None:
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Error generating the medication list.'),
@@ -2048,7 +2046,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	def print_medication_list(self):
 		# there could be some filtering/user interaction going on here
 		_cfg = gmCfg2.gmCfgData()
-		print_medication_list(parent = self, cleanup = _cfg.get(option = 'debug'))
+		print_medication_list(parent = self)
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
 

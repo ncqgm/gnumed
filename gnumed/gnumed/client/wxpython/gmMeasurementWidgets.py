@@ -138,8 +138,6 @@ def plot_measurements(parent=None, tests=None):
 	script = template.instantiate()
 	script.data_filename = fname_data
 	script.generate_output(format = 'wxp') 		# Gnuplot output terminal
-#	if cleanup:
-#		script.cleanup()
 
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl

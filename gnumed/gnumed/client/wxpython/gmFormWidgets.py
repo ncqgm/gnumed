@@ -24,7 +24,7 @@ _log.info(__version__)
 #============================================================
 # convenience functions
 #============================================================
-def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None, cleanup=True):
+def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -54,9 +54,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 	#ph.debug = True
 	doc.substitute_placeholders(data_source = ph)
 	doc.edit()
-	printable_file = doc.generate_output(cleanup = cleanup)
-	if cleanup:
-		doc.cleanup()
+	printable_file = doc.generate_output()
 	if printable_file is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (

@@ -60,33 +60,3 @@ class Shadow (wx.Panel):
 			h-self.sh_width-self.sh_width/2
 		)
 #=======================================================================
-# $Log: gmShadow.py,v $
-# Revision 1.13  2005-09-28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.12  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.11  2005/09/26 18:01:51  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.10  2004/03/04 19:47:07  ncq
-# - switch to package based import: from Gnumed.foo import bar
-#
-# Revision 1.9  2003/11/17 10:56:39  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:39  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.8  2003/01/12 11:42:23  ncq
-# - nasty "invisible" whitespace bug
-#
-# Revision 1.7  2003/01/12 01:06:22  ncq
-# - CVS keywords
-# - code cleanup
-#

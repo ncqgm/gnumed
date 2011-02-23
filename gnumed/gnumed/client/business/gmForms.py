@@ -572,18 +572,18 @@ class cFormEngine(object):
 		"""Generate output suitable for further processing outside this class, e.g. printing."""
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def process (self, data_source=None):
+	def process(self, data_source=None):
 		"""Merge values into the form template.
 		"""
 		pass
 	#--------------------------------------------------------
-	def cleanup (self):
+	def cleanup(self):
 		"""
 		A sop to TeX which can't act as a true filter: to delete temporary files
 		"""
 		pass
 	#--------------------------------------------------------
-	def exe (self, command):
+	def exe(self, command):
 		"""
 		Executes the provided command.
 		If command cotains %F. it is substituted with the filename
@@ -717,7 +717,7 @@ class cLaTeXForm(cFormEngine):
 
 		return gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 	#--------------------------------------------------------
-	def generate_output(self, instance_file = None, format=None, cleanup=True):
+	def generate_output(self, instance_file = None, format=None):
 
 		if instance_file is None:
 			instance_file = self.instance_filename
@@ -772,12 +772,6 @@ class cLaTeXForm(cFormEngine):
 
 		final_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
 
-		# cleanup LaTeX sandbox ?
-		if cleanup:
-			for fname in os.listdir(sandbox_dir):
-				os.remove(os.path.join(sandbox_dir, fname))
-			os.rmdir(sandbox_dir)
-
 		try:
 			open(final_pdf_name, 'r').close()
 		except IOError:
@@ -786,12 +780,6 @@ class cLaTeXForm(cFormEngine):
 			return None
 
 		return final_pdf_name
-	#--------------------------------------------------------
-	def cleanup(self):
-		try:
-			os.remove(self.template_filename)
-		except:
-			_log.debug(u'cannot remove template file [%s]', self.template_filename)
 #------------------------------------------------------------
 form_engines[u'L'] = cLaTeXForm
 #============================================================
@@ -842,14 +830,6 @@ class cGnuplotForm(cFormEngine):
 		gp.communicate()
 
 		return
-	#--------------------------------------------------------
-	def cleanup (self):
-		try:
-			os.remove(self.template_filename)
-			os.remove(self.conf_filename)
-			os.remove(self.data_filename)
-		except StandardError:
-			_log.exception(u'cannot remove either of script/conf/data file')
 #------------------------------------------------------------
 form_engines[u'G'] = cGnuplotForm
 #------------------------------------------------------------
@@ -1310,7 +1290,7 @@ if __name__ == '__main__':
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
 		instance_file = form.substitute_placeholders(data_source = ph)
-		pdf_name = form.generate_output(instance_file = instance_file, cleanup = False)
+		pdf_name = form.generate_output(instance_file = instance_file)
 		print "final PDF file is:", pdf_name
 
 	#--------------------------------------------------------
