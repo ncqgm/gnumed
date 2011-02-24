@@ -2921,14 +2921,16 @@ class gmApp(wx.App):
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
 		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
 
-#		if _cfg.get(option = 'debug'):
-#			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
-#			_log.debug('connected old signal monitor')
+		if _cfg.get(option = 'debug'):
+			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
+			_log.debug('connected old signal monitor')
+			wx.lib.pubsub.Publisher().subscribe(listener = self._signal_debugging_monitor_pubsub)
+			_log.debug('connected wx.lib.pubsub based signal monitor for all topics')
+
 #			wx.lib.pubsub.Publisher().subscribe (
 #				listener = self._signal_debugging_monitor_pubsub,
-#				topic = wx.lib.pubsub.getStrAllTopics()
+#				topic = wx.lib.pubsub.getStrAllTopics()					# does not exist anymore in later versions of pubsub
 #			)
-#			_log.debug('connected wx.lib.pubsub based signal monitor for all topics: [%s]', wx.lib.pubsub.getStrAllTopics())
 	#----------------------------------------------
 	def __check_for_updates(self):
 
