@@ -919,6 +919,9 @@ class cCurrentMedicationEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPn
 
 		self.__refresh_allergies()
 
+		if self.data is None:
+			return
+
 		# do we have a (full) plan ?
 		if None not in [self.data['started'], self.data['duration']]:
 			planned_end = self.data['started'] + self.data['duration']
