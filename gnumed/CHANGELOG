@@ -64,6 +64,8 @@ IMPROVED: make showing audit trail a restricted procedure
 
 FIX: incompatible transport formatting of bytea between pre-9.0 libpq and 9.0+ PG server [thanks D.Varrazzo]
 FIX: exception on adding a diagnostic org (path lab)
+FIX: pointed everything in this branch to publicdb.gnumed.de
+FIX: exception on pressing [As planned] in substance intake EA [thanks dj-marauder@web.de]
 
 	0.8.6
 
