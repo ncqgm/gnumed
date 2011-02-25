@@ -3175,8 +3175,8 @@ def main():
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
 		wx.lib.pubsub.Publisher().subscribe (
-			listener = _signal_debugging_monitor_pubsub,
-			topic = wx.lib.pubsub.getStrAllTopics()
+			listener = _signal_debugging_monitor_pubsub
+#			, topic = wx.lib.pubsub.getStrAllTopics()				# not available in some implementations
 		)
 		_log.debug('wx.lib.pubsub signal monitor activated')
 
