@@ -18,8 +18,15 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.8.6 (database v14.6)',
-	'GNUmed 0.8.6/14.6 Release Notes:
+	'Release Notes for GNUmed 0.8.7 (database v14.7)',
+	'GNUmed 0.8.7/14.7 Release Notes:
+
+	0.8.7
+
+FIX: incompatible transport formatting of bytea between pre-9.0 libpq and 9.0+ PG server [thanks D.Varrazzo]
+FIX: exception on adding a diagnostic org (path lab)
+FIX: pointed everything in this branch to publicdb.gnumed.de
+FIX: exception on pressing [As planned] in substance intake EA [thanks dj-marauder@web.de]
 
 	0.8.6
 
