@@ -24,6 +24,27 @@ where name_long = 'EMR Journal (GNUmed default)'
 		conn = conn
 	)
 
-	return True
+	# medical statement (certificate)
+	gmPG2.file2bytea (
+		query = u"""
+update ref.paperwork_templates
+set data = %(data)s::bytea
+where name_long = 'Medical statement (GNUmed default)'
+""",
+		filename = os.path.join('..', 'sql', 'v14-v15', 'data', 'GNUmed-default_medical_statement_template.tex'),
+		conn = conn
+	)
 
+	# Bescheinigung
+	gmPG2.file2bytea (
+		query = u"""
+update ref.paperwork_templates
+set data = %(data)s::bytea
+where name_long = 'Bescheinigung (GNUmed-Vorgabe)'
+""",
+		filename = os.path.join('..', 'sql', 'v14-v15', 'data', 'GNUmed-default_bescheinigung_template.tex'),
+		conn = conn
+	)
+
+	return True
 #==============================================================

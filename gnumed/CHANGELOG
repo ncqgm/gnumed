@@ -19,6 +19,8 @@ NEW: cloning of workplaces
 NEW: hook "post_person_creation"
 NEW: placeholder: "emr_journal::soap//%(narrative)s//255//tex::9999"
 NEW: LaTeX template: chronological EMR journal
+NEW: placeholder: "free_text::tex//<purpose>::9999"
+NEW: LaTeX template: generic free-text medical statement (English and German)
 NEW: full manual management of substances/drug components/branded drugs
 NEW: implement our own date picker
 NEW: implement searchable tags with image/name/comment on patients

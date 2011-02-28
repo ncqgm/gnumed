@@ -25,6 +25,11 @@ _log = logging.getLogger('gm.scripting')
 _cfg = gmCfg2.gmCfgData()
 
 #=====================================================================
+
+#placeholder: soap_for_encounters::soap -> select encounter, export those soap
+
+
+
 known_placeholders = [
 	'lastname',
 	'firstname',
@@ -72,7 +77,8 @@ known_variant_placeholders = [
 	u'allergies',				# "data" holds: line template, one allergy per line
 	u'allergy_list',			# "data" holds: template per allergy, allergies on one line
 	u'problems',				# "data" holds: line template, one problem per line
-	u'name'						# "data" holds: template for name parts arrangement
+	u'name',					# "data" holds: template for name parts arrangement
+	u'free_text'				# show a dialog for entering some free text
 ]
 
 default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
@@ -377,7 +383,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_soap(self, data=None):
 
 		# default: all categories, neutral template
-		cats = list(u'soap').append(None)
+		cats = list(u'soap')
+		cats.append(None)
 		template = u'%s'
 
 		if data is not None:
@@ -386,19 +393,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			# part[0]: categories
 			cats = []
 			# ' ' -> None == admin
-			for c in list(data_parts[0]):
-				if c == u' ':
-					c = None
-				cats.append(c)
+			for cat in list(data_parts[0]):
+				if cat == u' ':
+					cat = None
+				cats.append(cat)
 			# '' -> SOAP + None
 			if cats == u'':
-				cats = cats = list(u'soap').append(None)
+				cats = list(u'soap')
+				cats.append(None)
 
 			# part[1]: template
 			if len(data_parts) > 0:
 				template = data_parts[1]
 
-		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
+		narr = gmNarrativeWidgets.select_narrative_from_episodes_new(soap_cats = cats)
+
+		if narr is None:
+			return u''
 
 		if len(narr) == 0:
 			return u''
@@ -580,6 +591,34 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):
 		return gmTools.tex_escape_string(text = data)
+	#--------------------------------------------------------
+	def _get_variant_free_text(self, data=u'tex//'):
+		# <data>:
+		#	format:	tex (only, currently)
+		#	message: shown in input dialog, must not contain "//" or "::"
+
+		format, msg = data.split('//')
+
+		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+			None,
+			-1,
+			title = _('Replacing <free_text> placeholder'),
+			msg = _('Below you can enter free text.\n\n [%s]') % msg
+		)
+		dlg.enable_user_formatting = True
+		decision = dlg.ShowModal()
+
+		if decision != wx.ID_SAVE:
+			dlg.Destroy()
+			return _('Text input cancelled by user.')
+
+		text = dlg.value.strip()
+		if dlg.is_user_formatted:
+			dlg.Destroy()
+			return text
+
+		dlg.Destroy()
+		return gmTools.tex_escape_string(text = text)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -1006,7 +1045,8 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_placeholder():
 
-		ph = u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::'
+		#ph = u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::'
+		ph = u'free_text::latex//placeholder test::9999'
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True
