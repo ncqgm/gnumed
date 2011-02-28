@@ -168,6 +168,19 @@ class cProviderInbox:
 		else:
 			self.__provider_id = provider_id
 	#--------------------------------------------------------
+	def delete_message(self, pk=None):
+		return delete_inbox_message(inbox_message = pk)
+	#--------------------------------------------------------
+	def add_message(message_type=None, subject=None, patient=None):
+		return create_inbox_message (
+			message_type = message_type,
+			subject = subject,
+			patient = patient,
+			staff = self.__provider_id
+		)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
 	def _get_messages(self):
 		return get_inbox_messages(pk_staff = self.__provider_id)
 
@@ -175,9 +188,6 @@ class cProviderInbox:
 		return
 
 	messages = property(_get_messages, _set_messages)
-	#--------------------------------------------------------
-	def delete_message(self, pk=None):
-		return delete_inbox_message(inbox_message = pk)
 #============================================================
 if __name__ == '__main__':
 
@@ -186,7 +196,6 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
 
 	from Gnumed.pycommon import gmI18N
 
