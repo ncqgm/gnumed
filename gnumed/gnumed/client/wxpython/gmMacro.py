@@ -618,7 +618,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return text
 
 		dlg.Destroy()
-		return gmTools.tex_escape_string(text = text)
+
+		if format == u'tex':
+			return gmTools.tex_escape_string(text = text)
+
+		return text
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
