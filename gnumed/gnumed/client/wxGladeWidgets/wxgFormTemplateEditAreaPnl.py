@@ -19,6 +19,7 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
         self._PRW_instance_type = gmDocumentWidgets.cDocumentTypeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_filename = wx.TextCtrl(self, -1, "")
         self._BTN_load = wx.Button(self, -1, _("&Template"), style=wx.BU_EXACTFIT)
+        self._BTN_export = wx.Button(self, -1, _("Export"), style=wx.BU_EXACTFIT)
         self._CH_engine = wx.Choice(self, -1, choices=[_("OpenOffice"), _("LaTeX"), _("Image editor"), _("Gnuplot")])
         self._CHBOX_active = wx.CheckBox(self, -1, _("active"))
         self._TCTRL_date_modified = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
@@ -28,6 +29,7 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_load_button_pressed, self._BTN_load)
+        self.Bind(wx.EVT_BUTTON, self._on_export_button_pressed, self._BTN_export)
         # end wxGlade
 
     def __set_properties(self):
@@ -41,6 +43,8 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
         self._TCTRL_filename.SetToolTipString(_("Examplary filename. Mainly used for deriving a suitable file extension since that matters to some form engines. Most of the time this should already be set correctly when the template data is imported initially."))
         self._TCTRL_filename.Enable(False)
         self._BTN_load.SetToolTipString(_("Load template data from a file."))
+        self._BTN_export.SetToolTipString(_("Export the form template into a file."))
+        self._BTN_export.Enable(False)
         self._CH_engine.SetToolTipString(_("The form engine this template must be processed with."))
         self._CH_engine.SetSelection(0)
         self._CHBOX_active.SetToolTipString(_("Mark this checkbox if you want this template to be active in GNUmed."))
@@ -76,6 +80,7 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
         __gzsr_main.Add(__lbl_filename, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_filename.Add(self._TCTRL_filename, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_filename.Add(self._BTN_load, 0, wx.LEFT|wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_filename.Add(self._BTN_export, 0, wx.LEFT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
         __gzsr_main.Add(__szr_filename, 1, wx.EXPAND, 0)
         __lbl_options = wx.StaticText(self, -1, _("Options"))
         __gzsr_main.Add(__lbl_options, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -100,6 +105,10 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
 
     def _on_load_button_pressed(self, event): # wxGlade: wxgFormTemplateEditAreaPnl.<event_handler>
         print "Event handler `_on_load_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_export_button_pressed(self, event): # wxGlade: wxgFormTemplateEditAreaPnl.<event_handler>
+        print "Event handler `_on_export_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgFormTemplateEditAreaPnl

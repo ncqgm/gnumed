@@ -58,6 +58,7 @@ IMPROVED: menu structure creation such that accelerator keys work more reliably
 IMPROVED: EMR tree can now display selective chronological journal on issues and episodes
 IMPROVED: existing translations
 IMPROVED: make showing audit trail a restricted procedure
+IMPROVED: enable exporting of in-database form template
 
 ------------------------------------------------
 # rel-0-8-patches

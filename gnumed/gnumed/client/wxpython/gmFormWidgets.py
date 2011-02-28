@@ -300,6 +300,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._TCTRL_date_modified.SetValue(u'')
 			self._TCTRL_modified_by.SetValue(u'')
 
+			self._BTN_export.Enable(False)
 		else:
 			self._PRW_name_long.SetText(self.__template['name_long'])
 			self._PRW_name_short.SetText(self.__template['name_short'])
@@ -315,6 +316,8 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 
 			self._TCTRL_filename.Enable(True)
 			self._BTN_load.Enable(not self.__template['has_instances'])
+
+			self._BTN_export.Enable(True)
 
 		self._PRW_name_long.SetFocus()
 	#--------------------------------------------------------
@@ -411,7 +414,6 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			message = _('Choose a form template file'),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
-#			wildcard = "%s (*.ott)|*.ott|%s (*.tex)|*.tex|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('LaTeX templates'), _('all files'), _('all files (Win)')),
 			wildcard = '|'.join(wildcards),
 			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
 		)
@@ -420,6 +422,40 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self.full_filename = dlg.GetPath()
 			fname = os.path.split(self.full_filename)[1]
 			self._TCTRL_filename.SetValue(fname)
+		dlg.Destroy()
+	#--------------------------------------------------------
+	def _on_export_button_pressed(self, event):
+
+		if self.__template is None:
+			return
+
+		engine_abbrev = gmForms.form_engine_abbrevs[self._CH_engine.GetSelection()]
+
+		wildcards = []
+		try:
+			wildcards.append(u'%s (%s)|%s' % (
+				gmForms.form_engine_names[engine_abbrev],
+				gmForms.form_engine_template_wildcards[engine_abbrev],
+				gmForms.form_engine_template_wildcards[engine_abbrev]
+			))
+		except KeyError:
+			pass
+		wildcards.append(u"%s (*)|*" % _('all files'))
+		wildcards.append(u"%s (*.*)|*.*" % _('all files (Windows)'))
+
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Enter a filename to save the template in'),
+			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultFile = '',
+			wildcard = '|'.join(wildcards),
+			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT | wx.HIDE_READONLY
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_CANCEL:
+			fname = dlg.GetPath()
+			self.__template.export_to_file(filename = fname)
+
 		dlg.Destroy()
 #============================================================
 class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):
