@@ -23,7 +23,6 @@ alter table gm.notifying_tables
 	add constraint unique_entry
 		unique(schema_name, table_name, signal);
 
-
 -- --------------------------------------------------------------
 create or replace function gm.add_table_for_notifies(name, name, name)
 	returns boolean

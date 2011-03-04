@@ -549,6 +549,10 @@ IMPROVED: bootstrapper now better detects utf8 ctype
 # gnumed_v13
 ------------------------------------------------
 
+	13.7 -> 13.11
+
+FIX: PG 9.0 uses different constraint name on gm.notifying_tables
+
 	13.6 -> 13.7
 
 NEW: improved detection of unicode support in server encoding
