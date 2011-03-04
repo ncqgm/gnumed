@@ -82,6 +82,6 @@ comment on function gm.add_table_for_notifies (name, name) is
 grant select on gm.notifying_tables to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v10-gm-notifying_tables-dynamic.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v10-gm-notifying_tables-dynamic.sql,v $', '$Revision: 1.1 $');
 
 -- ==============================================================
