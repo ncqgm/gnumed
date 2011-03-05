@@ -888,6 +888,25 @@ from (
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
+	#--------------------------------------------------------
+	def _get_has_narrative(self):
+		cmd = u"""SELECT EXISTS (
+			SELECT 1 FROM clin.clin_narrative
+			WHERE
+				fk_episode = %(epi)s
+					AND
+				fk_encounter IN (
+					SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s
+				)
+		)"""
+		args = {
+			u'pat': self._payload[self._idx['pk_patient']],
+			u'epi': self._payload[self._idx['pk_episode']]
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	has_narrative = property(_get_has_narrative, lambda x:x)
 #============================================================
 def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow_dupes=False, encounter=None):
 	"""Creates a new episode for a given patient's health issue.
