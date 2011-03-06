@@ -17,6 +17,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmCfg, gmDispatcher, gmTools, gmCfg2
+from Gnumed.pycommon import gmNetworkTools
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 
@@ -45,7 +46,7 @@ def check_for_updates():
 
 	_cfg = gmCfg2.gmCfgData()
 
-	found, msg = gmTools.check_for_update (
+	found, msg = gmNetworkTools.check_for_update (
 		url = url,
 		current_branch = _cfg.get(option = 'client_branch'),
 		current_version = _cfg.get(option = 'client_version'),

@@ -6,6 +6,7 @@ __license__ = "GPL"
 
 
 import sys, logging, datetime as pyDT, decimal, os, webbrowser, subprocess, codecs
+import os.path
 
 
 import wx, wx.grid, wx.lib.hyperlink
@@ -15,6 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC, gmForms, gmPersonSearch
 from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg, gmShellAPI
+from Gnumed.pycommon import gmNetworkTools
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxpython import gmAuthWidgets, gmPatSearchWidgets, gmFormWidgets
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
@@ -34,20 +36,17 @@ def update_loinc_reference_data():
 	gmDispatcher.send(signal = 'statustext', msg = _('Updating LOINC data can take quite a while...'), beep = True)
 
 	# download
-	downloaded = gmShellAPI.run_command_in_shell(command = 'gm-download_loinc', blocking = True)
+	downloaded, loinc_dir = gmNetworkTools.download_data_pack(url = 'http://www.gnumed.de/downloads/data/loinc/loinctab.zip')
 	if not downloaded:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_warning (
 			aTitle = _('Downloading LOINC'),
-			aMessage = _(
-				'Running <gm-download_loinc> to retrieve\n'
-				'the latest LOINC data failed.\n'
-			)
+			aMessage = _('Error downloading the latest LOINC data.\n')
 		)
 		return False
 
-	# split and import
-	data_fname, license_fname = gmLOINC.split_LOINCDBTXT(input_fname = '/tmp/LOINCDB.TXT')
+	# split master data file
+	data_fname, license_fname = gmLOINC.split_LOINCDBTXT(input_fname = os.path.join(loinc_dir, 'LOINCDB.TXT'))
 
 	wx.EndBusyCursor()
 
@@ -57,13 +56,9 @@ def update_loinc_reference_data():
 
 	wx.BeginBusyCursor()
 
+	# import data
 	if gmLOINC.loinc_import(data_fname = data_fname, license_fname = license_fname, conn = conn):
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully imported LOINC reference data.'))
-		try:
-			os.remove(data_fname)
-			os.remove(license_fname)
-		except OSError:
-			_log.error('unable to remove [%s] or [%s]', data_fname, license_fname)
 	else:
 		gmDispatcher.send(signal = 'statustext', msg = _('Importing LOINC reference data failed.'), beep = True)
 

@@ -152,7 +152,7 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 
 	return exited_normally
 #===========================================================================
-def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_last_one_anyway=False):
+def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_last_one_anyway=False, acceptable_return_codes=None):
 
 	found, binary = find_first_binary(binaries = binaries)
 
@@ -163,7 +163,7 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 			_log.warning('cannot find any of: %s', binaries)
 			return False
 
-	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking)
+	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking, acceptable_return_codes = acceptable_return_codes)
 #===========================================================================
 # main
 #---------------------------------------------------------------------------

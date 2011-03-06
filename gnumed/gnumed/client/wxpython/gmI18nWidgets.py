@@ -217,8 +217,8 @@ def manage_translations(parent=None, language=None):
 		fname = gmTools.get_unique_filename(prefix = 'gm-db-translations-', suffix = '.sql')
 		gmPG2.export_translations_from_database(filename = fname)
 
-		if not gmTools.send_mail (
-			auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
+		if not gmNetworkTools.send_mail (
+			auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
 			sender = u'GNUmed Client <gnumed@gmx.net>',
 			receiver = [u'gnumed-bugs@gnu.org'],
 			subject = u'<contribution>: database translation',

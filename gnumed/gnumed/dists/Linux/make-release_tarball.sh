@@ -122,7 +122,7 @@ echo "============"
 # external tools
 mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
-cp -R ../../external-tools/gm-download_loinc ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-download_data ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-download_atc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-print_doc ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-read_chipcard.sh ./gnumed-client.$CLIENTREV/external-tools/

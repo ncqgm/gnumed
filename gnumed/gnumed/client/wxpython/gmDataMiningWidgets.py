@@ -252,7 +252,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if not do_it:
 			return
 
-		auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+		auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
 		msg = u"""--- This is a report definition contributed by a GNUmed user:
 
 ----------------------------------------
@@ -266,13 +266,13 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 --- The GNUmed client.
 """ % (report, query)
 
-		if not gmTools.send_mail (
+		if not gmNetworkTools.send_mail (
 			sender = u'GNUmed Report Generator <gnumed@gmx.net>',
 			receiver = [u'gnumed-devel@gnu.org'],
 			subject = u'user contributed report',
 			message = msg,
 			encoding = gmI18N.get_encoding(),
-			server = gmTools.default_mail_server,
+			server = gmNetworkTools.default_mail_server,
 			auth = auth
 		):
 			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
@@ -464,54 +464,3 @@ if __name__ == '__main__':
 	test_pat_list_ctrl()
 
 #================================================================
-# $Log: gmDataMiningWidgets.py,v $
-# Revision 1.14  2009-07-30 12:03:34  ncq
-# - improved contribution email
-#
-# Revision 1.13  2009/07/18 11:46:53  ncq
-# - be more robust in the face of non-existant patients being activated
-#
-# Revision 1.12  2009/07/15 12:21:10  ncq
-# - auto-load report from db if name exists and query empty and name loses focus
-# - clear results, too, on clear button
-# - improved plot title
-# - improved error handling around Gnuplot access
-# - display # of results found
-#
-# Revision 1.11  2009/07/06 17:10:35  ncq
-# - signal errors in sanity check of query before contributing
-# - show warning before sending contribution
-# - fix encoding of contribution email
-#
-# Revision 1.10  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.9  2008/12/22 18:59:56  ncq
-# - put \n before appended wrapper query because original query might have
-#   a line starting with "-- " as the last line ...
-#
-# Revision 1.8  2008/03/06 18:29:29  ncq
-# - standard lib logging only
-#
-# Revision 1.7  2007/12/11 12:49:25  ncq
-# - explicit signal handling
-#
-# Revision 1.6  2007/11/21 14:33:40  ncq
-# - fix use of send_mail()
-#
-# Revision 1.5  2007/09/24 18:31:16  ncq
-# - support visualizing data mining results
-#
-# Revision 1.4  2007/09/10 13:50:05  ncq
-# - missing import
-#
-# Revision 1.3  2007/08/12 00:07:18  ncq
-# - no more gmSignals.py
-#
-# Revision 1.2  2007/07/09 11:06:24  ncq
-# - missing import
-#
-# Revision 1.1  2007/07/09 11:03:49  ncq
-# - new file
-#
-#

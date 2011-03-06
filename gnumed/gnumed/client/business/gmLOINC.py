@@ -6,8 +6,6 @@ http://loinc.org
 license: GPL
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmLOINC.py,v $
-# $Id: gmLOINC.py,v 1.7 2009-08-11 10:44:15 ncq Exp $
 __version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -73,11 +71,11 @@ def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 	_log.debug('splitting LOINC source file [%s]', input_fname)
 
 	if license_fname is None:
-		license_fname = gmTools.get_unique_filename(prefix = 'loinc_license', suffix = '.txt')
+		license_fname = gmTools.get_unique_filename(prefix = 'loinc_license-', suffix = '.txt')
 	_log.debug('LOINC header: %s', license_fname)
 
 	if data_fname is None:
-		data_fname = gmTools.get_unique_filename(prefix = 'loinc_data', suffix = '.csv')
+		data_fname = gmTools.get_unique_filename(prefix = 'loinc_data-', suffix = '.csv')
 	_log.debug('LOINC data: %s', data_fname)
 
 	loinc_file = codecs.open(input_fname, 'rU', encoding = file_encoding, errors = 'replace')

@@ -2,13 +2,12 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-__version__ = "$Revision: 1.98 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
-import urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
+import decimal, StringIO
 import cPickle, zlib
 
 
@@ -25,7 +24,6 @@ from Gnumed.pycommon import gmBorg
 
 
 _log = logging.getLogger('gm.tools')
-_log.info(__version__)
 
 # CAPitalization modes:
 (	CAPS_NONE,					# don't touch it
@@ -35,10 +33,6 @@ _log.info(__version__)
 	CAPS_NAMES,					# CAP in a way suitable for names (tries to be smart)
 	CAPS_FIRST_ONLY				# CAP first char, lowercase the rest
 ) = range(6)
-
-default_mail_sender = u'gnumed@gmx.net'
-default_mail_receiver = u'gnumed-devel@gnu.org'
-default_mail_server = u'mail.gmx.net'
 
 
 u_right_double_angle_quote = u'\u00AB'		# <<
@@ -68,135 +62,6 @@ u_pencil_3 = u'\u2710'
 u_latin_cross = u'\u271d'
 u_replacement_character = u'\ufffd'
 
-#===========================================================================
-def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
-	"""Check for new releases at <url>.
-
-	Returns (bool, text).
-	True: new release available
-	False: up to date
-	None: don't know
-	"""
-	try:
-		remote_file = wget.urlopen(url)
-	except (wget.URLError, ValueError, OSError):
-		_log.exception("cannot retrieve version file from [%s]", url)
-		return (None, _('Cannot retrieve version information from:\n\n%s') % url)
-
-	_log.debug('retrieving version information from [%s]', url)
-
-	from Gnumed.pycommon import gmCfg2
-	cfg = gmCfg2.gmCfgData()
-	try:
-		cfg.add_stream_source(source = 'gm-versions', stream = remote_file)
-	except (UnicodeDecodeError):
-		remote_file.close()
-		_log.exception("cannot read version file from [%s]", url)
-		return (None, _('Cannot read version information from:\n\n%s') % url)
-
-	remote_file.close()
-
-	latest_branch = cfg.get('latest branch', 'branch', source_order = [('gm-versions', 'return')])
-	latest_release_on_latest_branch = cfg.get('branch %s' % latest_branch, 'latest release', source_order = [('gm-versions', 'return')])
-	latest_release_on_current_branch = cfg.get('branch %s' % current_branch, 'latest release', source_order = [('gm-versions', 'return')])
-
-	cfg.remove_source('gm-versions')
-
-	_log.info('current release: %s', current_version)
-	_log.info('current branch: %s', current_branch)
-	_log.info('latest release on current branch: %s', latest_release_on_current_branch)
-	_log.info('latest branch: %s', latest_branch)
-	_log.info('latest release on latest branch: %s', latest_release_on_latest_branch)
-
-	# anything known ?
-	no_release_information_available = (
-		(
-			(latest_release_on_current_branch is None) and
-			(latest_release_on_latest_branch is None)
-		) or (
-			not consider_latest_branch and
-			(latest_release_on_current_branch is None)
-		)
-	)
-	if no_release_information_available:
-		_log.warning('no release information available')
-		msg = _('There is no version information available from:\n\n%s') % url
-		return (None, msg)
-
-	# up to date ?
-	if consider_latest_branch:
-		_log.debug('latest branch taken into account')
-		if current_version >= latest_release_on_latest_branch:
-			_log.debug('up to date: current version >= latest version on latest branch')
-			return (False, None)
-		if latest_release_on_latest_branch is None:
-			if current_version >= latest_release_on_current_branch:
-				_log.debug('up to date: current version >= latest version on current branch and no latest branch available')
-				return (False, None)
-	else:
-		_log.debug('latest branch not taken into account')
-		if current_version >= latest_release_on_current_branch:
-			_log.debug('up to date: current version >= latest version on current branch')
-			return (False, None)
-
-	new_release_on_current_branch_available = (
-		(latest_release_on_current_branch is not None) and
-		(latest_release_on_current_branch > current_version)
-	)
-	_log.info('%snew release on current branch available', bool2str(new_release_on_current_branch_available, '', 'no '))
-
-	new_release_on_latest_branch_available = (
-		(latest_branch is not None)
-			and
-		(
-			(latest_branch > current_branch) or (
-				(latest_branch == current_branch) and
-				(latest_release_on_latest_branch > current_version)
-			)
-		)
-	)
-	_log.info('%snew release on latest branch available', bool2str(new_release_on_latest_branch_available, '', 'no '))
-
-	if not (new_release_on_current_branch_available or new_release_on_latest_branch_available):
-		_log.debug('up to date: no new releases available')
-		return (False, None)
-
-	# not up to date
-	msg = _('A new version of GNUmed is available.\n\n')
-	msg += _(' Your current version: "%s"\n') % current_version
-	if consider_latest_branch:
-		if new_release_on_current_branch_available:
-			msg += u'\n'
-			msg += _(' New version: "%s"') % latest_release_on_current_branch
-			msg += u'\n'
-			msg += _(' - bug fixes only\n')
-			msg += _(' - database fixups may be needed\n')
-		if new_release_on_latest_branch_available:
-			if current_branch != latest_branch:
-				msg += u'\n'
-				msg += _(' New version: "%s"') % latest_release_on_latest_branch
-				msg += u'\n'
-				msg += _(' - bug fixes and new features\n')
-				msg += _(' - database upgrade required\n')
-	else:
-		msg += u'\n'
-		msg += _(' New version: "%s"') % latest_release_on_current_branch
-		msg += u'\n'
-		msg += _(' - bug fixes only\n')
-		msg += _(' - database fixups may be needed\n')
-
-	msg += u'\n\n'
-	msg += _(
-		'Note, however, that this version may not yet\n'
-		'be available *pre-packaged* for your system.'
-	)
-
-	msg += u'\n\n'
-	msg += _('Details are found on <http://wiki.gnumed.de>.\n')
-	msg += u'\n'
-	msg += _('Version information loaded from:\n\n %s') % url
-
-	return (True, msg)
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
@@ -431,78 +296,6 @@ class gmPaths(gmBorg.cBorg):
 		return self.__tmp_dir
 
 	tmp_dir = property(_get_tmp_dir, _set_tmp_dir)
-#===========================================================================
-def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='quoted-printable', attachments=None):
-
-	if message is None:
-		return False
-
-	message = message.lstrip().lstrip('\r\n').lstrip()
-
-	if sender is None:
-		sender = default_mail_sender
-
-	if receiver is None:
-		receiver = [default_mail_receiver]
-
-	if server is None:
-		server = default_mail_server
-
-	if subject is None:
-		subject = u'gmTools.py: send_mail() test'
-
-	msg = StringIO.StringIO()
-	writer = MimeWriter.MimeWriter(msg)
-	writer.addheader('To', u', '.join(receiver))
-	writer.addheader('From', sender)
-	writer.addheader('Subject', subject[:50].replace('\r', '/').replace('\n', '/'))
-	writer.addheader('MIME-Version', '1.0')
-
-	writer.startmultipartbody('mixed')
-
-	# start with a text/plain part
-	part = writer.nextpart()
-	body = part.startbody('text/plain')
-	part.flushheaders()
-	body.write(message.encode(encoding))
-
-	# now add the attachments
-	if attachments is not None:
-		for a in attachments:
-			filename = os.path.basename(a[0])
-			try:
-				mtype = a[1]
-				encoding = a[2]
-			except IndexError:
-				mtype, encoding = mimetypes.guess_type(a[0])
-				if mtype is None:
-					mtype = 'application/octet-stream'
-					encoding = 'base64'
-				elif mtype == 'text/plain':
-					encoding = 'quoted-printable'
-				else:
-					encoding = 'base64'
-
-			part = writer.nextpart()
-			part.addheader('Content-Transfer-Encoding', encoding)
-			body = part.startbody("%s; name=%s" % (mtype, filename))
-			mimetools.encode(open(a[0], 'rb'), body, encoding)
-
-	writer.lastpart()
-
-	import smtplib
-	session = smtplib.SMTP(server)
-	session.set_debuglevel(debug)
-	if auth is not None:
-		session.login(auth['user'], auth['password'])
-	refused = session.sendmail(sender, receiver, msg.getvalue())
-	session.quit()
-	msg.close()
-	if len(refused) != 0:
-		_log.error("refused recipients: %s" % refused)
-		return False
-
-	return True
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
@@ -1109,22 +902,6 @@ if __name__ == '__main__':
 		print "testing mkdir()"
 		mkdir(sys.argv[1])
 	#-----------------------------------------------------------------------
-	def test_send_mail():
-		msg = u"""
-To: %s
-From: %s
-Subject: gmTools test suite mail
-
-This is a test mail from the gmTools.py module.
-""" % (default_mail_receiver, default_mail_sender)
-		print "mail sending succeeded:", send_mail (
-			receiver = [default_mail_receiver, u'karsten.hilbert@gmx.net'],
-			message = msg,
-			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'}, # u'gm/bugs/gmx'
-			debug = True,
-			attachments = [sys.argv[0]]
-		)
-	#-----------------------------------------------------------------------
 	def test_gmPaths():
 		print "testing gmPaths()"
 		print "-----------------"
@@ -1234,32 +1011,13 @@ second line\n
 		print
 		print wrap(test, 7, u'   ', u' ')
 	#-----------------------------------------------------------------------
-	def test_check_for_update():
-
-		test_data = [
-			('http://www.gnumed.de/downloads/gnumed-versions.txt', None, None, False),
-			('file:///home/ncq/gm-versions.txt', None, None, False),
-			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', False),
-			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', True),
-			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.5', True)
-		]
-
-		for test in test_data:
-			print "arguments:", test
-			found, msg = check_for_update(test[0], test[1], test[2], test[3])
-			print msg
-
-		return
-	#-----------------------------------------------------------------------
 	def test_md5():
 		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
 	#-----------------------------------------------------------------------
-	#test_check_for_update()
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	#test_send_mail()
 	test_gmPaths()
 	#test_none_if()
 	#test_bool2str()

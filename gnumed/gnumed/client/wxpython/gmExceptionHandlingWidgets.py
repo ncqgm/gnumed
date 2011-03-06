@@ -4,14 +4,15 @@ __version__ = "$Revision: 1.17 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import logging, exceptions, traceback, re as regex, sys, os, shutil, datetime as pyDT, codecs
+import logging, exceptions, traceback, re as regex, sys, os, shutil, datetime as pyDT
 
 
 import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmDispatcher, gmTools, gmCfg2, gmI18N, gmLog2, gmPG2
+from Gnumed.pycommon import gmDispatcher, gmCfg2, gmI18N, gmLog2, gmPG2
+from Gnumed.pycommon import gmNetworkTools
 from Gnumed.wxpython import gmGuiHelpers
 
 
@@ -364,14 +365,14 @@ sender email  : %s
 
 		wx.BeginBusyCursor()
 		try:
-			gmTools.send_mail (
-				sender = '%s <%s>' % (_staff_name, gmTools.default_mail_sender),
+			gmNetworkTools.send_mail (
+				sender = '%s <%s>' % (_staff_name, gmNetworkTools.default_mail_sender),
 				receiver = receivers,
 				subject = u'<bug>: %s' % comment,
 				message = msg,
 				encoding = gmI18N.get_encoding(),
-				server = gmTools.default_mail_server,
-				auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
+				server = gmNetworkTools.default_mail_server,
+				auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
 				attachments = attachments
 			)
 			gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
