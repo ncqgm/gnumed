@@ -2034,21 +2034,47 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot create allergy from more than one substance at once.'), beep = True)
 			return
 
-		subst = self.get_selected_data()[0]
-		if subst['is_currently_active']:
-			subst['discontinued'] = gmDateTime.pydt_now_here()
-		if subst['discontinue_reason'] is None:
-			subst['discontinue_reason'] = _('discontinued due to allergy or intolerance')
-		subst.save()
+		intake = self.get_selected_data()[0]
+		if intake['is_currently_active']:
+			intake['discontinued'] = gmDateTime.pydt_now_here()
+		if intake['discontinue_reason'] is None:
+			intake['discontinue_reason'] = _('discontinued due to allergy or intolerance')
+		intake.save()
 
 		emr = self.__patient.get_emr()
-		allg = subst.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
+		allg = intake.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = self, id = -1)
 		dlg.ShowModal()
+
+		brand = intake.containing_drug
+		if brand is None:
+			return
+
+		comps = [ c['substance'] for c in brand.components ]
+		if len(comps) < 2:
+			return
+
+		gmGuiHelpers.gm_show_info (
+			aTitle = _(u'Documented an allergy'),
+			aMessage = _(
+				u'An allergy was documented against the substance:\n'
+				u'\n'
+				u'  [%s]\n'
+				u'\n'
+				u'This substance was taken with the multi-component brand\n'
+				u'\n'
+				u'  [%s (%s)]\n'
+				u'\n'
+				u'Note that ALL components of this brand were discontinued.'
+			) % (
+				intake['substance'],
+				intake['brand'],
+				u' & '.join(comps)
+			)
+		)
 	#------------------------------------------------------------
 	def print_medication_list(self):
 		# there could be some filtering/user interaction going on here
-		_cfg = gmCfg2.gmCfgData()
 		print_medication_list(parent = self)
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
