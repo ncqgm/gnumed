@@ -64,6 +64,10 @@ IMPROVED: enable exporting of in-database form template
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.8
+
+FIX: failure to show patient image if created in a month with a name containing non-ASCII characters
+
 	0.8.7
 
 FIX: incompatible transport formatting of bytea between pre-9.0 libpq and 9.0+ PG server [thanks D.Varrazzo]
