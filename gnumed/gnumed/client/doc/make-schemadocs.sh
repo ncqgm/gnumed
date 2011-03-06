@@ -3,7 +3,7 @@
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-DB_LIST="gnumed_v13 gnumed_v14 gnumed_v15"
+DB_LIST="gnumed_v14 gnumed_v15"
 #DB_LIST="$1"
 
 export PGUSER="gm-dbo"
@@ -22,3 +22,6 @@ for DB in ${DB_LIST} ; do
 	dot -Tpng -o ~/gm-schemadocs/${DB}/gnumed-schema.png ~/gm-schemadocs/${DB}/gnumed-schema-no_audit.dot
 
 done
+
+ln -s ~/gm-schemadocs/gnumed_v14 ~/gm-schemadocs/release
+ln -s ~/gm-schemadocs/gnumed_v15 ~/gm-schemadocs/devel

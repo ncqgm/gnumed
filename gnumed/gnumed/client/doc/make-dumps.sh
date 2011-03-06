@@ -3,7 +3,7 @@
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-DB="gnumed_v14"
+DB="gnumed_v15"
 
 SCHEMADUMP=~/gm-schemadocs/gm-schema-dump.sql
 DATADUMP=~/gm-schemadocs/gm-data-dump.sql
