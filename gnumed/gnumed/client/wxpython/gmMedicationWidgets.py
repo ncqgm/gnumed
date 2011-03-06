@@ -2061,7 +2061,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				u'\n'
 				u'  [%s]\n'
 				u'\n'
-				u'This substance was taken with the multi-component brand\n'
+				u'This substance was taken with the multi-component brand:\n'
 				u'\n'
 				u'  [%s (%s)]\n'
 				u'\n'

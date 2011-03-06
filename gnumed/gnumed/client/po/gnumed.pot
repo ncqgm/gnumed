@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-02-07 18:07+CET\n"
+"POT-Creation-Date: 2011-03-06 15:58+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2078,6 +2078,9 @@ msgstr ""
 msgid "&Template"
 msgstr ""
 
+msgid "Export"
+msgstr ""
+
 msgid "Gnuplot"
 msgstr ""
 
@@ -2109,6 +2112,9 @@ msgid "Examplary filename. Mainly used for deriving a suitable file extension si
 msgstr ""
 
 msgid "Load template data from a file."
+msgstr ""
+
+msgid "Export the form template into a file."
 msgstr ""
 
 msgid "The form engine this template must be processed with."
@@ -2355,6 +2361,63 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+msgid "&Myself \342\200\246 or:"
+msgstr ""
+
+msgid "&Active \342\200\246 or:"
+msgstr ""
+
+msgid "Normal"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Low"
+msgstr ""
+
+msgid "What this message is about."
+msgstr ""
+
+msgid "The message type."
+msgstr ""
+
+msgid "Check if this message should (also) be sent to yourself."
+msgstr ""
+
+msgid "Whom to (also) send this message to."
+msgstr ""
+
+msgid "Check this if this is about the active patient."
+msgstr ""
+
+msgid "A longer text detailing the message, if needed."
+msgstr ""
+
+msgid "Normal (standard) urgency of message."
+msgstr ""
+
+msgid "Higher than normal (standard) urgency of message."
+msgstr ""
+
+msgid "Lower than normal (standard) urgency of message."
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "Category"
+msgstr ""
+
+msgid "Audience"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Urgency"
+msgstr ""
+
 msgid "Please select a health issue:"
 msgstr ""
 
@@ -2491,9 +2554,6 @@ msgid "Review"
 msgstr ""
 
 msgid "Reference information"
-msgstr ""
-
-msgid "Normal"
 msgstr ""
 
 msgid "--"
@@ -2674,7 +2734,16 @@ msgstr ""
 msgid "The episode you want to move the displayed narrative to."
 msgstr ""
 
+msgid "Is manually formatted"
+msgstr ""
+
 msgid "Generic multi line text entry dialog"
+msgstr ""
+
+msgid ""
+"Check this if the text you entered is already manually pre-formatted, valid text in the sense of the target format.\n"
+"\n"
+"Typically you would leave this unchecked so that GNUmed verifies that your input is suitably formatted for the intended purpose. However, sometimes you may want to enter, say, raw LaTeX. In this case you can check this to prevent GNUmed from mangling your text."
 msgstr ""
 
 msgid "Active name"
@@ -3025,10 +3094,16 @@ msgstr ""
 msgid "Active-patient related"
 msgstr ""
 
+msgid "&Add"
+msgstr ""
+
 msgid "Show all your messages."
 msgstr ""
 
 msgid "Show those of your messages which are related to the active patient."
+msgstr ""
+
+msgid "Add a new message."
 msgstr ""
 
 msgid "This shows the entirety of the selected message in your Inbox."
@@ -4106,12 +4181,28 @@ msgid ""
 " [%s]\n"
 "\n"
 "This is a restricted procedure. We need the\n"
-"password for the GNUmed database owner.\n"
+"current password for the GNUmed database owner.\n"
 "\n"
-"Please enter the password for <gm-dbo>:"
+"Please enter the current password for <%s>:"
 msgstr ""
 
-msgid "Cannot connect as the GNUmed database owner <gm-dbo>."
+msgid "Cannot connect as the GNUmed database owner <%s>."
+msgstr ""
+
+msgid "Changing GNUmed database owner password"
+msgstr ""
+
+msgid "Enter the account name of the GNUmed database owner:"
+msgstr ""
+
+msgid "Enter the NEW password for the GNUmed database owner:"
+msgstr ""
+
+msgid ""
+"Enter the NEW password for the GNUmed database owner, again.\n"
+"\n"
+"(This will protect you from typos.)\n"
+"\t\t"
 msgstr ""
 
 msgid "Welcome to the"
@@ -6047,6 +6138,9 @@ msgstr ""
 msgid "Choose a form template file"
 msgstr ""
 
+msgid "Enter a filename to save the template in"
+msgstr ""
+
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr ""
 
@@ -6339,6 +6433,12 @@ msgid "&Edit users"
 msgstr ""
 
 msgid "Edit the list of GNUmed users"
+msgstr ""
+
+msgid "&Change DB owner PWD"
+msgstr ""
+
+msgid "Change the password of the GNUmed database owner"
 msgstr ""
 
 msgid "&Users ..."
@@ -7580,6 +7680,18 @@ msgstr ""
 msgid "unknown vaccinations table formatting style [%s]"
 msgstr ""
 
+msgid "Replacing <free_text> placeholder"
+msgstr ""
+
+msgid ""
+"Below you can enter free text.\n"
+"\n"
+" [%s]"
+msgstr ""
+
+msgid "Text input cancelled by user."
+msgstr ""
+
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -8336,6 +8448,21 @@ msgstr ""
 msgid "discontinued due to allergy or intolerance"
 msgstr ""
 
+msgid "Documented an allergy"
+msgstr ""
+
+msgid ""
+"An allergy was documented against the substance:\n"
+"\n"
+"  [%s]\n"
+"\n"
+"This substance was taken with the multi-component brand:\n"
+"\n"
+"  [%s (%s)]\n"
+"\n"
+"Note that ALL components of this brand were discontinued."
+msgstr ""
+
 msgid ""
 "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr ""
@@ -8768,9 +8895,6 @@ msgstr ""
 msgid "Organization"
 msgstr ""
 
-msgid "Category"
-msgstr ""
-
 msgid ""
 "\n"
 "Organizations registered in GNUmed.\n"
@@ -9012,9 +9136,6 @@ msgid "%(name)s (locked)"
 msgstr ""
 
 msgid "Cannot add to waiting list. Missing essential input."
-msgstr ""
-
-msgid "Urgency"
 msgstr ""
 
 msgid "Waiting time"
@@ -9301,6 +9422,9 @@ msgstr ""
 msgid "Select a healthcare provider."
 msgstr ""
 
+msgid "showing audit trail"
+msgstr ""
+
 msgid "GNUmed database audit log ..."
 msgstr ""
 
@@ -9396,10 +9520,16 @@ msgstr ""
 msgid "Clone the selected workplace"
 msgstr ""
 
-msgid "category"
+msgid "Select a message type."
 msgstr ""
 
-msgid "message"
+msgid "Adding new inbox message"
+msgstr ""
+
+msgid "Editing inbox message"
+msgstr ""
+
+msgid "Sent"
 msgstr ""
 
 msgid ""
@@ -9431,13 +9561,28 @@ msgstr ""
 msgid "Inbox Message menu"
 msgstr ""
 
-msgid "delete message"
+msgid "message"
+msgstr ""
+
+msgid "virtual message"
+msgstr ""
+
+msgid "everyone"
+msgstr ""
+
+msgid "Patient #%s"
 msgstr ""
 
 msgid "You must deal with the reason for this message to remove it from your inbox."
 msgstr ""
 
 msgid "Problem removing message from Inbox."
+msgstr ""
+
+msgid "This message cannot be edited because it is virtual."
+msgstr ""
+
+msgid "This message is already visible to all providers."
 msgstr ""
 
 msgid ""
