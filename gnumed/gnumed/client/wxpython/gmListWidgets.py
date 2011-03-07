@@ -289,6 +289,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if definition is None:
 			self._BTN_extra_left.Enable(False)
 			self._BTN_extra_left.Hide()
+			self.__left_extra_button_callback = None
 			return
 
 		(label, tooltip, callback) = definition
@@ -306,6 +307,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if definition is None:
 			self._BTN_extra_middle.Enable(False)
 			self._BTN_extra_middle.Hide()
+			self.__middle_extra_button_callback = None
 			return
 
 		(label, tooltip, callback) = definition
@@ -323,6 +325,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if definition is None:
 			self._BTN_extra_right.Enable(False)
 			self._BTN_extra_right.Hide()
+			self.__right_extra_button_callback = None
 			return
 
 		(label, tooltip, callback) = definition
