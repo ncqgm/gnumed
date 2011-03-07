@@ -231,6 +231,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
+		self.left_extra_button = None
+
 		if cGenericEditAreaDlg2._today.day != cGenericEditAreaDlg2._lucky_day:
 			self._BTN_lucky.Enable(False)
 			self._BTN_lucky.Hide()
@@ -314,6 +316,35 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			),
 			_('GNUmed Lottery')
 		)
+	#--------------------------------------------------------
+	def _on_left_extra_button_pressed(self, event):
+		if not self.__left_extra_button_callback(self._PNL_ea.data):
+			return
+
+		if self.IsModal():
+			self.EndModal(wx.ID_OK)
+		else:
+			self.Close()
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _set_left_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_left.Enable(False)
+			self._BTN_extra_left.Hide()
+			self.__left_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
+		self.__left_extra_button_callback = callback
+		self._BTN_extra_left.SetLabel(label)
+		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.Enable(True)
+		self._BTN_extra_left.Show()
+
+	left_extra_button = property(lambda x:x, _set_left_extra_button)
 #====================================================================
 # DEPRECATED:
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):

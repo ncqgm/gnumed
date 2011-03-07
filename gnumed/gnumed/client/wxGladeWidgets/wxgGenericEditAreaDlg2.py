@@ -16,6 +16,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         wx.Dialog.__init__(self, *args, **kwds)
         self._PNL_ea = wx.ScrolledWindow(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
         self._BTN_save = wx.Button(self, wx.ID_OK, "")
+        self._BTN_extra_left = wx.Button(self, -1, _("left extra"), style=wx.BU_EXACTFIT)
         self._BTN_forward = wx.Button(self, -1, _("Add &another"))
         self._BTN_revert = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
@@ -26,6 +27,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
+        self.Bind(wx.EVT_BUTTON, self._on_left_extra_button_pressed, self._BTN_extra_left)
         self.Bind(wx.EVT_BUTTON, self._on_forward_button_pressed, self._BTN_forward)
         self.Bind(wx.EVT_BUTTON, self._on_revert_button_pressed, self._BTN_revert)
         self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
@@ -35,10 +37,12 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgGenericEditAreaDlg2.__set_properties
         self.SetTitle(_("GNUmed generic EditArea dialog"))
-        self.SetSize(wx.DLG_SZE(self, (300, 164)))
+        self.SetSize(wx.DLG_SZE(self, (311, 165)))
         self.SetMinSize((450, 300))
         self._PNL_ea.SetScrollRate(10, 10)
         self._BTN_save.SetToolTipString(_("Save the entered data into the database and close the dialog."))
+        self._BTN_extra_left.SetToolTipString(_("Programmer forgot tooltip for left extra button."))
+        self._BTN_extra_left.Hide()
         self._BTN_forward.SetToolTipString(_("Save data into database and clear fields for another value."))
         self._BTN_revert.SetToolTipString(_("Reset all fields to their previous values."))
         self._BTN_revert.Enable(False)
@@ -56,6 +60,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
         __szr_pnl_ea.Add(self._PNL_ea, 1, wx.EXPAND, 0)
         _szr_main.Add(__szr_pnl_ea, 1, wx.ALL|wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_save, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_extra_left, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_buttons.Add(self._BTN_forward, 0, wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add(self._BTN_revert, 0, 0, 0)
@@ -71,6 +76,10 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
 
     def _on_save_button_pressed(self, event): # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
         print "Event handler `_on_save_button_pressed' not implemented!"
+        event.Skip()
+
+    def _on_left_extra_button_pressed(self, event): # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+        print "Event handler `_on_left_extra_button_pressed' not implemented!"
         event.Skip()
 
     def _on_forward_button_pressed(self, event): # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
