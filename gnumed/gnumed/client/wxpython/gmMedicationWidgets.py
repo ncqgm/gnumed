@@ -1089,6 +1089,51 @@ LIMIT 50"""
 		self.selection_only = False
 
 #============================================================
+def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
+
+	if intake['is_currently_active']:
+		intake['discontinued'] = gmDateTime.pydt_now_here()
+	if intake['discontinue_reason'] is None:
+		intake['discontinue_reason'] = u'%s %s' % (_('not tolerated:'), _('discontinued due to allergy or intolerance'))
+	else:
+		if not intake['discontinue_reason'].startswith(_('not tolerated:')):
+			intake['discontinue_reason'] = u'%s %s' % (_('not tolerated:'), intake['discontinue_reason'])
+	if not intake.save():
+		return False
+
+	allg = intake.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
+
+	brand = intake.containing_drug
+	if brand is not None:
+		comps = [ c['substance'] for c in brand.components ]
+		if len(comps) > 1:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _(u'Documented an allergy'),
+				aMessage = _(
+					u'An allergy was documented against the substance:\n'
+					u'\n'
+					u'  [%s]\n'
+					u'\n'
+					u'This substance was taken with the multi-component brand:\n'
+					u'\n'
+					u'  [%s (%s)]\n'
+					u'\n'
+					u'Note that ALL components of this brand were discontinued.'
+				) % (
+					intake['substance'],
+					intake['brand'],
+					u' & '.join(comps)
+				)
+			)
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = parent, id = -1)
+	dlg.ShowModal()
+
+	return True
+#============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentMedicationEAPnl
 
 class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl, gmEditArea.cGenericEditAreaMixin):
@@ -1242,15 +1287,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self.data = intake
 
-#		if self._CHBOX_is_allergy.IsChecked():
-#			if brand is None:
-#				allg = self.data.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
-#			else:
-#				allg = brand.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
-#			# open for editing
-#			dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = self, id = -1)
-#			dlg.ShowModal()
-
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
@@ -1279,12 +1315,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
 
 		self.data.save()
-
-#		if self._CHBOX_is_allergy.IsChecked():
-#			allg = self.data.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
-#			# open for editing
-#			dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = self, id = -1)
-#			dlg.ShowModal()
 
 		return True
 	#----------------------------------------------------------------
@@ -1436,10 +1466,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	def _on_discontinued_date_changed(self, event):
 		if self._DP_discontinued.GetData() is None:
 			self._PRW_discontinue_reason.Enable(False)
-			self._CHBOX_is_allergy.Enable(False)
 		else:
 			self._PRW_discontinue_reason.Enable(True)
-			self._CHBOX_is_allergy.Enable(True)
 	#----------------------------------------------------------------
 	def _on_manage_brands_button_pressed(self, event):
 		manage_branded_drugs(parent = self)
@@ -1465,7 +1493,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._DP_discontinued.SetData(planned_end)
 			self._PRW_discontinue_reason.Enable(True)
 			self._PRW_discontinue_reason.SetValue(u'')
-			self._CHBOX_is_allergy.Enable(True)
 			return
 
 		# we know started but not duration: apparently the plan is to stop today
@@ -1477,29 +1504,28 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._DP_discontinued.SetData(now)
 		self._PRW_discontinue_reason.Enable(True)
 		self._PRW_discontinue_reason.SetValue(u'')
-		self._CHBOX_is_allergy.Enable(True)
 	#----------------------------------------------------------------
 	def _on_chbox_long_term_checked(self, event):
 		if self._CHBOX_long_term.IsChecked() is True:
 			self._PRW_duration.Enable(False)
 			self._BTN_discontinued_as_planned.Enable(False)
 			self._PRW_discontinue_reason.Enable(False)
-			self._CHBOX_is_allergy.Enable(False)
 		else:
 			self._PRW_duration.Enable(True)
 			self._BTN_discontinued_as_planned.Enable(True)
 			self._PRW_discontinue_reason.Enable(True)
-			self._CHBOX_is_allergy.Enable(True)
 
 		self.__refresh_allergies()
 	#----------------------------------------------------------------
-	def _on_chbox_is_allergy_checked(self, event):
-		if self._CHBOX_is_allergy.IsChecked() is True:
-			val = self._PRW_discontinue_reason.GetValue().strip()
-			if not val.startswith(_('not tolerated:')):
-				self._PRW_discontinue_reason.SetValue(u'%s %s' % (_('not tolerated:'), val))
+	def turn_into_allergy(self, data=None):
+		if not self.save():
+			return False
 
-		self.__refresh_allergies()
+		return turn_substance_intake_into_allergy (
+			parent = self,
+			intake = self.data,
+			emr = gmPerson.gmCurrentPatient().get_emr()
+		)
 #============================================================
 def delete_substance_intake(parent=None, substance=None):
 
@@ -1549,6 +1575,11 @@ def edit_intake_of_substance(parent = None, substance=None):
 	ea = cSubstanceIntakeEAPnl(parent = parent, id = -1, substance = substance)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (substance is not None))
 	dlg.SetTitle(gmTools.coalesce(substance, _('Adding substance intake'), _('Editing substance intake')))
+	dlg.left_extra_button = (
+		_('Allergy'),
+		_('Document an allergy against this substance.'),
+		ea.turn_into_allergy
+	)
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
@@ -2034,43 +2065,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot create allergy from more than one substance at once.'), beep = True)
 			return
 
-		intake = self.get_selected_data()[0]
-		if intake['is_currently_active']:
-			intake['discontinued'] = gmDateTime.pydt_now_here()
-		if intake['discontinue_reason'] is None:
-			intake['discontinue_reason'] = _('discontinued due to allergy or intolerance')
-		intake.save()
-
-		emr = self.__patient.get_emr()
-		allg = intake.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
-		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent = self, id = -1)
-		dlg.ShowModal()
-
-		brand = intake.containing_drug
-		if brand is None:
-			return
-
-		comps = [ c['substance'] for c in brand.components ]
-		if len(comps) < 2:
-			return
-
-		gmGuiHelpers.gm_show_info (
-			aTitle = _(u'Documented an allergy'),
-			aMessage = _(
-				u'An allergy was documented against the substance:\n'
-				u'\n'
-				u'  [%s]\n'
-				u'\n'
-				u'This substance was taken with the multi-component brand:\n'
-				u'\n'
-				u'  [%s (%s)]\n'
-				u'\n'
-				u'Note that ALL components of this brand were discontinued.'
-			) % (
-				intake['substance'],
-				intake['brand'],
-				u' & '.join(comps)
-			)
+		return turn_substance_intake_into_allergy (
+			parent = self,
+			intake = self.get_selected_data()[0],
+			emr = self.__patient.get_emr()
 		)
 	#------------------------------------------------------------
 	def print_medication_list(self):
