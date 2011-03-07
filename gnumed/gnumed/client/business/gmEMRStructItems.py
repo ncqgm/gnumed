@@ -1209,7 +1209,7 @@ WHERE
 
 		return lines
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False):
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False):
 		""" Format an encounter.
 
 		with_co_encountlet_hints: whether to display which *other* episodes were discussed during this encounter
@@ -1253,6 +1253,11 @@ WHERE
 				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
 			))
+			if with_rfe_aoe:
+				if self._payload[self._idx['reason_for_encounter']] is not None:
+					lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+				if self._payload[self._idx['assessment_of_encounter']] is not None:
+					lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
 
 		if with_soap:
 			lines.append(u'')

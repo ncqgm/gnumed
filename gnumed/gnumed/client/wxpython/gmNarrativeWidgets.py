@@ -584,12 +584,13 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 	Left hand side:
 	- problem list (health issues and active episodes)
-	- hints area
+	- previous notes
 
 	Right hand side:
-	- previous notes
-	- notebook with progress note editors
 	- encounter details fields
+	- notebook with progress note editors
+	- visual progress notes
+	- hints
 
 	Listens to patient change signals, thus acts on the current patient.
 	"""
@@ -748,7 +749,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				with_docs = False,
 				with_tests = False,
 				patient = self.__pat,
-				fancy_header = False
+				fancy_header = False,
+				with_rfe_aoe = True
 			)
 
 		tmp = emr.active_encounter.format_soap (
@@ -784,7 +786,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				with_docs = False,
 				with_tests = False,
 				patient = self.__pat,
-				fancy_header = False
+				fancy_header = False,
+				with_rfe_aoe = True
 			)
 		else:
 			if problem['pk_health_issue'] is not None:
@@ -796,7 +799,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 						with_tests = False,
 						patient = self.__pat,
 						issues = [ problem['pk_health_issue'] ],
-						fancy_header = False
+						fancy_header = False,
+						with_rfe_aoe = True
 					)
 
 		tmp = emr.active_encounter.format_soap (
