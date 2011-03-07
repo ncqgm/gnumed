@@ -62,6 +62,7 @@ IMPROVED: make showing audit trail a restricted procedure
 IMPROVED: enable exporting of in-database form template
 IMPROVED: show RFE/AOE in "recent notes" display in SOAP plugin
 IMPROVED: much saner workflow when creating allergy entry from substance intake
+IMPROVED: configurably auto-open editors for all open, recently worked-on problems when activating a patient
 
 ------------------------------------------------
 # rel-0-8-patches

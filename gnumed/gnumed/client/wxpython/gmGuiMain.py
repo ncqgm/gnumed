@@ -257,9 +257,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_client.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_export_chunk_size)
 
-		ID = wx.NewId()
-		menu_cfg_client.Append(ID, _('Temporary directory'), _('Configure the directory to use as scratch space for temporary files.'))
-		wx.EVT_MENU(self, ID, self.__on_configure_temp_dir)
+#		ID = wx.NewId()
+#		menu_cfg_client.Append(ID, _('Temporary directory'), _('Configure the directory to use as scratch space for temporary files.'))
+#		wx.EVT_MENU(self, ID, self.__on_configure_temp_dir)
 
 		item = menu_cfg_client.Append(-1, _('Email address'), _('The email address of the user for sending bug reports, etc.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_user_email, item)
@@ -332,6 +332,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_soap_editing.Append(ID, _('Multiple new episodes'), _('Configure opening multiple new episodes on a patient at once.'))
 		wx.EVT_MENU(self, ID, self.__on_allow_multiple_new_episodes)
+
+		item = menu_cfg_soap_editing.Append(-1, _('Auto-open editors'), _('Configure auto-opening editors for recent problems.'))
+		self.Bind(wx.EVT_MENU, self.__on_allow_auto_open_episodes, item)
 
 		menu_cfg_ui.AppendMenu(wx.NewId(), _('Progress notes handling ...'), menu_cfg_soap_editing)
 
@@ -1094,37 +1097,37 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# submenu GNUmed / options / client
 	#----------------------------------------------
-	def __on_configure_temp_dir(self, evt):
-
-		cfg = gmCfg.cCfgSQL()
-
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-
-		dlg = wx.DirDialog (
-			parent = self,
-			message = _('Choose temporary directory ...'),
-			defaultPath = tmp_dir,
-			style = wx.DD_DEFAULT_STYLE
-		)
-		result = dlg.ShowModal()
-		tmp_dir = dlg.GetPath()
-		dlg.Destroy()
-
-		if result != wx.ID_OK:
-			return
-
-		cfg.set (
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			option = "horstspace.tmp_dir",
-			value = tmp_dir
-		)
+#	def __on_configure_temp_dir(self, evt):
+#
+#		cfg = gmCfg.cCfgSQL()
+#
+#		tmp_dir = gmTools.coalesce (
+#			cfg.get2 (
+#				option = "horstspace.tmp_dir",
+#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#				bias = 'workplace'
+#			),
+#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+#		)
+#
+#		dlg = wx.DirDialog (
+#			parent = self,
+#			message = _('Choose temporary directory ...'),
+#			defaultPath = tmp_dir,
+#			style = wx.DD_DEFAULT_STYLE
+#		)
+#		result = dlg.ShowModal()
+#		tmp_dir = dlg.GetPath()
+#		dlg.Destroy()
+#
+#		if result != wx.ID_OK:
+#			return
+#
+#		cfg.set (
+#			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#			option = "horstspace.tmp_dir",
+#			value = tmp_dir
+#		)
 	#----------------------------------------------
 	def __on_configure_export_chunk_size(self, evt):
 
@@ -1576,6 +1579,23 @@ class gmTopLevelFrame(wx.Frame):
 			button_tooltips = [
 				_('Yes, allow for multiple new episodes concurrently.'),
 				_('No, only allow editing one new episode at a time.')
+			]
+		)
+	#----------------------------------------------
+	def __on_allow_auto_open_episodes(self, evt):
+
+		gmCfgWidgets.configure_boolean_option (
+			parent = self,
+			question = _(
+				'When activating a patient, do you want GNUmed to\n'
+				'auto-open editors for all active problems that were\n'
+				'touched upon during the current and the most recent\n'
+				'encounter ?'
+			),
+			option = u'horstspace.soap_editor.auto_open_latest_episodes',
+			button_tooltips = [
+				_('Yes, auto-open editors for all problems of the most recent encounter.'),
+				_('No, only auto-open one editor for a new, unassociated problem.')
 			]
 		)
 	#----------------------------------------------

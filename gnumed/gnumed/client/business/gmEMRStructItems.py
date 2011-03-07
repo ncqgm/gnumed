@@ -1166,12 +1166,13 @@ WHERE
 		FROM blobs.doc_med
 		WHERE fk_encounter = %%(enc)s
 	)
-	%s
-"""
+	%s"""
 		args = {'enc': self.pk_obj}
 		if exclude is not None:
 			cmd = cmd % u'AND pk_episode NOT IN %(excluded)s'
 			args['excluded'] = tuple(exclude)
+		else:
+			cmd = cmd % u''
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 

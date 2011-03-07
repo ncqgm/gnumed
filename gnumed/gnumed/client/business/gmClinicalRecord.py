@@ -1851,8 +1851,8 @@ WHERE
 			cmd = u"""
 SELECT * FROM clin.v_pat_encounters
 WHERE pk_patient = %(pat)s
-order by started desc
-limit 2
+ORDER BY started DESC
+LIMIT 2
 """
 		else:
 			where_parts = []
@@ -1867,19 +1867,19 @@ limit 2
 
 			cmd = u"""
 SELECT *
-from clin.v_pat_encounters
+FROM clin.v_pat_encounters
 WHERE
 	pk_patient = %%(pat)s
-		and
-	pk_encounter in (
+		AND
+	pk_encounter IN (
 		SELECT distinct pk_encounter
-		from clin.v_pat_narrative
+		FROM clin.v_pat_narrative
 		WHERE
 			%s
 	)
-order by started desc
-limit 2
-""" % u' and '.join(where_parts)
+ORDER BY started DESC
+LIMIT 2
+""" % u' AND '.join(where_parts)
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 

@@ -600,6 +600,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__pat = gmPerson.gmCurrentPatient()
+		self.__patient_just_changed = False
 		self.__init_ui()
 		self.__reset_ui_content()
 
@@ -659,9 +660,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._NB_soap_editors.DeleteAllPages()
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
-		"""
-		Clear all information from input panel
-		"""
+		"""Clear all information from input panel."""
+
 		self._LCTRL_active_problems.set_string_items()
 
 		self._TCTRL_recent_notes.SetValue(u'')
@@ -678,8 +678,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._lbl_hints.SetLabel(u'')
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
-		"""Update health problems list.
-		"""
+		"""Update health problems list."""
 
 		self._LCTRL_active_problems.set_string_items()
 
@@ -827,6 +826,30 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def __refresh_current_editor(self):
 		self._NB_soap_editors.refresh_current_editor()
+	#--------------------------------------------------------
+	def __setup_initial_patient_editors(self):
+		if not self.__patient_just_changed:
+			return
+
+		dbcfg = gmCfg.cCfgSQL()
+		auto_open_recent_problems = bool(dbcfg.get2 (
+			option = u'horstspace.soap_editor.auto_open_latest_episodes',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user',
+			default = True
+		))
+
+		self.__patient_just_changed = False
+		emr = self.__pat.get_emr()
+		recent_epis = emr.active_encounter.get_episodes()
+		prev_enc = emr.get_last_but_one_encounter()
+		if prev_enc is not None:
+			recent_epis.extend(prev_enc.get_episodes())
+
+		for epi in recent_epis:
+			if not epi['episode_open']:
+				continue
+			self._NB_soap_editors.add_editor(problem = epi, allow_same_problem = False)
 	#--------------------------------------------------------
 	def __refresh_recent_notes(self, problem=None):
 		"""This refreshes the recent-notes part."""
@@ -1000,6 +1023,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		wx.CallAfter(self._schedule_data_reget)
+		self.__patient_just_changed = True
 	#--------------------------------------------------------
 	def _on_doc_mod_db(self):
 		wx.CallAfter(self.__refresh_current_editor)
@@ -1150,6 +1174,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _populate_with_data(self):
 		self.__refresh_problem_list()
 		self.__refresh_encounter()
+		self.__setup_initial_patient_editors()
 		return True
 #============================================================
 class cSoapNoteInputNotebook(wx.Notebook):
@@ -1339,6 +1364,24 @@ class cSoapNoteInputNotebook(wx.Notebook):
 from Gnumed.wxGladeWidgets import wxgSoapNoteExpandoEditAreaPnl
 
 class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpandoEditAreaPnl):
+	"""An Edit Area like panel for entering progress notes.
+
+	Subjective:
+		expando text ctrl
+	Objective:
+		expando text ctrl
+	Assessment:
+		expando text ctrl
+	Plan:
+		expando text ctrl
+	Problem summary:
+		text ctrl
+	visual progress notes
+		panel with images
+
+	- knows the problem this edit area is about
+	- can deal with issue or episode type problems
+	"""
 
 	def __init__(self, *args, **kwargs):
 

@@ -1633,16 +1633,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-		# get export directory for temporary files
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-		_log.debug("temporary directory [%s]", tmp_dir)
+#		# get export directory for temporary files
+#		tmp_dir = gmTools.coalesce (
+#			cfg.get2 (
+#				option = "horstspace.tmp_dir",
+#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#				bias = 'workplace'
+#			),
+#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+#		)
+#		_log.debug("temporary directory [%s]", tmp_dir)
 
 		# determine database export chunk size
 		chunksize = int(
@@ -1663,7 +1663,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# display it
 		successful, msg = part.display_via_mime (
-			tmpdir = tmp_dir,
+#			tmpdir = tmp_dir,
 			chunksize = chunksize,
 			block = block_during_view
 		)
@@ -1731,16 +1731,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-		# get export directory for temporary files
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-		_log.debug("temporary directory [%s]", tmp_dir)
+#		# get export directory for temporary files
+#		tmp_dir = gmTools.coalesce (
+#			cfg.get2 (
+#				option = "horstspace.tmp_dir",
+#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#				bias = 'workplace'
+#			),
+#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+#		)
+#		_log.debug("temporary directory [%s]", tmp_dir)
 
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
@@ -1751,7 +1751,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		))
 
 		part_file = self.__curr_node_data.export_to_file (
-			aTempDir = tmp_dir,
+#			aTempDir = tmp_dir,
 			aChunkSize = chunksize
 		)
 
@@ -1819,16 +1819,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-		# get export directory for temporary files
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-		_log.debug("temporary directory [%s]", tmp_dir)
+#		# get export directory for temporary files
+#		tmp_dir = gmTools.coalesce (
+#			cfg.get2 (
+#				option = "horstspace.tmp_dir",
+#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#				bias = 'workplace'
+#			),
+#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+#		)
+#		_log.debug("temporary directory [%s]", tmp_dir)
 
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
@@ -1839,7 +1839,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		))
 
 		part_files = self.__curr_node_data.export_parts_to_files (
-			export_dir = tmp_dir,
+#			export_dir = tmp_dir,
 			chunksize = chunksize
 		)
 
