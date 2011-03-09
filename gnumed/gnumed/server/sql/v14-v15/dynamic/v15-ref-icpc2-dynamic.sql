@@ -434,7 +434,7 @@ alter table ref.code_thesaurus_root
 
 
 
--- .term
+-- .synonym
 \unset ON_ERROR_STOP
 alter table ref.code_thesaurus_root drop constraint ref_code_thes_root_sane_synonym cascade;
 \set ON_ERROR_STOP 1
