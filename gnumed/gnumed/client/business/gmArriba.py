@@ -150,9 +150,6 @@ class cArriba(object):
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot run [arriba] !'), beep = True)
 			return False
 
-		try: os.remove(cfg_file)
-		except StandardError: _log.exception('cannot remove [%s]', cfg_file)
-
 		try:
 			open(self.pdf_result).close()
 		except:
