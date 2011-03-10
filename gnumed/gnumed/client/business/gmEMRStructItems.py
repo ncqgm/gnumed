@@ -1526,11 +1526,11 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 			return
 		except gmExceptions.ConstructorError:
-			_log.exception('problem not found, trying potential problems')
+			_log.exception('actual problem not found, trying "potential" problems')
 			if try_potential_problems is False:
 				raise
 
-		# try to instantiate from non-problem view
+		# try to instantiate from potential-problems view
 		cProblem._cmd_fetch_payload = u"""
 			SELECT *, True as is_potential_problem
 			FROM clin.v_potential_problem_list

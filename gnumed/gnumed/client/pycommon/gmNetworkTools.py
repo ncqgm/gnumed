@@ -14,6 +14,7 @@ import urllib2 as wget
 import MimeWriter
 import mimetypes
 import mimetools
+import StringIO
 
 
 # GNUmed libs
@@ -75,7 +76,6 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	_log.debug('retrieving version information from [%s]', url)
 
-#	from Gnumed.pycommon import gmCfg2
 	cfg = gmCfg2.gmCfgData()
 	try:
 		cfg.add_stream_source(source = 'gm-versions', stream = remote_file)

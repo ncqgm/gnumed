@@ -7,7 +7,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
-import decimal, StringIO
+import decimal
 import cPickle, zlib
 
 

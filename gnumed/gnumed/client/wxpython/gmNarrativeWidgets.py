@@ -1537,16 +1537,11 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 		# set summary but only if not already set above for an episode
 		# newly created either standalone or within a health issue
-		if self.problem['type'] == 'episode':
-			new_summary = self._TCTRL_summary.GetValue().strip()
-			epi = emr.problem2episode(self.problem)
-			if epi['summary'] is None:
-				epi['summary'] = new_summary
+		if self.problem is not None:
+			if self.problem['type'] == 'episode':
+				epi = emr.problem2episode(self.problem)
+				epi['summary'] = self._TCTRL_summary.GetValue().strip()
 				epi.save()
-			else:
-				if epi['summary'].strip() != new_summary:
-					epi['summary'] = new_summary
-					epi.save()
 
 		return True
 	#--------------------------------------------------------

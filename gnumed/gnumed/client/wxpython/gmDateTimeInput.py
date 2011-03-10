@@ -1,9 +1,7 @@
 """GNUmed date input widget
 
 All GNUmed date input should happen via classes in
-this module. Initially this is just a plain text box
-but using this throughout GNUmed will allow us to
-transparently add features.
+this module.
 
 @copyright: author(s)
 """
@@ -420,8 +418,8 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 		"""Returns datetime.datetime values"""
 
 		# datepicker can fail to pick up user changes by keyboard until
-		# it has lost focus, so do that but also set the focus back to
-		# us, now this is a side-effect (after GetValue() focus will be
+		# it has lost focus, so do that but also set the focus back to us,
+		# now, this is a side-effect (after .GetValue focus will be
 		# here) but at least it is predictable ...
 		self.Navigate()
 		self.SetFocus()
@@ -480,40 +478,43 @@ class cDateInputCtrl(wx.DatePickerCtrl):
 #--------------------------------------------------
 if __name__ == '__main__':
 
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		gmI18N.activate_locale()
-		gmI18N.install_domain(domain='gnumed')
-		gmDateTime.init()
+	if len(sys.argv) < 2:
+		sys.exit()
 
-		#----------------------------------------------------
-		def test_cli():
-			mp = cMatchProvider_FuzzyTimestamp()
-			mp.word_separators = None
-			mp.setThresholds(aWord = 998, aSubstring = 999)
-			val = None
-			while val != 'exit':
-				print "************************************"
-				val = raw_input('Enter date fragment: ')
-				found, matches = mp.getMatches(aFragment=val)
-				for match in matches:
-					print match['label']
-					print match['data']
-					print "---------------"
-		#--------------------------------------------------------
-		def test_gui():
-			app = wx.PyWidgetTester(size = (200, 300))
-			app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
-			app.MainLoop()
-		#--------------------------------------------------------
-		def test_picker():
-			app = wx.PyWidgetTester(size = (200, 300))
-			app.SetWidget(cDateInputCtrl, id=-1, size=(180,20), pos=(10,20))
-			app.MainLoop()
-		#--------------------------------------------------------
-		#test_cli()
-		#test_gui()
-		test_picker()
+	if sys.argv[2] != 'test':
+		sys.exit()
 
-#==================================================
-# - free text input: start string with "
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
+	gmDateTime.init()
+
+	#----------------------------------------------------
+	def test_cli():
+		mp = cMatchProvider_FuzzyTimestamp()
+		mp.word_separators = None
+		mp.setThresholds(aWord = 998, aSubstring = 999)
+		val = None
+		while val != 'exit':
+			print "************************************"
+			val = raw_input('Enter date fragment: ')
+			found, matches = mp.getMatches(aFragment=val)
+			for match in matches:
+				print match['label']
+				print match['data']
+				print "---------------"
+	#--------------------------------------------------------
+	def test_gui():
+		app = wx.PyWidgetTester(size = (200, 300))
+		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_picker():
+		app = wx.PyWidgetTester(size = (200, 300))
+		app.SetWidget(cDateInputCtrl, id=-1, size=(180,20), pos=(10,20))
+		app.MainLoop()
+	#--------------------------------------------------------
+	#test_cli()
+	#test_gui()
+	test_picker()
+
 #==================================================
