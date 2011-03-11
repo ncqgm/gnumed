@@ -666,14 +666,14 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 
 	#--------------------
 	def refresh(lctrl):
-		if encounters is not None:
-			encs = encounters
-		else:
+		if encounters is None:
 			encs = emr.get_encounters()
+		else:
+			encs = encounters
 
 		items = [
 			[
-				e['started'].strftime('%x %H:%M'),
+				e['started'].strftime('%x  %H:%M'),
 				e['last_affirmed'].strftime('%H:%M'),
 				e['l10n_type'],
 				gmTools.coalesce(e['reason_for_encounter'], u''),

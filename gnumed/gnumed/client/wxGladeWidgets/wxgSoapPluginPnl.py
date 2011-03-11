@@ -72,6 +72,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._BTN_clear_editor = wx.Button(self.__splitter_right_top_pnl, -1, _("&Clear"), style=wx.BU_EXACTFIT)
         self._BTN_discard_editor = wx.Button(self.__splitter_right_top_pnl, -1, _("&Discard"), style=wx.BU_EXACTFIT)
         self._BTN_save_note = wx.Button(self.__splitter_right_top_pnl, -1, _("&Save"), style=wx.BU_EXACTFIT)
+        self._BTN_save_note_under = wx.Button(self.__splitter_right_top_pnl, -1, _("Save &under"), style=wx.BU_EXACTFIT)
         self._BTN_image = wx.Button(self.__splitter_right_top_pnl, -1, _("&Image"), style=wx.BU_EXACTFIT)
         self._BTN_new_encounter = wx.Button(self.__splitter_right_top_pnl, -1, _("New"), style=wx.BU_EXACTFIT)
         self._BTN_save_encounter = wx.Button(self.__splitter_right_top_pnl, -1, _("Save"), style=wx.BU_EXACTFIT)
@@ -90,6 +91,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_clear_editor_button_pressed, self._BTN_clear_editor)
         self.Bind(wx.EVT_BUTTON, self._on_discard_editor_button_pressed, self._BTN_discard_editor)
         self.Bind(wx.EVT_BUTTON, self._on_save_note_button_pressed, self._BTN_save_note)
+        self.Bind(wx.EVT_BUTTON, self._on_save_note_under_button_pressed, self._BTN_save_note_under)
         self.Bind(wx.EVT_BUTTON, self._on_image_button_pressed, self._BTN_image)
         self.Bind(wx.EVT_BUTTON, self._on_new_encounter_button_pressed, self._BTN_new_encounter)
         self.Bind(wx.EVT_BUTTON, self._on_save_encounter_button_pressed, self._BTN_save_encounter)
@@ -110,7 +112,8 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._BTN_new_editor.SetToolTipString(_("Open a new progress note editor.\n\nThere is a configuration item on whether to allow several new-episode editors at once."))
         self._BTN_clear_editor.SetToolTipString(_("Clear the editor for the displayed progress note."))
         self._BTN_discard_editor.SetToolTipString(_("Discard the editor for the displayed progress note."))
-        self._BTN_save_note.SetToolTipString(_("Save the currently displayed progress note."))
+        self._BTN_save_note.SetToolTipString(_("Save the currently displayed progress note under the current encounter."))
+        self._BTN_save_note_under.SetToolTipString(_("Save the currently displayed note into an encounter selected from a list of encounters."))
         self._BTN_image.SetToolTipString(_("Add a visual progress note for this episode."))
         self._BTN_new_encounter.SetToolTipString(_("Start a new encounter. If there are any changes to the current encounter you will be asked whether to save them."))
         self._BTN_save_encounter.SetToolTipString(_("Save the encounter details."))
@@ -164,18 +167,19 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         __szr_top_right.Add(__szr_aoe, 0, wx.RIGHT|wx.TOP|wx.EXPAND, 3)
         __lbl_editor = wx.StaticText(self.__splitter_right_top_pnl, -1, _("Notelet:"))
         __szr_buttons.Add(__lbl_editor, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_buttons.Add(self._BTN_new_editor, 0, wx.RIGHT|wx.EXPAND, 3)
-        __szr_buttons.Add(self._BTN_clear_editor, 0, wx.RIGHT|wx.EXPAND, 3)
-        __szr_buttons.Add(self._BTN_discard_editor, 0, wx.RIGHT|wx.EXPAND, 3)
-        __szr_buttons.Add(self._BTN_save_note, 0, wx.RIGHT|wx.EXPAND, 3)
-        __szr_buttons.Add(self._BTN_image, 0, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_new_editor, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_clear_editor, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_discard_editor, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_save_note, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_save_note_under, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_image, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
         __lbl_encounter = wx.StaticText(self.__splitter_right_top_pnl, -1, _("Encounter:"))
         __szr_buttons.Add(__lbl_encounter, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_buttons.Add(self._BTN_new_encounter, 0, wx.RIGHT|wx.EXPAND, 3)
-        __szr_buttons.Add(self._BTN_save_encounter, 0, wx.EXPAND, 3)
+        __szr_buttons.Add(self._BTN_new_encounter, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_save_encounter, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_save_all, 0, wx.EXPAND, 5)
+        __szr_buttons.Add(self._BTN_save_all, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_top_right.Add(__szr_buttons, 0, wx.RIGHT|wx.TOP|wx.EXPAND, 3)
         self.__splitter_right_top_pnl.SetSizer(__szr_top_right)
         __szr_bottom_right.Add(self._lbl_hints, 0, wx.EXPAND, 0)
@@ -239,6 +243,10 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
 
     def _on_image_button_pressed(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>
         print "Event handler `_on_image_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_save_note_under_button_pressed(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>
+        print "Event handler `_on_save_note_under_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgSoapPluginPnl

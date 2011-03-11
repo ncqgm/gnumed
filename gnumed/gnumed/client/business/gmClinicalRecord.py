@@ -241,14 +241,19 @@ SELECT fk_encounter from
 	#--------------------------------------------------------
 	# API: narrative
 	#--------------------------------------------------------
-	def add_notes(self, notes=None, episode=None):
+	def add_notes(self, notes=None, episode=None, encounter=None):
+
+		enc = gmTools.coalesce (
+			encounter,
+			self.current_encounter['pk_encounter']
+		)
 
 		for note in notes:
 			success, data = gmClinNarrative.create_clin_narrative (
 				narrative = note[1],
 				soap_cat = note[0],
 				episode_id = episode,
-				encounter_id = self.current_encounter['pk_encounter']
+				encounter_id = enc
 			)
 
 		return True

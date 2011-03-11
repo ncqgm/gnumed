@@ -1111,6 +1111,26 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		)
 		event.Skip()
 	#--------------------------------------------------------
+	def _on_save_note_under_button_pressed(self, event):
+		encounter = gmEMRStructWidgets.select_encounters (
+			parent = self,
+			patient = self.__pat,
+			single_selection = True
+		)
+		if encounter is None:
+			return
+
+		emr = self.__pat.get_emr()
+		self._NB_soap_editors.save_current_editor (
+			emr = emr,
+			encounter = encounter['pk_encounter'],
+			episode_name_candidates = [
+				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
+			]
+		)
+		event.Skip()
+	#--------------------------------------------------------
 	def _on_image_button_pressed(self, event):
 		emr = self.__pat.get_emr()
 		self._NB_soap_editors.add_visual_progress_note_to_current_problem()
@@ -1287,12 +1307,12 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		if self.GetPageCount() == 0:
 			self.add_editor()
 	#--------------------------------------------------------
-	def save_current_editor(self, emr=None, episode_name_candidates=None):
+	def save_current_editor(self, emr=None, episode_name_candidates=None, encounter=None):
 
 		page_idx = self.GetSelection()
 		page = self.GetPage(page_idx)
 
-		if not page.save(emr = emr, episode_name_candidates = episode_name_candidates):
+		if not page.save(emr = emr, episode_name_candidates = episode_name_candidates, encounter = encounter):
 			return
 
 		self.DeletePage(page_idx)
@@ -1471,7 +1491,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			health_issue = issue
 		)
 	#--------------------------------------------------------
-	def save(self, emr=None, episode_name_candidates=None):
+	def save(self, emr=None, episode_name_candidates=None, encounter=None):
 
 		if self.empty:
 			return True
@@ -1533,7 +1553,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		else:
 			epi_id = self.problem['pk_episode']
 
-		emr.add_notes(notes = self.soap, episode = epi_id)
+		emr.add_notes(notes = self.soap, episode = epi_id, encounter = encounter)
 
 		# set summary but only if not already set above for an episode
 		# newly created either standalone or within a health issue
