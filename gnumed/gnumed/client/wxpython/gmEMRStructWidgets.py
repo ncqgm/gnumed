@@ -686,7 +686,11 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		lctrl.set_string_items(items = items)
 		lctrl.set_data(data = encs)
 	#--------------------
-	def edit(enc = None):
+	def new():
+		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID)
+		return edit_encounter(parent = parent, encounter = enc)
+	#--------------------
+	def edit(enc=None):
 		return edit_encounter(parent = parent, encounter = enc)
 	#--------------------
 	return gmListWidgets.get_choices_from_list (
@@ -697,7 +701,8 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		can_return_empty = True,
 		single_selection = single_selection,
 		refresh_callback = refresh,
-		edit_callback = edit
+		edit_callback = edit,
+		new_callback = new
 	)
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
