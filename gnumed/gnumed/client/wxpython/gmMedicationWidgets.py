@@ -773,7 +773,7 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 
 	return (True, substs)
 #------------------------------------------------------------
-def manage_branded_drugs(parent=None):
+def manage_branded_drugs(parent=None, ignore_OK_button=False):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -860,6 +860,7 @@ def manage_branded_drugs(parent=None):
 		caption = _('Showing branded drugs.'),
 		columns = [_('Name'), _('Preparation'), _('ATC'), _('Components'), _('Code'), u'#'],
 		single_selection = True,
+		ignore_OK_button = ignore_OK_button,
 		refresh_callback = refresh,
 		new_callback = new,
 		edit_callback = edit,
@@ -1470,7 +1471,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_discontinue_reason.Enable(True)
 	#----------------------------------------------------------------
 	def _on_manage_brands_button_pressed(self, event):
-		manage_branded_drugs(parent = self)
+		manage_branded_drugs(parent = self, ignore_OK_button = True)
 	#----------------------------------------------------------------
 	def _on_manage_substances_button_pressed(self, event):
 		manage_consumable_substances(parent = self)
