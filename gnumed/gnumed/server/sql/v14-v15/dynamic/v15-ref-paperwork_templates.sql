@@ -81,4 +81,24 @@ insert into ref.paperwork_templates (
 	'real template missing'::bytea
 );
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-ref-paperwork_templates.sql', 'Revision: 1.3');
+delete from ref.paperwork_templates where name_long = 'Consultation report (GNUmed default)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'EMR printout'),
+	'Consultation report (GNUmed)',
+	'Consultation report (GNUmed default)',
+	'1.0',
+	'L',
+	'report.tex',
+	'real template missing'::bytea
+);
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v15-ref-paperwork_templates.sql', 'Revision: 1.4');

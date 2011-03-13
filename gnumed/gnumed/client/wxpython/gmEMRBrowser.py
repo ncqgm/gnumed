@@ -761,6 +761,12 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		item1 = self.GetPyData(node1)
 		item2 = self.GetPyData(node2)
 
+		# dummy health issue always on top
+		if isinstance(item1, type({})):
+			return -1
+		if isinstance(item2, type({})):
+			return 1
+
 		# encounters: reverse chronologically
 		if isinstance(item1, gmEMRStructItems.cEncounter):
 			if item1['started'] == item2['started']:
@@ -815,9 +821,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 			return 0
 
-		# dummy health issue always on top
-		if isinstance(item1, type({})):
-			return -1
+		_log.error('unknown item type during sorting EMR tree:')
+		_log.error('item1: %s', type(item1))
+		_log.error('item2: %s', type(item2))
 
 		return 0
 	#--------------------------------------------------------

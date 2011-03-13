@@ -12,7 +12,14 @@ import types, sys, string, datetime, logging, time
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime, gmTools, gmI18N
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmNull
+from Gnumed.pycommon import gmExceptions
+
 from Gnumed.business import gmClinNarrative
 
 
@@ -42,7 +49,7 @@ def diagnostic_certainty_classification2str(classification):
 	try:
 		return __diagnostic_certainty_classification_map[classification]
 	except KeyError:
-		return _(u'%s: unknown diagnostic certainty classification') % classification
+		return _(u'<%s>: unknown diagnostic certainty classification') % classification
 #============================================================
 # Health Issues API
 #============================================================
@@ -504,7 +511,8 @@ def get_dummy_health_issue():
 		'clinically_relevant': True,
 		'is_confidential': None,
 		'is_cause_of_death': False,
-		'is_dummy': True
+		'is_dummy': True,
+		'grouping': None
 	}
 	return issue
 #-----------------------------------------------------------
@@ -582,6 +590,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row)
 	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
 	def get_access_range(self):
 		"""Get earliest and latest access to this episode.
 
@@ -625,6 +635,9 @@ from (
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
 	#--------------------------------------------------------
+	def get_narrative(self, soap_cats=None, encounters=None):
+		return gmClinNarrative.get_narrative(soap_cats = None, encounters = encounters, episodes = [self.pk_obj])
+	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
 
@@ -647,11 +660,6 @@ from (
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
-	#--------------------------------------------------------
-	def _get_diagnostic_certainty_description(self):
-		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
-
-	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%Y-%m-%d'):
 		rows = gmClinNarrative.get_as_journal (
@@ -888,6 +896,13 @@ from (
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_diagnostic_certainty_description(self):
+		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
+
+	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
 	def _get_has_narrative(self):
 		cmd = u"""SELECT EXISTS (
@@ -1210,10 +1225,69 @@ WHERE
 
 		return lines
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False):
-		""" Format an encounter.
+	def format_latex(self, date_format=None, soap_cats=None):
 
-		with_co_encountlet_hints: whether to display which *other* episodes were discussed during this encounter
+		if date_format is None:
+			date_format = '%A, %B %d %Y'
+
+		tex = u'\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
+			gmTools.tex_escape_string(self._payload[self._idx['l10n_type']]),
+			self._payload[self._idx['started']].strftime(date_format).decode(gmI18N.get_encoding()),
+			self._payload[self._idx['started']].strftime('%H:%M'),
+			self._payload[self._idx['last_affirmed']].strftime('%H:%M')
+		)
+		tex += u'\\hline \\tabularnewline \n'
+
+		for epi in self.get_episodes():
+			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj])
+			if len(soaps) == 0:
+				continue
+			tex += u'\\multicolumn{2}{l}{\\emph{%s%s%s%s}} \\tabularnewline \n' % (
+#			tex += u' & \\emph{%s%s%s%s} \\tabularnewline \n' % (
+				gmTools.tex_escape_string(epi['description']),
+				gmTools.coalesce (
+					initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
+					instead = u'',
+					template_initial = u' {\\footnotesize [%s]}',
+					none_equivalents = [None, u'']
+				),
+				gmTools.tex_escape_string(gmTools.coalesce(epi['health_issue'], u'', u' (%s)')),
+				gmTools.coalesce (
+					initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
+					instead = u'',
+					template_initial = u' {\\footnotesize [%s]}',
+					none_equivalents = [None, u'']
+				),
+			)
+			for soap in soaps:
+				tex += u'{\\small %s} & {\\small %s} \\tabularnewline \n' % (
+					gmClinNarrative.soap_cat2l10n[soap['soap_cat']],
+					gmTools.tex_escape_string(soap['narrative'].strip(u'\n'))
+				)
+			tex += u' & \\tabularnewline \n'
+
+		if self._payload[self._idx['reason_for_encounter']] is not None:
+			tex += u'%s & %s \\tabularnewline \n' % (
+				gmTools.tex_escape_string(_('RFE')),
+				gmTools.tex_escape_string(self._payload[self._idx['reason_for_encounter']])
+			)
+		if self._payload[self._idx['assessment_of_encounter']] is not None:
+			tex += u'%s & %s \\tabularnewline \n' % (
+				gmTools.tex_escape_string(_('AOE')),
+				gmTools.tex_escape_string(self._payload[self._idx['assessment_of_encounter']])
+			)
+
+		tex += u'\\hline \\tabularnewline \n'
+		tex += u' & \\tabularnewline \n'
+
+		return tex
+	#--------------------------------------------------------
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False):
+		"""Format an encounter.
+
+		with_co_encountlet_hints:
+			- whether to include which *other* episodes were discussed during this encounter
+			- (only makes sense if episodes != None)
 		"""
 		lines = []
 
@@ -1900,6 +1974,12 @@ if __name__ == '__main__':
 			print field, ':', encounter[field]
 		print "updatable:", encounter.get_updatable_fields()
 	#--------------------------------------------------------
+	def test_encounter2latex():
+		encounter = cEncounter(aPK_obj=1)
+		print encounter
+		print ""
+		print encounter.format_latex()
+	#--------------------------------------------------------
 	def test_performed_procedure():
 		procs = get_performed_procedures(patient = 12)
 		for proc in procs:
@@ -1927,9 +2007,10 @@ if __name__ == '__main__':
 	#test_episode()
 	#test_problem()
 	#test_encounter()
-	test_health_issue()
+	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
+	test_encounter2latex()
 #============================================================
 

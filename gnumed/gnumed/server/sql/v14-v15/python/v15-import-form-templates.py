@@ -59,5 +59,18 @@ where name_long = 'Referral letter (GNUmed default) [Dr.Rogerio Luz]'
 		conn = conn
 	)
 
+	# consultation report
+	gmPG2.file2bytea (
+		query = u"""
+update ref.paperwork_templates
+set
+	data = %(data)s::bytea,
+	external_version = 'v15'
+where name_long = 'Consultation report (GNUmed default)'
+""",
+		filename = os.path.join('..', 'sql', 'v14-v15', 'data', 'GNUmed-default_consultation_report_template.tex'),
+		conn = conn
+	)
+
 	return True
 #==============================================================

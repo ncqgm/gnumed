@@ -261,6 +261,88 @@ def delete_clin_narrative(narrative=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
 #------------------------------------------------------------
+def get_narrative(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, patient=None):
+	"""Get SOAP notes pertinent to this encounter.
+
+		since
+			- initial date for narrative items
+		until
+			- final date for narrative items
+		encounters
+			- list of encounters whose narrative are to be retrieved
+		episodes
+			- list of episodes whose narrative are to be retrieved
+		issues
+			- list of health issues whose narrative are to be retrieved
+		soap_cats
+			- list of SOAP categories of the narrative to be retrieved
+	"""
+	where_parts = [u'TRUE']
+	args = {}
+
+	if encounters is not None:
+		where_parts.append(u'pk_encounter IN %(encs)s')
+		args['encs'] = tuple(encounters)
+
+	if episodes is not None:
+		where_parts.append(u'pk_episode IN %(epis)s')
+		args['epis'] = tuple(episodes)
+
+	if issues is not None:
+		where_parts.append(u'pk_health_issue IN %(issues)s')
+		args['issues'] = tuple(issues)
+
+	if patient is not None:
+		where_parts.append(u'pk_patient = %(pat)s')
+		args['pat'] = patient
+
+	if soap_cats is not None:
+		where_parts.append(u'soap_cat IN %(soap_cats)s')
+		args['soap_cats'] = tuple(cats)
+
+	cmd = u"""
+		SELECT
+			cvpn.*,
+			(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = cvpn.soap_cat)
+				AS soap_rank
+		FROM
+			clin.v_pat_narrative cvpn
+		WHERE
+			%s
+		ORDER BY
+			date,
+			soap_rank
+	""" % u' AND '.join(where_parts)
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	filtered_narrative = [ cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
+
+	if since is not None:
+		filtered_narrative = filter(lambda narr: narr['date'] >= since, filtered_narrative)
+
+	if until is not None:
+		filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
+
+	if providers is not None:
+		filtered_narrative = filter(lambda narr: narr['provider'] in providers, filtered_narrative)
+
+	return filtered_narrative
+
+#	if issues is not None:
+#		filtered_narrative = filter(lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
+#
+#	if episodes is not None:
+#		filtered_narrative = filter(lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
+#
+#	if encounters is not None:
+#		filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
+
+#	if soap_cats is not None:
+#		soap_cats = map(lambda c: c.lower(), soap_cats)
+#		filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
+
+#------------------------------------------------------------
 def get_as_journal(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None, patient=None):
 
 	if (patient is None) and (episodes is None) and (issues is None) and (encounters is None):

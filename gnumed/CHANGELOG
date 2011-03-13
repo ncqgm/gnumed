@@ -30,6 +30,7 @@ NEW: change gm-dbo password from client
 NEW: implement leaving a message for oneself/other providers
 NEW: Gulich Score on GABHS in sore throat
 NEW: implement generic method for downloading data packs
+NEW: placeholder: "soap_for_encounters::soap//<date format>::9999"
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip

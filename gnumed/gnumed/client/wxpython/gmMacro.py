@@ -14,22 +14,31 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
-from Gnumed.pycommon import gmCfg2, gmDateTime
+from Gnumed.pycommon import gmI18N
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+from Gnumed.pycommon import gmGuiBroker
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmBorg
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmDateTime
+
 from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication, gmPathLab, gmPersonSearch
 from Gnumed.business import gmVaccination, gmPersonSearch
-from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmNarrativeWidgets
+from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmEMRStructWidgets
 
 
 _log = logging.getLogger('gm.scripting')
 _cfg = gmCfg2.gmCfgData()
 
 #=====================================================================
-
-#placeholder: soap_for_encounters::soap -> select encounter, export those soap
-
-
-
 known_placeholders = [
 	'lastname',
 	'firstname',
@@ -78,7 +87,8 @@ known_variant_placeholders = [
 	u'allergy_list',			# "data" holds: template per allergy, allergies on one line
 	u'problems',				# "data" holds: line template, one problem per line
 	u'name',					# "data" holds: template for name parts arrangement
-	u'free_text'				# show a dialog for entering some free text
+	u'free_text',				# show a dialog for entering some free text
+	u'soap_for_encounters'		# "data" holds: soap cats // strftime date format
 ]
 
 default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
@@ -304,9 +314,43 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# variant handlers
 	#--------------------------------------------------------
+	def _get_variant_soap_for_encounters(self, data=None):
+		"""Select encounters from list and format SOAP thereof.
+
+		data: soap_cats (' ' -> None -> admin) // date format
+		"""
+		# defaults
+		cats = None
+		date_format = None
+
+		if data is not None:
+			data_parts = data.split('//')
+
+			# part[0]: categories
+			if len(data_parts[0]) > 0:
+				cats = []
+				if u' ' in data_parts[0]:
+					cats.append(None)
+					data_parts[0] = data_parts[0].replace(u' ', u'')
+				cats.extend(list(data_parts[0]))
+
+			# part[1]: date format
+			if len(data_parts) > 0:
+				if len(data_parts[1]) > 0:
+					date_format = data_parts[1]
+
+		encounters = gmEMRStructWidgets.select_encounters(single_selection = False)
+
+		chunks = []
+		for enc in encounters:
+			chunks.append(enc.format_latex(date_format = date_format, soap_cats = cats))
+
+		return u''.join(chunks)
+	#--------------------------------------------------------
 	def _get_variant_emr_journal(self, data=None):
 		# default: all categories, neutral template
-		cats = list(u'soap').append(None)
+		cats = list(u'soap')
+		cats.append(None)
 		template = u'%s'
 		interactive = True
 		line_length = 9999
@@ -325,7 +369,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				cats.append(c)
 			# '' -> SOAP + None
 			if cats == u'':
-				cats = cats = list(u'soap').append(None)
+				cats = list(u'soap').append(None)
 
 			# part[1]: template
 			if len(data_parts) > 0:
@@ -1050,7 +1094,8 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		#ph = u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::'
-		ph = u'free_text::latex//placeholder test::9999'
+		#ph = u'free_text::latex//placeholder test::9999'
+		ph = u'soap_for_encounters:://::9999'
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True

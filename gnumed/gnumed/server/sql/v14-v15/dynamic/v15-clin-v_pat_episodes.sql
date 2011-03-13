@@ -56,6 +56,8 @@ select
 		as episode_modified_by,
 	cep.diagnostic_certainty_classification
 		as diagnostic_certainty_classification,
+	null
+		as diagnostic_certainty_classification_issue,
 	cep.xmin
 		as xmin_episode
 from
@@ -98,6 +100,8 @@ select
 		as episode_modified_by,
 	cep.diagnostic_certainty_classification
 		as diagnostic_certainty_classification,
+	chi.diagnostic_certainty_classification
+		as diagnostic_certainty_classification_issue,
 	cep.xmin
 		as xmin_episode
 from

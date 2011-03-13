@@ -650,7 +650,7 @@ def edit_encounter(parent=None, encounter=None):
 	dlg.Destroy()
 	return False
 #----------------------------------------------------------------
-def select_encounters(parent=None, patient=None, single_selection=True, encounters=None):
+def select_encounters(parent=None, patient=None, single_selection=True, encounters=None, ignore_OK_button=False):
 
 	if patient is None:
 		patient = gmPerson.gmCurrentPatient()
@@ -702,7 +702,8 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		single_selection = single_selection,
 		refresh_callback = refresh,
 		edit_callback = edit,
-		new_callback = new
+		new_callback = new,
+		ignore_OK_button = ignore_OK_button
 	)
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
