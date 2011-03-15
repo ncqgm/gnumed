@@ -2086,7 +2086,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 					tip = agw_stt.SuperToolTip (
 						u'',
 						bodyImage = img,
-						header = _('Created: %s') % part['date_generated'].strftime('%Y %B %d').encode(gmI18N.get_encoding()),
+						header = _('Created: %s') % part['date_generated'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
 						footer = gmTools.coalesce(part['doc_comment'], u'').strip()
 					)
 					tip.SetTopGradientColor('white')

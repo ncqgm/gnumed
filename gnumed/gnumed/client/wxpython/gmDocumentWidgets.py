@@ -1105,6 +1105,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 
 	It listens to document and patient changes and updated itself accordingly.
+
+	This acts on the current patient.
 	"""
 	_sort_modes = ['age', 'review', 'episode', 'type']
 	_root_node_labels = None
@@ -1266,6 +1268,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__doc_context_menu.Append(ID, _('Edit corresponding encounter'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__edit_encounter_details)
 
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Select corresponding encounter'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__select_encounter)
 
 #		self.__doc_context_menu.AppendSeparator()
 
@@ -1789,8 +1794,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
+	def __select_encounter(self, evt):
+		enc = gmEMRStructWidgets.select_encounters (
+			parent = self,
+			patient = gmPerson.gmCurrentPatient()
+		)
+		if enc is None:
+			return
+		self.__curr_node_data['pk_encounter'] = enc['pk_encounter']
+		self.__curr_node_data.save()
+	#--------------------------------------------------------
 	def __edit_encounter_details(self, evt):
-		enc = gmEMRStructItems.cEncounter(aPK_obj=self.__curr_node_data['pk_encounter'])
+		enc = gmEMRStructItems.cEncounter(aPK_obj = self.__curr_node_data['pk_encounter'])
 		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):

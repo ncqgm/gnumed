@@ -20,7 +20,7 @@ where
 		and
 	version like '2009-01-%'
 		and
-	lang in ('en','de','fr');
+	lang in ('en','de','fr','de_DE','en_EN','fr_FR');
 
 
 insert into ref.data_source (

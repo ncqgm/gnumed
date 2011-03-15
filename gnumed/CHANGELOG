@@ -65,6 +65,7 @@ IMPROVED: show RFE/AOE in "recent notes" display in SOAP plugin
 IMPROVED: much saner workflow when creating allergy entry from substance intake
 IMPROVED: configurably auto-open editors for all open, recently worked-on problems when activating a patient
 IMPROVED: SOAP plugin: [Save under] saves notelet under selectable rather than current encounter
+IMPROVED: enable moving documents between encounters, mainly useful for visual progress notes
 
 ------------------------------------------------
 # rel-0-8-patches

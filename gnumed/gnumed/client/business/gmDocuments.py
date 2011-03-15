@@ -380,6 +380,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		u"""update blobs.doc_med set
 				fk_type = %(pk_type)s,
 				fk_episode = %(pk_episode)s,
+				fk_encounter = %(pk_encounter)s,
 				clin_when = %(clin_when)s,
 				comment = gm.nullify_empty_string(%(comment)s),
 				ext_ref = gm.nullify_empty_string(%(ext_ref)s)
@@ -394,7 +395,8 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		'comment',
 		'clin_when',
 		'ext_ref',
-		'pk_episode'
+		'pk_episode',
+		'pk_encounter'			# mainly useful when moving visual progress notes to their respective encounters
 	]
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False):

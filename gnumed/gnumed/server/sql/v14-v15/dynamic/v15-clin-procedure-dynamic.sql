@@ -51,12 +51,18 @@ comment on column clin.procedure.is_ongoing is
 
 alter table clin.procedure
 	alter column is_ongoing
-		set not null;
+		set default false;
+
+update clin.procedure set
+	is_ongoing = DEFAULT
+where
+	is_ongoing is NULL
+;
 
 
 alter table clin.procedure
 	alter column is_ongoing
-		set default false;
+		set not null;
 
 
 alter table clin.procedure
