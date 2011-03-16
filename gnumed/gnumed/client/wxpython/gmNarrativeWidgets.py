@@ -14,8 +14,14 @@ import wx.lib.statbmp as wx_genstatbmp
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmDispatcher, gmTools, gmDateTime
-from Gnumed.pycommon import gmShellAPI, gmPG2, gmCfg, gmMatchProvider
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
 from Gnumed.business import gmForms, gmDocuments, gmPersonSearch
@@ -401,6 +407,91 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encount
 
 	wx.EndBusyCursor()
 	return True
+#------------------------------------------------------------
+def select_narrative_from_episodes_new(parent=None, soap_cats=None):
+	"""soap_cats needs to be a list"""
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	selected_soap = {}
+	selected_narrative_pks = []
+
+	#-----------------------------------------------
+	def pick_soap_from_episode(episode):
+
+		narr_for_epi = emr.get_clin_narrative(episodes = [episode['pk_episode']], soap_cats = soap_cats)
+
+		if len(narr_for_epi) == 0:
+			gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for selected episode.'))
+			return True
+
+		dlg = cNarrativeListSelectorDlg (
+			parent = parent,
+			id = -1,
+			narrative = narr_for_epi,
+			msg = _(
+				'\n This is the narrative (type %s) for the chosen episodes.\n'
+				'\n'
+				' Now, mark the entries you want to include in your report.\n'
+			) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soap')) ])
+		)
+#		selection_idxs = []
+#		for idx in range(len(narr_for_epi)):
+#			if narr_for_epi[idx]['pk_narrative'] in selected_narrative_pks:
+#				selection_idxs.append(idx)
+#		if len(selection_idxs) != 0:
+#			dlg.set_selections(selections = selection_idxs)
+		btn_pressed = dlg.ShowModal()
+		selected_narr = dlg.get_selected_item_data()
+		dlg.Destroy()
+
+		if btn_pressed == wx.ID_CANCEL:
+			return True
+
+		selected_narrative_pks = [ i['pk_narrative'] for i in selected_narr ]
+		for narr in selected_narr:
+			selected_soap[narr['pk_narrative']] = narr
+
+		print "before returning from picking soap"
+
+		return True
+	#-----------------------------------------------
+	selected_episode_pks = []
+
+	all_epis = [ epi for epi in emr.get_episodes() if epi.has_narrative ]
+
+	if len(all_epis) == 0:
+		gmDispatcher.send(signal = 'statustext', msg = _('No episodes recorded for the health issues selected.'))
+		return []
+
+	dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg (
+		parent = parent,
+		id = -1,
+		episodes = all_epis,
+		msg = _('\n Select the the episode you want to report on.\n')
+	)
+#	selection_idxs = []
+#	for idx in range(len(all_epis)):
+#		if all_epis[idx]['pk_episode'] in selected_episode_pks:
+#			selection_idxs.append(idx)
+#	if len(selection_idxs) != 0:
+#		dlg.set_selections(selections = selection_idxs)
+	dlg.left_extra_button = (
+		_('Pick SOAP'),
+		_('Pick SOAP entries from topmost selected episode'),
+		pick_soap_from_episode
+	)
+	btn_pressed = dlg.ShowModal()
+	dlg.Destroy()
+
+	if btn_pressed == wx.ID_CANCEL:
+		return None
+
+	return selected_soap.values()
 #------------------------------------------------------------
 def select_narrative_from_episodes(parent=None, soap_cats=None):
 	"""soap_cats needs to be a list"""
