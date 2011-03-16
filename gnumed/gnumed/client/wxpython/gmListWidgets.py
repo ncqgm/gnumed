@@ -131,10 +131,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 		wxgGenericListSelectorDlg.wxgGenericListSelectorDlg.__init__(self, *args, **kwargs)
 
-		if msg is None:
-			self._LBL_message.Hide()
-		else:
-			self._LBL_message.SetLabel(msg)
+		self.message = msg
 
 		self.left_extra_button = None
 		self.middle_extra_button = None
@@ -424,6 +421,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	list_tooltip_callback = property(lambda x:x, _set_list_tooltip_callback)
 	#def _get_tooltip(self, item):		# inside class
 	#def _get_tooltip(item):			# outside class
+	#------------------------------------------------------------
+	def _set_message(self, message):
+		if message is None:
+			self._LBL_message.Hide()
+			return
+		self._LBL_message.SetLabel(message)
+		self._LBL_message.Show()
+
+	message = property(lambda x:x, _set_message)
 #================================================================
 class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	"""A panel holding a generic multi-column list and action buttions."""
