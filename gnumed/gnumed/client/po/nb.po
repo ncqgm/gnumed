@@ -7,15 +7,81 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-19 16:11+CET\n"
+"POT-Creation-Date: 2011-03-16 17:22+CET\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
+"Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-01-19 11:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
+
+msgid "programmer forgot to specify error message"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+
+msgid "generic error message"
+msgstr ""
+
+msgid "programmer forgot to specify info message"
+msgstr ""
+
+msgid "generic info message"
+msgstr ""
+
+msgid "programmer forgot to specify warning"
+msgstr ""
+
+msgid "generic warning message"
+msgstr ""
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you have got a local database installed ?\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+
+msgid "Connecting to backend"
+msgstr ""
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry another backend / user / password combination !\n"
+msgstr ""
 
 #, fuzzy
 msgid "unknown allergy state"
@@ -31,6 +97,12 @@ msgstr "har allergier"
 #, fuzzy
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "FEIL: ukjent allergistatus [%s]"
+
+msgid "Cannot run [arriba] !"
+msgstr ""
+
+msgid "No [arriba] result found in [%s]."
+msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr ""
@@ -91,6 +163,7 @@ msgid ""
 "Test results: %(results)s\n"
 "Hospital stays: %(stays)s\n"
 "Procedures: %(procedures)s\n"
+"Vaccinations: %(vaccinations)s\n"
 msgstr ""
 
 msgid ""
@@ -146,14 +219,11 @@ msgstr ""
 msgid "unknown reaction"
 msgstr "ukjent reaksjon"
 
-msgid "allergies/intolerances"
-msgstr "allergier/intoleranser"
-
-msgid "ERROR: cannot retrieve vaccinated indications"
+msgid "Vaccinations"
 msgstr ""
 
-msgid "no vaccinations recorded"
-msgstr "ingen vaksiner registrert"
+msgid "allergies/intolerances"
+msgstr "allergier/intoleranser"
 
 msgid ""
 "%s\n"
@@ -197,16 +267,22 @@ msgstr ""
 msgid "last check:"
 msgstr "etternavn"
 
-msgid "A %s Sign"
+msgid "part"
 msgstr ""
 
-msgid "B %s Cluster of signs"
+msgid "A: Sign"
 msgstr ""
 
-msgid "C %s Syndromic diagnosis"
+msgid "B: Cluster of signs"
 msgstr ""
 
-msgid "D %s Scientific diagnosis"
+msgid "C: Syndromic diagnosis"
+msgstr ""
+
+msgid "D: Scientific diagnosis"
+msgstr ""
+
+msgid "<%s>: unknown diagnostic certainty classification"
 msgstr ""
 
 msgid "bilateral"
@@ -216,6 +292,9 @@ msgid "left"
 msgstr ""
 
 msgid "right"
+msgstr ""
+
+msgid "Clinical data generated during encounters under this health issue:"
 msgstr ""
 
 msgid "Health Issue %s%s%s%s   [#%s]"
@@ -233,9 +312,8 @@ msgstr ""
 msgid " Noted at age: %s"
 msgstr ""
 
-#, fuzzy
-msgid " Status: %s, %s%s"
-msgstr " Status: %s, %s"
+msgid "Status"
+msgstr ""
 
 msgid "not clinically relevant"
 msgstr ""
@@ -282,7 +360,14 @@ msgstr "Dokumenter: %s"
 msgid "Measurements and Results: %s"
 msgstr ""
 
+#, fuzzy
+msgid "Vaccinations:"
+msgstr "Vaksinasjon"
+
 msgid "Unattributed episodes"
+msgstr ""
+
+msgid "Clinical data generated during encounters within this episode:"
 msgstr ""
 
 msgid "Episode %s%s%s (%s%s)   [#%s]\n"
@@ -330,13 +415,38 @@ msgstr ""
 msgid "Documents:"
 msgstr "Dokumenter:"
 
+msgid "%s other episodes touched upon during this encounter:"
+msgstr ""
+
+#, fuzzy
+msgid " (ongoing)"
+msgstr "pågående"
+
+msgid "error with placeholder [%s]"
+msgstr ""
+
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
+msgstr ""
+
+msgid "Sandboxed PDF output file cannot be moved."
 msgstr ""
 
 msgid "PDF output file cannot be opened."
 msgstr ""
 
-msgid "part"
+msgid "Error running gnuplot. Cannot plot data."
+msgstr ""
+
+msgid "Medication history"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+" Take: %s"
+msgstr "   Dok: %s"
+
+msgid "Take: %s"
 msgstr ""
 
 msgid "long-term"
@@ -351,6 +461,30 @@ msgstr ""
 #, fuzzy
 msgid "?ongoing"
 msgstr "pågående"
+
+msgid "Additional notes"
+msgstr ""
+
+msgid "Substance"
+msgstr ""
+
+msgid "Brand"
+msgstr ""
+
+msgid "Strength"
+msgstr ""
+
+msgid "Medication list"
+msgstr ""
+
+msgid "ordered by brand"
+msgstr ""
+
+msgid "Regimen"
+msgstr ""
+
+msgid "Drug"
+msgstr ""
 
 msgid "units"
 msgstr ""
@@ -390,6 +524,29 @@ msgstr "ikke relevant"
 msgid "   unreviewed"
 msgstr ""
 
+msgid "unknown test results output format [%s]"
+msgstr ""
+
+#, fuzzy
+msgid "No test results to format."
+msgstr ""
+" %s test resultater\n"
+"\n"
+
+#, fuzzy
+msgid "Test results"
+msgstr ""
+" %s test resultater\n"
+"\n"
+
+msgid "GNUmed test results export for Gnuplot plotting"
+msgstr ""
+
+msgid ""
+"blank line inserted to allow for discontinued line drawing for same-day "
+"values"
+msgstr ""
+
 msgid "The lab request already exists but belongs to a different patient."
 msgstr ""
 
@@ -410,11 +567,41 @@ msgstr ""
 msgid "external patient source (name, gender, date of birth)"
 msgstr ""
 
+msgid "<name> cannot be empty"
+msgstr ""
+
+msgid "<issuer> cannot be empty"
+msgstr ""
+
+msgid "<channel> cannot be empty"
+msgstr ""
+
+msgid "<number> cannot be empty"
+msgstr ""
+
+msgid "<street> cannot be empty"
+msgstr ""
+
+msgid "<urb> cannot be empty"
+msgstr ""
+
+msgid "<zip> cannot be empty"
+msgstr ""
+
+msgid "<country> cannot be empty"
+msgstr ""
+
 msgid "** DOB unknown **"
 msgstr ""
 
 msgid "Cannot merge active patient into another patient."
 msgstr ""
+
+msgid "Mr"
+msgstr "Herr"
+
+msgid "Mrs"
+msgstr "Fru"
 
 msgid "internal patient ID"
 msgstr ""
@@ -473,20 +660,55 @@ msgstr ""
 msgid "full name"
 msgstr "fult navn"
 
-msgid "Mr"
-msgstr "Herr"
+msgid "vaccine"
+msgstr ""
 
-msgid "Mrs"
-msgstr "Fru"
+msgid "unknown vaccinations output format [%s]"
+msgstr ""
 
-msgid "error"
-msgstr "feil"
+#, fuzzy
+msgid "No vaccinations to format."
+msgstr "ingen vaksiner registrert"
 
-msgid "unable to get provider inbox messages from database"
+#, fuzzy
+msgid "Latest vaccinations"
+msgstr "Vaksinasjon"
+
+msgid "per target condition"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Last given"
+msgstr ""
+
+msgid "Vaccine"
+msgstr ""
+
+msgid "Lot \\#"
+msgstr ""
+
+msgid "S/P"
 msgstr ""
 
 msgid ""
-"An error occurred while retrieving provider inbox messages from the database."
+"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
+"\"lan: this vaccination was administered in the practice or copied from "
+"trustworthy records."
+msgstr ""
+
+msgid ""
+"Total number of vaccinations recorded for the corresponding target condition."
+msgstr ""
+
+msgid "Injection site"
+msgstr ""
+
+msgid "Reaction"
+msgstr ""
+
+msgid "Comment"
 msgstr ""
 
 msgid "internal error, check log"
@@ -656,7 +878,15 @@ msgstr ""
 msgid "Exported: %s\n"
 msgstr ""
 
+msgid ""
+"Help requested\n"
+"--------------"
+msgstr ""
+
 msgid "unknown test status [%s]"
+msgstr ""
+
+msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
 msgid "interval_format_tag::years::y"
@@ -669,6 +899,27 @@ msgid "interval_format_tag::weeks::w"
 msgstr ""
 
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "y::year_abbreviation"
+msgstr ""
+
+msgid "m::month_abbreviation"
+msgstr ""
+
+msgid "mo::month_only_abbreviation"
+msgstr ""
+
+msgid "w::week_abbreviation"
+msgstr ""
+
+msgid "d::day_abbreviation"
+msgstr ""
+
+msgid "h::hour_abbreviation"
+msgstr ""
+
+msgid "s::second_abbreviation"
 msgstr ""
 
 msgid "yYaA_keys_year"
@@ -686,7 +937,85 @@ msgstr ""
 msgid "hH_keys_hour"
 msgstr ""
 
+msgid "dmy (single character date triggers)"
+msgstr ""
+
+msgid "today (%s)"
+msgstr ""
+
+msgid "tomorrow (%s)"
+msgstr ""
+
+msgid "yesterday (%s)"
+msgstr ""
+
+msgid "%s-%s-%s: a %s last month"
+msgstr ""
+
+msgid "%s-%s-%s: a %s this month"
+msgstr ""
+
+msgid "%s-%s-%s: a %s next month"
+msgstr ""
+
+msgid "%d. of %s (this month): a %s"
+msgstr ""
+
+msgid "%d. of %s (next month): a %s"
+msgstr ""
+
+msgid "%d. of %s (last month): a %s"
+msgstr ""
+
+msgid "in %d day(s): %s"
+msgstr ""
+
+msgid "%d day(s) ago: %s"
+msgstr ""
+
+msgid "in %d week(s): %s"
+msgstr ""
+
+msgid "%d week(s) ago: %s"
+msgstr ""
+
+msgid "%s (%s this year)"
+msgstr ""
+
+msgid "%s (%s next year)"
+msgstr ""
+
+msgid "%s (%s last year)"
+msgstr ""
+
+msgid "%s this week (%s of %s)"
+msgstr ""
+
+msgid "%s next week (%s of %s)"
+msgstr ""
+
+msgid "%s last week (%s of %s)"
+msgstr ""
+
 msgid "hdwmy (single character date offset triggers)"
+msgstr ""
+
+msgid "in %d hour(s): %s"
+msgstr ""
+
+msgid "%d hour(s) ago: %s"
+msgstr ""
+
+msgid "in %d month(s): %s"
+msgstr ""
+
+msgid "%d month(s) ago: %s"
+msgstr ""
+
+msgid "in %d year(s): %s"
+msgstr ""
+
+msgid "%d year(s) ago: %s"
 msgstr ""
 
 msgid "in %d hour(s) - %s"
@@ -725,15 +1054,6 @@ msgstr ""
 msgid "right now (%s, %s)"
 msgstr ""
 
-msgid "today (%s)"
-msgstr ""
-
-msgid "tomorrow (%s)"
-msgstr ""
-
-msgid "yesterday (%s)"
-msgstr ""
-
 msgid "%d. of %s (this month) - a %s"
 msgstr ""
 
@@ -741,24 +1061,6 @@ msgid "%d. of %s (next month) - a %s"
 msgstr ""
 
 msgid "%d. of %s (last month) - a %s"
-msgstr ""
-
-msgid "%s (%s this year)"
-msgstr ""
-
-msgid "%s (%s next year)"
-msgstr ""
-
-msgid "%s (%s last year)"
-msgstr ""
-
-msgid "%s this week (%s of %s)"
-msgstr ""
-
-msgid "%s next week (%s of %s)"
-msgstr ""
-
-msgid "%s last week (%s of %s)"
 msgstr ""
 
 msgid "No product information available."
@@ -771,14 +1073,17 @@ msgid "Script must be readable by the calling user: [%s]."
 msgstr ""
 
 msgid ""
-"Script must be readable by the calling user only (permissions \"0600\"): [%"
-"s]."
+"Script must be readable by the calling user only (permissions \"0600\"): "
+"[%s]."
 msgstr ""
 
 msgid "Error running hook [%s] script."
 msgstr ""
 
 msgid "Translate this or i18n will not work properly !"
+msgstr ""
+
+msgid "[%s] is not a readable file"
 msgstr ""
 
 msgid ""
@@ -790,40 +1095,6 @@ msgid ""
 "viewer registered for the file type\n"
 " [%s]"
 msgstr ""
-
-msgid ""
-"Cannot connect to configuration database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-
-msgid ""
-"Cannot connect to database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-
-msgid "SQL: %s"
-msgstr ""
-
-msgid "cannot connect to service [%s]"
-msgstr ""
-
-msgid "Cannot connect to database without login information!"
-msgstr ""
-
-msgid "The wxPython GUI framework hasn't been initialized yet!"
-msgstr ""
-
-msgid "Can't connect to database without login information!"
-msgstr ""
-
-msgid " option [%s]: %s"
-msgstr ""
-
-#, fuzzy
-msgid "  risk: %s"
-msgstr "   Dok: %s"
 
 msgid ""
 "Cannot retrieve version information from:\n"
@@ -879,6 +1150,40 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+
+msgid ""
+"Cannot connect to configuration database with:\n"
+"\n"
+"[%s]"
+msgstr ""
+
+msgid ""
+"Cannot connect to database with:\n"
+"\n"
+"[%s]"
+msgstr ""
+
+msgid "SQL: %s"
+msgstr ""
+
+msgid "cannot connect to service [%s]"
+msgstr ""
+
+msgid "Cannot connect to database without login information!"
+msgstr ""
+
+msgid "The wxPython GUI framework hasn't been initialized yet!"
+msgstr ""
+
+msgid "Can't connect to database without login information!"
+msgstr ""
+
+msgid " option [%s]: %s"
+msgstr ""
+
+#, fuzzy
+msgid "  risk: %s"
+msgstr "   Dok: %s"
 
 msgid "1 Byte"
 msgstr ""
@@ -1056,9 +1361,6 @@ msgstr ""
 msgid "Drug Classes"
 msgstr ""
 
-msgid "Reaction"
-msgstr ""
-
 msgid "Reaction Type"
 msgstr ""
 
@@ -1146,6 +1448,51 @@ msgid "Set to:"
 msgstr ""
 
 msgid "Comment:"
+msgstr ""
+
+msgid "Fake brand"
+msgstr ""
+
+msgid "&Manage"
+msgstr ""
+
+msgid "Mark as a fake (not really existing) brand."
+msgstr ""
+
+msgid "Manage the components of this drug."
+msgstr ""
+
+msgid ""
+"An external code for this drug.\n"
+"\n"
+"In most cases either a national drug identifier or the ID of this drug in an "
+"external database.\n"
+"\n"
+"In any case, GNUmed will never actively do anything with this code apart "
+"from display and making it available when passing this drug to external "
+"applications."
+msgstr ""
+
+msgid "The type of the external code of this drug, if any."
+msgstr ""
+
+msgid "Brand name"
+msgstr ""
+
+msgid "Preparation"
+msgstr ""
+
+#, fuzzy
+msgid "Components"
+msgstr "Dokumenter:"
+
+msgid "ATC code"
+msgstr ""
+
+msgid "External code"
+msgstr ""
+
+msgid "Type:"
 msgstr ""
 
 msgid "Previous Encounters"
@@ -1326,45 +1673,88 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-msgid "+"
+msgid ""
+"Enter the name of the consumable substance.\n"
+"\n"
+"Examples:\n"
+"- metoprolol\n"
+"- tobacco\n"
+"- alcohol\n"
+"- marihuana\n"
+"- aloe vera\n"
+"- ibuprofen"
+msgstr ""
+
+msgid "Enter the amount of substance."
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "Unit:"
+msgstr ""
+
+msgid "Component"
+msgstr ""
+
+msgid "Brands"
+msgstr ""
+
+msgid "... or ..."
+msgstr ""
+
+msgid "Manage"
 msgstr ""
 
 msgid "Approved of"
 msgstr ""
 
+msgid "Per plan"
+msgstr ""
+
+msgid "... Reason"
+msgstr ""
+
 msgid "Long-term"
 msgstr ""
 
-msgid ""
-"Get substances from an external drug database.\n"
-"\n"
-"Note that if you select more than one substance only the first one will be "
-"available for further editing right away."
-msgstr ""
-
-msgid "The amount of substance per dose."
-msgstr ""
-
-msgid "The preparation the substance comes in."
-msgstr ""
-
-msgid "Whether this substance is taken by advice."
-msgstr ""
-
-msgid "The brand name of the drug the patient is taking."
+msgid "A component of a drug brand the patient is taking."
 msgstr ""
 
 msgid ""
-"Get brand(s) from an external drug database.\n"
+"Manage drug brands.\n"
 "\n"
-"Note that if you select more than one only the first will be available for "
-"further editing right away."
+"Note that this will not select a component for you. What it does is to let "
+"you manage (add/edit/delete) the drug products/brands known to GNUmed from "
+"which you can select a component."
 msgstr ""
 
 msgid "The active ingredients of this brand."
 msgstr ""
 
+msgid ""
+"Manage consumable substances.\n"
+"\n"
+"This will not select a substance for you. It will, however, enable you to "
+"manage (add/edit/delete) the consumable substances available for selection."
+msgstr ""
+
+msgid "The preparation the substance comes in."
+msgstr ""
+
 msgid "When was this substance started to be consumed."
+msgstr ""
+
+msgid "Whether this substance is taken by advice."
+msgstr ""
+
+msgid "When was intake of this substance discontinued ?"
+msgstr ""
+
+msgid "Press if discontinuation was as planned."
+msgstr ""
+
+msgid "Reason for discontinuation."
 msgstr ""
 
 msgid "The schedule for taking this substance."
@@ -1377,28 +1767,19 @@ msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
 msgstr ""
 
-msgid "The aim of consuming this substance."
+msgid "The episode this substance is taken under."
 msgstr ""
 
-msgid "The episode this substance is taken under."
+msgid "The aim of consuming this substance."
 msgstr ""
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
 
-msgid "Substance"
-msgstr ""
-
-msgid "Strength"
-msgstr ""
-
-msgid "Preparation"
-msgstr ""
-
-msgid "Brand"
-msgstr ""
-
 msgid "Started"
+msgstr ""
+
+msgid "Discontinued"
 msgstr ""
 
 msgid "Schedule"
@@ -1407,10 +1788,10 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-msgid "Aim"
+msgid "Episode"
 msgstr ""
 
-msgid "Episode"
+msgid "Aim"
 msgstr ""
 
 msgid "Advice"
@@ -1429,7 +1810,16 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+msgid "Kidney"
+msgstr ""
+
 msgid "&Interactions?"
+msgstr ""
+
+msgid "℞"
+msgstr ""
+
+msgid "ADR"
 msgstr ""
 
 msgid ""
@@ -1463,13 +1853,30 @@ msgstr ""
 msgid "Remove a substance from the list."
 msgstr ""
 
+msgid "Discontinue selected entry due to an allergy or intolerance."
+msgstr ""
+
 msgid "Show in-depth information on the selected substance if available."
+msgstr ""
+
+msgid ""
+"Show information on handling of drugs in presence of renal insufficiency."
 msgstr ""
 
 msgid ""
 "Check for interactions between selected drugs.\n"
 "\n"
 "Includes all drugs if none selected."
+msgstr ""
+
+msgid ""
+"Write a prescription based on either of\n"
+"\n"
+"- the selected lines\n"
+"- a copy of the most recent prescription"
+msgstr ""
+
+msgid "Report an Adverse Drug Reaction."
 msgstr ""
 
 msgid "Print the medication list."
@@ -1555,28 +1962,37 @@ msgid ""
 "(SQL)"
 msgstr ""
 
-msgid "right list"
+msgid "Original string as found in the database. Usually in English."
 msgstr ""
 
-msgid "left list"
+msgid "Enter your translation here."
 msgstr ""
 
-msgid "Do something with the two lists below."
+msgid ""
+"Enter the language code here. You need either the two letter or the four "
+"letter ISO code. When entering four letter codes use the format xx_XX, such "
+"as de_DE."
 msgstr ""
 
-msgid "Refresh"
+msgid "String"
 msgstr ""
 
-msgid "= selected =>"
+msgid "Translation"
 msgstr ""
 
-msgid "= all =>"
+msgid "Language"
 msgstr ""
 
-msgid "<= all ="
+msgid ""
+"The numeric amount of substance per dose in brand.\n"
+"\n"
+"Examples:\n"
+"- 100mg per tablet: amount = 100, unit = mg(/tablet)\n"
+"- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n"
+"- 5mg/ml solution: amount = 5, unit = mg/ml"
 msgstr ""
 
-msgid "<= selected ="
+msgid "Unit"
 msgstr ""
 
 msgid "Edit Document Types"
@@ -1684,9 +2100,6 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-msgid "Comment"
-msgstr ""
-
 msgid "edit encounter details"
 msgstr ""
 
@@ -1752,6 +2165,9 @@ msgid ""
 "If this box is checked the episode is over. If not it is currently ongoing."
 msgstr ""
 
+msgid "The current status or a summary of this episode."
+msgstr ""
+
 msgid "Patient"
 msgstr ""
 
@@ -1780,6 +2196,15 @@ msgid "edit form template details"
 msgstr ""
 
 msgid "&Template"
+msgstr ""
+
+msgid "Export"
+msgstr ""
+
+msgid "Gnuplot"
+msgstr ""
+
+msgid "Image editor"
 msgstr ""
 
 msgid "LaTeX"
@@ -1815,6 +2240,9 @@ msgstr ""
 msgid "Load template data from a file."
 msgstr ""
 
+msgid "Export the form template into a file."
+msgstr ""
+
 msgid "The form engine this template must be processed with."
 msgstr ""
 
@@ -1837,9 +2265,6 @@ msgid "Options"
 msgstr ""
 
 msgid "Processed by:"
-msgstr ""
-
-msgid "Status"
 msgstr ""
 
 msgid "Last modified:"
@@ -1879,9 +2304,6 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-msgid "Unit:"
-msgstr ""
-
 msgid "Town"
 msgstr ""
 
@@ -1903,7 +2325,13 @@ msgstr ""
 msgid "Cancel editing the data and discard changes."
 msgstr ""
 
-msgid "&Next..."
+msgid "left extra"
+msgstr ""
+
+msgid "Add &another"
+msgstr ""
+
+msgid "Lala !"
 msgstr ""
 
 msgid "GNUmed generic EditArea dialog"
@@ -1912,10 +2340,19 @@ msgstr ""
 msgid "Save the entered data into the database and close the dialog."
 msgstr ""
 
+msgid "Programmer forgot tooltip for left extra button."
+msgstr ""
+
 msgid "Save data into database and clear fields for another value."
 msgstr ""
 
 msgid "Reset all fields to their previous values."
+msgstr ""
+
+msgid ""
+"Press me !\n"
+"\n"
+"(This will NOT endanger any data.)"
 msgstr ""
 
 msgid "Edit"
@@ -1930,7 +2367,13 @@ msgstr ""
 msgid "Remove the selected item(s) from the list."
 msgstr ""
 
-msgid "&Delete"
+msgid "1"
+msgstr ""
+
+msgid "2"
+msgstr ""
+
+msgid "3"
 msgstr ""
 
 msgid ""
@@ -1953,7 +2396,8 @@ msgstr ""
 msgid "Edit the (first or only) item selected in the list above."
 msgstr ""
 
-msgid "Delete the (first or only) item selected in the list above."
+msgid ""
+"Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
 
 msgid "Database welcome message editor"
@@ -1984,8 +2428,11 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Enter past history facts about the condition here. Note that those can only "
-"ever be added to from this field."
+"Here you can add arbitrary text which will be used for sorting health issues "
+"in the tree."
+msgstr ""
+
+msgid "The current status or a summary of the issue."
 msgstr ""
 
 msgid ""
@@ -2021,11 +2468,6 @@ msgstr ""
 msgid "Grouping:"
 msgstr ""
 
-msgid ""
-"Additional\n"
-"Notes"
-msgstr ""
-
 msgid "When Noted"
 msgstr ""
 
@@ -2044,6 +2486,90 @@ msgstr ""
 msgid "Discharged"
 msgstr ""
 
+msgid "The date of birth for this person."
+msgstr ""
+
+#, fuzzy
+msgid "The date of death."
+msgstr "navn, kjønn, fødselsdato"
+
+#, fuzzy
+msgid "A free-text comment on this person."
+msgstr "ukjent allergistatus"
+
+msgid "Born"
+msgstr ""
+
+msgid "Deceased"
+msgstr ""
+
+msgid "Gender"
+msgstr ""
+
+msgid "Ethnicity"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "&Myself … or:"
+msgstr ""
+
+msgid "&Active … or:"
+msgstr ""
+
+msgid "Normal"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Low"
+msgstr ""
+
+msgid "What this message is about."
+msgstr ""
+
+msgid "The message type."
+msgstr ""
+
+msgid "Check if this message should (also) be sent to yourself."
+msgstr ""
+
+msgid "Whom to (also) send this message to."
+msgstr ""
+
+msgid "Check this if this is about the active patient."
+msgstr ""
+
+msgid "A longer text detailing the message, if needed."
+msgstr ""
+
+msgid "Normal (standard) urgency of message."
+msgstr ""
+
+msgid "Higher than normal (standard) urgency of message."
+msgstr ""
+
+msgid "Lower than normal (standard) urgency of message."
+msgstr ""
+
+#, fuzzy
+msgid "Subject"
+msgstr "Subjektiv"
+
+msgid "Category"
+msgstr ""
+
+msgid "Audience"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Urgency"
+msgstr ""
+
 msgid "Please select a health issue:"
 msgstr ""
 
@@ -2051,6 +2577,24 @@ msgid "OK"
 msgstr ""
 
 msgid "Health issue selector"
+msgstr ""
+
+msgid "label_1"
+msgstr ""
+
+msgid ">>>"
+msgstr ""
+
+msgid "<<<"
+msgstr ""
+
+msgid "Move selected items from left to right."
+msgstr ""
+
+msgid "Move selected items from right to left."
+msgstr ""
+
+msgid "Cancel picking items."
 msgstr ""
 
 msgid "&Sign as:"
@@ -2063,6 +2607,9 @@ msgid "&Relevant"
 msgstr ""
 
 msgid "The type of measurement or test this result is about."
+msgstr ""
+
+msgid "Show a web search on this test type."
 msgstr ""
 
 msgid ""
@@ -2134,6 +2681,9 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
+msgid "LOINC"
+msgstr ""
+
 msgid "Units"
 msgstr ""
 
@@ -2161,19 +2711,30 @@ msgstr ""
 msgid "Reference information"
 msgstr ""
 
-msgid "Normal"
-msgstr ""
-
 msgid "--"
 msgstr ""
 
 msgid "or"
 msgstr ""
 
-msgid "Target"
+msgid "Group"
 msgstr ""
 
-msgid "Group"
+msgid ""
+"A way of contacting this lab, ideally a direct clinical contact.\n"
+"\n"
+"This will be shown in the tooltip of test results originating from this lab."
+msgstr ""
+
+#, fuzzy
+msgid "A comment on this lab."
+msgstr "ukjent allergistatus"
+
+#, fuzzy
+msgid "Lab name"
+msgstr "etternavn"
+
+msgid "Contact"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -2201,12 +2762,6 @@ msgid "A comment on the organisation performing this measurement."
 msgstr ""
 
 msgid "Abbreviation"
-msgstr ""
-
-msgid "Unit"
-msgstr ""
-
-msgid "LOINC"
 msgstr ""
 
 msgid "&Your unsigned"
@@ -2355,16 +2910,30 @@ msgstr ""
 msgid "The episode you want to move the displayed narrative to."
 msgstr ""
 
+msgid "Is manually formatted"
+msgstr ""
+
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
-msgid "Check this to make this the currently active name."
+msgid ""
+"Check this if the text you entered is already manually pre-formatted, valid "
+"text in the sense of the target format.\n"
+"\n"
+"Typically you would leave this unchecked so that GNUmed verifies that your "
+"input is suitably formatted for the intended purpose. However, sometimes you "
+"may want to enter, say, raw LaTeX. In this case you can check this to "
+"prevent GNUmed from mangling your text."
 msgstr ""
+
+#, fuzzy
+msgid "Active name"
+msgstr "aktiv"
 
 msgid "Enter a comment relevant to this name (such as \"before marriage\")."
 msgstr ""
 
-msgid "Title"
+msgid "Check this to make this the currently active name."
 msgstr ""
 
 msgid "First name"
@@ -2379,7 +2948,7 @@ msgstr ""
 msgid "Date of birth"
 msgstr ""
 
-msgid "Gender"
+msgid "Date of death"
 msgstr ""
 
 msgid "Required: lastname (family name)"
@@ -2414,7 +2983,8 @@ msgid ""
 "\n"
 "That address - or a new address created from any modifications below - will "
 "be used as the person's \"home\" address.\n"
-"nYou can also just enter the relevant information into the corresponding "
+"\n"
+"You can also just enter the relevant information into the corresponding "
 "fields without searching for an existing address."
 msgstr ""
 
@@ -2491,6 +3061,29 @@ msgid "Occupation"
 msgstr ""
 
 msgid "Activate the respective patient by double-clicking a row."
+msgstr ""
+
+msgid "Save the identity details."
+msgstr ""
+
+msgid "Reload identity from the database."
+msgstr ""
+
+msgid "Link another person in this database as the emergency contact."
+msgstr ""
+
+msgid "Make the emergency contact the active patient."
+msgstr ""
+
+msgid ""
+"Name, relation, and contact details for person to notify in case of "
+"emergency/serious trouble."
+msgstr ""
+
+msgid "Emergency contact"
+msgstr ""
+
+msgid "Primary doctor"
 msgstr ""
 
 msgid "Schock index"
@@ -2632,13 +3225,27 @@ msgstr ""
 msgid "Waist"
 msgstr ""
 
+#, fuzzy
+msgid "Ongoing"
+msgstr "pågående"
+
+msgid "+"
+msgstr ""
+
+msgid "The actual procedure performed on the patient."
+msgstr ""
+
 msgid "When did this procedure take place ?"
 msgstr ""
 
-msgid "During which hospital stay was this procedure performed."
+msgid ""
+"When did this procedure end ?\n"
+"\n"
+"Leave empty for ongoing or \"one-off\" procedures without a significant "
+"duration."
 msgstr ""
 
-msgid "Add a hospital stay."
+msgid "Select if procedure is ongoing (say, desensibilization)."
 msgstr ""
 
 msgid ""
@@ -2653,13 +3260,16 @@ msgid ""
 "Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
 msgstr ""
 
-msgid "The actual procedure performed on the patient."
+msgid "During which hospital stay was this procedure performed."
 msgstr ""
 
-msgid "Hospital stay"
+msgid "Add a hospital stay."
 msgstr ""
 
-msgid "... or ..."
+msgid "Procedure"
+msgstr ""
+
+msgid "End"
 msgstr ""
 
 #, fuzzy
@@ -2669,7 +3279,7 @@ msgstr "Vaksinasjon"
 msgid "and Episode"
 msgstr ""
 
-msgid "Procedure"
+msgid "Hospital stay"
 msgstr ""
 
 msgid "Programmer must override this text."
@@ -2681,10 +3291,16 @@ msgstr ""
 msgid "Active-patient related"
 msgstr ""
 
+msgid "&Add"
+msgstr ""
+
 msgid "Show all your messages."
 msgstr ""
 
 msgid "Show those of your messages which are related to the active patient."
+msgstr ""
+
+msgid "Add a new message."
 msgstr ""
 
 msgid "This shows the entirety of the selected message in your Inbox."
@@ -2844,10 +3460,10 @@ msgstr ""
 msgid "&clinically relevant"
 msgstr ""
 
-msgid "show part"
+msgid "Show part"
 msgstr ""
 
-msgid "delete part"
+msgid "Remove part"
 msgstr ""
 
 msgid "Discard"
@@ -2921,9 +3537,6 @@ msgstr ""
 msgid "Associate to episode:"
 msgstr ""
 
-msgid "Type:"
-msgstr ""
-
 msgid "Date of creation:"
 msgstr ""
 
@@ -2972,6 +3585,17 @@ msgstr ""
 msgid "Sort documents by"
 msgstr ""
 
+msgid ""
+"Here you can modify the cumulative summary of the problem (regardless of "
+"whether that is a new one, a health issue, or an episode)."
+msgstr ""
+
+msgid "Problem summary"
+msgstr ""
+
+msgid "tab1"
+msgstr ""
+
 msgid "Most recent notes on above problem"
 msgstr ""
 
@@ -3002,6 +3626,12 @@ msgstr ""
 msgid "&Save"
 msgstr ""
 
+msgid "Save &under"
+msgstr ""
+
+msgid "&Image"
+msgstr ""
+
 msgid "Save &all"
 msgstr ""
 
@@ -3030,10 +3660,18 @@ msgid ""
 "as active health issues."
 msgstr ""
 
-msgid "Purpose ..."
+msgid "Save the currently displayed progress note under the current encounter."
 msgstr ""
 
-msgid "tab1"
+msgid ""
+"Save the currently displayed note into an encounter selected from a list of "
+"encounters."
+msgstr ""
+
+msgid "Add a visual progress note for this episode."
+msgstr ""
+
+msgid "Purpose ..."
 msgstr ""
 
 msgid "... summary"
@@ -3044,6 +3682,21 @@ msgid "Notelet:"
 msgstr "ikke relevant"
 
 msgid "Encounter:"
+msgstr ""
+
+msgid "Details"
+msgstr ""
+
+msgid "Journal"
+msgstr ""
+
+msgid "Show formatted item details."
+msgstr ""
+
+msgid "Show item journal."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -3094,6 +3747,40 @@ msgstr ""
 msgid "Optional: A free-text comment on this staff member."
 msgstr ""
 
+msgid "&Pick"
+msgstr ""
+
+msgid ""
+"A name for the tag.\n"
+"\n"
+"Note that there cannot be two tags with the same name."
+msgstr ""
+
+msgid ""
+"An example file name for this image. Mainly used for deriving a suitable "
+"file extension."
+msgstr ""
+
+msgid ""
+"The image to use for the tag.\n"
+"\n"
+"Do not use a big image because the tag will be downscaled anyway."
+msgstr ""
+
+msgid "Pick the file from which to load the tag image."
+msgstr ""
+
+#, fuzzy
+msgid "Tag name"
+msgstr "etternavn"
+
+#, fuzzy
+msgid "File name"
+msgstr "etternavn"
+
+msgid "Image"
+msgstr ""
+
 msgid "&Me only"
 msgstr ""
 
@@ -3133,9 +3820,6 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
-msgstr ""
-
-msgid "Details"
 msgstr ""
 
 msgid "<Please supply your email address here !>"
@@ -3224,6 +3908,307 @@ msgstr ""
 msgid "Log file"
 msgstr ""
 
+msgid "Anamnestic"
+msgstr ""
+
+msgid " + "
+msgstr ""
+
+msgid ""
+"Check this if - within the SOAP classification - you want to mark the entry "
+"as Subjective rather than Plan."
+msgstr ""
+
+msgid ""
+"The vaccine used, if known.\n"
+"\n"
+"If unknown check off the indications which were vaccinated against."
+msgstr ""
+
+msgid "Add a vaccine to GNUmed."
+msgstr ""
+
+msgid "The batch number of the vaccine."
+msgstr ""
+
+msgid ""
+"Select an episode to file this vaccination under.\n"
+"\n"
+"If you do not select one it will be filed under \"prevention\".\n"
+"\n"
+"Alternatively, type the name for a new episode."
+msgstr ""
+
+msgid "The injection site, if known."
+msgstr ""
+
+msgid "The provider who administered the vaccine, if known."
+msgstr ""
+
+msgid "Record any adverse reactions to this vaccine."
+msgstr ""
+
+msgid "Report this event as an adverse drug reaction."
+msgstr ""
+
+msgid "Any comment you may wish to relate to this vaccination."
+msgstr ""
+
+msgid "Date given"
+msgstr ""
+
+msgid "Vaccine ..."
+msgstr ""
+
+msgid ""
+"... or ...\n"
+"\n"
+"vaccinated\n"
+"against"
+msgstr ""
+
+msgid "Batch №"
+msgstr ""
+
+msgid "Site"
+msgstr ""
+
+msgid "Given by"
+msgstr ""
+
+msgid "Tetanus"
+msgstr ""
+
+msgid "Measles"
+msgstr ""
+
+msgid "Diphtheria"
+msgstr ""
+
+msgid "Mumps"
+msgstr ""
+
+msgid "Influenza"
+msgstr ""
+
+msgid "A"
+msgstr ""
+
+msgid "C"
+msgstr ""
+
+msgid "Hep A"
+msgstr ""
+
+msgid "Pertussis"
+msgstr ""
+
+msgid "Rubella"
+msgstr ""
+
+msgid "Pneumococc"
+msgstr ""
+
+msgid "W"
+msgstr ""
+
+msgid "Y"
+msgstr ""
+
+msgid "Cholera"
+msgstr ""
+
+msgid "Poliomyelitis"
+msgstr ""
+
+msgid "Varicella"
+msgstr ""
+
+msgid "Cox (Q)"
+msgstr ""
+
+msgid "Tick Encep"
+msgstr ""
+
+msgid "Typhoid"
+msgstr ""
+
+msgid "HiB"
+msgstr ""
+
+msgid "H1N1"
+msgstr ""
+
+msgid "Jap B"
+msgstr ""
+
+msgid "Rotavirus"
+msgstr ""
+
+msgid "Hep B"
+msgstr ""
+
+msgid "HPV"
+msgstr ""
+
+msgid "Tuberculosis"
+msgstr ""
+
+msgid "Rabies"
+msgstr ""
+
+msgid "Yellow fever"
+msgstr ""
+
+msgid "Anthrax"
+msgstr ""
+
+msgid "Plague"
+msgstr ""
+
+msgid "Smallpox"
+msgstr ""
+
+msgid "Regardless of childhood/adult toxoid content."
+msgstr ""
+
+msgid "Seasonal influenza"
+msgstr ""
+
+msgid "Meningococcus A"
+msgstr ""
+
+msgid "Meningococcus C"
+msgstr ""
+
+msgid "Pneumococcus"
+msgstr ""
+
+msgid "Meningococcus W"
+msgstr ""
+
+msgid "Meningococcus Y"
+msgstr ""
+
+msgid "Varicella zoster (shingles)"
+msgstr ""
+
+msgid "Coxiella burnetii (Q fever)"
+msgstr ""
+
+msgid "Tick-borne meningoencephalitis"
+msgstr ""
+
+msgid "Salmonella typhi (typhoid)"
+msgstr ""
+
+msgid "HiB: Haemophilus influenzae B"
+msgstr ""
+
+msgid "H1N1 influenza"
+msgstr ""
+
+msgid "Japanese B encephalitis"
+msgstr ""
+
+msgid "Human papilloma virus"
+msgstr ""
+
+msgid "Bacillus anthracis"
+msgstr ""
+
+msgid "Yersinia pestis"
+msgstr ""
+
+msgid "Variola virus"
+msgstr ""
+
+msgid "<--Resp-->"
+msgstr ""
+
+msgid "<--Neuro-->"
+msgstr ""
+
+msgid "<--GI-->"
+msgstr ""
+
+msgid "Other:"
+msgstr ""
+
+msgid "Live"
+msgstr ""
+
+msgid "Fake"
+msgstr ""
+
+msgid ""
+"The route by which this vaccine is to be administered.\n"
+"\n"
+"Typically one of i.m., s.c., or orally."
+msgstr ""
+
+msgid "Check if this is a live attenuated vaccine."
+msgstr ""
+
+msgid "Whether this is an actual brand or a generic, fake vaccine."
+msgstr ""
+
+msgid "The ATC for this vaccine."
+msgstr ""
+
+msgid "The minimum age at which this vaccine should be given."
+msgstr ""
+
+msgid "The maximum age at which this vaccine should be given."
+msgstr ""
+
+msgid "Any comment you may wish to relate to this vaccine."
+msgstr ""
+
+msgid "Route"
+msgstr ""
+
+msgid ""
+"Protects\n"
+"from"
+msgstr ""
+
+msgid "ATC"
+msgstr ""
+
+msgid "Age range"
+msgstr ""
+
+msgid "→"
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Enter a short comment on this visual progress note."
+msgstr ""
+
+msgid "Select a visual progress note template."
+msgstr ""
+
+msgid "Add a new visual progress note from the template selected above."
+msgstr ""
+
+msgid "Add a new visual progress note from an image file."
+msgstr ""
+
+msgid "This list shows the visual progress notes for this encounter."
+msgstr ""
+
+msgid "Delete this visual progress note."
+msgstr ""
+
+msgid "Episode:"
+msgstr ""
+
 msgid "Waiting list details for this patient."
 msgstr ""
 
@@ -3302,19 +4287,13 @@ msgstr ""
 msgid "No vaccines were chosen"
 msgstr ""
 
-msgid "Batch"
-msgstr ""
-
 msgid "Sequence"
-msgstr ""
-
-msgid "Site"
 msgstr ""
 
 msgid "Vaccinator"
 msgstr ""
 
-msgid "Vaccine"
+msgid "Batch"
 msgstr ""
 
 msgid ""
@@ -3472,31 +4451,6 @@ msgid ""
 "in all cases !"
 msgstr ""
 
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-
-msgid "Connecting to backend"
-msgstr ""
-
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry another backend / user / password combination !\n"
-msgstr ""
-
 msgid "Verifying database version"
 msgstr ""
 
@@ -3511,12 +4465,28 @@ msgid ""
 " [%s]\n"
 "\n"
 "This is a restricted procedure. We need the\n"
-"password for the GNUmed database owner.\n"
+"current password for the GNUmed database owner.\n"
 "\n"
-"Please enter the password for <gm-dbo>:"
+"Please enter the current password for <%s>:"
 msgstr ""
 
-msgid "Cannot connect as the GNUmed database owner <gm-dbo>."
+msgid "Cannot connect as the GNUmed database owner <%s>."
+msgstr ""
+
+msgid "Changing GNUmed database owner password"
+msgstr ""
+
+msgid "Enter the account name of the GNUmed database owner:"
+msgstr ""
+
+msgid "Enter the NEW password for the GNUmed database owner:"
+msgstr ""
+
+msgid ""
+"Enter the NEW password for the GNUmed database owner, again.\n"
+"\n"
+"(This will protect you from typos.)\n"
+"\t\t"
 msgstr ""
 
 msgid "Welcome to the"
@@ -3638,6 +4608,21 @@ msgstr ""
 msgid "Checking for client updates"
 msgstr ""
 
+msgid "This list shows all configuration settings from the database."
+msgstr ""
+
+msgid "Showing configuration"
+msgstr ""
+
+msgid "Option"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Workplace"
+msgstr ""
+
 msgid "Configuration"
 msgstr ""
 
@@ -3651,6 +4636,24 @@ msgid "Set \"%s\" to <False>."
 msgstr ""
 
 msgid "Abort the dialog and do not change the current setting."
+msgstr ""
+
+msgid "Coded terms known to GNUmed."
+msgstr ""
+
+msgid "Showing coded terms."
+msgstr ""
+
+msgid "Coding system details"
+msgstr ""
+
+msgid "System"
+msgstr ""
+
+msgid "Version"
+msgstr ""
+
+msgid "Term"
 msgstr ""
 
 msgid "Encrypt"
@@ -3806,60 +4809,68 @@ msgstr ""
 " %s test resultater\n"
 "\n"
 
+msgid "Pick a date ..."
+msgstr ""
+
 msgid "Cannot interpret input as timestamp."
 msgstr ""
 
 msgid "enter time here"
 msgstr ""
 
-msgid "Adding province"
-msgstr ""
-
-msgid "Editing province"
+msgid "Editing tag"
 msgstr ""
 
 msgid ""
-"Are you sure you want to delete this province ?\n"
+"Cannot edit the image tag\n"
 "\n"
-"Deletion will only work if this province is not\n"
-"yet in use in any patient addresses."
+" \"%s\"\n"
+"\n"
+"because it is currently in use.\n"
 msgstr ""
 
-msgid ""
-"Also delete any towns/cities/villages known\n"
-"to be situated in this state as long as\n"
-"no patients are recorded to live there."
+msgid "Adding new tag"
 msgstr ""
 
-msgid "Deleting province"
-msgstr ""
-
-msgid "delete related townships"
-msgstr ""
-
-msgid "Delete province and possibly related townships."
-msgstr ""
-
-msgid "Yes, delete"
-msgstr ""
-
-msgid "No, do NOT delete anything."
+msgid "Cannot delete this tag. It is in use."
 msgstr ""
 
 msgid ""
 "\n"
-"This list shows the provinces known to GNUmed.\n"
-"\n"
-"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
-"\"county\", \"region\", \"territory\", or some such term.\n"
-"\n"
-"Select the province you want to edit !\n"
+"Tags with images registered with GNUmed.\n"
 msgstr ""
 
-msgid "Editing provinces ..."
+msgid "Showing tags with images."
 msgstr ""
 
-msgid "Type or select a state/region/province/territory."
+msgid "Image size"
+msgstr ""
+
+msgid "In use"
+msgstr ""
+
+msgid "Go to www.openclipart.org for images."
+msgstr ""
+
+msgid "WWW"
+msgstr ""
+
+msgid "Must pick an image file for a new tag."
+msgstr ""
+
+msgid "Cannot open the image file [%s]."
+msgstr ""
+
+msgid "&Edit comment"
+msgstr ""
+
+msgid "&Remove tag"
+msgstr ""
+
+msgid "Edit the comment on tag [%s]"
+msgstr ""
+
+msgid "Editing tag comment"
 msgstr ""
 
 msgid "Today's KOrganizer appointments ..."
@@ -3894,6 +4905,9 @@ msgstr ""
 msgid "Editing primary occupation"
 msgstr ""
 
+msgid "Type or select an occupation."
+msgstr ""
+
 msgid ""
 "Are you sure you really, positively want\n"
 "to disable the following person ?\n"
@@ -3916,99 +4930,6 @@ msgstr ""
 msgid "Disabling patient"
 msgstr ""
 
-msgid "List of known addresses."
-msgstr ""
-
-msgid "Street info"
-msgstr ""
-
-msgid "Subunit"
-msgstr ""
-
-msgid "Suburb"
-msgstr ""
-
-msgid "Adding new address"
-msgstr ""
-
-msgid "Editing address"
-msgstr ""
-
-msgid ""
-"Are you sure you want to remove this\n"
-"address from the patient's addresses ?\n"
-"\n"
-"The address itself will not be deleted\n"
-"but it will no longer be associated with\n"
-"this patient."
-msgstr ""
-
-msgid "Removing address"
-msgstr ""
-
-msgid ""
-"Cannot save address.\n"
-"\n"
-"Does the state [%s]\n"
-"exist in country [%s] ?"
-msgstr ""
-
-msgid "Saving address"
-msgstr ""
-
-msgid "Address details must be filled in completely or not at all."
-msgstr ""
-
-msgid "Saving contact data"
-msgstr ""
-
-msgid "Select an address by postcode or street name."
-msgstr ""
-
-msgid "Select the type of address."
-msgstr ""
-
-msgid "Type or select a zip code (postcode)."
-msgstr ""
-
-msgid "Type or select a street."
-msgstr ""
-
-msgid "Type or select the suburb."
-msgstr ""
-
-msgid "Type or select a city/town/village/dwelling."
-msgstr ""
-
-msgid "Type or select a country."
-msgstr ""
-
-msgid "Select the type of communications channel."
-msgstr ""
-
-msgid "Cannot save communications channel."
-msgstr ""
-
-msgid "List of known communication channels."
-msgstr ""
-
-msgid "confidential"
-msgstr ""
-
-msgid "Adding new communications channel"
-msgstr ""
-
-msgid "Editing communications channel"
-msgstr ""
-
-msgid ""
-"Are you sure this patient can no longer\n"
-"be contacted via this channel ?"
-msgstr ""
-
-msgid "Removing communication channel"
-msgstr ""
-
 msgid "Type or select a last name (family name/surname)."
 msgstr ""
 
@@ -4025,16 +4946,19 @@ msgid ""
 "particular name !"
 msgstr ""
 
-msgid "Type or select an occupation."
-msgstr ""
-
 msgid "issued by"
 msgstr ""
 
 msgid "Enter or select a type for the external ID."
 msgstr ""
 
+msgid "Type or select an ID issuer."
+msgstr ""
+
 msgid "Cannot parse <%s> into proper timestamp."
+msgstr ""
+
+msgid "Invalid date of death."
 msgstr ""
 
 msgid "Lastname"
@@ -4046,10 +4970,13 @@ msgstr ""
 msgid "Preferred Name"
 msgstr ""
 
+msgid "Clone and &edit"
+msgstr ""
+
 msgid "Adding new name"
 msgstr ""
 
-msgid "Editing name"
+msgid "Cloning name"
 msgstr ""
 
 msgid "Cannot delete the only name of a person."
@@ -4086,7 +5013,13 @@ msgstr ""
 msgid "Deleting external ID"
 msgstr ""
 
-msgid "Adding new patient"
+msgid "Cannot save identity. Incomplete information."
+msgstr ""
+
+msgid " (confidential !)"
+msgstr ""
+
+msgid "Adding new person"
 msgstr ""
 
 msgid "Must enter lastname."
@@ -4098,7 +5031,25 @@ msgstr ""
 msgid "Must select gender."
 msgstr ""
 
-msgid "Cannot use this date of birth. Does it lie before 1900 ?"
+msgid ""
+"DOB: %s\n"
+"\n"
+"While this is a valid point in time Python does\n"
+"not know how to deal with it.\n"
+"\n"
+"We suggest using January 1st 1901 instead and adding\n"
+"the true date of birth to the patient comment.\n"
+"\n"
+"Sorry for the inconvenience %s"
+msgstr ""
+
+msgid ""
+"DOB: %s\n"
+"\n"
+"Date of birth in the future !"
+msgstr ""
+
+msgid "Registering new person"
 msgstr ""
 
 msgid ""
@@ -4108,15 +5059,6 @@ msgid ""
 "This can be useful for temporary staff members\n"
 "but will provoke nag screens if this person\n"
 "becomes a patient.\n"
-"\n"
-"Note that the date of birth cannot technically\n"
-"be before 1900, either :-(\n"
-msgstr ""
-
-msgid "Registering new person"
-msgstr ""
-
-msgid "The year of birth must lie after 1900."
 msgstr ""
 
 msgid ""
@@ -4129,6 +5071,9 @@ msgstr ""
 msgid "This field must contain an item selected from the dropdown list."
 msgstr ""
 
+msgid "Saving address"
+msgstr ""
+
 msgid ""
 "Cannot save this address.\n"
 "\n"
@@ -4139,6 +5084,18 @@ msgid ""
 "Address not saved.\n"
 "\n"
 "You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
+msgid "Contacts"
+msgstr ""
+
+msgid "Social network"
+msgstr ""
+
+msgid "primary occupation of the patient"
+msgstr ""
+
+msgid "Last updated"
 msgstr ""
 
 msgid "Required: surname/given name/first name"
@@ -4185,6 +5142,9 @@ msgid ""
 "Missing parts of the identity."
 msgstr ""
 
+msgid "Adding new patient"
+msgstr ""
+
 msgid ""
 "Cannot add address for the new patient.\n"
 "You must either enter all of the address fields or\n"
@@ -4192,21 +5152,6 @@ msgid ""
 "\n"
 "You will need to add the address details in the\n"
 "demographics module."
-msgstr ""
-
-msgid "Contacts"
-msgstr ""
-
-msgid "primary occupation of the patient"
-msgstr ""
-
-msgid "Last updated"
-msgstr ""
-
-msgid "Cannot add patient address."
-msgstr ""
-
-msgid "Cannot add patient address. Missing fields."
 msgstr ""
 
 msgid "Adult"
@@ -4248,7 +5193,7 @@ msgstr ""
 msgid "Depigmented"
 msgstr ""
 
-msgid "Erthyema"
+msgid "Erythema"
 msgstr ""
 
 msgid "Pigmented"
@@ -4320,10 +5265,440 @@ msgstr ""
 msgid "There are no device checkup reports in the database."
 msgstr ""
 
-msgid "Cannot export EMR. No active patient."
+msgid ""
+"Are you sure you want to delete this\n"
+"description from the document ?\n"
+msgstr ""
+
+msgid "Deleting document description"
+msgstr ""
+
+msgid "Adding document description"
+msgstr ""
+
+msgid "Below you can add a document description.\n"
+msgstr ""
+
+msgid "Editing document description"
+msgstr ""
+
+msgid "Below you can edit the document description.\n"
+msgstr ""
+
+msgid "Select the description you are interested in.\n"
+msgstr ""
+
+msgid "Managing document descriptions"
+msgstr ""
+
+msgid "Documents"
+msgstr ""
+
+msgid "Select the episode under which to file the document ..."
+msgstr ""
+
+msgid "Imported new document from [%s]."
+msgstr ""
+
+msgid "Enter a comment on the document."
+msgstr ""
+
+msgid "User defined"
+msgstr ""
+
+msgid ""
+"Cannot delete document type\n"
+" [%s]\n"
+"because it is currently in use."
+msgstr ""
+
+msgid "deleting document type"
+msgstr ""
+
+msgid ""
+"From the list below select the document type you want\n"
+"all documents currently classified as:\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"to be changed to.\n"
+"\n"
+"Be aware that this change will be applied to ALL such documents. If there\n"
+"are many documents to change it can take quite a while.\n"
+"\n"
+"Make sure this is what you want to happen !\n"
+msgstr ""
+
+msgid "Reassigning document type"
+msgstr ""
+
+msgid "Select the document type."
+msgstr ""
+
+msgid "who"
+msgstr ""
+
+msgid "when"
+msgstr ""
+
+msgid "+/-"
+msgstr ""
+
+msgid "!"
+msgstr ""
+
+msgid "comment"
+msgstr ""
+
+msgid "(you are the primary reviewer)"
+msgstr ""
+
+msgid "(someone else is the primary reviewer)"
+msgstr ""
+
+msgid ""
+"Cannot create episode\n"
+" [%s]"
+msgstr ""
+
+msgid "editing document properties"
+msgstr ""
+
+msgid "Cannot change document type to [%s]."
+msgstr ""
+
+msgid ""
+"Cannot link the document to episode\n"
+"\n"
+" [%s]"
+msgstr ""
+
+msgid "Error setting \"reviewed\" status of this document."
+msgstr ""
+
+msgid "Error setting responsible clinician for this document."
+msgstr ""
+
+msgid "Error setting \"reviewed\" status of this part."
+msgstr ""
+
+msgid "Error saving part properties."
+msgstr ""
+
+msgid "Cannot accept new documents. No active patient."
+msgstr ""
+
+msgid "Extracting files from folder [%s] ..."
+msgstr ""
+
+#, fuzzy
+msgid "part %s: %s"
+msgstr " Status: %s, %s"
+
+msgid "saving document"
+msgstr ""
+
+msgid "No parts to save. Really save an empty document as a reference ?"
+msgstr ""
+
+msgid "No parts to save. Aquire some parts first."
+msgstr ""
+
+msgid "No document type applied. Choose a document type"
+msgstr ""
+
+msgid "You must select an episode to save this document under."
+msgstr ""
+
+msgid ""
+"You need to select from the list of staff members the doctor who is intended "
+"to sign the document."
+msgstr ""
+
+msgid "There is no scanner support installed on this machine."
+msgstr ""
+
+msgid "Cannot find an active scanner."
+msgstr ""
+
+msgid "Select an image capture device"
+msgstr ""
+
+msgid "device selection"
+msgstr ""
+
+msgid "Device"
+msgstr ""
+
+msgid ""
+"No pages could be acquired from the source.\n"
+"\n"
+"This may mean the scanner driver is not properly installed.\n"
+"\n"
+"On Windows you must install the TWAIN Python module\n"
+"while on Linux and MacOSX it is recommended to install\n"
+"the XSane package."
+msgstr ""
+
+msgid "acquiring page"
+msgstr ""
+
+msgid "Choose a file"
 msgstr ""
 
 msgid "all files"
+msgstr ""
+
+msgid "all files (Win)"
+msgstr ""
+
+msgid "You must select a part before you can view it."
+msgstr ""
+
+msgid "displaying part"
+msgstr ""
+
+msgid ""
+"Cannot display document part:\n"
+"%s"
+msgstr ""
+
+msgid "You must select a part before you can delete it."
+msgstr ""
+
+msgid "deleting part"
+msgstr ""
+
+msgid ""
+"The part has successfully been removed from the document.\n"
+"\n"
+"Do you also want to permanently delete the file\n"
+"\n"
+" [%s]\n"
+"\n"
+"from which this document part was loaded ?\n"
+"\n"
+"If it is a temporary file for a page you just scanned\n"
+"this makes a lot of sense. In other cases you may not\n"
+"want to lose the file.\n"
+"\n"
+"Pressing [YES] will permanently remove the file\n"
+"from your computer.\n"
+msgstr ""
+
+msgid "Removing document part"
+msgstr ""
+
+msgid ""
+"Cannot delete part in file [%s].\n"
+"\n"
+"You may not have write access to it."
+msgstr ""
+
+msgid "Cannot start episode [%s]."
+msgstr ""
+
+msgid "Cannot create new document."
+msgstr ""
+
+msgid "Cannot update document metadata."
+msgstr ""
+
+msgid "Cannot add document description."
+msgstr ""
+
+msgid "Error setting \"reviewed\" status of new document."
+msgstr ""
+
+msgid ""
+"The reference ID for the new document is:\n"
+"\n"
+" <%s>\n"
+"\n"
+"You probably want to write it down on the\n"
+"original documents.\n"
+"\n"
+"If you don't care about the ID you can switch\n"
+"off this message in the GNUmed configuration."
+msgstr ""
+
+msgid "Successfully saved new document."
+msgstr ""
+
+msgid "available documents (%s)"
+msgstr ""
+
+msgid "unsigned (%s) on top"
+msgstr ""
+
+msgid "most recent on top"
+msgstr ""
+
+msgid "sorted by episode"
+msgstr ""
+
+msgid "sorted by type"
+msgstr ""
+
+msgid "Cannot load documents. No active patient."
+msgstr ""
+
+msgid "part menu"
+msgstr ""
+
+msgid "Display part"
+msgstr ""
+
+msgid "%s Sign/Edit properties"
+msgstr ""
+
+msgid "Print part"
+msgstr ""
+
+msgid "Fax part"
+msgstr ""
+
+msgid "Mail part"
+msgstr ""
+
+msgid "document menu"
+msgstr ""
+
+msgid "Print all parts"
+msgstr ""
+
+msgid "Fax all parts"
+msgstr ""
+
+msgid "Mail all parts"
+msgstr ""
+
+msgid "Export all parts"
+msgstr ""
+
+#, fuzzy
+msgid "Delete document"
+msgstr "Dokumenter:"
+
+msgid "Access external original"
+msgstr ""
+
+msgid "Edit corresponding encounter"
+msgstr ""
+
+msgid "Select corresponding encounter"
+msgstr ""
+
+msgid "Manage descriptions"
+msgstr ""
+
+msgid "Error searching documents."
+msgstr ""
+
+msgid "loading document list"
+msgstr ""
+
+msgid "%s%7s %s:%s (%s part(s)%s)"
+msgstr ""
+
+msgid "part %2s"
+msgstr ""
+
+msgid "Activate as current photo"
+msgstr ""
+
+msgid "Document part does not seem to exist in database !"
+msgstr ""
+
+msgid "showing document"
+msgstr ""
+
+msgid ""
+"Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n"
+"\n"
+"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"must be in the execution path. The command will\n"
+"be passed the filename to %(l10n_action)s."
+msgstr ""
+
+msgid "Processing document part: %s"
+msgstr ""
+
+msgid ""
+"Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n"
+"\n"
+"You may need to check and fix either of\n"
+" gm_%(action)s_doc.sh (Unix/Mac) or\n"
+" gm_%(action)s_doc.bat (Windows)\n"
+"\n"
+"The command is passed the filename to %(l10n_action)s."
+msgstr ""
+
+msgid "print"
+msgstr ""
+
+msgid "fax"
+msgstr ""
+
+msgid "mail"
+msgstr ""
+
+msgid ""
+"Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n"
+"\n"
+"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"must be in the execution path. The command will\n"
+"be passed a list of filenames to %(l10n_action)s."
+msgstr ""
+
+msgid "Processing document: %s"
+msgstr ""
+
+msgid ""
+"Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n"
+"\n"
+"You may need to check and fix either of\n"
+" gm_%(action)s_doc.sh (Unix/Mac) or\n"
+" gm_%(action)s_doc.bat (Windows)\n"
+"\n"
+"The command is passed a list of filenames to %(l10n_action)s."
+msgstr ""
+
+msgid ""
+"Cannot access external document - access command not found.\n"
+"\n"
+"Either of gm_access_external_doc.sh or *.bat must be\n"
+"in the execution path. The command will be passed the\n"
+"document type and the reference URL for processing."
+msgstr ""
+
+msgid "Accessing external document"
+msgstr ""
+
+msgid ""
+"Cannot access external document - access command failed.\n"
+"\n"
+"You may need to check and fix either of\n"
+" gm_access_external_doc.sh (Unix/Mac) or\n"
+" gm_access_external_doc.bat (Windows)\n"
+"\n"
+"The command is passed the document type and the\n"
+"external reference URL on the command line."
+msgstr ""
+
+msgid "Save document into directory ..."
+msgstr ""
+
+msgid "Successfully exported %s parts into the directory [%s]."
+msgstr ""
+
+msgid "Are you sure you want to delete the document ?"
+msgstr ""
+
+msgid "Deleting document"
+msgstr ""
+
+msgid "Cannot export EMR. No active patient."
 msgstr ""
 
 msgid "text files"
@@ -4341,7 +5716,13 @@ msgstr ""
 msgid "Cannot load clinical narrative. No active patient."
 msgstr ""
 
-msgid "EMR of %s"
+msgid "EMR of %(lastnames)s, %(firstnames)s"
+msgstr ""
+
+msgid "Primary provider in this praxis"
+msgstr ""
+
+msgid "In case of emergency contact:"
 msgstr ""
 
 msgid ""
@@ -4386,11 +5767,26 @@ msgstr ""
 msgid "EMR Menu"
 msgstr ""
 
-msgid "create health issue"
+msgid "Create health issue"
 msgstr ""
 
-msgid "manage allergies"
+#, fuzzy
+msgid "Manage allergies"
+msgstr "har allergier"
+
+#, fuzzy
+msgid "Manage vaccinations"
+msgstr "Vaksinasjon"
+
+msgid "Manage procedures"
 msgstr ""
+
+msgid "Manage hospitalizations"
+msgstr ""
+
+#, fuzzy
+msgid "Manage occupation"
+msgstr "Vaksinasjon"
 
 msgid "Open EMR to ..."
 msgstr ""
@@ -4411,6 +5807,9 @@ msgid "Deleting episode"
 msgstr ""
 
 msgid "Delete the episode if possible (it must be completely empty)."
+msgstr ""
+
+msgid "Yes, delete"
 msgstr ""
 
 msgid "Cancel and do NOT delete the episode."
@@ -4487,10 +5886,10 @@ msgstr ""
 msgid "Editing performed procedures ..."
 msgstr ""
 
-msgid "When"
+msgid "Where"
 msgstr ""
 
-msgid "Where"
+msgid "When"
 msgstr ""
 
 msgid "Adding a procedure"
@@ -4536,6 +5935,11 @@ msgid ""
 "stay."
 msgstr ""
 
+msgid ""
+"Must select an episode or enter a name for a new one. Cannot save hospital "
+"stay."
+msgstr ""
+
 msgid "Started a new encounter for the active patient."
 msgstr ""
 
@@ -4555,7 +5959,7 @@ msgid ""
 "Below find the relevant encounters of the patient.\n"
 msgstr ""
 
-msgid "Showing encounters ..."
+msgid "Encounters ..."
 msgstr ""
 
 msgid "Assessment of Encounter"
@@ -4692,6 +6096,9 @@ msgstr ""
 msgid "Select the health issues you are interested in ..."
 msgstr ""
 
+msgid "confidential"
+msgstr ""
+
 msgid "relevant"
 msgstr "relevant"
 
@@ -4704,9 +6111,6 @@ msgid ""
 msgstr ""
 
 msgid "Selecting health issue"
-msgstr ""
-
-msgid "inception notes"
 msgstr ""
 
 msgid "Cannot parse [%s] into valid interval."
@@ -4731,6 +6135,16 @@ msgid "EMR text dump"
 msgstr ""
 
 msgid "Currently there is no active patient. Cannot retrieve EMR text."
+msgstr ""
+
+msgid ""
+"Today is your lucky day !\n"
+"\n"
+"You have won one year of GNUmed\n"
+"updates for free !\n"
+msgstr ""
+
+msgid "GNUmed Lottery"
 msgstr ""
 
 msgid "save entry into medical record"
@@ -4877,6 +6291,20 @@ msgid ""
 "functionality will not be accessible."
 msgstr ""
 
+#, fuzzy
+msgid "Lost connection"
+msgstr "Vaksinasjon"
+
+msgid ""
+"Since you were last working in GNUmed,\n"
+"your database connection timed out.\n"
+"\n"
+"This GNUmed session is now expired.\n"
+"\n"
+"You will have to close this client and\n"
+"restart a new GNUmed session."
+msgstr ""
+
 msgid ""
 "Please enter a short note on what you\n"
 "were about to do in GNUmed:"
@@ -4945,10 +6373,16 @@ msgstr ""
 msgid "No document template selected."
 msgstr ""
 
-msgid "Error creating printable document."
+msgid ""
+"Error creating printable document.\n"
+"\n"
+"There is no engine for this type of template."
 msgstr ""
 
 msgid "Printing document"
+msgstr ""
+
+msgid "Error creating printable document."
 msgstr ""
 
 msgid "Error printing document (%s)."
@@ -5004,49 +6438,16 @@ msgstr ""
 msgid "Select letter or form template."
 msgstr ""
 
-msgid "Template"
-msgstr ""
-
-msgid "Version"
-msgstr ""
-
 msgid "You must select a template file before saving."
+msgstr ""
+
+msgid "all files (Windows)"
 msgstr ""
 
 msgid "Choose a form template file"
 msgstr ""
 
-msgid "LaTeX templates"
-msgstr ""
-
-msgid "OOo templates"
-msgstr ""
-
-msgid "all files (Win)"
-msgstr ""
-
-msgid "programmer forgot to specify error message"
-msgstr ""
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-
-msgid "generic error message"
-msgstr ""
-
-msgid "programmer forgot to specify info message"
-msgstr ""
-
-msgid "generic info message"
-msgstr ""
-
-msgid "programmer forgot to specify warning"
-msgstr ""
-
-msgid "generic warning message"
+msgid "Enter a filename to save the template in"
 msgstr ""
 
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
@@ -5067,16 +6468,13 @@ msgstr ""
 msgid "Announce downtime"
 msgstr ""
 
-msgid "Preferences ..."
+msgid "List all configuration items stored in the database."
 msgstr ""
 
-msgid "Database ..."
+msgid "List configuration"
 msgstr ""
 
 msgid "Configure the database language"
-msgstr ""
-
-msgid "Language"
 msgstr ""
 
 msgid "Configure the database welcome message (all users)."
@@ -5085,7 +6483,7 @@ msgstr ""
 msgid "Welcome message"
 msgstr ""
 
-msgid "Client parameters ..."
+msgid "Database ..."
 msgstr ""
 
 msgid "Configure the chunk size used when exporting BLOBs from the database."
@@ -5094,22 +6492,13 @@ msgstr ""
 msgid "Export chunk size"
 msgstr ""
 
-msgid "Configure the directory to use as scratch space for temporary files."
-msgstr ""
-
-msgid "Temporary directory"
-msgstr ""
-
 msgid "Email address"
 msgstr ""
 
 msgid "The email address of the user for sending bug reports, etc."
 msgstr ""
 
-msgid "User interface ..."
-msgstr ""
-
-msgid "Document handling ..."
+msgid "Client parameters ..."
 msgstr ""
 
 msgid "Configure review dialog after document display."
@@ -5130,7 +6519,7 @@ msgstr ""
 msgid "Whether to allow saving documents without parts."
 msgstr ""
 
-msgid "Update handling ..."
+msgid "Document handling ..."
 msgstr ""
 
 msgid "Auto-check"
@@ -5151,7 +6540,7 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-msgid "Patient search ..."
+msgid "Update handling ..."
 msgstr ""
 
 msgid "Birthday reminder"
@@ -5160,19 +6549,31 @@ msgstr ""
 msgid "Configure birthday reminder proximity interval."
 msgstr ""
 
-msgid "Configure immediate activation of single external patient."
+msgid "Configure immediate activation of single external person."
 msgstr ""
 
 msgid "Immediate source activation"
 msgstr ""
 
-msgid "Configure which plugin to show right after patient activation."
+msgid "Configure which plugin to show right after person activation."
 msgstr ""
 
 msgid "Initial plugin"
 msgstr ""
 
-msgid "Progress notes handling ..."
+msgid "Configure the default province/region/state for person creation."
+msgstr ""
+
+msgid "Default region"
+msgstr ""
+
+msgid "Configure the default country for person creation."
+msgstr ""
+
+msgid "Default country"
+msgstr ""
+
+msgid "Person ..."
 msgstr ""
 
 msgid "Configure opening multiple new episodes on a patient at once."
@@ -5181,13 +6582,16 @@ msgstr ""
 msgid "Multiple new episodes"
 msgstr ""
 
-msgid "External tools ..."
+msgid "Auto-open editors"
 msgstr ""
 
-msgid "IFAP command"
+msgid "Configure auto-opening editors for recent problems."
 msgstr ""
 
-msgid "Set the command to start IFAP."
+msgid "Progress notes handling ..."
+msgstr ""
+
+msgid "User interface ..."
 msgstr ""
 
 msgid "MI/stroke risk calc cmd"
@@ -5211,7 +6615,37 @@ msgstr ""
 msgid "Drug data source"
 msgstr ""
 
-msgid "EMR ..."
+msgid "FreeDiams path"
+msgstr ""
+
+msgid "Set the path for the FreeDiams binary."
+msgstr ""
+
+msgid "ADR URL"
+msgstr ""
+
+msgid "URL for reporting Adverse Drug Reactions."
+msgstr ""
+
+msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
+msgstr ""
+
+msgid "vaccADR URL"
+msgstr ""
+
+msgid "URL for vaccination plans."
+msgstr ""
+
+msgid "Vacc plans URL"
+msgstr ""
+
+msgid "Set the command for calling the visual progress note editor."
+msgstr ""
+
+msgid "Visual SOAP editor"
+msgstr ""
+
+msgid "External tools ..."
 msgstr ""
 
 msgid "Medication list template"
@@ -5220,7 +6654,7 @@ msgstr ""
 msgid "Select the template for printing a medication list."
 msgstr ""
 
-msgid "Encounter ..."
+msgid "Select the primary doctor to fall back to for patients without one."
 msgstr ""
 
 msgid "Edit encounter details on changing of patients."
@@ -5253,7 +6687,7 @@ msgstr ""
 msgid "Default type for new encounters."
 msgstr ""
 
-msgid "Episode ..."
+msgid "Encounter ..."
 msgstr ""
 
 msgid "Dormancy"
@@ -5263,79 +6697,19 @@ msgid ""
 "Maximum length of dormancy after which an episode will be considered closed."
 msgstr ""
 
-msgid "&Master data ..."
+msgid "Episode ..."
 msgstr ""
 
-msgid "Manage the plugins to load per workplace."
+msgid "EMR ..."
 msgstr ""
 
-msgid "Workplace profiles"
+msgid "Preferences ..."
 msgstr ""
 
-msgid "&Document types"
+msgid "Manage lists"
 msgstr ""
 
-msgid "Manage the document types available in the system."
-msgstr ""
-
-msgid "&Text expansions"
-msgstr ""
-
-msgid "Manage keyword based text expansion macros."
-msgstr ""
-
-msgid "&Form templates"
-msgstr ""
-
-msgid "Manage templates for forms and letters."
-msgstr ""
-
-msgid "&Encounter types"
-msgstr ""
-
-msgid "Manage encounter types."
-msgstr ""
-
-msgid "&Provinces"
-msgstr ""
-
-msgid "Manage provinces (counties, territories, ...)."
-msgstr ""
-
-msgid "Manage substances in use."
-msgstr ""
-
-msgid "Substances"
-msgstr ""
-
-msgid "Drugs"
-msgstr ""
-
-msgid "Manage branded drugs."
-msgstr ""
-
-msgid "Drug components"
-msgstr ""
-
-msgid "View components of branded drugs."
-msgstr ""
-
-msgid "&Test types"
-msgstr ""
-
-msgid "Show test/measurement types."
-msgstr ""
-
-msgid "&Meta test types"
-msgstr ""
-
-msgid "Show meta test/measurement types."
-msgstr ""
-
-msgid "Download and install LOINC reference data."
-msgstr ""
-
-msgid "Update LOINC"
+msgid "Manage various lists of master data."
 msgstr ""
 
 msgid "Install ATC reference data."
@@ -5344,7 +6718,19 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
-msgid "&Users ..."
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+msgid "Update LOINC"
+msgstr ""
+
+msgid "Create fake vaccines"
+msgstr ""
+
+msgid "Re-create fake generic vaccines."
+msgstr ""
+
+msgid "&Master data ..."
 msgstr ""
 
 msgid "&Add user"
@@ -5359,22 +6745,37 @@ msgstr ""
 msgid "Edit the list of GNUmed users"
 msgstr ""
 
+msgid "&Change DB owner PWD"
+msgstr ""
+
+msgid "Change the password of the GNUmed database owner"
+msgstr ""
+
+msgid "&Users ..."
+msgstr ""
+
 msgid "Close this GNUmed client."
 msgstr ""
 
 msgid "E&xit\tAlt-X"
 msgstr ""
 
+msgid "&Register person"
+msgstr ""
+
 msgid "Register a new person with GNUmed"
 msgstr ""
 
-msgid "Register person"
+msgid "&Load external"
 msgstr ""
 
 msgid "Load and possibly create person from an external source."
 msgstr ""
 
-msgid "Load external"
+msgid "Add &tag"
+msgstr ""
+
+msgid "Add a text/image tag to this person."
 msgstr ""
 
 msgid "Deactivate (exclude from search) person record in database."
@@ -5401,13 +6802,10 @@ msgstr ""
 msgid "Export to GDT"
 msgstr ""
 
-msgid "&EMR"
+msgid "Show a high-level summary of the EMR."
 msgstr ""
 
 msgid "Show as ..."
-msgstr ""
-
-msgid "Show a high-level summary of the EMR."
 msgstr ""
 
 msgid "Search for data in the EMR of the active patient"
@@ -5422,15 +6820,19 @@ msgstr ""
 msgid "Search for data across the EMRs of all patients"
 msgstr ""
 
-msgid "&Add / Edit ..."
-msgstr ""
-
 msgid "&Past history (health issue / PMH)"
 msgstr ""
 
 msgid ""
 "Add a past/previous medical history item (health issue) to the EMR of the "
 "active patient"
+msgstr ""
+
+#, fuzzy
+msgid "&Medication"
+msgstr "Vaksinasjon"
+
+msgid "Add medication / substance use entry."
 msgstr ""
 
 msgid "&Allergies"
@@ -5445,7 +6847,7 @@ msgstr ""
 msgid "Edit occupation details for the current patient."
 msgstr ""
 
-msgid "&Hospital stays"
+msgid "&Hospitalizations"
 msgstr ""
 
 msgid "Manage hospital stays."
@@ -5463,28 +6865,32 @@ msgstr ""
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr ""
 
+#, fuzzy
+msgid "&Vaccination(s)"
+msgstr "Vaksinasjon"
+
+msgid "Add (a) vaccination(s) for the current patient."
+msgstr ""
+
+msgid "&Add / Edit ..."
+msgstr ""
+
 msgid "Start a new encounter for the active patient right now."
 msgstr ""
 
 msgid "Start new encounter"
 msgstr ""
 
+msgid "&Encounters list"
+msgstr ""
+
 msgid "List all encounters including empty ones."
-msgstr ""
-
-msgid "View encounter list"
-msgstr ""
-
-msgid "Export as ..."
 msgstr ""
 
 msgid "Text document"
 msgstr ""
 
 msgid "Export the EMR of the active patient into a text file"
-msgstr ""
-
-msgid "Journal"
 msgstr ""
 
 msgid ""
@@ -5500,6 +6906,12 @@ msgid ""
 "encounter into a text file."
 msgstr ""
 
+msgid "Export as ..."
+msgstr ""
+
+msgid "&EMR"
+msgstr ""
+
 msgid "&Write letter"
 msgstr ""
 
@@ -5507,9 +6919,6 @@ msgid "Write a letter for the current patient."
 msgstr ""
 
 msgid "&Correspondence"
-msgstr ""
-
-msgid "&Tools"
 msgstr ""
 
 msgid "no viewer installed"
@@ -5535,10 +6944,13 @@ msgstr ""
 msgid "MI/stroke risk"
 msgstr ""
 
-msgid "&Knowledge"
+msgid "arriba"
 msgstr ""
 
-msgid "&Drug Resources"
+msgid "arriba: cardiovascular risk assessment (%s)."
+msgstr ""
+
+msgid "&Tools"
 msgstr ""
 
 msgid "&Database"
@@ -5547,7 +6959,7 @@ msgstr ""
 msgid "Jump to the drug database configured as the default."
 msgstr ""
 
-msgid "Start \"ifap index PRAXIS\" %s drug browser (Windows/Wine, Germany)"
+msgid "&Drug Resources"
 msgstr ""
 
 msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
@@ -5557,6 +6969,15 @@ msgid "Medical links (www)"
 msgstr ""
 
 msgid "Show a page of links to useful medical content."
+msgstr ""
+
+msgid "&Knowledge"
+msgstr ""
+
+msgid "Audit trail"
+msgstr ""
+
+msgid "Display database audit trail."
 msgstr ""
 
 msgid "&Office"
@@ -5580,9 +7001,6 @@ msgstr ""
 msgid "View the reference for menu items on the web."
 msgstr ""
 
-msgid "Debugging ..."
-msgstr ""
-
 msgid "Save a screenshot of this GNUmed client."
 msgstr ""
 
@@ -5599,6 +7017,12 @@ msgid "Backup log file"
 msgstr ""
 
 msgid "Backup the content of the log to another file."
+msgstr ""
+
+msgid "Email log file"
+msgstr ""
+
+msgid "Send the log file to the authors for help."
 msgstr ""
 
 msgid "Bug tracker"
@@ -5635,6 +7059,9 @@ msgid "Invoke inspector"
 msgstr ""
 
 msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
+msgstr ""
+
+msgid "Debugging ..."
 msgstr ""
 
 msgid "About GNUmed"
@@ -5717,9 +7144,6 @@ msgstr ""
 msgid "Announcing database maintenance downtime"
 msgstr ""
 
-msgid "Choose temporary directory ..."
-msgstr ""
-
 msgid ""
 "Some network installations cannot cope with loading\n"
 "documents of arbitrary size in one piece from the\n"
@@ -5770,8 +7194,33 @@ msgid ""
 msgstr ""
 
 msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse vaccination reaction (vADR).\n"
+"\n"
+"If you set it to a specific address that URL must be\n"
+"accessible now. If you leave it empty it will fall back\n"
+"to the URL for reporting other adverse drug reactions."
+msgstr ""
+
+msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurments grid.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to access a page showing\n"
+"vaccination schedules.\n"
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
@@ -5789,6 +7238,16 @@ msgid ""
 "as Wine. Nevertheless, starting the calculator\n"
 "will work as long as the shell command is correct\n"
 "despite the failing test."
+msgstr ""
+
+msgid "The command [%s] is not found."
+msgstr ""
+
+msgid ""
+"Enter the shell command with which to start\n"
+"the FreeDiams drug database frontend.\n"
+"\n"
+"GNUmed will try to verify that path."
 msgstr ""
 
 msgid ""
@@ -5854,6 +7313,19 @@ msgid "Yes, allow for multiple new episodes concurrently."
 msgstr ""
 
 msgid "No, only allow editing one new episode at a time."
+msgstr ""
+
+msgid ""
+"When activating a patient, do you want GNUmed to\n"
+"auto-open editors for all active problems that were\n"
+"touched upon during the current and the most recent\n"
+"encounter ?"
+msgstr ""
+
+msgid "Yes, auto-open editors for all problems of the most recent encounter."
+msgstr ""
+
+msgid "No, only auto-open one editor for a new, unassociated problem."
 msgstr ""
 
 msgid ""
@@ -6041,10 +7513,90 @@ msgid ""
 "will actually appear in parallel to the viewer."
 msgstr ""
 
+msgid "Addresses (likely slow)"
+msgstr ""
+
+msgid "Branded drugs (as marketed)"
+msgstr ""
+
+msgid "Codes and their respective terms"
+msgstr ""
+
+msgid "Components of branded drugs (substances in brands)"
+msgstr ""
+
+msgid "Diagnostic organizations (path labs, ...)"
+msgstr ""
+
+msgid "Document templates (forms, letters, plots, ...)"
+msgstr ""
+
+#, fuzzy
+msgid "Document types"
+msgstr "Dokumenter:"
+
+msgid "Encounter types"
+msgstr ""
+
+msgid "Keyword based text expansion macros"
+msgstr ""
+
+msgid "Meta test/measurement types"
+msgstr ""
+
+msgid "Patient tags"
+msgstr ""
+
+msgid "Provinces (counties, territories, states, regions, ...)"
+msgstr ""
+
+msgid "String translations in the database"
+msgstr ""
+
+msgid "Test/measurement types"
+msgstr ""
+
+msgid "Units of organizations (branches, sites, departments, parts, ..."
+msgstr ""
+
+msgid "Vaccination targets (conditions known to be preventable by vaccination)"
+msgstr ""
+
+#, fuzzy
+msgid "Vaccines"
+msgstr "Vaksinasjon"
+
+msgid "Workplace profiles (which plugins to load)"
+msgstr ""
+
+msgid "Consumable substances"
+msgstr ""
+
+msgid "Master data management"
+msgstr ""
+
+msgid "Select the list you want to manage:"
+msgstr ""
+
 msgid "No DICOM viewer found."
 msgstr ""
 
+msgid "risk assessment"
+msgstr ""
+
+msgid "cardiovascular risk assessment"
+msgstr ""
+
+msgid "[arriba] XML result not found in [%s]"
+msgstr ""
+
 msgid "ACS risk assessment calculator not configured."
+msgstr ""
+
+msgid "Cannot run [%s] !"
+msgstr ""
+
+msgid "There was a problem accessing the [arriba] result in [%s] !"
 msgstr ""
 
 msgid "Saved screenshot to file [%s]."
@@ -6086,6 +7638,9 @@ msgstr ""
 msgid "Cannot edit occupation. No active patient."
 msgstr ""
 
+msgid "Cannot add vaccinations. No active patient."
+msgstr ""
+
 msgid "Cannot add measurement. No active patient."
 msgstr ""
 
@@ -6108,6 +7663,9 @@ msgid "EMR journal export"
 msgstr ""
 
 msgid "Successfully exported EMR as chronological journal into file [%s]."
+msgstr ""
+
+msgid "Cannot add tag to person. No active patient."
 msgstr ""
 
 msgid "Cannot export patient as GDT. No active patient."
@@ -6235,6 +7793,56 @@ msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
 msgid "add plugin ..."
+msgstr ""
+
+msgid "Adding new translation"
+msgstr ""
+
+msgid "Editing translation"
+msgstr ""
+
+msgid "Selecting language for translation"
+msgstr ""
+
+msgid ""
+"Please select the language the translations for which you want to work on."
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete the translation of:\n"
+"\n"
+"%s\n"
+"\n"
+"into [%s] as:\n"
+"\n"
+"%s\n"
+"\n"
+"?  (Note that you must know the database administrator password !)\n"
+msgstr ""
+
+msgid "Deleting translation from database"
+msgstr ""
+
+msgid "deleting a translation"
+msgstr ""
+
+msgid "Contributing translations"
+msgstr ""
+
+msgid "Do you want to contribute your translations to the GNUmed project ?"
+msgstr ""
+
+msgid ""
+"Unable to send mail. Cannot contribute translations to GNUmed community."
+msgstr ""
+
+msgid "Showing translatable database strings for all languages."
+msgstr ""
+
+msgid "Showing translatable database strings for target language [%s]."
+msgstr ""
+
+msgid "Contribute translations to GNUmed community by email."
 msgstr ""
 
 msgid "choose which lab will process the probe with the specified ID"
@@ -6375,6 +7983,9 @@ msgstr ""
 msgid "invalid placeholder [%s]"
 msgstr ""
 
+msgid "template is missing"
+msgstr ""
+
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
 
@@ -6390,7 +8001,28 @@ msgstr ""
 msgid "no postcode for address type [%s]"
 msgstr ""
 
-msgid "template is missing"
+msgid "unknown current medication table formatting style"
+msgstr ""
+
+msgid "unknown current medication notes formatting style"
+msgstr ""
+
+msgid "unknown test results table formatting style [%s]"
+msgstr ""
+
+msgid "unknown vaccinations table formatting style [%s]"
+msgstr ""
+
+msgid "Replacing <free_text> placeholder"
+msgstr ""
+
+msgid ""
+"Below you can enter free text.\n"
+"\n"
+" [%s]"
+msgstr ""
+
+msgid "Text input cancelled by user."
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -6449,9 +8081,7 @@ msgstr ""
 msgid "Downloading LOINC"
 msgstr ""
 
-msgid ""
-"Running <gm-download_loinc> to retrieve\n"
-"the latest LOINC data failed.\n"
+msgid "Error downloading the latest LOINC data.\n"
 msgstr ""
 
 msgid "importing LOINC reference data"
@@ -6468,6 +8098,15 @@ msgstr ""
 
 msgid "Editing measurement"
 msgstr ""
+
+msgid "Cannot plot without a plot script."
+msgstr ""
+
+#, fuzzy
+msgid "Plotting test results"
+msgstr ""
+" %s test resultater\n"
+"\n"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -6501,6 +8140,9 @@ msgid "No, do NOT delete any results."
 msgstr ""
 
 msgid "Cannot sign results. No results selected."
+msgstr ""
+
+msgid "Cannot plot results. No results selected."
 msgstr ""
 
 msgid "Details about %s (%s)%s\n"
@@ -6552,6 +8194,10 @@ msgstr ""
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
+#, fuzzy
+msgid "Source: %s\n"
+msgstr "   Dok: %s"
+
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
 
@@ -6579,7 +8225,7 @@ msgstr ""
 msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
 msgstr ""
 
-msgid "Reference group: %(ref_group)s\n"
+msgid "Reference group: %s\n"
 msgstr ""
 
 msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
@@ -6623,10 +8269,13 @@ msgstr ""
 msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
 msgstr ""
 
-msgid "Last reviewer: %(reviewer)s\n"
+msgid "Responsible clinician: %s\n"
 msgstr ""
 
 msgid "you"
+msgstr ""
+
+msgid "Last reviewer: %(reviewer)s\n"
 msgstr ""
 
 msgid " Technically abnormal: %(abnormal)s\n"
@@ -6639,9 +8288,6 @@ msgid "yes"
 msgstr ""
 
 msgid " Clinically relevant: %(relevant)s\n"
-msgstr ""
-
-msgid "Responsible clinician: %s\n"
 msgstr ""
 
 msgid "Test type details:\n"
@@ -6702,10 +8348,16 @@ msgstr ""
 msgid "Review and &sign"
 msgstr ""
 
+msgid "Plot"
+msgstr ""
+
 msgid "Export to &file"
 msgstr ""
 
 msgid "Export to &clipboard"
+msgstr ""
+
+msgid "&Delete"
 msgstr ""
 
 msgid "%s results selected. Too many to list individually."
@@ -6753,10 +8405,28 @@ msgstr ""
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "Select the unit of the test result."
+msgid "The name of the path lab/diagnostic organisation."
+msgstr ""
+
+msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
 msgid "Select an indicator for the level of abnormality."
+msgstr ""
+
+msgid "Adding new diagnostic org"
+msgstr ""
+
+msgid "Editing diagnostic org"
+msgstr ""
+
+msgid ""
+"\n"
+"These are the diagnostic orgs (path labs etc) currently defined in GNUmed.\n"
+"\n"
+msgstr ""
+
+msgid "Showing diagnostic orgs."
 msgstr ""
 
 msgid ""
@@ -6772,455 +8442,6 @@ msgid ""
 msgstr ""
 
 msgid "Showing meta test types."
-msgstr ""
-
-msgid ""
-"Are you sure you want to delete this\n"
-"description from the document ?\n"
-msgstr ""
-
-msgid "Deleting document description"
-msgstr ""
-
-msgid "Adding document description"
-msgstr ""
-
-msgid "Below you can add a document description.\n"
-msgstr ""
-
-msgid "Editing document description"
-msgstr ""
-
-msgid "Below you can edit the document description.\n"
-msgstr ""
-
-msgid "Select the description you are interested in.\n"
-msgstr ""
-
-msgid "Managing document descriptions"
-msgstr ""
-
-msgid "Documents"
-msgstr ""
-
-msgid "Select the episode under which to file the document ..."
-msgstr ""
-
-msgid "Enter a comment on the document."
-msgstr ""
-
-msgid "In use"
-msgstr ""
-
-msgid "Translation"
-msgstr ""
-
-msgid "User defined"
-msgstr ""
-
-msgid ""
-"Cannot delete document type\n"
-" [%s]\n"
-"because it is currently in use."
-msgstr ""
-
-msgid "deleting document type"
-msgstr ""
-
-msgid ""
-"From the list below select the document type you want\n"
-"all documents currently classified as:\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"to be changed to.\n"
-"\n"
-"Be aware that this change will be applied to ALL such documents. If there\n"
-"are many documents to change it can take quite a while.\n"
-"\n"
-"Make sure this is what you want to happen !\n"
-msgstr ""
-
-msgid "Reassigning document type"
-msgstr ""
-
-msgid "Select the document type."
-msgstr ""
-
-msgid "who"
-msgstr ""
-
-msgid "when"
-msgstr ""
-
-msgid "+/-"
-msgstr ""
-
-msgid "!"
-msgstr ""
-
-msgid "comment"
-msgstr ""
-
-msgid "(you are the primary reviewer)"
-msgstr ""
-
-msgid "(someone else is the primary reviewer)"
-msgstr ""
-
-msgid ""
-"Cannot create episode\n"
-" [%s]"
-msgstr ""
-
-msgid "editing document properties"
-msgstr ""
-
-msgid "Cannot change document type to [%s]."
-msgstr ""
-
-msgid ""
-"Cannot link the document to episode\n"
-"\n"
-" [%s]"
-msgstr ""
-
-msgid "Error setting \"reviewed\" status of this document."
-msgstr ""
-
-msgid "Error setting responsible clinician for this document."
-msgstr ""
-
-msgid "Error setting \"reviewed\" status of this part."
-msgstr ""
-
-msgid "Error saving part properties."
-msgstr ""
-
-msgid "Cannot accept new documents. No active patient."
-msgstr ""
-
-msgid "Extracting files from folder [%s] ..."
-msgstr ""
-
-msgid "saving document"
-msgstr ""
-
-msgid "No parts to save. Really save an empty document as a reference ?"
-msgstr ""
-
-msgid "No parts to save. Aquire some parts first."
-msgstr ""
-
-msgid "No document type applied. Choose a document type"
-msgstr ""
-
-msgid "You must select an episode to save this document under."
-msgstr ""
-
-msgid ""
-"You need to select from the list of staff members the doctor who is intended "
-"to sign the document."
-msgstr ""
-
-msgid "There is no scanner support installed on this machine."
-msgstr ""
-
-msgid "Cannot find an active scanner."
-msgstr ""
-
-msgid "Select an image capture device"
-msgstr ""
-
-msgid "device selection"
-msgstr ""
-
-msgid "Device"
-msgstr ""
-
-msgid ""
-"No pages could be acquired from the source.\n"
-"\n"
-"This may mean the scanner driver is not properly installed\n"
-"\n"
-"On Windows you must install the TWAIN Python module\n"
-"while on Linux and MacOSX it is recommended to install\n"
-"the XSane package."
-msgstr ""
-
-msgid "acquiring page"
-msgstr ""
-
-msgid "Choose a file"
-msgstr ""
-
-msgid "You must select a part before you can view it."
-msgstr ""
-
-msgid "displaying part"
-msgstr ""
-
-msgid ""
-"Cannot display document part:\n"
-"%s"
-msgstr ""
-
-msgid "You must select a part before you can delete it."
-msgstr ""
-
-msgid "deleting part"
-msgstr ""
-
-msgid ""
-"Do you want to permanently delete the file\n"
-"\n"
-" [%s]\n"
-"\n"
-"from your computer ?\n"
-"\n"
-"If it is a temporary file for a page you just scanned\n"
-"in this makes a lot of sense. In other cases you may\n"
-"not want to lose the file.\n"
-"\n"
-"Pressing [YES] will permanently remove the file\n"
-"from your computer."
-msgstr ""
-
-msgid ""
-"Cannot delete part in file [%s].\n"
-"\n"
-"You may not have write access to it."
-msgstr ""
-
-msgid "Cannot start episode [%s]."
-msgstr ""
-
-msgid "Cannot create new document."
-msgstr ""
-
-msgid "Cannot update document metadata."
-msgstr ""
-
-msgid "Cannot add document description."
-msgstr ""
-
-msgid "Error setting \"reviewed\" status of new document."
-msgstr ""
-
-msgid ""
-"The reference ID for the new document is:\n"
-"\n"
-" <%s>\n"
-"\n"
-"You probably want to write it down on the\n"
-"original documents.\n"
-"\n"
-"If you don't care about the ID you can switch\n"
-"off this message in the GNUmed configuration."
-msgstr ""
-
-msgid "Successfully saved new document."
-msgstr ""
-
-msgid "available documents (%s)"
-msgstr ""
-
-msgid "unsigned (%s) on top"
-msgstr ""
-
-msgid "most recent on top"
-msgstr ""
-
-msgid "sorted by episode"
-msgstr ""
-
-msgid "sorted by type"
-msgstr ""
-
-msgid "Cannot load documents. No active patient."
-msgstr ""
-
-msgid "part menu"
-msgstr ""
-
-msgid "Display part"
-msgstr ""
-
-msgid "%s Sign/Edit properties"
-msgstr ""
-
-msgid "Print part"
-msgstr ""
-
-msgid "Fax part"
-msgstr ""
-
-msgid "Mail part"
-msgstr ""
-
-msgid "document menu"
-msgstr ""
-
-msgid "Print all parts"
-msgstr ""
-
-msgid "Fax all parts"
-msgstr ""
-
-msgid "Mail all parts"
-msgstr ""
-
-msgid "Export all parts"
-msgstr ""
-
-#, fuzzy
-msgid "Delete document"
-msgstr "Dokumenter:"
-
-msgid "Access external original"
-msgstr ""
-
-msgid "Edit corresponding encounter"
-msgstr ""
-
-msgid "Manage descriptions"
-msgstr ""
-
-msgid "Error searching documents."
-msgstr ""
-
-msgid "loading document list"
-msgstr ""
-
-msgid "no comment available"
-msgstr ""
-
-msgid "%s%7s %s: %s (%s part(s)%s)"
-msgstr ""
-
-msgid "part %2s"
-msgstr ""
-
-msgid "Activate as current photo"
-msgstr ""
-
-msgid "Document part does not seem to exist in database !"
-msgstr ""
-
-msgid "showing document"
-msgstr ""
-
-msgid ""
-"Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n"
-"\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
-"must be in the execution path. The command will\n"
-"be passed the filename to %(l10n_action)s."
-msgstr ""
-
-msgid "Processing document part: %s"
-msgstr ""
-
-msgid ""
-"Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n"
-"\n"
-"You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
-"\n"
-"The command is passed the filename to %(l10n_action)s."
-msgstr ""
-
-msgid "print"
-msgstr ""
-
-msgid "fax"
-msgstr ""
-
-msgid "mail"
-msgstr ""
-
-msgid ""
-"Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n"
-"\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
-"must be in the execution path. The command will\n"
-"be passed a list of filenames to %(l10n_action)s."
-msgstr ""
-
-msgid "Processing document: %s"
-msgstr ""
-
-msgid ""
-"Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n"
-"\n"
-"You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
-"\n"
-"The command is passed a list of filenames to %(l10n_action)s."
-msgstr ""
-
-msgid ""
-"Cannot access external document - access command not found.\n"
-"\n"
-"Either of gm_access_external_doc.sh or *.bat must be\n"
-"in the execution path. The command will be passed the\n"
-"document type and the reference URL for processing."
-msgstr ""
-
-msgid "Accessing external document"
-msgstr ""
-
-msgid ""
-"Cannot access external document - access command failed.\n"
-"\n"
-"You may need to check and fix either of\n"
-" gm_access_external_doc.sh (Unix/Mac) or\n"
-" gm_access_external_doc.bat (Windows)\n"
-"\n"
-"The command is passed the document type and the\n"
-"external reference URL on the command line."
-msgstr ""
-
-msgid "Save document into directory ..."
-msgstr ""
-
-msgid "Successfully exported %s parts into the directory [%s]."
-msgstr ""
-
-msgid "Are you sure you want to delete the document ?"
-msgstr ""
-
-msgid "Deleting document"
-msgstr ""
-
-msgid ""
-"\n"
-"These are the substances in the drug brands known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing drug brand components (substances)."
-msgstr ""
-
-msgid ""
-"\n"
-"These are the drug brands known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing branded drugs."
-msgstr ""
-
-msgid "ATC"
-msgstr ""
-
-msgid ""
-"\n"
-"These are the substances currently or previously\n"
-"consumed across all patients.\n"
-msgstr ""
-
-msgid "Showing consumed substances."
 msgstr ""
 
 msgid ""
@@ -7251,6 +8472,14 @@ msgstr ""
 msgid "Current medication"
 msgstr ""
 
+msgid ""
+"\n"
+"The ATC codes as known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing ATC codes."
+msgstr ""
+
 msgid "Choose an ATC import config file"
 msgstr ""
 
@@ -7266,29 +8495,246 @@ msgstr ""
 msgid "Importing ATC reference data failed."
 msgstr ""
 
-msgid "The preparation (form) of the substance the patient is taking."
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
 msgstr ""
 
-msgid "The INN / substance the patient is taking."
+msgid "Cannot delete this substance. It is in use."
+msgstr ""
+
+msgid ""
+"\n"
+"These are the consumable substances registered with GNUmed.\n"
+msgstr ""
+
+msgid "Showing consumable substances."
+msgstr ""
+
+msgid "Import consumable substances from a drug database."
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid "Cannot edit this substance. It is in use."
+msgstr ""
+
+msgid "Adding new consumable substance"
+msgstr ""
+
+msgid "Editing consumable substance"
+msgstr ""
+
+msgid "Cannot save consumable substance. Missing essential input."
+msgstr ""
+
+msgid "Cannot save consumable substance. %s"
+msgstr ""
+
+msgid "Cannot remove this component from the drug. It is in use."
+msgstr ""
+
+msgid ""
+"\n"
+"These are the components in the drug brands known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing drug brand components."
+msgstr ""
+
+msgid "Adding new drug component"
+msgstr ""
+
+msgid "Editing drug component"
+msgstr ""
+
+msgid "Cannot edit drug component. It is in use."
+msgstr ""
+
+msgid "Cannot save drug component. Invalid or missing essential input."
+msgstr ""
+
+msgid "A drug component with optional strength."
+msgstr ""
+
+msgid "The preparation (form) of the substance or brand."
+msgstr ""
+
+msgid "The substance with optional strength."
+msgstr ""
+
+msgid "Managing components of a drug"
+msgstr ""
+
+msgid ""
+"Cannot manage the components of the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+
+msgid "Pick the substances which are components of this drug."
+msgstr ""
+
+msgid "Components of drug"
+msgstr ""
+
+msgid ""
+"Adjust the components of \"%s\"\n"
+"\n"
+"The drug must contain at least one component. Any given\n"
+"substance can only be included once per drug."
+msgstr ""
+
+msgid "Managing components of a drug ..."
+msgstr ""
+
+msgid "in use"
+msgstr ""
+
+msgid "not in use"
+msgstr ""
+
+msgid "fake"
+msgstr ""
+
+#, fuzzy
+msgid "ATC: %s\n"
+msgstr "   Dok: %s"
+
+msgid "Editing medication"
+msgstr ""
+
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid ""
+"\n"
+"These are the drug brands known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing branded drugs."
+msgstr ""
+
+msgid "Import substances and brands from a drug database."
+msgstr ""
+
+msgid "Editing drug"
+msgstr ""
+
+msgid ""
+"Cannot edit the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+
+msgid "Adding new drug brand"
+msgstr ""
+
+msgid "Editing drug brand"
+msgstr ""
+
+msgid "Cannot edit drug brand. It is in use."
+msgstr ""
+
+msgid "Cannot save branded drug. Invalid or missing essential input."
+msgstr ""
+
+msgid "The brand name of the drug."
+msgstr ""
+
+msgid "discontinued due to allergy or intolerance"
+msgstr ""
+
+msgid "not tolerated:"
+msgstr ""
+
+msgid "Documented an allergy"
+msgstr ""
+
+msgid ""
+"An allergy was documented against the substance:\n"
+"\n"
+"  [%s]\n"
+"\n"
+"This substance was taken with the multi-component brand:\n"
+"\n"
+"  [%s (%s)]\n"
+"\n"
+"Note that ALL components of this brand were discontinued."
+msgstr ""
+
+msgid "never"
+msgstr ""
+
+#, fuzzy
+msgid "%s, last confirmed %s\n"
+msgstr "etternavn"
+
+#, fuzzy
+msgid "Comment (%s): %%s\n"
+msgstr "Dokumenter: %s"
+
+msgid "suspected"
+msgstr ""
+
+msgid "reaction not recorded"
 msgstr ""
 
 msgid "Cannot save substance intake. Invalid or missing essential input."
 msgstr ""
 
 msgid ""
-"Do you really want to remove this substance intake ?\n"
 "\n"
-"It may be prudent to edit the details first so as to\n"
-"leave behind some indication of why it was deleted.\n"
+"[%s]\n"
+"\n"
+"It may be prudent to edit (before deletion) the details\n"
+"of this substance intake entry so as to leave behind\n"
+"some indication of why it was deleted.\n"
 msgstr ""
 
 msgid "Deleting medication / substance intake"
+msgstr ""
+
+msgid "Allow editing of substance intake entry before deletion."
+msgstr ""
+
+msgid "Delete immediately without editing first."
+msgstr ""
+
+msgid "Abort. Do not delete or edit substance intake entry."
+msgstr ""
+
+msgid "Now delete substance intake entry ?"
 msgstr ""
 
 msgid "Adding substance intake"
 msgstr ""
 
 msgid "Editing substance intake"
+msgstr ""
+
+msgid "Document an allergy against this substance."
 msgstr ""
 
 msgid "No medication list template configured."
@@ -7306,6 +8752,9 @@ msgstr ""
 msgid "Cannot load medication list template [%s - %s]"
 msgstr ""
 
+msgid "Invalid medication list template [%s - %s (%s)]"
+msgstr ""
+
 msgid "Error generating the medication list."
 msgstr ""
 
@@ -7318,6 +8767,9 @@ msgstr ""
 msgid "Dose"
 msgstr ""
 
+msgid "Duration / Until"
+msgstr ""
+
 msgid "%s (fake)"
 msgstr ""
 
@@ -7327,8 +8779,18 @@ msgstr ""
 msgid "Cannot delete more than one substance at once."
 msgstr ""
 
+msgid "Cannot create allergy from more than one substance at once."
+msgstr ""
+
 msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr ""
+
+msgid "active, needs check"
+msgstr ""
+
+#, fuzzy
+msgid "assumed active"
+msgstr "aktiv"
 
 msgid "approved"
 msgstr ""
@@ -7336,13 +8798,13 @@ msgstr ""
 msgid "unapproved"
 msgstr ""
 
-msgid "Substance name: %s   [#%s]\n"
+msgid "Substance: %s   [#%s]\n"
 msgstr ""
 
 msgid "Preparation: %s\n"
 msgstr ""
 
-msgid " Amount per dose: %s\n"
+msgid "Amount per dose: %s%s"
 msgstr ""
 
 msgid " ATC (substance): %s\n"
@@ -7367,6 +8829,13 @@ msgstr ""
 msgid " (short-term)"
 msgstr ""
 
+msgid " Discontinued %s\n"
+msgstr ""
+
+#, fuzzy
+msgid " Reason: %s\n"
+msgstr "Dokumenter: %s"
+
 msgid " Aim: %s\n"
 msgstr ""
 
@@ -7376,7 +8845,7 @@ msgstr ""
 msgid " Advice: %s\n"
 msgstr ""
 
-msgid "Revisions: Last modified %(mod_when)s by %(mod_by)s."
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 msgid "Cannot move progress notes. No active patient."
@@ -7419,10 +8888,7 @@ msgstr ""
 msgid "Editing progress note"
 msgstr ""
 
-msgid ""
-"This is the original progress note:\n"
-"\n"
-" %s"
+msgid "This is the original progress note:"
 msgstr ""
 
 msgid "Managing progress notes"
@@ -7495,12 +8961,33 @@ msgid ""
 "Successfully exported progress notes into file [%s] for Medistar import."
 msgstr ""
 
+msgid "No narrative available for selected episode."
+msgstr ""
+
 msgid ""
 "\n"
-" In the list below mark the health issues you want to report on.\n"
+" This is the narrative (type %s) for the chosen episodes.\n"
+"\n"
+" Now, mark the entries you want to include in your report.\n"
 msgstr ""
 
 msgid "No episodes recorded for the health issues selected."
+msgstr ""
+
+msgid ""
+"\n"
+" Select the the episode you want to report on.\n"
+msgstr ""
+
+msgid "Pick SOAP"
+msgstr ""
+
+msgid "Pick SOAP entries from topmost selected episode"
+msgstr ""
+
+msgid ""
+"\n"
+" In the list below mark the health issues you want to report on.\n"
 msgstr ""
 
 msgid ""
@@ -7511,13 +8998,6 @@ msgid ""
 msgstr ""
 
 msgid "No narrative available for selected episodes."
-msgstr ""
-
-msgid ""
-"\n"
-" This is the narrative (type %s) for the chosen episodes.\n"
-"\n"
-" Now, mark the entries you want to include in your report.\n"
 msgstr ""
 
 msgid "Select the narrative you are interested in ..."
@@ -7539,6 +9019,9 @@ msgid "%s active problems"
 msgstr ""
 
 msgid "Current encounter:"
+msgstr ""
+
+msgid "Cumulative summary"
 msgstr ""
 
 msgid "Most recent notes on %s%s%s"
@@ -7631,6 +9114,122 @@ msgstr ""
 msgid "Selecting text macro"
 msgstr ""
 
+msgid "You need to actually set an editor."
+msgstr ""
+
+msgid ""
+"Enter the shell command with which to start\n"
+"the image editor for visual progress notes.\n"
+"\n"
+"Any \"%(img)s\" included with the arguments\n"
+"will be replaced by the file name of the\n"
+"note template."
+msgstr ""
+
+msgid "Choose file to use as template for new visual progress note"
+msgstr ""
+
+msgid "Cannot export visual progress note template for [%s]."
+msgstr ""
+
+msgid "Cannot export visual progress note to file."
+msgstr ""
+
+msgid "Editor for visual progress note not configured."
+msgstr ""
+
+msgid ""
+"There was a problem with running the editor\n"
+"for visual progress notes.\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+
+msgid "Editing visual progress note"
+msgstr ""
+
+msgid ""
+"There was a problem reading the visual\n"
+"progress note from the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+
+msgid "Saving visual progress note"
+msgstr ""
+
+msgid ""
+"You either created a visual progress note from a template\n"
+"in the database (rather than from a file on disk) or you\n"
+"edited an existing visual progress note.\n"
+"\n"
+"The template/original was not modified at all, however.\n"
+"\n"
+"Do you still want to save the unmodified image as a\n"
+"visual progress note into the EMR of the patient ?\n"
+msgstr ""
+
+msgid "visual progress notes"
+msgstr ""
+
+msgid "Created: %s"
+msgstr ""
+
+msgid "Sketches"
+msgstr ""
+
+msgid "No images in visual progress note."
+msgstr ""
+
+msgid "Cannot load visual progress note from [%s]."
+msgstr ""
+
+msgid "Choose a visual progress note template file"
+msgstr ""
+
+msgid ""
+"Do you want to delete the original file\n"
+"\n"
+" [%s]\n"
+"\n"
+"from your computer ?"
+msgstr ""
+
+msgid "Saving visual progress note ..."
+msgstr ""
+
+msgid "Are you sure you want to delete the visual progress note ?"
+msgstr ""
+
+msgid "Deleting visual progress note"
+msgstr ""
+
+msgid ""
+"\n"
+"Units (sites, parts, departments, branches, ...) of organizations registered "
+"in GNUmed.\n"
+msgstr ""
+
+msgid "Showing organizational units."
+msgstr ""
+
+msgid "Organizational Unit"
+msgstr ""
+
+#, fuzzy
+msgid "Organization"
+msgstr "Vaksinasjon"
+
+msgid ""
+"\n"
+"Organizations registered in GNUmed.\n"
+msgstr ""
+
+msgid "Showing organizations."
+msgstr ""
+
 msgid "Refresh from database"
 msgstr ""
 
@@ -7643,13 +9242,35 @@ msgstr ""
 msgid "No active patient."
 msgstr ""
 
+msgid ""
+"No image could be acquired from the source.\n"
+"\n"
+"This may mean the scanner driver is not properly installed.\n"
+"\n"
+"On Windows you must install the TWAIN Python module\n"
+"while on Linux and MacOSX it is recommended to install\n"
+"the XSane package."
+msgstr ""
+
+msgid "Acquiring photo"
+msgstr ""
+
 msgid "Patient photo could not be acquired from source."
 msgstr ""
 
-msgid "acquiring photo"
+msgid "Administration"
 msgstr ""
 
-msgid "Administration"
+msgid ""
+"Patient picture.\n"
+"\n"
+"Right-click for context menu."
+msgstr ""
+
+msgid ""
+"Patient picture (%s).\n"
+"\n"
+"Right-click for context menu."
 msgstr ""
 
 msgid "Cannot set patient picture from [%s]."
@@ -7718,6 +9339,15 @@ msgid "found via"
 msgstr ""
 
 msgid "Source"
+msgstr ""
+
+msgid ""
+"Cannot load patient from Medical Manager MSVA file\n"
+"\n"
+" [%s]"
+msgstr ""
+
+msgid "Activating MSVA patient"
 msgstr ""
 
 msgid ""
@@ -7825,40 +9455,20 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Patient search field.                             \n"
-"\n"
-"To search, type any of:\n"
-" - fragment of last or first name\n"
-" - date of birth (can start with '$' or '*')\n"
-" - patient ID (can start with '#')\n"
-"and hit <ENTER>.\n"
-"\n"
-"<CURSOR-UP>\n"
-" - recall most recently used search term\n"
-"<CURSOR-DOWN>\n"
-" - list 10 most recently activated patients\n"
-"<F2>\n"
-" - scan external sources for patients to import and activate\n"
+"%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s "
+"%(day_now)s)"
+msgstr ""
+
+msgid "<type here to search patient>"
 msgstr ""
 
 msgid "%(name)s (locked)"
 msgstr ""
 
-msgid ""
-"%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %"
-"(day_now)s)"
-msgstr ""
-
 msgid "Cannot add to waiting list. Missing essential input."
 msgstr ""
 
-msgid "Urgency"
-msgstr ""
-
 msgid "Waiting time"
-msgstr ""
-
-msgid "Born"
 msgstr ""
 
 msgid ""
@@ -7871,6 +9481,149 @@ msgid "(%s patients)"
 msgstr ""
 
 msgid "Cannot add waiting list entry: No patient selected."
+msgstr ""
+
+msgid "Select the default country for new persons.\n"
+msgstr ""
+
+msgid "Type or select a country."
+msgstr ""
+
+msgid "Select the default region/province/state/territory for new persons.\n"
+msgstr ""
+
+msgid "Adding province"
+msgstr ""
+
+msgid "Editing province"
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete this province ?\n"
+"\n"
+"Deletion will only work if this province is not\n"
+"yet in use in any patient addresses."
+msgstr ""
+
+msgid ""
+"Also delete any towns/cities/villages known\n"
+"to be situated in this state as long as\n"
+"no patients are recorded to live there."
+msgstr ""
+
+msgid "Deleting province"
+msgstr ""
+
+msgid "delete related townships"
+msgstr ""
+
+msgid "Delete province and possibly related townships."
+msgstr ""
+
+msgid "No, do NOT delete anything."
+msgstr ""
+
+msgid ""
+"\n"
+"This list shows the provinces known to GNUmed.\n"
+"\n"
+"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
+"\"county\", \"region\", \"territory\", or some such term.\n"
+"\n"
+"Select the province you want to edit !\n"
+msgstr ""
+
+msgid "Editing provinces ..."
+msgstr ""
+
+msgid "Type or select a state/region/province/territory."
+msgstr ""
+
+msgid "Street info"
+msgstr ""
+
+msgid "Subunit"
+msgstr ""
+
+msgid "Suburb"
+msgstr ""
+
+msgid "Showing addresses registered in GNUmed."
+msgstr ""
+
+msgid "List of known addresses."
+msgstr ""
+
+msgid "Adding new address"
+msgstr ""
+
+msgid "Editing address"
+msgstr ""
+
+msgid ""
+"Are you sure you want to remove this\n"
+"address from the patient's addresses ?\n"
+"\n"
+"The address itself will not be deleted\n"
+"but it will no longer be associated with\n"
+"this patient."
+msgstr ""
+
+msgid "Removing address"
+msgstr ""
+
+msgid ""
+"Cannot save address.\n"
+"\n"
+"Does the state [%s]\n"
+"exist in country [%s] ?"
+msgstr ""
+
+msgid "Address details must be filled in completely or not at all."
+msgstr ""
+
+msgid "Saving contact data"
+msgstr ""
+
+msgid "Select an address by postcode or street name."
+msgstr ""
+
+msgid "Select the type of address."
+msgstr ""
+
+msgid "Type or select a zip code (postcode)."
+msgstr ""
+
+msgid "Type or select a street."
+msgstr ""
+
+msgid "Type or select the suburb."
+msgstr ""
+
+msgid "Type or select a city/town/village/dwelling."
+msgstr ""
+
+msgid "Select the type of communications channel."
+msgstr ""
+
+msgid "Cannot save communications channel."
+msgstr ""
+
+msgid "List of known communication channels."
+msgstr ""
+
+msgid "Adding new communications channel"
+msgstr ""
+
+msgid "Editing communications channel"
+msgstr ""
+
+msgid ""
+"Are you sure this patient can no longer\n"
+"be contacted via this channel ?"
+msgstr ""
+
+msgid "Removing communication channel"
 msgstr ""
 
 msgid "You must select a value from the picklist or type an exact match."
@@ -7954,34 +9707,13 @@ msgstr ""
 msgid "weeks"
 msgstr ""
 
-msgid "Hx"
-msgstr ""
-
-msgid "History Taken"
-msgstr ""
-
-msgid "Obj"
-msgstr ""
-
-msgid "Findings"
-msgstr ""
-
-msgid "A"
-msgstr ""
-
-msgid "P"
-msgstr ""
-
-msgid "xxxSOAPxxx"
-msgstr ""
-
 msgid "Cannot save text expansion without keyword."
 msgstr ""
 
 msgid "Cannot save text expansion without expansion text."
 msgstr ""
 
-msgid "Adding text espansion"
+msgid "Adding text expansion"
 msgstr ""
 
 msgid "Editing text expansion \"%s\""
@@ -8004,7 +9736,37 @@ msgstr ""
 msgid "Public"
 msgstr ""
 
+msgid ""
+"\n"
+"Please select the provider to fall back to in case\n"
+"no primary provider is configured for a patient.\n"
+msgstr ""
+
+msgid "Provider"
+msgstr ""
+
+msgid "Configuring fallback primary provider"
+msgstr ""
+
 msgid "Select a healthcare provider."
+msgstr ""
+
+msgid "showing audit trail"
+msgstr ""
+
+msgid "GNUmed database audit log ..."
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Revisions"
+msgstr ""
+
+msgid "Table"
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Cannot delete the active workplace."
@@ -8049,6 +9811,16 @@ msgid "Cannot save a new workplace without a name."
 msgstr ""
 
 msgid ""
+"Pick the plugin(s) to be loaded the next time the client is restarted under "
+"the workplace:\n"
+"\n"
+"    [%s]\n"
+msgstr ""
+
+msgid "Configuring workplace plugins ..."
+msgstr ""
+
+msgid ""
 "\n"
 "Select the plugin(s) to be loaded the next time\n"
 "the client is restarted under the workplace:\n"
@@ -8059,6 +9831,12 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
+msgid "Enter a name for the new workplace !"
+msgstr ""
+
+msgid "Cloning workplace"
+msgstr ""
+
 msgid ""
 "\n"
 "Select the workplace to configure below.\n"
@@ -8066,13 +9844,22 @@ msgid ""
 "The currently active workplace is preselected.\n"
 msgstr ""
 
-msgid "Workplace"
+msgid "Clone"
 msgstr ""
 
-msgid "category"
+msgid "Clone the selected workplace"
 msgstr ""
 
-msgid "message"
+msgid "Select a message type."
+msgstr ""
+
+msgid "Adding new inbox message"
+msgstr ""
+
+msgid "Editing inbox message"
+msgstr ""
+
+msgid "Sent"
 msgstr ""
 
 msgid ""
@@ -8104,7 +9891,16 @@ msgstr ""
 msgid "Inbox Message menu"
 msgstr ""
 
-msgid "delete message"
+msgid "message"
+msgstr ""
+
+msgid "virtual message"
+msgstr ""
+
+msgid "everyone"
+msgstr ""
+
+msgid "Patient #%s"
 msgstr ""
 
 msgid ""
@@ -8112,6 +9908,12 @@ msgid ""
 msgstr ""
 
 msgid "Problem removing message from Inbox."
+msgstr ""
+
+msgid "This message cannot be edited because it is virtual."
+msgstr ""
+
+msgid "This message is already visible to all providers."
 msgstr ""
 
 msgid ""
@@ -8122,6 +9924,12 @@ msgstr ""
 
 msgid ""
 "Supposedly there are unreviewed results\n"
+"for patient [%s]. However, I cannot find\n"
+"that patient in the GNUmed database."
+msgstr ""
+
+msgid ""
+"Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
 msgstr ""
@@ -8212,6 +10020,12 @@ msgid "Error saving embedded data."
 msgstr ""
 
 msgid "Patient Request"
+msgstr ""
+
+msgid "History Taken"
+msgstr ""
+
+msgid "Findings"
 msgstr ""
 
 msgid "save"
@@ -8313,6 +10127,13 @@ msgstr ""
 msgid "Adding GNUmed user"
 msgstr ""
 
+msgid ""
+"Are you positively sure you want to create\n"
+"a user with an empty password ?\n"
+"\n"
+"Think about the record access implications !"
+msgstr ""
+
 msgid "Enlisting person as user."
 msgstr ""
 
@@ -8327,18 +10148,10 @@ msgstr ""
 msgid "Caveat"
 msgstr ""
 
-msgid ""
-"Patient picture.\n"
-"Right-click for context menu."
-msgstr ""
-
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
 msgid "%s  %s (%s today !)"
-msgstr ""
-
-msgid "never"
 msgstr ""
 
 msgid "last confirmed %s\n"
@@ -8348,64 +10161,98 @@ msgstr ""
 msgid "Comment (%s): %%s"
 msgstr "Dokumenter: %s"
 
-msgid "suspected"
+msgid ""
+"\n"
+"Conditions preventable by vaccination as currently known to GNUmed.\n"
 msgstr ""
 
-msgid "reaction not recorded"
+msgid "Showing vaccination preventable conditions."
 msgstr ""
 
-msgid "Date given"
+msgid "ATCs: multi-condition vaccines"
 msgstr ""
 
-msgid "Serial #"
+msgid "ATCs: single-condition vaccines"
 msgstr ""
 
-msgid "Site injected"
+msgid "Adding new vaccine"
 msgstr ""
 
-msgid "Cannot save vaccination: %s"
+msgid "Editing vaccine"
 msgstr ""
 
-msgid "Cannot save new vaccination: %s"
+msgid ""
+"Cannot delete vaccine\n"
+"\n"
+" %s - %s (#%s)\n"
+"\n"
+"It is probably documented in a vaccination."
 msgstr ""
 
-msgid "Vaccination saved."
+msgid "Deleting vaccine"
 msgstr ""
 
-msgid "shot: %s, %s, %s"
+msgid ""
+"\n"
+"The vaccines currently known to GNUmed.\n"
 msgstr ""
 
-msgid "Cannot queue new vaccination."
+msgid "Showing vaccines."
 msgstr ""
 
-msgid "Vaccination queued for saving."
+msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
-msgid "Cannot update vaccination: %s"
+msgid "Saving vaccine"
 msgstr ""
 
-msgid "Vaccination updated."
+msgid ""
+"This vaccine is already in use:\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Are you absolutely positively sure that\n"
+"you really want to edit this vaccine ?\n"
+"\n"
+"This will change the vaccine name and/or target\n"
+"conditions in each patient this vaccine was\n"
+"used in to document a vaccination with.\n"
 msgstr ""
 
-msgid "left/right deltoid"
+msgid "Adding new vaccinations"
 msgstr ""
 
-msgid "was due: %s, delayed because:"
+#, fuzzy
+msgid "Editing vaccination"
+msgstr "Vaksinasjon"
+
+msgid ""
+"\n"
+"Complete vaccination history for this patient.\n"
 msgstr ""
 
-msgid "booster: was due: %s, delayed because:"
+#, fuzzy
+msgid "Showing vaccinations."
+msgstr "Vaksinasjon"
+
+msgid "Intended to protect from"
 msgstr ""
 
-msgid "booster"
+msgid "Open a browser showing vaccination schedules."
+msgstr ""
+
+#, fuzzy
+msgid "Vaccination Plans"
+msgstr "Vaksinasjon"
+
+msgid "prevention"
 msgstr ""
 
 msgid "  IMMUNISATIONS  "
 msgstr ""
 
 msgid "Indications"
-msgstr ""
-
-msgid "Vaccinations"
 msgstr ""
 
 msgid "Active Schedules"
@@ -8436,11 +10283,6 @@ msgid "overdue %.0dyrs %.0dwks: shot %s for %s in schedule \"%s\" (%s)"
 msgstr ""
 
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
-msgstr ""
-
-msgid ""
-"Help requested\n"
-"--------------"
 msgstr ""
 
 msgid "AU Vacc"
@@ -8520,9 +10362,6 @@ msgid "Office"
 msgstr ""
 
 msgid "Zip"
-msgstr ""
-
-msgid "Category"
 msgstr ""
 
 msgid "User1"
@@ -8670,9 +10509,6 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-msgid "Brand name"
-msgstr ""
-
 msgid "Generic name"
 msgstr ""
 
@@ -8694,13 +10530,19 @@ msgstr ""
 msgid "EMR tree"
 msgstr ""
 
-msgid "EMR &tree"
+msgid "Topical &tree"
 msgstr ""
 
 msgid "EMR journal"
 msgstr ""
 
 msgid "Chronological &journal"
+msgstr ""
+
+msgid "Template Plugin"
+msgstr ""
+
+msgid "Show &ExamplePlugin"
 msgstr ""
 
 msgid "Appointments"
@@ -8745,9 +10587,6 @@ msgstr ""
 msgid "Progress notes"
 msgstr ""
 
-msgid "&Progress notes editor"
-msgstr ""
-
 msgid "Inbox"
 msgstr ""
 
@@ -8763,7 +10602,7 @@ msgstr ""
 msgid "Missing field"
 msgstr ""
 
-msgid "You must slect a form and type"
+msgid "You must select a form and type"
 msgstr ""
 
 msgid "&Request"
@@ -8775,7 +10614,11 @@ msgstr ""
 msgid "&Attach documents"
 msgstr ""
 
-msgid "&Show archived documents"
+#, fuzzy
+msgid "&Documents review"
+msgstr "Dokumenter: %s"
+
+msgid "&Notes"
 msgstr ""
 
 msgid "&Vaccinations"
@@ -8889,9 +10732,6 @@ msgid "Drug Interactions"
 msgstr ""
 
 msgid "Items prescribed this consultation"
-msgstr ""
-
-msgid "Drug"
 msgstr ""
 
 msgid "For"
@@ -9022,6 +10862,13 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid " Status: %s, %s%s"
+#~ msgstr " Status: %s, %s"
+
+#~ msgid "error"
+#~ msgstr "feil"
 
 #~ msgid "undisclosed allergic state"
 #~ msgstr "uavklart allergistatus"
