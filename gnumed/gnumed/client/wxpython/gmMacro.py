@@ -450,7 +450,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(data_parts) > 0:
 				template = data_parts[1]
 
-		narr = gmNarrativeWidgets.select_narrative_from_episodes_new(soap_cats = cats)
+		#narr = gmNarrativeWidgets.select_narrative_from_episodes_new(soap_cats = cats)
+		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
 
 		if narr is None:
 			return u''
