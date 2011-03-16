@@ -203,17 +203,18 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		# later we can improve this deeper inside
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
 	#--------------------------------------------------------
-	def format_as_journal(self, left_margin=0, date_format='%Y-%m-%d'):
+	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
 		rows = gmClinNarrative.get_as_journal (
 			issues = (self.pk_obj,),
-			order_by = u'pk_episode, clin_when, scr, src_table'
+			order_by = u'pk_episode, pk_encounter, clin_when, scr, src_table'
 		)
 
 		if len(rows) == 0:
 			return u''
 
-		lines = []
+		left_margin = u' ' * left_margin
 
+		lines = []
 		lines.append(_('Clinical data generated during encounters under this health issue:'))
 
 		prev_epi = None
@@ -222,29 +223,36 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append(u'')
 				prev_epi = row['pk_episode']
 
-			when = row['clin_when'].strftime(date_format)
-
-			if row['row_version'] == 0:
-				row_ver = u''
-			else:
-				row_ver = u'v%s: ' % row['row_version']
-
-			lines.append(u'-- %10.10s: %s (%s, %s%s) --' % (
-				when,
+			when = row['clin_when'].strftime(date_format).decode(gmI18N.get_encoding())
+			top_row = u'%s%s %s (%s) %s' % (
+				gmTools.u_box_top_left_arc,
+				gmTools.u_box_horiz_single,
 				gmClinNarrative.soap_cat2l10n_str[row['real_soap_cat']],
-				row['modified_by'],
-				row_ver,
-				row['date_modified']
-			))
-
-			lines.append(gmTools.wrap (
+				when,
+				gmTools.u_box_horiz_single * 5
+			)
+			soap = gmTools.wrap (
 				text = row['narrative'],
 				width = 60,
 				initial_indent = u'  ',
-				subsequent_indent = u'  '
-			))
+				subsequent_indent = u'  ' + left_margin
+			)
+			row_ver = u''
+			if row['row_version'] > 0:
+				row_ver = u'v%s: ' % row['row_version']
+			bottom_row = u'%s%s %s, %s%s %s' % (
+				u' ' * 40,
+				gmTools.u_box_horiz_light_heavy,
+				row['modified_by'],
+				row_ver,
+				row['date_modified'],
+				gmTools.u_box_horiz_heavy_light
+			)
 
-		left_margin = u' ' * left_margin
+			lines.append(top_row)
+			lines.append(soap)
+			lines.append(bottom_row)
+
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
@@ -661,10 +669,11 @@ from (
 			return False
 		return True
 	#--------------------------------------------------------
-	def format_as_journal(self, left_margin=0, date_format='%Y-%m-%d'):
+	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
 		rows = gmClinNarrative.get_as_journal (
 			episodes = (self.pk_obj,),
 			order_by = u'pk_encounter, clin_when, scr, src_table'
+			#order_by = u'pk_encounter, scr, clin_when, src_table'
 		)
 
 		if len(rows) == 0:
@@ -674,35 +683,44 @@ from (
 
 		lines.append(_('Clinical data generated during encounters within this episode:'))
 
+		left_margin = u' ' * left_margin
+
 		prev_enc = None
 		for row in rows:
 			if row['pk_encounter'] != prev_enc:
 				lines.append(u'')
-				prev_epi = row['pk_encounter']
+				prev_enc = row['pk_encounter']
 
-			when = row['clin_when'].strftime(date_format)
-
-			if row['row_version'] == 0:
-				row_ver = u''
-			else:
-				row_ver = u'v%s: ' % row['row_version']
-
-			lines.append(u'-- %10.10s: %s (%s, %s%s) --' % (
-				when,
+			when = row['clin_when'].strftime(date_format).decode(gmI18N.get_encoding())
+			top_row = u'%s%s %s (%s) %s' % (
+				gmTools.u_box_top_left_arc,
+				gmTools.u_box_horiz_single,
 				gmClinNarrative.soap_cat2l10n_str[row['real_soap_cat']],
-				row['modified_by'],
-				row_ver,
-				row['date_modified']
-			))
-
-			lines.append(gmTools.wrap (
+				when,
+				gmTools.u_box_horiz_single * 5
+			)
+			soap = gmTools.wrap (
 				text = row['narrative'],
 				width = 60,
 				initial_indent = u'  ',
-				subsequent_indent = u'  '
-			))
+				subsequent_indent = u'  ' + left_margin
+			)
+			row_ver = u''
+			if row['row_version'] > 0:
+				row_ver = u'v%s: ' % row['row_version']
+			bottom_row = u'%s%s %s, %s%s %s' % (
+				u' ' * 40,
+				gmTools.u_box_horiz_light_heavy,
+				row['modified_by'],
+				row_ver,
+				row['date_modified'],
+				gmTools.u_box_horiz_heavy_light
+			)
 
-		left_margin = u' ' * left_margin
+			lines.append(top_row)
+			lines.append(soap)
+			lines.append(bottom_row)
+
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
