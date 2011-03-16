@@ -44,6 +44,8 @@ NEW: log failed gm-dbo database access in database during restricted procedures
 NEW: change gm-dbo password from client
 NEW: implement leaving a message for oneself/other providers
 NEW: Gulich Score on GABHS in sore throat
+NEW: implement generic method for downloading data packs
+NEW: placeholder: "soap_for_encounters::soap//<date format>::9999"
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip
@@ -74,6 +76,11 @@ IMPROVED: EMR tree can now display selective chronological journal on issues and
 IMPROVED: existing translations
 IMPROVED: make showing audit trail a restricted procedure
 IMPROVED: enable exporting of in-database form template
+IMPROVED: show RFE/AOE in "recent notes" display in SOAP plugin
+IMPROVED: much saner workflow when creating allergy entry from substance intake
+IMPROVED: configurably auto-open editors for all open, recently worked-on problems when activating a patient
+IMPROVED: SOAP plugin: [Save under] saves notelet under selectable rather than current encounter
+IMPROVED: enable moving documents between encounters, mainly useful for visual progress notes
 ');
 
 -- --------------------------------------------------------------
