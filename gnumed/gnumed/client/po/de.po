@@ -4966,7 +4966,7 @@ msgid "Found %s results."
 msgstr "%s Ergebnisse gefunden."
 
 msgid "Pick a date ..."
-msgstr "Wählen Sie in Datum ..."
+msgstr "Wählen Sie ein Datum ..."
 
 msgid "Cannot interpret input as timestamp."
 msgstr "Kann Eingabe nicht in einen Zeitpunkt übersetzen."

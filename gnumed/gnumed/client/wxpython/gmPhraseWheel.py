@@ -231,6 +231,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.left_part = ''
 		self.right_part = ''
 		self.__static_tt = None
+		self.__static_tt_extra = None
 		self.__data = None
 
 		self._on_selection_callbacks = []
@@ -697,19 +698,27 @@ class cPhraseWheel(wx.TextCtrl):
 			else:
 				self.__static_tt = self.ToolTip.Tip
 
-		data_tt = self._get_data_tooltip()
-		if data_tt is None:
+		dynamic_part = self._get_data_tooltip()
+		if dynamic_part is None:
 			return
 
-		if self.__static_tt == u'':
-			tt = data_tt
+		static_part = self.__static_tt
+		if (self.__static_tt_extra) is not None and (self.__static_tt_extra.strip() != u''):
+			static_part = u'%s\n\n%s' % (
+				static_part,
+				self.__static_tt_extra
+			)
+
+		if static_part == u'':
+			tt = dynamic_part
 		else:
-			if data_tt.strip() == u'':
-				tt = self.__static_tt
+			if dynamic_part.strip() == u'':
+				tt = static_part
 			else:
-				tt = u'%s\n\n--------------------------------\n\n%s' % (
-					data_tt,
-					self.__static_tt
+				tt = u'%s\n\n%s\n\n%s' % (
+					dynamic_part,
+					gmTools.u_box_horiz_single * 32,
+					static_part
 				)
 		self.SetToolTipString(tt)
 	#--------------------------------------------------------
@@ -782,6 +791,16 @@ class cPhraseWheel(wx.TextCtrl):
 		return self.__speller_word_separators.pattern
 
 	speller_word_separators = property(_get_speller_word_separators, _set_speller_word_separators)
+	#--------------------------------------------------------
+	def _get_static_tt_extra(self):
+		return self.__static_tt_extra
+
+	def _set_static_tt_extra(self, tt):
+		self.__static_tt_extra = tt
+
+	static_tooltip_extra = property(_get_static_tt_extra, _set_static_tt_extra)
+	#--------------------------------------------------------
+	# timer code
 	#--------------------------------------------------------
 	def __init_timer(self):
 		self.__timer = _cPRWTimer()

@@ -32,7 +32,7 @@ _log = logging.getLogger('gm.ui')
 
 #============================================================
 class cCalendarDatePickerDlg(wx.Dialog):
-
+	"""Shows a calendar control from which the user can pick a date."""
 	def __init__(self, parent):
 
 		wx.Dialog.__init__(self, parent, title = _('Pick a date ...'))
@@ -81,6 +81,10 @@ class cCalendarDatePickerDlg(wx.Dialog):
 
 #============================================================
 class cDateMatchProvider(gmMatchProvider.cMatchProvider):
+	"""Turns strings into candidate dates.
+
+	Matching on "all" (*, '') will pop up a calendar :-)
+	"""
 	def __init__(self):
 
 		gmMatchProvider.cMatchProvider.__init__(self)
@@ -145,8 +149,8 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		self.matcher = cDateMatchProvider()
 		self.phrase_separators = None
-#		self.selection_only = True
-#		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
+
+		self.static_tooltip_extra = _('<ALT-C>: pick from Calendar')
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -201,10 +205,10 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 
-		# <ALT-F4> -> calendar
-		if event.AltDown() is False:
-			keycode = event.GetKeyCode()
-			if keycode == wx.WXK_F4:
+		# <ALT-C> / <ALT-K> -> calendar
+		if event.AltDown() is True:
+			char = unichr(event.GetUnicodeKey())
+			if char in u'ckCK':
 				self.__pick_from_calendar()
 				return
 
@@ -253,20 +257,41 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		return super(self.__class__, self).GetData()
 	#--------------------------------------------------------
-	def is_valid_timestamp(self):
+	def is_valid_timestamp(self, empty_is_valid=True):
 		if self.data is not None:
+			self.display_as_valid(True)
 			return True
 
-		# skip empty value
 		if self.GetValue().strip() == u'':
-			return True
+			if empty_is_valid:
+				self.display_as_valid(True)
+				return True
+			else:
+				self.display_as_valid(False)
+				return False
+
+		# skip showing calendar on '*'
+		if self.GetValue().strip() == u'*':
+			self.display_as_valid(False)
+			return False
 
 		self.data = self.__text2timestamp()
 		if self.data is None:
+			self.display_as_valid(False)
 			return False
 
+		self.display_as_valid(True)
 		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_date(self):
+		return self.data
 
+	def _set_date(self, date):
+		self.data = date
+
+	date = property(_get_date, _set_date)
 #============================================================
 class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def __init__(self):

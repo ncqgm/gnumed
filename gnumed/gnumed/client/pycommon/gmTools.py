@@ -501,6 +501,9 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s> 
 	@type template_instead: string or None
 
+	example:
+		function_initial = ('strftime', '%Y-%m-%d')
+
 	Ideas:
 		- list of insteads: initial, [instead, template], [instead, template], [instead, template], template_initial, ...
 	"""
