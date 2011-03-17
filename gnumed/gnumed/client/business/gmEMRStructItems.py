@@ -425,7 +425,8 @@ def get_dummy_health_issue():
 		'clinically_relevant': True,
 		'is_confidential': None,
 		'is_cause_of_death': False,
-		'is_dummy': True
+		'is_dummy': True,
+		'grouping': None
 	}
 	return issue
 #-----------------------------------------------------------
