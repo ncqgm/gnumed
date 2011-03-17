@@ -13,7 +13,6 @@ SRVARCH="gnumed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
 "./gnumed-client.$CLIENTREV/client/business/README "\
-"./gnumed-client.$CLIENTREV/client/business/gmOrganization.py "\
 "./gnumed-client.$CLIENTREV/client/business/gmXmlDocDesc.py "\
 "./gnumed-client.$CLIENTREV/client/pycommon/gmDrugObject.py "\
 "./gnumed-client.$CLIENTREV/client/pycommon/gmDrugView.py "\
@@ -24,7 +23,6 @@ FILES_REMOVE=\
 "./gnumed-client.$CLIENTREV/client/pycommon/gmCLI.py "\
 "./gnumed-client.$CLIENTREV/client/pycommon/gmPG.py "\
 "./gnumed-client.$CLIENTREV/server/business/README "\
-"./gnumed-client.$CLIENTREV/server/business/gmOrganization.py "\
 "./gnumed-client.$CLIENTREV/server/business/gmXmlDocDesc.py "\
 "./gnumed-client.$CLIENTREV/server/pycommon/gmDrugObject.py "\
 "./gnumed-client.$CLIENTREV/server/pycommon/gmDrugView.py "\
@@ -280,8 +278,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/release/gnumed-schema.html
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/release/gnumed-schema-no_audit.dot
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v15/gnumed-schema.html
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v15/gnumed-schema-no_audit.dot
 cd -
 
 
