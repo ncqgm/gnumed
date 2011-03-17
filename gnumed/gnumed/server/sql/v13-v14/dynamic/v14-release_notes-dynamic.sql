@@ -18,8 +18,14 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.8.7 (database v14.7)',
-	'GNUmed 0.8.7/14.7 Release Notes:
+	'Release Notes for GNUmed 0.8.8 (database v14.8)',
+	'GNUmed 0.8.8/14.8 Release Notes:
+
+	0.8.8
+
+FIX: failure to show patient image if created in a month with a name containing non-ASCII characters
+FIX: fix sorting of EMR tree dummy health issue node [thanks S.Hilbert]
+FIX: no more getStrAllTopics() in newer wx.lib.pubsubs [thanks S.Hilbert]
 
 	0.8.7
 
