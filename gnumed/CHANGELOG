@@ -74,6 +74,8 @@ IMPROVED: enable moving documents between encounters, mainly useful for visual p
 	0.8.8
 
 FIX: failure to show patient image if created in a month with a name containing non-ASCII characters
+FIX: fix sorting of EMR tree dummy health issue node [thanks S.Hilbert]
+FIX: no more getStrAllTopics() in newer wx.lib.pubsubs
 
 	0.8.7
 
