@@ -257,20 +257,20 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		return super(self.__class__, self).GetData()
 	#--------------------------------------------------------
-	def is_valid_timestamp(self, empty_is_valid=True):
+	def is_valid_timestamp(self, allow_empty=True):
 		if self.data is not None:
 			self.display_as_valid(True)
 			return True
 
 		if self.GetValue().strip() == u'':
-			if empty_is_valid:
+			if allow_empty:
 				self.display_as_valid(True)
 				return True
 			else:
 				self.display_as_valid(False)
 				return False
 
-		# skip showing calendar on '*'
+		# skip showing calendar on '*' from here
 		if self.GetValue().strip() == u'*':
 			self.display_as_valid(False)
 			return False
@@ -425,79 +425,79 @@ class cTimeInput(wx.TextCtrl):
 			**kwargs
 		)
 #==================================================
-class cDateInputCtrl(wx.DatePickerCtrl):
-
-	#----------------------------------------------
-	def SetValue(self, value):
-		"""Set either datetime.datetime or wx.DateTime"""
-
-		if isinstance(value, (pyDT.date, pyDT.datetime)):
-			value = gmDateTime.py_dt2wxDate(py_dt = value, wx = wx)
-
-		elif value is None:
-			value = wx.DefaultDateTime
-
-		wx.DatePickerCtrl.SetValue(self, value)
-	#----------------------------------------------
-	def GetValue(self, as_pydt=False, invalid_as_none=False):
-		"""Returns datetime.datetime values"""
-
-		# datepicker can fail to pick up user changes by keyboard until
-		# it has lost focus, so do that but also set the focus back to us,
-		# now, this is a side-effect (after .GetValue focus will be
-		# here) but at least it is predictable ...
-		self.Navigate()
-		self.SetFocus()
-		value = wx.DatePickerCtrl.GetValue(self)
-
-		if value is None:
-			return None
-
-		# manage null dates (useful when wx.DP_ALLOWNONE is set)
-		if not value.IsValid():
-			if invalid_as_none:
-				return None
-			else:
-				return value
-
-		self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		self.Refresh()
-
-		if not as_pydt:
-			return value
-
-		return gmDateTime.wxDate2py_dt(value)
-	#----------------------------------------------
-	# def convenience wrapper
-	#----------------------------------------------
-	def is_valid_timestamp(self, allow_none=True, invalid_as_none=False):
-		val = self.GetValue(as_pydt = False, invalid_as_none = invalid_as_none)
-
-		if val is None:
-			if allow_none:
-				valid = True
-			else:
-				valid = False
-		else:
-			valid = val.IsValid()
-
-		if valid:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		else:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-
-		self.Refresh()
-		return valid
-	#----------------------------------------------
-	def get_pydt(self):
-		return self.GetValue(as_pydt = True)
-	#----------------------------------------------
-	def display_as_valid(self, valid=True):
-		if valid is True:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		else:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-		self.Refresh()
+#class cDateInputCtrl(wx.DatePickerCtrl):
+#
+#	#----------------------------------------------
+#	def SetValue(self, value):
+#		"""Set either datetime.datetime or wx.DateTime"""
+#
+#		if isinstance(value, (pyDT.date, pyDT.datetime)):
+#			value = gmDateTime.py_dt2wxDate(py_dt = value, wx = wx)
+#
+#		elif value is None:
+#			value = wx.DefaultDateTime
+#
+#		wx.DatePickerCtrl.SetValue(self, value)
+#	#----------------------------------------------
+#	def GetValue(self, as_pydt=False, invalid_as_none=False):
+#		"""Returns datetime.datetime values"""
+#
+#		# datepicker can fail to pick up user changes by keyboard until
+#		# it has lost focus, so do that but also set the focus back to us,
+#		# now, this is a side-effect (after .GetValue focus will be
+#		# here) but at least it is predictable ...
+#		self.Navigate()
+#		self.SetFocus()
+#		value = wx.DatePickerCtrl.GetValue(self)
+#
+#		if value is None:
+#			return None
+#
+#		# manage null dates (useful when wx.DP_ALLOWNONE is set)
+#		if not value.IsValid():
+#			if invalid_as_none:
+#				return None
+#			else:
+#				return value
+#
+#		self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+#		self.Refresh()
+#
+#		if not as_pydt:
+#			return value
+#
+#		return gmDateTime.wxDate2py_dt(value)
+#	#----------------------------------------------
+#	# def convenience wrapper
+#	#----------------------------------------------
+#	def is_valid_timestamp(self, allow_none=True, invalid_as_none=False):
+#		val = self.GetValue(as_pydt = False, invalid_as_none = invalid_as_none)
+#
+#		if val is None:
+#			if allow_none:
+#				valid = True
+#			else:
+#				valid = False
+#		else:
+#			valid = val.IsValid()
+#
+#		if valid:
+#			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+#		else:
+#			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+#
+#		self.Refresh()
+#		return valid
+#	#----------------------------------------------
+#	def get_pydt(self):
+#		return self.GetValue(as_pydt = True)
+#	#----------------------------------------------
+#	def display_as_valid(self, valid=True):
+#		if valid is True:
+#			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+#		else:
+#			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+#		self.Refresh()
 #==================================================
 # main
 #--------------------------------------------------
@@ -532,11 +532,11 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 300))
 		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
 		app.MainLoop()
-	#--------------------------------------------------------
-	def test_picker():
-		app = wx.PyWidgetTester(size = (200, 300))
-		app.SetWidget(cDateInputCtrl, id=-1, size=(180,20), pos=(10,20))
-		app.MainLoop()
+#	#--------------------------------------------------------
+#	def test_picker():
+#		app = wx.PyWidgetTester(size = (200, 300))
+#		app.SetWidget(cDateInputCtrl, id=-1, size=(180,20), pos=(10,20))
+#		app.MainLoop()
 	#--------------------------------------------------------
 	#test_cli()
 	#test_gui()

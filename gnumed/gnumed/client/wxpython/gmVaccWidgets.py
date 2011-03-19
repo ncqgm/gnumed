@@ -739,7 +739,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 
 		has_errors = False
 
-		if not self._PRW_date_given.is_valid_timestamp(empty_is_valid = False):
+		if not self._PRW_date_given.is_valid_timestamp(allow_empty = False):
 			has_errors = True
 
 		vaccine = self._PRW_vaccine.GetData(as_instance = True)

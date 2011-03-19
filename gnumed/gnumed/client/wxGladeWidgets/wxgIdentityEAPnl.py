@@ -19,7 +19,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._LBL_info = wx.StaticText(self, -1, "")
         self._PRW_dob = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
-        self._DP_dod = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
+        self._PRW_dod = gmDateTimeInput.cDateInputPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_ethnicity = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_title = gmDemographicsWidgets.cTitlePhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -33,7 +33,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgIdentityEAPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._PRW_dob.SetToolTipString(_("The date of birth for this person."))
-        self._DP_dod.SetToolTipString(_("The date of death."))
+        self._PRW_dod.SetToolTipString(_("The date of death."))
         self._PRW_ethnicity.Enable(False)
         self._TCTRL_comment.SetToolTipString(_("A free-text comment on this person."))
         # end wxGlade
@@ -49,7 +49,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         __gzszr_main.Add(self._PRW_dob, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_dod = wx.StaticText(self, -1, _("Deceased"))
         __gzszr_main.Add(__lbl_dod, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __gzszr_main.Add(self._DP_dod, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __gzszr_main.Add(self._PRW_dod, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_gender = wx.StaticText(self, -1, _("Gender"))
         __gzszr_main.Add(__lbl_gender, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzszr_main.Add(self._PRW_gender, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
