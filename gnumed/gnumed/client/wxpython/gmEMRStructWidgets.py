@@ -455,7 +455,7 @@ def manage_hospital_stays(parent=None):
 		items = [
 			[
 				s['admission'].strftime('%Y-%m-%d'),
-				gmTools.coalesce(s['discharge'], u''),
+				gmTools.coalesce(s['discharge'], u'', function_initial = ('strftime', '%Y-%m-%d')),
 				s['episode'],
 				gmTools.coalesce(s['hospital'], u'')
 			] for s in stays
@@ -550,34 +550,35 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-		if not self._DP_admission.GetValue().IsValid():
-			self._DP_admission.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
+
+		valid = True
+
+		if not self._PRW_admission.is_valid_timestamp(allow_empty = False):
+			valid = False
 			wxps.Publisher().sendMessage (
 				topic = 'statustext',
 				data = {'msg': _('Missing admission data. Cannot save hospital stay.'), 'beep': True}
 			)
-			return False
-		else:
-			self._DP_admission.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
 
-		if self._DP_discharge.GetValue().IsValid():
-			if not self._DP_discharge.GetValue().IsLaterThan(self._DP_admission.GetValue()):
-				self._DP_discharge.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-				wxps.Publisher().sendMessage (
-					topic = 'statustext',
-					data = {'msg': _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), 'beep': True}
-				)
-				return False
+		if self._PRW_discharge.is_valid_timestamp(allow_empty = True):
+			if self._PRW_discharge.date is not None:
+				if not self._PRW_discharge.date > self._PRW_admission.date:
+					valid = False
+					self._PRW_discharge.display_as_valid(False)
+					wxps.Publisher().sendMessage (
+						topic = 'statustext',
+						data = {'msg': _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), 'beep': True}
+					)
 
 		if self._PRW_episode.GetValue().strip() == u'':
+			valid = False
 			self._PRW_episode.display_as_valid(False)
 			wxps.Publisher().sendMessage (
 				topic = 'statustext',
 				data = {'msg': _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), 'beep': True}
 			)
-			return False
 
-		return True
+		return (valid is True)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
@@ -585,9 +586,8 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		emr = pat.get_emr()
 		stay = emr.add_hospital_stay(episode = self._PRW_episode.GetData(can_create = True))
 		stay['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
-		stay['admission'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_admission.GetValue())
-		if self._DP_discharge.GetValue().IsValid():
-			stay['discharge'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_discharge.GetValue())
+		stay['admission'] = self._PRW_admission.GetData()
+		stay['discharge'] = self._PRW_discharge.GetData()
 		stay.save_payload()
 
 		self.data = stay
@@ -597,9 +597,8 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
 		self.data['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
-		self.data['admission'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_admission.GetValue())
-		if self._DP_discharge.GetValue().IsValid():
-			self.data['discharge'] = gmDateTime.wxDate2py_dt(wxDate = self._DP_discharge.GetValue())
+		self.data['admission'] = self._PRW_admission.GetData()
+		self.data['discharge'] = self._PRW_discharge.GetData()
 		self.data.save_payload()
 
 		return True
@@ -607,8 +606,8 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 	def _refresh_as_new(self):
 		self._PRW_hospital.SetText(value = u'')
 		self._PRW_episode.SetText(value = u'')
-		self._DP_admission.SetValue(dt = wx.DateTime.UNow())
-		#self._DP_discharge.SetValue(dt = None)
+		self._PRW_admission.SetText(data = pydt.datetime.now())
+		self._PRW_discharge.SetText()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		if self.data['hospital'] is not None:
@@ -617,10 +616,8 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		if self.data['pk_episode'] is not None:
 			self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 
-		self._DP_admission.SetValue(gmDateTime.py_dt2wxDate(py_dt = self.data['admission'], wx = wx))
-
-		if self.data['discharge'] is not None:
-			self._DP_discharge.SetValue(gmDateTime.py_dt2wxDate(py_dt = self.data['discharge'], wx = wx))
+		self._PRW_admission.SetText(data = self.data['admission'])
+		self._PRW_discharge.SetText(data = self.data['discharge'])
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		print "this was not expected to be used in this edit area"

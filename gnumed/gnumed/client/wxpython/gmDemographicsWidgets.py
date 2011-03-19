@@ -802,9 +802,9 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			self._PRW_dob.Refresh()
 
-		if not self._DP_dod.is_valid_timestamp(allow_none = True, invalid_as_none = True):
+		if not self._PRW_dod.is_valid_timestamp(allow_empty = True):
 			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
-			self._DP_dod.SetFocus()
+			self._PRW_dod.SetFocus()
 			has_error = True
 
 		return (has_error is False)
@@ -823,7 +823,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.data['dob'] = self._PRW_dob.GetData().get_pydt()
 
 		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
-		self.data['deceased'] = self._DP_dod.GetValue(as_pydt = True, invalid_as_none = True)
+		self.data['deceased'] = self._PRW_dod.GetData()
 		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 
 		self.data.save()
@@ -842,7 +842,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			value = self.data.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
 			data = self.data['dob']
 		)
-		self._DP_dod.SetValue(self.data['deceased'])
+		self._PRW_dod.SetText(value = self.data['deceased'])
 		self._PRW_gender.SetData(self.data['gender'])
 		#self._PRW_ethnicity.SetValue()
 		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], u''))
@@ -850,7 +850,6 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		pass
-
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl
 
@@ -1433,12 +1432,6 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._PRW_firstnames.final_regex = '.+'
 		self._PRW_address_searcher.selection_only = False
 
-		# don't do that or else it will turn <invalid> into <today> :-(
-#		low = wx.DateTimeFromDMY(1,0,1900)
-#		hi = wx.DateTime()
-#		self._DP_dob.SetRange(low, hi.SetToCurrent())
-		#self._DP_dob.SetValue(None)
-
 		# only if we would support None on selection_only's:
 #		self._PRW_external_id_type.selection_only = True
 
@@ -1508,12 +1501,13 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_gender.display_as_valid(True)
 
 		# dob validation
-		dob = self._DP_dob.GetValue(as_pydt = False, invalid_as_none = True)
+		# test this last so we can check empty field as last barrier against save
 		# 1) valid timestamp ?
-		if self._DP_dob.is_valid_timestamp(allow_none = False):			# properly colors the field
+		if self._PRW_dob.is_valid_timestamp(allow_empty = False):			# properly colors the field
+			dob = self._PRW_dob.date
 			# but year also usable ?
 			msg = None
-			if (dob.GetYear() < 1900):
+			if dob.year < 1900:
 				msg = _(
 					'DOB: %s\n'
 					'\n'
@@ -1525,7 +1519,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					'\n'
 					'Sorry for the inconvenience %s'
 				) % (dob, gmTools.u_frowning_face)
-			elif dob > gmDateTime.wx_now_here(wx = wx):
+			elif dob > gmDateTime.pydt_now_here():
 				msg = _(
 					'DOB: %s\n'
 					'\n'
@@ -1538,27 +1532,31 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					msg,
 					_('Registering new person')
 				)
-				self._DP_dob.display_as_valid(False)
-				self._DP_dob.SetFocus()
+				self._PRW_dob.display_as_valid(False)
+				self._PRW_dob.SetFocus()
 		# 2) invalid timestamp ?
-		#	Do we have to check for u'', ever ?
 		else:
-			allow_empty_dob = gmGuiHelpers.gm_show_question (
-				_(
-					'Are you sure you want to register this person\n'
-					'without a valid date of birth ?\n'
-					'\n'
-					'This can be useful for temporary staff members\n'
-					'but will provoke nag screens if this person\n'
-					'becomes a patient.\n'
-				),
-				_('Registering new person')
-			)
-			if allow_empty_dob:
-				self._DP_dob.display_as_valid(True)
-			else:
-				error = True
-				self._DP_dob.SetFocus()
+			# is this the only error ?
+			if error is False:
+				# is it empty rather than invalid ?
+				if self._PRW_dob.GetValue().strip() == u'':
+					# maybe even allow empty DOB ?
+					allow_empty_dob = gmGuiHelpers.gm_show_question (
+						_(
+							'Are you sure you want to register this person\n'
+							'without a valid date of birth ?\n'
+							'\n'
+							'This can be useful for temporary staff members\n'
+							'but will provoke nag screens if this person\n'
+							'becomes a patient.\n'
+						),
+						_('Registering new person')
+					)
+					if allow_empty_dob:
+						self._PRW_dob.display_as_valid(True)
+					else:
+						error = True
+						self._PRW_dob.SetFocus()
 
 		# TOB validation if non-empty
 #		if self._TCTRL_tob.GetValue().strip() != u'':
@@ -1723,7 +1721,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		# identity
 		new_identity = gmPerson.create_identity (
 			gender = self._PRW_gender.GetData(),
-			dob = self._DP_dob.get_pydt(),
+			dob = self._PRW_dob.GetData(),
 			lastnames = self._PRW_lastname.GetValue().strip(),
 			firstnames = self._PRW_firstnames.GetValue().strip()
 		)
