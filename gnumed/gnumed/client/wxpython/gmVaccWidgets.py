@@ -739,7 +739,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 
 		has_errors = False
 
-		if not self._DP_date_given.is_valid_timestamp(allow_none = False):
+		if not self._PRW_date_given.is_valid_timestamp(empty_is_valid = False):
 			has_errors = True
 
 		vaccine = self._PRW_vaccine.GetData(as_instance = True)
@@ -820,7 +820,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		else:
 			data['soap_cat'] = u'p'
 
-		data['date_given'] = self._DP_date_given.get_pydt()
+		data['date_given'] = self._PRW_date_given.GetData()
 		data['site'] = self._PRW_site.GetValue().strip()
 		data['pk_provider'] = self._PRW_provider.GetData()
 		data['reaction'] = self._PRW_reaction.GetValue().strip()
@@ -837,7 +837,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		else:
 			self.data['soap_cat'] = u'p'
 
-		self.data['date_given'] = self._DP_date_given.get_pydt()
+		self.data['date_given'] = self._PRW_date_given.GetData()
 		self.data['pk_vaccine'] = self._PRW_vaccine.GetData()
 		self.data['batch_no'] = self._PRW_batch.GetValue().strip()
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True, is_open = False)
@@ -851,7 +851,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._DP_date_given.SetValue(gmDateTime.pydt_now_here())
+		self._PRW_date_given.SetText(data = gmDateTime.pydt_now_here())
 		self._CHBOX_anamnestic.SetValue(False)
 		self._PRW_vaccine.SetText(value = u'', data = None, suppress_smarts = True)
 
@@ -866,10 +866,10 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self._BTN_report.Enable(False)
 		self._TCTRL_comment.SetValue(u'')
 
-		self._DP_date_given.SetFocus()
+		self._PRW_date_given.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._DP_date_given.SetValue(self.data['date_given'])
+		self._PRW_date_given.SetText(data = self.data['date_given'])
 		if self.data['soap_cat'] == u's':
 			self._CHBOX_anamnestic.SetValue(True)
 		else:
@@ -891,11 +891,10 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 			self._BTN_report.Enable(True)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 
-		self._DP_date_given.SetFocus()
+		self._PRW_date_given.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		#self._DP_date_given.SetValue(gmDateTime.pydt_now_here())
-		self._DP_date_given.SetValue(self.data['date_given'])
+		self._PRW_date_given.SetText(data = self.data['date_given'])
 		#self._CHBOX_anamnestic.SetValue(False)
 		self._PRW_vaccine.SetText(value = self.data['vaccine'], data = self.data['pk_vaccine'])
 
@@ -913,7 +912,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		self._BTN_report.Enable(False)
 		self._TCTRL_comment.SetValue(u'')
 
-		self._DP_date_given.SetFocus()
+		self._PRW_date_given.SetFocus()
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------

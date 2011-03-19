@@ -150,7 +150,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = cDateMatchProvider()
 		self.phrase_separators = None
 
-		self.static_tooltip_extra = _('<ALT-C>: pick from Calendar')
+		self.static_tooltip_extra = _('<ALT-C>: pick from calendar')
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------

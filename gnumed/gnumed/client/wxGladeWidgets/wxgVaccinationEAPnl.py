@@ -21,7 +21,7 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgVaccinationEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._DP_date_given = gmDateTimeInput.cDateInputCtrl(self, -1, style=wx.DP_DROPDOWN|wx.DP_ALLOWNONE|wx.DP_SHOWCENTURY)
+        self._PRW_date_given = gmDateTimeInput.cDateInputPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_anamnestic = wx.CheckBox(self, -1, _("Anamnestic"))
         self._PRW_vaccine = gmVaccWidgets.cVaccinePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_add_vaccine = wx.Button(self, -1, _(" + "), style=wx.BU_EXACTFIT)
@@ -43,7 +43,9 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgVaccinationEAPnl.__set_properties
+        self.SetMinSize((650,420))
         self.SetScrollRate(10, 10)
+        self._PRW_date_given.SetToolTipString(_("Mandatory: When was the vaccination given to the patient ?"))
         self._CHBOX_anamnestic.SetToolTipString(_("Check this if - within the SOAP classification - you want to mark the entry as Subjective rather than Plan."))
         self._PRW_vaccine.SetToolTipString(_("The vaccine used, if known.\n\nIf unknown check off the indications which were vaccinated against."))
         self._BTN_add_vaccine.SetToolTipString(_("Add a vaccine to GNUmed."))
@@ -67,7 +69,7 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         __lbl_date_given = wx.StaticText(self, -1, _("Date given"))
         __lbl_date_given.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_date_given, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_date_details.Add(self._DP_date_given, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_date_details.Add(self._PRW_date_given, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_date_details.Add(self._CHBOX_anamnestic, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(__szr_date_details, 1, wx.EXPAND, 0)
         __lbl_vaccine = wx.StaticText(self, -1, _("Vaccine ..."))
