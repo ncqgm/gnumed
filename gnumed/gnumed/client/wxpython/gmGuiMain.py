@@ -1241,7 +1241,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		def is_valid(value):
 			try:
-				float(value)
+				value = float(value)
 				return True, value
 			except:
 				return False, value
