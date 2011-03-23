@@ -67,6 +67,7 @@ IMPROVED: configurably auto-open editors for all open, recently worked-on proble
 IMPROVED: SOAP plugin: [Save under] saves notelet under selectable rather than current encounter
 IMPROVED: enable moving documents between encounters, mainly useful for visual progress notes
 IMPROVED: do not at all use wx.DatePickerCtrl as it breaks on some locales (en_IN) [thanks vbanait]
+IMPROVED: management of configuration items
 
 ------------------------------------------------
 # rel-0-8-patches
