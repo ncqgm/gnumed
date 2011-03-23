@@ -18,8 +18,8 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.rc2 (database v15.rc2)',
-	'GNUmed 0.9.rc2 Release Notes:
+	'Release Notes for GNUmed 0.9.rc3 (database v15.rc3)',
+	'GNUmed 0.9.rc3 Release Notes:
 
 	0.9.0
 
@@ -82,6 +82,7 @@ IMPROVED: configurably auto-open editors for all open, recently worked-on proble
 IMPROVED: SOAP plugin: [Save under] saves notelet under selectable rather than current encounter
 IMPROVED: enable moving documents between encounters, mainly useful for visual progress notes
 IMPROVED: do not at all use wx.DatePickerCtrl as it breaks on some locales (en_IN) [thanks vbanait]
+IMPROVED: management of configuration items
 ');
 
 -- --------------------------------------------------------------
