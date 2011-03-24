@@ -87,13 +87,13 @@ def list_configuration(parent=None):
 		lctrl.set_data(opts)
 	#---------------
 	def tooltip(item):
-		return _(
-			'%s %s (#%s) %s\n'
-			'\n'
-			' %s @ %s\n'
-			'\n'
-			' %s: %s\n'
-			'%s'
+		return (
+			u'%s %s (#%s) %s\n'
+			u'\n'
+			u' %s @ %s\n'
+			u'\n'
+			u' %s: %s\n'
+			u'%s'
 		) % (
 			gmTools.u_box_horiz_single * 3,
 			item['option'],

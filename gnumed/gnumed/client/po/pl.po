@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-16 17:23+CET\n"
+"POT-Creation-Date: 2011-03-24 14:57+CET\n"
 "PO-Revision-Date: 2009-11-12 08:53+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -2611,6 +2611,20 @@ msgstr "Wiek:"
 msgid "Or year:"
 msgstr ""
 
+msgid "Mandatory: Which hospital the patient was admitted to."
+msgstr ""
+
+msgid ""
+"Mandatory: The episode (reason, condition) because of which the patient was "
+"admitted."
+msgstr ""
+
+msgid "Mandatory: When was the patient admitted ?"
+msgstr ""
+
+msgid "Optional: When was the Patient discharged ?"
+msgstr ""
+
 msgid "Hospital"
 msgstr ""
 
@@ -4075,6 +4089,9 @@ msgstr ""
 msgid " + "
 msgstr ""
 
+msgid "Mandatory: When was the vaccination given to the patient ?"
+msgstr ""
+
 msgid ""
 "Check this if - within the SOAP classification - you want to mark the entry "
 "as Subjective rather than Plan."
@@ -4766,6 +4783,23 @@ msgstr ""
 msgid "Checking for client updates"
 msgstr ""
 
+#, fuzzy
+msgid "Deleting option"
+msgstr "Usuwanie epizodu"
+
+#, fuzzy
+msgid "Do you really want to delete this option ?"
+msgstr ""
+"Czy jesteś pewny, że chcesz usunąć ten epizod?\n"
+" \"%s\"\n"
+
+msgid "(GNUmed will re-create options as needed.)"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot connect as database owner. Unable to delete option."
+msgstr "Nie można się połączyć z bazą danych bez autoryzacji!"
+
 msgid "This list shows all configuration settings from the database."
 msgstr ""
 
@@ -4968,6 +5002,9 @@ msgstr ""
 "\n"
 
 msgid "Pick a date ..."
+msgstr ""
+
+msgid "<ALT-C>: pick from calendar"
 msgstr ""
 
 msgid "Cannot interpret input as timestamp."
@@ -8966,6 +9003,20 @@ msgstr ""
 
 msgid "medication list printed from template [%s - %s]"
 msgstr ""
+
+msgid ""
+"These brands have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+
+msgid "Newly prescribed drugs"
+msgstr ""
+
+#, fuzzy
+msgid "Add to medication list"
+msgstr "Aktywne leki: %s"
 
 msgid "Dose"
 msgstr ""
