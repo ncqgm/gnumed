@@ -21,9 +21,14 @@ from xml.etree import ElementTree as etree
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmShellAPI, gmTools
-from Gnumed.pycommon import gmDispatcher, gmDateTime, gmHooks
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmHooks
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmATC
 from Gnumed.business import gmAllergy
@@ -1257,9 +1262,13 @@ def create_consumable_substance(substance=None, atc=None, amount=None, unit=None
 	if atc is not None:
 		atc = atc.strip()
 
+	converted, amount = gmTools.input2decimal(amount)
+	if not converted:
+		raise ValueError('<amount> must be a number: %s (%s)', amount, type(amount))
+
 	args = {
 		'desc': substance.strip(),
-		'amount': decimal.Decimal(amount),
+		'amount': amount,
 		'unit': unit.strip(),
 		'atc': atc
 	}

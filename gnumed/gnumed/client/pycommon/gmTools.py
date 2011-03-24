@@ -575,19 +575,19 @@ def capitalize(text=None, mode=CAPS_NAMES):
 #---------------------------------------------------------------------------
 def input2decimal(initial=None):
 
+	if isinstance(initial, decimal.Decimal):
+		return True, initial
+
 	val = initial
 
 	# float ? -> to string first
-	if type(val) == type(1.4):
+	if type(val) == type(float(1.4)):
 		val = str(val)
 
 	# string ? -> "," to "."
 	if isinstance(val, basestring):
 		val = val.replace(',', '.', 1)
 		val = val.strip()
-#		val = val.lstrip('0')
-#		if val.startswith('.'):
-#			val = '0' + val
 
 	try:
 		d = decimal.Decimal(val)
@@ -810,6 +810,8 @@ if __name__ == '__main__':
 			['01.0', True, 1],
 			['01,0', True, 1],
 			[' 01, ', True, 1],
+
+			[decimal.Decimal('1.1'), True, decimal.Decimal('1.1')]
 		]
 		for test in tests:
 			conversion_worked, result = input2decimal(initial = test[0])
@@ -1032,14 +1034,14 @@ second line\n
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	test_gmPaths()
+	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
 	#test_get_unique_filename()
 	#test_size2str()
 	#test_wrap()
-	#test_input2decimal()
+	test_input2decimal()
 	#test_unwrap()
 	#test_md5()
 

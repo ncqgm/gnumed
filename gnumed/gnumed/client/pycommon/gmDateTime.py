@@ -1913,6 +1913,9 @@ class cFuzzyTimestamp:
 		if self.accuracy == acc_months:
 			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
+		if self.accuracy == acc_weeks:
+			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
+
 		if self.accuracy == acc_days:
 			return unicode(self.timestamp.strftime('%Y-%m-%d'))
 
@@ -1952,8 +1955,8 @@ class cFuzzyTimestamp:
 			day = self.timestamp.day,
 			hour = self.timestamp.hour,
 			minute = self.timestamp.minute,
-			second = secs,
-			microsecond = msecs,
+			second = int(secs),
+			microsecond = int(msecs * 1000),
 			tzinfo = tz
 		)
 		return ts
@@ -2171,12 +2174,12 @@ if __name__ == '__main__':
 
 	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
-	#test_cFuzzyTimeStamp()
+	test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
 	#test_calculate_apparent_age()
-	test_str2pydt()
+	#test_str2pydt()
 
 #===========================================================================

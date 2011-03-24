@@ -153,7 +153,7 @@ where narrative %(fragment_condition)s
 			else:
 				allg_type = 'sensitivity'
 			self.__allergy = emr.add_allergy (
-				substance = self._PRW_trigger.GetValue().strip(),
+				allergene = self._PRW_trigger.GetValue().strip(),
 				allg_type = allg_type
 			)
 
