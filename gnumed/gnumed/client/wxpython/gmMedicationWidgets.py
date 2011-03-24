@@ -201,7 +201,6 @@ def browse_atc_reference(parent=None):
 	)
 
 #============================================================
-
 def update_atc_reference_data():
 
 	dlg = wx.FileDialog (
@@ -1088,7 +1087,6 @@ LIMIT 50"""
 		self.SetToolTipString(_('The schedule for taking this substance.'))
 		self.matcher = mp
 		self.selection_only = False
-
 #============================================================
 def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 
@@ -1698,6 +1696,63 @@ def print_medication_list(parent=None):
 
 	return True
 #------------------------------------------------------------
+def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs=None, emr=None):
+
+	if len(prescribed_drugs) == 0:
+		return
+
+	curr_brands =  [ i['pk_brand'] for i in emr.get_current_substance_intake() if i['pk_brand'] is not None ]
+	new_drugs = []
+	for drug in prescribed_drugs:
+		if drug['pk_brand'] not in curr_brands:
+			new_drugs.append(drug)
+
+	if len(new_drugs) == 0:
+		return
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = gmListWidgets.cItemPickerDlg (
+		parent,
+		-1,
+		msg = _(
+			'These brands have been prescribed but are not listed\n'
+			'in the current medication list of this patient.\n'
+			'\n'
+			'Please select those you want added to the medication list.'
+		)
+	)
+	dlg.set_columns (
+		columns = [_('Newly prescribed drugs')],
+		columns_right = [_('Add to medication list')]
+	)
+	choices = [ (u'%s %s (%s)' % (d['brand'], d['preparation'], u'; '.join(d['components']))) for d in new_drugs ]
+	dlg.set_choices (
+		choices = choices,
+		data = new_drugs
+	)
+	dlg.ShowModal()
+	drugs2add = dlg.get_picks()
+	dlg.Destroy()
+
+	if drugs2add is None:
+		return
+
+	if len(drugs2add) == 0:
+		return
+
+	for drug in drugs2add:
+		for pk_component in drug['pk_components']:
+			intake = emr.add_substance_intake (
+				pk_component = pk_component,
+				episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
+			)
+			intake['intake_is_approved_of'] = True
+			intake.save()
+
+	return
+#------------------------------------------------------------
 class cCurrentSubstancesGrid(wx.grid.Grid):
 	"""A grid class for displaying current substance intake.
 
@@ -2009,7 +2064,11 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		drug_db.reviewer = gmPerson.gmCurrentProvider()
-		drug_db.prescribe()
+		update_substance_intake_list_from_prescription (
+			parent = self,
+			prescribed_drugs = drug_db.prescribe(),
+			emr = self.__patient.get_emr()
+		)
 	#------------------------------------------------------------
 	def check_interactions(self):
 

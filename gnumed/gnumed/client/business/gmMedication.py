@@ -278,6 +278,7 @@ class cDrugDataSourceInterface(object):
 	#--------------------------------------------------------
 	def prescribe(self, substance_intakes=None):
 		self.switch_to_frontend()
+		return []
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
@@ -296,6 +297,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	def __init__(self):
 		cDrugDataSourceInterface.__init__(self)
 		_log.info(cFreeDiamsInterface.version)
+
+		self.__imported_drugs = []
 
 		self.__gm2fd_filename = gmTools.get_unique_filename(prefix = r'gm2freediams-', suffix = r'.xml')
 		_log.debug('GNUmed -> FreeDiams "exchange-in" file: %s', self.__gm2fd_filename)
@@ -340,6 +343,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		"""http://ericmaeker.fr/FreeMedForms/di-manual/en/html/ligne_commandes.html"""
 
 		_log.debug('calling FreeDiams in [%s] mode', mode)
+
+		self.__imported_drugs = []
 
 		if not self.__detect_binary():
 			return False
@@ -388,6 +393,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		self.switch_to_frontend(mode = 'prescription', blocking = True)
 		self.import_fd2gm_file_as_prescription()
+
+		return self.__imported_drugs
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -716,9 +723,9 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		if len(pdfs) == 0:
 			return
 
-		pdf_names = []
+		fd_filenames = []
 		for pdf in pdfs:
-			pdf_names.append(pdf.attrib['file'])
+			fd_filenames.append(pdf.attrib['file'])
 
 		docs = self.patient.get_document_folder()
 		emr = self.patient.get_emr()
@@ -735,9 +742,9 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		)
 		prescription['ext_ref'] = u'FreeDiams'
 		prescription.save()
-		pdf_names.append(filename)
+		fd_filenames.append(filename)
 		success, msg, parts = prescription.add_parts_from_files (
-			files = pdf_names,
+			files = fd_filenames,
 			reviewer = self.reviewer['pk_staff']
 		)
 
@@ -767,21 +774,24 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		db_def = fd2gm_xml.find('DrugsDatabaseName')
 		db_id = db_def.text.strip()
 		drug_id_name = db_def.attrib['drugUidName']
-		drugs = fd2gm_xml.findall('FullPrescription/Prescription')
-		for drug in drugs:
-			drug_uid = drug.find('Drug_UID').text.strip()
+		fd_xml_drug_entries = fd2gm_xml.findall('FullPrescription/Prescription')
+
+		self.__imported_drugs = []
+		for fd_xml_drug in fd_xml_drug_entries:
+			drug_uid = fd_xml_drug.find('Drug_UID').text.strip()
 			if drug_uid == u'-1':
 				_log.debug('skipping textual drug')
 				continue		# it's a TextualDrug, skip it
-			drug_name = drug.find('DrugName').text.replace(', )', ')').strip()
-			drug_form = drug.find('DrugForm').text.strip()
-			drug_atc = drug.find('DrugATC')
+			drug_name = fd_xml_drug.find('DrugName').text.replace(', )', ')').strip()
+			drug_form = fd_xml_drug.find('DrugForm').text.strip()
+			drug_atc = fd_xml_drug.find('DrugATC')
 			if drug_atc is None:
 				drug_atc = u''
 			else:
 				drug_atc = drug_atc.text.strip()
 
 			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
+			self.__imported_drugs.append(new_drug)
 			# update fields
 			new_drug['is_fake_brand'] = False
 			new_drug['atc'] = drug_atc
@@ -790,7 +800,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			new_drug['pk_data_source'] = data_src_pk
 			new_drug.save()
 
-			components = drug.getiterator('Composition')
+			components = fd_xml_drug.getiterator('Composition')
 			for comp in components:
 
 				amount = regex.match(r'\d+[.,]{0,1}\d*', comp.attrib['strenght'].strip())			# sic, typo
@@ -1983,6 +1993,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			VALUES (%(brand)s, %(pk_subst)s)
 		"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		self.refetch_payload()
 	#------------------------------------------------------------
 	def remove_component(self, substance=None):
 		if len(self._payload[self._idx['components']]) == 1:
@@ -2005,6 +2016,8 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 				)
 		"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		self.refetch_payload()
+
 		return True
 	#--------------------------------------------------------
 	# properties
