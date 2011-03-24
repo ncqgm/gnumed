@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
-"POT-Creation-Date: 2011-03-16 17:23+CET\n"
+"POT-Creation-Date: 2011-03-24 14:56+CET\n"
 "PO-Revision-Date: 2010-03-30 11:11+0000\n"
 "Last-Translator: ilitch <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -2469,6 +2469,20 @@ msgstr "Edat:"
 msgid "Or year:"
 msgstr "o any:"
 
+msgid "Mandatory: Which hospital the patient was admitted to."
+msgstr ""
+
+msgid ""
+"Mandatory: The episode (reason, condition) because of which the patient was "
+"admitted."
+msgstr ""
+
+msgid "Mandatory: When was the patient admitted ?"
+msgstr ""
+
+msgid "Optional: When was the Patient discharged ?"
+msgstr ""
+
 msgid "Hospital"
 msgstr ""
 
@@ -3908,6 +3922,9 @@ msgstr ""
 msgid " + "
 msgstr ""
 
+msgid "Mandatory: When was the vaccination given to the patient ?"
+msgstr ""
+
 msgid ""
 "Check this if - within the SOAP classification - you want to mark the entry "
 "as Subjective rather than Plan."
@@ -4601,6 +4618,20 @@ msgstr ""
 msgid "Checking for client updates"
 msgstr ""
 
+#, fuzzy
+msgid "Deleting option"
+msgstr "Descripció"
+
+msgid "Do you really want to delete this option ?"
+msgstr ""
+
+msgid "(GNUmed will re-create options as needed.)"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot connect as database owner. Unable to delete option."
+msgstr "No es pot connectar a la base de dades sense registre"
+
 msgid "This list shows all configuration settings from the database."
 msgstr ""
 
@@ -4801,6 +4832,9 @@ msgid "Found %s results."
 msgstr ""
 
 msgid "Pick a date ..."
+msgstr ""
+
+msgid "<ALT-C>: pick from calendar"
 msgstr ""
 
 msgid "Cannot interpret input as timestamp."
@@ -8736,6 +8770,20 @@ msgid "Error printing the medication list."
 msgstr ""
 
 msgid "medication list printed from template [%s - %s]"
+msgstr ""
+
+msgid ""
+"These brands have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+
+#, fuzzy
+msgid "Newly prescribed drugs"
+msgstr "Receptat per"
+
+msgid "Add to medication list"
 msgstr ""
 
 msgid "Dose"

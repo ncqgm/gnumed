@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-03-16 17:21+CET\n"
-"PO-Revision-Date: 2011-03-16 17:38+0100\n"
+"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"PO-Revision-Date: 2011-03-24 14:59+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -2531,6 +2531,18 @@ msgstr "Alter:"
 msgid "Or year:"
 msgstr "Oder Jahr:"
 
+msgid "Mandatory: Which hospital the patient was admitted to."
+msgstr "Pflichfeld: In welches Krankenhaus wurde der Patient eingewiesen ?"
+
+msgid "Mandatory: The episode (reason, condition) because of which the patient was admitted."
+msgstr "Pflichtfeld: Die Episode (Erkrankung) wegen welcher der Patient eingewiesen wurde."
+
+msgid "Mandatory: When was the patient admitted ?"
+msgstr "Pflichtfeld: Wann wurde der Patient eingewiesen ?"
+
+msgid "Optional: When was the Patient discharged ?"
+msgstr "Optional: Wann wurde der Patient entlassen ?"
+
 msgid "Hospital"
 msgstr "Krankenhaus"
 
@@ -3951,6 +3963,9 @@ msgstr "Anamnestisch"
 msgid " + "
 msgstr ""
 
+msgid "Mandatory: When was the vaccination given to the patient ?"
+msgstr "Pflichtfeld: Wann wurde die Impfung verabreicht ?"
+
 msgid "Check this if - within the SOAP classification - you want to mark the entry as Subjective rather than Plan."
 msgstr "Markieren Sie dieses Feld, wenn die Impfung als Anamnese anstelle von Procedere gespeichert werden soll."
 
@@ -4744,6 +4759,18 @@ msgstr "Ihre Installation (%s) ist auf dem neuesten Stand."
 msgid "Checking for client updates"
 msgstr "Updates suchen"
 
+msgid "Deleting option"
+msgstr "Löschen einer Konfigurationseinstellung"
+
+msgid "Do you really want to delete this option ?"
+msgstr "Wollen Sie diese Einstellung wirklich löschen ?"
+
+msgid "(GNUmed will re-create options as needed.)"
+msgstr "(GNUmed legt Einstellungen bei Bedarf neu an.)"
+
+msgid "Cannot connect as database owner. Unable to delete option."
+msgstr "Kann Einstellung nicht löschen, da keine Verbindung zur Datenbank als Datenbankbesitzer besteht."
+
 msgid "This list shows all configuration settings from the database."
 msgstr "Diese Liste zeigt alle Konfigurationseinstellungen aus der Datenbank."
 
@@ -4967,6 +4994,9 @@ msgstr "%s Ergebnisse gefunden."
 
 msgid "Pick a date ..."
 msgstr "Wählen Sie ein Datum ..."
+
+msgid "<ALT-C>: pick from calendar"
+msgstr "<ALT-C>: aus Kalender wählen"
 
 msgid "Cannot interpret input as timestamp."
 msgstr "Kann Eingabe nicht in einen Zeitpunkt übersetzen."
@@ -9512,6 +9542,23 @@ msgstr "Fehler beim Drucken der Medikamentenliste."
 
 msgid "medication list printed from template [%s - %s]"
 msgstr "Medikamentenliste nach Vorlage [%s - %s] gedruckt"
+
+msgid ""
+"These brands have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+"Diese Medikamente wurden verordnet, aber fehlen\n"
+"noch in der aktuellen Medikation des Patienten.\n"
+"\n"
+"Bitte wählen Sie diejenigen, die eingetragen werden sollen."
+
+msgid "Newly prescribed drugs"
+msgstr "Neu verschriebene Medikamente"
+
+msgid "Add to medication list"
+msgstr "In Medikationsliste eintragen"
 
 msgid "Dose"
 msgstr "Dosis"

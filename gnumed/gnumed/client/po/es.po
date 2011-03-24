@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-16 17:21+CET\n"
+"POT-Creation-Date: 2011-03-24 14:56+CET\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -2754,6 +2754,20 @@ msgstr "Edad:"
 msgid "Or year:"
 msgstr "O año:"
 
+msgid "Mandatory: Which hospital the patient was admitted to."
+msgstr ""
+
+msgid ""
+"Mandatory: The episode (reason, condition) because of which the patient was "
+"admitted."
+msgstr ""
+
+msgid "Mandatory: When was the patient admitted ?"
+msgstr ""
+
+msgid "Optional: When was the Patient discharged ?"
+msgstr ""
+
 msgid "Hospital"
 msgstr "Hospital"
 
@@ -4360,6 +4374,9 @@ msgstr "Anamnéstico"
 msgid " + "
 msgstr " + "
 
+msgid "Mandatory: When was the vaccination given to the patient ?"
+msgstr ""
+
 msgid ""
 "Check this if - within the SOAP classification - you want to mark the entry "
 "as Subjective rather than Plan."
@@ -5174,6 +5191,24 @@ msgstr "El cliente (%s) esta actualizado."
 msgid "Checking for client updates"
 msgstr "Verificar actualizaciones del cliente"
 
+#, fuzzy
+msgid "Deleting option"
+msgstr "Borrando episodio"
+
+#, fuzzy
+msgid "Do you really want to delete this option ?"
+msgstr ""
+"¿Realmente quiere eliminar esta\n"
+"ID externa del paciente?"
+
+#, fuzzy
+msgid "(GNUmed will re-create options as needed.)"
+msgstr "manejador de errores GNUmed"
+
+#, fuzzy
+msgid "Cannot connect as database owner. Unable to delete option."
+msgstr "No se puede conectar a la base de datos sin información de registro!"
+
 msgid "This list shows all configuration settings from the database."
 msgstr "Esta lista muestra las configuraciones para la base de datos."
 
@@ -5391,6 +5426,9 @@ msgid "Found %s results."
 msgstr "Encontrados %s resultados."
 
 msgid "Pick a date ..."
+msgstr ""
+
+msgid "<ALT-C>: pick from calendar"
 msgstr ""
 
 msgid "Cannot interpret input as timestamp."
@@ -9372,6 +9410,21 @@ msgstr ""
 
 msgid "medication list printed from template [%s - %s]"
 msgstr ""
+
+msgid ""
+"These brands have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+
+#, fuzzy
+msgid "Newly prescribed drugs"
+msgstr "Prescrito por"
+
+#, fuzzy
+msgid "Add to medication list"
+msgstr "Lista de medicación"
 
 msgid "Dose"
 msgstr "Dosis"

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-03-16 17:23+CET\n"
+"POT-Creation-Date: 2011-03-24 14:57+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2340,6 +2340,18 @@ msgstr ""
 msgid "Or year:"
 msgstr ""
 
+msgid "Mandatory: Which hospital the patient was admitted to."
+msgstr ""
+
+msgid "Mandatory: The episode (reason, condition) because of which the patient was admitted."
+msgstr ""
+
+msgid "Mandatory: When was the patient admitted ?"
+msgstr ""
+
+msgid "Optional: When was the Patient discharged ?"
+msgstr ""
+
 msgid "Hospital"
 msgstr ""
 
@@ -3668,6 +3680,9 @@ msgstr ""
 msgid " + "
 msgstr ""
 
+msgid "Mandatory: When was the vaccination given to the patient ?"
+msgstr ""
+
 msgid "Check this if - within the SOAP classification - you want to mark the entry as Subjective rather than Plan."
 msgstr ""
 
@@ -4348,6 +4363,18 @@ msgstr ""
 msgid "Checking for client updates"
 msgstr ""
 
+msgid "Deleting option"
+msgstr ""
+
+msgid "Do you really want to delete this option ?"
+msgstr ""
+
+msgid "(GNUmed will re-create options as needed.)"
+msgstr ""
+
+msgid "Cannot connect as database owner. Unable to delete option."
+msgstr ""
+
 msgid "This list shows all configuration settings from the database."
 msgstr ""
 
@@ -4547,6 +4574,9 @@ msgid "Found %s results."
 msgstr ""
 
 msgid "Pick a date ..."
+msgstr ""
+
+msgid "<ALT-C>: pick from calendar"
 msgstr ""
 
 msgid "Cannot interpret input as timestamp."
@@ -8479,6 +8509,19 @@ msgid "Error printing the medication list."
 msgstr ""
 
 msgid "medication list printed from template [%s - %s]"
+msgstr ""
+
+msgid ""
+"These brands have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+
+msgid "Newly prescribed drugs"
+msgstr ""
+
+msgid "Add to medication list"
 msgstr ""
 
 msgid "Dose"
