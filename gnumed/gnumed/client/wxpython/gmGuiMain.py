@@ -99,17 +99,7 @@ class gmTopLevelFrame(wx.Frame):
 		"""
 		wx.Frame.__init__(self, parent, id, title, size, style = wx.DEFAULT_FRAME_STYLE)
 
-		if wx.Platform == '__WXMSW__':
-			font = self.GetFont()
-			_log.debug('default font is [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
-			desired_font_face = u'DejaVu Sans'
-			success = font.SetFaceName(desired_font_face)
-			if success:
-				self.SetFont(font)
-				_log.debug('setting font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
-			else:
-				font = self.GetFont()
-				_log.error('cannot set font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), desired_font_face)
+		self.__setup_font()
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
@@ -151,6 +141,48 @@ class gmTopLevelFrame(wx.Frame):
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
 		self.__set_GUI_size()
+
+	#----------------------------------------------
+	def __setup_font(self):
+
+		font = self.GetFont()
+		_log.debug('system default font is [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+
+		desired_font_face = _cfg.get (
+			group = u'workplace',
+			option = u'client font',
+			source_order = [
+				('explicit', 'return'),
+				('workbase', 'return'),
+				('local', 'return'),
+				('user', 'return'),
+				('system', 'return')
+			]
+		)
+
+		fonts2try = []
+		if desired_font_face is not None:
+			_log.info('client is configured to use font [%s]', desired_font_face)
+			fonts2try.append(desired_font_face)
+
+		if wx.Platform == '__WXMSW__':
+			sane_font_face = u'DejaVu Sans'
+			_log.info('MS Windows: appending fallback font candidate [%s]', sane_font_face)
+			fonts2try.append(sane_font_face)
+
+		if len(fonts2try) == 0:
+			return
+
+		for font_face in fonts2try:
+			success = font.SetFaceName(font_face)
+			if success:
+				self.SetFont(font)
+				_log.debug('switched font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+				return
+			font = self.GetFont()
+			_log.error('cannot switch font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), font_face)
+
+		return
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
