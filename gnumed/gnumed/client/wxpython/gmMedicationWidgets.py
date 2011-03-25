@@ -1743,13 +1743,13 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		return
 
 	for drug in drugs2add:
-		for pk_component in drug['pk_components']:
-			intake = emr.add_substance_intake (
-				pk_component = pk_component,
-				episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
-			)
-			intake['intake_is_approved_of'] = True
-			intake.save()
+		# only add first component since all other components get added by a trigger ...
+		intake = emr.add_substance_intake (
+			pk_component = drug['pk_components'][0],
+			episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
+		)
+		intake['intake_is_approved_of'] = True
+		intake.save()
 
 	return
 #------------------------------------------------------------
