@@ -790,9 +790,9 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			else:
 				drug_atc = drug_atc.text.strip()
 
+			# create new branded drug
 			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
 			self.__imported_drugs.append(new_drug)
-			# update fields
 			new_drug['is_fake_brand'] = False
 			new_drug['atc'] = drug_atc
 			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (db_id, drug_id_name)
@@ -800,31 +800,79 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			new_drug['pk_data_source'] = data_src_pk
 			new_drug.save()
 
-			components = fd_xml_drug.getiterator('Composition')
-			for comp in components:
+			# parse XML for composition records
+			fd_xml_components = fd_xml_drug.getiterator('Composition')
+			comp_data = {}
+			for fd_xml_comp in fd_xml_components:
 
-				amount = regex.match(r'\d+[.,]{0,1}\d*', comp.attrib['strenght'].strip())			# sic, typo
+				data = {}
+
+				amount = regex.match(r'\d+[.,]{0,1}\d*', fd_xml_comp.attrib['strenght'].strip())			# sic, typo
 				if amount is None:
 					amount = 99999
 				else:
 					amount = amount.group()
+				data['amount'] = amount
 
-				unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', comp.attrib['strenght'].strip()).strip()	# sic, typo
+				unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', fd_xml_comp.attrib['strenght'].strip()).strip()	# sic, typo
 				if unit == u'':
 					unit = u'*?*'
+				data['unit'] = unit
 
-				substance_name = comp.attrib['molecularName'].strip()
-				if substance_name != u'':
-					create_consumable_substance(substance = substance_name, atc = None, amount = amount, unit = unit)
+				molecule_name = fd_xml_comp.attrib['molecularName'].strip()
+				if molecule_name != u'':
+					create_consumable_substance(substance = molecule_name, atc = None, amount = amount, unit = unit)
+				data['molecule_name'] = molecule_name
 
-				inn_name = comp.attrib['inn'].strip()
+				inn_name = fd_xml_comp.attrib['inn'].strip()
 				if inn_name != u'':
 					create_consumable_substance(substance = inn_name, atc = None, amount = amount, unit = unit)
-					if substance_name == u'':
-						_log.info('linking INN [%s] rather than molecularName as component', inn_name)
-						substance_name = inn_name
+				data['inn_name'] = molecule_name
 
-				new_drug.add_component(substance = substance_name, atc = None, amount = amount, unit = unit)
+				if molecule_name == u'':
+					data['substance'] = inn_name
+					_log.info('linking INN [%s] rather than molecularName as component', inn_name)
+				else:
+					data['substance'] = molecule_name
+
+				data['nature'] = fd_xml_comp.attrib['nature'].strip()
+				data['nature_ID'] = fd_xml_comp.attrib['natureLink'].strip()
+
+				# merge composition records of SA/FT nature
+				try:
+					old_data = comp_data[data['nature_ID']]
+					# normalize INN
+					if old_data['inn_name'] == u'':
+						old_data['inn_name'] = data['inn_name']
+					if data['inn_name'] == u'':
+						data['inn_name'] = old_data['inn_name']
+					# normalize molecule
+					if old_data['molecule_name'] == u'':
+						old_data['molecule_name'] = data['molecule_name']
+					if data['molecule_name'] == u'':
+						data['molecule_name'] = old_data['molecule_name']
+					# FT: transformed form
+					# SA: active substance
+					# it would be preferable to use the SA record because that's what's *actually*
+					# contained in the drug, however FreeDiams does not list the amount thereof
+					# (rather that of the INN)
+					if data['nature'] == u'FT':
+						comp_data[data['nature_ID']] = data
+					else:
+						comp_data[data['nature_ID']] = old_data
+
+				# or create new record
+				except KeyError:
+					comp_data[data['nature_ID']] = data
+
+			# actually create components from (possibly merged) composition records
+			for key, data in comp_data.items():
+				new_drug.add_component (
+					substance = data['substance'],
+					atc = None,
+					amount = data['amount'],
+					unit = data['unit']
+				)
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
