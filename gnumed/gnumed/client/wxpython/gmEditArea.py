@@ -252,7 +252,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		new_ea.Reparent(ea_pnl_parent)
 		self._PNL_ea = new_ea
 		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
-		ea_pnl_szr.SetItemMinSize(new_ea, new_ea_min_size)		# tell sizer about the minimum size of its new item
+		#ea_pnl_szr.SetItemMinSize(new_ea, new_ea_min_size)		# tell sizer about the minimum size of its new item
+		ea_pnl_szr.SetMinSize(new_ea_min_size)					# set minimum size of sizer from its new EA item
 
 		# adjust buttons
 		if single_entry:
