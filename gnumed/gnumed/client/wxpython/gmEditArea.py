@@ -242,15 +242,18 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 				self._BTN_lucky.Hide()
 
 		# replace dummy panel
-		old_ea = self._PNL_ea
-		ea_pnl_szr = old_ea.GetContainingSizer()
-		ea_pnl_parent = old_ea.GetParent()
-		ea_pnl_szr.Remove(old_ea)
-		old_ea.Destroy()
-		del old_ea
+		dummy_ea_pnl = self._PNL_ea
+		ea_pnl_szr = dummy_ea_pnl.GetContainingSizer()
+		ea_pnl_parent = dummy_ea_pnl.GetParent()
+		ea_pnl_szr.Remove(dummy_ea_pnl)
+		dummy_ea_pnl.Destroy()
+		del dummy_ea_pnl
+		new_ea_min_size = new_ea.GetMinSize()
 		new_ea.Reparent(ea_pnl_parent)
 		self._PNL_ea = new_ea
 		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
+		ea_pnl_szr.SetMinSize(new_ea_min_size)					# set minimum size of EA pnl sizer from its new EA item
+		ea_pnl_szr.Fit(new_ea)									# resize the new EA to the minimum size of the EA pnl sizer
 
 		# adjust buttons
 		if single_entry:
@@ -260,10 +263,11 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		self._adjust_clear_revert_buttons()
 
 		# redraw layout
-		self.Layout()
+		#self.Layout()
 		main_szr = self.GetSizer()
 		main_szr.Fit(self)
-		self.Refresh()
+		self.Layout()
+		#self.Refresh()				# apparently not needed (27.3.2011)
 
 		self._PNL_ea.refresh()
 	#--------------------------------------------------------
