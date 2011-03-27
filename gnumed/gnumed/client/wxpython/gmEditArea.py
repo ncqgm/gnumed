@@ -252,8 +252,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		new_ea.Reparent(ea_pnl_parent)
 		self._PNL_ea = new_ea
 		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
-		#ea_pnl_szr.SetItemMinSize(new_ea, new_ea_min_size)		# tell sizer about the minimum size of its new item
-		ea_pnl_szr.SetMinSize(new_ea_min_size)					# set minimum size of sizer from its new EA item
+		ea_pnl_szr.SetMinSize(new_ea_min_size)					# set minimum size of EA pnl sizer from its new EA item
+		ea_pnl_szr.Fit(new_ea)									# resize the new EA to the minimum size of the EA pnl sizer
 
 		# adjust buttons
 		if single_entry:
@@ -263,9 +263,10 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		self._adjust_clear_revert_buttons()
 
 		# redraw layout
-		self.Layout()
+		#self.Layout()
 		main_szr = self.GetSizer()
 		main_szr.Fit(self)
+		self.Layout()
 		#self.Refresh()				# apparently not needed (27.3.2011)
 
 		self._PNL_ea.refresh()
