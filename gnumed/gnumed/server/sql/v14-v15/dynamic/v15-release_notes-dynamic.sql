@@ -18,8 +18,8 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.rc6 (database v15.rc6)',
-	'GNUmed 0.9.rc6 Release Notes:
+	'Release Notes for GNUmed 0.9.0 (database v15.0)',
+	'GNUmed 0.9.0 Release Notes:
 
 	0.9.0
 
@@ -46,6 +46,7 @@ NEW: implement leaving a message for oneself/other providers
 NEW: Gulich Score on GABHS in sore throat
 NEW: implement generic method for downloading data packs
 NEW: placeholder: "soap_for_encounters::soap//<date format>::9999"
+NEW: make client font configurable
 
 IMPROVED: link test results directly to requests for them
 IMPROVED: much better EMR tree root node tooltip
