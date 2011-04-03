@@ -48,7 +48,7 @@ if test ! -f $CONF ; then
 	echo "USAGE: $0 x x+1"
 	echo "   x   - database version to upgrade from"
 	echo "   x+1 - database version to upgrade to (sequentially only)"
-	exit
+	exit 1
 fi ;
 
 
@@ -85,6 +85,25 @@ function echo_msg () {
 }
 
 
+# Does source database exist ?
+TEMPLATE_DB="gnumed_v${PREV_VER}"
+VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep ${TEMPLATE_DB}`
+if test "${VER_EXISTS}" == "" ; then
+	echo ""
+	echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
+	echo ""
+	echo "========================================="
+	echo "ERROR: The template database"
+	echo "ERROR:"
+	echo "ERROR:  ${TEMPLATE_DB}"
+	echo "ERROR:"
+	echo "ERROR: does not exist. Aborting."
+	echo "========================================="
+	exit 1
+fi
+
+
+# eventually attempt the upgrade
 echo_msg ""
 echo_msg "==========================================================="
 echo_msg "Upgrading GNUmed database."

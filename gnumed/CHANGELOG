@@ -690,6 +690,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v15
 ------------------------------------------------
 
+	15.1
+
+IMPROVED: upgrader now checks whether template database exists [thanks A.Tille]
+
 	15.0
 
 NEW: script to fingerprint GNUmed databases
