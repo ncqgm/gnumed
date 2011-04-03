@@ -2194,8 +2194,10 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 		self.GetParent().Layout()
 	#--------------------------------------------------------
 	def clear(self):
-		while self._SZR_soap.Detach(0):
-			pass
+		for child in self._SZR_soap.GetChildren():
+			self._SZR_soap.Detach(child)
+#		while self._SZR_soap.Detach(0):
+#			pass
 		for bmp in self.__bitmaps:
 			bmp.Destroy()
 		self.__bitmaps = []
