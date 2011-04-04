@@ -698,6 +698,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	15.1
 
 IMPROVED: upgrader now checks whether template database exists [thanks A.Tille]
+IMPROVED: upgrader now fails when backup before upgrade fails [thanks A.Tille]
 
 	15.0
 

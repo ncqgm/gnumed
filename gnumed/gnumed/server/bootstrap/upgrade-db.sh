@@ -22,6 +22,9 @@
 #
 # ========================================================
 
+set -e
+set -o pipefail
+
 PREV_VER="$1"
 NEXT_VER="$2"
 SKIP_BACKUP="$3"
@@ -126,10 +129,27 @@ if test "$SKIP_BACKUP" != "no-backup" ; then
 	echo_msg "   Note that this may take a substantial amount of time and disk space!"
 	echo_msg "   You may need to type in the password for gm-dbo."
 	if test "$BZIP_BACKUP" != "no-compression" ; then
+		set +e
 		pg_dump -C -U gm-dbo ${PORT_DEF} gnumed_v${PREV_VER} | bzip2 -z9 > ${BAK_FILE}.bz2
+		ARCHIVED="$?"
+		set -e
 	else
+		set +e
 		pg_dump -C -U gm-dbo ${PORT_DEF} -f ${BAK_FILE} gnumed_v${PREV_VER}
+		ARCHIVED="$?"
+		set -e
 	fi ;
+	if test "${ARCHIVED}" != "0" ; then
+		echo ""
+		echo "========================================="
+		echo "ERROR: Backing up database"
+		echo "ERROR:"
+		echo "ERROR:  gnumed_v${PREV_VER}"
+		echo "ERROR:"
+		echo "ERROR: failed. Aborting."
+		echo "========================================="
+		exit 1
+	fi
 else
 	echo_msg ""
 	echo "   !!! SKIPPED backup !!!"
