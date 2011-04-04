@@ -9,6 +9,7 @@
 	0.9.1
 
 FIX: wxPython-MSW (wx-assertions-on) cannot detach sizer items as documented [thanks S.Hilbert]
+FIX: adjusted Python interpreter path in check-prerequisites.py [thanks lintian]
 
 	0.9.0
 
