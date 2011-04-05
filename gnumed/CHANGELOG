@@ -10,6 +10,7 @@
 
 FIX: wxPython-MSW (wx-assertions-on) cannot detach sizer items as documented [thanks S.Hilbert]
 FIX: adjusted Python interpreter path in check-prerequisites.py [thanks lintian]
+FIX: exception on calling FreeDiams on Windows if not configured [thanks S.Hilbert]
 
 	0.9.0
 
