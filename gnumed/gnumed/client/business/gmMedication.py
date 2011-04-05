@@ -421,6 +421,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			_log.error('cannot find FreeDiams binary, no custom path set')
 			return False
 
+		if self.custom_path_to_binary is None:
+			_log.error('cannot find FreeDiams binary')
+			return False
+
 		found, cmd = gmShellAPI.detect_external_binary(binary = self.custom_path_to_binary)
 		if found:
 			self.path_to_binary = cmd
