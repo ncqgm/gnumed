@@ -18,8 +18,6 @@ GM_SERVER_DIR="/var/lib/gnumed/server/bootstrap"
 
 #==============================================================
 
-set -e
-
 # consider entirely removing this check, for example
 # because it does not honour $GM_PORT
 if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" -l postgres | grep -q -e C -e UTF-8 ; then
