@@ -1749,7 +1749,7 @@ msgid "Amount"
 msgstr "Menge"
 
 msgid "Unit:"
-msgstr "Unternummer:"
+msgstr "Einheit:"
 
 msgid "Component"
 msgstr "Bestandteil"

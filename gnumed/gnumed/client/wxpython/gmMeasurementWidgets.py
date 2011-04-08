@@ -1973,97 +1973,135 @@ limit 50"""
 		)
 		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
 #================================================================
+_SQL_units_from_test_results = u"""
+	-- via clin.v_test_results.pk_type (for types already used in results)
+	SELECT
+		val_unit as data,
+		val_unit || ' (' || name_tt || ')' as unit,
+		1 as rank
+	FROM
+		clin.v_test_results
+	WHERE
+		(
+			val_unit %(fragment_condition)s
+				OR
+		conversion_unit %(fragment_condition)s
+			)
+		%(ctxt_type_pk)s
+		%(ctxt_test_name)s
+"""
+
+_SQL_units_from_test_types = u"""
+	-- via clin.test_type (for types not yet used in results)
+	SELECT
+		conversion_unit as data,
+		conversion_unit || ' (' || name || ')' as unit,
+		2 as rank
+	FROM
+		clin.test_type
+	WHERE
+		conversion_unit %(fragment_condition)s
+		%(ctxt_ctt)s
+"""
+
+_SQL_units_from_loinc_ipcc = u"""
+	-- via ref.loinc.ipcc_units
+	SELECT
+		ipcc_units as data,
+		ipcc_units || ' (' || term || ')' as unit,
+		3 as rank
+	FROM
+		ref.loinc
+	WHERE
+		ipcc_units %(fragment_condition)s
+		%(ctxt_loinc)s
+		%(ctxt_loinc_term)s
+"""
+
+_SQL_units_from_loinc_submitted = u"""
+	-- via ref.loinc.submitted_units
+	SELECT
+		submitted_units as data,
+		submitted_units || ' (' || term || ')'  as unit,
+		3 as rank
+	FROM
+		ref.loinc
+	WHERE
+		submitted_units %(fragment_condition)s
+		%(ctxt_loinc)s
+		%(ctxt_loinc_term)s
+"""
+
+_SQL_units_from_loinc_example = u"""
+	-- via ref.loinc.example_units
+	SELECT
+		example_units as data,
+		example_units || ' (' || term || ')'  as unit,
+		3 as rank
+	FROM
+		ref.loinc
+	WHERE
+		example_units %(fragment_condition)s
+		%(ctxt_loinc)s
+		%(ctxt_loinc_term)s
+"""
+
+_SQL_units_from_atc = u"""
+	-- via rev.atc.unit
+	SELECT
+		unit AS data,
+		unit AS unit,
+		1 AS rank
+	FROM
+		ref.atc
+	WHERE
+		unit IS NOT NULL
+			AND
+		unit %(fragment_condition)s
+"""
+
+_SQL_units_from_consumable_substance = u"""
+	-- via ref.consumable_substance.unit
+	SELECT
+		unit AS data,
+		unit AS unit,
+		1 AS rank
+	FROM
+		ref.consumable_substance
+	WHERE
+		unit %(fragment_condition)s
+		%(ctxt_substance)s
+"""
+#================================================================
 class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-
 SELECT DISTINCT ON (data) data, unit FROM (
 
 	SELECT rank, data, unit FROM (
-
-		(
-		-- via clin.v_test_results.pk_type (for types already used in results)
-		SELECT
-			val_unit as data,
-			val_unit || ' (' || name_tt || ')' as unit,
-			1 as rank
-		FROM
-			clin.v_test_results
-		WHERE
-			(
-				val_unit %(fragment_condition)s
-					OR
-				conversion_unit %(fragment_condition)s
-			)
-			%(ctxt_type_pk)s
-			%(ctxt_test_name)s
-
-		) UNION ALL (
-
-		-- via clin.test_type (for types not yet used in results)
-		SELECT
-			conversion_unit as data,
-			conversion_unit || ' (' || name || ')' as unit,
-			2 as rank
-		FROM
-			clin.test_type
-		WHERE
-			conversion_unit %(fragment_condition)s
-			%(ctxt_ctt)s
-
-		) UNION ALL (
-
-		-- via ref.loinc.ipcc_units
-		SELECT
-			ipcc_units as data,
-			ipcc_units || ' (' || term || ')' as unit,
-			3 as rank
-		FROM
-			ref.loinc
-		WHERE
-			ipcc_units %(fragment_condition)s
-			%(ctxt_loinc)s
-			%(ctxt_loinc_term)s
-
-		) UNION ALL (
-
-		-- via ref.loinc.submitted_units
-		SELECT
-			submitted_units as data,
-			submitted_units || ' (' || term || ')'  as unit,
-			3 as rank
-		FROM
-			ref.loinc
-		WHERE
-			submitted_units %(fragment_condition)s
-			%(ctxt_loinc)s
-			%(ctxt_loinc_term)s
-
-		) UNION ALL (
-
-		-- via ref.loinc.example_units
-		SELECT
-			example_units as data,
-			example_units || ' (' || term || ')'  as unit,
-			3 as rank
-		FROM
-			ref.loinc
-		WHERE
-			example_units %(fragment_condition)s
-			%(ctxt_loinc)s
-			%(ctxt_loinc_term)s
-		)
-
+		(%s) UNION ALL
+		(%s) UNION ALL
+		(%s) UNION ALL
+		(%s) UNION ALL
+		(%s) UNION ALL
+		(%s) UNION ALL
+		(%s)
 	) as all_matching_units
-
 	WHERE data IS NOT NULL
 	ORDER BY rank
 
-) as ranked_matching_units
-
-LIMIT 50"""
+) AS ranked_matching_units
+LIMIT 50""" % (
+			_SQL_units_from_test_results,
+			_SQL_units_from_test_types,
+			_SQL_units_from_loinc_ipcc,
+			_SQL_units_from_loinc_submitted,
+			_SQL_units_from_loinc_example,
+			_SQL_units_from_atc,
+			_SQL_units_from_consumable_substance
+		)
 
 		ctxt = {
 			'ctxt_type_pk': {
@@ -2085,6 +2123,10 @@ LIMIT 50"""
 			'ctxt_loinc_term': {
 				'where_part': u'AND term ~* %(test_name)s',
 				'placeholder': u'test_name'
+			},
+			'ctxt_substance': {
+				'where_part': u'AND description ~* %(substance)s',
+				'placeholder': u'substance'
 			}
 		}
 
