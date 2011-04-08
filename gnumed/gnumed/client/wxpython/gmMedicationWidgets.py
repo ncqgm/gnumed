@@ -1320,6 +1320,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	def _refresh_as_new(self):
 		self._PRW_component.SetText(u'', None)
 		self._TCTRL_brand_ingredients.SetValue(u'')
+		self._TCTRL_brand_ingredients.SetToolTipString(u'')
 
 		self._PRW_substance.SetText(u'', None)
 		self._PRW_substance.Enable(True)
@@ -1347,6 +1348,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	def _refresh_from_existing(self):
 
 		self._TCTRL_brand_ingredients.SetValue(u'')
+		self._TCTRL_brand_ingredients.SetToolTipString(u'')
 
 		if self.data['pk_brand'] is None:
 			self.__refresh_from_existing_substance()
@@ -1407,7 +1409,12 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		brand = gmMedication.cBrandedDrug(aPK_obj = self.data['pk_brand'])
 		if brand['components'] is not None:
-			self._TCTRL_brand_ingredients.SetValue(u'%s\n- %s' % (self.data['brand'], u'\n- '.join(brand['components'])))
+			self._TCTRL_brand_ingredients.SetValue(u'; '.join(brand['components']))
+			tt = u'%s:\n\n- %s' % (
+				self.data['brand'],
+				u'\n- '.join(brand['components'])
+			)
+			self._TCTRL_brand_ingredients.SetToolTipString(tt)
 
 		self._LBL_or.Enable(False)
 		self._LBL_substance.Enable(False)
@@ -1432,6 +1439,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_preparation.Enable(True)
 			self._PRW_preparation.SetText(u'', None)
 			self._TCTRL_brand_ingredients.SetValue(u'')
+			self._TCTRL_brand_ingredients.SetToolTipString(u'')
 		else:
 			self._LBL_or.Enable(False)
 			self._LBL_substance.Enable(False)
@@ -1444,7 +1452,12 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_preparation.SetText(comp['preparation'], comp['preparation'])
 			brand = comp.containing_drug
 			if brand['components'] is not None:
-				self._TCTRL_brand_ingredients.SetValue(u'%s\n- %s' % (brand['brand'], u'\n- '.join(brand['components'])))
+				self._TCTRL_brand_ingredients.SetValue(u'; '.join(brand['components']))
+				tt = u'%s:\n\n- %s' % (
+					self.data['brand'],
+					u'\n- '.join(brand['components'])
+				)
+				self._TCTRL_brand_ingredients.SetToolTipString(tt)
 	#----------------------------------------------------------------
 	def _on_leave_substance(self):
 		if self._PRW_substance.GetData() is None:
@@ -1461,6 +1474,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._LBL_preparation.Enable(True)
 			self._PRW_preparation.Enable(True)
 			self._TCTRL_brand_ingredients.SetValue(u'')
+			self._TCTRL_brand_ingredients.SetToolTipString(u'')
 	#----------------------------------------------------------------
 	def _on_discontinued_date_changed(self, event):
 		if self._DP_discontinued.GetData() is None:

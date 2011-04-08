@@ -25,7 +25,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._PRW_component = gmMedicationWidgets.cDrugComponentPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_brand = wx.Button(self, -1, _("Brands"), style=wx.BU_EXACTFIT)
         self._LBL_or = wx.StaticText(self, -1, _("... or ..."))
-        self._TCTRL_brand_ingredients = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self._TCTRL_brand_ingredients = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._LBL_substance = wx.StaticText(self, -1, _("Substance"))
         self._PRW_substance = gmMedicationWidgets.cSubstancePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_database_substance = wx.Button(self, -1, _("Manage"), style=wx.BU_EXACTFIT)
@@ -55,7 +55,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 
     def __set_properties(self):
         # begin wxGlade: wxgCurrentMedicationEAPnl.__set_properties
-        self.SetMinSize((660, 525))
+        self.SetMinSize((660, 400))
         self.SetScrollRate(10, 10)
         self._LBL_component.SetForegroundColour(wx.Colour(255, 0, 0))
         self._PRW_component.SetToolTipString(_("A component of a drug brand the patient is taking."))
@@ -140,7 +140,6 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         __lbl_notes = wx.StaticText(self, -1, _("Advice"))
         __gszr_main.Add(__lbl_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_main.Add(self._PRW_notes, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __gszr_main.AddGrowableRow(1)
         __gszr_main.AddGrowableCol(1)
         __szr_main.Add(__gszr_main, 1, wx.EXPAND, 0)
         self.SetSizer(__szr_main)
