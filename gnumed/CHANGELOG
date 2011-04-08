@@ -696,6 +696,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v15
 ------------------------------------------------
 
+	15.2
+
+FIX: unjudicious use of "set -e" creates more problems than it solves
+
 	15.1
 
 IMPROVED: upgrader now checks whether template database exists [thanks A.Tille]

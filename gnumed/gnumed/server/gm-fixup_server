@@ -18,8 +18,6 @@ GM_SERVER_DIR="/var/lib/gnumed/server/bootstrap"
 
 #==============================================================
 
-set -e
-
 cd ${GM_SERVER_DIR}
 ./fixup-db.sh $@
 
