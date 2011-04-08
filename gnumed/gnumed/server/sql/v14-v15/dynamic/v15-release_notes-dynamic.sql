@@ -18,32 +18,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.1 (database v15.1)',
-	'GNUmed 0.9.1 Release Notes:
+	'Release Notes for GNUmed 0.9.2 (database v15.2)',
+	'GNUmed 0.9.2 Release Notes:
 
-Client
+Client 0.9.2
 
-	0.9.1
+	IMPROVED: German translation [thanks S.Hilbert]
+	IMPROVED: units PRW now also pulls from ATC DDD and consumable substances amount [thanks S.Hilbert]
 
-FIX: wxPython-MSW (wx-assertions-on) cannot detach sizer items as documented [thanks S.Hilbert]
-FIX: adjusted Python interpreter path in check-prerequisites.py [thanks lintian]
-FIX: exception on calling FreeDiams on Windows if not configured [thanks S.Hilbert]
+Database 15.2
 
-Database
-
-	15.1
-
-IMPROVED: upgrader now checks whether template database exists [thanks A.Tille]
-IMPROVED: upgrader now fails when backup before upgrade fails [thanks A.Tille]
-
-	15.0
-
-NEW: script to fingerprint GNUmed databases
-NEW: script to dump schema and roles for database debugging
-
-IMPROVED: bootstrapper now detects commented out authentication directive [thanks Vid]
-
-FIX: quoting in script to set gm-dbo password [thanks vbanait@gmail.com]
+	FIX: unjudicious use of "set -e" creates more problems than it solves
 ');
 
 -- --------------------------------------------------------------
