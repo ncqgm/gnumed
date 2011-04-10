@@ -341,7 +341,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 					gmTools.u_right_double_angle_quote
 				)
 			)
-			lines.append('')
 			for epi in epis:
 				lines.append(u' \u00BB%s\u00AB (%s)' % (
 					epi['description'],
