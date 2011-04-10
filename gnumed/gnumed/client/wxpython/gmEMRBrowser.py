@@ -262,6 +262,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		self.__details_display.Clear()
 		self.__details_display.WriteText(txt)
+		self.__details_display.ShowPosition(0)
 	#--------------------------------------------------------
 	def __make_popup_menus(self):
 
