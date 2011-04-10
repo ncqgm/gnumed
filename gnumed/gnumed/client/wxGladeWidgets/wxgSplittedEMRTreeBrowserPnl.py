@@ -18,7 +18,7 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
         self.__pnl_right_side = wx.Panel(self._splitter_browser, -1, style=wx.NO_BORDER)
         self.__pnl_left_side = wx.Panel(self._splitter_browser, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
         self._pnl_emr_tree = gmEMRBrowser.cScrolledEMRTreePnl(self.__pnl_left_side, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
-        self._RBTN_details = wx.RadioButton(self.__pnl_right_side, -1, _("Details"))
+        self._RBTN_details = wx.RadioButton(self.__pnl_right_side, -1, _("Synopsis"))
         self._RBTN_journal = wx.RadioButton(self.__pnl_right_side, -1, _("Journal"))
         self._TCTRL_item_details = wx.TextCtrl(self.__pnl_right_side, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.TE_WORDWRAP|wx.NO_BORDER)
         self._PNL_visual_soap = gmNarrativeWidgets.cVisualSoapPresenterPnl(self.__pnl_right_side, -1, style=wx.NO_BORDER)
@@ -33,7 +33,7 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
     def __set_properties(self):
         # begin wxGlade: wxgSplittedEMRTreeBrowserPnl.__set_properties
         self._pnl_emr_tree.SetScrollRate(10, 10)
-        self._RBTN_details.SetToolTipString(_("Show formatted item details."))
+        self._RBTN_details.SetToolTipString(_("Show succinct item synopsis."))
         self._RBTN_details.SetValue(1)
         self._RBTN_journal.SetToolTipString(_("Show item journal."))
         # end wxGlade
