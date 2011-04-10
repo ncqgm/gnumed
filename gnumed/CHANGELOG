@@ -6,6 +6,10 @@
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.3
+
+IMPROVED: naming of formatted item view in tree (Details -> Synopsis) [thanks J.Busser]
+
 	0.9.2
 
 IMPROVED: German translation [thanks S.Hilbert]
