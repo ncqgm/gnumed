@@ -737,29 +737,53 @@ from (
 		lines = []
 
 		# episode details
-		lines.append (_('Episode %s%s%s (%s%s)   [#%s]\n') % (
+		lines.append (_('Episode %s%s%s   [#%s]') % (
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['description']],
 			gmTools.u_right_double_angle_quote,
-			gmTools.coalesce (
-				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
-				instead = u'',
-				template_initial = u'%s, ',
-				none_equivalents = [None, u'']
-			),
-			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
 			self._payload[self._idx['pk_episode']]
 		))
 
 		enc = cEncounter(aPK_obj = self._payload[self._idx['pk_encounter']])
-		lines.append (_('Created during encounter: %s (%s - %s)   [#%s]\n') % (
+		lines.append (u' ' + _('Created during encounter: %s (%s - %s)   [#%s]') % (
 			enc['l10n_type'],
 			enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
 			enc['last_affirmed_original_tz'].strftime('%H:%M'),
 			self._payload[self._idx['pk_encounter']]
 		))
 
+		emr = patient.get_emr()
+		encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
+		first_encounter = None
+		last_encounter = None
+		if (encs is not None) and (len(encs) > 0):
+			first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
+			last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
+			if self._payload[self._idx['episode_open']]:
+				end = gmDateTime.pydt_now_here()
+				end_str = gmTools.u_ellipsis
+			else:
+				end = last_encounter['last_affirmed']
+				end_str = last_encounter['last_affirmed'].strftime('%m/%Y')
+			age = gmDateTime.format_interval_medically(end - first_encounter['started'])
+			lines.append(_(' Duration: %s (%s - %s)') % (
+				age,
+				first_encounter['started'].strftime('%m/%Y'),
+				end_str
+			))
+
+		lines.append(u' ' + _('Status') + u': %s%s' % (
+			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
+			gmTools.coalesce (
+				initial = diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']]),
+				instead = u'',
+				template_initial = u', %s',
+				none_equivalents = [None, u'']
+			)
+		))
+
 		if self._payload[self._idx['summary']] is not None:
+			lines.append(u'')
 			lines.append(gmTools.wrap (
 					text = self._payload[self._idx['summary']],
 					width = 60,
@@ -767,24 +791,22 @@ from (
 					subsequent_indent = u'  '
 				)
 			)
-			lines.append(u'')
+
+		lines.append(u'')
 
 		# encounters
-		emr = patient.get_emr()
-		encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
-		first_encounter = None
-		last_encounter = None
 		if encs is None:
 			lines.append(_('Error retrieving encounters for this episode.'))
 		elif len(encs) == 0:
 			lines.append(_('There are no encounters for this episode.'))
 		else:
-			first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
-			last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
-
 			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
 
-			lines.append(_('1st and (up to 3) most recent (of %s) encounters (%s - %s):') % (
+			if len(encs) < 4:
+				line = _('%s encounter(s) (%s - %s):')
+			else:
+				line = _('1st and (up to 3) most recent (of %s) encounters (%s - %s):')
+			lines.append(line % (
 				len(encs),
 				first_encounter['started'].strftime('%m/%Y'),
 				last_encounter['last_affirmed'].strftime('%m/%Y')

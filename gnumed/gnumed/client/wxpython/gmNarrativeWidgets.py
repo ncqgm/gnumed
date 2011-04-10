@@ -728,7 +728,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_active_problems.set_columns([_('Last'), _('Problem'), _('Health issue')])
+		self._LCTRL_active_problems.set_columns([_('Last'), _('Problem'), _('In health issue')])
 		self._LCTRL_active_problems.set_string_items()
 
 		self._splitter_main.SetSashGravity(0.5)
