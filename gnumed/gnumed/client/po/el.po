@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"POT-Creation-Date: 2011-04-10 11:02+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -3856,13 +3856,13 @@ msgstr ""
 msgid "Encounter:"
 msgstr "Συνεδρία:"
 
-msgid "Details"
-msgstr "Λεπτομέρειες"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 #, fuzzy
@@ -3992,6 +3992,9 @@ msgstr "Ανάπτυξη σε"
 
 msgid "Scope"
 msgstr ""
+
+msgid "Details"
+msgstr "Λεπτομέρειες"
 
 msgid "<Please supply your email address here !>"
 msgstr ""

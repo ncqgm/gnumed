@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"POT-Creation-Date: 2011-04-10 11:02+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -4112,15 +4112,14 @@ msgstr "notelet:"
 msgid "Encounter:"
 msgstr "Encuentro:"
 
-msgid "Details"
-msgstr "Detalles"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-#, fuzzy
-msgid "Show formatted item details."
-msgstr "Editar los detalles de la plantilla"
+msgid "Show succinct item synopsis."
+msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
@@ -4268,6 +4267,9 @@ msgstr "Espander a"
 
 msgid "Scope"
 msgstr "Ámbito"
+
+msgid "Details"
+msgstr "Detalles"
 
 msgid "<Please supply your email address here !>"
 msgstr "<Introduzca su direccion de correo electronico aqui!>"
@@ -11560,6 +11562,10 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#, fuzzy
+#~ msgid "Show formatted item details."
+#~ msgstr "Editar los detalles de la plantilla"
 
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Descuontinado debido a alergia o intolerancia"

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -3908,13 +3908,13 @@ msgstr ""
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
-msgstr "Details"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 #, fuzzy
@@ -4045,6 +4045,9 @@ msgstr ""
 
 msgid "Scope"
 msgstr ""
+
+msgid "Details"
+msgstr "Details"
 
 msgid "<Please supply your email address here !>"
 msgstr ""

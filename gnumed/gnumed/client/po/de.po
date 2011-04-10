@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
-"PO-Revision-Date: 2011-03-24 14:59+0100\n"
+"POT-Creation-Date: 2011-04-10 11:02+CEST\n"
+"PO-Revision-Date: 2011-04-10 11:06+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -3729,14 +3729,14 @@ msgstr "Eintrag:"
 msgid "Encounter:"
 msgstr "Kontakt:"
 
-msgid "Details"
-msgstr "Details"
+msgid "Synopsis"
+msgstr "Übersicht"
 
 msgid "Journal"
 msgstr "Journal"
 
-msgid "Show formatted item details."
-msgstr "Details formatiert anzeigen."
+msgid "Show succinct item synopsis."
+msgstr "Zeige prägnante Übersicht zur Episode/Grunderkrankung."
 
 msgid "Show item journal."
 msgstr "Journal für den gewählten Bereich zeigen."
@@ -3862,6 +3862,9 @@ msgstr "Erweiterung"
 
 msgid "Scope"
 msgstr "Gültigkeit"
+
+msgid "Details"
+msgstr "Details"
 
 msgid "<Please supply your email address here !>"
 msgstr "<bitte geben Sie Ihre E-Mail-Adresse ein>"
@@ -11931,6 +11934,9 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Show formatted item details."
+#~ msgstr "Details formatiert anzeigen."
 
 #~ msgid "Manage drug brands."
 #~ msgstr "Medikamente verwalten."

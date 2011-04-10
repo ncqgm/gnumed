@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
 "PO-Revision-Date: 2010-09-14 19:01+0000\n"
 "Last-Translator: ido <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -3899,13 +3899,13 @@ msgstr ""
 msgid "Encounter:"
 msgstr "Incontro:"
 
-msgid "Details"
-msgstr "Dettagli"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr "Giornale"
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 #, fuzzy
@@ -4036,6 +4036,9 @@ msgstr "Estendi a"
 
 msgid "Scope"
 msgstr "Portata"
+
+msgid "Details"
+msgstr "Dettagli"
 
 msgid "<Please supply your email address here !>"
 msgstr "<Per Favore fornire il vostro indirizzo e-mail qui !>"

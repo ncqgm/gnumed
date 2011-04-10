@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -4179,15 +4179,14 @@ msgstr "Niet relevant"
 msgid "Encounter:"
 msgstr "Ontmoeting"
 
-msgid "Details"
-msgstr "Bijzonderheden"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr "Journaal"
 
-#, fuzzy
-msgid "Show formatted item details."
-msgstr "Wijzig formuliersjabloon detais."
+msgid "Show succinct item synopsis."
+msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
@@ -4341,6 +4340,9 @@ msgstr "Uitvouwen naar"
 
 msgid "Scope"
 msgstr "Bereik"
+
+msgid "Details"
+msgstr "Bijzonderheden"
 
 #, fuzzy
 msgid "<Please supply your email address here !>"
@@ -12754,6 +12756,10 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#, fuzzy
+#~ msgid "Show formatted item details."
+#~ msgstr "Wijzig formuliersjabloon detais."
 
 #, fuzzy
 #~ msgid " Status: %s, %s%s"

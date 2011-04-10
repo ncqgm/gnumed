@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
 "PO-Revision-Date: 2009-11-12 08:53+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -3860,15 +3860,14 @@ msgstr "NIeistotny"
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
+msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-#, fuzzy
-msgid "Show formatted item details."
-msgstr "zmień szczegóły szablonu"
+msgid "Show succinct item synopsis."
+msgstr ""
 
 msgid "Show item journal."
 msgstr ""
@@ -3995,6 +3994,9 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
+msgstr ""
+
+msgid "Details"
 msgstr ""
 
 msgid "<Please supply your email address here !>"
@@ -11138,6 +11140,10 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Show formatted item details."
+#~ msgstr "zmień szczegóły szablonu"
 
 #~ msgid "no vaccinations recorded"
 #~ msgstr "brak zarejestrowanych szczepień"

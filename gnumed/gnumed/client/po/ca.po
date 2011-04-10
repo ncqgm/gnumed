@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"POT-Creation-Date: 2011-04-10 11:02+CEST\n"
 "PO-Revision-Date: 2010-03-30 11:11+0000\n"
 "Last-Translator: ilitch <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -3692,13 +3692,13 @@ msgstr ""
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
+msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 msgid "Show item journal."
@@ -3828,6 +3828,9 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
+msgstr ""
+
+msgid "Details"
 msgstr ""
 
 msgid "<Please supply your email address here !>"

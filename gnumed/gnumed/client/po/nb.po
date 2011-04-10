@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -3698,13 +3698,13 @@ msgstr "ikke relevant"
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
+msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 msgid "Show item journal."
@@ -3834,6 +3834,9 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
+msgstr ""
+
+msgid "Details"
 msgstr ""
 
 msgid "<Please supply your email address here !>"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -3975,15 +3975,14 @@ msgstr ""
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
-msgstr "Detalhes"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr "Diário"
 
-#, fuzzy
-msgid "Show formatted item details."
-msgstr "editar os detalhes do modelo de formulário"
+msgid "Show succinct item synopsis."
+msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
@@ -4134,6 +4133,9 @@ msgstr "Expandir para"
 
 msgid "Scope"
 msgstr "Engloba"
+
+msgid "Details"
+msgstr "Detalhes"
 
 msgid "<Please supply your email address here !>"
 msgstr ""
@@ -11595,6 +11597,10 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "1ª data"
+
+#, fuzzy
+#~ msgid "Show formatted item details."
+#~ msgstr "editar os detalhes do modelo de formulário"
 
 #~ msgid "Configure the directory to use as scratch space for temporary files."
 #~ msgstr ""
