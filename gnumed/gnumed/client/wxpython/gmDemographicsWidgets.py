@@ -292,10 +292,8 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 		self.GetParent().Layout()
 	#--------------------------------------------------------
 	def clear(self):
-		for child in self._SZR_bitmaps.GetChildren():
-			self._SZR_bitmaps.Detach(child)
-#		while self._SZR_bitmaps.Detach(0):
-#			pass
+		for child_idx in range(len(self._SZR_bitmaps.GetChildren())):
+			self._SZR_bitmaps.Detach(child_idx)
 		for bmp in self.__bitmaps:
 			bmp.Destroy()
 		self.__bitmaps = []

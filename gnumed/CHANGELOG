@@ -16,10 +16,13 @@ IMPROVED: substance intake EA: one line with tooltip for components info field
 
 	0.9.3
 
+FIX: wxPython-MacOSX needs yet another way to detach sizer items [thanks J.Busser]
+
 IMPROVED: naming of formatted item view in tree (Details -> Synopsis) [thanks J.Busser]
 IMRPOVED: synopsis formatting of episodes in EMR tree [thanks J.Busser]
 IMPROVED: wording of problem list headers in SOAP plugin [thanks S.Leibner]
 IMRPOVED: synopsis formatting of health issues in EMR tree [thanks J.Busser]
+IMPROVED: problem list formatting in SOAP plugin [thanks J.Busser]
 
 	0.9.2
 
