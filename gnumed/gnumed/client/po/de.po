@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-04-10 11:02+CEST\n"
-"PO-Revision-Date: 2011-04-10 11:06+0100\n"
+"POT-Creation-Date: 2011-04-11 23:03+CEST\n"
+"PO-Revision-Date: 2011-04-11 23:18+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -419,14 +419,17 @@ msgstr "Nicht zugeordnete Episoden"
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "Medizinische Daten aus Kontakten in dieser Episode:"
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
-msgstr "Episode %s%s%s (%s%s)   [#%s]\n"
+msgid "Episode %s%s%s   [#%s]"
+msgstr "Episode %s%s%s   [#%s]"
+
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]"
+
+msgid " Duration: %s (%s - %s)"
+msgstr " Dauer: %s (%s - %s)"
 
 msgid "finished"
 msgstr "beendet"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Fehler beim Laden der APK für diese Episode."
@@ -436,6 +439,9 @@ msgstr "Keine APK für diese Episode gefunden."
 
 msgid "Last worked on: %s\n"
 msgstr "Zuletzt behandelt: %s\n"
+
+msgid "%s encounter(s) (%s - %s):"
+msgstr "%s Konsultation(en) (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "1. und (bis zu 3) jüngste (von %s) Kontakten (%s - %s):"
@@ -9834,6 +9840,9 @@ msgstr "Keine Karteieinträge für diese Episode gefunden."
 msgid "Must select episode to move narrative to first."
 msgstr "Sie müssen erst eine Episode zum Verschieben der Karteieinträge wählen."
 
+msgid "In health issue"
+msgstr "Zu Grunderkrankung"
+
 msgid "Last"
 msgstr "Zuletzt"
 
@@ -11935,6 +11944,9 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]\n"
+
 #~ msgid "Show formatted item details."
 #~ msgstr "Details formatiert anzeigen."
 
@@ -12776,9 +12788,6 @@ msgstr "erstmals"
 
 #~ msgid "Active health issue"
 #~ msgstr "Aktive Grunderkrankung"
-
-#~ msgid "Inactive health issue"
-#~ msgstr "Inaktive Grunderkrankung"
 
 #~ msgid ""
 #~ "%s \"%s\"\n"

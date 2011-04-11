@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-04-10 11:02+CEST\n"
+"POT-Creation-Date: 2011-04-11 23:03+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -398,14 +398,20 @@ msgstr "Μη καθορισμένα επεισόδια"
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+#, fuzzy
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Επεισόδιο %s%s%s (%s%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Δημιουργήθηκε κατά την διάρκεια της συνεδρίας:%s(%s - %s) [#%s]"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Συνεδρίες: %s (%s - %s):"
 
 msgid "finished"
 msgstr "ολοκληρώθηκε"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Δημιουργήθηκε κατά την συνεδρία: %s (%s - %s)   [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
@@ -415,6 +421,10 @@ msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επει
 
 msgid "Last worked on: %s\n"
 msgstr "Εργάστηκε για τελευταία φορά στις:%s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Συνεδρίες: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "1η και (μέχρι 3) πιο πρόσφατες (από %s) συνεδρίες  (%s - %s):"
@@ -9204,6 +9214,10 @@ msgstr ""
 msgid "Must select episode to move narrative to first."
 msgstr ""
 
+#, fuzzy
+msgid "In health issue"
+msgstr "Θέμα υγείας"
+
 msgid "Last"
 msgstr "Τελευταίο"
 
@@ -11056,6 +11070,9 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Δημιουργήθηκε κατά την συνεδρία: %s (%s - %s)   [#%s]\n"
 
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Διακοπή για αλλεργία/δυσανεξία ;"

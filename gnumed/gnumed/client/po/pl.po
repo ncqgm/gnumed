@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
+"POT-Creation-Date: 2011-04-11 23:04+CEST\n"
 "PO-Revision-Date: 2009-11-12 08:53+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -436,13 +436,19 @@ msgstr "Niesklasyfikowane epizody"
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "Ten epizod nie wystąpił"
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+#, fuzzy
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Epizody %s%s%s (%s%s) [#%s]\n"
 
-msgid "finished"
-msgstr ""
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Sporządzono podczas konsultacji: %s (%s - %s)   [#%s]"
 
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Konsultacje: %s (%s - %s):"
+
+msgid "finished"
 msgstr ""
 
 msgid "Error retrieving encounters for this episode."
@@ -453,6 +459,10 @@ msgstr "Ten epizod nie wystąpił"
 
 msgid "Last worked on: %s\n"
 msgstr "Ostatnio pracowano %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Konsultacje: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr ""
@@ -9272,6 +9282,10 @@ msgstr ""
 msgid "Must select episode to move narrative to first."
 msgstr ""
 
+#, fuzzy
+msgid "In health issue"
+msgstr "Nieaktywny problem zdrowotny"
+
 msgid "Last"
 msgstr ""
 
@@ -11171,9 +11185,6 @@ msgstr ""
 
 #~ msgid "no descriptions available"
 #~ msgstr "brak opisu"
-
-#~ msgid "Inactive health issue"
-#~ msgstr "Nieaktywny problem zdrowotny"
 
 #~ msgid "clinically relevant: no\n"
 #~ msgstr "istotne medycznie: nie\n"

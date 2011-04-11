@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
+"POT-Creation-Date: 2011-04-11 23:04+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -417,15 +417,19 @@ msgid "Clinical data generated during encounters within this episode:"
 msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 #, fuzzy
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Episode %s%s%s (%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "finished"
 msgstr "voltooid"
-
-#, fuzzy
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Fout bij het laden van ontmoetingen voor deze episode."
@@ -435,6 +439,10 @@ msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 msgid "Last worked on: %s\n"
 msgstr "Laatst gewerkt aan: %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr ""
@@ -10627,6 +10635,10 @@ msgid "Must select episode to move narrative to first."
 msgstr "Moet eerst episode selecteren om verhaal naar te verplaatsen."
 
 #, fuzzy
+msgid "In health issue"
+msgstr "Inactief gezondheidsprobleem"
+
+#, fuzzy
 msgid "Last"
 msgstr "Achternaam"
 
@@ -12758,6 +12770,10 @@ msgid "First Date"
 msgstr "Eerste Datum"
 
 #, fuzzy
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, fuzzy
 #~ msgid "Show formatted item details."
 #~ msgstr "Wijzig formuliersjabloon detais."
 
@@ -12958,9 +12974,6 @@ msgstr "Eerste Datum"
 
 #~ msgid "Active health issue"
 #~ msgstr "Huidige gezondheidsprobleem"
-
-#~ msgid "Inactive health issue"
-#~ msgstr "Inactief gezondheidsprobleem"
 
 #~ msgid ""
 #~ "%s \"%s\"\n"

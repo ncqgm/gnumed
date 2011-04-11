@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
+"POT-Creation-Date: 2011-04-11 23:04+CEST\n"
 "PO-Revision-Date: 2010-01-09 12:56+0000\n"
 "Last-Translator: arempel <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -388,15 +388,19 @@ msgid "Clinical data generated during encounters within this episode:"
 msgstr "Нет приемов для этого случая"
 
 #, fuzzy
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Случай %s%s%s (%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr "Приемы: %s (%s - %s):"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Приемы: %s (%s - %s):"
 
 msgid "finished"
 msgstr "готово"
-
-#, fuzzy
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Приемы: %s (%s - %s):"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Ошибка получения приемов для этого случая"
@@ -406,6 +410,10 @@ msgstr "Нет приемов для этого случая"
 
 msgid "Last worked on: %s\n"
 msgstr "Последнее место работы: %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Приемы: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr ""
@@ -9136,6 +9144,10 @@ msgstr ""
 msgid "Must select episode to move narrative to first."
 msgstr ""
 
+#, fuzzy
+msgid "In health issue"
+msgstr "выписка: %s"
+
 msgid "Last"
 msgstr ""
 
@@ -11002,6 +11014,10 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Приемы: %s (%s - %s):"
 
 #~ msgid "ERROR: cannot retrieve vaccinated indications"
 #~ msgstr "ОШИБКА: не могу получить показания для вакцинации"

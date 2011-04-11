@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
+"POT-Creation-Date: 2011-04-11 23:03+CEST\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -424,14 +424,20 @@ msgstr "Rencontres non-attribuées"
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "Il n'y a pas de rencontres pour cette période."
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+#, fuzzy
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Période %s%s%s (%s%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Créé lors de la rencontre: %s (%s - %s) [#%s]"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Rencontres: %s (%s - %s)"
 
 msgid "finished"
 msgstr "terminé"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Créé pendant la rencontre: %s (%s - %s) [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Erreur au chargement des rencontres pour cette période."
@@ -441,6 +447,10 @@ msgstr "Il n'y a pas de rencontres pour cette période."
 
 msgid "Last worked on: %s\n"
 msgstr "Dernière modification le : %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Rencontres: %s (%s - %s)"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "Première et (plus que trois) plus récentes (of %s) recontres (%s - %s)"
@@ -9266,6 +9276,10 @@ msgstr ""
 msgid "Must select episode to move narrative to first."
 msgstr ""
 
+#, fuzzy
+msgid "In health issue"
+msgstr "Problème de santé: %s"
+
 msgid "Last"
 msgstr ""
 
@@ -11164,6 +11178,9 @@ msgstr "Quantité"
 
 msgid "First Date"
 msgstr "Date de début"
+
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Créé pendant la rencontre: %s (%s - %s) [#%s]\n"
 
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Cessation due à une allergie et/ou intolérance?"

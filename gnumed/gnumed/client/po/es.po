@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-10 11:02+CEST\n"
+"POT-Creation-Date: 2011-04-11 23:03+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -417,14 +417,20 @@ msgstr "Episodios sin causa aparente"
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "No existen citas para este episodio"
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+#, fuzzy
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Episodio %s%s%s (%s%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Creado durante encuentro: %s (%s - %s) [#%s]"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Citas: %s (%s - %s):"
 
 msgid "finished"
 msgstr "finalizado"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Creado durante la cita: %s (%s - %s) [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Error al solicitar las citas para este episodio"
@@ -434,6 +440,10 @@ msgstr "No existen citas para este episodio"
 
 msgid "Last worked on: %s\n"
 msgstr "Lo ultimo en lo que se trabajo: %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Citas: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "1er (y hasta 3) el más reciente (de %s) encuentros (%s - %s):"
@@ -9672,6 +9682,10 @@ msgstr ""
 msgid "Must select episode to move narrative to first."
 msgstr ""
 
+#, fuzzy
+msgid "In health issue"
+msgstr "problema de salud: %s"
+
 msgid "Last"
 msgstr "Último"
 
@@ -11562,6 +11576,9 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Creado durante la cita: %s (%s - %s) [#%s]\n"
 
 #, fuzzy
 #~ msgid "Show formatted item details."

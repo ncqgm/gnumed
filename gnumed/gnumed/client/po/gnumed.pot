@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-04-10 11:03+CEST\n"
+"POT-Creation-Date: 2011-04-11 23:04+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -364,15 +364,16 @@ msgstr ""
 msgid "Clinical data generated during encounters within this episode:"
 msgstr ""
 
-msgid ""
-"Episode %s%s%s (%s%s)   [#%s]\n"
+msgid "Episode %s%s%s   [#%s]"
+msgstr ""
+
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr ""
+
+msgid " Duration: %s (%s - %s)"
 msgstr ""
 
 msgid "finished"
-msgstr ""
-
-msgid ""
-"Created during encounter: %s (%s - %s)   [#%s]\n"
 msgstr ""
 
 msgid "Error retrieving encounters for this episode."
@@ -383,6 +384,9 @@ msgstr ""
 
 msgid ""
 "Last worked on: %s\n"
+msgstr ""
+
+msgid "%s encounter(s) (%s - %s):"
 msgstr ""
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
@@ -8777,6 +8781,9 @@ msgid "There is no narrative for this episode in this encounter."
 msgstr ""
 
 msgid "Must select episode to move narrative to first."
+msgstr ""
+
+msgid "In health issue"
 msgstr ""
 
 msgid "Last"
