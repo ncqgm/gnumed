@@ -796,7 +796,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 
-				list_items.append([last, problem['problem'], gmTools.u_left_arrow])
+				list_items.append([last, problem['problem'], gmTools.u_down_left_arrow])		#gmTools.u_left_arrow
 
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
@@ -809,7 +809,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				list_items.append ([
 					last,
 					problem['problem'],
-					gmTools.coalesce(initial = epi['health_issue'], instead = gmTools.u_diameter)
+					gmTools.coalesce(initial = epi['health_issue'], instead = u'?')		#gmTools.u_diameter
 				])
 
 		self._LCTRL_active_problems.set_string_items(items = list_items)
@@ -2194,10 +2194,8 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 		self.GetParent().Layout()
 	#--------------------------------------------------------
 	def clear(self):
-		for child in self._SZR_soap.GetChildren():
-			self._SZR_soap.Detach(child)
-#		while self._SZR_soap.Detach(0):
-#			pass
+		for child_idx in range(len(self._SZR_soap.GetChildren())):
+			self._SZR_soap.Detach(child_idx)
 		for bmp in self.__bitmaps:
 			bmp.Destroy()
 		self.__bitmaps = []
