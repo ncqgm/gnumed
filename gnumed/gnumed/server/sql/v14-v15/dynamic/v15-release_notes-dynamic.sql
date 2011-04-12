@@ -18,17 +18,18 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.2 (database v15.2)',
-	'GNUmed 0.9.2 Release Notes:
+	'Release Notes for GNUmed 0.9.3 (database v15.3)',
+	'GNUmed 0.9.3 Release Notes:
 
-Client 0.9.2
+	0.9.3
 
-	IMPROVED: German translation [thanks S.Hilbert]
-	IMPROVED: units PRW now also pulls from ATC DDD and consumable substances amount [thanks S.Hilbert]
+FIX: wxPython-MacOSX needs yet another way to detach sizer items [thanks J.Busser]
 
-Database 15.2
-
-	FIX: unjudicious use of "set -e" creates more problems than it solves
+IMPROVED: naming of formatted item view in tree (Details -> Synopsis) [thanks J.Busser]
+IMRPOVED: synopsis formatting of episodes in EMR tree [thanks J.Busser]
+IMPROVED: wording of problem list headers in SOAP plugin [thanks S.Leibner]
+IMRPOVED: synopsis formatting of health issues in EMR tree [thanks J.Busser]
+IMPROVED: problem list formatting in SOAP plugin [thanks J.Busser]
 ');
 
 -- --------------------------------------------------------------
