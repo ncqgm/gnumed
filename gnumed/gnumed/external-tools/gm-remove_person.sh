@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #==============================================================
-#
 # This script can be used to remove a person
 # from a GNUmed database.
 #
@@ -58,32 +57,59 @@ cat <<-EOF
 
 	begin;
 
-	-- delete data
-	delete from clin.clin_root_item where fk_encounter in (
-	    select pk from clin.encounter where fk_patient = ${PERSON_PK}
-	);
-	--delete from clin.lab_request where fk_encounter in (
-	--    select pk from clin.encounter where fk_patient = ${PERSON_PK}
-	--);
-	--delete from clin.clin_hx_family where fk_encounter in (
-	--    select pk from clin.encounter where fk_patient = ${PERSON_PK}
-	--);
+		DELETE FROM clin.clin_hx_family WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.vaccination WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.allergy WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.allergy_state WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.clin_diag WHERE fk_narrative IN (
+			SELECT pk FROM clin.clin_narrative WHERE fk_encounter IN (
+				select pk from clin.encounter where fk_patient = ${PERSON_PK}
+			)
+		);
+		DELETE FROM clin.test_result WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.lab_request WHERE fk_encounter in (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.substance_intake WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.procedure WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM clin.clin_narrative WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
+		DELETE FROM blobs.doc_med WHERE fk_encounter IN (
+			select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
 
-	-- delete episodes
-	delete from clin.episode where fk_encounter in (
-	    select pk from clin.encounter where fk_patient = ${PERSON_PK}
-	);
 
-	-- delete encounters
-	delete from clin.encounter where fk_patient = ${PERSON_PK};
+		DELETE FROM clin.episode WHERE fk_encounter IN (
+		    select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
 
-	-- delete names
-	delete from dem.names where id_identity = ${PERSON_PK};
+		DELETE FROM clin.health_issue WHERE fk_encounter IN (
+		    select pk from clin.encounter where fk_patient = ${PERSON_PK}
+		);
 
-	-- delete identity
-	alter table dem.identity disable rule r_del_identity;
-	delete from dem.identity where pk = ${PERSON_PK};
-	alter table dem.identity enable rule r_del_identity;
+		DELETE FROM clin.encounter WHERE fk_patient = ${PERSON_PK};
+
+		-- delete identity
+		DELETE FROM dem.identity_tag where fk_identity = ${PERSON_PK};
+		DELETE FROM dem.names WHERE id_identity = ${PERSON_PK};
+		ALTER TABLE dem.identity disable rule r_del_identity;
+		DELETE FROM dem.identity WHERE pk = ${PERSON_PK};
+		ALTER TABLE dem.identity enable rule r_del_identity;
 
 	${END_TX};
 EOF
@@ -100,7 +126,7 @@ if test "$REPLY" == "yes"; then
 	echo "Removing person #${PERSON_PK} from database \"${TARGET_DB}\" ..."
 	LOG="gm-remove_person.log"
 
-	psql -U gm-dbo -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
+	psql -a -U gm-dbo -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
 	if test $? -ne 0 ; then
 		echo "ERROR: failed to remove person."
 		echo "       see: ${LOG}"

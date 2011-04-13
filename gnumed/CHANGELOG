@@ -14,6 +14,10 @@ IMPROVED: substance intake EA: one line with tooltip for components info field
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.4
+
+FIX: gm-remove_person.sh did not properly delete persons [thanks J.Busser]
+
 	0.9.3
 
 FIX: wxPython-MacOSX needs yet another way to detach sizer items [thanks J.Busser]
