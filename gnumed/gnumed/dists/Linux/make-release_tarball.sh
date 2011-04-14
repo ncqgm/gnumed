@@ -256,10 +256,8 @@ rm -vf PublishManual*
 wget -v -O ./gnumed-client.$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/Gnumed.zip
 cd ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 unzip GNUmed-User-Manual.zip
-#tar -xvzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
 ln -s GnumedManual.html index.html
-#rm -vf GNUmed-User-Manual.tgz
 rm -vf GNUmed-User-Manual.zip
 cd -
 
@@ -315,12 +313,12 @@ cp -R ../../server/gm-set_gm-dbo_password ./gnumed-client.$CLIENTREV/server/
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/server/
 
 
-# pycommon
+# pycommon/
 mkdir -p ./gnumed-client.$CLIENTREV/server/pycommon
 cp -R ../../client/pycommon/*.py ./gnumed-client.$CLIENTREV/server/pycommon/
 
 
-# bootstrap
+# bootstrap/
 mkdir -p ./gnumed-client.$CLIENTREV/server/bootstrap
 cp -R ../../server/bootstrap/* ./gnumed-client.$CLIENTREV/server/bootstrap/
 
@@ -498,14 +496,14 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/static
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/superuser
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/python
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/fixups
 
 cp -R ../../server/sql/v14-v15/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/dynamic
 cp -R ../../server/sql/v14-v15/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/static
 #cp -R ../../server/sql/v14-v15/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/superuser
 cp -R ../../server/sql/v14-v15/data/* ./gnumed-client.$CLIENTREV/server/sql/v14-v15/data
 cp -R ../../server/sql/v14-v15/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v14-v15/python
-#cp -R ../../server/sql/v14-v15/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/fixups
+cp -R ../../server/sql/v14-v15/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/fixups
 
 #----------------------------------
 # weed out unnecessary stuff
