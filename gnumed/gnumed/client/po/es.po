@@ -211,7 +211,7 @@ msgid " %s known problems. Clinically relevant thereof:\n"
 msgstr " %s problemas conocidos. Clínicamente relevante de eso\n"
 
 msgid " %s known problems\n"
-msgstr " % problemas conocidos\n"
+msgstr " %s problemas conocidos\n"
 
 msgid "active"
 msgstr "activo"
