@@ -11,25 +11,80 @@ import sys
 import os.path
 import logging
 import urllib2 as wget
+import urllib
 import MimeWriter
 import mimetypes
 import mimetools
 import StringIO
+import zipfile
 
 
 # GNUmed libs
 if __name__ == '__main__':
-	logging.basicConfig(level = logging.DEBUG)
 	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfg2
 
 
 _log = logging.getLogger('gm.net')
-
 #===========================================================================
-def download_data_pack(url, target_dir=None):
+def download_data_pack(url, filename=None):
+	if filename is None:
+		filename = gmTools.get_unique_filename(prefix = 'gm-dl-', suffix = 'zip')
+	_log.debug('downloading [%s] into [%s]', url, filename)
+
+	try:
+		dl_name, headers = urllib.urlretrieve(url, filename)
+	except (ValueError, OSError, IOError):
+		_log.exception('cannot download from [%s]', url)
+		gmLog2.log_stack_trace()
+		return None
+
+	_log.debug(u'%s' % headers)
+	return dl_name
+#---------------------------------------------------------------------------
+def unzip_data_pack(filename=None):
+
+	unzip_dir = os.path.splitext(filename)[0]
+	_log.debug('unzipping data pack into [%s]', unzip_dir)
+	gmTools.mkdir(unzip_dir)
+	try:
+		data_pack = zipfile.ZipFile(filename, 'r')
+	except (zipfile.BadZipfile):
+		_log.exception('cannot unzip data pack [%s]', filename)
+		gmLog2.log_stack_trace()
+		return None
+
+	data_pack.extractall(unzip_dir)
+
+	return unzip_dir
+#===========================================================================
+#def md5():
+#
+#	if md5 is not None:
+#		_log.debug('  expected md5: %s', md5)
+#		try:
+#			file_md5 = gmTools.file2md5(filename = filename, return_hex = True)
+#			_log.info('[%s] exists', filename)
+#			_log.debug('calculated md5: %s', file_md5)
+#		except:
+#			_log.exception('cannot calculate md5 of [%s]', filename)
+#			file_md5 = '-1'
+#		if file_md5 == md5:
+#			_log.info('not downloading from [%s]', url)
+#			return filename
+#
+#	file_md5 = gmTools.file2md5(filename = dl_name, return_hex = True)
+#	_log.debug('calculated md5: %s', file_md5)
+#	if md5 is not None:
+#		_log.error('  expected md5: %s', md5)
+#		if file_md5 != md5:
+#			_log.error('md5 mismatch, error downloading data pack')
+#			return None
+#===========================================================================
+def download_data_pack_old(url, target_dir=None):
 
 	if target_dir is None:
 		target_dir = gmTools.get_unique_filename(prefix = 'gm-dl-')
@@ -39,7 +94,7 @@ def download_data_pack(url, target_dir=None):
 
 	gmTools.mkdir(directory = target_dir)
 
-	# FIXME: rewrite to use urllib.urlretrieve() and zipfile.ZipFile.extractall()
+	# FIXME: rewrite to use urllib.urlretrieve() and 
 
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-download_data')
@@ -308,7 +363,17 @@ This is a test mail from the gmTools.py module.
 
 		return
 	#-----------------------------------------------------------------------
+	def test_dl_data_pack():
+		#url = 'file:./x-data_pack.zip'
+		#url = 'missing-file.zip'
+		url = 'gmTools.py'
+		dl_name = download_data_pack(url)
+		print url, "->", dl_name
+		unzip_dir = unzip_data_pack(dl_name)
+		print "unzipped into", unzip_dir
+	#-----------------------------------------------------------------------
 	#test_check_for_update()
 	#test_send_mail()
+	test_dl_data_pack()
 
 #===========================================================================
