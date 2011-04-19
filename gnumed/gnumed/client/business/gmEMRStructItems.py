@@ -1485,23 +1485,27 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	try:
 		enc_type = int(enc_type)
 		cmd = u"""
-			insert into clin.encounter (
+			INSERT INTO clin.encounter (
 				fk_patient, fk_location, fk_type
-			) values (
-				%s, -1, %s
-			)"""
+			) VALUES (
+				%(pat)s,
+				-1,
+				%(typ)s
+			) RETURNING pk"""
 	except ValueError:
 		enc_type = enc_type
 		cmd = u"""
 			insert into clin.encounter (
 				fk_patient, fk_location, fk_type
 			) values (
-				%s, -1,	coalesce((select pk from clin.encounter_type where description=%s), 0)
-			)"""
-	queries.append({'cmd': cmd, 'args': [fk_patient, enc_type]})
-	queries.append({'cmd': cEncounter._cmd_fetch_payload % u"currval('clin.encounter_pk_seq')"})
-	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True, get_col_idx=True)
-	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+				%(pat)s,
+				-1,
+				coalesce((select pk from clin.encounter_type where description = %(typ)s), 0)
+			) RETURNING pk"""
+	args = {'pat': fk_patient, 'typ': enc_type}
+	queries.append({'cmd': cmd, 'args': args})
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = False)
+	encounter = cEncounter(aPK_obj = rows[0]['pk'])
 
 	return encounter
 #-----------------------------------------------------------
