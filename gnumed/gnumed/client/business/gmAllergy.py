@@ -29,16 +29,19 @@ def ensure_has_allergy_state(encounter=None):
 	args = {'enc': encounter}
 
 	cmd_create = u"""
-insert into clin.allergy_state (fk_encounter, has_allergy)
-
-	select %(enc)s, NULL
-	where not exists (
-		select 1 from clin.v_pat_allergy_state
-		where pk_patient = (
-			select fk_patient from clin.encounter where pk = %(enc)s
-		)
-	)"""
-
+		INSERT INTO clin.allergy_state (
+			fk_encounter,
+			has_allergy
+		)	SELECT
+				%(enc)s,
+				NULL
+			WHERE NOT EXISTS (
+				SELECT 1 FROM clin.v_pat_allergy_state
+				WHERE pk_patient = (
+					SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
+				)
+			)
+	"""
 	cmd_search = u"""
 select pk_allergy_state from clin.v_pat_allergy_state
 where pk_patient = (

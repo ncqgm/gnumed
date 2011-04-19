@@ -978,6 +978,11 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __sanity_check_encounter(self):
 
+		# FIXME: should consult a centralized security provider
+		# secretaries cannot edit encounters
+		if _provider['role'] == u'secretary':
+			return True
+
 		dbcfg = gmCfg.cCfgSQL()
 		check_enc = bool(dbcfg.get2 (
 			option = 'encounter.show_editor_before_patient_change',

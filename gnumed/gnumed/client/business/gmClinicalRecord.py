@@ -1915,31 +1915,11 @@ LIMIT 2
 			default = u'1 week'
 		)
 
-		# FIXME: this should be done async
-		cmd = u"""
-delete FROM clin.encounter
-WHERE
-	clin.encounter.fk_patient = %(pat)s
-		and
-	age(clin.encounter.last_affirmed) > %(ttl)s::interval
-		and
-	not exists (SELECT 1 FROM clin.clin_root_item WHERE fk_encounter = clin.encounter.pk)
-		and
-	not exists (SELECT 1 FROM blobs.doc_med WHERE fk_encounter = clin.encounter.pk)
-		and
-	not exists (SELECT 1 FROM clin.episode WHERE fk_encounter = clin.encounter.pk)
-		and
-	not exists (SELECT 1 FROM clin.health_issue WHERE fk_encounter = clin.encounter.pk)
-		and
-	not exists (SELECT 1 FROM clin.operation WHERE fk_encounter = clin.encounter.pk)
-		and
-	not exists (SELECT 1 FROM clin.allergy_state WHERE fk_encounter = clin.encounter.pk)
-"""
+#		# FIXME: this should be done async
+		cmd = u"select clin.remove_old_empty_encounters(%(pat)s::integer, %(ttl)s::interval)"
+		args = {'pat': self.pk_patient, 'ttl': ttl}
 		try:
-			rows, idx = gmPG2.run_rw_queries(queries = [{
-				'cmd': cmd,
-				'args': {'pat': self.pk_patient, 'ttl': ttl}
-			}])
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		except:
 			_log.exception('error deleting empty encounters')
 

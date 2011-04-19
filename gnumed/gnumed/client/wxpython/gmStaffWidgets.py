@@ -50,7 +50,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		for staff in staff_list:
 			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 1, label = staff['db_user'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['role'])
+			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['l10n_role'])
 			title = gmTools.coalesce(staff['title'], '')
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(staff['comment'], ''))

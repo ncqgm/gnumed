@@ -198,7 +198,7 @@ def configure_fallback_primary_provider(parent=None):
 				s['firstnames'],
 				s['lastnames']
 			),
-			s['role'],
+			s['l10n_role'],
 			gmTools.coalesce(s['comment'], u'')
 		]
 		for s in staff
