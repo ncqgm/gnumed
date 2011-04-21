@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-04-11 23:03+CEST\n"
-"PO-Revision-Date: 2011-04-11 23:18+0100\n"
+"POT-Creation-Date: 2011-04-21 15:26+CEST\n"
+"PO-Revision-Date: 2011-04-21 15:27+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -5061,6 +5061,12 @@ msgstr "Für das neue Symbol muß ein Bild gewählt werden."
 
 msgid "Cannot open the image file [%s]."
 msgstr "Kann Bilddatei nicht öffnen: [%s]."
+
+msgid "Creating tag with image"
+msgstr "Bildsymbol anlegen"
+
+msgid "Updating tag with image"
+msgstr "Bildsymbol verändern"
 
 msgid "&Edit comment"
 msgstr "Kommentar &bearbeiten"
