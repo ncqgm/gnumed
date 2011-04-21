@@ -112,7 +112,7 @@ def get_tag_images(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cTagImage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_tag_image'}) for r in rows ]
 #------------------------------------------------------------
-def create_tag_image(description=None):
+def create_tag_image(description=None, link_obj=None):
 
 	args = {u'desc': description, u'img': u''}
 	cmd = u"""
@@ -125,7 +125,13 @@ def create_tag_image(description=None):
 		)
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries (
+		link_obj = link_obj,
+		queries = [{'cmd': cmd, 'args': args}],
+		end_tx = True,
+		return_data = True,
+		get_col_idx = False
+	)
 
 	return cTagImage(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------

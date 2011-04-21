@@ -31,9 +31,15 @@ from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmPerson
 
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmDateTimeInput
-from Gnumed.wxpython import gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
-from Gnumed.wxpython import gmAuthWidgets, gmPersonContactWidgets
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmPersonContactWidgets
+from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmDateTimeInput
+from Gnumed.wxpython import gmDataMiningWidgets
+from Gnumed.wxpython import gmGuiHelpers
 
 
 # constant defs
@@ -184,8 +190,14 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		return (valid is True)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		data = gmDemographicRecord.create_tag_image(description = self._TCTRL_description.GetValue().strip())
+
+		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Creating tag with image'))
+		if dbo_conn is None:
+			return False
+
+		data = gmDemographicRecord.create_tag_image(description = self._TCTRL_description.GetValue().strip(), link_obj = dbo_conn)
+		dbo_conn.close()
+
 		data['filename'] = self._TCTRL_filename.GetValue().strip()
 		data.save()
 		data.update_image_from_file(filename = self.__selected_image_file)
@@ -197,7 +209,14 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		# update self.data and save the changes
+
+		# this is somewhat fake as it never actually uses the gm-dbo conn
+		# (although it does verify it)
+		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Updating tag with image'))
+		if dbo_conn is None:
+			return False
+		dbo_conn.close()
+
 		self.data['description'] = self._TCTRL_description.GetValue().strip()
 		self.data['filename'] = self._TCTRL_filename.GetValue().strip()
 		self.data.save()
