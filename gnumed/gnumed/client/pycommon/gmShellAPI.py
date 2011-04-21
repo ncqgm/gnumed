@@ -136,7 +136,11 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 	exited_normally = False
 
 	if not hasattr(os, 'WIFEXITED'):
-		_log.debug('platform does not support exit status differentiation')
+		_log.error('platform does not support exit status differentiation')
+		if ret_val in acceptable_return_codes:
+			_log.info('os.system() return value contained in acceptable return codes')
+			_log.info('continuing and hoping for the best')
+			return True
 		return exited_normally
 
 	_log.debug('exited via exit(): %s', os.WIFEXITED(ret_val))
