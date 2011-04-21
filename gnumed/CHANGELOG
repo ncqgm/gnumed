@@ -10,6 +10,8 @@
 
 FIX: gm-remove_person.sh did not properly delete persons [thanks J.Busser]
 
+IMPROVED: make creating/updating tags a restricted procedure [thanks Rogerio]
+
 	0.9.3
 
 FIX: wxPython-MacOSX needs yet another way to detach sizer items [thanks J.Busser]
