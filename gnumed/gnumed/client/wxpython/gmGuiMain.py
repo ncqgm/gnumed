@@ -2092,10 +2092,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
 	#----------------------------------------------
 	def __on_arriba(self, evt):
+
 		curr_pat = gmPerson.gmCurrentPatient()
 
 		arriba = gmArriba.cArriba()
-		if not arriba.run(patient = curr_pat, debug = _cfg.get(option = 'debug')):
+		pat = gmTools.bool2subst(curr_pat.connected, curr_pat, None)
+		if not arriba.run(patient = pat, debug = _cfg.get(option = 'debug')):
 			return
 
 		# FIXME: try to find patient
