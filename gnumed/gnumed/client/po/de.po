@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-04-21 15:26+CEST\n"
-"PO-Revision-Date: 2011-04-21 15:27+0100\n"
+"POT-Creation-Date: 2011-04-27 13:23+CEST\n"
+"PO-Revision-Date: 2011-04-27 13:24+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -460,6 +460,12 @@ msgstr "Notizen der letzten Konsultation:"
 
 msgid "Measurements and Results:"
 msgstr "Messungen und Ergebnisse:"
+
+msgid "Problem"
+msgstr "Problem"
+
+msgid "Health issue"
+msgstr "Grunderkrankung"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Ortszeit: %s - %s  (@%s = %s%s)\n"
@@ -2773,9 +2779,6 @@ msgstr "Medizinischer Bezug"
 
 msgid "In charge"
 msgstr "Verantwortlicher"
-
-msgid "Problem"
-msgstr "Problem"
 
 msgid "Review"
 msgstr "Beurteilung"
@@ -9754,9 +9757,6 @@ msgstr "Suchbegriff:"
 
 msgid "Text search of entire EMR of active patient"
 msgstr "Textsuche in der Karteikarte des aktiven Patienten"
-
-msgid "Health issue"
-msgstr "Grunderkrankung"
 
 msgid ""
 "Search term was: \"%s\"\n"

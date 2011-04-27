@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-04-21 15:26+CEST\n"
+"POT-Creation-Date: 2011-04-27 13:23+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -405,6 +405,12 @@ msgid "Progress notes in most recent encounter:"
 msgstr ""
 
 msgid "Measurements and Results:"
+msgstr ""
+
+msgid "Problem"
+msgstr ""
+
+msgid "Health issue"
 msgstr ""
 
 msgid ""
@@ -2573,9 +2579,6 @@ msgid "Clinical details"
 msgstr ""
 
 msgid "In charge"
-msgstr ""
-
-msgid "Problem"
 msgstr ""
 
 msgid "Review"
@@ -8713,9 +8716,6 @@ msgid "Enter search term:"
 msgstr ""
 
 msgid "Text search of entire EMR of active patient"
-msgstr ""
-
-msgid "Health issue"
 msgstr ""
 
 msgid ""
