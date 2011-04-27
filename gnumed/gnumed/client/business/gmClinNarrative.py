@@ -261,7 +261,7 @@ def delete_clin_narrative(narrative=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
 #------------------------------------------------------------
-def get_narrative(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, patient=None):
+def get_narrative(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, patient=None, order_by=None):
 	"""Get SOAP notes pertinent to this encounter.
 
 		since
@@ -298,7 +298,12 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 
 	if soap_cats is not None:
 		where_parts.append(u'soap_cat IN %(soap_cats)s')
-		args['soap_cats'] = tuple(cats)
+		args['soap_cats'] = tuple(soap_cats)
+
+	if order_by is None:
+		order_by = u'ORDER BY date, soap_rank'
+	else:
+		order_by = u'ORDER BY %s' % order_by
 
 	cmd = u"""
 		SELECT
@@ -309,10 +314,11 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 			clin.v_pat_narrative cvpn
 		WHERE
 			%s
-		ORDER BY
-			date,
-			soap_rank
-	""" % u' AND '.join(where_parts)
+		%s
+	""" % (
+		u' AND '.join(where_parts),
+		order_by
+	)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 

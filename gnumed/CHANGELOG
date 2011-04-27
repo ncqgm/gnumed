@@ -18,9 +18,12 @@ IMPROVED: substance intake EA: one line with tooltip for components info field
 
 FIX: gm-remove_person.sh did not properly delete persons [thanks J.Busser]
 FIX: enable running arriba w/o an active patient
+FIX: cEpisode.get_narrative() ignored <soap_cats> argument
 
 IMPROVED: make creating/updating tags a restricted procedure [thanks Rogerio]
 IMPROVED: slightly relax external app exit code check on Windows [thanks vbanait]
+IMPROVED: placeholder "soap_for_encounters" now sorts by SOAP cat rank, then by date [thanks vbanait]
+IMRPOVED: better remove SOAP-less encounters from consultation report output [thanks vbanait]
 
 	0.9.3
 

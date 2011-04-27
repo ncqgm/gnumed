@@ -642,8 +642,13 @@ from (
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
 	#--------------------------------------------------------
-	def get_narrative(self, soap_cats=None, encounters=None):
-		return gmClinNarrative.get_narrative(soap_cats = None, encounters = encounters, episodes = [self.pk_obj])
+	def get_narrative(self, soap_cats=None, encounters=None, order_by = None):
+		return gmClinNarrative.get_narrative (
+			soap_cats = soap_cats,
+			encounters = encounters,
+			episodes = [self.pk_obj],
+			order_by = order_by
+		)
 	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
@@ -1151,6 +1156,36 @@ select exists (
 		)
 		return rows[0][0]
 	#--------------------------------------------------------
+	def has_soap_narrative(self, soap_cats=None):
+		"""soap_cats: <space> = admin category"""
+
+		if soap_cats is None:
+			soap_cats = u'soap '
+		else:
+			soap_cats = soap_cats.lower()
+
+		cats = []
+		for cat in soap_cats:
+			if cat in u'soap':
+				cats.append(cat)
+				continue
+			if cat == u' ':
+				cats.append(None)
+
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1 FROM clin.clin_narrative
+				WHERE
+					fk_encounter = %(enc)s
+						AND
+					soap_cat IN %(cats)s
+				LIMIT 1
+			)
+		"""
+		args = {'enc': self._payload[self._idx['pk_encounter']], 'cats': tuple(cats)}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd,'args': args}])
+		return rows[0][0]
+	#--------------------------------------------------------
 	def has_documents(self):
 		cmd = u"""
 select exists (
@@ -1264,7 +1299,17 @@ WHERE
 
 		return lines
 	#--------------------------------------------------------
-	def format_latex(self, date_format=None, soap_cats=None):
+	def format_latex(self, date_format=None, soap_cats=None, soap_order=None):
+
+		nothing2format = (
+			(self._payload[self._idx['reason_for_encounter']] is None)
+				and
+			(self._payload[self._idx['assessment_of_encounter']] is None)
+				and
+			(self.has_soap_narrative(soap_cats = u'soap') is False)
+		)
+		if nothing2format:
+			return u''
 
 		if date_format is None:
 			date_format = '%A, %B %d %Y'
@@ -1278,26 +1323,30 @@ WHERE
 		tex += u'\\hline \\tabularnewline \n'
 
 		for epi in self.get_episodes():
-			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj])
+			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj], order_by = soap_order)
 			if len(soaps) == 0:
 				continue
-			tex += u'\\multicolumn{2}{l}{\\emph{%s%s%s%s}} \\tabularnewline \n' % (
-#			tex += u' & \\emph{%s%s%s%s} \\tabularnewline \n' % (
+			tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
+				gmTools.tex_escape_string(_('Problem')),
 				gmTools.tex_escape_string(epi['description']),
 				gmTools.coalesce (
 					initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
 					instead = u'',
 					template_initial = u' {\\footnotesize [%s]}',
 					none_equivalents = [None, u'']
-				),
-				gmTools.tex_escape_string(gmTools.coalesce(epi['health_issue'], u'', u' (%s)')),
-				gmTools.coalesce (
-					initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
-					instead = u'',
-					template_initial = u' {\\footnotesize [%s]}',
-					none_equivalents = [None, u'']
-				),
+				)
 			)
+			if epi['pk_health_issue'] is not None:
+				tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
+					gmTools.tex_escape_string(_('Health issue')),
+					gmTools.tex_escape_string(epi['health_issue']),
+					gmTools.coalesce (
+						initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
+						instead = u'',
+						template_initial = u' {\\footnotesize [%s]}',
+						none_equivalents = [None, u'']
+					)
+				)
 			for soap in soaps:
 				tex += u'{\\small %s} & {\\small %s} \\tabularnewline \n' % (
 					gmClinNarrative.soap_cat2l10n[soap['soap_cat']],

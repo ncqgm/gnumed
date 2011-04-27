@@ -343,7 +343,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		chunks = []
 		for enc in encounters:
-			chunks.append(enc.format_latex(date_format = date_format, soap_cats = cats))
+			chunks.append(enc.format_latex (
+				date_format = date_format,
+				soap_cats = cats,
+				soap_order = u'soap_rank, date'
+			))
 
 		return u''.join(chunks)
 	#--------------------------------------------------------
