@@ -1691,7 +1691,7 @@ def print_medication_list(parent=None):
 		return False
 
 	# 3) print template
-	printed = gmPrinting.print_file_by_shellscript(filename = pdf_name, jobtype = 'medication_list')
+	printed = gmPrinting.print_file(filename = pdf_name, jobtype = 'medication_list')
 	if not printed:
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Error printing the medication list.'),
