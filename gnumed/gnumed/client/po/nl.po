@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-27 13:26+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -417,15 +417,19 @@ msgid "Clinical data generated during encounters within this episode:"
 msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 #, fuzzy
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Episode %s%s%s (%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "finished"
 msgstr "voltooid"
-
-#, fuzzy
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Fout bij het laden van ontmoetingen voor deze episode."
@@ -435,6 +439,10 @@ msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 msgid "Last worked on: %s\n"
 msgstr "Laatst gewerkt aan: %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr ""
@@ -453,6 +461,13 @@ msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid "Measurements and Results:"
 msgstr "Metingen en Uitslagen:"
+
+msgid "Problem"
+msgstr "Probleem"
+
+#, fuzzy
+msgid "Health issue"
+msgstr "Gezondheidsprobleem"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  plaatselijke tijd: %s - %s (@%s = %s%s)\n"
@@ -3062,9 +3077,6 @@ msgstr "Klinische aantekeningen"
 msgid "In charge"
 msgstr "Verantwoordelijk"
 
-msgid "Problem"
-msgstr "Probleem"
-
 msgid "Review"
 msgstr "Beoordeling"
 
@@ -4179,15 +4191,14 @@ msgstr "Niet relevant"
 msgid "Encounter:"
 msgstr "Ontmoeting"
 
-msgid "Details"
-msgstr "Bijzonderheden"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr "Journaal"
 
-#, fuzzy
-msgid "Show formatted item details."
-msgstr "Wijzig formuliersjabloon detais."
+msgid "Show succinct item synopsis."
+msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
@@ -4341,6 +4352,9 @@ msgstr "Uitvouwen naar"
 
 msgid "Scope"
 msgstr "Bereik"
+
+msgid "Details"
+msgstr "Bijzonderheden"
 
 #, fuzzy
 msgid "<Please supply your email address here !>"
@@ -5609,6 +5623,14 @@ msgid "Cannot open the image file [%s]."
 msgstr ""
 "kan xDT bestand niet openen.\n"
 "[%s]"
+
+#, fuzzy
+msgid "Creating tag with image"
+msgstr "Meting bewerken"
+
+#, fuzzy
+msgid "Updating tag with image"
+msgstr "Meting bewerken"
 
 #, fuzzy
 msgid "&Edit comment"
@@ -10526,10 +10548,6 @@ msgid "Text search of entire EMR of active patient"
 msgstr "Tekst zoeken in het gehele EMD"
 
 #, fuzzy
-msgid "Health issue"
-msgstr "Gezondheidsprobleem"
-
-#, fuzzy
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -10623,6 +10641,10 @@ msgstr "Er is geen verhaal voor de episode in deze ontmoeting."
 
 msgid "Must select episode to move narrative to first."
 msgstr "Moet eerst episode selecteren om verhaal naar te verplaatsen."
+
+#, fuzzy
+msgid "In health issue"
+msgstr "Inactief gezondheidsprobleem"
 
 #, fuzzy
 msgid "Last"
@@ -12756,6 +12778,14 @@ msgid "First Date"
 msgstr "Eerste Datum"
 
 #, fuzzy
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, fuzzy
+#~ msgid "Show formatted item details."
+#~ msgstr "Wijzig formuliersjabloon detais."
+
+#, fuzzy
 #~ msgid " Status: %s, %s%s"
 #~ msgstr " Status: %s, %s"
 
@@ -12952,9 +12982,6 @@ msgstr "Eerste Datum"
 
 #~ msgid "Active health issue"
 #~ msgstr "Huidige gezondheidsprobleem"
-
-#~ msgid "Inactive health issue"
-#~ msgstr "Inactief gezondheidsprobleem"
 
 #~ msgid ""
 #~ "%s \"%s\"\n"

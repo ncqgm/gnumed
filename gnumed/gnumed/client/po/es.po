@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"POT-Creation-Date: 2011-04-27 13:26+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -417,14 +417,20 @@ msgstr "Episodios sin causa aparente"
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "No existen citas para este episodio"
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+#, fuzzy
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Episodio %s%s%s (%s%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Creado durante encuentro: %s (%s - %s) [#%s]"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Citas: %s (%s - %s):"
 
 msgid "finished"
 msgstr "finalizado"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Creado durante la cita: %s (%s - %s) [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Error al solicitar las citas para este episodio"
@@ -434,6 +440,10 @@ msgstr "No existen citas para este episodio"
 
 msgid "Last worked on: %s\n"
 msgstr "Lo ultimo en lo que se trabajo: %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Citas: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "1er (y hasta 3) el más reciente (de %s) encuentros (%s - %s):"
@@ -452,6 +462,12 @@ msgstr "Notas del progreso en la entrevista mas reciente:"
 
 msgid "Measurements and Results:"
 msgstr "Examenes y resultados"
+
+msgid "Problem"
+msgstr "Problema"
+
+msgid "Health issue"
+msgstr ""
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  su tiempo: %s - %s  (@%s = %s%s)\n"
@@ -3005,9 +3021,6 @@ msgstr "Detalles clinicos"
 msgid "In charge"
 msgstr "Encargado"
 
-msgid "Problem"
-msgstr "Problema"
-
 msgid "Review"
 msgstr "Revisión"
 
@@ -4112,15 +4125,14 @@ msgstr "notelet:"
 msgid "Encounter:"
 msgstr "Encuentro:"
 
-msgid "Details"
-msgstr "Detalles"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-#, fuzzy
-msgid "Show formatted item details."
-msgstr "Editar los detalles de la plantilla"
+msgid "Show succinct item synopsis."
+msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
@@ -4268,6 +4280,9 @@ msgstr "Espander a"
 
 msgid "Scope"
 msgstr "Ámbito"
+
+msgid "Details"
+msgstr "Detalles"
 
 msgid "<Please supply your email address here !>"
 msgstr "<Introduzca su direccion de correo electronico aqui!>"
@@ -5478,6 +5493,13 @@ msgid "Must pick an image file for a new tag."
 msgstr ""
 
 msgid "Cannot open the image file [%s]."
+msgstr ""
+
+#, fuzzy
+msgid "Creating tag with image"
+msgstr "Imagen no encontrada"
+
+msgid "Updating tag with image"
 msgstr ""
 
 msgid "&Edit comment"
@@ -9591,9 +9613,6 @@ msgstr ""
 msgid "Text search of entire EMR of active patient"
 msgstr ""
 
-msgid "Health issue"
-msgstr ""
-
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -9669,6 +9688,10 @@ msgstr ""
 
 msgid "Must select episode to move narrative to first."
 msgstr ""
+
+#, fuzzy
+msgid "In health issue"
+msgstr "problema de salud: %s"
 
 msgid "Last"
 msgstr "Último"
@@ -11560,6 +11583,13 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Creado durante la cita: %s (%s - %s) [#%s]\n"
+
+#, fuzzy
+#~ msgid "Show formatted item details."
+#~ msgstr "Editar los detalles de la plantilla"
 
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Descuontinado debido a alergia o intolerancia"

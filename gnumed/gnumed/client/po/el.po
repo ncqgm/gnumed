@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-03-24 14:56+CET\n"
+"POT-Creation-Date: 2011-04-27 13:26+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -398,14 +398,20 @@ msgstr "Μη καθορισμένα επεισόδια"
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+#, fuzzy
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Επεισόδιο %s%s%s (%s%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Δημιουργήθηκε κατά την διάρκεια της συνεδρίας:%s(%s - %s) [#%s]"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Συνεδρίες: %s (%s - %s):"
 
 msgid "finished"
 msgstr "ολοκληρώθηκε"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Δημιουργήθηκε κατά την συνεδρία: %s (%s - %s)   [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
@@ -415,6 +421,10 @@ msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επει
 
 msgid "Last worked on: %s\n"
 msgstr "Εργάστηκε για τελευταία φορά στις:%s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Συνεδρίες: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "1η και (μέχρι 3) πιο πρόσφατες (από %s) συνεδρίες  (%s - %s):"
@@ -433,6 +443,12 @@ msgstr "Σημειώσεις προόδου στις πιο πρόσφατη σ�
 
 msgid "Measurements and Results:"
 msgstr "Μετρήσεις και Αποτελέσματα:"
+
+msgid "Problem"
+msgstr "Πρόβλημα"
+
+msgid "Health issue"
+msgstr "Θέμα υγείας"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
@@ -2857,9 +2873,6 @@ msgstr "Κλινικές λεπτομέρειες"
 msgid "In charge"
 msgstr ""
 
-msgid "Problem"
-msgstr "Πρόβλημα"
-
 msgid "Review"
 msgstr ""
 
@@ -3856,13 +3869,13 @@ msgstr ""
 msgid "Encounter:"
 msgstr "Συνεδρία:"
 
-msgid "Details"
-msgstr "Λεπτομέρειες"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 #, fuzzy
@@ -3992,6 +4005,9 @@ msgstr "Ανάπτυξη σε"
 
 msgid "Scope"
 msgstr ""
+
+msgid "Details"
+msgstr "Λεπτομέρειες"
 
 msgid "<Please supply your email address here !>"
 msgstr ""
@@ -5045,6 +5061,12 @@ msgid "Must pick an image file for a new tag."
 msgstr ""
 
 msgid "Cannot open the image file [%s]."
+msgstr ""
+
+msgid "Creating tag with image"
+msgstr ""
+
+msgid "Updating tag with image"
 msgstr ""
 
 msgid "&Edit comment"
@@ -9121,9 +9143,6 @@ msgstr ""
 msgid "Text search of entire EMR of active patient"
 msgstr "Αναζήτηση κειμένου σε όλο τον ΗΙΦ του ενεργού ασθενούς"
 
-msgid "Health issue"
-msgstr "Θέμα υγείας"
-
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -9200,6 +9219,10 @@ msgstr ""
 
 msgid "Must select episode to move narrative to first."
 msgstr ""
+
+#, fuzzy
+msgid "In health issue"
+msgstr "Θέμα υγείας"
 
 msgid "Last"
 msgstr "Τελευταίο"
@@ -11053,6 +11076,9 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Δημιουργήθηκε κατά την συνεδρία: %s (%s - %s)   [#%s]\n"
 
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Διακοπή για αλλεργία/δυσανεξία ;"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-27 13:26+CEST\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -370,14 +370,18 @@ msgstr ""
 msgid "Clinical data generated during encounters within this episode:"
 msgstr ""
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+msgid "Episode %s%s%s   [#%s]"
 msgstr ""
+
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr ""
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Pasient: %s (%s), Nr: %s\n"
 
 msgid "finished"
 msgstr "fullført"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr ""
 
 msgid "Error retrieving encounters for this episode."
 msgstr ""
@@ -386,6 +390,9 @@ msgid "There are no encounters for this episode."
 msgstr ""
 
 msgid "Last worked on: %s\n"
+msgstr ""
+
+msgid "%s encounter(s) (%s - %s):"
 msgstr ""
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
@@ -404,6 +411,12 @@ msgid "Progress notes in most recent encounter:"
 msgstr ""
 
 msgid "Measurements and Results:"
+msgstr ""
+
+msgid "Problem"
+msgstr ""
+
+msgid "Health issue"
 msgstr ""
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
@@ -2716,9 +2729,6 @@ msgstr ""
 msgid "In charge"
 msgstr ""
 
-msgid "Problem"
-msgstr ""
-
 msgid "Review"
 msgstr ""
 
@@ -3698,13 +3708,13 @@ msgstr "ikke relevant"
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
+msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 msgid "Show item journal."
@@ -3834,6 +3844,9 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
+msgstr ""
+
+msgid "Details"
 msgstr ""
 
 msgid "<Please supply your email address here !>"
@@ -4891,6 +4904,12 @@ msgid "Must pick an image file for a new tag."
 msgstr ""
 
 msgid "Cannot open the image file [%s]."
+msgstr ""
+
+msgid "Creating tag with image"
+msgstr ""
+
+msgid "Updating tag with image"
 msgstr ""
 
 msgid "&Edit comment"
@@ -8979,9 +8998,6 @@ msgstr ""
 msgid "Text search of entire EMR of active patient"
 msgstr ""
 
-msgid "Health issue"
-msgstr ""
-
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -9052,6 +9068,9 @@ msgid "There is no narrative for this episode in this encounter."
 msgstr ""
 
 msgid "Must select episode to move narrative to first."
+msgstr ""
+
+msgid "In health issue"
 msgstr ""
 
 msgid "Last"

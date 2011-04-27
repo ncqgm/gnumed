@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-27 13:27+CEST\n"
 "PO-Revision-Date: 2011-01-27 20:44+0000\n"
 "Last-Translator: Rudinei Weschenfelder <rudinei.ti@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -420,14 +420,20 @@ msgstr "Episódios Sem Definição."
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "Não há consultas para esse episódio."
 
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
-msgstr "Episódio %s%s%s (%s%s) [#%s]\n"
+#, fuzzy
+msgid "Episode %s%s%s   [#%s]"
+msgstr "Episódio %s%s%s (%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Criado durante encontro: %s (%s - %s) [#%s]"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Consultas: %s (%s - %s):"
 
 msgid "finished"
 msgstr "terminado"
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Criado durante encontro: %s (%s - %s) [#%s]\n"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Erro ao buscar consultas para esse episódio."
@@ -437,6 +443,10 @@ msgstr "Não há consultas para esse episódio."
 
 msgid "Last worked on: %s\n"
 msgstr "Editado pela última vez em: %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Consultas: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "1o e (até 3) mais recente (de %s) encontros (%s - %s):"
@@ -455,6 +465,12 @@ msgstr "Notas de Evolução na consulta mais recente"
 
 msgid "Measurements and Results:"
 msgstr "Medidas e Resultados"
+
+msgid "Problem"
+msgstr "Problema"
+
+msgid "Health issue"
+msgstr "Problema de Saúde"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Seu horário: %s - %s (@%s = %s%s)\n"
@@ -2919,9 +2935,6 @@ msgstr ""
 msgid "In charge"
 msgstr "Responsável"
 
-msgid "Problem"
-msgstr "Problema"
-
 msgid "Review"
 msgstr "Revisão"
 
@@ -3974,15 +3987,14 @@ msgstr ""
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
-msgstr "Detalhes"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Journal"
 msgstr "Diário"
 
-#, fuzzy
-msgid "Show formatted item details."
-msgstr "editar os detalhes do modelo de formulário"
+msgid "Show succinct item synopsis."
+msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
@@ -4133,6 +4145,9 @@ msgstr "Expandir para"
 
 msgid "Scope"
 msgstr "Engloba"
+
+msgid "Details"
+msgstr "Detalhes"
 
 msgid "<Please supply your email address here !>"
 msgstr ""
@@ -5332,6 +5347,13 @@ msgid "Must pick an image file for a new tag."
 msgstr ""
 
 msgid "Cannot open the image file [%s]."
+msgstr ""
+
+#, fuzzy
+msgid "Creating tag with image"
+msgstr "Criando um novo problema de saúde ..."
+
+msgid "Updating tag with image"
 msgstr ""
 
 msgid "&Edit comment"
@@ -9626,9 +9648,6 @@ msgstr ""
 msgid "Text search of entire EMR of active patient"
 msgstr ""
 
-msgid "Health issue"
-msgstr "Problema de Saúde"
-
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -9709,6 +9728,10 @@ msgstr "Não há narrativa para esse episódio nessa consulta."
 
 msgid "Must select episode to move narrative to first."
 msgstr ""
+
+#, fuzzy
+msgid "In health issue"
+msgstr "Problema de Saúde Inativo"
 
 msgid "Last"
 msgstr "Sobrenome"
@@ -11583,6 +11606,16 @@ msgstr "Quantidade"
 msgid "First Date"
 msgstr "Primeira Data"
 
+#~ msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+#~ msgstr "Episódio %s%s%s (%s%s) [#%s]\n"
+
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Criado durante encontro: %s (%s - %s) [#%s]\n"
+
+#, fuzzy
+#~ msgid "Show formatted item details."
+#~ msgstr "editar os detalhes do modelo de formulário"
+
 #~ msgid "Configure the directory to use as scratch space for temporary files."
 #~ msgstr ""
 #~ "Configure um diretório para usar como rascunho para arquivos temporários."
@@ -11647,9 +11680,6 @@ msgstr "Primeira Data"
 
 #~ msgid "abnormal"
 #~ msgstr "anormal"
-
-#~ msgid "Episode %s%s%s (%s) [#%s]\n"
-#~ msgstr "Episódio %s%s%s (%s) [#%s]\n"
 
 #~ msgid " Most recent: %s%s%s"
 #~ msgstr " Mais recente: %s%s%"
@@ -11956,9 +11986,6 @@ msgstr "Primeira Data"
 
 #~ msgid "no descriptions available"
 #~ msgstr "não há descrição disponível"
-
-#~ msgid "Inactive health issue"
-#~ msgstr "Problema de Saúde Inativo"
 
 #~ msgid ""
 #~ "%s \"%s\"\n"

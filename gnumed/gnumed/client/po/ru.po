@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-03-24 14:57+CET\n"
+"POT-Creation-Date: 2011-04-27 13:27+CEST\n"
 "PO-Revision-Date: 2010-01-09 12:56+0000\n"
 "Last-Translator: arempel <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -388,15 +388,19 @@ msgid "Clinical data generated during encounters within this episode:"
 msgstr "Нет приемов для этого случая"
 
 #, fuzzy
-msgid "Episode %s%s%s (%s%s)   [#%s]\n"
+msgid "Episode %s%s%s   [#%s]"
 msgstr "Случай %s%s%s (%s) [#%s]\n"
+
+#, fuzzy
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr "Приемы: %s (%s - %s):"
+
+#, fuzzy
+msgid " Duration: %s (%s - %s)"
+msgstr "Приемы: %s (%s - %s):"
 
 msgid "finished"
 msgstr "готово"
-
-#, fuzzy
-msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-msgstr "Приемы: %s (%s - %s):"
 
 msgid "Error retrieving encounters for this episode."
 msgstr "Ошибка получения приемов для этого случая"
@@ -406,6 +410,10 @@ msgstr "Нет приемов для этого случая"
 
 msgid "Last worked on: %s\n"
 msgstr "Последнее место работы: %s\n"
+
+#, fuzzy
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Приемы: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr ""
@@ -424,6 +432,13 @@ msgstr "Отметки об улучшениях за плследние пос�
 
 msgid "Measurements and Results:"
 msgstr "Измерения и результаты"
+
+msgid "Problem"
+msgstr ""
+
+#, fuzzy
+msgid "Health issue"
+msgstr "выписка: %s"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  ваше время: %s - %s  (@%s = %s%s)\n"
@@ -2750,9 +2765,6 @@ msgstr ""
 msgid "In charge"
 msgstr ""
 
-msgid "Problem"
-msgstr ""
-
 msgid "Review"
 msgstr ""
 
@@ -3742,13 +3754,13 @@ msgstr "не соотвествующий"
 msgid "Encounter:"
 msgstr ""
 
-msgid "Details"
+msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
 msgstr ""
 
-msgid "Show formatted item details."
+msgid "Show succinct item synopsis."
 msgstr ""
 
 msgid "Show item journal."
@@ -3878,6 +3890,9 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
+msgstr ""
+
+msgid "Details"
 msgstr ""
 
 msgid "<Please supply your email address here !>"
@@ -4941,6 +4956,13 @@ msgid "Must pick an image file for a new tag."
 msgstr ""
 
 msgid "Cannot open the image file [%s]."
+msgstr ""
+
+#, fuzzy
+msgid "Creating tag with image"
+msgstr "Текущая жалоба"
+
+msgid "Updating tag with image"
 msgstr ""
 
 msgid "&Edit comment"
@@ -9057,10 +9079,6 @@ msgstr ""
 msgid "Text search of entire EMR of active patient"
 msgstr ""
 
-#, fuzzy
-msgid "Health issue"
-msgstr "выписка: %s"
-
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -9132,6 +9150,10 @@ msgstr ""
 
 msgid "Must select episode to move narrative to first."
 msgstr ""
+
+#, fuzzy
+msgid "In health issue"
+msgstr "выписка: %s"
 
 msgid "Last"
 msgstr ""
@@ -10999,6 +11021,10 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
+#~ msgstr "Приемы: %s (%s - %s):"
 
 #~ msgid "ERROR: cannot retrieve vaccinated indications"
 #~ msgstr "ОШИБКА: не могу получить показания для вакцинации"
