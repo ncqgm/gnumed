@@ -237,6 +237,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		else:
 			test_count = None
 			tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
+			if len(tests) == 0:
+				return True
 
 		dlg = cMeasurementsReviewDlg (
 			self,
@@ -350,7 +352,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		for col_idx in self.__cell_data.keys():
 			for row_idx in self.__cell_data[col_idx].keys():
 				# loop over results in cell and only include
-				# this multi-value cells that are not ambigous
+				# those multi-value cells that are not ambiguous
 				do_not_include = False
 				for result in self.__cell_data[col_idx][row_idx]:
 					if unsigned_only:
