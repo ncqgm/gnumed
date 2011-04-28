@@ -500,8 +500,16 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 
 				# compare DOB at seconds level
 				if self._payload[self._idx['dob']] is not None:
-					old_dob = self._payload[self._idx['dob']].strftime('%Y %m %d %H %M %S')
-					new_dob = value.strftime('%Y %m %d %H %M %S')
+					old_dob = gmDateTime.pydt_strftime (
+						self._payload[self._idx['dob']],
+						format = '%Y %m %d %H %M %S',
+						accuracy = gmDateTime.acc_seconds
+					)
+					new_dob = gmDateTime.pydt_strftime (
+						value,
+						format = '%Y %m %d %H %M %S',
+						accuracy = gmDateTime.acc_seconds
+					)
 					if new_dob == old_dob:
 						return
 
