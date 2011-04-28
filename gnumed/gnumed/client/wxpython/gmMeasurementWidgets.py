@@ -1058,7 +1058,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self.__action_button_popup = wx.Menu(title = _('Act on selected results'))
+		self.__action_button_popup = wx.Menu(title = _('Perform on selected results:'))
 
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
@@ -1081,6 +1081,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('&Delete')))
 		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_delete_current_selection)
+
+		# FIXME: create inbox message to staff to phone patient to come in
+		# FIXME: generate and let edit a SOAP narrative and include the values
+
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
