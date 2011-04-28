@@ -11,6 +11,7 @@
 FIX: gm-remove_person.sh did not properly delete persons [thanks J.Busser]
 FIX: enable running arriba w/o an active patient
 FIX: cEpisode.get_narrative() ignored <soap_cats> argument
+FIX: wrapper around Python's deficient strftime() [thanks J.Jaarsveld]
 
 IMPROVED: make creating/updating tags a restricted procedure [thanks Rogerio]
 IMPROVED: slightly relax external app exit code check on Windows [thanks vbanait]

@@ -199,15 +199,21 @@ def mxdt2py_dt(mxDateTime):
 	if isinstance(mxDateTime, pyDT.datetime):
 		return mxDateTime
 
+	try:
+		tz_name = str(mxDateTime.gmtoffset()).replace(',', '.')
+	except mxDT.Error:
+		_log.debug('mx.DateTime cannot gmtoffset() this timestamp, assuming local time')
+		tz_name = current_local_iso_numeric_timezone_string
+
 	if dst_currently_in_effect:
 		tz = cFixedOffsetTimezone (
 			offset = ((time.altzone * -1) / 60),
-			name = str(mxDateTime.gmtoffset()).replace(',', '.')
+			name = tz_name
 		)
 	else:
 		tz = cFixedOffsetTimezone (
 			offset = ((time.timezone * -1) / 60),
-			name = str(mxDateTime.gmtoffset()).replace(',', '.')
+			name = tz_name
 		)
 
 	try:
@@ -229,6 +235,41 @@ def mxdt2py_dt(mxDateTime):
 		)
 		raise
 #===========================================================================
+def pydt_strftime(dt, format='%c', encoding=None, accuracy=None):
+
+	if encoding is None:
+		encoding = gmI18N.get_encoding()
+
+	try:
+		return dt.strftime(format).decode(encoding)
+	except ValueError:
+		_log.exception('Python cannot strftime() this <datetime>')
+
+	if accuracy == acc_days:
+		return u'%04d-%02d-%02d' % (
+			dt.year,
+			dt.month,
+			dt.day
+		)
+
+	if accuracy == acc_minutes:
+		return u'%04d-%02d-%02d %02d:%02d' % (
+			dt.year,
+			dt.month,
+			dt.day,
+			dt.hour,
+			dt.minute
+		)
+
+	return u'%04d-%02d-%02d %02d:%02d:%02d' % (
+		dt.year,
+		dt.month,
+		dt.day,
+		dt.hour,
+		dt.minute,
+		dt.second
+	)
+#---------------------------------------------------------------------------
 def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
@@ -2166,6 +2207,18 @@ if __name__ == '__main__':
 				print ""
 			print "---------------"
 	#-------------------------------------------------
+	def test_pydt_strftime():
+		dt = pydt_now_here()
+		print pydt_strftime(dt)
+		print pydt_strftime(dt, accuracy = acc_days)
+		print pydt_strftime(dt, accuracy = acc_minutes)
+		print pydt_strftime(dt, accuracy = acc_seconds)
+		dt = dt.replace(year = 1899)
+		print pydt_strftime(dt)
+		print pydt_strftime(dt, accuracy = acc_days)
+		print pydt_strftime(dt, accuracy = acc_minutes)
+		print pydt_strftime(dt, accuracy = acc_seconds)
+	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
@@ -2174,12 +2227,13 @@ if __name__ == '__main__':
 
 	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
-	test_cFuzzyTimeStamp()
+	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
 	#test_calculate_apparent_age()
 	#test_str2pydt()
+	test_pydt_strftime()
 
 #===========================================================================

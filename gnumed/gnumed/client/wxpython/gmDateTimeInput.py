@@ -26,7 +26,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmI18N
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmGuiHelpers
 
 _log = logging.getLogger('gm.ui')
 
@@ -136,7 +137,8 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 			if date is not None:
 				if date.IsValid():
 					date = gmDateTime.wxDate2py_dt(wxDate = date)
-					matches = (True, [{'data': date, 'label': date.strftime('%Y-%m-%d')}])
+					lbl = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+					matches = (True, [{'data': date, 'label': lbl}])
 		dlg.Destroy()
 
 		return matches
@@ -184,7 +186,8 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return
 
 		date = gmDateTime.wxDate2py_dt(wxDate = date)
-		self.SetText(value = date.strftime('%Y-%m-%d'), data = date, suppress_smarts = True)
+		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+		self.SetText(value = val, data = date, suppress_smarts = True)
 	#--------------------------------------------------------
 	# phrasewheel internal API
 	#--------------------------------------------------------
@@ -200,7 +203,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def _picklist_selection2display_string(self):
 		data = self._picklist.GetSelectedItemData()
 		if data is not None:
-			return data.strftime('%Y-%m-%d')
+			return gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 		return self._picklist.get_selected_item_label()
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
@@ -218,7 +221,11 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if self.data is None:
 			return u''
 
-		return self.data.strftime('%A, %d. %B %Y (%x)').decode(gmI18N.get_encoding())
+		return gmDateTime.pydt_strftime (
+			self.data,
+			format = '%A, %d. %B %Y (%x)',
+			accuracy = gmDateTime.acc_days
+		)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -239,7 +246,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			if isinstance(data, gmDateTime.cFuzzyTimestamp):
 				data = data.timestamp
 			if value.strip() == u'':
-				value = data.strftime('%Y-%m-%d')
+				value = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 
 		super(self.__class__, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
 	#--------------------------------------------------------
@@ -249,7 +256,8 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		else:
 			if isinstance(data, gmDateTime.cFuzzyTimestamp):
 				data = data.timestamp
-			super(self.__class__, self).SetText(value = data.strftime('%Y-%m-%d'), data = data)
+			val = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+			super(self.__class__, self).SetText(value = val, data = data)
 	#--------------------------------------------------------
 	def GetData(self):
 		if self.data is None:
