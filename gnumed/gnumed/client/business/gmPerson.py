@@ -562,10 +562,12 @@ select exists (
 				return _('** DOB unknown **')
 			return none_string
 
-		if encoding is None:
-			encoding = gmI18N.get_encoding()
-
-		return self._payload[self._idx['dob']].strftime(format).decode(encoding)
+		return gmDateTime.pydt_strftime (
+			self._payload[self._idx['dob']],
+			format = format,
+			encoding = encoding,
+			accuracy = gmDateTime.acc_days
+		)
 	#--------------------------------------------------------
 	def get_description_gender(self):
 		return '%(sex)s%(title)s %(last)s, %(first)s%(nick)s' % {
