@@ -23,8 +23,14 @@ import wx.lib.statbmp as wx_genstatbmp
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmI18N, gmMatchProvider, gmPG2, gmTools, gmCfg
-from Gnumed.pycommon import gmDateTime, gmShellAPI
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmShellAPI
 
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmPersonSearch
@@ -861,7 +867,15 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			value = self.data.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
 			data = self.data['dob']
 		)
-		self._PRW_dod.SetText(value = self.data['deceased'])
+		if self.data['deceased'] is None:
+			val = u''
+		else:
+			val = gmDateTime.pydt_strftime (
+				self.data['deceased'],
+				format = '%Y-%m-%d %H:%M',
+				accuracy = gmDateTime.acc_minutes
+			)
+		self._PRW_dod.SetText(value = val, data = self.data['deceased'])
 		self._PRW_gender.SetData(self.data['gender'])
 		#self._PRW_ethnicity.SetValue()
 		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], u''))
@@ -904,7 +918,15 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		)
 		self._PRW_gender.SetData(self.__name['gender'])
 		self._CHBOX_active.SetValue(self.__name['active_name'])
-		self._PRW_dod.SetText(data = self.__identity['deceased'])
+		if self.__identity['deceased'] is None:
+			val = u''
+		else:
+			val = gmDateTime.pydt_strftime (
+				self.__identity['deceased'],
+				format = '%Y-%m-%d %H:%M',
+				accuracy = gmDateTime.acc_minutes
+			)
+		self._PRW_dod.SetText(value = val, data = self.__identity['deceased'])
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.__name['comment'], u''))
 		# FIXME: clear fields
 #		else:
