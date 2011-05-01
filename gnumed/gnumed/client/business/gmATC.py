@@ -117,7 +117,7 @@ def atc2ddd(atc=None):
 	return rows
 #============================================================
 def get_reference_atcs(order_by=u'atc, term, lang'):
-	cmd = u'select * from ref.v_atc order by %s' % order_by
+	cmd = u'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 #============================================================
