@@ -5,7 +5,12 @@ __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # =======================================================================
-import logging, sys, os
+import logging
+import sys
+import os
+import subprocess
+import codecs
+import time
 
 
 if __name__ == '__main__':
@@ -24,8 +29,13 @@ known_printjob_types = [
 ]
 
 external_print_APIs = [
-	u'os_startfile',
-	u'gm-print_doc'
+	u'gm-print_doc',
+	u'os_startfile',		# win, mostly
+	u'gsprint',				# win
+	u'acrobat_reader',		# win
+	u'gktlp',				# Linux
+	u'Internet_Explorer',	# win
+	u'Mac_Preview'			# MacOSX
 ]
 
 #=======================================================================
@@ -40,26 +50,198 @@ def print_file(filename=None, jobtype=None, print_api=None):
 		_log.warning('print job type "%s" not registered', jobtype)
 
 	if print_api not in external_print_APIs:
-		print "unknown print API <%s>" % print_api
 		_log.warning('print API "%s" unknown, trying all', print_api)
 
 	if print_api == u'os_startfile':
-		return __print_file_by_os_startfile(filename = filename)
+		return _print_file_by_os_startfile(filename = filename)
 
 	if print_api == u'gm-print_doc':
-		return __print_file_by_shellscript(filename = filename, jobtype = jobtype)
+		return _print_file_by_shellscript(filename = filename, jobtype = jobtype)
 
-	if __print_file_by_os_startfile(filename = filename):
-		return True
+	if print_api == u'gsprint':
+		return _print_file_by_gsprint_exe(filename = filename)
 
-	if __print_file_by_shellscript(filename = filename, jobtype = jobtype):
+	if print_api == u'acrobat_reader':
+		return _print_file_by_acroread_exe(filename = filename)
+
+	if print_api == u'gtklp':
+		return _print_file_by_gtklp(filename = filename)
+
+	if print_api == u'Internet_Explorer':
+		return _print_file_by_IE(filename = filename)
+
+	if print_api == u'Mac_Preview':
+		return _print_file_by_mac_preview(filename = filename)
+
+	# else try all
+	if os.name == 'posix':
+		if _print_file_by_gtklp(filename = filename):
+			return True
+	elif os.name == 'nt':
+		if _print_file_by_gsprint_exe(filename = filename):
+			return True
+		if _print_file_by_acroread_exe(filename = filename):
+			return True
+		if _print_file_by_os_startfile(filename = filename):
+			return True
+		if _print_file_by_IE(filename = filename):
+			return True
+	elif os.name == 'mac':
+		if _print_file_by_mac_preview(filename = filename):
+			return True
+
+	if _print_file_by_shellscript(filename = filename, jobtype = jobtype):
 		return True
 
 	return False
 #=======================================================================
 # external print APIs
 #-----------------------------------------------------------------------
-def __print_file_by_os_startfile(filename=None):
+def _print_file_by_mac_preview(filename=None):
+
+	if os.name != 'mac':
+		_log.debug('MacOSX <open> only available under MacOSX/Darwin')
+		return False
+
+	cmd_line = [
+		r'open',				# "open" must be in the PATH
+		r'-a Preview',			# action = Preview
+		filename
+	]
+	_log.debug('printing with %s' % cmd_line)
+	try:
+		mac_preview = subprocess.Popen(cmd_line, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	except OSError:
+		_log.debug('cannot run <open -a Preview>')
+		return False
+	#except ValueError:		# invalid arguments == programming error
+	stdout, stderr = mac_preview.communicate()
+	if mac_preview.returncode != 0:
+		_log.error('<open -a Preview> returned [%s], failed to print', mac_preview.returncode)
+		return False
+
+	return True
+#-----------------------------------------------------------------------
+def _print_file_by_IE(filename=None):
+
+	if os.name != 'nt':
+		_log.debug('Internet Explorer only available under Windows')
+		return False
+
+	try:
+		from win32com import client as dde_client
+	except ImportError:
+		_log.exception('<win32com> Python module not available for use in printing')
+		return False
+
+	i_explorer = dde_client.Dispatch("InternetExplorer.Application")
+	i_explorer.Navigate(os.path.normpath(filename))
+	if i_explorer.Busy:
+		time.sleep(1)
+	i_explorer.Document.printAll()
+	i_explorer.Quit()
+
+	return True
+#-----------------------------------------------------------------------
+def _print_file_by_gtklp(filename=None):
+
+	if os.name != 'posix':
+		_log.debug('<gtklp> only available under Linux')
+		return False
+
+	cmd_line = [
+		r'gtklp',				# "gtklp" must be in the PATH
+		r'-i',					# ignore STDIN garbage
+		r'-# 1',				# 1 copy
+		filename
+	]
+	_log.debug('printing with %s' % cmd_line)
+	try:
+		gtklp = subprocess.Popen(cmd_line, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	except OSError:
+		_log.debug('cannot run <gtklp>')
+		return False
+	#except ValueError:		# invalid arguments == programming error
+	stdout, stderr = gtklp.communicate()
+	if gtklp.returncode != 0:
+		_log.error('<gtklp> returned [%s], failed to print', gtklp.returncode)
+		return False
+
+	return True
+#-----------------------------------------------------------------------
+def _print_file_by_gsprint_exe(filename=None):
+	"""Use gsprint.exe from Ghostscript tools. Windows only.
+
+	- docs: http://pages.cs.wisc.edu/~ghost/gsview/gsprint.htm
+	- download: http://www.cs.wisc.edu/~ghost/
+	"""
+	if os.name != 'nt':
+		_log.debug('<gsprint.exe> only available under Windows')
+		return False
+
+	conf_filename = gmTools.get_unique_filename(prefix = 'gm2gsprint-', suffix = '.cfg')
+	conf_file = codecs.open(conf_filename, 'wb', 'utf8')
+	conf_file.write('-color\n')
+	conf_file.write('-query\n')				# printer setup dialog
+	conf_file.write('-all\n')				# all pages
+	conf_file.write('-copies 1\n')
+	conf_file.write('%s\n' % os.path.normpath(filename))
+	conf_file.close()
+
+	# "gsprint.exe" must be in the PATH
+	cmd_line = [ r'gsprint.exe', r'-config "%s"' % conf_filename ]
+	_log.debug('printing with %s' % cmd_line)
+	try:
+		gsprint = subprocess.Popen(cmd_line, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	except OSError:
+		_log.debug('cannot run <gsprint.exe>')
+		return False
+	#except ValueError:		# invalid arguments == programming error
+	stdout, stderr = gsprint.communicate()
+	if gsprint.returncode != 0:
+		_log.error('<gsprint.exe> returned [%s], failed to print', gsprint.returncode)
+		return False
+
+	return True
+#-----------------------------------------------------------------------
+def _print_file_by_acroread_exe(filename):
+	"""Use Adobe Acrobat Reader. Windows only.
+
+	- docs: http://www.robvanderwoude.com/printfiles.php#PrintPDF
+	"""
+	if os.name != 'nt':
+		_log.debug('Acrobat Reader only used under Windows')
+		return False
+
+	cmd_line = [
+		r'AcroRd32.exe',			# "AcroRd32.exe" must be in the PATH
+		r'/s',						# no splash
+		r'/o',						# no open-file dialog
+		r'/h',						# minimized
+		r'/p',						# go straight to printing dialog
+		os.path.normpath(filename)
+	]
+	_log.debug('printing with %s' % cmd_line)
+	try:
+		acroread = subprocess.Popen(cmd_line, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	except OSError:
+		_log.debug('cannot run <AcroRd32.exe>')
+		cmd_line[0] = r'acroread.exe'
+		_log.debug('printing with %s' % cmd_line)
+		try:
+			acroread = subprocess.Popen(cmd_line, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+		except OSError:
+			_log.debug('cannot run <acroread.exe>')
+			return False
+
+	stdout, stderr = acroread.communicate()
+	if acroread.returncode != 0:
+		_log.error('Acrobat Reader returned [%s], failed to print', acroread.returncode)
+		return False
+
+	return True
+#-----------------------------------------------------------------------
+def _print_file_by_os_startfile(filename=None):
 
 	_log.debug('printing [%s]', filename)
 
@@ -71,7 +253,7 @@ def __print_file_by_os_startfile(filename=None):
 
 	return True
 #-----------------------------------------------------------------------
-def __print_file_by_shellscript(filename=None, jobtype=None):
+def _print_file_by_shellscript(filename=None, jobtype=None):
 
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-print_doc')
