@@ -54,27 +54,24 @@ def print_file(filename=None, jobtype=None, print_api=None):
 
 	if print_api == u'os_startfile':
 		return _print_file_by_os_startfile(filename = filename)
-
-	if print_api == u'gm-print_doc':
+	elif print_api == u'gm-print_doc':
 		return _print_file_by_shellscript(filename = filename, jobtype = jobtype)
-
-	if print_api == u'gsprint':
+	elif print_api == u'gsprint':
 		return _print_file_by_gsprint_exe(filename = filename)
-
-	if print_api == u'acrobat_reader':
+	elif print_api == u'acrobat_reader':
 		return _print_file_by_acroread_exe(filename = filename)
-
-	if print_api == u'gtklp':
+	elif print_api == u'gtklp':
 		return _print_file_by_gtklp(filename = filename)
-
-	if print_api == u'Internet_Explorer':
+	elif print_api == u'Internet_Explorer':
 		return _print_file_by_IE(filename = filename)
-
-	if print_api == u'Mac_Preview':
+	elif print_api == u'Mac_Preview':
 		return _print_file_by_mac_preview(filename = filename)
 
 	# else try all
-	if os.name == 'posix':
+	if (sys.platform == 'darwin') or (os.name == 'mac'):
+		if _print_file_by_mac_preview(filename = filename):
+			return True
+	elif os.name == 'posix':
 		if _print_file_by_gtklp(filename = filename):
 			return True
 	elif os.name == 'nt':
@@ -86,9 +83,6 @@ def print_file(filename=None, jobtype=None, print_api=None):
 			return True
 		if _print_file_by_IE(filename = filename):
 			return True
-	elif os.name == 'mac':
-		if _print_file_by_mac_preview(filename = filename):
-			return True
 
 	if _print_file_by_shellscript(filename = filename, jobtype = jobtype):
 		return True
@@ -99,7 +93,8 @@ def print_file(filename=None, jobtype=None, print_api=None):
 #-----------------------------------------------------------------------
 def _print_file_by_mac_preview(filename=None):
 
-	if os.name != 'mac':
+	if sys.platform != 'darwin':
+#	if os.name != 'mac':
 		_log.debug('MacOSX <open> only available under MacOSX/Darwin')
 		return False
 
@@ -145,7 +140,8 @@ def _print_file_by_IE(filename=None):
 #-----------------------------------------------------------------------
 def _print_file_by_gtklp(filename=None):
 
-	if os.name != 'posix':
+	if sys.platform != 'linux2':
+#	if os.name != 'posix':
 		_log.debug('<gtklp> only available under Linux')
 		return False
 
