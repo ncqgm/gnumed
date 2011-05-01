@@ -276,7 +276,6 @@ def __get_backend_profiles():
 
 # ------------------------------------------------------------
 def GetLoginInfo(username=None, password=None, backend=None ):
-	
 		# username is provided through the web interface
 		# password is provided
 		# we need the profile
@@ -288,7 +287,7 @@ def GetLoginInfo(username=None, password=None, backend=None ):
 		#self.__backend_profiles = self.__get_backend_profiles()
 		__backend_profiles = __get_backend_profiles()
 		profile = __backend_profiles[backend.encode('utf8').strip()]
-		
+
 		_log.debug(u'backend profile "%s" selected', profile.name)
 		_log.debug(u' details: <%s> on %s@%s:%s (%s, %s)',
 			username,

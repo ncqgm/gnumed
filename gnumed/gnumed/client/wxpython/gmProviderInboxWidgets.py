@@ -942,7 +942,7 @@ GNUmed for message category and type:
 		self.__focussed_msg = tmp
 
 		# build menu
-		menu = wx.Menu(title = _('Inbox Message menu'))
+		menu = wx.Menu(title = _('Inbox Message Actions:'))
 
 		if not self.__focussed_msg['is_virtual']:
 			# - delete message
