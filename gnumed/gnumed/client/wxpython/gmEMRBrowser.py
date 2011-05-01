@@ -267,7 +267,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __make_popup_menus(self):
 
 		# - episodes
-		self.__epi_context_popup = wx.Menu(title = _('Episode Menu'))
+		self.__epi_context_popup = wx.Menu(title = _('Episode Actions:'))
 
 		menu_id = wx.NewId()
 		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit details')))
@@ -286,7 +286,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__move_encounters)
 
 		# - encounters
-		self.__enc_context_popup = wx.Menu(title = _('Encounter Menu'))
+		self.__enc_context_popup = wx.Menu(title = _('Encounter Actions:'))
 		# - move data
 		menu_id = wx.NewId()
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Move data to another episode')))
@@ -306,7 +306,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
 
 		# - health issues
-		self.__issue_context_popup = wx.Menu(title = _('Health Issue Menu'))
+		self.__issue_context_popup = wx.Menu(title = _('Health Issue Actions:'))
 
 		menu_id = wx.NewId()
 		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Edit details')))
@@ -325,7 +325,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# print " move all episodes to another issue"
 
 		# - root node
-		self.__root_context_popup = wx.Menu(title = _('EMR Menu'))
+		self.__root_context_popup = wx.Menu(title = _('EMR Actions:'))
 
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Create health issue')))

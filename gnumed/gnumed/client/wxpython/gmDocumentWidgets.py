@@ -1203,7 +1203,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __build_context_menus(self):
 
 		# --- part context menu ---
-		self.__part_context_menu = wx.Menu(title = _('part menu'))
+		self.__part_context_menu = wx.Menu(title = _('Part Actions:'))
 
 		ID = wx.NewId()
 		self.__part_context_menu.Append(ID, _('Display part'))
@@ -1230,7 +1230,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__part_context_menu.AppendSeparator()			# so we can append some items
 
 		# --- doc context menu ---
-		self.__doc_context_menu = wx.Menu(title = _('document menu'))
+		self.__doc_context_menu = wx.Menu(title = _('Document Actions:'))
 
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')

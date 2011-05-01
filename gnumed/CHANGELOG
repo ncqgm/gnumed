@@ -12,6 +12,8 @@ NEW: use os.startfile() for printing where available
 NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
+IMPROVED: config file comments
+IMPROVED: context menu titles
 
 ------------------------------------------------
 # rel-0-9-patches
