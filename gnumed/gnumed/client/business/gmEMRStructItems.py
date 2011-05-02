@@ -673,6 +673,26 @@ from (
 			return False
 		return True
 	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) values (%(epi)s, %(code)s)"
+		args = {
+			'epi': self._payload[self._idx['pk_episode']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code = %(code)s"
+		args = {
+			'epi': self._payload[self._idx['pk_episode']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
 		rows = gmClinNarrative.get_as_journal (
 			episodes = (self.pk_obj,),
@@ -947,6 +967,19 @@ from (
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_codes(self):
+		cmd = u"""
+			SELECT * FROM clin.v_linked_codes WHERE
+				item_table = 'clin.lnk_code2episode'::regclass
+					AND
+				pk_item = %(epi)s
+		"""
+		args = {'epi': self._payload[self._idx['pk_episode']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+
+	codes = property(_get_codes, lambda x:x)
 	#--------------------------------------------------------
 	def _get_has_narrative(self):
 		cmd = u"""SELECT EXISTS (
@@ -2093,7 +2126,11 @@ if __name__ == '__main__':
 		for t in tests:
 			print type(t), t
 			print type(diagnostic_certainty_classification2str(t)), diagnostic_certainty_classification2str(t)
-
+	#--------------------------------------------------------
+	def test_episode_codes():
+		epi = cEpisode(aPK_obj = 2)
+		print epi
+		print epi.codes
 	#--------------------------------------------------------
 	# run them
 	#test_episode()
@@ -2103,6 +2140,7 @@ if __name__ == '__main__':
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
-	test_encounter2latex()
+	#test_encounter2latex()
+	test_episode_codes()
 #============================================================
 

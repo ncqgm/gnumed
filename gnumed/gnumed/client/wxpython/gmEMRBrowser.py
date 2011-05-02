@@ -682,6 +682,19 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				'error: episode state is None'
 			) + u'\n'
 			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			codes = data.codes
+			if len(codes) > 0:
+				tt += u'\n'
+				for code in codes:
+					tt += u'%s: %s%s%s\n  (%s %s)\n' % (
+						code['code'],
+						gmTools.u_left_double_angle_quote,
+						code['term'],
+						gmTools.u_right_double_angle_quote,
+						code['name_short'],
+						code['version']
+					)
+
 			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '

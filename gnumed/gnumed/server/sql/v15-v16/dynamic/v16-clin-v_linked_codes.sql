@@ -31,12 +31,10 @@ select
 	r_csr.tableoid::regclass
 		as code_table,
 	r_csr.pk_coding_system
-		as pk_coding_system,
+		as pk_coding_system_root,
 	r_csr.fk_data_source
 		as pk_data_source,
-	c_lc2ir.pk_lnk_code2item,
-	c_lc2ir.fk_generic_code
-		as pk_generic_code
+	c_lc2ir.pk_lnk_code2item
 from
 	clin.lnk_code2item_root c_lc2ir
 		join ref.coding_system_root r_csr on r_csr.pk_coding_system = c_lc2ir.fk_generic_code
