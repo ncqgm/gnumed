@@ -16,6 +16,14 @@ grant select on clin.lnk_code2h_issue to group "gm-public";
 grant insert, update, delete on clin.lnk_code2h_issue to group "gm-doctors";
 grant usage on clin.lnk_code2h_issue_pk_seq to group "gm-doctors";
 
+\unset ON_ERROR_STOP
+alter table clin.lnk_code2h_issue drop constraint clin_lc2h_issue_code_uniq_per_item cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.lnk_code2h_issue
+	add constraint clin_lc2h_issue_code_uniq_per_item
+		unique(fk_generic_code, fk_item);
+
 -- --------------------------------------------------------------
 -- .fk_item
 comment on column clin.lnk_code2h_issue.fk_item is

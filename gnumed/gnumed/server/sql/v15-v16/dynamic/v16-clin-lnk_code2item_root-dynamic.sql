@@ -29,6 +29,16 @@ comment on column clin.lnk_code2item_root.fk_item is
 GRANT select on clin.lnk_code2item_root to "gm-public";
 GRANT usage on clin.lnk_code2item_root_pk_lnk_code2item_seq to "gm-public";
 
+
+-- apply this to child tables:
+--\unset ON_ERROR_STOP
+--alter table clin.lnk_code2xxx drop constraint clin_lc2xxx_code_uniq_per_item cascade;
+--\set ON_ERROR_STOP 1
+--
+--alter table clin.lnk_code2xxx
+--	add constraint clin_lc2xxx_code_uniq_per_item
+--		unique(fk_generic_code, fk_item);
+
 -- --------------------------------------------------------------
 -- .fk_generic_code
 comment on column clin.lnk_code2item_root.fk_generic_code is

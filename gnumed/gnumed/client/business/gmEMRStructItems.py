@@ -203,6 +203,26 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		# later we can improve this deeper inside
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
 	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) values (%(issue)s, %(code)s)"
+		args = {
+			'issue': self._payload[self._idx['pk_health_issue']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code = %(code)s"
+		args = {
+			'issue': self._payload[self._idx['pk_health_issue']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
 		rows = gmClinNarrative.get_as_journal (
 			issues = (self.pk_obj,),
@@ -470,6 +490,19 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_codes(self):
+		cmd = u"""
+			SELECT * FROM clin.v_linked_codes WHERE
+				item_table = 'clin.lnk_code2h_issue'::regclass
+					AND
+				pk_item = %(issue)s
+		"""
+		args = {'issue': self._payload[self._idx['pk_health_issue']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+
+	codes = property(_get_codes, lambda x:x)
 #============================================================
 def create_health_issue(description=None, encounter=None, patient=None):
 	"""Creates a new health issue for a given patient.
@@ -1300,6 +1333,26 @@ WHERE
 
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2encounter (fk_item, fk_generic_code) values (%(enc)s, %(code)s)"
+		args = {
+			'enc': self._payload[self._idx['pk_encounter']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2encounter WHERE fk_item = %(enc)s AND fk_generic_code = %(code)s"
+		args = {
+			'enc': self._payload[self._idx['pk_encounter']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
 	def format_soap(self, episodes=None, left_margin=0, soap_cats='soap', emr=None, issues=None):
 
 		lines = []
@@ -1550,6 +1603,21 @@ WHERE
 
 		eol_w_margin = u'\n%s' % (u' ' * left_margin)
 		return u'%s\n' % eol_w_margin.join(lines)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_codes(self):
+		cmd = u"""
+			SELECT * FROM clin.v_linked_codes WHERE
+				item_table = 'clin.lnk_code2encounter'::regclass
+					AND
+				pk_item = %(enc)s
+		"""
+		args = {'enc': self._payload[self._idx['pk_encounter']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+
+	codes = property(_get_codes, lambda x:x)
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.

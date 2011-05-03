@@ -16,6 +16,14 @@ grant select on clin.lnk_code2narrative to group "gm-public";
 grant insert, update, delete on clin.lnk_code2narrative to group "gm-doctors";
 grant usage on clin.lnk_code2narrative_pk_seq to group "gm-doctors";
 
+\unset ON_ERROR_STOP
+alter table clin.lnk_code2narrative drop constraint clin_lc2narr_code_uniq_per_item cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.lnk_code2narrative
+	add constraint clin_lc2narr_code_uniq_per_item
+		unique(fk_generic_code, fk_item);
+
 -- --------------------------------------------------------------
 -- .fk_item
 comment on column clin.lnk_code2narrative.fk_item is
