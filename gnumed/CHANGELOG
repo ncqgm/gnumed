@@ -6,6 +6,10 @@
 # rel-0-8-patches
 ------------------------------------------------
 
+	0.8.9
+
+FIX: failure to turn mxDateTime into pyDT when microseconds are present [thanks marco]
+
 	0.8.8
 
 FIX: failure to show patient image if created in a month with a name containing non-ASCII characters

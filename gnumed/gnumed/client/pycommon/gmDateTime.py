@@ -1359,8 +1359,8 @@ class cFuzzyTimestamp:
 			day = self.timestamp.day,
 			hour = self.timestamp.hour,
 			minute = self.timestamp.minute,
-			second = secs,
-			microsecond = msecs,
+			second = int(secs),
+			microsecond = int(msecs * 1000),
 			tzinfo = tz
 		)
 		return ts
