@@ -26,6 +26,7 @@ FIX: enable running arriba w/o an active patient
 FIX: cEpisode.get_narrative() ignored <soap_cats> argument
 FIX: wrapper around Python's deficient strftime() [thanks J.Jaarsveld]
 FIX: exception on displaying date deceased if not null [thanks J.Busser]
+FIX: exception on activating non-existant patient from inbox message [thanks Oliver]
 
 IMPROVED: make creating/updating tags a restricted procedure [thanks Rogerio]
 IMPROVED: slightly relax external app exit code check on Windows [thanks vbanait]
