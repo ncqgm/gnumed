@@ -18,18 +18,23 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.3 (database v15.3)',
-	'GNUmed 0.9.3 Release Notes:
+	'Release Notes for GNUmed 0.9.4 (database v15.4)',
+	'GNUmed 0.9.4 Release Notes:
 
-	0.9.3
+	0.9.4
 
-FIX: wxPython-MacOSX needs yet another way to detach sizer items [thanks J.Busser]
+FIX: gm-remove_person.sh did not properly delete persons [thanks J.Busser]
+FIX: enable running arriba w/o an active patient
+FIX: cEpisode.get_narrative() ignored <soap_cats> argument
+FIX: wrapper around Python"s deficient strftime() [thanks J.Jaarsveld]
+FIX: exception on displaying date deceased if not null [thanks J.Busser]
+FIX: exception on activating non-existant patient from inbox message [thanks Oliver]
 
-IMPROVED: naming of formatted item view in tree (Details -> Synopsis) [thanks J.Busser]
-IMRPOVED: synopsis formatting of episodes in EMR tree [thanks J.Busser]
-IMPROVED: wording of problem list headers in SOAP plugin [thanks S.Leibner]
-IMRPOVED: synopsis formatting of health issues in EMR tree [thanks J.Busser]
-IMPROVED: problem list formatting in SOAP plugin [thanks J.Busser]
+IMPROVED: make creating/updating tags a restricted procedure [thanks Rogerio]
+IMPROVED: slightly relax external app exit code check on Windows [thanks vbanait]
+IMPROVED: placeholder "soap_for_encounters" now sorts by SOAP cat rank, then by date [thanks vbanait]
+IMRPOVED: better remove SOAP-less encounters from consultation report output [thanks vbanait]
+IMPROVED: do not try to sign results if none selected
 ');
 
 -- --------------------------------------------------------------
