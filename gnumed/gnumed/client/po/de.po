@@ -10925,7 +10925,7 @@ msgid "message"
 msgstr "Nachricht"
 
 msgid "virtual message"
-msgstr "künstliche Nachricht"
+msgstr "Systemnachricht"
 
 msgid "everyone"
 msgstr "jeder"
@@ -10940,7 +10940,7 @@ msgid "Problem removing message from Inbox."
 msgstr "Problem beim Löschen der Nachricht aus dem Posteingang."
 
 msgid "This message cannot be edited because it is virtual."
-msgstr "Diese Nachricht kann nicht bearbeitet werden. Sie ist künstlich."
+msgstr "Sie können Systemnachrichten nicht bearbeiten."
 
 msgid "This message is already visible to all providers."
 msgstr "Diese Nachricht ging schon an alle Mitarbeiter."
