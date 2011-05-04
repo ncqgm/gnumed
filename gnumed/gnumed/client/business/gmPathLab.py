@@ -7,10 +7,13 @@ __license__ = "GPL"
 
 import types, sys, logging, codecs, decimal
 
-
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmLog2, gmDateTime, gmI18N
+
+from Gnumed.pycommon import gmDateTime
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmI18N
 	gmDateTime.init()
 from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2, gmTools
 from Gnumed.pycommon import gmDispatcher
@@ -801,10 +804,16 @@ def export_results_for_gnuplot(results=None, filename=None):
 		gp_data.write(u'\n\n"%s" "%s"\n' % (title, title))
 
 		prev_date = None
+		prev_year = None
 		for r in series[test_type]:
 			curr_date = r['clin_when'].strftime('%Y-%m-%d')
 			if curr_date == prev_date:
 				gp_data.write(u'\n# %s\n' % _('blank line inserted to allow for discontinued line drawing for same-day values'))
+			if r['clin_when'].year == prev_year:
+				when_template = '%b %d %H:%M'
+			else:
+				when_template = '%b %d %H:%M (%Y)'
+			prev_year = r['clin_when'].year
 			gp_data.write (u'%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
 				r['clin_when'].strftime('%Y-%m-%d_%H:%M'),
 				r['unified_val'],
@@ -815,7 +824,11 @@ def export_results_for_gnuplot(results=None, filename=None):
 				gmTools.coalesce(r['val_normal_max'], u'"<?>"'),
 				gmTools.coalesce(r['val_target_min'], u'"<?>"'),
 				gmTools.coalesce(r['val_target_max'], u'"<?>"'),
-				r['clin_when'].strftime('%b %d %H:%M')
+				gmDateTime.pydt_strftime (
+					r['clin_when'],
+					format = when_template,
+					accuracy = gmDateTime.acc_minutes
+				)
 			))
 			prev_date = curr_date
 
