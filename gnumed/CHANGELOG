@@ -22,6 +22,7 @@ IMPROVED: context menu titles
 	0.9.5
 
 FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
+FIX: adjust default Windows path to FreeDiams executable [thanks S.Hilbert]
 
 	0.9.4
 

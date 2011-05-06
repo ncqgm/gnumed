@@ -407,6 +407,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			r'/usr/bin/freediams',
 			r'freediams',
 			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
+			r'C:\Program Files\FreeDiams\freediams.exe',
 			r'c:\programs\freediams\freediams.exe',
 			r'freediams.exe'
 		])
