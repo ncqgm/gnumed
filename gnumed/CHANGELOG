@@ -6,6 +6,10 @@
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.5
+
+FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
+
 	0.9.4
 
 FIX: gm-remove_person.sh did not properly delete persons [thanks J.Busser]
