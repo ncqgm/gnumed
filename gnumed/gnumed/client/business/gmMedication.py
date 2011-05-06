@@ -962,8 +962,12 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False, cmd=None):
 
-		# must make sure csv file exists
-		open(self.default_csv_filename, 'wb').close()
+		try:
+			# must make sure csv file exists
+			open(self.default_csv_filename, 'wb').close()
+		except IOError:
+			_log.exception('problem creating GL/MMI <-> GNUmed exchange file')
+			return False
 
 		if cmd is None:
 			cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
