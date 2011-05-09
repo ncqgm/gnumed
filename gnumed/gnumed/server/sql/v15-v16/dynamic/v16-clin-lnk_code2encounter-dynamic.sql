@@ -8,34 +8,36 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-comment on table clin.lnk_code2encounter is
+-- RFE
+-- --------------------------------------------------------------
+comment on table clin.lnk_code2rfe is
 'Links codes to encounters.';
 
 
-grant select on clin.lnk_code2encounter to group "gm-public";
-grant insert, update, delete on clin.lnk_code2encounter to group "gm-doctors";
-grant usage on clin.lnk_code2encounter_pk_seq to group "gm-doctors";
+grant select on clin.lnk_code2rfe to group "gm-public";
+grant insert, update, delete on clin.lnk_code2rfe to group "gm-doctors";
+grant usage on clin.lnk_code2rfe_pk_seq to group "gm-doctors";
 
 \unset ON_ERROR_STOP
-alter table clin.lnk_code2encounter drop constraint clin_lc2enc_code_uniq_per_item cascade;
+alter table clin.lnk_code2rfe drop constraint clin_lc2rfe_code_uniq_per_item cascade;
 \set ON_ERROR_STOP 1
 
-alter table clin.lnk_code2encounter
-	add constraint clin_lc2enc_code_uniq_per_item
+alter table clin.lnk_code2rfe
+	add constraint clin_lc2rfe_code_uniq_per_item
 		unique(fk_generic_code, fk_item);
 
 -- --------------------------------------------------------------
 -- .fk_item
-comment on column clin.lnk_code2encounter.fk_item is
+comment on column clin.lnk_code2rfe.fk_item is
 'Foreign key to clin.encounter';
 
 
 \unset ON_ERROR_STOP
-alter table clin.lnk_code2encounter drop foreign key lnk_code2encounter_fk_item_fkey cascade;
+alter table clin.lnk_code2rfe drop foreign key lnk_code2rfe_fk_item_fkey cascade;
 \set ON_ERROR_STOP 1
 
 
-alter table clin.lnk_code2encounter
+alter table clin.lnk_code2rfe
 	add foreign key (fk_item)
 		references clin.encounter(pk)
 		on update cascade				-- update if encounter is updated
@@ -43,31 +45,96 @@ alter table clin.lnk_code2encounter
 
 
 \unset ON_ERROR_STOP
-drop index idx_c_lc2enc_fk_item cascade;
+drop index idx_c_lc2rfe_fk_item cascade;
 \set ON_ERROR_STOP 1
 
-create index idx_c_lc2enc_fk_item on clin.lnk_code2encounter(fk_item);
+create index idx_c_lc2rfe_fk_item on clin.lnk_code2rfe(fk_item);
 
 -- --------------------------------------------------------------
 -- .fk_generic_code
-comment on column clin.lnk_code2encounter.fk_generic_code is
+comment on column clin.lnk_code2rfe.fk_generic_code is
 'Custom foreign key to ref.coding_system_root.';
 
 
-alter table clin.lnk_code2encounter
+alter table clin.lnk_code2rfe
 	alter column fk_generic_code
 		set not null;
 
 
 -- INSERT
 create trigger tr_ins_lc2sth_fk_generic_code
-	before insert on clin.lnk_code2encounter
+	before insert on clin.lnk_code2rfe
 		for each row execute procedure clin.trf_ins_lc2sth_fk_generic_code();
 
 
 -- UPDATE
 create trigger tr_upd_lc2sth_fk_generic_code
-	before update on clin.lnk_code2encounter
+	before update on clin.lnk_code2rfe
+		for each row execute procedure clin.trf_upd_lc2sth_fk_generic_code();
+
+-- --------------------------------------------------------------
+-- AOE
+-- --------------------------------------------------------------
+comment on table clin.lnk_code2aoe is
+'Links codes to encounter.aoe.';
+
+
+grant select on clin.lnk_code2aoe to group "gm-public";
+grant insert, update, delete on clin.lnk_code2aoe to group "gm-doctors";
+grant usage on clin.lnk_code2aoe_pk_seq to group "gm-doctors";
+
+\unset ON_ERROR_STOP
+alter table clin.lnk_code2aoe drop constraint clin_lc2aoe_code_uniq_per_item cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.lnk_code2aoe
+	add constraint clin_lc2aoe_code_uniq_per_item
+		unique(fk_generic_code, fk_item);
+
+-- --------------------------------------------------------------
+-- .fk_item
+comment on column clin.lnk_code2aoe.fk_item is
+'Foreign key to clin.encounter';
+
+
+\unset ON_ERROR_STOP
+alter table clin.lnk_code2aoe drop foreign key lnk_code2aoe_fk_item_fkey cascade;
+\set ON_ERROR_STOP 1
+
+
+alter table clin.lnk_code2aoe
+	add foreign key (fk_item)
+		references clin.encounter(pk)
+		on update cascade				-- update if encounter is updated
+		on delete cascade;				-- delete if encounter is deleted
+
+
+\unset ON_ERROR_STOP
+drop index idx_c_lc2aoe_fk_item cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_c_lc2aoe_fk_item on clin.lnk_code2aoe(fk_item);
+
+-- --------------------------------------------------------------
+-- .fk_generic_code
+comment on column clin.lnk_code2aoe.fk_generic_code is
+'Custom foreign key to ref.coding_system_root.';
+
+
+alter table clin.lnk_code2aoe
+	alter column fk_generic_code
+		set not null;
+
+
+-- INSERT
+create trigger tr_ins_lc2sth_fk_generic_code
+	before insert on clin.lnk_code2aoe
+		for each row execute procedure clin.trf_ins_lc2sth_fk_generic_code();
+
+
+-- UPDATE
+create trigger tr_upd_lc2sth_fk_generic_code
+	before update on clin.lnk_code2aoe
 		for each row execute procedure clin.trf_upd_lc2sth_fk_generic_code();
 
 -- --------------------------------------------------------------
