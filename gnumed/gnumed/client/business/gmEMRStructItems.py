@@ -205,9 +205,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) values (%(issue)s, %(code)s)"
+		cmd = u"INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
 		args = {
-			'issue': self._payload[self._idx['pk_health_issue']],
+			'item': self._payload[self._idx['pk_health_issue']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -215,9 +215,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code = %(code)s"
+		cmd = u"DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
-			'issue': self._payload[self._idx['pk_health_issue']],
+			'item': self._payload[self._idx['pk_health_issue']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -496,9 +496,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			SELECT * FROM clin.v_linked_codes WHERE
 				item_table = 'clin.lnk_code2h_issue'::regclass
 					AND
-				pk_item = %(issue)s
+				pk_item = %(item)s
 		"""
-		args = {'issue': self._payload[self._idx['pk_health_issue']]}
+		args = {'item': self._payload[self._idx['pk_health_issue']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 
@@ -708,9 +708,9 @@ from (
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) values (%(epi)s, %(code)s)"
+		cmd = u"INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
 		args = {
-			'epi': self._payload[self._idx['pk_episode']],
+			'item': self._payload[self._idx['pk_episode']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -718,9 +718,9 @@ from (
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code = %(code)s"
+		cmd = u"DELETE FROM clin.lnk_code2episode WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
-			'epi': self._payload[self._idx['pk_episode']],
+			'item': self._payload[self._idx['pk_episode']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -1006,9 +1006,9 @@ from (
 			SELECT * FROM clin.v_linked_codes WHERE
 				item_table = 'clin.lnk_code2episode'::regclass
 					AND
-				pk_item = %(epi)s
+				pk_item = %(item)s
 		"""
-		args = {'epi': self._payload[self._idx['pk_episode']]}
+		args = {'item': self._payload[self._idx['pk_episode']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 
@@ -1333,21 +1333,31 @@ WHERE
 
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 	#--------------------------------------------------------
-	def add_code(self, pk_code=None):
+	def add_code(self, pk_code=None, field=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"INSERT INTO clin.lnk_code2encounter (fk_item, fk_generic_code) values (%(enc)s, %(code)s)"
+		if field == u'rfe':
+			cmd = u"INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		elif field == u'aoe':
+			cmd = u"INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		else:
+			raise ValueError('<field> must be one of "rfe" or "aoe", not "%s"', field)
 		args = {
-			'enc': self._payload[self._idx['pk_encounter']],
+			'item': self._payload[self._idx['pk_encounter']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 	#--------------------------------------------------------
-	def remove_code(self, pk_code=None):
+	def remove_code(self, pk_code=None, field=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"DELETE FROM clin.lnk_code2encounter WHERE fk_item = %(enc)s AND fk_generic_code = %(code)s"
+		if field == u'rfe':
+			cmd = u"DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		elif field == u'aoe':
+			cmd = u"DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		else:
+			raise ValueError('<field> must be one of "rfe" or "aoe", not "%s"', field)
 		args = {
-			'enc': self._payload[self._idx['pk_encounter']],
+			'item': self._payload[self._idx['pk_encounter']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -1606,18 +1616,31 @@ WHERE
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_codes(self):
+	def _get_rfe_codes(self):
 		cmd = u"""
 			SELECT * FROM clin.v_linked_codes WHERE
-				item_table = 'clin.lnk_code2encounter'::regclass
+				item_table = 'clin.lnk_code2rfe'::regclass
 					AND
-				pk_item = %(enc)s
+				pk_item = %(item)s
 		"""
-		args = {'enc': self._payload[self._idx['pk_encounter']]}
+		args = {'item': self._payload[self._idx['pk_encounter']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 
-	codes = property(_get_codes, lambda x:x)
+	rfe_codes = property(_get_rfe_codes, lambda x:x)
+	#--------------------------------------------------------
+	def _get_aoe_codes(self):
+		cmd = u"""
+			SELECT * FROM clin.v_linked_codes WHERE
+				item_table = 'clin.lnk_code2aoe'::regclass
+					AND
+				pk_item = %(item)s
+		"""
+		args = {'item': self._payload[self._idx['pk_encounter']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+
+	aoe_codes = property(_get_aoe_codes, lambda x:x)
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
@@ -2035,6 +2058,41 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			line = u'%s (%s)' % (line, self._payload[self._idx['episode']])
 
 		return line
+	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) values (%(issue)s, %(code)s)"
+		args = {
+			'issue': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(issue)s AND fk_generic_code = %(code)s"
+		args = {
+			'issue': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_codes(self):
+		cmd = u"""
+			SELECT * FROM clin.v_linked_codes WHERE
+				item_table = 'clin.lnk_code2procedure'::regclass
+					AND
+				pk_item = %(issue)s
+		"""
+		args = {'issue': self._payload[self._idx['pk_procedure']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
+
+	codes = property(_get_codes, lambda x:x)
 #-----------------------------------------------------------
 def get_performed_procedures(patient=None):
 

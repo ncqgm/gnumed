@@ -137,29 +137,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 
 	#xxxxxxxxxxxxxxxx
 	# support row_version in view
-
-	#--------------------------------------------------------
-	def get_codes(self):
-		"""Retrieves codes linked to *this* narrative.
-		"""
-		cmd = u"select code, xfk_coding_system from clin.coded_phrase where term=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['narrative']]]}])
-		return rows
-	#--------------------------------------------------------
-	def add_code(self, code=None, coding_system=None):
-		"""
-			Associates a code (from coding system) with this narrative.
-		"""
-		# insert new code
-		cmd = u"select clin.add_coded_phrase (%(narr)s, %(code)s, %(sys)s)"
-		args = {
-			'narr': self._payload[self._idx['narrative']],
-			'code': code,
-			'sys': coding_system
-		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		return True
-	#--------------------------------------------------------
+#	#--------------------------------------------------------
 	def format(self, left_margin=u'', fancy=False, width=75):
 
 		if fancy:
@@ -188,7 +166,41 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 #		lines.append('-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2narrative (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		args = {
+			'item': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		args = {
+			'item': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_codes(self):
+		cmd = u"""
+			SELECT * FROM clin.v_linked_codes WHERE
+				item_table = 'clin.lnk_code2narrative'::regclass
+					AND
+				pk_item = %(narr)s
+		"""
+		args = {'narr': self._payload[self._idx['pk_narrative']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
 
+	codes = property(_get_codes, lambda x:x)
 #============================================================
 # convenience functions
 #============================================================
