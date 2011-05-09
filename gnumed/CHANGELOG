@@ -12,8 +12,10 @@ NEW: use os.startfile() for printing where available
 NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
+IMPROVED: substance intake EA: field naming and title
 IMPROVED: config file comments
 IMPROVED: context menu titles
+IMPROVED: allergy manager: close button, confirm button naming
 
 ------------------------------------------------
 # rel-0-9-patches

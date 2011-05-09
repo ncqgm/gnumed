@@ -1587,7 +1587,7 @@ def delete_substance_intake(parent=None, substance=None):
 def edit_intake_of_substance(parent = None, substance=None):
 	ea = cSubstanceIntakeEAPnl(parent = parent, id = -1, substance = substance)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (substance is not None))
-	dlg.SetTitle(gmTools.coalesce(substance, _('Adding substance intake'), _('Editing substance intake')))
+	dlg.SetTitle(gmTools.coalesce(substance, _('Adding medication/non-medication substance intake'), _('Editing medication/non-medication substance intake')))
 	dlg.left_extra_button = (
 		_('Allergy'),
 		_('Document an allergy against this substance.'),
