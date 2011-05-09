@@ -16,6 +16,7 @@ IMPROVED: substance intake EA: field naming and title
 IMPROVED: config file comments
 IMPROVED: context menu titles
 IMPROVED: allergy manager: close button, confirm button naming
+IMPROVED: larger lower border in gnuplot templates so year gets displayed properly
 
 ------------------------------------------------
 # rel-0-9-patches
