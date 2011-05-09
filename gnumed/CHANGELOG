@@ -10,6 +10,7 @@
 
 NEW: use os.startfile() for printing where available
 NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
+NEW: use dem.remove_person(integer) DB function from gm-remove_person.sh
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: config file comments
@@ -742,6 +743,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	16.0
 
 NEW: clin.remove_old_empty_encounters()
+NEW: dem.remove_person(integer)
 
 ------------------------------------------------
 # gnumed_v15
