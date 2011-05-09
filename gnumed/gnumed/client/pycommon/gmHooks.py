@@ -117,8 +117,11 @@ def run_script(hook=None):
 		)
 		return False
 
-	script_mode = stat.S_IMODE(os.stat(full_script).st_mode)
-	if script_mode != 384:				# octal 0600
+	script_stat_val = os.stat(full_script)
+	_log.debug('hook script stat(): %s', script_stat_val)
+	script_perms = stat.S_IMODE(script_stat_val.st_mode)
+	_log.debug('hook script mode: %s (oktal: %s)', script_perms, oct(script_perms))
+	if script_perms != 384:				# octal 0600
 		gmDispatcher.send (
 			signal = 'statustext',
 			msg = _('Script must be readable by the calling user only (permissions "0600"): [%s].') % full_script

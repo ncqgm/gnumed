@@ -13,12 +13,22 @@ NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
 NEW: use dem.remove_person(integer) DB function from gm-remove_person.sh
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
+IMPROVED: substance intake EA: field naming and title
 IMPROVED: config file comments
 IMPROVED: context menu titles
+IMPROVED: allergy manager: close button, confirm button naming
+IMPROVED: larger lower border in gnuplot templates so year gets displayed properly
 
 ------------------------------------------------
 # rel-0-9-patches
 ------------------------------------------------
+
+	0.9.5
+
+FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
+FIX: adjust default Windows path to FreeDiams executable [thanks S.Hilbert]
+
+IMPROVED: logging of hook script permissions [thanks L.Capriles]
 
 	0.9.4
 

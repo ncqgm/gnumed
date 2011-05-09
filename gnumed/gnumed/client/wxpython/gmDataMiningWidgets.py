@@ -327,7 +327,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			import Gnuplot
 		except ImportError:
 			gmGuiHelpers.gm_show_info (
-				aMessage = _('Cannot import GNUplot python module.'),
+				aMessage = _('Cannot import "Gnuplot" python module.'),
 				aTitle = _('Query result visualizer')
 			)
 			return
