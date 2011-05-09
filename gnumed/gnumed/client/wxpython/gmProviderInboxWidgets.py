@@ -1041,6 +1041,12 @@ GNUmed for message category and type:
 		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None, pk_patient=None):
+
+		msg = _('Supposedly there are unreviewed documents\n'
+			'for patient [%s]. However, I cannot find\n'
+			'that patient in the GNUmed database.'
+		) % pk_patient
+
 		wx.BeginBusyCursor()
 
 		try:
@@ -1048,13 +1054,7 @@ GNUmed for message category and type:
 		except gmExceptions.ConstructorError:
 			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_patient)
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed documents\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		success = gmPatSearchWidgets.set_active_patient(patient = pat)
@@ -1062,47 +1062,63 @@ GNUmed for message category and type:
 		wx.EndBusyCursor()
 
 		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed documents\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
 	#--------------------------------------------------------
 	def _goto_measurements_review(self, pk_context=None, pk_patient=None):
+
+		msg = _('Supposedly there are unreviewed results\n'
+			'for patient [%s]. However, I cannot find\n'
+			'that patient in the GNUmed database.'
+		) % pk_patient
+
 		wx.BeginBusyCursor()
-		success = gmPatSearchWidgets.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_patient))
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_patient)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+
 		wx.EndBusyCursor()
+
 		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed results\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
 		return True
 	#--------------------------------------------------------
 	def _goto_vaccination_review(self, pk_context=None, pk_patient=None):
+
+		msg = _('Supposedly there are conflicting vaccinations\n'
+			'for patient [%s]. However, I cannot find\n'
+			'that patient in the GNUmed database.'
+		) % pk_patient
+
 		wx.BeginBusyCursor()
-		success = gmPatSearchWidgets.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = pk_patient))
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_patient)
+			gmGuiHelpers.gm_show_error(msg,	_('handling provider inbox item'))
+			return False
+
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+
 		wx.EndBusyCursor()
+
 		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are conflicting vaccinations\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		wx.CallAfter(gmVaccWidgets.manage_vaccinations)

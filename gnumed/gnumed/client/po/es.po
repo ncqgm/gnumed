@@ -1255,6 +1255,8 @@ msgid ""
 "\n"
 " %s"
 msgstr "La información de versión cargó de"
+"\n"
+" %s"
 
 msgid ""
 "Cannot connect to configuration database with:\n"

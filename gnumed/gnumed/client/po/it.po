@@ -229,7 +229,7 @@ msgid " %s test results\n"
 msgstr " %s risultati dei test\n"
 
 msgid " %s hospital stays\n"
-msgstr " ricoveri ospedalieri\n"
+msgstr " %s ricoveri ospedalieri\n"
 
 msgid ""
 " %s performed procedures\n"

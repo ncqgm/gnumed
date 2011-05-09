@@ -407,6 +407,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			r'/usr/bin/freediams',
 			r'freediams',
 			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
+			r'C:\Program Files\FreeDiams\freediams.exe',
 			r'c:\programs\freediams\freediams.exe',
 			r'freediams.exe'
 		])
@@ -962,8 +963,12 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False, cmd=None):
 
-		# must make sure csv file exists
-		open(self.default_csv_filename, 'wb').close()
+		try:
+			# must make sure csv file exists
+			open(self.default_csv_filename, 'wb').close()
+		except IOError:
+			_log.exception('problem creating GL/MMI <-> GNUmed exchange file')
+			return False
 
 		if cmd is None:
 			cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg

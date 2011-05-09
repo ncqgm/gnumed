@@ -12,12 +12,21 @@ NEW: use os.startfile() for printing where available
 NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
+IMPROVED: substance intake EA: field naming and title
 IMPROVED: config file comments
 IMPROVED: context menu titles
+IMPROVED: allergy manager: close button, confirm button naming
 
 ------------------------------------------------
 # rel-0-9-patches
 ------------------------------------------------
+
+	0.9.5
+
+FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
+FIX: adjust default Windows path to FreeDiams executable [thanks S.Hilbert]
+
+IMPROVED: logging of hook script permissions [thanks L.Capriles]
 
 	0.9.4
 
@@ -26,6 +35,7 @@ FIX: enable running arriba w/o an active patient
 FIX: cEpisode.get_narrative() ignored <soap_cats> argument
 FIX: wrapper around Python's deficient strftime() [thanks J.Jaarsveld]
 FIX: exception on displaying date deceased if not null [thanks J.Busser]
+FIX: exception on activating non-existant patient from inbox message [thanks Oliver]
 
 IMPROVED: make creating/updating tags a restricted procedure [thanks Rogerio]
 IMPROVED: slightly relax external app exit code check on Windows [thanks vbanait]
