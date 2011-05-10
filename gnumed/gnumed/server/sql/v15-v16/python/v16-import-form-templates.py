@@ -5,15 +5,15 @@
 # Author: karsten.hilbert@gmx.net
 # 
 #==============================================================
-
-#--------------------------------------------------------------
 import os
 
 from Gnumed.pycommon import gmPG2
 
 #--------------------------------------------------------------
+
 def run(conn=None):
 
+	# medication list
 	gmPG2.file2bytea (
 		query = u"""
 update ref.paperwork_templates
@@ -21,24 +21,12 @@ set
 	data = %(data)s::bytea,
 	external_version = 'v16.0'
 where
-	name_long = '1 test type plot script (GNUmed default)'
+	name_long = 'Current medication list (GNUmed default)'
 """,
-		filename = os.path.join('..', 'sql', 'v15-v16', 'data', 'v16-gm2gpl-plot_1_test.scr'),
-		conn = conn
-	)
-
-	gmPG2.file2bytea (
-		query = u"""
-update ref.paperwork_templates
-set
-	data = %(data)s::bytea,
-	external_version = 'v16.0'
-where
-	name_long = '2 test types plot script (GNUmed default)'
-""",
-		filename = os.path.join('..', 'sql', 'v15-v16', 'data', 'v16-gm2gpl-plot_2_tests.scr'),
+		filename = os.path.join('..', 'sql', 'v15-v16', 'data', 'v16-GNUmed-default_medication_list_template.tex'),
 		conn = conn
 	)
 
 	return True
+
 #==============================================================
