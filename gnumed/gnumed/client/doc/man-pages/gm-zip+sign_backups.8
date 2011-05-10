@@ -1,0 +1,55 @@
+.TH GM-ZIP+SIGN_BACKUPS 8 "2011 May 10th" "GNUmed database backup zip+sign"
+
+.SH NAME
+.B gm-zip+sign_backups
+- pack and sign backups of GNUmed databases
+
+.SH SYNOPSIS
+.B gm-zip+sign_backups
+
+.SH DESCRIPTION
+The
+.B gm-zip+sign_backups
+script compresses and signs GNUmed database backups.
+
+It is a really good idea to use it in a daily cron/anacron
+job to ensure that GNUmed patient data are safe against data
+loss.  The Debian GNU/Linux packaged version of the GNUmed
+server installs such a cron job by default.
+
+.SH EXAMPLES
+
+.B anacron
+
+The following line could be added to a system's
+/etc/anacrontab to make sure it creates daily
+database backups for GNUmed:
+
+1 15 gnumed-<your-company>-sign-backups /usr/bin/gm-zip+sign_backups.sh
+
+.B cron
+
+Add the following line to a crontab file to sign
+database backups at 12:47 and 19:47 every day:
+
+47 12,19 * * * * /usr/bin/gm-zip+sign_backups.sh
+
+.B PROCMAIL
+
+It is useful to have a PROCMAIL rule for the digital notary
+server replies piping them into the stoarage area where the
+backups are kept.
+
+
+.SH SEE ALSO
+gm-backup_database(8)
+
+/etc/gnumed/gnumed-backup.conf
+
+anacron(8)
+
+cron(8)
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert, for the
+Debian GNU/Linux system (but may be used by others).

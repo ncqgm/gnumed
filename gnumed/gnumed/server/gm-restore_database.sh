@@ -10,6 +10,8 @@
 # file you intend to use is a link to the actual backup.
 # Use the full path instead.
 #
+# Best run as root.
+#
 # author: Karsten Hilbert
 # license: GPL v2
 #==============================================================
@@ -111,7 +113,7 @@ echo "   Please edit it to only include the roles you need for GNUmed."
 echo ""
 echo "   Remember that in PostgreSQL scripts the comment marker is \"--\"."
 echo ""
-read -e -p "   Press <ENTER> to continue."
+read -e -p "   Press <ENTER> to start editing."
 editor ${BACKUP}-roles.sql
 
 

@@ -15,8 +15,8 @@
 #
 # cron
 # ----
-#  add the following line to a crontab file to run a
-#  database backup at 12:47 and 19:47 every day
+#  Add the following line to a crontab file to sign
+#  database backups at 12:47 and 19:47 every day:
 #
 #  47 12,19 * * * * /usr/bin/gm-zip+sign_backups.sh
 #
