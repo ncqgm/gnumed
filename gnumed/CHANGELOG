@@ -18,6 +18,7 @@ IMPROVED: config file comments
 IMPROVED: context menu titles
 IMPROVED: allergy manager: close button, confirm button naming
 IMPROVED: larger lower border in gnuplot templates so year gets displayed properly
+IMPROVED: detection of external executables
 
 ------------------------------------------------
 # rel-0-9-patches
