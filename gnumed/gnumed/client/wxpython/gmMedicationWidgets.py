@@ -1268,7 +1268,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			)
 
 		if intake is None:
-			gmDispatcher.send('statustext', msg = _('Cannot add duplicate substance intake.'), beep = True)
+			gmDispatcher.send('statustext', msg = _('Cannot add duplicate of (maybe inactive) substance intake.'), beep = True)
 			return False
 
 		intake['started'] = self._DP_started.GetData()

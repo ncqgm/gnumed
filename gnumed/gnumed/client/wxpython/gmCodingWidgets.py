@@ -18,7 +18,9 @@ if __name__ == '__main__':
 
 from Gnumed.business import gmCoding
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMatchProvider
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.ui')
@@ -63,6 +65,28 @@ def browse_coded_terms(parent=None, coding_systems=None, languages=None):
 #		middle_extra_button=None,
 #		right_extra_button=None
 	)
+
+#================================================================
+
+class cCodePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		query = u"""
+		"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(2, 3, 4)
+
+		mp.word_separators = '[ \t=+&/:-]+'
+		self.phrase_separators = ';'
+		self.selection_only = False			# not sure yet how this fares with multi-phrase input
+		self.SetToolTipString(_('Select one or more codes that apply.'))
+		self.matcher = mp
+
+
 #================================================================
 # main
 #----------------------------------------------------------------

@@ -7,8 +7,6 @@ import wx
 # begin wxGlade: extracode
 # end wxGlade
 
-
-
 class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
@@ -18,37 +16,94 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
+        self._TCTRL_Soap_codes = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
+        self._BTN_manage_Soap_codes = wx.Button(self, -1, _("+/-"), style=wx.BU_EXACTFIT)
         self._TCTRL_Soap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._TCTRL_sOap_codes = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
+        self._BTN_manage_sOap_codes = wx.Button(self, -1, _("+/-"), style=wx.BU_EXACTFIT)
         self._TCTRL_sOap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._TCTRL_soAp_codes = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
+        self._BTN_manage_soAp_codes = wx.Button(self, -1, _("+/-"), style=wx.BU_EXACTFIT)
         self._TCTRL_soAp = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._TCTRL_soaP_codes = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
+        self._BTN_manage_soaP_codes = wx.Button(self, -1, _("+/-"), style=wx.BU_EXACTFIT)
         self._TCTRL_soaP = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
-        self._PNL_visual_soap = cVisualSoapPresenterPnl(self, -1)
+        self._PNL_visual_soap = cVisualSoapPresenterPnl(self, -1, style=wx.NO_BORDER)
         self._TCTRL_summary = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_BUTTON, self._on_manage_Soap_codes_button_pressed, self._BTN_manage_Soap_codes)
+        self.Bind(wx.EVT_BUTTON, self._on_manage_sOap_codes_button_pressed, self._BTN_manage_sOap_codes)
+        self.Bind(wx.EVT_BUTTON, self._on_manage_soAp_codes_button_pressed, self._BTN_manage_soAp_codes)
+        self.Bind(wx.EVT_BUTTON, self._on_manage_soaP_codes_button_pressed, self._BTN_manage_soaP_codes)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._TCTRL_Soap_codes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._TCTRL_Soap_codes.SetToolTipString(_("Codes linked to this Subjective."))
+        self._BTN_manage_Soap_codes.SetToolTipString(_("Manage codes linked to this Subjective."))
+        self._TCTRL_sOap_codes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._TCTRL_sOap_codes.SetToolTipString(_("Codes linked to this Objective."))
+        self._BTN_manage_sOap_codes.SetToolTipString(_("Manage codes linked to this Objective."))
+        self._TCTRL_soAp_codes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._TCTRL_soAp_codes.SetToolTipString(_("Codes linked to this Assessment."))
+        self._BTN_manage_soAp_codes.SetToolTipString(_("Manage codes linked to this Assessment."))
+        self._TCTRL_soaP_codes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._TCTRL_soaP_codes.SetToolTipString(_("Codes linked to this Plan."))
+        self._BTN_manage_soaP_codes.SetToolTipString(_("Manage codes linked to this Plan."))
         self._TCTRL_summary.SetToolTipString(_("Here you can modify the cumulative summary of the problem (regardless of whether that is a new one, a health issue, or an episode)."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
+        __szr_soaP = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_soAp = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_sOap = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_Soap = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_Soap = wx.StaticText(self, -1, _("Subjective"))
-        __szr_main.Add(__lbl_Soap, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
+        __szr_Soap.Add(__lbl_Soap, 1, wx.ALIGN_CENTER_VERTICAL, 10)
+        __vline_Soap = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        __szr_Soap.Add(__vline_Soap, 0, wx.RIGHT|wx.EXPAND, 5)
+        __lbl_Soap_codes = wx.StaticText(self, -1, _("Codes:"))
+        __szr_Soap.Add(__lbl_Soap_codes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_Soap.Add(self._TCTRL_Soap_codes, 2, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_Soap.Add(self._BTN_manage_Soap_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_Soap, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
         __szr_main.Add(self._TCTRL_Soap, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
         __lbl_sOap = wx.StaticText(self, -1, _("Objective"))
-        __szr_main.Add(__lbl_sOap, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
+        __szr_sOap.Add(__lbl_sOap, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+        __vline_sOap = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        __szr_sOap.Add(__vline_sOap, 0, wx.RIGHT|wx.EXPAND, 5)
+        __lbl_sOap_codes = wx.StaticText(self, -1, _("Codes:"))
+        __szr_sOap.Add(__lbl_sOap_codes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_sOap.Add(self._TCTRL_sOap_codes, 2, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_sOap.Add(self._BTN_manage_sOap_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_sOap, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
         __szr_main.Add(self._TCTRL_sOap, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
         __lbl_soAp = wx.StaticText(self, -1, _("Assessment"))
-        __szr_main.Add(__lbl_soAp, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
+        __szr_soAp.Add(__lbl_soAp, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+        __vline_soAp = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        __szr_soAp.Add(__vline_soAp, 0, wx.RIGHT|wx.EXPAND, 5)
+        __lbl_soAp_codes = wx.StaticText(self, -1, _("Codes:"))
+        __szr_soAp.Add(__lbl_soAp_codes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_soAp.Add(self._TCTRL_soAp_codes, 2, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_soAp.Add(self._BTN_manage_soAp_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_soAp, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
         __szr_main.Add(self._TCTRL_soAp, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
         __lbl_soaP = wx.StaticText(self, -1, _("Plan"))
-        __szr_main.Add(__lbl_soaP, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
+        __szr_soaP.Add(__lbl_soaP, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+        __vline_soaP = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        __szr_soaP.Add(__vline_soaP, 0, wx.RIGHT|wx.EXPAND, 5)
+        __lbl_soaP_codes = wx.StaticText(self, -1, _("Codes:"))
+        __szr_soaP.Add(__lbl_soaP_codes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_soaP.Add(self._TCTRL_soaP_codes, 2, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_soaP.Add(self._BTN_manage_soaP_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_soaP, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
         __szr_main.Add(self._TCTRL_soaP, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
         __szr_main.Add(self._PNL_visual_soap, 0, wx.EXPAND, 0)
         _hline_above_summary = wx.StaticLine(self, -1)
@@ -59,6 +114,22 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
+
+    def _on_manage_Soap_codes_button_pressed(self, event): # wxGlade: wxgSoapNoteExpandoEditAreaPnl.<event_handler>
+        print "Event handler `_on_manage_Soap_codes_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_manage_sOap_codes_button_pressed(self, event): # wxGlade: wxgSoapNoteExpandoEditAreaPnl.<event_handler>
+        print "Event handler `_on_manage_sOap_codes_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_manage_soAp_codes_button_pressed(self, event): # wxGlade: wxgSoapNoteExpandoEditAreaPnl.<event_handler>
+        print "Event handler `_on_manage_soAp_codes_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_manage_soaP_codes_button_pressed(self, event): # wxGlade: wxgSoapNoteExpandoEditAreaPnl.<event_handler>
+        print "Event handler `_on_manage_soaP_codes_button_pressed' not implemented"
+        event.Skip()
 
 # end of class wxgSoapNoteExpandoEditAreaPnl
 

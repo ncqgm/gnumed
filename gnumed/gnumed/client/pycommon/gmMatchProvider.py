@@ -41,6 +41,7 @@ class cMatchProvider(object):
 
 		self._context_vals = {}
 		self.__ignored_chars = regex.compile(default_ignored_chars)
+		# used to normalize word boundaries:
 		self.__word_separators = regex.compile(default_word_separators)
 	#--------------------------------------------------------
 	# actions
