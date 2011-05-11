@@ -1267,6 +1267,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				preparation = self._PRW_preparation.GetValue().strip()
 			)
 
+		if intake is None:
+			gmDispatcher.send('statustext', msg = _('Cannot add duplicate substance intake.'), beep = True)
+			return False
+
 		intake['started'] = self._DP_started.GetData()
 		intake['discontinued'] = self._DP_discontinued.GetData()
 		if intake['discontinued'] is None:
@@ -1762,6 +1766,8 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 			pk_component = drug['pk_components'][0],
 			episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
 		)
+		if intake is None:
+			continue
 		intake['intake_is_approved_of'] = True
 		intake.save()
 
