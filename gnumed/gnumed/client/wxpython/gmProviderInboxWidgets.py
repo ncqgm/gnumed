@@ -834,8 +834,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for results insertion/deletion
 		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_message_inbox_mod_db)
-		# FIXME: listen for doc insertion/deletion
-		# FIXME: listen for doc reviews
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'doc_obj_review_mod_db', receiver = self._on_message_inbox_mod_db)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
