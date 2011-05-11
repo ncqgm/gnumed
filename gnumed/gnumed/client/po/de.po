@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-04-27 13:23+CEST\n"
-"PO-Revision-Date: 2011-04-27 13:24+0100\n"
+"POT-Creation-Date: 2011-05-11 11:34+CEST\n"
+"PO-Revision-Date: 2011-05-11 11:36+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -9494,6 +9494,9 @@ msgstr "Reaktion nicht dokumentiert"
 
 msgid "Cannot save substance intake. Invalid or missing essential input."
 msgstr "Kann Substanzeinnahme nicht speichern. Es fehlen grundlegende Informationen."
+
+msgid "Cannot add duplicate substance intake."
+msgstr "Diese Substanz wird bereits eingenommen. Duplikat wird nicht gespeichert."
 
 msgid ""
 "\n"

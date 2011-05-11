@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-04-27 13:23+CEST\n"
+"POT-Creation-Date: 2011-05-11 11:34+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8465,6 +8465,9 @@ msgid "reaction not recorded"
 msgstr ""
 
 msgid "Cannot save substance intake. Invalid or missing essential input."
+msgstr ""
+
+msgid "Cannot add duplicate substance intake."
 msgstr ""
 
 msgid ""
