@@ -4,7 +4,7 @@
 # Apply GNUmed database fixups.
 #
 # usage:
-#  fixup-db.sh vX <quiet>
+#  fixup-db.sh XX <quiet>
 #
 # prerequisites:
 #  fixup_db-vX.conf must exist

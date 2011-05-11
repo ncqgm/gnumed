@@ -51,66 +51,10 @@ echo "" > $SQL_FILE
 (
 cat <<-EOF
 	-- GNUmed person removal script
-
 	\set ON_ERROR_STOP 1
 	set default_transaction_read_only to off;
-
 	begin;
-
-		DELETE FROM clin.clin_hx_family WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.vaccination WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.allergy WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.allergy_state WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.clin_diag WHERE fk_narrative IN (
-			SELECT pk FROM clin.clin_narrative WHERE fk_encounter IN (
-				select pk from clin.encounter where fk_patient = ${PERSON_PK}
-			)
-		);
-		DELETE FROM clin.test_result WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.lab_request WHERE fk_encounter in (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.substance_intake WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.procedure WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM clin.clin_narrative WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-		DELETE FROM blobs.doc_med WHERE fk_encounter IN (
-			select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-
-
-		DELETE FROM clin.episode WHERE fk_encounter IN (
-		    select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-
-		DELETE FROM clin.health_issue WHERE fk_encounter IN (
-		    select pk from clin.encounter where fk_patient = ${PERSON_PK}
-		);
-
-		DELETE FROM clin.encounter WHERE fk_patient = ${PERSON_PK};
-
-		-- delete identity
-		DELETE FROM dem.identity_tag where fk_identity = ${PERSON_PK};
-		DELETE FROM dem.names WHERE id_identity = ${PERSON_PK};
-		ALTER TABLE dem.identity disable rule r_del_identity;
-		DELETE FROM dem.identity WHERE pk = ${PERSON_PK};
-		ALTER TABLE dem.identity enable rule r_del_identity;
-
+	select dem.remove_person(${PERSON_PK});
 	${END_TX};
 EOF
 ) >> $SQL_FILE
@@ -120,7 +64,7 @@ echo ""
 echo "Are you sure you want to remove the person #${PERSON_PK}"
 echo "*irrevocably* from the database \"${TARGET_DB}\" ?"
 echo ""
-read -e -p "Remove ? [yes / NO]:"
+read -e -p "Remove ? [yes / NO]: "
 if test "$REPLY" == "yes"; then
 	echo ""
 	echo "Removing person #${PERSON_PK} from database \"${TARGET_DB}\" ..."

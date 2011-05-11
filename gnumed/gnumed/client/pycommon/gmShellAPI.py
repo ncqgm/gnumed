@@ -7,63 +7,115 @@ __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import os, sys, logging
+import os
+import sys
+import logging
+import subprocess
+import shlex
 
 
 _log = logging.getLogger('gm.shell')
 _log.info(__version__)
 
 #===========================================================================
-def detect_external_binary(binary=None):
-	_log.debug('detecting [%s]', binary)
+def is_cmd_in_path(cmd=None):
 
-	# is it a sufficiently qualified path ?
+	_log.debug('cmd: [%s]', cmd)
+	dirname = os.path.dirname(cmd)
+	_log.debug('dir: [%s]', dirname)
+	if dirname != u'':
+		_log.info('command with full or relative path, not searching in PATH for binary')
+		return (None, None)
+
+	env_paths = os.environ['PATH']
+	_log.debug('${PATH}: %s', env_paths)
+	for path in env_paths.split(os.pathsep):
+		candidate = os.path.join(path, cmd)
+		if os.access(candidate, os.X_OK):
+			_log.debug('found [%s]', candidate)
+			return (True, candidate)
+		else:
+			_log.debug('not found: %s', candidate)
+
+	_log.debug('command not found in PATH')
+
+	return (False, None)
+#===========================================================================
+def is_executable_by_wine(cmd=None):
+
+	if not cmd.startswith('wine'):
+		_log.debug('not a WINE call: %s', cmd)
+		return (False, None)
+
+	exe_path = cmd.encode(sys.getfilesystemencoding())
+
+	exe_path = exe_path[4:].strip().strip('"').strip()
+	# [wine "/standard/unix/path/to/binary.exe"] ?
+	if os.access(exe_path, os.R_OK):
+		_log.debug('WINE call with UNIX path: %s', exe_path)
+		return (True, cmd)
+
+	# detect [winepath]
+	found, full_winepath_path = is_cmd_in_path(cmd = r'winepath')
+	if not found:
+		_log.error('[winepath] not found, cannot check WINE call for Windows path conformance: %s', exe_path)
+		return (False, None)
+
+	# [wine "drive:\a\windows\path\to\binary.exe"] ?
+	cmd_line = r'%s -u "%s"' % (
+		full_winepath_path.encode(sys.getfilesystemencoding()),
+		exe_path
+	)
+	_log.debug('converting Windows path to UNIX path: %s' % cmd_line)
+	cmd_line = shlex.split(cmd_line)
+	try:
+		winepath = subprocess.Popen (
+			cmd_line,
+			stdout = subprocess.PIPE,
+			stderr = subprocess.PIPE,
+			universal_newlines = True
+		)
+	except OSError:
+		_log.exception('cannot run <winepath>')
+		return (False, None)
+
+	stdout, stderr = winepath.communicate()
+	full_path = stdout.strip('\r\n')
+	_log.debug('UNIX path: %s', full_path)
+
+	if winepath.returncode != 0:
+		_log.error('<winepath -u> returned [%s], failed to convert path', winepath.returncode)
+		return (False, None)
+
+	if os.access(full_path, os.R_OK):
+		_log.debug('WINE call with Windows path')
+		return (True, cmd)
+
+	_log.warning('Windows path [%s] not verifiable under UNIX: %s', exe_path, full_path)
+	return (False, None)
+#===========================================================================
+def detect_external_binary(binary=None):
+	_log.debug('searching for [%s]', binary)
+
+	binary = binary.lstrip()
+
+	# is it a sufficiently qualified, directly usable, explicit path ?
 	if os.access(binary, os.X_OK):
+		_log.debug('found: executable explicit path')
 		return (True, binary)
 
-	# try "which" to find the full path
-	cmd = 'which %s' % binary
-	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
-	result = pipe.readline()
-	ret_code = pipe.close()
-	if ret_code is not None:
-		_log.debug('[%s] failed, exit code: %s', cmd, ret_code)
-	else:
-		result = result.strip('\r\n')
-		_log.debug('[%s] returned: %s', cmd, result)
-		# redundant on Linux but apparently necessary on MacOSX
-		if os.access(result, os.X_OK):
-			return (True, result)
-		else:
-			_log.debug('[%s] not detected with "which"', binary)
+	# can it be found in PATH ?
+	found, full_path = is_cmd_in_path(cmd = binary)
+	if found:
+		if os.access(full_path, os.X_OK):
+			_log.debug('found: executable in ${PATH}')
+			return (True, full_path)
 
-	# consider "d/m/s/locate" to find the full path
-
-	tmp = binary.lstrip()
-	# to be run by wine ?
-	if tmp.startswith('wine'):
-
-		tmp = tmp[4:].strip().strip('"')
-
-		# "wine /standard/unix/path/to/binary" ?
-		if os.access(tmp, os.R_OK):
-			_log.debug('wine call with UNIX path')
-			return (True, binary)
-
-		# 'wine "drive:\a\windows\path\to\binary"' ?
-		cmd = 'winepath -u "%s"' % tmp
-		pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
-		result = pipe.readline()
-		ret_code = pipe.close()
-		if ret_code is not None:
-			_log.debug('winepath failed')
-		else:
-			result = result.strip('\r\n')
-			if os.access(result, os.R_OK):
-				_log.debug('wine call with Windows path')
-				return (True, binary)
-			else:
-				_log.warning('"winepath -u %s" returned [%s] but the UNIX path is not verifiable', tmp, result)
+	# does it seem to be a call via WINE ?
+	is_wine_call, full_path = is_executable_by_wine(cmd = binary)
+	if is_wine_call:
+		_log.debug('found: is valid WINE call')
+		return (True, full_path)
 
 	return (False, None)
 #===========================================================================
@@ -74,10 +126,8 @@ def find_first_binary(binaries=None):
 
 	for cmd in binaries:
 		_log.debug('looking for [%s]', cmd)
-
 		if cmd is None:
 			continue
-
 		found, binary = detect_external_binary(binary = cmd)
 		if found:
 			break
@@ -198,7 +248,15 @@ if __name__ == '__main__':
 			print "-------------------------------------"
 			print "failure, consult log"
 	#---------------------------------------------------------
-	test_run_command_in_shell()
-	#test_detect_external_binary()
+	def test_is_cmd_in_path():
+		print is_cmd_in_path(cmd = sys.argv[2])
+	#---------------------------------------------------------
+	def test_is_executable_by_wine():
+		print is_executable_by_wine(cmd = sys.argv[2])
+	#---------------------------------------------------------
+	#test_run_command_in_shell()
+	test_detect_external_binary()
+	#test_is_cmd_in_path()
+	#test_is_executable_by_wine()
 
 #===========================================================================

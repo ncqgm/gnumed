@@ -1691,7 +1691,17 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 			)
 			RETURNING pk"""
 
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	try:
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	except gmPG2.dbapi.InternalError, e:
+		if e.pgerror is None:
+			raise
+		if 'prevent_duplicate_component' in e.pgerror:
+			_log.exception('will not create duplicate substance intake entry')
+			_log.error(e.pgerror)
+			return None
+		raise
+
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
 #------------------------------------------------------------
 def delete_substance_intake(substance=None):
