@@ -45,7 +45,7 @@ fi
 
 
 # sanity check: database exists ?
-#if ! su -c 'psql -t -l -p ${GM_PORT}' -l postgres | grep -q "^[[:space:]]*${TARGET_DB}" ; then
+#if ! su -c "psql -t -l -p ${GM_PORT}" -l postgres | grep -q "^[[:space:]]*${TARGET_DB}" ; then
 #	echo "You attempted to dump the schema of the"
 #	echo "GNUmed database ${TARGET_DB}. This"
 #	echo "database does not exist, however. Aborting."
