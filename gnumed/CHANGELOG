@@ -764,6 +764,11 @@ NEW: dem.remove_person(integer)
 # gnumed_v15
 ------------------------------------------------
 
+	15.5
+
+FIX: faulty quoting in database backup scripts using "su -c" [thanks Marc]
+
+
 	15.4
 
 IMPROVED: add list of consumable substances [thanks vbanait]
