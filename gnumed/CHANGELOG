@@ -32,6 +32,7 @@ IMPROVED: make inbox listen to/reload on doc/doc-review/identity changes
 FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
 FIX: adjust default Windows path to FreeDiams executable [thanks S.Hilbert]
 FIX: exception on trying to put patient on same drug twice [thanks J.Busser]
+FIX: Windows can't check hook script for -rw------- with os.stat() [thanks LuisCapriles]
 
 IMPROVED: logging of hook script permissions [thanks L.Capriles]
 
