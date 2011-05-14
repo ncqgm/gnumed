@@ -44,7 +44,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._PRW_encounter_end = cFuzzyTimestampInput(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self._TCTRL_rfe = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self._TCTRL_rfe_icpc = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
-        self.notebook_1_pane_1 = wxPanel(self._NB_soap_editors, -1)
+        self.notebook_1_pane_1 = wx.Panel(self._NB_soap_editors, -1)
         self._TCTRL_aoe = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self._TCTRL_aoe_icpc = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self._BTN_new_editor = wx.Button(self.__splitter_right_top_pnl, -1, _("&New"), style=wx.BU_EXACTFIT)
