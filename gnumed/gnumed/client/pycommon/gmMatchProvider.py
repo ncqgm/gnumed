@@ -461,7 +461,29 @@ class cMatchProvider_SQL2(cMatchProvider):
 				continue
 
 			for row in rows:
-				matches.append({'data': row[0], 'label': row[1], 'weight': 0})
+				match = {'weight': 0}
+
+				try:
+					match['data'] = row['data']
+				except KeyError:
+					match['data'] = row[0]
+
+				try:
+					match['list_label'] = row['list_label']
+				except KeyError:
+					match['list_label'] = row[1]
+
+				try:
+					match['field_label'] = row['field_label']
+				except KeyError:
+					match['field_label'] = match['list_label']
+
+				try:
+					match['label'] = row['label']
+				except KeyError:
+					match['label'] = row['list_label']
+
+				matches.append(match)
 
 			return (True, matches)
 		# none found whatsoever

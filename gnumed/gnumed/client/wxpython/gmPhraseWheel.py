@@ -80,7 +80,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			row_num = self.InsertStringItem(pos, label=item['label'])
+			row_num = self.InsertStringItem(pos, label=item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()
@@ -88,11 +88,17 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			return None
 		return self.__data[sel_idx]['data']
 	#--------------------------------------------------------
+	def get_selected_item(self):
+		sel_idx = self.GetFirstSelected()
+		if sel_idx == -1:
+			return None
+		return self.__data[sel_idx]
+	#--------------------------------------------------------
 	def get_selected_item_label(self):
 		sel_idx = self.GetFirstSelected()
 		if sel_idx == -1:
 			return None
-		return self.__data[sel_idx]['label']
+		return self.__data[sel_idx]['list_label']
 #============================================================
 # FIXME: cols in pick list
 # FIXME: snap_to_basename+set selection
@@ -189,7 +195,8 @@ class cPhraseWheel(wx.TextCtrl):
 
 	@param phrase_separators: if not None, input is split into phrases
 		at boundaries defined by this regex and matching/spellchecking
-		is performed on the phrase the cursor is in only
+		is performed on the phrase the cursor is in only, after selection
+		from picklist sep[0] is added to the end of the match in the PRW
 	@type phrase_separators: None or a string holding a valid regex pattern
 
 	@param navigate_after_selection: whether or not to immediately
@@ -216,7 +223,8 @@ class cPhraseWheel(wx.TextCtrl):
 		self.accepted_chars = None
 		self.final_regex = '.*'
 		self.final_regex_error_msg = _('The content is invalid. It must match the regular expression: [%%s]. <%s>') % self.__class__.__name__
-		self.phrase_separators = default_phrase_separators
+		#self.phrase_separators = default_phrase_separators
+		self.phrase_separators = None		# single-phrase by default
 		self.navigate_after_selection = False
 		self.speller = None
 		self.speller_word_separators = default_spelling_word_separators
@@ -227,11 +235,14 @@ class cPhraseWheel(wx.TextCtrl):
 		self.suppress_text_update_smarts = False
 		self.__current_matches = []
 		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
-		self.input2match = ''
-		self.left_part = ''
-		self.right_part = ''
+		self.input2match = u''
+		self.left_part = u''
+		self.right_part = u''
 		self.__static_tt = None
 		self.__static_tt_extra = None
+		# don't do this or the tooltip code will fail:
+		#self.data = None
+		# do this instead:
 		self.__data = None
 
 		self._on_selection_callbacks = []
@@ -322,7 +333,7 @@ class cPhraseWheel(wx.TextCtrl):
 			if match['data'] == data:
 				self.display_as_valid(valid = True)
 				self.suppress_text_update_smarts = True
-				wx.TextCtrl.SetValue(self, match['label'])
+				wx.TextCtrl.SetValue(self, match['field_label'])
 				self.data = data
 				return True
 
@@ -375,7 +386,7 @@ class cPhraseWheel(wx.TextCtrl):
 			stat, matches = self.matcher.getMatches(aFragment = value)
 
 		for match in matches:
-			if match['label'] == value:
+			if match['list_label'] == value:
 				self.data = match['data']
 				return True
 
@@ -455,11 +466,6 @@ class cPhraseWheel(wx.TextCtrl):
 
 		self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
 
-		# FIXME: support optional headers
-#		if kwargs['show_list_headers']:
-#			flags = 0
-#		else:
-#			flags = wx.LC_NO_HEADER
 		self._picklist = cPhraseWheelListCtrl (
 			list_parent,
 			style = wx.LC_NO_HEADER
@@ -490,9 +496,9 @@ class cPhraseWheel(wx.TextCtrl):
 		if len(self.__current_matches) == 0:
 			return
 
-		# if only one match and text == match
+		# if only one match and text == match: do not show picklist
 		if len(self.__current_matches) == 1:
-			if self.__current_matches[0]['label'] == self.input2match:
+			if self.__current_matches[0]['field_label'] == self.input2match:
 				self.data = self.__current_matches[0]['data']
 				return
 
@@ -559,33 +565,48 @@ class cPhraseWheel(wx.TextCtrl):
 		self._picklist.Select(new_row_idx)
 		self._picklist.EnsureVisible(new_row_idx)
 	#---------------------------------------------------------
+	def __extract_fragment_to_match_on(self):
+		if self.__phrase_separators is None:
+			self.input2match = self.GetValue().strip()
+			return
+
+		# get current(ly relevant part of) input
+		entire_input = self.GetValue()
+		#print "PRW contains", len(entire_input), "chars:", entire_input
+		if self.__phrase_separators.search(entire_input) is None:
+			self.left_part = u''
+			self.right_part = u''
+			self.input2match = self.GetValue().strip()
+			return
+
+		cursor_pos = self.GetInsertionPoint()
+		#print "cursor at:", cursor_pos
+		string_left_of_cursor = entire_input[:cursor_pos]
+		#print "left thereof:", string_left_of_cursor
+		string_right_of_cursor = entire_input[cursor_pos:]
+		#print "right thereof:", string_right_of_cursor
+		left_parts = [ lp.strip() for lp in self.__phrase_separators.split(string_left_of_cursor) ]
+		self.left_part = u'%s%s ' % (
+			(u'%s ' % self.__phrase_separators.pattern[0]).join(left_parts[:-1]),
+			self.__phrase_separators.pattern[0]
+		)
+		#print "left phrases:", self.left_part
+		right_parts = [ rp.strip() for rp in self.__phrase_separators.split(string_right_of_cursor) ]
+		self.right_part = u'%s %s' % (
+			self.__phrase_separators.pattern[0],
+			(u'%s ' % self.__phrase_separators.pattern[0]).join(right_parts[1:])
+		)
+		#print "right phrases:", self.right_part
+		self.input2match = (left_parts[-1] + right_parts[0]).strip()
+		#print "match fragment:", self.input2match
+	#---------------------------------------------------------
 	def __update_matches_in_picklist(self, val=None):
 		"""Get the matches for the currently typed input fragment."""
 
 		self.input2match = val
+		# no explicit fragment to match on:
 		if self.input2match is None:
-			if self.__phrase_separators is None:
-				self.input2match = self.GetValue().strip()
-			else:
-				# get current(ly relevant part of) input
-				entire_input = self.GetValue()
-				cursor_pos = self.GetInsertionPoint()
-				left_of_cursor = entire_input[:cursor_pos]
-				right_of_cursor = entire_input[cursor_pos:]
-				left_boundary = self.__phrase_separators.search(left_of_cursor)
-				if left_boundary is not None:
-					phrase_start = left_boundary.end()
-				else:
-					phrase_start = 0
-				self.left_part = entire_input[:phrase_start]
-				# find next phrase separator after cursor position
-				right_boundary = self.__phrase_separators.search(right_of_cursor)
-				if right_boundary is not None:
-					phrase_end = cursor_pos + (right_boundary.start() - 1)
-				else:
-					phrase_end = len(entire_input) - 1
-				self.right_part = entire_input[phrase_end+1:]
-				self.input2match = entire_input[phrase_start:phrase_end+1]
+			self.__extract_fragment_to_match_on()
 
 		# get all currently matching items
 		if self.matcher is not None:
@@ -608,11 +629,19 @@ class cPhraseWheel(wx.TextCtrl):
 						spells = self.speller.suggest(word)
 						truncated_input2match = self.input2match[:self.input2match.rindex(word)]
 						for spell in spells:
-							self.__current_matches.append({'label': truncated_input2match + spell, 'data': None})
+							self.__current_matches.append({'list_label': truncated_input2match + spell, 'data': None})
 						self._picklist.SetItems(self.__current_matches)
 	#--------------------------------------------------------
 	def _picklist_selection2display_string(self):
-		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
+		picklist_item = self._picklist.get_selected_item_data
+		try:
+			return picklist_item['field_label']
+		except KeyError:
+			pass
+		try:
+			return picklist_item['label']
+		except KeyError:
+			return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
 	# internal helpers: GUI
 	#--------------------------------------------------------
@@ -850,7 +879,11 @@ class cPhraseWheel(wx.TextCtrl):
 		# update our display
 		self.suppress_text_update_smarts = True
 		if self.__phrase_separators is not None:
-			wx.TextCtrl.SetValue(self, u'%s%s%s' % (self.left_part, self._picklist_selection2display_string(), self.right_part))
+			wx.TextCtrl.SetValue(self, u'%s%s%s' % (
+				self.left_part,
+				self._picklist_selection2display_string(),
+				self.right_part
+			))
 		else:
 			wx.TextCtrl.SetValue(self, self._picklist_selection2display_string())
 
@@ -992,7 +1025,7 @@ class cPhraseWheel(wx.TextCtrl):
 			if val != u'':
 				self.__update_matches_in_picklist()
 				for match in self.__current_matches:
-					if match['label'] == val:
+					if match['field_label'] == val:
 						self.data = match['data']
 						self.MarkDirty()
 						break
