@@ -211,10 +211,11 @@ def run_first_available_in_shell(binaries=None, args=None, blocking=False, run_l
 	found, binary = find_first_binary(binaries = binaries)
 
 	if not found:
+		_log.warning('cannot find any of: %s', binaries)
 		if run_last_one_anyway:
 			binary = binaries[-1]
+			_log.debug('falling back to trying to run [%s] anyway', binary)
 		else:
-			_log.warning('cannot find any of: %s', binaries)
 			return False
 
 	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking, acceptable_return_codes = acceptable_return_codes)
@@ -254,8 +255,8 @@ if __name__ == '__main__':
 	def test_is_executable_by_wine():
 		print is_executable_by_wine(cmd = sys.argv[2])
 	#---------------------------------------------------------
-	#test_run_command_in_shell()
-	test_detect_external_binary()
+	test_run_command_in_shell()
+	#test_detect_external_binary()
 	#test_is_cmd_in_path()
 	#test_is_executable_by_wine()
 
