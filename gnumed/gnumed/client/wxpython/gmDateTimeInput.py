@@ -109,10 +109,27 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 		matches = gmDateTime.str2pydt_matches(str2parse = aFragment.strip())
-		if len(matches) > 0:
-			return (True, matches)
-		else:
+
+		if len(matches) == 0:
 			return (False, [])
+
+		items = []
+		for match in matches:
+			if match['data'] is None:
+				list_label = match['label']
+			else:
+				list_label = gmDateTime.pydt_strftime (
+					match['data'],
+					format = '%A, %d. %B %Y (%x)',
+					accuracy = gmDateTime.acc_days
+				)
+			items.append ({
+				'data': match['data'],
+				'field_label': match['label'],
+				'list_label': list_label
+			})
+
+		return (True, items)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -128,20 +145,21 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 		matches = (False, [])
 		return matches
 
-		dlg = cCalendarDatePickerDlg(None)
-		# FIXME: show below parent
-		dlg.CentreOnScreen()
-
-		if dlg.ShowModal() == wx.ID_OK:
-			date = dlg.cal.Date
-			if date is not None:
-				if date.IsValid():
-					date = gmDateTime.wxDate2py_dt(wxDate = date)
-					lbl = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
-					matches = (True, [{'data': date, 'label': lbl}])
-		dlg.Destroy()
-
-		return matches
+#		# consider this:
+#		dlg = cCalendarDatePickerDlg(None)
+#		# FIXME: show below parent
+#		dlg.CentreOnScreen()
+#
+#		if dlg.ShowModal() == wx.ID_OK:
+#			date = dlg.cal.Date
+#			if date is not None:
+#				if date.IsValid():
+#					date = gmDateTime.wxDate2py_dt(wxDate = date)
+#					lbl = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+#					matches = (True, [{'data': date, 'label': lbl}])
+#		dlg.Destroy()
+#
+#		return matches
 #============================================================
 class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -152,21 +170,18 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = cDateMatchProvider()
 		self.phrase_separators = None
 
-		self.static_tooltip_extra = _('<ALT-C>: pick from calendar')
+		self.static_tooltip_extra = _('<ALT-C/K>: pick from (c/k)alendar')
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __text2timestamp(self, val=None):
-
-		if val is None:
-			val = self.GetValue().strip()
-
-		success, matches = self.matcher.getMatchesByPhrase(val)
-
-		if len(matches) == 1:
-			return matches[0]['data']
-
-		return None
+#	def __text2timestamp(self):
+#
+#		self._update_candidates_in_picklist(val = self.GetValue().strip())
+#
+#		if len(self._current_match_candidates) == 1:
+#			return self._current_match_candidates[0]['data']
+#
+#		return None
 	#--------------------------------------------------------
 	def __pick_from_calendar(self):
 		dlg = cCalendarDatePickerDlg(self)
@@ -193,18 +208,17 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
 		# are we valid ?
-		if self.data is None:
-			# no, so try
-			self.data = self.__text2timestamp()
+		if len(self._data) == 0:
+			self._set_data_to_first_match()
 
 		# let the base class do its thing
-		super(self.__class__, self)._on_lose_focus(event)
+		super(cDateInputPhraseWheel, self)._on_lose_focus(event)
 	#--------------------------------------------------------
-	def _picklist_selection2display_string(self):
-		data = self._picklist.GetSelectedItemData()
+	def _picklist_item2display_string(self, item=None):
+		data = item['data']
 		if data is not None:
 			return gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
-		return self._picklist.get_selected_item_label()
+		return item['field_label']
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 
@@ -215,14 +229,20 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				self.__pick_from_calendar()
 				return
 
-		super(self.__class__, self)._on_key_down(event)
+		super(cDateInputPhraseWheel, self)._on_key_down(event)
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
-		if self.data is None:
+		if len(self._data) == 0:
+			return u''
+
+		date = self.GetData()
+		# if match provider only provided completions
+		# but not a full date with it
+		if date is None:
 			return u''
 
 		return gmDateTime.pydt_strftime (
-			self.data,
+			date,
 			format = '%A, %d. %B %Y (%x)',
 			accuracy = gmDateTime.acc_days
 		)
@@ -260,13 +280,13 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			super(self.__class__, self).SetText(value = val, data = data)
 	#--------------------------------------------------------
 	def GetData(self):
-		if self.data is None:
-			self.data = self.__text2timestamp()
+		if len(self._data) == 0:
+			self._set_data_to_first_match()
 
 		return super(self.__class__, self).GetData()
 	#--------------------------------------------------------
 	def is_valid_timestamp(self, allow_empty=True):
-		if self.data is not None:
+		if len(self._data) > 0:
 			self.display_as_valid(True)
 			return True
 
@@ -283,8 +303,8 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self.display_as_valid(False)
 			return False
 
-		self.data = self.__text2timestamp()
-		if self.data is None:
+		self._set_data_to_first_match()
+		if len(self._data) == 0:
 			self.display_as_valid(False)
 			return False
 
@@ -294,10 +314,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	# properties
 	#--------------------------------------------------------
 	def _get_date(self):
-		return self.data
+		return self.GetData()
 
 	def _set_date(self, date):
-		self.data = date
+		raise AttributeError('._set_date not implemented')
+#		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+#		self.data = date
 
 	date = property(_get_date, _set_date)
 #============================================================
@@ -326,12 +348,29 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		self.__now = mxDT.now()
+#		self.__now = mxDT.now()
 		matches = gmDateTime.str2fuzzy_timestamp_matches(aFragment.strip())
-		if len(matches) > 0:
-			return (True, matches)
-		else:
+
+		if len(matches) == 0:
 			return (False, [])
+
+		items = []
+		for match in matches:
+#			if match['data'] is None:
+#				list_label = match['label']
+#			else:
+#				list_label = gmDateTime.pydt_strftime (
+#					match['data'].timestamp.format_accurately(),
+#					format = '%A, %d. %B %Y (%x)',
+#					accuracy = gmDateTime.acc_days
+#				)
+			items.append ({
+				'data': match['data'],
+				'field_label': match['label'],
+				'list_label': match['label']
+			})
+
+		return (True, items)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -343,7 +382,6 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
-		# FIXME: popup calendar to pick from
 		return (False, [])
 #==================================================
 class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
@@ -381,11 +419,11 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		# let the base class do its thing
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
 	#--------------------------------------------------------
-	def _picklist_selection2display_string(self):
-		data = self._picklist.GetSelectedItemData()
+	def _picklist_item2display_string(self, item=None):
+		data = item['data']
 		if data is not None:
 			return data.format_accurately()
-		return self._picklist.get_selected_item_label()
+		return item['field_label']
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -421,92 +459,6 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 
 		return True
 #==================================================
-class cTimeInput(wx.TextCtrl):
-	def __init__(self, parent, *args, **kwargs):
-		if len(args) < 2:
-			if not kwargs.has_key('value'):
-				kwargs['value'] = _('enter time here')
-		wx.TextCtrl.__init__(
-			self,
-			parent,
-			*args,
-			**kwargs
-		)
-#==================================================
-#class cDateInputCtrl(wx.DatePickerCtrl):
-#
-#	#----------------------------------------------
-#	def SetValue(self, value):
-#		"""Set either datetime.datetime or wx.DateTime"""
-#
-#		if isinstance(value, (pyDT.date, pyDT.datetime)):
-#			value = gmDateTime.py_dt2wxDate(py_dt = value, wx = wx)
-#
-#		elif value is None:
-#			value = wx.DefaultDateTime
-#
-#		wx.DatePickerCtrl.SetValue(self, value)
-#	#----------------------------------------------
-#	def GetValue(self, as_pydt=False, invalid_as_none=False):
-#		"""Returns datetime.datetime values"""
-#
-#		# datepicker can fail to pick up user changes by keyboard until
-#		# it has lost focus, so do that but also set the focus back to us,
-#		# now, this is a side-effect (after .GetValue focus will be
-#		# here) but at least it is predictable ...
-#		self.Navigate()
-#		self.SetFocus()
-#		value = wx.DatePickerCtrl.GetValue(self)
-#
-#		if value is None:
-#			return None
-#
-#		# manage null dates (useful when wx.DP_ALLOWNONE is set)
-#		if not value.IsValid():
-#			if invalid_as_none:
-#				return None
-#			else:
-#				return value
-#
-#		self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-#		self.Refresh()
-#
-#		if not as_pydt:
-#			return value
-#
-#		return gmDateTime.wxDate2py_dt(value)
-#	#----------------------------------------------
-#	# def convenience wrapper
-#	#----------------------------------------------
-#	def is_valid_timestamp(self, allow_none=True, invalid_as_none=False):
-#		val = self.GetValue(as_pydt = False, invalid_as_none = invalid_as_none)
-#
-#		if val is None:
-#			if allow_none:
-#				valid = True
-#			else:
-#				valid = False
-#		else:
-#			valid = val.IsValid()
-#
-#		if valid:
-#			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-#		else:
-#			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-#
-#		self.Refresh()
-#		return valid
-#	#----------------------------------------------
-#	def get_pydt(self):
-#		return self.GetValue(as_pydt = True)
-#	#----------------------------------------------
-#	def display_as_valid(self, valid=True):
-#		if valid is True:
-#			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-#		else:
-#			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-#		self.Refresh()
-#==================================================
 # main
 #--------------------------------------------------
 if __name__ == '__main__':
@@ -514,7 +466,7 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		sys.exit()
 
-	if sys.argv[2] != 'test':
+	if sys.argv[1] != 'test':
 		sys.exit()
 
 	gmI18N.activate_locale()
@@ -529,25 +481,26 @@ if __name__ == '__main__':
 		val = None
 		while val != 'exit':
 			print "************************************"
-			val = raw_input('Enter date fragment: ')
+			val = raw_input('Enter date fragment ("exit" to quit): ')
 			found, matches = mp.getMatches(aFragment=val)
 			for match in matches:
+				#print match
 				print match['label']
 				print match['data']
 				print "---------------"
 	#--------------------------------------------------------
-	def test_gui():
-		app = wx.PyWidgetTester(size = (200, 300))
+	def test_fuzzy_picker():
+		app = wx.PyWidgetTester(size = (300, 40))
 		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
 		app.MainLoop()
-#	#--------------------------------------------------------
-#	def test_picker():
-#		app = wx.PyWidgetTester(size = (200, 300))
-#		app.SetWidget(cDateInputCtrl, id=-1, size=(180,20), pos=(10,20))
-#		app.MainLoop()
+	#--------------------------------------------------------
+	def test_picker():
+		app = wx.PyWidgetTester(size = (300, 40))
+		app.SetWidget(cDateInputPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+		app.MainLoop()
 	#--------------------------------------------------------
 	#test_cli()
-	#test_gui()
-	test_picker()
+	test_fuzzy_picker()
+	#test_picker()
 
 #==================================================

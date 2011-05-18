@@ -1239,7 +1239,6 @@ def str2pydt_matches(str2parse=None, patterns=None):
 			text = str2parse,
 			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
 		)
-		# FIXME: convert to python datetime
 		matches.append ({
 			'data': mxdt2py_dt(date),
 			'label': date.strftime('%Y-%m-%d')
@@ -1904,20 +1903,18 @@ class cFuzzyTimestamp:
 			accuracy = acc_subseconds
 			modifier = ''
 
+		if (accuracy < 1) or (accuracy > 8):
+			raise ValueError('%s.__init__(): <accuracy> must be between 1 and 8' % self.__class__.__name__)
+
 		if isinstance(timestamp, pyDT.datetime):
 			timestamp = mxDT.DateTime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, timestamp.second)
 
 		if type(timestamp) != mxDT.DateTimeType:
-			raise TypeError, '%s.__init__(): <timestamp> must be of mx.DateTime.DateTime or datetime.datetime type' % self.__class__.__name__
+			raise TypeError('%s.__init__(): <timestamp> must be of mx.DateTime.DateTime or datetime.datetime type' % self.__class__.__name__)
 
 		self.timestamp = timestamp
-
-		if (accuracy < 1) or (accuracy > 8):
-			raise ValueError, '%s.__init__(): <accuracy> must be between 1 and 7' % self.__class__.__name__
 		self.accuracy = accuracy
-
 		self.modifier =  modifier
-
 	#-----------------------------------------------------------------------
 	# magic API
 	#-----------------------------------------------------------------------

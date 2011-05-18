@@ -196,7 +196,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		# look for matches
 		for item in self.__items:
 			# at start of phrase, that is
-			if string.find(string.lower(item['label']), aFragment) == 0:
+			if string.find(string.lower(item['list_label']), aFragment) == 0:
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -210,14 +210,14 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			pos = string.find(string.lower(item['label']), aFragment)
+			pos = string.find(string.lower(item['list_label']), aFragment)
 			# found at start of phrase
 			if pos == 0:
 				matches.append(item)
 			# found as a true substring
 			elif pos > 0:
 				# but use only if substring is at start of a word
-				if (item['label'])[pos-1] == ' ':
+				if (item['list_label'])[pos-1] == u' ':
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -231,7 +231,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			if string.find(string.lower(item['label']), aFragment) != -1:
+			if string.find(string.lower(item['list_label']), aFragment) != -1:
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -293,7 +293,7 @@ class cMatchProvider_Func(cMatchProvider):
 		# look for matches
 		for candidate in candidates:
 			# at start of phrase, that is
-			if aFragment.startswith(candidate['label'].lower()):
+			if aFragment.startswith(candidate['list_label'].lower()):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -309,12 +309,12 @@ class cMatchProvider_Func(cMatchProvider):
 		candidates = self._get_candidates()
 		# look for matches
 		for candidate in candidates:
-			pos = candidate['label'].lower().find(aFragment)
-#			pos = string.find(string.lower(candidate['label']), aFragment)
+			pos = candidate['list_label'].lower().find(aFragment)
+#			pos = string.find(string.lower(candidate['list_label']), aFragment)
 			# found as a true substring
 			# but use only if substring is at start of a word
 			# FIXME: use word seps
-			if (pos == 0) or (candidate['label'][pos-1] == ' '):
+			if (pos == 0) or (candidate['list_label'][pos-1] == u' '):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -329,8 +329,8 @@ class cMatchProvider_Func(cMatchProvider):
 		candidates = self._get_candidates()
 		# look for matches
 		for candidate in candidates:
-			if candidate['label'].lower().find(aFragment) != -1:
-#			if string.find(string.lower(candidate['label']), aFragment) != -1:
+			if candidate['list_label'].lower().find(aFragment) != -1:
+#			if string.find(string.lower(candidate['list_label']), aFragment) != -1:
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -473,19 +473,27 @@ class cMatchProvider_SQL2(cMatchProvider):
 				except KeyError:
 					match['list_label'] = row[1]
 
+				# explicit "field_label" in result ?
 				try:
 					match['field_label'] = row['field_label']
+				# no
 				except KeyError:
-					match['field_label'] = match['list_label']
+					# but does row[2] exist ?
+					try:
+						match['field_label'] = row[2]
+					# no: reuse "list_label"
+					except IndexError:
+						match['field_label'] = match['list_label']
 
-				try:
-					match['label'] = row['label']
-				except KeyError:
-					match['label'] = row['list_label']
+#				try:
+#					match['label'] = row['label']
+#				except KeyError:
+#					match['label'] = match['list_label']
 
 				matches.append(match)
 
 			return (True, matches)
+
 		# none found whatsoever
 		return (False, [])
 #================================================================
