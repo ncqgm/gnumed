@@ -988,16 +988,16 @@ def __numbers_only2py_dt(str2parse):
 		})
 
 	# day X of next month
-	ts = now + mxDT.RelativeDateTime(months = 1, day = val)
-	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+	if (val > 0) and (val < 32):
+		ts = now + mxDT.RelativeDateTime(months = 1, day = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('%d. of %s (next month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
 		})
 
 	# day X of last month
-	ts = now + mxDT.RelativeDateTime(months = -1, day = val)
-	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+	if (val > 0) and (val < 32):
+		ts = now + mxDT.RelativeDateTime(months = -1, day = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('%d. of %s (last month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
@@ -1243,7 +1243,7 @@ def str2pydt_matches(str2parse=None, patterns=None):
 			'data': mxdt2py_dt(date),
 			'label': date.strftime('%Y-%m-%d')
 		})
-	except (ValueError, mxDT.RangeError):
+	except (ValueError, OverflowError, mxDT.RangeError):
 		pass
 
 	# apply explicit patterns
@@ -1256,7 +1256,12 @@ def str2pydt_matches(str2parse=None, patterns=None):
 
 	for pattern in patterns:
 		try:
-			date = pyDT.datetime.strptime(str2parse, pattern)
+			date = pyDT.datetime.strptime(str2parse, pattern).replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				tzinfo = gmCurrentLocalTimezone
+			)
 			matches.append ({
 				'data': mxdt2py_dt(date),
 				'label': date.strftime('%Y-%m-%d')
