@@ -68,11 +68,11 @@ def browse_coded_terms(parent=None, coding_systems=None, languages=None):
 
 #================================================================
 
-class cGenericCodesPhraseWheel(gmPhraseWheel.cPhraseWheel):
+class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		super(cGenericCodesPhraseWheel, self).__init__(*args, **kwargs)
 
 		query = u"""
 			SELECT
@@ -83,32 +83,21 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			FROM (
 
 				SELECT
-					code AS data,
+					pk_generic_code AS data,
 					(code || ' (' || lang || ' - ' || coding_system || ' - ' || version || '): ' || term) AS list_label,
 					code AS field_label
 				FROM
 					ref.v_coded_terms
 				WHERE
 					term %(fragment_condition)s
-					%(ctxt_system)s
-					%(ctxt_lang)s
-
-				UNION ALL
-
-				SELECT
-					code AS data,
-					(code || ' (' || lang || ' - ' || coding_system || ' - ' || version || '): ' || term) AS list_label,
-					code AS field_label
-				FROM
-					ref.v_coded_terms
-				WHERE
+						OR
 					code %(fragment_condition)s
 					%(ctxt_system)s
 					%(ctxt_lang)s
 
 			) AS applicable_codes
 			ORDER BY list_label
-			LIMIT 35
+			LIMIT 30
 		"""
 		ctxt = {
 			'ctxt_system': {				# must be a TUPLE !
@@ -130,10 +119,12 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = False			# not sure yet how this fares with multi-phrase input
 		self.SetToolTipString(_('Select one or more codes that apply.'))
 		self.matcher = mp
-	#--------------------------------------------------------
-	def _picklist_selection2display_string(self):
-		return self._picklist.GetSelectedItemData()
+	#------------------------------------------------------------
+	def _get_data_tooltip(self):
+		if len(self.data) == 0:
+			return u''
 
+		return u';\n'.join([ i['list_label'] for i in self.data.values() ]) + u';'
 #================================================================
 # main
 #----------------------------------------------------------------
@@ -153,10 +144,9 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_generic_codes_prw():
 		gmPG2.get_connection()
-		app = wx.PyWidgetTester(size = (200, 50))
+		app = wx.PyWidgetTester(size = (500, 40))
 		pw = cGenericCodesPhraseWheel(app.frame, -1)
 		#pw.set_context(context = u'zip', val = u'04318')
-		print pw.data
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
