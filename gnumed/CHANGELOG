@@ -33,6 +33,7 @@ FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.H
 FIX: adjust default Windows path to FreeDiams executable [thanks S.Hilbert]
 FIX: exception on trying to put patient on same drug twice [thanks J.Busser]
 FIX: Windows can't check hook script for -rw------- with os.stat() [thanks LuisCapriles]
+FIX: exception on DOB input because .strptime() returns TZ naive dates [thanks J.Busser]
 
 IMPROVED: logging of hook script permissions [thanks L.Capriles]
 
