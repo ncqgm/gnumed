@@ -1239,7 +1239,6 @@ def str2pydt_matches(str2parse=None, patterns=None):
 			text = str2parse,
 			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
 		)
-		# FIXME: convert to python datetime
 		matches.append ({
 			'data': mxdt2py_dt(date),
 			'label': date.strftime('%Y-%m-%d')
@@ -1257,7 +1256,12 @@ def str2pydt_matches(str2parse=None, patterns=None):
 
 	for pattern in patterns:
 		try:
-			date = pyDT.datetime.strptime(str2parse, pattern)
+			date = pyDT.datetime.strptime(str2parse, pattern).replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				tzinfo = gmCurrentLocalTimezone
+			)
 			matches.append ({
 				'data': mxdt2py_dt(date),
 				'label': date.strftime('%Y-%m-%d')
