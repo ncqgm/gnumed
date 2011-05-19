@@ -34,6 +34,7 @@ FIX: adjust default Windows path to FreeDiams executable [thanks S.Hilbert]
 FIX: exception on trying to put patient on same drug twice [thanks J.Busser]
 FIX: Windows can't check hook script for -rw------- with os.stat() [thanks LuisCapriles]
 FIX: exception on DOB input because .strptime() returns TZ naive dates [thanks J.Busser]
+FIX: exceptions on entering large integers into DOB field
 
 IMPROVED: logging of hook script permissions [thanks L.Capriles]
 
