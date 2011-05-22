@@ -16,6 +16,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         from Gnumed.wxpython.gmNarrativeWidgets import cVisualSoapPnl
         from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
         from Gnumed.wxpython.gmEMRStructWidgets import cEncounterTypePhraseWheel
+        from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
         from Gnumed.wxpython import gmListWidgets
 
         # begin wxGlade: wxgSoapPluginPnl.__init__
@@ -43,10 +44,10 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._PRW_encounter_start = cFuzzyTimestampInput(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self._PRW_encounter_end = cFuzzyTimestampInput(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self._TCTRL_rfe = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
-        self._TCTRL_rfe_icpc = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
+        self._PRW_rfe_codes = cGenericCodesPhraseWheel(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self.notebook_1_pane_1 = wx.Panel(self._NB_soap_editors, -1)
         self._TCTRL_aoe = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
-        self._TCTRL_aoe_icpc = wx.TextCtrl(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
+        self._PRW_aoe_codes = cGenericCodesPhraseWheel(self.__splitter_right_top_pnl, -1, "", style=wx.NO_BORDER)
         self._BTN_new_editor = wx.Button(self.__splitter_right_top_pnl, -1, _("&New"), style=wx.BU_EXACTFIT)
         self._BTN_clear_editor = wx.Button(self.__splitter_right_top_pnl, -1, _("&Clear"), style=wx.BU_EXACTFIT)
         self._BTN_discard_editor = wx.Button(self.__splitter_right_top_pnl, -1, _("&Discard"), style=wx.BU_EXACTFIT)
@@ -87,9 +88,9 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._PRW_encounter_start.SetToolTipString(_("Date and time when the current (!) encounter started."))
         self._PRW_encounter_end.SetToolTipString(_("Date and time when the current (!) encounter ends."))
         self._TCTRL_rfe.SetToolTipString(_("This documents why the encounter takes place.\n\nIt may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here.\n\nAlso known as the Reason For Encounter/Visit (RFE)."))
-        self._TCTRL_rfe_icpc.SetToolTipString(_("Enter ICPC codes for the Reason for Encounter here."))
+        self._PRW_rfe_codes.SetToolTipString(_("Enter codes relevant to this Reason for Encounter."))
         self._TCTRL_aoe.SetToolTipString(_("This summarizes the outcome/assessment of the consultation from the doctors point of view. Note that this summary spans all the problems discussed during this encounter."))
-        self._TCTRL_aoe_icpc.SetToolTipString(_("Enter ICPC codes for the Outcome of Encounter here."))
+        self._PRW_aoe_codes.SetToolTipString(_("Enter codes relevant to this Outcome of Encounter."))
         self._BTN_new_editor.SetToolTipString(_("Open a new progress note editor.\n\nThere is a configuration item on whether to allow several new-episode editors at once."))
         self._BTN_clear_editor.SetToolTipString(_("Clear the editor for the displayed progress note."))
         self._BTN_discard_editor.SetToolTipString(_("Discard the editor for the displayed progress note."))
@@ -140,9 +141,9 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         __lbl_rfe = wx.StaticText(self.__splitter_right_top_pnl, -1, _("Purpose ..."))
         __gszr_encounter_details.Add(__lbl_rfe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_rfe_details.Add(self._TCTRL_rfe, 2, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __lbl_rfe_icpc = wx.StaticText(self.__splitter_right_top_pnl, -1, _("ICPC:"))
-        __szr_rfe_details.Add(__lbl_rfe_icpc, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_rfe_details.Add(self._TCTRL_rfe_icpc, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_rfe_codes = wx.StaticText(self.__splitter_right_top_pnl, -1, _("Codes:"))
+        __szr_rfe_details.Add(__lbl_rfe_codes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_rfe_details.Add(self._PRW_rfe_codes, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(__szr_rfe_details, 1, wx.EXPAND, 0)
         __gszr_encounter_details.AddGrowableCol(1)
         __szr_top_right.Add(__gszr_encounter_details, 0, wx.RIGHT|wx.TOP|wx.EXPAND, 3)
@@ -151,9 +152,9 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         __lbl_aoe = wx.StaticText(self.__splitter_right_top_pnl, -1, _("... summary"))
         __szr_aoe.Add(__lbl_aoe, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_aoe.Add(self._TCTRL_aoe, 2, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __lbl_aoe_icpc = wx.StaticText(self.__splitter_right_top_pnl, -1, _("ICPC:"))
-        __szr_aoe.Add(__lbl_aoe_icpc, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_aoe.Add(self._TCTRL_aoe_icpc, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_aoe_codes = wx.StaticText(self.__splitter_right_top_pnl, -1, _("Codes:"))
+        __szr_aoe.Add(__lbl_aoe_codes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_aoe.Add(self._PRW_aoe_codes, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_top_right.Add(__szr_aoe, 0, wx.RIGHT|wx.TOP|wx.EXPAND, 3)
         __lbl_editor = wx.StaticText(self.__splitter_right_top_pnl, -1, _("Notelet:"))
         __szr_buttons.Add(__lbl_editor, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
