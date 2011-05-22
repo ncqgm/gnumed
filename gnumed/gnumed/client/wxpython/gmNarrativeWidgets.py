@@ -756,6 +756,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._LCTRL_active_problems.set_string_items()
 
 		self._TCTRL_recent_notes.SetValue(u'')
+		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent notes on selected problem'))
 
 		self._PRW_encounter_type.SetText(suppress_smarts = True)
 		self._PRW_encounter_start.SetText(suppress_smarts = True)

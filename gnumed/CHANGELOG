@@ -6,6 +6,10 @@
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.6
+
+FIX: need to clear "Recent notes" sizer label between patients [thanks J.Busser]
+
 	0.9.5
 
 FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
