@@ -1489,7 +1489,9 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
 		issue_name = self._PRW_issue.GetValue().strip()
-		if len(issue_name) != 0:
+		if len(issue_name) == 0:
+			self.data['pk_health_issue'] = None
+		else:
 			self.data['pk_health_issue'] = self._PRW_issue.GetData(can_create = True)
 			issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.data['pk_health_issue'])
 

@@ -31,6 +31,8 @@ IMPROVED: make inbox listen to/reload on doc/doc-review/identity changes
 
 FIX: need to clear "Recent notes" sizer label between patients [thanks J.Busser]
 
+IMPROVED: enable detaching episodes from issues [thanks J.Busser]
+
 	0.9.5
 
 FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
