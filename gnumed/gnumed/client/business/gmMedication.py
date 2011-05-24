@@ -793,7 +793,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			if drug_atc is None:
 				drug_atc = u''
 			else:
-				drug_atc = drug_atc.text.strip()
+				if drug_atc.text is None:
+					drug_atc = u''
+				else:
+					drug_atc = drug_atc.text.strip()
 
 			# create new branded drug
 			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
