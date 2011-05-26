@@ -59,10 +59,10 @@ known_placeholders = [
 # those must satisfy the pattern "$name::args::optional length$" when used
 known_variant_placeholders = [
 	u'soap',
-	u'progress_notes',			# "data" holds: categories//template
-								# 	categories: string with "soap ", " " == None == admin
+	u'progress_notes',			# "args" holds: categories//template
+								# 	categories: string with 'soap '; ' ' == None == admin
 								#	template:	u'something %s something'		(do not include // in template !)
-	u'emr_journal',				# "data" format:   <categories>//<template>//<line length>//<time range>//<target format>
+	u'emr_journal',				# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
 								#	categories:	   string with any of "s", "o", "a", "p", " ";
 								#				   (" " == None == admin category)
 								#	template:	   something %s something else
@@ -71,24 +71,24 @@ known_variant_placeholders = [
 								#	time range:	   the number of weeks going back in time
 								#	target format: "tex" or anything else, if "tex", data will be tex-escaped
 	u'date_of_birth',
-	u'adr_street',				# "data" holds: type of address
+	u'adr_street',				# "args" holds: type of address
 	u'adr_number',
 	u'adr_location',
 	u'adr_postcode',
-	u'gender_mapper',			# "data" holds: value for male // value for female
-	u'current_meds',			# "data" holds: line template
-	u'current_meds_table',		# "data" holds: format, options
-	u'current_meds_notes',		# "data" holds: format, options
-	u'lab_table',				# "data" holds: format (currently "latex" only)
-	u'latest_vaccs_table',		# "data" holds: format, options
-	u'today',					# "data" holds: strftime format
-	u'tex_escape',				# "data" holds: string to escape
-	u'allergies',				# "data" holds: line template, one allergy per line
-	u'allergy_list',			# "data" holds: template per allergy, allergies on one line
-	u'problems',				# "data" holds: line template, one problem per line
-	u'name',					# "data" holds: template for name parts arrangement
+	u'gender_mapper',			# "args" holds: value for male // value for female
+	u'current_meds',			# "args" holds: line template
+	u'current_meds_table',		# "args" holds: format, options
+	u'current_meds_notes',		# "args" holds: format, options
+	u'lab_table',				# "args" holds: format (currently "latex" only)
+	u'latest_vaccs_table',		# "args" holds: format, options
+	u'today',					# "args" holds: strftime format
+	u'tex_escape',				# "args" holds: string to escape
+	u'allergies',				# "args" holds: line template, one allergy per line
+	u'allergy_list',			# "args" holds: template per allergy, allergies on one line
+	u'problems',				# "args" holds: line template, one problem per line
+	u'name',					# "args" holds: template for name parts arrangement
 	u'free_text',				# show a dialog for entering some free text
-	u'soap_for_encounters'		# "data" holds: soap cats // strftime date format
+	u'soap_for_encounters'		# "args" holds: soap cats // strftime date format
 ]
 
 default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )

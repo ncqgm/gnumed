@@ -21,7 +21,11 @@ select
 	c_lc2ir.tableoid::regclass
 		as item_table,
 
-	r_csr.code,
+	r_csr.code || coalesce(c_lc2ir.code_modifier, '')
+		as code,
+	r_csr.code
+		as base_code,
+	c_lc2ir.code_modifier,
 	r_csr.term,
 	r_ds.name_long,
 	r_ds.name_short,
@@ -31,7 +35,7 @@ select
 	r_csr.tableoid::regclass
 		as code_table,
 	r_csr.pk_coding_system
-		as pk_coding_system_root,
+		as pk_generic_code,
 	r_csr.fk_data_source
 		as pk_data_source,
 	c_lc2ir.pk_lnk_code2item

@@ -114,7 +114,7 @@ class cDiag(gmBusinessDBObject.cBusinessDBObject):
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical free text entry.
 	"""
-	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%s"
+	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative = %s"
 	_cmds_store_payload = [
 		u"""update clin.clin_narrative set
 				narrative = %(narrative)s,
@@ -238,12 +238,18 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	# FIXME: this should check for .provider = current_user but
 	# FIXME: the view has provider mapped to their staff alias
 	cmd = u"""
-select *, xmin_clin_narrative from clin.v_pat_narrative where
-	pk_encounter = %(enc)s
-	and pk_episode = %(epi)s
-	and soap_cat = %(soap)s
-	and narrative = %(narr)s
-"""
+		SELECT
+			*, xmin_clin_narrative
+		FROM clin.v_pat_narrative
+		WHERE
+			pk_encounter = %(enc)s
+				AND
+			pk_episode = %(epi)s
+				AND
+			soap_cat = %(soap)s
+				AND
+			narrative = %(narr)s
+	"""
 	args = {
 		'enc': encounter_id,
 		'epi': episode_id,
@@ -257,14 +263,23 @@ select *, xmin_clin_narrative from clin.v_pat_narrative where
 
 	# insert new narrative
 	queries = [
-		{'cmd': u"insert into clin.clin_narrative (fk_encounter, fk_episode, narrative, soap_cat) values (%s, %s, %s, lower(%s))",
+		{'cmd': u"""
+			INSERT INTO clin.clin_narrative
+				(fk_encounter, fk_episode, narrative, soap_cat)
+			VALUES
+				(%s, %s, %s, lower(%s))""",
 		 'args': [encounter_id, episode_id, narrative, soap_cat]
 		},
-		{'cmd': u"select currval('clin.clin_narrative_pk_seq')"}
+		{'cmd': u"""
+			SELECT *, xmin_clin_narrative
+			FROM clin.v_pat_narrative
+			WHERE
+				pk_narrative = currval(pg_get_serial_sequence('clin.clin_narrative', 'pk'))"""
+		}
 	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
 
-	narrative = cNarrative(aPK_obj = rows[0][0])
+	narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': rows[0]})
 	return (True, narrative)
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):

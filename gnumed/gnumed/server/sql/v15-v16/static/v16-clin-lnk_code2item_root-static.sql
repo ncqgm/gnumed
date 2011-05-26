@@ -11,7 +11,8 @@
 create table clin.lnk_code2item_root (
 	pk_lnk_code2item serial primary key,
 	fk_generic_code integer,
-	fk_item integer
+	fk_item integer,
+	code_modifier text
 );
 
 -- --------------------------------------------------------------

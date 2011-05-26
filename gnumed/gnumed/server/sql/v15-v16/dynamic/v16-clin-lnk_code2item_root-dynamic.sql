@@ -25,6 +25,9 @@ order to link structures to codes.
 comment on column clin.lnk_code2item_root.fk_item is
 'Foreign key to clin.* tables';
 
+comment on column clin.lnk_code2item_root.code_modifier is
+'Usage specific modifier on the base code, say, certainty or laterality of ICD-10 codes.';
+
 
 GRANT select on clin.lnk_code2item_root to "gm-public";
 GRANT usage on clin.lnk_code2item_root_pk_lnk_code2item_seq to "gm-public";

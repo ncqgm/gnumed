@@ -21,6 +21,7 @@ from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmExceptions
 
 from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmCoding
 
 
 _log = logging.getLogger('gm.emr')
@@ -708,13 +709,29 @@ from (
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
-		cmd = u"INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+
+		if pk_code in self._payload[self._idx['pk_generic_codes']]:
+			return
+
+		cmd = u"""
+			INSERT INTO clin.lnk_code2episode
+				(fk_item, fk_generic_code)
+			SELECT
+				%(item)s,
+				%(code)s
+			WHERE NOT EXISTS (
+				SELECT 1 FROM clin.lnk_code2episode
+				WHERE
+					fk_item = %(item)s
+						AND
+					fk_generic_code = %(code)s
+			)"""
 		args = {
 			'item': self._payload[self._idx['pk_episode']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		return True
+		return
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -1001,18 +1018,42 @@ from (
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
-	def _get_codes(self):
-		cmd = u"""
-			SELECT * FROM clin.v_linked_codes WHERE
-				item_table = 'clin.lnk_code2episode'::regclass
-					AND
-				pk_item = %(item)s
-		"""
-		args = {'item': self._payload[self._idx['pk_episode']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
 
-	codes = property(_get_codes, lambda x:x)
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'epi': self._payload[self._idx['pk_episode']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) VALUES (%(epi)s, %(pk_code)s)',
+				'args': {
+					'epi': self._payload[self._idx['pk_episode']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 	#--------------------------------------------------------
 	def _get_has_narrative(self):
 		cmd = u"""SELECT EXISTS (
@@ -1858,6 +1899,29 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(get_diagnostic_certainty_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if self._payload[self._idx['type']] == u'issue':
+			cmd = u"""
+				SELECT * FROM clin.v_linked_codes WHERE
+					item_table = 'clin.lnk_code2h_issue'::regclass
+						AND
+					pk_item = %(item)s
+			"""
+			args = {'item': self._payload[self._idx['pk_health_issue']]}
+		else:
+			cmd = u"""
+				SELECT * FROM clin.v_linked_codes WHERE
+					item_table = 'clin.lnk_code2episode'::regclass
+						AND
+					pk_item = %(item)s
+			"""
+			args = {'item': self._payload[self._idx['pk_episode']]}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	generic_codes = property(_get_generic_codes, lambda x:x)
 #-----------------------------------------------------------
 def problem2episode(problem=None):
 	"""Retrieve the cEpisode instance equivalent to the given problem.
@@ -2256,7 +2320,7 @@ if __name__ == '__main__':
 	def test_episode_codes():
 		epi = cEpisode(aPK_obj = 2)
 		print epi
-		print epi.codes
+		print epi.generic_codes
 	#--------------------------------------------------------
 	# run them
 	#test_episode()

@@ -12,6 +12,9 @@ comment on table clin.lnk_code2h_issue is
 'Links codes to health issues.';
 
 
+select gm.register_notifying_table('clin', 'lnk_code2h_issue', 'health_issue_code');
+
+
 grant select on clin.lnk_code2h_issue to group "gm-public";
 grant insert, update, delete on clin.lnk_code2h_issue to group "gm-doctors";
 grant usage on clin.lnk_code2h_issue_pk_seq to group "gm-doctors";

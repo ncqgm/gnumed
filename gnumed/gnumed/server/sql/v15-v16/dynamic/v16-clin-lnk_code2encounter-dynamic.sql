@@ -14,6 +14,9 @@ comment on table clin.lnk_code2rfe is
 'Links codes to encounters.';
 
 
+select gm.register_notifying_table('clin', 'lnk_code2rfe', 'rfe_code');
+
+
 grant select on clin.lnk_code2rfe to group "gm-public";
 grant insert, update, delete on clin.lnk_code2rfe to group "gm-doctors";
 grant usage on clin.lnk_code2rfe_pk_seq to group "gm-doctors";
@@ -77,6 +80,9 @@ create trigger tr_upd_lc2sth_fk_generic_code
 -- --------------------------------------------------------------
 comment on table clin.lnk_code2aoe is
 'Links codes to encounter.aoe.';
+
+
+select gm.register_notifying_table('clin', 'lnk_code2aoe', 'aoe_code');
 
 
 grant select on clin.lnk_code2aoe to group "gm-public";

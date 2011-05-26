@@ -9,7 +9,10 @@
 
 -- --------------------------------------------------------------
 comment on table clin.lnk_code2procedure is
-'Links codes to procedures.';
+'Links codes to procedures. OPS comes to mind.';
+
+
+select gm.register_notifying_table('clin', 'lnk_code2procedure', 'procedure_code');
 
 
 grant select on clin.lnk_code2procedure to group "gm-public";

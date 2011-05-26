@@ -26,7 +26,9 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         self._PRW_soaP_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_soaP = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._PNL_visual_soap = cVisualSoapPresenterPnl(self, -1, style=wx.NO_BORDER)
-        self._TCTRL_summary = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._LBL_summary = wx.StaticText(self, -1, _("Episode summary"))
+        self._PRW_episode_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._TCTRL_episode_summary = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -39,12 +41,14 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         self._PRW_sOap_codes.SetToolTipString(_("Codes linked to this Objective."))
         self._PRW_soAp_codes.SetToolTipString(_("Codes linked to this Assessment."))
         self._PRW_soaP_codes.SetToolTipString(_("Codes linked to this Plan."))
-        self._TCTRL_summary.SetToolTipString(_("Here you can modify the cumulative summary of the problem (regardless of whether that is a new one, a health issue, or an episode)."))
+        self._PRW_episode_codes.SetToolTipString(_("Codes linked to this episode."))
+        self._TCTRL_episode_summary.SetToolTipString(_("Here you can modify the cumulative summary (status) of the episode this SOAP narrative belongs to."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
+        __szr_summary = wx.BoxSizer(wx.HORIZONTAL)
         __szr_soaP = wx.BoxSizer(wx.HORIZONTAL)
         __szr_soAp = wx.BoxSizer(wx.HORIZONTAL)
         __szr_sOap = wx.BoxSizer(wx.HORIZONTAL)
@@ -88,9 +92,14 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         __szr_main.Add(self._PNL_visual_soap, 0, wx.EXPAND, 0)
         _hline_above_summary = wx.StaticLine(self, -1)
         __szr_main.Add(_hline_above_summary, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
-        __lbl_summary = wx.StaticText(self, -1, _("Problem summary"))
-        __szr_main.Add(__lbl_summary, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
-        __szr_main.Add(self._TCTRL_summary, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
+        __szr_summary.Add(self._LBL_summary, 1, wx.ALIGN_CENTER_VERTICAL, 5)
+        __vline_summary = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        __szr_summary.Add(__vline_summary, 0, wx.RIGHT|wx.EXPAND, 5)
+        __lbl_summary_codes = wx.StaticText(self, -1, _("Codes:"))
+        __szr_summary.Add(__lbl_summary_codes, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_summary.Add(self._PRW_episode_codes, 3, wx.TOP|wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 2)
+        __szr_main.Add(__szr_summary, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 3)
+        __szr_main.Add(self._TCTRL_episode_summary, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 3)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade

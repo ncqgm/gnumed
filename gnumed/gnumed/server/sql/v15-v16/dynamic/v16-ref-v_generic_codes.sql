@@ -91,14 +91,14 @@ comment on function ref.trf_del_ref_code_tbl_check_backlink() is
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-drop view ref.v_generic_coding_system cascade;
+drop view ref.v_generic_codes cascade;
 \set ON_ERROR_STOP 1
 
 
-create view ref.v_generic_coding_system as
+create view ref.v_generic_codes as
 select
 	r_csr.pk_coding_system
-		as pk_coding_system,
+		as pk_generic_code,
 
 	r_csr.code,
 	r_csr.term,
@@ -117,12 +117,12 @@ from
 ;
 
 
-comment on view ref.v_generic_coding_system is 'Denormalized generic codes.';
+comment on view ref.v_generic_codes is 'Denormalized generic codes.';
 
 
-grant select on ref.v_generic_coding_system to group "gm-public";
+grant select on ref.v_generic_codes to group "gm-public";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v16-ref-v_generic_coding_system.sql', 'Revision 1');
+select gm.log_script_insertion('v16-ref-v_generic_codes.sql', 'Revision 1');
 
 -- ==============================================================

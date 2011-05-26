@@ -1116,16 +1116,33 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 			if as_instance:
 				return self._data2instance()
 
-		return self._data
+		return self._data.values()
 	#---------------------------------------------------------
 	def enable_default_spellchecker(self):
 		self.speller = None
 		return True
 	#---------------------------------------------------------
-	def _get_suggestions_from_speller(self, val):
-		return None
+	def list2data_dict(self, data_items=None):
+
+		data_dict = {}
+
+		for item in data_items:
+			try:
+				list_label = item['list_label']
+			except KeyError:
+				list_label = item['label']
+			try:
+				field_label = item['field_label']
+			except KeyError:
+				field_label = list_label
+			data_dict[field_label] = {'data': item['data'], 'list_label': list_label, 'field_label': field_label}
+
+		return data_dict
 	#---------------------------------------------------------
 	# internal API
+	#---------------------------------------------------------
+	def _get_suggestions_from_speller(self, val):
+		return None
 	#---------------------------------------------------------
 	def _adjust_data_after_text_update(self):
 		# the textctrl display must already be set properly
@@ -1207,28 +1224,12 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 
 		self.data = new_data
 	#---------------------------------------------------------
-#	def _dictify_data(self, data=None, value=None):
-#
-#		try:
-#			field_label = data.keys()[0]
-#		except (AttributeError, IndexError):
-#			field_label = None
-#
-#		if field_label is not None:
-#			try:
-#				tmp = data[field_label]
-#				tmp['data']
-#				tmp['list_label']
-#				if tmp['field_label'] != field_label:
-#					raise ValueError('inconsistent data dict (<field label> != <item key>): %s' % data)
-#				return data
-#			except KeyError:
-#				pass
-#
-#		if value is None:
-#			value = u'%s' % data
-#
-#		return {value: {'data': data, 'list_label': value, 'field_label': value}}
+	def _dictify_data(self, data=None, value=None):
+		if type(data) == type([]):
+			# useful because self.GetData() returns just such a list
+			return self.list2data_dict(data_items = data)
+		# else assume new-style already-dictified data
+		return data
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

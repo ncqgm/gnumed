@@ -12,6 +12,9 @@ comment on table clin.lnk_code2episode is
 'Links codes to episodes.';
 
 
+select gm.register_notifying_table('clin', 'lnk_code2episode', 'episode_code');
+
+
 grant select on clin.lnk_code2episode to group "gm-public";
 grant insert, update, delete on clin.lnk_code2episode to group "gm-doctors";
 grant usage on clin.lnk_code2episode_pk_seq to group "gm-doctors";

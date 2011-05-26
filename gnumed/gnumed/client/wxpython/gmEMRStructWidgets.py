@@ -1456,7 +1456,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		emr = pat.get_emr()
 
 		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
-		epi['summary'] = self._TCTRL_summary.GetValue().strip()
+		epi['summary'] = self._TCTRL_status.GetValue().strip()
 		epi['episode_open'] = not self._CHBOX_closed.IsChecked()
 		epi['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1478,13 +1478,15 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		epi.save()
 
+		epi.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		self.data = epi
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
 		self.data['description'] = self._PRW_description.GetValue().strip()
-		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
+		self.data['summary'] = self._TCTRL_status.GetValue().strip()
 		self.data['episode_open'] = not self._CHBOX_closed.IsChecked()
 		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
 
@@ -1506,6 +1508,8 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 				return False
 
 		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
@@ -1516,9 +1520,10 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
-		self._TCTRL_summary.SetValue(u'')
+		self._TCTRL_status.SetValue(u'')
 		self._PRW_classification.SetText()
 		self._CHBOX_closed.SetValue(False)
+		self._PRW_codes.SetText()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		ident = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
@@ -1529,12 +1534,31 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		self._PRW_description.SetText(self.data['description'], data=self.data['description'])
 
-		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['diagnostic_certainty_classification'] is not None:
 			self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
 
 		self._CHBOX_closed.SetValue(not self.data['episode_open'])
+
+		codes = self.data.generic_codes
+		if len(codes) == 0:
+			self._PRW_episode_codes.SetText()
+		else:
+			code_dict = {}
+			val = u''
+			for code in codes:
+				list_label = u'%s (%s - %s %s): %s' % (
+					code['code'],
+					code['lang'],
+					code['name_short'],
+					code['version'],
+					code['term']
+				)
+				field_label = code['code']
+				code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
+				val += u'%s; ' % field_label
+			self._PRW_codes.SetText(val.strip(), code_dict)
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -2055,7 +2079,7 @@ if __name__ == '__main__':
 	class testapp (wx.App):
 			"""
 			Test application for testing EMR struct widgets
-			"""			
+			"""
 			#--------------------------------------------------------
 			def OnInit (self):
 				"""

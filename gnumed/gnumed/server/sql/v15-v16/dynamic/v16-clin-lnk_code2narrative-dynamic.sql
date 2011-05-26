@@ -12,6 +12,9 @@ comment on table clin.lnk_code2narrative is
 'Links codes to SOAP narrative.';
 
 
+select gm.register_notifying_table('clin', 'lnk_code2narrative', 'narrative_code');
+
+
 grant select on clin.lnk_code2narrative to group "gm-public";
 grant insert, update, delete on clin.lnk_code2narrative to group "gm-doctors";
 grant usage on clin.lnk_code2narrative_pk_seq to group "gm-doctors";
