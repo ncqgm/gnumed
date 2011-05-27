@@ -31,6 +31,8 @@
 # license: GPL v2
 #==============================================================
 
+# Keep this properly updated to refer to the
+# database you want to currently backup.
 CONF="/etc/gnumed/gnumed-backup.conf"
 
 #==============================================================
@@ -56,6 +58,8 @@ fi
 
 
 # sanity check
+# (his does not work on Mac, so you
+#  may need to comment this out)
 if ! su -c "psql -t -l -p ${GM_PORT}" -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
 	echo "The configuration in ${CONF} is set to backup"
 	echo "the GNUmed database ${GM_DATABASE}. This"
