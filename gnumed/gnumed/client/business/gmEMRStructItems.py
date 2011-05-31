@@ -492,7 +492,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
-	def _get_codes(self):
+	def _get_generic_codes(self):
 		cmd = u"""
 			SELECT * FROM clin.v_linked_codes WHERE
 				item_table = 'clin.lnk_code2h_issue'::regclass
@@ -501,9 +501,10 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		args = {'item': self._payload[self._idx['pk_health_issue']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		# FIXME: return instances
 		return rows
 
-	codes = property(_get_codes, lambda x:x)
+	codes = property(_get_generic_codes, lambda x:x)
 #============================================================
 def create_health_issue(description=None, encounter=None, patient=None):
 	"""Creates a new health issue for a given patient.

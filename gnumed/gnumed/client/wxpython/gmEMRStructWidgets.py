@@ -1543,7 +1543,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		codes = self.data.generic_codes
 		if len(codes) == 0:
-			self._PRW_episode_codes.SetText()
+			self._PRW_codes.SetText()
 		else:
 			code_dict = {}
 			val = u''
