@@ -10,6 +10,7 @@
 
 FIX: need to clear "Recent notes" sizer label between patients [thanks J.Busser]
 FIX: exception on <DrugATC/> being returned from FreeDIAMS but empty [thanks ll]
+FIX: exception (off-by-one) when splitting "incompletely" defined placeholders [thanks Marc]
 
 IMPROVED: enable detaching episodes from issues [thanks J.Busser]
 
