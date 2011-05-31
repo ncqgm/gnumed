@@ -41,11 +41,13 @@ select
 				'\n' || array_to_string (
 					(select array_agg(r_csr.code || ' (' || r_ds.name_short || ' - ' || r_ds.version || ' - ' || r_ds.lang || '): ' || r_csr.term)
 					 from
-						ref.coding_system_root r_csr
+					 	clin.lnk_code2episode c_lc2e
+					 		inner join
+						ref.coding_system_root r_csr on c_lc2e.fk_generic_code = r_csr.pk_coding_system
 							inner join
 						ref.data_source r_ds on r_ds.pk = r_csr.fk_data_source
 					where
-						r_csr.pk_coding_system = c_lc2e.fk_generic_code
+						c_lc2e.fk_item = cep.pk
 					),
 					'; '
 				) || ';'
@@ -67,7 +69,6 @@ select
 from
 	clin.episode cep
 		inner join clin.encounter cenc on cep.fk_encounter = cenc.pk
-			left join clin.lnk_code2episode c_lc2e on c_lc2e.fk_item = cep.pk
 ;
 
 

@@ -867,6 +867,19 @@ from (
 				)
 			)
 
+		# codes
+		codes = self.generic_codes
+		if len(codes) > 0:
+			lines.append(u'')
+		for c in codes:
+			lines.append(u' %s: %s (%s - %s)' % (
+				c['code'],
+				c['term'],
+				c['name_short'],
+				c['version']
+			))
+		del codes
+
 		lines.append(u'')
 
 		# encounters
