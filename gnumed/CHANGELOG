@@ -34,6 +34,8 @@ IMPROVED: check for both "lowriter" and "oowriter" when using OOo/LO [thanks Mar
 
 FIX: need to clear "Recent notes" sizer label between patients [thanks J.Busser]
 FIX: exception on <DrugATC/> being returned from FreeDIAMS but empty [thanks ll]
+FIX: exception (off-by-one) when splitting "incompletely" defined placeholders [thanks Marc]
+FIX: exception when DOB=NULL when re-confirming old encounter [thanks J.Busser]
 
 IMPROVED: enable detaching episodes from issues [thanks J.Busser]
 
