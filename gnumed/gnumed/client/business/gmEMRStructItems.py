@@ -343,6 +343,19 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				subsequent_indent = u'  '
 			))
 
+		# codes
+		codes = self.generic_codes
+		if len(codes) > 0:
+			lines.append(u'')
+		for c in codes:
+			lines.append(u' %s: %s (%s - %s)' % (
+				c['code'],
+				c['term'],
+				c['name_short'],
+				c['version']
+			))
+		del codes
+
 		lines.append(u'')
 
 		emr = patient.get_emr()
@@ -493,18 +506,41 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
-		cmd = u"""
-			SELECT * FROM clin.v_linked_codes WHERE
-				item_table = 'clin.lnk_code2h_issue'::regclass
-					AND
-				pk_item = %(item)s
-		"""
-		args = {'item': self._payload[self._idx['pk_health_issue']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		# FIXME: return instances
-		return rows
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
 
-	codes = property(_get_generic_codes, lambda x:x)
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'issue': self._payload[self._idx['pk_health_issue']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) VALUES (%(issue)s, %(pk_code)s)',
+				'args': {
+					'issue': self._payload[self._idx['pk_health_issue']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 #============================================================
 def create_health_issue(description=None, encounter=None, patient=None):
 	"""Creates a new health issue for a given patient.

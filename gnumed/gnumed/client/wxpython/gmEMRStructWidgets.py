@@ -1458,7 +1458,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
 		epi['summary'] = self._TCTRL_status.GetValue().strip()
 		epi['episode_open'] = not self._CHBOX_closed.IsChecked()
-		epi['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		epi['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 
 		issue_name = self._PRW_issue.GetValue().strip()
 		if len(issue_name) != 0:
@@ -1488,7 +1488,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self.data['description'] = self._PRW_description.GetValue().strip()
 		self.data['summary'] = self._TCTRL_status.GetValue().strip()
 		self.data['episode_open'] = not self._CHBOX_closed.IsChecked()
-		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		self.data['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 
 		issue_name = self._PRW_issue.GetValue().strip()
 		if len(issue_name) == 0:
@@ -1521,7 +1521,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
 		self._TCTRL_status.SetValue(u'')
-		self._PRW_classification.SetText()
+		self._PRW_certainty.SetText()
 		self._CHBOX_closed.SetValue(False)
 		self._PRW_codes.SetText()
 	#----------------------------------------------------------------
@@ -1537,7 +1537,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['diagnostic_certainty_classification'] is not None:
-			self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
+			self._PRW_certainty.SetData(data = self.data['diagnostic_certainty_classification'])
 
 		self._CHBOX_closed.SetValue(not self.data['episode_open'])
 
@@ -1806,6 +1806,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self._PRW_year_noted.Enable(True)
 
+		self._PRW_codes.add_callback_on_lose_focus(self._on_leave_codes)
+
 		self.data = issue
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -1843,8 +1845,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		issue['laterality'] = side
 
-		issue['summary'] = self._TCTRL_summary.GetValue().strip()
-		issue['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		issue['summary'] = self._TCTRL_status.GetValue().strip()
+		issue['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 		issue['grouping'] = self._PRW_grouping.GetValue().strip()
 		issue['is_active'] = self._ChBOX_active.GetValue()
 		issue['clinically_relevant'] = self._ChBOX_relevant.GetValue()
@@ -1856,6 +1858,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			issue['age_noted'] = age_noted
 
 		issue.save()
+
+		issue.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 
 		self.data = issue
 		return True
@@ -1871,8 +1875,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		self.data['laterality'] = side
 
-		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
-		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		self.data['summary'] = self._TCTRL_status.GetValue().strip()
+		self.data['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 		self.data['grouping'] = self._PRW_grouping.GetValue().strip()
 		self.data['is_active'] = bool(self._ChBOX_active.GetValue())
 		self.data['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
@@ -1884,22 +1888,23 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			self.data['age_noted'] = age_noted
 
 		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 
-		# FIXME: handle is_operation
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_condition.SetText()
 		self._ChBOX_left.SetValue(0)
 		self._ChBOX_right.SetValue(0)
-		self._PRW_classification.SetText()
+		self._PRW_codes.SetText()
+		self._on_leave_codes()
+		self._PRW_certainty.SetText()
 		self._PRW_grouping.SetText()
-		self._TCTRL_summary.SetValue(u'')
+		self._TCTRL_status.SetValue(u'')
 		self._PRW_age_noted.SetText()
 		self._PRW_year_noted.SetText()
 		self._ChBOX_active.SetValue(0)
 		self._ChBOX_relevant.SetValue(1)
-		self._ChBOX_is_operation.SetValue(0)
 		self._ChBOX_confidential.SetValue(0)
 		self._ChBOX_caused_death.SetValue(0)
 
@@ -1918,9 +1923,30 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		else:
 			self._ChBOX_right.SetValue(1)
 
-		self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
+		codes = self.data.generic_codes
+		if len(codes) == 0:
+			self._PRW_codes.SetText()
+		else:
+			code_dict = {}
+			val = u''
+			for code in codes:
+				list_label = u'%s (%s - %s %s): %s' % (
+					code['code'],
+					code['lang'],
+					code['name_short'],
+					code['version'],
+					code['term']
+				)
+				field_label = code['code']
+				code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
+				val += u'%s; ' % field_label
+			self._PRW_codes.SetText(val.strip(), code_dict)
+		self._on_leave_codes()
+
+		if self.data['diagnostic_certainty_classification'] is not None:
+			self._PRW_certainty.SetData(data = self.data['diagnostic_certainty_classification'])
 		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], u''))
-		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['age_noted'] is None:
 			self._PRW_age_noted.SetText()
@@ -1932,7 +1958,6 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self._ChBOX_active.SetValue(self.data['is_active'])
 		self._ChBOX_relevant.SetValue(self.data['clinically_relevant'])
-		self._ChBOX_is_operation.SetValue(0)		# FIXME
 		self._ChBOX_confidential.SetValue(self.data['is_confidential'])
 		self._ChBOX_caused_death.SetValue(self.data['is_cause_of_death'])
 
@@ -1946,6 +1971,12 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		return self._refresh_as_new()
 	#--------------------------------------------------------
 	# internal helpers
+	#--------------------------------------------------------
+	def _on_leave_codes(self, *args, **kwargs):
+		if not self._PRW_codes.IsModified():
+			return True
+
+		self._TCTRL_code_details.SetValue(u'- ' + u'\n- '.join([ c['list_label'] for c in self._PRW_codes.GetData() ]))
 	#--------------------------------------------------------
 	def _on_leave_age_noted(self, *args, **kwargs):
 

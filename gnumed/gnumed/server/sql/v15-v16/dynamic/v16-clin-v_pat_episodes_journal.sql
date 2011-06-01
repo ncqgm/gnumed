@@ -36,9 +36,9 @@ select
 		|| coalesce((', ' || cep.diagnostic_certainty_classification), '')
 		|| '): '
 		|| cep.description || ';'
-		|| coalesce(('\n' || cep.summary || ';'), '')
+		|| coalesce((E'\n' || cep.summary || ';'), '')
 		|| coalesce ((
-				'\n' || array_to_string (
+				E'\n' || array_to_string (
 					(select array_agg(r_csr.code || ' (' || r_ds.name_short || ' - ' || r_ds.version || ' - ' || r_ds.lang || '): ' || r_csr.term)
 					 from
 					 	clin.lnk_code2episode c_lc2e

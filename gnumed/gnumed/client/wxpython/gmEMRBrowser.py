@@ -659,14 +659,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		data = self.GetPyData(item)
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
-			event.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
+			tt = u'%s  %s  %s - %s\n%s%s' % (
 				data['started'].strftime('%x'),
 				data['l10n_type'],
 				data['started'].strftime('%H:%M'),
 				data['last_affirmed'].strftime('%H:%M'),
-				gmTools.coalesce(data['reason_for_encounter'], u''),
-				gmTools.coalesce(data['assessment_of_encounter'], u'')
-			))
+				gmTools.coalesce(data['reason_for_encounter'], u'', u'\nRFE: %s'),
+				gmTools.coalesce(data['assessment_of_encounter'], u'', u'\nAOE: %s')
+			)
 
 		elif isinstance(data, gmEMRStructItems.cEpisode):
 			tt = u''
@@ -697,7 +697,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
-			event.SetToolTip(tt)
 
 		elif isinstance(data, gmEMRStructItems.cHealthIssue):
 			tt = u''
@@ -716,17 +715,28 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt += gmTools.bool2subst(data['is_active'], _('active') + u'\n', u'')
 			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
 			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
-			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n\n')
-			tt += gmTools.coalesce(data['summary'], u'')
+			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n')
+			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			if len(data['pk_generic_codes']) > 0:
+				tt += u'\n'
+				for code in data.generic_codes:
+					tt += u'%s: %s%s%s\n  (%s %s)\n' % (
+						code['code'],
+						gmTools.u_left_double_angle_quote,
+						code['term'],
+						gmTools.u_right_double_angle_quote,
+						code['name_short'],
+						code['version']
+					)
+
 			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
-			event.SetToolTip(tt)
 
 		else:
-			event.SetToolTip(self.__root_tooltip)
-			#event.SetToolTip(u' ')
-			##self.SetToolTipString(u'')
+			tt = self.__root_tooltip
+
+		event.SetToolTip(tt)
 
 		# doing this prevents the tooltip from showing at all
 		#event.Skip()
