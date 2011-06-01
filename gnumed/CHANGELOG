@@ -13,6 +13,7 @@ NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
 NEW: use dem.remove_person(integer) DB function from gm-remove_person.sh
 NEW: add man pages for more server-side shell scripts
 NEW: multi-phrase phrasewheel support
+NEW: right-clicking problem in SOAP note plugin shows episode/issue edit area
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title

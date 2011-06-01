@@ -738,20 +738,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._splitter_main.SetSashGravity(0.5)
 		self._splitter_left.SetSashGravity(0.5)
-		self._splitter_right.SetSashGravity(1.0)
-#		self._splitter_soap.SetSashGravity(0.75)
 
 		splitter_size = self._splitter_main.GetSizeTuple()[0]
 		self._splitter_main.SetSashPosition(splitter_size * 3 / 10, True)
 
 		splitter_size = self._splitter_left.GetSizeTuple()[1]
 		self._splitter_left.SetSashPosition(splitter_size * 6 / 20, True)
-
-		splitter_size = self._splitter_right.GetSizeTuple()[1]
-		self._splitter_right.SetSashPosition(splitter_size * 15 / 20, True)
-
-#		splitter_size = self._splitter_soap.GetSizeTuple()[0]
-#		self._splitter_soap.SetSashPosition(splitter_size * 3 / 4, True)
 
 		self._NB_soap_editors.DeleteAllPages()
 	#--------------------------------------------------------
@@ -771,8 +763,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._NB_soap_editors.DeleteAllPages()
 		self._NB_soap_editors.add_editor()
-
-		self._lbl_hints.SetLabel(u'')
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
 		"""Update health problems list."""
@@ -1142,6 +1132,18 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_problem_focused(self, event):
 		"""Show related note at the bottom."""
 		pass
+	#--------------------------------------------------------
+	def _on_problem_rclick(self, event):
+		problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
+		if problem['type'] == u'issue':
+			gmEMRStructWidgets.edit_health_issue(parent = self, issue = problem.get_as_health_issue())
+			return
+
+		if problem['type'] == u'episode':
+			gmEMRStructWidgets.edit_episode(parent = self, episode = problem.get_as_episode())
+			return
+
+		event.Skip()
 	#--------------------------------------------------------
 	def _on_problem_selected(self, event):
 		"""Show related note at the bottom."""

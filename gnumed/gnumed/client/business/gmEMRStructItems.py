@@ -1928,6 +1928,16 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return cEpisode(aPK_obj = self._payload[self._idx['pk_episode']])
 	#--------------------------------------------------------
+	def get_as_health_issue(self):
+		"""
+		Retrieve the cHealthIssue instance equivalent to this problem.
+		The problem's type attribute must be 'issue'
+		"""
+		if self._payload[self._idx['type']] != 'issue':
+			_log.error('cannot convert problem [%s] of type [%s] to health issue' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
+			return None
+		return cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']])
+	#--------------------------------------------------------
 	def get_visual_progress_notes(self, encounter_id=None):
 
 		if self._payload[self._idx['type']] == u'issue':
