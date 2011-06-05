@@ -15,6 +15,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmPhraseWheel
         from Gnumed.wxpython import gmEMRStructWidgets
         from Gnumed.wxpython import gmDateTimeInput
+        from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
 
         # begin wxGlade: wxgProcedureEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -30,6 +31,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         self._PRW_hospital_stay = gmEMRStructWidgets.cHospitalStayPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_add_stay = wx.Button(self, -1, _("+"), style=wx.BU_EXACTFIT)
         self._LBL_hospital_details = wx.StaticText(self, -1, "")
+        self._PRW_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -49,11 +51,12 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         self._PRW_episode.SetToolTipString(_("The episode this procedure was performed under.\n\nMutually exclusive with \"Hospital stay\". Requires \"Location\"."))
         self._PRW_hospital_stay.SetToolTipString(_("During which hospital stay was this procedure performed."))
         self._BTN_add_stay.SetToolTipString(_("Add a hospital stay."))
+        self._PRW_codes.SetToolTipString(_("Codes relevant to this procedure."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgProcedureEAPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(9, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(10, 2, 1, 3)
         __szr_stay = wx.BoxSizer(wx.HORIZONTAL)
         __szr_end_details = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_procedure = wx.StaticText(self, -1, _("Procedure"))
@@ -90,6 +93,9 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(__szr_stay, 1, wx.EXPAND, 0)
         _gszr_main.Add((20, 20), 0, wx.EXPAND, 0)
         _gszr_main.Add(self._LBL_hospital_details, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _lbl_codes = wx.StaticText(self, -1, _("Codes"))
+        _gszr_main.Add(_lbl_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._PRW_codes, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(_gszr_main)
         _gszr_main.Fit(self)
         _gszr_main.AddGrowableCol(1)

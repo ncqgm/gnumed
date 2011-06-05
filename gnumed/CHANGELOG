@@ -15,6 +15,7 @@ NEW: add man pages for more server-side shell scripts
 NEW: multi-phrase phrasewheel support
 NEW: right-clicking problem in SOAP note plugin shows episode/issue edit area
 NEW: cleanup tmp dir on shutdown if not running with --debug
+NEW: do not import mx.DateTime in gmPG2.py anymore
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title

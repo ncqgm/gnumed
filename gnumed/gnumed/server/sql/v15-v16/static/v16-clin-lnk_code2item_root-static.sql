@@ -16,4 +16,14 @@ create table clin.lnk_code2item_root (
 );
 
 -- --------------------------------------------------------------
+drop table clin.coded_phrase cascade;
+drop table audit.log_coded_phrase cascade;
+
+delete from audit.audited_tables where
+	schema = 'clin'
+		and
+	table_name = 'coded_phrase'
+;
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v16-clin-lnk_code2item_root-static.sql', '1.0');

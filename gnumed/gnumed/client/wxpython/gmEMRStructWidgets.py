@@ -315,7 +315,7 @@ limit 25
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
 
-		proc['clin_when'] = self._DPRW_date.data.get_pydt()
+		proc['clin_when'] = self._DPRW_date.GetData().get_pydt()
 		if self._DPRW_end.GetData() is None:
 			proc['clin_end'] = None
 		else:
@@ -323,12 +323,14 @@ limit 25
 		proc['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 		proc.save()
 
+		proc.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		self.data = proc
 
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['clin_when'] = self._DPRW_date.data.get_pydt()
+		self.data['clin_when'] = self._DPRW_date.GetData().get_pydt()
 
 		if self._DPRW_end.GetData() is None:
 			self.data['clin_end'] = None
@@ -350,6 +352,8 @@ limit 25
 		self.data['performed_procedure'] = self._PRW_procedure.GetValue().strip()
 
 		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
@@ -361,6 +365,7 @@ limit 25
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
+		self._PRW_codes.SetText()
 
 		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
@@ -389,6 +394,25 @@ limit 25
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
+
+		codes = self.data.generic_codes
+		if len(codes) == 0:
+			self._PRW_codes.SetText()
+		else:
+			code_dict = {}
+			val = u''
+			for code in codes:
+				list_label = u'%s (%s - %s %s): %s' % (
+					code['code'],
+					code['lang'],
+					code['name_short'],
+					code['version'],
+					code['term']
+				)
+				field_label = code['code']
+				code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
+				val += u'%s; ' % field_label
+			self._PRW_codes.SetText(val.strip(), code_dict)
 
 		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
@@ -1304,11 +1328,14 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 u"""(
 
 select
-	pk_episode,
+	pk_episode
+		as data,
+	description
+		as field_label,
 	coalesce (
 		description || ' - ' || health_issue,
 		description
-	) as description,
+	) as list_label,
 	1 as rank
 from
   	clin.v_pat_episodes
@@ -1320,11 +1347,14 @@ where
 ) union all (
 
 select
-	pk_episode,
+	pk_episode
+		as data,
+	description
+		as field_label,
 	coalesce (
 		description || _(' (closed)') || ' - ' || health_issue,
 		description || _(' (closed)')
-	) as description,
+	) as list_label,
 	2 as rank
 from
 	clin.v_pat_episodes
@@ -1334,7 +1364,8 @@ where
 	%(ctxt_pat)s
 
 )
-order by rank, description
+
+order by rank, list_label
 limit 30"""
 ],
 			context = ctxt
@@ -1376,8 +1407,8 @@ limit 30"""
 	#--------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False, is_open=False):
 		self.__is_open_for_create_data = is_open		# used (only) in _create_data()
-		gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
-		return self.data
+		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
+		#return self.data
 	#--------------------------------------------------------
 	def _create_data(self):
 
@@ -1395,9 +1426,12 @@ limit 30"""
 		emr = pat.get_emr()
 		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open_for_create_data)
 		if epi is None:
-			self.data = None
+			self.data = {}
 		else:
-			self.data = epi['pk_episode']
+			self.SetText (
+				value = epi_name,
+				data = epi['pk_episode']
+			)
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmEMRStructItems.cEpisode(aPK_obj = self.data)

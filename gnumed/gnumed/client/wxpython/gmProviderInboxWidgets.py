@@ -548,7 +548,11 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if val == u'':
 			return
 
-		self.data = gmProviderInbox.create_inbox_item_type(message_type = val)
+		self.SetText (
+			value = val,
+			data = gmProviderInbox.create_inbox_item_type(message_type = val)
+		)
+#		self.data = gmProviderInbox.create_inbox_item_type(message_type = val)
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgInboxMessageEAPnl
 

@@ -1023,7 +1023,11 @@ from (
 			lines.append(u'')
 			lines.append(_('Procedures performed: %s') % len(procs))
 		for p in procs:
-			lines.append(p.format(left_margin = (left_margin + 1), include_episode = False))
+			lines.append(p.format (
+				left_margin = (left_margin + 1),
+				include_episode = False,
+				include_codes = True
+			))
 		del procs
 
 		# test results
@@ -2160,7 +2164,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#-------------------------------------------------------
-	def format(self, left_margin=0, include_episode=True):
+	def format(self, left_margin=0, include_episode=True, include_codes=False):
 
 		if self._payload[self._idx['is_ongoing']]:
 			end = _(' (ongoing)')
@@ -2180,6 +2184,20 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		)
 		if include_episode:
 			line = u'%s (%s)' % (line, self._payload[self._idx['episode']])
+
+		if include_codes:
+			codes = self.generic_codes
+			if len(codes) > 0:
+				line += u'\n'
+			for c in codes:
+				line += u'%s  %s: %s (%s - %s)\n' % (
+					(u' ' * left_margin),
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				)
+			del codes
 
 		return line
 	#--------------------------------------------------------
@@ -2205,18 +2223,42 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_codes(self):
-		cmd = u"""
-			SELECT * FROM clin.v_linked_codes WHERE
-				item_table = 'clin.lnk_code2procedure'::regclass
-					AND
-				pk_item = %(issue)s
-		"""
-		args = {'issue': self._payload[self._idx['pk_procedure']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
 
-	codes = property(_get_codes, lambda x:x)
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(proc)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'proc': self._payload[self._idx['pk_procedure']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) VALUES (%(proc)s, %(pk_code)s)',
+				'args': {
+					'proc': self._payload[self._idx['pk_procedure']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 #-----------------------------------------------------------
 def get_performed_procedures(patient=None):
 

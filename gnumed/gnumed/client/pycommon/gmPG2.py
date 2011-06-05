@@ -1726,26 +1726,26 @@ class cAdapterPyDateTime(object):
 	def getquoted(self):
 		return _timestamp_template % self.__dt.isoformat()
 
-# remove for 0.9
-# ----------------------------------------------------------------------
-#class cAdapterMxDateTime(object):
-#
-#	def __init__(self, dt):
-#		if dt.tz == '???':
-#			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
-#		self.__dt = dt
-#
-#	def getquoted(self):
-#		# under some locale settings the mx.DateTime ISO formatter
-#		# will insert "," into the ISO string,
-#		# while this is allowed per the ISO8601 spec PostgreSQL
-#		# cannot currently handle that,
-#		# so map those "," to "." to make things work:
-#		return mxDT.ISO.str(self.__dt).replace(',', '.')
-#
-# ----------------------------------------------------------------------
-# PostgreSQL -> Python
-# ----------------------------------------------------------------------
+## remove for 0.9
+## ----------------------------------------------------------------------
+##class cAdapterMxDateTime(object):
+##
+##	def __init__(self, dt):
+##		if dt.tz == '???':
+##			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
+##		self.__dt = dt
+##
+##	def getquoted(self):
+##		# under some locale settings the mx.DateTime ISO formatter
+##		# will insert "," into the ISO string,
+##		# while this is allowed per the ISO8601 spec PostgreSQL
+##		# cannot currently handle that,
+##		# so map those "," to "." to make things work:
+##		return mxDT.ISO.str(self.__dt).replace(',', '.')
+##
+## ----------------------------------------------------------------------
+## PostgreSQL -> Python
+## ----------------------------------------------------------------------
 
 #=======================================================================
 #  main
@@ -1761,15 +1761,15 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 # check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 
-# remove for 0.9
-try:
-	import mx.DateTime as mxDT
-#	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
-except ImportError:
-	_log.warning('cannot import mx.DateTime')
+## remove for 0.9
+#try:
+#	import mx.DateTime as mxDT
+##	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+#except ImportError:
+#	_log.warning('cannot import mx.DateTime')
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
-# them adapted to "... ARRAY()..." so we can support PG arrays
+# them adapted to "... ARRAY[]..." so we can support PG arrays
 
 #=======================================================================
 if __name__ == "__main__":

@@ -83,9 +83,12 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 			FROM (
 
 				SELECT
-					pk_generic_code AS data,
-					(code || ' (' || lang || ' - ' || coding_system || ' - ' || version || '): ' || term) AS list_label,
-					code AS field_label
+					pk_generic_code
+						AS data,
+					(code || ' (' || coding_system || '): ' || term || ' (' || version || ' - ' || lang || ')')
+						AS list_label,
+					code AS
+						field_label
 				FROM
 					ref.v_coded_terms
 				WHERE
