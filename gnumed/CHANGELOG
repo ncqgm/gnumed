@@ -28,6 +28,7 @@ IMPROVED: default medication list template layout
 IMPROVED: make inbox listen to/reload on doc/doc-review/identity changes
 IMPROVED: typos in patient search field [thanks J.Busser]
 IMPROVED: check for both "lowriter" and "oowriter" when using OOo/LO [thanks Marc]
+IMPROVED: set database options at bootstrap, only check at connection setup
 
 ------------------------------------------------
 # rel-0-9-patches
