@@ -395,24 +395,8 @@ limit 25
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
 
-		codes = self.data.generic_codes
-		if len(codes) == 0:
-			self._PRW_codes.SetText()
-		else:
-			code_dict = {}
-			val = u''
-			for code in codes:
-				list_label = u'%s (%s - %s %s): %s' % (
-					code['code'],
-					code['lang'],
-					code['name_short'],
-					code['version'],
-					code['term']
-				)
-				field_label = code['code']
-				code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
-				val += u'%s; ' % field_label
-			self._PRW_codes.SetText(val.strip(), code_dict)
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
 
 		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
@@ -983,9 +967,17 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		)
 		self._PRW_end.SetText(fts.format_accurately(), data=fts)
 
+		# RFE
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(self.__encounter['reason_for_encounter'], ''))
-		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
+		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(self.__encounter.generic_codes_rfe)
+		self._PRW_rfe_codes.SetText(val, data)
 
+		# AOE
+		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
+		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(self.__encounter.generic_codes_aoe)
+		self._PRW_aoe_codes.SetText(val, data)
+
+		# last affirmed
 		if self.__encounter['last_affirmed'] == self.__encounter['started']:
 			self._PRW_end.SetFocus()
 		else:
@@ -1023,6 +1015,9 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter['reason_for_encounter'] = gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
 		self.__encounter['assessment_of_encounter'] = gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u'')
 		self.__encounter.save_payload()			# FIXME: error checking
+
+		self.__encounter.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
+		self.__encounter.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
 
 		return True
 #----------------------------------------------------------------
@@ -1575,24 +1570,8 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		self._CHBOX_closed.SetValue(not self.data['episode_open'])
 
-		codes = self.data.generic_codes
-		if len(codes) == 0:
-			self._PRW_codes.SetText()
-		else:
-			code_dict = {}
-			val = u''
-			for code in codes:
-				list_label = u'%s (%s - %s %s): %s' % (
-					code['code'],
-					code['lang'],
-					code['name_short'],
-					code['version'],
-					code['term']
-				)
-				field_label = code['code']
-				code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
-				val += u'%s; ' % field_label
-			self._PRW_codes.SetText(val.strip(), code_dict)
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -1957,24 +1936,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		else:
 			self._ChBOX_right.SetValue(1)
 
-		codes = self.data.generic_codes
-		if len(codes) == 0:
-			self._PRW_codes.SetText()
-		else:
-			code_dict = {}
-			val = u''
-			for code in codes:
-				list_label = u'%s (%s - %s %s): %s' % (
-					code['code'],
-					code['lang'],
-					code['name_short'],
-					code['version'],
-					code['term']
-				)
-				field_label = code['code']
-				code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
-				val += u'%s; ' % field_label
-			self._PRW_codes.SetText(val.strip(), code_dict)
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
 		self._on_leave_codes()
 
 		if self.data['diagnostic_certainty_classification'] is not None:

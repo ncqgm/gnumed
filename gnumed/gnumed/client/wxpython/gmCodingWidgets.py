@@ -128,6 +128,26 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 			return u''
 
 		return u';\n'.join([ i['list_label'] for i in self.data.values() ]) + u';'
+	#------------------------------------------------------------
+	def generic_linked_codes2item_dict(self, codes):
+		if len(codes) == 0:
+			return u'', {}
+
+		code_dict = {}
+		val = u''
+		for code in codes:
+			list_label = u'%s (%s): %s (%s - %s)' % (
+				code['code'],
+				code['name_short'],
+				code['term'],
+				code['version'],
+				code['lang']
+			)
+			field_label = code['code']
+			code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
+			val += u'%s; ' % field_label
+
+		return val.strip(), code_dict
 #================================================================
 # main
 #----------------------------------------------------------------

@@ -252,7 +252,9 @@ def search_narrative_across_emrs(parent=None):
 		)
 		return
 
-	items = [ [gmPerson.cIdentity(aPK_obj = r['pk_patient'])['description_gender'], r['narrative'], r['src_table']] for r in results ]
+	items = [ [gmPerson.cIdentity(aPK_obj =
+	r['pk_patient'])['description_gender'], r['narrative'],
+	r['src_table']] for r in results ]
 
 	selected_patient = gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -746,6 +748,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._splitter_left.SetSashPosition(splitter_size * 6 / 20, True)
 
 		self._NB_soap_editors.DeleteAllPages()
+		self._NB_soap_editors.MoveAfterInTabOrder(self._PRW_aoe_codes)
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		"""Clear all information from input panel."""
@@ -975,22 +978,29 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			timestamp = enc['started'],
 			accuracy = gmDateTime.acc_minutes
 		)
-		self._PRW_encounter_start.SetText(fts.format_accurately(), data=fts)
+		self._PRW_encounter_start.SetText(fts.format_accurately(), data = fts)
 
 		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = enc['last_affirmed'],
 			accuracy = gmDateTime.acc_minutes
 		)
-		self._PRW_encounter_end.SetText(fts.format_accurately(), data=fts)
+		self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], u''))
+		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(enc.generic_codes_rfe)
+		self._PRW_rfe_codes.SetText(val, data)
+
 		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], u''))
+		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(enc.generic_codes_aoe)
+		self._PRW_aoe_codes.SetText(val, data)
 
 		self._PRW_encounter_type.Refresh()
 		self._PRW_encounter_start.Refresh()
 		self._PRW_encounter_end.Refresh()
 		self._TCTRL_rfe.Refresh()
+		self._PRW_rfe_codes.Refresh()
 		self._TCTRL_aoe.Refresh()
+		self._PRW_aoe_codes.Refresh()
 	#--------------------------------------------------------
 	def __encounter_modified(self):
 		"""Assumes that the field data is valid."""
@@ -1049,9 +1059,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
 		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
+		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_current_encounter_modified)
+		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_current_encounter_modified)
 
 		# synchronous signals
 		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
@@ -1559,25 +1572,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		if self.problem['summary'] is not None:
 			self._TCTRL_episode_summary.SetValue(self.problem['summary'].strip())
 
-		codes = self.problem.generic_codes
-		if len(codes) == 0:
-			return
-
-		code_dict = {}
-		val = u''
-		for code in codes:
-			list_label = u'%s (%s - %s %s): %s' % (
-				code['code'],
-				code['lang'],
-				code['name_short'],
-				code['version'],
-				code['term']
-			)
-			field_label = code['code']
-			code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
-			val += u'%s; ' % field_label
-
-		self._PRW_episode_codes.SetText(val.strip(), code_dict)
+		val, data = self._PRW_episode_codes.generic_linked_codes2item_dict(self.problem.generic_codes)
+		self._PRW_episode_codes.SetText(val, data)
 	#--------------------------------------------------------
 	def refresh_visual_soap(self):
 		if self.problem is None:

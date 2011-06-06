@@ -1595,9 +1595,30 @@ WHERE
 
 			if self._payload[self._idx['reason_for_encounter']] is not None:
 				lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+				codes = self.generic_codes_rfe
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
 
 			if self._payload[self._idx['assessment_of_encounter']] is not None:
 				lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+				codes = self.generic_codes_aoe
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
+				del codes
 
 		else:
 			lines.append(u'%s%s: %s - %s%s' % (
@@ -1610,8 +1631,31 @@ WHERE
 			if with_rfe_aoe:
 				if self._payload[self._idx['reason_for_encounter']] is not None:
 					lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+				codes = self.generic_codes_rfe
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
 				if self._payload[self._idx['assessment_of_encounter']] is not None:
 					lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+				codes = self.generic_codes_aoe
+				if len(codes) > 0:
+					lines.append(u'')
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
+				del codes
 
 		if with_soap:
 			lines.append(u'')
@@ -1711,31 +1755,79 @@ WHERE
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_rfe_codes(self):
-		cmd = u"""
-			SELECT * FROM clin.v_linked_codes WHERE
-				item_table = 'clin.lnk_code2rfe'::regclass
-					AND
-				pk_item = %(item)s
-		"""
-		args = {'item': self._payload[self._idx['pk_encounter']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+	def _get_generic_codes_rfe(self):
+		if len(self._payload[self._idx['pk_generic_codes_rfe']]) == 0:
+			return []
 
-	rfe_codes = property(_get_rfe_codes, lambda x:x)
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_rfe']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes_rfe(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes_rfe']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes_rfe']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes_rfe = property(_get_generic_codes_rfe, _set_generic_codes_rfe)
 	#--------------------------------------------------------
-	def _get_aoe_codes(self):
-		cmd = u"""
-			SELECT * FROM clin.v_linked_codes WHERE
-				item_table = 'clin.lnk_code2aoe'::regclass
-					AND
-				pk_item = %(item)s
-		"""
-		args = {'item': self._payload[self._idx['pk_encounter']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows
+	def _get_generic_codes_aoe(self):
+		if len(self._payload[self._idx['pk_generic_codes_aoe']]) == 0:
+			return []
 
-	aoe_codes = property(_get_aoe_codes, lambda x:x)
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_aoe']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes_aoe(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes_aoe']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes_aoe']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes_aoe = property(_get_generic_codes_aoe, _set_generic_codes_aoe)
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.

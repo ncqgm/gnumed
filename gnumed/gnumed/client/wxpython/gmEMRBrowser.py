@@ -659,14 +659,38 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		data = self.GetPyData(item)
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
-			tt = u'%s  %s  %s - %s\n%s%s' % (
+			tt = u'%s  %s  %s - %s\n' % (
 				data['started'].strftime('%x'),
 				data['l10n_type'],
 				data['started'].strftime('%H:%M'),
-				data['last_affirmed'].strftime('%H:%M'),
-				gmTools.coalesce(data['reason_for_encounter'], u'', u'\nRFE: %s'),
-				gmTools.coalesce(data['assessment_of_encounter'], u'', u'\nAOE: %s')
+				data['last_affirmed'].strftime('%H:%M')
 			)
+			if data['reason_for_encounter'] is not None:
+				tt += u'\n'
+				tt += _('RFE: %s') % data['reason_for_encounter']
+				if len(data['pk_generic_codes_rfe']) > 0:
+					for code in data.generic_codes_rfe:
+						tt += u'\n %s: %s%s%s\n  (%s %s)' % (
+							code['code'],
+							gmTools.u_left_double_angle_quote,
+							code['term'],
+							gmTools.u_right_double_angle_quote,
+							code['name_short'],
+							code['version']
+						)
+			if data['assessment_of_encounter'] is not None:
+				tt += u'\n'
+				tt += _('AOE: %s') % data['assessment_of_encounter']
+				if len(data['pk_generic_codes_aoe']) > 0:
+					for code in data.generic_codes_aoe:
+						tt += u'\n %s: %s%s%s\n  (%s %s)' % (
+							code['code'],
+							gmTools.u_left_double_angle_quote,
+							code['term'],
+							gmTools.u_right_double_angle_quote,
+							code['name_short'],
+							code['version']
+						)
 
 		elif isinstance(data, gmEMRStructItems.cEpisode):
 			tt = u''
