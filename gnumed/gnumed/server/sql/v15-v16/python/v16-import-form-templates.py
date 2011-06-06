@@ -27,6 +27,22 @@ where
 		conn = conn
 	)
 
+
+	# Formularkopf
+	gmPG2.file2bytea (
+		query = u"""
+update ref.paperwork_templates
+set
+	data = %(data)s::bytea,
+	external_version = 'v16.0'
+where
+	name_long = 'Formularkopf (GNUmed-Vorgabe)'
+""",
+		filename = os.path.join('..', 'sql', 'v15-v16', 'data', 'v16-GNUmed-default_GKV_Formularkopf_template.tex'),
+		conn = conn
+	)
+
+
 	return True
 
 #==============================================================

@@ -82,6 +82,12 @@ from
 
 
 grant select on clin.v_pat_encounters_journal TO GROUP "gm-doctors";
+
+
+select i18n.upd_tx('de', 'Encounter', 'Kontakt');
+select i18n.upd_tx('de', 'RFE', 'BU');
+select i18n.upd_tx('de', 'AOE', 'BE');
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v16-clin-v_pat_encounters_journal.sql', 'v16');
 

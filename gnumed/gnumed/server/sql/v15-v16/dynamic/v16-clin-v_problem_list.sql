@@ -83,6 +83,6 @@ union
 
 grant select on clin.v_problem_list TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
-select gm.log_script_insertion('16-clin-v_problem_list.sql', 'v16');
+select gm.log_script_insertion('v16-clin-v_problem_list.sql', 'v16');
 
 -- ==============================================================

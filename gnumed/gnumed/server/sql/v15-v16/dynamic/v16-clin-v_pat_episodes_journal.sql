@@ -73,6 +73,11 @@ from
 
 
 grant select on clin.v_pat_episodes_journal TO GROUP "gm-doctors";
+
+
+select i18n.upd_tx('de', 'open', 'andauernd');
+select i18n.upd_tx('de', 'closed', 'abgeschlossen');
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v16-clin-v_pat_episodes_journal.sql', 'v16');
 
