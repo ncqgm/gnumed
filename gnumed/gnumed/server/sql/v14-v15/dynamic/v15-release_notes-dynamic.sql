@@ -18,23 +18,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.5 (database v15.5)',
-	'GNUmed 0.9.5 Release Notes:
+	'Release Notes for GNUmed 0.9.6 (database v15.6)',
+	'GNUmed 0.9.6 Release Notes:
 
-	Client 0.9.5
+	Client 0.9.6
 
-FIX: exception on trying to use Wine version of GL/MMI under Windows [thanks S.Hilbert]
-FIX: adjust default Windows path to FreeDiams executable [thanks S.Hilbert]
-FIX: exception on trying to put patient on same drug twice [thanks J.Busser]
-FIX: Windows can"t check hook script for -rw------- with os.stat() [thanks LuisCapriles]
-FIX: exception on DOB input because .strptime() returns TZ naive dates [thanks J.Busser]
-FIX: exceptions on entering large integers into DOB field
+FIX: need to clear "Recent notes" sizer label between patients [thanks J.Busser]
+FIX: exception on <DrugATC/> being returned from FreeDIAMS but empty [thanks ll]
+FIX: exception (off-by-one) when splitting "incompletely" defined placeholders [thanks Marc]
+FIX: exception when DOB=NULL when re-confirming old encounter [thanks J.Busser]
 
-IMPROVED: logging of hook script permissions [thanks L.Capriles]
-
-	Database 15.5
-
-FIX: faulty quoting in database backup scripts using "su -c" [thanks Marc]
+IMPROVED: enable detaching episodes from issues [thanks J.Busser]
 ');
 
 -- --------------------------------------------------------------
