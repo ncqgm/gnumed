@@ -37,7 +37,7 @@ Database installation / upgrade:
 
  Note that this release, as usual, does NOT require a
  database upgrade. However, fixes to the database may
- have been provided with you can (and should) install
+ have been provided which you can (and should) install
  with either
 
 	$> gm-fixup_server XX
