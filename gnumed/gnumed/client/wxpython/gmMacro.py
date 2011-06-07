@@ -25,8 +25,13 @@ from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 
-from Gnumed.business import gmPerson, gmDemographicRecord, gmMedication, gmPathLab, gmPersonSearch
-from Gnumed.business import gmVaccination, gmPersonSearch
+from Gnumed.business import gmPerson
+from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmMedication
+from Gnumed.business import gmPathLab
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmVaccination
+from Gnumed.business import gmPersonSearch
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmNarrativeWidgets

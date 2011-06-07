@@ -21,17 +21,18 @@ EMR structure tables foreign key into children of this table in
 order to link structures to codes.
 ';
 
-
-comment on column clin.lnk_code2item_root.fk_item is
-'Foreign key to clin.* tables';
-
-comment on column clin.lnk_code2item_root.code_modifier is
-'Usage specific modifier on the base code, say, certainty or laterality of ICD-10 codes.';
-
-
 GRANT select on clin.lnk_code2item_root to "gm-public";
 GRANT usage on clin.lnk_code2item_root_pk_lnk_code2item_seq to "gm-public";
 
+-- --------------------------------------------------------------
+-- .code_modifier
+comment on column clin.lnk_code2item_root.code_modifier is
+'Usage specific modifier on the base code, say, certainty or laterality of ICD-10 codes.';
+
+-- --------------------------------------------------------------
+-- .fk_item
+comment on column clin.lnk_code2item_root.fk_item is
+'Foreign key to clin.* tables';
 
 -- apply this to child tables:
 --\unset ON_ERROR_STOP

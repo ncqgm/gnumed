@@ -13,6 +13,7 @@ comment on table clin.lnk_code2procedure is
 
 
 select gm.register_notifying_table('clin', 'lnk_code2procedure', 'procedure_code');
+select audit.register_table_for_auditing('clin', 'lnk_code2procedure');
 
 
 grant select on clin.lnk_code2procedure to group "gm-public";

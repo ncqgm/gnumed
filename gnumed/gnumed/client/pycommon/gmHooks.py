@@ -56,6 +56,7 @@ known_hooks = [
 	u'after_substance_intake_modified',
 	u'after_test_result_modified',
 	u'after_soap_modified',
+	u'after_code_link_modified',
 
 	u'after_new_doc_created',
 	u'before_print_doc',

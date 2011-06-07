@@ -15,6 +15,7 @@ comment on table clin.lnk_code2rfe is
 
 
 select gm.register_notifying_table('clin', 'lnk_code2rfe', 'rfe_code');
+select audit.register_table_for_auditing('clin', 'lnk_code2rfe');
 
 
 grant select on clin.lnk_code2rfe to group "gm-public";
@@ -83,6 +84,7 @@ comment on table clin.lnk_code2aoe is
 
 
 select gm.register_notifying_table('clin', 'lnk_code2aoe', 'aoe_code');
+select audit.register_table_for_auditing('clin', 'lnk_code2aoe');
 
 
 grant select on clin.lnk_code2aoe to group "gm-public";

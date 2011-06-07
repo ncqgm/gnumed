@@ -14,9 +14,24 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmHooks
+from Gnumed.pycommon import gmDispatcher
 
 _log = logging.getLogger('gm.coding')
 _log.info(__version__)
+
+
+#============================================================
+def _on_code_link_modified():
+	"""Always relates to the active patient."""
+	gmHooks.run_hook_script(hook = u'after_code_link_modified')
+
+gmDispatcher.connect(_on_code_link_modified, u'episode_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, u'rfe_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, u'aoe_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, u'health_issue_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, u'narrative_code_mod_db')
+gmDispatcher.connect(_on_code_link_modified, u'procedure_code_mod_db')
 
 #============================================================
 # generic linked code handling

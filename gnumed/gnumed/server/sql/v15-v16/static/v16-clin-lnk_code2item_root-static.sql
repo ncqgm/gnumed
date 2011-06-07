@@ -13,7 +13,7 @@ create table clin.lnk_code2item_root (
 	fk_generic_code integer,
 	fk_item integer,
 	code_modifier text
-);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
 drop table clin.coded_phrase cascade;

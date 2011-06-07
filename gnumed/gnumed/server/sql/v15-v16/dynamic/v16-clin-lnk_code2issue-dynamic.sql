@@ -13,6 +13,7 @@ comment on table clin.lnk_code2h_issue is
 
 
 select gm.register_notifying_table('clin', 'lnk_code2h_issue', 'health_issue_code');
+select audit.register_table_for_auditing('clin', 'lnk_code2h_issue');
 
 
 grant select on clin.lnk_code2h_issue to group "gm-public";

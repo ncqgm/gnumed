@@ -13,6 +13,7 @@ comment on table clin.lnk_code2narrative is
 
 
 select gm.register_notifying_table('clin', 'lnk_code2narrative', 'narrative_code');
+select audit.register_table_for_auditing('clin', 'lnk_code2narrative');
 
 
 grant select on clin.lnk_code2narrative to group "gm-public";
