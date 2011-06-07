@@ -18,24 +18,23 @@
 \usepackage[T1]{fontenc}
 \usepackage{ucs}
 \usepackage{babel}
-
-% a6paper gibt es nicht
-\usepackage[a5paper]{geometry}
-%\geometry{verbose,lmargin=2.54cm}
+\usepackage[a4paper]{geometry}
 \geometry{verbose}
-% also definieren wir es uns selbst
-\pagestyle{empty}
-\oddsidemargin61mm
-\topmargin27mm
-\headheight0mm
-\headsep0mm
-\topskip0mm
-\textwidth146mm
-\textheight104mm
-\footskip0mm
-\paperwidth148mm
-\paperheight105mm
 
+% define page dimensions as needed
+\pagestyle{empty}
+\oddsidemargin 64mm		% (90mm vom linken Papierrand - 1 Inch LaTeX-Festrand links - 1mm Druckerrand)
+\topmargin 27mm			% (52mm vom oberen Papierrand - 1 Inch LaTeX-Festrand oben)
+\headheight 0mm
+\headsep 0mm
+\topskip 0mm
+\footskip 0mm
+%\textwidth146mm
+%\textheight104mm
+%\paperwidth148mm
+%\paperheight105mm
+
+% define where to put stuff
 \newcount\ganzlinks
 %\newcount\stempeloffsetx
 %\newcount\stempeloffsety
@@ -43,13 +42,17 @@
 \begin{document}
 \setlength{\unitlength}{1mm}
 
-% x-Koordinate tut nichts zur Sache
+% x-Koordinate tut nichts zur Sache (weil \oddsidemargin sie definiert)
 % y-Koordinate schiebt d. 'Bild' nach unten
-\begin{picture}(0,0)%(80,27)
+\begin{picture}(0,0)
 
-\put(0,0){.+} % Ursprungskoordinate (Unterkante KVK-DatenBlock)
-\ganzlinks=-77 %beliebig dicht am re Papierrand! 
+\ganzlinks=-80			% 80mm links der rechten unteren Ecke des Stammdatenkastens
 
+% for debugging:
+%\put(0,0){.+ (0,0)} % Ursprungskoordinate (rechte untere Ecke KVK-Datenblock)
+%\put(0,-47){.+ (0,-47)}
+%\put(\ganzlinks,0){.+ (-80,0)}
+%\put(\ganzlinks,-47){.+ (-80,-47)}
 
 %----- KVK-Daten -----------
 %\put(\ganzlinks,38){\texttt{*KVKKrankenkasse*}}
@@ -67,9 +70,6 @@
 
 
 \put(\ganzlinks,-10){$<free_text::tex//Freier Formulareintrag::9999>$}
-%\put(\ganzlinks,-16){*rp2*}
-%\put(\ganzlinks,-22){*rp3*}
-%\put(\ganzlinks,-28){*rp4*}
 
 
 %----- Stempel ---------------
