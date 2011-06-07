@@ -673,23 +673,23 @@ order by
 	def get_statistics(self):
 		union_query = u'\n	union all\n'.join ([
 			u"""
-SELECT ((
-	-- all relevant health issues + active episodes WITH health issue
-	SELECT COUNT(1)
-	FROM clin.v_problem_list
-	WHERE
-		pk_patient = %(pat)s
-			AND
-		pk_health_issue is not null
-) + (
-	-- active episodes WITHOUT health issue
-	SELECT COUNT(1)
-	FROM clin.v_problem_list
-	WHERE
-		pk_patient = %(pat)s
-			AND
-		pk_health_issue is null
-))""",
+				SELECT ((
+					-- all relevant health issues + active episodes WITH health issue
+					SELECT COUNT(1)
+					FROM clin.v_problem_list
+					WHERE
+						pk_patient = %(pat)s
+							AND
+						pk_health_issue is not null
+				) + (
+					-- active episodes WITHOUT health issue
+					SELECT COUNT(1)
+					FROM clin.v_problem_list
+					WHERE
+						pk_patient = %(pat)s
+							AND
+						pk_health_issue is null
+				))""",
 			u'SELECT count(1) FROM clin.encounter WHERE fk_patient = %(pat)s',
 			u'SELECT count(1) FROM clin.v_pat_items WHERE pk_patient = %(pat)s',
 			u'SELECT count(1) FROM blobs.v_doc_med WHERE pk_patient = %(pat)s',

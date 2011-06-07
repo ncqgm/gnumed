@@ -315,7 +315,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
-		login.database = prompted_input(prompt = "database", default = 'gnumed_v15')
+		login.database = prompted_input(prompt = "database", default = 'gnumed_v16')
 		login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
@@ -1473,35 +1473,17 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	# - transaction isolation level
 	if readonly:
-		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 		iso_level = u'read committed'
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
 		iso_level = u'serializable'
 
-	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s], datestyle [ISO], sql_inheritance [ON]', encoding, iso_level, _default_client_timezone)
+	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s]', encoding, iso_level, _default_client_timezone)
 
 	curs = conn.cursor()
 
 	# - client time zone
 	curs.execute(_sql_set_timezone, [_default_client_timezone])
-
-	# - datestyle
-	# regarding DMY/YMD handling: since we force *input* to
-	# ISO, too, the DMY/YMD setting is not needed
-	cmd = "set datestyle to 'ISO'"
-	curs.execute(cmd)
-
-	# - SQL inheritance mode
-	cmd = 'set sql_inheritance to on'
-	curs.execute(cmd)
-
-	# - version string
-	global postgresql_version_string
-	if postgresql_version_string is None:
-		curs.execute('select version()')
-		postgresql_version_string = curs.fetchone()['version']
-		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
 
 	conn.commit()
 
@@ -1603,16 +1585,30 @@ def sanity_check_database_settings():
 		2: fatal problem
 	"""
 	_log.debug('checking database settings')
-	settings = {
+
+	conn = get_connection()
+
+	# - version string
+	global postgresql_version_string
+	if postgresql_version_string is None:
+		curs = conn.cursor()
+		curs.execute('select version()')
+		postgresql_version_string = curs.fetchone()['version']
+		curs.close()
+		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
+
+	options2check = {
 		# setting: [expected value, risk, fatal?]
 		u'allow_system_table_mods': [u'off', u'system breakage', False],
 		u'check_function_bodies': [u'on', u'suboptimal error detection', False],
+		u'datestyle': [u'ISO', u'faulty timestamp parsing', True],
+		u'default_transaction_isolation': [u'read committed', u'faulty database reads', True],
 		u'default_transaction_read_only': [u'on', u'accidental database writes', False],
 		u'fsync': [u'on', u'data loss/corruption', True],
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
-		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
+		u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}
@@ -1620,32 +1616,41 @@ def sanity_check_database_settings():
 	from Gnumed.pycommon import gmCfg2
 	_cfg = gmCfg2.gmCfgData()
 	if _cfg.get(option = u'hipaa'):
-		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
-		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
+		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
+		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
 	else:
-		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
-		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
+		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
+		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
 
 	cmd = u"select name, setting from pg_settings where name in %(settings)s"
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
+	rows, idx = run_ro_queries (
+		link_obj = conn,
+		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check.keys())}}],
+		get_col_idx = False
+	)
 
 	found_error = False
 	found_problem = False
 	msg = []
 	for row in rows:
-		if row[1] != settings[row[0]][0]:
-			if settings[row[0]][2] is True:
+		option = row['name']
+		value_found = row['setting']
+		value_expected = options2check[option][0]
+		risk = options2check[option][1]
+		fatal_setting = options2check[option][2]
+		if value_found != value_expected:
+			if fatal_setting is True:
 				found_error = True
-			elif settings[row[0]][2] is False:
+			elif fatal_setting is False:
 				found_problem = True
-			elif settings[row[0]][2] is None:
+			elif fatal_setting is None:
 				pass
 			else:
-				_log.error(settings[row[0]])
+				_log.error(options2check[option])
 				raise ValueError(u'invalid database configuration sanity check')
-			msg.append(_(' option [%s]: %s') % (row[0], row[1]))
-			msg.append(_('  risk: %s') % settings[row[0]][1])
-			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
+			msg.append(_(' option [%s]: %s') % (option, value_found))
+			msg.append(_('  risk: %s') % risk)
+			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (option, value_found, value_expected, risk))
 
 	if found_error:
 		return 2, u'\n'.join(msg)
@@ -1726,26 +1731,26 @@ class cAdapterPyDateTime(object):
 	def getquoted(self):
 		return _timestamp_template % self.__dt.isoformat()
 
-# remove for 0.9
-# ----------------------------------------------------------------------
-#class cAdapterMxDateTime(object):
-#
-#	def __init__(self, dt):
-#		if dt.tz == '???':
-#			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
-#		self.__dt = dt
-#
-#	def getquoted(self):
-#		# under some locale settings the mx.DateTime ISO formatter
-#		# will insert "," into the ISO string,
-#		# while this is allowed per the ISO8601 spec PostgreSQL
-#		# cannot currently handle that,
-#		# so map those "," to "." to make things work:
-#		return mxDT.ISO.str(self.__dt).replace(',', '.')
-#
-# ----------------------------------------------------------------------
-# PostgreSQL -> Python
-# ----------------------------------------------------------------------
+## remove for 0.9
+## ----------------------------------------------------------------------
+##class cAdapterMxDateTime(object):
+##
+##	def __init__(self, dt):
+##		if dt.tz == '???':
+##			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
+##		self.__dt = dt
+##
+##	def getquoted(self):
+##		# under some locale settings the mx.DateTime ISO formatter
+##		# will insert "," into the ISO string,
+##		# while this is allowed per the ISO8601 spec PostgreSQL
+##		# cannot currently handle that,
+##		# so map those "," to "." to make things work:
+##		return mxDT.ISO.str(self.__dt).replace(',', '.')
+##
+## ----------------------------------------------------------------------
+## PostgreSQL -> Python
+## ----------------------------------------------------------------------
 
 #=======================================================================
 #  main
@@ -1761,15 +1766,15 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 # check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 
-# remove for 0.9
-try:
-	import mx.DateTime as mxDT
-#	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
-except ImportError:
-	_log.warning('cannot import mx.DateTime')
+## remove for 0.9
+#try:
+#	import mx.DateTime as mxDT
+##	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+#except ImportError:
+#	_log.warning('cannot import mx.DateTime')
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
-# them adapted to "... ARRAY()..." so we can support PG arrays
+# them adapted to "... ARRAY[]..." so we can support PG arrays
 
 #=======================================================================
 if __name__ == "__main__":

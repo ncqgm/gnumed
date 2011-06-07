@@ -15,8 +15,12 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
 	gmDateTime.init()
-from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2, gmTools
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmHooks
 
 
 _log = logging.getLogger('gm.lab')

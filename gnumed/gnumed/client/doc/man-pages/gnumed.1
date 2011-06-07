@@ -2,7 +2,7 @@
 .\" license: GPL
 .\" ========================================================
 
-.TH GNUMED 1 "2007 September 5th" "Manual for GNUmed"
+.TH GNUmed 1 "2011 May 10th" "Manual for GNUmed"
 
 .SH NAME
 .B GNUmed
@@ -87,7 +87,7 @@ Valid values are:
 
 	web: CherryPy web client
 
-	wxp: wxPython Python client
+	wxp: wxPython Python client (default)
 .TP
 .B \--override-schema-check
 Continue loading the client even if the database schema
@@ -133,8 +133,6 @@ The default log file.
 .SH SEE ALSO
 .PP
 .TP
-.B gettext(1)
-.TP
 .B http://wiki.gnumed.de
 Detailed Wiki-style documentation
 .TP
@@ -152,6 +150,11 @@ Source code repository (Git)
 .TP
 .B /usr/share/doc/gnumed/
 Local documentation
+.TP
+.B man -k gm-*
+List man pages on gm-* commands.
+.TP
+.B gettext(1)
 
 .SH BUGS
 

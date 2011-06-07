@@ -565,16 +565,11 @@ select exists (
 		return names
 	#--------------------------------------------------------
 	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
-		if self._payload[self._idx['dob']] is None:
-			if none_string is None:
-				return _('** DOB unknown **')
-			return none_string
-
-		return gmDateTime.pydt_strftime (
+		return gmDateTime.format_dob (
 			self._payload[self._idx['dob']],
 			format = format,
 			encoding = encoding,
-			accuracy = gmDateTime.acc_days
+			none_string = none_string
 		)
 	#--------------------------------------------------------
 	def get_description_gender(self):

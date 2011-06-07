@@ -235,6 +235,14 @@ def mxdt2py_dt(mxDateTime):
 		)
 		raise
 #===========================================================================
+def format_dob(dob, format='%x', encoding=None, none_string=None):
+	if dob is None:
+		if none_string is None:
+			return _('** DOB unknown **')
+		return none_string
+
+	return pydt_strftime(dob, format = format, encoding = encoding, accuracy = acc_days)
+#---------------------------------------------------------------------------
 def pydt_strftime(dt, format='%c', encoding=None, accuracy=None):
 
 	if encoding is None:
@@ -988,16 +996,16 @@ def __numbers_only2py_dt(str2parse):
 		})
 
 	# day X of next month
-	ts = now + mxDT.RelativeDateTime(months = 1, day = val)
-	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+	if (val > 0) and (val < 32):
+		ts = now + mxDT.RelativeDateTime(months = 1, day = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('%d. of %s (next month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
 		})
 
 	# day X of last month
-	ts = now + mxDT.RelativeDateTime(months = -1, day = val)
-	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+	if (val > 0) and (val < 32):
+		ts = now + mxDT.RelativeDateTime(months = -1, day = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('%d. of %s (last month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
@@ -1239,12 +1247,11 @@ def str2pydt_matches(str2parse=None, patterns=None):
 			text = str2parse,
 			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
 		)
-		# FIXME: convert to python datetime
 		matches.append ({
 			'data': mxdt2py_dt(date),
 			'label': date.strftime('%Y-%m-%d')
 		})
-	except (ValueError, mxDT.RangeError):
+	except (ValueError, OverflowError, mxDT.RangeError):
 		pass
 
 	# apply explicit patterns
@@ -1257,7 +1264,12 @@ def str2pydt_matches(str2parse=None, patterns=None):
 
 	for pattern in patterns:
 		try:
-			date = pyDT.datetime.strptime(str2parse, pattern)
+			date = pyDT.datetime.strptime(str2parse, pattern).replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				tzinfo = gmCurrentLocalTimezone
+			)
 			matches.append ({
 				'data': mxdt2py_dt(date),
 				'label': date.strftime('%Y-%m-%d')
@@ -1904,20 +1916,18 @@ class cFuzzyTimestamp:
 			accuracy = acc_subseconds
 			modifier = ''
 
+		if (accuracy < 1) or (accuracy > 8):
+			raise ValueError('%s.__init__(): <accuracy> must be between 1 and 8' % self.__class__.__name__)
+
 		if isinstance(timestamp, pyDT.datetime):
 			timestamp = mxDT.DateTime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, timestamp.second)
 
 		if type(timestamp) != mxDT.DateTimeType:
-			raise TypeError, '%s.__init__(): <timestamp> must be of mx.DateTime.DateTime or datetime.datetime type' % self.__class__.__name__
+			raise TypeError('%s.__init__(): <timestamp> must be of mx.DateTime.DateTime or datetime.datetime type' % self.__class__.__name__)
 
 		self.timestamp = timestamp
-
-		if (accuracy < 1) or (accuracy > 8):
-			raise ValueError, '%s.__init__(): <accuracy> must be between 1 and 7' % self.__class__.__name__
 		self.accuracy = accuracy
-
 		self.modifier =  modifier
-
 	#-----------------------------------------------------------------------
 	# magic API
 	#-----------------------------------------------------------------------

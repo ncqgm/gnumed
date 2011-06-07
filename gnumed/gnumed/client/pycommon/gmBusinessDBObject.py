@@ -176,13 +176,16 @@ class cBusinessDBObject(object):
 
 	A template for new child classes:
 
+*********** start of template ***********
+
 #------------------------------------------------------------
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 
 #============================================================
-# description
+# short description
 #------------------------------------------------------------
+# use plural form, search-replace get_XXX
 _SQL_get_XXX = u\"""
 	SELECT *, (xmin AS xmin_XXX)
 	FROM XXX.v_XXX
@@ -190,6 +193,7 @@ _SQL_get_XXX = u\"""
 \"""
 
 class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
+	\"""Represents ...\"""
 
 	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
 	_cmds_store_payload = [
@@ -206,7 +210,7 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 				xmin as xmin_XXX
 		\"""
 	]
-	# view columns:
+	# view columns that can be updated:
 	_updatable_fields = [
 		u'xxx',
 		u'xxx'
@@ -251,6 +255,7 @@ def delete_xxx(xxx=None):
 	return True
 #------------------------------------------------------------
 
+*********** end of template ***********
 
 	"""
 	#--------------------------------------------------------

@@ -18,9 +18,21 @@ import socket										# needed for OOo on Windows
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmTools, gmBorg, gmMatchProvider, gmExceptions, gmDispatcher
-from Gnumed.pycommon import gmPG2, gmBusinessDBObject, gmCfg, gmShellAPI, gmMimeLib, gmLog2
-from Gnumed.business import gmPerson, gmSurgery, gmPersonSearch
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmBorg
+from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmPG2
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmSurgery
 
 
 _log = logging.getLogger('gm.forms')
@@ -260,10 +272,11 @@ def delete_form_template(template=None):
 	)
 	return True
 #============================================================
-# OpenOffice API
+# OpenOffice/LibreOffice API
 #============================================================
 uno = None
 cOOoDocumentCloseListener = None
+writer_binary = None
 
 #-----------------------------------------------------------
 def __configure_path_to_UNO():
@@ -346,6 +359,19 @@ def init_ooo():
 	global cOOoDocumentCloseListener
 	cOOoDocumentCloseListener = _cOOoDocumentCloseListener
 
+	# search for writer binary
+	global writer_binary
+	found, binary = gmShellAPI.find_first_binary(binaries = [
+		'lowriter',
+		'oowriter'
+	])
+	if found:
+		_log.debug('OOo/LO writer binary found: %s', binary)
+		writer_binary = binary
+	else:
+		_log.debug('OOo/LO writer binary NOT found')
+		raise ImportError('LibreOffice/OpenOffice (lowriter/oowriter) not found')
+
 	_log.debug('python UNO bridge successfully initialized')
 
 #------------------------------------------------------------
@@ -362,12 +388,17 @@ class gmOOoConnector(gmBorg.cBorg):
 		#self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=2002;urp;"'
 		#self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
 
-		pipe_name = "uno-gm2ooo-%s" % str(random.random())[2:]
-		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
-		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
-
+		pipe_name = "uno-gm2lo-%s" % str(random.random())[2:]
 		_log.debug('pipe name: %s', pipe_name)
+
+		#self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
+		self.ooo_start_cmd = '%s -invisible -norestore -accept="pipe,name=%s;urp"' % (
+			writer_binary,
+			pipe_name
+		)
 		_log.debug('startup command: %s', self.ooo_start_cmd)
+
+		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
 		_log.debug('remote context URI: %s', self.remote_context_uri)
 
 		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"

@@ -55,7 +55,13 @@ __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>,
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # standard library
-import sys, os, os.path, signal, logging, platform
+import sys
+import os
+import platform
+import logging
+import signal
+import os.path
+import shutil
 
 
 # do not run as module
@@ -490,7 +496,17 @@ def shutdown_logging():
 
 	# do not choke on Windows
 	logging.raiseExceptions = False
+#==========================================================
+def shutdown_tmp_dir():
 
+	tmp_dir = gmTools.gmPaths().tmp_dir
+
+	if _cfg.get(option = u'debug'):
+		_log.debug('not removing tmp dir (--debug mode): %s', tmp_dir)
+		return
+
+	_log.warning('removing tmp dir: %s', tmp_dir)
+	shutil.rmtree(tmp_dir, True)
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
@@ -538,6 +554,7 @@ elif ui_type == u'chweb':
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
 shutdown_backend()
+shutdown_tmp_dir()
 _log.info('Normally shutting down as main module.')
 shutdown_logging()
 

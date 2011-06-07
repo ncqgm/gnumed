@@ -23,8 +23,13 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmMatchProvider
 
-from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative, gmSurgery
-from Gnumed.business import gmForms, gmDocuments, gmPersonSearch
+from Gnumed.business import gmPerson
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmForms
+from Gnumed.business import gmDocuments
+from Gnumed.business import gmPersonSearch
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -247,7 +252,9 @@ def search_narrative_across_emrs(parent=None):
 		)
 		return
 
-	items = [ [gmPerson.cIdentity(aPK_obj = r['pk_patient'])['description_gender'], r['narrative'], r['src_table']] for r in results ]
+	items = [ [gmPerson.cIdentity(aPK_obj =
+	r['pk_patient'])['description_gender'], r['narrative'],
+	r['src_table']] for r in results ]
 
 	selected_patient = gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -733,8 +740,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._splitter_main.SetSashGravity(0.5)
 		self._splitter_left.SetSashGravity(0.5)
-		self._splitter_right.SetSashGravity(1.0)
-#		self._splitter_soap.SetSashGravity(0.75)
 
 		splitter_size = self._splitter_main.GetSizeTuple()[0]
 		self._splitter_main.SetSashPosition(splitter_size * 3 / 10, True)
@@ -742,13 +747,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		splitter_size = self._splitter_left.GetSizeTuple()[1]
 		self._splitter_left.SetSashPosition(splitter_size * 6 / 20, True)
 
-		splitter_size = self._splitter_right.GetSizeTuple()[1]
-		self._splitter_right.SetSashPosition(splitter_size * 15 / 20, True)
-
-#		splitter_size = self._splitter_soap.GetSizeTuple()[0]
-#		self._splitter_soap.SetSashPosition(splitter_size * 3 / 4, True)
-
 		self._NB_soap_editors.DeleteAllPages()
+		self._NB_soap_editors.MoveAfterInTabOrder(self._PRW_aoe_codes)
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		"""Clear all information from input panel."""
@@ -756,6 +756,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._LCTRL_active_problems.set_string_items()
 
 		self._TCTRL_recent_notes.SetValue(u'')
+		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent notes on selected problem'))
 
 		self._PRW_encounter_type.SetText(suppress_smarts = True)
 		self._PRW_encounter_start.SetText(suppress_smarts = True)
@@ -765,8 +766,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._NB_soap_editors.DeleteAllPages()
 		self._NB_soap_editors.add_editor()
-
-		self._lbl_hints.SetLabel(u'')
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
 		"""Update health problems list."""
@@ -979,22 +978,29 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			timestamp = enc['started'],
 			accuracy = gmDateTime.acc_minutes
 		)
-		self._PRW_encounter_start.SetText(fts.format_accurately(), data=fts)
+		self._PRW_encounter_start.SetText(fts.format_accurately(), data = fts)
 
 		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = enc['last_affirmed'],
 			accuracy = gmDateTime.acc_minutes
 		)
-		self._PRW_encounter_end.SetText(fts.format_accurately(), data=fts)
+		self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], u''))
+		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(enc.generic_codes_rfe)
+		self._PRW_rfe_codes.SetText(val, data)
+
 		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], u''))
+		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(enc.generic_codes_aoe)
+		self._PRW_aoe_codes.SetText(val, data)
 
 		self._PRW_encounter_type.Refresh()
 		self._PRW_encounter_start.Refresh()
 		self._PRW_encounter_end.Refresh()
 		self._TCTRL_rfe.Refresh()
+		self._PRW_rfe_codes.Refresh()
 		self._TCTRL_aoe.Refresh()
+		self._PRW_aoe_codes.Refresh()
 	#--------------------------------------------------------
 	def __encounter_modified(self):
 		"""Assumes that the field data is valid."""
@@ -1053,9 +1059,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
 		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
+		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_current_encounter_modified)
+		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_current_encounter_modified)
 
 		# synchronous signals
 		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
@@ -1136,6 +1145,18 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_problem_focused(self, event):
 		"""Show related note at the bottom."""
 		pass
+	#--------------------------------------------------------
+	def _on_problem_rclick(self, event):
+		problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
+		if problem['type'] == u'issue':
+			gmEMRStructWidgets.edit_health_issue(parent = self, issue = problem.get_as_health_issue())
+			return
+
+		if problem['type'] == u'episode':
+			gmEMRStructWidgets.edit_episode(parent = self, episode = problem.get_as_episode())
+			return
+
+		event.Skip()
 	#--------------------------------------------------------
 	def _on_problem_selected(self, event):
 		"""Show related note at the bottom."""
@@ -1477,18 +1498,18 @@ from Gnumed.wxGladeWidgets import wxgSoapNoteExpandoEditAreaPnl
 class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpandoEditAreaPnl):
 	"""An Edit Area like panel for entering progress notes.
 
-	Subjective:
+	Subjective:					Codes:
 		expando text ctrl
-	Objective:
+	Objective:					Codes:
 		expando text ctrl
-	Assessment:
+	Assessment:					Codes:
 		expando text ctrl
-	Plan:
+	Plan:						Codes:
 		expando text ctrl
-	Problem summary:
-		text ctrl
 	visual progress notes
 		panel with images
+	Episode summary:			Codes:
+		text ctrl
 
 	- knows the problem this edit area is about
 	- can deal with issue or episode type problems
@@ -1504,7 +1525,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 		wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpandoEditAreaPnl.__init__(self, *args, **kwargs)
 
-		self.fields = [
+		self.soap_fields = [
 			self._TCTRL_Soap,
 			self._TCTRL_sOap,
 			self._TCTRL_soAp,
@@ -1518,7 +1539,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		self.refresh_summary()
 		if self.problem is not None:
 			if self.problem['summary'] is None:
-				self._TCTRL_summary.SetValue(u'')
+				self._TCTRL_episode_summary.SetValue(u'')
 		self.refresh_visual_soap()
 	#--------------------------------------------------------
 	def refresh(self):
@@ -1526,12 +1547,33 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		self.refresh_visual_soap()
 	#--------------------------------------------------------
 	def refresh_summary(self):
+		self._TCTRL_episode_summary.SetValue(u'')
+		self._PRW_episode_codes.SetText(u'', self._PRW_episode_codes.list2data_dict([]))
+		self._LBL_summary.SetLabel(_('Episode summary'))
+
+		# new problem ?
 		if self.problem is None:
 			return
-		if self.problem['summary'] is None:
-			self._TCTRL_summary.SetValue(u'')
-		else:
-			self._TCTRL_summary.SetValue(self.problem['summary'])
+
+		# issue-level problem ?
+		if self.problem['type'] == u'issue':
+			return
+
+		# episode-level problem
+		caption = _(u'Summary (%s)') % (
+			gmDateTime.pydt_strftime (
+				self.problem['modified_when'],
+				format = '%B %Y',
+				accuracy = gmDateTime.acc_days
+			)
+		)
+		self._LBL_summary.SetLabel(caption)
+
+		if self.problem['summary'] is not None:
+			self._TCTRL_episode_summary.SetValue(self.problem['summary'].strip())
+
+		val, data = self._PRW_episode_codes.generic_linked_codes2item_dict(self.problem.generic_codes)
+		self._PRW_episode_codes.SetText(val, data)
 	#--------------------------------------------------------
 	def refresh_visual_soap(self):
 		if self.problem is None:
@@ -1554,9 +1596,11 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			return
 	#--------------------------------------------------------
 	def clear(self):
-		for field in self.fields:
+		for field in self.soap_fields:
 			field.SetValue(u'')
-		self._TCTRL_summary.SetValue(u'')
+		self._TCTRL_episode_summary.SetValue(u'')
+		self._LBL_summary.SetLabel(_('Episode summary'))
+		self._PRW_episode_codes.SetText(u'', self._PRW_episode_codes.list2data_dict([]))
 		self._PNL_visual_soap.clear()
 	#--------------------------------------------------------
 	def add_visual_progress_note(self):
@@ -1589,79 +1633,104 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 		# new episode (standalone=unassociated or new-in-issue)
 		if (self.problem is None) or (self.problem['type'] == 'issue'):
-
-			episode_name_candidates.append(u'')
-			for candidate in episode_name_candidates:
-				if candidate is None:
-					continue
-				epi_name = candidate.strip().replace('\r', '//').replace('\n', '//')
-				break
-
-			dlg = wx.TextEntryDialog (
-				parent = self,
-				message = _('Enter a short working name for this new problem:'),
-				caption = _('Creating a problem (episode) to save the notelet under ...'),
-				defaultValue = epi_name,
-				style = wx.OK | wx.CANCEL | wx.CENTRE
-			)
-			decision = dlg.ShowModal()
-			if decision != wx.ID_OK:
-				return False
-
-			epi_name = dlg.GetValue().strip()
-			if epi_name == u'':
-				gmGuiHelpers.gm_show_error(_('Cannot save a new problem without a name.'), _('saving progress note'))
-				return False
-
-			# create episode
-			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
-			new_episode['summary'] = self._TCTRL_summary.GetValue().strip()
-			new_episode.save()
-
-			if self.problem is not None:
-				issue = emr.problem2issue(self.problem)
-				if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
-					gmGuiHelpers.gm_show_warning (
-						_(
-							'The new episode:\n'
-							'\n'
-							' "%s"\n'
-							'\n'
-							'will remain unassociated despite the editor\n'
-							'having been invoked from the health issue:\n'
-							'\n'
-							' "%s"'
-						) % (
-							new_episode['description'],
-							issue['description']
-						),
-						_('saving progress note')
-					)
-
-			epi_id = new_episode['pk_episode']
-
+			episode = self.__create_new_episode(emr = emr, episode_name_candidates = episode_name_candidates)
 		# existing episode
 		else:
-			epi_id = self.problem['pk_episode']
+			episode = emr.problem2episode(self.problem)
 
-		emr.add_notes(notes = self.soap, episode = epi_id, encounter = encounter)
+		#emr.add_notes(notes = self.soap, episode = epi_id, encounter = encounter)
+		soap_notes = []
+		for note in self.soap:
+			saved, data = gmClinNarrative.create_clin_narrative (
+				soap_cat = note[0],
+				narrative = note[1],
+				episode_id = episode['pk_episode'],
+				encounter_id = encounter
+			)
+			if saved:
+				soap_notes.append(data)
 
-		# set summary but only if not already set above for an episode
-		# newly created either standalone or within a health issue
+		# codes per narrative !
+#		for note in soap_notes:
+#			if note['soap_cat'] == u's':
+#				codes = self._PRW_Soap_codes
+#			elif note['soap_cat'] == u'o':
+#			elif note['soap_cat'] == u'a':
+#			elif note['soap_cat'] == u'p':
+
+		# set summary but only if not already set above for a
+		# newly created episode (either standalone or within
+		# a health issue)
 		if self.problem is not None:
 			if self.problem['type'] == 'episode':
-				epi = emr.problem2episode(self.problem)
-				epi['summary'] = self._TCTRL_summary.GetValue().strip()
-				epi.save()
+				episode['summary'] = self._TCTRL_episode_summary.GetValue().strip()
+				episode.save()
+
+		# codes for episode
+		episode.generic_codes = [ d['data'] for d in self._PRW_episode_codes.GetData() ]
 
 		return True
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __create_new_episode(self, emr=None, episode_name_candidates=None):
+
+		episode_name_candidates.append(self._TCTRL_episode_summary.GetValue().strip())
+		for candidate in episode_name_candidates:
+			if candidate is None:
+				continue
+			epi_name = candidate.strip().replace('\r', '//').replace('\n', '//')
+			break
+
+		dlg = wx.TextEntryDialog (
+			parent = self,
+			message = _('Enter a short working name for this new problem:'),
+			caption = _('Creating a problem (episode) to save the notelet under ...'),
+			defaultValue = epi_name,
+			style = wx.OK | wx.CANCEL | wx.CENTRE
+		)
+		decision = dlg.ShowModal()
+		if decision != wx.ID_OK:
+			return None
+
+		epi_name = dlg.GetValue().strip()
+		if epi_name == u'':
+			gmGuiHelpers.gm_show_error(_('Cannot save a new problem without a name.'), _('saving progress note'))
+			return None
+
+		# create episode
+		new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
+		new_episode['summary'] = self._TCTRL_episode_summary.GetValue().strip()
+		new_episode.save()
+
+		if self.problem is not None:
+			issue = emr.problem2issue(self.problem)
+			if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
+				gmGuiHelpers.gm_show_warning (
+					_(
+						'The new episode:\n'
+						'\n'
+						' "%s"\n'
+						'\n'
+						'will remain unassociated despite the editor\n'
+						'having been invoked from the health issue:\n'
+						'\n'
+						' "%s"'
+					) % (
+						new_episode['description'],
+						issue['description']
+					),
+					_('saving progress note')
+				)
+
+		return new_episode
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		for field in self.fields:
+		for field in self.soap_fields:
 			wx_expando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
-		wx_expando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_summary, self._TCTRL_summary.GetId(), self._on_expando_needs_layout)
+		wx_expando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_episode_summary, self._TCTRL_episode_summary.GetId(), self._on_expando_needs_layout)
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
 		# need to tell ourselves to re-Layout to refresh scroll bars
@@ -1699,35 +1768,41 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 	# properties
 	#--------------------------------------------------------
 	def _get_soap(self):
-		note = []
+		soap_notes = []
 
 		tmp = self._TCTRL_Soap.GetValue().strip()
 		if tmp != u'':
-			note.append(['s', tmp])
+			soap_notes.append(['s', tmp])
 
 		tmp = self._TCTRL_sOap.GetValue().strip()
 		if tmp != u'':
-			note.append(['o', tmp])
+			soap_notes.append(['o', tmp])
 
 		tmp = self._TCTRL_soAp.GetValue().strip()
 		if tmp != u'':
-			note.append(['a', tmp])
+			soap_notes.append(['a', tmp])
 
 		tmp = self._TCTRL_soaP.GetValue().strip()
 		if tmp != u'':
-			note.append(['p', tmp])
+			soap_notes.append(['p', tmp])
 
-		return note
+		return soap_notes
 
 	soap = property(_get_soap, lambda x:x)
 	#--------------------------------------------------------
 	def _get_empty(self):
-		for field in self.fields:
+
+		# soap fields
+		for field in self.soap_fields:
 			if field.GetValue().strip() != u'':
 				return False
 
-		summary = self._TCTRL_summary.GetValue().strip()
+		# summary
+		summary = self._TCTRL_episode_summary.GetValue().strip()
 		if self.problem is None:
+			if summary != u'':
+				return False
+		elif self.problem['type'] == u'issue':
 			if summary != u'':
 				return False
 		else:
@@ -1736,6 +1811,22 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 					return False
 			else:
 				if summary != self.problem['summary'].strip():
+					return False
+
+		# codes
+		new_codes = self._PRW_episode_codes.GetData()
+		if self.problem is None:
+			if len(new_codes) > 0:
+				return False
+		elif self.problem['type'] == u'issue':
+			if len(new_codes) > 0:
+				return False
+		else:
+			old_code_pks = self.problem.generic_codes
+			if len(old_code_pks) != len(new_codes):
+				return False
+			for code in new_codes:
+				if code['data'] not in old_code_pks:
 					return False
 
 		return True

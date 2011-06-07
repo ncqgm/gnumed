@@ -623,7 +623,8 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			for gender in rows:
 				cGenderSelectionPhraseWheel._gender_map[gender[idx['tag']]] = {
 					'data': gender[idx['tag']],
-					'label': gender[idx['l10n_label']],
+					'field_label': gender[idx['l10n_label']],
+					'list_label': gender[idx['l10n_label']],
 					'weight': gender[idx['sort_weight']]
 				}
 

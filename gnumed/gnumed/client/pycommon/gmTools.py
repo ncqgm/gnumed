@@ -105,7 +105,7 @@ class gmPaths(gmBorg.cBorg):
 	.user_config_dir
 	.system_config_dir
 	.system_app_data_dir
-	.tmp_dir (only readable)
+	.tmp_dir (readonly)
 	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.

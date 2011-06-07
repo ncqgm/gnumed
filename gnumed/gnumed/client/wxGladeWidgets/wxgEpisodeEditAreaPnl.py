@@ -8,6 +8,8 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmEMRStructWidgets
+        from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
+
 
         # begin wxGlade: wxgEpisodeEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -15,9 +17,10 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         self._TCTRL_patient = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_issue = gmEMRStructWidgets.cIssueSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_description = gmEMRStructWidgets.cEpisodeDescriptionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_classification = gmEMRStructWidgets.cDiagnosticCertaintyClassificationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_certainty = gmEMRStructWidgets.cDiagnosticCertaintyClassificationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_closed = wx.CheckBox(self, -1, _("Closed"))
-        self._TCTRL_summary = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.NO_BORDER)
+        self._TCTRL_status = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.NO_BORDER)
+        self._PRW_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -27,17 +30,18 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgEpisodeEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._TCTRL_patient.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._PRW_issue.SetToolTipString(_("Select the health issue this episode belongs to."))
+        self._PRW_issue.SetToolTipString(_("Select the health issue this episode belongs to.\n\nEpisode remains unassociated if this field is left blank."))
         self._PRW_description.SetToolTipString(_("Type or select the description for this episode. It should be a summary for the episode of illness."))
-        self._PRW_classification.SetToolTipString(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
+        self._PRW_certainty.SetToolTipString(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
         self._CHBOX_closed.SetToolTipString(_("If this box is checked the episode is over. If not it is currently ongoing."))
-        self._TCTRL_summary.SetToolTipString(_("The current status or a summary of this episode."))
+        self._TCTRL_status.SetToolTipString(_("The current status of this episode."))
+        self._PRW_codes.SetToolTipString(_("Codes relevant to this episode."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgEpisodeEditAreaPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
-        __gzsr_details = wx.FlexGridSizer(5, 2, 3, 5)
+        __gzsr_details = wx.FlexGridSizer(6, 2, 3, 5)
         __szr_status = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_patient = wx.StaticText(self, -1, _("Patient"))
         __gzsr_details.Add(__lbl_patient, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -51,12 +55,15 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         __gzsr_details.Add(self._PRW_description, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_certainty = wx.StaticText(self, -1, _("Certainty"))
         __gzsr_details.Add(__lbl_certainty, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_status.Add(self._PRW_classification, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 15)
-        __szr_status.Add(self._CHBOX_closed, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_status.Add(self._PRW_certainty, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 15)
+        __szr_status.Add(self._CHBOX_closed, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(__szr_status, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_summary = wx.StaticText(self, -1, _("Summary"))
-        __gzsr_details.Add(__lbl_summary, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __gzsr_details.Add(self._TCTRL_summary, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_status = wx.StaticText(self, -1, _("Current\nstatus"))
+        __gzsr_details.Add(__lbl_status, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gzsr_details.Add(self._TCTRL_status, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_codes = wx.StaticText(self, -1, _("Codes"))
+        __gzsr_details.Add(__lbl_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gzsr_details.Add(self._PRW_codes, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.AddGrowableCol(1)
         __szr_main.Add(__gzsr_details, 1, wx.EXPAND, 0)
         self.SetSizer(__szr_main)

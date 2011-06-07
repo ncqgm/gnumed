@@ -114,7 +114,7 @@ class cDiag(gmBusinessDBObject.cBusinessDBObject):
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical free text entry.
 	"""
-	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%s"
+	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative = %s"
 	_cmds_store_payload = [
 		u"""update clin.clin_narrative set
 				narrative = %(narrative)s,
@@ -137,29 +137,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 
 	#xxxxxxxxxxxxxxxx
 	# support row_version in view
-
-	#--------------------------------------------------------
-	def get_codes(self):
-		"""Retrieves codes linked to *this* narrative.
-		"""
-		cmd = u"select code, xfk_coding_system from clin.coded_phrase where term=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['narrative']]]}])
-		return rows
-	#--------------------------------------------------------
-	def add_code(self, code=None, coding_system=None):
-		"""
-			Associates a code (from coding system) with this narrative.
-		"""
-		# insert new code
-		cmd = u"select clin.add_coded_phrase (%(narr)s, %(code)s, %(sys)s)"
-		args = {
-			'narr': self._payload[self._idx['narrative']],
-			'code': code,
-			'sys': coding_system
-		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		return True
-	#--------------------------------------------------------
+#	#--------------------------------------------------------
 	def format(self, left_margin=u'', fancy=False, width=75):
 
 		if fancy:
@@ -188,7 +166,41 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 #		lines.append('-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2narrative (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		args = {
+			'item': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		args = {
+			'item': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_codes(self):
+		cmd = u"""
+			SELECT * FROM clin.v_linked_codes WHERE
+				item_table = 'clin.lnk_code2narrative'::regclass
+					AND
+				pk_item = %(narr)s
+		"""
+		args = {'narr': self._payload[self._idx['pk_narrative']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows
 
+	codes = property(_get_codes, lambda x:x)
 #============================================================
 # convenience functions
 #============================================================
@@ -226,12 +238,18 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	# FIXME: this should check for .provider = current_user but
 	# FIXME: the view has provider mapped to their staff alias
 	cmd = u"""
-select *, xmin_clin_narrative from clin.v_pat_narrative where
-	pk_encounter = %(enc)s
-	and pk_episode = %(epi)s
-	and soap_cat = %(soap)s
-	and narrative = %(narr)s
-"""
+		SELECT
+			*, xmin_clin_narrative
+		FROM clin.v_pat_narrative
+		WHERE
+			pk_encounter = %(enc)s
+				AND
+			pk_episode = %(epi)s
+				AND
+			soap_cat = %(soap)s
+				AND
+			narrative = %(narr)s
+	"""
 	args = {
 		'enc': encounter_id,
 		'epi': episode_id,
@@ -245,14 +263,23 @@ select *, xmin_clin_narrative from clin.v_pat_narrative where
 
 	# insert new narrative
 	queries = [
-		{'cmd': u"insert into clin.clin_narrative (fk_encounter, fk_episode, narrative, soap_cat) values (%s, %s, %s, lower(%s))",
+		{'cmd': u"""
+			INSERT INTO clin.clin_narrative
+				(fk_encounter, fk_episode, narrative, soap_cat)
+			VALUES
+				(%s, %s, %s, lower(%s))""",
 		 'args': [encounter_id, episode_id, narrative, soap_cat]
 		},
-		{'cmd': u"select currval('clin.clin_narrative_pk_seq')"}
+		{'cmd': u"""
+			SELECT *, xmin_clin_narrative
+			FROM clin.v_pat_narrative
+			WHERE
+				pk_narrative = currval(pg_get_serial_sequence('clin.clin_narrative', 'pk'))"""
+		}
 	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
 
-	narrative = cNarrative(aPK_obj = rows[0][0])
+	narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': rows[0]})
 	return (True, narrative)
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):

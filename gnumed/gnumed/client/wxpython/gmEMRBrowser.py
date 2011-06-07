@@ -89,6 +89,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		self.__details_display = None
 		self.__details_display_mode = u'details'				# "details" or "journal"
+		self.__enable_display_mode_selection = None
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__curr_node = None
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
@@ -115,6 +116,12 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def set_image_display(self, image_display=None):
 		self.__img_display = image_display
+	#--------------------------------------------------------
+	def set_enable_display_mode_selection_callback(self, callback):
+		if not callable(callback):
+			raise ValueError('callback [%s] not callable' % callback)
+
+		self.__enable_display_mode_selection = callback
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -215,6 +222,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		doc_folder = self.__pat.get_document_folder()
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+			self.__enable_display_mode_selection(True)
 			if self.__details_display_mode == u'details':
 				txt = node_data.format(left_margin=1, patient = self.__pat)
 			else:
@@ -226,11 +234,13 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			)
 
 		elif isinstance(node_data, type({})):
+			self.__enable_display_mode_selection(False)
 			# FIXME: turn into real dummy issue
 			txt = _('Pool of unassociated episodes:\n\n  "%s"') % node_data['description']
 			self.__img_display.clear()
 
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
+			self.__enable_display_mode_selection(True)
 			if self.__details_display_mode == u'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
 			else:
@@ -241,6 +251,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			)
 
 		elif isinstance(node_data, gmEMRStructItems.cEncounter):
+			self.__enable_display_mode_selection(False)
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
 			txt = node_data.format (
 				episodes = [epi['pk_episode']],
@@ -256,6 +267,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			)
 
 		else:
+			self.__enable_display_mode_selection(False)
 			emr = self.__pat.get_emr()
 			txt = emr.format_summary(dob = self.__pat['dob'])
 			self.__img_display.clear()
@@ -659,14 +671,38 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		data = self.GetPyData(item)
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
-			event.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
+			tt = u'%s  %s  %s - %s\n' % (
 				data['started'].strftime('%x'),
 				data['l10n_type'],
 				data['started'].strftime('%H:%M'),
-				data['last_affirmed'].strftime('%H:%M'),
-				gmTools.coalesce(data['reason_for_encounter'], u''),
-				gmTools.coalesce(data['assessment_of_encounter'], u'')
-			))
+				data['last_affirmed'].strftime('%H:%M')
+			)
+			if data['reason_for_encounter'] is not None:
+				tt += u'\n'
+				tt += _('RFE: %s') % data['reason_for_encounter']
+				if len(data['pk_generic_codes_rfe']) > 0:
+					for code in data.generic_codes_rfe:
+						tt += u'\n %s: %s%s%s\n  (%s %s)' % (
+							code['code'],
+							gmTools.u_left_double_angle_quote,
+							code['term'],
+							gmTools.u_right_double_angle_quote,
+							code['name_short'],
+							code['version']
+						)
+			if data['assessment_of_encounter'] is not None:
+				tt += u'\n'
+				tt += _('AOE: %s') % data['assessment_of_encounter']
+				if len(data['pk_generic_codes_aoe']) > 0:
+					for code in data.generic_codes_aoe:
+						tt += u'\n %s: %s%s%s\n  (%s %s)' % (
+							code['code'],
+							gmTools.u_left_double_angle_quote,
+							code['term'],
+							gmTools.u_right_double_angle_quote,
+							code['name_short'],
+							code['version']
+						)
 
 		elif isinstance(data, gmEMRStructItems.cEpisode):
 			tt = u''
@@ -682,10 +718,21 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				'error: episode state is None'
 			) + u'\n'
 			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			if len(data['pk_generic_codes']) > 0:
+				tt += u'\n'
+				for code in data.generic_codes:
+					tt += u'%s: %s%s%s\n  (%s %s)\n' % (
+						code['code'],
+						gmTools.u_left_double_angle_quote,
+						code['term'],
+						gmTools.u_right_double_angle_quote,
+						code['name_short'],
+						code['version']
+					)
+
 			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
-			event.SetToolTip(tt)
 
 		elif isinstance(data, gmEMRStructItems.cHealthIssue):
 			tt = u''
@@ -704,17 +751,28 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			tt += gmTools.bool2subst(data['is_active'], _('active') + u'\n', u'')
 			tt += gmTools.bool2subst(data['clinically_relevant'], _('clinically relevant') + u'\n', u'')
 			tt += gmTools.bool2subst(data['is_cause_of_death'], _('contributed to death') + u'\n', u'')
-			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n\n')
-			tt += gmTools.coalesce(data['summary'], u'')
+			tt += gmTools.coalesce(data['grouping'], u'\n', _('Grouping: %s') + u'\n')
+			tt += gmTools.coalesce(data['summary'], u'', u'\n%s')
+			if len(data['pk_generic_codes']) > 0:
+				tt += u'\n'
+				for code in data.generic_codes:
+					tt += u'%s: %s%s%s\n  (%s %s)\n' % (
+						code['code'],
+						gmTools.u_left_double_angle_quote,
+						code['term'],
+						gmTools.u_right_double_angle_quote,
+						code['name_short'],
+						code['version']
+					)
+
 			tt = tt.strip(u'\n')
 			if tt == u'':
 				tt = u' '
-			event.SetToolTip(tt)
 
 		else:
-			event.SetToolTip(self.__root_tooltip)
-			#event.SetToolTip(u' ')
-			##self.SetToolTipString(u'')
+			tt = self.__root_tooltip
+
+		event.SetToolTip(tt)
 
 		# doing this prevents the tooltip from showing at all
 		#event.Skip()
@@ -873,6 +931,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTreeBrowserPnl.__init__(self, *args, **kwds)
 		self._pnl_emr_tree._emr_tree.set_narrative_display(narrative_display = self._TCTRL_item_details)
 		self._pnl_emr_tree._emr_tree.set_image_display(image_display = self._PNL_visual_soap)
+		self._pnl_emr_tree._emr_tree.set_enable_display_mode_selection_callback(self.enable_display_mode_selection)
 		self.__register_events()
 	#--------------------------------------------------------
 	def __register_events(self):
@@ -901,6 +960,14 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self._pnl_emr_tree.repopulate_ui()
 		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0]/3, True)
 		return True
+	#--------------------------------------------------------
+	def enable_display_mode_selection(self, enable):
+		if enable:
+			self._RBTN_details.Enable(True)
+			self._RBTN_journal.Enable(True)
+			return
+		self._RBTN_details.Enable(False)
+		self._RBTN_journal.Enable(False)
 #================================================================
 class cEMRJournalPanel(wx.Panel):
 	def __init__(self, *args, **kwargs):

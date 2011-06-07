@@ -18,7 +18,9 @@ if __name__ == '__main__':
 
 from Gnumed.business import gmCoding
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMatchProvider
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.ui')
@@ -63,6 +65,89 @@ def browse_coded_terms(parent=None, coding_systems=None, languages=None):
 #		middle_extra_button=None,
 #		right_extra_button=None
 	)
+
+#================================================================
+
+class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		super(cGenericCodesPhraseWheel, self).__init__(*args, **kwargs)
+
+		query = u"""
+			SELECT
+				-- DISTINCT ON (list_label)
+				data,
+				list_label,
+				field_label
+			FROM (
+
+				SELECT
+					pk_generic_code
+						AS data,
+					(code || ' (' || coding_system || '): ' || term || ' (' || version || ' - ' || lang || ')')
+						AS list_label,
+					code AS
+						field_label
+				FROM
+					ref.v_coded_terms
+				WHERE
+					term %(fragment_condition)s
+						OR
+					code %(fragment_condition)s
+					%(ctxt_system)s
+					%(ctxt_lang)s
+
+			) AS applicable_codes
+			ORDER BY list_label
+			LIMIT 30
+		"""
+		ctxt = {
+			'ctxt_system': {				# must be a TUPLE !
+				'where_part': u'AND coding_system IN %(system)s',
+				'placeholder': u'system'
+			},
+			'ctxt_lang': {
+				'where_part': u'AND lang = %(lang)s',
+				'placeholder': u'lang'
+			}
+		}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = ctxt)
+		mp.setThresholds(2, 4, 5)
+		mp.word_separators = '[ \t=+&/:-]+'
+		#mp.print_queries = True
+
+		self.phrase_separators = ';'
+		self.selection_only = False			# not sure yet how this fares with multi-phrase input
+		self.SetToolTipString(_('Select one or more codes that apply.'))
+		self.matcher = mp
+	#------------------------------------------------------------
+	def _get_data_tooltip(self):
+		if len(self.data) == 0:
+			return u''
+
+		return u';\n'.join([ i['list_label'] for i in self.data.values() ]) + u';'
+	#------------------------------------------------------------
+	def generic_linked_codes2item_dict(self, codes):
+		if len(codes) == 0:
+			return u'', {}
+
+		code_dict = {}
+		val = u''
+		for code in codes:
+			list_label = u'%s (%s): %s (%s - %s)' % (
+				code['code'],
+				code['name_short'],
+				code['term'],
+				code['version'],
+				code['lang']
+			)
+			field_label = code['code']
+			code_dict[field_label] = {'data': code['pk_generic_code'], 'field_label': field_label, 'list_label': list_label}
+			val += u'%s; ' % field_label
+
+		return val.strip(), code_dict
 #================================================================
 # main
 #----------------------------------------------------------------
@@ -74,8 +159,20 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-#	from Gnumed.pycommon import gmI18N
-#	gmI18N.activate_locale()
-#	gmI18N.install_domain()
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+	from Gnumed.pycommon import gmPG2
+
+	#--------------------------------------------------------
+	def test_generic_codes_prw():
+		gmPG2.get_connection()
+		app = wx.PyWidgetTester(size = (500, 40))
+		pw = cGenericCodesPhraseWheel(app.frame, -1)
+		#pw.set_context(context = u'zip', val = u'04318')
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	test_generic_codes_prw()
 
 #================================================================
