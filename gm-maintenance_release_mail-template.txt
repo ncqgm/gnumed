@@ -2,7 +2,12 @@
 Hello all,
 
 I am glad to be able to announce the immediate availability
-of the GNUmed xx.x.x Maintenance Release.
+of the GNUmed xx.x.x Maintenance Release. It features the
+following bug fixes and minor improvements:
+
+Changelog:
+
+	xx replace with CHANGELOG xx
 
 
 Downloads available from:
@@ -45,13 +50,6 @@ Database installation / upgrade:
  Related information is found here:
 
 	http://wiki.gnumed.de/bin/view/Gnumed/ServerUpgrade
-
-
-Changelog:
-
-	xx replace with CHANGELOG xx
-
-
 
 
 Please download, install, and report problems !
