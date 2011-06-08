@@ -8,14 +8,9 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-alter table clin.hx_family_item
-	add column fk_condition_issue integer;
+comment on table clin.fhx_item is
+	'This table stores family history items on persons not otherwise in the database.';
 
-alter table clin.hx_family_item
-	add column fk_condition_episode integer;
-
-alter table clin.hx_family_item
-	drop column fk_narrative_condition cascade;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v16-clin-hx_family_item-static.sql', 'Revision: 1.1');
+select gm.log_script_insertion('v16-clin-fhx_item-dynamic.sql', 'Revision: 1.1');
