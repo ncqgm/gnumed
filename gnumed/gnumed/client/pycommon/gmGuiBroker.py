@@ -5,7 +5,7 @@ variables needed for a gnumed GUI client interface
 
 @author: Dr. Horst Herb
 @version: 0.2
-@copyright: GPL
+@copyright: GPL v2 or later
 """
 #-----------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmGuiBroker.py,v $

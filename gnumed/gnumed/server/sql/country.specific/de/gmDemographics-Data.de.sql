@@ -1,8 +1,8 @@
--- GnuMed
+-- GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics-Data.de.sql,v $
 -- $Revision: 1.6 $
 
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- =============================================

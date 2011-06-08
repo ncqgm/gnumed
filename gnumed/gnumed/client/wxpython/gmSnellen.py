@@ -7,7 +7,7 @@ FIXME: store screen size
 # $Id: gmSnellen.py,v 1.6 2009-12-21 15:12:53 ncq Exp $
 __version__ = "$Revision: 1.6 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import math, random, sys, logging
 

@@ -5,7 +5,7 @@
 # $Id: gmLoginInfo.py,v 1.17 2008-11-20 18:43:01 ncq Exp $
 __version__ = "$Revision: 1.17 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 

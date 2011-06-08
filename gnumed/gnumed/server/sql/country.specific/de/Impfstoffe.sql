@@ -1,10 +1,10 @@
--- Projekt GnuMed
+-- Projekt GNUmed
 -- Impfstoffe (Deutschland)
 
 -- Quellen: Paul-Ehrlich-Institut, Beipackzettel der Hersteller
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
 -- $Revision: 1.26 $
 -- =============================================

@@ -3,7 +3,7 @@
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-static.sql,v $
 -- $Id: gmProviderInbox-static.sql,v 1.3 2006-01-22 18:13:37 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
 -- =============================================

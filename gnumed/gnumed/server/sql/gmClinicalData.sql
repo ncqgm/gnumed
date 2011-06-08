@@ -1,8 +1,8 @@
--- Project: GnuMed
+-- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
 -- $Id: gmClinicalData.sql,v 1.46 2006-05-20 18:56:20 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood, Horst Herb
 
 -- ===================================================================

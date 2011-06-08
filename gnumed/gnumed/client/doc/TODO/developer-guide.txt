@@ -11,7 +11,7 @@ Rules:
 --------------------------------------------------------------
 Die 09 Mär 2004 10:49:17 CET
 ----------------------------
-GnuMed forms concept
+GNUmed forms concept
 ====================
 Overview
 --------
@@ -20,12 +20,12 @@ template is stored in the table paperwork_templates along
 with some metadata about the form. The template contains
 placeholders which will be replaced by data. Placeholders
 may appear more than once per template and their exact
-format is template format specific. GnuMed proper is
+format is template format specific. GNUmed proper is
 agnostic of the placeholder format. The templates are stored
 in the service "reference". They can be refreshed from files
 any time.
 
-Some part of GnuMed, usually a widget, will collect the data
+Some part of GNUmed, usually a widget, will collect the data
 needed to fill in a form. Data may come directly from the database,
 from user input or be the result of some function.
 
@@ -91,7 +91,7 @@ Design concepts
    possible to redisplay the form at any time in the future.
    It is very desirable to reuse the form for filling in new
    form instances or reprinting the old one. This also means
-   form definitions should never ever disappear from a GnuMed
+   form definitions should never ever disappear from a GNUmed
    system. They should only become obsolete/invisible but
    should never be deleted.
 

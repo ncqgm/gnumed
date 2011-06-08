@@ -52,7 +52,7 @@ care of all the pre- and post-GUI runtime environment setup.
 #==========================================================
 __version__ = "$Revision: 1.169 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # standard library
 import sys

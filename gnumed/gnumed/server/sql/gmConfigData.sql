@@ -1,8 +1,8 @@
 -- ===================================================
--- GnuMed default config data
+-- GNUmed default config data
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
 -- $Revision: 1.30 $
 -- ===================================================

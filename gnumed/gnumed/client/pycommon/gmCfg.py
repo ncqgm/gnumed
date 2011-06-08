@@ -17,7 +17,7 @@ applicability by the constraints "workplace", "user", and "cookie".
 The basic API for handling items is get()/set().
 The database config objects auto-sync with the backend.
 
-@copyright: GPL
+@copyright: GPL v2 or later
 """
 # TODO:
 # - optional arg for set -> type

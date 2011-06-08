@@ -3,7 +3,7 @@
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-dynamic.sql,v $
 -- $Id: gmProviderInbox-dynamic.sql,v 1.11 2006-10-08 09:12:03 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
 -- =============================================

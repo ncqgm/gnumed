@@ -4,7 +4,7 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDiagnosen.sql,v $
 -- $Revision: 1.5 $
 
--- license: GPL
+-- license: GPL v2 or later
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- =============================================

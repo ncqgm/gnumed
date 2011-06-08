@@ -7,7 +7,7 @@ copyright: authors
 #======================================================================
 __version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import sys, time, logging, webbrowser
 

@@ -1,5 +1,5 @@
 #======================================================================
-# GnuMed immunisation/vaccination patient plugin
+# GNUmed immunisation/vaccination patient plugin
 # ----------------------------------------------
 #
 # this plugin holds the immunisation details
@@ -10,7 +10,7 @@
 # $Id: gmVaccinationsPlugin.py,v 1.8 2008-03-06 18:32:31 ncq Exp $
 __version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import wx
 

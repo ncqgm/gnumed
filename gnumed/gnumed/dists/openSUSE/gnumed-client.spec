@@ -23,7 +23,7 @@ Summary: 	%{oname} client
 Name:		%name
 Version:		%version
 Release:	%release
-License:		GPL
+License:		GPL v2 or later
 Group:		Productivity/Other
 Source:		http://www.gnumed.de/downloads/client/0.2/%{oname}-client.%{version}.tgz
 Source1:		gnumed-client.conf

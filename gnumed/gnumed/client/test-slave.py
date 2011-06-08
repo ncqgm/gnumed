@@ -1,4 +1,4 @@
-"""Test driving an enslaved GnuMed client.
+"""Test driving an enslaved GNUmed client.
 
 This script demonstrates how to script a GNUmed client.
 

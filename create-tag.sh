@@ -1,10 +1,7 @@
 #!/bin/bash
 
 #------------------------------------------------------------------
-# $Id: create-tag.sh,v 1.6 2010-01-09 20:50:31 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/create-tag.sh,v $
-# $Revision: 1.6 $
-# License: GPL
+# License: GPL v2 or later
 #------------------------------------------------------------------
 
 TAG=$1

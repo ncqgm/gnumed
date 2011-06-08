@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# license: GPL
+# license: GPL v2 or later
 # author: Karsten.Hilbert@gmx.net
 
 DB="gnumed_v15"

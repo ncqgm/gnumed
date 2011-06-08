@@ -1,7 +1,7 @@
 -- ======================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v8-v9/dynamic/v9-i18n-dynamic.sql,v $
 -- $Id: v9-i18n-dynamic.sql,v 1.6 2008-12-25 16:57:11 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive

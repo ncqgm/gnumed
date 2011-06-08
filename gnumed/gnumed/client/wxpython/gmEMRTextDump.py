@@ -1,8 +1,6 @@
-"""GnuMed scrolled window text dump of EMR content.
+"""GNUmed scrolled window text dump of EMR content.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.22 2008-07-07 13:43:16 ncq Exp $
 __version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 

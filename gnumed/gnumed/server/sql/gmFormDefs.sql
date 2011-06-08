@@ -1,9 +1,9 @@
 -- ===================================================
--- GnuMed form templates related tables
+-- GNUmed form templates related tables
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- author: Ian Haywood <>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
 -- $Revision: 1.11 $
 -- ===================================================

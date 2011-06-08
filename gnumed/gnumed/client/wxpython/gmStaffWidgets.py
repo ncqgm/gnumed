@@ -1,16 +1,10 @@
-"""GNUmed staff management widgets.
-
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
-"""
+"""GNUmed staff management widgets."""
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
 # $Id: gmStaffWidgets.py,v 1.27 2010-01-31 18:20:03 ncq Exp $
 __version__ = "$Revision: 1.27 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import logging
 

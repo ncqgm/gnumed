@@ -2,7 +2,7 @@
 
 -- purpose: views for easier clinical data access
 -- author: Karsten Hilbert
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
 -- $Id: gmClinicalViews.sql,v 1.184 2006-06-20 15:49:30 ncq Exp $
@@ -343,7 +343,7 @@ comment on column clin.clin_medication.dosage_form is
 	'the form the drug is delivered in, eg liquid, cream, table, etc.';
 comment on column clin.clin_medication.ufk_drug is
 	'the identifier for this drug in the source database,
-	 may or may not be an opaque value as regards GnuMed';
+	 may or may not be an opaque value as regards GNUmed';
 comment on column clin.clin_medication.drug_db is
 	'the drug database used to populate this entry';
 comment on column clin.clin_medication.atc_code is

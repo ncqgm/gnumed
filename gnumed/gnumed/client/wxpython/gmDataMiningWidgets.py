@@ -5,7 +5,7 @@
 # $Id: gmDataMiningWidgets.py,v 1.14 2009-07-30 12:03:34 ncq Exp $
 __version__ = '$Revision: 1.14 $'
 __author__ = 'karsten.hilbert@gmx.net'
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 
 # stdlib

@@ -1,4 +1,4 @@
-"""GnuMed: Mid-level configuration editor object.
+"""GNUmed: Mid-level configuration editor object.
 
 Theory of operation:
 
@@ -858,7 +858,7 @@ def importDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 						"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aWorkplace))
 				else:
 					successfully_stored = successfully_stored + 1
-				
+
 		else:
 			# add new entry to parameter definition dictionary
 			s=importConfigSource.addConfigParam(paramName,paramType,paramValue,paramDescription)
@@ -870,58 +870,3 @@ def importDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 	return successfully_stored
 
 #=============================================================
-# $Log: gmConfigCommon.py,v $
-# Revision 1.10  2008-04-13 14:41:40  ncq
-# - old style logging is out
-#
-# Revision 1.9  2006/12/13 14:56:38  ncq
-# - comment out some printk()s
-#
-# Revision 1.8  2006/12/05 13:55:13  ncq
-# - port to gmPG2/gmCfg.get2()
-#
-# Revision 1.7  2006/10/25 07:19:03  ncq
-# - no more gmPG
-#
-# Revision 1.6  2004/07/19 11:50:42  ncq
-# - cfg: what used to be called "machine" really is "workplace", so fix
-#
-# Revision 1.5  2004/03/09 08:37:54  ncq
-# - tiny cleanup
-#
-# Revision 1.4  2004/03/09 07:34:51  ihaywood
-# reactivating plugins
-#
-# Revision 1.3  2004/03/04 01:38:49  ihaywood
-# Now correctly validates unicode strings
-#
-# Revision 1.2  2004/02/25 09:46:21  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from py-common
-#
-# Revision 1.13  2004/01/06 23:44:40  ncq
-# - __default__ -> xxxDEFAULTxxx
-#
-# Revision 1.12  2003/11/18 18:54:06  hinnef
-# rollback of errorneous commit
-#
-# Revision 1.10  2003/11/07 07:48:27  hinnef
-# changed path to configfiles so that they will be found in client/etc/...
-#
-# Revision 1.9  2003/10/26 21:35:45  hinnef
-# -bugfixes in AddConfigParam and importDBSet
-#
-# Revision 1.8  2003/10/26 01:38:06  ncq
-# - gmTmpPatient -> gmPatient, cleanup
-#
-# Revision 1.7  2003/10/22 21:35:51  hinnef
-# - fixed a bug in CastType that prevented numeric values to be written as such
-#
-# Revision 1.6  2003/10/13 21:02:55  hinnef
-# - added GPL statement
-#
-# Revision 1.5  2003/10/02 20:02:28  hinnef
-# small fixes to import/exportDBSet
-#

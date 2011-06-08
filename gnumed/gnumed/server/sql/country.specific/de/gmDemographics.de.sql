@@ -2,7 +2,7 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
 -- $Revision: 1.10 $
 
--- license: GPL
+-- license: GPL v2 or later
 
 -- demographics tables specific for Germany
 

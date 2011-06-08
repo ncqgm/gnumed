@@ -15,16 +15,11 @@ def run_script(hook=None):
 
 which accepts a single argument <hook>. That argument will
 contain the hook that is being activated.
-
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
 """
 # ========================================================================
 __version__ = "$Revision: 1.18 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib

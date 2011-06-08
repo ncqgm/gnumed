@@ -5,7 +5,7 @@
 -- Jim Busser working with data provided by Thilo Schuler
 -- as an external database taken from 'tealow_zencart'.
 
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCountryZones.sql,v $
 -- $Id: gmCountryZones.sql,v 1.4 2006-01-09 13:46:19 ncq Exp $

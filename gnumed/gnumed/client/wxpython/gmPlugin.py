@@ -1,11 +1,11 @@
-"""gmPlugin - base classes for GnuMed Horst space notebook plugins.
+"""gmPlugin - base classes for GNUmed Horst space notebook plugins.
 
 @copyright: author
 """
 #==================================================================
 __version__ = "$Revision: 1.85 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import os, sys, re, glob, logging
 

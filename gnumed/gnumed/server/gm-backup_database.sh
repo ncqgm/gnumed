@@ -28,7 +28,7 @@
 #  47 12,19 * * * * /usr/bin/gm-backup_database.sh
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #==============================================================
 
 # Keep this properly updated to refer to the

@@ -7,7 +7,7 @@
 -- What it does:
 -- - fix v_uniq_zipped_urbs
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: 
 -- 
 -- ==============================================================

@@ -1,8 +1,8 @@
--- GnuMed table change notification functionality
+-- GNUmed table change notification functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmNotifications-static.sql,v $
 -- $Revision: 1.1 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
 -- ===================================================================

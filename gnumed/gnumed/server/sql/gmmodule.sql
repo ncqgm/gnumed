@@ -3,7 +3,7 @@
 -- purpose: module information and implementation 
 -- author: hherb
 -- copyright: Dr. Horst Herb, horst@hherb.com
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 -- version: 0.4
 -- changelog:
 -- 15.5.02:  (ihaywood) first version

@@ -1,5 +1,5 @@
 # -*- coding: latin-1 -*-
-"""GnuMed LDT anonymizer.
+"""GNUmed LDT anonymizer.
 
 This script anonymizes German pathology result
 files in LDT format.
@@ -25,7 +25,7 @@ map_sensitive_fields = {
 	'0204': 'anon: speciality',
 	'0205': 'anon: street',
 	'0206': 'anon: zip-city',
-	# hardcoded GnuMed test value
+	# hardcoded GNUmed test value
 	'8300': 'your own practice',
 	'8312': 'anon: doc ID',
 	# sample ID

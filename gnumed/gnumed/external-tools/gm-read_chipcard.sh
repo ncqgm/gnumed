@@ -5,7 +5,7 @@
 # $Id: gm-read_chipcard.sh,v 1.1 2009-09-08 12:21:54 ncq Exp $
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 # - copy this to /usr/bin/gm-read_chipcard.sh
 # - it is called from kvkcard when a new chipcard is inserted

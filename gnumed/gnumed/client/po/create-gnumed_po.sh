@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# - generate a current gnumed.pot file from GnuMed source
+# - generate a current gnumed.pot file from GNUmed source
 # - merge with existing translations
 # - first arg should be ISO language code
 

@@ -6,7 +6,7 @@ functions for authenticating users.
 #================================================================
 __version__ = "$Revision: 1.45 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib

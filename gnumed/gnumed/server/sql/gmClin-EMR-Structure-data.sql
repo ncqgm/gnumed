@@ -5,7 +5,7 @@
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-data.sql,v $
 -- $Revision: 1.1 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood, Karsten Hilbert
 
 -- ===================================================================

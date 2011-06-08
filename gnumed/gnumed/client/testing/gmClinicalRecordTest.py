@@ -1,8 +1,7 @@
 """
-Unit tests for GnuMed gmClinicalRecord
+Unit tests for GNUmed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.16 2009-09-13 18:38:44 ncq Exp $
 __version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"

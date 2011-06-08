@@ -1,7 +1,7 @@
 """gmPlugin_Patient - base classes for GNUMed's patient plugin architecture.
 
 @copyright: author
-@license: GPL (details at http://www.gnu.org)
+@license: GPL v2 or later (details at http://www.gnu.org)
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $

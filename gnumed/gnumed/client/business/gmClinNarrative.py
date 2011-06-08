@@ -2,7 +2,7 @@
 #============================================================
 __version__ = "$Revision: 1.45 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (for details see http://gnu.org)'
+__license__ = 'GPL v2 or later (for details see http://gnu.org)'
 
 import sys, logging
 

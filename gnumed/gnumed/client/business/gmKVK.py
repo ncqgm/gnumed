@@ -6,7 +6,7 @@ These objects handle German patient cards (KVK and eGK).
 KVK: http://www.kbv.de/ita/register_G.html
 eGK: http://www.gematik.de/upload/gematik_Qop_eGK_Spezifikation_Teil1_V1_1_0_Kommentare_4_1652.pdf
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $

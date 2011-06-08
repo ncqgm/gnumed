@@ -1,8 +1,8 @@
--- GnuMed auditing functionality
+-- GNUmed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
 -- $Revision: 1.15 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
 -- ===================================================================

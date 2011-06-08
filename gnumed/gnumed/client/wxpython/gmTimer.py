@@ -7,7 +7,7 @@
 # $Id: gmTimer.py,v 1.13 2008-12-26 16:04:12 ncq Exp $
 __version__ = "$Revision: 1.13 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__licence__ = "GPL (details at http://www.gnu.org)"
+__licence__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import logging

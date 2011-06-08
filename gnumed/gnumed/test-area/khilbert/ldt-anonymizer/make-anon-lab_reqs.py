@@ -1,5 +1,5 @@
 # -*- coding: latin-1 -*-
-"""GnuMed LDT anonymizer.
+"""GNUmed LDT anonymizer.
 
 This script anonymizes German pathology result
 files in LDT format.

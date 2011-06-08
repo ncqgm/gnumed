@@ -6,7 +6,7 @@ A very basic HTML browser with back/forward history buttons
 with  the main pourpose of browsing the gnumed manuals
 The manuals should reside where the manual_path points to.
 
-@copyright: GPL
+@copyright: GPL v2 or later
 @thanks: this code has been heavily "borrowed" from
 		 Robin Dunn's extraordinary wxPython sample
 """

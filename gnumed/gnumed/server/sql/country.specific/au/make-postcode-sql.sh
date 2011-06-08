@@ -3,7 +3,7 @@
 #-------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/make-postcode-sql.sh,v $
 # $Revision: 1.3 $
-# license: GPL
+# license: GPL v2 or later
 # author: Karsten Hilbert
 #-------------------------------------------------------
 

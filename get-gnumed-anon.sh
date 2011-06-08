@@ -8,7 +8,7 @@
 
 if [ -d gnumed ] || [ -e update_tree.sh ]; then
 	echo " --------------------------------------------------------------"
-	echo " There already seems to be a GnuMed CVS tree in this directory."
+	echo " There already seems to be a GNUmed CVS tree in this directory."
 	echo " You likely want to use <update_tree.sh>."
 	echo " --------------------------------------------------------------"
 	exit

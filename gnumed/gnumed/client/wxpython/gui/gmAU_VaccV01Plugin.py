@@ -1,12 +1,12 @@
 #======================================================================
-# GnuMed patient AU_VaccV01 plugin
+# GNUmed patient AU_VaccV01 plugin
 # ----------------------------------------------
 #
 # @copyright: author
 #======================================================================
 __version__ = "$Revision: 1.2 $"
 __author__ = "S Tan"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin, gmAU_VaccV01
 

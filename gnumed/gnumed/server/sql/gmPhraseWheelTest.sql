@@ -1,8 +1,8 @@
--- Project: GnuMed - public database table for phrase wheel SQL test
+-- Project: GNUmed - public database table for phrase wheel SQL test
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPhraseWheelTest.sql,v $
 -- $Revision: 1.9 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
 -- this provides a table that is hardcoded as a test table
