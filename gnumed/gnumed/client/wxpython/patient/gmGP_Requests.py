@@ -12,7 +12,7 @@
 #
 # @author: Dr. Richard Terry
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	    10.06.2002 rterry initial implementation, untested

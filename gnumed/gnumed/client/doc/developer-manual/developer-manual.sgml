@@ -75,7 +75,7 @@
 
 <preface id=preface>
 	<title>Preface</title>
-	<para>GnuMed never sleeps.</para>
+	<para>GNUmed never sleeps.</para>
 </preface>
 
     <chapter id="intro">
@@ -95,7 +95,7 @@
     </chapter>
 
   <chapter id=cvs>
-    <title>Checking out, Checking in GnuMed CVS</title>
+    <title>Checking out, Checking in GNUmed CVS</title>
     <sect1 id=cvs-access>
       <title>Developer CVS Access via SSH (Version 1, RSA)</title>
       <para>Only project developers can access the CVS tree via this method. SSH1 must be installed on your client machine. If you have SSH version two, add
@@ -190,7 +190,7 @@ Please insert the following template at the beginning of the file:</para>
 # verbose documentation, example code
 # @author: author name                                                       
 # @copyright: author                                                            
-# @license: GPL (details at http://www.gnu.org)                                 
+# @license: GPL v2 or later (details at http://www.gnu.org)                                 
 # @dependencies: any libs / program versions the module might depend on       
 #                                                                               
 # @TODO:        
@@ -257,12 +257,12 @@ gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log
                 </para></listitem>
 			</itemizedlist>
             <para>
-            Each GnuMed database has a table "gm_schema_revision". Doing a
+            Each GNUmed database has a table "gm_schema_revision". Doing a
 			<ProgramListing>
             select * from gm_schema_revision
             </ProgramListing>
 			will show you which version of which SQL file was imported
-			into this database (as long as they adhere to the GnuMed
+			into this database (as long as they adhere to the GNUmed
 			SQL hacking guidelines).
 			</para>
     </sect1>
@@ -283,7 +283,7 @@ gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log
     	<para>
 	Currently the default configuration file holds the following information:
 	<screen>
-# GnuMed client config file                                                     
+# GNUmed client config file                                                     
                                                                                 
 [backend]                                                                       
 databases = $databases$                                                         
@@ -455,13 +455,13 @@ insert into config VALUES ('','','username', &lt;distributed_db_id&gt; , &lt;db_
       <title>Client Internationalization / Localization</title>
 
 	<para>
-	Supplied by Karsten Hilbert, &lt;Karsten.Hilbert@gmx.net&gt; GnuMed i18n/L10n coordinator
+	Supplied by Karsten Hilbert, &lt;Karsten.Hilbert@gmx.net&gt; GNUmed i18n/L10n coordinator
 	</para>
 	<para>
-	At this point in time GnuMed is only prepared for being translated
+	At this point in time GNUmed is only prepared for being translated
 	into foreign languages. This also only holds true for languages
 	that can be written left-to-right with "latin" characters. Very
-	little has been done to make GnuMed compatible with other aspects
+	little has been done to make GNUmed compatible with other aspects
 	of localization such as date/time/monetary/magnitude formatting
 	or icon meaning.
 	</para>
@@ -503,9 +503,9 @@ insert into config VALUES ('','','username', &lt;distributed_db_id&gt; , &lt;db_
 	</sect2>
 
 	<sect2>
-	<title>How to translate the GnuMed UI</title>
+	<title>How to translate the GNUmed UI</title>
 	<para>
-	Those are the rough steps to get GnuMed translated
+	Those are the rough steps to get GNUmed translated
 	into your language:
 
 	- create a *.po file containing all English
@@ -544,7 +544,7 @@ insert into config VALUES ('','','username', &lt;distributed_db_id&gt; , &lt;db_
 
 	Hints for translations:
 	 - look at translations in other languages to get an idea
-	 - look at the source and/or the running GnuMed to find good translations
+	 - look at the source and/or the running GNUmed to find good translations
 	 - keep exactly the same number of %s, %d etc in your translation,
 	   they are formatting placeholders and will be replaced with
 	   certain data (such as file names) dynamically at runtime
@@ -704,7 +704,7 @@ insert into i18n_curr_lang(lang) values ('de_DE');
 	    </para>
 	    <para>
 	    Next, you'll have to understand the concept of "<link linkend=services>
-	    services</link>" in GnuMed. Fortunately, most of the complexity behind services
+	    services</link>" in GNUmed. Fortunately, most of the complexity behind services
 	    is handled by the service broker object <link linkend=gmPG>
 	    gmPG</link>. gmPG will also handle a lot of other complex issues such as gathering
 	    log in information in order to make backend connections in the first place.
@@ -1770,7 +1770,7 @@ class dbf:
 <screen>
 # gmSignals.py
 
-gmSignals - factory functions returning GnuMed internal signal strings. 
+gmSignals - factory functions returning GNUmed internal signal strings. 
 This helps to avoid that  simple typographic mistakes result in messages
 not being dispatched. It would allow to do messenging house keeping as well.
 
@@ -2488,7 +2488,7 @@ should be del()ed after use, actually
 
 
     	<sect1 id=signals>
-	    <title>List of GnuMed client internal signals</title>
+	    <title>List of GNUmed client internal signals</title>
 	    <para>
 	    Supplied by Horst Herb
 	    </para>
@@ -2744,7 +2744,7 @@ the issues better than me.
     	    <sect3>
 		<title>Clinical Item</title>
 	    	<para>
-		In GnuMed a medically meaningful piece of information is called "Clinical
+		In GNUmed a medically meaningful piece of information is called "Clinical
 		Item". Such items are typically elements of the SOAP structure such as a
 		diagnosis, a history item, an assessment, a plan, etc. Several tables,
 		both specific and generic store such items. They all inherit from the
@@ -2759,7 +2759,7 @@ the issues better than me.
 	    	<para>
 
 		This concept of the Dutch Episode Model is not directly
-		represented in the GnuMed clinical table structure. It is
+		represented in the GNUmed clinical table structure. It is
 		easily derived from the existing data by aggregating all
 		Clinical Items that belong to the same Clinical Encounter
 		and the same Clinical Episode.
@@ -2892,7 +2892,7 @@ health issue
 		    <para>Medical information usually can be presented as groups of 4-10 parameters. 
 		    It is therefore possible to come up with a gui design for data entry where 
 		      all segments of a medical records program use the same format of data input. 
-		    In GnuMed this fact is reflected by a graphic 
+		    In GNUmed this fact is reflected by a graphic 
 		      design that is called the 'editing area'. 
 		    </para>
 
@@ -2909,12 +2909,12 @@ health issue
 		      call in information from the database for contextual display, as generic subroutines 
 		      can be developed to work across all sections of medical information. </para>
 		    <para>In most sections of the program the user enters 
-		      very little information as most of it will be 'autofilled' in by the program. In GnuMed, The 
+		      very little information as most of it will be 'autofilled' in by the program. In GNUmed, The 
 		      context of the editing area can be called from a button bar. </para>
 		  
 		    <para>In the following there are shown some examples of it's implementation. 
 		      These screen dumps have been taken from an already functional VisualBasic-based medical records program written by Richard Terry. 
-		      The graphical interface of GnuMed will be quite similiar to that of some of the examples shown.
+		      The graphical interface of GNUmed will be quite similiar to that of some of the examples shown.
 		      First examples of variations of the editing area, followed by screen 
 		      dumps of the whole program, accompanied by comments by Richard Terry.</para>
     	    	</sect2>
@@ -2973,10 +2973,10 @@ health issue
 		<itemizedlist mark=opencircle>
 		    <listitem><para>user name [free text]</para></listitem>
 		    <listitem><para>user password [free text]</para></listitem>
-		    <listitem><para>GnuMed database name [free text, choose from list]</para></listitem>
-		    <listitem><para>GnuMed database host name [free text, choose from list]</para></listitem>
-		    <listitem><para>GnuMed database host port [free text, choose from list]</para></listitem>
-		    <listitem><para>GnuMed database options [free text, choose from list]</para></listitem>
+		    <listitem><para>GNUmed database name [free text, choose from list]</para></listitem>
+		    <listitem><para>GNUmed database host name [free text, choose from list]</para></listitem>
+		    <listitem><para>GNUmed database host port [free text, choose from list]</para></listitem>
+		    <listitem><para>GNUmed database options [free text, choose from list]</para></listitem>
 		</itemizedlist>
     	    </sect2>
 
@@ -2984,8 +2984,8 @@ health issue
 		<title>Functionality</title>
 		<itemizedlist mark=opencircle>
 		    <listitem><para>Get user name and password</para></listitem>
-		    <listitem><para>Change GnuMed database options (database name, host, port of database server, database options)</para></listitem>
-		    <listitem><para>Try to start GnuMed using the given user and options.</para></listitem>
+		    <listitem><para>Change GNUmed database options (database name, host, port of database server, database options)</para></listitem>
+		    <listitem><para>Try to start GNUmed using the given user and options.</para></listitem>
 		    <listitem><para>Remember the user/options used at the last login attempt.</para></listitem>
 		</itemizedlist>
     	    </sect2>
@@ -3004,7 +3004,7 @@ health issue
 
 		<para>
 		After entering the password and hitting enter (or after clicking onto the login button), the client attempts
-		a server backend connection. If successful, the connection is logged and the GnuMed main screen displayed. The users
+		a server backend connection. If successful, the connection is logged and the GNUmed main screen displayed. The users
 		preferences are loaded and the client configured accordingly. This can involve a complete reconfiguration
 		of the client user interface. As the client remembers the last state before
 		it was closed the last time, no configuration will be neccessary (unless it involves confidential settings)

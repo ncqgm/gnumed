@@ -51,7 +51,7 @@ independantly.
 
 Concurrency handling
 --------------------
-GnuMed connections always run transactions in isolation level
+GNUmed connections always run transactions in isolation level
 "serializable". This prevents transactions happening at the
 *very same time* to overwrite each other's data. All but one
 of them will abort with a concurrency error (eg if a

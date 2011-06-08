@@ -1,5 +1,5 @@
 #======================================================================
-# GnuMed immunisation/vaccination patient plugin
+# GNUmed immunisation/vaccination patient plugin
 #
 # this plugin holds the immunisation details
 #
@@ -9,7 +9,7 @@
 # $Id: gmGP_Immunisation.py,v 1.35 2004-07-17 11:00:31 ncq Exp $
 __version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin_Patient, gmVaccWidgets
 

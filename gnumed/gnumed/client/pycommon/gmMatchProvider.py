@@ -4,7 +4,7 @@ They are used by business objects to give
 phrasewheels the ability to guess phrases.
 
 Copyright (C) GNUMed developers
-license: GPL
+license: GPL v2 or later
 """
 __version__ = "$Revision: 1.34 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"

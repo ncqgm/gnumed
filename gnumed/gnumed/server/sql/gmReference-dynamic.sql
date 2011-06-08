@@ -1,9 +1,9 @@
 -- ===================================================================
--- Project: GnuMed - service "Reference" - dynamic objects
+-- Project: GNUmed - service "Reference" - dynamic objects
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference-dynamic.sql,v $
 -- $Id: gmReference-dynamic.sql,v 1.3 2006-01-06 10:12:02 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -88,7 +88,7 @@ comment on column form_defs.name_short is
 comment on column form_defs.name_long is
 	'a long name unambigously describing the form';
 comment on column form_defs.revision is
-	'GnuMed internal form def version, may
+	'GNUmed internal form def version, may
 	 occur if we rolled out a faulty form def';
 comment on column form_defs.template is
 	'the template complete with placeholders in

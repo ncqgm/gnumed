@@ -40,7 +40,7 @@
 ; $Id: gmimp.s,v 1.3 2008-07-28 15:43:09 ncq Exp $
 ; Version: $Revision: 1.3 $
 ; Autor  : "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-; Lizenz : "GPL (details at http://www.gnu.org)"
+; Lizenz : "GPL v2 or later (details at http://www.gnu.org)"
 
 ; =============================================================================
 FORM	"GNUmed-Import"

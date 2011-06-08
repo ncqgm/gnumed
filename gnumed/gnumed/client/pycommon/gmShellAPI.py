@@ -3,7 +3,7 @@ __doc__ = """GNUmed general tools."""
 #===========================================================================
 __version__ = "$Revision: 1.13 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib

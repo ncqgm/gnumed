@@ -7,7 +7,7 @@
 -- What it does:
 -- - modify clin.episode
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert/Syan Tan
 -- 
 -- ==============================================================

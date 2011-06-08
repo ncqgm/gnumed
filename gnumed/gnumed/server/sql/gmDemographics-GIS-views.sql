@@ -2,7 +2,7 @@
 
 -- author: Horst Herb, Ian Haywood, Karsten Hilbert, Carlos Moro
 -- copyright: authors
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 
 -- droppable components of GIS schema
 

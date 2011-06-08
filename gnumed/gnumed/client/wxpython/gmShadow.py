@@ -1,4 +1,4 @@
-"""GnuMed widget shadowing.
+"""GNUmed widget shadowing.
 
 A module to add shadowing to an arbitrary widget.
 """

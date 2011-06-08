@@ -33,6 +33,7 @@ IMPROVED: check for both "lowriter" and "oowriter" when using OOo/LO [thanks Mar
 IMPROVED: set database options at bootstrap, only check at connection setup
 IMPROVED: fix tab order in SOAP plugin [thanks S.Leibner]
 IMPROVED: EMR tree: disable Journal/Synopsis selection for nodes where it does not apply
+IMPROVED: clarified license to "GPL v2 or later"
 
 ------------------------------------------------
 # rel-0-9-patches

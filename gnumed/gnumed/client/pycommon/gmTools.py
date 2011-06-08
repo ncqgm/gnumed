@@ -3,7 +3,7 @@ __doc__ = """GNUmed general tools."""
 
 #===========================================================================
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib

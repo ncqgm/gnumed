@@ -4,7 +4,7 @@
 -- Quellen: Beipackzettel
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Typhus.sql,v $
 -- $Id: Impfplan-Typhus.sql,v 1.2 2006-03-04 16:24:39 ncq Exp $
 -- =============================================

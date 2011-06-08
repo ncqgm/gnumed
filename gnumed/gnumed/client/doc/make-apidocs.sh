@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# license: GPL
+# license: GPL v2 or later
 # author: Karsten.Hilbert@gmx.net
 
 cd ~/gm-git/gnumed/gnumed/

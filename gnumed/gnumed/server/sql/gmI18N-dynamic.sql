@@ -4,7 +4,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N-dynamic.sql,v $
 -- $Id: gmI18N-dynamic.sql,v 1.5 2006-07-24 14:18:52 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
 -- Import this script into any GNUmed database you create.

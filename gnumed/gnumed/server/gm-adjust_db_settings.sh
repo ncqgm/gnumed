@@ -7,7 +7,7 @@
 # usage: ./gm-adjust_db_settings.sh <database name>
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 #==============================================================
 

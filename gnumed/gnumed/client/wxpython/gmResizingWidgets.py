@@ -1,4 +1,4 @@
-"""gmResizingWidgets - Resizing widgets for use in GnuMed.
+"""gmResizingWidgets - Resizing widgets for use in GNUmed.
 
 Design by Richard Terry and Ian Haywood.
 """
@@ -7,7 +7,7 @@ Design by Richard Terry and Ian Haywood.
 # $Id: gmResizingWidgets.py,v 1.55 2009-03-10 14:24:15 ncq Exp $
 __version__ = "$Revision: 1.55 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
-__license__ = 'GPL  (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import sys, logging, re as regex
 

@@ -3,7 +3,7 @@
 
 http://loinc.org
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.7 $"

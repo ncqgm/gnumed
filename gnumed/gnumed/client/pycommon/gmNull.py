@@ -44,7 +44,7 @@ July 2004
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmNull.py,v $
 __version__ = "$Revision: 1.6 $"
 __author__ = "Dinu C. Gherman"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 #==============================================================
 class cNull:

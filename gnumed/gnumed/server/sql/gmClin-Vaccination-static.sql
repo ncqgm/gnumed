@@ -2,7 +2,7 @@
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-static.sql,v $
 -- $Id: gmClin-Vaccination-static.sql,v 1.5 2006-03-06 09:42:46 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
 -- ===================================================================

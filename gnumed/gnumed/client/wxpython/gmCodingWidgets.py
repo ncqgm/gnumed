@@ -2,7 +2,7 @@
 #================================================================
 __version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
 import logging, sys

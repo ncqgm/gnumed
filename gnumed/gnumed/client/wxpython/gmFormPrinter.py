@@ -1,4 +1,4 @@
-# GnuMed form printer design study
+# GNUmed form printer design study
 
 __doc__ = """
 Module to print a form using the wx. toolkit.

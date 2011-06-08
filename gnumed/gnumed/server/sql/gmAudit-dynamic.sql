@@ -2,7 +2,7 @@
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit-dynamic.sql,v $
 -- $Revision: 1.8 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
 -- ===================================================================

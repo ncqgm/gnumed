@@ -123,7 +123,7 @@ class MainFrame(wxFrame):
 
     def __set_properties(self):
         # begin wxGlade: MainFrame.__set_properties
-        self.SetTitle(_("GnuMed: recall system"))
+        self.SetTitle(_("GNUmed: recall system"))
         self.frmRecallApp_statusbar.SetStatusWidths([-1, 60])
         # statusbar fields
         frmRecallApp_statusbar_fields = [_("Not logged in"), _("00:00")]

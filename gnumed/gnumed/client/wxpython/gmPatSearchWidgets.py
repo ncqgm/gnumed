@@ -11,7 +11,7 @@ generator.
 #============================================================
 __version__ = "$Revision: 1.132 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (for details see http://www.gnu.org/)'
+__license__ = 'GPL v2 or later (for details see http://www.gnu.org/)'
 
 import sys, os.path, glob, datetime as pyDT, re as regex, logging, webbrowser
 

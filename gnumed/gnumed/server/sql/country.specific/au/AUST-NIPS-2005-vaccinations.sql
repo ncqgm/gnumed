@@ -2,7 +2,7 @@
 -- ========================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/AUST-NIPS-2005-vaccinations.sql,v $
 -- $Revision: 1.2 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Syan Tan
 
 -- ===================================================================

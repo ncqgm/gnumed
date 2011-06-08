@@ -7,7 +7,7 @@
 -- What it does:
 -- - add set_option functions
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

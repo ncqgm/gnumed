@@ -3,7 +3,7 @@
 -- purpose:  event recall system
 -- author: ihaywood
 -- copyright: (C) Ian Haywood 2003
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/hherb/drafts/gmrules.sql,v $
 -- $Id: gmrules.sql,v 1.1 2004-02-02 17:17:31 ncq Exp $

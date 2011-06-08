@@ -7,7 +7,7 @@ __doc__ = """GNUmed web client launcher.
 # $Id: gnumed.py,v 1.169 2010-01-31 18:20:41 ncq Exp $
 __version__ = "$Revision: 1 $"
 __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import cherrypy                         # importing the CherryPy server library
 from Cheetah.Template import Template   # importing the Cheetah Template engine

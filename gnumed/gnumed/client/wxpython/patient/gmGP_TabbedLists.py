@@ -14,7 +14,7 @@
 #
 # @author: Dr. Richard Terry
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies:
 # @change log:
 #	25.05.2002 rterry first draft, untested

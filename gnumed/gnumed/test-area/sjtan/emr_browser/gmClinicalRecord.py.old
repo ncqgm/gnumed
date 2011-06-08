@@ -1,4 +1,4 @@
-"""GnuMed preliminary clinical patient record.
+"""GNUmed preliminary clinical patient record.
 
 This is a clinical record object intended to let a useful
 client-side API crystallize from actual use in true XP fashion.

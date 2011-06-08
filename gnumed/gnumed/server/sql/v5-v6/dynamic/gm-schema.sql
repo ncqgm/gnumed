@@ -2,7 +2,7 @@
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v5-v6/dynamic/gm-schema.sql,v $
 -- $Id: gm-schema.sql,v 1.3 2007-05-08 11:18:45 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
 -- =============================================

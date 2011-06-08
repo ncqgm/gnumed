@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-# license GPL
+# license GPL v2 or later
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/tools/transferDBset.py,v $
 __version__ = "$Revision: 1.4 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 #=====================================================
 import sys,os
-# location of our modules                                                       
+# location of our modules
 sys.path.append(os.path.join('.', 'modules'))
 
 from Gnumed.pycommon import gmCfg, gmConfigCommon, gmCLI
@@ -24,7 +24,7 @@ def usage():
 	  --user=<username> (Default: DEFAULT USER)
 	  --workplace=<workplace> (Default: DEFAULT WORKPLACE)
 	""" % sys.argv[0]
-		  
+
 	sys.exit(1)
 
 if len(sys.argv)  <= 1:

@@ -1,8 +1,8 @@
--- Project: GnuMed - service "Reference" -- Australian specific stuff
+-- Project: GNUmed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
 -- $Revision: 1.13 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood
 
 -- This file populates the tables in the reference service with Australian-specific content.

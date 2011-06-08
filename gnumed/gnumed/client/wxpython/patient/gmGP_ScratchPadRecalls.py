@@ -1,5 +1,5 @@
-# GnuMed ...
-# licnese: GPL
+# GNUmed ...
+# licnese: GPL v2 or later
 
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_ScratchPadRecalls.py,v $

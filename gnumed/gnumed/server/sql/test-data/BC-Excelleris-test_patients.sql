@@ -3,7 +3,7 @@
 -- test patients from British Columbia, Excelleris Labs, HL7 import
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 --
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/BC-Excelleris-test_patients.sql,v $
 -- $Revision: 1.1 $

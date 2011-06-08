@@ -7,7 +7,7 @@
 -- What it does:
 -- - clean up blobs.doc_type
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

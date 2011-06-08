@@ -13,7 +13,7 @@
 #                   Basic skeleton of this code written by Dr. H Horst
 #                   heavily commented for learning purposes by Dr. R Terry
 # @copyright: authors
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 #
 # @TODO:
 #	 decision of text display wigit

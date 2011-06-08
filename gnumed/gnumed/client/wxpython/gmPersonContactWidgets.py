@@ -2,7 +2,7 @@
 #============================================================
 __version__ = "$Revision: 1.175 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # standard library
 import sys, logging

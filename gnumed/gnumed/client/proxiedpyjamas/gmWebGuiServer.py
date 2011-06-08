@@ -5,7 +5,7 @@ __doc__ = """GNUmed web user interface server launcher.
 #==========================================================
 __version__ = "$Revision: 0.1 $"
 __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import re, sys, time, os, cPickle, zlib, locale, os.path

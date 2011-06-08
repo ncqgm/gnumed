@@ -3,7 +3,7 @@
 # gmPgMetaData - PostgreSQL metadata analysis functions
 # ---------------------------------------------------------------------------
 #
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies: DB-API 2.0 compliant PostgreSQL adapter
 #
 # @TODO: quick hack only, needs a lot of work

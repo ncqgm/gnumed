@@ -1,8 +1,8 @@
--- Project: GnuMed - service "clinical" -- Australian specific stuff
+-- Project: GNUmed - service "clinical" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmClinical.au.sql,v $
 -- $Revision: 1.5 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood
 
 -- This file populates the tables in the reference service with Australian-specific content.

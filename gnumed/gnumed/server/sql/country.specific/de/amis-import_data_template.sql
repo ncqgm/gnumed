@@ -6,7 +6,7 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/amis-import_data_template.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
 -- version: $Revision: 1.1 $
--- license: GPL
+-- license: GPL v2 or later
 
 set client_encoding to 'LATIN1';
 

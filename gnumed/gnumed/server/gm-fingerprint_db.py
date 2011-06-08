@@ -6,7 +6,7 @@
 # usage: ./gm-fingerprint_db.py <database name> <gm-dbo password>
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 #==============================================================
 

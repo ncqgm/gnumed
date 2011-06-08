@@ -7,7 +7,7 @@
 -- What it does:
 -- - table ref.document_type
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

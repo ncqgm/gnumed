@@ -8,7 +8,7 @@
 # It allows to do bar with particular foo-ness.
 #
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_PatientPlugin.py.template,v $

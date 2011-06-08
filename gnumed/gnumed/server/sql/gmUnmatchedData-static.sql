@@ -3,7 +3,7 @@
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmUnmatchedData-static.sql,v $
 -- $Id: gmUnmatchedData-static.sql,v 1.5 2006-01-06 10:12:02 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
 -- =============================================

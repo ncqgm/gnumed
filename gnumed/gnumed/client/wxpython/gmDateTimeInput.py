@@ -8,7 +8,7 @@ this module.
 #==============================================================================
 __version__ = "$Revision: 1.66 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__licence__ = "GPL (details at http://www.gnu.org)"
+__licence__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # standard libary
 import re, string, sys, time, datetime as pyDT, logging

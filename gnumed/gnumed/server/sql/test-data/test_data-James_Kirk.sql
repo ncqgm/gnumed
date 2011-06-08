@@ -1,8 +1,8 @@
--- Projekt GnuMed
+-- Projekt GNUmed
 -- test data for James Tiberius Kirk of Star Trek fame
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
 -- $Revision: 1.81 $
 -- =============================================

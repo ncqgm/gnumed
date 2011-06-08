@@ -1,11 +1,11 @@
 # -*- coding: latin-1 -*-
-"""GnuMed LDT importer.
+"""GNUmed LDT importer.
 
 This script automatically imports German pathology result
 files in LDT format.
 
 It relies on patient-to-request-ID mappings to be present
-in the GnuMed database. It will only import those request
+in the GNUmed database. It will only import those request
 that have a mapping.
 
 The general theory of operation of automatic import at
@@ -13,7 +13,7 @@ Hilbert office is as follows:
 
 - automatically retrieve LDT files from labs
 - archive them
-- make them available in a GnuMed private directory
+- make them available in a GNUmed private directory
 - run importer every hour
 - import those records that have a mapping
 - make those records available to TurboMed

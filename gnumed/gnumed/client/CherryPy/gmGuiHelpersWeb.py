@@ -2,19 +2,12 @@
 
 This module provides some convenient wxPython GUI
 helper thingies that are widely used throughout
-GnuMed.
-
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
+GNUmed.
 """
 # ========================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.106 2010-02-06 21:05:48 ncq Exp $
 __version__ = "$Revision: 1.106 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import os
 

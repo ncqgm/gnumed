@@ -7,7 +7,7 @@
 -- What it does:
 -- - drop blobs.xlnk_identity
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

@@ -6,7 +6,7 @@
 # This module has a helper function to translate PIT rich text tags
 # into corresponding HTML tags
 # This software is free software, released under the terms of the
-# GPL license. Details see http://gnu.org/
+# GPL v2 or later license. Details see http://gnu.org/
 # (c) by Dr. Horst Herb <hherb@gnumed.net>
 #------------------------------------------------------------------------
 # Usage:
@@ -196,7 +196,7 @@ if __name__=="__main__":
 	usagestr = """
 -------------------------------------------------
 pit2html Version %s, author: %s
-This is free software, released under GPL license
+This is free software, released under GPL v2 or later license
 
 usage: pit2html <pitfilename>
 

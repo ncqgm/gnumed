@@ -1,5 +1,5 @@
 #======================================================================
-# GnuMed notebook based progress note input plugin
+# GNUmed notebook based progress note input plugin
 # ------------------------------------------------
 #
 # this plugin displays the list of patient problems
@@ -9,7 +9,7 @@
 #======================================================================
 __version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 

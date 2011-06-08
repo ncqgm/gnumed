@@ -11,7 +11,7 @@
 __version__ = "$Revision: 1.50 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 from Gnumed.pycommon import gmI18N
 

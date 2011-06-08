@@ -33,7 +33,7 @@
 # Note that 1a) will only work on UN*X.
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #==============================================================
 
 CONF="/etc/gnumed/gnumed-backup.conf"

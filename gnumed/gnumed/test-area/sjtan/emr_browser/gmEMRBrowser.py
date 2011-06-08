@@ -1,4 +1,4 @@
-"""GnuMed patient EMR tree browser.
+"""GNUmed patient EMR tree browser.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/emr_browser/gmEMRBrowser.py,v $

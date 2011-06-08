@@ -2,7 +2,7 @@
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
 -- $Revision: 1.185 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
 -- ===================================================================

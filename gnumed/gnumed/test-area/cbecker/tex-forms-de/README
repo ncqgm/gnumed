@@ -152,7 +152,7 @@ Karsten Hilbert schrieb:
 >>
 >There are README/INSTALL files in the very root of the
 >CVS tree. They don't talk about setting up a new database
->because that is not for people trying GnuMed first time
+>because that is not for people trying GNUmed first time
 >around. However, the files should talk about using the
 >public servers. They now do.
 >
@@ -174,7 +174,7 @@ Karsten Hilbert schrieb:
 >   generators available
 >b) because no one voluntuered to regularly update graphical
 >   schema pictures with a manual tool
->c) GnuMed DOES HAVE detailed graphical schema in several formats:
+>c) GNUmed DOES HAVE detailed graphical schema in several formats:
 >
 >   http://publicdb.gnumed.de/twiki/bin/view/Gnumed/DatabaseSchema
 >
@@ -209,7 +209,7 @@ Karsten Hilbert schrieb:
 >>has to do if it will stay and grow)
 >>    
 >>
->GnuMed has shared it's database schema from day -1.
+>GNUmed has shared it's database schema from day -1.
 >
 >  
 >

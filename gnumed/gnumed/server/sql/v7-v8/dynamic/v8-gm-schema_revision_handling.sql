@@ -2,7 +2,7 @@
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v7-v8/dynamic/v8-gm-schema_revision_handling.sql,v $
 -- $Id: v8-gm-schema_revision_handling.sql,v 1.1 2007-11-07 22:50:55 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
 -- =============================================

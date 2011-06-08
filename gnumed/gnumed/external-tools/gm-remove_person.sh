@@ -5,7 +5,7 @@
 # from a GNUmed database.
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #==============================================================
 
 SQL_FILE="/tmp/gm-remove_person.sql"

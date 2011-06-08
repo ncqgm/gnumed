@@ -7,7 +7,7 @@
 -- What it does:
 -- - modify blobs.doc_desc
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

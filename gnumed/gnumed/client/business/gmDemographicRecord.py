@@ -3,7 +3,7 @@
 This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.106 $"

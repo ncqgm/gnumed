@@ -7,7 +7,7 @@
 -- What it does:
 -- - fix v_pat_narrative_soap
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: 
 -- 
 -- ==============================================================

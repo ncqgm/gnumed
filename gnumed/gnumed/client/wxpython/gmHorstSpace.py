@@ -1,12 +1,7 @@
-"""GnuMed Horst-space inner-frame layout manager.
+"""GNUmed Horst-space inner-frame layout manager.
 
 This implements the simple wx.Notebook based layout as
 originally suggested by Horst Herb.
-
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
 
 copyright: authors
 """
@@ -15,7 +10,7 @@ __version__ = "$Revision: 1.47 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import os.path, os, sys, logging
 
@@ -33,7 +28,7 @@ _log.info(__version__)
 #==============================================================================
 # finding the visible page from a notebook page: self.GetParent.GetCurrentPage == self
 class cHorstSpaceLayoutMgr(wx.Panel):
-	"""GnuMed inner-frame layout manager.
+	"""GNUmed inner-frame layout manager.
 
 	This implements a Horst-space notebook-only
 	"inner-frame" layout manager.

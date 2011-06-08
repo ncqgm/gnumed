@@ -2,7 +2,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCreateUserFunction.sql,v $
 -- $Id: gmCreateUserFunction.sql,v 1.5 2006-06-17 16:46:29 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
 \set ON_ERROR_STOP 1

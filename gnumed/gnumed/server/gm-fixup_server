@@ -8,7 +8,7 @@
 # to actually apply fixes to an existing database.
 #
 # author: Andreas Tille, Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 #==============================================================
 # those probably need some adjustment from package maintainers:

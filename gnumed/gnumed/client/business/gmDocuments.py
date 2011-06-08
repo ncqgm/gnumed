@@ -1,6 +1,6 @@
 """This module encapsulates a document stored in a GNUmed database.
 
-@copyright: GPL
+@copyright: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.118 $"

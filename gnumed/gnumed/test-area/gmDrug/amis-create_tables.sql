@@ -5,7 +5,7 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/amis-create_tables.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
 -- version: $Revision: 1.5 $
--- license: GPL
+-- license: GPL v2 or later
 -- TODO: further processing of the data (normalizing)
 
 -- =====================================================================================

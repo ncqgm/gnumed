@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #====================================================
-# license: GPL
+# license: GPL v2 or later
 #====================================================
 #CLIENTREV="0.7.rc1"
 CLIENTREV="Git"
@@ -141,6 +141,7 @@ cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../CHANGELOG ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../LICENSE ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
 
 
