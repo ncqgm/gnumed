@@ -35,7 +35,7 @@ comment on column clin.lnk_code2procedure.fk_item is
 
 
 \unset ON_ERROR_STOP
-alter table clin.lnk_code2procedure drop foreign key lnk_code2procedure_fk_item_fkey cascade;
+alter table clin.lnk_code2procedure drop constraint lnk_code2procedure_fk_item_fkey cascade;
 \set ON_ERROR_STOP 1
 
 

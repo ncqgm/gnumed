@@ -32,7 +32,7 @@ union all
 
 union all
 
-	select *, 0 as row_version from clin.v_hx_family_journal
+	select * from clin.v_family_history_journal
 
 union all
 

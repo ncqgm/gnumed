@@ -1,7 +1,3 @@
-$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
-$Id: README,v 1.9 2009-05-04 11:41:29 ncq Exp $
---------------------------------------------------------------------------
-
 The files and scripts in the bootstrap/ directory are intended for
 bootstrapping a new or upgrading an existing GNUmed database.
 
