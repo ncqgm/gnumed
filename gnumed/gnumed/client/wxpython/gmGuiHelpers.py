@@ -19,13 +19,30 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.main')
+# ========================================================================
+class cThreeValuedLogicPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		items = [
+			{'list_label': _('Yes: + / ! / 1'), 'field_label': _('yes'), 'data': True, 'weight': 0},
+			{'list_label': _('No: - / 0'), 'field_label': _('no'), 'data': False, 'weight': 1},
+			{'list_label': _('Unknown: ?'), 'field_label': _('unknown'), 'data': None, 'weight': 2},
+		]
+		mp = gmMatchProvider.cMatchProvider_FixedList(items)
+		mp.setThresholds(1, 1, 2)
+		mp.word_separators = '[ :/]+'
+		mp.word_separators = None
+		mp.ignored_chars = r"[.'\\(){}\[\]<>~#*$%^_=&@\t23456]+" + r'"'
+
+		self.matcher = mp
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxg2ButtonQuestionDlg
 
@@ -457,7 +474,6 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 	else:
 		return None
 #======================================================================
-
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
@@ -466,8 +482,27 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	app = wx.App()
-	img = file2scaled_image(filename = sys.argv[2])
-	print img
-	print img.Height
-	print img.Width
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
+
+	#------------------------------------------------------------------
+	def test_scale_img():
+		app = wx.App()
+		img = file2scaled_image(filename = sys.argv[2])
+		print img
+		print img.Height
+		print img.Width
+	#------------------------------------------------------------------
+	def test_sql_logic_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		prw = cThreeValuedLogicPhraseWheel(parent = app.frame, id = -1)
+		app.frame.Show(True)
+		app.MainLoop()
+
+		return True
+	#------------------------------------------------------------------
+	#test_scale_img()
+	test_sql_logic_prw()
+
+#======================================================================

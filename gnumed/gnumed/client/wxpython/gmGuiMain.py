@@ -62,10 +62,14 @@ from Gnumed.wxpython import gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
-from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets, gmPersonContactWidgets
-from Gnumed.wxpython import gmI18nWidgets, gmCodingWidgets
+from Gnumed.wxpython import gmFormWidgets, gmSnellen
+from Gnumed.wxpython import gmVaccWidgets
+from Gnumed.wxpython import gmPersonContactWidgets
+from Gnumed.wxpython import gmI18nWidgets
+from Gnumed.wxpython import gmCodingWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
 from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmFamilyHistoryWidgets
 
 
 try:
@@ -283,10 +287,6 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_client.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_export_chunk_size)
-
-#		ID = wx.NewId()
-#		menu_cfg_client.Append(ID, _('Temporary directory'), _('Configure the directory to use as scratch space for temporary files.'))
-#		wx.EVT_MENU(self, ID, self.__on_configure_temp_dir)
 
 		item = menu_cfg_client.Append(-1, _('Email address'), _('The email address of the user for sending bug reports, etc.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_user_email, item)
@@ -570,6 +570,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_emr_edit.Append(-1, _('&Vaccination(s)'), _('Add (a) vaccination(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
+
+		item = menu_emr_edit.Append(-1, _('&Family history (FHx)'), _('Manage family history.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_fhx, item)
 
 		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
@@ -1128,38 +1131,6 @@ class gmTopLevelFrame(wx.Frame):
 		gmCfgWidgets.list_configuration(parent = self)
 	#----------------------------------------------
 	# submenu GNUmed / options / client
-	#----------------------------------------------
-#	def __on_configure_temp_dir(self, evt):
-#
-#		cfg = gmCfg.cCfgSQL()
-#
-#		tmp_dir = gmTools.coalesce (
-#			cfg.get2 (
-#				option = "horstspace.tmp_dir",
-#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#				bias = 'workplace'
-#			),
-#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-#		)
-#
-#		dlg = wx.DirDialog (
-#			parent = self,
-#			message = _('Choose temporary directory ...'),
-#			defaultPath = tmp_dir,
-#			style = wx.DD_DEFAULT_STYLE
-#		)
-#		result = dlg.ShowModal()
-#		tmp_dir = dlg.GetPath()
-#		dlg.Destroy()
-#
-#		if result != wx.ID_OK:
-#			return
-#
-#		cfg.set (
-#			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#			option = "horstspace.tmp_dir",
-#			value = tmp_dir
-#		)
 	#----------------------------------------------
 	def __on_configure_export_chunk_size(self, evt):
 
@@ -2448,6 +2419,15 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 
 		gmVaccWidgets.manage_vaccinations(parent = self)
+		evt.Skip()
+	#----------------------------------------------
+	def __on_manage_fhx(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage family history. No active patient.'))
+			return False
+
+		gmFamilyHistoryWidgets.manage_family_history(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_add_measurement(self, evt):

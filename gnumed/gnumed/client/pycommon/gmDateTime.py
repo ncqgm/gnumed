@@ -332,7 +332,11 @@ def py_dt2wxDate(py_dt=None, wx=None):
 #===========================================================================
 # interval related
 #---------------------------------------------------------------------------
-def format_interval(interval=None, accuracy_wanted=acc_seconds):
+def format_interval(interval=None, accuracy_wanted=acc_seconds, none_string=None):
+
+	if interval is None:
+		if none_string is not None:
+			return none_string
 
 	years, days = divmod(interval.days, avg_days_per_gregorian_year)
 	months, days = divmod(days, avg_days_per_gregorian_month)

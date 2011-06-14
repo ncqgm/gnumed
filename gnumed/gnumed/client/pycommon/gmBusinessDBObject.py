@@ -202,7 +202,7 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 				xxx = %(xxx)s,								-- typically "table_col = %(view_col)s"
 				xxx = gm.nullify_empty_string(%(xxx)s)
 			WHERE
-				pk = %(xxx)s
+				pk = %(pk_XXX)s
 					AND
 				xmin = %(xmin_XXX)s
 			RETURNING

@@ -10,7 +10,7 @@ __version__ = "$Revision: 1.34 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
-import string, types, time, sys, re as regex, logging
+import re as regex, logging
 
 
 # GNUmed
@@ -21,7 +21,13 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
 
+# these are stripped from the fragment passed to the
+# match provider before looking for matches:
 default_ignored_chars = "[?!.'\\(){}\[\]<>~#*$%^_]+" + '"'
+
+# these are used to detect word boundaries which is,
+# in turn, used to normalize word boundaries in the
+# input fragment
 default_word_separators = '[- \t=+&:@]+'
 #============================================================
 class cMatchProvider(object):
@@ -176,9 +182,9 @@ class cMatchProvider_FixedList(cMatchProvider):
 	def __init__(self, aSeq = None):
 		"""aSeq must be a list of dicts. Each dict must have the keys (data, label, weight)
 		"""
-		if not type(aSeq) in [types.ListType, types.TupleType]:
-			_log.error('fixed list match provider argument must be a list or tuple of dicts')
-			raise TypeError('fixed list match provider argument must be a list or tuple of dicts')
+		if not type(aSeq) in [type(None), type([]), type(())]:
+			_log.error('fixed list match provider argument must be a list/tuple of dicts/None')
+			raise TypeError('fixed list match provider argument must be a list/tuple of dicts/None')
 
 		self.__items = aSeq
 		cMatchProvider.__init__(self)
@@ -196,7 +202,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		# look for matches
 		for item in self.__items:
 			# at start of phrase, that is
-			if string.find(string.lower(item['list_label']), aFragment) == 0:
+			if item['list_label'].lower().startswith(aFragment.lower()):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -210,14 +216,15 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			pos = string.find(string.lower(item['list_label']), aFragment)
+			item_label = item['list_label'].lower()
+			fragment_pos = item_label.find(aFragment.lower())
 			# found at start of phrase
-			if pos == 0:
+			if fragment_pos == 0:
 				matches.append(item)
 			# found as a true substring
-			elif pos > 0:
+			elif fragment_pos > 0:
 				# but use only if substring is at start of a word
-				if (item['list_label'])[pos-1] == u' ':
+				if item_label[fragment_pos-1] == u' ':
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -231,7 +238,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			if string.find(string.lower(item['list_label']), aFragment) != -1:
+			if item['list_label'].lower().find(aFragment.lower()) != -1:
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -251,7 +258,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		return (True, matches)
 	#--------------------------------------------------------
 	def set_items(self, items):
-		"""items must be a list of dicts. Each dict must have the keys (data, label, weight)"""
+		"""items must be a list of dicts. Each dict must have the keys (data, list_label, weight)"""
 		self.__items = items
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
@@ -287,7 +294,6 @@ class cMatchProvider_Func(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		print "getting phrase matches"
 		matches = []
 		candidates = self._get_candidates()
 		# look for matches
@@ -304,7 +310,6 @@ class cMatchProvider_Func(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
-		print "getting word matches"
 		matches = []
 		candidates = self._get_candidates()
 		# look for matches
@@ -369,7 +374,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 	example: {'ctxt_country': {'where_part': 'and country = %(country)s', 'placeholder': 'country'}}
 	"""
 	def __init__(self, queries = None, context = None):
-		if type(queries) != types.ListType:
+		if type(queries) != type([]):
 			queries = [queries]
 
 		self._queries = queries

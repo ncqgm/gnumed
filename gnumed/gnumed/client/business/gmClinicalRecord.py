@@ -45,7 +45,9 @@ from Gnumed.business import gmAllergy
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmEMRStructItems
-from Gnumed.business import gmMedication, gmVaccination
+from Gnumed.business import gmMedication
+from Gnumed.business import gmVaccination
+from Gnumed.business import gmFamilyHistory
 
 
 _log = logging.getLogger('gm.emr')
@@ -195,6 +197,20 @@ SELECT fk_encounter from
 	#--------------------------------------------------------
 	def _clin_item_modified(self):
 		_log.debug('DB: clin_root_item modification')
+	#--------------------------------------------------------
+	# API: family history
+	#--------------------------------------------------------
+	def get_family_history(self):
+		fhx = gmFamilyHistory.get_family_history(order_by = u'l10n_relation, condition', patient = self.pk_patient)
+		return fhx
+	#--------------------------------------------------------
+	def add_family_history(self, episode=None, condition=None, relation=None):
+		return gmFamilyHistory.create_family_history (
+			encounter = self.current_encounter['pk_encounter'],
+			episode = episode,
+			condition = condition,
+			relation = relation
+		)
 	#--------------------------------------------------------
 	# API: performed procedures
 	#--------------------------------------------------------
