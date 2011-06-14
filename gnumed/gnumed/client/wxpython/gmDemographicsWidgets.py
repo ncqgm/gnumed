@@ -1309,7 +1309,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 	#--------------------------------------------------------
 	def refresh(self):
 
-		tt = _("Link another person in this database as the emergency contact.")
+		tt = _('Link another person in this database as the emergency contact:\n\nEnter person name part or identifier and hit <enter>.')
 
 		if self.__identity is None:
 			self._TCTRL_er_contact.SetValue(u'')

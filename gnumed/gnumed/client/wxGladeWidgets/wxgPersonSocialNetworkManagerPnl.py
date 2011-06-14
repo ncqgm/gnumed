@@ -35,9 +35,10 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
 
     def __set_properties(self):
         # begin wxGlade: wxgPersonSocialNetworkManagerPnl.__set_properties
-        self._TCTRL_person.SetToolTipString(_("Link another person in this database as the emergency contact."))
+        self._TCTRL_person.SetToolTipString(_("Link another person in this database as the emergency contact:\n\nEnter person name part or identifier and hit <enter>."))
         self._BTN_activate_contact.SetToolTipString(_("Make the emergency contact the active patient."))
         self._TCTRL_er_contact.SetToolTipString(_("Name, relation, and contact details for person to notify in case of emergency/serious trouble."))
+        self._PRW_provider.SetToolTipString(_("Choose the provider the patient considers his or her primary provider in this praxis."))
         self._BTN_save.SetDefault()
         # end wxGlade
 
