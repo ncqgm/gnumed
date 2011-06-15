@@ -15,6 +15,7 @@
 # author: Karsten Hilbert
 # license: GPL v2 or later
 #==============================================================
+set -o pipefail
 
 
 BACKUP="$1"
@@ -103,6 +104,8 @@ if test $? -ne 0 ; then
 fi
 BACKUP=`basename ${BACKUP} .tar`
 rm ${BACKUP}.tar
+# need to give postgres appropriate permissions:
+chown -c postgres ${BACKUP}-*.sql
 
 
 echo ""
