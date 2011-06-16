@@ -332,7 +332,10 @@ def py_dt2wxDate(py_dt=None, wx=None):
 #===========================================================================
 # interval related
 #---------------------------------------------------------------------------
-def format_interval(interval=None, accuracy_wanted=acc_seconds, none_string=None):
+def format_interval(interval=None, accuracy_wanted=None, none_string=None):
+
+	if accuracy_wanted is None:
+		accuracy_wanted = acc_seconds
 
 	if interval is None:
 		if none_string is not None:

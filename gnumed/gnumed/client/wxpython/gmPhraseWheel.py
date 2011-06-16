@@ -411,7 +411,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		if len(self._current_match_candidates) == 1:
 			candidate = self._current_match_candidates[0]
 			if candidate['field_label'] == input2match:
-				self._update_data_from_picked_item(item)
+				self._update_data_from_picked_item(candidate)
 				return
 
 		border_width = 4
@@ -922,7 +922,6 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 	data = property(_get_data, _set_data)
 
-
 #============================================================
 # FIXME: cols in pick list
 # FIXME: snap_to_basename+set selection
@@ -1057,7 +1056,7 @@ class cPhraseWheel(cPhraseWheelBase):
 		return super(cPhraseWheel, self)._show_picklist(input2match = input2match)
 	#--------------------------------------------------------
 	def _set_data_to_first_match(self):
-		# possible ?
+		# data already set ?
 		if len(self._data) > 0:
 			return True
 

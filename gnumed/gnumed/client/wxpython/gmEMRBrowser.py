@@ -137,6 +137,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		gmDispatcher.connect(signal = 'narrative_mod_db', receiver = self._on_narrative_mod_db)
 		gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_mod_db)
 		gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_issue_mod_db)
+		gmDispatcher.connect(signal = 'family_history_mod_db', receiver = self._on_issue_mod_db)
 	#--------------------------------------------------------
 	def __populate_tree(self):
 		"""Updates EMR browser data."""
@@ -266,6 +267,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				encounter = node_data['pk_encounter']
 			)
 
+		# root node == EMR level
 		else:
 			self.__enable_display_mode_selection(False)
 			emr = self.__pat.get_emr()
@@ -389,7 +391,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.PopupMenu(self.__issue_context_popup, pos)
 	#--------------------------------------------------------
 	def __handle_episode_context(self, pos=wx.DefaultPosition):
-		self.__epi_context_popup.SetTitle(_('Episode %s') % self.__curr_node_data['description'])
+#		self.__epi_context_popup.SetTitle(_('Episode %s') % self.__curr_node_data['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
 	#--------------------------------------------------------
 	def __handle_encounter_context(self, pos=wx.DefaultPosition):

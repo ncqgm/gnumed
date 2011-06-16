@@ -1146,16 +1146,12 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			return u'??'
 
 		if self['deceased'] is None:
-#			return gmDateTime.format_interval_medically (
-#				pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone) - dob
-#			)
 			return gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age(start = dob)
 			)
 
 		return u'%s%s' % (
 			gmTools.u_latin_cross,
-#			gmDateTime.format_interval_medically(self['deceased'] - dob)
 			gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age (
 					start = dob,

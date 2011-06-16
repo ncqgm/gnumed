@@ -32,6 +32,135 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = logging.getLogger('gm.ui')
 
 #============================================================
+#class cIntervalMatchProvider(gmMatchProvider.cMatchProvider):
+#	"""Turns strings into candidate intervals."""
+#	def __init__(self):
+#
+#		gmMatchProvider.cMatchProvider.__init__(self)
+#
+#		self.setThresholds(aPhrase = 1, aWord = 998, aSubstring = 999)
+#		self.word_separators = None
+##		self.ignored_chars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
+#	#--------------------------------------------------------
+#	# external API
+#	#--------------------------------------------------------
+#	#--------------------------------------------------------
+#	# base class API
+#	#--------------------------------------------------------
+#	def getMatchesByPhrase(self, aFragment):
+#		intv = gmDateTime.str2interval(str_interval = aFragment)
+#
+#		if intv is None:
+#			return (False, [])
+#
+#		items = [{
+#			'data': intv,
+#			'field_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes),
+#			'list_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes)
+#		}]
+#
+#		return (True, items)
+#	#--------------------------------------------------------
+#	def getMatchesByWord(self, aFragment):
+#		return self.getMatchesByPhrase(aFragment)
+#	#--------------------------------------------------------
+#	def getMatchesBySubstr(self, aFragment):
+#		return self.getMatchesByPhrase(aFragment)
+#	#--------------------------------------------------------
+#	def getAllMatches(self):
+#		matches = (False, [])
+#		return matches
+#============================================================
+class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.phrase_separators = None
+		self.display_accuracy = None
+	#--------------------------------------------------------
+	# phrasewheel internal API
+	#--------------------------------------------------------
+	def _update_candidates_in_picklist(self, val):
+		intv = gmDateTime.str2interval(str_interval = val)
+		if intv is None:
+			self._current_match_candidates = []
+		else:
+			self._current_match_candidates = [{
+				'data': intv,
+				'field_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes),
+				'list_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes)
+			}]
+		self._picklist.SetItems(self._current_match_candidates)
+	#---------------------------------------------------------
+#	def _on_lose_focus(self, event):
+#		# are we valid ?
+#		if len(self._data) == 0:
+#			self._set_data_to_first_match()
+#
+#		# let the base class do its thing
+#		super(cIntervalPhraseWheel, self)._on_lose_focus(event)
+	#--------------------------------------------------------
+	def _picklist_item2display_string(self, item=None):
+		intv = item['data']
+		if intv is not None:
+			return gmDateTime.format_interval (
+				interval = intv,
+				accuracy_wanted = self.display_accuracy
+			)
+		return item['field_label']
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		intv = self.GetData()
+		print intv
+		if intv is None:
+			return u''
+		return gmDateTime.format_interval (
+			interval = intv,
+			accuracy_wanted = self.display_accuracy
+		)
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def SetValue(self, value):
+
+		if isinstance(value, pyDT.timedelta):
+			self.SetText(data = value, suppress_smarts = True)
+			return
+
+		if value is None:
+			value = u''
+
+		super(cIntervalPhraseWheel, self).SetValue(value)
+	#--------------------------------------------------------
+	def SetText(self, value=u'', data=None, suppress_smarts=False):
+
+		if data is not None:
+			if value.strip() == u'':
+				value = gmDateTime.format_interval (
+					interval = data,
+					accuracy_wanted = self.display_accuracy
+				)
+
+		super(cIntervalPhraseWheel, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
+	#--------------------------------------------------------
+	def SetData(self, data=None):
+		if data is None:
+			super(cIntervalPhraseWheel, self).SetText(u'', None)
+			return
+
+		value = gmDateTime.format_interval (
+			interval = data,
+			accuracy_wanted = self.display_accuracy
+		)
+		super(cIntervalPhraseWheel, self).SetText(value = value, data = data)
+	#--------------------------------------------------------
+	def GetData(self):
+		if len(self._data) == 0:
+			self._set_data_to_first_match()
+
+		return super(cIntervalPhraseWheel, self).GetData()
+#============================================================
 class cCalendarDatePickerDlg(wx.Dialog):
 	"""Shows a calendar control from which the user can pick a date."""
 	def __init__(self, parent):

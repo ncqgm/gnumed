@@ -200,8 +200,18 @@ SELECT fk_encounter from
 	#--------------------------------------------------------
 	# API: family history
 	#--------------------------------------------------------
-	def get_family_history(self):
-		fhx = gmFamilyHistory.get_family_history(order_by = u'l10n_relation, condition', patient = self.pk_patient)
+	def get_family_history(self, episodes=None, issues=None):
+		fhx = gmFamilyHistory.get_family_history (
+			order_by = u'l10n_relation, condition',
+			patient = self.pk_patient
+		)
+
+		if episodes is not None:
+			fhx = filter(lambda f: f['pk_episode'] in episodes, fhx)
+
+		if issues is not None:
+			fhx = filter(lambda f: f['pk_health_issue'] in issues, fhx)
+
 		return fhx
 	#--------------------------------------------------------
 	def add_family_history(self, episode=None, condition=None, relation=None):
@@ -798,6 +808,14 @@ Vaccinations: %(vaccinations)s
 				allg['descriptor'],
 				gmTools.coalesce(allg['reaction'], _('unknown reaction'))
 			)
+
+		txt += u'\n'
+		txt += _('Family History')
+		txt += u'\n'
+
+		fhx = self.get_family_history()
+		for f in fhx:
+			txt += u'%s\n' % f.format(left_margin = 1)
 
 		txt += u'\n'
 		txt += _('Vaccinations')

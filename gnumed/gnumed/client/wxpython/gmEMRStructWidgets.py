@@ -1403,7 +1403,6 @@ limit 30"""
 	def GetData(self, can_create=False, as_instance=False, is_open=False):
 		self.__is_open_for_create_data = is_open		# used (only) in _create_data()
 		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
-		#return self.data
 	#--------------------------------------------------------
 	def _create_data(self):
 

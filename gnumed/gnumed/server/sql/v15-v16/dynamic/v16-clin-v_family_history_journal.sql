@@ -45,6 +45,7 @@ select
 			|| E'\n'
 			|| coalesce(' ' || c_fh.name_relative || ',', '')
 			|| coalesce(' ' || to_char(c_fh.dob_relative, 'YYYY-MM-DD'), '')
+			|| coalesce(E'\n ' || c_fh.comment, '')
 		as narrative,
 	c_fh.fk_encounter
 		as pk_encounter,

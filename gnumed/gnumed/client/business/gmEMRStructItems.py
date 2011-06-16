@@ -418,7 +418,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		stays = emr.get_hospital_stays (
 			issues = [ self._payload[self._idx['pk_health_issue']] ]
 		)
-
 		if len(stays) > 0:
 			lines.append(u'')
 			lines.append(_('Hospital stays: %s') % len(stays))
@@ -430,13 +429,25 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		procs = emr.get_performed_procedures (
 			issues = [ self._payload[self._idx['pk_health_issue']] ]
 		)
-
 		if len(procs) > 0:
 			lines.append(u'')
 			lines.append(_('Procedures performed: %s') % len(procs))
 		for p in procs:
 			lines.append(p.format(left_margin = (left_margin + 1)))
 		del procs
+
+		# family history
+		fhx = emr.get_family_history(issues = [ self._payload[self._idx['pk_health_issue']] ])
+		if len(fhx) > 0:
+			lines.append(u'')
+			lines.append(_('Family History: %s') % len(fhx))
+		for f in fhx:
+			lines.append(f.format (
+				left_margin = (left_margin + 1),
+				include_episode = True,
+				include_comment = True
+			))
+		del fhx
 
 		epis = self.get_episodes()
 		if len(epis) > 0:
@@ -1002,23 +1013,16 @@ from (
 		del docs
 
 		# hospital stays
-		stays = emr.get_hospital_stays (
-			episodes = [ self._payload[self._idx['pk_episode']] ]
-		)
-
+		stays = emr.get_hospital_stays(episodes = [ self._payload[self._idx['pk_episode']] ])
 		if len(stays) > 0:
 			lines.append('')
 			lines.append(_('Hospital stays: %s') % len(stays))
-
 		for s in stays:
 			lines.append(s.format(left_margin = (left_margin + 1)))
 		del stays
 
 		# procedures
-		procs = emr.get_performed_procedures (
-			episodes = [ self._payload[self._idx['pk_episode']] ]
-		)
-
+		procs = emr.get_performed_procedures(episodes = [ self._payload[self._idx['pk_episode']] ])
 		if len(procs) > 0:
 			lines.append(u'')
 			lines.append(_('Procedures performed: %s') % len(procs))
@@ -1029,6 +1033,19 @@ from (
 				include_codes = True
 			))
 		del procs
+
+		# family history
+		fhx = emr.get_family_history(episodes = [ self._payload[self._idx['pk_episode']] ])
+		if len(fhx) > 0:
+			lines.append(u'')
+			lines.append(_('Family History: %s') % len(fhx))
+		for f in fhx:
+			lines.append(f.format (
+				left_margin = (left_margin + 1),
+				include_episode = False,
+				include_comment = True
+			))
+		del fhx
 
 		# test results
 		tests = emr.get_test_results_by_date(episodes = [ self._payload[self._idx['pk_episode']] ])
@@ -1561,7 +1578,7 @@ WHERE
 
 		return tex
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False):
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False, with_family_history=True):
 		"""Format an encounter.
 
 		with_co_encountlet_hints:
@@ -1677,6 +1694,21 @@ WHERE
 				emr = emr,
 				issues = issues
 			))
+
+#		# family history
+#		if with_family_history:
+#			if episodes is not None:
+#				fhx = emr.get_family_history(episodes = episodes)
+#				if len(fhx) > 0:
+#					lines.append(u'')
+#					lines.append(_('Family History: %s') % len(fhx))
+#				for f in fhx:
+#					lines.append(f.format (
+#						left_margin = (left_margin + 1),
+#						include_episode = False,
+#						include_comment = True
+#					))
+#				del fhx
 
 		# test results
 		if with_tests:

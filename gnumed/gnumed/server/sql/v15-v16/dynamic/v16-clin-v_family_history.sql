@@ -35,6 +35,10 @@ select
 		as age_of_death,
 	c_fh.contributed_to_death
 		as contributed_to_death,
+	c_fh.comment
+		as comment,
+	cep.description
+		as episode,
 
 	c_fh.clin_when
 		as when_known_to_patient,

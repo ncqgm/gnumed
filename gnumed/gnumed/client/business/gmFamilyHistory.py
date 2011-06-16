@@ -13,13 +13,48 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTools
 #from Gnumed.pycommon import gmHooks
 #from Gnumed.pycommon import gmDispatcher
 
 _log = logging.getLogger('gm.fhx')
 
 #============================================================
-# short description
+# relationship type handling
+#------------------------------------------------------------
+def create_relationship_type(relationship=None, genetic=None):
+
+	args = {'rel': relationship, 'gen': genetic}
+
+	# already exists ?
+	cmd = u"""
+		SELECT *, _(description) as l10n_description
+		FROM clin.fhx_relation_type
+		WHERE
+			description = %(rel)s
+				OR
+			_(description) = %(rel)s
+	"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if len(rows) > 0:
+		return rows[0]
+
+	# create it
+	cmd = u"""
+		INSERT INTO clin.fhx_relation_type (
+			description,
+			is_genetic
+		) VALUES (
+			i18n.i18n(gm.nullify_empty_string(%(rel)s)),
+			%(gen)s
+		)
+		RETURNING *
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	return rows[0]
+#============================================================
+# Family History item handling
 #------------------------------------------------------------
 _SQL_get_family_history = u"SELECT * from clin.v_family_history WHERE %s"
 
@@ -31,15 +66,15 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		u"""
 			UPDATE clin.family_history SET
 				narrative = gm.nullify_empty_string(%(condition)s),
-				age_noted = gm.nullify_empty_string(%(age_noted)s,
+				age_noted = gm.nullify_empty_string(%(age_noted)s),
 				age_of_death = %(age_of_death)s,
 				contributed_to_death = %(contributed_to_death)s,
 				clin_when = %(when_known_to_patient)s,
 				name_relative = gm.nullify_empty_string(%(name_relative)s),
 				dob_relative = %(dob_relative)s,
-				fk_episodeo = %(pk_encounter)s,
-				pk_episode)s,
-				pk_fhx_relation_type)s
+				comment = gm.nullify_empty_string(%(comment)s),
+				fk_episode = %(pk_episode)s,
+				fk_relation_type = %(pk_fhx_relation_type)s
 			WHERE
 				pk = %(pk_family_history)s
 					AND
@@ -60,8 +95,59 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		u'dob_relative',
 		u'pk_encounter',
 		u'pk_episode',
-		u'pk_fhx_relation_type'
+		u'pk_fhx_relation_type',
+		u'comment'
 	]
+	#--------------------------------------------------------
+	def format(self, left_margin=0, include_episode=False, include_comment=False, include_codes=False):
+
+		line = u'%s%s' % (
+			(u' ' * left_margin),
+			self._payload[self._idx['l10n_relation']]
+		)
+		if self._payload[self._idx['age_of_death']] is not None:
+			line += u' (%s %s)' % (
+				gmTools.u_latin_cross,
+				gmDateTime.format_interval_medically(self._payload[self._idx['age_of_death']])
+			)
+		line += u': %s' % self._payload[self._idx['condition']]
+		if self._payload[self._idx['age_noted']] is not None:
+			line += gmTools.coalesce(self._payload[self._idx['age_noted']], u'', u' (@ %s)')
+		if self._payload[self._idx['contributed_to_death']]:
+			line += u' %s %s' % (
+				gmTools.u_right_arrow,
+				gmTools.u_skull_and_crossbones
+			)
+
+		if include_episode:
+			line += u'\n%s  %s: %s' % (
+				(u' ' * left_margin),
+				_('Episode'),
+				self._payload[self._idx['episode']]
+			)
+
+		if include_comment:
+			if self._payload[self._idx['comment']] is not None:
+				line += u'\n%s  %s' % (
+					(u' ' * left_margin),
+					self._payload[self._idx['comment']]
+				)
+
+#		if include_codes:
+#			codes = self.generic_codes
+#			if len(codes) > 0:
+#				line += u'\n'
+#			for c in codes:
+#				line += u'%s  %s: %s (%s - %s)\n' % (
+#					(u' ' * left_margin),
+#					c['code'],
+#					c['term'],
+#					c['name_short'],
+#					c['version']
+#				)
+#			del codes
+
+		return line
 #------------------------------------------------------------
 def get_family_history(order_by=None, patient=None):
 
@@ -91,7 +177,7 @@ def create_family_history(encounter=None, episode=None, condition=None, relation
 
 	args = {
 		u'enc': encounter,
-		u'epi': episdoe,
+		u'epi': episode,
 		u'cond': condition,
 		u'rel': relation
 	}

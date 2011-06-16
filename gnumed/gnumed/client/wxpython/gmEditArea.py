@@ -24,6 +24,8 @@ edit_area_modes = ['new', 'edit', 'new_from_existing']
 class cGenericEditAreaMixin(object):
 	"""Mixin for edit area panels providing generic functionality.
 
+	**************** start of template ****************
+
 #====================================================================
 # Class definition:
 
@@ -109,6 +111,8 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	def _refresh_from_existing(self):
 		pass
 	#----------------------------------------------------------------
+
+	**************** end of template ****************
 	"""
 	def __init__(self):
 		self.__mode = 'new'

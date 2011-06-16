@@ -541,7 +541,7 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('Select a message type.'))
 	#----------------------------------------------------------------
 	def _create_data(self):
-		if self.data is not None:
+		if self.GetData() is not None:
 			return
 
 		val = self.GetValue().strip()
@@ -552,7 +552,6 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			value = val,
 			data = gmProviderInbox.create_inbox_item_type(message_type = val)
 		)
-#		self.data = gmProviderInbox.create_inbox_item_type(message_type = val)
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgInboxMessageEAPnl
 
