@@ -14,6 +14,7 @@ import os, sys, time, os.path, logging, codecs, re as regex
 import shutil, random, platform, subprocess
 import socket										# needed for OOo on Windows
 #, libxml2, libxslt
+import shlex
 
 
 if __name__ == '__main__':
@@ -40,19 +41,21 @@ _log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L', u'I', u'G']
+form_engine_abbrevs = [u'O', u'L', u'I', u'G', u'P']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
 	u'L': 'LaTeX',
 	u'I': 'Image editor',
-	u'G': 'Gnuplot script'
+	u'G': 'Gnuplot script',
+	u'P': 'PDF forms'
 }
 
 form_engine_template_wildcards = {
 	u'O': u'*.o?t',
 	u'L': u'*.tex',
-	u'G': u'*.gpl'
+	u'G': u'*.gpl',
+	u'P': u'*.pdf'
 }
 
 # is filled in further below after each engine is defined
@@ -140,7 +143,8 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		u'L': u'.tex',
 		u'T': u'.txt',
 		u'X': u'.xslt',
-		u'I': u'.img'
+		u'I': u'.img',
+		u'P': u'.pdf'
 	}
 
 	#--------------------------------------------------------
@@ -588,7 +592,7 @@ class cOOoLetter(object):
 class cFormEngine(object):
 	"""Ancestor for forms."""
 
-	def __init__ (self, template_file=None):
+	def __init__(self, template_file=None):
 		self.template_filename = template_file
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
@@ -676,7 +680,7 @@ class cFormEngine(object):
 class cOOoForm(cFormEngine):
 	"""A forms engine wrapping OOo."""
 
-	def __init__ (self, template_file=None):
+	def __init__(self, template_file=None):
 		super(self.__class__, self).__init__(template_file = template_file)
 
 
@@ -691,7 +695,7 @@ class cOOoForm(cFormEngine):
 class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX."""
 
-	def __init__ (self, template_file=None):
+	def __init__(self, template_file=None):
 		super(self.__class__, self).__init__(template_file = template_file)
 		path, ext = os.path.splitext(self.template_filename)
 		if ext in [r'', r'.']:
@@ -742,6 +746,8 @@ class cLaTeXForm(cFormEngine):
 
 		for mimetype in mimetypes:
 			editor_cmd = gmMimeLib.get_editor_cmd(mimetype, self.instance_filename)
+			if editor_cmd is not None:
+				break
 
 		if editor_cmd is None:
 			editor_cmd = u'sensible-editor %s' % self.instance_filename
@@ -863,12 +869,169 @@ class cGnuplotForm(cFormEngine):
 		return
 #------------------------------------------------------------
 form_engines[u'G'] = cGnuplotForm
+
+#============================================================
+# fPDF form engine
 #------------------------------------------------------------
+class cPDFForm(cFormEngine):
+	"""A forms engine wrapping PDF forms."""
+
+	def __init__(self, template_file=None):
+
+		super(cPDFForm, self).__init__(template_file = template_file)
+
+		# detect pdftk
+		found, self.pdftk_binary = gmShellAPI.detect_external_binary(binary = r'pdftk')
+		if not found:
+			raise ImportError('<pdftk(.exe)> not found')
+			return		# should be superfluous, actually
+
+		enc = sys.getfilesystemencoding()
+		self.pdftk_binary = self.pdftk_binary.encode(enc)
+
+		base_name, ext = os.path.splitext(self.template_filename)
+		self.fdf_dumped_filename = (u'%s.fdf' % base_name).encode(enc)
+		self.fdf_replaced_filename = (u'%s-replaced.fdf' % base_name).encode(enc)
+		self.pdf_filled_filename = (u'%s-filled.pdf' % base_name).encode(enc)
+		self.pdf_flattened_filename = (u'%s-filled-flattened.pdf' % base_name).encode(enc)
+	#--------------------------------------------------------
+	def substitute_placeholders(self, data_source=None):
+
+		# dump form fields from template
+		cmd_line = [
+			self.pdftk_binary,
+			self.template_filename,
+			r'dump_data_fields_utf8',
+			r'output',
+			self.fdf_dumped_filename
+		]
+		_log.debug(u' '.join(cmd_line))
+		try:
+			pdftk = subprocess.Popen(cmd_line)
+		except OSError:
+			_log.exception('cannot run <pdftk> (dump data from form)')
+			gmDispatcher.send(signal = u'statustext', msg = _('Error running pdftk. Cannot extract fields from PDF form template.'), beep = True)
+			return False
+
+		pdftk.communicate()
+		if pdftk.returncode != 0:
+			_log.error('<pdftk> returned [%s], failed to dump data from PDF form into FDF', pdftk.returncode)
+			return False
+
+		# parse dumped FDF file for "FieldValue: *" records
+		# and replace placeholders therein
+		fdf_dumped_file = codecs.open(self.fdf_dumped_filename, 'rU', 'utf8')		# pdftk promises to deliver utf8
+		fdf_replaced_file = codecs.open(self.fdf_replaced_filename, 'wb', 'utf8')
+
+		relevant_line_start = u'FieldValue: '
+		for line in fdf_dumped_file:
+			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+				fdf_replaced_file.write(line)
+				continue
+
+			if not line.startswith(relevant_line_start):
+				fdf_replaced_file.write(line)
+				continue
+
+			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
+			for placeholder in placeholders_in_line:
+				try:
+					val = data_source[placeholder]
+				except:
+					_log.exception(val)
+					val = _('error with placeholder [%s]') % placeholder
+				if val is None:
+					val = _('error with placeholder [%s]') % placeholder
+				line = line.replace(placeholder, val)
+
+			fdf_replaced_file.write(line)
+
+		fdf_replaced_file.close()
+		fdf_dumped_file.close()
+
+		# merge replaced data back into form
+		cmd_line = [
+			self.pdftk_binary,
+			self.template_filename,
+			r'fill_form',
+			self.fdf_replaced_filename,
+			r'output',
+			self.pdf_filled_filename
+		]
+		_log.debug(u' '.join(cmd_line))
+		try:
+			pdftk = subprocess.Popen(cmd_line)
+		except OSError:
+			_log.exception('cannot run <pdftk> (merge data into form)')
+			gmDispatcher.send(signal = u'statustext', msg = _('Error running pdftk. Cannot fill in PDF form template.'), beep = True)
+			return False
+
+		pdftk.communicate()
+		if pdftk.returncode != 0:
+			_log.error('<pdftk> returned [%s], failed to merge FDF data into PDF form', pdftk.returncode)
+			return False
+
+		return True
+	#--------------------------------------------------------
+	def edit(self):
+		mimetypes = [
+			u'application/pdf',
+			u'application/x-pdf'
+		]
+
+		for mimetype in mimetypes:
+			editor_cmd = gmMimeLib.get_editor_cmd(mimetype, self.pdf_filled_filename)
+			if editor_cmd is not None:
+				break
+
+		if editor_cmd is None:
+			_log.debug('editor cmd not found, trying viewer cmd')
+			for mimetype in mimetypes:
+				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.pdf_filled_filename)
+				if editor_cmd is not None:
+					break
+
+		if editor_cmd is None:
+			return False
+
+		return gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+	#--------------------------------------------------------
+	def generate_output(self, format=None):
+		"""Generate output suitable for further processing outside this class, e.g. printing."""
+
+		# eventually flatten the filled in form so we
+		# can keep  both a flattened and an editable copy:
+		cmd_line = [
+			self.pdftk_binary,
+			self.pdf_filled_filename,
+			r'output',
+			self.pdf_flattened_filename,
+			r'flatten'
+		]
+		_log.debug(u' '.join(cmd_line))
+		try:
+			pdftk = subprocess.Popen(cmd_line)
+		except OSError:
+			_log.exception('cannot run <pdftk> (flatten filled in form)')
+			gmDispatcher.send(signal = u'statustext', msg = _('Error running pdftk. Cannot flatten filled in PDF form.'), beep = True)
+			return None
+
+		pdftk.communicate()
+		if pdftk.returncode != 0:
+			_log.error('<pdftk> returned [%s], failed to flatten filled in PDF form', pdftk.returncode)
+			return None
+
+		return self.pdf_flattened_filename
+#------------------------------------------------------------
+form_engines[u'P'] = cPDFForm
+
+#============================================================
+# older code
 #------------------------------------------------------------
 class cIanLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX.
 	"""
-	def __init__ (self, id, template):
+	def __init__(self, id, template):
 		self.id = id
 		self.template = template
 
@@ -939,7 +1102,7 @@ class cXSLTFormEngine(cFormEngine):
 	# FIXME: make the path configurable ?
 	_preview_program = u'oowriter '	#this program must be in the system PATH
 
-	def __init__ (self, template=None):
+	def __init__(self, template=None):
 
 		if template is None:
 			raise ValueError(u'%s: cannot create form instance without a template' % __name__)
@@ -1323,7 +1486,24 @@ if __name__ == '__main__':
 		instance_file = form.substitute_placeholders(data_source = ph)
 		pdf_name = form.generate_output(instance_file = instance_file)
 		print "final PDF file is:", pdf_name
+	#--------------------------------------------------------
+	def test_pdf_form():
+		pat = gmPersonSearch.ask_for_patient()
+		if pat is None:
+			return
+		gmPerson.set_active_patient(patient = pat)
 
+		gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+
+		path = os.path.abspath(sys.argv[2])
+		form = cLaPDFForm(template_file = path)
+
+		from Gnumed.wxpython import gmMacro
+		ph = gmMacro.gmPlaceholderHandler()
+		ph.debug = True
+		instance_file = form.substitute_placeholders(data_source = ph)
+		pdf_name = form.generate_output(instance_file = instance_file)
+		print "final PDF file is:", pdf_name
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	# now run the tests
@@ -1340,6 +1520,7 @@ if __name__ == '__main__':
 
 	#test_cFormTemplate()
 	#set_template_from_file()
-	test_latex_form()
+	#test_latex_form()
+	test_pdf_form()
 
 #============================================================

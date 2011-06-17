@@ -362,16 +362,30 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""select * from ((
-	select pk_doc_type, l10n_type, 1 as rank from blobs.v_doc_type where
-		is_user_defined is True and
+u"""SELECT * FROM ((
+	SELECT
+		pk_doc_type AS data,
+		l10n_type AS field_label,
+		l10n_type AS list_label,
+		1 AS rank
+	FROM blobs.v_doc_type
+	WHERE
+		is_user_defined IS True
+			AND
 		l10n_type %(fragment_condition)s
-) union (
-	select pk_doc_type, l10n_type, 2 from blobs.v_doc_type where
-		is_user_defined is False and
+) UNION (
+	SELECT
+		pk_doc_type AS data,
+		l10n_type AS field_label,
+		l10n_type AS list_label,
+		2 AS rank
+	FROM blobs.v_doc_type
+	WHERE
+		is_user_defined IS False
+			AND
 		l10n_type %(fragment_condition)s
-)) as q1 order by q1.rank, q1.l10n_type
-"""]
+)) AS q1
+ORDER BY q1.rank, q1.field_label"""]
 			)
 		mp.setThresholds(2, 4, 6)
 

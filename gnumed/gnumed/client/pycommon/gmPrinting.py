@@ -11,6 +11,7 @@ import os
 import subprocess
 import codecs
 import time
+import shlex
 
 
 if __name__ == '__main__':
@@ -145,20 +146,23 @@ def _print_file_by_gtklp(filename=None):
 		_log.debug('<gtklp> only available under Linux')
 		return False
 
-	cmd_line = [
-		r'gtklp',				# "gtklp" must be in the PATH
-		r'-i',					# ignore STDIN garbage
-		r'-# 1',				# 1 copy
-		filename
-	]
+#	cmd_line = [
+#		r'gtklp',				# "gtklp" must be in the PATH
+#		r'-i',					# ignore STDIN garbage
+#		r'-# 1',				# 1 copy
+#		filename
+#	]
+	cmd_line = r'gklp -i -# 1 %s' % filename.encode(sys.getfilesystemencoding())
 	_log.debug('printing with %s' % cmd_line)
+	cmd_line = shlex.split(cmd_line)
 	try:
-		gtklp = subprocess.Popen(cmd_line, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+		#gtklp = subprocess.Popen(cmd_line, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+		gtklp = subprocess.Popen(cmd_line)
 	except OSError:
 		_log.debug('cannot run <gtklp>')
 		return False
-	#except ValueError:		# invalid arguments == programming error
-	stdout, stderr = gtklp.communicate()
+	#stdout, stderr = gtklp.communicate()
+	gtklp.communicate()
 	if gtklp.returncode != 0:
 		_log.error('<gtklp> returned [%s], failed to print', gtklp.returncode)
 		return False

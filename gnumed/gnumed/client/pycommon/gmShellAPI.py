@@ -117,10 +117,17 @@ def detect_external_binary(binary=None):
 		_log.debug('found: is valid WINE call')
 		return (True, full_path)
 
+	# maybe we can be a bit smart about Windows ?
+	if not binary.endswith('.exe'):
+		_log.debug('re-running with [.exe] appended')
+		binary = binary + r'.exe'
+		found_dot_exe_binary, full_path = detect_external_binary(binary = binary)
+		if found_dot_exe_binary:
+			return (True, full_path)
+
 	return (False, None)
 #===========================================================================
 def find_first_binary(binaries=None):
-
 	found = False
 	binary = None
 

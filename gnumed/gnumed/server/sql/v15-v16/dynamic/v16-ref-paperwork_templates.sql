@@ -9,6 +9,35 @@
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
+alter table ref.paperwork_templates drop constraint engine_range cascade;
+\set ON_ERROR_STOP 1
+
+
+alter table ref.paperwork_templates
+	add constraint engine_range
+		check (engine in ('T', 'L', 'H', 'O', 'I', 'G', 'P'));
+
+
+comment on column ref.paperwork_templates.engine is
+'the business layer forms engine used to process this form, currently:
+	- T: plain text
+	- L: LaTeX
+	- H: Health Layer 7
+	- O: OpenOffice
+	- I: image editor (visual progress notes)
+	- G: gnuplot scripts (test results graphing)
+	- P: PDF form (FDF based)'
+;
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+insert into ref.form_types (name) values (i18n.i18n('pdf form'));
+\set ON_ERROR_STOP 1
+
+select i18n.upd_tx('de_DE', 'pdf form', 'PDF-Formular');
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
 insert into ref.form_types (name) values (i18n.i18n('form header'));
 \set ON_ERROR_STOP 1
 
