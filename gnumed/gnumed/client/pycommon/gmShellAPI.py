@@ -30,10 +30,10 @@ def is_cmd_in_path(cmd=None):
 	env_paths = os.environ['PATH']
 	_log.debug('${PATH}: %s', env_paths)
 	for path in env_paths.split(os.pathsep):
-		candidate = os.path.join(path, cmd)
+		candidate = os.path.join(path, cmd).encode(sys.getfilesystemencoding())
 		if os.access(candidate, os.X_OK):
 			_log.debug('found [%s]', candidate)
-			return (True, candidate)
+			return (True, candidate.decode(sys.getfilesystemencoding()))
 		else:
 			_log.debug('not found: %s', candidate)
 
@@ -118,12 +118,21 @@ def detect_external_binary(binary=None):
 		return (True, full_path)
 
 	# maybe we can be a bit smart about Windows ?
+	# try .exe
 	if not binary.endswith('.exe'):
-		_log.debug('re-running with [.exe] appended')
-		binary = binary + r'.exe'
-		found_dot_exe_binary, full_path = detect_external_binary(binary = binary)
+		_log.debug('re-testing with [.exe] appended')
+		exe_binary = binary + r'.exe'
+		found_dot_exe_binary, full_path = detect_external_binary(binary = exe_binary)
 		if found_dot_exe_binary:
 			return (True, full_path)
+		# did not end with .exe but not found
+		# *with* .exe either, so try .bat:
+		if not binary.endswith('.bat'):
+			_log.debug('re-testing with [.bat] appended')
+			bat_binary = binary + r'.bat'
+			found_bat_binary, full_path = detect_external_binary(binary = bat_binary)
+			if found_bat_binary:
+				return (True, full_path)
 
 	return (False, None)
 #===========================================================================

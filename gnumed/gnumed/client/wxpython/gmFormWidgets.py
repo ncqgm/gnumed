@@ -67,7 +67,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 	if jobtype is None:
 		jobtype = 'generic_document'
 
-	printed = gmPrinting.print_file(filename = printable_file, jobtype = jobtype)
+	printed = gmPrinting.print_files(filenames = [printable_file], jobtype = jobtype)
 	if not printed:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
