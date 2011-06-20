@@ -19,7 +19,7 @@ NEW: do not import mx.DateTime in gmPG2.py anymore
 NEW: LaTeX template for printing German "GKV-Rezept based" forms [thanks C.Becker]
 NEW: hook "after_code_link_modified"
 NEW: family history handling
-NEW: PDF-form based forms handling via pdftk (awaiting pdftk bug fix)
+NEW: PDF-form based forms handling via pdftk
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title

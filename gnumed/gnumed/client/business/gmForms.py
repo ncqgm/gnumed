@@ -10,7 +10,9 @@ __version__ = "$Revision: 1.79 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging, codecs, re as regex
+import os, sys, time, os.path, logging
+import codecs
+import re as regex
 import shutil, random, platform, subprocess
 import socket										# needed for OOo on Windows
 #, libxml2, libxslt
@@ -874,7 +876,14 @@ form_engines[u'G'] = cGnuplotForm
 # fPDF form engine
 #------------------------------------------------------------
 class cPDFForm(cFormEngine):
-	"""A forms engine wrapping PDF forms."""
+	"""A forms engine wrapping PDF forms.
+
+	Johann Felix Soden <johfel@gmx.de> helped with this.
+
+	http://partners.adobe.com/public/developer/en/pdf/PDFReference16.pdf
+
+	http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/acrobat/pdfs/fdf_data_exchange.pdf
+	"""
 
 	def __init__(self, template_file=None):
 
@@ -901,7 +910,7 @@ class cPDFForm(cFormEngine):
 		cmd_line = [
 			self.pdftk_binary,
 			self.template_filename,
-			r'dump_data_fields_utf8',
+			r'generate_fdf',
 			r'output',
 			self.fdf_dumped_filename
 		]
@@ -918,33 +927,53 @@ class cPDFForm(cFormEngine):
 			_log.error('<pdftk> returned [%s], failed to dump data from PDF form into FDF', pdftk.returncode)
 			return False
 
-		# parse dumped FDF file for "FieldValue: *" records
+		# parse dumped FDF file for "/V (...)" records
 		# and replace placeholders therein
-		fdf_dumped_file = codecs.open(self.fdf_dumped_filename, 'rU', 'utf8')		# pdftk promises to deliver utf8
-		fdf_replaced_file = codecs.open(self.fdf_replaced_filename, 'wb', 'utf8')
+		fdf_dumped_file = open(self.fdf_dumped_filename, 'rbU')
+		fdf_replaced_file = codecs.open(self.fdf_replaced_filename, 'wb')
 
-		relevant_line_start = u'FieldValue: '
+		string_value_regex = r'\s*/V\s*\(.+\)\s*$'
 		for line in fdf_dumped_file:
-			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+			if not regex.match(string_value_regex, line):
 				fdf_replaced_file.write(line)
 				continue
 
-			if not line.startswith(relevant_line_start):
-				fdf_replaced_file.write(line)
-				continue
+			# strip cruft around the string value
+			raw_str_val = line.strip()							# remove framing whitespace
+			raw_str_val = raw_str_val[2:]						# remove leading "/V"
+			raw_str_val = raw_str_val.lstrip()					# remove whitespace between "/V" and "("
+			raw_str_val = raw_str_val[1:]						# remove opening "("
+			raw_str_val = raw_str_val[2:]						# remove BOM-16-BE
+			raw_str_val = raw_str_val.rstrip()					# remove trailing whitespace
+			raw_str_val = raw_str_val[:-1]						# remove closing ")"
+			raw_str_val = raw_str_val.replace('\(', '(')		# remove FDF escaping of "("
+			raw_str_val = raw_str_val.replace('\)', ')')		# remove FDF escaping of ")"
 
-			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
-			for placeholder in placeholders_in_line:
+			# by now raw_str_val should contain the actual
+			# string value, albeit encoded as UTF-16, so
+			# decode it into a unicode object:
+			value_template = raw_str_val.decode('utf_16_be')
+
+			# find any placeholders within the string value
+			placeholders_in_value = regex.findall(data_source.placeholder_regex, value_template, regex.IGNORECASE)
+			for placeholder in placeholders_in_value:
 				try:
-					val = data_source[placeholder]
+					replacement = data_source[placeholder]
 				except:
-					_log.exception(val)
-					val = _('error with placeholder [%s]') % placeholder
-				if val is None:
-					val = _('error with placeholder [%s]') % placeholder
-				line = line.replace(placeholder, val)
+					_log.exception(replacement)
+					replacement = _('error with placeholder [%s]') % placeholder
+				if replacement is None:
+					replacement = _('error with placeholder [%s]') % placeholder
+				value_template = value_template.replace(placeholder, replacement)
 
-			fdf_replaced_file.write(line)
+			if len(placeholders_in_value) > 0:
+				value_template = value_template.replace('(', '\(')
+				value_template = value_template.replace(')', '\)')
+
+			fdf_replaced_file.write('/V (')
+			fdf_replaced_file.write(codecs.BOM_UTF16_BE)
+			fdf_replaced_file.write(value_template.encode('utf_16_be'))
+			fdf_replaced_file.write(')\n')
 
 		fdf_replaced_file.close()
 		fdf_dumped_file.close()
