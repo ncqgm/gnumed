@@ -96,8 +96,21 @@ def manage_document_descriptions(parent=None, document=None):
 #============================================================
 def _save_file_as_new_document(**kwargs):
 	wx.CallAfter(save_file_as_new_document, **kwargs)
+
+def _save_files_as_new_document(**kwargs):
+	wx.CallAfter(save_files_as_new_document, **kwargs)
 #----------------------
 def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, **kwargs):
+	return save_files_as_new_document (
+		parent = parent,
+		filenames = [filename],
+		document_type = document_type,
+		unlock_patient = unlock_patient,
+		episode = episode,
+		**kwargs
+	)
+#----------------------
+def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, **kwargs):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -133,18 +146,17 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 		encounter = emr.active_encounter['pk_encounter'],
 		episode = episode['pk_episode']
 	)
-	part = doc.add_part(file = filename)
-	part['filename'] = filename
-	part.save_payload()
+	doc.add_parts_from_files(files = filenames)
 
 	if unlock_patient:
 		pat.locked = False
 
-	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].') % filename, beep = True)
+	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from %s.') % filenames, beep = True)
 
 	return doc
 #----------------------
 gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
+gmDispatcher.connect(signal = u'import_document_from_files', receiver = _save_files_as_new_document)
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""

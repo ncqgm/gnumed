@@ -42,7 +42,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 
 	# 2) process template
 	try:
-		doc = template.instantiate()
+		form = template.instantiate()
 	except KeyError:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -52,9 +52,9 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 		return False
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
-	doc.substitute_placeholders(data_source = ph)
-	doc.edit()
-	printable_file = doc.generate_output()
+	form.substitute_placeholders(data_source = ph)
+	form.edit()
+	printable_file = form.generate_output()
 	if printable_file is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -88,10 +88,12 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 
 	# 4) keep a copy
 	if keep_a_copy:
-		# tell UI to import the file
+		files2import = []
+		files2import.extend(form.final_output_filenames)
+		files2import.extend(form.re_editable_filenames)
 		gmDispatcher.send (
-			signal = u'import_document_from_file',
-			filename = printable_file,
+			signal = u'import_document_from_files',
+			filenames = files2import,
 			document_type = template['instance_type'],
 			unlock_patient = True
 		)

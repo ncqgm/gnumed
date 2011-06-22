@@ -471,6 +471,9 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				]
 			)
 			return None
+		new_part['filename'] = file
+		new_part.save_payload()
+
 		return new_part
 	#--------------------------------------------------------
 	def add_parts_from_files(self, files=None, reviewer=None):
@@ -485,15 +488,14 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				return (False, msg, filename)
 			new_parts.append(new_part)
 
-			new_part['filename'] = filename
-			new_part['pk_intended_reviewer'] = reviewer			# None == Null
-
-			success, data = new_part.save_payload()
-			if not success:
-				msg = 'cannot set reviewer to [%s]' % reviewer
-				_log.error(msg)
-				_log.error(str(data))
-				return (False, msg, filename)
+			if reviewer is not None:
+				new_part['pk_intended_reviewer'] = reviewer			# None == Null
+				success, data = new_part.save_payload()
+				if not success:
+					msg = 'cannot set reviewer to [%s]' % reviewer
+					_log.error(msg)
+					_log.error(str(data))
+					return (False, msg, filename)
 
 		return (True, '', new_parts)
 	#--------------------------------------------------------

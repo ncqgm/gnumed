@@ -23,6 +23,7 @@ known_signals = [
 	u'patient_locked',
 	u'patient_unlocked',
 	u'import_document_from_file',
+	u'import_document_from_files',
 	u'statustext',					# args: msg=message, beep=whether to beep or not
 	u'display_widget',				# args: name=name of widget, other=widget specific (see receivers)
 	u'plugin_loaded',				# args: name=name of plugin

@@ -13,7 +13,8 @@ __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 import os, sys, time, os.path, logging
 import codecs
 import re as regex
-import shutil, random, platform, subprocess
+import shutil
+import random, platform, subprocess
 import socket										# needed for OOo on Windows
 #, libxml2, libxslt
 import shlex
@@ -754,7 +755,10 @@ class cLaTeXForm(cFormEngine):
 		if editor_cmd is None:
 			editor_cmd = u'sensible-editor %s' % self.instance_filename
 
-		return gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		self.re_editable_filenames = [self.instance_filename]
+
+		return result
 	#--------------------------------------------------------
 	def generate_output(self, instance_file = None, format=None):
 
@@ -818,6 +822,8 @@ class cLaTeXForm(cFormEngine):
 			gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
 			return None
 
+		self.final_output_filenames = [final_pdf_name]
+
 		return final_pdf_name
 #------------------------------------------------------------
 form_engines[u'L'] = cLaTeXForm
@@ -834,7 +840,8 @@ class cGnuplotForm(cFormEngine):
 	#--------------------------------------------------------
 	def edit(self):
 		"""Allow editing the instance of the template."""
-		pass
+		self.re_editable_filenames = []
+		return True
 	#--------------------------------------------------------
 	def generate_output(self, format=None):
 		"""Generate output suitable for further processing outside this class, e.g. printing.
@@ -867,6 +874,12 @@ class cGnuplotForm(cFormEngine):
 			return
 
 		gp.communicate()
+
+		self.final_output_filenames = [
+			self.conf_filename,
+			self.data_filename,
+			self.template_filename
+		]
 
 		return
 #------------------------------------------------------------
@@ -946,33 +959,47 @@ class cPDFForm(cFormEngine):
 			raw_str_val = raw_str_val[2:]						# remove BOM-16-BE
 			raw_str_val = raw_str_val.rstrip()					# remove trailing whitespace
 			raw_str_val = raw_str_val[:-1]						# remove closing ")"
-			raw_str_val = raw_str_val.replace('\(', '(')		# remove FDF escaping of "("
-			raw_str_val = raw_str_val.replace('\)', ')')		# remove FDF escaping of ")"
+
+			# work on FDF escapes
+			raw_str_val = raw_str_val.replace('\(', '(')		# remove escaping of "("
+			raw_str_val = raw_str_val.replace('\)', ')')		# remove escaping of ")"
 
 			# by now raw_str_val should contain the actual
 			# string value, albeit encoded as UTF-16, so
-			# decode it into a unicode object:
-			value_template = raw_str_val.decode('utf_16_be')
+			# decode it into a unicode object,
+			# split multi-line fields on "\n" literal
+			raw_str_lines = raw_str_val.split('\x00\\n')
+			value_template_lines = []
+			for raw_str_line in raw_str_lines:
+				value_template_lines.append(raw_str_line.decode('utf_16_be'))
 
-			# find any placeholders within the string value
-			placeholders_in_value = regex.findall(data_source.placeholder_regex, value_template, regex.IGNORECASE)
-			for placeholder in placeholders_in_value:
-				try:
-					replacement = data_source[placeholder]
-				except:
-					_log.exception(replacement)
-					replacement = _('error with placeholder [%s]') % placeholder
-				if replacement is None:
-					replacement = _('error with placeholder [%s]') % placeholder
-				value_template = value_template.replace(placeholder, replacement)
+			replaced_lines = []
+			for value_template in value_template_lines:
+				# find any placeholders within
+				placeholders_in_value = regex.findall(data_source.placeholder_regex, value_template, regex.IGNORECASE)
+				for placeholder in placeholders_in_value:
+					try:
+						replacement = data_source[placeholder]
+					except:
+						_log.exception(replacement)
+						replacement = _('error with placeholder [%s]') % placeholder
+					if replacement is None:
+						replacement = _('error with placeholder [%s]') % placeholder
+					value_template = value_template.replace(placeholder, replacement)
 
-			if len(placeholders_in_value) > 0:
-				value_template = value_template.replace('(', '\(')
-				value_template = value_template.replace(')', '\)')
+				value_template = value_template.encode('utf_16_be')
+
+				if len(placeholders_in_value) > 0:
+					value_template = value_template.replace(r'(', r'\(')
+					value_template = value_template.replace(r')', r'\)')
+
+				replaced_lines.append(value_template)
+
+			replaced_line = '\x00\\n'.join(replaced_lines)
 
 			fdf_replaced_file.write('/V (')
 			fdf_replaced_file.write(codecs.BOM_UTF16_BE)
-			fdf_replaced_file.write(value_template.encode('utf_16_be'))
+			fdf_replaced_file.write(replaced_line)
 			fdf_replaced_file.write(')\n')
 
 		fdf_replaced_file.close()
@@ -1023,7 +1050,21 @@ class cPDFForm(cFormEngine):
 		if editor_cmd is None:
 			return False
 
-		return gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+
+		path, fname = os.path.split(self.pdf_filled_filename)
+		candidate = os.path.join(gmTools.gmPaths().home_dir, fname)
+
+		if os.access(candidate, os.R_OK):
+			_log.debug('filled-in PDF found: %s', candidate)
+			os.rename(self.pdf_filled_filename, self.pdf_filled_filename + '.bak')
+			shutil.move(candidate, path)
+		else:
+			_log.debug('filled-in PDF not found: %s', candidate)
+
+		self.re_editable_filenames = [self.pdf_filled_filename]
+
+		return result
 	#--------------------------------------------------------
 	def generate_output(self, format=None):
 		"""Generate output suitable for further processing outside this class, e.g. printing."""
@@ -1049,6 +1090,8 @@ class cPDFForm(cFormEngine):
 		if pdftk.returncode != 0:
 			_log.error('<pdftk> returned [%s], failed to flatten filled in PDF form', pdftk.returncode)
 			return None
+
+		self.final_output_filenames = [self.pdf_flattened_filename]
 
 		return self.pdf_flattened_filename
 #------------------------------------------------------------
