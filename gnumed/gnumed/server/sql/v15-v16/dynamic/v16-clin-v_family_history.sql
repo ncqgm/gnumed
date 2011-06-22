@@ -60,6 +60,11 @@ select
 
 	c_fh.modified_when
 		as modified_when,
+	coalesce (
+		(select array_agg(c_lc2fhx.fk_generic_code) from clin.lnk_code2fhx c_lc2fhx where c_lc2fhx.fk_item = c_fh.pk),
+		ARRAY[]::integer[]
+	)
+		as pk_generic_codes,
 	c_fh.xmin
 		as xmin_family_history
 from

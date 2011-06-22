@@ -46,6 +46,23 @@ select
 			|| coalesce(' ' || c_fh.name_relative || ',', '')
 			|| coalesce(' ' || to_char(c_fh.dob_relative, 'YYYY-MM-DD'), '')
 			|| coalesce(E'\n ' || c_fh.comment, '')
+			|| coalesce ((
+					E';\n' || array_to_string (
+						(select array_agg(r_csr.code || ' (' || r_ds.name_short || ' - ' || r_ds.version || ' - ' || r_ds.lang || '): ' || r_csr.term)
+						 from
+						 	clin.lnk_code2fhx c_lc2fhx
+						 		inner join
+							ref.coding_system_root r_csr on c_lc2fhx.fk_generic_code = r_csr.pk_coding_system
+								inner join
+							ref.data_source r_ds on r_ds.pk = r_csr.fk_data_source
+						where
+							c_lc2fhx.fk_item = c_fh.pk
+						),
+						'; '
+					) || ';'
+				),
+				''
+			)
 		as narrative,
 	c_fh.fk_encounter
 		as pk_encounter,

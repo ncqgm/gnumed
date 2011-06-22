@@ -445,7 +445,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(f.format (
 				left_margin = (left_margin + 1),
 				include_episode = True,
-				include_comment = True
+				include_comment = True,
+				include_codes = False
 			))
 		del fhx
 
@@ -1043,7 +1044,8 @@ from (
 			lines.append(f.format (
 				left_margin = (left_margin + 1),
 				include_episode = False,
-				include_comment = True
+				include_comment = True,
+				include_codes = True
 			))
 		del fhx
 

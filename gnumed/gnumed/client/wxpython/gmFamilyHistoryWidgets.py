@@ -167,8 +167,10 @@ class cFamilyHistoryEAPnl(wxgFamilyHistoryEAPnl.wxgFamilyHistoryEAPnl, gmEditAre
 		data['name_relative'] = self._TCTRL_name.GetValue().strip()
 		data['dob_relative'] = self._PRW_dob.GetData()
 		data['comment'] = self._TCTRL_comment.GetValue().strip()
-
 		data.save()
+
+		data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		self.data = data
 		return True
 	#----------------------------------------------------------------
@@ -186,11 +188,14 @@ class cFamilyHistoryEAPnl(wxgFamilyHistoryEAPnl.wxgFamilyHistoryEAPnl, gmEditAre
 		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
 
 		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_relationship.SetText(u'', None)
 		self._PRW_condition.SetText(u'', None)
+		self._PRW_codes.SetText()
 		self._TCTRL_age_of_onset.SetValue(u'')
 		self._PRW_age_of_death.SetText(u'', None)
 		self._PRW_died_of_this.SetData(None)
@@ -210,6 +215,8 @@ class cFamilyHistoryEAPnl(wxgFamilyHistoryEAPnl.wxgFamilyHistoryEAPnl, gmEditAre
 			self.data['pk_fhx_relation_type']
 		)
 		self._PRW_condition.SetText(self.data['condition'], None)
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
 		self._TCTRL_age_of_onset.SetValue(gmTools.coalesce(self.data['age_noted'], u''))
 		self._PRW_age_of_death.SetData(self.data['age_of_death'])
 		self._PRW_died_of_this.SetData(self.data['contributed_to_death'])

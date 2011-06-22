@@ -15,8 +15,9 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
-#from Gnumed.pycommon import gmHooks
-#from Gnumed.pycommon import gmDispatcher
+
+from Gnumed.business import gmCoding
+
 
 _log = logging.getLogger('gm.fhx')
 
@@ -99,6 +100,42 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		u'comment'
 	]
 	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+
+		if pk_code in self._payload[self._idx['pk_generic_codes']]:
+			return
+
+		cmd = u"""
+			INSERT INTO clin.lnk_code2fhx
+				(fk_item, fk_generic_code)
+			SELECT
+				%(item)s,
+				%(code)s
+			WHERE NOT EXISTS (
+				SELECT 1 FROM clin.lnk_code2fhx
+				WHERE
+					fk_item = %(item)s
+						AND
+					fk_generic_code = %(code)s
+			)"""
+		args = {
+			'item': self._payload[self._idx['pk_episode']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		args = {
+			'item': self._payload[self._idx['pk_episode']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
 	def format(self, left_margin=0, include_episode=False, include_comment=False, include_codes=False):
 
 		line = u'%s%s' % (
@@ -133,21 +170,60 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 					self._payload[self._idx['comment']]
 				)
 
-#		if include_codes:
-#			codes = self.generic_codes
-#			if len(codes) > 0:
-#				line += u'\n'
-#			for c in codes:
-#				line += u'%s  %s: %s (%s - %s)\n' % (
-#					(u' ' * left_margin),
-#					c['code'],
-#					c['term'],
-#					c['name_short'],
-#					c['version']
-#				)
-#			del codes
+		if include_codes:
+			codes = self.generic_codes
+			if len(codes) > 0:
+				line += u'\n'
+			for c in codes:
+				line += u'%s  %s: %s (%s - %s)\n' % (
+					(u' ' * left_margin),
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				)
+			del codes
 
 		return line
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'fhx': self._payload[self._idx['pk_family_history']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2fhx (fk_item, fk_generic_code) VALUES (%(fhx)s, %(pk_code)s)',
+				'args': {
+					'fhx': self._payload[self._idx['pk_family_history']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 #------------------------------------------------------------
 def get_family_history(order_by=None, patient=None):
 
@@ -206,23 +282,6 @@ def delete_family_history(pk_family_history=None):
 	cmd = u"DELETE FROM clin.family_history WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
-#------------------------------------------------------------
-
-
-
-
-#============================================================
-#def _on_code_link_modified():
-#	"""Always relates to the active patient."""
-#	gmHooks.run_hook_script(hook = u'after_code_link_modified')
-
-#gmDispatcher.connect(_on_code_link_modified, u'episode_code_mod_db')
-#gmDispatcher.connect(_on_code_link_modified, u'rfe_code_mod_db')
-#gmDispatcher.connect(_on_code_link_modified, u'aoe_code_mod_db')
-#gmDispatcher.connect(_on_code_link_modified, u'health_issue_code_mod_db')
-#gmDispatcher.connect(_on_code_link_modified, u'narrative_code_mod_db')
-#gmDispatcher.connect(_on_code_link_modified, u'procedure_code_mod_db')
-
 #============================================================
 # main
 #------------------------------------------------------------

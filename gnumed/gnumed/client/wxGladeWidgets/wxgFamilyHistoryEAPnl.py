@@ -19,12 +19,14 @@ class wxgFamilyHistoryEAPnl(wx.ScrolledWindow):
         from Gnumed.wxpython.gmGuiHelpers import cThreeValuedLogicPhraseWheel
         from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
         from Gnumed.wxpython.gmFamilyHistoryWidgets import cRelationshipTypePhraseWheel
+        from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
 
         # begin wxGlade: wxgFamilyHistoryEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._PRW_relationship = cRelationshipTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_condition = cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_age_of_onset = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_died_of_this = cThreeValuedLogicPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_age_of_death = cIntervalPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -42,6 +44,7 @@ class wxgFamilyHistoryEAPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._PRW_relationship.SetToolTipString(_("Required: Enter or select the type of relationship between the patient and this relative."))
         self._PRW_condition.SetToolTipString(_("Required: Enter or select the name of the condition the relative suffered from."))
+        self._PRW_codes.SetToolTipString(_("Select codes relevant to this family history items."))
         self._TCTRL_age_of_onset.SetToolTipString(_("Optional: Age of onset of the condition in the relative."))
         self._PRW_died_of_this.SetToolTipString(_("Optional: Whether this condition contributed to the death of the patient."))
         self._PRW_age_of_death.SetToolTipString(_("Optional: Enter the age of death of the relative."))
@@ -53,7 +56,7 @@ class wxgFamilyHistoryEAPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgFamilyHistoryEAPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(7, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(8, 2, 1, 3)
         __szr_relation = wx.BoxSizer(wx.HORIZONTAL)
         __szr_death = wx.BoxSizer(wx.HORIZONTAL)
         __szr_condition_details = wx.BoxSizer(wx.HORIZONTAL)
@@ -65,6 +68,9 @@ class wxgFamilyHistoryEAPnl(wx.ScrolledWindow):
         __lbl_condition.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_condition, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_condition, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_codes = wx.StaticText(self, -1, _("Codes"))
+        _gszr_main.Add(__lbl_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._PRW_codes, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_condition_details = wx.StaticText(self, -1, _("Age onset"))
         _gszr_main.Add(__lbl_condition_details, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_condition_details.Add(self._TCTRL_age_of_onset, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
