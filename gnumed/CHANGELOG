@@ -43,6 +43,10 @@ IMPROVED: demographics tooltips: in-database emergency contact, in-praxis primar
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.7
+
+FIX: exception on creating allergy entry from non-brand substance intake [thanks J.Busser]
+
 	0.9.6
 
 FIX: need to clear "Recent notes" sizer label between patients [thanks J.Busser]
