@@ -48,6 +48,7 @@ IMPROVED: document archive: configure UUID generation
 	0.9.7
 
 FIX: exception on creating allergy entry from non-brand substance intake [thanks J.Busser]
+FIX: exception on creating measurement type without LOINC [thanks J.Busser]
 
 	0.9.6
 
