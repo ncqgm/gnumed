@@ -38,6 +38,7 @@ IMPROVED: fix tab order in SOAP plugin [thanks S.Leibner]
 IMPROVED: EMR tree: disable Journal/Synopsis selection for nodes where it does not apply
 IMPROVED: clarified license to "GPL v2 or later"
 IMPROVED: demographics tooltips: in-database emergency contact, in-praxis primary provider
+IMPROVED: substance intake grid: show advice column
 
 ------------------------------------------------
 # rel-0-9-patches

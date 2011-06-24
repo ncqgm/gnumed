@@ -1800,7 +1800,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Schedule'),
 				_('Started'),
 				_('Duration / Until'),
-				_('Brand')
+				_('Brand'),
+				_('Advice')
 			],
 			u'brand': [
 				_('Brand'),
@@ -1809,7 +1810,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Dose'),
 				_('Started'),
 				_('Duration / Until'),
-				_('Episode')
+				_('Episode'),
+				_('Advice')
 			]
 		}
 
@@ -2004,6 +2006,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 			else:
 				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
+
+			if med['notes'] is not None:
+				self.SetCellValue(row_idx, 7, gmTools.wrap(text = med['notes'], width = 50))
 
 			if self.__filter_show_unapproved:
 				self.SetCellValue (
