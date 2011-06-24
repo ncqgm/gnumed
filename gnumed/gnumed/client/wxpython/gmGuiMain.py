@@ -311,6 +311,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_doc.Append(ID, _('Empty documents'), _('Whether to allow saving documents without parts.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_partless_docs)
 
+		item = menu_cfg_doc.Append(-1, _('Generate UUID'), _('Whether to generate UUIDs for new documents.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_generate_doc_uuid, item)
+
 		menu_cfg_ui.AppendMenu(wx.NewId(), _('Document handling ...'), menu_cfg_doc)
 
 		# -- submenu gnumed / config / ui / updates
@@ -1917,6 +1920,23 @@ class gmTopLevelFrame(wx.Frame):
 			button_tooltips = [
 				_('Yes, display the ID generated for the new document after importing.'),
 				_('No, do not display the ID generated for the new document after importing.')
+			]
+		)
+	#----------------------------------------------
+	def __on_configure_generate_doc_uuid(self, evt):
+		gmCfgWidgets.configure_boolean_option (
+			question = _(
+				'After importing a new document do you\n'
+				'want GNUmed to generate a unique ID\n'
+				'(UUID) for that document ?\n'
+				'\n'
+				'This can be useful if you want to label the\n'
+				'originals with that ID for later identification.'
+			),
+			option = u'horstspace.scan_index.generate_doc_uuid',
+			button_tooltips = [
+				_('Yes, generate a UUID for the new document after importing.'),
+				_('No, do not generate a UUID for the new document after importing.')
 			]
 		)
 	#----------------------------------------------

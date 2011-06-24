@@ -406,11 +406,22 @@ ORDER BY q1.rank, q1.field_label"""]
 
 		self.SetToolTipString(_('Select the document type.'))
 	#--------------------------------------------------------
-	def GetData(self, can_create=False):
-		if self.data is None:
-			if can_create:
-				self.data = gmDocuments.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
-		return self.data
+	def _create_data(self):
+
+		doc_type = self.GetValue().strip()
+		if doc_type == u'':
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create document type without name.'), beep = True)
+			_log.debug('cannot create document type without name')
+			return
+
+		pk = gmDocuments.create_document_type(doc_type)['pk_doc_type']
+		if pk is None:
+			self.data = {}
+		else:
+			self.SetText (
+				value = doc_type,
+				data = pk
+			)
 #============================================================
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init__(self, *args, **kwds):
@@ -1006,7 +1017,18 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# - date of generation
 		new_doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		# - external reference
-		ref = gmDocuments.get_ext_ref()
+		cfg = gmCfg.cCfgSQL()
+		generate_uuid = bool (
+			cfg.get2 (
+				option = 'horstspace.scan_index.generate_doc_uuid',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'user',
+				default = False
+			)
+		)
+		ref = None
+		if generate_uuid:
+			ref = gmDocuments.get_ext_ref()
 		if ref is not None:
 			new_doc['ext_ref'] = ref
 		# - comment
@@ -1056,7 +1078,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		gmHooks.run_hook_script(hook = u'after_new_doc_created')
 
 		# inform user
-		cfg = gmCfg.cCfgSQL()
 		show_id = bool (
 			cfg.get2 (
 				option = 'horstspace.scan_index.show_doc_id',
@@ -1065,8 +1086,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 		)
 		wx.EndBusyCursor()
-		if show_id and (ref is not None):
-			msg = _(
+		if show_id:
+			if ref is None:
+				msg = _('Successfully saved the new document.')
+			else:
+				msg = _(
 """The reference ID for the new document is:
 
  <%s>
@@ -1078,7 +1102,7 @@ If you don't care about the ID you can switch
 off this message in the GNUmed configuration.""") % ref
 			gmGuiHelpers.gm_show_info (
 				aMessage = msg,
-				aTitle = _('saving document')
+				aTitle = _('Saving document')
 			)
 		else:
 			gmDispatcher.send(signal='statustext', msg=_('Successfully saved new document.'))

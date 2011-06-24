@@ -39,6 +39,7 @@ IMPROVED: EMR tree: disable Journal/Synopsis selection for nodes where it does n
 IMPROVED: clarified license to "GPL v2 or later"
 IMPROVED: demographics tooltips: in-database emergency contact, in-praxis primary provider
 IMPROVED: substance intake grid: show advice column
+IMPROVED: document archive: configure UUID generation
 
 ------------------------------------------------
 # rel-0-9-patches
