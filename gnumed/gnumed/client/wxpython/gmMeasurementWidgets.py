@@ -1902,7 +1902,8 @@ limit 50"""
 				self._PRW_conversion_unit.GetValue()
 			).strip()
 		)
-		tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		if self._PRW_loinc.GetData() is not None:
+			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
 		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		tt.save()
 
@@ -1926,7 +1927,8 @@ limit 50"""
 			self._PRW_conversion_unit.GetData(),
 			self._PRW_conversion_unit.GetValue()
 		).strip()
-		self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		if self._PRW_loinc.GetData() is not None:
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
 		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		self.data.save()
 
