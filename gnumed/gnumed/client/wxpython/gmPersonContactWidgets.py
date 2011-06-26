@@ -1007,26 +1007,31 @@ class cCommChannelTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-select pk, type from ((
-	select pk, _(description) as type, 1 as rank
-	from dem.enum_comm_types
-	where _(description) %(fragment_condition)s
-) union (
-	select pk, description as type, 2 as rank
-	from dem.enum_comm_types
-	where description %(fragment_condition)s
-)) as ur
-order by
-	ur.rank, ur.type
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (field_label)
+		pk
+			AS data,
+		_(description)
+			AS field_label,
+		(_(description) || ' (' || description || ')')
+			AS list_label
+	FROM dem.enum_comm_types
+	WHERE
+		_(description) %(fragment_condition)s
+			OR
+		description %(fragment_condition)s
+) AS ur
+ORDER BY
+	ur.list_label
 """
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
 		mp.word_separators = u'[ \t]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
 		self.SetToolTipString(_('Select the type of communications channel.'))
 		self.selection_only = True

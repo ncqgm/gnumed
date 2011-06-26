@@ -41,6 +41,7 @@ IMPROVED: demographics tooltips: in-database emergency contact, in-praxis primar
 IMPROVED: substance intake grid: show advice column
 IMPROVED: document archive: configure UUID generation
 IMPROVED: document archive: new review modes (only if not by responsible/only if none)
+IMPROVED: comm channel type PRW: filter out match candidate dupes [thanks J.Busser]
 
 ------------------------------------------------
 # rel-0-9-patches
