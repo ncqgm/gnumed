@@ -1736,18 +1736,27 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# 0: never
 		# 1: always
 		# 2: if no review by myself exists yet
+		# 3: if no review at all exists yet
+		# 4: if no review by responsible reviewer
 		review_after_display = int(cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user',
-			default = 2
+			default = 3
 		))
 		if review_after_display == 1:			# always review
 			self.__review_part(part=part)
 		elif review_after_display == 2:			# review if no review by me exists
 			review_by_me = filter(lambda rev: rev['is_your_review'], part.get_reviews())
 			if len(review_by_me) == 0:
-				self.__review_part(part=part)
+				self.__review_part(part = part)
+		elif review_after_display == 3:
+			if len(part.get_reviews()) == 0:
+				self.__review_part(part = part)
+		elif review_after_display == 4:
+			reviewed_by_responsible = filter(lambda rev: rev['is_review_by_responsible_reviewer'], part.get_reviews())
+			if len(reviewed_by_responsible) == 0:
+				self.__review_part(part = part)
 
 		return True
 	#--------------------------------------------------------

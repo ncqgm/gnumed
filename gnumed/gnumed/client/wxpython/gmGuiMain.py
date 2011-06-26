@@ -1947,7 +1947,7 @@ class gmTopLevelFrame(wx.Frame):
 				value = int(value)
 			except:
 				return False, value
-			if value not in [0, 1, 2]:
+			if value not in [0, 1, 2, 3, 4]:
 				return False, value
 			return True, value
 
@@ -1962,6 +1962,8 @@ class gmTopLevelFrame(wx.Frame):
 				' 0: never display the review dialog\n'
 				' 1: always display the dialog\n'
 				' 2: only if there is no previous review by me\n'
+				' 3: only if there is no previous review at all\n'
+				' 4: only if there is no review by the responsible reviewer\n'
 				'\n'
 				'Note that if a viewer is configured to not block\n'
 				'GNUmed during document display the review dialog\n'
@@ -1969,7 +1971,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = u'horstspace.document_viewer.review_after_display',
 			bias = u'user',
-			default_value = 2,
+			default_value = 3,
 			validator = is_valid
 		)
 	#----------------------------------------------
