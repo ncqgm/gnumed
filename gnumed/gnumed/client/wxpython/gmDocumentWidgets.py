@@ -4,7 +4,10 @@
 __version__ = "$Revision: 1.187 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import os.path, sys, re as regex, logging
+import os.path
+import sys
+import re as regex
+import logging
 
 
 import wx
@@ -100,17 +103,17 @@ def _save_file_as_new_document(**kwargs):
 def _save_files_as_new_document(**kwargs):
 	wx.CallAfter(save_files_as_new_document, **kwargs)
 #----------------------
-def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, **kwargs):
+def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False):
 	return save_files_as_new_document (
 		parent = parent,
 		filenames = [filename],
 		document_type = document_type,
 		unlock_patient = unlock_patient,
 		episode = episode,
-		**kwargs
+		review_as_normal = review_as_normal
 	)
 #----------------------
-def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, **kwargs):
+def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -147,6 +150,9 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		episode = episode['pk_episode']
 	)
 	doc.add_parts_from_files(files = filenames)
+
+	if review_as_normal:
+		doc.set_reviewed(technically_abnormal = False, clinically_relevant = False)
 
 	if unlock_patient:
 		pat.locked = False
@@ -1421,7 +1427,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 #					rel = ' [%s]' % _('Cave')
 #				else:
 #					rel = ''
-				label = '%s%s (%s)%s' % (
+				f_ext = u''
+				if part['filename'] is not None:
+					f_ext = os.path.splitext(part['filename'])[1].strip('.').strip()
+				if f_ext != u'':
+					f_ext = u' .' + f_ext.upper()
+				label = '%s%s (%s%s)%s' % (
 					gmTools.bool2str (
 						boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
 						true_str = u'',
@@ -1429,6 +1440,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 					),
 					_('part %2s') % part['seq_idx'],
 					gmTools.size2str(part['size']),
+					f_ext,
 					gmTools.coalesce (
 						part['obj_comment'],
 						u'',
