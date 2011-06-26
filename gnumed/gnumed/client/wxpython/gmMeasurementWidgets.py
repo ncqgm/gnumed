@@ -1786,60 +1786,73 @@ limit 50"""
 
 		# loinc
 		query = u"""
-select distinct on (term)
-	loinc,
-	term
-from ((
-		select
-			loinc,
-			(loinc || ': ' || abbrev || ' (' || name || ')') as term
-		from clin.test_type
-		where loinc %(fragment_condition)s
-		limit 50
-	) union all (
-		select
-			code as loinc,
-			(code || ': ' || term) as term
-		from ref.v_coded_terms
-		where
+SELECT DISTINCT ON (list_label)
+	data,
+	field_label,
+	list_label
+FROM ((
+
+		SELECT
+			loinc AS data,
+			loinc AS field_label,
+			(loinc || ': ' || abbrev || ' (' || name || ')') AS list_label
+		FROM clin.test_type
+		WHERE loinc %(fragment_condition)s
+		LIMIT 50
+
+	) UNION ALL (
+
+		SELECT
+			code AS data,
+			code AS field_label,
+			(code || ': ' || term) AS list_label
+		FROM ref.v_coded_terms
+		WHERE
 			coding_system = 'LOINC'
-				and
+				AND
 			lang = i18n.get_curr_lang()
-				and
+				AND
 			(code %(fragment_condition)s
-				or
+				OR
 			term %(fragment_condition)s)
-		limit 50
-	) union all (
-		select
-			code as loinc,
-			(code || ': ' || term) as term
-		from ref.v_coded_terms
-		where
+		LIMIT 50
+
+	) UNION ALL (
+
+		SELECT
+			code AS data,
+			code AS field_label,
+			(code || ': ' || term) AS list_label
+		FROM ref.v_coded_terms
+		WHERE
 			coding_system = 'LOINC'
-				and
+				AND
 			lang = 'en_EN'
-				and
+				AND
 			(code %(fragment_condition)s
-				or
+				OR
 			term %(fragment_condition)s)
-		limit 50
-	) union all (
-		select
-			code as loinc,
-			(code || ': ' || term) as term
-		from ref.v_coded_terms
-		where
+		LIMIT 50
+
+	) UNION ALL (
+
+		SELECT
+			code AS data,
+			code AS field_label,
+			(code || ': ' || term) AS list_label
+		FROM ref.v_coded_terms
+		WHERE
 			coding_system = 'LOINC'
-				and
+				AND
 			(code %(fragment_condition)s
-				or
+				OR
 			term %(fragment_condition)s)
-		limit 50
+		LIMIT 50
 	)
-) as all_known_loinc
-order by term
-limit 50"""
+) AS all_known_loinc
+
+ORDER BY list_label
+LIMIT 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		self._PRW_loinc.matcher = mp
@@ -1948,6 +1961,8 @@ limit 50"""
 		self._TCTRL_comment_type.SetValue(u'')
 		self._PRW_test_org.SetText(u'', None, True)
 		self._TCTRL_comment_org.SetValue(u'')
+
+		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_name.SetText(self.data['name'], self.data['name'], True)
@@ -1971,6 +1986,8 @@ limit 50"""
 			True
 		)
 		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
+
+		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -1980,6 +1997,8 @@ limit 50"""
 			True
 		)
 		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
+
+		self._PRW_name.SetFocus()
 #================================================================
 _SQL_units_from_test_results = u"""
 	-- via clin.v_test_results.pk_type (for types already used in results)
