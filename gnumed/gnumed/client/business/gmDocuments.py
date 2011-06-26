@@ -446,10 +446,9 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		# create dummy part
 		cmd = u"""
 			insert into blobs.doc_obj (
-				fk_doc, fk_intended_reviewer, data, seq_idx
+				fk_doc, data, seq_idx
 			) VALUES (
 				%(doc_id)s,
-				(select pk_staff from dem.v_staff where db_user=CURRENT_USER),
 				''::bytea,
 				(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where fk_doc=%(doc_id)s)
 			)"""

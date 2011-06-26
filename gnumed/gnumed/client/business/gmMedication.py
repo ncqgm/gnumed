@@ -748,18 +748,26 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		prescription['ext_ref'] = u'FreeDiams'
 		prescription.save()
 		fd_filenames.append(filename)
-		success, msg, parts = prescription.add_parts_from_files (
-			files = fd_filenames,
-			reviewer = self.reviewer['pk_staff']
-		)
-
+		success, msg, parts = prescription.add_parts_from_files(files = fd_filenames)
 		if not success:
 			_log.error(msg)
 			return
 
+		for part in parts:
+			part['obj_comment'] = _('copy')
+			part.save()
+
 		xml_part = parts[-1]
 		xml_part['filename'] = u'freediams-prescription.xml'
+		xml_part['obj_comment'] = _('data')
 		xml_part.save()
+
+		# are we the intended reviewer ?
+		from Gnumed.business.gmPerson import gmCurrentProvider
+		me = gmCurrentProvider()
+		# if so: auto-sign the prescription
+		if xml_part['pk_intended_reviewer'] == me['pk_staff']:
+			prescription.set_reviewed(technically_abnormal = False, clinically_relevant = False)
 	#--------------------------------------------------------
 	def import_fd2gm_file_as_drugs(self, filename=None):
 		"""
