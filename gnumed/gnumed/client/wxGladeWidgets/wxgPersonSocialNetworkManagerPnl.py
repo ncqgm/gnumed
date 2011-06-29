@@ -56,7 +56,7 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
         __gzsr_details.Add(__szr_db_link, 1, wx.EXPAND, 0)
         __gzsr_details.Add((20, 20), 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(self._TCTRL_er_contact, 1, wx.EXPAND, 0)
-        _lbl_primary_doc = wx.StaticText(self, -1, _("Primary doctor"))
+        _lbl_primary_doc = wx.StaticText(self, -1, _("In-praxis primary"))
         __gzsr_details.Add(_lbl_primary_doc, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(self._PRW_provider, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.AddGrowableCol(1)

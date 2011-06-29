@@ -1002,6 +1002,37 @@ limit 50
 #============================================================
 # communication channels related widgets
 #============================================================
+def manage_comm_channel_types(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def delete(channel=None):
+		return gmDemographicRecord.delete_comm_channel_type(pk_channel_type = channel['pk'])
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		wx.BeginBusyCursor()
+		channel_types = gmDemographicRecord.get_comm_channel_types()
+		lctrl.set_string_items([ (ct['l10n_description'], ct['description'], ct['pk']) for ct in channel_types ])
+		lctrl.set_data(channel_types)
+		wx.EndBusyCursor()
+	#------------------------------------------------------------
+	msg = _('\nThis lists the communication channel types known to GNUmed.\n')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Managing communication types ...'),
+		columns = [_('Channel'), _('System type'), '#'],
+		single_selection = True,
+		#new_callback = edit,
+		#edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
+	)
+
+#------------------------------------------------------------
 class cCommChannelTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1066,57 +1097,64 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		if self.channel is None:
 			self._PRW_type.SetText(u'')
 			self._TCTRL_url.SetValue(u'')
-			self._PRW_address.SetText(value = u'', data = None)
+#			self._PRW_address.SetText(value = u'', data = None)
 			self._CHBOX_confidential.SetValue(False)
 		else:
 			self._PRW_type.SetText(self.channel['l10n_comm_type'])
 			self._TCTRL_url.SetValue(self.channel['url'])
-			self._PRW_address.SetData(data = self.channel['pk_address'])
+#			self._PRW_address.SetData(data = self.channel['pk_address'])
 			self._CHBOX_confidential.SetValue(self.channel['is_confidential'])
+
+		self._PRW_address.Disable()
 	#--------------------------------------------------------
 	def save(self):
 		"""Links comm channel to patient."""
 		if self.channel is None:
-			if not self.__valid_for_save():
-				return False
-			try:
-				self.channel = self.identity.link_comm_channel (
-					pk_channel_type = self._PRW_type.GetData(),
-					url = self._TCTRL_url.GetValue().strip(),
-					is_confidential = self._CHBOX_confidential.GetValue(),
-				)
-			except gmPG2.dbapi.IntegrityError:
-				_log.exception('error saving comm channel')
-				gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
-				return False
-		else:
-			comm_type = self._PRW_type.GetValue().strip()
-			if comm_type != u'':
-				self.channel['comm_type'] = comm_type
-			url = self._TCTRL_url.GetValue().strip()
-			if url != u'':
-				self.channel['url'] = url
-			self.channel['is_confidential'] = self._CHBOX_confidential.GetValue()
-
-		self.channel['pk_address'] = self._PRW_address.GetData()
+			return self.__save_new()
+		return self.__save_udpate()
+#		self.channel['pk_address'] = self._PRW_address.GetData()
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __save_new(self):
+		if not self.__valid_for_save():
+			return False
+		try:
+			self.channel = self.identity.link_comm_channel (
+				comm_medium = self._PRW_type.GetValue().strip(),
+				pk_channel_type = self._PRW_type.GetData(),
+				url = self._TCTRL_url.GetValue().strip(),
+				is_confidential = self._CHBOX_confidential.GetValue(),
+			)
+		except gmPG2.dbapi.IntegrityError:
+			_log.exception('error saving comm channel')
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
+			return False
+		return True
+	#--------------------------------------------------------
+	def __save_update(self):
+		comm_type = self._PRW_type.GetValue().strip()
+		if comm_type != u'':
+			self.channel['comm_type'] = comm_type
+		url = self._TCTRL_url.GetValue().strip()
+		if url != u'':
+			self.channel['url'] = url
+		self.channel['is_confidential'] = self._CHBOX_confidential.GetValue()
 		self.channel.save_payload()
 
 		return True
-	#--------------------------------------------------------
-	# internal helpers
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 
 		no_errors = True
 
-		if self._PRW_type.GetData() is None:
-			self._PRW_type.SetBackgroundColour('pink')
-			self._PRW_type.SetFocus()
-			self._PRW_type.Refresh()
+#		if self._PRW_type.GetData() is None:
+		if self._PRW_type.GetValue().strip() == u'':
 			no_errors = False
+			self._PRW_type.display_as_valid(False)
+			self._PRW_type.SetFocus()
 		else:
-			self._PRW_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_type.Refresh()
+			self._PRW_type.display_as_valid(True)
 
 		if self._TCTRL_url.GetValue().strip() == u'':
 			self._TCTRL_url.SetBackgroundColour('pink')

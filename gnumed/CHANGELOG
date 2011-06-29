@@ -21,6 +21,7 @@ NEW: hook "after_code_link_modified"
 NEW: family history handling
 NEW: PDF-form based forms handling via pdftk
 NEW: coding of episodes, issues, RFE/AOE, procedures, family history
+NEW: minimal management of communication channel types
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title

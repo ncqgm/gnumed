@@ -468,18 +468,27 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 #-------------------------------------------------------------------
 class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"select * from dem.v_person_comms where pk_lnk_identity2comm = %s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = %s"
 	_cmds_store_payload = [
-		u"""update dem.lnk_identity2comm set
+		u"""UPDATE dem.lnk_identity2comm SET
 				fk_address = %(pk_address)s,
 				fk_type = dem.create_comm_type(%(comm_type)s),
 				url = %(url)s,
 				is_confidential = %(is_confidential)s
-			where pk = %(pk_lnk_identity2comm)s and xmin = %(xmin_lnk_identity2comm)s
-		""",
-		u"select xmin as xmin_lnk_identity2comm from dem.lnk_identity2comm where pk = %(pk_lnk_identity2comm)s"
+			WHERE
+				pk = %(pk_lnk_identity2comm)s
+					AND
+				xmin = %(xmin_lnk_identity2comm)s
+			RETURNING
+				xmin AS xmin_lnk_identity2comm
+		"""
 	]
-	_updatable_fields = ['pk_address', 'url', 'comm_type', 'is_confidential']
+	_updatable_fields = [
+		'pk_address',
+		'url',
+		'comm_type',
+		'is_confidential'
+	]
 #-------------------------------------------------------------------
 def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_channel_type=None, pk_identity=None):
 	"""Create a communications channel for a patient."""
@@ -487,7 +496,6 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 	if url is None:
 		return None
 
-	# FIXME: create comm type if necessary
 	args = {'pat': pk_identity, 'url': url, 'secret': is_confidential}
 
 	if pk_channel_type is None:
@@ -533,18 +541,28 @@ def delete_comm_channel(pk=None, pk_patient=None):
 	args = {'pk': pk, 'pat': pk_patient}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #-------------------------------------------------------------------
-__comm_channel_types = None
-
 def get_comm_channel_types():
-	global __comm_channel_types
-	if __comm_channel_types is None:
-		cmd = u"select pk, _(description) from dem.enum_comm_types"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-		__comm_channel_types = rows
-	return __comm_channel_types
+	cmd = u"SELECT pk, _(description) AS l10n_description, description FROM dem.enum_comm_types"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	return rows
+#-------------------------------------------------------------------
+def delete_comm_channel_type(pk_channel_type=None):
+	cmd = u"""
+		DELETE FROM dem.enum_comm_types
+		WHERE
+			pk = %(pk)s
+			AND NOT EXISTS (
+				SELECT 1 FROM dem.lnk_identity2comm WHERE fk_type = %(pk)s
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM dem.lnk_org_unit2comm WHERE fk_type = %(pk)s
+			)
+	"""
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_channel_type}}])
+	return True
+#===================================================================
 #-------------------------------------------------------------------
 
-#===================================================================
 class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	"""
 	Organisations

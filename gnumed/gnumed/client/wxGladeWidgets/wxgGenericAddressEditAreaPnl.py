@@ -34,7 +34,7 @@ class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._TCTRL_notes_street.SetToolTipString(_("Enter any additional street level instructions, such as postal box or driving directions."))
         self._TCTRL_number.SetToolTipString(_("Enter the house number for this address."))
-        self._TCTRL_subunit.SetToolTipString(_("Enter the subunit/appartment/room/level/entrance for this address."))
+        self._TCTRL_subunit.SetToolTipString(_("Enter the subunit / apartment / room / level / entrance for this address."))
         self._TCTRL_notes_subunit.SetToolTipString(_("Enter any additional notes and comments on this address which didn't fit anywhere else."))
         # end wxGlade
 

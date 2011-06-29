@@ -1982,6 +1982,7 @@ class gmTopLevelFrame(wx.Frame):
 			'adr',
 			'drugs',
 			'codes',
+			'communication_channel_types',
 			'substances_in_brands',
 			'substances',
 			'labs',
@@ -2005,6 +2006,7 @@ class gmTopLevelFrame(wx.Frame):
 			'adr': _('Addresses (likely slow)'),
 			'drugs': _('Branded drugs (as marketed)'),
 			'codes': _('Codes and their respective terms'),
+			'communication_channel_types': _('Communication channel types'),
 			'substances_in_brands': _('Components of branded drugs (substances in brands)'),
 			'labs': _('Diagnostic organizations (path labs, ...)'),
 			'form_templates': _('Document templates (forms, letters, plots, ...)'),
@@ -2044,7 +2046,8 @@ class gmTopLevelFrame(wx.Frame):
 #			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmPersonContactWidgets.manage_addresses,
 			'substances': gmMedicationWidgets.manage_consumable_substances,
-			'patient_tags': gmDemographicsWidgets.manage_tag_images
+			'patient_tags': gmDemographicsWidgets.manage_tag_images,
+			'communication_channel_types': gmPersonContactWidgets.manage_comm_channel_types
 		}
 
 		#---------------------------------

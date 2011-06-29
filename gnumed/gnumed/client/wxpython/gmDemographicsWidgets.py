@@ -1820,8 +1820,14 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		# else it is None which means empty address which we ignore
 
 		# phone
+		channel_name = self._PRW_channel_type.GetValue().strip()
+		pk_channel_type = self._PRW_channel_type.GetData()
+		if pk_channel_type is None:
+			if channel_name == u'':
+				channel_name = u'homephone'
 		new_identity.link_comm_channel (
-			comm_medium = u'homephone',
+			comm_medium = channel_name,
+			pk_channel_type = pk_channel_type,
 			url = gmTools.none_if(self._TCTRL_phone.GetValue().strip(), u''),
 			is_confidential = False
 		)

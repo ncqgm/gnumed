@@ -9,6 +9,12 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+grant usage on sequence dem.enum_comm_types_id_seq to group "gm-public";
+
+-- fix the sequence, no idea how it got there
+select setval('dem.enum_comm_types_id_seq'::regclass, (select max(pk) from dem.enum_comm_types));
+
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view dem.v_staff cascade;
 \set ON_ERROR_STOP 1

@@ -32,6 +32,10 @@ or imprecision of the timestamp contained within.
 
 This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
+
+Other useful links:
+
+	http://joda-time.sourceforge.net/key_instant.html
 """
 #===========================================================================
 __version__ = "$Revision: 1.34 $"

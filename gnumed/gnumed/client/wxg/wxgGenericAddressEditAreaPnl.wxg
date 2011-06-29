@@ -121,7 +121,7 @@
                         <option>1</option>
                         <object class="wx.TextCtrl" name="_TCTRL_subunit" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Enter the subunit/appartment/room/level/entrance for this address.</tooltip>
+                            <tooltip>Enter the subunit / apartment / room / level / entrance for this address.</tooltip>
                         </object>
                     </object>
                 </object>
