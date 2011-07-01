@@ -1224,7 +1224,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def set_active(self):
-		"""Set the enconter as the active one.
+		"""Set the encounter as the active one.
 
 		"Setting active" means making sure the encounter
 		row has the youngest "last_affirmed" timestamp of

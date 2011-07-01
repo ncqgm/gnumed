@@ -420,7 +420,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_encounter = wx.Menu()
 
 		ID = wx.NewId()
-		menu_cfg_encounter.Append(ID, _('Edit on patient change'), _('Edit encounter details on changing of patients.'))
+		menu_cfg_encounter.Append(ID, _('Edit before patient change'), _('Edit encounter details before change of patient.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_enc_pat_change)
 
 		ID = wx.NewId()
