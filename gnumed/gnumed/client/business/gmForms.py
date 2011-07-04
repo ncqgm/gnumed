@@ -790,13 +790,21 @@ class cLaTeXForm(cFormEngine):
 			sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
 			shutil.move(self.instance_filename, sandboxed_instance_filename)
 
-			# LaTeX can need up to three runs to get cross-references et al right
+			# LaTeX can need up to three runs to get cross references et al right
 			if platform.system() == 'Windows':
-				cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
+				draft_cmd = r'pdflatex.exe -draftmode -interaction nonstopmode %s' % sandboxed_instance_filename
+				final_cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
 			else:
-				cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
+				draft_cmd = r'pdflatex -draftmode -interaction nonstopmode %s' % sandboxed_instance_filename
+				final_cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
+			# FIXME:
+			#for run in [draft_cmd, draft_cmd, final_cmd]:
 			for run in [1, 2, 3]:
-				if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True, acceptable_return_codes = [0, 1]):
+				if run == 3:
+					run_cmd = final_cmd
+				else:
+					run_cmd = draft_cmd
+				if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
 					_log.error('problem running pdflatex, cannot generate form output')
 					gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 					os.chdir(old_cwd)

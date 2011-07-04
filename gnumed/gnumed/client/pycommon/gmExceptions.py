@@ -81,27 +81,6 @@ class NoSuchBusinessObjectError(ConstructorError):
 	def __str__(self):
 		return self.errmsg
 
-# access errors
-class NoSuchBusinessObjectAttributeError(KeyError):
-	"""Raised when a clinical item attribute can not be found."""
-	def __init__(self, errmsg = None):
-		if errmsg is None:
-			self.errmsg = "no such business DB-object attribute found"
-		else:
-			self.errmsg = errmsg
-	def __str__(self):
-		return self.errmsg
-
-class BusinessObjectAttributeNotSettableError(KeyError):
-	"""Raised when a clinical item attribute is not settable."""
-	def __init__(self, errmsg = None):
-		if errmsg is None:
-			self.errmsg = "business DB-object attribute not settable"
-		else:
-			self.errmsg = errmsg
-	def __str__(self):
-		return self.errmsg
-
 #------------------------------------------------------------
 class InvalidInputError(Exception):
 	"""Raised by business layers when an attempt is made to input

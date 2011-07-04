@@ -1012,7 +1012,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 		return filtered
 	#--------------------------------------------------------
-	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None):
+	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None):
 		"""Link an address with a patient, creating the address if it does not exists.
 
 		@param number The number of the address.
@@ -1023,42 +1023,45 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		@param country The code of the country.
 		@param id_type The primary key of the address type.
 		"""
-		# create/get address
-		adr = gmDemographicRecord.create_address (
-			country = country,
-			state = state,
-			urb = urb,
-			suburb = suburb,
-			postcode = postcode,
-			street = street,
-			number = number,
-			subunit = subunit
-		)
+		if address is None:
+			# create/get address
+			address = gmDemographicRecord.create_address (
+				country = country,
+				state = state,
+				urb = urb,
+				suburb = suburb,
+				postcode = postcode,
+				street = street,
+				number = number,
+				subunit = subunit
+			)
+
+		if address is None:
+			return None
 
 		# already linked ?
-		cmd = u"select * from dem.lnk_person_org_address where id_identity = %s and id_address = %s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, adr['pk_address']]}])
+		cmd = u"SELECT * FROM dem.lnk_person_org_address WHERE id_identity = %(pat)s AND id_address = %(adr)s"
+		args = {'pat': self.pk_obj, 'adr': address['pk_address']}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
 		# no, link to person
 		if len(rows) == 0:
-			args = {'id': self.pk_obj, 'adr': adr['pk_address'], 'type': id_type}
-			if id_type is None:
-				cmd = u"""
-					insert into dem.lnk_person_org_address(id_identity, id_address)
-					values (%(id)s, %(adr)s)"""
-			else:
-				cmd = u"""
-					insert into dem.lnk_person_org_address(id_identity, id_address, id_type)
-					values (%(id)s, %(adr)s, %(type)s)"""
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		else:
-			# already linked - but needs to change type ?
-			if id_type is not None:
-				r = rows[0]
-				if r['id_type'] != id_type:
-					cmd = "update dem.lnk_person_org_address set id_type = %(type)s where id = %(id)s"
-					gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'type': id_type, 'id': r['id']}}])
+			args = {'id': self.pk_obj, 'adr': address['pk_address'], 'type': id_type}
+			cmd = u"""
+				INSERT INTO dem.lnk_person_org_address(id_identity, id_address)
+				VALUES (%(id)s, %(adr)s)
+				RETURNING *"""
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
-		return adr
+		# already or now linked - needs to change type ?
+		if id_type is not None:
+			r = rows[0]
+			if r['id_type'] != id_type:
+				cmd = "UPDATE dem.lnk_person_org_address SET id_type = %(type)s WHERE id = %(id)s"
+				args = {'type': id_type, 'id': r['id']}
+				gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		return address
 	#----------------------------------------------------------------------
 	def unlink_address(self, address=None):
 		"""Remove an address from the patient.
@@ -1066,7 +1069,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		The address itself stays in the database.
 		The address can be either cAdress or cPatientAdress.
 		"""
-		cmd = u"delete from dem.lnk_person_org_address where id_identity = %(person)s and id_address = %(adr)s"
+		cmd = u"DELETE FROM dem.lnk_person_org_address WHERE id_identity = %(person)s AND id_address = %(adr)s"
 		args = {'person': self.pk_obj, 'adr': address['pk_address']}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#----------------------------------------------------------------------

@@ -453,6 +453,8 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
+
+		self.__select_callback = None			# called when an item is selected, data of topmost selected item passed in
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
@@ -485,11 +487,16 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			self._BTN_edit.Enable(True)
 		if self.delete_callback is not None:
 			self._BTN_remove.Enable(True)
+		if self.__select_callback is not None:
+			item = self._LCTRL_items.get_selected_item_data(only_one=True)
+			self.__select_callback(item)
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
 			self._BTN_edit.Enable(False)
 			self._BTN_remove.Enable(False)
+			if self.__select_callback is not None:
+				self.__select_callback(None)
 	#------------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		if not self.new_callback():
@@ -501,6 +508,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			self.refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
+	#------------------------------------------------------------
+	def _on_list_item_activated(self, event):
+		if self.edit_callback is None:
+			return
+		self._on_edit_button_pressed(event)
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		item = self._LCTRL_items.get_selected_item_data(only_one=True)
@@ -536,10 +548,38 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		return self.__new_callback
 
 	def _set_new_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<new> callback is not a callable: %s' % callback)
 		self.__new_callback = callback
 		self._BTN_add.Enable(callback is not None)
 
 	new_callback = property(_get_new_callback, _set_new_callback)
+	#------------------------------------------------------------
+	def _get_select_callback(self):
+		return self.__select_callback
+
+	def _set_select_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<select> callback is not a callable: %s' % callback)
+		self.__select_callback = callback
+
+	select_callback = property(_get_select_callback, _set_select_callback)
+	#------------------------------------------------------------
+	def _get_message(self):
+		return self._LBL_message.GetLabel()
+
+	def _set_message(self, msg):
+		if msg is None:
+			self._LBL_message.Hide()
+			self._LBL_message.SetLabel(u'')
+		else:
+			self._LBL_message.SetLabel(msg)
+			self._LBL_message.Show()
+		self.Layout()
+
+	message = property(_get_message, _set_message)
 #================================================================
 from Gnumed.wxGladeWidgets import wxgItemPickerDlg
 

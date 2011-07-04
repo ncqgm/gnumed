@@ -1320,14 +1320,14 @@ WHERE
 		if order_by is None:
 			order_by = u''
 		else:
-			order_by = u'order by %s' % order_by
+			order_by = u'ORDER BY %s' % order_by
 
 		if (episodes is not None) and (len(episodes) > 0):
 			where_parts.append(u'pk_episode IN %(epis)s')
 			args['epis'] = tuple(episodes)
 
 		if (issues is not None) and (len(issues) > 0):
-			where_parts.append(u'pk_episode IN (select pk from clin.episode where fk_health_issue IN %(issues)s)')
+			where_parts.append(u'pk_episode IN (SELECT pk FROM clin.episode WHERE fk_health_issue IN %(issues)s)')
 			args['issues'] = tuple(issues)
 
 		if (encounters is not None) and (len(encounters) > 0):

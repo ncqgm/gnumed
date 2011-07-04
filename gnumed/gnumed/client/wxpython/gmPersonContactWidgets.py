@@ -527,7 +527,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _add_address(self):
 		ea = cAddressEditAreaPnl(self, -1)
-		ea.identity = self.__identity
+		ea.address_holder = self.__identity
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new address'))
 		if dlg.ShowModal() == wx.ID_OK:
@@ -536,7 +536,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _edit_address(self, address):
 		ea = cAddressEditAreaPnl(self, -1, address = address)
-		ea.identity = self.__identity
+		ea.address_holder = self.__identity
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Editing address'))
 		if dlg.ShowModal() == wx.ID_OK:
@@ -577,20 +577,19 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl
 
 class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl):
-	"""An edit area for editing/creating an address.
+	"""An edit area for editing/creating an address."""
 
-	Does NOT act on/listen to the current patient.
-	"""
 	def __init__(self, *args, **kwargs):
 		try:
-			self.address = kwargs['address']
+			self.__address = kwargs['address']
 			del kwargs['address']
 		except KeyError:
-			self.address = None
+			self.__address = None
 
 		wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl.__init__(self, *args, **kwargs)
 
-		self.identity = None
+		self.address_holder = None
+		self.type_is_editable = True
 
 		self.__register_interests()
 		self.refresh()
@@ -599,23 +598,36 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 	#--------------------------------------------------------
 	def refresh(self, address = None):
 		if address is not None:
-			self.address = address
+			self.__address = address
 
-		if self.address is not None:
+		if self.__address is None:
+			self._PRW_type.SetText(u'', None)
+			self._PRW_zip.SetText(u'', None)
+			self._PRW_street.SetText(u'', None)
+			self._TCTRL_notes_street.SetValue(u'')
+			self._TCTRL_number.SetValue(u'')
+			self._TCTRL_subunit.SetValue(u'')
+			self._PRW_suburb.SetText(u'', None)
+			self._PRW_urb.SetText(u'', None)
+			self._PRW_state.SetText(u'', None)
+			self._PRW_country.SetText(u'', None)
+			self._TCTRL_notes_subunit.SetValue(u'')
+			return
+
+		if self.__type_is_editable:
 			self._PRW_type.SetText(self.address['l10n_address_type'])
-			self._PRW_zip.SetText(self.address['postcode'])
-			self._PRW_street.SetText(self.address['street'], data = self.address['street'])
-			self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.address['notes_street'], ''))
-			self._TCTRL_number.SetValue(self.address['number'])
-			self._TCTRL_subunit.SetValue(gmTools.coalesce(self.address['subunit'], ''))
-			self._PRW_suburb.SetText(gmTools.coalesce(self.address['suburb'], ''))
-			self._PRW_urb.SetText(self.address['urb'], data = self.address['urb'])
-			self._PRW_state.SetText(self.address['l10n_state'], data = self.address['code_state'])
-			self._PRW_country.SetText(self.address['l10n_country'], data = self.address['code_country'])
-			self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.address['notes_subunit'], ''))
-		# FIXME: clear fields
-#		else:
-#			pass
+		else:
+			self._PRW_type.SetText(u'', None)
+		self._PRW_zip.SetText(self.address['postcode'])
+		self._PRW_street.SetText(self.address['street'], data = self.address['street'])
+		self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.address['notes_street'], ''))
+		self._TCTRL_number.SetValue(self.address['number'])
+		self._TCTRL_subunit.SetValue(gmTools.coalesce(self.address['subunit'], ''))
+		self._PRW_suburb.SetText(gmTools.coalesce(self.address['suburb'], ''))
+		self._PRW_urb.SetText(self.address['urb'], data = self.address['urb'])
+		self._PRW_state.SetText(self.address['l10n_state'], data = self.address['code_state'])
+		self._PRW_country.SetText(self.address['l10n_country'], data = self.address['code_country'])
+		self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.address['notes_subunit'], ''))
 	#--------------------------------------------------------
 	def save(self):
 		"""Links address to patient, creating new address if necessary"""
@@ -623,18 +635,16 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 		if not self.__valid_for_save():
 			return False
 
-		# link address to patient
 		try:
-			adr = self.identity.link_address (
-				number = self._TCTRL_number.GetValue().strip(),
-				street = self._PRW_street.GetValue().strip(),
-				postcode = self._PRW_zip.GetValue().strip(),
-				urb = self._PRW_urb.GetValue().strip(),
-				state = self._PRW_state.GetData(),
+			address = gmDemographicRecord.create_address (
 				country = self._PRW_country.GetData(),
-				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u''),
+				state = self._PRW_state.GetData(),
+				urb = self._PRW_urb.GetValue().strip(),
 				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
-				id_type = self._PRW_type.GetData()
+				postcode = self._PRW_zip.GetValue().strip(),
+				street = self._PRW_street.GetValue().strip(),
+				number = self._TCTRL_number.GetValue().strip(),
+				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u'')
 			)
 		except:
 			_log.exception('cannot save address')
@@ -650,15 +660,20 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 			)
 			return False
 
+		# link address to owner
+		a = self.address_holder.link_address(id_type = self._PRW_type.GetData(), address = address)
+		if a['pk_address'] != address['pk_address']:
+			raise ValueError('problem linking address to person or org')
+
 		notes = self._TCTRL_notes_street.GetValue().strip()
 		if notes != u'':
-			adr['notes_street'] = notes
+			address['notes_street'] = notes
 		notes = self._TCTRL_notes_subunit.GetValue().strip()
 		if notes != u'':
-			adr['notes_subunit'] = notes
-		adr.save_payload()
+			address['notes_subunit'] = notes
+		address.save_payload()
 
-		self.address = adr
+		self.__address = address
 
 		return True
 	#--------------------------------------------------------
@@ -697,13 +712,15 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 		# validate required fields
 		is_any_field_filled = False
 
-		required_fields = (
-			self._PRW_type,
+		required_fields = [
 			self._PRW_zip,
 			self._PRW_street,
 			self._TCTRL_number,
 			self._PRW_urb
-		)
+		]
+		if self.__type_is_editable:
+			required_fields.insert(0, self._PRW_type)
+
 		for field in required_fields:
 			if len(field.GetValue().strip()) == 0:
 				if is_any_field_filled:
@@ -741,6 +758,28 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 				field.Refresh()
 
 		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_type_is_editable(self):
+		return self.__type_is_editable
+
+	def _set_type_is_editable(self, type_is_editable):
+		self.__type_is_editable = type_is_editable
+		self._PRW_type.Enable(type_is_editable)
+		self._PRW_type.Show(type_is_editable)
+		self._LBL_type.Show(type_is_editable)
+
+	type_is_editable = property(_get_type_is_editable, _set_type_is_editable)
+	#--------------------------------------------------------
+	def _get_address(self):
+		return self.__address
+
+	def _set_address(self, address):
+		self.__address = address
+		self.refresh()
+
+	address = property(_get_address, _set_address)
 #============================================================
 class cAddressMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 

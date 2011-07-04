@@ -14,6 +14,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 
+from Gnumed.business import gmDemographicRecord
+
 
 _log = logging.getLogger('gm.org')
 #============================================================
@@ -92,7 +94,19 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_category_unit',
 		u'pk_address'
 	]
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_address(self):
+		if self._payload[self._idx['pk_address']] is None:
+			return None
+		return gmDemographicRecord.cAddress(aPK_obj = self._payload[self._idx['pk_address']])
 
+	def _set_address(self, address):
+		self['pk_address'] = address['pk_address']
+		self.save()
+
+	address = property(_get_address, _set_address)
 #------------------------------------------------------------
 def create_org_unit(pk_organization=None, unit=None):
 
@@ -102,15 +116,21 @@ def create_org_unit(pk_organization=None, unit=None):
 
 	return cOrgUnit(aPK_obj = rows[0][0])
 #------------------------------------------------------------
-def get_org_units(order_by=None):
+def get_org_units(order_by=None, org=None):
 
 	if order_by is None:
 		order_by = u''
 	else:
-		order_by = u'ORDER BY %s' % order_by
+		order_by = u' ORDER BY %s' % order_by
 
-	cmd = _SQL_get_org_unit % (u'TRUE %s' % order_by)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	if org is None:
+		where_part = u'TRUE'
+	else:
+		where_part = u'pk_org = %(org)s'
+
+	args = {'org': org}
+	cmd = (_SQL_get_org_unit % where_part) + order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': u'pk_org_unit'}) for r in rows ]
 
@@ -130,6 +150,12 @@ if __name__ == "__main__":
 		print unit
 
 	sys.exit(0)
+#============================================================
+#============================================================
+#============================================================
+#============================================================
+#============================================================
+#============================================================
 #============================================================
 #============================================================
 #============================================================

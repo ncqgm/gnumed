@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 """GNUmed demographics object.
 
 This is a patient object intended to let a useful client-side
@@ -307,50 +308,75 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	whom it is attached. In many cases you will want to create a *new*
 	address and link it to a person instead of the old address.
 	"""
-	_cmd_fetch_payload = u"select * from dem.v_address where pk_address=%s"
+	_cmd_fetch_payload = u"select * from dem.v_address where pk_address = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.address SET
 				aux_street = %(notes_street)s,
 				subunit = %(subunit)s,
 				addendum = %(notes_subunit)s,
 				lat_lon = %(lat_lon_street)s
-			WHERE id = %(pk_address)s AND xmin = %(xmin_address)s""",
-		u"select xmin as xmin_address from dem.address where id=%(pk_address)s"
+			WHERE
+				id = %(pk_address)s
+					AND
+				xmin = %(xmin_address)s
+			RETURNING
+				xmin AS xmin_address"""
 	]
 	_updatable_fields = ['notes_street', 'subunit', 'notes_subunit', 'lat_lon_address']
 #------------------------------------------------------------
-def address_exists(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
+def address_exists(country=None, state=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
-	where_parts = [u"""
-		code_country = %(country)s and
-		code_state = %(state)s and
-		urb = %(urb)s and
-		postcode = %(postcode)s and
-		street = %(street)s and
-		number = %(number)s"""
+	cmd = u"""SELECT dem.address_exists(%(country)s, %(state)s, %(urb)s, %(postcode)s, %(street)s, %(number)s, %(subunit)s)"""
+	args = {
+		'country': country,
+		'state': state,
+		'urb': urb,
+		'postcode': postcode,
+		'street': street,
+		'number': number,
+		'subunit': subunit
+	}
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if rows[0][0] is None:
+		_log.debug('address does not exist')
+		for key, val in args.items():
+			_log.debug('%s: %s', key, val)
+		return None
+
+	return rows[0][0]
+#------------------------------------------------------------
+def old_address_exists(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
+	where_parts = [
+		u'code_country = %(country)s',
+		u'code_state = %(state)s',
+		u'urb = %(urb)s',
+		u'postcode = %(postcode)s',
+		u'street = %(street)s',
+		u'number = %(number)s'
 	]
 
 	if suburb is None:
-		where_parts.append(u"suburb is %(suburb)s")
+		where_parts.append(u"suburb IS %(suburb)s")
 	else:
 		where_parts.append(u"suburb = %(suburb)s")
 
 	if notes_street is None:
-		where_parts.append(u"notes_street is %(notes_street)s")
+		where_parts.append(u"notes_street IS %(notes_street)s")
 	else:
 		where_parts.append(u"notes_street = %(notes_street)s")
 
 	if subunit is None:
-		where_parts.append(u"subunit is %(subunit)s")
+		where_parts.append(u"subunit IS %(subunit)s")
 	else:
 		where_parts.append(u"subunit = %(subunit)s")
 
 	if notes_subunit is None:
-		where_parts.append(u"notes_subunit is %(notes_subunit)s")
+		where_parts.append(u"notes_subunit IS %(notes_subunit)s")
 	else:
 		where_parts.append(u"notes_subunit = %(notes_subunit)s")
 
-	cmd = u"select pk_address from dem.v_address where %s" % u" and ".join(where_parts)
+	cmd = u"SELECT pk_address FROM dem.v_address WHERE %s" % u" AND ".join(where_parts)
 	data = {
 		'country': country,
 		'state': state,
@@ -367,7 +393,11 @@ def address_exists(country=None, state=None, urb=None, suburb=None, postcode=Non
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': data}])
 
 	if len(rows) == 0:
+		_log.debug('address does not exist yet')
+		for key, val in data.items():
+			_log.debug('%s: %s', key, val)
 		return None
+
 	return rows[0][0]
 #------------------------------------------------------------
 def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
@@ -389,15 +419,15 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 		return cAddress(aPK_obj=pk_address)
 
 	cmd = u"""
-		select dem.create_address (
-			%(number)s,
-			%(street)s,
-			%(postcode)s,
-			%(urb)s,
-			%(state)s,
-			%(country)s,
-			%(subunit)s
-		)"""
+SELECT dem.create_address (
+	%(number)s,
+	%(street)s,
+	%(postcode)s,
+	%(urb)s,
+	%(state)s,
+	%(country)s,
+	%(subunit)s
+)"""
 	args = {
 		'number': number,
 		'street': street,
@@ -410,7 +440,7 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 	queries = [{'cmd': cmd, 'args': args}]
 
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
-	adr = cAddress(aPK_obj=rows[0][0])
+	adr = cAddress(aPK_obj = rows[0][0])
 
 	if suburb is not None:
 		queries = [{
@@ -457,7 +487,6 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_lnk_person_org_address
 		"""
-#		,u"""select xmin from dem.lnk_person_org_address where id=%(pk_lnk_person_org_address)s"""
 	]
 	_updatable_fields = ['pk_address_type']
 	#---------------------------------------------------------------
@@ -787,20 +816,62 @@ if __name__ == "__main__":
 	import random
 	#--------------------------------------------------------
 	def test_address_exists():
-		exists = address_exists (
-			country ='Germany',
-			state ='Sachsen',
-			urb ='Leipzig',
-			suburb ='Sellerhausen',
-			postcode ='04318',
-			street = u'Cunnersdorfer Strasse',
-			number = '11',
-			notes_subunit = '4.Stock rechts'
-		)
-		if exists is None:
-			print "address does not exist"
-		else:
-			print "address exists, primary key:", exists
+
+		addresses = [
+			{
+			'country': 'Germany',
+			'state': 'Sachsen',
+			'urb': 'Leipzig',
+			'postcode': '04318',
+			'street': u'Cunnersdorfer Strasse',
+			'number': '11'
+			},
+			{
+			'country': 'DE',
+			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': 'Parterre'
+			},
+			{
+			'country': 'DE',
+			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': '1. Stock'
+			},
+			{
+			'country': 'DE',
+			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': '1. Stock'
+			},
+			{
+#			'country': 'DE',
+#			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': '1. Stock'
+			},
+		]
+
+		for adr in addresses:
+			print adr
+			exists = address_exists(**adr)
+			if exists is None:
+				print "address does not exist"
+			else:
+				print "address exists, primary key:", exists
+
 	#--------------------------------------------------------
 	def test_create_address():
 		address = create_address (
@@ -868,25 +939,25 @@ if __name__ == "__main__":
 
 	sys.exit()
 
-	gmDispatcher.connect(_post_patient_selection, 'post_patient_selection')
-	while 1:
-		pID = raw_input('a patient: ')
-		if pID == '':
-			break
-		try:
-			print pID
-			myPatient = gmPerson.cIdentity (aPK_obj = pID)
-		except:
-			_log.exception('Unable to set up patient with ID [%s]' % pID)
-			print "patient", pID, "can not be set up"
-			continue
-		print "ID       ", myPatient.ID
-		print "name     ", myPatient['description']
-		print "name     ", myPatient['description_gender']
-		print "title    ", myPatient['title']
-		print "dob      ", myPatient['dob']
-		print "med age  ", myPatient['medical_age']
-		for adr in myPatient.get_addresses():
-			print "address  ", adr
-		print "--------------------------------------"
+#	gmDispatcher.connect(_post_patient_selection, 'post_patient_selection')
+#	while 1:
+#		pID = raw_input('a patient: ')
+#		if pID == '':
+#			break
+#		try:
+#			print pID
+#			myPatient = gmPerson.cIdentity (aPK_obj = pID)
+#		except:
+#			_log.exception('Unable to set up patient with ID [%s]' % pID)
+#			print "patient", pID, "can not be set up"
+#			continue
+#		print "ID       ", myPatient.ID
+#		print "name     ", myPatient['description']
+#		print "name     ", myPatient['description_gender']
+#		print "title    ", myPatient['title']
+#		print "dob      ", myPatient['dob']
+#		print "med age  ", myPatient['medical_age']
+#		for adr in myPatient.get_addresses():
+#			print "address  ", adr
+#		print "--------------------------------------"
 #============================================================

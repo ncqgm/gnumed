@@ -24,6 +24,7 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_list_item_deselected, self._LCTRL_items)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_items)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self._LCTRL_items)
+        self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self._on_list_item_focused, self._LCTRL_items)
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
         self.Bind(wx.EVT_BUTTON, self._on_remove_button_pressed, self._BTN_remove)
@@ -44,16 +45,16 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgGenericListManagerPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._LBL_message, 0, wx.BOTTOM|wx.EXPAND, 6)
+        __szr_main.Add(self._LBL_message, 0, wx.BOTTOM|wx.EXPAND, 3)
         __szr_main.Add(self._LCTRL_items, 1, wx.EXPAND, 0)
-        __szr_buttons.Add((20, 20), 2, 0, 0)
+        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_add, 0, 0, 0)
-        __szr_buttons.Add((20, 20), 1, 0, 0)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_edit, 0, 0, 0)
-        __szr_buttons.Add((20, 20), 1, 0, 0)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_remove, 0, 0, 0)
-        __szr_buttons.Add((20, 20), 2, 0, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
+        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 3)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
@@ -80,6 +81,10 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
 
     def _on_remove_button_pressed(self, event): # wxGlade: wxgGenericListManagerPnl.<event_handler>
         print "Event handler `_on_remove_button_pressed' not implemented!"
+        event.Skip()
+
+    def _on_list_item_focused(self, event): # wxGlade: wxgGenericListManagerPnl.<event_handler>
+        print "Event handler `_on_list_item_focused' not implemented"
         event.Skip()
 
 # end of class wxgGenericListManagerPnl

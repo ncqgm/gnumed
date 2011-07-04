@@ -1065,7 +1065,10 @@ from (
 		del tests
 
 		# vaccinations
-		vaccs = emr.get_vaccinations(episodes = [ self._payload[self._idx['pk_episode']] ])
+		vaccs = emr.get_vaccinations (
+			episodes = [ self._payload[self._idx['pk_episode']] ],
+			order_by = u'date_given DESC, vaccine'
+		)
 
 		if len(vaccs) > 0:
 			lines.append(u'')
@@ -1731,7 +1734,8 @@ WHERE
 		if with_vaccinations:
 			vaccs = emr.get_vaccinations (
 				episodes = episodes,
-				encounters = [ self._payload[self._idx['pk_encounter']] ]
+				encounters = [ self._payload[self._idx['pk_encounter']] ],
+				order_by = u'date_given DESC, vaccine'
 			)
 
 			if len(vaccs) > 0:

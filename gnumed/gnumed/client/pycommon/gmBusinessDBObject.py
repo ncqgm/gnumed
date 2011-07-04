@@ -377,7 +377,7 @@ def delete_xxx(xxx=None):
 			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
 			methods = filter(lambda x: x[0].startswith('get_'), inspect.getmembers(self, inspect.ismethod))
 			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
-			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+			raise KeyError('[%s]: cannot read from key [%s]' % (self.__class__.__name__, attribute))
 
 		self._ext_cache[attribute] = getter()
 		return self._ext_cache[attribute]
@@ -394,13 +394,13 @@ def delete_xxx(xxx=None):
 			except KeyError:
 				_log.warning('[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
 				_log.warning('[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+				raise KeyError('[%s]: cannot write to key [%s]' % (self.__class__.__name__, attribute))
 
 		# 2) setters providing extensions
 		if hasattr(self, 'set_%s' % attribute):
 			setter = getattr(self, "set_%s" % attribute)
 			if not callable(setter):
-				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute)
+				raise AttributeError('[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute))
 			try:
 				del self._ext_cache[attribute]
 			except KeyError:
@@ -409,7 +409,7 @@ def delete_xxx(xxx=None):
 				if setter(*value):
 					self._is_modified = True
 					return
-				raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value)
+				raise AttributeError('[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value))
 			if setter(value):
 				self._is_modified = True
 				return
@@ -419,7 +419,7 @@ def delete_xxx(xxx=None):
 		_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 		methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
 		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
-		raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: cannot set [%s]' % (self.__class__.__name__, attribute)
+		raise AttributeError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
