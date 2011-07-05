@@ -797,13 +797,7 @@ class cLaTeXForm(cFormEngine):
 			else:
 				draft_cmd = r'pdflatex -draftmode -interaction nonstopmode %s' % sandboxed_instance_filename
 				final_cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
-			# FIXME:
-			#for run in [draft_cmd, draft_cmd, final_cmd]:
-			for run in [1, 2, 3]:
-				if run == 3:
-					run_cmd = final_cmd
-				else:
-					run_cmd = draft_cmd
+			for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
 				if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
 					_log.error('problem running pdflatex, cannot generate form output')
 					gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
