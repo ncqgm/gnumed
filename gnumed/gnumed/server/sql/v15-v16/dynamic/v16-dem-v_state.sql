@@ -40,6 +40,6 @@ comment on view dem.v_state is 'denormalizes state information';
 grant select on dem.v_state to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-dem-v_state.sql', '1.1');
+select gm.log_script_insertion('v16-dem-v_state.sql', 'v16');
 
 -- ==============================================================

@@ -50,6 +50,6 @@ comment on view dem.v_street is 'denormalizes street data';
 grant select on dem.v_street to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-dem-v_street.sql', '1.1');
+select gm.log_script_insertion('v16-dem-v_street.sql', 'v16');
 
 -- ==============================================================

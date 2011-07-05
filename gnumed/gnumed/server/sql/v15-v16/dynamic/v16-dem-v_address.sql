@@ -274,7 +274,6 @@ comment on view dem.v_address is 'fully denormalizes data about addresses as ent
 grant select on dem.v_address to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-dem-v_address.sql', '1.1');
-
+select gm.log_script_insertion('v16-dem-v_address.sql', 'v16');
 
 -- ==============================================================

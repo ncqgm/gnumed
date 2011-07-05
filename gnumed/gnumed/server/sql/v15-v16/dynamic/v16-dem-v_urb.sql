@@ -44,6 +44,6 @@ comment on view dem.v_urb is 'denormalizes urb data';
 grant select on dem.v_urb to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v15-dem-v_urb.sql', '1.1');
+select gm.log_script_insertion('v16-dem-v_urb.sql', 'v16');
 
 -- ==============================================================
