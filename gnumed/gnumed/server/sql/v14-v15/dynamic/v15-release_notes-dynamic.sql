@@ -18,17 +18,18 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.6 (database v15.6)',
-	'GNUmed 0.9.6 Release Notes:
+	'Release Notes for GNUmed 0.9.7 (database v15.7)',
+	'GNUmed 0.9.7 Release Notes:
 
-	Client 0.9.6
+	0.9.7
 
-FIX: need to clear "Recent notes" sizer label between patients [thanks J.Busser]
-FIX: exception on <DrugATC/> being returned from FreeDIAMS but empty [thanks ll]
-FIX: exception (off-by-one) when splitting "incompletely" defined placeholders [thanks Marc]
-FIX: exception when DOB=NULL when re-confirming old encounter [thanks J.Busser]
+FIX: exception on creating allergy entry from non-brand substance intake [thanks J.Busser]
+FIX: exception on creating measurement type without LOINC [thanks J.Busser]
+FIX: exception with displaying list item tooltips [thanks Marc]
+FIX: faulty pt_BR translation ("issue name" -> "issue_name") [thanks Rogerio]
+FIX: fix DOB to be dated back one day sometimes [thanks S.Reus]
 
-IMPROVED: enable detaching episodes from issues [thanks J.Busser]
+IMPROVED: better protect against translation errors
 ');
 
 -- --------------------------------------------------------------
