@@ -54,6 +54,7 @@ IMPROVED: prescription: auto-sign if the current provider is the intended review
 
 FIX: exception on creating allergy entry from non-brand substance intake [thanks J.Busser]
 FIX: exception on creating measurement type without LOINC [thanks J.Busser]
+FIX: exception with displaying list item tooltips [thanks Marc]
 
 	0.9.6
 
