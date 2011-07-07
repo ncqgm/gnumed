@@ -11,6 +11,9 @@
 FIX: exception on creating allergy entry from non-brand substance intake [thanks J.Busser]
 FIX: exception on creating measurement type without LOINC [thanks J.Busser]
 FIX: exception with displaying list item tooltips [thanks Marc]
+FIX: faulty pt_BR translation ("issue name" -> "issue_name") [thanks Rogerio]
+
+IMPROVED: better protect against translation errors
 
 	0.9.6
 

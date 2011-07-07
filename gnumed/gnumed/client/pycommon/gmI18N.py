@@ -65,6 +65,7 @@ system_locale_level = {}
 
 
 _translate_original = lambda x:x
+_substitutes_regex = regex.compile(r'%\(.+?\)s')
 
 # **********************************************************
 # == do not remove this line ===============================
@@ -203,13 +204,31 @@ def _translate_protected(term):
 	"""
 	translation = _translate_original(term)
 
-	if translation.count(u'%s') == term.count(u'%s'):
-		return translation
+	# different number of %s substitutes ?
+	if translation.count(u'%s') != term.count(u'%s'):
+		_log.error('count("%s") mismatch, returning untranslated string')
+		_log.error('original   : %s', term)
+		_log.error('translation: %s', translation)
+		return term
 
-	_log.error('count(%s) mismatch, returning untranslated string')
-	_log.error('original   : %s', term)
-	_log.error('translation: %s', translation)
-	return term
+	term_substitutes = _substitutes_regex.findall(term)
+	trans_substitutes = _substitutes_regex.findall(translation)
+
+	# different number of %(...)s substitutes ?
+	if len(term_substitutes) != len(trans_substitutes):
+		_log.error('count("%(...)s") mismatch, returning untranslated string')
+		_log.error('original   : %s', term)
+		_log.error('translation: %s', translation)
+		return term
+
+	# different %(...)s substitutes ?
+	if set(term_substitutes) != set(trans_substitutes):
+		_log.error('"%(...)s" name mismatch, returning untranslated string')
+		_log.error('original   : %s', term)
+		_log.error('translation: %s', translation)
+		return term
+
+	return translation
 #---------------------------------------------------------------------------
 # external API
 #---------------------------------------------------------------------------
