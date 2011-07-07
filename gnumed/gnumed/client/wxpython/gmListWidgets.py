@@ -26,9 +26,6 @@ import wx.lib.mixins.listctrl as listmixins
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmTools, gmDispatcher
-from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg, wxgGenericListManagerPnl
 
 #================================================================
 # FIXME: configurable callback on double-click action
@@ -117,6 +114,8 @@ def get_choices_from_list (
 
 	return None
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
+
 class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDlg):
 	"""A dialog holding a list and a few buttons to act on the items."""
 
@@ -431,6 +430,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 	message = property(lambda x:x, _set_message)
 #================================================================
+from Gnumed.wxGladeWidgets import wxgGenericListManagerPnl
+
 class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	"""A panel holding a generic multi-column list and action buttions."""
 
@@ -907,15 +908,72 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self.__activate_callback(event)
 	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
-		item_idx, where = self.HitTest(wx.Point(event.X, event.Y))
+		"""Update tooltip on mouse motion.
 
+			for s in dir(wx):
+				if s.startswith('LIST_HITTEST'):
+					print s, getattr(wx, s)
+
+			LIST_HITTEST_ABOVE 1
+			LIST_HITTEST_BELOW 2
+			LIST_HITTEST_NOWHERE 4
+			LIST_HITTEST_ONITEM 672
+			LIST_HITTEST_ONITEMICON 32
+			LIST_HITTEST_ONITEMLABEL 128
+			LIST_HITTEST_ONITEMRIGHT 256
+			LIST_HITTEST_ONITEMSTATEICON 512
+			LIST_HITTEST_TOLEFT 1024
+			LIST_HITTEST_TORIGHT 2048
+		"""
+		item_idx, where_flag = self.HitTest(wx.Point(event.X, event.Y))
+
+		# pointer on item related area at all ?
+		if where_flag not in [
+			wx.LIST_HITTEST_ONITEMLABEL,
+			wx.LIST_HITTEST_ONITEMICON,
+			wx.LIST_HITTEST_ONITEMSTATEICON,
+			wx.LIST_HITTEST_ONITEMRIGHT,
+			wx.LIST_HITTEST_ONITEM
+		]:
+			self.__tt_last_item = None						# not on any item
+			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		# same item as last time around ?
 		if self.__tt_last_item == item_idx:
 			return
 
+		# remeber the new item we are on
 		self.__tt_last_item = item_idx
 
+		# HitTest() can return -1 if it so pleases, meaning that no item
+		# was hit or else that maybe there aren't any items (empty list)
 		if item_idx == -1:
 			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		# under some circumstances the item_idx returned
+		# by HitTest() may not be out of bounds with respect
+		# to self.__data, this hints at a sync problem between
+		# setting display items and associated data
+		if (
+			(item_idx > len(self.__data))
+				or
+			(item_idx < -1)
+		):
+			self.SetToolTipString(self.__tt_static_part)
+			_log.error('item idx: %s', item_idx)
+			_log.error('where flag: %s', where_flag)
+			_log.error('data list length: %s', len(self.__data))
+			for data in self.__data:
+				_log.debug(data)
+			print "*************************************************************"
+			print "GNUmed has detected an inconsistency with list item tooltips."
+			print ""
+			print "This is not a big problem and you can keep working."
+			print ""
+			print "However, please send us the log file so we can fix GNUmed."
+			print "*************************************************************"
 			return
 
 		dyna_tt = None

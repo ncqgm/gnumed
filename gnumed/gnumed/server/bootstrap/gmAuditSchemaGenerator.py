@@ -178,7 +178,7 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 			try:
 				currently_audited_cols.index(col)
 			except ValueError:
-				_log.error('table structure incompatible: column [%s] not found in audit table' % col)
+				_log.error('table structure incompatible: column ".%s" not found in audit table' % col.strip())
 				_log.error('%s.%s:' % (schema, table2audit))
 				_log.error('%s' % ','.join(cols2really_audit))
 				_log.error('%s.%s:' % (audit_schema, audit_trail_table))
@@ -256,7 +256,8 @@ def create_audit_ddl(aCursor):
 	_log.debug(rows)
 	# for each marked table
 	ddl = []
-	ddl.append('\set check_function_bodies 1\n\n')
+	ddl.append('\set check_function_bodies 1\n')
+	ddl.append('set check_function_bodies to on;\n\n')
 	for row in rows:
 
 		# sanity check: does table exist ?

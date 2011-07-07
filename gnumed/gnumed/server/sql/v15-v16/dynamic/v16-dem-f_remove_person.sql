@@ -11,6 +11,12 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
+delete from audit.audited_tables where
+	schema = 'dem'
+		and
+	table_name = 'lnk_identity2primary_doc';
+
+-- --------------------------------------------------------------
 create or replace function dem.remove_person(integer)
 	returns boolean
 	language 'plpgsql'
