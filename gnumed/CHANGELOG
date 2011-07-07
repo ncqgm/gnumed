@@ -12,6 +12,7 @@ FIX: exception on creating allergy entry from non-brand substance intake [thanks
 FIX: exception on creating measurement type without LOINC [thanks J.Busser]
 FIX: exception with displaying list item tooltips [thanks Marc]
 FIX: faulty pt_BR translation ("issue name" -> "issue_name") [thanks Rogerio]
+FIX: fix DOB to be dated back one day sometimes [thanks S.Reus]
 
 IMPROVED: better protect against translation errors
 

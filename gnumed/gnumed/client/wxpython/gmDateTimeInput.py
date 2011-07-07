@@ -110,6 +110,14 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 		"""Return matches for aFragment at start of phrases."""
 		matches = gmDateTime.str2pydt_matches(str2parse = aFragment.strip())
 		if len(matches) > 0:
+			for match in matches:
+				if match['data'] is not None:
+					match['data'] = match['data'].replace (
+						hour = 11,
+						minute = 11,
+						second = 11,
+						microsecond = 111111
+					)
 			return (True, matches)
 		else:
 			return (False, [])
@@ -136,7 +144,12 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 			date = dlg.cal.Date
 			if date is not None:
 				if date.IsValid():
-					date = gmDateTime.wxDate2py_dt(wxDate = date)
+					date = gmDateTime.wxDate2py_dt(wxDate = date).replace (
+						hour = 11,
+						minute = 11,
+						second = 11,
+						microsecond = 111111
+					)
 					lbl = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 					matches = (True, [{'data': date, 'label': lbl}])
 		dlg.Destroy()
@@ -185,7 +198,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if not date.IsValid():
 			return
 
-		date = gmDateTime.wxDate2py_dt(wxDate = date)
+		date = gmDateTime.wxDate2py_dt(wxDate = date).replace (
+			hour = 11,
+			minute = 11,
+			second = 11,
+			microsecond = 111111
+		)
 		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 		self.SetText(value = val, data = date, suppress_smarts = True)
 	#--------------------------------------------------------
@@ -232,7 +250,13 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def SetValue(self, value):
 
 		if isinstance(value, pyDT.datetime):
-			self.SetText(data = value, suppress_smarts = True)
+			date = value.replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				microsecond = 111111
+			)
+			self.SetText(data = date, suppress_smarts = True)
 			return
 
 		if value is None:
@@ -244,7 +268,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		if data is not None:
 			if isinstance(data, gmDateTime.cFuzzyTimestamp):
-				data = data.timestamp
+				data = data.timestamp.replace (
+					hour = 11,
+					minute = 11,
+					second = 11,
+					microsecond = 111111
+				)
 			if value.strip() == u'':
 				value = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 
@@ -255,7 +284,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
 		else:
 			if isinstance(data, gmDateTime.cFuzzyTimestamp):
-				data = data.timestamp
+				data = data.timestamp.replace (
+					hour = 11,
+					minute = 11,
+					second = 11,
+					microsecond = 111111
+				)
 			val = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
 			super(self.__class__, self).SetText(value = val, data = data)
 	#--------------------------------------------------------
@@ -297,7 +331,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		return self.data
 
 	def _set_date(self, date):
-		self.data = date
+		self.data = date.replace (
+			hour = 11,
+			minute = 11,
+			second = 11,
+			microsecond = 111111
+		)
 
 	date = property(_get_date, _set_date)
 #============================================================
