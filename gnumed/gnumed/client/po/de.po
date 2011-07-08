@@ -5352,7 +5352,7 @@ msgid " (confidential !)"
 msgstr " (vertraulich !)"
 
 msgid "Adding new person"
-msgstr "Neuen Person hinzufügen"
+msgstr "Neue Person hinzufügen"
 
 msgid "Must enter lastname."
 msgstr "Nachname muß angegeben werden."

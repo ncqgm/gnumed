@@ -919,11 +919,7 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			(select distinct postcode, postcode from dem.urb where postcode %(fragment_condition)s limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(2, 3, 15)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.SetToolTipString(_("Type or select a zip code (postcode)."))
 		self.matcher = mp
 #============================================================
@@ -937,32 +933,39 @@ class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			}
 		}
 		query = u"""
-select s1, s2 from (
-	select s1, s2, rank from (
-			select distinct on (street)
-				street as s1, street as s2, 1 as rank
-			from dem.v_zip2data
-			where
+	SELECT
+		data,
+		field_label,
+		list_label
+	FROM (
+
+			SELECT DISTINCT ON (data)
+				street AS data,
+				street AS field_label,
+				street || ' (' || zip || ', ' || urb || coalesce(', ' || suburb, '') || ', ' || l10n_country || ')' AS list_label,
+				1 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				street %(fragment_condition)s
 				%(ctxt_zip)s
 
-		union all
+		UNION ALL
 
-			select distinct on (name)
-				name as s1, name as s2, 2 as rank
-			from dem.street
-			where
+			SELECT DISTINCT ON (data)
+				name AS data,
+				name AS field_label,
+				name || ' (' || postcode || coalesce(', ' || suburb, '') || ')' AS list_label,
+				2 AS rank
+			FROM dem.street
+			WHERE
 				name %(fragment_condition)s
 
-	) as q2
-) as q1 order by rank, s2 limit 50"""
+	) AS matching_streets
+	ORDER BY rank, field_label
+	LIMIT 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(3, 5, 8)
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a street.'))
@@ -1002,29 +1005,36 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			}
 		}
 		query = u"""
-select u1, u2 from (
-	select distinct on (rank, u1)
-		u1, u2, rank
-	from (
-			select
-				urb as u1, urb as u2, 1 as rank
-			from dem.v_zip2data
-			where
+	SELECT DISTINCT ON (rank, data)
+		data,
+		field_label,
+		list_label
+	FROM (
+
+			SELECT
+				urb AS data,
+				urb AS field_label,
+				urb || ' (' || zip || ', ' || state || ', ' || l10n_country || ')' AS list_label,
+				1 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				urb %(fragment_condition)s
 				%(ctxt_zip)s
 
-		union all
+		UNION ALL
 
-			select
-				name as u1, name as u2, 2 as rank
-			from dem.urb
-			where
+			SELECT
+				name AS data,
+				name AS field_label,
+				name || ' (' || postcode ||')' AS list_label,
+				2 AS rank
+			FROM dem.urb
+			WHERE
 				name %(fragment_condition)s
-	) as union_result
-	order by rank, u1
-) as distincted_union
-limit 50
-"""
+
+	) AS matching_urbs
+	ORDER BY rank, data
+	LIMIT 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(3, 5, 7)
 		gmPhraseWheel.cPhraseWheel.__init__ (
