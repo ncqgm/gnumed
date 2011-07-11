@@ -22,6 +22,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.ui')
@@ -110,8 +111,52 @@ def manage_data_packs(parent=None):
 		_cfg.remove_source('data-packs')
 		return (items, data)
 	#------------------------------------------------------------
-	def install_data_packs
+	def install_data_pack(data_pack):
+		_log.info('attempting install of data pack: %s', data_pack['name'])
 
+		dp_fname = gmNetworkTools.download_file (
+			data_pack['pack_url'],
+			suffix = u'zip'
+		)
+
+		md5_fname = gmNetworkTools.download_file (
+			data_pack['md5_url'],
+			filename = dp_fname,
+			suffix = u'md5'
+		)
+
+		md5_file = open(md5_fname, 'rU')
+		md5_expected = md5_file.readline().strip('\n')
+		md5_file.close()
+		_log.debug('expected MD5: %s', md5_expected)
+		md5_calculated = gmTools.file2md5(dp_fname, return_hex = True)
+		_log.debug('calculated MD5: %s', md5_calculated)
+		if md5_calculated != md5_expected:
+			_log.error('data pack: expected vs calculated MD5 mismatch (%s vs %s)', md5_expected, md5_calculated)
+			msg = _(
+				'Cannot validate data pack.\n'
+				'\n'
+				'  name: %s\n'
+				'  URL: %s\n'
+				'\n'
+				'  MD5\n'
+				'   calculated: %s\n'
+				'   expected: %s\n'
+				'   source: %s\n'
+				'\n'
+				'You may want to try downloading again or you\n'
+				'may need to contact your administrator.'
+			) % (
+				data_pack['name'],
+				data_pack['pack_url'],
+				md5_calculated,
+				md5_expected,
+				data_pack['md5_url']
+			)
+			gmGuiHelpers.gm_show_error(msg, _('Verifying data pack'))
+			return False
+
+		return True
 	#------------------------------------------------------------
 	items, data = get_packs_list(dpl_url)
 
@@ -129,10 +174,14 @@ def manage_data_packs(parent=None):
 		columns = [ _('Data pack'), _('min DB'), _('max DB') ],
 		choices = items,
 		data = data,
-		single_selection = False,
+		single_selection = True,
 		can_return_empty = False,
-		ignore_OK_button = True
-#		left_extra_button=None,			# install
+		ignore_OK_button = True,
+		left_extra_button = (
+			_('Install'),
+			_('Install the selected data pack'),
+			install_data_pack
+		),
 #		middle_extra_button=None,
 #		right_extra_button=None			# configure
 	)

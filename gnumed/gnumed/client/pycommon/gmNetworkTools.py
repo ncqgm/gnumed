@@ -30,9 +30,10 @@ from Gnumed.pycommon import gmCfg2
 
 _log = logging.getLogger('gm.net')
 #===========================================================================
-def download_data_packs_list(url, filename=None):
+def download_file(url, filename=None, suffix=None):
+
 	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = 'gm-data_packs-', suffix = 'conf')
+		filename = gmTools.get_unique_filename(prefix = 'gm-dl-', suffix = suffix)
 	_log.debug('downloading [%s] into [%s]', url, filename)
 
 	try:
@@ -44,21 +45,12 @@ def download_data_packs_list(url, filename=None):
 
 	_log.debug(u'%s' % headers)
 	return dl_name
+#===========================================================================
+def download_data_packs_list(url, filename=None):
+	return download_file(url, filename = filename, suffix = 'conf')
 #---------------------------------------------------------------------------
 def download_data_pack(url, filename=None):
-	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = 'gm-dl-', suffix = 'zip')
-	_log.debug('downloading [%s] into [%s]', url, filename)
-
-	try:
-		dl_name, headers = urllib.urlretrieve(url, filename)
-	except (ValueError, OSError, IOError):
-		_log.exception('cannot download from [%s]', url)
-		gmLog2.log_stack_trace()
-		return None
-
-	_log.debug(u'%s' % headers)
-	return dl_name
+	return download_file(url, filename = filename, suffix = 'zip')
 #---------------------------------------------------------------------------
 def unzip_data_pack(filename=None):
 
