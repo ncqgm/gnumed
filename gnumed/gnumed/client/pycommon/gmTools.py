@@ -834,6 +834,11 @@ if __name__ == '__main__':
 				else:
 					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
 	#-----------------------------------------------------------------------
+	def test_input2int():
+		print input2int(0)
+		print input2int('0')
+		print input2int(u'0', 0, 0)
+	#-----------------------------------------------------------------------
 	def test_coalesce():
 
 		import datetime as dt
@@ -1043,7 +1048,8 @@ second line\n
 	#test_get_unique_filename()
 	#test_size2str()
 	#test_wrap()
-	test_input2decimal()
+	#test_input2decimal()
+	test_input2int()
 	#test_unwrap()
 	#test_md5()
 

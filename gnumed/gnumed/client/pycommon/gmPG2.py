@@ -90,49 +90,50 @@ auto_request_login_params = True
 # =======================================================================
 
 known_schema_hashes = {
-	'devel': 'not released, testing only',
-	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
-	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
-	'v4': '4428ccf2e54c289136819e701bb095ea',
-	'v5': '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
-	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
-	'v7': '6c9f6d3981483f8e9433df99d1947b27',
-	'v8': '89b13a7af83337c3aad153b717e52360',
-	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
-	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
-	'v11': '03042ae24f3f92877d986fb0a6184d76',
-	'v12': '06183a6616db62257e22814007a8ed07',
-	'v13': 'fab7c1ae408a6530c47f9b5111a0841e',
-	'v14': 'e170d543f067d1ea60bfe9076b1560cf',
-	'v15': '70012ff960b77ecdff4981c94b5b55b6'
+	0: 'not released, testing only',
+	2: 'b09d50d7ed3f91ddf4c4ddb8ea507720',
+	3: 'e73718eaf230d8f1d2d01afa8462e176',
+	4: '4428ccf2e54c289136819e701bb095ea',
+	5: '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
+	6: '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
+	7: '6c9f6d3981483f8e9433df99d1947b27',
+	8: '89b13a7af83337c3aad153b717e52360',
+	9: '641a9b2be3c378ffc2bb2f0b1c9f051d',
+	10: '7ef42a8fb2bd929a2cdd0c63864b4e8a',
+	11: '03042ae24f3f92877d986fb0a6184d76',
+	12: '06183a6616db62257e22814007a8ed07',
+	13: 'fab7c1ae408a6530c47f9b5111a0841e',
+	14: 'e170d543f067d1ea60bfe9076b1560cf',
+	15: '70012ff960b77ecdff4981c94b5b55b6'
 }
 
 map_schema_hash2version = {
-	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
-	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
-	'4428ccf2e54c289136819e701bb095ea': 'v4',
-	'7e7b093af57aea48c288e76632a382e5': 'v5',
-	'90e2026ac2efd236da9c8608b8685b2d': 'v6',
-	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
-	'89b13a7af83337c3aad153b717e52360': 'v8',
-	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
-	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
-	'03042ae24f3f92877d986fb0a6184d76': 'v11',
-	'06183a6616db62257e22814007a8ed07': 'v12',
-	'fab7c1ae408a6530c47f9b5111a0841e': 'v13',
-	'e170d543f067d1ea60bfe9076b1560cf': 'v14',
-	'70012ff960b77ecdff4981c94b5b55b6': 'v15'
+	'b09d50d7ed3f91ddf4c4ddb8ea507720': 2,
+	'e73718eaf230d8f1d2d01afa8462e176': 3,
+	'4428ccf2e54c289136819e701bb095ea': 4,
+	'7e7b093af57aea48c288e76632a382e5': 5,
+	'90e2026ac2efd236da9c8608b8685b2d': 6,
+	'6c9f6d3981483f8e9433df99d1947b27': 7,
+	'89b13a7af83337c3aad153b717e52360': 8,
+	'641a9b2be3c378ffc2bb2f0b1c9f051d': 9,
+	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 10,
+	'03042ae24f3f92877d986fb0a6184d76': 11,
+	'06183a6616db62257e22814007a8ed07': 12,
+	'fab7c1ae408a6530c47f9b5111a0841e': 13,
+	'e170d543f067d1ea60bfe9076b1560cf': 14,
+	'70012ff960b77ecdff4981c94b5b55b6': 15
 }
 
 map_client_branch2required_db_version = {
-	u'GIT tree': u'devel',
-	u'0.3': u'v9',
-	u'0.4': u'v10',
-	u'0.5': u'v11',
-	u'0.6': u'v12',
-	u'0.7': u'v13',
-	u'0.8': u'v14',
-	u'0.9': u'v15'
+	u'GIT tree': 0,
+	u'0.3': 9,
+	u'0.4': 10,
+	u'0.5': 11,
+	u'0.6': 12,
+	u'0.7': 13,
+	u'0.8': 14,
+	u'0.9': 15,
+	u'1.1': 16
 }
 
 # get columns and data types for a given table
@@ -434,10 +435,10 @@ def set_default_login(login=None):
 # =======================================================================
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
-	if version == 'devel':
-		args = {'ver': '9999'}
+	if version == 0:
+		args = {'ver': 9999}
 	else:
-		args = {'ver': version.strip('v')}
+		args = {'ver': version}
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
 		queries = [{
