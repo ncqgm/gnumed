@@ -49,8 +49,25 @@ def download_file(url, filename=None, suffix=None):
 def download_data_packs_list(url, filename=None):
 	return download_file(url, filename = filename, suffix = 'conf')
 #---------------------------------------------------------------------------
-def download_data_pack(url, filename=None):
-	return download_file(url, filename = filename, suffix = 'zip')
+def download_data_pack(pack_url, filename=None, md5_url=None):
+
+	_log.debug('downloading data pack from: %s', pack_url)
+	dp_fname = download_file(pack_url, filename = filename, suffix = 'zip')
+	_log.debug('downloading MD5 from: %s', md5_url)
+	md5_fname = download_file(md5_url, filename = dp_fname + u'.md5')
+
+	md5_file = open(md5_fname, 'rU')
+	md5_expected = md5_file.readline().strip('\n')
+	md5_file.close()
+	_log.debug('expected MD5: %s', md5_expected)
+	md5_calculated = gmTools.file2md5(dp_fname, return_hex = True)
+	_log.debug('calculated MD5: %s', md5_calculated)
+
+	if md5_calculated != md5_expected:
+		_log.error('mismatch of expected vs calculated MD5: [%s] vs [%s]', md5_expected, md5_calculated)
+		return (False, (md5_expected, md5_calculated))
+
+	return True, dp_fname
 #---------------------------------------------------------------------------
 def unzip_data_pack(filename=None):
 
@@ -67,29 +84,12 @@ def unzip_data_pack(filename=None):
 	data_pack.extractall(unzip_dir)
 
 	return unzip_dir
-#===========================================================================
-#def md5():
-#
-#	if md5 is not None:
-#		_log.debug('  expected md5: %s', md5)
-#		try:
-#			file_md5 = gmTools.file2md5(filename = filename, return_hex = True)
-#			_log.info('[%s] exists', filename)
-#			_log.debug('calculated md5: %s', file_md5)
-#		except:
-#			_log.exception('cannot calculate md5 of [%s]', filename)
-#			file_md5 = '-1'
-#		if file_md5 == md5:
-#			_log.info('not downloading from [%s]', url)
-#			return filename
-#
-#	file_md5 = gmTools.file2md5(filename = dl_name, return_hex = True)
-#	_log.debug('calculated md5: %s', file_md5)
-#	if md5 is not None:
-#		_log.error('  expected md5: %s', md5)
-#		if file_md5 != md5:
-#			_log.error('md5 mismatch, error downloading data pack')
-#			return None
+#---------------------------------------------------------------------------
+def install_data_pack(data_pack=None, conn=None):
+	from Gnumed.pycommon import gmPsql
+	psql = gmPsql.Psql(conn)
+	sql_script = os.path.join(data_pack['unzip_dir'], 'install-data-pack.sql')
+	return (psql.run(sql_script) == 0)
 #===========================================================================
 def download_data_pack_old(url, target_dir=None):
 
