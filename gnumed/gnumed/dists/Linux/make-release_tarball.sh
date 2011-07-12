@@ -45,7 +45,6 @@ FILES_REMOVE=\
 "./gnumed-client.$CLIENTREV/client/wxpython/zz-gmNewFileTemplate.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmAU_VaccV01.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmBMIWidgets.py "\
-"./gnumed-client.$CLIENTREV/client/wxpython/gmCharacterValidator.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmCryptoText.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmFormPrinter.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmGP_ActiveProblems.py "\

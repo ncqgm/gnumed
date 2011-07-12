@@ -449,7 +449,13 @@ def setup_ui_type():
 	_log.debug('UI type: %s', ui_type)
 #==========================================================
 def setup_backend():
-	_log.info('client expects database version [%s]', gmPG2.map_client_branch2required_db_version[current_client_branch])
+
+	db_version = gmPG2.map_client_branch2required_db_version[current_client_branch]
+	_log.info('client expects database version [%s]', db_version)
+	_cfg.set_option (
+		option = u'database_version',
+		value = db_version
+	)
 
 	# set up database connection timezone
 	timezone = _cfg.get (

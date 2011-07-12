@@ -70,6 +70,7 @@ from Gnumed.wxpython import gmCodingWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
+from Gnumed.wxpython import gmDataPackWidgets
 
 
 try:
@@ -457,6 +458,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_master_data.Append(-1, _('Manage lists'), _('Manage various lists of master data.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_master_data, item)
+
+		item = menu_master_data.Append(-1, _('Install data packs'), _('Install reference data from data packs.'))
+		self.Bind(wx.EVT_MENU, self.__on_install_data_packs, item)
 
 		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
@@ -2634,6 +2638,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
 		gmMedicationWidgets.update_atc_reference_data()
+	#----------------------------------------------
+	def __on_install_data_packs(self, evt):
+		gmDataPackWidgets.manage_data_packs(parent = self)
 	#----------------------------------------------
 	def __on_generate_vaccines(self, evt):
 		wx.BeginBusyCursor()
