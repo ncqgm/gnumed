@@ -10,7 +10,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
         from Gnumed.wxpython import gmEMRStructWidgets, gmDateTimeInput, gmDocumentWidgets
 
         # begin wxGlade: wxgReviewDocPartDlg.__init__
-        kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME|wx.STAY_ON_TOP
+        kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
         self.__szr_box_review_staticbox = wx.StaticBox(self, -1, _("Your review"))
         self.__szr_reviews_staticbox = wx.StaticBox(self, -1, _("Reviews by others"))

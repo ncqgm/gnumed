@@ -16,9 +16,17 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
-from Gnumed.business import gmPerson, gmDocuments, gmEMRStructItems, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
-from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
+from Gnumed.business import gmPerson
+from Gnumed.business import gmDocuments
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmSurgery
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -429,6 +437,8 @@ ORDER BY q1.rank, q1.field_label"""]
 				data = pk
 			)
 #============================================================
+from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg
+
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init__(self, *args, **kwds):
 		"""Support parts and docs now.
@@ -559,7 +569,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if pk_episode is None:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot create episode\n [%s]'),
-				_('editing document properties')
+				_('Editing document properties')
 			)
 			return False
 
@@ -582,7 +592,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot link the document to episode\n\n [%s]') % epi_name,
-				_('editing document properties')
+				_('Editing document properties')
 			)
 			return False
 
@@ -604,19 +614,34 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				if self._ChBOX_responsible.GetValue():
 					self.__part['pk_intended_reviewer'] = provider['pk_staff']
 			if msg is not None:
-				gmGuiHelpers.gm_show_error(msg, _('editing document properties'))
+				gmGuiHelpers.gm_show_error(msg, _('Editing document properties'))
 				return False
 
 		# 3) handle "page" specific parts
 		if not self.__reviewing_doc:
 			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
-			self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			new_idx = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			if new_idx in self.__doc['seq_idx_list']:
+				msg = _(
+					'Cannot set page number to [%s] because\n'
+					'another page with this number exists.\n'
+					'\n'
+					'Page numbers in use:\n'
+					'\n'
+					' %s'
+				) % (
+					new_idx,
+					self.__doc['seq_idx_list']
+				)
+				gmGuiHelpers.gm_show_error(msg, _('Editing document part properties'))
+			else:
+				self.__part['seq_idx'] = new_idx
 			self.__part['obj_comment'] = self._PRW_doc_comment.GetValue().strip()
 			success, data = self.__part.save_payload()
 			if not success:
 				gmGuiHelpers.gm_show_error (
 					_('Error saving part properties.'),
-					_('editing document properties')
+					_('Editing document part properties')
 				)
 				return False
 
@@ -1131,6 +1156,8 @@ off this message in the GNUmed configuration.""") % ref
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
+from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
+
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl):
 	"""A panel with a document tree which can be sorted."""
 	#--------------------------------------------------------
