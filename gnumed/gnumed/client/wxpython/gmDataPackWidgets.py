@@ -198,7 +198,7 @@ def load_data_packs_list():
 			_log.error('ignoring data pack: current database version (%s) > maximum allowable database version (%s)', _cfg.get(option = 'database_version'), db_max)
 			continue
 
-		items.append([name, db_min, db_max])
+		items.append([name, u'v%s' % db_min, u'v%s' % db_max, pack_url])
 		data.append ({
 			'name': name,
 			'pack_url': pack_url,
@@ -225,7 +225,7 @@ def manage_data_packs(parent=None):
 			_cfg.get(option = 'database_version')
 		),
 		caption = _('Showing data packs.'),
-		columns = [ _('Data pack'), _('min DB'), _('max DB') ],
+		columns = [ _('Data pack'), _('min DB'), _('max DB'), _('Source') ],
 		choices = items,
 		data = data,
 		single_selection = True,
