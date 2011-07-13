@@ -418,8 +418,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._LCTRL_items.item_tooltip_callback = callback
 
 	list_tooltip_callback = property(lambda x:x, _set_list_tooltip_callback)
-	#def _get_tooltip(self, item):		# inside class
-	#def _get_tooltip(item):			# outside class
+	#def _get_tooltip(self, item):		# inside a class
+	#def _get_tooltip(item):			# outside a class
 	#------------------------------------------------------------
 	def _set_message(self, message):
 		if message is None:
@@ -913,8 +913,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 
 		# under some circumstances the item_idx returned
-		# by HitTest() may not be out of bounds with respect
-		# to self.__data, this hints at a sync problem between
+		# by HitTest() may be out of bounds with respect to
+		# self.__data, this hints at a sync problem between
 		# setting display items and associated data
 		if (
 			(item_idx > len(self.__data))

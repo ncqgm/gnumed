@@ -46,6 +46,7 @@ IMPROVED: document archive: new review modes (only if not by responsible/only if
 IMPROVED: comm channel type PRW: filter out match candidate dupes [thanks J.Busser]
 IMPROVED: document tree: more informative node formatting
 IMPROVED: prescription: auto-sign if the current provider is the intended reviewer for the patient
+IMPROVED: waiting list: multi-line comment and item-based list tooltip
 
 ------------------------------------------------
 # rel-0-9-patches
