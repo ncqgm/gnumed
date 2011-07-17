@@ -444,9 +444,9 @@ class gmCurrentProvider(gmBorg.cBorg):
 #		raise AttributeError
 #============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity = %s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
 	_cmds_store_payload = [
-		u"""update dem.identity set
+		u"""UPDATE dem.identity SET
 				gender = %(gender)s,
 				dob = %(dob)s,
 				tob = %(tob)s,
@@ -460,10 +460,11 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 				fk_emergency_contact = %(pk_emergency_contact)s,
 				fk_primary_provider = %(pk_primary_provider)s,
 				comment = gm.nullify_empty_string(%(comment)s)
-			where
+			WHERE
 				pk = %(pk_identity)s and
-				xmin = %(xmin_identity)s""",
-		u"""select xmin_identity from dem.v_basic_person where pk_identity = %(pk_identity)s"""
+				xmin = %(xmin_identity)s
+			RETURNING
+				xmin AS xmin_identity"""
 	]
 	_updatable_fields = [
 		"title",
@@ -520,22 +521,32 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_is_patient(self):
 		cmd = u"""
-select exists (
-	select 1
-	from clin.v_emr_journal
-	where
-		pk_patient = %(pat)s
-			and
-		soap_cat is not null
-)"""
+			SELECT EXISTS (
+				SELECT 1
+				FROM clin.v_emr_journal
+				WHERE
+					pk_patient = %(pat)s
+						AND
+					soap_cat IS NOT NULL
+		)"""
 		args = {'pat': self._payload[self._idx['pk_identity']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
 	def _set_is_patient(self, value):
 		raise AttributeError('setting is_patient status of identity is not allowed')
 
 	is_patient = property(_get_is_patient, _set_is_patient)
+	#--------------------------------------------------------
+	def _get_staff_id(self):
+		cmd = u"SELECT pk FROM dem.staff WHERE fk_identity = %(pk)s"
+		args = {'pk': self._payload[self._idx['pk_identity']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 0:
+			return None
+		return rows[0][0]
+
+	staff_id = property(_get_staff_id, lambda x:x)
 	#--------------------------------------------------------
 	# identity API
 	#--------------------------------------------------------
@@ -1605,9 +1616,9 @@ def map_firstnames2gender(firstnames=None):
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:
-		cmd = u"select * from dem.v_staff where is_active order by can_login desc, short_alias asc"
+		cmd = u"SELECT * FROM dem.v_staff WHERE is_active ORDER BY can_login DESC, short_alias ASC"
 	else:
-		cmd = u"select * from dem.v_staff order by can_login desc, is_active desc, short_alias asc"
+		cmd = u"SELECT * FROM dem.v_staff ORDER BY can_login desc, is_active desc, short_alias ASC"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 	staff_list = []
 	for row in rows:

@@ -24,7 +24,12 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools
 from Gnumed.pycommon import gmDateTime, gmMatchProvider, gmCfg2
-from Gnumed.business import gmPerson, gmKVK, gmSurgery, gmCA_MSVA, gmPersonSearch
+from Gnumed.business import gmPerson
+from Gnumed.business import gmKVK
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmCA_MSVA
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmProviderInbox
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 
@@ -885,82 +890,136 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		return None
 #============================================================
+def _check_dob(patient=None):
+
+	if patient is None:
+		return
+
+	if patient['dob'] is None:
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Checking date of birth'),
+			aMessage = _(
+				'\n'
+				' %s\n'
+				'\n'
+				'The date of birth for this patient is not known !\n'
+				'\n'
+				'You can proceed to work on the patient but\n'
+				'GNUmed will be unable to assist you with\n'
+				'age-related decisions.\n'
+			) % patient['description_gender']
+		)
+
+	return
+#------------------------------------------------------------
+def _check_for_provider_chart_access(patient=None):
+
+	if patient is None:
+		return True
+
+	curr_prov = gmPerson.gmCurrentProvider()
+
+	# can view my own chart
+	if patient.ID == curr_prov['pk_identity']:
+		return True
+
+	if patient.ID not in [ s['pk_identity'] for s in gmPerson.get_staff_list() ]:
+		return True
+
+	proceed = gmGuiHelpers.gm_show_question (
+		aTitle = _('Privacy check'),
+		aMessage = _(
+			'You have selected the chart of a member of staff,\n'
+			'for whom privacy is especially important:\n'
+			'\n'
+			'  %s (%s)\n'
+			'\n'
+			'This may be OK depending on circumstances.\n'
+			'\n'
+			'Please be aware that accessing patient charts is\n'
+			'logged and that %s%s will be\n'
+			'notified of the access if you choose to proceed.\n'
+			'\n'
+			'Are you sure you want to draw this chart ?'
+		) % (
+			patient.get_description_gender(),
+			patient.get_formatted_dob(),
+			gmTools.coalesce(patient['title'], u'', u'%s '),
+			patient['lastnames']
+		)
+	)
+
+	if proceed:
+		prov = u'%s (%s%s %s)' % (
+			curr_prov['short_alias'],
+			gmTools.coalesce(curr_prov['title'], u'', u'%s '),
+			curr_prov['firstnames'],
+			curr_prov['lastnames']
+		)
+		gmProviderInbox.create_inbox_message (
+			message_type = _('Privacy notice'),
+			subject = _('Your chart has been accessed by %s.') % prov,
+			patient = patient.ID,
+			staff = patient.staff_id
+		)
+		pat = u'%s%s %s' % (
+			gmTools.coalesce(patient['title'], u'', u'%s '),
+			patient['firstnames'],
+			patient['lastnames']
+		)
+		gmProviderInbox.create_inbox_message (
+			message_type = _('Privacy notice'),
+			subject = _('Staff member %s has been notified of your chart access.') % pat,
+			patient = patient.ID,
+			staff = curr_prov['pk_staff']
+		)
+
+	return proceed
+#------------------------------------------------------------
 def set_active_patient(patient=None, forced_reload=False):
 
-	# warn if DOB is missing
-	try:
-		patient['dob']
-		check_dob = True
-	except TypeError:
-		check_dob = False
+	_check_dob(patient = patient)
 
-	if check_dob:
-		if patient['dob'] is None:
-			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Checking date of birth'),
-				aMessage = _(
-					'\n'
-					' %s\n'
-					'\n'
-					'The date of birth for this patient is not known !\n'
-					'\n'
-					'You can proceed to work on the patient but\n'
-					'GNUmed will be unable to assist you with\n'
-					'age-related decisions.\n'
-				) % patient['description_gender']
-			)
+	if not _check_for_provider_chart_access(patient = patient):
+		return False
 
 	success = gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
 
-	if success:
-		if patient['dob'] is not None:
-			dbcfg = gmCfg.cCfgSQL()
-			dob_distance = dbcfg.get2 (
-				option = u'patient_search.dob_warn_interval',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = u'user',
-				default = u'1 week'
-			)
+	if not success:
+		return False
 
-			if patient.dob_in_range(dob_distance, dob_distance):
-				now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-				enc = gmI18N.get_encoding()
-				gmDispatcher.send(signal = 'statustext', msg = _(
-					'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
-						'pat': patient.get_description_gender(),
-						'age': patient.get_medical_age().strip('y'),
-						'month': patient.get_formatted_dob(format = '%B', encoding = enc),
-						'day': patient.get_formatted_dob(format = '%d', encoding = enc),
-						'month_now': now.strftime('%B').decode(enc),
-						'day_now': now.strftime('%d')
-					}
-				)
+	if patient['dob'] is None:
+		return True
 
-	return success
+	dbcfg = gmCfg.cCfgSQL()
+	dob_distance = dbcfg.get2 (
+		option = u'patient_search.dob_warn_interval',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = u'user',
+		default = u'1 week'
+	)
+
+	if patient.dob_in_range(dob_distance, dob_distance):
+		now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+		enc = gmI18N.get_encoding()
+		gmDispatcher.send(signal = 'statustext', msg = _(
+			'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
+				'pat': patient.get_description_gender(),
+				'age': patient.get_medical_age().strip('y'),
+				'month': patient.get_formatted_dob(format = '%B', encoding = enc),
+				'day': patient.get_formatted_dob(format = '%d', encoding = enc),
+				'month_now': now.strftime('%B').decode(enc),
+				'day_now': now.strftime('%d')
+			}
+		)
+
+	return True
 #------------------------------------------------------------
 class cActivePatientSelector(cPersonSearchCtrl):
 
 	def __init__ (self, *args, **kwargs):
 
 		cPersonSearchCtrl.__init__(self, *args, **kwargs)
-
-#		selector_tooltip = _(
-#		'Patient search field.                             \n'
-#		'\n'
-#		'To search, type any of:\n'
-#		' - fragment of last or first name\n'
-#		" - date of birth (can start with '$' or '*')\n"
-#		" - patient ID (can start with '#')\n"
-#		'and hit <ENTER>.\n'
-#		'\n'
-#		'<CURSOR-UP>\n'
-#		' - recall most recently used search term\n'
-#		'<CURSOR-DOWN>\n'
-#		' - list 10 most recently activated patients\n'
-#		'<F2>\n'
-#		' - scan external sources for patients to import and activate\n'
-#		)
-#		self.SetToolTip(wx.ToolTip(selector_tooltip))
 
 		# get configuration
 		cfg = gmCfg.cCfgSQL()
