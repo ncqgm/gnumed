@@ -1261,6 +1261,7 @@ def str2pydt_matches(str2parse=None, patterns=None):
 	patterns.append('%Y.%m.%d')
 	patterns.append('%Y/%m/%d')
 	patterns.append('%Y-%m-%d')
+	patterns.append('%d/%m/%Y')
 
 	for pattern in patterns:
 		try:
