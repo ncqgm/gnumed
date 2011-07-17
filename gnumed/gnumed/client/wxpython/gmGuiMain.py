@@ -640,7 +640,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		ID_DICOM_VIEWER = wx.NewId()
 		viewer = _('no viewer installed')
-		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+		if gmShellAPI.detect_external_binary(binary = 'ginkgocadx')[0]:
+			viewer = u'Ginkgo CADx'
+		elif os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			viewer = u'OsiriX'
 		elif gmShellAPI.detect_external_binary(binary = 'aeskulap')[0]:
 			viewer = u'Aeskulap'
@@ -2073,6 +2075,11 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
+
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'ginkgocadx')
+		if found:
+			gmShellAPI.run_command_in_shell(cmd, blocking=False)
+			return
 
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
