@@ -919,8 +919,17 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 					'data': self.__data_date,
 					'online_update': self.__online_update_date
 				}
-
-		open(self.data_date_filename, 'wb').close()
+		try:
+			open(self.data_date_filename, 'wb').close()
+		except StandardError:
+			_log.error('problem querying the MMI drug database for version information')
+			_log.exception('cannot create MMI drug database version file [%s]', self.data_date_filename)
+			self.__data_date = None
+			self.__online_update_date = None
+			return {
+				'data': u'?',
+				'online_update': u'?'
+			}
 
 		cmd = u'%s -DATADATE' % self.path_to_binary
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
