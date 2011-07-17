@@ -17,7 +17,10 @@ import sys, os.path, os, string, time, shutil, codecs, glob, locale, errno, stat
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmShellAPI, gmTools, gmI18N
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmLog2
 
 
 _log = logging.getLogger('gm.scanning')
@@ -42,6 +45,8 @@ def _twain_import_module():
 		_log.info("TWAIN version: %s" % _twain_module.Version())
 #=======================================================
 class cTwainScanner:
+
+	# http://twainmodule.sourceforge.net/docs/index.html
 
 	# FIXME: we need to handle this exception in the right place: <class 'twain.excTWCC_SUCCESS'>
 
@@ -111,7 +116,13 @@ class cTwainScanner:
 		self.__src_manager.SetCallback(self._twain_event_callback)
 
 		# no arg == show "select source" dialog
-		self.__scanner = self.__src_manager.OpenSource()
+		try:
+			self.__scanner = self.__src_manager.OpenSource()
+		except _twain_module.excDSOpenFailed:
+			_log.exception('cannot open TWAIN data source (image capture device)')
+			gmLog2.log_stack_trace()
+			return False
+
 		if self.__scanner is None:
 			_log.error("user canceled scan source selection dialog")
 			return False
@@ -122,7 +133,7 @@ class cTwainScanner:
 		return True
 	#---------------------------------------------------
 	def __init_src_manager(self):
-		# open scanner manager
+
 		if self.__src_manager is not None:
 			return
 
@@ -137,7 +148,20 @@ class cTwainScanner:
 		# the following fails with "attempt to create Pseudo Window failed",
 		# I assume because the TWAIN vendors want to sabotage rebranding their GUI
 #		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle(), ProductName = 'GNUmed - The EMR that never sleeps.')
-		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+		try:
+			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+
+		except _twain_module.excSMLoadFileFailed:
+			_log.exception('failed to load TWAIN_32.DLL')
+			return
+
+		except _twain_module.excSMGetProcAddressFailed:
+			_log.exception('failed to jump into TWAIN_32.DLL')
+			return
+
+		except _twain_module.excSMOpenFailed:
+			_log.exception('failed to open Source Manager')
+			return
 
 		_log.info("TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
 	#---------------------------------------------------
