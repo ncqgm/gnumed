@@ -54,6 +54,10 @@ IMPROVED: document metadata editing: no more always-on-top, safer parts moving [
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.8
+
+FIX: exception on trying to create Gelbe Liste/MMI version file [thanks ALI from Lebanon]
+
 	0.9.7
 
 FIX: exception on creating allergy entry from non-brand substance intake [thanks J.Busser]
