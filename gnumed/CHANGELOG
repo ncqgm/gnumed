@@ -10,6 +10,7 @@
 
 FIX: exception on trying to create Gelbe Liste/MMI version file [thanks ALI from Lebanon]
 FIX: exceptions on various TWAIN error states [thanks ALI from Lebanon]
+FIX: failure to save leftmost notelet editor on [Save all] button [thanks J.Busser]
 
 	0.9.7
 
