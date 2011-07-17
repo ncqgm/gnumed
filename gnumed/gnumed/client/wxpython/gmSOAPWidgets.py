@@ -898,7 +898,7 @@ class cResizingSoapPanel(wx.Panel):
 			# make Richard the default ;-)
 			# FIXME: actually, should be read from backend
 			line = cSOAPLineDef()
-			line.label = _('Patient Request')
+			line.label = _('Visit Purpose')
 			line.soap_cat = 's'
 			line.is_rfe = True
 			soap_lines.append(line)

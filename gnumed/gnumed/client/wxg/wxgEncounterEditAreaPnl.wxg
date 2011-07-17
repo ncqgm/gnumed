@@ -110,7 +110,7 @@
                         <option>0</option>
                         <object class="wxStaticText" name="__lbl_rfe" base="EditStaticText">
                             <attribute>0</attribute>
-                            <label>Request</label>
+                            <label>Purpose</label>
                         </object>
                     </object>
                     <object class="sizeritem">
@@ -119,7 +119,7 @@
                         <option>0</option>
                         <object class="wxTextCtrl" name="_TCTRL_rfe" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Enter the Reason For Encounter here. This is the patient's initial request which led to the encounter.</tooltip>
+                            <tooltip>Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter.</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">
