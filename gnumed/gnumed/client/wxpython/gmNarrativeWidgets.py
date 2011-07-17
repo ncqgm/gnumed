@@ -1452,7 +1452,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		_log.debug('saving editors: %s', self.GetPageCount())
 
 		all_closed = True
-		for page_idx in range((self.GetPageCount() - 1), 0, -1):
+		for page_idx in range((self.GetPageCount() - 1), -1, -1):
 			_log.debug('#%s of %s', page_idx, self.GetPageCount())
 			try:
 				self.ChangeSelection(page_idx)
