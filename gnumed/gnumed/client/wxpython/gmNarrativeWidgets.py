@@ -2310,243 +2310,243 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			discard_unmodified = True
 		)
 #============================================================
-from Gnumed.wxGladeWidgets import wxgVisualSoapPnl
+#from Gnumed.wxGladeWidgets import wxgVisualSoapPnl
 
-class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
-
-	def __init__(self, *args, **kwargs):
-
-		wxgVisualSoapPnl.wxgVisualSoapPnl.__init__(self, *args, **kwargs)
-
-		# dummy episode to hold images
-		self.default_episode_name = _('visual progress notes')
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def clear(self):
-		self._PRW_template.SetText(value = u'', data = None)
-		self._LCTRL_visual_soaps.set_columns([_('Sketches')])
-		self._LCTRL_visual_soaps.set_string_items()
-
-		self.show_image_and_metadata()
-	#--------------------------------------------------------
-	def refresh(self, patient=None, encounter=None):
-
-		self.clear()
-
-		if patient is None:
-			patient = gmPerson.gmCurrentPatient()
-
-		if not patient.connected:
-			return
-
-		emr = patient.get_emr()
-		if encounter is None:
-			encounter = emr.active_encounter
-
-		folder = patient.get_document_folder()
-		soap_docs = folder.get_documents (
-			doc_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
-			encounter = encounter['pk_encounter']
-		)
-
-		if len(soap_docs) == 0:
-			self._BTN_delete.Enable(False)
-			return
-
-		self._LCTRL_visual_soaps.set_string_items ([
-			u'%s%s%s' % (
-				gmTools.coalesce(sd['comment'], u'', u'%s\n'),
-				gmTools.coalesce(sd['ext_ref'], u'', u'%s\n'),
-				sd['episode']
-			) for sd in soap_docs
-		])
-		self._LCTRL_visual_soaps.set_data(soap_docs)
-
-		self._BTN_delete.Enable(True)
-	#--------------------------------------------------------
-	def show_image_and_metadata(self, doc=None):
-
-		if doc is None:
-			self._IMG_soap.SetBitmap(wx.NullBitmap)
-			self._PRW_episode.SetText()
-			#self._PRW_comment.SetText(value = u'', data = None)
-			self._PRW_comment.SetValue(u'')
-			return
-
-		parts = doc.parts
-		if len(parts) == 0:
-			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
-			return
-
-		fname = parts[0].export_to_file()
-		if fname is None:
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note to file.'))
-			return
-
-		img_data = None
-		rescaled_width = 300
-		try:
-			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
-			current_width = img_data.GetWidth()
-			current_height = img_data.GetHeight()
-			rescaled_height = (rescaled_width * current_height) / current_width
-			img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
-			bmp_data = wx.BitmapFromImage(img_data)
-		except:
-			_log.exception('cannot load visual progress note from [%s]', fname)
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot load visual progress note from [%s].') % fname)
-			del img_data
-			return
-
-		del img_data
-		self._IMG_soap.SetBitmap(bmp_data)
-
-		self._PRW_episode.SetText(value = doc['episode'], data = doc['pk_episode'])
-		if doc['comment'] is not None:
-			self._PRW_comment.SetValue(doc['comment'].strip())
-	#--------------------------------------------------------
-	# event handlers
-	#--------------------------------------------------------
-	def _on_visual_soap_selected(self, event):
-
-		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
-		self.show_image_and_metadata(doc = doc)
-		if doc is None:
-			return
-
-		self._BTN_delete.Enable(True)
-	#--------------------------------------------------------
-	def _on_visual_soap_deselected(self, event):
-		self._BTN_delete.Enable(False)
-	#--------------------------------------------------------
-	def _on_visual_soap_activated(self, event):
-
-		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
-		if doc is None:
-			self.show_image_and_metadata()
-			return
-
-		parts = doc.parts
-		if len(parts) == 0:
-			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
-			return
-
-		edit_visual_progress_note(doc_part = parts[0], discard_unmodified = True)
-		self.show_image_and_metadata(doc = doc)
-
-		self._BTN_delete.Enable(True)
-	#--------------------------------------------------------
-	def _on_from_template_button_pressed(self, event):
-
-		template = self._PRW_template.GetData(as_instance = True)
-		if template is None:
-			return
-
-		filename = template.export_to_file()
-		if filename is None:
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
-			return
-
-		episode = self._PRW_episode.GetData(as_instance = True)
-		if episode is None:
-			episode = self._PRW_episode.GetValue().strip()
-			if episode == u'':
-				episode = self.default_episode_name
-
-		# do not store note if not modified -- change if users complain
-		doc = edit_visual_progress_note(filename = filename, episode = episode, discard_unmodified = True)
-		if doc is None:
-			return
-
-		if self._PRW_comment.GetValue().strip() == u'':
-			doc['comment'] = template['instance_type']
-		else:
-			doc['comment'] = self._PRW_comment.GetValue().strip()
-
-		doc.save()
-		self.show_image_and_metadata(doc = doc)
-	#--------------------------------------------------------
-	def _on_from_file_button_pressed(self, event):
-
-		dlg = wx.FileDialog (
-			parent = self,
-			message = _('Choose a visual progress note template file'),
-			defaultDir = os.path.expanduser('~'),
-			defaultFile = '',
-			#wildcard = "%s (*)|*|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
-			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
-		)
-		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			dlg.Destroy()
-			return
-
-		full_filename = dlg.GetPath()
-		dlg.Hide()
-		dlg.Destroy()
-
-		# create a copy of the picked file -- don't modify the original
-		ext = os.path.splitext(full_filename)[1]
-		tmp_name = gmTools.get_unique_filename(suffix = ext)
-		_log.debug('visual progress note from file: [%s] -> [%s]', full_filename, tmp_name)
-		shutil.copy2(full_filename, tmp_name)
-
-		episode = self._PRW_episode.GetData(as_instance = True)
-		if episode is None:
-			episode = self._PRW_episode.GetValue().strip()
-			if episode == u'':
-				episode = self.default_episode_name
-
-		# always store note even if unmodified as we
-		# may simply want to store a clinical photograph
-		doc = edit_visual_progress_note(filename = tmp_name, episode = episode, discard_unmodified = False)
-		if self._PRW_comment.GetValue().strip() == u'':
-			# use filename as default comment (w/o extension)
-			doc['comment'] = os.path.splitext(os.path.split(full_filename)[1])[0]
-		else:
-			doc['comment'] = self._PRW_comment.GetValue().strip()
-		doc.save()
-		self.show_image_and_metadata(doc = doc)
-
-		try:
-			os.remove(tmp_name)
-		except StandardError:
-			_log.exception('cannot remove [%s]', tmp_name)
-
-		remove_original = gmGuiHelpers.gm_show_question (
-			_(
-				'Do you want to delete the original file\n'
-				'\n'
-				' [%s]\n'
-				'\n'
-				'from your computer ?'
-			) % full_filename,
-			_('Saving visual progress note ...')
-		)
-		if remove_original:
-			try:
-				os.remove(full_filename)
-			except StandardError:
-				_log.exception('cannot remove [%s]', full_filename)
-	#--------------------------------------------------------
-	def _on_delete_button_pressed(self, event):
-
-		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
-		if doc is None:
-			self.show_image_and_metadata()
-			return
-
-		delete_it = gmGuiHelpers.gm_show_question (
-			aMessage = _('Are you sure you want to delete the visual progress note ?'),
-			aTitle = _('Deleting visual progress note')
-		)
-		if delete_it is True:
-			gmDocuments.delete_document (
-				document_id = doc['pk_doc'],
-				encounter_id = doc['pk_encounter']
-			)
-		self.show_image_and_metadata()
+#class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
+#
+#	def __init__(self, *args, **kwargs):
+#
+#		wxgVisualSoapPnl.wxgVisualSoapPnl.__init__(self, *args, **kwargs)
+#
+#		# dummy episode to hold images
+#		self.default_episode_name = _('visual progress notes')
+#	#--------------------------------------------------------
+#	# external API
+#	#--------------------------------------------------------
+#	def clear(self):
+#		self._PRW_template.SetText(value = u'', data = None)
+#		self._LCTRL_visual_soaps.set_columns([_('Sketches')])
+#		self._LCTRL_visual_soaps.set_string_items()
+#
+#		self.show_image_and_metadata()
+#	#--------------------------------------------------------
+#	def refresh(self, patient=None, encounter=None):
+#
+#		self.clear()
+#
+#		if patient is None:
+#			patient = gmPerson.gmCurrentPatient()
+#
+#		if not patient.connected:
+#			return
+#
+#		emr = patient.get_emr()
+#		if encounter is None:
+#			encounter = emr.active_encounter
+#
+#		folder = patient.get_document_folder()
+#		soap_docs = folder.get_documents (
+#			doc_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
+#			encounter = encounter['pk_encounter']
+#		)
+#
+#		if len(soap_docs) == 0:
+#			self._BTN_delete.Enable(False)
+#			return
+#
+#		self._LCTRL_visual_soaps.set_string_items ([
+#			u'%s%s%s' % (
+#				gmTools.coalesce(sd['comment'], u'', u'%s\n'),
+#				gmTools.coalesce(sd['ext_ref'], u'', u'%s\n'),
+#				sd['episode']
+#			) for sd in soap_docs
+#		])
+#		self._LCTRL_visual_soaps.set_data(soap_docs)
+#
+#		self._BTN_delete.Enable(True)
+#	#--------------------------------------------------------
+#	def show_image_and_metadata(self, doc=None):
+#
+#		if doc is None:
+#			self._IMG_soap.SetBitmap(wx.NullBitmap)
+#			self._PRW_episode.SetText()
+#			#self._PRW_comment.SetText(value = u'', data = None)
+#			self._PRW_comment.SetValue(u'')
+#			return
+#
+#		parts = doc.parts
+#		if len(parts) == 0:
+#			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
+#			return
+#
+#		fname = parts[0].export_to_file()
+#		if fname is None:
+#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note to file.'))
+#			return
+#
+#		img_data = None
+#		rescaled_width = 300
+#		try:
+#			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
+#			current_width = img_data.GetWidth()
+#			current_height = img_data.GetHeight()
+#			rescaled_height = (rescaled_width * current_height) / current_width
+#			img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
+#			bmp_data = wx.BitmapFromImage(img_data)
+#		except:
+#			_log.exception('cannot load visual progress note from [%s]', fname)
+#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot load visual progress note from [%s].') % fname)
+#			del img_data
+#			return
+#
+#		del img_data
+#		self._IMG_soap.SetBitmap(bmp_data)
+#
+#		self._PRW_episode.SetText(value = doc['episode'], data = doc['pk_episode'])
+#		if doc['comment'] is not None:
+#			self._PRW_comment.SetValue(doc['comment'].strip())
+#	#--------------------------------------------------------
+#	# event handlers
+#	#--------------------------------------------------------
+#	def _on_visual_soap_selected(self, event):
+#
+#		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
+#		self.show_image_and_metadata(doc = doc)
+#		if doc is None:
+#			return
+#
+#		self._BTN_delete.Enable(True)
+#	#--------------------------------------------------------
+#	def _on_visual_soap_deselected(self, event):
+#		self._BTN_delete.Enable(False)
+#	#--------------------------------------------------------
+#	def _on_visual_soap_activated(self, event):
+#
+#		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
+#		if doc is None:
+#			self.show_image_and_metadata()
+#			return
+#
+#		parts = doc.parts
+#		if len(parts) == 0:
+#			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
+#			return
+#
+#		edit_visual_progress_note(doc_part = parts[0], discard_unmodified = True)
+#		self.show_image_and_metadata(doc = doc)
+#
+#		self._BTN_delete.Enable(True)
+#	#--------------------------------------------------------
+#	def _on_from_template_button_pressed(self, event):
+#
+#		template = self._PRW_template.GetData(as_instance = True)
+#		if template is None:
+#			return
+#
+#		filename = template.export_to_file()
+#		if filename is None:
+#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
+#			return
+#
+#		episode = self._PRW_episode.GetData(as_instance = True)
+#		if episode is None:
+#			episode = self._PRW_episode.GetValue().strip()
+#			if episode == u'':
+#				episode = self.default_episode_name
+#
+#		# do not store note if not modified -- change if users complain
+#		doc = edit_visual_progress_note(filename = filename, episode = episode, discard_unmodified = True)
+#		if doc is None:
+#			return
+#
+#		if self._PRW_comment.GetValue().strip() == u'':
+#			doc['comment'] = template['instance_type']
+#		else:
+#			doc['comment'] = self._PRW_comment.GetValue().strip()
+#
+#		doc.save()
+#		self.show_image_and_metadata(doc = doc)
+#	#--------------------------------------------------------
+#	def _on_from_file_button_pressed(self, event):
+#
+#		dlg = wx.FileDialog (
+#			parent = self,
+#			message = _('Choose a visual progress note template file'),
+#			defaultDir = os.path.expanduser('~'),
+#			defaultFile = '',
+#			#wildcard = "%s (*)|*|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
+#			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+#		)
+#		result = dlg.ShowModal()
+#		if result == wx.ID_CANCEL:
+#			dlg.Destroy()
+#			return
+#
+#		full_filename = dlg.GetPath()
+#		dlg.Hide()
+#		dlg.Destroy()
+#
+#		# create a copy of the picked file -- don't modify the original
+#		ext = os.path.splitext(full_filename)[1]
+#		tmp_name = gmTools.get_unique_filename(suffix = ext)
+#		_log.debug('visual progress note from file: [%s] -> [%s]', full_filename, tmp_name)
+#		shutil.copy2(full_filename, tmp_name)
+#
+#		episode = self._PRW_episode.GetData(as_instance = True)
+#		if episode is None:
+#			episode = self._PRW_episode.GetValue().strip()
+#			if episode == u'':
+#				episode = self.default_episode_name
+#
+#		# always store note even if unmodified as we
+#		# may simply want to store a clinical photograph
+#		doc = edit_visual_progress_note(filename = tmp_name, episode = episode, discard_unmodified = False)
+#		if self._PRW_comment.GetValue().strip() == u'':
+#			# use filename as default comment (w/o extension)
+#			doc['comment'] = os.path.splitext(os.path.split(full_filename)[1])[0]
+#		else:
+#			doc['comment'] = self._PRW_comment.GetValue().strip()
+#		doc.save()
+#		self.show_image_and_metadata(doc = doc)
+#
+#		try:
+#			os.remove(tmp_name)
+#		except StandardError:
+#			_log.exception('cannot remove [%s]', tmp_name)
+#
+#		remove_original = gmGuiHelpers.gm_show_question (
+#			_(
+#				'Do you want to delete the original file\n'
+#				'\n'
+#				' [%s]\n'
+#				'\n'
+#				'from your computer ?'
+#			) % full_filename,
+#			_('Saving visual progress note ...')
+#		)
+#		if remove_original:
+#			try:
+#				os.remove(full_filename)
+#			except StandardError:
+#				_log.exception('cannot remove [%s]', full_filename)
+#	#--------------------------------------------------------
+#	def _on_delete_button_pressed(self, event):
+#
+#		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
+#		if doc is None:
+#			self.show_image_and_metadata()
+#			return
+#
+#		delete_it = gmGuiHelpers.gm_show_question (
+#			aMessage = _('Are you sure you want to delete the visual progress note ?'),
+#			aTitle = _('Deleting visual progress note')
+#		)
+#		if delete_it is True:
+#			gmDocuments.delete_document (
+#				document_id = doc['pk_doc'],
+#				encounter_id = doc['pk_encounter']
+#			)
+#		self.show_image_and_metadata()
 #============================================================
 # main
 #------------------------------------------------------------
