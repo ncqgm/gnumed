@@ -158,6 +158,14 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
+		if selections is None:
+			return
+		if len(selections) == 0:
+			return
+		if self.ignore_OK_button:
+			return
+		self._BTN_ok.Enable(True)
+		self._BTN_ok.SetDefault()
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_items.set_data(data = data)
@@ -273,11 +281,16 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _set_ignore_OK_button(self, ignored):
 		self.__ignore_OK_button = ignored
 		if self.__ignore_OK_button:
-			self._BTN_ok.Enable(False)
 			self._BTN_ok.Hide()
+			self._BTN_ok.Enable(False)
 		else:
-			self._BTN_ok.Enable(True)
 			self._BTN_ok.Show()
+			if self._LCTRL_items.get_selected_items(only_one=True) == -1:
+				if self.can_return_empty:
+					self._BTN_ok.Enable(True)
+				else:
+					self._BTN_ok.Enable(False)
+					self._BTN_cancel.SetDefault()
 
 	ignore_OK_button = property(lambda x:x, _set_ignore_OK_button)
 	#------------------------------------------------------------

@@ -340,6 +340,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					date_format = data_parts[1]
 
 		encounters = gmEMRStructWidgets.select_encounters(single_selection = False)
+		if not encounters:
+			return u''
 
 		chunks = []
 		for enc in encounters:

@@ -66,6 +66,12 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 			single_selection = False,
 			encounters = encs
 		)
+		# cancelled
+		if encounters is None:
+			return True
+		# none selected
+		if len(encounters) == 0:
+			return True
 
 	notes = emr.get_clin_narrative (
 		encounters = encounters,
@@ -1204,12 +1210,15 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_save_note_under_button_pressed(self, event):
-		encounter = gmEMRStructWidgets.select_encounters (
+		encounters = gmEMRStructWidgets.select_encounters (
 			parent = self,
 			patient = self.__pat,
 			single_selection = True
 		)
-		if encounter is None:
+		# cancelled:
+		if encounters is None:
+			return
+		if len(encounters) == 0:
 			return
 
 		emr = self.__pat.get_emr()

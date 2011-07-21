@@ -695,7 +695,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		msg = _('\nBelow find the relevant encounters of the patient.\n'),
 		caption = _('Encounters ...'),
 		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Empty'), '#'],
-		can_return_empty = True,
+		can_return_empty = False,
 		single_selection = single_selection,
 		refresh_callback = refresh,
 		edit_callback = edit,
