@@ -141,9 +141,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 
-		self.ignore_OK_button = False			# by default do show/use the OK button
-
 		self.can_return_empty = False
+		self.ignore_OK_button = False			# by default do show/use the OK button
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
