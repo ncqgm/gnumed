@@ -1897,7 +1897,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			parent = self,
 			patient = gmPerson.gmCurrentPatient()
 		)
-		if enc is None:
+		if not enc:
 			return
 		self.__curr_node_data['pk_encounter'] = enc['pk_encounter']
 		self.__curr_node_data.save()
