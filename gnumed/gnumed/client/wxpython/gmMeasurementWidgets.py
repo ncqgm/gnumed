@@ -1620,81 +1620,46 @@ class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-	(
-select
-	pk_test_type,
+SELECT DISTINCT ON (field_label)
+	pk_test_type AS data,
 	name_tt
 		|| ' ('
 		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			(SELECT internal_name FROM clin.test_org cto WHERE cto.pk = vcutt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
-	name_meta %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
+	AS field_label,
 	name_tt
 		|| ' ('
+		|| code_tt || ', '
+		|| abbrev_tt || ', '
+		|| coalesce(abbrev_meta || ': ' || name_meta || ', ', '')
 		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			(SELECT internal_name FROM clin.test_org cto WHERE cto.pk = vcutt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
-	name_tt %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
-	name_tt
-		|| ' ('
-		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
-			'%(in_house)s'
-			)
-		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
+	AS list_label
+FROM
+	clin.v_unified_test_types vcutt
+WHERE
 	abbrev_meta %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
-	name_tt
-		|| ' ('
-		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
-			'%(in_house)s'
-			)
-		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
+		OR
+	name_meta %%(fragment_condition)s
+		OR
+	abbrev_tt %%(fragment_condition)s
+		OR
+	name_tt %%(fragment_condition)s
+		OR
 	code_tt %%(fragment_condition)s
-)
-
-order by name
-limit 50""" % {'in_house': _('in house lab')}
+ORDER BY field_label
+LIMIT 50""" % {'in_house': _('generic / in house lab')}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
 		mp.word_separators = '[ \t:@]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
 		self.SetToolTipString(_('Select the type of measurement.'))
 		self.selection_only = False
