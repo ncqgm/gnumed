@@ -2255,7 +2255,7 @@ if __name__ == '__main__':
 	#test_format_interval()
 	#test_format_interval_medically()
 	#test_calculate_apparent_age()
-	#test_str2pydt()
-	test_pydt_strftime()
+	test_str2pydt()
+	#test_pydt_strftime()
 
 #===========================================================================

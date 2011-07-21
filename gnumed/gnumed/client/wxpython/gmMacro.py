@@ -61,7 +61,7 @@ known_placeholders = [
 ]
 
 
-# those must satisfy the pattern "$name::args::optional length$" when used
+# those must satisfy the pattern "$<name::args::optional length>$" when used
 known_variant_placeholders = [
 	u'soap',
 	u'progress_notes',			# "args" holds: categories//template

@@ -51,7 +51,7 @@ def browse_coded_terms(parent=None, coding_systems=None, languages=None):
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('Coded terms known to GNUmed.'),
+		msg = _('Coded terms known to GNUmed (may take a while to load).'),
 		caption = _('Showing coded terms.'),
 		columns = [ _('Term'), _('Code'), _('System'), _('Language'), _('Version'), _(u'Coding system details') ],
 		single_selection = True,

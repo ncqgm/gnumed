@@ -1462,18 +1462,19 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 		gmMatchProvider.cMatchProvider_SQL2.__init__(
 			self,
 			queries = [
-				u"""select
-						pk_staff,
-						short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')',
-						1
-					from dem.v_staff
-					where
-						is_active and (
-							short_alias %(fragment_condition)s or
-							firstnames %(fragment_condition)s or
-							lastnames %(fragment_condition)s or
+				u"""SELECT
+						pk_staff AS data,
+						short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')' AS list_label,
+						short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')' AS field_label
+					FROM dem.v_staff
+					WHERE
+						is_active AND (
+							short_alias %(fragment_condition)s OR
+							firstnames %(fragment_condition)s OR
+							lastnames %(fragment_condition)s OR
 							db_user %(fragment_condition)s
-						)"""
+						)
+				"""
 			]
 		)
 		self.setThresholds(1, 2, 3)

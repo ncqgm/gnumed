@@ -1492,17 +1492,31 @@ WHERE
 			if len(soap_cat_narratives) == 0:
 				continue
 
-			lines.append(u'-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+			lines.append(u'%s%s %s %s' % (
+				gmTools.u_box_top_left_arc,
+				gmTools.u_box_horiz_single,
+				gmClinNarrative.soap_cat2l10n_str[soap_cat],
+				gmTools.u_box_horiz_single * 5
+			))
 			for soap_entry in soap_cat_narratives:
 				txt = gmTools.wrap (
-					text = u'%s\n (%.8s %s)' % (
-						soap_entry['narrative'],
-						soap_entry['provider'],
-						soap_entry['date'].strftime('%Y-%m-%d %H:%M')
-					),
+					text = soap_entry['narrative'],
 					width = 75,
 					initial_indent = u'',
 					subsequent_indent = (u' ' * left_margin)
+				)
+				lines.append(txt)
+				when = gmDateTime.pydt_strftime (
+					soap_entry['date'],
+					format = '%Y-%m-%d %H:%M',
+					accuracy = gmDateTime.acc_minutes
+				)
+				txt = u'%s%s %.8s, %s %s' % (
+					u' ' * 40,
+					gmTools.u_box_horiz_light_heavy,
+					soap_entry['provider'],
+					when,
+					gmTools.u_box_horiz_heavy_light
 				)
 				lines.append(txt)
 				lines.append('')

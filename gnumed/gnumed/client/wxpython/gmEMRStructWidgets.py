@@ -1428,7 +1428,7 @@ limit 30"""
 			)
 	#--------------------------------------------------------
 	def _data2instance(self):
-		return gmEMRStructItems.cEpisode(aPK_obj = self.data)
+		return gmEMRStructItems.cEpisode(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------

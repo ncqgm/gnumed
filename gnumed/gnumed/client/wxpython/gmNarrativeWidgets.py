@@ -1638,7 +1638,9 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		else:
 			episode = emr.problem2episode(self.problem)
 
-		#emr.add_notes(notes = self.soap, episode = epi_id, encounter = encounter)
+		if encounter is None:
+			encounter = emr.current_encounter['pk_encounter']
+
 		soap_notes = []
 		for note in self.soap:
 			saved, data = gmClinNarrative.create_clin_narrative (
@@ -2200,8 +2202,9 @@ class cVisualSoapTemplatePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 SELECT
-	pk,
-	name_short
+	pk AS data,
+	name_short AS list_label,
+	name_sort AS field_label
 FROM
 	ref.paperwork_templates
 WHERE
@@ -2210,7 +2213,7 @@ WHERE
 			OR
 		name_short %%(fragment_condition)s
 	)
-ORDER BY name_short
+ORDER BY list_label
 LIMIT 15
 """	% gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE
 
@@ -2221,10 +2224,10 @@ LIMIT 15
 		self.selection_only = True
 	#--------------------------------------------------------
 	def _data2instance(self):
-		if self.data is None:
+		if self.GetData() is None:
 			return None
 
-		return gmForms.cFormTemplate(aPK_obj = self.data)
+		return gmForms.cFormTemplate(aPK_obj = self.GetData())
 #============================================================
 from Gnumed.wxGladeWidgets import wxgVisualSoapPresenterPnl
 

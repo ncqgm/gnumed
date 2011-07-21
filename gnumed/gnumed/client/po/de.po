@@ -390,7 +390,7 @@ msgid "ongoing"
 msgstr "andauernd"
 
 msgid "No encounters found for this health issue."
-msgstr "Keine APK für diese Grunderkrankung gefunden."
+msgstr "Keine Kontakte zu dieser Grunderkrankung gefunden."
 
 msgid "Encounters: %s (%s - %s):"
 msgstr "Konsultationen: %s (%s - %s):"
@@ -441,7 +441,7 @@ msgid "Error retrieving encounters for this episode."
 msgstr "Fehler beim Laden der APK für diese Episode."
 
 msgid "There are no encounters for this episode."
-msgstr "Keine APK für diese Episode gefunden."
+msgstr "Keine Kontakte zu dieser Episode gefunden."
 
 msgid "Last worked on: %s\n"
 msgstr "Zuletzt behandelt: %s\n"
