@@ -375,7 +375,7 @@ def file2scaled_image(filename=None, height=100):
 #			current_width = 1
 #		if current_height == 0:
 #			current_height = 1
-		rescaled_width = (current_width / current_height) * rescaled_height
+		rescaled_width = (float(current_width) / current_height) * rescaled_height
 		img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
 		bitmap = wx.BitmapFromImage(img_data)
 		del img_data
