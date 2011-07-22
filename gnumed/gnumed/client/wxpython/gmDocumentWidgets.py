@@ -1197,7 +1197,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, parent, id, *args, **kwds):
 		"""Set up our specialised tree.
 		"""
-		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER
+		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER | wx.TR_SINGLE
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)

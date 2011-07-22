@@ -82,7 +82,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __init__(self, parent, id, *args, **kwds):
 		"""Set up our specialised tree.
 		"""
-		kwds['style'] = wx.TR_HAS_BUTTONS | wx.NO_BORDER
+		kwds['style'] = wx.TR_HAS_BUTTONS | wx.NO_BORDER | wx.TR_SINGLE
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
 		gmGuiHelpers.cTreeExpansionHistoryMixin.__init__(self)
