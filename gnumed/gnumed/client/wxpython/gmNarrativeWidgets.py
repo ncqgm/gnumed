@@ -1858,7 +1858,7 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 	#------------------------------------------------
 	def _wrapLine(self, line, dc, width):
 
-		if (wx.MAJOR_VERSION > 1) and (wx.MINOR_VERSION > 8):
+		if (wx.MAJOR_VERSION >= 2) and (wx.MINOR_VERSION > 8):
 			return super(cSoapLineTextCtrl, self)._wrapLine(line, dc, width)
 
 		# THIS FIX LIFTED FROM TRUNK IN SVN:
@@ -1899,10 +1899,13 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 		wx.CallAfter(self._after_on_focus)
 	#--------------------------------------------------------
 	def _after_on_focus(self):
+		#wx.CallAfter(self._adjustCtrl)
 		evt = wx.PyCommandEvent(wx_expando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
 		evt.SetEventObject(self)
-		evt.height = None
-		evt.numLines = None
+		#evt.height = None
+		#evt.numLines = None
+		#evt.height = self.GetSize().height
+		#evt.numLines = self.GetNumberOfLines()
 		self.GetEventHandler().ProcessEvent(evt)
 	#--------------------------------------------------------
 	def __on_char(self, evt):
@@ -2021,7 +2024,7 @@ def configure_visual_progress_note_editor():
 
 		return True, binary
 	#------------------------------------------
-	gmCfgWidgets.configure_string_option (
+	cmd = gmCfgWidgets.configure_string_option (
 		message = _(
 			'Enter the shell command with which to start\n'
 			'the image editor for visual progress notes.\n'
@@ -2035,6 +2038,8 @@ def configure_visual_progress_note_editor():
 		default_value = None,
 		validator = is_valid
 	)
+
+	return cmd
 #============================================================
 def select_file_as_visual_progress_note_template(parent=None):
 	if parent is None:
@@ -2064,16 +2069,40 @@ def select_visual_progress_note_template(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	# 1) select from template
-	from Gnumed.wxpython import gmFormWidgets
-	template = gmFormWidgets.manage_form_templates (
-		parent = parent,
-		template_types = [gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE],
-		active_only = True
+	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+		parent,
+		-1,
+		caption = _('Visual progress note source'),
+		question = _('From which source do you want to pick the image template ?'),
+		button_defs = [
+			{'label': _('Database'), 'tooltip': _('List of templates in the database.'), 'default': True},
+			{'label': _('File'), 'tooltip': _('Files in the filesystem.'), 'default': False},
+			{'label': _('Device'), 'tooltip': _('Image capture devices (scanners, cameras, etc)'), 'default': False}
+		]
 	)
+	result = dlg.ShowModal()
+	dlg.Destroy()
+
+	# 1) select from template
+	if result == wx.ID_YES:
+		_log.debug('visual progress note template from: database template')
+		from Gnumed.wxpython import gmFormWidgets
+		template = gmFormWidgets.manage_form_templates (
+			parent = parent,
+			template_types = [gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE],
+			active_only = True
+		)
+		if template is None:
+			return (None, None)
+		filename = template.export_to_file()
+		if filename is None:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
+			return (None, None)
+		return (filename, True)
 
 	# 2) select from disk file
-	if template is None:
+	if result == wx.ID_NO:
+		_log.debug('visual progress note template from: disk file')
 		fname = select_file_as_visual_progress_note_template(parent = parent)
 		if fname is None:
 			return (None, None)
@@ -2084,12 +2113,18 @@ def select_visual_progress_note_template(parent=None):
 		shutil.copy2(fname, tmp_name)
 		return (tmp_name, False)
 
-	filename = template.export_to_file()
-	if filename is None:
-		gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
-		return (None, None)
-	return (filename, True)
+	# 3) acquire from capture device
+	if result == wx.ID_CANCEL:
+		_log.debug('visual progress note template from: image capture device')
+		fnames = gmDocumentWidgets.acquire_images_from_capture_device(device = None, calling_window = parent)
+		if fnames is None:
+			return (None, None)
+		if len(fnames) == 0:
+			return (None, None)
+		return (fnames[0], False)
 
+	_log.debug('no visual progress note template source selected')
+	return (None, None)
 #------------------------------------------------------------
 def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None, health_issue=None):
 	"""This assumes <filename> contains an image which can be handled by the configured image editor."""

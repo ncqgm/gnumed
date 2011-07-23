@@ -667,6 +667,37 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
+def acquire_images_from_capture_device(device=None, calling_window=None):
+
+	_log.debug('acquiring images from [%s]', device)
+
+	# do not import globally since we might want to use
+	# this module without requiring any scanner to be available
+	from Gnumed.pycommon import gmScanBackend
+	try:
+		fnames = gmScanBackend.acquire_pages_into_files (
+			device = device,
+			delay = 5,
+			calling_window = calling_window
+		)
+	except OSError:
+		_log.exception('problem acquiring image from source')
+		gmGuiHelpers.gm_show_error (
+			aMessage = _(
+				'No images could be acquired from the source.\n\n'
+				'This may mean the scanner driver is not properly installed.\n\n'
+				'On Windows you must install the TWAIN Python module\n'
+				'while on Linux and MacOSX it is recommended to install\n'
+				'the XSane package.'
+			),
+			aTitle = _('Acquiring images')
+		)
+		return None
+
+	_log.debug('acquired %s images', len(fnames))
+
+	return fnames
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl
 
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
