@@ -674,7 +674,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		#	format:	tex (only, currently)
 		#	message: shown in input dialog, must not contain "//" or "::"
 
-		format, msg = data.split('//')
+		data_parts = data.split('//')
+		format = data_parts[0]
+		if len(data_parts) > 1:
+			msg = data_parts[1]
+		else:
+			msg = _('generic text')
 
 		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
 			None,
@@ -1127,7 +1132,7 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		#ph = u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::'
-		ph = u'free_text::latex//placeholder test::9999'
+		ph = u'free_text::tex//placeholder test::9999'
 		#ph = u'soap_for_encounters:://::9999'
 		#ph = u'soap_a'
 		#ph = u'encounter_list::%(started)s: %(assessment_of_encounter)s::30'
