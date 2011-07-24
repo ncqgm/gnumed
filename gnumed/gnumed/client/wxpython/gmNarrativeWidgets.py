@@ -1677,7 +1677,8 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		# need to tell ourselves to re-Layout to refresh scroll bars
 
 		# provoke adding scrollbar if needed
-		self.Fit()
+		#self.Fit()
+		self.FitInside()		# needed on Windows rather than self.Fit()
 
 		if self.HasScrollbar(wx.VERTICAL):
 			# scroll panel to show cursor
