@@ -15,6 +15,8 @@ FIX: exception on not selecting an encounter for [Save under] action [thanks J.B
 FIX: improper scaling of "width < height" images (visual progress notes)
 FIX: exception on wx.TreeCtrl.GetPyItemData() w/o *explicit* wx.TR_SINGLE style
 FIX: improper sizing of SOAP expandos on Windows (#646240) [thanks S.Hilbert]
+FIX: exception on getting list item tooltip if no data available [thanks J.Busser]
+FIX: exception on selecting bytea columns in report generator [thanks J.Busser]
 
 IMPROVED: also try %d/%m/%Y when parsing dates [thanks J.Busser]
 
