@@ -65,6 +65,7 @@ FIX: failure to save leftmost notelet editor on [Save all] button [thanks J.Buss
 FIX: exception on not selecting an encounter for [Save under] action [thanks J.Busser]
 FIX: improper scaling of "width < height" images (visual progress notes)
 FIX: exception on wx.TreeCtrl.GetPyItemData() w/o *explicit* wx.TR_SINGLE style
+FIX: improper sizing of SOAP expandos on Windows (#646240) [thanks S.Hilbert]
 
 IMPROVED: also try %d/%m/%Y when parsing dates [thanks J.Busser]
 
