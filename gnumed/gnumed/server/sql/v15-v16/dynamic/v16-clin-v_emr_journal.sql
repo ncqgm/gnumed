@@ -16,7 +16,7 @@ drop view clin.v_emr_journal cascade;
 
 create view clin.v_emr_journal as
 
-	select *, 0 as row_version from clin.v_pat_narrative_journal
+	select * from clin.v_pat_narrative_journal
 
 union all
 
@@ -24,7 +24,7 @@ union all
 
 union all
 
-	select *, 0 as row_version from clin.v_pat_encounters_journal
+	select * from clin.v_pat_encounters_journal
 
 union all
 
