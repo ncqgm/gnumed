@@ -924,6 +924,11 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self.SetToolTipString(self.__tt_static_part)
 			return
 
+		# do we *have* item data ?
+		if self.__data is None:
+			self.SetToolTipString(self.__tt_static_part)
+			return
+
 		# under some circumstances the item_idx returned
 		# by HitTest() may be out of bounds with respect to
 		# self.__data, this hints at a sync problem between
