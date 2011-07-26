@@ -3,10 +3,10 @@
 #====================================================
 # license: GPL
 #====================================================
-CLIENTREV="0.9.7"
+CLIENTREV="0.9.8"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="15.7"
+SRVREV="15.8"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\

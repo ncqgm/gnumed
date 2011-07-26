@@ -18,18 +18,22 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.7 (database v15.7)',
-	'GNUmed 0.9.7 Release Notes:
+	'Release Notes for GNUmed 0.9.8 (database v15.8)',
+	'GNUmed 0.9.8 Release Notes:
 
-	0.9.7
+	0.9.8
 
-FIX: exception on creating allergy entry from non-brand substance intake [thanks J.Busser]
-FIX: exception on creating measurement type without LOINC [thanks J.Busser]
-FIX: exception with displaying list item tooltips [thanks Marc]
-FIX: faulty pt_BR translation ("issue name" -> "issue_name") [thanks Rogerio]
-FIX: fix DOB to be dated back one day sometimes [thanks S.Reus]
+FIX: exception on trying to create Gelbe Liste/MMI version file [thanks ALI from Lebanon]
+FIX: exceptions on various TWAIN error states [thanks ALI from Lebanon]
+FIX: failure to save leftmost notelet editor on [Save all] button [thanks J.Busser]
+FIX: exception on not selecting an encounter for [Save under] action [thanks J.Busser]
+FIX: improper scaling of "width < height" images (visual progress notes)
+FIX: exception on wx.TreeCtrl.GetPyItemData() w/o *explicit* wx.TR_SINGLE style
+FIX: improper sizing of SOAP expandos on Windows (#646240) [thanks S.Hilbert]
+FIX: exception on getting list item tooltip if no data available [thanks J.Busser]
+FIX: exception on selecting bytea columns in report generator [thanks J.Busser]
 
-IMPROVED: better protect against translation errors
+IMPROVED: also try %d/%m/%Y when parsing dates [thanks J.Busser]
 ');
 
 -- --------------------------------------------------------------
