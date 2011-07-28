@@ -414,24 +414,28 @@ class cPhraseWheelBase(wx.TextCtrl):
 				self._update_data_from_picked_item(candidate)
 				return
 
+		# recalculate size
+		dropdown_size = self._picklist_dropdown.GetSize()
 		border_width = 4
 		extra_height = 25
-
-		# recalculate size
+		# height
 		rows = len(self._current_match_candidates)
 		if rows < 2:				# 2 rows minimum
 			rows = 2
 		if rows > 20:				# 20 rows maximum
 			rows = 20
 		self.__mac_log('dropdown needs rows: %s' % rows)
-		dropdown_size = self._picklist_dropdown.GetSize()
 		pw_size = self.GetSize()
-		dropdown_size.SetWidth(pw_size.width)
 		dropdown_size.SetHeight (
 			(pw_size.height * rows)
 			+ border_width
 			+ extra_height
 		)
+		# width
+		dropdown_size.SetWidth(min (
+			self.Size.width * 2,
+			self.Parent.Size.width
+		))
 
 		# recalculate position
 		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)

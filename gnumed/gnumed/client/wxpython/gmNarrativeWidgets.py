@@ -755,6 +755,51 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._NB_soap_editors.DeleteAllPages()
 		self._NB_soap_editors.MoveAfterInTabOrder(self._PRW_aoe_codes)
+
+		self._PRW_encounter_start.add_callback_on_lose_focus(callback = self._on_encounter_start_lost_focus)
+	#--------------------------------------------------------
+	def _on_encounter_start_lost_focus(self):
+		start = self._PRW_encounter_start.GetData().get_pydt()
+		if start is None:
+			return
+
+		end = self._PRW_encounter_end.GetData().get_pydt()
+		if end is None:
+			fts = gmDateTime.cFuzzyTimestamp (
+				timestamp = start,
+				accuracy = gmDateTime.acc_minutes
+			)
+			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
+			return
+
+		if start > end:
+			end = end.replace (
+				year = start.year,
+				month = start.month,
+				day = start.day
+			)
+			fts = gmDateTime.cFuzzyTimestamp (
+				timestamp = end,
+				accuracy = gmDateTime.acc_minutes
+			)
+			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
+			return
+
+		emr = self.__pat.get_emr()
+		if start != emr.active_encounter['started']:
+			end = end.replace (
+				year = start.year,
+				month = start.month,
+				day = start.day
+			)
+			fts = gmDateTime.cFuzzyTimestamp (
+				timestamp = end,
+				accuracy = gmDateTime.acc_minutes
+			)
+			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
+			return
+
+		return
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		"""Clear all information from input panel."""

@@ -17,13 +17,13 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_Soap_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_Soap_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_Soap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
-        self._PRW_sOap_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_sOap_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_sOap = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
-        self._PRW_soAp_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_soAp_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_soAp = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
-        self._PRW_soaP_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_soaP_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_soaP = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._PNL_visual_soap = cVisualSoapPresenterPnl(self, -1, style=wx.NO_BORDER)
         self._LBL_summary = wx.StaticText(self, -1, _("Episode summary"))
@@ -38,9 +38,13 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._PRW_Soap_codes.SetToolTipString(_("Codes linked to this Subjective."))
+        self._PRW_Soap_codes.Enable(False)
         self._PRW_sOap_codes.SetToolTipString(_("Codes linked to this Objective."))
+        self._PRW_sOap_codes.Enable(False)
         self._PRW_soAp_codes.SetToolTipString(_("Codes linked to this Assessment."))
+        self._PRW_soAp_codes.Enable(False)
         self._PRW_soaP_codes.SetToolTipString(_("Codes linked to this Plan."))
+        self._PRW_soaP_codes.Enable(False)
         self._PRW_episode_codes.SetToolTipString(_("Codes linked to this episode."))
         self._TCTRL_episode_summary.SetToolTipString(_("Here you can modify the cumulative summary (status) of the episode this SOAP narrative belongs to."))
         # end wxGlade
