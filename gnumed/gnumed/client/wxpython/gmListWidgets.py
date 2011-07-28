@@ -920,7 +920,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		# HitTest() can return -1 if it so pleases, meaning that no item
 		# was hit or else that maybe there aren't any items (empty list)
-		if item_idx == -1:
+		if item_idx == wx.NOT_FOUND:
 			self.SetToolTipString(self.__tt_static_part)
 			return
 
@@ -930,26 +930,25 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 
 		# under some circumstances the item_idx returned
-		# by HitTest() may not be out of bounds with respect
-		# to self.__data, this hints at a sync problem between
+		# by HitTest() may be out of bounds with respect to
+		# self.__data, this hints at a sync problem between
 		# setting display items and associated data
 		if (
-			(item_idx > len(self.__data))
+			(item_idx > (len(self.__data) - 1))
 				or
 			(item_idx < -1)
 		):
 			self.SetToolTipString(self.__tt_static_part)
-			_log.error('item idx: %s', item_idx)
-			_log.error('where flag: %s', where_flag)
-			_log.error('data list length: %s', len(self.__data))
-			for data in self.__data:
-				_log.debug(data)
 			print "*************************************************************"
 			print "GNUmed has detected an inconsistency with list item tooltips."
 			print ""
 			print "This is not a big problem and you can keep working."
 			print ""
-			print "However, please send us the log file so we can fix GNUmed."
+			print "However, please send us the following so we can fix GNUmed:"
+			print ""
+			print "item idx: %s" % item_idx
+			print 'where flag: %s' % where_flag
+			print 'data list length: %s' % len(self.__data)
 			print "*************************************************************"
 			return
 
