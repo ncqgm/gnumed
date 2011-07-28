@@ -57,6 +57,8 @@ IMPROVED: document metadata editing: no more always-on-top, safer parts moving [
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.9
+
 FIX: be ever more careful on list ctrl item tooltip generation [thanks Marc]
 
 	0.9.8
