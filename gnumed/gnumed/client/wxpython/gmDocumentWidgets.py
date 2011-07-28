@@ -1303,7 +1303,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# init new tree
 		self.root = self.AddRoot(cDocTree._root_node_labels[self.__sort_mode], -1, -1)
-		self.SetPyData(self.root, None)
+		self.SetItemPyData(self.root, None)
 		self.SetItemHasChildren(self.root, False)
 
 		# read documents from database
@@ -1348,21 +1348,25 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				if not intermediate_nodes.has_key(lbl):
 					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
 					self.SetItemBold(intermediate_nodes[lbl], bold = True)
-					self.SetPyData(intermediate_nodes[lbl], None)
+					self.SetItemPyData(intermediate_nodes[lbl], None)
+					self.SetItemHasChildren(intermediate_nodes[lbl], True)
 				parent = intermediate_nodes[lbl]
 			elif self.__sort_mode == 'type':
 				if not intermediate_nodes.has_key(doc['l10n_type']):
 					intermediate_nodes[doc['l10n_type']] = self.AppendItem(parent = self.root, text = doc['l10n_type'])
 					self.SetItemBold(intermediate_nodes[doc['l10n_type']], bold = True)
-					self.SetPyData(intermediate_nodes[doc['l10n_type']], None)
+					self.SetItemPyData(intermediate_nodes[doc['l10n_type']], None)
+					self.SetItemHasChildren(intermediate_nodes[doc['l10n_type']], True)
 				parent = intermediate_nodes[doc['l10n_type']]
 			else:
 				parent = self.root
 
 			doc_node = self.AppendItem(parent = parent, text = label)
 			#self.SetItemBold(doc_node, bold = True)
-			self.SetPyData(doc_node, doc)
-			if len(parts) > 0:
+			self.SetItemPyData(doc_node, doc)
+			if len(parts) == 0:
+				self.SetItemHasChildren(doc_node, False)
+			else:
 				self.SetItemHasChildren(doc_node, True)
 
 			# now add parts as child nodes
@@ -1387,7 +1391,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				)
 
 				part_node = self.AppendItem(parent = doc_node, text = label)
-				self.SetPyData(part_node, part)
+				self.SetItemPyData(part_node, part)
+				self.SetItemHasChildren(part_node, False)
 
 		self.__sort_nodes()
 		self.SelectItem(self.root)
@@ -1411,6 +1416,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		 1: 1 > 2
 		"""
 		# Windows can send bogus events so ignore that
+		if not node1:
+			_log.debug('invalid node 1')
+			return 0
+		if not node2:
+			_log.debug('invalid node 2')
+			return 0
 		if not node1.IsOk():
 			_log.debug('no data on node 1')
 			return 0
