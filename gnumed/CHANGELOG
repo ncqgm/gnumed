@@ -27,6 +27,7 @@ NEW: warn on/inform about access to medical chart of staff member
 NEW: add Ginkgo CADx to list of minimally supported DICOM viewers
 NEW: placeholder $<encounter_list::format template::length>$ to access list of encounters
 NEW: visual progress note creation directly from image capture device
+NEW: 4 new visual progress note templates [thanks J.Busser]
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
