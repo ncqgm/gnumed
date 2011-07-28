@@ -151,7 +151,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# init new tree
 		self.DeleteAllItems()
 		root_item = self.AddRoot(_('EMR of %(lastnames)s, %(firstnames)s') % self.__pat.get_active_name())
-		self.SetPyData(root_item, None)
+		self.SetItemPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 		self.__root_tooltip = self.__pat['description_gender'] + u'\n'
 		if self.__pat['deceased'] is None:
@@ -818,6 +818,20 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		 1: 1 > 2
 		"""
 		# FIXME: implement sort modes, chron, reverse cron, by regex, etc
+
+		if not node1:
+			_log.debug('invalid node 1')
+			return 0
+		if not node2:
+			_log.debug('invalid node 2')
+			return 0
+
+		if not node1.IsOk():
+			_log.debug('invalid node 1')
+			return 0
+		if not node2.IsOk():
+			_log.debug('invalid node 2')
+			return 0
 
 		item1 = self.GetPyData(node1)
 		item2 = self.GetPyData(node2)

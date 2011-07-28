@@ -9,8 +9,6 @@ TODO:
   - HTML - post-0.1 !
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.138 2009-09-08 17:14:55 ncq Exp $
 __version__ = "$Revision: 1.138 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
@@ -514,26 +512,39 @@ class cEmrExport:
         for a_health_issue in h_issues:
             health_issue_action( emr_tree, a_health_issue)
 
-        emr_tree.SortChildren(emr_tree.GetRootItem())
-    #--------------------------------------------------------             
+        root_item = emr_tree.GetRootItem()
+        if len(h_issues) == 0:
+            emr_tree.SetItemHasChildren(root_item, False)
+        else:
+            emr_tree.SetItemHasChildren(root_item, True)
+        emr_tree.SortChildren(root_item)
+    #--------------------------------------------------------
     def _add_health_issue_branch( self, emr_tree, a_health_issue):
             """appends to a wx emr_tree  , building wx treenodes from the health_issue  make this reusable for non-collapsing tree updates"""
             emr = self.__patient.get_emr()
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
-            emr_tree.SetPyData(issue_node, a_health_issue)
+            emr_tree.SetItemPyData(issue_node, a_health_issue)
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk_health_issue']])
+            if len(episodes) == 0:
+                emr_tree.SetItemHasChildren(issue_node, False)
+            else:
+                emr_tree.SetItemHasChildren(issue_node, True)
             for an_episode in episodes:
                 self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
             emr_tree.SortChildren(issue_node)
     #--------------------------------------------------------
     def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
         episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
-        emr_tree.SetPyData(episode_node, an_episode)
+        emr_tree.SetItemPyData(episode_node, an_episode)
         if an_episode['episode_open']:
             emr_tree.SetItemBold(issue_node, True)
 
         encounters = self._get_encounters( an_episode, emr )
+        if len(encounters) == 0:
+            emr_tree.SetItemHasChildren(episode_node, False)
+        else:
+            emr_tree.SetItemHasChildren(episode_node, True)
         self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
         emr_tree.SortChildren(episode_node)
         return episode_node
@@ -561,7 +572,8 @@ class cEmrExport:
                 )
             )
             encounter_node_id = emr_tree.AppendItem(episode_node, label)
-            emr_tree.SetPyData(encounter_node_id, an_encounter)
+            emr_tree.SetItemPyData(encounter_node_id, an_encounter)
+            emr_tree.SetItemHasChildren(encounter_node_id, False)
     #--------------------------------------------------------
     def _get_encounters ( self, an_episode, emr ):
                encounters = emr.get_encounters (
