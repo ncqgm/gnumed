@@ -18,8 +18,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 0.9.8 (database v15.8)',
-	'GNUmed 0.9.8 Release Notes:
+	'Release Notes for GNUmed 0.9.9 (database v15.9)',
+	'GNUmed 0.9.9 Release Notes:
+
+	0.9.9
+
+FIX: be ever more careful on list ctrl item tooltip generation [thanks Marc]
 
 	0.9.8
 
