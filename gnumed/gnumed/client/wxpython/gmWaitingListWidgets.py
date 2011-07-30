@@ -223,7 +223,6 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		zones = {}
 		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
 		self._PRW_zone.update_matcher(items = zones.keys())
-		del zones
 
 		# filter patient list by zone and set waiting list
 		self.__current_zone = self._PRW_zone.GetValue().strip()
@@ -232,6 +231,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		else:
 			pats = [ p for p in pats if p['waiting_zone'] == self.__current_zone ]
 
+		old_pks = [ d['pk_waiting_list'] for d in self._LCTRL_patients.get_selected_item_data() ]
 		self._LCTRL_patients.set_string_items (
 			[ [
 				gmTools.coalesce(p['waiting_zone'], u''),
@@ -248,17 +248,17 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 					function_initial = ('decode', gmI18N.get_encoding())
 				),
 				gmTools.coalesce(p['comment'], u'').split('\n')[0]
-			  ] for p in pats
-			]
+			] for p in pats ]
 		)
 		self._LCTRL_patients.set_column_widths()
 		self._LCTRL_patients.set_data(pats)
+		new_selections = []
+		new_pks = [ p['pk_waiting_list'] for p in pats ]
+		for old_pk in old_pks:
+			if old_pk in new_pks:
+				new_selections.append(new_pks.index(old_pk))
+		self._LCTRL_patients.selections = new_selections
 		self._LCTRL_patients.Refresh()
-#		self._LCTRL_patients.SetToolTipString ( _(
-#			'%s patients are waiting.\n'
-#			'\n'
-#			'Doubleclick to activate (entry will stay in list).'
-#		) % len(pats))
 
 		self._LBL_no_of_patients.SetLabel(_('(%s patients)') % len(pats))
 

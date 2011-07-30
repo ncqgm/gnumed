@@ -103,7 +103,11 @@ where
 	# properties
 	#--------------------------------------------------------
 	def _get_waiting_list_patients(self):
-		cmd = u'select * from clin.v_waiting_list order by list_position'
+		cmd = u"""
+			SELECT * FROM clin.v_waiting_list
+			ORDER BY
+				list_position
+		"""
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{'cmd': cmd}],
 			get_col_idx = False

@@ -785,9 +785,23 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
 		self.Select(0, on = 0)
+		if selections is None:
+			return
 		for idx in selections:
 			self.Select(idx = idx, on = 1)
 			#self.SetItemState(idx, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
+
+	def __get_selections(self):
+		if self.__is_single_selection:
+			return [self.GetFirstSelected()]
+		selections = []
+		idx = self.GetFirstSelected()
+		while idx != -1:
+			selections.append(idx)
+			idx = self.GetNextSelected(idx)
+		return selections
+
+	selections = property(__get_selections, set_selections)
 	#------------------------------------------------------------
 	# getters
 	#------------------------------------------------------------
