@@ -557,6 +557,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Past history (health issue / PMH)'), _('Add a past/previous medical history item (health issue) to the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_add_health_issue, item)
 
+		item = menu_emr_edit.Append(-1, _('&Episode'), _('Add an episode of illness to the EMR of the active patient'))
+		self.Bind(wx.EVT_MENU, self.__on_add_episode, item)
+
 		item = menu_emr_edit.Append(-1, _('&Medication'), _('Add medication / substance use entry.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_medication, item)
 
@@ -2405,6 +2408,13 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add health issue. No active patient.'))
 			return False
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)
+	#----------------------------------------------
+	def __on_add_episode(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add episode. No active patient.'))
+			return False
+		gmEMRStructWidgets.edit_episode(parent = self, episode = None)
 	#----------------------------------------------
 	def __on_add_medication(self, evt):
 		pat = gmPerson.gmCurrentPatient()

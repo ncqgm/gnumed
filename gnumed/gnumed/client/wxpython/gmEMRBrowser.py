@@ -345,6 +345,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Create health issue')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
 
+		item = self.__root_context_popup.Append(-1, _('Create episode'))
+		self.Bind(wx.EVT_MENU, self.__create_episode, item)
+
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage allergies')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
@@ -535,6 +538,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def __create_issue(self, event):
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)
+	#--------------------------------------------------------
+	def __create_episode(self, event):
+		gmEMRStructWidgets.edit_episode(parent = self, episode = None)
 	#--------------------------------------------------------
 	def __document_allergy(self, event):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)

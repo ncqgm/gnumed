@@ -28,6 +28,7 @@ NEW: add Ginkgo CADx to list of minimally supported DICOM viewers
 NEW: placeholder $<encounter_list::format template::length>$ to access list of encounters
 NEW: visual progress note creation directly from image capture device
 NEW: 4 new visual progress note templates [thanks J.Busser]
+NEW: implement explicitely creating episodes from EMR tree or menu
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
