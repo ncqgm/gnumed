@@ -806,7 +806,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 	_item_handlers = {}
 
-	_patient_msg_types = ['clinical.review docs', 'clinical.review results', 'clinical.review vaccs']
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
 
@@ -861,8 +860,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			self._RBTN_active_patient.Enable()
 	#--------------------------------------------------------
 	def __populate_inbox(self):
-		"""Fill UI with data."""
-
 		self.__msgs = self.provider.inbox.messages
 
 		if self.filter_mode == 'active':
@@ -884,6 +881,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
+		self._TXT_inbox_item_comment.SetValue(u'')
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -904,20 +902,20 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		try:
 			handle_item = cProviderInboxPnl._item_handlers[handler_key]
 		except KeyError:
-			gmGuiHelpers.gm_show_warning (
-				_(
-"""No double-click action pre-programmed into
-GNUmed for message category and type:
-
- [%s]
-"""
-) % handler_key,
-				_('handling provider inbox item')
-			)
-			return False
+			if msg['pk_patient'] is None:
+				gmGuiHelpers.gm_show_warning (
+					_('No double-click action pre-programmed into\n'
+					'GNUmed for message category and type:\n'
+					'\n'
+					' [%s]\n'
+					) % handler_key,
+					_('handling provider inbox item')
+				)
+				return False
+			handle_item = self._goto_patient
 
 		if not handle_item(pk_context = msg['pk_context'], pk_patient = msg['pk_patient']):
-			_log.error('item handler returned "false"')
+			_log.error('item handler returned <False>')
 			_log.error('handler key: [%s]', handler_key)
 			_log.error('message: %s', str(msg))
 			return False
@@ -1042,6 +1040,36 @@ GNUmed for message category and type:
 			gmDispatcher.send(signal = 'statustext', msg = _('This message is already visible to all providers.'))
 			return False
 		print "now distributing"
+		return True
+	#--------------------------------------------------------
+	def _goto_patient(self, pk_context=None, pk_patient=None):
+
+		wx.BeginBusyCursor()
+
+		msg = _('There is a message about patient [%s].\n\n'
+			'However, I cannot find that\n'
+			'patient in the GNUmed database.'
+		) % pk_patient
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_patient)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+		except:
+			wx.EndBusyCursor()
+			raise
+
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+
+		wx.EndBusyCursor()
+
+		if not success:
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+
 		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None, pk_patient=None):

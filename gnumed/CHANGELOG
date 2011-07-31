@@ -54,6 +54,7 @@ IMPROVED: prescription: auto-sign if the current provider is the intended review
 IMPROVED: waiting list: multi-line comment and item-based list tooltip
 IMPROVED: document metadata editing: no more always-on-top, safer parts moving [thanks J.Busser]
 IMRROVED: waiting list: keep selection on item when moving it within the list [thanks J.Busser]
+IMPROVED: inbox: goto-patient as default action if pk_patient is not NULL [thanks J.Busser]
 
 ------------------------------------------------
 # rel-0-9-patches
