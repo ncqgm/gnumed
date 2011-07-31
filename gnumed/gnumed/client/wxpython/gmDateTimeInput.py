@@ -515,7 +515,6 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-#		self.__now = mxDT.now()
 		matches = gmDateTime.str2fuzzy_timestamp_matches(aFragment.strip())
 
 		if len(matches) == 0:
@@ -523,14 +522,6 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 
 		items = []
 		for match in matches:
-#			if match['data'] is None:
-#				list_label = match['label']
-#			else:
-#				list_label = gmDateTime.pydt_strftime (
-#					match['data'].timestamp.format_accurately(),
-#					format = '%A, %d. %B %Y (%x)',
-#					accuracy = gmDateTime.acc_days
-#				)
 			items.append ({
 				'data': match['data'],
 				'field_label': match['label'],
@@ -561,6 +552,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		self.phrase_separators = None
 		self.selection_only = True
 		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
+		self.display_accuracy = None
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -589,7 +581,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	def _picklist_item2display_string(self, item=None):
 		data = item['data']
 		if data is not None:
-			return data.format_accurately()
+			return data.format_accurately(accuracy = self.display_accuracy)
 		return item['field_label']
 	#--------------------------------------------------------
 	# external API
@@ -600,7 +592,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
 			if value.strip() == u'':
-				value = data.format_accurately()
+				value = data.format_accurately(accuracy = self.display_accuracy)
 
 		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data, suppress_smarts = suppress_smarts)
 	#--------------------------------------------------------
@@ -610,7 +602,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		else:
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
-			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(), data = data)
+			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(accuracy = self.display_accuracy), data = data)
 	#--------------------------------------------------------
 	def is_valid_timestamp(self):
 		if self.data is not None:

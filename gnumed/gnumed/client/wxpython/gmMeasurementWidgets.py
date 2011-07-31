@@ -1180,6 +1180,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self.__register_interests()
 
 		self.successful_save_msg = _('Successfully saved measurement.')
+
+		self._DPRW_evaluated.display_accuracy = gmDateTime.acc_minutes
 	#--------------------------------------------------------
 	# generic edit area mixin API
 	#--------------------------------------------------------
@@ -1335,12 +1337,13 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
-		try:
-			v_num = decimal.Decimal(self._TCTRL_result.GetValue().strip().replace(',', '.', 1))
+		success, result = gmTools.input2decimal(self._TCTRL_result.GetValue())
+		if success:
+			v_num = result
 			v_al = None
-		except:
-			v_num = None
+		else:
 			v_al = self._TCTRL_result.GetValue().strip()
+			v_num = None
 
 		pk_type = self._PRW_test.GetData()
 		if pk_type is None:
@@ -2019,7 +2022,7 @@ _SQL_units_from_loinc_ipcc = u"""
 	SELECT
 		ipcc_units AS data,
 		ipcc_units AS field_label,
-		ipcc_units || ' (' || term || ')' AS list_label,
+		ipcc_units || ' (LOINC.ipcc: ' || term || ')' AS list_label,
 		3 AS rank
 	FROM
 		ref.loinc
@@ -2034,7 +2037,7 @@ _SQL_units_from_loinc_submitted = u"""
 	SELECT
 		submitted_units AS data,
 		submitted_units AS field_label,
-		submitted_units || ' (' || term || ')' AS list_label,
+		submitted_units || ' (LOINC.submitted:' || term || ')' AS list_label,
 		3 AS rank
 	FROM
 		ref.loinc
@@ -2049,7 +2052,7 @@ _SQL_units_from_loinc_example = u"""
 	SELECT
 		example_units AS data,
 		example_units AS field_label,
-		example_units || ' (' || term || ')' AS list_label,
+		example_units || ' (LOINC.example: ' || term || ')' AS list_label,
 		3 AS rank
 	FROM
 		ref.loinc
@@ -2064,8 +2067,8 @@ _SQL_units_from_atc = u"""
 	SELECT
 		unit AS data,
 		unit AS field_label,
-		unit AS list_label,
-		1 AS rank
+		unit || ' (ATC: ' || term || ')' AS list_label,
+		2 AS rank
 	FROM
 		ref.atc
 	WHERE
@@ -2079,8 +2082,8 @@ _SQL_units_from_consumable_substance = u"""
 	SELECT
 		unit AS data,
 		unit AS field_label,
-		unit AS list_label,
-		1 AS rank
+		unit || ' (' || description || ')' AS list_label,
+		2 AS rank
 	FROM
 		ref.consumable_substance
 	WHERE

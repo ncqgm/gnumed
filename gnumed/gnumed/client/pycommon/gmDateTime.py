@@ -1969,34 +1969,37 @@ class cFuzzyTimestamp:
 	def Format(self, format_string):
 		return self.strftime(format_string)
 	#-----------------------------------------------------------------------
-	def format_accurately(self):
-		if self.accuracy == acc_years:
+	def format_accurately(self, accuracy=None):
+		if accuracy is None:
+			accuracy = self.accuracy
+
+		if accuracy == acc_years:
 			return unicode(self.timestamp.year)
 
-		if self.accuracy == acc_months:
+		if accuracy == acc_months:
 			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
-		if self.accuracy == acc_weeks:
+		if accuracy == acc_weeks:
 			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
-		if self.accuracy == acc_days:
+		if accuracy == acc_days:
 			return unicode(self.timestamp.strftime('%Y-%m-%d'))
 
-		if self.accuracy == acc_hours:
+		if accuracy == acc_hours:
 			return unicode(self.timestamp.strftime("%Y-%m-%d %I%p"))
 
-		if self.accuracy == acc_minutes:
+		if accuracy == acc_minutes:
 			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M"))
 
-		if self.accuracy == acc_seconds:
+		if accuracy == acc_seconds:
 			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
 
-		if self.accuracy == acc_subseconds:
+		if accuracy == acc_subseconds:
 			return unicode(self.timestamp)
 
 		raise ValueError, '%s.format_accurately(): <accuracy> (%s) must be between 1 and 7' % (
 			self.__class__.__name__,
-			self.accuracy
+			accuracy
 		)
 	#-----------------------------------------------------------------------
 	def get_mxdt(self):
@@ -2163,9 +2166,9 @@ if __name__ == '__main__':
 			matches = str2fuzzy_timestamp_matches(str2parse = val)
 			for match in matches:
 				print 'label shown  :', match['label']
-				print 'data attached:', match['data']
+				print 'data attached:', match['data'], match['data'].timestamp
 				print ""
-			print "---------------"	
+			print "---------------"
 	#-------------------------------------------------
 	def test_cFuzzyTimeStamp():
 		print "testing fuzzy timestamp class"
@@ -2248,14 +2251,14 @@ if __name__ == '__main__':
 	init()
 
 	#test_date_time()
-	#test_str2fuzzy_timestamp_matches()
+	test_str2fuzzy_timestamp_matches()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
 	#test_calculate_apparent_age()
-	test_str2pydt()
+	#test_str2pydt()
 	#test_pydt_strftime()
 
 #===========================================================================
