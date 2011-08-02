@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-05-11 11:34+CEST\n"
+"POT-Creation-Date: 2011-08-02 14:27+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -584,9 +584,6 @@ msgstr ""
 msgid "<country> cannot be empty"
 msgstr ""
 
-msgid "** DOB unknown **"
-msgstr ""
-
 msgid "Cannot merge active patient into another patient."
 msgstr ""
 
@@ -876,6 +873,9 @@ msgid "unknown test status [%s]"
 msgstr ""
 
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
+msgstr ""
+
+msgid "** DOB unknown **"
 msgstr ""
 
 msgid "interval_format_tag::years::y"
@@ -4581,6 +4581,9 @@ msgid "No data returned for this report."
 msgstr ""
 
 msgid "Found %s results."
+msgstr ""
+
+msgid "not unicode()able"
 msgstr ""
 
 msgid "Pick a date ..."
@@ -8543,9 +8546,6 @@ msgstr ""
 msgid "Add to medication list"
 msgstr ""
 
-msgid "Dose"
-msgstr ""
-
 msgid "Duration / Until"
 msgstr ""
 
@@ -8796,6 +8796,9 @@ msgid "In health issue"
 msgstr ""
 
 msgid "Last"
+msgstr ""
+
+msgid "Most recent notes on selected problem"
 msgstr ""
 
 msgid "%s (active+potential) problems"
@@ -10620,6 +10623,9 @@ msgid "Recalls and Reviews"
 msgstr ""
 
 msgid "icon_inbox"
+msgstr ""
+
+msgid "Dose"
 msgstr ""
 
 msgid "Last Date"

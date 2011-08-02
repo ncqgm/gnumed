@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-05-11 11:34+CEST\n"
-"PO-Revision-Date: 2011-05-11 11:36+0100\n"
+"POT-Creation-Date: 2011-08-02 14:27+CEST\n"
+"PO-Revision-Date: 2011-08-02 14:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -639,9 +639,6 @@ msgstr "<zip> darf nicht leer sein"
 msgid "<country> cannot be empty"
 msgstr "<country> darf nicht leer sein"
 
-msgid "** DOB unknown **"
-msgstr "** Geburtsdatum unbekannt **"
-
 msgid "Cannot merge active patient into another patient."
 msgstr "Kann aktiven Patienten nicht in einen anderen Patienten einfügen."
 
@@ -951,6 +948,9 @@ msgstr "unbekannter Teststatus [%s]"
 
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr "[%s:%s]: Zeile nicht geändert (nichts zurückgeliefert), Zeile in Benutzung ?"
+
+msgid "** DOB unknown **"
+msgstr "** Geburtsdatum unbekannt **"
 
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::J"
@@ -5003,6 +5003,9 @@ msgstr "Diese Analyse erbrachte keine Ergebnisse."
 
 msgid "Found %s results."
 msgstr "%s Ergebnisse gefunden."
+
+msgid "not unicode()able"
+msgstr "nicht darstellbar"
 
 msgid "Pick a date ..."
 msgstr "Wählen Sie ein Datum ..."
@@ -9581,9 +9584,6 @@ msgstr "Neu verschriebene Medikamente"
 msgid "Add to medication list"
 msgstr "In Medikationsliste eintragen"
 
-msgid "Dose"
-msgstr "Dosis"
-
 msgid "Duration / Until"
 msgstr "Dauer / Bis"
 
@@ -9854,6 +9854,9 @@ msgstr "Zu Grunderkrankung"
 
 msgid "Last"
 msgstr "Zuletzt"
+
+msgid "Most recent notes on selected problem"
+msgstr "Letzte Notizen zum obigen Problem"
 
 msgid "%s (active+potential) problems"
 msgstr "%s (aktive und potentielle) Probleme"
@@ -11940,6 +11943,9 @@ msgstr "Erinnerungen und Kontrollen"
 
 msgid "icon_inbox"
 msgstr "icon_inbox"
+
+msgid "Dose"
+msgstr "Dosis"
 
 msgid "Last Date"
 msgstr "zuletzt"
