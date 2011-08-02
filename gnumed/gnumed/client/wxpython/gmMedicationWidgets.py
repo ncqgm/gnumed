@@ -1796,7 +1796,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			u'episode': [
 				_('Episode'),
 				_('Substance'),
-				_('Dose'),
+				_('Strength'),
 				_('Schedule'),
 				_('Started'),
 				_('Duration / Until'),
@@ -1807,7 +1807,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Brand'),
 				_('Schedule'),
 				_('Substance'),
-				_('Dose'),
+				_('Strength'),
 				_('Started'),
 				_('Duration / Until'),
 				_('Episode'),

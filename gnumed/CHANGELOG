@@ -61,6 +61,10 @@ IMPROVED: inbox: goto-patient as default action if pk_patient is not NULL [thank
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.10
+
+IMPROVED: substance intake table: "amount per unit" = "Strength", not "Dose" [thanks J.Busser]
+
 	0.9.9
 
 FIX: be ever more careful on list ctrl item tooltip generation [thanks Marc]
