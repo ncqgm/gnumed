@@ -641,12 +641,12 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		self.person = None
 
 		self._tt_search_hints = _(
-			'To search for a person type any of:                   \n'
+			'To search for a person, type any of:                   \n'
 			'\n'
 			' - fragment(s) of last and/or first name(s)\n'
-			" - date of birth (can start with '$' or '*')\n"
 			" - GNUmed ID of person (can start with '#')\n"
-			' - external ID of person\n'
+			' - any external ID of person\n'
+			" - date of birth (can start with '$' or '*')\n"
 			'\n'
 			'and hit <ENTER>.\n'
 			'\n'

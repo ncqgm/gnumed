@@ -746,7 +746,8 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 
 	Spaces and tabs are discarded.
 
-	Default is 'dmy':
+	Default is 'ndmy':
+		n - Now
 		d - toDay
 		m - toMorrow	Someone please suggest a synonym !
 		y - Yesterday
@@ -754,7 +755,7 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 	This also defines the significance of the order of the characters.
 	"""
 	if trigger_chars is None:
-		trigger_chars = _('dmy (single character date triggers)')[:3].lower()
+		trigger_chars = _('ndmy (single character date triggers)')[:4].lower()
 
 	str2parse = str2parse.strip().lower()
 
@@ -767,15 +768,24 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 	now = mxDT.now()
 	enc = gmI18N.get_encoding()
 
-	# today
+	# FIXME: handle uebermorgen/vorgestern ?
+
+	# right now
 	if str2parse == trigger_chars[0]:
+		return [{
+			'data': mxtd2py_dt(now),
+			'label': _('right now (%s, %s)') % (now.strftime('%A').decode(enc), now)
+		}]
+
+	# today
+	if str2parse == trigger_chars[1]:
 		return [{
 			'data': mxdt2py_dt(now),
 			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d').decode(enc)
 		}]
 
 	# tomorrow
-	if str2parse == trigger_chars[1]:
+	if str2parse == trigger_chars[2]:
 		ts = now + mxDT.RelativeDateTime(days = +1)
 		return [{
 			'data': mxdt2py_dt(ts),
@@ -783,7 +793,7 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 		}]
 
 	# yesterday
-	if str2parse == trigger_chars[2]:
+	if str2parse == trigger_chars[3]:
 		ts = now + mxDT.RelativeDateTime(days = -1)
 		return [{
 			'data': mxdt2py_dt(ts),
@@ -1298,7 +1308,7 @@ def str2pydt_matches(str2parse=None, patterns=None):
 
 	return matches
 #===========================================================================
-# string -> timestamp parser
+# string -> fuzzy timestamp parser
 #---------------------------------------------------------------------------
 def __explicit_offset(str2parse, offset_chars=None):
 	"""
@@ -1383,76 +1393,6 @@ def __explicit_offset(str2parse, offset_chars=None):
 		'label': label
 	}
 	return [tmp]
-#---------------------------------------------------------------------------
-def __single_char(str2parse, trigger_chars=None):
-	"""This matches on single characters.
-
-	Spaces and tabs are discarded.
-
-	Default is 'ndmy':
-		n - now
-		d - toDay
-		m - toMorrow	Someone please suggest a synonym !
-		y - yesterday
-
-	This also defines the significance of the order of the characters.
-	"""
-	if trigger_chars is None:
-		trigger_chars = _('ndmy (single character date triggers)')[:4].lower()
-
-	if not regex.match(u'^(\s|\t)*[%s]{1}(\s|\t)*$' % trigger_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
-		return []
-	val = str2parse.strip().lower()
-
-	now = mxDT.now()
-	enc = gmI18N.get_encoding()
-
-	# FIXME: handle uebermorgen/vorgestern ?
-
-	# right now
-	if val == trigger_chars[0]:
-		ts = now
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = ts,
-				accuracy = acc_subseconds
-			),
-			'label': _('right now (%s, %s)') % (ts.strftime('%A').decode(enc), ts)
-		}]
-
-	# today
-	if val == trigger_chars[1]:
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = now,
-				accuracy = acc_days
-			),
-			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d').decode(enc)
-		}]
-
-	# tomorrow
-	if val == trigger_chars[2]:
-		ts = now + mxDT.RelativeDateTime(days = +1)
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = ts,
-				accuracy = acc_days
-			),
-			'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
-		}]
-
-	# yesterday
-	if val == trigger_chars[3]:
-		ts = now + mxDT.RelativeDateTime(days = -1)
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = ts,
-				accuracy = acc_days
-			),
-			'label': _('yesterday (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
-		}]
-
-	return []
 #---------------------------------------------------------------------------
 def __single_slash(str2parse):
 	"""Expand fragments containing a single slash.
@@ -1832,43 +1772,52 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 	matches = __single_dot(str2parse)
 	matches.extend(__numbers_only(str2parse))
 	matches.extend(__single_slash(str2parse))
-	matches.extend(__single_char(str2parse))
+	ms = __single_char2py_dt(str2parse)
+	for m in ms:
+		matches.append ({
+			'data': cFuzzyTimestamp (
+				timestamp = m['data'],
+				accuracy = acc_days
+			),
+			'label': m['label']
+		})
 	matches.extend(__explicit_offset(str2parse))
 
 	# try mxDT parsers
-	if mxDT is not None:
-		try:
-			# date ?
-			date_only = mxDT.Parser.DateFromString (
-				text = str2parse,
-				formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
-			)
-			# time, too ?
-			time_part = mxDT.Parser.TimeFromString(text = str2parse)
-			datetime = date_only + time_part
-			if datetime == date_only:
-				accuracy = acc_days
-				if isinstance(default_time, mxDT.DateTimeDeltaType):
-					datetime = date_only + default_time
-					accuracy = acc_minutes
-			else:
-				accuracy = acc_subseconds
-			fts = cFuzzyTimestamp (
-				timestamp = datetime,
-				accuracy = accuracy
-			)
-			matches.append ({
-				'data': fts,
-				'label': fts.format_accurately()
-			})
-		except (ValueError, mxDT.RangeError):
-			pass
+	try:
+		# date ?
+		date_only = mxDT.Parser.DateFromString (
+			text = str2parse,
+			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
+		)
+		# time, too ?
+		time_part = mxDT.Parser.TimeFromString(text = str2parse)
+		datetime = date_only + time_part
+		if datetime == date_only:
+			accuracy = acc_days
+			if isinstance(default_time, mxDT.DateTimeDeltaType):
+				datetime = date_only + default_time
+				accuracy = acc_minutes
+		else:
+			accuracy = acc_subseconds
+		fts = cFuzzyTimestamp (
+			timestamp = datetime,
+			accuracy = accuracy
+		)
+		matches.append ({
+			'data': fts,
+			'label': fts.format_accurately()
+		})
+	except (ValueError, mxDT.RangeError):
+		pass
 
 	if patterns is None:
 		patterns = []
 
 	patterns.append(['%Y.%m.%d', acc_days])
 	patterns.append(['%Y/%m/%d', acc_days])
+	patterns.append(['%Y-%m-%d', acc_days])
+	patterns.append(['%d/%m/%Y', acc_days])
 
 	for pattern in patterns:
 		try:

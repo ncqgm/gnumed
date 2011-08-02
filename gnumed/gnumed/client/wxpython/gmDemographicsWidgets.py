@@ -781,6 +781,70 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		return no_errors
 #------------------------------------------------------------
+def _validate_dob_field(dob_prw):
+
+	# test this last so we can check empty field as last barrier against save
+	# valid timestamp ?
+	if dob_prw.is_valid_timestamp(allow_empty = False):			# properly colors the field
+		dob = dob_prw.date
+		# but year also usable ?
+		if (dob.year > 1899) and (dob < gmDateTime.pydt_now_here()):
+			return True
+
+		if dob.year < 1900:
+			msg = _(
+				'DOB: %s\n'
+				'\n'
+				'While this is a valid point in time Python does\n'
+				'not know how to deal with it.\n'
+				'\n'
+				'We suggest using January 1st 1901 instead and adding\n'
+				'the true date of birth to the patient comment.\n'
+				'\n'
+				'Sorry for the inconvenience %s'
+			) % (dob, gmTools.u_frowning_face)
+		else:
+			msg = _(
+				'DOB: %s\n'
+				'\n'
+				'Date of birth in the future !'
+			) % dob
+		gmGuiHelpers.gm_show_error (
+			msg,
+			_('Validating date of birth')
+		)
+		dob_prw.display_as_valid(False)
+		dob_prw.SetFocus()
+		return False
+
+	# invalid timestamp but not empty
+	if dob_prw.GetValue().strip() != u'':
+		dob_prw.display_as_valid(False)
+		gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of birth.'))
+		dob_prw.SetFocus()
+		return False
+
+	# empty - maybe even allow empty DOB ?
+	allow_empty_dob = gmGuiHelpers.gm_show_question (
+		_(
+			'Are you sure you want to register this person\n'
+			'without a valid date of birth ?\n'
+			'\n'
+			'This can be useful for temporary staff members\n'
+			'but will provoke nag screens if this person\n'
+			'becomes a patient.\n'
+		),
+		_('Validating date of birth')
+	)
+	if allow_empty_dob:
+		dob_prw.display_as_valid(True)
+		return True
+
+	dob_prw.display_as_valid(False)
+	gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of birth.'))
+	dob_prw.SetFocus()
+	return False
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgIdentityEAPnl
 
 class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditAreaMixin):
@@ -817,16 +881,10 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self._PRW_gender.SetFocus()
 			has_error = True
 
-		if not self._PRW_dob.is_valid_timestamp():
-			val = self._PRW_dob.GetValue().strip()
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
-			self._PRW_dob.SetBackgroundColour('pink')
-			self._PRW_dob.Refresh()
-			self._PRW_dob.SetFocus()
-			has_error = True
-		else:
-			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_dob.Refresh()
+		if self.data is not None:
+			dob_valid = _validate_dob_field(self._PRW_dob)
+			if not dob_valid:
+				has_error = True
 
 		if not self._PRW_dod.is_valid_timestamp(allow_empty = True):
 			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
@@ -846,7 +904,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		if self._PRW_dob.GetValue().strip() == u'':
 			self.data['dob'] = None
 		else:
-			self.data['dob'] = self._PRW_dob.GetData().get_pydt()
+			self.data['dob'] = self._PRW_dob.GetData()
 
 		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
 		self.data['deceased'] = self._PRW_dod.GetData()
@@ -885,9 +943,9 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	def _refresh_as_new_from_existing(self):
 		pass
 #------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgNameGenderDOBEditAreaPnl
+from Gnumed.wxGladeWidgets import wxgPersonNameEAPnl
 
-class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl):
+class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl):
 	"""An edit area for editing/creating name/gender/dob.
 
 	Does NOT act on/listen to the current patient.
@@ -898,9 +956,9 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		del kwargs['name']
 		self.__identity = gmPerson.cIdentity(aPK_obj = self.__name['pk_identity'])
 
-		wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl.__init__(self, *args, **kwargs)
+		wxgPersonNameEAPnl.wxgPersonNameEAPnl.__init__(self, *args, **kwargs)
 
-		self.__register_interests()
+#		self.__register_interests()
 		self.refresh()
 	#--------------------------------------------------------
 	# external API
@@ -909,26 +967,28 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		if self.__name is None:
 			return
 
-		self._PRW_title.SetText(gmTools.coalesce(self.__name['title'], u''))
 		self._PRW_firstname.SetText(self.__name['firstnames'])
 		self._PRW_lastname.SetText(self.__name['lastnames'])
 		self._PRW_nick.SetText(gmTools.coalesce(self.__name['preferred'], u''))
-		self._PRW_dob.SetText (
-			value = self.__identity.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
-			data = self.__identity['dob']
-		)
-		self._PRW_gender.SetData(self.__name['gender'])
-		self._CHBOX_active.SetValue(self.__name['active_name'])
-		if self.__identity['deceased'] is None:
-			val = u''
-		else:
-			val = gmDateTime.pydt_strftime (
-				self.__identity['deceased'],
-				format = '%Y-%m-%d %H:%M',
-				accuracy = gmDateTime.acc_minutes
-			)
-		self._PRW_dod.SetText(value = val, data = self.__identity['deceased'])
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.__name['comment'], u''))
+		self._CHBOX_active.SetValue(self.__name['active_name'])
+
+#		self._PRW_title.SetText(gmTools.coalesce(self.__name['title'], u''))
+#		self._PRW_dob.SetText (
+#			value = self.__identity.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
+#			data = self.__identity['dob']
+#		)
+#		self._PRW_gender.SetData(self.__name['gender'])
+#		if self.__identity['deceased'] is None:
+#			val = u''
+#		else:
+#			val = gmDateTime.pydt_strftime (
+#				self.__identity['deceased'],
+#				format = '%Y-%m-%d %H:%M',
+#				accuracy = gmDateTime.acc_minutes
+#			)
+#		self._PRW_dod.SetText(value = val, data = self.__identity['deceased'])
+
 		# FIXME: clear fields
 #		else:
 #			pass
@@ -938,14 +998,14 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		if not self.__valid_for_save():
 			return False
 
-		self.__identity['gender'] = self._PRW_gender.GetData()
-		if self._PRW_dob.GetValue().strip() == u'':
-			self.__identity['dob'] = None
-		else:
-			self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
-		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
-		self.__identity['deceased'] = self._PRW_dod.GetData()
-		self.__identity.save_payload()
+#		self.__identity['gender'] = self._PRW_gender.GetData()
+#		if self._PRW_dob.GetValue().strip() == u'':
+#			self.__identity['dob'] = None
+#		else:
+#			self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
+#		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
+#		self.__identity['deceased'] = self._PRW_dod.GetData()
+#		self.__identity.save_payload()
 
 		active = self._CHBOX_active.GetValue()
 		first = self._PRW_firstname.GetValue().strip()
@@ -967,25 +1027,25 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
-	def __register_interests(self):
-		self._PRW_firstname.add_callback_on_lose_focus(self._on_name_set)
-	#--------------------------------------------------------
-	def _on_name_set(self):
-		"""Set the gender according to entered firstname.
-
-		Matches are fetched from existing records in backend.
-		"""
-		firstname = self._PRW_firstname.GetValue().strip()
-		if firstname == u'':
-			return True
-		rows, idx = gmPG2.run_ro_queries(queries = [{
-			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
-			'args': [firstname]
-		}])
-		if len(rows) == 0:
-			return True
-		wx.CallAfter(self._PRW_gender.SetData, rows[0][0])
-		return True
+#	def __register_interests(self):
+#		self._PRW_firstname.add_callback_on_lose_focus(self._on_name_set)
+#	#--------------------------------------------------------
+#	def _on_name_set(self):
+#		"""Set the gender according to entered firstname.
+#
+#		Matches are fetched from existing records in backend.
+#		"""
+#		firstname = self._PRW_firstname.GetValue().strip()
+#		if firstname == u'':
+#			return True
+#		rows, idx = gmPG2.run_ro_queries(queries = [{
+#			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
+#			'args': [firstname]
+#		}])
+#		if len(rows) == 0:
+#			return True
+#		wx.CallAfter(self._PRW_gender.SetData, rows[0][0])
+#		return True
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -993,29 +1053,29 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 
 		has_error = False
 
-		if self._PRW_gender.GetData() is None:
-			self._PRW_gender.display_as_valid(False)
-			self._PRW_gender.SetFocus()
-			has_error = True
-		else:
-			self._PRW_gender.display_as_valid(True)
-
-		if not self._PRW_dob.is_valid_timestamp():
-			val = self._PRW_dob.GetValue().strip()
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
-			self._PRW_dob.display_as_valid(False)
-			self._PRW_dob.SetFocus()
-			has_error = True
-		else:
-			self._PRW_dob.display_as_valid(True)
-
-		if not self._PRW_dod.is_valid_timestamp():
-			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
-			self._PRW_dod.display_as_valid(False)
-			self._PRW_dod.SetFocus()
-			has_error = True
-		else:
-			self._PRW_dod.display_as_valid(True)
+#		if self._PRW_gender.GetData() is None:
+#			self._PRW_gender.display_as_valid(False)
+#			self._PRW_gender.SetFocus()
+#			has_error = True
+#		else:
+#			self._PRW_gender.display_as_valid(True)
+#
+#		if not self._PRW_dob.is_valid_timestamp():
+#			val = self._PRW_dob.GetValue().strip()
+#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
+#			self._PRW_dob.display_as_valid(False)
+#			self._PRW_dob.SetFocus()
+#			has_error = True
+#		else:
+#			self._PRW_dob.display_as_valid(True)
+#
+#		if not self._PRW_dod.is_valid_timestamp():
+#			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
+#			self._PRW_dod.display_as_valid(False)
+#			self._PRW_dod.SetFocus()
+#			has_error = True
+#		else:
+#			self._PRW_dod.display_as_valid(True)
 
 		if self._PRW_lastname.GetValue().strip() == u'':
 			self._PRW_lastname.display_as_valid(False)
@@ -1091,7 +1151,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._BTN_edit.SetLabel(_('Clone and &edit'))
 	#--------------------------------------------------------
 	def _add_name(self):
-		ea = cNameGenderDOBEditAreaPnl(self, -1, name = self.__identity.get_active_name())
+		ea = cPersonNameEAPnl(self, -1, name = self.__identity.get_active_name())
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new name'))
 		if dlg.ShowModal() == wx.ID_OK:
@@ -1101,7 +1161,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		return False
 	#--------------------------------------------------------
 	def _edit_name(self, name):
-		ea = cNameGenderDOBEditAreaPnl(self, -1, name = name)
+		ea = cPersonNameEAPnl(self, -1, name = name)
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Cloning name'))
 		if dlg.ShowModal() == wx.ID_OK:
@@ -1543,62 +1603,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_gender.display_as_valid(True)
 
 		# dob validation
-		# test this last so we can check empty field as last barrier against save
-		# 1) valid timestamp ?
-		if self._PRW_dob.is_valid_timestamp(allow_empty = False):			# properly colors the field
-			dob = self._PRW_dob.date
-			# but year also usable ?
-			msg = None
-			if dob.year < 1900:
-				msg = _(
-					'DOB: %s\n'
-					'\n'
-					'While this is a valid point in time Python does\n'
-					'not know how to deal with it.\n'
-					'\n'
-					'We suggest using January 1st 1901 instead and adding\n'
-					'the true date of birth to the patient comment.\n'
-					'\n'
-					'Sorry for the inconvenience %s'
-				) % (dob, gmTools.u_frowning_face)
-			elif dob > gmDateTime.pydt_now_here():
-				msg = _(
-					'DOB: %s\n'
-					'\n'
-					'Date of birth in the future !'
-				) % dob
-
-			if msg is not None:
-				error = True
-				gmGuiHelpers.gm_show_error (
-					msg,
-					_('Registering new person')
-				)
-				self._PRW_dob.display_as_valid(False)
-				self._PRW_dob.SetFocus()
-		# 2) invalid timestamp ?
-		else:
-			# is this the only error ?
-			if error is False:
-				# is it empty rather than invalid ?
-				if self._PRW_dob.GetValue().strip() == u'':
-					# maybe even allow empty DOB ?
-					allow_empty_dob = gmGuiHelpers.gm_show_question (
-						_(
-							'Are you sure you want to register this person\n'
-							'without a valid date of birth ?\n'
-							'\n'
-							'This can be useful for temporary staff members\n'
-							'but will provoke nag screens if this person\n'
-							'becomes a patient.\n'
-						),
-						_('Registering new person')
-					)
-					if allow_empty_dob:
-						self._PRW_dob.display_as_valid(True)
-					else:
-						error = True
-						self._PRW_dob.SetFocus()
+		if not _validate_dob_field(self._PRW_dob):
+			error = True
 
 		# TOB validation if non-empty
 #		if self._TCTRL_tob.GetValue().strip() != u'':
@@ -2583,7 +2589,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_name_ea_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
-		app.SetWidget(cNameGenderDOBEditAreaPnl, name = activate_patient().get_active_name())
+		app.SetWidget(cPersonNameEAPnl, name = activate_patient().get_active_name())
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_pat_contacts_pnl():
