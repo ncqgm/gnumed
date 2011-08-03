@@ -781,9 +781,22 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		return no_errors
 #------------------------------------------------------------
+def _empty_dob_allowed():
+	allow_empty_dob = gmGuiHelpers.gm_show_question (
+		_(
+			'Are you sure you want to leave this person\n'
+			'without a valid date of birth ?\n'
+			'\n'
+			'This can be useful for temporary staff members\n'
+			'but will provoke nag screens if this person\n'
+			'becomes a patient.\n'
+		),
+		_('Validating date of birth')
+	)
+	return allow_empty_dob
+#------------------------------------------------------------
 def _validate_dob_field(dob_prw):
 
-	# test this last so we can check empty field as last barrier against save
 	# valid timestamp ?
 	if dob_prw.is_valid_timestamp(allow_empty = False):			# properly colors the field
 		dob = dob_prw.date
@@ -824,26 +837,9 @@ def _validate_dob_field(dob_prw):
 		dob_prw.SetFocus()
 		return False
 
-	# empty - maybe even allow empty DOB ?
-	allow_empty_dob = gmGuiHelpers.gm_show_question (
-		_(
-			'Are you sure you want to register this person\n'
-			'without a valid date of birth ?\n'
-			'\n'
-			'This can be useful for temporary staff members\n'
-			'but will provoke nag screens if this person\n'
-			'becomes a patient.\n'
-		),
-		_('Validating date of birth')
-	)
-	if allow_empty_dob:
-		dob_prw.display_as_valid(True)
-		return True
-
+	# empty DOB field
 	dob_prw.display_as_valid(False)
-	gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of birth.'))
-	dob_prw.SetFocus()
-	return False
+	return True
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgIdentityEAPnl
 
@@ -882,8 +878,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			has_error = True
 
 		if self.data is not None:
-			dob_valid = _validate_dob_field(self._PRW_dob)
-			if not dob_valid:
+			if not _validate_dob_field(self._PRW_dob):
 				has_error = True
 
 		if not self._PRW_dod.is_valid_timestamp(allow_empty = True):
@@ -899,13 +894,14 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
-		self.data['gender'] = self._PRW_gender.GetData()
-
 		if self._PRW_dob.GetValue().strip() == u'':
+			if not _empty_dob_allowed():
+				return False
 			self.data['dob'] = None
 		else:
 			self.data['dob'] = self._PRW_dob.GetData()
 
+		self.data['gender'] = self._PRW_gender.GetData()
 		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
 		self.data['deceased'] = self._PRW_dod.GetData()
 		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
@@ -922,10 +918,15 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.data.ID
 			# FIXME: add 'deleted' status
 		))
-		self._PRW_dob.SetText (
-			value = self.data.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
-			data = self.data['dob']
-		)
+		if self.data['dob'] is None:
+			val = u''
+		else:
+			val = gmDateTime.pydt_strftime (
+				self.data['dob'],
+				format = '%Y-%m-%d %H:%M',
+				accuracy = gmDateTime.acc_minutes
+			)
+		self._PRW_dob.SetText(value = val, data = self.data['dob'])
 		if self.data['deceased'] is None:
 			val = u''
 		else:
@@ -973,22 +974,6 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl):
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.__name['comment'], u''))
 		self._CHBOX_active.SetValue(self.__name['active_name'])
 
-#		self._PRW_title.SetText(gmTools.coalesce(self.__name['title'], u''))
-#		self._PRW_dob.SetText (
-#			value = self.__identity.get_formatted_dob(format = '%Y-%m-%d %H:%M', encoding = gmI18N.get_encoding()),
-#			data = self.__identity['dob']
-#		)
-#		self._PRW_gender.SetData(self.__name['gender'])
-#		if self.__identity['deceased'] is None:
-#			val = u''
-#		else:
-#			val = gmDateTime.pydt_strftime (
-#				self.__identity['deceased'],
-#				format = '%Y-%m-%d %H:%M',
-#				accuracy = gmDateTime.acc_minutes
-#			)
-#		self._PRW_dod.SetText(value = val, data = self.__identity['deceased'])
-
 		# FIXME: clear fields
 #		else:
 #			pass
@@ -997,15 +982,6 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl):
 
 		if not self.__valid_for_save():
 			return False
-
-#		self.__identity['gender'] = self._PRW_gender.GetData()
-#		if self._PRW_dob.GetValue().strip() == u'':
-#			self.__identity['dob'] = None
-#		else:
-#			self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
-#		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
-#		self.__identity['deceased'] = self._PRW_dod.GetData()
-#		self.__identity.save_payload()
 
 		active = self._CHBOX_active.GetValue()
 		first = self._PRW_firstname.GetValue().strip()
@@ -1028,54 +1004,12 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl):
 	# event handling
 	#--------------------------------------------------------
 #	def __register_interests(self):
-#		self._PRW_firstname.add_callback_on_lose_focus(self._on_name_set)
-#	#--------------------------------------------------------
-#	def _on_name_set(self):
-#		"""Set the gender according to entered firstname.
-#
-#		Matches are fetched from existing records in backend.
-#		"""
-#		firstname = self._PRW_firstname.GetValue().strip()
-#		if firstname == u'':
-#			return True
-#		rows, idx = gmPG2.run_ro_queries(queries = [{
-#			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
-#			'args': [firstname]
-#		}])
-#		if len(rows) == 0:
-#			return True
-#		wx.CallAfter(self._PRW_gender.SetData, rows[0][0])
-#		return True
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 
 		has_error = False
-
-#		if self._PRW_gender.GetData() is None:
-#			self._PRW_gender.display_as_valid(False)
-#			self._PRW_gender.SetFocus()
-#			has_error = True
-#		else:
-#			self._PRW_gender.display_as_valid(True)
-#
-#		if not self._PRW_dob.is_valid_timestamp():
-#			val = self._PRW_dob.GetValue().strip()
-#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
-#			self._PRW_dob.display_as_valid(False)
-#			self._PRW_dob.SetFocus()
-#			has_error = True
-#		else:
-#			self._PRW_dob.display_as_valid(True)
-#
-#		if not self._PRW_dod.is_valid_timestamp():
-#			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
-#			self._PRW_dod.display_as_valid(False)
-#			self._PRW_dod.SetFocus()
-#			has_error = True
-#		else:
-#			self._PRW_dod.display_as_valid(True)
 
 		if self._PRW_lastname.GetValue().strip() == u'':
 			self._PRW_lastname.display_as_valid(False)
@@ -1310,8 +1244,9 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 	"""A panel for editing identity data for a person.
 
 	- provides access to:
-	  - name
-	  - external IDs
+	  - identity EA
+	  - name list manager
+	  - external IDs list manager
 
 	Does NOT act on/listen to the current patient.
 	"""
@@ -1332,6 +1267,7 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 		self._PNL_identity.data = self.__identity
 		if self.__identity is not None:
 			self._PNL_identity.mode = 'edit'
+			self._PNL_identity._refresh_from_existing()
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1766,6 +1702,12 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
+		if self._PRW_dob.GetValue().strip() == u'':
+			if not _empty_dob_allowed():
+				self._PRW_dob.display_as_valid(False)
+				self._PRW_dob.SetFocus()
+				return False
+
 		# identity
 		new_identity = gmPerson.create_identity (
 			gender = self._PRW_gender.GetData(),
@@ -1871,8 +1813,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 class cPersonDemographicsEditorNb(wx.Notebook):
 	"""Notebook displaying demographics editing pages:
 
-		- Identity
 		- Contacts (addresses, phone numbers, etc)
+		- Identity
 		- Social network (significant others, GP, etc)
 
 	Does NOT act on/listen to the current patient.
@@ -2049,7 +1991,7 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		self._schedule_data_reget()
-	#--------------------------------------------------------
+		print "_on_post_patient_selection: scheduled"
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
@@ -2061,502 +2003,7 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__patient_notebook.identity = None
 		self.__patient_notebook.refresh()
 		return True
-
-
 #============================================================
-#============================================================
-#============================================================
-#============================================================
-# outdated, delete soon:
-# new-patient wizard classes
-#============================================================
-class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
-	"""
-	Wizard page for entering patient's basic demographic information
-	"""
-
-	form_fields = (
-			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title', 'occupation',
-			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone', 'comment'
-	)
-
-	def __init__(self, parent, title):
-		"""
-		Creates a new instance of BasicPatDetailsPage
-		@param parent - The parent widget
-		@type parent - A wx.Window instance
-		@param tile - The title of the page
-		@type title - A StringType instance
-		"""
-		wx.wizard.WizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
-		self.__title = title
-		self.__do_layout()
-		self.__register_interests()
-	#--------------------------------------------------------
-	def __do_layout(self):
-		PNL_form = wx.Panel(self, -1)
-
-		# last name
-		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
-		STT_lastname.SetForegroundColour('red')
-		self.PRW_lastname = cLastnamePhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_lastname.SetToolTipString(_('Required: lastname (family name)'))
-
-		# first name
-		STT_firstname = wx.StaticText(PNL_form, -1, _('First name(s)'))
-		STT_firstname.SetForegroundColour('red')
-		self.PRW_firstname = cFirstnamePhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_firstname.SetToolTipString(_('Required: surname/given name/first name'))
-
-		# nickname
-		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
-		self.PRW_nick = cNicknamePhraseWheel(parent = PNL_form, id = -1)
-
-		# DOB
-		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
-		STT_dob.SetForegroundColour('red')
-		self.PRW_dob = gmDateTimeInput.cFuzzyTimestampInput(parent = PNL_form, id = -1)
-		self.PRW_dob.SetToolTipString(_("Required: date of birth, if unknown or aliasing wanted then invent one"))
-
-		# gender
-		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
-		STT_gender.SetForegroundColour('red')
-		self.PRW_gender = cGenderSelectionPhraseWheel(parent = PNL_form, id=-1)
-		self.PRW_gender.SetToolTipString(_("Required: gender of patient"))
-
-		# title
-		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
-		self.PRW_title = cTitlePhraseWheel(parent = PNL_form, id = -1)
-
-		# zip code
-		STT_zip_code = wx.StaticText(PNL_form, -1, _('Postal code'))
-		STT_zip_code.SetForegroundColour('orange')
-		self.PRW_zip_code = gmPersonContactWidgets.cZipcodePhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip/postal code"))
-
-		# street
-		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
-		STT_street.SetForegroundColour('orange')
-		self.PRW_street = gmPersonContactWidgets.cStreetPhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
-
-		# address number
-		STT_address_number = wx.StaticText(PNL_form, -1, _('Number'))
-		STT_address_number.SetForegroundColour('orange')
-		self.TTC_address_number = wx.TextCtrl(PNL_form, -1)
-		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
-
-		# town
-		STT_town = wx.StaticText(PNL_form, -1, _('Place'))
-		STT_town.SetForegroundColour('orange')
-		self.PRW_town = gmPersonContactWidgets.cUrbPhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_town.SetToolTipString(_("primary/home address: city/town/village/dwelling/..."))
-
-		# state
-		STT_state = wx.StaticText(PNL_form, -1, _('Region'))
-		STT_state.SetForegroundColour('orange')
-		self.PRW_state = gmPersonContactWidgets.cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
-		self.PRW_state.SetToolTipString(_("primary/home address: state/province/county/..."))
-
-		# country
-		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		STT_country.SetForegroundColour('orange')
-		self.PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_country.SetToolTipString(_("primary/home address: country"))
-
-		# phone
-		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
-		self.TTC_phone = wx.TextCtrl(PNL_form, -1)
-		self.TTC_phone.SetToolTipString(_("phone number at home"))
-
-		# occupation
-		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
-		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
-
-		# comment
-		STT_comment = wx.StaticText(PNL_form, -1, _('Comment'))
-		self.TCTRL_comment = wx.TextCtrl(PNL_form, -1)
-		self.TCTRL_comment.SetToolTipString(_('A comment on this patient.'))
-
-		# form main validator
-		self.form_DTD = cFormDTD(fields = self.__class__.form_fields)
-		PNL_form.SetValidator(cBasicPatDetailsPageValidator(dtd = self.form_DTD))
-
-		# layout input widgets
-		SZR_input = wx.FlexGridSizer(cols = 2, rows = 16, vgap = 4, hgap = 4)
-		SZR_input.AddGrowableCol(1)
-		SZR_input.Add(STT_lastname, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_lastname, 1, wx.EXPAND)
-		SZR_input.Add(STT_firstname, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_firstname, 1, wx.EXPAND)
-		SZR_input.Add(STT_nick, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)
-		SZR_input.Add(STT_dob, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_dob, 1, wx.EXPAND)
-		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
-		SZR_input.Add(STT_title, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
-		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
-		SZR_input.Add(STT_street, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
-		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
-		SZR_input.Add(STT_town, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
-		SZR_input.Add(STT_state, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
-		SZR_input.Add(STT_country, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
-		SZR_input.Add(STT_phone, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
-		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
-		SZR_input.Add(STT_comment, 0, wx.SHAPED)
-		SZR_input.Add(self.TCTRL_comment, 1, wx.EXPAND)
-
-		PNL_form.SetSizerAndFit(SZR_input)
-
-		# layout page
-		SZR_main = makePageTitle(self, self.__title)
-		SZR_main.Add(PNL_form, 1, wx.EXPAND)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		self.PRW_firstname.add_callback_on_lose_focus(self.on_name_set)
-		self.PRW_country.add_callback_on_selection(self.on_country_selected)
-		self.PRW_zip_code.add_callback_on_lose_focus(self.on_zip_set)
-	#--------------------------------------------------------
-	def on_country_selected(self, data):
-		"""Set the states according to entered country."""
-		self.PRW_state.set_context(context=u'country', val=data)
-		return True
-	#--------------------------------------------------------
-	def on_name_set(self):
-		"""Set the gender according to entered firstname.
-
-		Matches are fetched from existing records in backend.
-		"""
-		firstname = self.PRW_firstname.GetValue().strip()
-		rows, idx = gmPG2.run_ro_queries(queries = [{
-			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
-			'args': [firstname]
-		}])
-		if len(rows) == 0:
-			return True
-		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
-		return True
-	#--------------------------------------------------------
-	def on_zip_set(self):
-		"""Set the street, town, state and country according to entered zip code."""
-		zip_code = self.PRW_zip_code.GetValue().strip()
-		self.PRW_street.set_context(context=u'zip', val=zip_code)
-		self.PRW_town.set_context(context=u'zip', val=zip_code)
-		self.PRW_state.set_context(context=u'zip', val=zip_code)
-		self.PRW_country.set_context(context=u'zip', val=zip_code)
-		return True
-#============================================================
-def makePageTitle(wizPg, title):
-	"""
-	Utility function to create the main sizer of a wizard's page.
-
-	@param wizPg The wizard page widget
-	@type wizPg A wx.WizardPageSimple instance	
-	@param title The wizard page's descriptive title
-	@type title A StringType instance		
-	"""
-	sizer = wx.BoxSizer(wx.VERTICAL)
-	wizPg.SetSizer(sizer)
-	title = wx.StaticText(wizPg, -1, title)
-	title.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
-	sizer.Add(title, 0, wx.ALIGN_CENTRE|wx.ALL, 2)
-	sizer.Add(wx.StaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
-	return sizer
-#============================================================
-class cNewPatientWizard(wx.wizard.Wizard):
-	"""
-	Wizard to create a new patient.
-
-	TODO:
-	- write pages for different "themes" of patient creation
-	- make it configurable which pages are loaded
-	- make available sets of pages that apply to a country
-	- make loading of some pages depend upon values in earlier pages, eg
-	  when the patient is female and older than 13 include a page about
-	  "female" data (number of kids etc)
-
-	FIXME: use: wizard.FindWindowById(wx.ID_FORWARD).Disable()
-	"""
-	#--------------------------------------------------------
-	def __init__(self, parent, title = _('Register new person'), subtitle = _('Basic demographic details') ):
-		"""
-		Creates a new instance of NewPatientWizard
-		@param parent - The parent widget
-		@type parent - A wx.Window instance
-		"""
-		id_wiz = wx.NewId()
-		wx.wizard.Wizard.__init__(self, parent, id_wiz, title) #images.getWizTest1Bitmap()
-		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
-		self.__subtitle = subtitle
-		self.__do_layout()
-	#--------------------------------------------------------
-	def RunWizard(self, activate=False):
-		"""Create new patient.
-
-		activate, too, if told to do so (and patient successfully created)
-		"""
-		while True:
-
-			if not wx.wizard.Wizard.RunWizard(self, self.basic_pat_details):
-				return False
-
-			try:
-				# retrieve DTD and create patient
-				ident = create_identity_from_dtd(dtd = self.basic_pat_details.form_DTD)
-			except:
-				_log.exception('cannot add new patient - missing identity fields')
-				gmGuiHelpers.gm_show_error (
-					_('Cannot create new patient.\n'
-					  'Missing parts of the identity.'
-					),
-					_('Adding new patient')
-				)
-				continue
-
-			update_identity_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
-
-			try:
-				link_contacts_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
-			except:
-				_log.exception('cannot finalize new patient - missing address fields')
-				gmGuiHelpers.gm_show_error (
-					_('Cannot add address for the new patient.\n'
-					  'You must either enter all of the address fields or\n'
-					  'none at all. The relevant fields are marked in yellow.\n'
-					  '\n'
-					  'You will need to add the address details in the\n'
-					  'demographics module.'
-					),
-					_('Adding new patient')
-				)
-				break
-
-			link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
-
-			break
-
-		if activate:
-			from Gnumed.wxpython import gmPatSearchWidgets
-			gmPatSearchWidgets.set_active_patient(patient = ident)
-
-		return ident
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __do_layout(self):
-		"""Arrange widgets.
-		"""
-		# Create the wizard pages
-		self.basic_pat_details = cBasicPatDetailsPage(self, self.__subtitle )
-		self.FitToPage(self.basic_pat_details)
-#============================================================
-#============================================================
-class cBasicPatDetailsPageValidator(wx.PyValidator):
-	"""
-	This validator is used to ensure that the user has entered all
-	the required conditional values in the page (eg., to properly
-	create an address, all the related fields must be filled).
-	"""
-	#--------------------------------------------------------
-	def __init__(self, dtd):
-		"""
-		Validator initialization.
-		@param dtd The object containing the data model.
-		@type dtd A cFormDTD instance
-		"""
-		# initialize parent class
-		wx.PyValidator.__init__(self)
-		# validator's storage object
-		self.form_DTD = dtd
-	#--------------------------------------------------------
-	def Clone(self):
-		"""
-		Standard cloner.
-		Note that every validator must implement the Clone() method.
-		"""
-		return cBasicPatDetailsPageValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
-	#--------------------------------------------------------
-	def Validate(self, parent = None):
-		"""
-		Validate the contents of the given text control.
-		"""
-		_pnl_form = self.GetWindow().GetParent()
-
-		error = False
-
-		# name fields
-		if _pnl_form.PRW_lastname.GetValue().strip() == '':
-			error = True
-			gmDispatcher.send(signal = 'statustext', msg = _('Must enter lastname.'))
-			_pnl_form.PRW_lastname.SetBackgroundColour('pink')
-			_pnl_form.PRW_lastname.Refresh()
-		else:
-			_pnl_form.PRW_lastname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			_pnl_form.PRW_lastname.Refresh()
-
-		if _pnl_form.PRW_firstname.GetValue().strip() == '':
-			error = True
-			gmDispatcher.send(signal = 'statustext', msg = _('Must enter first name.'))
-			_pnl_form.PRW_firstname.SetBackgroundColour('pink')
-			_pnl_form.PRW_firstname.Refresh()
-		else:
-			_pnl_form.PRW_firstname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			_pnl_form.PRW_firstname.Refresh()
-
-		# gender
-		if _pnl_form.PRW_gender.GetData() is None:
-			error = True
-			gmDispatcher.send(signal = 'statustext', msg = _('Must select gender.'))
-			_pnl_form.PRW_gender.SetBackgroundColour('pink')
-			_pnl_form.PRW_gender.Refresh()
-		else:
-			_pnl_form.PRW_gender.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			_pnl_form.PRW_gender.Refresh()
-
-		# dob validation
-		if (
-				(_pnl_form.PRW_dob.GetValue().strip() == u'')
-				or (not _pnl_form.PRW_dob.is_valid_timestamp())
-				or (_pnl_form.PRW_dob.GetData().timestamp.year < 1900)
-		):
-			error = True
-			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.PRW_dob.GetValue()
-			gmDispatcher.send(signal = 'statustext', msg = msg)
-			_pnl_form.PRW_dob.SetBackgroundColour('pink')
-			_pnl_form.PRW_dob.Refresh()
-		else:
-			_pnl_form.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			_pnl_form.PRW_dob.Refresh()
-
-		# address
-		is_any_field_filled = False
-		address_fields = (
-			_pnl_form.TTC_address_number,
-			_pnl_form.PRW_zip_code,
-			_pnl_form.PRW_street,
-			_pnl_form.PRW_town
-		)
-		for field in address_fields:
-			if field.GetValue().strip() == u'':
-				if is_any_field_filled:
-					error = True
-					msg = _('To properly create an address, all the related fields must be filled in.')
-					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
-					field.SetBackgroundColour('pink')
-					field.SetFocus()
-					field.Refresh()
-			else:
-				is_any_field_filled = True
-				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()
-
-		address_fields = (
-			_pnl_form.PRW_state,
-			_pnl_form.PRW_country
-		)
-		for field in address_fields:
-			if field.GetData() is None:
-				if is_any_field_filled:
-					error = True
-					msg = _('To properly create an address, all the related fields must be filled in.')
-					gmGuiHelpers.gm_show_error(msg, _('Required fields'))
-					field.SetBackgroundColour('pink')
-					field.SetFocus()
-					field.Refresh()
-			else:
-				is_any_field_filled = True
-				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()
-
-		return (not error)
-	#--------------------------------------------------------
-	def TransferToWindow(self):
-		"""
-		Transfer data from validator to window.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		_pnl_form = self.GetWindow().GetParent()
-		# fill in controls with values from self.form_DTD
-		_pnl_form.PRW_gender.SetData(self.form_DTD['gender'])
-		_pnl_form.PRW_dob.SetText(self.form_DTD['dob'])
-		_pnl_form.PRW_lastname.SetText(self.form_DTD['lastnames'])
-		_pnl_form.PRW_firstname.SetText(self.form_DTD['firstnames'])
-		_pnl_form.PRW_title.SetText(self.form_DTD['title'])
-		_pnl_form.PRW_nick.SetText(self.form_DTD['nick'])
-		_pnl_form.PRW_occupation.SetText(self.form_DTD['occupation'])
-		_pnl_form.TTC_address_number.SetValue(self.form_DTD['address_number'])
-		_pnl_form.PRW_street.SetText(self.form_DTD['street'])
-		_pnl_form.PRW_zip_code.SetText(self.form_DTD['zip_code'])
-		_pnl_form.PRW_town.SetText(self.form_DTD['town'])
-		_pnl_form.PRW_state.SetData(self.form_DTD['state'])
-		_pnl_form.PRW_country.SetData(self.form_DTD['country'])
-		_pnl_form.TTC_phone.SetValue(self.form_DTD['phone'])
-		_pnl_form.TCTRL_comment.SetValue(self.form_DTD['comment'])
-		return True # Prevent wxDialog from complaining
-	#--------------------------------------------------------
-	def TransferFromWindow(self):
-		"""
-		Transfer data from window to validator.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		# FIXME: should be called automatically
-		if not self.GetWindow().GetParent().Validate():
-			return False
-		try:
-			_pnl_form = self.GetWindow().GetParent()
-			# fill in self.form_DTD with values from controls
-			self.form_DTD['gender'] = _pnl_form.PRW_gender.GetData()
-			self.form_DTD['dob'] = _pnl_form.PRW_dob.GetData()
-
-			self.form_DTD['lastnames'] = _pnl_form.PRW_lastname.GetValue()
-			self.form_DTD['firstnames'] = _pnl_form.PRW_firstname.GetValue()
-			self.form_DTD['title'] = _pnl_form.PRW_title.GetValue()
-			self.form_DTD['nick'] = _pnl_form.PRW_nick.GetValue()
-
-			self.form_DTD['occupation'] = _pnl_form.PRW_occupation.GetValue()
-
-			self.form_DTD['address_number'] = _pnl_form.TTC_address_number.GetValue()
-			self.form_DTD['street'] = _pnl_form.PRW_street.GetValue()
-			self.form_DTD['zip_code'] = _pnl_form.PRW_zip_code.GetValue()
-			self.form_DTD['town'] = _pnl_form.PRW_town.GetValue()
-			self.form_DTD['state'] = _pnl_form.PRW_state.GetData()
-			self.form_DTD['country'] = _pnl_form.PRW_country.GetData()
-
-			self.form_DTD['phone'] = _pnl_form.TTC_phone.GetValue()
-
-			self.form_DTD['comment'] = _pnl_form.TCTRL_comment.GetValue()
-		except:
-			return False
-		return True
-#============================================================
-class TestWizardPanel(wx.Panel):   
-	"""
-	Utility class to test the new patient wizard.
-	"""
-	#--------------------------------------------------------
-	def __init__(self, parent, id):
-		"""
-		Create a new instance of TestPanel.
-		@param parent The parent widget
-		@type parent A wx.Window instance
-		"""
-		wx.Panel.__init__(self, parent, id)
-		wizard = cNewPatientWizard(self)
-		print wizard.RunWizard()
 #============================================================
 if __name__ == "__main__":
 
@@ -2621,8 +2068,6 @@ if __name__ == "__main__":
 		gmI18N.activate_locale()
 		gmI18N.install_domain(domain='gnumed')
 		gmPG2.get_connection()
-
-#		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 
 #		app = wx.PyWidgetTester(size = (400, 300))
 #		app.SetWidget(cNotebookedPatEditionPanel, -1)
