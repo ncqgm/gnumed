@@ -1698,6 +1698,13 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
+		if self._PRW_primary_provider.GetValue().strip() == u'':
+			self._PRW_primary_provider.display_as_valid(True)
+		else:
+			if self._PRW_primary_provider.GetData() is None:
+				self._PRW_primary_provider.display_as_valid(False)
+			else:
+				self._PRW_primary_provider.display_as_valid(True)
 		return (self.__identity_valid_for_save() and self.__address_valid_for_save(empty_address_is_valid = True))
 	#----------------------------------------------------------------
 	def _save_as_new(self):
@@ -1720,6 +1727,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		new_identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip())
 		new_identity.set_nickname(nickname = gmTools.none_if(self._PRW_nickname.GetValue().strip(), u''))
 		#TOB
+		prov = self._PRW_primary_provider.GetData()
+		if prov is not None:
+			new_identity['pk_primary_provider'] = prov
 		new_identity.save()
 
 		name = new_identity.get_active_name()
