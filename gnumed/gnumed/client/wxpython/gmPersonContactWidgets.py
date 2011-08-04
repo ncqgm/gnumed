@@ -62,57 +62,76 @@ class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			}
 		}
 		query = u"""
-select code, name from (
-	select distinct on (code, name) code, (name || ' (' || code || ')') as name, rank from (
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (data)
+		data,
+		field_label,
+		list_label,
+		rank
+	FROM (
 
--- localized to user
-
-			select
-				code_country as code, l10n_country as name, 1 as rank
-			from dem.v_zip2data
-			where
+	-- localized to user
+			SELECT
+				code_country AS data,
+				l10n_country AS field_label,
+				l10n_country || ' (' || code_country || '): ' || country AS list_label,
+				1 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				l10n_country %(fragment_condition)s
 				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, _(name) as name, 2 as rank
-			from dem.country
-			where
+		UNION ALL
+			SELECT
+				code AS data,
+				_(name) AS field_label,
+				_(name) || ' (' || code || '): ' || name AS list_label,
+				2 AS rank
+			FROM dem.country
+			WHERE
 				_(name) %(fragment_condition)s
 
-		union all
+		UNION ALL
 
--- non-localized
-
-			select
-				code_country as code, country as name, 3 as rank
-			from dem.v_zip2data
-			where
+	-- non-localized
+			SELECT
+				code_country AS data,
+				l10n_country AS field_label,
+				country || ' (' || code_country || '): ' || l10n_country AS list_label,
+				3 as rank
+			FROM dem.v_zip2data
+			WHERE
 				country %(fragment_condition)s
 				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, name as name, 4 as rank
-			from dem.country
-			where
+		UNION ALL
+			SELECT
+				code AS data,
+				_(name) AS field_label,
+				name || ' (' || code || '): ' || _(name) AS list_label,
+				4 as rank
+			FROM dem.country
+			WHERE
 				name %(fragment_condition)s
 
-		union all
+		UNION ALL
 
--- abbreviation
-
-			select
-				code as code, name as name, 5 as rank
-			from dem.country
-			where
+	-- abbreviation
+			SELECT
+				code AS data,
+				_(name) as field_label,
+				code || ': ' || _(name) || ' (' || name || ')' AS list_label,
+				5 as rank
+			FROM dem.country
+			WHERE
 				code %(fragment_condition)s
 
-	) as q2
-) as q1 order by rank, name limit 25"""
+	) AS candidates
+) AS distint_candidates
+ORDER BY rank, list_label
+LIMIT 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 9)
 		self.matcher = mp
@@ -238,64 +257,87 @@ class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		context = {
 			u'ctxt_country_name': {
-				u'where_part': u'and l10n_country ilike %(country_name)s or country ilike %(country_name)s',
+				u'where_part': u'AND l10n_country ILIKE %(country_name)s OR country ILIKE %(country_name)s',
 				u'placeholder': u'country_name'
 			},
 			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
+				u'where_part': u'AND zip ilike %(zip)s',
 				u'placeholder': u'zip'
 			},
 			u'ctxt_country_code': {
-				u'where_part': u'and country in (select code from dem.country where _(name) ilike %(country_name)s or name ilike %(country_name)s)',
+				u'where_part': u'AND country IN (SELECT code FROM dem.country WHERE _(name) ILIKE %(country_name)s OR name ILIKE %(country_name)s)',
 				u'placeholder': u'country_name'
 			}
 		}
 
 		query = u"""
-select code, name from (
-	select distinct on (name) code, name, rank from (
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (field_label)
+		data,
+		field_label,
+		list_label,
+		rank
+	FROM (
 			-- 1: find states based on name, context: zip and country name
-			select
-				code_state as code, state as name, 1 as rank
-			from dem.v_zip2data
-			where
+			SELECT
+				code_state AS data,
+				state AS field_label,
+				state || ' (' || code_state || '), ' || l10n_country || ' (' || code_country || ')' AS list_label,
+				1 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				state %(fragment_condition)s
 				%(ctxt_country_name)s
 				%(ctxt_zip)s
 
-		union all
+		UNION ALL
 
 			-- 2: find states based on code, context: zip and country name
-			select
-				code_state as code, state as name, 2 as rank
-			from dem.v_zip2data
-			where
+			SELECT
+				code_state AS data,
+				state AS field_label,
+				code_state || ': ' || state || ' (' || l10n_country || ', ' || code_country || ')' AS list_label,
+				2 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				code_state %(fragment_condition)s
 				%(ctxt_country_name)s
 				%(ctxt_zip)s
 
-		union all
+		UNION ALL
 
 			-- 3: find states based on name, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
+			SELECT
+				code AS data,
+				name AS field_label,
+				name || ' (' || code || '), ' || country AS list_label,
+				3 AS rank
+			FROM dem.state
+			WHERE
 				name %(fragment_condition)s
 				%(ctxt_country_code)s
 
-		union all
+		UNION ALL
 
 			-- 4: find states based on code, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
+			SELECT
+				code AS data,
+				name AS field_label,
+				code || ': ' || name || ', ' || country AS list_label,
+				3 AS rank
+			FROM dem.state
+			WHERE
 				code %(fragment_condition)s
 				%(ctxt_country_code)s
 
-	) as q2
-) as q1 order by rank, name limit 50"""
+	) AS candidate_states
+) AS distinct_matches
+ORDER BY rank, list_label
+LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 6)
@@ -1305,12 +1347,24 @@ class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsMan
 #============================================================
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	from Gnumed.pycommon import gmI18N
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
+	gmPG2.get_connection()
+
 	#--------------------------------------------------------
 	def test_state_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cStateSelectionPhraseWheel(app.frame, -1)
-#		pw.set_context(context = u'zip', val = u'04318')
-#		pw.set_context(context = u'country', val = u'Deutschland')
+		pw.set_context(context = u'zip', val = u'04318')
+		pw.set_context(context = u'country', val = u'Deutschland')
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
@@ -1370,5 +1424,19 @@ if __name__ == "__main__":
 		widget.identity = activate_patient()
 		app.frame.Show(True)
 		app.MainLoop()
+	#--------------------------------------------------------
+	def test_country_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cCountryPhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	#test_address_type_prw()
+	#test_suburb_prw()
+	#test_urb_prw()
+	#test_zipcode_prw()
+	test_state_prw()
+	#test_street_prw()
+	#test_country_prw()
 
 #============================================================

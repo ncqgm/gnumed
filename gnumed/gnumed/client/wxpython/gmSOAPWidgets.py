@@ -342,9 +342,9 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #	def _on_application_closing(self):
 #		"""GNUmed is shutting down."""
 #		print "[%s]: the application is closing down" % self.__class__.__name__
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 #		print "need to ask user about SOAP saving !"
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 	#--------------------------------------------------------
 #	def _on_episodes_modified(self):
 #		print "[%s]: episode modified" % self.__class__.__name__

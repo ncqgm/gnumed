@@ -2071,18 +2071,11 @@ if __name__ == "__main__":
 
 #		app = wx.PyWidgetTester(size = (400, 300))
 #		app.SetWidget(cNotebookedPatEditionPanel, -1)
-#		app.SetWidget(TestWizardPanel, -1)
 #		app.frame.Show(True)
 #		app.MainLoop()
 
 		# phrasewheels
-#		test_zipcode_prw()
-#		test_state_prw()
-#		test_street_prw()
 #		test_organizer_pnl()
-		#test_address_type_prw()
-		#test_suburb_prw()
-		test_urb_prw()
 		#test_address_prw()
 
 		# contacts related widgets

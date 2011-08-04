@@ -542,7 +542,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_adr_street(self, data=u'?'):
 #		if data == u'?':
-#			types = xxxxxxxxxxx
+#			types = zzzzzzzzzzz
 		adrs = self.pat.get_addresses(address_type=data)
 		if len(adrs) == 0:
 			return _('no street for address type [%s]') % data
@@ -855,8 +855,7 @@ class cMacroPrimitives:
 		searcher = gmPersonSearch.cPatientSearcher_SQL()
 		if type(search_params) == types.DictType:
 			idents = searcher.get_identities(search_dict=search_params)
-			print "must use dto, not search_dict"
-			print xxxxxxxxxxxxxxxxx
+			raise StandardError("must use dto, not search_dict")
 		else:
 			idents = searcher.get_identities(search_term=search_params)
 		if idents is None:
