@@ -1061,9 +1061,15 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			self.SetToolTipString(self._tt_search_hints)
 			return
 
-		tt = u'%s%s-----------------------------------\n%s' % (
-			gmTools.coalesce(self.person['emergency_contact'], u'', _('In case of emergency contact:') + u'\n %s\n'),
+		if (self.person['emergency_contact'] is None) and (self.person['comment'] is None):
+			separator = u''
+		else:
+			separator = u'%s\n' % (gmTools.u_box_horiz_single * 40)
+
+		tt = u'%s%s%s%s' % (
+			gmTools.coalesce(self.person['emergency_contact'], u'', u'%s\n %%s\n' % _('In case of emergency contact:')),
 			gmTools.coalesce(self.person['comment'], u'', u'\n%s\n'),
+			separator,
 			self._tt_search_hints
 		)
 		self.SetToolTipString(tt)

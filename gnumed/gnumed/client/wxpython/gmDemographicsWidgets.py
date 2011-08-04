@@ -478,7 +478,7 @@ def edit_occupation():
 class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"select distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
+		query = u"SELECT distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -541,7 +541,7 @@ def disable_identity(identity=None):
 class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s order by lastnames limit 25"
+		query = u"SELECT distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s order by lastnames limit 25"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(3, 5, 9)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -557,9 +557,9 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		query = u"""
-			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
+			(SELECT distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
 				union
-			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
+			(SELECT distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(3, 5, 9)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -575,11 +575,11 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		query = u"""
-			(select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s order by preferred limit 20)
+			(SELECT distinct preferred, preferred from dem.names where preferred %(fragment_condition)s order by preferred limit 20)
 				union
-			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
+			(SELECT distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
 				union
-			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
+			(SELECT distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(3, 5, 9)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -595,7 +595,7 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"select distinct title, title from dem.identity where title %(fragment_condition)s"
+		query = u"SELECT distinct title, title from dem.identity where title %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 9)
 		gmPhraseWheel.cPhraseWheel.__init__ (
@@ -615,7 +615,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		if cGenderSelectionPhraseWheel._gender_map is None:
 			cmd = u"""
-				select tag, l10n_label, sort_weight
+				SELECT tag, l10n_label, sort_weight
 				from dem.v_gender_labels
 				order by sort_weight desc"""
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
@@ -640,21 +640,31 @@ class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		query = u"""
-select distinct pk, (name || coalesce(' (%s ' || issuer || ')', '')) as label
-from dem.enum_ext_id_types
-where name %%(fragment_condition)s
-order by label limit 25""" % _('issued by')
+			SELECT DISTINCT ON (list_label)
+				pk AS data,
+				name AS field_label,
+				name || coalesce(' (' || issuer || ')', '') as list_label
+			FROM dem.enum_ext_id_types
+			WHERE name %(fragment_condition)s
+			ORDER BY list_label
+			LIMIT 25
+		"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.SetToolTipString(_("Enter or select a type for the external ID."))
 		self.matcher = mp
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		return self._data.values()[0]['list_label']
 #------------------------------------------------------------
 class cExternalIDIssuerPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		query = u"""
-select distinct issuer, issuer
+SELECT distinct issuer, issuer
 from dem.enum_ext_id_types
 where issuer %(fragment_condition)s
 order by issuer limit 25"""
@@ -669,7 +679,7 @@ order by issuer limit 25"""
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgExternalIDEditAreaPnl
 
-class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
+class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 	"""An edit area for editing/creating external IDs.
 
 	Does NOT act on/listen to the current patient.
@@ -677,67 +687,101 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 	def __init__(self, *args, **kwargs):
 
 		try:
-			self.ext_id = kwargs['external_id']
+			data = kwargs['external_id']
 			del kwargs['external_id']
 		except:
-			self.ext_id = None
+			data = None
 
 		wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		self.identity = None
 
-		self.__register_events()
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
 
-		self.refresh()
+		self.__init_ui()
 	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, ext_id=None):
-		if ext_id is not None:
-			self.ext_id = ext_id
+	def __init_ui(self):
+		self._PRW_type.add_callback_on_lose_focus(self._on_type_set)
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
 
-		if self.ext_id is not None:
-			self._PRW_type.SetText(value = self.ext_id['name'], data = self.ext_id['pk_type'])
-			self._TCTRL_value.SetValue(self.ext_id['value'])
-			self._PRW_issuer.SetText(self.ext_id['issuer'])
-			self._TCTRL_comment.SetValue(gmTools.coalesce(self.ext_id['comment'], u''))
-		# FIXME: clear fields
-#		else:
-#			pass
-	#--------------------------------------------------------
-	def save(self):
-
-		if not self.__valid_for_save():
-			return False
-
-		# strip out " (issued by ...)" added by phrasewheel
-		type = regex.split(' \(%s .+\)$' % _('issued by'), self._PRW_type.GetValue().strip(), 1)[0]
-
-		# add new external ID
-		if self.ext_id is None:
-			self.identity.add_external_id (
-				type_name = type,
-				value = self._TCTRL_value.GetValue().strip(),
-				issuer = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u''),
-				comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
-			)
-		# edit old external ID
+		# do not test .GetData() because adding external
+		# IDs will create types as necessary
+		#if self._PRW_type.GetData() is None:
+		if self._PRW_type.GetValue().strip() == u'':
+			validity = False
+			self._PRW_type.display_as_valid(False)
+			self._PRW_type.SetFocus()
 		else:
-			self.identity.update_external_id (
-				pk_id = self.ext_id['pk_id'],
-				type = type,
-				value = self._TCTRL_value.GetValue().strip(),
-				issuer = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u''),
-				comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
-			)
+			self._PRW_type.display_as_valid(True)
+
+		if self._TCTRL_value.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_value, valid = False)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_value, valid = True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		data = {}
+		data['pk_type'] = None
+		data['name'] = self._PRW_type.GetValue().strip()
+		data['value'] = self._TCTRL_value.GetValue().strip()
+		data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u'')
+		data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+
+		self.identity.add_external_id (
+			type_name = data['name'],
+			value = data['value'],
+			issuer = data['issuer'],
+			comment = data['comment']
+		)
+
+		self.data = data
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['name'] = self._PRW_type.GetValue().strip()
+		self.data['value'] = self._TCTRL_value.GetValue().strip()
+		self.data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u'')
+		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+
+		self.identity.update_external_id (
+			pk_id = self.data['pk_id'],
+			type = self.data['name'],
+			value = self.data['value'],
+			issuer = self.data['issuer'],
+			comment = self.data['comment']
+		)
 
 		return True
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_type.SetText(value = u'', data = None)
+		self._TCTRL_value.SetValue(u'')
+		self._PRW_issuer.SetText(value = u'', data = None)
+		self._TCTRL_comment.SetValue(u'')
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+		self._PRW_issuer.SetText(self.data['issuer'])
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_type.SetText(value = self.data['name'], data = self.data['pk_type'])
+		self._TCTRL_value.SetValue(self.data['value'])
+		self._PRW_issuer.SetText(self.data['issuer'])
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+	#----------------------------------------------------------------
 	# internal helpers
-	#--------------------------------------------------------
-	def __register_events(self):
-		self._PRW_type.add_callback_on_lose_focus(self._on_type_set)
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def _on_type_set(self):
 		"""Set the issuer according to the selected type.
 
@@ -747,39 +791,16 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 		if pk_curr_type is None:
 			return True
 		rows, idx = gmPG2.run_ro_queries(queries = [{
-			'cmd': u"select issuer from dem.enum_ext_id_types where pk = %s",
+			'cmd': u"SELECT issuer from dem.enum_ext_id_types where pk = %s",
 			'args': [pk_curr_type]
 		}])
 		if len(rows) == 0:
 			return True
 		wx.CallAfter(self._PRW_issuer.SetText, rows[0][0])
 		return True
-	#--------------------------------------------------------
-	def __valid_for_save(self):
 
-		no_errors = True
-
-		# do not test .GetData() because adding external IDs
-		# will create types if necessary
-#		if self._PRW_type.GetData() is None:
-		if self._PRW_type.GetValue().strip() == u'':
-			self._PRW_type.SetBackgroundColour('pink')
-			self._PRW_type.SetFocus()
-			self._PRW_type.Refresh()
-		else:
-			self._PRW_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._PRW_type.Refresh()
-
-		if self._TCTRL_value.GetValue().strip() == u'':
-			self._TCTRL_value.SetBackgroundColour('pink')
-			self._TCTRL_value.SetFocus()
-			self._TCTRL_value.Refresh()
-			no_errors = False
-		else:
-			self._TCTRL_value.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._TCTRL_value.Refresh()
-
-		return no_errors
+#============================================================
+# identity widgets
 #------------------------------------------------------------
 def _empty_dob_allowed():
 	allow_empty_dob = gmGuiHelpers.gm_show_question (
@@ -2096,7 +2117,7 @@ if __name__ == "__main__":
 
 		# identity related widgets
 		#test_person_names_pnl()
-		#test_person_ids_pnl()
+		test_person_ids_pnl()
 		#test_pat_ids_pnl()
 		#test_name_ea_pnl()
 

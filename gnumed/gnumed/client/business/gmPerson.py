@@ -761,14 +761,16 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
 		"""Edits an existing external ID.
 
-		creates ID type if necessary
+		Creates ID type if necessary.
 		"""
 		cmd = u"""
-update dem.lnk_identity2ext_id set
-	fk_origin = (select dem.add_external_id_type(%(type)s, %(issuer)s)),
-	external_id = %(value)s,
-	comment = %(comment)s
-where id = %(pk)s"""
+			UPDATE dem.lnk_identity2ext_id SET
+				fk_origin = (SELECT dem.add_external_id_type(%(type)s, %(issuer)s)),
+				external_id = %(value)s,
+				comment = gm.nullify_empty_string(%(comment)s)
+			WHERE
+				id = %(pk)s
+		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
