@@ -967,86 +967,130 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgPersonNameEAPnl
 
-class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl):
-	"""An edit area for editing/creating name/gender/dob.
+class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGenericEditAreaMixin):
+	"""An edit area for editing/creating names of people.
 
 	Does NOT act on/listen to the current patient.
 	"""
 	def __init__(self, *args, **kwargs):
 
-		self.__name = kwargs['name']
-		del kwargs['name']
-		self.__identity = gmPerson.cIdentity(aPK_obj = self.__name['pk_identity'])
+		try:
+			data = kwargs['name']
+			identity = gmPerson.cIdentity(aPK_obj = data['pk_identity'])
+			del kwargs['name']
+		except KeyError:
+			data = None
+			identity = kwargs['identity']
+			del kwargs['identity']
 
 		wxgPersonNameEAPnl.wxgPersonNameEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-#		self.__register_interests()
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self):
-		if self.__name is None:
-			return
+		self.__identity = identity
 
-		self._PRW_firstname.SetText(self.__name['firstnames'])
-		self._PRW_lastname.SetText(self.__name['lastnames'])
-		self._PRW_nick.SetText(gmTools.coalesce(self.__name['preferred'], u''))
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.__name['comment'], u''))
-		self._CHBOX_active.SetValue(self.__name['active_name'])
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
 
-		# FIXME: clear fields
-#		else:
-#			pass
-	#--------------------------------------------------------
-	def save(self):
-
-		if not self.__valid_for_save():
-			return False
-
-		active = self._CHBOX_active.GetValue()
-		first = self._PRW_firstname.GetValue().strip()
-		last = self._PRW_lastname.GetValue().strip()
-		old_nick = self.__name['preferred']
-
-		# is it a new name ?
-		old_name = self.__name['firstnames'] + self.__name['lastnames']
-		if (first + last) != old_name:
-			self.__name = self.__identity.add_name(first, last, active)
-
-		self.__name['active_name'] = active
-		self.__name['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
-		self.__name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
-
-		self.__name.save_payload()
-
-		return True
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-#	def __register_interests(self):
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __valid_for_save(self):
-
-		has_error = False
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
 
 		if self._PRW_lastname.GetValue().strip() == u'':
+			validity = False
 			self._PRW_lastname.display_as_valid(False)
 			self._PRW_lastname.SetFocus()
-			has_error = True
 		else:
 			self._PRW_lastname.display_as_valid(True)
 
 		if self._PRW_firstname.GetValue().strip() == u'':
+			validity = False
 			self._PRW_firstname.display_as_valid(False)
 			self._PRW_firstname.SetFocus()
-			has_error = True
 		else:
 			self._PRW_firstname.display_as_valid(True)
 
-		return (has_error is False)
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+
+		first = self._PRW_firstname.GetValue().strip()
+		last = self._PRW_lastname.GetValue().strip()
+		active = self._CHBOX_active.GetValue()
+
+		data = self.__identity.add_name(first, last, active)
+
+		old_nick = self.data['preferred']
+		new_nick = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
+		if active:
+			data['preferred'] = gmTools.coalesce(new_nick, old_nick)
+		else:
+			data['preferred'] = new_nick
+		data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+		data.save()
+
+		self.data = data
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		"""The knack here is that we can only update a few fields.
+
+		Otherwise we need to clone the name and update that.
+		"""
+		first = self._PRW_firstname.GetValue().strip()
+		last = self._PRW_lastname.GetValue().strip()
+		active = self._CHBOX_active.GetValue()
+
+		current_name = self.data['firstnames'].strip() + self.data['lastnames'].strip()
+		new_name = first + last
+
+		# editable fields only ?
+		if new_name == current_name:
+			self.data['active_name'] = self._CHBOX_active.GetValue()
+			self.data['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
+			self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+			self.data.save()
+		# else clone name and update that
+		else:
+			name = self.__identity.add_name(first, last, active)
+			name['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
+			name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+			name.save()
+			self.data = name
+
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_firstname.SetText(value = u'', data = None)
+		self._PRW_lastname.SetText(value = u'', data = None)
+		self._PRW_nick.SetText(value = u'', data = None)
+		self._TCTRL_comment.SetValue(u'')
+		self._CHBOX_active.SetValue(False)
+
+		self._PRW_firstname.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+		self._PRW_firstname.SetText(value = u'', data = None)
+		self._PRW_nick.SetText(gmTools.coalesce(self.data['preferred'], u''))
+
+		self._PRW_lastname.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_firstname.SetText(self.data['firstnames'])
+		self._PRW_lastname.SetText(self.data['lastnames'])
+		self._PRW_nick.SetText(gmTools.coalesce(self.data['preferred'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._CHBOX_active.SetValue(self.data['active_name'])
+
+		self._TCTRL_comment.SetFocus()
 #------------------------------------------------------------
 # list manager
 #------------------------------------------------------------
@@ -1106,8 +1150,9 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._BTN_edit.SetLabel(_('Clone and &edit'))
 	#--------------------------------------------------------
 	def _add_name(self):
-		ea = cPersonNameEAPnl(self, -1, name = self.__identity.get_active_name())
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		#ea = cPersonNameEAPnl(self, -1, name = self.__identity.get_active_name())
+		ea = cPersonNameEAPnl(self, -1, identity = self.__identity)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Adding new name'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.Destroy()
@@ -1117,7 +1162,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _edit_name(self, name):
 		ea = cPersonNameEAPnl(self, -1, name = name)
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Cloning name'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.Destroy()
