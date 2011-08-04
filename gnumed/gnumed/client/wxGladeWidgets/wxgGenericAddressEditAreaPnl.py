@@ -19,6 +19,8 @@ class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._LBL_type = wx.StaticText(self, -1, _("Type"))
         self._PRW_type = gmPersonContactWidgets.cAddressTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._LBL_search = wx.StaticText(self, -1, _("Search"))
+        self._PRW_address_searcher = gmPersonContactWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_zip = gmPersonContactWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_street = gmPersonContactWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_notes_street = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
@@ -38,6 +40,8 @@ class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgGenericAddressEditAreaPnl.__set_properties
         self.SetToolTipString(_("Select the type of address here."))
         self.SetScrollRate(10, 10)
+        self._PRW_type.SetToolTipString(_("The category under which to store this address."))
+        self._PRW_address_searcher.SetToolTipString(_("Here you can enter a postal code or street name fragment to search for an existing address.\n\nThe fields below will be filled with the details of that address which you can edit to create a new address.\n\nYou can also just enter the relevant information into the corresponding fields without searching for an existing address."))
         self._TCTRL_notes_street.SetToolTipString(_("Enter any additional street level instructions and notes, such as postal box or driving directions."))
         self._TCTRL_number.SetToolTipString(_("Enter the house number for this address."))
         self._TCTRL_subunit.SetToolTipString(_("Enter the subunit / apartment / room / level / entrance for this address."))
@@ -46,11 +50,13 @@ class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
 
     def __do_layout(self):
         # begin wxGlade: wxgGenericAddressEditAreaPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(9, 2, 3, 5)
+        _gszr_main = wx.FlexGridSizer(10, 2, 3, 5)
         __szr_urb = wx.BoxSizer(wx.HORIZONTAL)
         _szr_number = wx.BoxSizer(wx.HORIZONTAL)
         _gszr_main.Add(self._LBL_type, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_type, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._LBL_search, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._PRW_address_searcher, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __LBL_zip = wx.StaticText(self, -1, _("Zip code"))
         _gszr_main.Add(__LBL_zip, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_zip, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

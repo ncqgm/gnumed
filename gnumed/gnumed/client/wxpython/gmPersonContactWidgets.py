@@ -632,6 +632,7 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 
 		self.address_holder = None
 		self.type_is_editable = True
+		self.address_is_searchable = False
 
 		self.__register_interests()
 		self.refresh()
@@ -672,7 +673,7 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 		self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.address['notes_subunit'], ''))
 	#--------------------------------------------------------
 	def save(self):
-		"""Links address to patient, creating new address if necessary"""
+		"""Links address to patient or org, creating new address if necessary"""
 
 		if not self.__valid_for_save():
 			return False
@@ -814,6 +815,17 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 
 	type_is_editable = property(_get_type_is_editable, _set_type_is_editable)
 	#--------------------------------------------------------
+	def _get_address_is_searchable(self):
+		return self.__address_is_searchable
+
+	def _set_address_is_searchable(self, address_is_searchable):
+		self.__address_is_searchable = address_is_searchable
+		self._PRW_address_searcher.Enable(address_is_searchable)
+		self._PRW_address_searcher.Show(address_is_searchable)
+		self._LBL_search.Show(address_is_searchable)
+
+	address_is_searchable = property(_get_address_is_searchable, _set_address_is_searchable)
+	#--------------------------------------------------------
 	def _get_address(self):
 		return self.__address
 
@@ -886,11 +898,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		mp = cAddressMatchProvider()
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = cAddressMatchProvider()
 		self.SetToolTipString(_('Select an address by postcode or street name.'))
 		self.selection_only = True

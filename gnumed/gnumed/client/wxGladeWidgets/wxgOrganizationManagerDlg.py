@@ -22,30 +22,49 @@ class wxgOrganizationManagerDlg(wx.Dialog):
         self._PNL_orgs = cOrganizationsManagerPnl(self, -1)
         self._PNL_units = cOrgUnitsManagerPnl(self, -1, style=wx.TAB_TRAVERSAL)
         self._PNL_adr = cAddressEditAreaPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._BTN_save_address = wx.Button(self, -1, _("Save"), style=wx.BU_EXACTFIT)
+        self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_BUTTON, self._on_save_address_button_pressed, self._BTN_save_address)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgOrganizationManagerDlg.__set_properties
         self.SetTitle(_("Managing Organizations."))
-        self.SetSize((700, 500))
+        self.SetSize((875, 510))
         self._PNL_units.SetScrollRate(10, 10)
         self._PNL_adr.SetScrollRate(10, 10)
+        self._BTN_save_address.SetToolTipString(_("Save the newly selected or changed address."))
+        self._BTN_save_address.Enable(False)
+        self._BTN_cancel.SetToolTipString(_("Close this dialog."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgOrganizationManagerDlg.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_units = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_address_ea = wx.BoxSizer(wx.VERTICAL)
+        __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_main.Add(self._PNL_orgs, 1, wx.ALL|wx.EXPAND, 5)
         __szr_units.Add(self._PNL_units, 1, wx.ALL|wx.EXPAND, 5)
-        __szr_units.Add(self._PNL_adr, 1, wx.ALL|wx.EXPAND, 5)
+        __szr_address_ea.Add(self._PNL_adr, 1, wx.ALL|wx.EXPAND, 5)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_save_address, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_address_ea.Add(__szr_buttons, 0, wx.EXPAND, 0)
+        __szr_units.Add(__szr_address_ea, 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_units, 1, wx.EXPAND, 0)
         self.SetSizer(__szr_main)
         self.Layout()
         # end wxGlade
+
+    def _on_save_address_button_pressed(self, event): # wxGlade: wxgOrganizationManagerDlg.<event_handler>
+        print "Event handler `_on_save_address_button_pressed' not implemented"
+        event.Skip()
 
 # end of class wxgOrganizationManagerDlg
 

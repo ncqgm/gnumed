@@ -17,6 +17,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.business import gmOrganization
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.organization')
@@ -56,6 +58,23 @@ def manage_org_units(parent=None):
 #		single_selection = True,
 #		refresh_callback = refresh
 #	)
+#----------------------------------------------------------------
+def edit_org_unit(parent=None, org_unit=None, single_entry=False):
+	ea = cOrgUnitEAPnl(parent = parent, id = -1)
+	ea.data = org_unit
+	ea.mode = gmTools.coalesce(org_unit, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(org_unit, _('Adding new organizational unit'), _('Editing organizational unit')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+#============================================================
+class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 #============================================================
 class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing organizational units."""
@@ -71,8 +90,8 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
 		self.refresh_callback = self.refresh
-#		self.new_callback = self._add_address
-#		self.edit_callback = self._edit_address
+		self.new_callback = self._edit_org_unit
+		self.edit_callback = self._edit_org_unit
 #		self.delete_callback = self._del_address
 
 		self.__show_none_if_no_org = True
@@ -123,6 +142,9 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_data(units)
 	#--------------------------------------------------------
+	def _edit_org_unit(self, org_unit=None):
+		return edit_org_unit(parent = self, org_unit = org_unit, single_entry = True)
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_org(self):
@@ -147,6 +169,95 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self.__refresh()
 
 	show_none_if_no_org = property(_get_show_none_if_no_org, _set_show_none_if_no_org)
+
+#============================================================
+# org unit edit area
+from Gnumed.wxGladeWidgets import wxgOrgUnitEAPnl
+
+class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['xxx']
+			del kwargs['xxx']
+		except KeyError:
+			data = None
+
+		wxgOrgUnitEAPnl.wxgOrgUnitEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		# adjust phrasewheels etc
+		self._PNL_address.type_is_editable = False
+		self._PNL_address.address_is_searchable = True
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		# remove when implemented:
+		return False
+
+		validity = True
+
+		if self._TCTRL_xxx.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = False)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = True)
+
+		if self._PRW_xxx.GetData() is None:
+			validity = False
+			self._PRW_xxx.display_as_valid(False)
+		else:
+			self._PRW_xxx.display_as_valid(True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# save the data as a new instance
+		data = gmXXXX.create_xxxx()
+
+		data[''] = self._
+		data[''] = self._
+
+		data.save()
+
+		# must be done very late or else the property access
+		# will refresh the display such that later field
+		# access will return empty values
+		self.data = data
+		return False
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# update self.data and save the changes
+		self.data[''] = self._TCTRL_xxx.GetValue().strip()
+		self.data[''] = self._PRW_xxx.GetData()
+		self.data[''] = self._CHBOX_xxx.GetValue()
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		pass
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		pass
+	#----------------------------------------------------------------
+
+
 #============================================================
 # organizations API
 #------------------------------------------------------------
@@ -173,7 +284,16 @@ def manage_orgs(parent=None):
 #		single_selection = True,
 #		refresh_callback = refresh
 #	)
+#============================================================
+class cOrganizationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
+	def __init__(self, *args, **kwargs):
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+#============================================================
+class cOrgCategoryPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 #============================================================
 class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing organizations."""
@@ -221,9 +341,14 @@ class cOrganizationManagerDlg(wxgOrganizationManagerDlg.wxgOrganizationManagerDl
 		self.Centre(direction = wx.BOTH)
 
 		self._PNL_adr.type_is_editable = False
+		self._PNL_adr.address_is_searchable = True
 		self._PNL_orgs.select_callback = self._on_org_selected
 		self._PNL_units.select_callback = self._on_unit_selected
 
+		# FIXME: find proper button
+		#self._PNL_units.MoveAfterInTabOrder(self._PNL_orgs._BTN_)
+
+		self._PNL_orgs._LCTRL_items.SetFocus()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -235,8 +360,10 @@ class cOrganizationManagerDlg(wxgOrganizationManagerDlg.wxgOrganizationManagerDl
 		self._PNL_adr.address_holder = item
 		if item is None:
 			self._PNL_adr.address = None
+			self._BTN_save_address.Enable(False)
 		else:
 			self._PNL_adr.address = item.address
+			self._BTN_save_address.Enable(True)
 		self._PNL_adr.refresh()
 #============================================================
 # main
