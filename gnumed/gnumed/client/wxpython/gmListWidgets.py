@@ -195,8 +195,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
 		if not self.new_callback():
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -204,13 +206,16 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
 		# to be both an item selected and an editor configured
 		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -218,16 +223,20 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		# if the delete button *can* be pressed there are *supposed*
 		# to be both an item selected and a deletor configured
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if item_data is None:
+			self._LCTRL_items.SetFocus()
 			return
 		if not self.delete_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -235,12 +244,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__left_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -248,12 +260,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__middle_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -261,12 +276,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_right_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__right_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -274,6 +292,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
