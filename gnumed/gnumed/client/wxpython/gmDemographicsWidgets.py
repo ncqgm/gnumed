@@ -1216,7 +1216,7 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _add_id(self):
 		ea = cExternalIDEditAreaPnl(self, -1)
 		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.Destroy()
@@ -1227,7 +1227,7 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _edit_id(self, ext_id):
 		ea = cExternalIDEditAreaPnl(self, -1, external_id = ext_id)
 		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.Destroy()
