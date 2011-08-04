@@ -31,7 +31,7 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgEncounterEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
-        self._TCTRL_rfe.SetToolTipString(_("Enter the Reason For Encounter here. This is the patient's initial request which led to the encounter."))
+        self._TCTRL_rfe.SetToolTipString(_("Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."))
         self._PRW_rfe_codes.SetToolTipString(_("Codes relevant to the Reason for Encounter."))
         self._TCTRL_aoe.SetToolTipString(_("Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."))
         self._PRW_aoe_codes.SetToolTipString(_("Codes relevant to the Assessment of Encounter."))
@@ -56,7 +56,7 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         __lbl_end = wx.StaticText(self, -1, _("Ended"))
         __gszr_encounter_details.Add(__lbl_end, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(self._PRW_end, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_rfe = wx.StaticText(self, -1, _("Request"))
+        __lbl_rfe = wx.StaticText(self, -1, _("Purpose"))
         __gszr_encounter_details.Add(__lbl_rfe, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(self._TCTRL_rfe, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_codes_rfe = wx.StaticText(self, -1, _("Codes"))

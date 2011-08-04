@@ -90,49 +90,50 @@ auto_request_login_params = True
 # =======================================================================
 
 known_schema_hashes = {
-	'devel': 'not released, testing only',
-	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
-	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
-	'v4': '4428ccf2e54c289136819e701bb095ea',
-	'v5': '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
-	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
-	'v7': '6c9f6d3981483f8e9433df99d1947b27',
-	'v8': '89b13a7af83337c3aad153b717e52360',
-	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
-	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
-	'v11': '03042ae24f3f92877d986fb0a6184d76',
-	'v12': '06183a6616db62257e22814007a8ed07',
-	'v13': 'fab7c1ae408a6530c47f9b5111a0841e',
-	'v14': 'e170d543f067d1ea60bfe9076b1560cf',
-	'v15': '70012ff960b77ecdff4981c94b5b55b6'
+	0: 'not released, testing only',
+	2: 'b09d50d7ed3f91ddf4c4ddb8ea507720',
+	3: 'e73718eaf230d8f1d2d01afa8462e176',
+	4: '4428ccf2e54c289136819e701bb095ea',
+	5: '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
+	6: '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
+	7: '6c9f6d3981483f8e9433df99d1947b27',
+	8: '89b13a7af83337c3aad153b717e52360',
+	9: '641a9b2be3c378ffc2bb2f0b1c9f051d',
+	10: '7ef42a8fb2bd929a2cdd0c63864b4e8a',
+	11: '03042ae24f3f92877d986fb0a6184d76',
+	12: '06183a6616db62257e22814007a8ed07',
+	13: 'fab7c1ae408a6530c47f9b5111a0841e',
+	14: 'e170d543f067d1ea60bfe9076b1560cf',
+	15: '70012ff960b77ecdff4981c94b5b55b6'
 }
 
 map_schema_hash2version = {
-	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
-	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
-	'4428ccf2e54c289136819e701bb095ea': 'v4',
-	'7e7b093af57aea48c288e76632a382e5': 'v5',
-	'90e2026ac2efd236da9c8608b8685b2d': 'v6',
-	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
-	'89b13a7af83337c3aad153b717e52360': 'v8',
-	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
-	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
-	'03042ae24f3f92877d986fb0a6184d76': 'v11',
-	'06183a6616db62257e22814007a8ed07': 'v12',
-	'fab7c1ae408a6530c47f9b5111a0841e': 'v13',
-	'e170d543f067d1ea60bfe9076b1560cf': 'v14',
-	'70012ff960b77ecdff4981c94b5b55b6': 'v15'
+	'b09d50d7ed3f91ddf4c4ddb8ea507720': 2,
+	'e73718eaf230d8f1d2d01afa8462e176': 3,
+	'4428ccf2e54c289136819e701bb095ea': 4,
+	'7e7b093af57aea48c288e76632a382e5': 5,
+	'90e2026ac2efd236da9c8608b8685b2d': 6,
+	'6c9f6d3981483f8e9433df99d1947b27': 7,
+	'89b13a7af83337c3aad153b717e52360': 8,
+	'641a9b2be3c378ffc2bb2f0b1c9f051d': 9,
+	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 10,
+	'03042ae24f3f92877d986fb0a6184d76': 11,
+	'06183a6616db62257e22814007a8ed07': 12,
+	'fab7c1ae408a6530c47f9b5111a0841e': 13,
+	'e170d543f067d1ea60bfe9076b1560cf': 14,
+	'70012ff960b77ecdff4981c94b5b55b6': 15
 }
 
 map_client_branch2required_db_version = {
-	u'GIT tree': u'devel',
-	u'0.3': u'v9',
-	u'0.4': u'v10',
-	u'0.5': u'v11',
-	u'0.6': u'v12',
-	u'0.7': u'v13',
-	u'0.8': u'v14',
-	u'0.9': u'v15'
+	u'GIT tree': 0,
+	u'0.3': 9,
+	u'0.4': 10,
+	u'0.5': 11,
+	u'0.6': 12,
+	u'0.7': 13,
+	u'0.8': 14,
+	u'0.9': 15,
+	u'1.1': 16
 }
 
 # get columns and data types for a given table
@@ -434,10 +435,10 @@ def set_default_login(login=None):
 # =======================================================================
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
-	if version == 'devel':
-		args = {'ver': '9999'}
+	if version == 0:
+		args = {'ver': 9999}
 	else:
-		args = {'ver': version.strip('v')}
+		args = {'ver': version}
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
 		queries = [{
@@ -837,9 +838,9 @@ def get_keyword_expansion_candidates(keyword = None):
 def add_text_expansion(keyword=None, expansion=None, public=None):
 
 	if public:
-		cmd = u"select 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
 	else:
-		cmd = u"select 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
 
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 	if len(rows) != 0:
@@ -852,7 +853,7 @@ values (%(kwd)s, %(exp)s, null)"""
 	else:
 		cmd = u"""
 insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
+values (%(kwd)s, %(exp)s, (SELECT pk from dem.staff where db_user = current_user))"""
 
 	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword, 'exp': expansion}}])
 
@@ -865,7 +866,7 @@ def delete_text_expansion(keyword):
 	cmd = u"""
 delete from clin.keyword_expansion where
 	keyword = %(kwd)s and (
-		(fk_staff = (select pk from dem.staff where db_user = current_user))
+		(fk_staff = (SELECT pk from dem.staff where db_user = current_user))
 			or
 		(fk_staff is null and owner = current_user)
 	)"""
@@ -877,17 +878,24 @@ delete from clin.keyword_expansion where
 def edit_text_expansion(keyword, expansion):
 
 	cmd1 = u"""
-delete from clin.keyword_expansion where
-	keyword = %(kwd)s and 
-	fk_staff = (select pk from dem.staff where db_user = current_user)"""
+		DELETE FROM clin.keyword_expansion
+		WHERE
+			keyword = %(kwd)s
+				AND
+			fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user)"""
 
 	cmd2 = u"""
-insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
-
+		INSERT INTO clin.keyword_expansion (
+			keyword, expansion, fk_staff
+		) VALUES (
+			%(kwd)s,
+			%(exp)s,
+			(SELECT pk FROM dem.staff WHERE db_user = current_user)
+		)"""
+	args = {'kwd': keyword, 'exp': expansion}
 	rows, idx = run_rw_queries(queries = [
-		{'cmd': cmd1, 'args': {'kwd': keyword}},
-		{'cmd': cmd2, 'args': {'kwd': keyword, 'exp': expansion}},
+		{'cmd': cmd1, 'args': args},
+		{'cmd': cmd2, 'args': args},
 	])
 
 	global text_expansion_keywords
@@ -904,12 +912,12 @@ def send_maintenance_shutdown():
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 #------------------------------------------------------------------------
 def is_pg_interval(candidate=None):
-	cmd = u'select %(candidate)s::interval'
+	cmd = u'SELECT %(candidate)s::interval'
 	try:
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 		return True
 	except:
-		cmd = u'select %(candidate)s::text::interval'
+		cmd = u'SELECT %(candidate)s::text::interval'
 		try:
 			rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 			return True
@@ -1161,7 +1169,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		is a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
 		to be executed as a single transaction, the last
 		query may usefully return rows (such as a
-		"select currval('some_sequence')" statement)
+		"SELECT currval('some_sequence')" statement)
 
 	<end_tx>
 		- controls whether the transaction is finalized (eg.
@@ -1386,7 +1394,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	if postgresql_version is None:
 		curs = conn.cursor()
 		curs.execute ("""
-			select
+			SELECT
 				(split_part(setting, '.', 1) || '.' || split_part(setting, '.', 2))::numeric as version
 			from pg_settings
 			where name='server_version'"""
@@ -1394,7 +1402,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		postgresql_version = curs.fetchone()['version']
 		_log.info('PostgreSQL version (numeric): %s' % postgresql_version)
 		try:
-			curs.execute("select pg_size_pretty(pg_database_size(current_database()))")
+			curs.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
 			_log.info('database size: %s', curs.fetchone()[0])
 		except:
 			pass
@@ -1540,7 +1548,7 @@ def sanity_check_time_skew(tolerance=60):
 	"""
 	_log.debug('maximum skew tolerance (seconds): %s', tolerance)
 
-	cmd = u"select now() at time zone 'UTC'"
+	cmd = u"SELECT now() at time zone 'UTC'"
 	conn = get_raw_connection(readonly=True)
 	curs = conn.cursor()
 
@@ -1592,7 +1600,7 @@ def sanity_check_database_settings():
 	global postgresql_version_string
 	if postgresql_version_string is None:
 		curs = conn.cursor()
-		curs.execute('select version()')
+		curs.execute('SELECT version()')
 		postgresql_version_string = curs.fetchone()['version']
 		curs.close()
 		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
@@ -1622,7 +1630,7 @@ def sanity_check_database_settings():
 		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
 		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
 
-	cmd = u"select name, setting from pg_settings where name in %(settings)s"
+	cmd = u"SELECT name, setting from pg_settings where name in %(settings)s"
 	rows, idx = run_ro_queries (
 		link_obj = conn,
 		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check.keys())}}],
@@ -1891,20 +1899,20 @@ if __name__ == "__main__":
 		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True)
 		print data
 		print idx
 
 		curs = conn.cursor()
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
 
@@ -2001,7 +2009,7 @@ if __name__ == "__main__":
 		dsn = get_default_dsn()
 		conn = get_connection(dsn, readonly=True)
 		curs = conn.cursor()
-		curs.execute('select * from clin.clin_narrative where narrative = %s', ['a'])
+		curs.execute('SELECT * from clin.clin_narrative where narrative = %s', ['a'])
 	#--------------------------------------------------------------------
 	def test_sanitize_pg_regex():
 		tests = [
@@ -2096,9 +2104,9 @@ if __name__ == "__main__":
 	def test_run_query():
 		gmDateTime.init()
 		args = {'dt': gmDateTime.pydt_max_here()}
-		cmd = u"select %(dt)s"
+		cmd = u"SELECT %(dt)s"
 
-		#cmd = u"select 'infinity'::timestamp with time zone"
+		#cmd = u"SELECT 'infinity'::timestamp with time zone"
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		print rows
 	#--------------------------------------------------------------------

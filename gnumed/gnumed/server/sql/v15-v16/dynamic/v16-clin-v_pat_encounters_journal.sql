@@ -75,7 +75,8 @@ select
 	-1	as pk_health_issue,
 	cenc.pk
 		as src_pk,
-	'clin.encounter'::text as src_table
+	'clin.encounter'::text as src_table,
+	cenc.row_version
 from
 	clin.encounter cenc
 ;

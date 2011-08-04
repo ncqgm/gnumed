@@ -753,16 +753,17 @@ order by
 		return stats
 	#--------------------------------------------------------
 	def format_statistics(self):
-		return _("""Medical problems: %(problems)s
-Total encounters: %(encounters)s
-Total EMR entries: %(items)s
-Active medications: %(active_drugs)s
-Documents: %(documents)s
-Test results: %(results)s
-Hospital stays: %(stays)s
-Procedures: %(procedures)s
-Vaccinations: %(vaccinations)s
-"""			) % self.get_statistics()
+		return _(
+			'Medical problems: %(problems)s\n'
+			'Total encounters: %(encounters)s\n'
+			'Total EMR entries: %(items)s\n'
+			'Active medications: %(active_drugs)s\n'
+			'Documents: %(documents)s\n'
+			'Test results: %(results)s\n'
+			'Hospital stays: %(stays)s\n'
+			'Procedures: %(procedures)s\n'
+			'Vaccinations: %(vaccinations)s'
+		) % self.get_statistics()
 	#--------------------------------------------------------
 	def format_summary(self, dob=None):
 
@@ -783,6 +784,7 @@ Vaccinations: %(vaccinations)s
 				prob['problem'],
 				gmTools.bool2subst(prob['problem_active'], _('active'), _('inactive'))
 			)
+		txt += u'\n'
 		txt += _(' %s encounters from %s to %s\n') % (
 			stats['encounters'],
 			first['started'].strftime('%x').decode(gmI18N.get_encoding()),
@@ -795,7 +797,7 @@ Vaccinations: %(vaccinations)s
 		# FIXME: perhaps only count "ongoing ones"
 		txt += _(' %s performed procedures\n\n') % stats['procedures']
 
-		txt += _('Allergies and Intolerances\n\n')
+		txt += _('Allergies and Intolerances\n')
 
 		allg_state = self.allergy_state
 		txt += (u' ' + allg_state.state_string)

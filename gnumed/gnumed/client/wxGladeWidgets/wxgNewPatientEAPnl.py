@@ -12,7 +12,10 @@ import wx
 class wxgNewPatientEAPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmDemographicsWidgets, gmDateTimeInput, gmPersonContactWidgets
+        from Gnumed.wxpython import gmDemographicsWidgets
+        from Gnumed.wxpython import gmPersonContactWidgets
+        from Gnumed.wxpython import gmDateTimeInput
+        from Gnumed.wxpython import gmProviderInboxWidgets
 
         # begin wxGlade: wxgNewPatientEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -33,6 +36,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_channel_type = gmPersonContactWidgets.cCommChannelTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_phone = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_primary_provider = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_external_id_type = gmDemographicsWidgets.cExternalIDTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_external_id_value = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_occupation = gmDemographicsWidgets.cOccupationPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -61,6 +65,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_country.SetToolTipString(_("Primary address: country of residence"))
         self._PRW_channel_type.SetToolTipString(_("The type of the primary communication channel."))
         self._TCTRL_phone.SetToolTipString(_("Primary communication channel."))
+        self._PRW_primary_provider.SetToolTipString(_("Choose the provider the patient considers his or her primary provider in this praxis."))
         self._PRW_external_id_type.SetToolTipString(_("The type of the external ID (selection only)."))
         self._TCTRL_external_id_value.SetToolTipString(_("The value of the external ID."))
         self._PRW_occupation.SetToolTipString(_("The current occupation."))
@@ -70,7 +75,7 @@ class wxgNewPatientEAPnl(wx.Panel):
     def __do_layout(self):
         # begin wxGlade: wxgNewPatientEAPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
-        __fgsizer_details = wx.FlexGridSizer(20, 2, 3, 5)
+        __fgsizer_details = wx.FlexGridSizer(21, 2, 3, 5)
         __szr_external_id_details = wx.BoxSizer(wx.HORIZONTAL)
         __szr_other = wx.BoxSizer(wx.HORIZONTAL)
         __szr_primary_contact_details = wx.BoxSizer(wx.HORIZONTAL)
@@ -165,6 +170,9 @@ class wxgNewPatientEAPnl(wx.Panel):
         __szr_other.Add(__lbl_other, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_other.Add((20, 20), 1, wx.EXPAND, 0)
         __fgsizer_details.Add(__szr_other, 1, wx.EXPAND, 0)
+        __lbl_primary_provider = wx.StaticText(self, -1, _("In-praxis primary"))
+        __fgsizer_details.Add(__lbl_primary_provider, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __fgsizer_details.Add(self._PRW_primary_provider, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_ext_id = wx.StaticText(self, -1, _("External ID"))
         __fgsizer_details.Add(__lbl_ext_id, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_external_id_details.Add(self._PRW_external_id_type, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)

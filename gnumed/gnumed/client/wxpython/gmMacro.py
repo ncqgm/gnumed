@@ -61,7 +61,7 @@ known_placeholders = [
 ]
 
 
-# those must satisfy the pattern "$name::args::optional length$" when used
+# those must satisfy the pattern "$<name::args::optional length>$" when used
 known_variant_placeholders = [
 	u'soap',
 	u'progress_notes',			# "args" holds: categories//template
@@ -93,7 +93,8 @@ known_variant_placeholders = [
 	u'problems',				# "args" holds: line template, one problem per line
 	u'name',					# "args" holds: template for name parts arrangement
 	u'free_text',				# show a dialog for entering some free text
-	u'soap_for_encounters'		# "args" holds: soap cats // strftime date format
+	u'soap_for_encounters',		# "args" holds: soap cats // strftime date format
+	u'encounter_list'			# "args" holds: per-encounter template, each ends up on one line
 ]
 
 default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
@@ -319,6 +320,26 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# variant handlers
 	#--------------------------------------------------------
+	def _get_variant_encounter_list(self, data=None):
+
+		encounters = gmEMRStructWidgets.select_encounters(single_selection = False)
+		if not encounters:
+			return u''
+
+		template = data
+
+		lines = []
+		for enc in encounters:
+			try:
+				lines.append(template % enc)
+			except:
+				lines.append(u'error formatting encounter')
+				_log.exception('problem formatting encounter list')
+				_log.error('template: %s', template)
+				_log.error('encounter: %s', encounter)
+
+		return u'\n'.join(lines)
+	#--------------------------------------------------------
 	def _get_variant_soap_for_encounters(self, data=None):
 		"""Select encounters from list and format SOAP thereof.
 
@@ -345,6 +366,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					date_format = data_parts[1]
 
 		encounters = gmEMRStructWidgets.select_encounters(single_selection = False)
+		if not encounters:
+			return u''
 
 		chunks = []
 		for enc in encounters:
@@ -519,7 +542,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_adr_street(self, data=u'?'):
 #		if data == u'?':
-#			types = xxxxxxxxxxx
+#			types = zzzzzzzzzzz
 		adrs = self.pat.get_addresses(address_type=data)
 		if len(adrs) == 0:
 			return _('no street for address type [%s]') % data
@@ -651,7 +674,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		#	format:	tex (only, currently)
 		#	message: shown in input dialog, must not contain "//" or "::"
 
-		format, msg = data.split('//')
+		data_parts = data.split('//')
+		format = data_parts[0]
+		if len(data_parts) > 1:
+			msg = data_parts[1]
+		else:
+			msg = _('generic text')
 
 		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
 			None,
@@ -827,8 +855,7 @@ class cMacroPrimitives:
 		searcher = gmPersonSearch.cPatientSearcher_SQL()
 		if type(search_params) == types.DictType:
 			idents = searcher.get_identities(search_dict=search_params)
-			print "must use dto, not search_dict"
-			print xxxxxxxxxxxxxxxxx
+			raise StandardError("must use dto, not search_dict")
 		else:
 			idents = searcher.get_identities(search_term=search_params)
 		if idents is None:
@@ -1104,9 +1131,10 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		#ph = u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::'
-		#ph = u'free_text::latex//placeholder test::9999'
+		ph = u'free_text::tex//placeholder test::9999'
 		#ph = u'soap_for_encounters:://::9999'
-		ph = u'soap_a'
+		#ph = u'soap_a'
+		#ph = u'encounter_list::%(started)s: %(assessment_of_encounter)s::30'
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True

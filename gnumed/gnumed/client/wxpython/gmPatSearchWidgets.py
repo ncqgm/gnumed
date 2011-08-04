@@ -24,7 +24,12 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools
 from Gnumed.pycommon import gmDateTime, gmMatchProvider, gmCfg2
-from Gnumed.business import gmPerson, gmKVK, gmSurgery, gmCA_MSVA, gmPersonSearch
+from Gnumed.business import gmPerson
+from Gnumed.business import gmKVK
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmCA_MSVA
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmProviderInbox
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 
@@ -636,12 +641,12 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		self.person = None
 
 		self._tt_search_hints = _(
-			'To search for a person type any of:                   \n'
+			'To search for a person, type any of:                   \n'
 			'\n'
 			' - fragment(s) of last and/or first name(s)\n'
-			" - date of birth (can start with '$' or '*')\n"
 			" - GNUmed ID of person (can start with '#')\n"
-			' - external ID of person\n'
+			' - any external ID of person\n'
+			" - date of birth (can start with '$' or '*')\n"
 			'\n'
 			'and hit <ENTER>.\n'
 			'\n'
@@ -885,82 +890,136 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		return None
 #============================================================
+def _check_dob(patient=None):
+
+	if patient is None:
+		return
+
+	if patient['dob'] is None:
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Checking date of birth'),
+			aMessage = _(
+				'\n'
+				' %s\n'
+				'\n'
+				'The date of birth for this patient is not known !\n'
+				'\n'
+				'You can proceed to work on the patient but\n'
+				'GNUmed will be unable to assist you with\n'
+				'age-related decisions.\n'
+			) % patient['description_gender']
+		)
+
+	return
+#------------------------------------------------------------
+def _check_for_provider_chart_access(patient=None):
+
+	if patient is None:
+		return True
+
+	curr_prov = gmPerson.gmCurrentProvider()
+
+	# can view my own chart
+	if patient.ID == curr_prov['pk_identity']:
+		return True
+
+	if patient.ID not in [ s['pk_identity'] for s in gmPerson.get_staff_list() ]:
+		return True
+
+	proceed = gmGuiHelpers.gm_show_question (
+		aTitle = _('Privacy check'),
+		aMessage = _(
+			'You have selected the chart of a member of staff,\n'
+			'for whom privacy is especially important:\n'
+			'\n'
+			'  %s (%s)\n'
+			'\n'
+			'This may be OK depending on circumstances.\n'
+			'\n'
+			'Please be aware that accessing patient charts is\n'
+			'logged and that %s%s will be\n'
+			'notified of the access if you choose to proceed.\n'
+			'\n'
+			'Are you sure you want to draw this chart ?'
+		) % (
+			patient.get_description_gender(),
+			patient.get_formatted_dob(),
+			gmTools.coalesce(patient['title'], u'', u'%s '),
+			patient['lastnames']
+		)
+	)
+
+	if proceed:
+		prov = u'%s (%s%s %s)' % (
+			curr_prov['short_alias'],
+			gmTools.coalesce(curr_prov['title'], u'', u'%s '),
+			curr_prov['firstnames'],
+			curr_prov['lastnames']
+		)
+		gmProviderInbox.create_inbox_message (
+			message_type = _('Privacy notice'),
+			subject = _('Your chart has been accessed by %s.') % prov,
+			patient = patient.ID,
+			staff = patient.staff_id
+		)
+		pat = u'%s%s %s' % (
+			gmTools.coalesce(patient['title'], u'', u'%s '),
+			patient['firstnames'],
+			patient['lastnames']
+		)
+		gmProviderInbox.create_inbox_message (
+			message_type = _('Privacy notice'),
+			subject = _('Staff member %s has been notified of your chart access.') % pat,
+			patient = patient.ID,
+			staff = curr_prov['pk_staff']
+		)
+
+	return proceed
+#------------------------------------------------------------
 def set_active_patient(patient=None, forced_reload=False):
 
-	# warn if DOB is missing
-	try:
-		patient['dob']
-		check_dob = True
-	except TypeError:
-		check_dob = False
+	_check_dob(patient = patient)
 
-	if check_dob:
-		if patient['dob'] is None:
-			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Checking date of birth'),
-				aMessage = _(
-					'\n'
-					' %s\n'
-					'\n'
-					'The date of birth for this patient is not known !\n'
-					'\n'
-					'You can proceed to work on the patient but\n'
-					'GNUmed will be unable to assist you with\n'
-					'age-related decisions.\n'
-				) % patient['description_gender']
-			)
+	if not _check_for_provider_chart_access(patient = patient):
+		return False
 
 	success = gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
 
-	if success:
-		if patient['dob'] is not None:
-			dbcfg = gmCfg.cCfgSQL()
-			dob_distance = dbcfg.get2 (
-				option = u'patient_search.dob_warn_interval',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = u'user',
-				default = u'1 week'
-			)
+	if not success:
+		return False
 
-			if patient.dob_in_range(dob_distance, dob_distance):
-				now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-				enc = gmI18N.get_encoding()
-				gmDispatcher.send(signal = 'statustext', msg = _(
-					'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
-						'pat': patient.get_description_gender(),
-						'age': patient.get_medical_age().strip('y'),
-						'month': patient.get_formatted_dob(format = '%B', encoding = enc),
-						'day': patient.get_formatted_dob(format = '%d', encoding = enc),
-						'month_now': now.strftime('%B').decode(enc),
-						'day_now': now.strftime('%d')
-					}
-				)
+	if patient['dob'] is None:
+		return True
 
-	return success
+	dbcfg = gmCfg.cCfgSQL()
+	dob_distance = dbcfg.get2 (
+		option = u'patient_search.dob_warn_interval',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = u'user',
+		default = u'1 week'
+	)
+
+	if patient.dob_in_range(dob_distance, dob_distance):
+		now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+		enc = gmI18N.get_encoding()
+		gmDispatcher.send(signal = 'statustext', msg = _(
+			'%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)') % {
+				'pat': patient.get_description_gender(),
+				'age': patient.get_medical_age().strip('y'),
+				'month': patient.get_formatted_dob(format = '%B', encoding = enc),
+				'day': patient.get_formatted_dob(format = '%d', encoding = enc),
+				'month_now': now.strftime('%B').decode(enc),
+				'day_now': now.strftime('%d')
+			}
+		)
+
+	return True
 #------------------------------------------------------------
 class cActivePatientSelector(cPersonSearchCtrl):
 
 	def __init__ (self, *args, **kwargs):
 
 		cPersonSearchCtrl.__init__(self, *args, **kwargs)
-
-#		selector_tooltip = _(
-#		'Patient search field.                             \n'
-#		'\n'
-#		'To search, type any of:\n'
-#		' - fragment of last or first name\n'
-#		" - date of birth (can start with '$' or '*')\n"
-#		" - patient ID (can start with '#')\n"
-#		'and hit <ENTER>.\n'
-#		'\n'
-#		'<CURSOR-UP>\n'
-#		' - recall most recently used search term\n'
-#		'<CURSOR-DOWN>\n'
-#		' - list 10 most recently activated patients\n'
-#		'<F2>\n'
-#		' - scan external sources for patients to import and activate\n'
-#		)
-#		self.SetToolTip(wx.ToolTip(selector_tooltip))
 
 		# get configuration
 		cfg = gmCfg.cCfgSQL()
@@ -1002,9 +1061,15 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			self.SetToolTipString(self._tt_search_hints)
 			return
 
-		tt = u'%s%s-----------------------------------\n%s' % (
-			gmTools.coalesce(self.person['emergency_contact'], u'', _('In case of emergency contact:') + u'\n %s\n'),
+		if (self.person['emergency_contact'] is None) and (self.person['comment'] is None):
+			separator = u''
+		else:
+			separator = u'%s\n' % (gmTools.u_box_horiz_single * 40)
+
+		tt = u'%s%s%s%s' % (
+			gmTools.coalesce(self.person['emergency_contact'], u'', u'%s\n %%s\n' % _('In case of emergency contact:')),
 			gmTools.coalesce(self.person['comment'], u'', u'\n%s\n'),
+			separator,
 			self._tt_search_hints
 		)
 		self.SetToolTipString(tt)
@@ -1056,293 +1121,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		success = super(self.__class__, self)._on_char(evt)
 		if success:
 			self._set_person_as_active_patient(self.person)
-#============================================================
-# waiting list widgets
-#============================================================
-class cWaitingZonePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
-	def __init__(self, *args, **kwargs):
-
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-
-		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = [])
-		mp.setThresholds(1, 2, 2)
-		self.matcher = mp
-		self.selection_only = False
-
-	#--------------------------------------------------------
-	def update_matcher(self, items):
-		self.matcher.set_items([ {'data': i, 'label': i, 'weight': 1} for i in items ])
-
-#============================================================
-from Gnumed.wxGladeWidgets import wxgWaitingListEntryEditAreaPnl
-
-class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingListEntryEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
-
-	def __init__ (self, *args, **kwargs):
-
-		try:
-			self.patient = kwargs['patient']
-			del kwargs['patient']
-		except KeyError:
-			self.patient = None
-
-		try:
-			data = kwargs['entry']
-			del kwargs['entry']
-		except KeyError:
-			data = None
-
-		wxgWaitingListEntryEditAreaPnl.wxgWaitingListEntryEditAreaPnl.__init__(self, *args, **kwargs)
-		gmEditArea.cGenericEditAreaMixin.__init__(self)
-
-		if data is None:
-			self.mode = 'new'
-		else:
-			self.data = data
-			self.mode = 'edit'
-
-		praxis = gmSurgery.gmCurrentPractice()
-		pats = praxis.waiting_list_patients
-		zones = {}
-		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
-		self._PRW_zone.update_matcher(items = zones.keys())
-	#--------------------------------------------------------
-	# edit area mixin API
-	#--------------------------------------------------------
-	def _refresh_as_new(self):
-		if self.patient is None:
-			self._PRW_patient.person = None
-			self._PRW_patient.Enable(True)
-			self._PRW_patient.SetFocus()
-		else:
-			self._PRW_patient.person = self.patient
-			self._PRW_patient.Enable(False)
-			self._PRW_comment.SetFocus()
-		self._PRW_patient._display_name()
-
-		self._PRW_comment.SetValue(u'')
-		self._PRW_zone.SetValue(u'')
-		self._SPCTRL_urgency.SetValue(0)
-	#--------------------------------------------------------
-	def _refresh_from_existing(self):
-		self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_identity'])
-		self._PRW_patient.Enable(False)
-		self._PRW_patient._display_name()
-
-		self._PRW_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
-		self._PRW_zone.SetValue(gmTools.coalesce(self.data['waiting_zone'], u''))
-		self._SPCTRL_urgency.SetValue(self.data['urgency'])
-
-		self._PRW_comment.SetFocus()
-	#--------------------------------------------------------
-	def _valid_for_save(self):
-		validity = True
-
-		self.display_tctrl_as_valid(tctrl = self._PRW_patient, valid = (self._PRW_patient.person is not None))
-		validity = (self._PRW_patient.person is not None)
-
-		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add to waiting list. Missing essential input.'))
-
-		return validity
-	#----------------------------------------------------------------
-	def _save_as_new(self):
-		# FIXME: filter out dupes
-		self._PRW_patient.person.put_on_waiting_list (
-			urgency = self._SPCTRL_urgency.GetValue(),
-			comment = gmTools.none_if(self._PRW_comment.GetValue().strip(), u''),
-			zone = gmTools.none_if(self._PRW_zone.GetValue().strip(), u'')
-		)
-		# dummy:
-		self.data = {'pk_identity': self._PRW_patient.person.ID, 'comment': None, 'waiting_zone': None, 'urgency': 0}
-		return True
-	#----------------------------------------------------------------
-	def _save_as_update(self):
-		gmSurgery.gmCurrentPractice().update_in_waiting_list (
-			pk = self.data['pk_waiting_list'],
-			urgency = self._SPCTRL_urgency.GetValue(),
-			comment = self._PRW_comment.GetValue().strip(),
-			zone = self._PRW_zone.GetValue().strip()
-		)
-		return True
-#============================================================
-from Gnumed.wxGladeWidgets import wxgWaitingListPnl
-
-class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOnPaintMixin):
-
-	def __init__ (self, *args, **kwargs):
-
-		wxgWaitingListPnl.wxgWaitingListPnl.__init__(self, *args, **kwargs)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-
-		self.__current_zone = None
-
-		self.__init_ui()
-		self.__register_events()
-	#--------------------------------------------------------
-	# interal helpers
-	#--------------------------------------------------------
-	def __init_ui(self):
-		self._LCTRL_patients.set_columns ([
-			_('Zone'),
-			_('Urgency'),
-			#' ! ',
-			_('Waiting time'),
-			_('Patient'),
-			_('Born'),
-			_('Comment')
-		])
-		self._LCTRL_patients.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
-		self._PRW_zone.add_callback_on_selection(callback = self._on_zone_selected)
-		self._PRW_zone.add_callback_on_lose_focus(callback = self._on_zone_selected)
-	#--------------------------------------------------------
-	def __register_events(self):
-		gmDispatcher.connect(signal = u'waiting_list_generic_mod_db', receiver = self._on_waiting_list_modified)
-	#--------------------------------------------------------
-	def __refresh_waiting_list(self):
-
-		praxis = gmSurgery.gmCurrentPractice()
-		pats = praxis.waiting_list_patients
-
-		# set matcher to all zones currently in use
-		zones = {}
-		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
-		self._PRW_zone.update_matcher(items = zones.keys())
-		del zones
-
-		# filter patient list by zone and set waiting list
-		self.__current_zone = self._PRW_zone.GetValue().strip()
-		if self.__current_zone == u'':
-			pats = [ p for p in pats ]
-		else:
-			pats = [ p for p in pats if p['waiting_zone'] == self.__current_zone ]
-
-		self._LCTRL_patients.set_string_items (
-			[ [
-				gmTools.coalesce(p['waiting_zone'], u''),
-				p['urgency'],
-				p['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
-				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
-				gmTools.coalesce (
-					gmTools.coalesce (
-						p['dob'],
-						u'',
-						function_initial = ('strftime', '%d %b %Y')
-					),
-					u'',
-					function_initial = ('decode', gmI18N.get_encoding())
-				),
-				gmTools.coalesce(p['comment'], u'')
-			  ] for p in pats
-			]
-		)
-		self._LCTRL_patients.set_column_widths()
-		self._LCTRL_patients.set_data(pats)
-		self._LCTRL_patients.Refresh()
-		self._LCTRL_patients.SetToolTipString ( _(
-			'%s patients are waiting.\n'
-			'\n'
-			'Doubleclick to activate (entry will stay in list).'
-		) % len(pats))
-
-		self._LBL_no_of_patients.SetLabel(_('(%s patients)') % len(pats))
-
-		if len(pats) == 0:
-			self._BTN_activate.Enable(False)
-			self._BTN_activateplus.Enable(False)
-			self._BTN_remove.Enable(False)
-			self._BTN_edit.Enable(False)
-			self._BTN_up.Enable(False)
-			self._BTN_down.Enable(False)
-		else:
-			self._BTN_activate.Enable(True)
-			self._BTN_activateplus.Enable(True)
-			self._BTN_remove.Enable(True)
-			self._BTN_edit.Enable(True)
-		if len(pats) > 1:
-			self._BTN_up.Enable(True)
-			self._BTN_down.Enable(True)
-	#--------------------------------------------------------
-	# event handlers
-	#--------------------------------------------------------
-	def _on_zone_selected(self, zone=None):
-		if self.__current_zone == self._PRW_zone.GetValue().strip():
-			return True
-		wx.CallAfter(self.__refresh_waiting_list)
-		return True
-	#--------------------------------------------------------
-	def _on_waiting_list_modified(self, *args, **kwargs):
-		wx.CallAfter(self._schedule_data_reget)
-	#--------------------------------------------------------
-	def _on_list_item_activated(self, evt):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
-		if item is None:
-			return
-		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
-		wx.CallAfter(set_active_patient, patient = pat)
-	#--------------------------------------------------------
-	def _on_activate_button_pressed(self, evt):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
-		if item is None:
-			return
-		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
-		wx.CallAfter(set_active_patient, patient = pat)
-	#--------------------------------------------------------
-	def _on_activateplus_button_pressed(self, evt):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
-		if item is None:
-			return
-		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
-		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
-		wx.CallAfter(set_active_patient, patient = pat)
-	#--------------------------------------------------------
-	def _on_add_patient_button_pressed(self, evt):
-
-		curr_pat = gmPerson.gmCurrentPatient()
-		if not curr_pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add waiting list entry: No patient selected.'), beep = True)
-			return
-
-		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = curr_pat)
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-		dlg.ShowModal()
-		dlg.Destroy()
-	#--------------------------------------------------------
-	def _on_edit_button_pressed(self, event):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
-		if item is None:
-			return
-		ea = cWaitingListEntryEditAreaPnl(self, -1, entry = item)
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-		dlg.ShowModal()
-		dlg.Destroy()
-	#--------------------------------------------------------
-	def _on_remove_button_pressed(self, evt):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
-		if item is None:
-			return
-		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
-	#--------------------------------------------------------
-	def _on_up_button_pressed(self, evt):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
-		if item is None:
-			return
-		gmSurgery.gmCurrentPractice().raise_in_waiting_list(current_position = item['list_position'])
-	#--------------------------------------------------------
-	def _on_down_button_pressed(self, evt):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
-		if item is None:
-			return
-		gmSurgery.gmCurrentPractice().lower_in_waiting_list(current_position = item['list_position'])
-	#--------------------------------------------------------
-	# edit
-	#--------------------------------------------------------
-	# reget-on-paint API
-	#--------------------------------------------------------
-	def _populate_with_data(self):
-		self.__refresh_waiting_list()
-		return True
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1355,9 +1134,8 @@ if __name__ == "__main__":
 
 			app = wx.PyWidgetTester(size = (200, 40))
 #			app.SetWidget(cSelectPersonFromListDlg, -1)
-#			app.SetWidget(cPersonSearchCtrl, -1)
+			app.SetWidget(cPersonSearchCtrl, -1)
 #			app.SetWidget(cActivePatientSelector, -1)
-			app.SetWidget(cWaitingListPnl, -1)
 			app.MainLoop()
 
 #============================================================

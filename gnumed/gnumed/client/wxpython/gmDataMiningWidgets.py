@@ -424,7 +424,15 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			label = unicode(gmTools.coalesce(row[0], u''))
 			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
 			for col_idx in range(1, len(row)):
-				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = unicode(gmTools.coalesce(row[col_idx], u'')))
+				try:
+					label = unicode(gmTools.coalesce(row[col_idx], u''))
+				except UnicodeDecodeError:
+					label = _('not unicode()able')
+				self._LCTRL_result.SetStringItem (
+					index = row_num,
+					col = col_idx,
+					label = label
+				)
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)
 		try:

@@ -342,9 +342,9 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #	def _on_application_closing(self):
 #		"""GNUmed is shutting down."""
 #		print "[%s]: the application is closing down" % self.__class__.__name__
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 #		print "need to ask user about SOAP saving !"
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 	#--------------------------------------------------------
 #	def _on_episodes_modified(self):
 #		print "[%s]: episode modified" % self.__class__.__name__
@@ -898,7 +898,7 @@ class cResizingSoapPanel(wx.Panel):
 			# make Richard the default ;-)
 			# FIXME: actually, should be read from backend
 			line = cSOAPLineDef()
-			line.label = _('Patient Request')
+			line.label = _('Visit Purpose')
 			line.soap_cat = 's'
 			line.is_rfe = True
 			soap_lines.append(line)

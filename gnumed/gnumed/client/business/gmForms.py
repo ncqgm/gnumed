@@ -72,10 +72,13 @@ class cFormTemplateNameLong_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def __init__(self):
 
 		query = u"""
-			select name_long, name_long
-			from ref.v_paperwork_templates
-			where name_long %(fragment_condition)s
-			order by name_long
+			SELECT
+				name_long AS data,
+				name_long AS list_label,
+				name_long AS field_label
+			FROM ref.v_paperwork_templates
+			WHERE name_long %(fragment_condition)s
+			ORDER BY list_label
 		"""
 		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
 #============================================================
@@ -84,10 +87,13 @@ class cFormTemplateNameShort_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def __init__(self):
 
 		query = u"""
-			select name_short, name_short
-			from ref.v_paperwork_templates
-			where name_short %(fragment_condition)s
-			order by name_short
+			SELECT
+				name_short AS data,
+				name_short AS list_label,
+				name_short AS field_label
+			FROM ref.v_paperwork_templates
+			WHERE name_short %(fragment_condition)s
+			ORDER BY name_short
 		"""
 		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
 #============================================================
@@ -96,16 +102,16 @@ class cFormTemplateType_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def __init__(self):
 
 		query = u"""
-			select * from (
-				select pk, _(name) as l10n_name from ref.form_types
-				where _(name) %(fragment_condition)s
-
-				union
-
-				select pk, _(name) as l10n_name from ref.form_types
-				where name %(fragment_condition)s
-			) as union_result
-			order by l10n_name
+			SELECT DISTINCT ON (list_label)
+				pk AS data,
+				_(name) || ' (' || name || ')' AS list_label,
+				_(name) AS field_label
+			FROM ref.form_types
+			WHERE
+				_(name) %(fragment_condition)s
+					OR
+				name %(fragment_condition)s
+			ORDER BY list_label
 		"""
 		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
 #============================================================

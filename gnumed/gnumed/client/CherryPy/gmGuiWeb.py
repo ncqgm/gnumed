@@ -55,7 +55,7 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
 	client_version = _cfg.get(option = u'client_version')
 	global current_db_name
-	current_db_name = u'gnumed_%s' % expected_version
+	current_db_name = u'gnumed_v%s' % expected_version
 
 	attempt = 0
 

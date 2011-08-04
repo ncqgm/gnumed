@@ -16,9 +16,17 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
-from Gnumed.business import gmPerson, gmDocuments, gmEMRStructItems, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
-from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
+from Gnumed.business import gmPerson
+from Gnumed.business import gmDocuments
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmSurgery
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -429,6 +437,8 @@ ORDER BY q1.rank, q1.field_label"""]
 				data = pk
 			)
 #============================================================
+from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg
+
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init__(self, *args, **kwds):
 		"""Support parts and docs now.
@@ -559,7 +569,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if pk_episode is None:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot create episode\n [%s]'),
-				_('editing document properties')
+				_('Editing document properties')
 			)
 			return False
 
@@ -582,7 +592,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot link the document to episode\n\n [%s]') % epi_name,
-				_('editing document properties')
+				_('Editing document properties')
 			)
 			return False
 
@@ -604,19 +614,34 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				if self._ChBOX_responsible.GetValue():
 					self.__part['pk_intended_reviewer'] = provider['pk_staff']
 			if msg is not None:
-				gmGuiHelpers.gm_show_error(msg, _('editing document properties'))
+				gmGuiHelpers.gm_show_error(msg, _('Editing document properties'))
 				return False
 
 		# 3) handle "page" specific parts
 		if not self.__reviewing_doc:
 			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
-			self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			new_idx = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			if new_idx in self.__doc['seq_idx_list']:
+				msg = _(
+					'Cannot set page number to [%s] because\n'
+					'another page with this number exists.\n'
+					'\n'
+					'Page numbers in use:\n'
+					'\n'
+					' %s'
+				) % (
+					new_idx,
+					self.__doc['seq_idx_list']
+				)
+				gmGuiHelpers.gm_show_error(msg, _('Editing document part properties'))
+			else:
+				self.__part['seq_idx'] = new_idx
 			self.__part['obj_comment'] = self._PRW_doc_comment.GetValue().strip()
 			success, data = self.__part.save_payload()
 			if not success:
 				gmGuiHelpers.gm_show_error (
 					_('Error saving part properties.'),
-					_('editing document properties')
+					_('Editing document part properties')
 				)
 				return False
 
@@ -642,6 +667,37 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
+def acquire_images_from_capture_device(device=None, calling_window=None):
+
+	_log.debug('acquiring images from [%s]', device)
+
+	# do not import globally since we might want to use
+	# this module without requiring any scanner to be available
+	from Gnumed.pycommon import gmScanBackend
+	try:
+		fnames = gmScanBackend.acquire_pages_into_files (
+			device = device,
+			delay = 5,
+			calling_window = calling_window
+		)
+	except OSError:
+		_log.exception('problem acquiring image from source')
+		gmGuiHelpers.gm_show_error (
+			aMessage = _(
+				'No images could be acquired from the source.\n\n'
+				'This may mean the scanner driver is not properly installed.\n\n'
+				'On Windows you must install the TWAIN Python module\n'
+				'while on Linux and MacOSX it is recommended to install\n'
+				'the XSane package.'
+			),
+			aTitle = _('Acquiring images')
+		)
+		return None
+
+	_log.debug('acquired %s images', len(fnames))
+
+	return fnames
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl
 
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
@@ -1131,6 +1187,8 @@ off this message in the GNUmed configuration.""") % ref
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
+from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
+
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl):
 	"""A panel with a document tree which can be sorted."""
 	#--------------------------------------------------------
@@ -1170,7 +1228,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, parent, id, *args, **kwds):
 		"""Set up our specialised tree.
 		"""
-		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER
+		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER | wx.TR_SINGLE
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
@@ -1359,7 +1417,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# init new tree
 		self.root = self.AddRoot(cDocTree._root_node_labels[self.__sort_mode], -1, -1)
-		self.SetPyData(self.root, None)
+		self.SetItemPyData(self.root, None)
 		self.SetItemHasChildren(self.root, False)
 
 		# read documents from database
@@ -1404,21 +1462,25 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				if not intermediate_nodes.has_key(lbl):
 					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
 					self.SetItemBold(intermediate_nodes[lbl], bold = True)
-					self.SetPyData(intermediate_nodes[lbl], None)
+					self.SetItemPyData(intermediate_nodes[lbl], None)
+					self.SetItemHasChildren(intermediate_nodes[lbl], True)
 				parent = intermediate_nodes[lbl]
 			elif self.__sort_mode == 'type':
 				if not intermediate_nodes.has_key(doc['l10n_type']):
 					intermediate_nodes[doc['l10n_type']] = self.AppendItem(parent = self.root, text = doc['l10n_type'])
 					self.SetItemBold(intermediate_nodes[doc['l10n_type']], bold = True)
-					self.SetPyData(intermediate_nodes[doc['l10n_type']], None)
+					self.SetItemPyData(intermediate_nodes[doc['l10n_type']], None)
+					self.SetItemHasChildren(intermediate_nodes[doc['l10n_type']], True)
 				parent = intermediate_nodes[doc['l10n_type']]
 			else:
 				parent = self.root
 
 			doc_node = self.AppendItem(parent = parent, text = label)
 			#self.SetItemBold(doc_node, bold = True)
-			self.SetPyData(doc_node, doc)
-			if len(parts) > 0:
+			self.SetItemPyData(doc_node, doc)
+			if len(parts) == 0:
+				self.SetItemHasChildren(doc_node, False)
+			else:
 				self.SetItemHasChildren(doc_node, True)
 
 			# now add parts as child nodes
@@ -1449,7 +1511,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				)
 
 				part_node = self.AppendItem(parent = doc_node, text = label)
-				self.SetPyData(part_node, part)
+				self.SetItemPyData(part_node, part)
+				self.SetItemHasChildren(part_node, False)
 
 		self.__sort_nodes()
 		self.SelectItem(self.root)
@@ -1473,6 +1536,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		 1: 1 > 2
 		"""
 		# Windows can send bogus events so ignore that
+		if not node1:
+			_log.debug('invalid node 1')
+			return 0
+		if not node2:
+			_log.debug('invalid node 2')
+			return 0
 		if not node1.IsOk():
 			_log.debug('no data on node 1')
 			return 0
@@ -1870,7 +1939,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			parent = self,
 			patient = gmPerson.gmCurrentPatient()
 		)
-		if enc is None:
+		if not enc:
 			return
 		self.__curr_node_data['pk_encounter'] = enc['pk_encounter']
 		self.__curr_node_data.save()

@@ -38,6 +38,8 @@ select i18n.upd_tx('de', 'phone w/ patient', 'Telefonat mit Patient');
 select i18n.upd_tx('de', 'phone w/ provider', 'Telefonat mit Arzt/Behandler');
 select i18n.upd_tx('de', 'phone w/ caregiver', 'Telefonat mit Pflegeperson');
 
+select i18n.upd_tx('de', 'Privacy notice', 'Datenschutzhinweis');
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v16-clin-encounter_types.sql', 'Revision 1');
 

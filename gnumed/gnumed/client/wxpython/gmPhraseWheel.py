@@ -69,6 +69,42 @@ class _cPRWTimer(wx.Timer):
 #============================================================
 # FIXME: merge with gmListWidgets
 class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			kwargs['style'] = kwargs['style'] | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.SIMPLE_BORDER
+		except: pass
+		wx.ListCtrl.__init__(self, *args, **kwargs)
+		listmixins.ListCtrlAutoWidthMixin.__init__(self)
+	#--------------------------------------------------------
+	def SetItems(self, items):
+		self.DeleteAllItems()
+		self.__data = items
+		pos = len(items) + 1
+		for item in items:
+			row_num = self.InsertStringItem(pos, label=item['list_label'])
+	#--------------------------------------------------------
+	def GetSelectedItemData(self):
+		sel_idx = self.GetFirstSelected()
+		if sel_idx == -1:
+			return None
+		return self.__data[sel_idx]['data']
+	#--------------------------------------------------------
+	def get_selected_item(self):
+		sel_idx = self.GetFirstSelected()
+		if sel_idx == -1:
+			return None
+		return self.__data[sel_idx]
+	#--------------------------------------------------------
+	def get_selected_item_label(self):
+		sel_idx = self.GetFirstSelected()
+		if sel_idx == -1:
+			return None
+		return self.__data[sel_idx]['list_label']
+#============================================================
+# base class for both single- and multi-phrase phrase wheels
+#------------------------------------------------------------
+class cPhraseWheelBase(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
 	- VB implementation by Richard Terry
@@ -111,41 +147,6 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	@type picklist_delay: integer (milliseconds)
 	"""
 
-	def __init__(self, *args, **kwargs):
-		try:
-			kwargs['style'] = kwargs['style'] | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.SIMPLE_BORDER
-		except: pass
-		wx.ListCtrl.__init__(self, *args, **kwargs)
-		listmixins.ListCtrlAutoWidthMixin.__init__(self)
-	#--------------------------------------------------------
-	def SetItems(self, items):
-		self.DeleteAllItems()
-		self.__data = items
-		pos = len(items) + 1
-		for item in items:
-			row_num = self.InsertStringItem(pos, label=item['list_label'])
-	#--------------------------------------------------------
-	def GetSelectedItemData(self):
-		sel_idx = self.GetFirstSelected()
-		if sel_idx == -1:
-			return None
-		return self.__data[sel_idx]['data']
-	#--------------------------------------------------------
-	def get_selected_item(self):
-		sel_idx = self.GetFirstSelected()
-		if sel_idx == -1:
-			return None
-		return self.__data[sel_idx]
-	#--------------------------------------------------------
-	def get_selected_item_label(self):
-		sel_idx = self.GetFirstSelected()
-		if sel_idx == -1:
-			return None
-		return self.__data[sel_idx]['list_label']
-#============================================================
-# base class for both single- and multi-phrase phrase wheels
-#------------------------------------------------------------
-class cPhraseWheelBase(wx.TextCtrl):
 
 	def __init__ (self, parent=None, id=-1, *args, **kwargs):
 
@@ -414,24 +415,28 @@ class cPhraseWheelBase(wx.TextCtrl):
 				self._update_data_from_picked_item(candidate)
 				return
 
+		# recalculate size
+		dropdown_size = self._picklist_dropdown.GetSize()
 		border_width = 4
 		extra_height = 25
-
-		# recalculate size
+		# height
 		rows = len(self._current_match_candidates)
 		if rows < 2:				# 2 rows minimum
 			rows = 2
 		if rows > 20:				# 20 rows maximum
 			rows = 20
 		self.__mac_log('dropdown needs rows: %s' % rows)
-		dropdown_size = self._picklist_dropdown.GetSize()
 		pw_size = self.GetSize()
-		dropdown_size.SetWidth(pw_size.width)
 		dropdown_size.SetHeight (
 			(pw_size.height * rows)
 			+ border_width
 			+ extra_height
 		)
+		# width
+		dropdown_size.SetWidth(min (
+			self.Size.width * 2,
+			self.Parent.Size.width
+		))
 
 		# recalculate position
 		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)

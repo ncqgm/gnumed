@@ -14,13 +14,24 @@ import wx, wx.grid, wx.lib.hyperlink
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC, gmForms, gmPersonSearch
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg, gmShellAPI
+from Gnumed.business import gmPerson
+from Gnumed.business import gmPathLab
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmLOINC
+from Gnumed.business import gmForms
+from Gnumed.business import gmPersonSearch
+
+from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDispatcher
+
 from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
 from Gnumed.wxpython import gmAuthWidgets, gmPatSearchWidgets, gmFormWidgets
-from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
-from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
@@ -1006,8 +1017,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 	patient = property(lambda x:x, _set_patient)
 #================================================================
-class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRegetOnPaintMixin):
+from Gnumed.wxGladeWidgets import wxgMeasurementsPnl
 
+class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""Panel holding a grid with lab data. Used as notebook page."""
 
 	def __init__(self, *args, **kwargs):
@@ -1099,6 +1111,8 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 #================================================================
 # editing widgets
 #================================================================
+from Gnumed.wxGladeWidgets import wxgMeasurementsReviewDlg
+
 class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -1147,6 +1161,8 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		else:
 			self.Close()
 #================================================================
+from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
+
 class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 	"""This edit area saves *new* measurements into the active patient only."""
 
@@ -1164,6 +1180,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self.__register_interests()
 
 		self.successful_save_msg = _('Successfully saved measurement.')
+
+		self._DPRW_evaluated.display_accuracy = gmDateTime.acc_minutes
 	#--------------------------------------------------------
 	# generic edit area mixin API
 	#--------------------------------------------------------
@@ -1179,7 +1197,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		else:
 			self._DPRW_evaluated.SetData(data =	None)
 		self._TCTRL_note_test_org.SetValue(u'')
-		self._PRW_intended_reviewer.SetData()
+		self._PRW_intended_reviewer.SetData(gmPerson.gmCurrentProvider()['pk_staff'])
 		self._PRW_problem.SetData()
 		self._TCTRL_narrative.SetValue(u'')
 		self._CHBOX_review.SetValue(False)
@@ -1269,10 +1287,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			self._DPRW_evaluated.display_as_valid(True)
 
 		if self._TCTRL_result.GetValue().strip() == u'':
-			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 			validity = False
+			self.display_ctrl_as_valid(self._TCTRL_result, False)
 		else:
-			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			self.display_ctrl_as_valid(self._TCTRL_result, True)
 
 		if self._PRW_problem.GetValue().strip() == u'':
 			self._PRW_problem.display_as_valid(False)
@@ -1305,10 +1323,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				continue
 			try:
 				decimal.Decimal(val.replace(',', u'.', 1))
-				widget.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+				self.display_ctrl_as_valid(widget, True)
 			except:
-				widget.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 				validity = False
+				self.display_ctrl_as_valid(widget, False)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Invalid or missing essential input.'))
@@ -1319,12 +1337,13 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
-		try:
-			v_num = decimal.Decimal(self._TCTRL_result.GetValue().strip().replace(',', '.', 1))
+		success, result = gmTools.input2decimal(self._TCTRL_result.GetValue())
+		if success:
+			v_num = result
 			v_al = None
-		except:
-			v_num = None
+		else:
 			v_al = self._TCTRL_result.GetValue().strip()
+			v_num = None
 
 		pk_type = self._PRW_test.GetData()
 		if pk_type is None:
@@ -1604,90 +1623,55 @@ class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-	(
-select
-	pk_test_type,
+SELECT DISTINCT ON (field_label)
+	pk_test_type AS data,
 	name_tt
 		|| ' ('
 		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			(SELECT internal_name FROM clin.test_org cto WHERE cto.pk = vcutt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
-	name_meta %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
+	AS field_label,
 	name_tt
 		|| ' ('
+		|| code_tt || ', '
+		|| abbrev_tt || ', '
+		|| coalesce(abbrev_meta || ': ' || name_meta || ', ', '')
 		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			(SELECT internal_name FROM clin.test_org cto WHERE cto.pk = vcutt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
-	name_tt %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
-	name_tt
-		|| ' ('
-		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
-			'%(in_house)s'
-			)
-		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
+	AS list_label
+FROM
+	clin.v_unified_test_types vcutt
+WHERE
 	abbrev_meta %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
-	name_tt
-		|| ' ('
-		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
-			'%(in_house)s'
-			)
-		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
+		OR
+	name_meta %%(fragment_condition)s
+		OR
+	abbrev_tt %%(fragment_condition)s
+		OR
+	name_tt %%(fragment_condition)s
+		OR
 	code_tt %%(fragment_condition)s
-)
-
-order by name
-limit 50""" % {'in_house': _('in house lab')}
+ORDER BY field_label
+LIMIT 50""" % {'in_house': _('generic / in house lab')}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
 		mp.word_separators = '[ \t:@]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
 		self.SetToolTipString(_('Select the type of measurement.'))
 		self.selection_only = False
 	#------------------------------------------------------------
 	def _data2instance(self):
-		if self.data is None:
+		if self.GetData() is None:
 			return None
 
-		return gmPathLab.cMeasurementType(aPK_obj = self.data)
+		return gmPathLab.cMeasurementType(aPK_obj = self.GetData())
 #----------------------------------------------------------------
 class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1724,7 +1708,7 @@ limit 50"""
 		return
 	#------------------------------------------------------------
 	def _data2instance(self):
-		return gmPathLab.cTestOrg(aPK_obj = self.data)
+		return gmPathLab.cTestOrg(aPK_obj = self.GetData())
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementTypeEAPnl
 
@@ -2003,17 +1987,18 @@ LIMIT 50"""
 _SQL_units_from_test_results = u"""
 	-- via clin.v_test_results.pk_type (for types already used in results)
 	SELECT
-		val_unit as data,
-		val_unit || ' (' || name_tt || ')' as unit,
-		1 as rank
+		val_unit AS data,
+		val_unit AS field_label,
+		val_unit || ' (' || name_tt || ')' AS list_label,
+		1 AS rank
 	FROM
 		clin.v_test_results
 	WHERE
 		(
 			val_unit %(fragment_condition)s
 				OR
-		conversion_unit %(fragment_condition)s
-			)
+			conversion_unit %(fragment_condition)s
+		)
 		%(ctxt_type_pk)s
 		%(ctxt_test_name)s
 """
@@ -2021,9 +2006,10 @@ _SQL_units_from_test_results = u"""
 _SQL_units_from_test_types = u"""
 	-- via clin.test_type (for types not yet used in results)
 	SELECT
-		conversion_unit as data,
-		conversion_unit || ' (' || name || ')' as unit,
-		2 as rank
+		conversion_unit AS data,
+		conversion_unit AS field_label,
+		conversion_unit || ' (' || name || ')' AS list_label,
+		2 AS rank
 	FROM
 		clin.test_type
 	WHERE
@@ -2034,9 +2020,10 @@ _SQL_units_from_test_types = u"""
 _SQL_units_from_loinc_ipcc = u"""
 	-- via ref.loinc.ipcc_units
 	SELECT
-		ipcc_units as data,
-		ipcc_units || ' (' || term || ')' as unit,
-		3 as rank
+		ipcc_units AS data,
+		ipcc_units AS field_label,
+		ipcc_units || ' (LOINC.ipcc: ' || term || ')' AS list_label,
+		3 AS rank
 	FROM
 		ref.loinc
 	WHERE
@@ -2048,9 +2035,10 @@ _SQL_units_from_loinc_ipcc = u"""
 _SQL_units_from_loinc_submitted = u"""
 	-- via ref.loinc.submitted_units
 	SELECT
-		submitted_units as data,
-		submitted_units || ' (' || term || ')'  as unit,
-		3 as rank
+		submitted_units AS data,
+		submitted_units AS field_label,
+		submitted_units || ' (LOINC.submitted:' || term || ')' AS list_label,
+		3 AS rank
 	FROM
 		ref.loinc
 	WHERE
@@ -2062,9 +2050,10 @@ _SQL_units_from_loinc_submitted = u"""
 _SQL_units_from_loinc_example = u"""
 	-- via ref.loinc.example_units
 	SELECT
-		example_units as data,
-		example_units || ' (' || term || ')'  as unit,
-		3 as rank
+		example_units AS data,
+		example_units AS field_label,
+		example_units || ' (LOINC.example: ' || term || ')' AS list_label,
+		3 AS rank
 	FROM
 		ref.loinc
 	WHERE
@@ -2077,8 +2066,9 @@ _SQL_units_from_atc = u"""
 	-- via rev.atc.unit
 	SELECT
 		unit AS data,
-		unit AS unit,
-		1 AS rank
+		unit AS field_label,
+		unit || ' (ATC: ' || term || ')' AS list_label,
+		2 AS rank
 	FROM
 		ref.atc
 	WHERE
@@ -2091,8 +2081,9 @@ _SQL_units_from_consumable_substance = u"""
 	-- via ref.consumable_substance.unit
 	SELECT
 		unit AS data,
-		unit AS unit,
-		1 AS rank
+		unit AS field_label,
+		unit || ' (' || description || ')' AS list_label,
+		2 AS rank
 	FROM
 		ref.consumable_substance
 	WHERE
@@ -2105,9 +2096,18 @@ class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-SELECT DISTINCT ON (data) data, unit FROM (
+SELECT DISTINCT ON (data)
+	data,
+	field_label,
+	list_label
+FROM (
 
-	SELECT rank, data, unit FROM (
+	SELECT
+		data,
+		field_label,
+		list_label,
+		rank
+	FROM (
 		(%s) UNION ALL
 		(%s) UNION ALL
 		(%s) UNION ALL
@@ -2115,7 +2115,7 @@ SELECT DISTINCT ON (data) data, unit FROM (
 		(%s) UNION ALL
 		(%s) UNION ALL
 		(%s)
-	) as all_matching_units
+	) AS all_matching_units
 	WHERE data IS NOT NULL
 	ORDER BY rank
 
@@ -2157,14 +2157,10 @@ LIMIT 50""" % (
 			}
 		}
 
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=ctxt)
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = ctxt)
 		mp.setThresholds(1, 2, 4)
 		#mp.print_queries = True
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
 		self.SetToolTipString(_('Select the desired unit for the amount or measurement.'))
 		self.selection_only = False

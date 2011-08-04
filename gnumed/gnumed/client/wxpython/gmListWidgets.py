@@ -141,9 +141,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 
-		self.ignore_OK_button = False			# by default do show/use the OK button
-
 		self.can_return_empty = False
+		self.ignore_OK_button = False			# by default do show/use the OK button
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -158,6 +157,14 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
+		if selections is None:
+			return
+		if len(selections) == 0:
+			return
+		if self.ignore_OK_button:
+			return
+		self._BTN_ok.Enable(True)
+		self._BTN_ok.SetDefault()
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_items.set_data(data = data)
@@ -188,8 +195,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
 		if not self.new_callback():
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -197,13 +206,16 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
 		# to be both an item selected and an editor configured
 		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -211,16 +223,20 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		# if the delete button *can* be pressed there are *supposed*
 		# to be both an item selected and a deletor configured
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if item_data is None:
+			self._LCTRL_items.SetFocus()
 			return
 		if not self.delete_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -228,12 +244,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__left_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -241,12 +260,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__middle_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -254,12 +276,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_right_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__right_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -267,17 +292,23 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
 	def _set_ignore_OK_button(self, ignored):
 		self.__ignore_OK_button = ignored
 		if self.__ignore_OK_button:
-			self._BTN_ok.Enable(False)
 			self._BTN_ok.Hide()
+			self._BTN_ok.Enable(False)
 		else:
-			self._BTN_ok.Enable(True)
 			self._BTN_ok.Show()
+			if self._LCTRL_items.get_selected_items(only_one=True) == -1:
+				if self.can_return_empty:
+					self._BTN_ok.Enable(True)
+				else:
+					self._BTN_ok.Enable(False)
+					self._BTN_cancel.SetDefault()
 
 	ignore_OK_button = property(lambda x:x, _set_ignore_OK_button)
 	#------------------------------------------------------------
@@ -418,8 +449,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._LCTRL_items.item_tooltip_callback = callback
 
 	list_tooltip_callback = property(lambda x:x, _set_list_tooltip_callback)
-	#def _get_tooltip(self, item):		# inside class
-	#def _get_tooltip(item):			# outside class
+	#def _get_tooltip(self, item):		# inside a class
+	#def _get_tooltip(item):			# outside a class
 	#------------------------------------------------------------
 	def _set_message(self, message):
 		if message is None:
@@ -813,9 +844,23 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
 		self.Select(0, on = 0)
+		if selections is None:
+			return
 		for idx in selections:
 			self.Select(idx = idx, on = 1)
 			#self.SetItemState(idx, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
+
+	def __get_selections(self):
+		if self.__is_single_selection:
+			return [self.GetFirstSelected()]
+		selections = []
+		idx = self.GetFirstSelected()
+		while idx != -1:
+			selections.append(idx)
+			idx = self.GetNextSelected(idx)
+		return selections
+
+	selections = property(__get_selections, set_selections)
 	#------------------------------------------------------------
 	# getters
 	#------------------------------------------------------------
@@ -948,31 +993,35 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		# HitTest() can return -1 if it so pleases, meaning that no item
 		# was hit or else that maybe there aren't any items (empty list)
-		if item_idx == -1:
+		if item_idx == wx.NOT_FOUND:
+			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		# do we *have* item data ?
+		if self.__data is None:
 			self.SetToolTipString(self.__tt_static_part)
 			return
 
 		# under some circumstances the item_idx returned
-		# by HitTest() may not be out of bounds with respect
-		# to self.__data, this hints at a sync problem between
+		# by HitTest() may be out of bounds with respect to
+		# self.__data, this hints at a sync problem between
 		# setting display items and associated data
 		if (
-			(item_idx > len(self.__data))
+			(item_idx > (len(self.__data) - 1))
 				or
 			(item_idx < -1)
 		):
 			self.SetToolTipString(self.__tt_static_part)
-			_log.error('item idx: %s', item_idx)
-			_log.error('where flag: %s', where_flag)
-			_log.error('data list length: %s', len(self.__data))
-			for data in self.__data:
-				_log.debug(data)
 			print "*************************************************************"
 			print "GNUmed has detected an inconsistency with list item tooltips."
 			print ""
 			print "This is not a big problem and you can keep working."
 			print ""
-			print "However, please send us the log file so we can fix GNUmed."
+			print "However, please send us the following so we can fix GNUmed:"
+			print ""
+			print "item idx: %s" % item_idx
+			print 'where flag: %s' % where_flag
+			print 'data list length: %s' % len(self.__data)
 			print "*************************************************************"
 			return
 

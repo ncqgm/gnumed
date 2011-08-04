@@ -163,8 +163,7 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	#-------------------------
 	def edit(template=None):
 		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
-		result = dlg.ShowModal()
-		return (result == wx.ID_OK)
+		return (dlg.ShowModal() == wx.ID_OK)
 	#-------------------------
 	def delete(template):
 		delete = gmGuiHelpers.gm_show_question (

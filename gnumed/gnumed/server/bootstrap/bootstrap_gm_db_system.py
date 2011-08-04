@@ -731,7 +731,11 @@ class database:
 		if template_version is None:
 			_log.warning('cannot check template database identity hash, no version specified')
 		else:
-			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
+			converted, version = gmTools.input2int(template_version.lstrip('v'), 0)
+			if not converted:
+				_log.error('invalid template database definition: %s', template_version)
+				return False
+			if not gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
 				_log.error('invalid template database')
 				return False
 
@@ -993,14 +997,19 @@ class database:
 		# verify template database hash
 		print_msg("==> verifying target database schema ...")
 		target_version = cfg_get(self.section, 'target version')
-		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
-			_log.info('database identity hash properly verified')
-			return True
-		_log.error('target database identity hash invalid')
 		if target_version == 'devel':
 			print_msg("    ... skipped (devel version)")
 			_log.warning('testing/development only, not failing due to invalid target database identity hash')
 			return True
+		converted, version = gmTools.input2int(target_version.lstrip('v'), 2)
+		if not converted:
+			_log.error('cannot convert target database version: %s', target_version)
+			print_msg("    ... failed (invalid target version specification)")
+			return False
+		if gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
+			_log.info('database identity hash properly verified')
+			return True
+		_log.error('target database identity hash invalid')
 		print_msg("    ... failed (hash mismatch)")
 		return False
 	#--------------------------------------------------------------

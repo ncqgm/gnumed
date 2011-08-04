@@ -22,6 +22,13 @@ NEW: family history handling
 NEW: PDF-form based forms handling via pdftk
 NEW: coding of episodes, issues, RFE/AOE, procedures, family history
 NEW: minimal management of communication channel types
+NEW: support for data packs installable from within the client
+NEW: warn on/inform about access to medical chart of staff member
+NEW: add Ginkgo CADx to list of minimally supported DICOM viewers
+NEW: placeholder $<encounter_list::format template::length>$ to access list of encounters
+NEW: visual progress note creation directly from image capture device
+NEW: 4 new visual progress note templates [thanks J.Busser]
+NEW: implement explicitely creating episodes from EMR tree or menu
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
@@ -47,10 +54,39 @@ IMPROVED: document tree: more informative node formatting
 IMPROVED: prescription: auto-sign if the current provider is the intended reviewer for the patient
 IMPROVED: vaccination list formatting on episodes/encounters
 IMPROVED: faster generation of PDFs from LaTeX templates
+IMPROVED: waiting list: multi-line comment and item-based list tooltip
+IMPROVED: document metadata editing: no more always-on-top, safer parts moving [thanks J.Busser]
+IMRROVED: waiting list: keep selection on item when moving it within the list [thanks J.Busser]
+IMPROVED: inbox: goto-patient as default action if pk_patient is not NULL [thanks J.Busser]
+IMPROVED: DOB related identity handling
+IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 
 ------------------------------------------------
 # rel-0-9-patches
 ------------------------------------------------
+
+	0.9.10
+
+IMPROVED: substance intake table: "amount per unit" = "Strength", not "Dose" [thanks J.Busser]
+
+	0.9.9
+
+FIX: be ever more careful on list ctrl item tooltip generation [thanks Marc]
+FIX: add two more snippets pulled from the web re tree sorting insanity
+
+	0.9.8
+
+FIX: exception on trying to create Gelbe Liste/MMI version file [thanks ALI from Lebanon]
+FIX: exceptions on various TWAIN error states [thanks ALI from Lebanon]
+FIX: failure to save leftmost notelet editor on [Save all] button [thanks J.Busser]
+FIX: exception on not selecting an encounter for [Save under] action [thanks J.Busser]
+FIX: improper scaling of "width < height" images (visual progress notes)
+FIX: exception on wx.TreeCtrl.GetPyItemData() w/o *explicit* wx.TR_SINGLE style
+FIX: improper sizing of SOAP expandos on Windows (#646240) [thanks S.Hilbert]
+FIX: exception on getting list item tooltip if no data available [thanks J.Busser]
+FIX: exception on selecting bytea columns in report generator [thanks J.Busser]
+
+IMPROVED: also try %d/%m/%Y when parsing dates [thanks J.Busser]
 
 	0.9.7
 

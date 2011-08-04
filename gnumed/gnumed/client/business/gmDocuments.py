@@ -370,7 +370,19 @@ where
 
 		return True, ''
 #============================================================
-_sql_fetch_document_fields = u"select * from blobs.v_doc_med where %s"
+_sql_fetch_document_fields = u"""
+	SELECT
+		*,
+	COALESCE (
+		(SELECT array_agg(seq_idx) FROM blobs.doc_obj b_do WHERE b_do.fk_doc = b_vdm.pk_doc),
+		ARRAY[]::integer[]
+	)
+		AS seq_idx_list
+	FROM
+		blobs.v_doc_med b_vdm
+	WHERE
+		%s
+"""
 
 class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -779,7 +791,7 @@ if __name__ == '__main__':
 		for doc in docs:
 			print type(doc), doc
 			print doc.parts
-		pprint(gmBusinessDBObject.jsonclasshintify(docs))
+		#pprint(gmBusinessDBObject.jsonclasshintify(docs))
 	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()

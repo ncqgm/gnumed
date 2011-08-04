@@ -13,7 +13,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython.gmNarrativeWidgets import cSoapNoteInputNotebook
-        from Gnumed.wxpython.gmNarrativeWidgets import cVisualSoapPnl
         from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
         from Gnumed.wxpython.gmEMRStructWidgets import cEncounterTypePhraseWheel
         from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel

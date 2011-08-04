@@ -62,57 +62,76 @@ class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			}
 		}
 		query = u"""
-select code, name from (
-	select distinct on (code, name) code, (name || ' (' || code || ')') as name, rank from (
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (data)
+		data,
+		field_label,
+		list_label,
+		rank
+	FROM (
 
--- localized to user
-
-			select
-				code_country as code, l10n_country as name, 1 as rank
-			from dem.v_zip2data
-			where
+	-- localized to user
+			SELECT
+				code_country AS data,
+				l10n_country AS field_label,
+				l10n_country || ' (' || code_country || '): ' || country AS list_label,
+				1 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				l10n_country %(fragment_condition)s
 				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, _(name) as name, 2 as rank
-			from dem.country
-			where
+		UNION ALL
+			SELECT
+				code AS data,
+				_(name) AS field_label,
+				_(name) || ' (' || code || '): ' || name AS list_label,
+				2 AS rank
+			FROM dem.country
+			WHERE
 				_(name) %(fragment_condition)s
 
-		union all
+		UNION ALL
 
--- non-localized
-
-			select
-				code_country as code, country as name, 3 as rank
-			from dem.v_zip2data
-			where
+	-- non-localized
+			SELECT
+				code_country AS data,
+				l10n_country AS field_label,
+				country || ' (' || code_country || '): ' || l10n_country AS list_label,
+				3 as rank
+			FROM dem.v_zip2data
+			WHERE
 				country %(fragment_condition)s
 				%(ctxt_zip)s
-
-		union all
-
-			select
-				code as code, name as name, 4 as rank
-			from dem.country
-			where
+		UNION ALL
+			SELECT
+				code AS data,
+				_(name) AS field_label,
+				name || ' (' || code || '): ' || _(name) AS list_label,
+				4 as rank
+			FROM dem.country
+			WHERE
 				name %(fragment_condition)s
 
-		union all
+		UNION ALL
 
--- abbreviation
-
-			select
-				code as code, name as name, 5 as rank
-			from dem.country
-			where
+	-- abbreviation
+			SELECT
+				code AS data,
+				_(name) as field_label,
+				code || ': ' || _(name) || ' (' || name || ')' AS list_label,
+				5 as rank
+			FROM dem.country
+			WHERE
 				code %(fragment_condition)s
 
-	) as q2
-) as q1 order by rank, name limit 25"""
+	) AS candidates
+) AS distint_candidates
+ORDER BY rank, list_label
+LIMIT 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 9)
 		self.matcher = mp
@@ -238,64 +257,87 @@ class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		context = {
 			u'ctxt_country_name': {
-				u'where_part': u'and l10n_country ilike %(country_name)s or country ilike %(country_name)s',
+				u'where_part': u'AND l10n_country ILIKE %(country_name)s OR country ILIKE %(country_name)s',
 				u'placeholder': u'country_name'
 			},
 			u'ctxt_zip': {
-				u'where_part': u'and zip ilike %(zip)s',
+				u'where_part': u'AND zip ilike %(zip)s',
 				u'placeholder': u'zip'
 			},
 			u'ctxt_country_code': {
-				u'where_part': u'and country in (select code from dem.country where _(name) ilike %(country_name)s or name ilike %(country_name)s)',
+				u'where_part': u'AND country IN (SELECT code FROM dem.country WHERE _(name) ILIKE %(country_name)s OR name ILIKE %(country_name)s)',
 				u'placeholder': u'country_name'
 			}
 		}
 
 		query = u"""
-select code, name from (
-	select distinct on (name) code, name, rank from (
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (field_label)
+		data,
+		field_label,
+		list_label,
+		rank
+	FROM (
 			-- 1: find states based on name, context: zip and country name
-			select
-				code_state as code, state as name, 1 as rank
-			from dem.v_zip2data
-			where
+			SELECT
+				code_state AS data,
+				state AS field_label,
+				state || ' (' || code_state || '), ' || l10n_country || ' (' || code_country || ')' AS list_label,
+				1 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				state %(fragment_condition)s
 				%(ctxt_country_name)s
 				%(ctxt_zip)s
 
-		union all
+		UNION ALL
 
 			-- 2: find states based on code, context: zip and country name
-			select
-				code_state as code, state as name, 2 as rank
-			from dem.v_zip2data
-			where
+			SELECT
+				code_state AS data,
+				state AS field_label,
+				code_state || ': ' || state || ' (' || l10n_country || ', ' || code_country || ')' AS list_label,
+				2 AS rank
+			FROM dem.v_zip2data
+			WHERE
 				code_state %(fragment_condition)s
 				%(ctxt_country_name)s
 				%(ctxt_zip)s
 
-		union all
+		UNION ALL
 
 			-- 3: find states based on name, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
+			SELECT
+				code AS data,
+				name AS field_label,
+				name || ' (' || code || '), ' || country AS list_label,
+				3 AS rank
+			FROM dem.state
+			WHERE
 				name %(fragment_condition)s
 				%(ctxt_country_code)s
 
-		union all
+		UNION ALL
 
 			-- 4: find states based on code, context: country
-			select
-				code as code, name as name, 3 as rank
-			from dem.state
-			where
+			SELECT
+				code AS data,
+				name AS field_label,
+				code || ': ' || name || ', ' || country AS list_label,
+				3 AS rank
+			FROM dem.state
+			WHERE
 				code %(fragment_condition)s
 				%(ctxt_country_code)s
 
-	) as q2
-) as q1 order by rank, name limit 50"""
+	) AS candidate_states
+) AS distinct_matches
+ORDER BY rank, list_label
+LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 6)
@@ -1119,57 +1161,60 @@ ORDER BY
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgCommChannelEditAreaPnl
 
-class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl):
+class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 	"""An edit area for editing/creating a comms channel.
 
 	Does NOT act on/listen to the current patient.
 	"""
 	def __init__(self, *args, **kwargs):
 		try:
-			self.channel = kwargs['comm_channel']
+			data = kwargs['comm_channel']
 			del kwargs['comm_channel']
 		except KeyError:
-			self.channel = None
-
-		wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl.__init__(self, *args, **kwargs)
+			data = None
 
 		self.identity = None
 
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, comm_channel = None):
-		if comm_channel is not None:
-			self.channel = comm_channel
+		wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		if self.channel is None:
-			self._PRW_type.SetText(u'')
-			self._TCTRL_url.SetValue(u'')
-#			self._PRW_address.SetText(value = u'', data = None)
-			self._CHBOX_confidential.SetValue(False)
-		else:
-			self._PRW_type.SetText(self.channel['l10n_comm_type'])
-			self._TCTRL_url.SetValue(self.channel['url'])
-#			self._PRW_address.SetData(data = self.channel['pk_address'])
-			self._CHBOX_confidential.SetValue(self.channel['is_confidential'])
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
 
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
 		self._PRW_address.Disable()
-	#--------------------------------------------------------
-	def save(self):
-		"""Links comm channel to patient."""
-		if self.channel is None:
-			return self.__save_new()
-		return self.__save_udpate()
-#		self.channel['pk_address'] = self._PRW_address.GetData()
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __save_new(self):
-		if not self.__valid_for_save():
-			return False
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
+
+		if self._TCTRL_url.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = False)
+			self._TCTRL_url.SetFocus()
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = True)
+
+		# do not check GetData() because comm
+		# types are created as needed
+		#if self._PRW_type.GetData() is None:
+		if self._PRW_type.GetValue().strip() == u'':
+			validity = False
+			self._PRW_type.display_as_valid(False)
+			self._PRW_type.SetFocus()
+		else:
+			self._PRW_type.display_as_valid(True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
 		try:
-			self.channel = self.identity.link_comm_channel (
+			data = self.identity.link_comm_channel (
 				comm_medium = self._PRW_type.GetValue().strip(),
 				pk_channel_type = self._PRW_type.GetData(),
 				url = self._TCTRL_url.GetValue().strip(),
@@ -1179,43 +1224,40 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 			_log.exception('error saving comm channel')
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
 			return False
+
+		self.data = data
 		return True
-	#--------------------------------------------------------
-	def __save_update(self):
+	#----------------------------------------------------------------
+	def _save_as_update(self):
 		comm_type = self._PRW_type.GetValue().strip()
 		if comm_type != u'':
-			self.channel['comm_type'] = comm_type
+			self.data['comm_type'] = comm_type
 		url = self._TCTRL_url.GetValue().strip()
 		if url != u'':
-			self.channel['url'] = url
-		self.channel['is_confidential'] = self._CHBOX_confidential.GetValue()
-		self.channel.save_payload()
+			self.data['url'] = url
+		self.data['is_confidential'] = self._CHBOX_confidential.GetValue()
 
+		self.data.save()
 		return True
-	#--------------------------------------------------------
-	def __valid_for_save(self):
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_type.SetText(u'')
+		self._TCTRL_url.SetValue(u'')
+		#self._PRW_address.SetText(value = u'', data = None)
+		self._CHBOX_confidential.SetValue(False)
 
-		no_errors = True
+		self._PRW_type.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_type.SetText(self.data['l10n_comm_type'])
+		self._TCTRL_url.SetValue(self.data['url'])
+		#self._PRW_address.SetData(data = self.data['pk_address'])
+		self._CHBOX_confidential.SetValue(self.data['is_confidential'])
 
-#		if self._PRW_type.GetData() is None:
-		if self._PRW_type.GetValue().strip() == u'':
-			no_errors = False
-			self._PRW_type.display_as_valid(False)
-			self._PRW_type.SetFocus()
-		else:
-			self._PRW_type.display_as_valid(True)
-
-		if self._TCTRL_url.GetValue().strip() == u'':
-			self._TCTRL_url.SetBackgroundColour('pink')
-			self._TCTRL_url.SetFocus()
-			self._TCTRL_url.Refresh()
-			no_errors = False
-		else:
-			self._TCTRL_url.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			self._TCTRL_url.Refresh()
-
-		return no_errors
-
+		self._PRW_url.SetFocus()
 #------------------------------------------------------------
 class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing a person's comm channels.
@@ -1267,7 +1309,7 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _add_comm(self):
 		ea = cCommChannelEditAreaPnl(self, -1)
 		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new communications channel'))
 		if dlg.ShowModal() == wx.ID_OK:
 			return True
@@ -1276,7 +1318,7 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _edit_comm(self, comm_channel):
 		ea = cCommChannelEditAreaPnl(self, -1, comm_channel = comm_channel)
 		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing communications channel'))
 		if dlg.ShowModal() == wx.ID_OK:
 			return True
@@ -1344,12 +1386,24 @@ class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsMan
 #============================================================
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	from Gnumed.pycommon import gmI18N
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
+	gmPG2.get_connection()
+
 	#--------------------------------------------------------
 	def test_state_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cStateSelectionPhraseWheel(app.frame, -1)
-#		pw.set_context(context = u'zip', val = u'04318')
-#		pw.set_context(context = u'country', val = u'Deutschland')
+		pw.set_context(context = u'zip', val = u'04318')
+		pw.set_context(context = u'country', val = u'Deutschland')
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
@@ -1409,5 +1463,19 @@ if __name__ == "__main__":
 		widget.identity = activate_patient()
 		app.frame.Show(True)
 		app.MainLoop()
+	#--------------------------------------------------------
+	def test_country_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cCountryPhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	#test_address_type_prw()
+	#test_suburb_prw()
+	#test_urb_prw()
+	#test_zipcode_prw()
+	test_state_prw()
+	#test_street_prw()
+	#test_country_prw()
 
 #============================================================

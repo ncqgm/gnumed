@@ -47,96 +47,119 @@ _indicator = {
 #============================================================
 from Gnumed.wxGladeWidgets import wxgTextExpansionEditAreaPnl
 
-class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl):
+class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwds):
 
 		try:
-			self.__keyword = kwds['keyword']
+			data = kwds['keyword']
 			del kwds['keyword']
 		except KeyError:
-			self.__keyword = None
+			data = None
 
 		wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl.__init__(self, *args, **kwds)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		self.__init_ui()
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
 		self.__register_interests()
 	#--------------------------------------------------------
-	def save(self):
-		if not self.__valid_for_save():
+	def __init_ui(self, keyword=None):
+
+		if keyword is not None:
+			self.data = keyword
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
+
+		if self._TCTRL_keyword.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = False)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without keyword.'), beep = True)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = True)
+
+		if self._TCTRL_expansion.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = False)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without expansion text.'), beep = True)
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		kwd = self._TCTRL_keyword.GetValue().strip()
+		saved = gmPG2.add_text_expansion (
+			keyword = kwd,
+			expansion = self._TCTRL_expansion.GetValue(),
+			public = self._RBTN_public.GetValue()
+		)
+		if not saved:
 			return False
 
-		if self.__keyword is None:
-			result = gmPG2.add_text_expansion (
-				keyword = self._TCTRL_keyword.GetValue().strip(),
-				expansion = self._TCTRL_expansion.GetValue(),
-				public = self._RBTN_public.GetValue()
-			)
-		else:
-			gmPG2.edit_text_expansion (
-				keyword = self._TCTRL_keyword.GetValue().strip(),
-				expansion = self._TCTRL_expansion.GetValue()
-			)
-			result = True
+		self.data = kwd
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		kwd = self._TCTRL_keyword.GetValue().strip()
+		gmPG2.edit_text_expansion (
+			keyword = kwd,
+			expansion = self._TCTRL_expansion.GetValue()
+		)
+		self.data = kwd
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_keyword.SetValue(u'')
+		self._TCTRL_keyword.Enable(True)
+		self._TCTRL_expansion.SetValue(u'')
+		self._TCTRL_expansion.Enable(False)
+		self._RBTN_public.Enable(True)
+		self._RBTN_private.Enable(True)
+		self._RBTN_public.SetValue(1)
 
-		return result
-	#--------------------------------------------------------
-	def refresh(self):
-		self.__init_ui()
-#		if self.__keyword is not None:
-#			self._TCTRL_expansion.SetValue(u'')
-	#--------------------------------------------------------
+		self._TCTRL_keyword.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._TCTRL_keyword.SetValue(u'%s%s' % (self.data, _(u'___copy')))
+		self._TCTRL_keyword.Enable(True)
+		expansion = gmPG2.expand_keyword(keyword = self.data)
+		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
+		self._TCTRL_expansion.Enable(True)
+		self._RBTN_public.Enable(True)
+		self._RBTN_private.Enable(True)
+		self._RBTN_public.SetValue(1)
+
+		self._TCTRL_keyword.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_keyword.SetValue(self.data)
+		self._TCTRL_keyword.Enable(False)
+		expansion = gmPG2.expand_keyword(keyword = self.data)
+		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
+		self._TCTRL_expansion.Enable(True)
+		self._RBTN_public.Enable(False)
+		self._RBTN_private.Enable(False)
+
+		self._TCTRL_expansion.SetFocus()
+	#----------------------------------------------------------------
 	# event handling
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def __register_interests(self):
 		self._TCTRL_keyword.Bind(wx.EVT_TEXT, self._on_keyword_modified)
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def _on_keyword_modified(self, evt):
 		if self._TCTRL_keyword.GetValue().strip() == u'':
 			self._TCTRL_expansion.Enable(False)
 		else:
 			self._TCTRL_expansion.Enable(True)
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __valid_for_save(self):
-
-		kwd = self._TCTRL_keyword.GetValue().strip()
-		if kwd == u'':
-			self._TCTRL_keyword.SetBackgroundColour('pink')
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without keyword.'), beep = True)
-			return False
-		self._TCTRL_keyword.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-
-		if self._TCTRL_expansion.GetValue().strip() == u'':
-			self._TCTRL_expansion.SetBackgroundColour('pink')
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without expansion text.'), beep = True)
-			return False
-		self._TCTRL_expansion.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-
-		return True
-	#--------------------------------------------------------
-	def __init_ui(self, keyword=None):
-
-		if keyword is not None:
-			self.__keyword = keyword
-
-		if self.__keyword is None:
-			self._TCTRL_keyword.SetValue(u'')
-			self._TCTRL_keyword.Enable(True)
-			self._TCTRL_expansion.SetValue(u'')
-			self._TCTRL_expansion.Enable(False)
-			self._RBTN_public.Enable(True)
-			self._RBTN_private.Enable(True)
-			self._RBTN_public.SetValue(1)
-		else:
-			expansion = gmPG2.expand_keyword(keyword = self.__keyword)
-			self._TCTRL_keyword.SetValue(self.__keyword)
-			self._TCTRL_keyword.Enable(False)
-			self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
-			self._TCTRL_expansion.Enable(True)
-			self._RBTN_public.Enable(False)
-			self._RBTN_private.Enable(False)
 #============================================================
 def configure_keyword_text_expansion(parent=None):
 
@@ -149,9 +172,8 @@ def configure_keyword_text_expansion(parent=None):
 		return True
 	#----------------------
 	def edit(keyword=None):
-		# add new keyword
-		ea = cTextExpansionEditAreaPnl(parent, -1, keyword=keyword)
-		dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea)
+		ea = cTextExpansionEditAreaPnl(parent, -1, keyword = keyword)
+		dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
 		dlg.SetTitle (
 			gmTools.coalesce(keyword, _('Adding text expansion'), _('Editing text expansion "%s"'))
 		)
@@ -806,7 +828,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 	_item_handlers = {}
 
-	_patient_msg_types = ['clinical.review docs', 'clinical.review results', 'clinical.review vaccs']
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
 
@@ -861,8 +882,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			self._RBTN_active_patient.Enable()
 	#--------------------------------------------------------
 	def __populate_inbox(self):
-		"""Fill UI with data."""
-
 		self.__msgs = self.provider.inbox.messages
 
 		if self.filter_mode == 'active':
@@ -884,6 +903,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
+		self._TXT_inbox_item_comment.SetValue(u'')
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -904,20 +924,20 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		try:
 			handle_item = cProviderInboxPnl._item_handlers[handler_key]
 		except KeyError:
-			gmGuiHelpers.gm_show_warning (
-				_(
-"""No double-click action pre-programmed into
-GNUmed for message category and type:
-
- [%s]
-"""
-) % handler_key,
-				_('handling provider inbox item')
-			)
-			return False
+			if msg['pk_patient'] is None:
+				gmGuiHelpers.gm_show_warning (
+					_('No double-click action pre-programmed into\n'
+					'GNUmed for message category and type:\n'
+					'\n'
+					' [%s]\n'
+					) % handler_key,
+					_('handling provider inbox item')
+				)
+				return False
+			handle_item = self._goto_patient
 
 		if not handle_item(pk_context = msg['pk_context'], pk_patient = msg['pk_patient']):
-			_log.error('item handler returned "false"')
+			_log.error('item handler returned <False>')
 			_log.error('handler key: [%s]', handler_key)
 			_log.error('message: %s', str(msg))
 			return False
@@ -1042,6 +1062,36 @@ GNUmed for message category and type:
 			gmDispatcher.send(signal = 'statustext', msg = _('This message is already visible to all providers.'))
 			return False
 		print "now distributing"
+		return True
+	#--------------------------------------------------------
+	def _goto_patient(self, pk_context=None, pk_patient=None):
+
+		wx.BeginBusyCursor()
+
+		msg = _('There is a message about patient [%s].\n\n'
+			'However, I cannot find that\n'
+			'patient in the GNUmed database.'
+		) % pk_patient
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_patient)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+		except:
+			wx.EndBusyCursor()
+			raise
+
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+
+		wx.EndBusyCursor()
+
+		if not success:
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+
 		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None, pk_patient=None):

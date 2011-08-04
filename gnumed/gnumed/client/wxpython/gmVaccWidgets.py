@@ -242,16 +242,20 @@ class cBatchNoPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		}
 
 		query = u"""
-SELECT code, batch_no FROM (
+SELECT data, field_label, list_label FROM (
 
-	SELECT distinct on (batch_no) code, batch_no, rank FROM (
-
-		(
+	SELECT distinct on (field_label)
+		data,
+		field_label,
+		list_label,
+		rank
+	FROM ((
 			-- batch_no by vaccine
 			SELECT
-				batch_no AS code,
-				batch_no,
-				1 AS rank
+				batch_no AS data,
+				batch_no AS field_label,
+				batch_no || ' (' || vaccine || ')' AS list_label,
+				1 as rank
 			FROM
 				clin.v_pat_vaccinations
 			WHERE
@@ -260,8 +264,9 @@ SELECT code, batch_no FROM (
 		) UNION ALL (
 			-- batch_no for any vaccine
 			SELECT
-				batch_no AS code,
-				batch_no,
+				batch_no AS data,
+				batch_no AS field_label,
+				batch_no || ' (' || vaccine || ')' AS list_label,
 				2 AS rank
 			FROM
 				clin.v_pat_vaccinations
@@ -273,7 +278,7 @@ SELECT code, batch_no FROM (
 
 ) as unique_matches
 
-ORDER BY rank, batch_no
+ORDER BY rank, list_label
 LIMIT 25
 """
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = context)
@@ -292,16 +297,18 @@ class cVaccinePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		# consider ATCs in ref.branded_drug and vacc_indication
 		query = u"""
-SELECT pk_vaccine, description FROM (
+SELECT data, list_label, field_label FROM (
 
-	SELECT DISTINCT ON (pk_vaccine) pk_vaccine, description FROM (
-
-		(
+	SELECT DISTINCT ON (data)
+		data,
+		list_label,
+		field_label
+	FROM ((
 			-- fragment -> vaccine
 			SELECT
-				pk_vaccine,
-				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')'
-					AS description
+				pk_vaccine AS data,
+				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')' AS list_label,
+				vaccine AS field_label
 			FROM
 				clin.v_vaccines
 			WHERE
@@ -311,9 +318,9 @@ SELECT pk_vaccine, description FROM (
 
 			-- fragment -> localized indication -> vaccines
 			SELECT
-				pk_vaccine,
-				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')'
-					AS description
+				pk_vaccine AS data,
+				vaccine || ' (' || array_to_string(l10n_indications, ', ') || ')' AS list_label,
+				vaccine AS field_label
 			FROM
 				clin.v_indications4vaccine
 			WHERE
@@ -323,9 +330,9 @@ SELECT pk_vaccine, description FROM (
 
 			-- fragment -> indication -> vaccines
 			SELECT
-				pk_vaccine,
-				vaccine || ' (' || array_to_string(indications, ', ') || ')'
-					AS description
+				pk_vaccine AS data,
+				vaccine || ' (' || array_to_string(indications, ', ') || ')' AS list_label,
+				vaccine AS field_label
 			FROM
 				clin.v_indications4vaccine
 			WHERE
@@ -335,7 +342,7 @@ SELECT pk_vaccine, description FROM (
 
 ) AS total
 
-ORDER by description
+ORDER by list_label
 LIMIT 25
 """
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
@@ -345,7 +352,7 @@ LIMIT 25
 		self.selection_only = True
 	#------------------------------------------------------------------
 	def _data2instance(self):
-		return gmVaccination.cVaccine(aPK_obj = self.data)
+		return gmVaccination.cVaccine(aPK_obj = self.GetData())
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccineEAPnl
 

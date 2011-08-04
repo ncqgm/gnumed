@@ -609,13 +609,16 @@ def input2int(initial=None, minval=None, maxval=None):
 	try:
 		int_val = int(val)
 	except (TypeError, ValueError):
+		_log.exception('int(%s) failed', val)
 		return False, val
 
 	if minval is not None:
 		if int_val < minval:
+			_log.debug('%s < min (%s)', val, minval)
 			return False, val
 	if maxval is not None:
 		if int_val > maxval:
+			_log.debug('%s > max (%s)', val, maxval)
 			return False, val
 
 	return True, int_val
@@ -834,6 +837,11 @@ if __name__ == '__main__':
 				else:
 					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
 	#-----------------------------------------------------------------------
+	def test_input2int():
+		print input2int(0)
+		print input2int('0')
+		print input2int(u'0', 0, 0)
+	#-----------------------------------------------------------------------
 	def test_coalesce():
 
 		import datetime as dt
@@ -1043,7 +1051,8 @@ second line\n
 	#test_get_unique_filename()
 	#test_size2str()
 	#test_wrap()
-	test_input2decimal()
+	#test_input2decimal()
+	test_input2int()
 	#test_unwrap()
 	#test_md5()
 

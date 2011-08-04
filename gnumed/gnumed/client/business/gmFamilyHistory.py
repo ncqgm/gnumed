@@ -120,7 +120,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 					fk_generic_code = %(code)s
 			)"""
 		args = {
-			'item': self._payload[self._idx['pk_episode']],
+			'item': self._payload[self._idx['pk_family_history']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -130,7 +130,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
 		cmd = u"DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
-			'item': self._payload[self._idx['pk_episode']],
+			'item': self._payload[self._idx['pk_family_history']],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
