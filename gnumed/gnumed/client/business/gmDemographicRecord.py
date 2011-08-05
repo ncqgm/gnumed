@@ -29,6 +29,11 @@ from Gnumed.pycommon import gmTools
 _log = logging.getLogger('gm.business')
 _log.info(__version__)
 
+try:
+	_
+except NameError:
+	_ = lambda x:x
+
 #============================================================
 # text+image tags
 #------------------------------------------------------------
@@ -293,7 +298,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	"""A class representing an address as an entity in itself.
 
 	We consider addresses to be self-complete "labels" for locations.
-	It does not depend on any people potentially living there. Thus
+	It does not depend on any people actually living there. Thus
 	an address can get attached to as many people as we want to
 	signify that that is their place of residence/work/...
 
@@ -322,7 +327,41 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_address"""
 	]
-	_updatable_fields = ['notes_street', 'subunit', 'notes_subunit', 'lat_lon_address']
+	_updatable_fields = [
+		'notes_street',
+		'subunit',
+		'notes_subunit',
+		'lat_lon_address'
+	]
+	#--------------------------------------------------------
+	def format(self):
+		data = {
+			'pk_adr': self._payload[self._idx['pk_address']],
+			'street': self._payload[self._idx['street']],
+			'pk_street': self._payload[self._idx['pk_street']],
+			'notes_street': gmTools.coalesce(self._payload[self._idx['notes_street']], u'', u' %s'),
+			'number': self._payload[self._idx['number']],
+			'subunit': gmTools.coalesce(self._payload[self._idx['subunit']], u'', u' %s'),
+			'notes_subunit': gmTools.coalesce(self._payload[self._idx['notes_subunit']], u'', u' (%s)'),
+			'zip': self._payload[self._idx['postcode']],
+			'urb': self._payload[self._idx['urb']],
+			'pk_urb': self._payload[self._idx['pk_urb']],
+			'suburb': gmTools.coalesce(self._payload[self._idx['suburb']], u'', u' (%s)'),
+			'l10n_state': self._payload[self._idx['l10n_state']],
+			'pk_state': self._payload[self._idx['pk_state']],
+			'code_state': self._payload[self._idx['code_state']],
+			'l10n_country': self._payload[self._idx['l10n_country']],
+			'code_country': self._payload[self._idx['code_country']]
+		}
+		txt = _(
+			'Address #%(pk_adr)s\n'
+			' Street: %(street)s [#%(pk_street)s]%(notes_street)s\n'
+			' Number: %(number)s%(subunit)s%(notes_subunit)s\n'
+			' Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n'
+			' Region: %(l10n_state)s, %(code_state)s [#%(pk_state)s]\n'
+			' Country: %(l10n_country)s, %(code_country)s'
+		) % data
+		return txt.split('\n')
 #------------------------------------------------------------
 def address_exists(country=None, state=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
@@ -409,7 +448,7 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 		country = country,
 		state = state,
 		urb = urb,
-		suburb = suburb,
+#		suburb = suburb,
 		postcode = postcode,
 		street = street,
 		number = number,
@@ -885,7 +924,7 @@ if __name__ == "__main__":
 #			,notes_subunit = '4.Stock rechts'
 		)
 		print "created existing address"
-		print address
+		print address.format()
 
 		su = str(random.random())
 
@@ -902,6 +941,7 @@ if __name__ == "__main__":
 		)
 		print "created new address with subunit", su
 		print address
+		print address.format()
 		print "deleted address:", delete_address(address)
 	#--------------------------------------------------------
 	def test_get_countries():
@@ -931,33 +971,12 @@ if __name__ == "__main__":
 	#gmPG2.get_connection()
 
 	#test_address_exists()
-	#test_create_address()
+	test_create_address()
 	#test_get_countries()
 	#test_get_country_for_region()
 	#test_delete_tag()
-	test_tag_images()
+	#test_tag_images()
 
 	sys.exit()
-
-#	gmDispatcher.connect(_post_patient_selection, 'post_patient_selection')
-#	while 1:
-#		pID = raw_input('a patient: ')
-#		if pID == '':
-#			break
-#		try:
-#			print pID
-#			myPatient = gmPerson.cIdentity (aPK_obj = pID)
-#		except:
-#			_log.exception('Unable to set up patient with ID [%s]' % pID)
-#			print "patient", pID, "can not be set up"
-#			continue
-#		print "ID       ", myPatient.ID
-#		print "name     ", myPatient['description']
-#		print "name     ", myPatient['description_gender']
-#		print "title    ", myPatient['title']
-#		print "dob      ", myPatient['dob']
-#		print "med age  ", myPatient['medical_age']
-#		for adr in myPatient.get_addresses():
-#			print "address  ", adr
-#		print "--------------------------------------"
 #============================================================
+

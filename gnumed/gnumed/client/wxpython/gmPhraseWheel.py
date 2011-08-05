@@ -568,16 +568,21 @@ class cPhraseWheelBase(wx.TextCtrl):
 			else:
 				self.__static_tt = self.ToolTip.Tip
 
-		dynamic_part = self._get_data_tooltip()
-		if dynamic_part is None:
-			return
-
+		# need to always calculate static part because
+		# the dynamic part can have *become* None, again,
+		# in which case we want to be able to re-set the
+		# tooltip to the static part
 		static_part = self.__static_tt
 		if (self.__static_tt_extra) is not None and (self.__static_tt_extra.strip() != u''):
 			static_part = u'%s\n\n%s' % (
 				static_part,
 				self.__static_tt_extra
 			)
+
+		dynamic_part = self._get_data_tooltip()
+		if dynamic_part is None:
+			self.SetToolTipString(static_part)
+			return
 
 		if static_part == u'':
 			tt = dynamic_part

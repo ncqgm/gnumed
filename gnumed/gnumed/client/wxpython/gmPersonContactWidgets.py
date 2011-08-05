@@ -101,7 +101,7 @@ FROM (
 				code_country AS data,
 				l10n_country AS field_label,
 				country || ' (' || code_country || '): ' || l10n_country AS list_label,
-				3 as rank
+				3 AS rank
 			FROM dem.v_zip2data
 			WHERE
 				country %(fragment_condition)s
@@ -111,7 +111,7 @@ FROM (
 				code AS data,
 				_(name) AS field_label,
 				name || ' (' || code || '): ' || _(name) AS list_label,
-				4 as rank
+				4 AS rank
 			FROM dem.country
 			WHERE
 				name %(fragment_condition)s
@@ -121,9 +121,9 @@ FROM (
 	-- abbreviation
 			SELECT
 				code AS data,
-				_(name) as field_label,
+				_(name) AS field_label,
 				code || ': ' || _(name) || ' (' || name || ')' AS list_label,
-				5 as rank
+				5 AS rank
 			FROM dem.country
 			WHERE
 				code %(fragment_condition)s
@@ -819,6 +819,7 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 		return self.__address_is_searchable
 
 	def _set_address_is_searchable(self, address_is_searchable):
+		# always set tot FALSE when self.mode == 'new'
 		self.__address_is_searchable = address_is_searchable
 		self._PRW_address_searcher.Enable(address_is_searchable)
 		self._PRW_address_searcher.Show(address_is_searchable)
@@ -840,52 +841,74 @@ class cAddressMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	def __init__(self):
 
 		query = u"""
-select * from (
-	(select
-		pk_address,
+SELECT * FROM (
+	(SELECT
+		pk_address AS data,
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '') || ', '
-		|| postcode
-		|| coalesce(', ' || notes_street, '')
-		|| coalesce(', ' || notes_subunit, '')
-		) as address
-	from
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| code_country
+		) AS field_label,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| l10n_state || ', '
+				|| l10n_country
+				|| coalesce(', ' || notes_street, '')
+				|| coalesce(', ' || notes_subunit, '')
+		) AS list_label
+	FROM
 		dem.v_address
-	where
+	WHERE
 		street %(fragment_condition)s
 
-	) union (
+	) UNION (
 
-	select
-		pk_address,
+	SELECT
+		pk_address AS data,
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '') || ', '
-		|| postcode
-		|| coalesce(', ' || notes_street, '')
-		|| coalesce(', ' || notes_subunit, '')
-		) as address
-	from
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| code_country
+		) AS field_label,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| l10n_state || ', '
+				|| l10n_country
+				|| coalesce(', ' || notes_street, '')
+				|| coalesce(', ' || notes_subunit, '')
+		) AS list_label
+	FROM
 		dem.v_address
-	where
+	WHERE
 		postcode_street %(fragment_condition)s
 
-	) union (
+	) UNION (
 
-	select
-		pk_address,
+	SELECT
+		pk_address AS data,
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
-		|| urb || coalesce(' (' || suburb || ')', '') || ', '
-		|| postcode
-		|| coalesce(', ' || notes_street, '')
-		|| coalesce(', ' || notes_subunit, '')
-		) as address
-	from
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| code_country
+		) AS field_label,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| l10n_state || ', '
+				|| l10n_country
+				|| coalesce(', ' || notes_street, '')
+				|| coalesce(', ' || notes_subunit, '')
+		) AS list_label
+	FROM
 		dem.v_address
-	where
+	WHERE
 		postcode_urb %(fragment_condition)s
 	)
-) as union_result
-order by union_result.address limit 50"""
+) AS matching_addresses
+ORDER BY list_label
+LIMIT 50"""
 
 		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = query)
 
@@ -897,7 +920,6 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		mp = cAddressMatchProvider()
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = cAddressMatchProvider()
 		self.SetToolTipString(_('Select an address by postcode or street name.'))
@@ -905,14 +927,22 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.__address = None
 		self.__old_pk = None
 	#--------------------------------------------------------
-	def get_address(self):
-
+	def _get_data_tooltip(self):
+		adr = self.address
+		if adr is None:
+			return None
+		return u'\n'.join(adr.format())
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmDemographicRecord.cAddress(aPK_obj = self.GetData())
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def __get_address(self):
 		pk = self.GetData()
-
 		if pk is None:
 			self.__address = None
 			return None
-
 		if self.__address is None:
 			self.__old_pk = pk
 			self.__address = gmDemographicRecord.cAddress(aPK_obj = pk)
@@ -920,23 +950,24 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			if pk != self.__old_pk:
 				self.__old_pk = pk
 				self.__address = gmDemographicRecord.cAddress(aPK_obj = pk)
-
 		return self.__address
+
+	address = property(__get_address, lambda x:x)
 #============================================================
 class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-select id, type from ((
-	select id, _(name) as type, 1 as rank
-	from dem.address_type
-	where _(name) %(fragment_condition)s
-) union (
-	select id, name as type, 2 as rank
-	from dem.address_type
-	where name %(fragment_condition)s
-)) as ur
+SELECT id, type FROM ((
+	SELECT id, _(name) AS type, 1 AS rank
+	FROM dem.address_type
+	WHERE _(name) %(fragment_condition)s
+) UNION (
+	SELECT id, name AS type, 2 AS rank
+	FROM dem.address_type
+	WHERE name %(fragment_condition)s
+)) AS ur
 order by
 	ur.rank, ur.type
 """
@@ -964,9 +995,9 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 		# FIXME: add possible context
 		query = u"""
-			(select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s limit 20)
-				union
-			(select distinct postcode, postcode from dem.urb where postcode %(fragment_condition)s limit 20)"""
+			(SELECT distinct postcode, postcode FROM dem.street WHERE postcode %(fragment_condition)s limit 20)
+				UNION
+			(SELECT distinct postcode, postcode FROM dem.urb WHERE postcode %(fragment_condition)s limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(2, 3, 15)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
@@ -1027,9 +1058,9 @@ class cSuburbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = """
-select distinct on (suburb) suburb, suburb
-from dem.street
-where suburb %(fragment_condition)s
+SELECT distinct on (suburb) suburb, suburb
+FROM dem.street
+WHERE suburb %(fragment_condition)s
 order by suburb
 limit 50
 """
@@ -1479,10 +1510,11 @@ if __name__ == "__main__":
 		app.MainLoop()
 	#--------------------------------------------------------
 	#test_address_type_prw()
+	test_address_prw()
 	#test_suburb_prw()
 	#test_urb_prw()
 	#test_zipcode_prw()
-	test_state_prw()
+	#test_state_prw()
 	#test_street_prw()
 	#test_country_prw()
 

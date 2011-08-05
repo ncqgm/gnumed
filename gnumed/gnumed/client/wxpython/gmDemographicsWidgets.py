@@ -2152,7 +2152,6 @@ if __name__ == "__main__":
 
 		# phrasewheels
 #		test_organizer_pnl()
-		#test_address_prw()
 
 		# contacts related widgets
 		#test_address_ea_pnl()
