@@ -1283,6 +1283,7 @@ def str2pydt_matches(str2parse=None, patterns=None):
 	patterns.append('%Y/%m/%d')
 	patterns.append('%Y-%m-%d')
 	patterns.append('%d/%m/%Y')
+	patterns.append('%m/%d/%Y')
 
 	for pattern in patterns:
 		try:
@@ -1818,6 +1819,7 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 	patterns.append(['%Y/%m/%d', acc_days])
 	patterns.append(['%Y-%m-%d', acc_days])
 	patterns.append(['%d/%m/%Y', acc_days])
+	patterns.append(['%m/%d/%Y', acc_days])
 
 	for pattern in patterns:
 		try:
