@@ -1047,16 +1047,21 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
-		name = _('<type here to search patient>')
 
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.connected:
 			name = curr_pat['description']
 			if curr_pat.locked:
 				name = _('%(name)s (locked)') % {'name': name}
+		else:
+			if curr_pat.locked:
+				name = _('<patient search locked>')
+			else:
+				name = _('<type here to search patient>')
 
 		self.SetValue(name)
 
+		# adjust tooltip
 		if self.person is None:
 			self.SetToolTipString(self._tt_search_hints)
 			return

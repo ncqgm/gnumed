@@ -146,8 +146,6 @@ class cPhraseWheelBase(wx.TextCtrl):
 		down pick list is shown
 	@type picklist_delay: integer (milliseconds)
 	"""
-
-
 	def __init__ (self, parent=None, id=-1, *args, **kwargs):
 
 		# behaviour
@@ -919,6 +917,11 @@ class cPhraseWheelBase(wx.TextCtrl):
 	#---------------------------------------------------------
 	def _adjust_data_after_text_update(self):
 		raise NotImplementedError('[%s]: cannot adjust data after text update' % self.__class__.__name__)
+	#--------------------------------------------------------
+	def _data2match(self, data):
+		if self.matcher is None:
+			return None
+		return self.matcher.get_match_by_data(data = data)
 	#--------------------------------------------------------
 	def _create_data(self):
 		raise NotImplementedError('[%s]: cannot create data object' % self.__class__.__name__)
