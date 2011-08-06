@@ -100,6 +100,9 @@ class cMatchProvider(object):
 	def getMatchesBySubstr(self, aFragment):
 		raise NotImplementedError
 	#--------------------------------------------------------
+	def get_match_by_data(self, data=None):
+		return None
+	#--------------------------------------------------------
 	# configuration
 	#--------------------------------------------------------
 	def setThresholds(self, aPhrase = 1, aWord = 3, aSubstring = 5):
@@ -372,12 +375,19 @@ class cMatchProvider_SQL2(cMatchProvider):
 
 	context definitions to be used in the queries
 	example: {'ctxt_country': {'where_part': 'and country = %(country)s', 'placeholder': 'country'}}
+
+	_SQL_data2match:
+		SQL to retrieve a match by primary key wherein
+		the only argument is 'pk'
 	"""
 	def __init__(self, queries = None, context = None):
-		if type(queries) != type([]):
-			queries = [queries]
 
-		self._queries = queries
+		cMatchProvider.__init__(self)
+
+		if type(queries) == type([]):
+			self._queries = queries
+		else:
+			self._queries = [queries]
 
 		if context is None:
 			self._context = {}
@@ -385,7 +395,8 @@ class cMatchProvider_SQL2(cMatchProvider):
 			self._context = context
 
 		self._args = {}
-		cMatchProvider.__init__(self)
+
+		self._SQL_data2match = None
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -423,6 +434,25 @@ class cMatchProvider_SQL2(cMatchProvider):
 		"""Return all items."""
 		return self.getMatchesBySubstr(u'')
 	#--------------------------------------------------------
+	def get_match_by_data(self, data=None):
+		if self._SQL_data2match is None:
+			return None
+
+		query = {'cmd': self._SQL_data2match, 'args': {'pk': data}}
+		try:
+			rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx = False)
+		except:
+			_log.exception('[%s]: error running _SQL_data2match, dropping query', self.__class__.__name__)
+			self._SQL_data2match = None
+			return None
+
+		# hopefully the most frequent case:
+		if len(rows) == 1:
+			return rows[0]
+
+		_log.error('[%s]: 0 or >1 rows found by running _SQL_data2match, ambiguous, ignoring', self.__class__.__name__)
+		return None
+	#--------------------------------------------------------
 	def _find_matches(self, fragment_condition):
 		if self.print_queries:
 			print "----------------------"
@@ -454,7 +484,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 				print "query:", cmd
 
 			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}])
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}], get_col_idx = False)
 			except:
 				_log.exception('[%s]: error running match provider SQL, dropping query', self.__class__.__name__)
 				idx = self._queries.index(query)

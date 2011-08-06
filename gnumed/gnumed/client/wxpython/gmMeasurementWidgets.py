@@ -1049,6 +1049,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def __on_pre_patient_selection(self):
 		self.data_grid.patient = None
 	#--------------------------------------------------------
+	def _on_add_button_pressed(self, event):
+		edit_measurement(parent = self, measurement = None)
+	#--------------------------------------------------------
 	def _on_review_button_pressed(self, evt):
 		self.PopupMenu(self.__action_button_popup)
 	#--------------------------------------------------------

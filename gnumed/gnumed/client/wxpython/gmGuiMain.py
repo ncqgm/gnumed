@@ -767,7 +767,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		if _cfg.get(option = 'debug'):
 			ID_TOGGLE_PAT_LOCK = wx.NewId()
-			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient'), _('Lock/unlock patient - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
+			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient search'), _('Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
 			wx.EVT_MENU(self, ID_TOGGLE_PAT_LOCK, self.__on_toggle_patient_lock)
 
 			ID_TEST_EXCEPTION = wx.NewId()
