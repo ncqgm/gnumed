@@ -39,7 +39,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         self._BTN_add.SetToolTipString(_("Add measurments."))
         self._RBTN_my_unsigned.SetToolTipString(_("Apply selection to those unsigned results for which you are to take responsibility."))
         self._RBTN_all_unsigned.SetToolTipString(_("Apply selection to all unsigned results."))
-        self._BTN_select.SetToolTipString(_("Select results according to your choice on the left."))
+        self._BTN_select.SetToolTipString(_("Select results according to your choice on the left.\n\nThis will override any previous selection.\n\nNote that you can also select cells, rows, or columns manually within the table."))
         self._BTN_review.SetToolTipString(_("Invoke actions on the selected measurements."))
         # end wxGlade
 
