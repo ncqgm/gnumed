@@ -1546,8 +1546,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		if tt['loinc'] is None:
 			return
 
-		info = gmLOINC.loinc2info(loinc = tt['loinc'])
+		info = gmLOINC.loinc2term(loinc = tt['loinc'])
 		if len(info) == 0:
+			self._TCTRL_loinc.SetValue(u'')
 			return
 
 		self._TCTRL_loinc.SetValue(u'%s: %s' % (tt['loinc'], info[0]))
@@ -1866,7 +1867,7 @@ LIMIT 50"""
 
 		self._PRW_conversion_unit.set_context(context = u'loinc', val = loinc)
 
-		info = gmLOINC.loinc2info(loinc = loinc)
+		info = gmLOINC.loinc2term(loinc = loinc)
 		if len(info) == 0:
 			self._TCTRL_loinc_info.SetValue(u'')
 			return
@@ -1908,6 +1909,8 @@ LIMIT 50"""
 		)
 		if self._PRW_loinc.GetData() is not None:
 			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		else:
+			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
 		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		tt.save()
 
@@ -1933,6 +1936,10 @@ LIMIT 50"""
 		).strip()
 		if self._PRW_loinc.GetData() is not None:
 			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		if self._PRW_loinc.GetData() is not None:
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		else:
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
 		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		self.data.save()
 
