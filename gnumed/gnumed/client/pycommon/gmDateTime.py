@@ -1279,11 +1279,23 @@ def str2pydt_matches(str2parse=None, patterns=None):
 	if patterns is None:
 		patterns = []
 
-	patterns.append('%Y.%m.%d')
-	patterns.append('%Y/%m/%d')
 	patterns.append('%Y-%m-%d')
+	patterns.append('%y-%m-%d')
+	patterns.append('%Y/%m/%d')
+	patterns.append('%y/%m/%d')
+
+	patterns.append('%d-%m-%Y')
+	patterns.append('%d-%m-%y')
 	patterns.append('%d/%m/%Y')
+	patterns.append('%d/%m/%y')
+
+	patterns.append('%m-%d-%Y')
+	patterns.append('%m-%d-%y')
 	patterns.append('%m/%d/%Y')
+	patterns.append('%m/%d/%y')
+
+	patterns.append('%Y.%m.%d')
+	patterns.append('%y.%m.%d')
 
 	for pattern in patterns:
 		try:
@@ -1815,11 +1827,24 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 	if patterns is None:
 		patterns = []
 
-	patterns.append(['%Y.%m.%d', acc_days])
-	patterns.append(['%Y/%m/%d', acc_days])
 	patterns.append(['%Y-%m-%d', acc_days])
+	patterns.append(['%y-%m-%d', acc_days])
+	patterns.append(['%Y/%m/%d', acc_days])
+	patterns.append(['%y/%m/%d', acc_days])
+
+	patterns.append(['%d-%m-%Y', acc_days])
+	patterns.append(['%d-%m-%y', acc_days])
 	patterns.append(['%d/%m/%Y', acc_days])
+	patterns.append(['%d/%m/%y', acc_days])
+
+	patterns.append(['%m-%d-%Y', acc_days])
+	patterns.append(['%m-%d-%y', acc_days])
 	patterns.append(['%m/%d/%Y', acc_days])
+	patterns.append(['%m/%d/%y', acc_days])
+
+	patterns.append(['%Y.%m.%d', acc_days])
+	patterns.append(['%y.%m.%d', acc_days])
+
 
 	for pattern in patterns:
 		try:
@@ -2202,14 +2227,14 @@ if __name__ == '__main__':
 	init()
 
 	#test_date_time()
-	test_str2fuzzy_timestamp_matches()
+	#test_str2fuzzy_timestamp_matches()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
 	#test_calculate_apparent_age()
-	#test_str2pydt()
+	test_str2pydt()
 	#test_pydt_strftime()
 
 #===========================================================================

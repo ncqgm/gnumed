@@ -910,7 +910,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		return (has_error is False)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# not intended to be used
+		# not used yet
 		return False
 	#----------------------------------------------------------------
 	def _save_as_update(self):
@@ -1351,6 +1351,7 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 	def _on_save_identity_details_button_pressed(self, event):
 		if not self._PNL_identity.save():
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save identity. Incomplete information.'), beep = True)
+		#self._PNL_identity.refresh()
 	#--------------------------------------------------------
 	def _on_reload_identity_button_pressed(self, event):
 		self._PNL_identity.refresh()

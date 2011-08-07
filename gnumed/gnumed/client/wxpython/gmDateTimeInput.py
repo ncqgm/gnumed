@@ -353,9 +353,12 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	# phrasewheel internal API
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-		# are we valid ?
+		# no valid date yet ?
 		if len(self._data) == 0:
 			self._set_data_to_first_match()
+			date = self.GetData()
+			if date is not None:
+				self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days))
 
 		# let the base class do its thing
 		super(cDateInputPhraseWheel, self)._on_lose_focus(event)
@@ -465,11 +468,14 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self.display_as_valid(False)
 			return False
 
+		# try to auto-snap to first match
 		self._set_data_to_first_match()
 		if len(self._data) == 0:
 			self.display_as_valid(False)
 			return False
 
+		date = self.GetData()
+		self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days))
 		self.display_as_valid(True)
 		return True
 	#--------------------------------------------------------
@@ -573,7 +579,10 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		# are we valid ?
 		if self.data is None:
 			# no, so try
-			self.data = self.__text2timestamp()
+			date = self.__text2timestamp()
+			if date is not None:
+				self.SetValue(value = date.format_accurately(accuracy = self.display_accuracy))
+				self.data = date
 
 		# let the base class do its thing
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
@@ -612,9 +621,12 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if self.GetValue().strip() == u'':
 			return True
 
-		self.data = self.__text2timestamp()
-		if self.data is None:
+		date = self.__text2timestamp()
+		if date is None:
 			return False
+
+		self.SetValue(value = date.format_accurately(accuracy = self.display_accuracy))
+		self.data = date
 
 		return True
 #==================================================
@@ -659,7 +671,7 @@ if __name__ == '__main__':
 		app.MainLoop()
 	#--------------------------------------------------------
 	#test_cli()
-	test_fuzzy_picker()
-	#test_picker()
+	#test_fuzzy_picker()
+	test_picker()
 
 #==================================================
