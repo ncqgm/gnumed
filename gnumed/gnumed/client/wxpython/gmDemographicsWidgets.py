@@ -1435,6 +1435,9 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 
 		event.Skip()
 	#--------------------------------------------------------
+	def _on_reload_button_pressed(self, event):
+		self.refresh()
+	#--------------------------------------------------------
 	def _on_remove_contact_button_pressed(self, event):
 		event.Skip()
 
