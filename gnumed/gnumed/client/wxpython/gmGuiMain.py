@@ -71,6 +71,7 @@ from Gnumed.wxpython import gmOrganizationWidgets
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmDataPackWidgets
+from Gnumed.wxpython import gmContactWidgets
 
 
 try:
@@ -2005,7 +2006,6 @@ class gmTopLevelFrame(wx.Frame):
 			'provinces',
 			'db_translations',
 			'test_types',
-			'org_units',
 			'vacc_indications',
 			'vaccines',
 			'workplaces'
@@ -2023,12 +2023,11 @@ class gmTopLevelFrame(wx.Frame):
 			'enc_types': _('Encounter types'),
 			'text_expansions': _('Keyword based text expansion macros'),
 			'meta_test_types': _('Meta test/measurement types'),
-			'orgs': _('Organizations'),
+			'orgs': _('Organizations with their units, addresses, and comm channels'),
 			'patient_tags': _('Patient tags'),
 			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
 			'db_translations': _('String translations in the database'),
 			'test_types': _('Test/measurement types'),
-			'org_units': _('Units of organizations (branches, sites, departments, parts, ...'),
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
 			'vaccines': _('Vaccines'),
 			'workplaces': _('Workplace profiles (which plugins to load)'),
@@ -2036,7 +2035,6 @@ class gmTopLevelFrame(wx.Frame):
 		}
 
 		map_list2handler = {
-			'org_units': gmOrganizationWidgets.manage_org_units,
 			'form_templates': gmFormWidgets.manage_form_templates,
 			'doc_types': gmDocumentWidgets.manage_document_types,
 			'text_expansions': gmProviderInboxWidgets.configure_keyword_text_expansion,
@@ -2056,7 +2054,7 @@ class gmTopLevelFrame(wx.Frame):
 			'adr': gmPersonContactWidgets.manage_addresses,
 			'substances': gmMedicationWidgets.manage_consumable_substances,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
-			'communication_channel_types': gmPersonContactWidgets.manage_comm_channel_types
+			'communication_channel_types': gmContactWidgets.manage_comm_channel_types
 		}
 
 		#---------------------------------

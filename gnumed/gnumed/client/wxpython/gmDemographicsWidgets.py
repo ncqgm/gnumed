@@ -1432,6 +1432,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 				self.__identity['pk_primary_provider'] = self._PRW_provider.GetData()
 
 			self.__identity.save()
+			gmDispatcher.send(signal = 'statustext', msg = _('Emergency data and primary provider saved.'), beep = False)
 
 		event.Skip()
 	#--------------------------------------------------------

@@ -72,7 +72,7 @@ _substitutes_regex = regex.compile(r'%\(.+?\)s')
 # it is needed to check for successful installation of
 # the desired message catalog
 # **********************************************************
-__orig_tag__ = u'Translate this or i18n will not work properly !'
+__orig_tag__ = u'Translate this or i18n into <en_EN> will not work properly !'
 # **********************************************************
 # **********************************************************
 
@@ -452,7 +452,7 @@ if __name__ == "__main__":
 	# it is needed to check for successful installation of
 	# the desired message catalog
 	# ********************************************************
-	tmp = _('Translate this or i18n will not work properly !')
+	tmp = _('Translate this or i18n into <en_EN> will not work properly !')
 	# ********************************************************
 	# ********************************************************
 

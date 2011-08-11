@@ -18,6 +18,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDispatcher
@@ -253,7 +254,6 @@ def manage_translations(parent=None, language=None):
 #================================================================
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 

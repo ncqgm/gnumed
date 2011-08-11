@@ -14,6 +14,7 @@ class wxgNewPatientEAPnl(wx.Panel):
 
         from Gnumed.wxpython import gmDemographicsWidgets
         from Gnumed.wxpython import gmPersonContactWidgets
+        from Gnumed.wxpython import gmContactWidgets
         from Gnumed.wxpython import gmDateTimeInput
         from Gnumed.wxpython import gmProviderInboxWidgets
 
@@ -34,7 +35,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_urb = gmPersonContactWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_region = gmPersonContactWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_channel_type = gmPersonContactWidgets.cCommChannelTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_channel_type = gmContactWidgets.cCommChannelTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_phone = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_primary_provider = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_external_id_type = gmDemographicsWidgets.cExternalIDTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)

@@ -23,7 +23,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_ethnicity = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_title = gmDemographicsWidgets.cTitlePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -60,10 +60,11 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
         __gzszr_main.Add(__lbl_title, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzszr_main.Add(self._PRW_title, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_comment = wx.StaticText(self, -1, _("Comment"))
-        __gzszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __gzszr_main.Add(__lbl_comment, 0, 0, 0)
         __gzszr_main.Add(self._TCTRL_comment, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(__gzszr_main)
         __gzszr_main.Fit(self)
+        __gzszr_main.AddGrowableRow(6)
         __gzszr_main.AddGrowableCol(1)
         # end wxGlade
 

@@ -451,7 +451,7 @@
                                 <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                                 <border>5</border>
                                 <option>1</option>
-                                <object class="gmPersonContactWidgets.cCommChannelTypePhraseWheel" name="_PRW_channel_type" base="EditTextCtrl">
+                                <object class="gmContactWidgets.cCommChannelTypePhraseWheel" name="_PRW_channel_type" base="EditTextCtrl">
                                     <style>wxNO_BORDER</style>
                                     <tooltip>The type of the primary communication channel.</tooltip>
                                 </object>

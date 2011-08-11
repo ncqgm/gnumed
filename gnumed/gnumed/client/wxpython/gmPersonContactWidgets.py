@@ -915,6 +915,27 @@ LIMIT 50"""
 		self.setThresholds(2, 4, 6)
 #		self.word_separators = u'[ \t]+'
 
+		self._SQL_data2match = u"""
+	SELECT
+		pk_address AS data,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| code_country
+		) AS field_label,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+				|| urb || coalesce(' (' || suburb || ')', '') || ', '
+				|| postcode || ', '
+				|| l10n_state || ', '
+				|| l10n_country
+				|| coalesce(', ' || notes_street, '')
+				|| coalesce(', ' || notes_subunit, '')
+		) AS list_label
+	FROM
+		dem.v_address
+	WHERE
+		pk_address = %(pk)s
+	"""
 #============================================================
 class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -952,7 +973,26 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				self.__address = gmDemographicRecord.cAddress(aPK_obj = pk)
 		return self.__address
 
-	address = property(__get_address, lambda x:x)
+	def __set_address(self, address):
+		if address is None:
+			self.__old_pk = None
+			self.__address = None
+			self.SetText(u'', None)
+			return
+		if isinstance(address, gmDemographicRecord.cAddress):
+			self.__old_pk = address['pk_address']
+			self.__address = address
+			pk = self.__old_pk
+		else:
+			self.__old_pk = None
+			self.__address = None
+			pk = address
+		match = self.matcher.get_match_by_data(data = pk)
+		if match is None:
+			raise ValueError(u'[%s]: cannot match address [#%s]' % (self.__class__.__name__, pk))
+		self.SetText(match['field_label'], pk)
+
+	address = property(__get_address, __set_address)
 #============================================================
 class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1001,7 +1041,7 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(2, 3, 15)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_("Type or select a zip code (postcode)."))
+		self.SetToolTipString(_("Type or select a zip code (postcode).\n\nUse e.g. '?' if unknown."))
 		self.matcher = mp
 #============================================================
 class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1129,263 +1169,6 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 
-#============================================================
-# communication channels related widgets
-#============================================================
-def manage_comm_channel_types(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	#------------------------------------------------------------
-	def delete(channel=None):
-		return gmDemographicRecord.delete_comm_channel_type(pk_channel_type = channel['pk'])
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		wx.BeginBusyCursor()
-		channel_types = gmDemographicRecord.get_comm_channel_types()
-		lctrl.set_string_items([ (ct['l10n_description'], ct['description'], ct['pk']) for ct in channel_types ])
-		lctrl.set_data(channel_types)
-		wx.EndBusyCursor()
-	#------------------------------------------------------------
-	msg = _('\nThis lists the communication channel types known to GNUmed.\n')
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = _('Managing communication types ...'),
-		columns = [_('Channel'), _('System type'), '#'],
-		single_selection = True,
-		#new_callback = edit,
-		#edit_callback = edit,
-		delete_callback = delete,
-		refresh_callback = refresh
-	)
-
-#------------------------------------------------------------
-class cCommChannelTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		query = u"""
-SELECT
-	data,
-	field_label,
-	list_label
-FROM (
-	SELECT DISTINCT ON (field_label)
-		pk
-			AS data,
-		_(description)
-			AS field_label,
-		(_(description) || ' (' || description || ')')
-			AS list_label
-	FROM dem.enum_comm_types
-	WHERE
-		_(description) %(fragment_condition)s
-			OR
-		description %(fragment_condition)s
-) AS ur
-ORDER BY
-	ur.list_label
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 4)
-		mp.word_separators = u'[ \t]+'
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.matcher = mp
-		self.SetToolTipString(_('Select the type of communications channel.'))
-		self.selection_only = True
-
-#------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgCommChannelEditAreaPnl
-
-class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
-	"""An edit area for editing/creating a comms channel.
-
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-		try:
-			data = kwargs['comm_channel']
-			del kwargs['comm_channel']
-		except KeyError:
-			data = None
-
-		self.identity = None
-
-		wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl.__init__(self, *args, **kwargs)
-		gmEditArea.cGenericEditAreaMixin.__init__(self)
-
-		self.mode = 'new'
-		self.data = data
-		if data is not None:
-			self.mode = 'edit'
-
-		self.__init_ui()
-	#----------------------------------------------------------------
-	def __init_ui(self):
-		self._PRW_address.Disable()
-	#----------------------------------------------------------------
-	# generic Edit Area mixin API
-	#----------------------------------------------------------------
-	def _valid_for_save(self):
-		validity = True
-
-		if self._TCTRL_url.GetValue().strip() == u'':
-			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = False)
-			self._TCTRL_url.SetFocus()
-		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = True)
-
-		# do not check GetData() because comm
-		# types are created as needed
-		#if self._PRW_type.GetData() is None:
-		if self._PRW_type.GetValue().strip() == u'':
-			validity = False
-			self._PRW_type.display_as_valid(False)
-			self._PRW_type.SetFocus()
-		else:
-			self._PRW_type.display_as_valid(True)
-
-		return validity
-	#----------------------------------------------------------------
-	def _save_as_new(self):
-		try:
-			data = self.identity.link_comm_channel (
-				comm_medium = self._PRW_type.GetValue().strip(),
-				pk_channel_type = self._PRW_type.GetData(),
-				url = self._TCTRL_url.GetValue().strip(),
-				is_confidential = self._CHBOX_confidential.GetValue(),
-			)
-		except gmPG2.dbapi.IntegrityError:
-			_log.exception('error saving comm channel')
-			gmDispatcher.send(signal = u'statustext', msg = _('Cannot save communications channel.'), beep = True)
-			return False
-
-		self.data = data
-		return True
-	#----------------------------------------------------------------
-	def _save_as_update(self):
-		comm_type = self._PRW_type.GetValue().strip()
-		if comm_type != u'':
-			self.data['comm_type'] = comm_type
-		url = self._TCTRL_url.GetValue().strip()
-		if url != u'':
-			self.data['url'] = url
-		self.data['is_confidential'] = self._CHBOX_confidential.GetValue()
-
-		self.data.save()
-		return True
-	#----------------------------------------------------------------
-	def _refresh_as_new(self):
-		self._PRW_type.SetText(u'')
-		self._TCTRL_url.SetValue(u'')
-		#self._PRW_address.SetText(value = u'', data = None)
-		self._CHBOX_confidential.SetValue(False)
-
-		self._PRW_type.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_as_new_from_existing(self):
-		self._refresh_as_new()
-	#----------------------------------------------------------------
-	def _refresh_from_existing(self):
-		self._PRW_type.SetText(self.data['l10n_comm_type'])
-		self._TCTRL_url.SetValue(self.data['url'])
-		#self._PRW_address.SetData(data = self.data['pk_address'])
-		self._CHBOX_confidential.SetValue(self.data['is_confidential'])
-
-		self._PRW_url.SetFocus()
-#------------------------------------------------------------
-class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
-	"""A list for managing a person's comm channels.
-
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-
-		try:
-			self.__identity = kwargs['identity']
-			del kwargs['identity']
-		except KeyError:
-			self.__identity = None
-
-		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
-
-		self.new_callback = self._add_comm
-		self.edit_callback = self._edit_comm
-		self.delete_callback = self._del_comm
-		self.refresh_callback = self.refresh
-
-		self.__init_ui()
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, *args, **kwargs):
-		if self.__identity is None:
-			self._LCTRL_items.set_string_items()
-			return
-
-		comms = self.__identity.get_comm_channels()
-		self._LCTRL_items.set_string_items (
-			items = [ [ gmTools.bool2str(c['is_confidential'], u'X', u''), c['l10n_comm_type'], c['url'] ] for c in comms ]
-		)
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.set_data(data = comms)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('List of known communication channels.'))
-		self._LCTRL_items.set_columns(columns = [
-			_('confidential'),
-			_('Type'),
-			_('Value')
-		])
-	#--------------------------------------------------------
-	def _add_comm(self):
-		ea = cCommChannelEditAreaPnl(self, -1)
-		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
-		dlg.SetTitle(_('Adding new communications channel'))
-		if dlg.ShowModal() == wx.ID_OK:
-			return True
-		return False
-	#--------------------------------------------------------
-	def _edit_comm(self, comm_channel):
-		ea = cCommChannelEditAreaPnl(self, -1, comm_channel = comm_channel)
-		ea.identity = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-		dlg.SetTitle(_('Editing communications channel'))
-		if dlg.ShowModal() == wx.ID_OK:
-			return True
-		return False
-	#--------------------------------------------------------
-	def _del_comm(self, comm):
-		go_ahead = gmGuiHelpers.gm_show_question (
-			_(	'Are you sure this patient can no longer\n'
-				"be contacted via this channel ?"
-			),
-			_('Removing communication channel')
-		)
-		if not go_ahead:
-			return False
-		self.__identity.unlink_comm_channel(comm_channel = comm)
-		return True
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_identity(self):
-		return self.__identity
-
-	def _set_identity(self, identity):
-		self.__identity = identity
-		self.refresh()
-
-	identity = property(_get_identity, _set_identity)
-
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgPersonContactsManagerPnl
 
@@ -1409,7 +1192,7 @@ class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsMan
 	#--------------------------------------------------------
 	def refresh(self):
 		self._PNL_addresses.identity = self.__identity
-		self._PNL_comms.identity = self.__identity
+		self._PNL_comms.channel_owner = self.__identity
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1494,13 +1277,6 @@ if __name__ == "__main__":
 		pw = cUrbPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		pw.set_context(context = u'zip', val = u'04317')
-		app.MainLoop()
-	#--------------------------------------------------------
-	def test_person_comms_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonCommsManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
-		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
 	def test_country_prw():

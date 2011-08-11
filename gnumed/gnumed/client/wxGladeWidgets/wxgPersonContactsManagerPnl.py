@@ -8,12 +8,13 @@ class wxgPersonContactsManagerPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmPersonContactWidgets
+        from Gnumed.wxpython import gmContactWidgets
 
         # begin wxGlade: wxgPersonContactsManagerPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._PNL_addresses = gmPersonContactWidgets.cPersonAddressesManagerPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
-        self._PNL_comms = gmPersonContactWidgets.cPersonCommsManagerPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._PNL_comms = gmContactWidgets.cCommChannelsManagerPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
 
         self.__set_properties()
         self.__do_layout()

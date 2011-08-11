@@ -1076,14 +1076,17 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 		return address
 	#----------------------------------------------------------------------
-	def unlink_address(self, address=None):
+	def unlink_address(self, address=None, pk_address=None):
 		"""Remove an address from the patient.
 
 		The address itself stays in the database.
 		The address can be either cAdress or cPatientAdress.
 		"""
+		if pk_address is None:
+			args = {'person': self.pk_obj, 'adr': address['pk_address']}
+		else:
+			args = {'person': self.pk_obj, 'adr': pk_address}
 		cmd = u"DELETE FROM dem.lnk_person_org_address WHERE id_identity = %(person)s AND id_address = %(adr)s"
-		args = {'person': self.pk_obj, 'adr': address['pk_address']}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#----------------------------------------------------------------------
 	# relatives API

@@ -25,7 +25,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmPersonContactWidgets.cCommChannelTypePhraseWheel" name="_PRW_type" base="EditTextCtrl">
+                <object class="gmContactWidgets.cCommChannelTypePhraseWheel" name="_PRW_type" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
