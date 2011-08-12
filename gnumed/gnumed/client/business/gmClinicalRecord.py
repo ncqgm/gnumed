@@ -831,11 +831,10 @@ order by
 			if dob is None:
 				age_given = u''
 			else:
-				age_given = u' @ %s' %
-					gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age (
-						start = dob,
-						end = vacc['date_given']
-					))
+				age_given = u' @ %s' % gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age (
+					start = dob,
+					end = vacc['date_given']
+				))
 
 			txt += u' %s (%s%s): %s%s (%s %s%s%s)\n' % (
 				ind,

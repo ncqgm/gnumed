@@ -59,6 +59,10 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
+
+		# its best to validate bottom -> top such that the
+		# cursor ends up in the topmost failing field
+
 		# remove when implemented:
 		return False
 

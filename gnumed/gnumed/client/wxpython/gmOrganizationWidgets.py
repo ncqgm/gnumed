@@ -15,6 +15,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMatchProvider
 from Gnumed.business import gmOrganization
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
@@ -27,11 +28,13 @@ _log = logging.getLogger('gm.organization')
 #============================================================
 # organizational units API
 #------------------------------------------------------------
-def edit_org_unit(parent=None, org_unit=None, single_entry=False):
+def edit_org_unit(parent=None, org_unit=None, single_entry=False, org=None):
 	ea = cOrgUnitEAPnl(parent = parent, id = -1)
 	ea.data = org_unit
 	ea.mode = gmTools.coalesce(org_unit, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	if org is not None:
+		ea.organization = org
 	dlg.SetTitle(gmTools.coalesce(org_unit, _('Adding new organizational unit'), _('Editing organizational unit')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
@@ -42,7 +45,62 @@ def edit_org_unit(parent=None, org_unit=None, single_entry=False):
 class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
+		query = u"""
+	SELECT DISTINCT ON (data) * FROM (
+		SELECT * FROM ((
+
+			SELECT
+				pk_org_unit
+					AS data,
+				unit || ' (' || l10n_unit_category || '): ' || organization || ' (' || l10n_organization_category || ')'
+					AS list_label,
+				unit || ' (' || organization || ')'
+					AS field_label
+			FROM
+				dem.v_org_units
+			WHERE
+				unit %(fragment_condition)s
+
+		) UNION ALL (
+
+			SELECT
+				pk_org_unit
+					AS data,
+				l10n_unit_category || ' "' || unit || '": ' || organization || ' (' || l10n_organization_category || ')'
+					AS list_label,
+				unit || ' (' || organization || ')'
+					AS field_label
+			FROM
+				dem.v_org_units
+			WHERE
+				l10n_unit_category %(fragment_condition)s
+					OR
+				unit_category %(fragment_condition)s
+
+		) UNION ALL (
+
+			SELECT
+				pk_org_unit
+					AS data,
+				organization || ': ' || unit || ' (' || l10n_unit_category || ')'
+					AS list_label,
+				unit || ' (' || organization || ')'
+					AS field_label
+			FROM
+				dem.v_org_units
+			WHERE
+				organization %(fragment_condition)s
+
+		)) AS all_matches
+		ORDER BY list_label
+	) AS ordered_matches
+	LIMIT 50
+		"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_("Select an organizational unit."))
+		self.matcher = mp
 
 #============================================================
 class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
@@ -59,9 +117,9 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
 		self.refresh_callback = self.refresh
-		self.new_callback = self._new
+		self.new_callback = self._add
 		self.edit_callback = self._edit
-#		self.delete_callback = self._del_address
+		self.delete_callback = self._del
 
 		self.__show_none_if_no_org = True
 		self.__init_ui()
@@ -69,16 +127,19 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def refresh(self):
+	def refresh(self, lctrl=None):
 		self.__refresh()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
+	def _add(self):
+		return edit_org_unit(parent = self, org_unit = None, single_entry = False, org = self.__org)
+	#--------------------------------------------------------
 	def _edit(self, item):
 		return edit_org_unit(parent = self, org_unit = item, single_entry = True)
 	#--------------------------------------------------------
-	def _new(self):
-		return edit_org_unit(parent = self, org_unit = None, single_entry = False)
+	def _del(self, item):
+		return gmOrganization.delete_org_unit(unit = item['pk_org'])
 	#--------------------------------------------------------
 	def _on_list_item_focused(self, event):
 		pass
@@ -116,9 +177,6 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_data(units)
-	#--------------------------------------------------------
-	def _edit_org_unit(self, org_unit=None):
-		return edit_org_unit(parent = self, org_unit = org_unit, single_entry = True)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -177,6 +235,26 @@ class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditArea
 	def _valid_for_save(self):
 		validity = True
 
+		if self._PRW_category.GetData() is not None:
+			self._PRW_category.display_as_valid(True)
+		else:
+			if self._PRW_category.GetValue().strip() == u'':
+				self._PRW_category.display_as_valid(True)
+			else:
+				validity = False
+				self._PRW_category.display_as_valid(False)
+				self._PRW_category.SetFocus()
+
+		if self._PRW_unit.GetData() is not None:
+			self._PRW_unit.display_as_valid(True)
+		else:
+			if self._PRW_unit.GetValue().strip() != u'':
+				self._PRW_unit.display_as_valid(True)
+			else:
+				validity = False
+				self._PRW_unit.display_as_valid(False)
+				self._PRW_unit.SetFocus()
+
 		if self._PRW_org.GetData() is None:
 			validity = False
 			self._PRW_org.display_as_valid(False)
@@ -184,43 +262,23 @@ class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditArea
 		else:
 			self._PRW_org.display_as_valid(True)
 
-		if self._PRW_unit.GetData() is None:
-			validity = False
-			self._PRW_unit.display_as_valid(False)
-			self._PRW_unit.SetFocus()
-		else:
-			self._PRW_unit.display_as_valid(True)
-
-		if self._PRW_category.GetData() is None:
-			validity = False
-			self._PRW_category.display_as_valid(False)
-			self._PRW_category.SetFocus()
-		else:
-			self._PRW_category.display_as_valid(True)
-
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		data = gmXXXX.create_xxxx()
-
-		data[''] = self._
-		data[''] = self._
-
+		data = gmOrganization.create_org_unit (
+			pk_organization = self._PRW_org.GetData(),
+			unit = self._PRW_unit.GetValue().strip()
+		)
+		data['pk_category_unit'] = self._PRW_category.GetData()
 		data.save()
 
-		# must be done very late or else the property access
-		# will refresh the display such that later field
-		# access will return empty values
 		self.data = data
-		return False
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		# update self.data and save the changes
-		self.data[''] = self._TCTRL_xxx.GetValue().strip()
-		self.data[''] = self._PRW_xxx.GetData()
-		self.data[''] = self._CHBOX_xxx.GetValue()
+		self.data['pk_org'] = self._PRW_org.GetData()
+		self.data['unit'] = self._PRW_unit.GetValue().strip()
+		self.data['pk_category_unit'] = self._PRW_category.GetData()
 		self.data.save()
 		return True
 	#----------------------------------------------------------------
@@ -244,6 +302,11 @@ class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditArea
 		self._PRW_category.SetText(value = self.data['unit_category'], data = self.data['pk_category_unit'])
 
 		self._PRW_unit.SetFocus()
+	#----------------------------------------------------------------
+	def _set_org(self, org):
+		self._PRW_org.SetText(value = org['organization'], data = org['pk_org'])
+
+	organization = property(lambda x:x, _set_org)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgOrgUnitAddressPnl
 
@@ -281,10 +344,13 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 	#--------------------------------------------------------
 	def _on_save_picked_address_button_pressed(self, event):
 		self.__unit['pk_address'] = self._PRW_address_searcher.GetData()
+		self.__unit.save()
+		self.__refresh()
 	#--------------------------------------------------------
 	def _on_add_new_address_button_pressed(self, event):
 		ea = gmPersonContactWidgets.cAddressEditAreaPnl(self, -1)
 		ea.address_holder = self.__unit
+		ea.type_is_editable = False
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new address'))
 		if dlg.ShowModal() != wx.ID_OK:
@@ -330,15 +396,188 @@ def manage_orgs(parent=None):
 	dlg = cOrganizationManagerDlg(parent, -1)
 	dlg.ShowModal()
 #============================================================
+def edit_org(parent=None, org=None, single_entry=False):
+	ea = cOrganizationEAPnl(parent = parent, id = -1)
+	ea.data = org
+	ea.mode = gmTools.coalesce(org, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(org, _('Adding new organization'), _('Editing organization')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+#============================================================
 class cOrganizationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
+		query = u"""
+	SELECT DISTINCT ON (data) * FROM (
+		SELECT * FROM ((
+
+			SELECT
+				pk_org
+					AS data,
+				organization || ' (' || l10n_category || ')'
+					AS list_label,
+				organization || ' (' || l10n_category || ')'
+					AS field_label
+			FROM
+				dem.v_orgs
+			WHERE
+				organization %(fragment_condition)s
+
+		) UNION ALL (
+
+			SELECT
+				pk_org
+					AS data,
+				l10n_category || ': ' || organization
+					AS list_label,
+				organization || ' (' || l10n_category || ')'
+					AS field_label
+			FROM
+				dem.v_orgs
+			WHERE
+				l10n_category %(fragment_condition)s
+					OR
+				category %(fragment_condition)s
+
+		)) AS all_matches
+		ORDER BY list_label
+	) AS ordered_matches
+	LIMIT 50
+		"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_("Select an organization."))
+		self.matcher = mp
+		self.selection_only = True
+
+#====================================================================
+from Gnumed.wxGladeWidgets import wxgOrganizationEAPnl
+
+class cOrganizationEAPnl(wxgOrganizationEAPnl.wxgOrganizationEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['organization']
+			del kwargs['organization']
+		except KeyError:
+			data = None
+
+		wxgOrganizationEAPnl.wxgOrganizationEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		self._PRW_org.selection_only = False
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
+
+		if self._PRW_category.GetData() is None:
+			validity = False
+			self._PRW_category.display_as_valid(False)
+			self._PRW_category.SetFocus()
+		else:
+			self._PRW_category.display_as_valid(True)
+
+		if self.mode == 'edit':
+			if self._PRW_org.GetData() is None:
+				validity = False
+				self._PRW_org.display_as_valid(False)
+				self._PRW_org.SetFocus()
+			else:
+				self._PRW_org.display_as_valid(True)
+		else:
+			if self._PRW_org.GetValue().strip() == u'':
+				validity = False
+				self._PRW_org.display_as_valid(False)
+				self._PRW_org.SetFocus()
+			else:
+				if self._PRW_org.GetData() is not None:
+					validity = False
+					self._PRW_org.display_as_valid(False)
+					self._PRW_org.SetFocus()
+				else:
+					self._PRW_org.display_as_valid(True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		self.data = gmOrganization.create_org (
+			organization = self._PRW_org.GetValue().strip(),
+			category = self._PRW_category.GetData()
+		)
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['pk_org'] = self._PRW_org.GetData()
+		self.data['pk_category_org'] = self._PRW_category.GetData()
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_org.SetText(value = u'', data = None)
+		self._PRW_category.SetText(value = u'', data = None)
+
+		self._PRW_org.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._PRW_org.SetText(value = u'', data = None)
+		self._PRW_category.SetText(value = self.data['l10n_category'], data = self.data['pk_category_org'])
+
+		self._PRW_org.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_org.SetText(value = self.data['organization'], data = self.data['pk_org'])
+		self._PRW_category.SetText(value = self.data['l10n_category'], data = self.data['pk_category_org'])
+
+		self._PRW_category.SetFocus()
+
 #============================================================
 class cOrgCategoryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
+		query = u"""
+	SELECT DISTINCT ON (data)
+		*
+	FROM (
+		SELECT
+			pk
+				AS data,
+			_(description) || ' (' || description || ')'
+				AS list_label,
+			_(description)
+				AS field_label
+		FROM
+			dem.org_category
+		WHERE
+			_(description) %(fragment_condition)s
+				OR
+			description %(fragment_condition)s
+		ORDER BY list_label
+		) AS ordered_matches
+	LIMIT 50
+		"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_("Select an organizational category."))
+		self.matcher = mp
+		self.selection_only = True
+
 #============================================================
 class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing organizations."""
@@ -348,22 +587,31 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
 		self.refresh_callback = self.refresh
-#		self.new_callback = self._add_address
-#		self.edit_callback = self._edit_address
-#		self.delete_callback = self._del_address
+		self.new_callback = self._add
+		self.edit_callback = self._edit
+		self.delete_callback = self._del
 
 		self.__init_ui()
 		self.refresh()
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def refresh(self):
+	def refresh(self, lctrl=None):
 		orgs = gmOrganization.get_orgs(order_by = 'l10n_category, organization')
 		items = [ [o['l10n_category'], o['organization'], o['pk_org']] for o in orgs ]
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_data(orgs)
 	#--------------------------------------------------------
 	# event handlers
+	#--------------------------------------------------------
+	def _add(self):
+		return edit_org(parent = self, org = None, single_entry = False)
+	#--------------------------------------------------------
+	def _edit(self, item):
+		return edit_org(parent = self, org = item, single_entry = True)
+	#--------------------------------------------------------
+	def _del(self, item):
+		return gmOrganization.delete_org(organization = item['pk_org'])
 	#--------------------------------------------------------
 	def _on_list_item_focused(self, event):
 		pass
@@ -414,14 +662,35 @@ if __name__ == "__main__":
 	if sys.argv[1] != u'test':
 		sys.exit()
 
+	from Gnumed.pycommon import gmPG2
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	app = wx.PyWidgetTester(size = (600, 600))
-	dlg = cOrganizationManagerDlg(app.frame, -1, size = (600, 600))
-	dlg.SetSize((600, 600))
-	dlg.ShowModal()
-#	app.SetWidget(dlg, -1)
-	app.MainLoop()
+	#--------------------------------------------------------
+	def test_org_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cOrganizationPhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_org_unit_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cOrgUnitPhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test():
+		conn = gmPG2.get_connection()
+		app = wx.PyWidgetTester(size = (600, 600))
+		dlg = cOrganizationManagerDlg(app.frame, -1, size = (600, 600))
+		dlg.SetSize((600, 600))
+		dlg.ShowModal()
+	#	app.SetWidget(dlg, -1)
+		app.MainLoop()
+	#--------------------------------------------------------
+	#test_org_unit_prw()
+	#test_org_prw()
+	test()
+
 #======================================================================

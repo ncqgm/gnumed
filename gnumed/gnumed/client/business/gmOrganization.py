@@ -55,6 +55,19 @@ def create_org(organization=None, category=None):
 
 	return cOrg(aPK_obj = rows[0][0])
 #------------------------------------------------------------
+def delete_org(organization=None):
+	args = {'pk': organization}
+	cmd = u"""
+		DELETE FROM dem.org
+		WHERE
+			pk = %(pk)s
+			AND NOT EXISTS (
+				SELECT 1 FROM dem.org_unit WHERE fk_org = %(pk)s
+			)
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return True
+#------------------------------------------------------------
 def get_orgs(order_by=None):
 
 	if order_by is None:
@@ -149,6 +162,17 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			pk_org_unit = self.pk_obj
 		)
 	#--------------------------------------------------------
+	def link_address(id_type=None, address=None):
+		self.address = address
+	#--------------------------------------------------------
+	def unlink_address(address=None, pk_address=None):
+		"""Remove an address from the org unit.
+
+		The address itself stays in the database.
+		The address can be either cAdress or cPatientAdress.
+		"""
+		self.address = None
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_address(self):
@@ -169,6 +193,12 @@ def create_org_unit(pk_organization=None, unit=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cOrgUnit(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def delete_org_unit(unit=None):
+	args = {'pk': unit}
+	cmd = u"DELETE FROM dem.org_unit WHERE pk = %(pk)s"
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return True
 #------------------------------------------------------------
 def get_org_units(order_by=None, org=None):
 
@@ -206,6 +236,7 @@ if __name__ == "__main__":
 	sys.exit(0)
 #============================================================
 #============================================================
+# outdated code below =======================================
 #============================================================
 #============================================================
 #============================================================
