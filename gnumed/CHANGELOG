@@ -29,6 +29,7 @@ NEW: placeholder $<encounter_list::format template::length>$ to access list of e
 NEW: visual progress note creation directly from image capture device
 NEW: 4 new visual progress note templates [thanks J.Busser]
 NEW: implement explicitely creating episodes from EMR tree or menu
+NEW: implement organizations management
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
