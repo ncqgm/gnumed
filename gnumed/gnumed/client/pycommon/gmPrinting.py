@@ -10,7 +10,6 @@ import os
 import subprocess
 import codecs
 import time
-import shlex
 
 
 if __name__ == '__main__':
@@ -148,9 +147,13 @@ def _print_files_by_gtklp(filenames=None):
 		_log.debug('<gtklp> only available under Linux')
 		return False
 
-	cmd_line = r'gtklp -i -# 1 %s' % r' '.join(filenames)	#.encode(sys.getfilesystemencoding())
+	cmd_line = [
+		r'gtklp',
+		r'-i',
+		r'-# 1'
+	]
+	cmd_line.extend(filenames)
 	_log.debug('printing with %s' % cmd_line)
-	cmd_line = shlex.split(cmd_line)
 	try:
 		gtklp = subprocess.Popen(cmd_line)
 	except OSError:

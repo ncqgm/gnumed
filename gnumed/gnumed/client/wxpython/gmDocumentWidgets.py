@@ -106,9 +106,19 @@ def manage_document_descriptions(parent=None, document=None):
 	return True
 #============================================================
 def _save_file_as_new_document(**kwargs):
+	try:
+		del kwargs['signal']
+		del kwargs['sender']
+	except KeyError:
+		pass
 	wx.CallAfter(save_file_as_new_document, **kwargs)
 
 def _save_files_as_new_document(**kwargs):
+	try:
+		del kwargs['signal']
+		del kwargs['sender']
+	except KeyError:
+		pass
 	wx.CallAfter(save_files_as_new_document, **kwargs)
 #----------------------
 def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False):
