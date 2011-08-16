@@ -121,15 +121,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	Note that this cannot be called from a non-gui thread unless
 	wrapped in wx.CallAfter.
 
-	There are currently three types of placeholders:
+	There are currently two types of placeholders:
 
 	simple static placeholders
 		- those are listed in known_placeholders
 		- they are used as-is
-
-	extended static placeholders
-		- those are like the static ones but have "::::<NUMBER>" appended
-		  where <NUMBER> is the maximum length
 
 	variant placeholders
 		- those are listed in known_variant_placeholders

@@ -659,7 +659,7 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 		tmp += u'\\normalsize %.8s' % t['unified_val']
 
 		lines.append(tmp)
-		tmp = u'\\tiny %s' % gmTools.coalesce(t['val_unit'], u'', u'%s:')
+		tmp = u'\\tiny %s' % gmTools.coalesce(t['val_unit'], u'', u'%s ')
 
 		if not show_range:
 			lines.append(tmp)
@@ -678,10 +678,10 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 			continue
 
 		if t['unified_target_range'] is not None:
-			tmp += t['unified_target_range']
+			tmp += u'[%s]' % t['unified_target_range']
 		else:
-			tmp += u'%s%s' % (
-				gmTools.coalesce(t['unified_target_min'], u'- ', u'%s - '),
+			tmp += u'[%s%s]' % (
+				gmTools.coalesce(t['unified_target_min'], u'--', u'%s--'),
 				gmTools.coalesce(t['unified_target_max'], u'', u'%s')
 			)
 		lines.append(tmp)
