@@ -68,6 +68,8 @@ IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 
 	0.9.10
 
+FIX: include latest GPL v2.0 license text from FSF [thanks Ankur]
+
 IMPROVED: substance intake table: "amount per unit" = "Strength", not "Dose" [thanks J.Busser]
 
 	0.9.9
