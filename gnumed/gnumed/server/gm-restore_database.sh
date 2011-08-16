@@ -153,7 +153,9 @@ chmod 0666 ${LOG}
 echo ""
 echo "==> Restoring GNUmed database ${TARGET_DB} ..."
 LOG="${LOG_BASE}/restoring-database-${TS}.log"
-sudo -u postgres psql -p ${GM_PORT} --single-transaction -f ${BACKUP}-database.sql &> ${LOG}
+# can't use --single-transaction because CREATE DATABASE does not work inside transaction:
+#sudo -u postgres psql -p ${GM_PORT} --single-transaction -f ${BACKUP}-database.sql &> ${LOG}
+sudo -u postgres psql -p ${GM_PORT} -f ${BACKUP}-database.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore database. Aborting."
 	echo "           see: ${LOG}"

@@ -121,7 +121,7 @@ if test -z ${GM_HOST} ; then
 	echo "-- lines above."                                          >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
-	ROLES=`psql -A -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
+	ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
 	echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 	pg_dump -C -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
@@ -142,7 +142,7 @@ else
 		echo "-- lines above."                                          >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
-		ROLES=    `psql -A -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
+		ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
 		echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 		pg_dump -C -v -h ${GM_HOST} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
