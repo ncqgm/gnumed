@@ -61,7 +61,7 @@ known_placeholders = [
 ]
 
 
-# those must satisfy the pattern "$<name::args::optional length>$" when used
+# those must satisfy the pattern "$<name::args::(optional) max string length>$" when used
 known_variant_placeholders = [
 	u'soap',
 	u'progress_notes',			# "args" holds: categories//template
@@ -80,9 +80,12 @@ known_variant_placeholders = [
 	u'adr_number',
 	u'adr_location',
 	u'adr_postcode',
-	u'gender_mapper',			# "args" holds: value for male // value for female
+	u'gender_mapper',			# "args" holds: <value when person is male> // <is female> // <is other>
+								#				eg. "male//female//other"
+								#				or: "Lieber Patient//Liebe Patientin"
 	u'current_meds',			# "args" holds: line template
 	u'current_meds_table',		# "args" holds: format, options
+								#				currently only "latex"
 	u'current_meds_notes',		# "args" holds: format, options
 	u'lab_table',				# "args" holds: format (currently "latex" only)
 	u'latest_vaccs_table',		# "args" holds: format, options
