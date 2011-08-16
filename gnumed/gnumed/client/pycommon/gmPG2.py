@@ -24,7 +24,7 @@ import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logg
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N, gmLog2
-from Gnumed.pycommon.gmTools import prompted_input
+from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character
 
 _log = logging.getLogger('gm.db')
 _log.info(__version__)
@@ -426,8 +426,15 @@ def set_default_login(login=None):
 	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
 
 	global _default_dsn
+	if _default_dsn is None:
+		old_dsn = u'None'
+	else:
+		old_dsn = regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, _default_dsn)
+	_log.info ('setting default DSN from [%s] to [%s]',
+		old_dsn,
+		regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, dsn)
+	)
 	_default_dsn = dsn
-	_log.info('setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 
 	return True
 # =======================================================================
