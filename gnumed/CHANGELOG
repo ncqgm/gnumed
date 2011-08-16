@@ -779,6 +779,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v15
 ------------------------------------------------
 
+	15.10
+
+FIX: cannot restore --single-transaction because CREATE DATABASE does not transact [thanks S.Reus]
+
+IMPROVED: better commenting of informative messages in -roles.sql
+
 	15.5
 
 FIX: faulty quoting in database backup scripts using "su -c" [thanks Marc]
