@@ -328,7 +328,12 @@ if __name__ == '__main__':
 	def test_print_files_by_gtklp():
 		print_files(filenames = [sys.argv[2], sys.argv[2]], jobtype = u'generic_document', print_api = u'gtklp')
 	#--------------------------------------------------------------------
+	def test_print_files_by_mac_preview():
+		print "testing printing via Mac Preview"
+		_print_files_by_mac_preview(filenames = [sys.argv[0]])
+	#--------------------------------------------------------------------
 	#print test_print_files()
-	test_print_files_by_gtklp()
+	#test_print_files_by_gtklp()
+	test_print_files_by_mac_preview()
 
 # =======================================================================
