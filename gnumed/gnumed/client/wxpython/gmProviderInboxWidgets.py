@@ -769,7 +769,10 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			else:
 				self._CHBOX_active_patient.SetValue(False)
 				self._PRW_patient.Enable(True)
-				self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+				if self.data['pk_patient'] is None:
+					self._PRW_patient.person = None
+				else:
+					self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
 		else:
 			self._CHBOX_active_patient.Enable(False)
 			self._CHBOX_active_patient.SetValue(False)
