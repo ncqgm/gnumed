@@ -786,7 +786,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 			where_parts.append(u'issuer = %(issuer)s')
 			args['issuer'] = issuer.strip()
 
-		cmd = u"select * from dem.v_external_ids4identity where %s" % ' and '.join(where_parts)
+		cmd = u"SELECT * FROM dem.v_external_ids4identity WHERE %s" % ' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows

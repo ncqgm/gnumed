@@ -57,6 +57,7 @@ known_placeholders = [
 	'soap_p',
 	u'client_version',
 	u'current_provider',
+	u'primary_praxis_provider',			# primary provider for current patient in this praxis
 	u'allergy_state'
 ]
 
@@ -76,10 +77,17 @@ known_variant_placeholders = [
 								#	time range:	   the number of weeks going back in time
 								#	target format: "tex" or anything else, if "tex", data will be tex-escaped
 	u'date_of_birth',
+
+	u'patient_address',			# "args": <type of address>//<optional formatting template>
 	u'adr_street',				# "args" holds: type of address
 	u'adr_number',
 	u'adr_location',
 	u'adr_postcode',
+	u'adr_region',
+	u'adr_country',
+
+	u'patient_comm',			# args: comm channel type as per database
+	u'external_id',				# args: <type of ID>//<issuer of ID>
 	u'gender_mapper',			# "args" holds: <value when person is male> // <is female> // <is other>
 								#				eg. "male//female//other"
 								#				or: "Lieber Patient//Liebe Patientin"
@@ -119,7 +127,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	- is passed to the forms handling code, for example
 
 	Note that this cannot be called from a non-gui thread unless
-	wrapped in wx.CallAfter.
+	wrapped in wx.CallAfter().
 
 	There are currently two types of placeholders:
 
@@ -263,6 +271,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			u'%s' % self.__class__.__name__
 		)
 	#--------------------------------------------------------
+	def _get_primary_praxis_provider(self):
+		prov = self.pat.primary_provider
+		if prov is None:
+			return self._get_current_provider()
+
+		title = gmTools.coalesce (
+			prov['title'],
+			gmPerson.map_gender2salutation(prov['gender'])
+		)
+
+		tmp = u'%s %s. %s' % (
+			title,
+			prov['firstnames'][:1],
+			prov['lastnames']
+		)
+
+		return tmp
+	#--------------------------------------------------------
 	def _get_current_provider(self):
 		prov = gmPerson.gmCurrentProvider()
 
@@ -316,6 +342,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	client_version = property(_get_client_version, _setter_noop)
 
 	current_provider = property(_get_current_provider, _setter_noop)
+	primary_praxis_provider = property(_get_primary_praxis_provider, _setter_noop)
 	#--------------------------------------------------------
 	# variant handlers
 	#--------------------------------------------------------
@@ -539,9 +566,51 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return other_value
 	#--------------------------------------------------------
+	# address related placeholders
+	#--------------------------------------------------------
+	def _get_variant_patient_address(self, data=u''):
+
+		data_parts = data.split(u'//')
+
+		if data_parts[0].strip() == u'':
+			adr_type = u'home'
+		else:
+			adr_type = data_parts[0]
+
+		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s')
+		if len(data_parts) > 1:
+			if data_parts[1].strip() != u'':
+				template = data_parts[1]
+
+		adrs = self.pat.get_addresses(address_type = adr_type)
+		if len(adrs) == 0:
+			return _('no address for type [%s]') % adr_type
+
+		adr = adrs[0]
+		data = {
+			'street': adr['street'],
+			'notes_street': gmTools.coalesce(adr['notes_street'], u''),
+			'postcode': adr['postcode'],
+			'number': adr['number'],
+			'subunit': gmTools.coalesce(adr['subunit'], u''),
+			'notes_subunit': gmTools.coalesce(adr['notes_subunit'], u''),
+			'urb': adr['urb'],
+			'suburb': gmTools.coalesce(adr['suburb'], u''),
+			'l10n_state': adr['l10n_state'],
+			'l10n_country': adr['l10n_country'],
+			'code_state': adr['code_state'],
+			'code_country': adr['code_country']
+		}
+
+		try:
+			return template % data
+		except StandardError:
+			_log.exception('error formatting address')
+			_log.error('template: %s', template)
+
+		return None
+	#--------------------------------------------------------
 	def _get_variant_adr_street(self, data=u'?'):
-#		if data == u'?':
-#			types = zzzzzzzzzzz
 		adrs = self.pat.get_addresses(address_type=data)
 		if len(adrs) == 0:
 			return _('no street for address type [%s]') % data
@@ -560,10 +629,48 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return adrs[0]['urb']
 	#--------------------------------------------------------
 	def _get_variant_adr_postcode(self, data=u'?'):
-		adrs = self.pat.get_addresses(address_type=data)
+		adrs = self.pat.get_addresses(address_type = data)
 		if len(adrs) == 0:
 			return _('no postcode for address type [%s]') % data
 		return adrs[0]['postcode']
+	#--------------------------------------------------------
+	def _get_variant_adr_region(self, data=u'?'):
+		adrs = self.pat.get_addresses(address_type = data)
+		if len(adrs) == 0:
+			return _('no region for address type [%s]') % data
+		return adrs[0]['l10n_state']
+	#--------------------------------------------------------
+	def _get_variant_adr_country(self, data=u'?'):
+		adrs = self.pat.get_addresses(address_type = data)
+		if len(adrs) == 0:
+			return _('no country for address type [%s]') % data
+		return adrs[0]['l10n_country']
+	#--------------------------------------------------------
+	def _get_variant_patient_comm(self, data=u'?'):
+		comms = self.pat.get_comm_channels(comm_medium = data)
+		if len(comms) == 0:
+			return _('no URL for comm channel [%s]') % data
+		return comms[0]['url']
+	#--------------------------------------------------------
+	def _get_variant_external_id(self, data=u''):
+		data_parts = data.split(u'//')
+		if len(data_parts) < 2:
+			return None
+
+		id_type = data_parts[0].strip()
+		if id_type == u'':
+			return None
+
+		issuer = data_parts[1].strip()
+		if issuer == u'':
+			return None
+
+		ids = self.pat.get_external_ids(id_type = id_type, issuer = issuer)
+
+		if len(ids) == 0:
+			return _('no external ID [%s] by [%s]') % (id_type, issuer)
+
+		return ids[0]['value']
 	#--------------------------------------------------------
 	def _get_variant_allergy_list(self, data=None):
 		if data is None:
@@ -1129,15 +1236,24 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_placeholder():
 
-		#ph = u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::'
-		ph = u'free_text::tex//placeholder test::9999'
-		#ph = u'soap_for_encounters:://::9999'
-		#ph = u'soap_a'
-		#ph = u'encounter_list::%(started)s: %(assessment_of_encounter)s::30'
+		phs = [
+			#u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::',
+			#u'free_text::tex//placeholder test::9999',
+			#u'soap_for_encounters:://::9999',
+			#u'soap_a',,
+			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
+			#u'patient_comm::homephone::1234',
+			#u'patient_address::home//::1234',
+			#u'adr_region::home::1234',
+			#u'adr_country::home::1234',
+			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
+			u'primary_praxis_provider'
+		]
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True
 
+		gmPerson.set_current_provider_to_logged_on_user()
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
@@ -1145,7 +1261,8 @@ if __name__ == '__main__':
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		app = wx.PyWidgetTester(size = (200, 50))
-		print u'%s => %s' % (ph, handler[ph])
+		for ph in phs:
+			print u'%s => %s' % (ph, handler[ph])
 	#--------------------------------------------------------
 
 	#test_placeholders()

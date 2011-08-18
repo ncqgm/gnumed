@@ -1737,7 +1737,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex =  u'\n{\\small\n'
 	tex += u'\\noindent %s\n' % _('Additional notes')
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabular}{|l|l|l|l|}\n'
+	tex += u'\\noindent \\begin{tabular}{|l|l|p{5.5cm}|p{7.5cm}|}\n'
 	tex += u'\\hline\n'
 	tex += u'%s & %s & %s & \\\\ \n' % (_('Substance'), _('Strength'), _('Brand'))
 	tex += u'\\hline\n'
@@ -1756,13 +1756,13 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	lines = []
 	for med in current_meds:
 
-		lines.append(u'%s & %s%s & %s %s & {\\scriptsize %s} \\\\ \n \\hline \n' % (
+		lines.append(u'%s & %s%s & %s %s & %s \\\\ \n \\hline \n' % (
 			med['substance'],
 			med['amount'],
 			med['unit'],
 			gmTools.coalesce(med['brand'], u''),
 			med['preparation'],
-			gmTools.coalesce(med['notes'], u'')
+			gmTools.coalesce(med['notes'], u'', u'{\\scriptsize %s}')
 		))
 
 	return tex % u' \n'.join(lines)
