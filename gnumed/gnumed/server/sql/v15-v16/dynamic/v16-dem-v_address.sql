@@ -42,6 +42,7 @@ DECLARE
 	_number alias for $6;
 	_subunit alias for $7;
 
+	__subunit text;
 	_pk_address integer;
 	msg text;
 BEGIN
@@ -58,9 +59,9 @@ BEGIN
 		raise exception ''%'', msg;
 	end if;
 
-	_subunit := nullif(trim(_subunit), '''');
+	__subunit := nullif(trim(_subunit), '''');
 
-	if _subunit is null then
+	if __subunit is null then
 		select
 			pk_address into _pk_address
 		from
@@ -97,7 +98,7 @@ BEGIN
 				and
 			number = trim(_number)
 				and
-			subunit = _subunit;
+			subunit = __subunit;
 	end if;
 
 	return _pk_address;
@@ -141,6 +142,7 @@ DECLARE
 	_street_id integer;
 	_pk_address integer;
 
+	__subunit text;
 	msg text;
 BEGIN
 	select into _pk_address dem.address_exists (
@@ -162,7 +164,7 @@ BEGIN
 	select into _street_id dem.create_street(_street, _postcode, _urb, _state_code, _country_code);
 
 	-- create address
-	_subunit := nullif(trim(_subunit), '''');
+	__subunit := nullif(trim(_subunit), '''');
 	insert into dem.address (
 		number,
 		id_street,
@@ -170,13 +172,12 @@ BEGIN
 	) values (
 		_number,
 		_street_id,
-		_subunit
+		__subunit
 	)
 	returning id
 	into _pk_address;
 
 	return _pk_address;
-	--return currval(pg_get_serial_sequence(''dem.address'', ''id''));
 END;';
 
 
