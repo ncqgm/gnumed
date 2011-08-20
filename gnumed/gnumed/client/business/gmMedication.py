@@ -1737,9 +1737,9 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex =  u'\n{\\small\n'
 	tex += u'\\noindent %s\n' % _('Additional notes')
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabular}{|l|l|p{5.5cm}|p{7.5cm}|}\n'
+	tex += u'\\noindent \\begin{tabular*}{\\textwidth}{|l|l|p{5.5cm}|p{7.5cm}|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s & %s & \\\\ \n' % (_('Substance'), _('Strength'), _('Brand'))
+	tex += u'%s & %s & %s & %s \\\\ \n' % (_('Substance'), _('Strength'), _('Brand'), _('Advice'))
 	tex += u'\\hline\n'
 	tex += u'%s\n'
 	tex += u'\n'
